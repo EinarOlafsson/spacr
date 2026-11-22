@@ -239,7 +239,11 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 #: (2026-11-20) rebuilt the catalogs with item 919's three tooltips.
 # 1007 (2026-11-21): the OME-Zarr version tooltip waits for the runtime
 # catalog rebuild that pins its nine-language reviews; master empties this then.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({"ome_zarr_ngff_version"})
+# Item 990 (2026-11-21): the new label-channel tooltip waits for the same pilot rebuild.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "ome_zarr_ngff_version",
+    "ops_cell_cycle_label_channels",
+})
 
 
 def _assert_setting_tooltip_inventory(sources, en):

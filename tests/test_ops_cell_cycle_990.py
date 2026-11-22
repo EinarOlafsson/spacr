@@ -306,17 +306,30 @@ def test_the_label_queue_covers_every_stage_and_plate_and_is_seeded():
 
 
 def _queue_folder(tmp_path, monkeypatch):
-    """A written label queue over a stand-in crop store."""
-    from spacr import ops_run_infra
+    """An unmasked native OPS context queue with synthetic nuclei and explicit toy calibration."""
+    from spacr.crop_store import CropPoolWriter
 
     table = _staged(60)
     queue = cc.build_label_queue(table, 12, seed=0)
-    index = queue.assign(shard=str(tmp_path / "data" / "cell" / "P1" / "A1" / "shard-0000.tar"),
-                         offset_data=0, size=0)[["shard", "site", "label", "offset_data", "size"]]
-    monkeypatch.setattr(ops_run_infra, "crop_index", lambda root, plate, wells=None: index)
     rng = np.random.default_rng(0)
-    monkeypatch.setattr(ops_engine, "_ph_read_crop",
-                        lambda shard, offset, size: (rng.integers(0, 4000, (2, 16, 16)), None))
+    for (plate, well), rows in queue.groupby(["plate", "well"], sort=False):
+        writer = CropPoolWriter(tmp_path, str(plate), str(well), "cell", 2,
+                                mask_dtype=np.uint8,
+                                attributes={"source": "ops_ph_crops",
+                                            "options": {"margin_px": 64, "zero_outside": False},
+                                            "pixel_size_um": 1.0})
+        for row in rows.itertuples():
+            mask = np.zeros((128, 128), np.uint8)
+            mask[62:66, 62:66] = 2
+            identity = f"{row.plate}_{row.well}_{row.site}_{row.label}"
+            writer.add([{"object_id": identity, "ops_object_id": None, "prcfo": identity,
+                         "ops_crop": True, "object_label": row.label, "label": row.label,
+                         "site": row.site, "field": row.site, "has_mask": True,
+                         "pixels": rng.integers(0, 4000, (2, 128, 128), dtype=np.uint16),
+                         "mask": mask, "bbox_y0": 0, "bbox_x0": 0,
+                         "bbox_y1": 128, "bbox_x1": 128, "margin_px": 64,
+                         "clipped_at_edge": False}])
+        writer.commit()
     folder = cc.write_label_queue(queue, str(tmp_path), str(tmp_path / "queue"),
                                   labels=str(tmp_path / "labels.csv"))
     return queue, folder

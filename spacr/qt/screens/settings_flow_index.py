@@ -1250,6 +1250,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_cell_cycle_dna_channel',
     'ops_cell_cycle_finetune',
     'ops_cell_cycle_label_queue',
+    'ops_cell_cycle_label_channels',
     'ops_cell_cycle_labels',
     'ops_cell_cycle_model_family',
     'ops_cell_cycle_mt_channel',

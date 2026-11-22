@@ -1,0 +1,908 @@
+{
+  "base": "79343f5b59f62507adce96feb68b912ebfa0222f",
+  "source": "spacr/ops_cell_cycle.py",
+  "file_sha256": "ac6b8cb2afbe772ab2357ef321e8dd2c1c8ea15c5011ba949a46a2d793deb2f2",
+  "api": {
+    "id": "spacr.ops_cell_cycle.write_label_queue",
+    "text": "Write blind stage-labelling tiles from unmasked context and the own object mask.\n\nA fixed 96 by 96 source window starts at the rounded table centroid minus\n48; cells whose window crosses the available field context are excluded.\n``radius`` is a dilation of the own nucleus mask by one Euclidean disk,\nindependent of that window. Funk defaults use the nucleus mask. Pixels outside\nthe dilation are black, while neighbouring objects inside it remain visible.\n\nThe panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin\ncomposite with a zero red channel. Each panel is enlarged threefold with\nnearest neighbours, followed by a one-pixel yellow own-mask outline. Two\nfour-pixel grey separators give a tile of 872 by 288 pixels. A white 10 \u00b5m\nscale bar requires explicit source pixel calibration; no physical size is\ninferred from image dimensions.\n\nThe fixed Funk display bounds are DAPI 550\u201323,039 and GFP 1,084\u20135,002 in raw\nuint16 units. ``ranges`` overrides these bounds in selected-channel order;\nno crop or queue statistics are used. Opaque PNG names map exactly to cells\nin the separate ``queue.csv`` manifest, which must stay outside blind inputs.\nAnnotation 1 to 7 follows :data:`CLASSES`.\n\n:param queue: unique cells from :func:`build_label_queue`, in display order;\n    optional ``cy, cx`` are field coordinates and ``pixel_size_um`` supplies\n    source calibration. A crop with a stored bounding box keeps its origin.\n:param crop_root: a ``ph_crops`` context-crop project, or a field-context\n    folder with ``crop_index.csv`` (keys plus ``cy, cx``), ``fields/`` and\n    ``masks/``. The supplied Funk plate-A layout is supported directly; its\n    recorded calibration assumption is 0.33 \u00b5m per pixel. Other field\n    indices supply ``field_path, mask_path, pixel_size_um`` explicitly.\n:param folder: the Annotate project folder to create.\n:param labels: the CSV to which collected answers are appended.\n:param channels: up to two zero-based crop indices, DNA first and tubulin\n    second; None selects the first two available planes. Other stains can\n    be selected in either slot with explicit display bounds.\n:param ranges: fixed ``(low, high)`` pairs in selected-channel order, or a\n    mapping with ``dna`` and optional ``mt`` pairs; None uses the Funk bounds.\n:param radius: nonnegative nucleus-mask dilation radius in source pixels,\n    30 by default, giving a 61 by 61 Euclidean disk.\n:param crop_source: optional source exposing ``get_raw(row)`` and returning\n    unmasked ``(pixels (C, H, W), own_object_mask)`` through existing spaCR\n    readers. Pixel calibration can be supplied as ``pixel_size_um`` or an\n    existing micrometre :class:`spacr.layers.Spacing` on the source. None\n    uses native OPS context crops or full fields with the nucleus mask; masked\n    legacy crops cannot provide neighbour context.\n:returns: ``folder``; excluded identities and reasons are kept in ``queue.json``.\n:raises ValueError: for invalid controls, missing context or nucleus masks,\n    missing physical calibration, or a queue with no complete windows.",
+    "sha256": "544eca9ed4a7f8c1e82c169f1d1d86fe064b36d081c5d52c1681a86d36a72be7",
+    "before_sha256": "f1772545d4223a04aa1b3c57ab6e4d3d7a533236d8af313bcb768e97bcd1eb62",
+    "line": 1294,
+    "admitted": true,
+    "blocks": [
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#0",
+        "text": "Write blind stage-labelling tiles from unmasked context and the own object mask.",
+        "sha256": "0c86c6180a7ba4731a29c815b4974c655d05e30dcd971a4590e889968a0b0990",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#1",
+        "text": "A fixed 96 by 96 source window starts at the rounded table centroid minus 48; cells whose window crosses the available field context are excluded. ``radius`` is a dilation of the own nucleus mask by one Euclidean disk, independent of that window. Funk defaults use the nucleus mask. Pixels outside the dilation are black, while neighbouring objects inside it remain visible.",
+        "sha256": "6acf059472552dd2d0de86ec17dd7ea10e1aa860faf426fed24f9e2e0cbf169d",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#2",
+        "text": "The panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin composite with a zero red channel. Each panel is enlarged threefold with nearest neighbours, followed by a one-pixel yellow own-mask outline. Two four-pixel grey separators give a tile of 872 by 288 pixels. A white 10 \u00b5m scale bar requires explicit source pixel calibration; no physical size is inferred from image dimensions.",
+        "sha256": "f77125489de64417b1d2fef0f2679405aae06c3a840e77876591ceecdd5bf923",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#3",
+        "text": "The fixed Funk display bounds are DAPI 550\u201323,039 and GFP 1,084\u20135,002 in raw uint16 units. ``ranges`` overrides these bounds in selected-channel order; no crop or queue statistics are used. Opaque PNG names map exactly to cells in the separate ``queue.csv`` manifest, which must stay outside blind inputs. Annotation 1 to 7 follows :data:`CLASSES`.",
+        "sha256": "b833806148a83760d905824f371db9238cafd536293ab1b64b302c456be5e36c",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#4",
+        "text": "unique cells from :func:`build_label_queue`, in display order; optional ``cy, cx`` are field coordinates and ``pixel_size_um`` supplies source calibration. A crop with a stored bounding box keeps its origin.",
+        "sha256": "3b1c2319f6cd8c9f1a424334af776fa965d4ee4475e9bc87b3587750d1eef636",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#5",
+        "text": "a ``ph_crops`` context-crop project, or a field-context folder with ``crop_index.csv`` (keys plus ``cy, cx``), ``fields/`` and ``masks/``. The supplied Funk plate-A layout is supported directly; its recorded calibration assumption is 0.33 \u00b5m per pixel. Other field indices supply ``field_path, mask_path, pixel_size_um`` explicitly.",
+        "sha256": "1278b11cdfe27df3e6d10c1f7db007f6b784bdb0ebcff6263726796cc8c667fd",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#6",
+        "text": "the Annotate project folder to create.",
+        "sha256": "5fc84619f8a1c15ea1f06c74a86091a28e9ad53f81fb229878864df34d0c0ecf",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#7",
+        "text": "the CSV to which collected answers are appended.",
+        "sha256": "e0c0e9d4093933b487d289d6ddc905d1e59a215786a8cf17f24f99e59045b223",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#8",
+        "text": "up to two zero-based crop indices, DNA first and tubulin second; None selects the first two available planes. Other stains can be selected in either slot with explicit display bounds.",
+        "sha256": "ddb6f737d5be6cec3471e6a4929a744ff5550d0a11315871009c0c3ea5ff1e81",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#9",
+        "text": "fixed ``(low, high)`` pairs in selected-channel order, or a mapping with ``dna`` and optional ``mt`` pairs; None uses the Funk bounds.",
+        "sha256": "81c72ba4eee99db056d74859cf43804e39c61778334b9281da10baf4edb32e39",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#10",
+        "text": "nonnegative nucleus-mask dilation radius in source pixels, 30 by default, giving a 61 by 61 Euclidean disk.",
+        "sha256": "9617162013752ba399cca408ad34bfecf7aef23cfa890204824bf19e7d6bba29",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#11",
+        "text": "optional source exposing ``get_raw(row)`` and returning unmasked ``(pixels (C, H, W), own_object_mask)`` through existing spaCR readers. Pixel calibration can be supplied as ``pixel_size_um`` or an existing micrometre :class:`spacr.layers.Spacing` on the source. None uses native OPS context crops or full fields with the nucleus mask; masked legacy crops cannot provide neighbour context.",
+        "sha256": "a3f8d7fa11fae4c624d3f06754db77101018ef56fed2b663d13e542c97f92629",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#12",
+        "text": "``folder``; excluded identities and reasons are kept in ``queue.json``.",
+        "sha256": "6d515706ce1d45ba2ff210b7b1bf1176c1cbabda9593b8a8ee756d15ddc0ebd6",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      },
+      {
+        "id": "spacr.ops_cell_cycle.write_label_queue#13",
+        "text": "for invalid controls, missing context or nucleus masks, missing physical calibration, or a queue with no complete windows.",
+        "sha256": "36fb0b3cd8f9669ef154e03f6cef1e8ab30c134bf14aa4c78a61e9826004fbad",
+        "file": "spacr/ops_cell_cycle.py",
+        "line": 1294,
+        "admission": "canonical public API extractor; admitted"
+      }
+    ]
+  },
+  "runtime": [
+    {
+      "text": "Label queue radius must be a nonnegative integer in pixels.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1360,
+      "sha256": "edd85747fff2ab6ad779a7e8b3a72cf689e2601156ef5f61d78d129ebbe78c3f",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Select at least one cell and include each cell only once in the label queue.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1362,
+      "sha256": "6617c65416e701bd7c8ebeefd0797b45e8c7a2c4ff42bfa1ef4b15ff79ca0bd1",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Select one or two distinct zero-based label queue channel indices.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1367,
+      "sha256": "80064cf245b6391817d72faa0554bcab078916069bf783c3a5ad076cd81994d8",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Give one finite increasing display range for each selected label queue channel.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1376,
+      "sha256": "61e286abd43d316af3f6987fb249e88218d8e3002e86ef90357ac558947c1de4",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Stage labelling needs unmasked full-field context; enable context in the crop source.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1409,
+      "sha256": "e89845a6766b9c5e2a18572b43599d13c7745c47188887fe7c77a3f3dcd9f23d",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "No selected cells have a complete 96-pixel context window; choose cells away from field edges.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1523,
+      "sha256": "8d33765132d9377c7a9bed401724af5f63d050947717df385954f68627e05179",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "A label queue range mapping needs a dna pair and an optional mt pair.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1371,
+      "sha256": "706ed6cb037e070fcaa68d035b8388fc036de83b55565177ab1ec7d1341f4c0b",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "The context crop index needs columns {columns}.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1384,
+      "sha256": "b96e5fd338113cd33b43a46c27b1153b7961c6a1f1333383be6be08bf00a01cf",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "A multi-well context index needs explicit field_path and mask_path columns.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1386,
+      "sha256": "d9c537a1d22b13d39723c260bdc2ddb9cb0fd813ff85b4400a7d9ab064d01d96",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Label queue crops must contain channels, height and width.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1448,
+      "sha256": "886d42981fcf5af99cf5151fbe56c4fb4913ec585367b91bf01c93e13bd8b859",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Stage labelling needs the own nucleus mask for every selected cell.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1450,
+      "sha256": "27e7a03b00d311c2a1c5781bf2e454911d57a0300d0037fafea2ab67e5def261",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Return only the selected nucleus mask; keep neighbouring objects in the image pixels.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1453,
+      "sha256": "1dbbe9e245327e5fb0fd41a498b161096e663c3303072a1c007e9e9ce716c7ad",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "A selected label queue channel is absent from a crop; check the crop channel order.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1468,
+      "sha256": "fb26b49e376af8034574813cee87baac670ce9530fa100c8bfb9b33437715201",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Give one finite increasing display range for each selected label queue channel.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1476,
+      "sha256": "61e286abd43d316af3f6987fb249e88218d8e3002e86ef90357ac558947c1de4",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "A 10 \u00b5m scale bar needs measured pixel_size_um or source Spacing in micrometres.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1484,
+      "sha256": "1f4ae1d3c894f16ac360b3c3faff6c0a0c8a4935219393763d2020a36c62113b",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "no tubulin channel",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1514,
+      "sha256": "8d2ae3d069a3eacc92e6b2934d36a7c9fd68e43230a311ecd78066ba4dcccaf0",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "no crops of plate {plate} under {root}; run ph_crops first",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1393,
+      "sha256": "9bf17683da69b99c1c83f4f7de8d8bd5e96d0429ecd596d5eeac27de3b3f6783",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "existing source"
+    },
+    {
+      "text": "Legacy OPS shards contain masked crops; provide full-field or unmasked nucleus context crops.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1396,
+      "sha256": "e4f8c1e96a3f36a0dc7716473f198c7844eda06eb33b0092b0ed5f14f9c7313a",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "The crop index contains duplicate cells; rebuild ph_crops before labelling.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1398,
+      "sha256": "2d48f76f77de34c31bf05a2841cb42b88c4313ed08b5ae1a1b2d9498447d78b5",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Cell {cell} has no crop; run ph_crops for its well.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1425,
+      "sha256": "32fb81785e54828996271636b4634ba507cb54ddde768539ca6bb34a6e06524b",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Funk display bounds require raw uint16 images; give explicit ranges for other pixel units.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1471,
+      "sha256": "a8f91bad16d47e2d7d0ed406e5b969441607e0ddbb4bdcd0662a6491f00e84fb",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "The context field needs a nuclei label mask for stage labelling.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1436,
+      "sha256": "58df9346fe0d9177f5c09708ac46f832d41f9b7e900aaf6f73c654e9b65842d9",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Legacy OPS shards contain masked crops; provide full-field or unmasked nucleus context crops.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1439,
+      "sha256": "e4f8c1e96a3f36a0dc7716473f198c7844eda06eb33b0092b0ed5f14f9c7313a",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    },
+    {
+      "text": "Stage labelling needs context crops: set crop_margin_px and keep crop_zero_outside off.",
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1443,
+      "sha256": "b3cb7733945b2dc10fe45f72a20233ad452e061b7eb857c8b45a15ced4378f0c",
+      "admitted": true,
+      "admission": "existing runtime extractor; admitted",
+      "change": "queue source"
+    }
+  ],
+  "setting": {
+    "key": "ops_cell_cycle_label_channels",
+    "default": null,
+    "tooltip": "(list or None) - Up to two crop channel indices for stage labelling, starting at 0. Select DNA first and tubulin second, or select another stain with explicit display bounds. Panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin overlay. Funk defaults use fixed raw DAPI and GFP bounds, a 96-pixel unmasked context window and the nucleus mask dilated by 30 pixels. None selects the first two crop channels. Default None. Alpha.",
+    "types": [
+      "list",
+      "NoneType"
+    ],
+    "category": "Cell-cycle stages",
+    "api_target": [
+      "spacr.ops_cell_cycle",
+      "run_cell_cycle_phase",
+      true
+    ],
+    "canonical_runtime": [
+      {
+        "table": "setting_labels",
+        "key": "ops.ops_cell_cycle_label_channels",
+        "text": "Cell cycle label channels",
+        "sha256": "844b6ddc2b66263298913034f31295912626e408b605b01a3137f597c3b84507",
+        "admitted": true,
+        "file": "spacr/ops_settings.py",
+        "declaration_lines": [
+          303,
+          874,
+          1417,
+          3759
+        ]
+      },
+      {
+        "table": "setting_labels",
+        "key": "ops_cell_cycle_label_channels",
+        "text": "Ops cell cycle label channels",
+        "sha256": "656c44124eadd03229be4e70ea9d4be812ec2c76de1c8bec4af543f67be6134a",
+        "admitted": true,
+        "file": "spacr/ops_settings.py",
+        "declaration_lines": [
+          303,
+          874,
+          1417,
+          3759
+        ]
+      },
+      {
+        "table": "setting_tooltips",
+        "key": "ops_cell_cycle_label_channels",
+        "text": "Up to two crop channel indices for stage labelling, starting at 0. Select DNA first and tubulin second, or select another stain with explicit display bounds. Panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin overlay. Funk defaults use fixed raw DAPI and GFP bounds, a 96-pixel unmasked context window and the nucleus mask dilated by 30 pixels. None selects the first two crop channels. Default None. Alpha.",
+        "sha256": "14fc329af75c371cd668147b11d8a21516ca446d734ca806199cd5893f51782d",
+        "admitted": true,
+        "file": "spacr/ops_settings.py",
+        "declaration_lines": [
+          303,
+          874,
+          1417,
+          3759
+        ]
+      }
+    ]
+  },
+  "no_records": [
+    {
+      "name": "_runtime_readers",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 14,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_Source",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 22,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_queue",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 41,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_write",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 48,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_blind_names_mapping_and_annotate_roundtrip_preserve_queue_order",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 61,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_repeated_labels_across_plates_and_wells_map_exactly",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 80,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_channel_selection_uses_the_two_chosen_planes",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 95,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_invalid_display_recipes_are_refused",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 114,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_funk_ranges_are_fixed_and_other_pixel_units_require_bounds",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 120,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_native_context_pool_and_non_ops_nucleus_table_adapter_share_pixels",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 132,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_channel_setting_arrival_and_job_pass_through",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 168,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_current_queue_api",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 204,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_api_arrival_keeps_the_exact_historical_boundary",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 242,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_setting_arrival_is_exact",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 255,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_api_signature_binding_rejects_a_changed_radius_default",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 270,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_current_inherited_module_api",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 292,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_inherited_module_alignment_changes_only_the_known_annotation",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 312,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "__init__",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 28,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "get_raw",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 32,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "write",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 183,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "read",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 187,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "changed",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 278,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_ContextSource",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 14,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_arrays",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 29,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_queue",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 40,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_write",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 46,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_fixed96_window_is_independent_of_dilation_radius",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 60,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_nucleus_disk_keeps_neighbours_inside_and_blacks_outside",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 72,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_outline_is_one_final_pixel_in_all_panels",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 84,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_edge_windows_are_excluded_with_exact_included_mapping",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 99,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_fixed_ranges_preserve_pixels_across_different_queues",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 110,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_masked_context_and_unknown_physical_scale_are_refused",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 119,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_half_tie_centroids_round_before_subtracting_odd_crop_origin",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 133,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "__init__",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 20,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "get_raw",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 24,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_all_six_card_v3_golden_tiles_match_exactly",
+      "file": "tests/test_ops_cell_cycle_queue_v3_golden_990.py",
+      "line": 12,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "masked_shards_are_forbidden",
+      "file": "tests/test_ops_cell_cycle_queue_v3_golden_990.py",
+      "line": 30,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "CellMaskControl",
+      "file": "tests/test_ops_cell_cycle_queue_v3_golden_990.py",
+      "line": 44,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "__init__",
+      "file": "tests/test_ops_cell_cycle_queue_v3_golden_990.py",
+      "line": 50,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "get_raw",
+      "file": "tests/test_ops_cell_cycle_queue_v3_golden_990.py",
+      "line": 54,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_fast",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 24,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_cells",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 33,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_base",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 73,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_run",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 81,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_none_leaves_the_run_unchanged",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 246,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_staged",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 286,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_queue_folder",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 308,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_Screen",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 388,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_Window",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 399,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_two_plate_labels",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 504,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_plate_run",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 516,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "_open_source",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 394,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "open_module",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 405,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "patched",
+      "file": "tests/test_ops_cell_cycle_990.py",
+      "line": 256,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "extract_metadata",
+      "file": "tests/test_n441_metadata_caption_owner.py",
+      "line": 9,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "test_web_sources_join_production_inventory_before_compact_filtering",
+      "file": "tests/test_web_caption_extraction_n698.py",
+      "line": 96,
+      "admission": "test/private/nested test; no records"
+    },
+    {
+      "name": "tests.test_ops_cell_cycle_queue_990",
+      "file": "tests/test_ops_cell_cycle_queue_990.py",
+      "line": 1,
+      "text": "Blind v3 context tiles keep exact identities, fixed channel bounds and annotation contracts.",
+      "sha256": "695f74637d596a3ebc4f35a4e48426ecc724de8f680f78bcbd620700b093895c",
+      "admission": "test module; no locale records"
+    },
+    {
+      "name": "tests.test_ops_cell_cycle_queue_v3_990",
+      "file": "tests/test_ops_cell_cycle_queue_v3_990.py",
+      "line": 1,
+      "text": "Known validated v3 geometry uses fixed context, nucleus dilation and thin final outlines.",
+      "sha256": "c73ce3aadc83f79e6549a31d9f88e195a8ae147321b8d23d4108483bcad97a9b",
+      "admission": "test module; no locale records"
+    },
+    {
+      "name": "tests.test_ops_cell_cycle_queue_v3_golden_990",
+      "file": "tests/test_ops_cell_cycle_queue_v3_golden_990.py",
+      "line": 1,
+      "text": "The authoritative Funk card-v3 six-tile sample must match exact source pixels and MD5s.",
+      "sha256": "9a6e5ffa45cb0b0f95e3147cde1d008181c8247813cd16909b3e62b800c29dcb",
+      "admission": "test module; no locale records"
+    }
+  ],
+  "inherited_module_alignment": {
+    "spacr.ops_cell_cycle": {
+      "before_sha256": "c0bebd33ff6b5bfabb34284c41287386b388160fdda350b3829c0f35b8b5b44c",
+      "docstring": "Cell-cycle stage, probability and verification flag of every OPS cell (item 990, alpha).\n\nA tabular model (HistGradientBoosting or XGBoost on the DNA and microtubule features of\n:func:`spacr.ops_mitotic.mitotic_features`, each a robust z against all cells of its well)\ncalls interphase, g2_prophase (a flag class, never counted as mitotic), prometaphase,\nmetaphase, ana_telo_cyto (anaphase and telophase/cytokinesis), telophase_daughters (the two\n2N daughters, a stage of their own) and artefact. Interphase cells take G1, S or G2 from the field-centred DNA-content fit of\nitem 995 (:func:`_dna_phases`). Self-checks S1-S6 run on every plate; a stage that fails its\ncheck collapses into its parent (:data:`PARENTS`) and is flagged ``unresolved``, on every\nplate of the screen once any plate collapses it. A stage whose out-of-fold F1 on the user's\nlabels clears the shuffled-label control is ``verified``; every other stage is ``auto``.\n\nThe model starts from a base checkpoint (:func:`load_cell_cycle_checkpoint`, written by\n:func:`train_cell_cycle_model` and :func:`save_cell_cycle_checkpoint`) and, with user\nlabels, is refitted on the base labels plus the screen labels weighted five times.",
+      "after_sha256": "7cac209740b296dba04d2e6b904b53a09efa25dfd4edeb155922e4f77bd42c8d",
+      "unchanged_source_base": "79343f5b59f62507adce96feb68b912ebfa0222f"
+    }
+  },
+  "render_recipe": {
+    "path": "/media/carruthers/mnt2/spacr/card_v3/card_v3_recipe.md",
+    "sha256": "0820ad998c9e40ca3c25996fc21a45dcf71f14e3f674913b3506c39d4bd1b754",
+    "status": "Authoritative recipe; all six supplied tiles match exact RGB arrays and raw pixel MD5s; all six inspected visually. Default Funk mask is nucleus; three explicit cell controls retain the same table centroid.",
+    "calibration": "Recipe-declared Funk assumption 0.33 micrometres per source pixel, not an inferred measurement."
+  },
+  "api_binding_status": "Writer-only seven-line frozen hook approved v80; separate exact inherited module hook approved v84; both applied. Original arrival fixture unchanged.",
+  "rounding_regression": "Round field cy/cx before subtracting crop origin; both63.5/64.5 odd-origin cases and exactsix goldens passed in corrected34-test source/renderer cohort.",
+  "validation": {
+    "source_sha256": "ac6b8cb2afbe772ab2357ef321e8dd2c1c8ea15c5011ba949a46a2d793deb2f2",
+    "native_results": {
+      "affected_renderer_source": "34 passed in 48.54s",
+      "items": "1283 passed, 10 skipped, 152 warnings, 959 subtests passed in 196.49s (0:03:16)",
+      "ops": "1 failed, 1180 passed, 29 skipped, 185 warnings, 102 subtests passed in 308.13s (0:05:08)",
+      "settings": "630 passed, 2 skipped, 369 subtests passed in 62.26s (0:01:02)",
+      "ratchets_filtered": "5 failed, 4082 passed, 76 skipped, 3 xfailed, 69 warnings in 794.05s (0:13:14)"
+    },
+    "ratchet_failures": [
+      {
+        "node": "tests.test_module_coverage_ratchet::test_coverage_workflow_is_sharded_artifact_safe_and_required",
+        "kind": "failure",
+        "message": "assert '--expected-file-count 723' in '\\n\\npython -m pip install --upgrade pip\\npython -m pip install \"coverage>=7.10,<8\" \"setuptools>=64\"\\n\\n\\npython tools...matrix.shard }}-a${{ github.run_attempt }}-$(python -c \\'import uuid; print(uuid.uuid4().hex)\\')\" >> \"$GITHUB_ENV\"\\n\\n'",
+        "final_disposition": "Explicitly confirmed train-8 landing dependency: workflow723/master6df970bf79 or stale SV runtime review/Home; remains a failure, not counted as passed."
+      },
+      {
+        "node": "tests.qt.test_external_i18n_catalogs::test_runtime_source_inventory_is_stable_after_runctx_import",
+        "kind": "failure",
+        "message": "AssertionError: assert not (frozenset({'cell_cycle_field_centre', 'cell_cycle_field_min_cells', 'cell_cycle_fit_group', 'cell_cycle_mitotic_column', 'cpg_painting_frame_shift', 'ops_profile_cell_cycle_method'}) & {'CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...})",
+        "final_disposition": "Passed approved native three-node followup; original failed full-group receipt retained."
+      },
+      {
+        "node": "tests.test_api_i18n_extractor::test_public_docstrings_matches_reviewed_visible_coverage",
+        "kind": "failure",
+        "message": "assert {'spacr.ops_c... them).', ...} == {'spacr.ops_c... them).', ...}\n  \n  Omitting 18 identical items, use -vv to show\n  Differing items:\n  {'spacr.ops_cell_cycle.write_label_queue': 'Write blind stage-labelling tiles from unmasked context and the own object...d controls, missing context or nucleus masks,\\n    missing physical calibration, or a queue with no complete windows.'} != {'spacr.ops_cell_cycle.write_label_queue': \"The queue as a project Annotate opens: PNG crops and their ``png_list``.\\n...b's answers are appended to.\\n:returns: ``folder``.\\n:raises ValueError: when a queued cell has no crop in the store.\"}\n  {'spacr.ops_cell_cycle': 'Cell-c...\n  \n  ...Full output truncated (2 lines hidden), use '-vv' to show",
+        "final_disposition": "Passed approved native three-node followup; original failed full-group receipt retained."
+      },
+      {
+        "node": "tests.qt.test_external_i18n_catalogs::test_empty_flowchart_caption_translates_without_changing_python_none",
+        "kind": "failure",
+        "message": "ValueError: stale reviewed runtime source ui/{count} queued cells of plate {plate} have no crop; run ph_crops for their wells: /media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-990queue/docs/i18n/reviewed/runtime/sv/2026-11-21-ops-cell-cycle-codex-ai-review.json",
+        "final_disposition": "Explicitly confirmed train-8 landing dependency: workflow723/master6df970bf79 or stale SV runtime review/Home; remains a failure, not counted as passed."
+      },
+      {
+        "node": "tests.qt.test_external_i18n_catalogs::test_runtime_source_inventory_is_complete_before_optional_module_imports",
+        "kind": "failure",
+        "message": "AssertionError: assert not (frozenset({'cell_cycle_field_centre', 'cell_cycle_field_min_cells', 'cell_cycle_fit_group', 'cell_cycle_mitotic_column', 'cpg_painting_frame_shift', 'ops_profile_cell_cycle_method'}) & {'CP_prob', 'CP_probability', 'FT', 'Signal_to_noise', 'activation', 'adjust_cells', ...})",
+        "final_disposition": "Passed approved native three-node followup; original failed full-group receipt retained."
+      }
+    ],
+    "exact_catalog_deferrals": [
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
+      "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+      "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
+      "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
+      "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
+      "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
+    ],
+    "deferral_authority": "WORK_TASKS v74 pilot Home-record/catalog deferral, explicitly applied to990queue by parent; all30 selectors validated against4196 current collectednodes. Strict English/publicsource admission/inventory checks retained.",
+    "unfiltered_ratchets": "Cancelled owned1588 with143,17TERM0KILL, noXML/no completedpasscount; actualscopeOOM1/kill1 at16GiB retained in private receipt; finalfilteredrun uses4workers/24GiB.",
+    "prior_learner_proof": "Earlier56testcohort passed; bounded two-expression rounding correction leaves all moduleAST outsidewriter, all publicdocs/signature unchanged. Corrected34testcohort includes all6exactgoldenarrays/rawRGBMD5s and both half-tie regressions; no aggregate count claimed.",
+    "baseline_proof": "The two expired pending-tooltip inventories fail identically on untouched79343f5b, whose source/English sets are identical and already contain all six old keys. Current source adds exactly ops_cell_cycle_label_channels. The original module-doc annotation also fails on that base. Both exact approved fixture reconciliations now pass all three native followups.",
+    "gpu_rule_scope": {
+      "authority_note_sha256": "5c88697b7877069baeb2d833c7174a84232eadf86b949942e6c0519928a4ea88",
+      "base_unchanged": "79343f5b59f62507adce96feb68b912ebfa0222f",
+      "gpu_touching_affected_testfiles": [],
+      "visible_hidden_rule_applicability": "No affected GPU execution path: renderers and IO are CPU; original990 trains default HGB/sklearn; cnn selector explicitly reports immediate tabular fallback. No GPU-visible run claimed.",
+      "cpu_receipts": [
+        "final-focused.xml",
+        "rounding-focused.xml"
+      ],
+      "reviewed_files": {
+        "tests/test_ops_cell_cycle_990.py": "d32d0ea212245d6488466a7af5b112931102c478d6be8c514f7baa2671bee9cf",
+        "tests/test_ops_cell_cycle_queue_990.py": "22420bd31ad6b97b45aceeb323665255fdedc3c7cd72967f4d680cf759478d42",
+        "tests/test_ops_cell_cycle_queue_v3_990.py": "bc9d5647718db1b01ac276d3e7869bf7261263193f9435898cef7983442f48c4",
+        "tests/test_ops_cell_cycle_queue_v3_golden_990.py": "66a5fd91d937a242b33360ced61632331201c6ef09ec7e4dcf0680275ca24a87"
+      },
+      "source_call_paths": [
+        "tests/test_ops_cell_cycle_990.py::_base -> train_cell_cycle_model(tabular default hgb) -> ops_cell_cycle._learner -> ops_mitotic._model(hist_gradient_boosting) -> sklearn HistGradientBoostingClassifier",
+        "test_cnn_falls_back_to_the_tabular_learner_and_says_so -> ops_cell_cycle.run_cell_cycle_phase family-not-tabular note -> existing tabular model; no CNN/GPU execution",
+        "write_label_queue -> existing read_image/read_crop/_ph_read_masks, NumPy/SciPy morphology and PIL output"
+      ]
+    },
+    "approved_fixture_followup": {
+      "authority_inbox_sha256": "9aa9e6106005ff531057e7bba130914c19e5ffb5e02a9a45f376a3e370c02c71",
+      "patches": [
+        {
+          "path": "tests/test_api_i18n_extractor.py",
+          "actual_sha256": "ed44235dc60ba3796f3048af170cd887b80b8c867955b9a7a08a2f0bbf7c7127",
+          "approved_patch_sha256": "7f4bef417167fcb3865ca381f237bb00a8d1974df8d9f7a7bf939d295ac6c9cd"
+        },
+        {
+          "path": "tests/qt/test_external_i18n_catalogs.py",
+          "actual_sha256": "44436f6d9faff5a14504c25b4ffe26253f0d72dfa750224c5f5cbf09e59a7b87",
+          "approved_patch_sha256": "a7a97f4d29fa0c1a561eea3b0e734db4af85a0fb1a200bb48d3c4a178cd6c17b"
+        }
+      ],
+      "native_result": "3 passed in 79.89s (0:01:19)",
+      "nodes": [
+        "tests.test_api_i18n_extractor::test_public_docstrings_matches_reviewed_visible_coverage",
+        "tests.qt.test_external_i18n_catalogs::test_runtime_source_inventory_is_complete_before_optional_module_imports",
+        "tests.qt.test_external_i18n_catalogs::test_runtime_source_inventory_is_stable_after_runctx_import"
+      ],
+      "scope": "Exactly the three failed fixture/API inventory nodes rerun, as explicitly directed; no functional/fullratchet reruns and no production change."
+    },
+    "remaining_confirmed_landing_dependencies": [
+      "tests.test_module_coverage_ratchet::test_coverage_workflow_is_sharded_artifact_safe_and_required",
+      "tests.qt.test_external_i18n_catalogs::test_empty_flowchart_caption_translates_without_changing_python_none"
+    ],
+    "publication": "Local commit prepared for root review/publication; no push by the queue worker; no rebase."
+  }
+}

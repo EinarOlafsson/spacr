@@ -1156,6 +1156,7 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
         queued = {"folder": folder, "cells": int(len(pending)),
                   "pending": os.path.join(folder, "queue_pending.csv"),
                   "crop_root": _ph_merged_root(settings, destination),
+                  "channels": settings.get("ops_cell_cycle_label_channels"),
                   "labels": options["labels"] or os.path.join(destination, "cell_cycle_labels",
                                                               "labels.csv")}
     counts = table["cell_cycle_stage"].value_counts().sort_index()
@@ -1291,73 +1292,254 @@ def build_label_queue(table: pd.DataFrame, n: int, seed: int = 0) -> pd.DataFram
 
 
 def write_label_queue(queue: pd.DataFrame, crop_root: str, folder: str, *,
-                      labels: str) -> str:
-    """The queue as a project Annotate opens: PNG crops and their ``png_list``.
+                      labels: str, channels: Optional[Sequence[int]] = None,
+                      ranges: Optional[Sequence[Sequence[float]] | Mapping[str, Sequence[float]]] = None,
+                      radius: int = 30, crop_source=None) -> str:
+    """Write blind stage-labelling tiles from unmasked context and the own object mask.
 
-    Each queued cell's crop is read from the crop store of the ``ph_crops`` phase
-    (:func:`spacr.ops_run_infra.crop_index`) and written as an 8-bit PNG with one fixed display
-    range per channel, the 0.5th to 99.5th percentile of that channel over the whole queue (no
-    per-crop stretch). Annotation 1 to 7 are the stages of :data:`CLASSES`, in order.
+    A fixed 96 by 96 source window starts at the rounded table centroid minus
+    48; cells whose window crosses the available field context are excluded.
+    ``radius`` is a dilation of the own nucleus mask by one Euclidean disk,
+    independent of that window. Funk defaults use the nucleus mask. Pixels outside
+    the dilation are black, while neighbouring objects inside it remain visible.
 
-    :param queue: from :func:`build_label_queue`.
-    :param crop_root: the crop store's root (``ops_merged_root`` or ``dst_root``).
-    :param folder: the project folder to make; ``measurements/measurements.db`` and
-        ``data/`` go in it, with ``queue.json`` naming the classes and the labels file.
-    :param labels: the labels CSV the job's answers are appended to.
-    :returns: ``folder``.
-    :raises ValueError: when a queued cell has no crop in the store.
+    The panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin
+    composite with a zero red channel. Each panel is enlarged threefold with
+    nearest neighbours, followed by a one-pixel yellow own-mask outline. Two
+    four-pixel grey separators give a tile of 872 by 288 pixels. A white 10 µm
+    scale bar requires explicit source pixel calibration; no physical size is
+    inferred from image dimensions.
+
+    The fixed Funk display bounds are DAPI 550–23,039 and GFP 1,084–5,002 in raw
+    uint16 units. ``ranges`` overrides these bounds in selected-channel order;
+    no crop or queue statistics are used. Opaque PNG names map exactly to cells
+    in the separate ``queue.csv`` manifest, which must stay outside blind inputs.
+    Annotation 1 to 7 follows :data:`CLASSES`.
+
+    :param queue: unique cells from :func:`build_label_queue`, in display order;
+        optional ``cy, cx`` are field coordinates and ``pixel_size_um`` supplies
+        source calibration. A crop with a stored bounding box keeps its origin.
+    :param crop_root: a ``ph_crops`` context-crop project, or a field-context
+        folder with ``crop_index.csv`` (keys plus ``cy, cx``), ``fields/`` and
+        ``masks/``. The supplied Funk plate-A layout is supported directly; its
+        recorded calibration assumption is 0.33 µm per pixel. Other field
+        indices supply ``field_path, mask_path, pixel_size_um`` explicitly.
+    :param folder: the Annotate project folder to create.
+    :param labels: the CSV to which collected answers are appended.
+    :param channels: up to two zero-based crop indices, DNA first and tubulin
+        second; None selects the first two available planes. Other stains can
+        be selected in either slot with explicit display bounds.
+    :param ranges: fixed ``(low, high)`` pairs in selected-channel order, or a
+        mapping with ``dna`` and optional ``mt`` pairs; None uses the Funk bounds.
+    :param radius: nonnegative nucleus-mask dilation radius in source pixels,
+        30 by default, giving a 61 by 61 Euclidean disk.
+    :param crop_source: optional source exposing ``get_raw(row)`` and returning
+        unmasked ``(pixels (C, H, W), own_object_mask)`` through existing spaCR
+        readers. Pixel calibration can be supplied as ``pixel_size_um`` or an
+        existing micrometre :class:`spacr.layers.Spacing` on the source. None
+        uses native OPS context crops or full fields with the nucleus mask; masked
+        legacy crops cannot provide neighbour context.
+    :returns: ``folder``; excluded identities and reasons are kept in ``queue.json``.
+    :raises ValueError: for invalid controls, missing context or nucleus masks,
+        missing physical calibration, or a queue with no complete windows.
     """
-    from PIL import Image
+    import uuid
+
+    from PIL import Image, ImageDraw
+    from scipy import ndimage
 
     from .annotation_dataset import png_list_frame, write_png_list
+    from .crop_store import pool_attributes, read_crop
     from .ops_run_infra import crop_index
-    from .ops_engine import _ph_read_crop
+    from .image_store import read_image
+    from .ops_engine import _ph_read_masks
     from .qt.i18n import tr
-    from .tabular import write_table
+    from .tabular import read_table, write_table
 
-    crops = []
-    for plate, rows in queue.groupby("plate", sort=False):
-        index = crop_index(crop_root, str(plate), sorted(rows["well"].astype(str).unique()))
-        if not len(index):
-            raise ValueError(tr("no crops of plate {plate} under {root}; run ph_crops first",
-                                plate=plate, root=crop_root))
-        index = index.assign(well=[os.path.basename(os.path.dirname(s)) for s in index["shard"]])
-        found = rows.astype({"well": str}).merge(index, on=["well", "site", "label"], how="left")
-        if found["shard"].isna().any():
-            raise ValueError(tr("{count} queued cells of plate {plate} have no crop; run "
-                                "ph_crops for their wells",
-                                count=int(found["shard"].isna().sum()), plate=plate))
-        crops += [(row, _ph_read_crop(row.shard, row.offset_data, row.size)[0])
-                  for row in found.itertuples()]
-    stacked = [np.asarray(image, float) for _row, image in crops]
-    channels = stacked[0].shape[0]
-    ranges = [np.percentile(np.concatenate([s[c].ravel() for s in stacked]), [0.5, 99.5])
-              for c in range(channels)]
+    if isinstance(radius, bool) or not isinstance(radius, (int, np.integer)) or radius < 0:
+        raise ValueError(tr("Label queue radius must be a nonnegative integer in pixels."))
+    if queue.empty or queue.duplicated(KEY).any():
+        raise ValueError(tr("Select at least one cell and include each cell only once in the label queue."))
+    requested = None if channels is None else list(channels)
+    if requested is not None and (not requested or len(requested) > 2
+            or any(isinstance(c, bool) or not isinstance(c, (int, np.integer)) or c < 0
+                   for c in requested) or len(set(requested)) != len(requested)):
+        raise ValueError(tr("Select one or two distinct zero-based label queue channel indices."))
+    role_ranges = isinstance(ranges, Mapping)
+    if role_ranges:
+        if "dna" not in ranges:
+            raise ValueError(tr("A label queue range mapping needs a dna pair and an optional mt pair."))
+        ranges = [ranges[name] for name in ("dna", "mt") if name in ranges]
+    bounds = None if ranges is None else np.asarray(ranges, dtype=float)
+    if bounds is not None and (bounds.ndim != 2 or bounds.shape[1] != 2
+            or not np.isfinite(bounds).all() or not (bounds[:, 1] > bounds[:, 0]).all()):
+        raise ValueError(tr("Give one finite increasing display range for each selected label queue channel."))
+    sources, attributes, field_cache = {}, {}, {}
+    field_index_path = os.path.join(crop_root, "crop_index.csv")
+    field_index = None
+    if crop_source is None and os.path.isfile(field_index_path):
+        field_index = read_table(field_index_path, canonicalise=False, report=None)
+        missing = set(KEY + ["cy", "cx"]) - set(field_index)
+        if missing:
+            raise ValueError(tr("The context crop index needs columns {columns}.", columns=sorted(missing)))
+        if len(field_index[["plate", "well"]].drop_duplicates()) > 1 and not {"field_path", "mask_path"}.issubset(field_index):
+            raise ValueError(tr("A multi-well context index needs explicit field_path and mask_path columns."))
+    if crop_source is None:
+        for plate, rows in queue.groupby("plate", sort=False):
+            index = (field_index[field_index["plate"].astype(str) == str(plate)].copy()
+                     if field_index is not None else crop_index(
+                         crop_root, str(plate), sorted(rows["well"].astype(str).unique())))
+            if not len(index):
+                raise ValueError(tr("no crops of plate {plate} under {root}; run ph_crops first",
+                                    plate=plate, root=crop_root))
+            if "well" not in index:
+                raise ValueError(tr("Legacy OPS shards contain masked crops; provide full-field or unmasked nucleus context crops."))
+            if index.duplicated(["well", "site", "label"]).any():
+                raise ValueError(tr("The crop index contains duplicate cells; rebuild ph_crops before labelling."))
+            if field_index is not None:
+                index["queue_context_format"] = "field_index"
+            sources.update({(str(plate), str(row["well"]), int(row["site"]), int(row["label"])): row
+                            for row in index.to_dict("records")})
+            for well in rows["well"].astype(str).unique():
+                attributes[(str(plate), well)] = (
+                    {"pixel_size_um": 0.33} if field_index is not None and str(plate) == "LaC024A"
+                    else {} if field_index is not None
+                    else pool_attributes(crop_root, str(plate), well, "cell"))
+    if crop_source is not None and getattr(crop_source, "context", True) is False:
+        raise ValueError(tr("Stage labelling needs unmasked full-field context; enable context in the crop source."))
     data = os.path.join(folder, "data")
     os.makedirs(data, exist_ok=True)
     os.makedirs(os.path.join(folder, "measurements"), exist_ok=True)
-    paths = []
-    for (row, _image), image in zip(crops, stacked):
-        planes = [np.clip((image[c] - lo) / max(hi - lo, 1e-9), 0, 1) for c, (lo, hi)
-                  in enumerate(ranges)]
-        rgb = np.stack([planes[min(i, channels - 1)] if i < channels else np.zeros_like(planes[0])
-                        for i in range(3)], axis=-1)
-        path = os.path.join(data, f"{row.plate}_{row.well}_s{row.site}_l{row.label}.png")
-        Image.fromarray((rgb * 255).astype(np.uint8)).save(path)
+    paths, included, excluded, calibrations = [], [], [], []
+    selected = requested
+    fixed = bounds
+    yy, xx = np.ogrid[-radius:radius + 1, -radius:radius + 1]
+    disk = xx * xx + yy * yy <= radius * radius
+    for row in queue.to_dict("records"):
+        key = (str(row["plate"]), str(row["well"]), int(row["site"]), int(row["label"]))
+        record = sources.get(key, row)
+        meta = attributes.get(key[:2], {})
+        if crop_source is not None:
+            image, mask = crop_source.get_raw(row)
+        elif key not in sources:
+            raise ValueError(tr("Cell {cell} has no crop; run ph_crops for its well.", cell=key))
+        elif record.get("queue_context_format") == "field_index":
+            field_path = os.path.join(crop_root, str(record.get("field_path") or os.path.join(
+                "fields", f"site-{key[2]}_DAPI_GFP_flatcorrected_uint16.tif")))
+            mask_path = os.path.join(crop_root, str(record.get("mask_path") or os.path.join(
+                "masks", f"site-{key[2]}.npz")))
+            pair = (field_path, mask_path)
+            if pair not in field_cache:
+                field_cache[pair] = (read_image(field_path), _ph_read_masks(mask_path))
+            image, masks = field_cache[pair]
+            if "nuclei" not in masks:
+                raise ValueError(tr("The context field needs a nuclei label mask for stage labelling."))
+            mask = masks["nuclei"] == key[3]
+        elif record.get("crop_format") != "ome-zarr":
+            raise ValueError(tr("Legacy OPS shards contain masked crops; provide full-field or unmasked nucleus context crops."))
+        else:
+            options = meta.get("options", {})
+            if options.get("margin_px") is None or bool(options.get("zero_outside", True)):
+                raise ValueError(tr("Stage labelling needs context crops: set crop_margin_px and keep crop_zero_outside off."))
+            image, mask = read_crop(crop_root, record, context=True)
+            mask = None if mask is None else mask == 2
+        image = np.asarray(image)
+        if image.ndim != 3 or not all(image.shape):
+            raise ValueError(tr("Label queue crops must contain channels, height and width."))
+        if mask is None or np.shape(mask) != image.shape[1:] or not np.any(mask):
+            raise ValueError(tr("Stage labelling needs the own nucleus mask for every selected cell."))
+        values = np.unique(np.asarray(mask)[np.asarray(mask) != 0])
+        if len(values) != 1:
+            raise ValueError(tr("Return only the selected nucleus mask; keep neighbouring objects in the image pixels."))
+        nucleus = np.asarray(mask, dtype=bool)
+        if all(name in record and np.isfinite(record[name]) for name in ("cy", "cx")):
+            centre = (int(round(float(record["cy"]))) - int(record.get("bbox_y0", 0)),
+                      int(round(float(record["cx"]))) - int(record.get("bbox_x0", 0)))
+        else:
+            ys, xs = np.nonzero(nucleus)
+            centre = (int(round(float(ys.mean()))), int(round(float(xs.mean()))))
+        top, left = centre[0] - 48, centre[1] - 48
+        if top < 0 or left < 0 or top + 96 > image.shape[1] or left + 96 > image.shape[2]:
+            excluded.append({**{name: row[name] for name in KEY}, "reason": "window_crosses_context_edge"})
+            continue
+        if selected is None:
+            selected = list(range(min(2, image.shape[0])))
+        if max(selected) >= image.shape[0]:
+            raise ValueError(tr("A selected label queue channel is absent from a crop; check the crop channel order."))
+        if fixed is None:
+            if image.dtype != np.dtype(np.uint16):
+                raise ValueError(tr("Funk display bounds require raw uint16 images; give explicit ranges for other pixel units."))
+            fixed = np.asarray([(550, 23039), (1084, 5002)][:len(selected)], dtype=float)
+        if role_ranges and len(selected) == 1:
+            fixed = fixed[:1]
+        if len(fixed) != len(selected):
+            raise ValueError(tr("Give one finite increasing display range for each selected label queue channel."))
+        pixel_size = row.get("pixel_size_um", record.get("pixel_size_um", meta.get("pixel_size_um")))
+        if pixel_size is None and crop_source is not None:
+            pixel_size = getattr(crop_source, "pixel_size_um", None)
+            spacing = getattr(crop_source, "spacing", None)
+            if pixel_size is None and spacing is not None and spacing.units in ("um", "µm") and "x" in spacing.axes:
+                pixel_size = abs(float(spacing.scale[spacing.axes.index("x")]))
+        if isinstance(pixel_size, (bool, np.bool_)) or not isinstance(pixel_size, (float, int, np.number)) or not np.isfinite(pixel_size) or pixel_size <= 0:
+            raise ValueError(tr("A 10 µm scale bar needs measured pixel_size_um or source Spacing in micrometres."))
+        window = image[:, top:top + 96, left:left + 96]
+        own = nucleus[top:top + 96, left:left + 96]
+        visible = ndimage.binary_dilation(own, structure=disk, iterations=1)
+        planes = []
+        for channel, (lo, hi) in zip(selected, fixed):
+            plane = np.clip((window[channel].astype(np.float64) - lo) / max(hi - lo, 1e-9), 0, 1)
+            plane = (plane * 255 + 0.5).astype(np.uint8)
+            plane[~visible] = 0
+            planes.append(plane)
+        dna = planes[0]
+        tubulin = planes[1] if len(planes) > 1 else None
+        zero = np.zeros_like(dna)
+        panels = [np.repeat(dna[..., None], 3, axis=2),
+                  np.repeat(tubulin[..., None], 3, axis=2) if tubulin is not None
+                  else np.full((96, 96, 3), 24, np.uint8),
+                  np.stack([zero, tubulin if tubulin is not None else zero, dna], axis=-1)]
+        up_mask = np.repeat(np.repeat(own, 3, axis=0), 3, axis=1)
+        outline = up_mask & ~ndimage.binary_erosion(up_mask, iterations=1, border_value=0)
+        enlarged = []
+        for slot, panel in enumerate(panels):
+            panel = np.repeat(np.repeat(panel, 3, axis=0), 3, axis=1)
+            if slot != 1 or tubulin is not None:
+                panel[outline] = (255, 255, 0)
+            enlarged.append(panel)
+        separator = np.full((288, 4, 3), 90, np.uint8)
+        tile = np.concatenate([enlarged[0], separator, enlarged[1], separator, enlarged[2]], axis=1)
+        rendered_image = Image.fromarray(tile)
+        draw = ImageDraw.Draw(rendered_image)
+        if tubulin is None:
+            draw.text((302, 138), tr("no tubulin channel"), fill=(150, 150, 150))
+        bar = int(round(10 / float(pixel_size) * 3))
+        draw.rectangle([864 - bar, 278, 864, 281], fill=(255, 255, 255))
+        path = os.path.join(data, uuid.uuid4().hex + ".png")
+        rendered_image.save(path)
         paths.append(path)
-    selection = pd.DataFrame({"plateID": [r.plate for r, _ in crops],
-                              "rowID": [r.well for r, _ in crops],
-                              "columnID": [r.well for r, _ in crops],
-                              "fieldID": [r.site for r, _ in crops],
-                              "objectID": [r.label for r, _ in crops]})
+        included.append(row)
+        calibrations.append(float(pixel_size))
+    if not included:
+        raise ValueError(tr("No selected cells have a complete 96-pixel context window; choose cells away from field edges."))
+    rendered = pd.DataFrame(included)
+    selection = pd.DataFrame({"plateID": rendered["plate"].to_numpy(),
+                              "rowID": rendered["well"].to_numpy(),
+                              "columnID": rendered["well"].to_numpy(),
+                              "fieldID": rendered["site"].to_numpy(),
+                              "objectID": rendered["label"].to_numpy()})
     write_png_list(os.path.join(folder, "measurements", "measurements.db"),
                    png_list_frame(selection, paths))
-    write_table(queue.assign(png_path=paths), os.path.join(folder, "queue.csv"),
-                canonicalise=False)
+    write_table(rendered.assign(png_path=paths, image_name=[os.path.basename(p) for p in paths]),
+                os.path.join(folder, "queue.csv"), canonicalise=False)
     with open(os.path.join(folder, "queue.json"), "w", encoding="utf-8") as handle:
         json.dump({"classes": {str(i + 1): c for i, c in enumerate(CLASSES)},
-                   "labels": str(labels), "cells": int(len(queue)),
-                   "ranges": [list(map(float, r)) for r in ranges]}, handle, indent=1)
+                   "labels": str(labels), "cells": len(included), "excluded": excluded,
+                   "channels": [int(c) for c in selected], "ranges": fixed.tolist(),
+                   "radius": int(radius), "window": 96, "scale": 3, "gamma": 1.0,
+                   "pixel_size_um": calibrations, "scale_bar_um": 10,
+                   "panels": ["DNA_grey", "tubulin_grey", "DNA_blue_tubulin_green"],
+                   "object_mask": "nucleus" if crop_source is None else getattr(crop_source, "object_mask", "source_provided"),
+                   "mapping": "queue.csv"}, handle, indent=1)
     return folder
 
 
@@ -1467,6 +1649,8 @@ def open_label_job(window, queued: Mapping[str, Any]) -> None:
     folder = str(queued["folder"])
     if not os.path.isfile(os.path.join(folder, "queue.json")):
         pending = read_table(str(queued["pending"]), canonicalise=False, report=None)
-        write_label_queue(pending, str(queued["crop_root"]), folder, labels=str(queued["labels"]))
+        write_label_queue(pending, str(queued["crop_root"]), folder, labels=str(queued["labels"]),
+                          channels=queued.get("channels"), ranges=queued.get("ranges"),
+                          radius=queued.get("radius", 30), crop_source=queued.get("crop_source"))
     key = window.open_module("annotate")
     window._screens[key]._open_source(folder)

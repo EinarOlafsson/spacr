@@ -7,6 +7,7 @@ import pytest
 
 @pytest.fixture
 def extract_metadata(tmp_path, monkeypatch):
+    """Create every declared backend file before testing exact metadata caption ownership."""
     monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'tools'))
     builder = importlib.import_module('build_i18n_catalogs')
     root = tmp_path / 'spacr' / 'qt' / 'screens'

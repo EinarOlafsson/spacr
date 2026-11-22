@@ -94,6 +94,7 @@ tr("Adjacent " "literal {value}", value=3)
 
 
 def test_web_sources_join_production_inventory_before_compact_filtering(web_sources, monkeypatch):
+    """Include web captions with every declared backend owner present in the fake source tree."""
     builder, write, root = web_sources
     source_root = root / "spacr"
     (source_root / "qt").mkdir(parents=True)

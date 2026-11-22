@@ -1,0 +1,15 @@
+{
+  "key": "ops_cell_cycle_label_channels",
+  "default": null,
+  "tooltip": "(list or None) - Up to two crop channel indices for stage labelling, starting at 0. Select DNA first and tubulin second, or select another stain with explicit display bounds. Panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin overlay. Funk defaults use fixed raw DAPI and GFP bounds, a 96-pixel unmasked context window and the nucleus mask dilated by 30 pixels. None selects the first two crop channels. Default None. Alpha.",
+  "types": [
+    "list",
+    "NoneType"
+  ],
+  "category": "Cell-cycle stages",
+  "api_target": [
+    "spacr.ops_cell_cycle",
+    "run_cell_cycle_phase",
+    true
+  ]
+}

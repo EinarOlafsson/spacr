@@ -307,6 +307,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cell_cycle_arrest_genes": 'default',
     "ops_cell_cycle_labels": '',
     "ops_cell_cycle_label_queue": 0,
+    "ops_cell_cycle_label_channels": None,
     "ops_cell_cycle_seed": 0,
     "ops_tvn_fit_cells": "pooled",
     "ops_penetrance": False,
@@ -903,6 +904,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cell_cycle_arrest_genes": (str, list, type(None)),
     "ops_cell_cycle_labels": str,
     "ops_cell_cycle_label_queue": int,
+    "ops_cell_cycle_label_channels": (list, type(None)),
     "ops_cell_cycle_seed": int,
     "ops_tvn_fit_cells": str,
     "ops_penetrance": bool,
@@ -1449,6 +1451,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cell_cycle_arrest_genes",
         "ops_cell_cycle_labels",
         "ops_cell_cycle_label_queue",
+        "ops_cell_cycle_label_channels",
         "ops_cell_cycle_seed",
     ],
     "Penetrance, escapers & neighbours": [
@@ -3800,6 +3803,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "cell_cycle_labels/<plate> in the run folder; the Home job built from "
         "it opens the cells in Annotate, and its answers refit the model. 0 "
         "queues none; 100 is recommended. Default 0. Alpha.",
+    "ops_cell_cycle_label_channels":
+        "(list or None) - Up to two crop channel indices for stage labelling, starting at 0. "
+        "Select DNA first and tubulin second, or select another stain with explicit display bounds. "
+        "Panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin overlay. "
+        "Funk defaults use fixed raw DAPI and GFP bounds, a 96-pixel unmasked context window "
+        "and the nucleus mask dilated by 30 pixels. None selects the first two crop channels. "
+        "Default None. Alpha.",
     "ops_cell_cycle_seed":
         "(int) - The seed of every random draw of the option: folds, "
         "shuffles, the learner and the self-check permutations. Default 0. "
