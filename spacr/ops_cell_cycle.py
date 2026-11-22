@@ -1214,13 +1214,28 @@ def _checks_rows(all_share, mitotic_share, samples) -> pd.DataFrame:
 def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
                  failed: Sequence[str], notes: Sequence[str], card: Mapping[str, Any],
                  figures: Sequence[Tuple[str, str]] = ()) -> str:
-    """``ops_cell_cycle_report.html``: checks with their controls, stage counts and notes."""
+    """Report checks, stage counts and notes, explaining unjudged DNA-fit stages.
+
+    A failed S6 R² below 0.90 labels its report row and G1, S and G2 as
+    not judged, with the measured R². Counts, check verdicts and collapse
+    decisions remain unchanged.
+    """
     import html
 
     from .qt.i18n import tr
 
     table = _html_table
     esc = html.escape
+    report_checks = checks.copy()
+    stage_judgements = []
+    s6 = checks.loc[checks["check"] == "S6"]
+    if len(s6):
+        value = float(s6["value"].iloc[0])
+        if _verdict(s6["passed"].iloc[0]) is False and np.isfinite(value) and value < FIT_R2:
+            reason = tr("not judged (S6 R^2 {r2} < {threshold})",
+                        r2=f"{value:.2f}", threshold=f"{FIT_R2:.2f}")
+            report_checks.loc[s6.index, "status"] = reason
+            stage_judgements = [f"<p>{esc(stage)}: {esc(reason)}</p>" for stage in PHASES]
     f1 = pd.DataFrame([{"stage": k, "F1": v, "CI low": card.get("cv", {}).get("f1_ci95", {})
                         .get(k, [np.nan, np.nan])[0], "CI high": card.get("cv", {})
                         .get("f1_ci95", {}).get(k, [np.nan, np.nan])[1]}
@@ -1231,9 +1246,10 @@ def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
                 "prometaphase; metaphase; ana_telo_cyto (anaphase, telophase and cytokinesis); "
                 "telophase_daughters (the two 2N daughters); artefact. CI: 95 % "
                 "field-bootstrap confidence interval. NT: non-targeting.")) + "</p>",
-            f"<h2>{esc(tr('Self-checks'))}</h2>", table(checks),
+            f"<h2>{esc(tr('Self-checks'))}</h2>", table(report_checks),
             "<p>" + esc(tr("Collapsed: {stages}", stages=", ".join(failed) or tr("none")))
             + "</p>",
+            *stage_judgements,
             f"<h2>{esc(tr('Cells per stage'))}</h2>",
             table(counts.rename_axis("stage").reset_index(name="cells")),
             f"<h2>{esc(tr('Base model cross-validation F1'))}</h2>",
