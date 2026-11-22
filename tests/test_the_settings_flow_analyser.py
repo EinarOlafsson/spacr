@@ -314,15 +314,28 @@ def test_the_page_stays_inside_the_docs_job_timeout(flow, data):
     That is inside the 9,417 page's 28:50 at load 28 and well inside the
     docs job's 60 minutes, so 322 of headroom is kept.
 
+    RAISED TO 14,420 ON 2026-11-21 on landing train 8, for the readers of
+    the settings that train 8 adds (the OPS cell-cycle and max-projection
+    stages and the item 990 normalisation settings among them), which took
+    the page to 14,120. Measured on the WS with a whole-site build of
+    e2830d627f (-W -E -b html --keep-going, English API catalogs, after the
+    docs job's Make Masks reference and --sources-only i18n steps) at a load
+    average of 26 to 33:
+
+        14,120 xrefs   15:22.87 wall   6,679,420 KB peak   0 warnings
+
+    That is inside the 13,578 page's 17:50 and well inside the docs job's
+    60 minutes, so 300 of headroom is kept.
+
     The builds also came back with ZERO warnings, which is the second
     thing this page can break: the docs job runs `-W`, so an xref the
     inventory cannot resolve fails it as surely as a timeout.
     """
     rst = flow.rst_for(data)
     xrefs = rst.count(":py:func:")
-    assert xrefs <= 13900, (
+    assert xrefs <= 14420, (
         f"{xrefs} cross-references on the settings-flow page, up from the "
-        "13,578 measured against a real sphinx-build on 2026-11-21. This is "
+        "14,120 measured against a real sphinx-build on 2026-11-21. This is "
         "the build-time ratchet; confirm a real sphinx-build before raising "
         "it, and record the wall clock in the docstring above")
 
