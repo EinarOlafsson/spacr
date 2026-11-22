@@ -1,0 +1,177 @@
+def _fit_dna_content(content, *, gates=None, max_iter=300, tol=1e-7):
+    """Fit G1 and G2 peaks with an S phase between them to DNA content.
+
+    A Dean-Jett-Fox style mixture fitted by expectation maximisation: a
+    Gaussian G1 peak, a Gaussian G2 peak held between 1.6 and 2.4 times the
+    G1 position with the same coefficient of variation (at most 15 %, as
+    for any DNA stain that measures content), a uniform S phase between
+    the two peaks, and a flat
+    component of at most 15 % for debris, clumps and mis-segmented nuclei.
+    The fit starts from the G1 peak of the log histogram and ignores nuclei
+    below 0.35 or above 3.2 times it, which are fragments, nuclei cut by the
+    field edge and clumps rather than cells in a phase.
+
+    :param content: background-subtracted integrated DNA intensities of one
+        plate; non-finite and non-positive values are ignored.
+    :param gates: optional ``[G1/S, S/G2]`` cuts in DNA content units, the
+        G1 peak being 2 and the G2 peak 4; they replace the fitted
+        crossings.
+    :param max_iter: iteration cap.
+    :param tol: convergence tolerance on the mean log-likelihood.
+    :returns: a :class:`_DnaFit`.
+    :raises ValueError: fewer than 30 usable nuclei, or gates that are not
+        two increasing numbers.
+    """
+    x = np.asarray(content, dtype=float)
+    x = x[np.isfinite(x) & (x > 0)]
+    if x.size < _CELL_CYCLE_MIN_FIT:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "A DNA-content histogram needs at least {minimum} nuclei with "
+            "a positive DNA signal; this one has {count}. Check the DNA "
+            "stain channel and nucleus masks, and measure more nuclei with "
+            "a positive DNA signal before rerunning cell-cycle analysis.",
+            minimum=_CELL_CYCLE_MIN_FIT, count=x.size))
+    g1 = _dna_seed(x)
+    x = x[(x >= _CELL_CYCLE_FIT_RANGE[0] * g1)
+          & (x <= _CELL_CYCLE_FIT_RANGE[1] * g1)]
+    if x.size < _CELL_CYCLE_MIN_FIT:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "A DNA-content histogram needs at least {minimum} nuclei near "
+            "its G1 and G2 peaks; this one has {count}. Check the DNA stain "
+            "channel and nucleus masks, and measure enough nuclei spanning "
+            "the G1 and G2 populations before rerunning cell-cycle analysis.",
+            minimum=_CELL_CYCLE_MIN_FIT, count=x.size))
+    low, high = _CELL_CYCLE_RATIO_BOUNDS
+    g2 = _dna_g2_seed(x, g1)
+    cv = 0.08
+    sd1, sd2 = cv * g1, cv * g2
+    weights = np.array([0.5, 0.2, 0.25, 0.05])
+    previous = -np.inf
+    iterations = 0
+    for iterations in range(1, max_iter + 1):
+        fit = _DnaFit(g1, g2, sd1, sd2, tuple(weights), (g1, g2), x.size,
+                      iterations)
+        dens = fit.densities(x)
+        total = np.maximum(dens.sum(axis=1), 1e-300)
+        resp = dens / total[:, None]
+        likelihood = float(np.mean(np.log(total)))
+        weights = resp.mean(axis=0)
+        weights[3] = min(weights[3], _CELL_CYCLE_OUTLIER_CAP)
+        weights = weights / weights.sum()
+        r1, r2 = resp[:, 0], resp[:, 2]
+        if r1.sum() > 1e-9:
+            g1 = float(np.sum(r1 * x) / r1.sum())
+        if r2.sum() > 1e-9:
+            g2 = float(np.sum(r2 * x) / r2.sum())
+        g2 = float(np.clip(g2, low * g1, high * g1))
+        spread = (np.sum(r1 * ((x - g1) / g1) ** 2)
+                  + np.sum(r2 * ((x - g2) / g2) ** 2))
+        cv = float(np.sqrt(spread / max(r1.sum() + r2.sum(), 1e-9)))
+        cv = float(np.clip(cv, 0.02, _CELL_CYCLE_MAX_CV))
+        sd1, sd2 = cv * g1, cv * g2
+        if abs(likelihood - previous) < tol * max(1.0, abs(likelihood)):
+            break
+        previous = likelihood
+    fit = _DnaFit(g1, g2, sd1, sd2, tuple(float(w) for w in weights),
+                  (g1, g2), int(x.size), iterations)
+    if gates is None:
+        fit.gates = _dna_gates(fit)
+        return fit
+    try:
+        first, second = (float(v) for v in gates)
+    except (TypeError, ValueError):
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: cell_cycle_gates must be two numbers in DNA content "
+            "units, such as [2.5, 3.5]; got {gates!r}. Enter [G1/S, S/G2] "
+            "in cell_cycle_gates, or leave it blank to fit the gates "
+            "automatically.", gates=gates)) from None
+    if not 0 < first < second:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: cell_cycle_gates must be two increasing positive "
+            "numbers, G1/S then S/G2; got {gates!r}. Enter a positive G1/S "
+            "gate smaller than the S/G2 gate, or leave cell_cycle_gates "
+            "blank to fit the gates automatically.", gates=gates))
+    fit.gates = (first * g1 / 2.0, second * g1 / 2.0)
+    fit.fitted_gates = False
+    return fit
+
+def _field_centred_dna_phases(content, *, groups, fields=None, mitotic=None,
+                              centre=True,
+                              min_cells=_CELL_CYCLE_FIELD_MIN_CELLS,
+                              gates=None):
+    """G1, S, G2, subG1, >4N or M of every nucleus from field-centred DNA.
+
+    With ``centre``, the DNA content is taken as
+    ``x = log2(max(content, 1))``, every field is shifted by
+    :func:`_dna_field_offsets` within its fit group, and the centred content
+    is ``2 ** (x - offset)``; without it the content is used as it is. One
+    :func:`_fit_dna_content` is fitted per group on its non-mitotic nuclei,
+    every nucleus of the group is gated with :func:`_gate_dna_content`, and
+    the nuclei of the external ``mitotic`` call are M. A group with too few
+    nuclei to fit is gated with the fit of all groups pooled.
+
+    :param content: background-subtracted integrated DNA intensity per
+        nucleus, in row order.
+    :param groups: ``(name, positions)`` pairs, the rows of each fit group.
+    :param fields: the field of each nucleus; needed with ``centre``.
+    :param mitotic: optional boolean external mitotic call per nucleus.
+    :param centre: centre each field on its G1 peak first.
+    :param min_cells: the non-mitotic nuclei a field needs to be shifted.
+    :param gates: optional ``[G1/S, S/G2]`` in DNA content units.
+    :returns: ``(frame, fits)``: per nucleus ``field_offset_log2``,
+        ``dna_content_centred``, ``phase``, ``confidence`` and the fitted
+        ``posterior_G1``, ``posterior_S`` and ``posterior_G2``; ``fits``
+        maps each group name to ``{'fit': _DnaFit, 'fields_shifted': int,
+        'pooled': bool}``.
+    """
+    raw = np.asarray(content, dtype=float)
+    log_dna = np.log2(np.maximum(raw, 1.0))
+    mitotic = (np.zeros(raw.shape, dtype=bool) if mitotic is None
+               else np.asarray(mitotic, dtype=bool))
+    offsets = np.zeros(raw.shape)
+    shifted = {}
+    groups = [(name, np.asarray(rows, dtype=np.int64)) for name, rows in groups]
+    if centre:
+        labels = np.asarray(fields)
+        usable = np.isfinite(log_dna) & ~mitotic
+        for name, rows in groups:
+            offsets[rows], shifted[name] = _dna_field_offsets(
+                log_dna[rows], labels[rows], usable[rows], min_cells=min_cells)
+    centred = 2.0 ** (log_dna - offsets) if centre else raw.copy()
+    phases = np.full(raw.shape, None, dtype=object)
+    confidence = np.full(raw.shape, np.nan)
+    posterior = np.full((raw.size, 3), np.nan)
+    pooled = None
+    fits = {}
+    for name, rows in groups:
+        values = centred[rows]
+        interphase = ~mitotic[rows]
+        used_pool = False
+        try:
+            fit = _fit_dna_content(values[interphase], gates=gates)
+        except ValueError:
+            if pooled is None:
+                pooled = _fit_dna_content(centred[~mitotic], gates=gates)
+            fit, used_pool = pooled, True
+        called, sure, three = _gate_dna_content(values, fit)
+        called = np.asarray(called, dtype=object)
+        called[~interphase] = _CELL_CYCLE_PHASES[3]
+        phases[rows] = called
+        confidence[rows] = sure
+        posterior[rows] = three
+        fits[name] = {'fit': fit, 'fields_shifted': int(shifted.get(name, 0)),
+                      'pooled': used_pool}
+    frame = pd.DataFrame({
+        'field_offset_log2': offsets, 'dna_content_centred': centred,
+        'phase': phases, 'confidence': confidence,
+        'posterior_G1': posterior[:, 0], 'posterior_S': posterior[:, 1],
+        'posterior_G2': posterior[:, 2]})
+    return frame, fits
