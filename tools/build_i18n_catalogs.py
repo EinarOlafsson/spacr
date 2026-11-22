@@ -4933,6 +4933,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_phases_by_xgboost", "_phases_by_torch", "_wound_plane",
                              "_viability_manual",
                              "_measurement_channel_index",
+                             "measure_cytoskeleton",
                              "_measurement_run_locks",
                              "_archive_measurement_run",
                              "_wound_calibration",
