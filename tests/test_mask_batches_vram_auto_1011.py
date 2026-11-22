@@ -431,3 +431,35 @@ def test_ops_auto_vram_even_sizes_respect_the_stager_capacity(monkeypatch):
         for _record, _image, _metadata, count in fields:
             counts.append(count)
     assert counts == [3, 3, 3, 2, 2, 2, 2]
+
+
+def test_device_rule_docstring_matches_the_exact_private_source_contract():
+    """Bind the requested CPU explanation while retaining the exact reviewed executable function."""
+    import ast
+    import copy
+    import hashlib
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    contract = json.loads((root / "tests/data/release_contracts"
+                           / "1011_device_rule_doc_revision_2026-11-22.json").read_text())
+    assert contract["base"] == "2106ce3a4a1bd4ab9576dc159b3716e335b836fc"
+    assert contract["scope"] == "private_source_docstring_revision"
+    assert contract["symbol"] == "spacr._mask_batches._calibrate"
+    assert hashlib.sha256(contract["before_source"].encode()).hexdigest() == "1877a6b3140a30b4f65961d4e4e03553838fd9610b14277c2d05ee4dd16a41c7"
+    text = (root / contract["file"]).read_text()
+    owner = next(node for node in ast.parse(text).body
+                 if isinstance(node, ast.FunctionDef) and node.name == "_calibrate")
+    assert hashlib.sha256(ast.get_source_segment(text, owner).encode()).hexdigest() == contract["after_source_sha256"]
+    docstring = ast.get_docstring(owner)
+    assert docstring == contract["docstring"]
+    assert hashlib.sha256(docstring.encode()).hexdigest() == contract["docstring_sha256"]
+    assert contract["added_sentence"] == (
+        "A model that names no device runs on the CPU; the current CUDA card is never assumed.")
+    assert contract["added_sentence"] in " ".join(docstring.split())
+    original = ast.parse(contract["before_source"]).body[0]
+    current = copy.deepcopy(owner)
+    original.body.pop(0)
+    current.body.pop(0)
+    assert ast.dump(original, include_attributes=False) == ast.dump(current, include_attributes=False)
