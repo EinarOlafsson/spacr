@@ -59,21 +59,28 @@ def test_a_legacy_column_of_none_reads_as_empty_rather_than_the_string_none():
 # class_metadata_of: the values, in class order, or the legacy list
 # ---------------------------------------------------------------------------
 
-def test_a_class_with_no_value_contributes_nothing_to_the_metadata():
-    settings = {"classes": {"complement": {"random_complement": True},
-                            "pc": {"column": "columnID", "value": "c3"}}}
-
-    assert cc.class_metadata_of(settings) == [["c3"]]
-
-
-def test_a_dict_where_no_class_has_a_value_falls_back_to_the_legacy_list():
-    """Every rule is a complement or a half-filled row: the dict cannot
-    describe the metadata, so the file's own list stands."""
-    settings = {"classes": {"complement": {"random_complement": True},
-                            "junk": "pc"},
-                "class_metadata": [["c1"], ["c2"]]}
-
-    assert cc.class_metadata_of(settings) == [["c1"], ["c2"]]
+@pytest.mark.parametrize('settings_input, expected', [
+    pytest.param(
+        {'classes': {
+            'complement': {'random_complement': True},
+            'pc': {'column': 'columnID', 'value': 'c3'},
+        }},
+        [['c3']],
+        id='test_a_class_with_no_value_contributes_nothing_to_the_metadata',
+    ),
+    pytest.param(
+        {'classes': {
+            'complement': {'random_complement': True},
+            'junk': 'pc',
+        }, 'class_metadata': [['c1'], ['c2']]},
+        [['c1'], ['c2']],
+        id='test_a_dict_where_no_class_has_a_value_falls_back_to_the_legacy_list',
+    ),
+])
+def test_original_class_definitions_keep_their_metadata_lists(settings_input, expected):
+    """Preserve each original class definition and its derived or legacy metadata list."""
+    settings = settings_input
+    assert cc.class_metadata_of(settings) == expected
 
 
 def test_no_values_anywhere_is_an_empty_list_not_a_none():
