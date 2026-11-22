@@ -335,12 +335,21 @@ def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path):
     Opt-in (``SPACR_OPS_E2E_FULL=1``): 1.25 GB and about two minutes of
     decode. The nuclei are the reference ``ops_objects`` written into the
     run's database, so segmentation is not re-run here.
+
+    Pipeline parity (maintainer decision, 2026-11-22): this run pins
+    ``ops_read_neighbour_discount = 1.0``, the undiscounted read weighting
+    the shipped reference and the production calls were made with. Item
+    1013 made 0.25 the default (the item 988 acceptance passed all six
+    criteria at b = 0.25), which moves gate (c) to 0.9884 against this
+    undiscounted reference. There is no b = 0.25 reference call set in
+    this tier to compare the default against.
     """
     from spacr.ops_engine import _replace_well_rows
 
     root = ops_e2e_full
     settings = _settings(root, tmp_path)
     settings["n_workers"] = 1
+    settings["ops_read_neighbour_discount"] = 1.0
     result = _run(settings, ["stitch"])
     db = Path(result["db"])
     _assert_geometry(_table(db, "ops_geometry"), root)
