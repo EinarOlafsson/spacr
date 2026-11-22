@@ -928,6 +928,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'manders_thresholds',
     'map_name',
     'map_path',
+    'margin_px',
     'mask_batch',
     'mask_batch_seed',
     'mask_dim',
@@ -1249,8 +1250,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_cell_cycle_base_model',
     'ops_cell_cycle_dna_channel',
     'ops_cell_cycle_finetune',
-    'ops_cell_cycle_label_queue',
     'ops_cell_cycle_label_channels',
+    'ops_cell_cycle_label_queue',
     'ops_cell_cycle_labels',
     'ops_cell_cycle_model_family',
     'ops_cell_cycle_mt_channel',
@@ -2659,4 +2660,5 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'z_segmentation_mode',
     'z_stack',
     'zernike',
+    'zero_outside',
 })
