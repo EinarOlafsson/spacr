@@ -341,8 +341,11 @@ def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path):
     the shipped reference and the production calls were made with. Item
     1013 made 0.25 the default (the item 988 acceptance passed all six
     criteria at b = 0.25), which moves gate (c) to 0.9884 against this
-    undiscounted reference. There is no b = 0.25 reference call set in
-    this tier to compare the default against.
+    undiscounted reference. The default is then checked against the same
+    production calls with its own floor: the neighbour-bleed discount
+    (b = 0.25, maintainer decision 2026-11-22, 988 acceptance) moves ~1.2 %
+    of calls away from the undiscounted production calls; measured 0.9884
+    on 13,310 cells, so the default must agree >= 0.985.
     """
     from spacr.ops_engine import _replace_well_rows
 
@@ -372,3 +375,16 @@ def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path):
     for column in ("quality", "fraction"):
         np.testing.assert_allclose(found[column], ref[column], rtol=1e-6,
                                    err_msg=column)
+
+    default = _settings(root, tmp_path / "default_discount")
+    default["n_workers"] = 1
+    assert "ops_read_neighbour_discount" not in default or \
+        default["ops_read_neighbour_discount"] != 1.0
+    default_db = Path(_run(default, ["stitch"])["db"])
+    _replace_well_rows(str(default_db), "ops_objects", objects, PLATE, WELL)
+    default_report = _run(default, ["decode"])["wells"][WELL]["decode"]
+    assert default_report["fields_decoded"] == 4
+    default_fraction, default_both = _gate_c(_table(default_db, "ops_barcodes"), root)
+    assert default_both > 10_000
+    assert default_fraction >= 0.985, (
+        f"gate (c), default discount: {default_fraction:.4f} same guide on {default_both}")
