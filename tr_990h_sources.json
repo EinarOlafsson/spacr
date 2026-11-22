@@ -333,10 +333,10 @@
       "change": "queue source"
     },
     {
-      "text": "Stage labelling needs context crops: set crop_margin_px and keep crop_zero_outside off.",
+      "text": "Stage labelling needs context crops. Set crop_margin_px and keep crop_zero_outside off.",
       "file": "spacr/ops_cell_cycle.py",
       "line": 1443,
-      "sha256": "b3cb7733945b2dc10fe45f72a20233ad452e061b7eb857c8b45a15ced4378f0c",
+      "sha256": "e33f2a39ad18ecdc921ead8b23a097327411228e37342ad9ad5d68d529d76ac0",
       "admitted": true,
       "admission": "existing runtime extractor; admitted",
       "change": "queue source"

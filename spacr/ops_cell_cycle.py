@@ -1440,7 +1440,7 @@ def write_label_queue(queue: pd.DataFrame, crop_root: str, folder: str, *,
         else:
             options = meta.get("options", {})
             if options.get("margin_px") is None or bool(options.get("zero_outside", True)):
-                raise ValueError(tr("Stage labelling needs context crops: set crop_margin_px and keep crop_zero_outside off."))
+                raise ValueError(tr("Stage labelling needs context crops. Set crop_margin_px and keep crop_zero_outside off."))
             image, mask = read_crop(crop_root, record, context=True)
             mask = None if mask is None else mask == 2
         image = np.asarray(image)

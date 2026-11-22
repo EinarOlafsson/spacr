@@ -104,7 +104,7 @@ Each exact text, hash, source location and admission is also recorded in the JSO
 - `spacr/ops_cell_cycle.py:1471`; SHA256 `a8f91bad16d47e2d7d0ed406e5b969441607e0ddbb4bdcd0662a6491f00e84fb`; admitted: Funk display bounds require raw uint16 images; give explicit ranges for other pixel units.
 - `spacr/ops_cell_cycle.py:1436`; SHA256 `58df9346fe0d9177f5c09708ac46f832d41f9b7e900aaf6f73c654e9b65842d9`; admitted: The context field needs a nuclei label mask for stage labelling.
 - `spacr/ops_cell_cycle.py:1439`; SHA256 `e4f8c1e96a3f36a0dc7716473f198c7844eda06eb33b0092b0ed5f14f9c7313a`; admitted: Legacy OPS shards contain masked crops; provide full-field or unmasked nucleus context crops.
-- `spacr/ops_cell_cycle.py:1443`; SHA256 `b3cb7733945b2dc10fe45f72a20233ad452e061b7eb857c8b45a15ced4378f0c`; admitted: Stage labelling needs context crops: set crop_margin_px and keep crop_zero_outside off.
+- `spacr/ops_cell_cycle.py:1443`; SHA256 `e33f2a39ad18ecdc921ead8b23a097327411228e37342ad9ad5d68d529d76ac0`; admitted: Stage labelling needs context crops. Set crop_margin_px and keep crop_zero_outside off.
 
 Setting `ops_cell_cycle_label_channels`: default `None`, types `list | None`, panel `Cell-cycle stages`; API owner `spacr.ops_cell_cycle.run_cell_cycle_phase`.
 
