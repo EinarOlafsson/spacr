@@ -73,18 +73,30 @@ def test_path_pairs_keep_their_original_identity_results(left, right, expected):
     assert same_path(left, right) is expected
 
 
-def test_trailing_separators_and_dot_segments_do_not_matter():
+@pytest.mark.parametrize(
+    'left_first, right_first, expected_first, '
+    'left_second, right_second, expected_second',
+    [
+        pytest.param(
+            '/plate/', '/plate', True,
+            '/plate/./sub', '/plate/sub', True,
+            id='test_trailing_separators_and_dot_segments_do_not_matter',
+        ),
+        pytest.param(
+            None, [], True,
+            None, '/plate', False,
+            id='test_nothing_equals_nothing_and_not_something',
+        ),
+    ],
+)
+def test_path_comparisons_keep_both_original_identity_checks(
+    left_first, right_first, expected_first,
+    left_second, right_second, expected_second,
+):
+    """Preserve both original path comparisons and native boolean identity checks."""
     from spacr.chaining import same_path
-
-    assert same_path("/plate/", "/plate") is True
-    assert same_path("/plate/./sub", "/plate/sub") is True
-
-
-def test_nothing_equals_nothing_and_not_something():
-    from spacr.chaining import same_path
-
-    assert same_path(None, []) is True
-    assert same_path(None, "/plate") is False
+    assert same_path(left_first, right_first) is expected_first
+    assert same_path(left_second, right_second) is expected_second
 
 
 # ---------------------------------------------------------------------------
