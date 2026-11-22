@@ -1239,36 +1239,73 @@ def _distance_term(gap: float, decay_px: float, interior_px: float,
     return max(math.exp(-excess / float(decay_px)), float(min_weight))
 
 
+def neighbour_bleed_flags(cell, barcode, reads, neighbours) -> np.ndarray:
+    """Identify minority barcode groups that match a top barcode in a neighbouring cell.
+
+    Every top barcode tied by read count is retained. A group is flagged only
+    when its read count is strictly below the maximum in the same cell and
+    its barcode is a top barcode in a supplied neighbouring cell. The input
+    groups and neighbour pairs may be in any order. Inputs are not changed.
+
+    :param cell: one integer cell identifier per unique cell/barcode group.
+    :param barcode: one barcode identifier per group, as strings or codes.
+    :param reads: the exact plus corrected read count of every group.
+    :param neighbours: integer cell/neighbour pairs with shape ``(P, 2)``;
+        include both orders for an undirected relation, or None for no pairs.
+    :returns: one boolean flag per input group, in the original group order.
+    :raises ValueError: when group arrays or nonempty pairs have inconsistent shapes.
+    """
+    cells = np.asarray(cell, np.int64)
+    barcodes = np.asarray(barcode)
+    counts = np.asarray(reads)
+    if cells.ndim != 1 or barcodes.shape != cells.shape or counts.shape != cells.shape:
+        raise ValueError("neighbour bleed needs one cell, barcode and read count per group")
+    flags = np.zeros(len(cells), bool)
+    if neighbours is None:
+        return flags
+    pairs = np.asarray(neighbours, np.int64)
+    if not pairs.size:
+        return flags
+    if pairs.ndim != 2 or pairs.shape[1] != 2:
+        raise ValueError("neighbour bleed pairs must have shape pairs by two")
+    if not len(cells):
+        return flags
+    from pandas import DataFrame, MultiIndex
+
+    owners, inverse = np.unique(cells, return_inverse=True)
+    most = np.zeros(len(owners), dtype=counts.dtype)
+    np.maximum.at(most, inverse, counts)
+    top = counts == most[inverse]
+    minority = counts < most[inverse]
+    if not minority.any():
+        return flags
+    tops = DataFrame({"neighbour": cells[top], "barcode": barcodes[top]})
+    incoming = DataFrame({"cell": pairs[:, 0], "neighbour": pairs[:, 1]}).merge(tops, on="neighbour")
+    candidates = MultiIndex.from_arrays([incoming["cell"], incoming["barcode"]])
+    groups = MultiIndex.from_arrays([cells, barcodes])
+    return minority & groups.isin(candidates)
+
+
 def _discount_neighbour_bleed(votes, exact, corrected, neighbours: Mapping[int, Any],
                               discount: float) -> None:
-    """Weigh down the minority guides that are a neighbour's top guide (item 988).
+    """Apply the shared bleed flags to existing full-barcode vote tallies in place.
 
-    An object's guide is discounted when it has strictly fewer reads than
-    the object's top guide and is a top guide, by reads with ties kept, of a
-    neighbouring object. Decoy guides count like library guides.
-
-    :param votes: object -> guide -> summed vote, changed in place.
-    :param exact: object -> guide -> exact reads.
-    :param corrected: object -> guide -> corrected reads.
-    :param neighbours: object -> its neighbouring objects.
-    :param discount: the factor a discounted vote is multiplied by.
+    :param votes: object to guide to summed vote, changed in place.
+    :param exact: object to guide to exact read count.
+    :param corrected: object to guide to corrected read count.
+    :param neighbours: object to neighbouring object identifiers.
+    :param discount: factor multiplied into each flagged guide vote.
     """
-    reads = {owner: {g: exact[owner].get(g, 0) + corrected[owner].get(g, 0) for g in tally}
-             for owner, tally in votes.items()}
-    tops = {}
-    for owner, per in reads.items():
-        most = max(per.values())
-        tops[owner] = {g for g, n in per.items() if n == most}
-    for owner, tally in votes.items():
-        near = set()
-        for other in neighbours.get(owner, ()):
-            near |= tops.get(int(other), set())
-        if not near:
-            continue
-        most = max(reads[owner].values())
-        for guide in list(tally):
-            if guide in near and reads[owner][guide] < most:
-                tally[guide] *= discount
+    groups = [(owner, guide) for owner, tally in votes.items() for guide in tally]
+    cells = np.array([owner for owner, guide in groups], np.int64)
+    barcodes = np.array([guide for owner, guide in groups])
+    reads = np.array([exact[owner].get(guide, 0) + corrected[owner].get(guide, 0)
+                      for owner, guide in groups])
+    pairs = np.array([(owner, int(other)) for owner in votes
+                      for other in neighbours.get(owner, ())], np.int64).reshape(-1, 2)
+    for (owner, guide), flagged in zip(groups, neighbour_bleed_flags(cells, barcodes, reads, pairs)):
+        if flagged:
+            votes[owner][guide] *= discount
 
 
 def _disc_neighbours(ids: np.ndarray, centroids: np.ndarray, areas: np.ndarray,
@@ -1369,8 +1406,7 @@ def vote_mapped_reads(objects: np.ndarray, barcodes: Sequence[str],
         (``ops_read_distance_min_weight``).
     :param neighbours: object -> the objects whose boundaries come within
         the footprint of it, for the neighbour discount; None for none.
-    :param neighbour_discount: ``ops_read_neighbour_discount`` (item 988,
-        alpha). A guide with strictly fewer reads in the object than its
+    :param neighbour_discount: ``ops_read_neighbour_discount`` (item 988). A guide with strictly fewer reads in the object than its
         top guide has its vote multiplied by this when it is a top guide
         of a neighbour, by reads with ties kept. 1 is off.
     :returns: ``{object: {"guide", "fraction", "n_support", "n_exact",

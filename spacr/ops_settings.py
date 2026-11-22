@@ -240,7 +240,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_read_distance_decay_px": 4.0,
     "ops_read_distance_interior_px": 0.0,
     "ops_read_distance_min_weight": 0.05,
-    "ops_read_neighbour_discount": 1.0,
+    "ops_read_neighbour_discount": 0.25,
     "ops_decode_pixel_fallback": False,
     "ops_pixel_percentile": 97.0,
     "ops_pixel_radius": 10.0,
@@ -554,6 +554,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_nearmiss_decoy_k": 0,
     "ops_prefix_fdr_calibration": "never",
     "ops_prefix_minority_min_reads": 3,
+    "ops_prefix_bleed_in_recipe": False,
     "ops_prefix_distance_weight": "off",
     "ops_prefix_distance_decay_px": 8.0,
     "ops_prefix_distance_interior_px": 0.0,
@@ -1155,6 +1156,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_nearmiss_decoy_k": int,
     "ops_prefix_fdr_calibration": str,
     "ops_prefix_minority_min_reads": int,
+    "ops_prefix_bleed_in_recipe": bool,
     "ops_prefix_distance_weight": str,
     "ops_prefix_distance_decay_px": (float, int),
     "ops_prefix_distance_interior_px": (float, int),
@@ -1308,7 +1310,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_length", "ops_sbs_cycles", "ops_cycle_mask",
         "ops_prefix_collision", "ops_prefix_metric", "ops_prefix_max_distance",
         "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
-        "ops_prefix_minority_min_reads", "ops_prefix_quality_method",
+        "ops_prefix_minority_min_reads", "ops_prefix_bleed_in_recipe",
+        "ops_prefix_quality_method",
         "ops_prefix_weighted_quality", "ops_prefix_weighted_min_share",
         "ops_keep_multi_guide_cells", "ops_multi_guide_min_reads",
         "ops_prefix_masks_frame",
@@ -3464,13 +3467,19 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - The smallest distance term of ops_read_distance_weight, so "
         "a far read never counts as zero. Default 0.05. Alpha.",
     "ops_read_neighbour_discount":
-        "(float) - Weighs down reads that probably bled in from a touching "
-        "cell. Inside a cell, a guide with fewer reads than the top guide is "
-        "multiplied by this value when it is the top guide of a neighbouring "
-        "cell. Neighbours are nuclei whose discs come within ops_footprint, "
-        "or touching cells in the spacer-prefix decode. 1 is off, and 0 "
-        "ignores such reads. The spacer-prefix decode applies it under "
-        "ops_prefix_quality_method 'weighted_majority'. Default 1. Alpha.",
+        "(float) - Weighs down a minority guide when the same guide has the "
+        "most reads in a neighbouring cell, with ties kept. Neighbours are "
+        "nuclei whose discs come within ops_footprint, or touching cells in "
+        "the spacer-prefix decode. 1 is off and 0 ignores flagged reads. "
+        "The spacer-prefix decode uses the discount with 'weighted_majority'; "
+        "under 'recipe_simple', ops_prefix_bleed_in_recipe enables ignoring "
+        "flagged minority barcodes. A notice reports paths where the default "
+        "cannot act. Default 0.25.",
+    "ops_prefix_bleed_in_recipe":
+        "(bool) - Under ops_prefix_quality_method 'recipe_simple', ignore a "
+        "minority barcode that has the most reads in a touching cell when "
+        "ops_read_neighbour_discount is below 1. Tied top barcodes remain. "
+        "This can rescue calls blocked by neighbour bleed. Default False. Alpha.",
     "ops_decode_pixel_fallback":
         "(bool) - For a nucleus no read assigned, call the brightest pixels "
         "near it like reads and assign the guide at least two of them name "

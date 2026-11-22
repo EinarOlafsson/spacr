@@ -215,6 +215,11 @@ default after a higher-numbered item takes the next free number:
   fibre counts. New per-cell cytoskeleton measurements use the corrected
   object support and 24-pixel padded crops.
 
+- 959 (item 1013): ``ops_read_neighbour_discount`` is now ``0.25``.
+  Files stamped before 959 retain ``1.0`` (off), including files from
+  schemas 957 and 958. The recipe-specific prefix bleed switch stays
+  off by default until its separate acceptance is complete.
+
 Public API
 ----------
 

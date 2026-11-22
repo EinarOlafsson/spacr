@@ -1,0 +1,1788 @@
+{
+  "task": "1013",
+  "base": "299179d9530ac618d82f11cc823f3ad8abd1c001",
+  "settings_schema": 959,
+  "policy": "Home owns nine-locale records, catalogs and pins. Canonical API bodies use approved exact adapters. Runtime notice, method labels, revised discount tooltip and new alpha checkbox label/tooltip are admitted through the shipped runtime extractor; no translation authored here.",
+  "home_locales": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "api_revisions": {
+    "base": "299179d9530ac618d82f11cc823f3ad8abd1c001",
+    "before_api_count": 14961,
+    "after_api_count": 14962,
+    "baseline_api_sha256": "fad1583e50faf7e8e34e5298393130609701faac72cdbb7dbdef4ce51a9cae7b",
+    "method": "Exact 299179d953 source-only canonical dictionary; shipped public_docstrings/translatable_blocks only, with each changed body and signature cross-checked against git-show baseline AST. No docs build or translation authored.",
+    "symbols": {
+      "spacr.ops_decode.decode_rule": {
+        "file": "spacr/ops_decode.py",
+        "line": 260,
+        "change": "revision",
+        "before": "The field rule's parameters, read from resolved settings.\n\n:param settings: settings after :func:`resolve_settings`.\n:returns: the parameters :func:`field_calls` takes, plus ``active`` --\n    True when any rule of this module is on, which routes the well\n    through :func:`field_calls` -- and ``decoy_k``. With the item-988\n    distance weight or neighbour discount on (alpha), ``read_weight``\n    holds their settings.\n:raises ValueError: for a negative count or a fraction outside (0, 1],\n    or for the item-988 weighting without the decode rules.",
+        "before_sha256": "94ffa22f8af56496299e7e0973bc4d94dd8b29729316dd328391c50fb92c0bb6",
+        "source": "The field rule's parameters, read from resolved settings.\n\n:param settings: settings after :func:`resolve_settings`.\n:returns: the parameters :func:`field_calls` takes, plus ``active`` --\n    True when any rule of this module is on, which routes the well\n    through :func:`field_calls` -- and ``decoy_k``. With the item-988\n    alpha distance weight or the neighbour discount on, ``read_weight``\n    holds their settings. The default discount is skipped with a\n    notice when rules are off; applied flags are recorded per path.\n:raises ValueError: for a negative count or a fraction outside (0, 1],\n    or for explicit nondefault item-988 weighting without decode rules.",
+        "source_sha256": "c012ff0ef5d3c25a6049527c02efd487000701ac84cbbca3a97f4af340dfd974",
+        "signature": "settings: Mapping[str, Any]",
+        "before_signature": "settings: Mapping[str, Any]",
+        "return_annotation": "Dict[str, Any]",
+        "before_return_annotation": "Dict[str, Any]",
+        "blocks": [
+          {
+            "source": "The field rule's parameters, read from resolved settings.",
+            "source_sha256": "716fd8acf78bbd2860fecc15f045f8493f29ddcf8276322bb348e01bb04cbd30"
+          },
+          {
+            "source": "settings after :func:`resolve_settings`.",
+            "source_sha256": "4b2bae87c545f15abf55a0de98cf2e83016f6374fab4dc199cc60eebf1d2eeef"
+          },
+          {
+            "source": "the parameters :func:`field_calls` takes, plus ``active`` -- True when any rule of this module is on, which routes the well through :func:`field_calls` -- and ``decoy_k``. With the item-988 alpha distance weight or the neighbour discount on, ``read_weight`` holds their settings. The default discount is skipped with a notice when rules are off; applied flags are recorded per path.",
+            "source_sha256": "ada2bcf0a2a2545fe43f1ba805f9dcdc54310e653db3d942f3aa288eff3a6311"
+          },
+          {
+            "source": "for a negative count or a fraction outside (0, 1], or for explicit nondefault item-988 weighting without decode rules.",
+            "source_sha256": "4554e9196da9d4bc8bfe99e155d9dfe1be2a6900aa998c4b333f8091f0f8d26b"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param settings:",
+              [
+                1
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":raises ValueError:",
+              [
+                3
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_decode.resolve_settings": {
+        "file": "spacr/ops_decode.py",
+        "line": 125,
+        "change": "revision",
+        "before": "The settings with ``ops_decode_preset`` applied.\n\n:param settings: the run's settings.\n:param defaults: the panel defaults, so a key a settings file carries at\n    its default still takes the preset's value; None reads\n    :data:`spacr.ops_settings.OPS_DEFAULTS`.\n:returns: a copy; unchanged when no preset is named. A key set to\n    anything other than its default keeps that value.\n:raises ValueError: for an unknown preset.",
+        "before_sha256": "dbd35091cbcdd90ae31aa9b64de5cbbcb917b633aa1ce4ab56040b097a74c428",
+        "source": "The settings with ``ops_decode_preset`` applied.\n\n:param settings: the run's settings.\n:param defaults: the panel defaults, so a key a settings file carries at\n    its default still takes the preset's value; None reads\n    :data:`spacr.ops_settings.OPS_DEFAULTS`.\n:returns: a copy with the preset and a shared private notice context\n    when OPS settings enable the neighbour discount. Explicit nondefault\n    values keep their entered values; applied-path flags are journal metadata.\n:raises ValueError: for an unknown preset.",
+        "source_sha256": "47b14f731f29a663ddc4b24ca5a129f2b43ed90e135e42002774487b516380c9",
+        "signature": "settings: Mapping[str, Any], defaults: Optional[Mapping[str, Any]]=None",
+        "before_signature": "settings: Mapping[str, Any], defaults: Optional[Mapping[str, Any]]=None",
+        "return_annotation": "Dict[str, Any]",
+        "before_return_annotation": "Dict[str, Any]",
+        "blocks": [
+          {
+            "source": "The settings with ``ops_decode_preset`` applied.",
+            "source_sha256": "dd15e7b3776bfff3430b04e7794a1831f3e0e7002f28bc28635a11400a6247af"
+          },
+          {
+            "source": "the run's settings.",
+            "source_sha256": "47556d964a95f3093bf8718305cef4eddb19b1796af90a7dc7c2c240312a49c2"
+          },
+          {
+            "source": "the panel defaults, so a key a settings file carries at its default still takes the preset's value; None reads :data:`spacr.ops_settings.OPS_DEFAULTS`.",
+            "source_sha256": "292a537fe2fbfcde5fe8ce561a393ba93c6032806f7537d59de2622deeb52b3e"
+          },
+          {
+            "source": "a copy with the preset and a shared private notice context when OPS settings enable the neighbour discount. Explicit nondefault values keep their entered values; applied-path flags are journal metadata.",
+            "source_sha256": "933ffcc23c5880aa7a91ecd7e74025db90cad52546063dd35492ce795791256b"
+          },
+          {
+            "source": "for an unknown preset.",
+            "source_sha256": "7d711d1b881cd7ba82d7f48de00f2d13681cfb056342415b8e464bf9a600fb91"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param settings:",
+              [
+                1
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param defaults:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":raises ValueError:",
+              [
+                4
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_prefix.prefix_cell_calls": {
+        "file": "spacr/ops_prefix.py",
+        "line": 1225,
+        "change": "revision",
+        "before": "Each cell's barcode, its read counts and its quality class.\n\n:param reads: one row per read with ``keys``, ``status``, ``key``,\n    ``distance``, ``prefix``, ``guide``, ``gene`` and ``level``\n    (:func:`match_prefix_reads` joined to the read positions); rows\n    whose ``cell`` is 0 are not in a cell.\n:param min_reads: exact reads a ``perfect`` cell needs\n    (``ops_quality_min_reads``) under ``'spacr'``.\n:param keys: the columns naming a cell.\n:param method: ``ops_prefix_quality_method``: ``'spacr'``\n    (:func:`classify_cell`, classes :data:`QUALITY_CLASSES`) or\n    ``'recipe_simple'`` (:func:`recipe_simple_quality` on the exact and\n    corrected reads, each scored one minus its distance over the key\n    length; classes :data:`RECIPE_SIMPLE_CLASSES`).\n:param minority_min_reads: ``ops_prefix_minority_min_reads`` (item 967,\n    alpha). From 2 up, a barcode with fewer reads than this is left out\n    of the cell's call when another barcode in the cell has strictly\n    more reads; tied barcodes still block the call. This rescues cells\n    that a single stray read of a second barcode makes ``bad`` under\n    ``'recipe_simple'``; under ``'spacr'`` it changes no call and can\n    only turn ``great`` into ``perfect``. 0 (the default) and 1 change\n    nothing.\n:param distance_weight: ``ops_prefix_distance_weight`` (item 988,\n    alpha), read only by ``'weighted_majority'``: ``'off'``,\n    ``'decay'`` or ``'distance_only'`` (:data:`READ_WEIGHT_MODES`).\n    The distance term needs a ``nuc_gap_px`` column, each read's\n    distance in pixels to the nucleus of its cell.\n:param decay_px: the decay length in pixels\n    (``ops_prefix_distance_decay_px``).\n:param interior_px: the distance with full weight\n    (``ops_prefix_distance_interior_px``).\n:param min_weight: the smallest distance term\n    (``ops_prefix_distance_min_weight``).\n:param weighted_quality: ``ops_prefix_weighted_quality``. True weights\n    each read by ``min(1, quality) + 0.05``, and False weights it 1.\n:param neighbour_discount: ``ops_read_neighbour_discount``. A barcode\n    with strictly fewer reads than the cell's top barcode has its weight\n    multiplied by this when it is a top barcode of a touching cell. 1\n    is off.\n:param weighted_min_share: ``ops_prefix_weighted_min_share``. The share\n    of the cell's read weight the top barcode needs.\n:param neighbours: the touching cells, needed for a discount below 1.\n    The table has the ``keys`` columns, naming a cell, and\n    ``neighbour``, the label of a cell it touches in the same site.\n:returns: one row per cell with any read: ``keys``, ``reads``,\n    ``matched`` (exact or corrected), ``exact``, ``corrected``,\n    ``ambiguous``, ``collision``, ``out_of_library``, ``barcodes``\n    (distinct callable barcodes), ``prefix``, ``guide``, ``gene`` and\n    ``level`` of the top barcode (empty unless ``perfect`` or ``great``),\n    ``top_reads``, ``top_exact``, ``top_share`` (of matched reads),\n    ``second_reads``, ``has_exact_read`` and ``quality``. With\n    ``minority_min_reads`` 2 or more, ``barcodes``, ``second_reads`` and\n    the class count only the reads the rule keeps, and two columns are\n    added: ``minority_ignored`` (reads left out) and\n    ``minority_rescued`` (True when the cell is called only because of\n    the rule). Under ``'weighted_majority'`` (:data:`WEIGHTED_CLASSES`)\n    the top barcode is the one with the most weight, and five columns\n    are added. ``weight_top`` and ``weight_total`` are the summed read\n    weights of the top barcode and of the cell. ``d_weight_top`` is the\n    summed distance term of the top barcode's reads, and\n    ``g_median_top`` their median nucleus distance (NaN without one).\n    ``bleed_discounted`` counts the barcodes the neighbour discount\n    weighed down.\n:raises ValueError: for an unknown method or read-weight mode, for the\n    minority-read rule combined with ``'weighted_majority'``, or for a\n    discount below 1 without ``neighbours``.",
+        "before_sha256": "66c910ae422658214d2db3d2d898eae91dd67a2f98aadf6c60c94d0b9c090ca3",
+        "source": "Each cell's barcode, its read counts and its quality class.\n\n:param reads: one row per read with ``keys``, ``status``, ``key``,\n    ``distance``, ``prefix``, ``guide``, ``gene`` and ``level``\n    (:func:`match_prefix_reads` joined to the read positions); rows\n    whose ``cell`` is 0 are not in a cell.\n:param min_reads: exact reads a ``perfect`` cell needs\n    (``ops_quality_min_reads``) under ``'spacr'``.\n:param keys: the columns naming a cell.\n:param method: ``ops_prefix_quality_method``: ``'spacr'``\n    (:func:`classify_cell`, classes :data:`QUALITY_CLASSES`) or\n    ``'recipe_simple'`` (:func:`recipe_simple_quality` on the exact and\n    corrected reads, each scored one minus its distance over the key\n    length; classes :data:`RECIPE_SIMPLE_CLASSES`).\n:param minority_min_reads: ``ops_prefix_minority_min_reads`` (item 967,\n    alpha). From 2 up, a barcode with fewer reads than this is left out\n    of the cell's call when another barcode in the cell has strictly\n    more reads; tied barcodes still block the call. This rescues cells\n    that a single stray read of a second barcode makes ``bad`` under\n    ``'recipe_simple'``; under ``'spacr'`` it changes no call and can\n    only turn ``great`` into ``perfect``. 0 (the default) and 1 change\n    nothing.\n:param distance_weight: ``ops_prefix_distance_weight`` (item 988,\n    alpha), read only by ``'weighted_majority'``: ``'off'``,\n    ``'decay'`` or ``'distance_only'`` (:data:`READ_WEIGHT_MODES`).\n    The distance term needs a ``nuc_gap_px`` column, each read's\n    distance in pixels to the nucleus of its cell.\n:param decay_px: the decay length in pixels\n    (``ops_prefix_distance_decay_px``).\n:param interior_px: the distance with full weight\n    (``ops_prefix_distance_interior_px``).\n:param min_weight: the smallest distance term\n    (``ops_prefix_distance_min_weight``).\n:param weighted_quality: ``ops_prefix_weighted_quality``. True weights\n    each read by ``min(1, quality) + 0.05``, and False weights it 1.\n:param neighbour_discount: ``ops_read_neighbour_discount``. A barcode\n    with strictly fewer reads than the cell's top barcode has its weight\n    multiplied by this when it is a top barcode of a touching cell. 1\n    is off.\n:param weighted_min_share: ``ops_prefix_weighted_min_share``. The share\n    of the cell's read weight the top barcode needs.\n:param neighbours: the touching cells, needed for a discount below 1.\n    The table has the ``keys`` columns, naming a cell, and\n    ``neighbour``, the label of a cell it touches in the same site.\n:param bleed_in_recipe: opt-in item-1013 recipe filter. Under\n    ``recipe_simple`` and ``neighbour_discount`` below 1, leave out\n    every read of a flagged minority barcode through the existing\n    minority-read filter. False retains the previous calls.\n:returns: one row per cell with any read: ``keys``, ``reads``,\n    ``matched`` (exact or corrected), ``exact``, ``corrected``,\n    ``ambiguous``, ``collision``, ``out_of_library``, ``barcodes``\n    (distinct callable barcodes), ``prefix``, ``guide``, ``gene`` and\n    ``level`` of the top barcode (empty unless ``perfect`` or ``great``),\n    ``top_reads``, ``top_exact``, ``top_share`` (of matched reads),\n    ``second_reads``, ``has_exact_read`` and ``quality``. With\n    ``minority_min_reads`` 2 or more, ``barcodes``, ``second_reads`` and\n    the class count only the reads the rule keeps, and two columns are\n    added: ``minority_ignored`` (reads left out) and\n    ``minority_rescued`` (True when the cell is called only because of\n    the rule). Under ``'weighted_majority'`` (:data:`WEIGHTED_CLASSES`)\n    the top barcode is the one with the most weight, and five columns\n    are added. ``weight_top`` and ``weight_total`` are the summed read\n    weights of the top barcode and of the cell. ``d_weight_top`` is the\n    summed distance term of the top barcode's reads, and\n    ``g_median_top`` their median nucleus distance (NaN without one).\n    ``bleed_discounted`` counts the barcodes the neighbour discount\n    weighed down.\n:raises ValueError: for an unknown method or read-weight mode, for the\n    minority-read rule combined with ``'weighted_majority'``, or for a\n    discount below 1 without ``neighbours``.",
+        "source_sha256": "8636c740338fc4a4b10020e98be8440c6939a2ec0b3e1efef44698ce66118d33",
+        "signature": "reads: pd.DataFrame, *, min_reads: int=2, keys: Sequence[str]=('plate', 'well', 'site', 'cell'), method: str='spacr', minority_min_reads: int=0, distance_weight: str='off', decay_px: float=8.0, interior_px: float=0.0, min_weight: float=0.05, weighted_quality: bool=True, neighbour_discount: float=1.0, weighted_min_share: float=0.6, neighbours: Optional[pd.DataFrame]=None, bleed_in_recipe: bool=False",
+        "before_signature": "reads: pd.DataFrame, *, min_reads: int=2, keys: Sequence[str]=('plate', 'well', 'site', 'cell'), method: str='spacr', minority_min_reads: int=0, distance_weight: str='off', decay_px: float=8.0, interior_px: float=0.0, min_weight: float=0.05, weighted_quality: bool=True, neighbour_discount: float=1.0, weighted_min_share: float=0.6, neighbours: Optional[pd.DataFrame]=None",
+        "return_annotation": "pd.DataFrame",
+        "before_return_annotation": "pd.DataFrame",
+        "blocks": [
+          {
+            "source": "Each cell's barcode, its read counts and its quality class.",
+            "source_sha256": "36792164de4deb53d477b692de857c993853577f196f2fad5161ca187a032548"
+          },
+          {
+            "source": "one row per read with ``keys``, ``status``, ``key``, ``distance``, ``prefix``, ``guide``, ``gene`` and ``level`` (:func:`match_prefix_reads` joined to the read positions); rows whose ``cell`` is 0 are not in a cell.",
+            "source_sha256": "430b65fea56f65227bea8133e35349d662b3f48eb728c1d201393dfdfbad0e3c"
+          },
+          {
+            "source": "exact reads a ``perfect`` cell needs (``ops_quality_min_reads``) under ``'spacr'``.",
+            "source_sha256": "d9c193fe1fe5857b57710dd5a79199b96bc8a931745700fb7169bcf0f20e00c9"
+          },
+          {
+            "source": "the columns naming a cell.",
+            "source_sha256": "8b6071688f64cdb813c8f62805f3d28dfba258e50d1b1a981c8724af537cbe01"
+          },
+          {
+            "source": "``ops_prefix_quality_method``: ``'spacr'`` (:func:`classify_cell`, classes :data:`QUALITY_CLASSES`) or ``'recipe_simple'`` (:func:`recipe_simple_quality` on the exact and corrected reads, each scored one minus its distance over the key length; classes :data:`RECIPE_SIMPLE_CLASSES`).",
+            "source_sha256": "d3693192da621e83adf7a4770651f555f8beab8dbe785408dce9b337c980c8b9"
+          },
+          {
+            "source": "``ops_prefix_minority_min_reads`` (item 967, alpha). From 2 up, a barcode with fewer reads than this is left out of the cell's call when another barcode in the cell has strictly more reads; tied barcodes still block the call. This rescues cells that a single stray read of a second barcode makes ``bad`` under ``'recipe_simple'``; under ``'spacr'`` it changes no call and can only turn ``great`` into ``perfect``. 0 (the default) and 1 change nothing.",
+            "source_sha256": "a35929d307fc4ef7d93580474bfb9f6b8458801195ea2e4c2e68783ee13ea5ea"
+          },
+          {
+            "source": "``ops_prefix_distance_weight`` (item 988, alpha), read only by ``'weighted_majority'``: ``'off'``, ``'decay'`` or ``'distance_only'`` (:data:`READ_WEIGHT_MODES`). The distance term needs a ``nuc_gap_px`` column, each read's distance in pixels to the nucleus of its cell.",
+            "source_sha256": "4c44ccf16ade55343af4968b4e76ce703c87a9afd4976c38e7173775c5df20d5"
+          },
+          {
+            "source": "the decay length in pixels (``ops_prefix_distance_decay_px``).",
+            "source_sha256": "f7ccce22f8a75e3450033081547004417d022e84bef9815b54f1ed5bce94555a"
+          },
+          {
+            "source": "the distance with full weight (``ops_prefix_distance_interior_px``).",
+            "source_sha256": "c4353755470b1176023d8d2627eb4f9029216f902c0e7cb02c465d7ec93e7458"
+          },
+          {
+            "source": "the smallest distance term (``ops_prefix_distance_min_weight``).",
+            "source_sha256": "4ab06d7ce64db88ddfcebd895ecfd301cd8ddc19ed2b139106b275959f763796"
+          },
+          {
+            "source": "``ops_prefix_weighted_quality``. True weights each read by ``min(1, quality) + 0.05``, and False weights it 1.",
+            "source_sha256": "9f673518c6486e8ea9246f980ef9b3194925dc2e8b3976624bc67da7c04494c9"
+          },
+          {
+            "source": "``ops_read_neighbour_discount``. A barcode with strictly fewer reads than the cell's top barcode has its weight multiplied by this when it is a top barcode of a touching cell. 1 is off.",
+            "source_sha256": "9c67e932a5e34ff6d9f0752f31ef9a96dc4dca35e6b15cda52859c6756a7ebcb"
+          },
+          {
+            "source": "``ops_prefix_weighted_min_share``. The share of the cell's read weight the top barcode needs.",
+            "source_sha256": "b0fe1b160e61080c2288842493bd224c4357d5f2df27b47b7323f6dbbae88ca3"
+          },
+          {
+            "source": "the touching cells, needed for a discount below 1. The table has the ``keys`` columns, naming a cell, and ``neighbour``, the label of a cell it touches in the same site.",
+            "source_sha256": "fd958ec2329f26b77b99273221a7c7fe3ec9bf824213b3a6d5965e83c390c41c"
+          },
+          {
+            "source": "opt-in item-1013 recipe filter. Under ``recipe_simple`` and ``neighbour_discount`` below 1, leave out every read of a flagged minority barcode through the existing minority-read filter. False retains the previous calls.",
+            "source_sha256": "a144f99d0d0f00b09e38c191db4379add055d6f480e7fff9182941c5ceb462c0"
+          },
+          {
+            "source": "one row per cell with any read: ``keys``, ``reads``, ``matched`` (exact or corrected), ``exact``, ``corrected``, ``ambiguous``, ``collision``, ``out_of_library``, ``barcodes`` (distinct callable barcodes), ``prefix``, ``guide``, ``gene`` and ``level`` of the top barcode (empty unless ``perfect`` or ``great``), ``top_reads``, ``top_exact``, ``top_share`` (of matched reads), ``second_reads``, ``has_exact_read`` and ``quality``. With ``minority_min_reads`` 2 or more, ``barcodes``, ``second_reads`` and the class count only the reads the rule keeps, and two columns are added: ``minority_ignored`` (reads left out) and ``minority_rescued`` (True when the cell is called only because of the rule). Under ``'weighted_majority'`` (:data:`WEIGHTED_CLASSES`) the top barcode is the one with the most weight, and five columns are added. ``weight_top`` and ``weight_total`` are the summed read weights of the top barcode and of the cell. ``d_weight_top`` is the summed distance term of the top barcode's reads, and ``g_median_top`` their median nucleus distance (NaN without one). ``bleed_discounted`` counts the barcodes the neighbour discount weighed down.",
+            "source_sha256": "8e854546f5bb2b1372e419f430cb3d72d4f6fd3c5acdc94486cbc0fec90ed925"
+          },
+          {
+            "source": "for an unknown method or read-weight mode, for the minority-read rule combined with ``'weighted_majority'``, or for a discount below 1 without ``neighbours``.",
+            "source_sha256": "e08e3cb81ee1f096dc5d699fc0e2dc929767968001ebf5493af30bdcc02c8855"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param reads:",
+              [
+                1
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param min_reads:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param keys:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param method:",
+              [
+                4
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param minority_min_reads:",
+              [
+                5
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param distance_weight:",
+              [
+                6
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param decay_px:",
+              [
+                7
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param interior_px:",
+              [
+                8
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param min_weight:",
+              [
+                9
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param weighted_quality:",
+              [
+                10
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param neighbour_discount:",
+              [
+                11
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param weighted_min_share:",
+              [
+                12
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param neighbours:",
+              [
+                13
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param bleed_in_recipe:",
+              [
+                14
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                15
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":raises ValueError:",
+              [
+                16
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_prefix.prefix_settings": {
+        "file": "spacr/ops_prefix.py",
+        "line": 2023,
+        "change": "revision",
+        "before": "The item-920 settings, checked and with defaults filled in.\n\n:param settings: the OPS settings: ``ops_library``,\n    ``ops_library_sequence_col``, ``ops_library_gene_col``,\n    ``ops_prefix_length``, ``ops_sbs_cycles``, ``ops_cycle_mask``,\n    ``ops_prefix_collision``, ``ops_prefix_metric``,\n    ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``,\n    ``ops_quality_min_reads``, ``ops_prefix_quality_method``,\n    ``ops_random_barcode_control``, ``ops_control_seed``,\n    ``ops_prefix_masks``, ``ops_read_threshold`` and the item-942 decoy\n    and tuning settings (``ops_prefix_decoy_k``,\n    ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``,\n    ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,\n    ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the\n    item-949 ``ops_prefix_nearmiss_decoy_k`` and\n    ``ops_prefix_fdr_calibration``, the item-967\n    ``ops_prefix_minority_min_reads``, the item-982 small-well guard\n    ``ops_prefix_tuning_min_sites``, and the item-988 weighted-majority\n    settings: ``ops_prefix_distance_weight``,\n    ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``,\n    ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``,\n    ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``,\n    ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and\n    ``ops_multi_guide_min_reads``, and shared controls\n    ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and\n    ``ops_never_barcode_sets``. Never calibration without decoys keeps\n    the entered scale and reports the fallback.\n:returns: the normalised values under the same keys.\n:raises ValueError: without a library, for an unknown choice, for\n    tuning or a shuffle calibration without decoys, for a negative\n    decoy count, minority-read floor or small-well site count, or for a\n    weight setting that is out of range or set without\n    ``'weighted_majority'``.",
+        "before_sha256": "28dd5e00157aa92fca09e74dcbe03b4bd841aa1ac30a1a5c27dec2f53968ac17",
+        "source": "The item-920 settings, checked and with defaults filled in.\n\n:param settings: the OPS settings: ``ops_library``,\n    ``ops_library_sequence_col``, ``ops_library_gene_col``,\n    ``ops_prefix_length``, ``ops_sbs_cycles``, ``ops_cycle_mask``,\n    ``ops_prefix_collision``, ``ops_prefix_metric``,\n    ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``,\n    ``ops_quality_min_reads``, ``ops_prefix_quality_method``,\n    ``ops_random_barcode_control``, ``ops_control_seed``,\n    ``ops_prefix_masks``, ``ops_read_threshold`` and the item-942 decoy\n    and tuning settings (``ops_prefix_decoy_k``,\n    ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``,\n    ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,\n    ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the\n    item-949 ``ops_prefix_nearmiss_decoy_k`` and\n    ``ops_prefix_fdr_calibration``, the item-967\n    ``ops_prefix_minority_min_reads``, the opt-in item-1013\n    ``ops_prefix_bleed_in_recipe`` (default False), the item-982 small-well guard\n    ``ops_prefix_tuning_min_sites``, and the item-988 weighted-majority\n    settings: ``ops_prefix_distance_weight``,\n    ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``,\n    ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``,\n    ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``,\n    ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and\n    ``ops_multi_guide_min_reads``, and shared controls\n    ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and\n    ``ops_never_barcode_sets``. Never calibration without decoys keeps\n    the entered scale and reports the fallback.\n:returns: the normalised values under the same keys.\n:raises ValueError: without a library, for an unknown choice, for\n    tuning or a shuffle calibration without decoys, for a negative\n    decoy count, minority-read floor or small-well site count, or for a\n    weight setting that is out of range or an explicit nondefault\n    weight without a compatible method. The default discount can be\n    unavailable on a valid path; the run records that outcome.",
+        "source_sha256": "6e4031621c224d9560b86a6a8a5dc6cf3364a811d3fdfa92c3f020a5b0a4fb24",
+        "signature": "settings: Mapping[str, Any]",
+        "before_signature": "settings: Mapping[str, Any]",
+        "return_annotation": "Dict[str, Any]",
+        "before_return_annotation": "Dict[str, Any]",
+        "blocks": [
+          {
+            "source": "The item-920 settings, checked and with defaults filled in.",
+            "source_sha256": "3b21f4b265859ac22fb002c45384b7a3db0bdb1e6344060215c8d90fc5ee6f7e"
+          },
+          {
+            "source": "the OPS settings: ``ops_library``, ``ops_library_sequence_col``, ``ops_library_gene_col``, ``ops_prefix_length``, ``ops_sbs_cycles``, ``ops_cycle_mask``, ``ops_prefix_collision``, ``ops_prefix_metric``, ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``, ``ops_quality_min_reads``, ``ops_prefix_quality_method``, ``ops_random_barcode_control``, ``ops_control_seed``, ``ops_prefix_masks``, ``ops_read_threshold`` and the item-942 decoy and tuning settings (``ops_prefix_decoy_k``, ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``, ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``, ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the item-949 ``ops_prefix_nearmiss_decoy_k`` and ``ops_prefix_fdr_calibration``, the item-967 ``ops_prefix_minority_min_reads``, the opt-in item-1013 ``ops_prefix_bleed_in_recipe`` (default False), the item-982 small-well guard ``ops_prefix_tuning_min_sites``, and the item-988 weighted-majority settings: ``ops_prefix_distance_weight``, ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``, ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``, ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``, ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and ``ops_multi_guide_min_reads``, and shared controls ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and ``ops_never_barcode_sets``. Never calibration without decoys keeps the entered scale and reports the fallback.",
+            "source_sha256": "155bee9a96e8b517256a564e83cb6077562050c011946176b030193549eeee81"
+          },
+          {
+            "source": "the normalised values under the same keys.",
+            "source_sha256": "eca32f404b0a27c33a1ba790c2708fa4fae12f5c0ef7b24856ab1ddbf59442d2"
+          },
+          {
+            "source": "without a library, for an unknown choice, for tuning or a shuffle calibration without decoys, for a negative decoy count, minority-read floor or small-well site count, or for a weight setting that is out of range or an explicit nondefault weight without a compatible method. The default discount can be unavailable on a valid path; the run records that outcome.",
+            "source_sha256": "5b4625d961710b639a64f78439a12c80e6c1ac9750786ffb8a134df2aef94b17"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param settings:",
+              [
+                1
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":raises ValueError:",
+              [
+                3
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_sbs.neighbour_bleed_flags": {
+        "file": "spacr/ops_sbs.py",
+        "line": 1242,
+        "change": "addition",
+        "before": null,
+        "before_sha256": null,
+        "source": "Identify minority barcode groups that match a top barcode in a neighbouring cell.\n\nEvery top barcode tied by read count is retained. A group is flagged only\nwhen its read count is strictly below the maximum in the same cell and\nits barcode is a top barcode in a supplied neighbouring cell. The input\ngroups and neighbour pairs may be in any order. Inputs are not changed.\n\n:param cell: one integer cell identifier per unique cell/barcode group.\n:param barcode: one barcode identifier per group, as strings or codes.\n:param reads: the exact plus corrected read count of every group.\n:param neighbours: integer cell/neighbour pairs with shape ``(P, 2)``;\n    include both orders for an undirected relation, or None for no pairs.\n:returns: one boolean flag per input group, in the original group order.\n:raises ValueError: when group arrays or nonempty pairs have inconsistent shapes.",
+        "source_sha256": "13f23d9866df9cf7199a03296b3994f306e901a69f9736f4fa37f59cebe962ba",
+        "signature": "cell, barcode, reads, neighbours",
+        "before_signature": null,
+        "return_annotation": "np.ndarray",
+        "before_return_annotation": null,
+        "blocks": [
+          {
+            "source": "Identify minority barcode groups that match a top barcode in a neighbouring cell.",
+            "source_sha256": "438edc4cf796bd324dcbd281e3d372f226c8abc1e083cacbaf8bb4cc5d622331"
+          },
+          {
+            "source": "Every top barcode tied by read count is retained. A group is flagged only when its read count is strictly below the maximum in the same cell and its barcode is a top barcode in a supplied neighbouring cell. The input groups and neighbour pairs may be in any order. Inputs are not changed.",
+            "source_sha256": "fd9496fa16ba7203815a88de2544198502753eb5dba02122fdc9b3f4ef02afd9"
+          },
+          {
+            "source": "one integer cell identifier per unique cell/barcode group.",
+            "source_sha256": "c2834917d995f1c9890508aef19b20c62f90d80be4e2ce988e5d5e63cc3c0e48"
+          },
+          {
+            "source": "one barcode identifier per group, as strings or codes.",
+            "source_sha256": "889915d871b4ff66ea6da609cc1e348db9eb150c477eb22eccffb813db197ef9"
+          },
+          {
+            "source": "the exact plus corrected read count of every group.",
+            "source_sha256": "f9ba93d4c576dd0f7abaa29b51c2bb72e7af476e49a25737ee5de8735425d520"
+          },
+          {
+            "source": "integer cell/neighbour pairs with shape ``(P, 2)``; include both orders for an undirected relation, or None for no pairs.",
+            "source_sha256": "cc974a76961788010f2d622673f54b0550ee84122f47307455cf0784871de27a"
+          },
+          {
+            "source": "one boolean flag per input group, in the original group order.",
+            "source_sha256": "3ecb891bc4126ac8a4e03d14c34c77ce72b0bad33c79fc6fc2ce831b7e69b091"
+          },
+          {
+            "source": "when group arrays or nonempty pairs have inconsistent shapes.",
+            "source_sha256": "572943de31ea612d1cf5ed287296d57620e917e54c6832d9c3af1f6fd9e1a4ff"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated",
+            [
+              1
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param cell:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param barcode:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param reads:",
+              [
+                4
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param neighbours:",
+              [
+                5
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                6
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":raises ValueError:",
+              [
+                7
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_sbs.vote_mapped_reads": {
+        "file": "spacr/ops_sbs.py",
+        "line": 1338,
+        "change": "revision",
+        "before": "Each object's guide from its reads, matched to the library first.\n\nEvery read is matched (:class:`LibraryMatcher`); a read at distance one\nor more counts only when ``runner_up_margin`` is given and\n:func:`runner_up_consistent` passes. The matched reads vote, each with\nweight one, or with ``min(1, quality) + weight_floor`` when\n``quality_weighted``. An object takes the top guide when it holds at\nleast ``min_fraction`` of the votes with no tie, and, when one read is\nall that supports it, that read's quality reaches\n``single_read_quality``.\n\n:param objects: one object id per read.\n:param barcodes: one called barcode per read.\n:param quality: one quality per read, the worst cycle's margin.\n:param data: ``(N, cycles, channels)``, the intensities called from.\n:param margin: ``(N, cycles)``, the per-cycle margins.\n:param matcher: the guides, and any decoys, to match against.\n:param max_distance: the most mismatches a read may carry.\n:param runner_up_margin: the runner-up rule's margin, or None to count\n    every match within ``max_distance``.\n:param quality_weighted: weight votes by read quality.\n:param weight_floor: added to every quality weight.\n:param min_fraction: the share of the votes the guide must hold.\n:param single_read_quality: the quality a one-read guide needs.\n:param impute_missing: let an ``N`` -- a cycle that was not measured --\n    match any base; False leaves such reads unmatched.\n:param strength: one spot strength per read, for the evidence; None\n    records none.\n:param evidence: a dict filled with the per-object, per-guide tallies\n    behind every vote -- ``votes``, ``exact``, ``corrected``, ``best``,\n    ``qualities``, ``strength`` and ``matched`` -- for objects assigned\n    or not; None keeps none.\n:param bases: the letter for each channel, in channel order.\n:param gaps: one distance per read, in pixels, from the read to its\n    object's boundary, 0 inside (item 988). Only read when\n    ``distance_weight`` is on.\n:param distance_weight: ``ops_read_distance_weight`` (item 988, alpha).\n    ``'off'`` keeps the weights above. ``'decay'`` multiplies each\n    read's weight by its distance term, and ``'distance_only'`` uses\n    the distance term alone. The distance term is 1 up to\n    ``interior_px`` and ``exp(-(g - interior_px) / decay_px)`` beyond\n    it, at least ``min_weight``. A one-read guide then needs its\n    quality times its distance term to reach ``single_read_quality``.\n:param decay_px: the decay length in pixels\n    (``ops_read_distance_decay_px``).\n:param interior_px: the distance with full weight\n    (``ops_read_distance_interior_px``).\n:param min_weight: the smallest distance term\n    (``ops_read_distance_min_weight``).\n:param neighbours: object -> the objects whose boundaries come within\n    the footprint of it, for the neighbour discount; None for none.\n:param neighbour_discount: ``ops_read_neighbour_discount`` (item 988,\n    alpha). A guide with strictly fewer reads in the object than its\n    top guide has its vote multiplied by this when it is a top guide\n    of a neighbour, by reads with ties kept. 1 is off.\n:returns: ``{object: {\"guide\", \"fraction\", \"n_support\", \"n_exact\",\n    \"n_corrected\", \"n_matched\", \"n_guides\", \"vote_top\", \"vote_total\",\n    \"runner_margin\", \"quality\", \"barcode\"}}``; ``barcode`` is the\n    commonest raw read behind the guide, ``runner_margin`` the top vote\n    minus the second over the total.",
+        "before_sha256": "0f3587e0eca2cf514ac1aff9955ebe273e45489c17fc46a614644990325bbe56",
+        "source": "Each object's guide from its reads, matched to the library first.\n\nEvery read is matched (:class:`LibraryMatcher`); a read at distance one\nor more counts only when ``runner_up_margin`` is given and\n:func:`runner_up_consistent` passes. The matched reads vote, each with\nweight one, or with ``min(1, quality) + weight_floor`` when\n``quality_weighted``. An object takes the top guide when it holds at\nleast ``min_fraction`` of the votes with no tie, and, when one read is\nall that supports it, that read's quality reaches\n``single_read_quality``.\n\n:param objects: one object id per read.\n:param barcodes: one called barcode per read.\n:param quality: one quality per read, the worst cycle's margin.\n:param data: ``(N, cycles, channels)``, the intensities called from.\n:param margin: ``(N, cycles)``, the per-cycle margins.\n:param matcher: the guides, and any decoys, to match against.\n:param max_distance: the most mismatches a read may carry.\n:param runner_up_margin: the runner-up rule's margin, or None to count\n    every match within ``max_distance``.\n:param quality_weighted: weight votes by read quality.\n:param weight_floor: added to every quality weight.\n:param min_fraction: the share of the votes the guide must hold.\n:param single_read_quality: the quality a one-read guide needs.\n:param impute_missing: let an ``N`` -- a cycle that was not measured --\n    match any base; False leaves such reads unmatched.\n:param strength: one spot strength per read, for the evidence; None\n    records none.\n:param evidence: a dict filled with the per-object, per-guide tallies\n    behind every vote -- ``votes``, ``exact``, ``corrected``, ``best``,\n    ``qualities``, ``strength`` and ``matched`` -- for objects assigned\n    or not; None keeps none.\n:param bases: the letter for each channel, in channel order.\n:param gaps: one distance per read, in pixels, from the read to its\n    object's boundary, 0 inside (item 988). Only read when\n    ``distance_weight`` is on.\n:param distance_weight: ``ops_read_distance_weight`` (item 988, alpha).\n    ``'off'`` keeps the weights above. ``'decay'`` multiplies each\n    read's weight by its distance term, and ``'distance_only'`` uses\n    the distance term alone. The distance term is 1 up to\n    ``interior_px`` and ``exp(-(g - interior_px) / decay_px)`` beyond\n    it, at least ``min_weight``. A one-read guide then needs its\n    quality times its distance term to reach ``single_read_quality``.\n:param decay_px: the decay length in pixels\n    (``ops_read_distance_decay_px``).\n:param interior_px: the distance with full weight\n    (``ops_read_distance_interior_px``).\n:param min_weight: the smallest distance term\n    (``ops_read_distance_min_weight``).\n:param neighbours: object -> the objects whose boundaries come within\n    the footprint of it, for the neighbour discount; None for none.\n:param neighbour_discount: ``ops_read_neighbour_discount`` (item 988). A guide with strictly fewer reads in the object than its\n    top guide has its vote multiplied by this when it is a top guide\n    of a neighbour, by reads with ties kept. 1 is off.\n:returns: ``{object: {\"guide\", \"fraction\", \"n_support\", \"n_exact\",\n    \"n_corrected\", \"n_matched\", \"n_guides\", \"vote_top\", \"vote_total\",\n    \"runner_margin\", \"quality\", \"barcode\"}}``; ``barcode`` is the\n    commonest raw read behind the guide, ``runner_margin`` the top vote\n    minus the second over the total.",
+        "source_sha256": "cbfc06ee462bb15477dc9f2cc868901efa039bf128d67513ea1a8f75d6314b46",
+        "signature": "objects: np.ndarray, barcodes: Sequence[str], quality: np.ndarray, data: np.ndarray, margin: np.ndarray, matcher: LibraryMatcher, *, max_distance: int=0, runner_up_margin: Optional[float]=None, quality_weighted: bool=False, weight_floor: float=0.05, min_fraction: float=0.6, single_read_quality: float=0.03, impute_missing: bool=True, strength: Optional[np.ndarray]=None, evidence: Optional[dict]=None, bases: Sequence[str]=BASES, gaps: Optional[np.ndarray]=None, distance_weight: str='off', decay_px: float=4.0, interior_px: float=0.0, min_weight: float=0.05, neighbours: Optional[Mapping[int, Any]]=None, neighbour_discount: float=1.0",
+        "before_signature": "objects: np.ndarray, barcodes: Sequence[str], quality: np.ndarray, data: np.ndarray, margin: np.ndarray, matcher: LibraryMatcher, *, max_distance: int=0, runner_up_margin: Optional[float]=None, quality_weighted: bool=False, weight_floor: float=0.05, min_fraction: float=0.6, single_read_quality: float=0.03, impute_missing: bool=True, strength: Optional[np.ndarray]=None, evidence: Optional[dict]=None, bases: Sequence[str]=BASES, gaps: Optional[np.ndarray]=None, distance_weight: str='off', decay_px: float=4.0, interior_px: float=0.0, min_weight: float=0.05, neighbours: Optional[Mapping[int, Any]]=None, neighbour_discount: float=1.0",
+        "return_annotation": "Dict[int, dict]",
+        "before_return_annotation": "Dict[int, dict]",
+        "blocks": [
+          {
+            "source": "Each object's guide from its reads, matched to the library first.",
+            "source_sha256": "1ce2fcd4e6e5092fa0fd5c1cd8b6672483029798c17598a51381516ab51601e7"
+          },
+          {
+            "source": "Every read is matched (:class:`LibraryMatcher`); a read at distance one or more counts only when ``runner_up_margin`` is given and :func:`runner_up_consistent` passes. The matched reads vote, each with weight one, or with ``min(1, quality) + weight_floor`` when ``quality_weighted``. An object takes the top guide when it holds at least ``min_fraction`` of the votes with no tie, and, when one read is all that supports it, that read's quality reaches ``single_read_quality``.",
+            "source_sha256": "9223937eed478c9b5ed9ef9ed5225a4afb14b8970695b517532073cef64c0113"
+          },
+          {
+            "source": "one object id per read.",
+            "source_sha256": "4bb0f5111e7f23e596b1a96ff268f57fe459d800d55c7baf6242e825a4d97725"
+          },
+          {
+            "source": "one called barcode per read.",
+            "source_sha256": "2ae49089eda6e781be1486dac9dd3ddeff1a6828868dce29a44dab5d5c225608"
+          },
+          {
+            "source": "one quality per read, the worst cycle's margin.",
+            "source_sha256": "bdff643786d54de006f7baf901678f603adcf7a623bbd984d4512c83a4a5f8fe"
+          },
+          {
+            "source": "``(N, cycles, channels)``, the intensities called from.",
+            "source_sha256": "6b04241c3e5b6eb1bb393bd81d25471b4708bec9b2b77a86194f25cb7e26a0e7"
+          },
+          {
+            "source": "``(N, cycles)``, the per-cycle margins.",
+            "source_sha256": "bc59d971a5c3b88117590f22f6549991124187296f3dfa554cff426870c3c78d"
+          },
+          {
+            "source": "the guides, and any decoys, to match against.",
+            "source_sha256": "af18e0fab0d34c8d46405508cb44825763da255a3d93fc2e745ee0ccb5095c23"
+          },
+          {
+            "source": "the most mismatches a read may carry.",
+            "source_sha256": "468a20c820baad021761e990b5492e7f11601af801e3eba362d5555026f0d323"
+          },
+          {
+            "source": "the runner-up rule's margin, or None to count every match within ``max_distance``.",
+            "source_sha256": "44ab2d4ca69136ffd079297aef1c39bda508e0fdce0ff4994c297353db89e559"
+          },
+          {
+            "source": "weight votes by read quality.",
+            "source_sha256": "3be76dccc7d475cdcc5c37cd6d04d82d54b32c11902f102162d17903b04ba4d6"
+          },
+          {
+            "source": "added to every quality weight.",
+            "source_sha256": "b8f3ce477818e55a638e3b32652913145fafebaaf272c5ead35efcc731a4b92a"
+          },
+          {
+            "source": "the share of the votes the guide must hold.",
+            "source_sha256": "6223e3c4b67ea6a12cee670339367cfda4f4886f5e77e4657bfa84992c15e7d1"
+          },
+          {
+            "source": "the quality a one-read guide needs.",
+            "source_sha256": "d969049f0a0581187502552952fada8d3f040e5e240493bfb87acc75d8a7c041"
+          },
+          {
+            "source": "let an ``N`` -- a cycle that was not measured -- match any base; False leaves such reads unmatched.",
+            "source_sha256": "11ce132e544fa290c5efda55d6ad102f797ac6e9eaec906df88d675121a8c04c"
+          },
+          {
+            "source": "one spot strength per read, for the evidence; None records none.",
+            "source_sha256": "10fe5b8c268274045713e71a8ea7200568c5eb2291f08a47b021d0963160f701"
+          },
+          {
+            "source": "a dict filled with the per-object, per-guide tallies behind every vote -- ``votes``, ``exact``, ``corrected``, ``best``, ``qualities``, ``strength`` and ``matched`` -- for objects assigned or not; None keeps none.",
+            "source_sha256": "8a0a9565ef215c3ca4751d8cf4e48fc16bab35f6025f99ff3c92718db10b2adb"
+          },
+          {
+            "source": "the letter for each channel, in channel order.",
+            "source_sha256": "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1"
+          },
+          {
+            "source": "one distance per read, in pixels, from the read to its object's boundary, 0 inside (item 988). Only read when ``distance_weight`` is on.",
+            "source_sha256": "17634868fd67a0765d33ae0d6aac47a992427c63aa96a4fb8f321c66b81328ec"
+          },
+          {
+            "source": "``ops_read_distance_weight`` (item 988, alpha). ``'off'`` keeps the weights above. ``'decay'`` multiplies each read's weight by its distance term, and ``'distance_only'`` uses the distance term alone. The distance term is 1 up to ``interior_px`` and ``exp(-(g - interior_px) / decay_px)`` beyond it, at least ``min_weight``. A one-read guide then needs its quality times its distance term to reach ``single_read_quality``.",
+            "source_sha256": "78e564a6fcf4193f15f2510642568f740218a870d986d7cbfac14f22a039e4b6"
+          },
+          {
+            "source": "the decay length in pixels (``ops_read_distance_decay_px``).",
+            "source_sha256": "2e681b04be1e703e45b3bfe777476d1758eb6754dd93f12e35b69c2b9a438da2"
+          },
+          {
+            "source": "the distance with full weight (``ops_read_distance_interior_px``).",
+            "source_sha256": "b1251c935d9855bca4ed1a8961faea6945bd6037692df78ef9a8d37e319d47fa"
+          },
+          {
+            "source": "the smallest distance term (``ops_read_distance_min_weight``).",
+            "source_sha256": "24c16774dcb6d67b72a04fc4b010259f3e838de7b84c370f29e375cbb828b196"
+          },
+          {
+            "source": "object -> the objects whose boundaries come within the footprint of it, for the neighbour discount; None for none.",
+            "source_sha256": "4e5dc19913d12e48fdc62113fdb475ff81ac7e3c2df5ec89976bf7908e71d587"
+          },
+          {
+            "source": "``ops_read_neighbour_discount`` (item 988). A guide with strictly fewer reads in the object than its top guide has its vote multiplied by this when it is a top guide of a neighbour, by reads with ties kept. 1 is off.",
+            "source_sha256": "9fbc0e44b18fc23b9f1788da064989cc70c6862a8a66be88dc3a87a6d283a843"
+          },
+          {
+            "source": "``{object: {\"guide\", \"fraction\", \"n_support\", \"n_exact\", \"n_corrected\", \"n_matched\", \"n_guides\", \"vote_top\", \"vote_total\", \"runner_margin\", \"quality\", \"barcode\"}}``; ``barcode`` is the commonest raw read behind the guide, ``runner_margin`` the top vote minus the second over the total.",
+            "source_sha256": "5d44877a856f7a2e6c7b5a7a0764c488650ba30fe2fd8982c39b00ba04f196e9"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated",
+            [
+              1
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param objects:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param barcodes:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param quality:",
+              [
+                4
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param data:",
+              [
+                5
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param margin:",
+              [
+                6
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param matcher:",
+              [
+                7
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param max_distance:",
+              [
+                8
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param runner_up_margin:",
+              [
+                9
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param quality_weighted:",
+              [
+                10
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param weight_floor:",
+              [
+                11
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param min_fraction:",
+              [
+                12
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param single_read_quality:",
+              [
+                13
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param impute_missing:",
+              [
+                14
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param strength:",
+              [
+                15
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param evidence:",
+              [
+                16
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param bases:",
+              [
+                17
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param gaps:",
+              [
+                18
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param distance_weight:",
+              [
+                19
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param decay_px:",
+              [
+                20
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param interior_px:",
+              [
+                21
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param min_weight:",
+              [
+                22
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param neighbours:",
+              [
+                23
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param neighbour_discount:",
+              [
+                24
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                25
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    "source_sha256": {
+      "spacr/ops_sbs.py": "7ce6899908ec6afc4741c581d9b966cce06d5e579cf462802251ce05429c7acd",
+      "spacr/ops_decode.py": "27a5b02726bc0d356dfc9341858c4da087ddffd9d56eb04080163b15fd511974",
+      "spacr/ops_prefix.py": "530b98c6c81ee6b12d49b84c7023cd1214b367e8ca933d2f15a1ddbecf4984ff",
+      "spacr/ops_settings.py": "579817393e3f85d7930690442e74e2134301745deb0f6dfa6dbebc8aa5f3282b",
+      "spacr/settings.py": "5a806ba27c176f3419c72208ca32dd524098f6702b99cda5ae2d1543364d327b"
+    }
+  },
+  "docstrings": [
+    {
+      "file": "spacr/ops_sbs.py",
+      "line": 1243,
+      "symbol": "neighbour_bleed_flags",
+      "admission": "canonical API",
+      "before": null,
+      "source": "Identify minority barcode groups that match a top barcode in a neighbouring cell.\n\nEvery top barcode tied by read count is retained. A group is flagged only\nwhen its read count is strictly below the maximum in the same cell and\nits barcode is a top barcode in a supplied neighbouring cell. The input\ngroups and neighbour pairs may be in any order. Inputs are not changed.\n\n:param cell: one integer cell identifier per unique cell/barcode group.\n:param barcode: one barcode identifier per group, as strings or codes.\n:param reads: the exact plus corrected read count of every group.\n:param neighbours: integer cell/neighbour pairs with shape ``(P, 2)``;\n    include both orders for an undirected relation, or None for no pairs.\n:returns: one boolean flag per input group, in the original group order.\n:raises ValueError: when group arrays or nonempty pairs have inconsistent shapes.",
+      "source_sha256": "13f23d9866df9cf7199a03296b3994f306e901a69f9736f4fa37f59cebe962ba"
+    },
+    {
+      "file": "spacr/ops_sbs.py",
+      "line": 1291,
+      "symbol": "_discount_neighbour_bleed",
+      "admission": "private/nested",
+      "before": "Weigh down the minority guides that are a neighbour's top guide (item 988).\n\nAn object's guide is discounted when it has strictly fewer reads than\nthe object's top guide and is a top guide, by reads with ties kept, of a\nneighbouring object. Decoy guides count like library guides.\n\n:param votes: object -> guide -> summed vote, changed in place.\n:param exact: object -> guide -> exact reads.\n:param corrected: object -> guide -> corrected reads.\n:param neighbours: object -> its neighbouring objects.\n:param discount: the factor a discounted vote is multiplied by.",
+      "source": "Apply the shared bleed flags to existing full-barcode vote tallies in place.\n\n:param votes: object to guide to summed vote, changed in place.\n:param exact: object to guide to exact read count.\n:param corrected: object to guide to corrected read count.\n:param neighbours: object to neighbouring object identifiers.\n:param discount: factor multiplied into each flagged guide vote.",
+      "source_sha256": "884ddec4361572d159a66e483c037e24ebc402b999124dc3672254962dbf5347"
+    },
+    {
+      "file": "spacr/ops_sbs.py",
+      "line": 1358,
+      "symbol": "vote_mapped_reads",
+      "admission": "canonical API",
+      "before": "Each object's guide from its reads, matched to the library first.\n\nEvery read is matched (:class:`LibraryMatcher`); a read at distance one\nor more counts only when ``runner_up_margin`` is given and\n:func:`runner_up_consistent` passes. The matched reads vote, each with\nweight one, or with ``min(1, quality) + weight_floor`` when\n``quality_weighted``. An object takes the top guide when it holds at\nleast ``min_fraction`` of the votes with no tie, and, when one read is\nall that supports it, that read's quality reaches\n``single_read_quality``.\n\n:param objects: one object id per read.\n:param barcodes: one called barcode per read.\n:param quality: one quality per read, the worst cycle's margin.\n:param data: ``(N, cycles, channels)``, the intensities called from.\n:param margin: ``(N, cycles)``, the per-cycle margins.\n:param matcher: the guides, and any decoys, to match against.\n:param max_distance: the most mismatches a read may carry.\n:param runner_up_margin: the runner-up rule's margin, or None to count\n    every match within ``max_distance``.\n:param quality_weighted: weight votes by read quality.\n:param weight_floor: added to every quality weight.\n:param min_fraction: the share of the votes the guide must hold.\n:param single_read_quality: the quality a one-read guide needs.\n:param impute_missing: let an ``N`` -- a cycle that was not measured --\n    match any base; False leaves such reads unmatched.\n:param strength: one spot strength per read, for the evidence; None\n    records none.\n:param evidence: a dict filled with the per-object, per-guide tallies\n    behind every vote -- ``votes``, ``exact``, ``corrected``, ``best``,\n    ``qualities``, ``strength`` and ``matched`` -- for objects assigned\n    or not; None keeps none.\n:param bases: the letter for each channel, in channel order.\n:param gaps: one distance per read, in pixels, from the read to its\n    object's boundary, 0 inside (item 988). Only read when\n    ``distance_weight`` is on.\n:param distance_weight: ``ops_read_distance_weight`` (item 988, alpha).\n    ``'off'`` keeps the weights above. ``'decay'`` multiplies each\n    read's weight by its distance term, and ``'distance_only'`` uses\n    the distance term alone. The distance term is 1 up to\n    ``interior_px`` and ``exp(-(g - interior_px) / decay_px)`` beyond\n    it, at least ``min_weight``. A one-read guide then needs its\n    quality times its distance term to reach ``single_read_quality``.\n:param decay_px: the decay length in pixels\n    (``ops_read_distance_decay_px``).\n:param interior_px: the distance with full weight\n    (``ops_read_distance_interior_px``).\n:param min_weight: the smallest distance term\n    (``ops_read_distance_min_weight``).\n:param neighbours: object -> the objects whose boundaries come within\n    the footprint of it, for the neighbour discount; None for none.\n:param neighbour_discount: ``ops_read_neighbour_discount`` (item 988,\n    alpha). A guide with strictly fewer reads in the object than its\n    top guide has its vote multiplied by this when it is a top guide\n    of a neighbour, by reads with ties kept. 1 is off.\n:returns: ``{object: {\"guide\", \"fraction\", \"n_support\", \"n_exact\",\n    \"n_corrected\", \"n_matched\", \"n_guides\", \"vote_top\", \"vote_total\",\n    \"runner_margin\", \"quality\", \"barcode\"}}``; ``barcode`` is the\n    commonest raw read behind the guide, ``runner_margin`` the top vote\n    minus the second over the total.",
+      "source": "Each object's guide from its reads, matched to the library first.\n\nEvery read is matched (:class:`LibraryMatcher`); a read at distance one\nor more counts only when ``runner_up_margin`` is given and\n:func:`runner_up_consistent` passes. The matched reads vote, each with\nweight one, or with ``min(1, quality) + weight_floor`` when\n``quality_weighted``. An object takes the top guide when it holds at\nleast ``min_fraction`` of the votes with no tie, and, when one read is\nall that supports it, that read's quality reaches\n``single_read_quality``.\n\n:param objects: one object id per read.\n:param barcodes: one called barcode per read.\n:param quality: one quality per read, the worst cycle's margin.\n:param data: ``(N, cycles, channels)``, the intensities called from.\n:param margin: ``(N, cycles)``, the per-cycle margins.\n:param matcher: the guides, and any decoys, to match against.\n:param max_distance: the most mismatches a read may carry.\n:param runner_up_margin: the runner-up rule's margin, or None to count\n    every match within ``max_distance``.\n:param quality_weighted: weight votes by read quality.\n:param weight_floor: added to every quality weight.\n:param min_fraction: the share of the votes the guide must hold.\n:param single_read_quality: the quality a one-read guide needs.\n:param impute_missing: let an ``N`` -- a cycle that was not measured --\n    match any base; False leaves such reads unmatched.\n:param strength: one spot strength per read, for the evidence; None\n    records none.\n:param evidence: a dict filled with the per-object, per-guide tallies\n    behind every vote -- ``votes``, ``exact``, ``corrected``, ``best``,\n    ``qualities``, ``strength`` and ``matched`` -- for objects assigned\n    or not; None keeps none.\n:param bases: the letter for each channel, in channel order.\n:param gaps: one distance per read, in pixels, from the read to its\n    object's boundary, 0 inside (item 988). Only read when\n    ``distance_weight`` is on.\n:param distance_weight: ``ops_read_distance_weight`` (item 988, alpha).\n    ``'off'`` keeps the weights above. ``'decay'`` multiplies each\n    read's weight by its distance term, and ``'distance_only'`` uses\n    the distance term alone. The distance term is 1 up to\n    ``interior_px`` and ``exp(-(g - interior_px) / decay_px)`` beyond\n    it, at least ``min_weight``. A one-read guide then needs its\n    quality times its distance term to reach ``single_read_quality``.\n:param decay_px: the decay length in pixels\n    (``ops_read_distance_decay_px``).\n:param interior_px: the distance with full weight\n    (``ops_read_distance_interior_px``).\n:param min_weight: the smallest distance term\n    (``ops_read_distance_min_weight``).\n:param neighbours: object -> the objects whose boundaries come within\n    the footprint of it, for the neighbour discount; None for none.\n:param neighbour_discount: ``ops_read_neighbour_discount`` (item 988). A guide with strictly fewer reads in the object than its\n    top guide has its vote multiplied by this when it is a top guide\n    of a neighbour, by reads with ties kept. 1 is off.\n:returns: ``{object: {\"guide\", \"fraction\", \"n_support\", \"n_exact\",\n    \"n_corrected\", \"n_matched\", \"n_guides\", \"vote_top\", \"vote_total\",\n    \"runner_margin\", \"quality\", \"barcode\"}}``; ``barcode`` is the\n    commonest raw read behind the guide, ``runner_margin`` the top vote\n    minus the second over the total.",
+      "source_sha256": "cbfc06ee462bb15477dc9f2cc868901efa039bf128d67513ea1a8f75d6314b46"
+    },
+    {
+      "file": "spacr/ops_decode.py",
+      "line": 128,
+      "symbol": "resolve_settings",
+      "admission": "canonical API",
+      "before": "The settings with ``ops_decode_preset`` applied.\n\n:param settings: the run's settings.\n:param defaults: the panel defaults, so a key a settings file carries at\n    its default still takes the preset's value; None reads\n    :data:`spacr.ops_settings.OPS_DEFAULTS`.\n:returns: a copy; unchanged when no preset is named. A key set to\n    anything other than its default keeps that value.\n:raises ValueError: for an unknown preset.",
+      "source": "The settings with ``ops_decode_preset`` applied.\n\n:param settings: the run's settings.\n:param defaults: the panel defaults, so a key a settings file carries at\n    its default still takes the preset's value; None reads\n    :data:`spacr.ops_settings.OPS_DEFAULTS`.\n:returns: a copy with the preset and a shared private notice context\n    when OPS settings enable the neighbour discount. Explicit nondefault\n    values keep their entered values; applied-path flags are journal metadata.\n:raises ValueError: for an unknown preset.",
+      "source_sha256": "47b14f731f29a663ddc4b24ca5a129f2b43ed90e135e42002774487b516380c9"
+    },
+    {
+      "file": "spacr/ops_decode.py",
+      "line": 194,
+      "symbol": "_neighbour_discount_context",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Share transient notice state across shallow settings copies in one run.\n\nThe context remains private; only the applied flags are published. An\nopen journal owns a fresh context, so replay metadata never suppresses\nthe first notice of a new run. Plain API callers share their mutable\nsettings context across wells without a global process cache.",
+      "source_sha256": "1fffcb2253dad569ff641c9197c63a396e4eb496b33c726fd3e8b3082881a6e1"
+    },
+    {
+      "file": "spacr/ops_decode.py",
+      "line": 220,
+      "symbol": "_neighbour_discount_state",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Record actual discount availability and emit one translated no-op notice per path.\n\nFalse remains false when one path includes fields without the required\npositions. The current journal receives only JSON application flags;\ntransient notice bookkeeping is never published. A supplied rule-state\nmapping preserves notice deduplication during direct cache replays.",
+      "source_sha256": "01b54f77fc50d21794a92892a34a5dab40b143bc2362a1f779ecf2dc26fdb9a5"
+    },
+    {
+      "file": "spacr/ops_decode.py",
+      "line": 261,
+      "symbol": "decode_rule",
+      "admission": "canonical API",
+      "before": "The field rule's parameters, read from resolved settings.\n\n:param settings: settings after :func:`resolve_settings`.\n:returns: the parameters :func:`field_calls` takes, plus ``active`` --\n    True when any rule of this module is on, which routes the well\n    through :func:`field_calls` -- and ``decoy_k``. With the item-988\n    distance weight or neighbour discount on (alpha), ``read_weight``\n    holds their settings.\n:raises ValueError: for a negative count or a fraction outside (0, 1],\n    or for the item-988 weighting without the decode rules.",
+      "source": "The field rule's parameters, read from resolved settings.\n\n:param settings: settings after :func:`resolve_settings`.\n:returns: the parameters :func:`field_calls` takes, plus ``active`` --\n    True when any rule of this module is on, which routes the well\n    through :func:`field_calls` -- and ``decoy_k``. With the item-988\n    alpha distance weight or the neighbour discount on, ``read_weight``\n    holds their settings. The default discount is skipped with a\n    notice when rules are off; applied flags are recorded per path.\n:raises ValueError: for a negative count or a fraction outside (0, 1],\n    or for explicit nondefault item-988 weighting without decode rules.",
+      "source_sha256": "c012ff0ef5d3c25a6049527c02efd487000701ac84cbbca3a97f4af340dfd974"
+    },
+    {
+      "file": "spacr/ops_decode.py",
+      "line": 2621,
+      "symbol": "_rule_with_neighbours",
+      "admission": "private/nested",
+      "before": "The rule with the field's neighbours, read from a field cache when missing.\n\n:param rule: from :func:`decode_rule`; the engine adds ``neighbours``.\n:param evidence: the field's evidence or its field cache.\n:param footprint: the vote's footprint, the reach used when the rule\n    carries no ``footprint`` of its own (the engine builds the\n    neighbours at the rule's).\n:returns: ``rule`` itself unless its neighbour discount is on and it has\n    no ``neighbours``; then a copy with :func:`cached_neighbours`.",
+      "source": "The rule with the field's neighbours, read from a field cache when missing.\n\n:param rule: from :func:`decode_rule`; the engine adds ``neighbours``.\n:param evidence: the field's evidence or its field cache.\n:param footprint: the vote's footprint, the reach used when the rule\n    carries no ``footprint`` of its own (the engine builds the\n    neighbours at the rule's).\n:returns: ``rule`` itself unless its neighbour discount is on and it has\n    no ``neighbours``; then a copy with :func:`cached_neighbours`.\n    A cache without positions skips only the default discount, records\n    applied False and emits one notice; explicit other discounts still raise.",
+      "source_sha256": "5a23bbf82d69eddcba466a024133370ca390b799a12fb6dff105bdb2ce7de4a0"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 758,
+      "symbol": "_minority_ignored",
+      "admission": "private/nested",
+      "before": "Which matched reads the minority-read rule (item 967) leaves out of the cell call.\n\n:param matched: the exact and corrected reads, with ``cell_cols`` and\n    ``prefix``.\n:param cell_cols: the columns naming a cell.\n:param min_reads: ``ops_prefix_minority_min_reads``; 0 and 1 leave out\n    nothing.\n:returns: one flag per row of ``matched``: True for a read of a barcode\n    with fewer than ``min_reads`` reads in its cell while another barcode\n    of that cell has strictly more reads. Barcodes tied for the most\n    reads are always kept, so a tie still blocks the call.",
+      "source": "Identify matched reads excluded by the existing minority rule or opt-in recipe bleed.\n\n:param matched: exact and corrected reads with ``cell_cols`` and ``prefix``.\n:param cell_cols: columns naming a cell.\n:param min_reads: the minority-read floor; 0 and 1 disable that rule.\n:param neighbour_bleed: additionally exclude minority barcode groups flagged\n    by :func:`spacr.ops_sbs.neighbour_bleed_flags` for the recipe path.\n:param neighbours: touching-cell rows in the layout of :func:`prefix_cell_calls`.\n:returns: one boolean per matched read; top-count ties are always retained.\n:raises ValueError: when recipe bleed is enabled without touching-cell information.",
+      "source_sha256": "1d8c7d551d7c0a5bd74c56dfb088a6b7aea74d26a756f379eb2ffa36c62b05d0"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 921,
+      "symbol": "_barcode_groups",
+      "admission": "private/nested",
+      "before": "The (cell, barcode) groups of matched reads, and the neighbour-bleed flags (item 988).\n\n:param cell: one integer cell code per read.\n:param barcode: one barcode per read.\n:param neighbours: ``(P, 2)`` ``(cell, neighbour)`` codes of touching\n    cells, or None for no neighbour flags.\n:returns: ``group`` (each read's group), ``cell`` and ``barcode`` (codes)\n    and ``n`` (reads) per group, sorted by cell, ``starts`` and ``sizes``\n    of each cell's groups, ``barcodes`` (the barcode of each code), and\n    ``bleed``: True for a group whose barcode has strictly fewer reads\n    than the cell's top barcode and is a top barcode, by reads with\n    ties kept, of a touching cell.",
+      "source": "The (cell, barcode) groups of matched reads, and the neighbour-bleed flags (item 988).\n\nBleed flags use :func:`spacr.ops_sbs.neighbour_bleed_flags`.\n\n:param cell: one integer cell code per read.\n:param barcode: one barcode per read.\n:param neighbours: ``(P, 2)`` ``(cell, neighbour)`` codes of touching\n    cells, or None for no neighbour flags.\n:returns: ``group`` (each read's group), ``cell`` and ``barcode`` (codes)\n    and ``n`` (reads) per group, sorted by cell, ``starts`` and ``sizes``\n    of each cell's groups, ``barcodes`` (the barcode of each code), and\n    ``bleed``: True for a group whose barcode has strictly fewer reads\n    than the cell's top barcode and is a top barcode, by reads with\n    ties kept, of a touching cell.",
+      "source_sha256": "9cf27d8a3da02e72557b14615a6d199c64ba84024c0a363b43e345d4d0f790e8"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 1234,
+      "symbol": "prefix_cell_calls",
+      "admission": "canonical API",
+      "before": "Each cell's barcode, its read counts and its quality class.\n\n:param reads: one row per read with ``keys``, ``status``, ``key``,\n    ``distance``, ``prefix``, ``guide``, ``gene`` and ``level``\n    (:func:`match_prefix_reads` joined to the read positions); rows\n    whose ``cell`` is 0 are not in a cell.\n:param min_reads: exact reads a ``perfect`` cell needs\n    (``ops_quality_min_reads``) under ``'spacr'``.\n:param keys: the columns naming a cell.\n:param method: ``ops_prefix_quality_method``: ``'spacr'``\n    (:func:`classify_cell`, classes :data:`QUALITY_CLASSES`) or\n    ``'recipe_simple'`` (:func:`recipe_simple_quality` on the exact and\n    corrected reads, each scored one minus its distance over the key\n    length; classes :data:`RECIPE_SIMPLE_CLASSES`).\n:param minority_min_reads: ``ops_prefix_minority_min_reads`` (item 967,\n    alpha). From 2 up, a barcode with fewer reads than this is left out\n    of the cell's call when another barcode in the cell has strictly\n    more reads; tied barcodes still block the call. This rescues cells\n    that a single stray read of a second barcode makes ``bad`` under\n    ``'recipe_simple'``; under ``'spacr'`` it changes no call and can\n    only turn ``great`` into ``perfect``. 0 (the default) and 1 change\n    nothing.\n:param distance_weight: ``ops_prefix_distance_weight`` (item 988,\n    alpha), read only by ``'weighted_majority'``: ``'off'``,\n    ``'decay'`` or ``'distance_only'`` (:data:`READ_WEIGHT_MODES`).\n    The distance term needs a ``nuc_gap_px`` column, each read's\n    distance in pixels to the nucleus of its cell.\n:param decay_px: the decay length in pixels\n    (``ops_prefix_distance_decay_px``).\n:param interior_px: the distance with full weight\n    (``ops_prefix_distance_interior_px``).\n:param min_weight: the smallest distance term\n    (``ops_prefix_distance_min_weight``).\n:param weighted_quality: ``ops_prefix_weighted_quality``. True weights\n    each read by ``min(1, quality) + 0.05``, and False weights it 1.\n:param neighbour_discount: ``ops_read_neighbour_discount``. A barcode\n    with strictly fewer reads than the cell's top barcode has its weight\n    multiplied by this when it is a top barcode of a touching cell. 1\n    is off.\n:param weighted_min_share: ``ops_prefix_weighted_min_share``. The share\n    of the cell's read weight the top barcode needs.\n:param neighbours: the touching cells, needed for a discount below 1.\n    The table has the ``keys`` columns, naming a cell, and\n    ``neighbour``, the label of a cell it touches in the same site.\n:returns: one row per cell with any read: ``keys``, ``reads``,\n    ``matched`` (exact or corrected), ``exact``, ``corrected``,\n    ``ambiguous``, ``collision``, ``out_of_library``, ``barcodes``\n    (distinct callable barcodes), ``prefix``, ``guide``, ``gene`` and\n    ``level`` of the top barcode (empty unless ``perfect`` or ``great``),\n    ``top_reads``, ``top_exact``, ``top_share`` (of matched reads),\n    ``second_reads``, ``has_exact_read`` and ``quality``. With\n    ``minority_min_reads`` 2 or more, ``barcodes``, ``second_reads`` and\n    the class count only the reads the rule keeps, and two columns are\n    added: ``minority_ignored`` (reads left out) and\n    ``minority_rescued`` (True when the cell is called only because of\n    the rule). Under ``'weighted_majority'`` (:data:`WEIGHTED_CLASSES`)\n    the top barcode is the one with the most weight, and five columns\n    are added. ``weight_top`` and ``weight_total`` are the summed read\n    weights of the top barcode and of the cell. ``d_weight_top`` is the\n    summed distance term of the top barcode's reads, and\n    ``g_median_top`` their median nucleus distance (NaN without one).\n    ``bleed_discounted`` counts the barcodes the neighbour discount\n    weighed down.\n:raises ValueError: for an unknown method or read-weight mode, for the\n    minority-read rule combined with ``'weighted_majority'``, or for a\n    discount below 1 without ``neighbours``.",
+      "source": "Each cell's barcode, its read counts and its quality class.\n\n:param reads: one row per read with ``keys``, ``status``, ``key``,\n    ``distance``, ``prefix``, ``guide``, ``gene`` and ``level``\n    (:func:`match_prefix_reads` joined to the read positions); rows\n    whose ``cell`` is 0 are not in a cell.\n:param min_reads: exact reads a ``perfect`` cell needs\n    (``ops_quality_min_reads``) under ``'spacr'``.\n:param keys: the columns naming a cell.\n:param method: ``ops_prefix_quality_method``: ``'spacr'``\n    (:func:`classify_cell`, classes :data:`QUALITY_CLASSES`) or\n    ``'recipe_simple'`` (:func:`recipe_simple_quality` on the exact and\n    corrected reads, each scored one minus its distance over the key\n    length; classes :data:`RECIPE_SIMPLE_CLASSES`).\n:param minority_min_reads: ``ops_prefix_minority_min_reads`` (item 967,\n    alpha). From 2 up, a barcode with fewer reads than this is left out\n    of the cell's call when another barcode in the cell has strictly\n    more reads; tied barcodes still block the call. This rescues cells\n    that a single stray read of a second barcode makes ``bad`` under\n    ``'recipe_simple'``; under ``'spacr'`` it changes no call and can\n    only turn ``great`` into ``perfect``. 0 (the default) and 1 change\n    nothing.\n:param distance_weight: ``ops_prefix_distance_weight`` (item 988,\n    alpha), read only by ``'weighted_majority'``: ``'off'``,\n    ``'decay'`` or ``'distance_only'`` (:data:`READ_WEIGHT_MODES`).\n    The distance term needs a ``nuc_gap_px`` column, each read's\n    distance in pixels to the nucleus of its cell.\n:param decay_px: the decay length in pixels\n    (``ops_prefix_distance_decay_px``).\n:param interior_px: the distance with full weight\n    (``ops_prefix_distance_interior_px``).\n:param min_weight: the smallest distance term\n    (``ops_prefix_distance_min_weight``).\n:param weighted_quality: ``ops_prefix_weighted_quality``. True weights\n    each read by ``min(1, quality) + 0.05``, and False weights it 1.\n:param neighbour_discount: ``ops_read_neighbour_discount``. A barcode\n    with strictly fewer reads than the cell's top barcode has its weight\n    multiplied by this when it is a top barcode of a touching cell. 1\n    is off.\n:param weighted_min_share: ``ops_prefix_weighted_min_share``. The share\n    of the cell's read weight the top barcode needs.\n:param neighbours: the touching cells, needed for a discount below 1.\n    The table has the ``keys`` columns, naming a cell, and\n    ``neighbour``, the label of a cell it touches in the same site.\n:param bleed_in_recipe: opt-in item-1013 recipe filter. Under\n    ``recipe_simple`` and ``neighbour_discount`` below 1, leave out\n    every read of a flagged minority barcode through the existing\n    minority-read filter. False retains the previous calls.\n:returns: one row per cell with any read: ``keys``, ``reads``,\n    ``matched`` (exact or corrected), ``exact``, ``corrected``,\n    ``ambiguous``, ``collision``, ``out_of_library``, ``barcodes``\n    (distinct callable barcodes), ``prefix``, ``guide``, ``gene`` and\n    ``level`` of the top barcode (empty unless ``perfect`` or ``great``),\n    ``top_reads``, ``top_exact``, ``top_share`` (of matched reads),\n    ``second_reads``, ``has_exact_read`` and ``quality``. With\n    ``minority_min_reads`` 2 or more, ``barcodes``, ``second_reads`` and\n    the class count only the reads the rule keeps, and two columns are\n    added: ``minority_ignored`` (reads left out) and\n    ``minority_rescued`` (True when the cell is called only because of\n    the rule). Under ``'weighted_majority'`` (:data:`WEIGHTED_CLASSES`)\n    the top barcode is the one with the most weight, and five columns\n    are added. ``weight_top`` and ``weight_total`` are the summed read\n    weights of the top barcode and of the cell. ``d_weight_top`` is the\n    summed distance term of the top barcode's reads, and\n    ``g_median_top`` their median nucleus distance (NaN without one).\n    ``bleed_discounted`` counts the barcodes the neighbour discount\n    weighed down.\n:raises ValueError: for an unknown method or read-weight mode, for the\n    minority-read rule combined with ``'weighted_majority'``, or for a\n    discount below 1 without ``neighbours``.",
+      "source_sha256": "8636c740338fc4a4b10020e98be8440c6939a2ec0b3e1efef44698ce66118d33"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 1324,
+      "symbol": "_prefix_cell_calls",
+      "admission": "private/nested",
+      "before": ":func:`prefix_cell_calls` with item 961's ``ops_call_sort``.\n\n:param reads: as for :func:`prefix_cell_calls`.\n:param min_reads: as for :func:`prefix_cell_calls`.\n:param keys: as for :func:`prefix_cell_calls`.\n:param method: as for :func:`prefix_cell_calls`.\n:param sort: None keeps :func:`prefix_cell_calls`' rule. ``'count'``,\n    ``'quality'`` or ``'peak'`` rank a cell's barcodes by reads, by mean\n    read quality or by the brightest read's spot strength (the reads need\n    a ``peak`` column), with ``'spacr'`` only: one barcode with\n    ``min_reads`` exact reads is ``perfect``, a tie on the key is\n    ``ambiguous``, any other unique top is ``great``.\n:param minority_min_reads: as for :func:`prefix_cell_calls` (item 967);\n    a sort ranks the reads the rule keeps.\n:param distance_weight: as for :func:`prefix_cell_calls` (item 988).\n:param decay_px: as for :func:`prefix_cell_calls` (item 988).\n:param interior_px: as for :func:`prefix_cell_calls` (item 988).\n:param min_weight: as for :func:`prefix_cell_calls` (item 988).\n:param weighted_quality: as for :func:`prefix_cell_calls` (item 988).\n:param neighbour_discount: as for :func:`prefix_cell_calls` (item 988).\n:param weighted_min_share: as for :func:`prefix_cell_calls` (item 988).\n:param neighbours: as for :func:`prefix_cell_calls` (item 988).\n:returns: :func:`prefix_cell_calls`' table.\n:raises ValueError: for an unknown method or sort, a sort with\n    ``'recipe_simple'`` or ``'weighted_majority'``, ``'peak'`` without a\n    ``peak`` column, or as :func:`prefix_cell_calls` raises.",
+      "source": ":func:`prefix_cell_calls` with item 961's ``ops_call_sort``.\n\n:param reads: as for :func:`prefix_cell_calls`.\n:param min_reads: as for :func:`prefix_cell_calls`.\n:param keys: as for :func:`prefix_cell_calls`.\n:param method: as for :func:`prefix_cell_calls`.\n:param sort: None keeps :func:`prefix_cell_calls`' rule. ``'count'``,\n    ``'quality'`` or ``'peak'`` rank a cell's barcodes by reads, by mean\n    read quality or by the brightest read's spot strength (the reads need\n    a ``peak`` column), with ``'spacr'`` only: one barcode with\n    ``min_reads`` exact reads is ``perfect``, a tie on the key is\n    ``ambiguous``, any other unique top is ``great``.\n:param minority_min_reads: as for :func:`prefix_cell_calls` (item 967);\n    a sort ranks the reads the rule keeps.\n:param distance_weight: as for :func:`prefix_cell_calls` (item 988).\n:param decay_px: as for :func:`prefix_cell_calls` (item 988).\n:param interior_px: as for :func:`prefix_cell_calls` (item 988).\n:param min_weight: as for :func:`prefix_cell_calls` (item 988).\n:param weighted_quality: as for :func:`prefix_cell_calls` (item 988).\n:param neighbour_discount: as for :func:`prefix_cell_calls` (item 988).\n:param weighted_min_share: as for :func:`prefix_cell_calls` (item 988).\n:param neighbours: as for :func:`prefix_cell_calls` (item 988).\n:param bleed_in_recipe: as for :func:`prefix_cell_calls` (item 1013).\n:returns: :func:`prefix_cell_calls`' table.\n:raises ValueError: for an unknown method or sort, a sort with\n    ``'recipe_simple'`` or ``'weighted_majority'``, ``'peak'`` without a\n    ``peak`` column, or as :func:`prefix_cell_calls` raises.",
+      "source_sha256": "3e9f5cf6eedb0eff16ba1ff4f389af1ff3501358debd0c65410cc0c2c570b438"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 2024,
+      "symbol": "prefix_settings",
+      "admission": "canonical API",
+      "before": "The item-920 settings, checked and with defaults filled in.\n\n:param settings: the OPS settings: ``ops_library``,\n    ``ops_library_sequence_col``, ``ops_library_gene_col``,\n    ``ops_prefix_length``, ``ops_sbs_cycles``, ``ops_cycle_mask``,\n    ``ops_prefix_collision``, ``ops_prefix_metric``,\n    ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``,\n    ``ops_quality_min_reads``, ``ops_prefix_quality_method``,\n    ``ops_random_barcode_control``, ``ops_control_seed``,\n    ``ops_prefix_masks``, ``ops_read_threshold`` and the item-942 decoy\n    and tuning settings (``ops_prefix_decoy_k``,\n    ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``,\n    ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,\n    ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the\n    item-949 ``ops_prefix_nearmiss_decoy_k`` and\n    ``ops_prefix_fdr_calibration``, the item-967\n    ``ops_prefix_minority_min_reads``, the item-982 small-well guard\n    ``ops_prefix_tuning_min_sites``, and the item-988 weighted-majority\n    settings: ``ops_prefix_distance_weight``,\n    ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``,\n    ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``,\n    ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``,\n    ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and\n    ``ops_multi_guide_min_reads``, and shared controls\n    ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and\n    ``ops_never_barcode_sets``. Never calibration without decoys keeps\n    the entered scale and reports the fallback.\n:returns: the normalised values under the same keys.\n:raises ValueError: without a library, for an unknown choice, for\n    tuning or a shuffle calibration without decoys, for a negative\n    decoy count, minority-read floor or small-well site count, or for a\n    weight setting that is out of range or set without\n    ``'weighted_majority'``.",
+      "source": "The item-920 settings, checked and with defaults filled in.\n\n:param settings: the OPS settings: ``ops_library``,\n    ``ops_library_sequence_col``, ``ops_library_gene_col``,\n    ``ops_prefix_length``, ``ops_sbs_cycles``, ``ops_cycle_mask``,\n    ``ops_prefix_collision``, ``ops_prefix_metric``,\n    ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``,\n    ``ops_quality_min_reads``, ``ops_prefix_quality_method``,\n    ``ops_random_barcode_control``, ``ops_control_seed``,\n    ``ops_prefix_masks``, ``ops_read_threshold`` and the item-942 decoy\n    and tuning settings (``ops_prefix_decoy_k``,\n    ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``,\n    ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,\n    ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the\n    item-949 ``ops_prefix_nearmiss_decoy_k`` and\n    ``ops_prefix_fdr_calibration``, the item-967\n    ``ops_prefix_minority_min_reads``, the opt-in item-1013\n    ``ops_prefix_bleed_in_recipe`` (default False), the item-982 small-well guard\n    ``ops_prefix_tuning_min_sites``, and the item-988 weighted-majority\n    settings: ``ops_prefix_distance_weight``,\n    ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``,\n    ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``,\n    ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``,\n    ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and\n    ``ops_multi_guide_min_reads``, and shared controls\n    ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and\n    ``ops_never_barcode_sets``. Never calibration without decoys keeps\n    the entered scale and reports the fallback.\n:returns: the normalised values under the same keys.\n:raises ValueError: without a library, for an unknown choice, for\n    tuning or a shuffle calibration without decoys, for a negative\n    decoy count, minority-read floor or small-well site count, or for a\n    weight setting that is out of range or an explicit nondefault\n    weight without a compatible method. The default discount can be\n    unavailable on a valid path; the run records that outcome.",
+      "source_sha256": "6e4031621c224d9560b86a6a8a5dc6cf3364a811d3fdfa92c3f020a5b0a4fb24"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 2203,
+      "symbol": "_check_weight_settings",
+      "admission": "private/nested",
+      "before": "Check the item-988 settings of :func:`prefix_settings`.\n\n:param out: the normalised settings.\n:raises ValueError: for an unknown read-weight mode, a value out of\n    range, a weight setting without ``'weighted_majority'``, or the\n    weighted majority combined with the minority-read rule.",
+      "source": "Check the item-988 settings of :func:`prefix_settings`.\n\n:param out: the normalised settings.\n:raises ValueError: for an unknown read-weight mode, a value out of\n    range, an explicit nondefault weight setting without a compatible method, or the\n    weighted majority combined with the minority-read rule.",
+      "source_sha256": "ec58f91e96148682d53dc63910c2ba7306e5cda6539eb56f599c21ad83491d6b"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 2402,
+      "symbol": "_weight_plan",
+      "admission": "private/nested",
+      "before": "What a run's weighted majority and multi-guide table need per site (item 988).\n\n:param chosen: from :func:`prefix_settings`.\n:param axes: the tuning axes, or empty without tuning.\n:returns: ``weighted``, ``axes`` (the weight axes, one value each\n    without tuning), ``gaps`` (the nucleus distance is needed),\n    ``neighbours`` (the touching cells are needed) and ``multi`` (the\n    multi-guide table is written).",
+      "source": "What a run's weighted majority and multi-guide table need per site (item 988).\n\n:param chosen: from :func:`prefix_settings`.\n:param axes: the tuning axes, or empty without tuning.\n:returns: ``weighted``, ``axes`` (the weight axes, one value each\n    without tuning), ``gaps`` (the nucleus distance is needed),\n    ``neighbours`` (the touching cells are needed) and ``multi`` (the\n    multi-guide table is written), and ``recipe_bleed`` (the alpha\n    recipe filter needs touching cells but no nucleus distances).",
+      "source_sha256": "468ae10ef9d41747975fd9fd8ece7b7ff765c800485ae647bc11d34a4624185f"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 2429,
+      "symbol": "_setting_counts",
+      "admission": "private/nested",
+      "before": "Real and decoy calls of one site at one read setting, every weight setting included.\n\n:param frame: the site's reads at one read threshold, quality floor and\n    mismatch limit.\n:param method: ``ops_prefix_quality_method``.\n:param minority_k: ``ops_prefix_minority_min_reads``.\n:param plan: from :func:`_weight_plan`.\n:param chosen: from :func:`prefix_settings`.\n:param neighbours: the site's touching cells, or None.\n:param opportunity_profiles: optional shared guide profiles; counts and\n    opportunities then share exactly the same selected winners.\n:param sort: optional existing cell-call sort; sorted calls use\n    ``_prefix_cell_calls`` directly, including its tie decisions.\n:returns: :func:`_called_counts`'s ``(real, decoy)``, or under the\n    weighted majority (item 988) :func:`_weighted_counts`'s array over\n    the weight axes.",
+      "source": "Real and decoy calls of one site at one read setting, every weight setting included.\n\n:param frame: the site's reads at one read threshold, quality floor and\n    mismatch limit.\n:param method: ``ops_prefix_quality_method``.\n:param minority_k: ``ops_prefix_minority_min_reads``.\n:param plan: from :func:`_weight_plan`.\n:param chosen: from :func:`prefix_settings`.\n:param neighbours: the site's touching cells, or None.\n:param opportunity_profiles: optional shared guide profiles; counts and\n    opportunities then share exactly the same selected winners.\n:param sort: optional existing cell-call sort; sorted calls use\n    ``_prefix_cell_calls`` directly, including its tie decisions.\n    The opt-in recipe bleed filter uses that same owner for real and control calls.\n:returns: :func:`_called_counts`'s ``(real, decoy)``, or under the\n    weighted majority (item 988) :func:`_weighted_counts`'s array over\n    the weight axes.",
+      "source_sha256": "6278a6e1c3c1d695f9c3864bddca82abffb1c35d36d7534e1ff50f698783aef8"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 2477,
+      "symbol": "_weight_arguments",
+      "admission": "private/nested",
+      "before": "The weighted-majority arguments of :func:`prefix_cell_calls` (item 988).\n\n:param chosen: from :func:`prefix_settings`.\n:param best: the tuner's chosen setting, or None to use the entered one.\n:returns: the keyword arguments; the tuner's decay length of 0 turns the\n    distance term off.",
+      "source": "The weighted-majority arguments of :func:`prefix_cell_calls` (item 988).\n\n:param chosen: from :func:`prefix_settings`.\n:param best: the tuner's chosen setting, or None to use the entered one.\n:returns: the keyword arguments; the tuner's decay length of 0 turns the\n    distance term off. Recipe bleed is passed only when explicitly enabled.",
+      "source_sha256": "9e23c47c8dc632e564a73dbcc5587adb5daa2ed54189fd749fc7f0b46b4de81a"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 2557,
+      "symbol": "_site_geometry",
+      "admission": "private/nested",
+      "before": "A site's touching cells and its reads' nucleus distances, when the run needs them (item 988).\n\n:param plan: from :func:`_weight_plan`.\n:param chosen: from :func:`prefix_settings`.\n:param labels: the site's cell labels, or None.\n:param y: the reads' rows.\n:param x: the reads' columns.\n:param cell: the reads' cells.\n:param plate: the plate.\n:param well: the well folder name.\n:param well_id: the well.\n:param site: the site.\n:param destination: ``dst_root``, for the ``merged/`` fallback.\n:returns: ``(pairs, extra)``: :func:`_touching_cells` or None, and\n    ``nuc_gap_px`` and ``nuc_gap_fallback`` per read or None.\n:raises ValueError: when the distance or the touching cells are needed\n    and the site has no cell or nucleus labels.",
+      "source": "A site's touching cells and its reads' nucleus distances, when the run needs them (item 988).\n\n:param plan: from :func:`_weight_plan`.\n:param chosen: from :func:`prefix_settings`.\n:param labels: the site's cell labels, or None.\n:param y: the reads' rows.\n:param x: the reads' columns.\n:param cell: the reads' cells.\n:param plate: the plate.\n:param well: the well folder name.\n:param well_id: the well.\n:param site: the site.\n:param destination: ``dst_root``, for the ``merged/`` fallback.\n:returns: ``(pairs, extra)``: :func:`_touching_cells` or None, and\n    ``nuc_gap_px`` and ``nuc_gap_fallback`` per read or None.\n:raises ValueError: when the distance or the touching cells are needed\n    and the site has no cell or nucleus labels; recipe bleed needs\n    touching-cell labels but no nucleus distances.",
+      "source_sha256": "4d4ed2a334a382fe75660870876a71cbae1690bdc584cfa177272cd07a85d714"
+    },
+    {
+      "file": "spacr/settings.py",
+      "line": 2698,
+      "symbol": "_fold_older_defaults",
+      "admission": "private/nested",
+      "before": "Give a file the defaults of the version it was written under.\n\nWHY (item 931). A saved settings file or run journal must give the same\nresult when it is run again, but a file only holds the keys that existed\nwhen it was written. When a later release changes a default, a key the\nfile never set would silently take the NEW default. Every file spaCR\nwrites therefore carries ``SETTINGS_VERSION_KEY`` =\n``SETTINGS_SCHEMA_VERSION``, and ``DEFAULT_CHANGES`` says, per version,\nwhat a key's default was BEFORE that version. A file with no stamp --\nhand-written or older than the stamp -- is read as the oldest version\nand gets every old default listed, with a logged notice naming each one\nand how to take today's default instead.\n\nTO CHANGE A DEFAULT: add one row to ``DEFAULT_CHANGES``, keyed by the\nitem number that changes it and holding the OLD default, and raise\n``SETTINGS_SCHEMA_VERSION`` to that number. The key must be above every\nexisting key, because files are already stamped with the current\nversion; an item whose number is lower takes the next free number and\nis listed under that number in docs/source/reproducibility_manifests.rst.\nA format-only change instead adds its version to\n``SETTINGS_FORMAT_VERSIONS`` and leaves ``DEFAULT_CHANGES`` unchanged.\nVersion 950 records exact resolved parameters without changing defaults.\n933 is item 930's switch of ``ops_align_model`` to ``'tile_affine'``:\nit landed after 932, so it could not take 930. 934 is item 937's\n``aggregation_defaults`` ``'per_feature'`` (the screen pipeline's\nper-feature well table); older files keep ``'legacy'``.\n935 is item 940's switch of ``ops_placement_seed_export`` to True: every\nsolved stitch writes a placement file, and files stamped before keep\nit off.\n936 is the OPS stage-3 Hybrid profile's ``ops_blas_threads`` (2, was\n1) and ``ops_consensus_space`` (``'hybrid'``, was ``'refit'``).\n937 is item 941's removal of Gabor and colocalisation from the\n``'profiling'`` preset of ``profile_features`` and\n``ops_ph_profile_features``: files stamped before get\n``profile_optional_families`` and ``ops_ph_profile_optional_families``\nwith the three families ``'profiling'`` measured then, so their columns\nare unchanged.\n938 is item 945's ``seg_mask_vram_gb``: the\nlarge-site mask step is sized to 6 GB of card memory, and files stamped\nbefore keep 0, no cap of its own.\n940 is item 946's switch of the OPS decode to the proven Funk decode:\n``ops_decode_preset`` ``'rule_a_s2'`` (was ``'none'``) and\n``ops_decode_threshold_mode`` ``'auto'`` (was ``'manual'``), with\n``ops_decode_auto_spot_grid`` back to ``[]`` (calling thresholds only;\nfiles stamped 939 keep item 942's joint grid).\n943 is item 965's large-site nuclei (R2): ``seg_cells_from_nucleus_seeds``\n``True`` (was ``False``) and ``seg_merge_small_nuclei_frac`` ``0.25``\n(was ``0.0``); files stamped before keep the cell model's own cells\nand no merge, so their labels are unchanged.\n944 is item 966's spacer-prefix decode default: ``ops_read_mode``\nempty, which that decode reads as ``'auto'`` while it tunes (was\n``'log'``), ``ops_prefix_threshold_tuning`` ``'per_well_decoy'`` (was\n``'none'``), ``ops_prefix_decoy_k`` 4 (was 0) and\n``ops_prefix_fdr_target_pct`` 1.0 (was 0.1); files stamped before keep\nthe fixed thresholds and the log read, and the OPS barcode decode reads\nan empty ``ops_read_mode`` as ``'log'`` either way.\n945 is item 987b's automatic ``batch_size`` of Make Masks (0, the largest\nbatch that fits the free GPU and RAM; was 50): files stamped before keep\n50, so their masks, normalised per batch, are unchanged.\n947 is item 967's minority-read rule on the spacer-prefix decode:\n``ops_prefix_minority_min_reads`` 3 (was 0, off); files stamped before\nkeep 0, so every barcode of a cell counts in its call as before.\n948 is TASK X's routing of OPS Cellpose through the shared mask tile\nbatch (``mask_eval_batch_size``; 0 is one tile per field in the resident\nbatch). Files stamped before get the tile batches the OPS paths always\nran at: ``ops_ph_tile_batch`` 8 (the phenotype path's\n``ops_ph_batch_size``, which an old file that sets it keeps, since it is\nrenamed to this key), ``ops_sbs_tile_batch`` 16 (stitched sequencing\nnuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and\n947 belong to other items, so this takes 948.\n951 is item 992's nineteen ``ops_maxproj_*`` settings. They are all\nnew, so no default changed: 951 is a format-only version\n(``SETTINGS_FORMAT_VERSIONS``), and files stamped before lack them and\ntake their defaults, the phase off.\n952 is item 1006's flat-field correction on by default: ``ops_flatfield``\n``'exact'`` (was ``'none'``) with every channel's map an object median\n(``ops_flatfield_channel_fit``, which is ``'legacy'`` for older files:\nthe polynomial DNA map and the pixel-median maps of the other channels).\nFiles stamped before keep ``'none'``, so their phenotype pixels are\nmeasured as acquired, and one that sets ``'exact'`` keeps the legacy maps.\n955 is item 1011's measured VRAM-aware batching for Mask Generation and\nOPS: ``batch_size`` and ``mask_eval_batch_size`` now default to\n``'auto_vram'``. Files stamped before keep their previous defaults (0\nfor both since 945), and files before 945 still keep 50 fields. Explicit\nvalues and the older OPS per-path tile defaults remain unchanged.\nOPS files before 955 that omit ``randomize`` keep False (acquisition\norder); Mask keeps its existing True default. The OPS-only migration\nrequires known pipeline keys containing ``ops_ph_tile_batch``.\nThe existing Mask shuffle now uses ``mask_batch_seed`` (42 by default);\nthe earlier unseeded shuffle had no reproducible order to preserve.\n\n957 adds automatic FDR-scale calibration from never-should-appear\nbarcodes (item 1014, method ``'never'``). Files stamped before keep\nthe entered fixed scale (``'none'``).\n\n958 is item 1008: cytoskeleton skeletons are restricted to the object\nmask. Older Overview settings keep ``cytoskeleton_object_support``\nFalse so whole-image fibre counts retain their earlier values.\n\n:param settings: the file's settings under today's names, edited in\n    place.\n:param version: the file's schema version from\n    :func:`_settings_file_version`; 0 for an unstamped file.\n:param known: the keys the pipeline being run reads, or None for any key.\n    A row for another pipeline's key is not added to this one's settings.\n    The OPS-only 955 ``randomize`` change requires its pipeline key set.\n:returns: ``key -> (old default, version that changed it)`` for every key\n    filled in. A key the file sets is never touched. When a key changed\n    more than once, the default of the earliest change after ``version``\n    is the one the file was written under. An explicit legacy\n    ``crop_source`` supplies a missing ``image_source`` before its old\n    default is inserted, preserving the requested source mode.",
+      "source": "Give a file the defaults of the version it was written under.\n\nWHY (item 931). A saved settings file or run journal must give the same\nresult when it is run again, but a file only holds the keys that existed\nwhen it was written. When a later release changes a default, a key the\nfile never set would silently take the NEW default. Every file spaCR\nwrites therefore carries ``SETTINGS_VERSION_KEY`` =\n``SETTINGS_SCHEMA_VERSION``, and ``DEFAULT_CHANGES`` says, per version,\nwhat a key's default was BEFORE that version. A file with no stamp --\nhand-written or older than the stamp -- is read as the oldest version\nand gets every old default listed, with a logged notice naming each one\nand how to take today's default instead.\n\nTO CHANGE A DEFAULT: add one row to ``DEFAULT_CHANGES``, keyed by the\nitem number that changes it and holding the OLD default, and raise\n``SETTINGS_SCHEMA_VERSION`` to that number. The key must be above every\nexisting key, because files are already stamped with the current\nversion; an item whose number is lower takes the next free number and\nis listed under that number in docs/source/reproducibility_manifests.rst.\nA format-only change instead adds its version to\n``SETTINGS_FORMAT_VERSIONS`` and leaves ``DEFAULT_CHANGES`` unchanged.\nVersion 950 records exact resolved parameters without changing defaults.\n933 is item 930's switch of ``ops_align_model`` to ``'tile_affine'``:\nit landed after 932, so it could not take 930. 934 is item 937's\n``aggregation_defaults`` ``'per_feature'`` (the screen pipeline's\nper-feature well table); older files keep ``'legacy'``.\n935 is item 940's switch of ``ops_placement_seed_export`` to True: every\nsolved stitch writes a placement file, and files stamped before keep\nit off.\n936 is the OPS stage-3 Hybrid profile's ``ops_blas_threads`` (2, was\n1) and ``ops_consensus_space`` (``'hybrid'``, was ``'refit'``).\n937 is item 941's removal of Gabor and colocalisation from the\n``'profiling'`` preset of ``profile_features`` and\n``ops_ph_profile_features``: files stamped before get\n``profile_optional_families`` and ``ops_ph_profile_optional_families``\nwith the three families ``'profiling'`` measured then, so their columns\nare unchanged.\n938 is item 945's ``seg_mask_vram_gb``: the\nlarge-site mask step is sized to 6 GB of card memory, and files stamped\nbefore keep 0, no cap of its own.\n940 is item 946's switch of the OPS decode to the proven Funk decode:\n``ops_decode_preset`` ``'rule_a_s2'`` (was ``'none'``) and\n``ops_decode_threshold_mode`` ``'auto'`` (was ``'manual'``), with\n``ops_decode_auto_spot_grid`` back to ``[]`` (calling thresholds only;\nfiles stamped 939 keep item 942's joint grid).\n943 is item 965's large-site nuclei (R2): ``seg_cells_from_nucleus_seeds``\n``True`` (was ``False``) and ``seg_merge_small_nuclei_frac`` ``0.25``\n(was ``0.0``); files stamped before keep the cell model's own cells\nand no merge, so their labels are unchanged.\n944 is item 966's spacer-prefix decode default: ``ops_read_mode``\nempty, which that decode reads as ``'auto'`` while it tunes (was\n``'log'``), ``ops_prefix_threshold_tuning`` ``'per_well_decoy'`` (was\n``'none'``), ``ops_prefix_decoy_k`` 4 (was 0) and\n``ops_prefix_fdr_target_pct`` 1.0 (was 0.1); files stamped before keep\nthe fixed thresholds and the log read, and the OPS barcode decode reads\nan empty ``ops_read_mode`` as ``'log'`` either way.\n945 is item 987b's automatic ``batch_size`` of Make Masks (0, the largest\nbatch that fits the free GPU and RAM; was 50): files stamped before keep\n50, so their masks, normalised per batch, are unchanged.\n947 is item 967's minority-read rule on the spacer-prefix decode:\n``ops_prefix_minority_min_reads`` 3 (was 0, off); files stamped before\nkeep 0, so every barcode of a cell counts in its call as before.\n948 is TASK X's routing of OPS Cellpose through the shared mask tile\nbatch (``mask_eval_batch_size``; 0 is one tile per field in the resident\nbatch). Files stamped before get the tile batches the OPS paths always\nran at: ``ops_ph_tile_batch`` 8 (the phenotype path's\n``ops_ph_batch_size``, which an old file that sets it keeps, since it is\nrenamed to this key), ``ops_sbs_tile_batch`` 16 (stitched sequencing\nnuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and\n947 belong to other items, so this takes 948.\n951 is item 992's nineteen ``ops_maxproj_*`` settings. They are all\nnew, so no default changed: 951 is a format-only version\n(``SETTINGS_FORMAT_VERSIONS``), and files stamped before lack them and\ntake their defaults, the phase off.\n952 is item 1006's flat-field correction on by default: ``ops_flatfield``\n``'exact'`` (was ``'none'``) with every channel's map an object median\n(``ops_flatfield_channel_fit``, which is ``'legacy'`` for older files:\nthe polynomial DNA map and the pixel-median maps of the other channels).\nFiles stamped before keep ``'none'``, so their phenotype pixels are\nmeasured as acquired, and one that sets ``'exact'`` keeps the legacy maps.\n955 is item 1011's measured VRAM-aware batching for Mask Generation and\nOPS: ``batch_size`` and ``mask_eval_batch_size`` now default to\n``'auto_vram'``. Files stamped before keep their previous defaults (0\nfor both since 945), and files before 945 still keep 50 fields. Explicit\nvalues and the older OPS per-path tile defaults remain unchanged.\nOPS files before 955 that omit ``randomize`` keep False (acquisition\norder); Mask keeps its existing True default. The OPS-only migration\nrequires known pipeline keys containing ``ops_ph_tile_batch``.\nThe existing Mask shuffle now uses ``mask_batch_seed`` (42 by default);\nthe earlier unseeded shuffle had no reproducible order to preserve.\n\n957 adds automatic FDR-scale calibration from never-should-appear\nbarcodes (item 1014, method ``'never'``). Files stamped before keep\nthe entered fixed scale (``'none'``).\n\n958 is item 1008: cytoskeleton skeletons are restricted to the object\nmask. Older Overview settings keep ``cytoskeleton_object_support``\nFalse so whole-image fibre counts retain their earlier values.\n\nVersion 959 changes the item-1013 neighbour-bleed discount to 0.25;\nfiles stamped before retain 1.0 (off), including schemas 957 and 958.\n\n:param settings: the file's settings under today's names, edited in\n    place.\n:param version: the file's schema version from\n    :func:`_settings_file_version`; 0 for an unstamped file.\n:param known: the keys the pipeline being run reads, or None for any key.\n    A row for another pipeline's key is not added to this one's settings.\n    The OPS-only 955 ``randomize`` change requires its pipeline key set.\n:returns: ``key -> (old default, version that changed it)`` for every key\n    filled in. A key the file sets is never touched. When a key changed\n    more than once, the default of the earliest change after ``version``\n    is the one the file was written under. An explicit legacy\n    ``crop_source`` supplies a missing ``image_source`` before its old\n    default is inserted, preserving the requested source mode.",
+      "source_sha256": "eeeaa7fbe7d4498d143057b98340a2679438b4383759e0b576a702493f83a1d4"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 1,
+      "symbol": "<module>",
+      "admission": "test",
+      "before": null,
+      "source": "Item 1013 shares neighbour-bleed flags while preserving the existing vote arithmetic.",
+      "source_sha256": "84b2177593ec862ea20fff7d8b0a5b75a26b97cd2daab7f9fe20bc511f827756"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 17,
+      "symbol": "legacy",
+      "admission": "test",
+      "before": null,
+      "source": "Load the hash-bound pre-1013 flag owners from the announced nightly source.",
+      "source_sha256": "73f23ec662b6b8dd69596d15a3952736551b52dbdf7a7731227f74e2cee2ec8e"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 31,
+      "symbol": "_grouped_votes",
+      "admission": "test",
+      "before": null,
+      "source": "Build distinct groups with ties, corrected reads, directed edges and absent neighbours.",
+      "source_sha256": "9a014e4a4c41bb72ba72a2ace2f039262e452ab421c4bff82735d1152b02696f"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 54,
+      "symbol": "test_full_barcode_votes_equal_the_frozen_owner_for_all_four_discounts",
+      "admission": "test",
+      "before": null,
+      "source": "Compare every in-place vote value and insertion order against the original source.",
+      "source_sha256": "539823895b5fa83f0ac574ec74a99ecbee1263bcf3073a1ddbc96886174a6798"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 68,
+      "symbol": "test_prefix_group_arrays_equal_the_frozen_owner_with_the_shared_flags",
+      "admission": "test",
+      "before": null,
+      "source": "Pin every prefix group array rather than only the final called barcode.",
+      "source_sha256": "eed370b7d5df269360434238c8a8452db11c3e859a7c9471d677ff63deaa1be3"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 83,
+      "symbol": "test_shared_flags_preserve_ties_directed_edges_and_large_cell_identifiers",
+      "admission": "test",
+      "before": null,
+      "source": "Keep all tied top barcodes while avoiding arithmetic overflow in cell identifiers.",
+      "source_sha256": "ab5657519fe5a5afa5160c3baf54578cdb3c0f712fb3cf3a2a9dc83c5accc76a"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 98,
+      "symbol": "test_both_adapters_call_the_same_shared_flag_owner",
+      "admission": "test",
+      "before": null,
+      "source": "Trace the common owner through both adapters without duplicating either decision rule.",
+      "source_sha256": "db4fc10534afd21f73203787291e0bed9c856785d58ed3db2a1aa0effa8d681a"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 103,
+      "symbol": "test_both_adapters_call_the_same_shared_flag_owner.trace",
+      "admission": "test",
+      "before": null,
+      "source": "Retain arguments and delegate all flag decisions to the shared numerical owner.",
+      "source_sha256": "abb4a83f1f6bc04220d782bf33358d0674dd3b4babc8bbd3b210655fa60b378c"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 115,
+      "symbol": "test_shared_flags_handle_empty_groups_and_missing_neighbours",
+      "admission": "test",
+      "before": null,
+      "source": "Empty and neighbour-free inputs yield boolean flags in the original group order.",
+      "source_sha256": "3ac099d76ae77f84310998619edc0d7dd989c5896d6b3e6d659094f44ea2c225"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 126,
+      "symbol": "test_shared_flags_reject_inconsistent_group_or_pair_shapes",
+      "admission": "test",
+      "before": null,
+      "source": "Reject malformed input before pandas can silently align inconsistent arrays.",
+      "source_sha256": "8d2433bb0c605822b8ddcb6adb363416e00cc6d39180f9e31408409c4130c2b0"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 132,
+      "symbol": "test_new_default_preserves_every_old_settings_era_without_rewriting_files",
+      "admission": "test",
+      "before": null,
+      "source": "Schema 959 keeps 1.0 for unstamped and 957/958 files while current files use 0.25.",
+      "source_sha256": "4d416e00a986f00480a7cadf120821a5da3b6c742b330f3ad81fbe618b0ddc9a"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 155,
+      "symbol": "test_rules_off_skip_only_the_new_default_and_log_once",
+      "admission": "test",
+      "before": null,
+      "source": "A default discount cannot activate disabled rules or excuse an explicit other weight.",
+      "source_sha256": "2bf91a7d71f455a1dc4cbc189925339e7a5cff7963de4d3dea2eb46618edfe37"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 172,
+      "symbol": "test_positionless_cache_default_matches_discount_off_and_logs_once",
+      "admission": "test",
+      "before": null,
+      "source": "Replay old evidence unchanged with the default while retaining explicit-discount errors.",
+      "source_sha256": "c157c1fe438f6e5fd4eccef86e04f2199bcbe8566efc008dda2d1cef4a1b1a62"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 190,
+      "symbol": "test_prefix_default_no_op_preserves_all_decode_files",
+      "admission": "test",
+      "before": null,
+      "source": "The unavailable default leaves every output byte equal to explicit discount off.",
+      "source_sha256": "8cfef5e1b4e142653158bdd02fb7b7d9da5c660fa87bae25ac37c9f8007e3e63"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 203,
+      "symbol": "test_application_flags_are_published_to_the_existing_run_journal",
+      "admission": "test",
+      "before": null,
+      "source": "Write actual false flags and one notice through the existing journal publisher.",
+      "source_sha256": "6797aad3643e398b5fd3515ab61e88e22849a0182642bf98ff0ba9936258d65f"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 217,
+      "symbol": "_recipe_bleed_reads",
+      "admission": "test",
+      "before": null,
+      "source": "Keep a three-read minority above the existing floor so only bleed rescues it.",
+      "source_sha256": "edbfe420c3d3ba9dcf32de53e1c3b5183c920960ef661637c7224310aad2a7e7"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 225,
+      "symbol": "_recipe_neighbours",
+      "admission": "test",
+      "before": null,
+      "source": "Connect only the minority-bearing cell and the cell with the matching top barcode.",
+      "source_sha256": "53ff1293f33fc268a5054de851b5070be753052f8135cbc11ed18fd8681666a6"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 232,
+      "symbol": "test_opt_in_recipe_bleed_uses_the_existing_minority_filter",
+      "admission": "test",
+      "before": null,
+      "source": "Any discount below one removes the flagged barcode in the categorical recipe rule.",
+      "source_sha256": "8b7f90cb7d221d34bf6fd3f8aa9a65087b3da143def854248051fd91769ee7cc"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 248,
+      "symbol": "test_recipe_switch_off_and_discount_off_preserve_all_cell_values",
+      "admission": "test",
+      "before": null,
+      "source": "The alpha gate or discount value one keeps all existing outputs and column layouts.",
+      "source_sha256": "1dc7f4d9c77f5345df46c52e318c8f6b8bf348d94bd0d67e4112eb937d4510c5"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 260,
+      "symbol": "test_recipe_bleed_never_removes_a_tied_top_barcode",
+      "admission": "test",
+      "before": null,
+      "source": "A top-count tie stays ambiguous even if one barcode is the top of a neighbour.",
+      "source_sha256": "6ac357f742c5aac5e77f4061a6c1cc8db33c7d5fa947548dbacdfe68f2a8a6fd"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 272,
+      "symbol": "test_recipe_call_counts_and_control_labels_use_the_same_selected_reads",
+      "admission": "test",
+      "before": null,
+      "source": "Production and control frames pass through the same call owner and bleed gate.",
+      "source_sha256": "442dd45024d3bb3fd97a0d418babce57bd26c58349cc748b296a4d628c150e4c"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 293,
+      "symbol": "test_opt_in_recipe_bleed_requires_actual_neighbour_information",
+      "admission": "test",
+      "before": null,
+      "source": "An enabled recipe filter cannot silently claim an application without geometry.",
+      "source_sha256": "8eeb508bb2b266ecaada7a274b674899126866ff84918f6d7c14fe551a257d59"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 300,
+      "symbol": "test_prefix_run_exercises_recipe_flags_and_records_the_opt_in",
+      "admission": "test",
+      "before": null,
+      "source": "The settings entry point reaches the shared owner without requiring nucleus distances.",
+      "source_sha256": "be1f50efa1c6ccd553d012e2542ce3100fdd6e29f2405be3db8b15b9f2d1193a"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 307,
+      "symbol": "test_prefix_run_exercises_recipe_flags_and_records_the_opt_in.trace",
+      "admission": "test",
+      "before": null,
+      "source": "Observe genuine group inputs while preserving all shared flag calculations.",
+      "source_sha256": "cf7617df8f2e2dee6eb83e8d9eb10c4fa784e0fbb36bdfe8f6c348ed339878b3"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 322,
+      "symbol": "test_combinatorial_early_return_records_default_as_unapplied_once",
+      "admission": "test",
+      "before": null,
+      "source": "The existing combinatorial decoder retains its output and reports the inactive default.",
+      "source_sha256": "0b615d938ab8e91602c5d34ad97a3edd1aa282f6aa7d309dab7aaf4d7cbd5d9c"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 329,
+      "symbol": "test_combinatorial_early_return_records_default_as_unapplied_once.decode",
+      "admission": "test",
+      "before": null,
+      "source": "Retain the existing early-return output without requiring unrelated image inputs.",
+      "source_sha256": "4a270916b9ec9d06b8318327497d163d8e3949d09b2c9e13727581f1340c0865"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 348,
+      "symbol": "test_runtime_extractor_admits_the_notice_and_alpha_control",
+      "admission": "test",
+      "before": null,
+      "source": "The shipped source extractor sees the notice identities and the actual generated control text.",
+      "source_sha256": "8c0c0f02681496bdf87de71a375c2d86898637014fd470abb119d9e5a913176b"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 367,
+      "symbol": "test_generic_resolver_keeps_unrelated_mappings_exact",
+      "admission": "test",
+      "before": null,
+      "source": "A preset resolver retains plain mappings without adding OPS notice metadata.",
+      "source_sha256": "8ef04af8aaa554410948e00b8ed886d923adcc49a7575de42c58c66aa0e1de59"
+    },
+    {
+      "file": "tests/test_ops_neighbour_discount_default_1013.py",
+      "line": 377,
+      "symbol": "test_ops_resolver_shares_one_notice_across_well_copies",
+      "admission": "test",
+      "before": null,
+      "source": "Actual OPS settings retain one notice context across repeated shallow resolutions.",
+      "source_sha256": "fa93a80dade91140ba7018250837811b2fe047dae43759819a373dd327f6a7f1"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 1,
+      "symbol": "<module>",
+      "admission": "test",
+      "before": null,
+      "source": "Exact old-versus-shared bleed equivalence on existing OPS evidence owners.",
+      "source_sha256": "75c6299921bbcc71da519a9c2b9e399bbe04fce0d878929a7bc7d131ea02530a"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 24,
+      "symbol": "_exact",
+      "admission": "test",
+      "before": null,
+      "source": "Preserve ordering, scalar float bits, array dtypes and every table column.",
+      "source_sha256": "f8b2864d7b7c768843ff4b67225e315efdc7490e8c6c645cdf6fb552ff65a658"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 45,
+      "symbol": "_digest",
+      "admission": "test",
+      "before": null,
+      "source": "Hash the exact comparison representation for an auditable per-case receipt.",
+      "source_sha256": "f2ebf85c1f249006ecac1f4cdee10416099a6166b1fba8e6fdb87820553afe28"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 50,
+      "symbol": "_arrays",
+      "admission": "test",
+      "before": null,
+      "source": "Read a supplied NPZ using the existing lazy OPS field-cache container owner.",
+      "source_sha256": "46e8436f701c20b805a18e0184fa8d675ccd235859749518d84c083848aaa3ed"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 68,
+      "symbol": "_owner",
+      "admission": "test",
+      "before": null,
+      "source": "Swap only the frozen flag adapter while all calling and weight owners stay shared.",
+      "source_sha256": "5b8b171d7d582c4331cebd46f0b7c9b01cc473d5acf48713d6927dba59eedf55"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 74,
+      "symbol": "_funk_equivalence",
+      "admission": "test",
+      "before": null,
+      "source": "Compare every full-barcode vote and assembled field call for the prescribed factors.",
+      "source_sha256": "2f861b992aa0019bc946df8781cfc51f66c38d59f994d4ef9af0bd79edf05ae3"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 101,
+      "symbol": "_prefix_equivalence",
+      "admission": "test",
+      "before": null,
+      "source": "Compare all barcode weights and weighted-majority calls with distance weighting off.",
+      "source_sha256": "981707239fda45c00591ce742bd3d9b98c87e916626a05cdc64438478c2e6579"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 132,
+      "symbol": "_write_receipt",
+      "admission": "test",
+      "before": null,
+      "source": "Require unchanged input files and persist complete equality counts and source hashes.",
+      "source_sha256": "fc05cac8170b49bf28bd6f8f6f67d5f7d34c698768ca1c2af7358fb574c7f774"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 143,
+      "symbol": "test_builtin_a1_core_equivalence",
+      "admission": "test",
+      "before": null,
+      "source": "Compare the four cached published A1 fields before accepting the external data swap.",
+      "source_sha256": "c0d36a245efad0784683c422f60813c2adb529d2ff11dcdf7743253293d47c12"
+    },
+    {
+      "file": "tests/test_ops_neighbour_equivalence_1013.py",
+      "line": 173,
+      "symbol": "test_external_funk_and_periscope_core_equivalence",
+      "admission": "test",
+      "before": null,
+      "source": "Compare every supplied field and site using only the approved external input root.",
+      "source_sha256": "dfe5ff498962fcf113d77bafb8c8ac3578eae595318784089174b45601a61767"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 1,
+      "symbol": "<module>",
+      "admission": "test",
+      "before": null,
+      "source": "Exact source-only contracts for the 1013 shared bleed owner and API revisions.",
+      "source_sha256": "c2f923b99953594c0d18c01e841cd4a750f85db625457ecf97f557692f28fd64"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 22,
+      "symbol": "_neighbour_api_sources",
+      "admission": "test",
+      "before": null,
+      "source": "Bind six exact API bodies and signatures while retaining file provenance.",
+      "source_sha256": "92290a46fb181f198af3031bfeb5dad246c50da662aeaf964d0cae7c4fb51291"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 51,
+      "symbol": "_neighbour_predecessor_source",
+      "admission": "test",
+      "before": null,
+      "source": "Validate the current revision before supplying its exact predecessor to an older gate.",
+      "source_sha256": "0cdab6a506c38ce31185801c2d2cec6a65941e00c6b83bdada5fab3b1887834f"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 73,
+      "symbol": "_current_neighbour_api",
+      "admission": "test",
+      "before": null,
+      "source": "Apply only bound current bodies after the existing 1014 arrival adapter.",
+      "source_sha256": "c718eeb45df2e84dc8ba73cc019ffa0dd6b82ddec370f620069b6ae192f5ed44"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 84,
+      "symbol": "_neighbour_birth_arrivals",
+      "admission": "test",
+      "before": null,
+      "source": "Validate the single new public callable and refuse collisions with prior arrivals.",
+      "source_sha256": "dde091c33952f15ead612d53a1c286837883eaa1ef65b3106b8b4b406a8aa614"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 93,
+      "symbol": "_validated_neighbour_arrivals",
+      "admission": "test",
+      "before": null,
+      "source": "Remove only the exact source-derived new callable from the frozen legacy boundary.",
+      "source_sha256": "286e484c9c540405aff423b24088a87792338db60b671e07e4d7c4294a98da5f"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 107,
+      "symbol": "_historical_neighbour_arrivals",
+      "admission": "test",
+      "before": null,
+      "source": "Read the immutable BMC contracts containing the five revised public bodies.",
+      "source_sha256": "4f03c79e1da77f6a777be19b766e8f2d09970c4de64b20bc98461e508a7bae95"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 116,
+      "symbol": "test_neighbour_adapter_changes_only_bound_revisions_after_existing_adapter",
+      "admission": "test",
+      "before": null,
+      "source": "Keep historical files and input maps unchanged while composing in the required order.",
+      "source_sha256": "dd25ce5b485fc3831298bf3eee909d54f7f3134ed86e8e7d539c2b1aa186aa91"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 134,
+      "symbol": "test_neighbour_adapter_refuses_unbound_bodies_and_birth_collisions",
+      "admission": "test",
+      "before": null,
+      "source": "Reject arbitrary prose, absent birth bodies and a duplicate public symbol.",
+      "source_sha256": "b3b8d4bb5cf2ab5ca844ada5016012283d1057e38c5ad060eaeeaefb37eea28d"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 147,
+      "symbol": "test_new_callable_validator_retains_unrelated_entries_and_checks_parameters",
+      "admission": "test",
+      "before": null,
+      "source": "Accept the exact new declaration while retaining every unrelated inventory object.",
+      "source_sha256": "9770eaedc21f10adddaee5758f029b39d9a40fb3c8685c9eee2c7bc3c78eda61"
+    },
+    {
+      "file": "tests/test_ops_neighbour_sources_1013.py",
+      "line": 164,
+      "symbol": "test_predecessor_bridge_rejects_current_source_and_signature_drift",
+      "admission": "test",
+      "before": null,
+      "source": "An older contract cannot conceal drift in the admitted current prefix revision.",
+      "source_sha256": "657a85a117aa7738791e374c87e0998bb9d2473dd42928e14e47b918e2882328"
+    },
+    {
+      "file": "tests/test_ops_read_weights_988.py",
+      "line": 148,
+      "symbol": "test_the_settings_are_alpha_off_and_checked",
+      "admission": "test",
+      "before": null,
+      "source": "Keep the remaining weights alpha while the promoted discount defaults to 0.25.",
+      "source_sha256": "95a2d67856be7475733464de15da2006f1b5f103adf1d2de7d5c977ed7138db0"
+    },
+    {
+      "file": "tests/test_ops_read_weights_988.py",
+      "line": 245,
+      "symbol": "test_the_decode_rule_carries_the_weighting_only_when_on",
+      "admission": "test",
+      "before": null,
+      "source": "Explicit discount off retains the old rule, while an entered discount is carried.",
+      "source_sha256": "0ab34fbfce4a2cffde4d2616c3e3b6cd3476026dd7b01eb283e21a2e10a41686"
+    }
+  ],
+  "messages": [
+    {
+      "file": "spacr/ops_sbs.py",
+      "line": 1262,
+      "symbol": "neighbour_bleed_flags",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'neighbour bleed needs one cell, barcode and read count per group'",
+      "source_sha256": "f8529b495faa3611558b12c26adc1853e1c75f40e79f3296e1eb6279bebecc9d"
+    },
+    {
+      "file": "spacr/ops_sbs.py",
+      "line": 1270,
+      "symbol": "neighbour_bleed_flags",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'neighbour bleed pairs must have shape pairs by two'",
+      "source_sha256": "d2b9ec0ee304d476a8e28ea101152c940a01964879a2d36cab9bd2945b8d78a0"
+    },
+    {
+      "file": "spacr/ops_decode.py",
+      "line": 245,
+      "symbol": "_neighbour_discount_state",
+      "admission": "runtime tr",
+      "source_expression": "'rules off'",
+      "source_sha256": "d14cba76f8ff1da593a2a09c827d66ed4dce9c6c2d1361663c86b6e6b90810e0"
+    },
+    {
+      "file": "spacr/ops_decode.py",
+      "line": 246,
+      "symbol": "_neighbour_discount_state",
+      "admission": "runtime tr",
+      "source_expression": "'cache replay without nucleus positions'",
+      "source_sha256": "5b13381c7f7c09a26a4d89c8f449d09058f00e886908ac8d27a298e2582fc535"
+    },
+    {
+      "file": "spacr/ops_decode.py",
+      "line": 247,
+      "symbol": "_neighbour_discount_state",
+      "admission": "runtime tr",
+      "source_expression": "'ops_read_neighbour_discount ({discount}) does not act under {method}; reads are not discounted'",
+      "source_sha256": "2ad7470388473d7fea7c3660c43cc55e720e6786d709f5f75428cda0a5be8f48"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 779,
+      "symbol": "_minority_ignored",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'ops_prefix_bleed_in_recipe needs touching-cell information'",
+      "source_sha256": "283c791ee00b6e8c86e851c8a24717be20be360d24c61d0f15e960829548dabe"
+    },
+    {
+      "file": "spacr/ops_prefix.py",
+      "line": 2582,
+      "symbol": "_site_geometry",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'read weighting, recipe bleed and the multi-guide table need cell labels (ops_prefix_masks)'",
+      "source_sha256": "31af577f8889e582ad41994922c993d8ae78fb9dba2952888599daac6bb89983"
+    }
+  ],
+  "runtime_records": [
+    {
+      "source": "cache replay without nucleus positions",
+      "source_sha256": "a67d8be7d8ba45d05e64bdcabe4b44954e484655f1901141a9e39084f4003d42",
+      "category": "ui",
+      "file": "spacr/ops_decode.py",
+      "line": 246,
+      "symbol": "_neighbour_discount_state"
+    },
+    {
+      "source": "ops_read_neighbour_discount ({discount}) does not act under {method}; reads are not discounted",
+      "source_sha256": "cefcfba98821b346c9ff84168740e6721bfd67619641275164e28c07ee94ef95",
+      "category": "ui",
+      "file": "spacr/ops_decode.py",
+      "line": 247,
+      "symbol": "_neighbour_discount_state"
+    },
+    {
+      "source": "rules off",
+      "source_sha256": "3124e092c2d4f02ae53f5992a7412d6368a25aed59c7d3da9877add921c3d6f4",
+      "category": "ui",
+      "file": "spacr/ops_decode.py",
+      "line": 245,
+      "symbol": "_neighbour_discount_state"
+    },
+    {
+      "category": "setting_labels",
+      "key": "ops.ops_prefix_bleed_in_recipe",
+      "source": "Prefix bleed in recipe",
+      "source_sha256": "87f6ee9e356b5663f89b94992ec8dc122fd18951a3a225c2c32b3fe6efa296a9",
+      "file": "spacr/ops_settings.py",
+      "line": 556,
+      "symbol": "ops_prefix_bleed_in_recipe",
+      "generated_label": true
+    },
+    {
+      "category": "setting_labels",
+      "key": "ops.ops_read_neighbour_discount",
+      "source": "Read neighbour discount",
+      "source_sha256": "f8dad27e2b09ba17c8549a3ecd86de855334a601e31252d91224119228d4c9b1",
+      "file": "spacr/ops_settings.py",
+      "line": 242,
+      "symbol": "ops_read_neighbour_discount",
+      "generated_label": true
+    },
+    {
+      "category": "setting_labels",
+      "key": "ops_prefix_bleed_in_recipe",
+      "source": "Ops prefix bleed in recipe",
+      "source_sha256": "abcd29de25c1c84aaab5191ae4d75632836d4a330881b9d7698eba410360cae2",
+      "file": "spacr/ops_settings.py",
+      "line": 556,
+      "symbol": "ops_prefix_bleed_in_recipe",
+      "generated_label": true
+    },
+    {
+      "category": "setting_labels",
+      "key": "ops_read_neighbour_discount",
+      "source": "Ops read neighbour discount",
+      "source_sha256": "b394ffd7153ea2aed06cdc66b104009aee6d36ea5c271bad7d2421aac5eace2f",
+      "file": "spacr/ops_settings.py",
+      "line": 242,
+      "symbol": "ops_read_neighbour_discount",
+      "generated_label": true
+    },
+    {
+      "category": "setting_tooltips",
+      "key": "ops_prefix_bleed_in_recipe",
+      "source": "Under ops_prefix_quality_method 'recipe_simple', ignore a minority barcode that has the most reads in a touching cell when ops_read_neighbour_discount is below 1. Tied top barcodes remain. This can rescue calls blocked by neighbour bleed. Default False. Alpha.",
+      "source_sha256": "18f6f7d23844a5233f92d8cbfc5246d22fb8b96e322ee96ce3fdd7bc4482c2c4",
+      "file": "spacr/ops_settings.py",
+      "line": 3468,
+      "symbol": "ops_prefix_bleed_in_recipe",
+      "generated_label": false
+    },
+    {
+      "category": "setting_tooltips",
+      "key": "ops_read_neighbour_discount",
+      "source": "Weighs down a minority guide when the same guide has the most reads in a neighbouring cell, with ties kept. Neighbours are nuclei whose discs come within ops_footprint, or touching cells in the spacer-prefix decode. 1 is off and 0 ignores flagged reads. The spacer-prefix decode uses the discount with 'weighted_majority'; under 'recipe_simple', ops_prefix_bleed_in_recipe enables ignoring flagged minority barcodes. A notice reports paths where the default cannot act. Default 0.25.",
+      "source_sha256": "c0ab4c56e061908af21d4914f33c68e2673085f87b66e3aa7db5fcb8ae94a41c",
+      "file": "spacr/ops_settings.py",
+      "line": 3459,
+      "symbol": "ops_read_neighbour_discount",
+      "generated_label": false
+    }
+  ],
+  "runtime_source_extractor_proof": {
+    "method": "Actual shipped canonical_sources with exact proposed owner-list edit; no main/build/write/translation generation.",
+    "runtime_sources": [
+      {
+        "source": "cache replay without nucleus positions",
+        "source_sha256": "a67d8be7d8ba45d05e64bdcabe4b44954e484655f1901141a9e39084f4003d42"
+      },
+      {
+        "source": "ops_read_neighbour_discount ({discount}) does not act under {method}; reads are not discounted",
+        "source_sha256": "cefcfba98821b346c9ff84168740e6721bfd67619641275164e28c07ee94ef95"
+      },
+      {
+        "source": "rules off",
+        "source_sha256": "3124e092c2d4f02ae53f5992a7412d6368a25aed59c7d3da9877add921c3d6f4"
+      }
+    ],
+    "setting_labels": {
+      "ops.ops_prefix_bleed_in_recipe": "Prefix bleed in recipe",
+      "ops.ops_read_neighbour_discount": "Read neighbour discount",
+      "ops_prefix_bleed_in_recipe": "Ops prefix bleed in recipe",
+      "ops_read_neighbour_discount": "Ops read neighbour discount"
+    },
+    "setting_tooltips": {
+      "ops_prefix_bleed_in_recipe": "Under ops_prefix_quality_method 'recipe_simple', ignore a minority barcode that has the most reads in a touching cell when ops_read_neighbour_discount is below 1. Tied top barcodes remain. This can rescue calls blocked by neighbour bleed. Default False. Alpha.",
+      "ops_read_neighbour_discount": "Weighs down a minority guide when the same guide has the most reads in a neighbouring cell, with ties kept. Neighbours are nuclei whose discs come within ops_footprint, or touching cells in the spacer-prefix decode. 1 is off and 0 ignores flagged reads. The spacer-prefix decode uses the discount with 'weighted_majority'; under 'recipe_simple', ops_prefix_bleed_in_recipe enables ignoring flagged minority barcodes. A notice reports paths where the default cannot act. Default 0.25."
+    },
+    "tool_patch_sha256": "8e6878e99fdb795fb979d3c90a2d8191f03c62b84fcb0846bbafdbafdf8a8d42"
+  }
+}

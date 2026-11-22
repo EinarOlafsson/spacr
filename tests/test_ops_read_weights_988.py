@@ -145,14 +145,15 @@ def test_geometry_of_touching_cells_and_nucleus_distance():
 
 
 def test_the_settings_are_alpha_off_and_checked():
+    """Keep the remaining weights alpha while the promoted discount defaults to 0.25."""
     from spacr.ops_settings import OPS_DEFAULTS, OPS_TOOLTIPS
     from spacr.settings import ALPHA_FEATURES
 
     keys = ALPHA_FEATURES[988]["settings"]
-    assert len(keys) == 14 and all("Alpha." in OPS_TOOLTIPS[k] for k in keys)
+    assert len(keys) == 13 and all("Alpha." in OPS_TOOLTIPS[k] for k in keys)
     assert OPS_DEFAULTS["ops_prefix_distance_weight"] == "off"
     assert OPS_DEFAULTS["ops_read_distance_weight"] == "off"
-    assert OPS_DEFAULTS["ops_read_neighbour_discount"] == 1.0
+    assert OPS_DEFAULTS["ops_read_neighbour_discount"] == 0.25
     assert OPS_DEFAULTS["ops_keep_multi_guide_cells"] is False
     base = {"ops_library": "x.csv"}
     chosen = P.prefix_settings(base)
@@ -241,9 +242,11 @@ def test_the_funk_vote_takes_the_distance_term_and_the_discount():
 
 
 def test_the_decode_rule_carries_the_weighting_only_when_on():
+    """Explicit discount off retains the old rule, while an entered discount is carried."""
     from spacr.ops_decode import decode_rule, resolve_settings
 
-    rule = decode_rule(resolve_settings({"ops_decode_preset": "rule_a_s2"}))
+    rule = decode_rule(resolve_settings({"ops_decode_preset": "rule_a_s2",
+                                          "ops_read_neighbour_discount": 1.0}))
     assert "read_weight" not in rule
     on = decode_rule(resolve_settings({"ops_decode_preset": "rule_a_s2",
                                        "ops_read_neighbour_discount": 0.25}))

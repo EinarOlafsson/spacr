@@ -753,25 +753,36 @@ def recipe_simple_quality(spots: pd.DataFrame, *, cell_cols: Sequence[str] = ("c
 
 
 def _minority_ignored(matched: pd.DataFrame, cell_cols: Sequence[str],
-                      min_reads: int) -> np.ndarray:
-    """Which matched reads the minority-read rule (item 967) leaves out of the cell call.
+                      min_reads: int, *, neighbour_bleed: bool = False,
+                      neighbours: Optional[pd.DataFrame] = None) -> np.ndarray:
+    """Identify matched reads excluded by the existing minority rule or opt-in recipe bleed.
 
-    :param matched: the exact and corrected reads, with ``cell_cols`` and
-        ``prefix``.
-    :param cell_cols: the columns naming a cell.
-    :param min_reads: ``ops_prefix_minority_min_reads``; 0 and 1 leave out
-        nothing.
-    :returns: one flag per row of ``matched``: True for a read of a barcode
-        with fewer than ``min_reads`` reads in its cell while another barcode
-        of that cell has strictly more reads. Barcodes tied for the most
-        reads are always kept, so a tie still blocks the call.
+    :param matched: exact and corrected reads with ``cell_cols`` and ``prefix``.
+    :param cell_cols: columns naming a cell.
+    :param min_reads: the minority-read floor; 0 and 1 disable that rule.
+    :param neighbour_bleed: additionally exclude minority barcode groups flagged
+        by :func:`spacr.ops_sbs.neighbour_bleed_flags` for the recipe path.
+    :param neighbours: touching-cell rows in the layout of :func:`prefix_cell_calls`.
+    :returns: one boolean per matched read; top-count ties are always retained.
+    :raises ValueError: when recipe bleed is enabled without touching-cell information.
     """
-    if int(min_reads) <= 1 or matched.empty:
-        return np.zeros(len(matched), bool)
+    ignored = np.zeros(len(matched), bool)
+    if matched.empty:
+        return ignored
     cell_cols = list(cell_cols)
-    per_barcode = matched.groupby(cell_cols + ["prefix"], sort=False)["prefix"].transform("size")
-    most = per_barcode.groupby([matched[c] for c in cell_cols], sort=False).transform("max")
-    return ((per_barcode < int(min_reads)) & (per_barcode < most)).to_numpy(bool)
+    if int(min_reads) > 1:
+        per_barcode = matched.groupby(cell_cols + ["prefix"], sort=False)["prefix"].transform("size")
+        most = per_barcode.groupby([matched[c] for c in cell_cols], sort=False).transform("max")
+        ignored = ((per_barcode < int(min_reads)) & (per_barcode < most)).to_numpy(bool)
+    if neighbour_bleed:
+        if neighbours is None:
+            raise ValueError("ops_prefix_bleed_in_recipe needs touching-cell information")
+        code = matched.groupby(cell_cols, sort=True).ngroup().to_numpy(np.int64)
+        table = matched[cell_cols].assign(code=code).drop_duplicates("code").sort_values("code")
+        pairs = _neighbour_codes(table, cell_cols, neighbours)
+        groups = _barcode_groups(code, matched["prefix"].to_numpy(), pairs)
+        ignored |= groups["bleed"][groups["group"]]
+    return ignored
 
 
 def _class_counts(matched: pd.DataFrame) -> Dict[str, List[int]]:
@@ -909,6 +920,8 @@ def _barcode_groups(cell: np.ndarray, barcode: np.ndarray,
                     neighbours: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
     """The (cell, barcode) groups of matched reads, and the neighbour-bleed flags (item 988).
 
+    Bleed flags use :func:`spacr.ops_sbs.neighbour_bleed_flags`.
+
     :param cell: one integer cell code per read.
     :param barcode: one barcode per read.
     :param neighbours: ``(P, 2)`` ``(cell, neighbour)`` codes of touching
@@ -929,16 +942,9 @@ def _barcode_groups(cell: np.ndarray, barcode: np.ndarray,
     starts = np.flatnonzero(np.r_[True, g_cell[1:] != g_cell[:-1]]) if len(keys) \
         else np.zeros(0, np.int64)
     sizes = np.diff(np.r_[starts, len(keys)])
-    most = np.repeat(np.maximum.reduceat(n, starts), sizes) if len(keys) else n
-    bleed = np.zeros(len(keys), bool)
-    if neighbours is not None and len(neighbours) and len(keys):
-        top = keys[n == most]
-        tops = pd.DataFrame({"neighbour": top // width, "barcode": top % width})
-        pairs = pd.DataFrame({"cell": np.asarray(neighbours)[:, 0].astype(np.int64),
-                              "neighbour": np.asarray(neighbours)[:, 1].astype(np.int64)})
-        hit = pairs.merge(tops, on="neighbour")
-        flagged = hit["cell"].to_numpy(np.int64) * width + hit["barcode"].to_numpy(np.int64)
-        bleed = np.isin(keys, flagged) & (n < most)
+    from .ops_sbs import neighbour_bleed_flags
+
+    bleed = neighbour_bleed_flags(g_cell, g_barcode, n, neighbours)
     return {"group": group, "cell": g_cell, "barcode": g_barcode, "n": n,
             "starts": starts, "sizes": sizes, "barcodes": names, "bleed": bleed}
 
@@ -1223,7 +1229,8 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
                       interior_px: float = 0.0, min_weight: float = 0.05,
                       weighted_quality: bool = True, neighbour_discount: float = 1.0,
                       weighted_min_share: float = 0.6,
-                      neighbours: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+                      neighbours: Optional[pd.DataFrame] = None,
+                      bleed_in_recipe: bool = False) -> pd.DataFrame:
     """Each cell's barcode, its read counts and its quality class.
 
     :param reads: one row per read with ``keys``, ``status``, ``key``,
@@ -1268,6 +1275,10 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
     :param neighbours: the touching cells, needed for a discount below 1.
         The table has the ``keys`` columns, naming a cell, and
         ``neighbour``, the label of a cell it touches in the same site.
+    :param bleed_in_recipe: opt-in item-1013 recipe filter. Under
+        ``recipe_simple`` and ``neighbour_discount`` below 1, leave out
+        every read of a flagged minority barcode through the existing
+        minority-read filter. False retains the previous calls.
     :returns: one row per cell with any read: ``keys``, ``reads``,
         ``matched`` (exact or corrected), ``exact``, ``corrected``,
         ``ambiguous``, ``collision``, ``out_of_library``, ``barcodes``
@@ -1297,7 +1308,8 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
                               interior_px=interior_px, min_weight=min_weight,
                               weighted_quality=weighted_quality,
                               neighbour_discount=neighbour_discount,
-                              weighted_min_share=weighted_min_share, neighbours=neighbours)
+                              weighted_min_share=weighted_min_share, neighbours=neighbours,
+                              bleed_in_recipe=bleed_in_recipe)
 
 
 def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
@@ -1307,7 +1319,8 @@ def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
                        decay_px: float = 8.0, interior_px: float = 0.0,
                        min_weight: float = 0.05, weighted_quality: bool = True,
                        neighbour_discount: float = 1.0, weighted_min_share: float = 0.6,
-                       neighbours: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+                       neighbours: Optional[pd.DataFrame] = None,
+                       bleed_in_recipe: bool = False) -> pd.DataFrame:
     """:func:`prefix_cell_calls` with item 961's ``ops_call_sort``.
 
     :param reads: as for :func:`prefix_cell_calls`.
@@ -1330,6 +1343,7 @@ def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
     :param neighbour_discount: as for :func:`prefix_cell_calls` (item 988).
     :param weighted_min_share: as for :func:`prefix_cell_calls` (item 988).
     :param neighbours: as for :func:`prefix_cell_calls` (item 988).
+    :param bleed_in_recipe: as for :func:`prefix_cell_calls` (item 1013).
     :returns: :func:`prefix_cell_calls`' table.
     :raises ValueError: for an unknown method or sort, a sort with
         ``'recipe_simple'`` or ``'weighted_majority'``, ``'peak'`` without a
@@ -1347,7 +1361,9 @@ def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         if sort == "peak" and "peak" not in reads.columns:
             raise ValueError("ops_call_sort 'peak' needs each read's spot strength (a "
                              "'peak' column)")
-    minority = int(minority_min_reads or 0) > 1
+    recipe_bleed = bool(bleed_in_recipe and method == "recipe_simple"
+                        and float(neighbour_discount) < 1.0)
+    minority = int(minority_min_reads or 0) > 1 or recipe_bleed
     weighted = method == "weighted_majority"
     if weighted and minority:
         from .qt.i18n import tr
@@ -1381,7 +1397,9 @@ def _prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
     ignored = pd.Series(False, index=frame.index)
     if minority:
         is_matched = frame["status"].isin(("exact", "corrected"))
-        ignored[is_matched] = _minority_ignored(frame[is_matched], keys, minority_min_reads)
+        ignored[is_matched] = _minority_ignored(
+            frame[is_matched], keys, minority_min_reads,
+            neighbour_bleed=recipe_bleed, neighbours=neighbours)
     recipe: Dict[tuple, str] = {}
     recipe_all: Dict[tuple, str] = {}
     if method == "recipe_simple":
@@ -2019,7 +2037,8 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the
         item-949 ``ops_prefix_nearmiss_decoy_k`` and
         ``ops_prefix_fdr_calibration``, the item-967
-        ``ops_prefix_minority_min_reads``, the item-982 small-well guard
+        ``ops_prefix_minority_min_reads``, the opt-in item-1013
+        ``ops_prefix_bleed_in_recipe`` (default False), the item-982 small-well guard
         ``ops_prefix_tuning_min_sites``, and the item-988 weighted-majority
         settings: ``ops_prefix_distance_weight``,
         ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``,
@@ -2034,10 +2053,12 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
     :raises ValueError: without a library, for an unknown choice, for
         tuning or a shuffle calibration without decoys, for a negative
         decoy count, minority-read floor or small-well site count, or for a
-        weight setting that is out of range or set without
-        ``'weighted_majority'``.
+        weight setting that is out of range or an explicit nondefault
+        weight without a compatible method. The default discount can be
+        unavailable on a valid path; the run records that outcome.
     """
     from .ops_decode import FDR_CALIBRATIONS, _never_settings
+    from .ops_settings import OPS_DEFAULTS
 
     library = settings.get("ops_library")
     if not library:
@@ -2097,14 +2118,15 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "ops_prefix_weighted_min_share": _setting_float(
             settings, "ops_prefix_weighted_min_share", 0.6),
         "ops_read_neighbour_discount": _setting_float(settings, "ops_read_neighbour_discount",
-                                                      1.0),
+                                                      OPS_DEFAULTS["ops_read_neighbour_discount"]),
+        "ops_prefix_bleed_in_recipe": _setting_flag(
+            settings, "ops_prefix_bleed_in_recipe", OPS_DEFAULTS["ops_prefix_bleed_in_recipe"]),
         "ops_prefix_nuclei_masks": settings.get("ops_prefix_nuclei_masks") or None,
         "ops_keep_multi_guide_cells": _setting_flag(settings, "ops_keep_multi_guide_cells",
                                                     False),
         "ops_multi_guide_min_reads": int(settings.get("ops_multi_guide_min_reads") or 2),
         "ops_prefix_tuning_min_sites": int(settings.get("ops_prefix_tuning_min_sites") or 0),
     }
-    from .ops_settings import OPS_DEFAULTS
 
     out.update(_never_settings({
         'ops_never_barcode_k': settings.get('ops_never_barcode_k', OPS_DEFAULTS['ops_never_barcode_k']),
@@ -2182,10 +2204,14 @@ def _check_weight_settings(out: Mapping[str, Any]) -> None:
 
     :param out: the normalised settings.
     :raises ValueError: for an unknown read-weight mode, a value out of
-        range, a weight setting without ``'weighted_majority'``, or the
+        range, an explicit nondefault weight setting without a compatible method, or the
         weighted majority combined with the minority-read rule.
     """
+    from .ops_settings import OPS_DEFAULTS
+
     weighted = out["ops_prefix_quality_method"] == "weighted_majority"
+    recipe_bleed = (out["ops_prefix_quality_method"] == "recipe_simple"
+                    and out["ops_prefix_bleed_in_recipe"])
     if out["ops_prefix_distance_weight"] not in READ_WEIGHT_MODES:
         raise ValueError(f"ops_prefix_distance_weight must be one of {list(READ_WEIGHT_MODES)}")
     if not out["ops_prefix_distance_decay_px"] > 0:
@@ -2201,7 +2227,9 @@ def _check_weight_settings(out: Mapping[str, Any]) -> None:
     if out["ops_multi_guide_min_reads"] < 1:
         raise ValueError("ops_multi_guide_min_reads must be 1 or more")
     if not weighted and (out["ops_prefix_distance_weight"] != "off"
-                         or out["ops_read_neighbour_discount"] != 1.0):
+                         or (out["ops_read_neighbour_discount"] not in
+                             (1.0, OPS_DEFAULTS["ops_read_neighbour_discount"])
+                             and not recipe_bleed)):
         raise ValueError("ops_prefix_distance_weight and ops_read_neighbour_discount act in "
                          "the weighted majority; set ops_prefix_quality_method "
                          "'weighted_majority'")
@@ -2378,16 +2406,20 @@ def _weight_plan(chosen: Mapping[str, Any], axes: Sequence[Tuple[str, Sequence[f
     :returns: ``weighted``, ``axes`` (the weight axes, one value each
         without tuning), ``gaps`` (the nucleus distance is needed),
         ``neighbours`` (the touching cells are needed) and ``multi`` (the
-        multi-guide table is written).
+        multi-guide table is written), and ``recipe_bleed`` (the alpha
+        recipe filter needs touching cells but no nucleus distances).
     """
     weighted = chosen["ops_prefix_quality_method"] == "weighted_majority"
+    recipe_bleed = bool(chosen.get("ops_prefix_bleed_in_recipe", False)
+                        and chosen["ops_prefix_quality_method"] == "recipe_simple"
+                        and chosen["ops_read_neighbour_discount"] < 1.0)
     named = {key: list(values) for key, values in axes if key in WEIGHT_GRID_KEYS}
     if weighted and not named:
         named = dict(_weight_axes(chosen, {}))
     multi = bool(chosen["ops_keep_multi_guide_cells"])
-    return {"weighted": weighted, "axes": named, "multi": multi,
+    return {"weighted": weighted, "recipe_bleed": recipe_bleed, "axes": named, "multi": multi,
             "gaps": weighted and any(v > 0 for v in named.get(WEIGHT_GRID_KEYS[0], [])),
-            "neighbours": multi or (weighted and any(
+            "neighbours": multi or recipe_bleed or (weighted and any(
                 v != 1.0 for v in named.get(WEIGHT_GRID_KEYS[1], [])))}
 
 
@@ -2407,13 +2439,20 @@ def _setting_counts(frame: pd.DataFrame, method: str, minority_k: int,
         opportunities then share exactly the same selected winners.
     :param sort: optional existing cell-call sort; sorted calls use
         ``_prefix_cell_calls`` directly, including its tie decisions.
+        The opt-in recipe bleed filter uses that same owner for real and control calls.
     :returns: :func:`_called_counts`'s ``(real, decoy)``, or under the
         weighted majority (item 988) :func:`_weighted_counts`'s array over
         the weight axes.
     """
-    if sort is not None:
+    if sort is not None or plan.get("recipe_bleed", False):
         cells = _prefix_cell_calls(frame, keys=['cell'], min_reads=chosen['ops_quality_min_reads'],
-                                    method=method, sort=sort, minority_min_reads=minority_k)
+                                    method=method, sort=sort, minority_min_reads=minority_k,
+                                    bleed_in_recipe=bool(plan.get('recipe_bleed', False)),
+                                    neighbour_discount=chosen['ops_read_neighbour_discount']
+                                    if plan.get('recipe_bleed', False) else 1.0,
+                                    neighbours=pd.DataFrame({'cell': neighbours[:, 0],
+                                                             'neighbour': neighbours[:, 1]})
+                                    if plan.get('recipe_bleed', False) and neighbours is not None else None)
         hit = cells['quality'].isin(('perfect', 'great'))
         real = hit & ~cells['gene'].isin((DECOY_GENE, NEARMISS_GENE))
         counts = (int(real.sum()), int((hit & cells['gene'].eq(DECOY_GENE)).sum()))
@@ -2440,7 +2479,7 @@ def _weight_arguments(chosen: Mapping[str, Any], best: Optional[Mapping[str, Any
     :param chosen: from :func:`prefix_settings`.
     :param best: the tuner's chosen setting, or None to use the entered one.
     :returns: the keyword arguments; the tuner's decay length of 0 turns the
-        distance term off.
+        distance term off. Recipe bleed is passed only when explicitly enabled.
     """
     mode = chosen["ops_prefix_distance_weight"]
     decay = chosen["ops_prefix_distance_decay_px"]
@@ -2452,11 +2491,15 @@ def _weight_arguments(chosen: Mapping[str, Any], best: Optional[Mapping[str, Any
         mode = "decay" if length > 0 else "off"
         decay = length if length > 0 else decay
         discount = float(best[WEIGHT_GRID_KEYS[1]])
-    return {"distance_weight": mode, "decay_px": decay,
+    out = {"distance_weight": mode, "decay_px": decay,
             "interior_px": chosen["ops_prefix_distance_interior_px"],
             "min_weight": chosen["ops_prefix_distance_min_weight"],
             "weighted_quality": quality, "neighbour_discount": discount,
             "weighted_min_share": chosen["ops_prefix_weighted_min_share"]}
+    if (chosen.get("ops_prefix_bleed_in_recipe", False)
+            and chosen["ops_prefix_quality_method"] == "recipe_simple"):
+        out["bleed_in_recipe"] = True
+    return out
 
 
 def _neighbour_table(pairs: Optional[np.ndarray], plate: str, well_id: str,
@@ -2527,7 +2570,8 @@ def _site_geometry(plan: Mapping[str, Any], chosen: Mapping[str, Any],
     :returns: ``(pairs, extra)``: :func:`_touching_cells` or None, and
         ``nuc_gap_px`` and ``nuc_gap_fallback`` per read or None.
     :raises ValueError: when the distance or the touching cells are needed
-        and the site has no cell or nucleus labels.
+        and the site has no cell or nucleus labels; recipe bleed needs
+        touching-cell labels but no nucleus distances.
     """
     from .cpg_cropped import merged_path
 
@@ -2535,8 +2579,8 @@ def _site_geometry(plan: Mapping[str, Any], chosen: Mapping[str, Any],
     if not (plan["neighbours"] or plan["gaps"]):
         return pairs, extra
     if labels is None:
-        raise ValueError("the weighted majority's distance term and neighbour discount and "
-                         "the multi-guide table need cell labels (ops_prefix_masks)")
+        raise ValueError("read weighting, recipe bleed and the multi-guide table need "
+                         "cell labels (ops_prefix_masks)")
     if plan["neighbours"]:
         pairs = _touching_cells(labels)
     if plan["gaps"]:
@@ -2712,6 +2756,11 @@ def run_prefix_decode(settings: Mapping[str, Any],
     chosen = prefix_settings(settings)
     insitu = _insitu_options(settings, chosen)
     if insitu["layout"] == "combinatorial":
+        from .ops_decode import _neighbour_discount_state
+
+        _neighbour_discount_state(settings, "prefix_combinatorial", False,
+            discount=chosen["ops_read_neighbour_discount"],
+            method="combinatorial", report=report)
         return _run_combinatorial_decode(settings, report=report)
     if insitu["min_reads"] is not None:
         chosen = {**chosen, "ops_quality_min_reads": insitu["min_reads"]}
@@ -2767,15 +2816,26 @@ def run_prefix_decode(settings: Mapping[str, Any],
     with open(os.path.join(folder, "library_summary.json"), "w", encoding="utf-8") as handle:
         json.dump(matching.summary, handle, indent=1)
     method = chosen["ops_prefix_quality_method"]
+    from .ops_decode import _neighbour_discount_state
+
+    discount = chosen["ops_read_neighbour_discount"]
+    enabled = (method == "weighted_majority"
+               or (method == "recipe_simple" and chosen["ops_prefix_bleed_in_recipe"]))
+    applied = bool(enabled and discount < 1.0)
+    _neighbour_discount_state(settings, 'prefix_' + method, applied, discount=discount,
+        method=method if not applied else None, report=report)
     class_names = (RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else
                    WEIGHTED_CLASSES if method == "weighted_majority" else QUALITY_CLASSES)
     recorded = ({key: value for key, value in chosen.items() if key not in _ITEM_942_KEYS}
                 if legacy else chosen)
+    if not chosen["ops_prefix_bleed_in_recipe"]:
+        recorded = {key: value for key, value in recorded.items()
+                    if key != "ops_prefix_bleed_in_recipe"}
     if not item_949:
         recorded = {key: value for key, value in recorded.items() if key not in _ITEM_949_KEYS}
     if not minority:
         recorded = {key: value for key, value in recorded.items() if key not in _ITEM_967_KEYS}
-    if not (plan["weighted"] or plan["multi"]):
+    if not (plan["weighted"] or plan["multi"] or plan["recipe_bleed"]):
         recorded = {key: value for key, value in recorded.items() if key not in _ITEM_988_KEYS}
     if not chosen["ops_prefix_tuning_min_sites"]:
         recorded = {key: value for key, value in recorded.items()
@@ -3039,7 +3099,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
             weighting = ({**_weight_arguments(chosen, choice.get("chosen") if tuning else None),
                           "neighbours": _neighbour_table(site_pairs.get(site), plate, well_id,
                                                          site)}
-                         if plan["weighted"] else {})
+                         if plan["weighted"] or plan["recipe_bleed"] else {})
             row, cells = _site_row(
                 reads, plate=plate, well_id=well_id, site=site, chosen=chosen,
                 method=method, class_names=class_names, labelled=labelled,

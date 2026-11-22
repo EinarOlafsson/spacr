@@ -98,7 +98,7 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_read_distance_decay_px": 4.0,
     "ops_read_distance_interior_px": 0.0,
     "ops_read_distance_min_weight": 0.05,
-    "ops_read_neighbour_discount": 1.0,
+    "ops_read_neighbour_discount": 0.25,
 }
 
 #: How far from a nucleus boundary a fallback pixel is kept at all, in
@@ -131,11 +131,15 @@ def resolve_settings(settings: Mapping[str, Any],
     :param defaults: the panel defaults, so a key a settings file carries at
         its default still takes the preset's value; None reads
         :data:`spacr.ops_settings.OPS_DEFAULTS`.
-    :returns: a copy; unchanged when no preset is named. A key set to
-        anything other than its default keeps that value.
+    :returns: a copy with the preset and a shared private notice context
+        when OPS settings enable the neighbour discount. Explicit nondefault
+        values keep their entered values; applied-path flags are journal metadata.
     :raises ValueError: for an unknown preset.
     """
     out = dict(settings or {})
+    if (any(str(key).startswith("ops_") for key in out)
+            and _number(out, "ops_read_neighbour_discount") != 1.0):
+        out["_meta_neighbour_discount"] = _neighbour_discount_context(settings)
     name = str(out.get("ops_decode_preset") or "none").strip().lower()
     if name in ("", "none"):
         return out
@@ -186,6 +190,73 @@ def _flag(settings: Mapping[str, Any], key: str) -> bool:
     return bool(value)
 
 
+def _neighbour_discount_context(settings):
+    """Share transient notice state across shallow settings copies in one run.
+
+    The context remains private; only the applied flags are published. An
+    open journal owns a fresh context, so replay metadata never suppresses
+    the first notice of a new run. Plain API callers share their mutable
+    settings context across wells without a global process cache.
+    """
+    from .run_journal import current_run
+
+    run = current_run()
+    if run is not None:
+        context = getattr(run, '_neighbour_discount_context', None)
+        if context is None:
+            context = {'paths': {}, 'notices': []}
+            run._neighbour_discount_context = context
+    else:
+        context = settings.get('_meta_neighbour_discount') if settings is not None else None
+        if not isinstance(context, dict) or not isinstance(context.get('paths'), dict):
+            context = {'paths': {}, 'notices': []}
+    if isinstance(settings, dict):
+        settings['_meta_neighbour_discount'] = context
+    return context
+
+
+def _neighbour_discount_state(settings, path, applied, *, discount, method=None,
+                              report=None, state=None):
+    """Record actual discount availability and emit one translated no-op notice per path.
+
+    False remains false when one path includes fields without the required
+    positions. The current journal receives only JSON application flags;
+    transient notice bookkeeping is never published. A supplied rule-state
+    mapping preserves notice deduplication during direct cache replays.
+    """
+    from .qt.i18n import tr
+    from .run_journal import current_run, _publish_resolved_settings
+
+    context = _neighbour_discount_context(settings)
+    paths = context['paths']
+    previous = state.get(path) if isinstance(state, dict) else paths.get(path)
+    if isinstance(state, dict):
+        for key, value in state.items():
+            paths[key] = bool(paths.get(key, True) and value)
+    paths[path] = bool(paths.get(path, True) and applied)
+    if isinstance(state, dict):
+        state.update(paths)
+    if isinstance(settings, dict):
+        settings['ops_read_neighbour_discount_applied'] = paths
+    run = current_run()
+    seen = path in context['notices'] or (run is None and settings is None and previous is False)
+    if (method is not None and not applied and not seen
+            and float(discount) == _DEFAULTS["ops_read_neighbour_discount"]):
+        labels = {"rules_off": tr("rules off"),
+                  "cache_without_positions": tr("cache replay without nucleus positions")}
+        message = tr("ops_read_neighbour_discount ({discount}) does not act under {method}; reads are not discounted",
+                     discount=f"{float(discount):g}", method=labels.get(method, method))
+        (report or print)(message)
+        context['notices'].append(path)
+    if run is not None and run._settings_owner_pid == os.getpid():
+        recorded = run.settings.get('ops_read_neighbour_discount_applied')
+        recorded = dict(recorded) if isinstance(recorded, dict) else {}
+        for key, value in paths.items():
+            recorded[key] = bool(recorded.get(key, True) and value)
+        _publish_resolved_settings({'ops_read_neighbour_discount_applied': recorded})
+    return paths
+
+
 def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """The field rule's parameters, read from resolved settings.
 
@@ -193,10 +264,11 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     :returns: the parameters :func:`field_calls` takes, plus ``active`` --
         True when any rule of this module is on, which routes the well
         through :func:`field_calls` -- and ``decoy_k``. With the item-988
-        distance weight or neighbour discount on (alpha), ``read_weight``
-        holds their settings.
+        alpha distance weight or the neighbour discount on, ``read_weight``
+        holds their settings. The default discount is skipped with a
+        notice when rules are off; applied flags are recorded per path.
     :raises ValueError: for a negative count or a fraction outside (0, 1],
-        or for the item-988 weighting without the decode rules.
+        or for explicit nondefault item-988 weighting without decode rules.
     """
     rule = {
         "calibration": _flag(settings, "ops_decode_library_calibration"),
@@ -236,12 +308,23 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     rule["active"] = bool(rule["decoy_k"] > 0 or any(
         _flag(settings, key) for key in _RULE_SWITCHES))
     weighting = _read_weighting(settings)
+    unavailable = False
     if weighting is not None:
         if not rule["active"]:
-            raise ValueError("ops_read_distance_weight and ops_read_neighbour_discount act in "
-                             "the decode rules' read vote; turn the rules on, for example "
-                             "with ops_decode_preset 'rule_a_s2'")
-        rule["read_weight"] = weighting
+            unavailable = (weighting["distance_weight"] == "off"
+                           and weighting["neighbour_discount"] == _DEFAULTS["ops_read_neighbour_discount"])
+            if not unavailable:
+                raise ValueError("ops_read_distance_weight and ops_read_neighbour_discount act in "
+                                 "the decode rules' read vote; turn the rules on, for example "
+                                 "with ops_decode_preset 'rule_a_s2'")
+        else:
+            rule["read_weight"] = weighting
+    discount = _number(settings, "ops_read_neighbour_discount")
+    state = _neighbour_discount_state(settings, 'full_barcode',
+        bool(rule["active"] and discount < 1.0), discount=discount,
+        method='rules_off' if unavailable else None)
+    if discount != 1.0:
+        rule['ops_read_neighbour_discount_applied'] = state
     return rule
 
 
@@ -622,10 +705,14 @@ def _vote_weighting(rule: Mapping[str, Any], gaps: np.ndarray) -> Dict[str, Any]
     if not weighting:
         return {}
     if weighting["neighbour_discount"] != 1.0 and rule.get("neighbours") is None:
-        from .qt.i18n import tr
+        if weighting["neighbour_discount"] == _DEFAULTS["ops_read_neighbour_discount"]:
+            rule = _rule_with_neighbours(rule, {}, float(rule.get("footprint", 0.0)))
+            weighting = rule["read_weight"]
+        else:
+            from .qt.i18n import tr
 
-        raise ValueError(tr("ops_read_neighbour_discount needs the field's nucleus positions; "
-                            "a stored field cache does not hold them"))
+            raise ValueError(tr("ops_read_neighbour_discount needs the field's nucleus positions; "
+                                "a stored field cache does not hold them"))
     return {"gaps": np.maximum(np.asarray(gaps, float), 0.0),
             "distance_weight": weighting["distance_weight"],
             "decay_px": weighting["decay_px"], "interior_px": weighting["interior_px"],
@@ -2540,12 +2627,23 @@ def _rule_with_neighbours(rule: Mapping[str, Any], evidence: Mapping[str, Any],
         neighbours at the rule's).
     :returns: ``rule`` itself unless its neighbour discount is on and it has
         no ``neighbours``; then a copy with :func:`cached_neighbours`.
+        A cache without positions skips only the default discount, records
+        applied False and emits one notice; explicit other discounts still raise.
     """
     weighting = rule.get("read_weight")
     if (not weighting or weighting["neighbour_discount"] == 1.0
             or rule.get("neighbours") is not None):
         return rule
     reach = float(rule.get("footprint", footprint))
+    if (weighting["neighbour_discount"] == _DEFAULTS["ops_read_neighbour_discount"]
+            and any(key not in evidence for key in CACHE_NUCLEUS_KEYS)):
+        state = _neighbour_discount_state(None, 'cache_replay', False,
+            discount=weighting["neighbour_discount"], method='cache_without_positions',
+            state=rule.get('ops_read_neighbour_discount_applied'))
+        if isinstance(rule, dict):
+            rule['ops_read_neighbour_discount_applied'] = state
+        return {**rule, "read_weight": {**weighting, "neighbour_discount": 1.0},
+                'ops_read_neighbour_discount_applied': state}
     return {**rule, "neighbours": cached_neighbours(evidence, reach)}
 
 

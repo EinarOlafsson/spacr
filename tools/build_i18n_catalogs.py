@@ -5176,7 +5176,7 @@ def _static_ui_sources_of_file(
                      and node.name in {"_vote_weighting", "cached_neighbours",
                                        "never_scale", "calibrate_fdr_scale",
                                        "_field_candidates", "_write_calibration_report",
-                                       "_never_settings"}]
+                                       "_never_settings", "_neighbour_discount_state"}]
     if path == source_root / "_lineage_trees.py":
         tree.body = [node for node in tree.body
                      if isinstance(node, ast.FunctionDef)
