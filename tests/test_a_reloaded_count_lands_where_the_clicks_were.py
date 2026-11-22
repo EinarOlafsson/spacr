@@ -38,32 +38,22 @@ def test_a_count_round_trips_through_its_own_frame():
         exported[["class", "y", "x"]].values.tolist()
 
 
-def test_a_frame_without_a_units_column_is_accepted():
-    """Arc 426 -> 433: the unit check is skipped entirely.
-
-    A hand-built frame, or one exported before units were recorded, has no
-    units column. Refusing it would make every older count unreloadable, and
-    the coordinates are still in the session's own units by assumption --
-    which is exactly what the column exists to stop being an assumption.
-    """
-    frame = pd.DataFrame({"class": ["a", "a"], "y": [1.0, 5.0],
-                          "x": [2.0, 6.0]})
-
+@pytest.mark.parametrize('columns, expected', [
+    pytest.param(
+        {'class': ['a', 'a'], 'y': [1.0, 5.0], 'x': [2.0, 6.0]}, 2,
+        id='test_a_frame_without_a_units_column_is_accepted',
+    ),
+    pytest.param(
+        {'class': [], 'y': [], 'x': [], 'units': []}, 0,
+        id='test_an_empty_frame_with_units_is_accepted',
+    ),
+])
+def test_original_count_frame_layouts_keep_their_returned_marker_counts(
+        columns, expected):
+    """Preserve each original frame layout and its returned marker count."""
+    frame = pd.DataFrame(columns)
     session = _session()
-    assert session.load_frame(frame) == 2
-
-
-def test_an_empty_frame_with_units_is_accepted():
-    """The ``and len(frame)`` half of the same guard.
-
-    An empty export carries a units column and no rows to disagree about, so
-    comparing the empty set against the session's units would refuse a frame
-    that says nothing at all.
-    """
-    frame = pd.DataFrame({"class": [], "y": [], "x": [], "units": []})
-
-    session = _session()
-    assert session.load_frame(frame) == 0
+    assert session.load_frame(frame) == expected
 
 
 def test_a_count_made_in_other_units_is_refused():
