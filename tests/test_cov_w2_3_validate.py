@@ -225,24 +225,27 @@ def test_a_number_outside_its_useful_range_is_reported(key, value, severity):
     assert matching[0].severity == severity
 
 
-def test_a_percentile_outside_zero_to_one_hundred_is_an_error():
-    """Percentile lists are percentages, so 0-100 is the whole range."""
-    problems = V._check_numeric_list("normalize", [5, 140])
+@pytest.mark.parametrize('key, values, match', [
+    pytest.param(
+        'normalize', [5, 140], 'outside 0-100',
+        id='test_a_percentile_outside_zero_to_one_hundred_is_an_error',
+    ),
+    pytest.param(
+        'png_size', [[224, 0]], 'non-positive size',
+        id='test_a_png_size_of_zero_pixels_is_an_error',
+    ),
+])
+def test_original_invalid_numeric_lists_keep_their_error_messages(key, values, match):
+    """Preserve each original invalid numeric list and its error-message checks."""
+    problems = V._check_numeric_list(key, values)
     assert problems and problems[0].is_error
-    assert "outside 0-100" in problems[0].message
+    assert match in problems[0].message
 
 
 def test_a_percentile_list_with_an_unreadable_entry_is_left_alone():
     """One unparseable entry means the list is not a percentile pair to judge."""
     assert V._check_numeric_list("normalize", ["low", 99]) == []
     assert V._check_numeric_list("normalize", []) == []
-
-
-def test_a_png_size_of_zero_pixels_is_an_error():
-    """Crops are sized in pixels, so a non-positive edge cannot be honoured."""
-    problems = V._check_numeric_list("png_size", [[224, 0]])
-    assert problems and problems[0].is_error
-    assert "non-positive size" in problems[0].message
 
 
 # ---------------------------------------------------------------------------
@@ -354,24 +357,26 @@ def test_a_replication_run_on_the_ladder_is_left_alone():
         "replication") == []
 
 
-def test_a_pre_sam_pathogen_model_is_called_out_as_ignored():
-    """Cellpose 4 ships only ``cpsam``; the old checkpoints were removed."""
-    problems = V._check_app_specific(
-        {"pathogen_channel": 2, "pathogen_model": "toxo_pv_lumen"}, "mask")
-    matching = [p for p in problems if p.setting == "pathogen_model"]
+@pytest.mark.parametrize('settings, app, setting, fragment', [
+    pytest.param(
+        {'pathogen_channel': 2, 'pathogen_model': 'toxo_pv_lumen'},
+        'mask', 'pathogen_model', 'cpsam',
+        id='test_a_pre_sam_pathogen_model_is_called_out_as_ignored',
+    ),
+    pytest.param(
+        {'crop_mode': ['cell'], 'dialate_png_ratios': [0.2, 0.3, 0.4],
+         'dialate_pngs': True, 'cell_mask_dim': 4, 'save_png': True},
+        'measure', 'dialate_png_ratios', 'the extras are ignored',
+        id='test_more_dilation_ratios_than_crop_modes_are_reported_as_ignored',
+    ),
+])
+def test_original_app_warnings_keep_their_severity_and_explanation(
+        settings, app, setting, fragment):
+    """Preserve each original app warning and its severity and message checks."""
+    problems = V._check_app_specific(settings, app)
+    matching = [p for p in problems if p.setting == setting]
     assert matching and matching[0].severity == V.WARNING
-    assert "cpsam" in matching[0].message
-
-
-def test_more_dilation_ratios_than_crop_modes_are_reported_as_ignored():
-    """Extra entries are silently dropped by the pipeline, so say so first."""
-    problems = V._check_app_specific(
-        {"crop_mode": ["cell"], "dialate_png_ratios": [0.2, 0.3, 0.4],
-         "dialate_pngs": True, "cell_mask_dim": 4, "save_png": True},
-        "measure")
-    matching = [p for p in problems if p.setting == "dialate_png_ratios"]
-    assert matching and matching[0].severity == V.WARNING
-    assert "the extras are ignored" in matching[0].message
+    assert fragment in matching[0].message
 
 
 def test_measure_preflight_explains_an_invalid_processed_psf():

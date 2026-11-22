@@ -29,6 +29,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "classification_pixels.py", "crop_loader.py", "crop_store.py",
         "crops.py", "ops_engine.py", "ome_zarr.py", "image_store.py",
         "ome_zarr_registration.py",
+        "ops_cell_cycle.py", "ops_mitotic.py", "ops_flatfield.py", "cpg_measure.py", "cli.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -815,3 +816,161 @@ class Other:
     assert extract_backend_sources("ops_engine.py", source) == {
         "ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}"
     }
+
+
+def test_cpg_painting_frame_messages_resolve_module_constants(extract_backend_sources):
+    """All eight real painting-frame messages reach the normal static extractor."""
+    path = Path(__file__).resolve().parents[1] / "spacr" / "cpg_measure.py"
+    source = path.read_text(encoding="utf-8")
+    names = {"_NO_RECORD", "_GUARD", "_PAINTING_MASKS", "_UNKNOWN_MODE",
+             "_UNKNOWN_FRAME", "_NO_MASKS", "_SHAPES", "_NO_DESTINATION"}
+    captions = {node.value.value for node in ast.parse(source).body
+                if isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id in names}
+    assert len(captions) == 8
+    assert extract_backend_sources("cpg_measure.py", source) == captions
+
+
+def test_cpg_painting_frame_messages_keep_exact_owners(extract_backend_sources):
+    """Other scopes, constants and presentation calls cannot add captions."""
+    source = '''
+_NO_RECORD = "The assigned missing shift message."
+_GUARD = "A constant from another owner."
+_OTHER = "Unrelated module metadata."
+tr(_OTHER)
+def site_painting_shift():
+    tr(_NO_RECORD)
+    tr(_GUARD)
+    tr(_OTHER)
+    tr("An unrelated literal.")
+    ui.tr(_OTHER)
+    def nested():
+        tr(_OTHER)
+    return lambda: tr(_OTHER)
+def unrelated():
+    tr(_GUARD)
+    def painting_frame_mode():
+        tr(_GUARD)
+class Unrelated:
+    def painting_frame_mode(self):
+        tr(_GUARD)
+'''
+    assert extract_backend_sources("cpg_measure.py", source) == {
+        "The assigned missing shift message."}
+    nested = '''
+_NO_RECORD = "The nested missing shift message."
+def site_painting_shift():
+    ui.tr(_NO_RECORD)
+    def nested():
+        tr(_NO_RECORD)
+    class Nested:
+        def message(self):
+            tr(_NO_RECORD)
+    return lambda: tr(_NO_RECORD)
+'''
+    assert extract_backend_sources("cpg_measure.py", nested) == set()
+    assert extract_backend_sources("cpg_measure.py", "") == set()
+    assert extract_backend_sources("unregistered.py", source) == set()
+
+
+@pytest.mark.parametrize("binding", [
+    "_NO_RECORD = 'A local replacement.'",
+    "from elsewhere import _NO_RECORD",
+    "def _NO_RECORD():\n        return 'A local function.'",
+])
+def test_cpg_painting_frame_constants_cannot_be_shadowed(
+        extract_backend_sources, binding):
+    """A local binding cannot be mistaken for the module's source constant."""
+    source = ("_NO_RECORD = 'The module missing shift message.'\n"
+              "def site_painting_shift():\n"
+              f"    {binding}\n"
+              "    tr(_NO_RECORD)\n")
+    assert extract_backend_sources("cpg_measure.py", source) == set()
+    assert extract_backend_sources("cpg_measure.py",
+        "_NO_RECORD = 'The module missing shift message.'\n"
+        "def site_painting_shift(_NO_RECORD):\n"
+        "    tr(_NO_RECORD)\n") == set()
+
+
+def test_cell_cycle_engine_refusals_have_exact_scopes(extract_backend_sources):
+    """Only assigned literal messages in the two engine owners enter the catalog."""
+    captions = (
+        "ops_mitotic_source cell_cycle needs the ops_cell_cycle table; "
+        "set ops_cell_cycle or run the ph_cell_cycle phase first",
+        "ops_mitotic_source must be rule, classifier or cell_cycle; got {value}",
+    )
+    source = "\n".join((
+        f"METADATA = tr({captions[0]!r})",
+        "def _ph_aggregate():",
+        "    if True:",
+        f"        raise ValueError(tr({captions[0]!r}))",
+        "    tr('Unrelated aggregate refusal.')",
+        "    tr('ops_mitotic_source must be excluded from this owner')",
+        "    def nested():",
+        "        return tr('ops_mitotic_source cell_cycle needs nested exclusion')",
+        "    async def nested_async():",
+        "        return tr('ops_mitotic_source cell_cycle needs async exclusion')",
+        "    local = lambda: tr('ops_mitotic_source cell_cycle needs lambda exclusion')",
+        "    class Local:",
+        "        note = tr('ops_mitotic_source cell_cycle needs class exclusion')",
+        "def _ph_profile_options():",
+        f"    raise ValueError(tr({captions[1]!r}, value='other'))",
+        "    tr('Unrelated profile refusal.')",
+        "    tr('ops_mitotic_source cell_cycle needs the other owner')",
+        "    tr(dynamic_caption)",
+        "    tr('ops_mitotic_source must be ' + dynamic_value)",
+        "    other.tr('ops_mitotic_source must be excluded from another receiver')",
+        "def unrelated():",
+        "    tr('ops_mitotic_source cell_cycle needs an excluded owner')",
+        "    def _ph_aggregate():",
+        "        return tr('ops_mitotic_source cell_cycle needs nested-owner exclusion')",
+        "class Other:",
+        "    def _ph_profile_options(self):",
+        "        return tr('ops_mitotic_source must be excluded from a method')",
+    ))
+    assert extract_backend_sources('ops_engine.py', source) == set(captions)
+
+
+def test_unknown_settings_notices_have_exact_cli_owners(extract_backend_sources):
+    """Admit all three actual notices without claiming the reused Bad settings caption."""
+    path = Path(__file__).resolve().parents[1] / "spacr" / "cli.py"
+    source = path.read_text(encoding="utf-8")
+    owners = {"_report_unknown_keys", "_unknown_setting_fix"}
+    selected = [node for node in ast.parse(source).body
+                if isinstance(node, ast.FunctionDef) and node.name in owners]
+    assert {node.name for node in selected} == owners
+    isolated = "\n".join(ast.get_source_segment(source, node) for node in selected)
+    assert extract_backend_sources("cli.py", isolated) == {
+        "Unknown setting '{key}' ignored; nearest known setting: '{nearest}'.",
+        "Unknown setting '{key}' ignored.",
+        "Remove it from the settings file, or check the spelling.",
+    }
+
+
+def test_unknown_settings_owner_excludes_other_cli_scopes(extract_backend_sources):
+    """Keep help, nested scopes, other owners and nonliteral calls outside this inventory."""
+    source = '''
+tr("Unknown setting '{key}' ignored.")
+def unrelated():
+    def _report_unknown_keys():
+        return tr("Unknown setting '{key}' ignored.")
+class Other:
+    def _unknown_setting_fix(self):
+        return tr("Remove it from the settings file, or check the spelling.")
+def _report_unknown_keys():
+    """Owner documentation is not a runtime notice."""
+    tr("Bad settings")
+    tr("An unrelated CLI diagnostic.")
+    parser.add_argument("--strict-settings", help="Unrelated argparse help.")
+    def inner():
+        return tr("Unknown setting '{key}' ignored.")
+    nested = lambda: tr("Unknown setting '{key}' ignored.")
+    return tr(f"Unknown setting '{key}' ignored.")
+def _unknown_setting_fix():
+    """The ordinary return and indirect calls are not literal tr notices."""
+    other.tr("Remove it from the settings file, or check the spelling.")
+    tr(caption)
+    return "Remove it from the settings file, or check the spelling."
+'''
+    assert extract_backend_sources("cli.py", source) == set()

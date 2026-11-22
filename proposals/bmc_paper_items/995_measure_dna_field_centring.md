@@ -1,6 +1,7 @@
 # Item spec: field centring and an external mitotic call for Measure's DNA-content cell-cycle fit
 
 - **Lifecycle:** future (alpha), behind "Show alpha features"; the default (off) leaves Measure unchanged.
+- **Status:** implemented 2026-11-20 on branch `claude-995-impl` (feature file `features/feature_list/995_measure_dna_field_centring.txt`). Identity (a): 5,532,572 cells, 0 differ, md5 bece7f3e5a97f78fb346727540c365ff equals the frozen reference. Proof: `BMCspacr/reanalysis/item995_proof/`. The reference files are archived in `/nas_mnt/data/bmc_reanalysis/cellcycle_validation_1119_reference/`.
 - **Number:** take the next free item number. Check `features/feature_list/` and the claims files first.
 - **Rule:** a spaCR settings-file run must reproduce the reference calls IDENTICALLY: the same G1 / S / G2 / subG1 / >4N / M label for every nucleus. Every new documented callable ships with its arrival contract and 9-locale records in the same commit.
 - **Code basis:** origin/nightly (written against f04495e887).

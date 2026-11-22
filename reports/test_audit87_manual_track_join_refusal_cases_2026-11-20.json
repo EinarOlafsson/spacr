@@ -1,0 +1,258 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_curation.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_curation.py::test_joining_a_track_to_itself_is_refused": "tests/test_curation.py::test_original_invalid_track_joins_keep_their_refusals[test_joining_a_track_to_itself_is_refused]",
+    "tests/test_curation.py::test_joining_an_unknown_track_says_which_ones_exist": "tests/test_curation.py::test_original_invalid_track_joins_keep_their_refusals[test_joining_an_unknown_track_says_which_ones_exist]"
+  },
+  "native_literal_contracts": {
+    "test_joining_a_track_to_itself_is_refused": {
+      "python_types": [
+        "dict",
+        "int",
+        "int",
+        "str"
+      ],
+      "literal_repr": "({1: [0, 1]}, 1, 1, 'itself')"
+    },
+    "test_joining_an_unknown_track_says_which_ones_exist": {
+      "python_types": [
+        "dict",
+        "int",
+        "int",
+        "str"
+      ],
+      "literal_repr": "({1: [0], 2: [1]}, 1, 99, 'no track 99')"
+    }
+  },
+  "case_contract_representations": {
+    "test_joining_a_track_to_itself_is_refused": "({1: [0, 1]}, 1, 1, 'itself')",
+    "test_joining_an_unknown_track_says_which_ones_exist": "({1: [0], 2: [1]}, 1, 99, 'no track 99')"
+  },
+  "contract_scope": "Exact original native integer-key/ordered-integer-list track map,_tracks helper,fresh TrackCuration construction/session assignment,original first/second integer arguments and native pytest.raises(CurationError,match=original_regex) retained. Every other original import/helper/brush-array/undo/ledger/join/split/delete/consistency/CSV-JSON-persistence case retains AST and relative order. Typed literal repr/roundtrip evidence preserves integer map keys that JSON object keys cannot encode natively; actual inputs stay native dictionaries,worker reprs and original executable AST verified.",
+  "collected_before": [
+    "tests/test_curation.py::test_deleting_an_unknown_track_is_refused",
+    "tests/test_curation.py::test_a_brush_that_hangs_over_the_edge_paints_the_part_that_is_on_it",
+    "tests/test_curation.py::test_two_artefacts_in_one_folder_get_their_own_ledgers",
+    "tests/test_curation.py::test_splitting_gives_the_tail_a_new_id_and_leaves_the_head_alone",
+    "tests/test_curation.py::test_the_ledger_says_in_words_that_the_data_was_touched",
+    "tests/test_curation.py::test_joining_makes_the_second_track_a_continuation_of_the_first",
+    "tests/test_curation.py::test_the_ball_is_a_ball_and_not_the_box_around_it",
+    "tests/test_curation.py::test_a_ledger_is_valid_json_with_a_schema_version",
+    "tests/test_curation.py::test_every_stroke_lands_in_the_ledger_with_what_it_replaced",
+    "tests/test_curation.py::test_undo_with_nothing_to_undo_is_not_an_error",
+    "tests/test_curation.py::test_a_brush_off_the_edge_of_the_grid_paints_nothing_rather_than_raising",
+    "tests/test_curation.py::test_every_operation_leaves_the_table_consistent",
+    "tests/test_curation.py::test_joining_tracks_that_overlap_in_time_is_refused",
+    "tests/test_curation.py::test_a_bare_dab_is_its_own_stroke_and_undoable",
+    "tests/test_curation.py::test_splitting_where_it_would_move_nothing_is_refused",
+    "tests/test_curation.py::test_an_undo_is_appended_rather_than_erasing_the_paint_it_undid",
+    "tests/test_curation.py::test_the_ledger_records_what_was_painted_not_what_the_controls_hold_after",
+    "tests/test_curation.py::test_joining_an_unknown_track_says_which_ones_exist",
+    "tests/test_curation.py::test_a_split_then_a_join_gets_back_to_where_it_started",
+    "tests/test_curation.py::test_a_file_with_no_ledger_is_raw_and_one_with_edits_is_curated",
+    "tests/test_curation.py::test_a_stroke_is_one_undo_however_many_dabs_it_took",
+    "tests/test_curation.py::test_joining_a_track_to_itself_is_refused",
+    "tests/test_curation.py::test_erasing_paints_background",
+    "tests/test_curation.py::test_saving_writes_the_table_and_its_ledger_together",
+    "tests/test_curation.py::test_a_curated_table_says_so_in_words",
+    "tests/test_curation.py::test_a_brush_in_elements_would_have_been_a_cylinder",
+    "tests/test_curation.py::test_a_stroke_changes_exactly_the_elements_the_ball_covers",
+    "tests/test_curation.py::test_painting_the_label_that_is_already_there_changes_nothing",
+    "tests/test_curation.py::test_deleting_removes_the_rows_and_records_what_went",
+    "tests/test_curation.py::test_a_table_without_the_key_columns_is_refused",
+    "tests/test_curation.py::test_an_unreadable_ledger_is_treated_as_curated_not_as_raw",
+    "tests/test_curation.py::test_an_empty_ledger_does_not_make_a_dataset_curated",
+    "tests/test_curation.py::test_the_curated_table_comes_back_sorted_by_track_then_frame",
+    "tests/test_curation.py::test_a_stroke_that_changed_nothing_is_not_recorded",
+    "tests/test_curation.py::test_overlapping_dabs_undo_in_the_reverse_order_they_were_laid",
+    "tests/test_curation.py::test_a_stroke_of_two_labels_records_both_rather_than_the_last_one",
+    "tests/test_curation.py::test_the_ledger_is_written_beside_the_artefact_and_read_back",
+    "tests/test_curation.py::test_the_caller_s_frame_is_not_edited_underneath_them",
+    "tests/test_curation.py::test_undo_restores_the_labels_that_were_there_not_one_flat_value",
+    "tests/test_curation.py::test_the_history_is_bounded_so_a_long_session_cannot_grow_forever",
+    "tests/test_curation.py::test_the_ledger_json_survives_numpy_track_ids",
+    "tests/test_curation.py::test_a_table_that_arrived_broken_is_shown_to_be_broken_not_hidden",
+    "tests/test_curation.py::test_a_brush_covers_a_ball_in_world_units_not_in_elements",
+    "tests/test_curation.py::test_a_split_id_is_above_every_existing_one_rather_than_in_a_gap"
+  ],
+  "collected_after": [
+    "tests/test_curation.py::test_two_artefacts_in_one_folder_get_their_own_ledgers",
+    "tests/test_curation.py::test_overlapping_dabs_undo_in_the_reverse_order_they_were_laid",
+    "tests/test_curation.py::test_erasing_paints_background",
+    "tests/test_curation.py::test_a_table_that_arrived_broken_is_shown_to_be_broken_not_hidden",
+    "tests/test_curation.py::test_a_stroke_changes_exactly_the_elements_the_ball_covers",
+    "tests/test_curation.py::test_a_brush_covers_a_ball_in_world_units_not_in_elements",
+    "tests/test_curation.py::test_the_history_is_bounded_so_a_long_session_cannot_grow_forever",
+    "tests/test_curation.py::test_painting_the_label_that_is_already_there_changes_nothing",
+    "tests/test_curation.py::test_an_undo_is_appended_rather_than_erasing_the_paint_it_undid",
+    "tests/test_curation.py::test_a_stroke_of_two_labels_records_both_rather_than_the_last_one",
+    "tests/test_curation.py::test_joining_makes_the_second_track_a_continuation_of_the_first",
+    "tests/test_curation.py::test_the_ledger_records_what_was_painted_not_what_the_controls_hold_after",
+    "tests/test_curation.py::test_every_stroke_lands_in_the_ledger_with_what_it_replaced",
+    "tests/test_curation.py::test_an_unreadable_ledger_is_treated_as_curated_not_as_raw",
+    "tests/test_curation.py::test_joining_tracks_that_overlap_in_time_is_refused",
+    "tests/test_curation.py::test_the_ledger_says_in_words_that_the_data_was_touched",
+    "tests/test_curation.py::test_every_operation_leaves_the_table_consistent",
+    "tests/test_curation.py::test_a_stroke_that_changed_nothing_is_not_recorded",
+    "tests/test_curation.py::test_a_split_id_is_above_every_existing_one_rather_than_in_a_gap",
+    "tests/test_curation.py::test_undo_restores_the_labels_that_were_there_not_one_flat_value",
+    "tests/test_curation.py::test_a_table_without_the_key_columns_is_refused",
+    "tests/test_curation.py::test_splitting_where_it_would_move_nothing_is_refused",
+    "tests/test_curation.py::test_a_brush_in_elements_would_have_been_a_cylinder",
+    "tests/test_curation.py::test_a_split_then_a_join_gets_back_to_where_it_started",
+    "tests/test_curation.py::test_splitting_gives_the_tail_a_new_id_and_leaves_the_head_alone",
+    "tests/test_curation.py::test_saving_writes_the_table_and_its_ledger_together",
+    "tests/test_curation.py::test_a_brush_that_hangs_over_the_edge_paints_the_part_that_is_on_it",
+    "tests/test_curation.py::test_a_ledger_is_valid_json_with_a_schema_version",
+    "tests/test_curation.py::test_deleting_removes_the_rows_and_records_what_went",
+    "tests/test_curation.py::test_a_bare_dab_is_its_own_stroke_and_undoable",
+    "tests/test_curation.py::test_a_stroke_is_one_undo_however_many_dabs_it_took",
+    "tests/test_curation.py::test_the_ball_is_a_ball_and_not_the_box_around_it",
+    "tests/test_curation.py::test_a_brush_off_the_edge_of_the_grid_paints_nothing_rather_than_raising",
+    "tests/test_curation.py::test_the_ledger_is_written_beside_the_artefact_and_read_back",
+    "tests/test_curation.py::test_the_ledger_json_survives_numpy_track_ids",
+    "tests/test_curation.py::test_a_curated_table_says_so_in_words",
+    "tests/test_curation.py::test_a_file_with_no_ledger_is_raw_and_one_with_edits_is_curated",
+    "tests/test_curation.py::test_deleting_an_unknown_track_is_refused",
+    "tests/test_curation.py::test_original_invalid_track_joins_keep_their_refusals[test_joining_a_track_to_itself_is_refused]",
+    "tests/test_curation.py::test_original_invalid_track_joins_keep_their_refusals[test_joining_an_unknown_track_says_which_ones_exist]",
+    "tests/test_curation.py::test_an_empty_ledger_does_not_make_a_dataset_curated",
+    "tests/test_curation.py::test_undo_with_nothing_to_undo_is_not_an_error",
+    "tests/test_curation.py::test_the_curated_table_comes_back_sorted_by_track_then_frame",
+    "tests/test_curation.py::test_the_caller_s_frame_is_not_edited_underneath_them"
+  ],
+  "tests_before": {
+    "passed": 44,
+    "seconds": 5.38
+  },
+  "tests_after": {
+    "passed": 44,
+    "seconds": 4.32
+  },
+  "coverage_scope": "spacr.curation under the complete selected manual mask/track edit/undo/ledger/consistency/persistence module; not full-suite coverage. Original small synthetic9x9x9 or up-to41x41 label arrays,short track DataFrames and temporary CSV/JSON ledgers only. Array brush operations do not render a view. No source-image loading,GUI widget construction,automated tracking,segmentation,model fitting/training,scientific chart construction/rendering,new reader,network or GPU work. spacr.timelapse remains untouched. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 271,
+    "num_statements": 314,
+    "percent_covered": 82.80423280423281,
+    "percent_covered_display": "83",
+    "missing_lines": 43,
+    "excluded_lines": 0,
+    "percent_statements_covered": 86.30573248407643,
+    "percent_statements_covered_display": "86",
+    "num_branches": 64,
+    "num_partial_branches": 6,
+    "covered_branches": 42,
+    "missing_branches": 22,
+    "percent_branches_covered": 65.625,
+    "percent_branches_covered_display": "66"
+  },
+  "coverage_after": {
+    "covered_lines": 271,
+    "num_statements": 314,
+    "percent_covered": 82.80423280423281,
+    "percent_covered_display": "83",
+    "missing_lines": 43,
+    "excluded_lines": 0,
+    "percent_statements_covered": 86.30573248407643,
+    "percent_statements_covered_display": "86",
+    "num_branches": 64,
+    "num_partial_branches": 6,
+    "covered_branches": 42,
+    "missing_branches": 22,
+    "percent_branches_covered": 65.625,
+    "percent_branches_covered_display": "66"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "d831822b416ec6e2c9b61ab4e0aa7df22af6ead49ad9354496808661dccf6689",
+  "production_source_sha256": "f77a59492322139bbd0600bac0713391a32f2ac96410a1f20f7e1059a7b133dc",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_imports_helpers_fixtures_cases_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "joining-a-track-to-itself-is-accepted",
+      "source_variant": {
+        "path": "spacr/curation.py",
+        "line": 925,
+        "old": "raise CurationError(\n                f\"cannot join track {first!r} to itself\")",
+        "new": "return None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_curation.py::test_joining_a_track_to_itself_is_refused"
+        ],
+        "failure_summary_lines": [
+          "tests/test_curation.py::test_joining_a_track_to_itself_is_refused - Fa..."
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_curation.py::test_original_invalid_track_joins_keep_their_refusals[test_joining_a_track_to_itself_is_refused]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_curation.py::test_original_invalid_track_joins_keep_their_refusals[test_joining_a_track_to_itself_is_refused]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "joining-an-unknown-track-is-accepted",
+      "source_variant": {
+        "path": "spacr/curation.py",
+        "line": 891,
+        "old": "raise CurationError(\n                f\"no track {track_id!r} in this table; have \"\n                f\"{self.track_ids[:8]}...\")",
+        "new": "return None"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_curation.py::test_joining_an_unknown_track_says_which_ones_exist"
+        ],
+        "failure_summary_lines": [
+          "tests/test_curation.py::test_joining_an_unknown_track_says_which_ones_exist"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_curation.py::test_original_invalid_track_joins_keep_their_refusals[test_joining_an_unknown_track_says_which_ones_exist]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_curation.py::test_original_invalid_track_joins_keep_their_refusals[test_joining_an_unknown_track_says_which_ones_exist]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults before and after: return from TrackCuration.join instead of refusing a self join; return from TrackCuration._require_track instead of refusing an unknown track. Each fault selects the same one original/mapped case and must fail with DID NOT RAISE from unchanged native CurationError/regex context. Exact integer-key map/list order,helper/construction/session assignment and original join arguments retained. Repository production/settings/timelapse files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_curation.py",
+      "line": 389,
+      "symbol": "test_original_invalid_track_joins_keep_their_refusals",
+      "new": "Preserve each original invalid track join and its refusal.",
+      "old": {
+        "test_joining_a_track_to_itself_is_refused": null,
+        "test_joining_an_unknown_track_says_which_ones_exist": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

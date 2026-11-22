@@ -111,19 +111,25 @@ def test_tif_and_tiff_are_the_same_format():
     assert cs.matches_path("/d/a.tif", file_type="tiff") is False
 
 
-def test_select_crops_keeps_the_order_it_was_given():
-    paths = ["/d/cell_png/c.png", "/d/nucleus_png/a.png",
-             "/d/cell_png/b.tif", "/d/cell_png/a.png"]
-    assert cs.select_crops(paths, {"path_string": "cell_png",
-                                   "file_type": "png"}) == [
-        "/d/cell_png/c.png", "/d/cell_png/a.png"]
-
-
-def test_select_crops_still_reads_the_old_png_type_spelling():
-    """Every old settings CSV holds it; refusing it refuses those runs."""
-    paths = ["/d/cell_png/a.png", "/d/nucleus_png/a.png"]
-    assert cs.select_crops(paths, {"png_type": "cell_png"}) == [
-        "/d/cell_png/a.png"]
+@pytest.mark.parametrize('paths, settings, expected', [
+    pytest.param(
+        ['/d/cell_png/c.png', '/d/nucleus_png/a.png',
+         '/d/cell_png/b.tif', '/d/cell_png/a.png'],
+        {'path_string': 'cell_png', 'file_type': 'png'},
+        ['/d/cell_png/c.png', '/d/cell_png/a.png'],
+        id='test_select_crops_keeps_the_order_it_was_given',
+    ),
+    pytest.param(
+        ['/d/cell_png/a.png', '/d/nucleus_png/a.png'],
+        {'png_type': 'cell_png'},
+        ['/d/cell_png/a.png'],
+        id='test_select_crops_still_reads_the_old_png_type_spelling',
+    ),
+])
+def test_original_crop_path_filters_keep_their_ordered_selection(
+        paths, settings, expected):
+    """Preserve each original crop path filter and its ordered selection."""
+    assert cs.select_crops(paths, settings) == expected
 
 
 # ---------------------------------------------------------------------------
@@ -137,14 +143,20 @@ def test_planes_may_be_one_number_a_list_or_a_numpy_integer():
     assert cs._as_indices(np.array([1, 0]), "extract_channels") == [1, 0]
 
 
-def test_unset_planes_name_the_setting_that_is_unset():
-    with pytest.raises(CropSourceError, match="extract_channels is not set"):
-        cs._as_indices(None, "extract_channels")
-
-
-def test_planes_that_are_not_numbers_are_refused():
-    with pytest.raises(CropSourceError, match="not a list of planes"):
-        cs._as_indices(["cell", "nucleus"], "extract_channels")
+@pytest.mark.parametrize('value, match', [
+    pytest.param(
+        None, 'extract_channels is not set',
+        id='test_unset_planes_name_the_setting_that_is_unset',
+    ),
+    pytest.param(
+        ['cell', 'nucleus'], 'not a list of planes',
+        id='test_planes_that_are_not_numbers_are_refused',
+    ),
+])
+def test_original_invalid_crop_planes_keep_their_refusals(value, match):
+    """Preserve each original invalid plane input and its named refusal."""
+    with pytest.raises(CropSourceError, match=match):
+        cs._as_indices(value, "extract_channels")
 
 
 # ---------------------------------------------------------------------------
@@ -210,20 +222,25 @@ def test_an_absent_object_is_none_rather_than_an_empty_crop(merged):
     assert cs.crop_object(merged, mask, 99, channels=[0]) is None
 
 
-def test_a_crop_shape_that_is_not_one_is_refused(merged):
-    with pytest.raises(CropSourceError, match="crop_shape"):
-        cs.crop_object(merged, merged[:, :, 2], 1, channels=[0],
-                       shape="outline")
+@pytest.mark.parametrize('kwargs, match', [
+    pytest.param(
+        {'channels': [0], 'shape': 'outline'}, 'crop_shape',
+        id='test_a_crop_shape_that_is_not_one_is_refused',
+    ),
+    pytest.param(
+        {'channels': [0, 7]}, 'plane 7',
+        id='test_a_plane_the_array_does_not_have_is_refused_before_cutting',
+    ),
+])
+def test_original_invalid_object_crop_options_keep_their_refusals(merged, kwargs, match):
+    """Preserve each original invalid object crop option and its refusal."""
+    with pytest.raises(CropSourceError, match=match):
+        cs.crop_object(merged, merged[:, :, 2], 1, **kwargs)
 
 
 def test_a_two_dimensional_array_is_not_a_merged_stack(merged):
     with pytest.raises(CropSourceError, match="height, width, planes"):
         cs.crop_object(merged[:, :, 0], merged[:, :, 2], 1, channels=[0])
-
-
-def test_a_plane_the_array_does_not_have_is_refused_before_cutting(merged):
-    with pytest.raises(CropSourceError, match="plane 7"):
-        cs.crop_object(merged, merged[:, :, 2], 1, channels=[0, 7])
 
 
 # ---------------------------------------------------------------------------
@@ -361,13 +378,19 @@ def test_a_mask_plane_beyond_the_array_is_refused_with_both_numbers(merged):
 # stream_planes
 # ---------------------------------------------------------------------------
 
-def test_the_current_spelling_wins_over_the_older_one():
-    assert cs.stream_planes({"channel_arrays": [1, 2],
-                             "extract_channels": [0]}) == [1, 2]
-
-
-def test_the_older_spelling_is_still_read():
-    assert cs.stream_planes({"extract_channels": [0, 3]}) == [0, 3]
+@pytest.mark.parametrize('settings, expected', [
+    pytest.param(
+        {'channel_arrays': [1, 2], 'extract_channels': [0]}, [1, 2],
+        id='test_the_current_spelling_wins_over_the_older_one',
+    ),
+    pytest.param(
+        {'extract_channels': [0, 3]}, [0, 3],
+        id='test_the_older_spelling_is_still_read',
+    ),
+])
+def test_original_crop_channel_settings_keep_their_ordered_planes(settings, expected):
+    """Preserve each original channel-setting spelling and its ordered planes."""
+    assert cs.stream_planes(settings) == expected
 
 
 def test_neither_spelling_set_names_the_one_to_set():
@@ -406,17 +429,24 @@ def test_invalid_crop_settings_keep_their_original_refusals(settings, message):
         cs.validate(settings)
 
 
-def test_streaming_needs_planes_a_shape_and_a_mask_plane():
-    settings = {"crop_source": "merged", "channel_arrays": [0, 1],
-                "object_array": "cell", "cell_mask_dim": 2}
-    assert cs.validate(settings) == "merged"
-
-
-def test_a_coordinate_run_needs_an_image_size_and_no_mask_plane():
-    """A coordinate has no mask, so demanding one would refuse a valid run."""
-    settings = {"crop_source": "merged", "channel_arrays": [0, 1],
-                "coordinate_columns": ["cell_id"], "image_size": 64}
-    assert cs.validate(settings) == "merged"
+@pytest.mark.parametrize('settings, expected', [
+    pytest.param(
+        {'crop_source': 'merged', 'channel_arrays': [0, 1],
+         'object_array': 'cell', 'cell_mask_dim': 2},
+        'merged',
+        id='test_streaming_needs_planes_a_shape_and_a_mask_plane',
+    ),
+    pytest.param(
+        {'crop_source': 'merged', 'channel_arrays': [0, 1],
+         'coordinate_columns': ['cell_id'], 'image_size': 64},
+        'merged',
+        id='test_a_coordinate_run_needs_an_image_size_and_no_mask_plane',
+    ),
+])
+def test_original_valid_crop_settings_keep_their_resolved_source(
+        settings, expected):
+    """Preserve each original valid crop setup and its resolved source."""
+    assert cs.validate(settings) == expected
 
 
 def test_generating_is_validated_like_streaming():

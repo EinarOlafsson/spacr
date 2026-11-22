@@ -183,10 +183,23 @@ def test_judgement_counts_report_zero_for_what_cannot_be_read(
     assert suggest.judgement_counts(db_path, "test") == expected
 
 
-def test_rejections_need_the_annotation_column_too(tmp_path):
-    db_path = _table(tmp_path, ["png_path TEXT", "test_verdict INTEGER"],
-                     [("/a.png", -1)])
-    assert suggest.rejected_suggestions(db_path, "test") == {}
+@pytest.mark.parametrize('columns, rows, expected', [
+    pytest.param(
+        ['png_path TEXT', 'test_verdict INTEGER'], [('/a.png', -1)], {},
+        id='test_rejections_need_the_annotation_column_too',
+    ),
+    pytest.param(
+        ['png_path TEXT', 'test INTEGER', 'test_verdict TEXT'],
+        [('/a.png', None, '-1'), ('/b.png', None, '-x')],
+        {'/a.png': 1},
+        id='test_a_rejection_that_is_not_a_number_is_skipped',
+    ),
+])
+def test_original_rejection_table_layouts_keep_their_result_maps(
+        tmp_path, columns, rows, expected):
+    """Preserve each original rejection table layout and its native result mapping."""
+    db_path = _table(tmp_path, columns, rows)
+    assert suggest.rejected_suggestions(db_path, "test") == expected
 
 
 def test_unreadable_rejections_are_reported_as_none(tmp_path, monkeypatch):
@@ -197,11 +210,3 @@ def test_unreadable_rejections_are_reported_as_none(tmp_path, monkeypatch):
     _refuse(monkeypatch, "_connect_read_only", action=sqlite3.SQLITE_READ,
             column="test_verdict")
     assert suggest.rejected_suggestions(db_path, "test") == {}
-
-
-def test_a_rejection_that_is_not_a_number_is_skipped(tmp_path):
-    """In a TEXT column, ``'-x' < 0`` is compared as text and is TRUE."""
-    db_path = _table(tmp_path,
-                     ["png_path TEXT", "test INTEGER", "test_verdict TEXT"],
-                     [("/a.png", None, "-1"), ("/b.png", None, "-x")])
-    assert suggest.rejected_suggestions(db_path, "test") == {"/a.png": 1}

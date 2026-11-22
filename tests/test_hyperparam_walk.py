@@ -27,13 +27,20 @@ class TestWalkAxis:
         axis = WalkAxis("x", step=1.0)
         assert axis.values_around(10.0) == [9.0, 11.0]
 
-    def test_odd_resolution_puts_the_centre_back(self):
-        axis = WalkAxis("x", step=1.0, resolution=3)
-        assert axis.values_around(10.0) == [9.0, 10.0, 11.0]
-
-    def test_higher_resolution_reaches_further_out(self):
-        axis = WalkAxis("x", step=1.0, resolution=5)
-        assert axis.values_around(10.0) == [8.0, 9.0, 10.0, 11.0, 12.0]
+    @pytest.mark.parametrize('resolution, expected', [
+        pytest.param(
+            3, [9.0, 10.0, 11.0],
+            id='test_odd_resolution_puts_the_centre_back',
+        ),
+        pytest.param(
+            5, [8.0, 9.0, 10.0, 11.0, 12.0],
+            id='test_higher_resolution_reaches_further_out',
+        ),
+    ])
+    def test_original_odd_resolutions_keep_their_ordered_neighbours(self, resolution, expected):
+        """Preserve the original centre and ordered neighbours for each odd resolution."""
+        axis = WalkAxis("x", step=1.0, resolution=resolution)
+        assert axis.values_around(10.0) == expected
 
     def test_clamping_collapses_duplicates_at_a_boundary(self):
         """min_dist at 0 offers ONE move, not two identical ones.

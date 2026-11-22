@@ -284,14 +284,14 @@ _PHASES = ("stitch", "phenotype", "objects", "decode")
 #: cells onto the sequencing nuclei, and reduce cells to guides and genes.
 #: Not in the default run, because each needs the four above and a design
 #: table; a run includes them only when ``phases`` names them.
-_PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
-              "ph_ownership", "merge", "ph_merged", "aggregate", "ph_tables",
-              "ph_crops", "report", "stress")
+_PH_PHASES = ("ph_flatfield", "ph_segment", "ph_flatfield_objects", "ph_measure", "ph_masks",
+              "ph_ownership", "merge", "ph_merged", "ph_cell_cycle", "aggregate",
+              "ph_tables", "ph_crops", "report", "stress")
 
 #: The phenotype phases that run once per plate rather than per well; a
 #: well's archive marker (item 872, B9) records only the others.
-_PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
-                    "report", "stress")
+_PH_PLATE_PHASES = ("ph_flatfield", "ph_flatfield_objects", "ph_cell_cycle", "aggregate",
+                    "ph_tables", "ph_crops", "report", "stress")
 
 #: The profile path (alpha): stored per-well cell tables to gene profiles,
 #: then their retrieval metrics, their module atlas, the Leiden resolution
@@ -299,7 +299,7 @@ _PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
 #: and no database.
 _PROFILE_PHASES = ("profile", "evaluate", "modules", "mitocarta",
                    "cluster_sweep", "etest", "cluster_consensus",
-                   "cluster_bench_test", "voyager3")
+                   "cluster_bench_test", "cluster_maxproj", "voyager3")
 
 #: The nuclear-median flat-field path (alpha, item 912): per-plate maps from
 #: the per-nucleus tables, then their held-out check. Needs no image step
@@ -327,7 +327,7 @@ _FEATURE_SCREEN_PHASES = ("ops_feature_screen",)
 #: (alpha, item 960) scores a grid of decode settings on a few tiles, and is
 #: the only phase a run with ``ops_grid_search`` on runs.
 _CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode", "prefix_fdr_sweep",
-               "prefix_grid_search")
+               "prefix_grid_search", "cpg_measure")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
@@ -389,6 +389,10 @@ def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, An
         result = _run_grid_search(settings, report=_say)
         out["prefix_grid_search"] = {key: value for key, value in result.items()
                                      if key != "table"}
+    if "cpg_measure" in phases:
+        from .cpg_measure import run_cpg_measure
+
+        out["cpg_measure"] = run_cpg_measure(settings, report=_say)
     return out
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
@@ -5131,15 +5135,21 @@ def _ph_ownership_rule(settings: Mapping[str, Any]) -> str:
     return rule
 
 
-#: The modes ``ops_flatfield`` may name, the first being the default.
+#: The modes ``ops_flatfield`` may name.
 _PH_FLATFIELD_MODES = ("none", "analytic", "exact")
 
 
 def _ph_flatfield_mode(settings: Mapping[str, Any]) -> str:
-    """The ``ops_flatfield`` mode, checked against :data:`_PH_FLATFIELD_MODES`."""
+    """The ``ops_flatfield`` mode, checked against :data:`_PH_FLATFIELD_MODES`.
+
+    An unset mode takes the default of :data:`spacr.ops_settings.OPS_DEFAULTS`, so
+    a call from the API runs as the command line, the application and a settings
+    file do.
+    """
+    from .ops_settings import OPS_DEFAULTS
     from .qt.i18n import tr
 
-    mode = str(settings.get("ops_flatfield") or "none").strip().lower()
+    mode = str(settings.get("ops_flatfield") or OPS_DEFAULTS["ops_flatfield"]).strip().lower()
     if mode not in _PH_FLATFIELD_MODES:
         raise ValueError(tr(
             "ops_flatfield must be one of {modes}; got {value}",
@@ -5251,7 +5261,7 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
     """
     import multiprocessing
 
-    from .ops_flatfield import (build_flat_maps, choose_flat_fields,
+    from .ops_flatfield import (OBJECT_FITS, build_flat_maps, choose_flat_fields,
                                 load_flat_maps, write_flat_maps)
     from .qt.i18n import tr
     from .resource_log import _parallel_process_executor as ProcessPoolExecutor
@@ -5259,10 +5269,17 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
     started = time.perf_counter()
     channels = _ph_channels(settings)
     folder = _ph_flat_folder(settings, destination)
+    fits = _ph_channel_fits(settings, channels)
     if os.path.isfile(os.path.join(folder, "flat_info.json")):
-        _maps, offsets, info = load_flat_maps(folder, channels)
-        return {"reused": folder, "md5": info.get("md5"),
-                "offsets": offsets, "n_fields": info.get("n_fields")}
+        with open(os.path.join(folder, "flat_info.json"), encoding="utf-8") as handle:
+            pending = {str(c).upper() for c in json.load(handle).get("pending") or []}
+        _maps, offsets, info = load_flat_maps(
+            folder, [c for c in channels if c.upper() not in pending])
+        reused = {"reused": folder, "md5": info.get("md5"),
+                  "offsets": offsets, "n_fields": info.get("n_fields")}
+        if pending:
+            reused["pending"] = sorted(pending)
+        return reused
     files = {}
     for well in wells:
         index = phenotype_index.get(well) or {}
@@ -5303,18 +5320,254 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
             "{count} flat-field fields could not be read, first {first}",
             count=len(unreadable), first=unreadable[0]))
     blocks = np.stack([r["blocks"] for r in results])
-    maps, method = build_flat_maps(blocks, channels,
-                                   polynomial_channels=(_NUCLEAR,))
-    info = write_flat_maps(folder, plate, maps, method, chosen, extra={
-        "wells_available": list(wells),
-        "built": time.strftime("%Y-%m-%dT%H:%M:%S%z")})
+    maps, method = build_flat_maps(
+        blocks, channels,
+        polynomial_channels=tuple(c for c in channels if fits[c] == "polynomial"))
+    extra = {"wells_available": list(wells),
+             "built": time.strftime("%Y-%m-%dT%H:%M:%S%z")}
+    objects = {c: f for c, f in fits.items() if f in OBJECT_FITS}
+    if objects:
+        from .ops_flatfield import mark_pending
+
+        extra.update(pending=[mark_pending(maps, method, c, f) for c, f in objects.items()],
+                     channel_fit={c.upper(): f for c, f in objects.items()})
+    info = write_flat_maps(folder, plate, maps, method, chosen, extra=extra)
     _say(tr("{plate} flat-field maps from {fields} fields written to "
             "{folder}", plate=plate, fields=len(chosen), folder=folder))
     return {"built": folder, "md5": info["md5"], "n_fields": len(chosen),
+            **({"pending": info["pending"]} if info.get("pending") else {}),
             "fields_by_well": info["fields_by_well"],
             "offsets": {c: m["offset"] for c, m in method.items()},
             "workers": workers,
             "seconds": round(time.perf_counter() - started, 1)}
+
+
+def _ph_channel_fits(settings: Mapping[str, Any], channels: Sequence[str]) -> Dict[str, str]:
+    """``ops_flatfield_channel_fit``: each channel's flat-field fit (item 1006).
+
+    A channel the setting does not name takes the object median (the most accurate
+    map on Funk plate A): ``'nuclear_median'`` for the DNA
+    channel and the nuclear stains of ``ops_flatfield_nuclear_stains`` (default ``['A594']``),
+    ``'cytoplasm_median'`` for every other channel. ``'legacy'`` gives the maps of the runs
+    before (``'polynomial'`` for the DNA channel, ``'pixel_median'`` for the rest),
+    byte-identical; settings files stamped before version 952 read it. A file with the draft
+    key ``ops_flatfield_dna_fit`` gives the DNA channel that fit.
+
+    :param settings: read for ``ops_flatfield_channel_fit`` (``{channel: fit}``, ``'legacy'``
+        or None), ``ops_flatfield_nuclear_stains`` and ``ops_flatfield_dna_fit``.
+    :param channels: the phenotype channels.
+    :returns: ``{channel: fit}`` for every channel, each one of
+        :data:`spacr.ops_flatfield.CHANNEL_FITS`.
+    :raises ValueError: for an unknown channel or fit.
+    """
+    from .ops_flatfield import CHANNEL_FITS
+    from .qt.i18n import tr
+
+    value = settings.get("ops_flatfield_channel_fit")
+    if isinstance(value, str) and value.strip().lower() == "legacy":
+        return {c: "polynomial" if c.upper() == _NUCLEAR else "pixel_median" for c in channels}
+    if isinstance(value, str) and value.strip():
+        raise ValueError(tr("ops_flatfield_channel_fit must be a {channel: fit} mapping or "
+                            "'legacy'; got {value}", value=value))
+    asked = {str(k).upper(): str(v).strip().lower() for k, v in dict(value or {}).items()}
+    draft = settings.get("ops_flatfield_dna_fit")
+    if draft and _NUCLEAR not in asked:
+        asked[_NUCLEAR] = str(draft).strip().lower()
+    unknown = sorted(set(asked) - {c.upper() for c in channels})
+    if unknown:
+        raise ValueError(tr("ops_flatfield_channel_fit names channels the phenotype path does not "
+                            "have: {unknown}; it has {channels}", unknown=unknown,
+                            channels=list(channels)))
+    bad = {k: v for k, v in asked.items() if v not in CHANNEL_FITS}
+    if bad:
+        raise ValueError(tr("ops_flatfield_channel_fit must give each channel one of {allowed}; "
+                            "got {bad}", allowed=list(CHANNEL_FITS), bad=bad))
+    stains = settings.get("ops_flatfield_nuclear_stains", ["A594"])
+    if isinstance(stains, str):
+        stains = stains.split(",")
+    nuclear = {_NUCLEAR} | {str(c).strip().upper() for c in stains or [] if str(c).strip()}
+    return {c: asked.get(c.upper(), "nuclear_median" if c.upper() in nuclear
+                         else "cytoplasm_median")
+            for c in channels}
+
+
+def _ph_object_means(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """One field's objects for the object-median maps; the ``ph_flatfield_objects`` worker."""
+    from .ops_flatfield import OBJECT_COMPARTMENTS, field_object_means
+
+    unreadable: list = []
+    channels = list(task["fits"])
+    stack = _ph_read_field(task["files"], channels, unreadable)
+    if stack is None:
+        return {"tables": None, "unreadable": unreadable}
+    with np.load(task["mask_path"]) as saved:
+        nuclei, cells = saved["nuclei"], saved["cells"]
+    tables = {c: field_object_means(stack[..., i], nuclei, cells, well=task["well"],
+                                    site=task["site"], channel=c,
+                                    compartment=OBJECT_COMPARTMENTS[task["fits"][c]][0])
+              for i, c in enumerate(channels)}
+    return {"tables": tables, "unreadable": unreadable}
+
+
+def _ph_object_fields(settings: Mapping[str, Any], available: Sequence[Tuple[str, int]]
+                      ) -> List[Tuple[str, int]]:
+    """``ops_flatfield_object_fields``: ``'all'``, a count drawn with seed 0, or a field list."""
+    from .ops_flatfield import choose_flat_fields
+    from .qt.i18n import tr
+
+    asked = settings.get("ops_flatfield_object_fields", "all")
+    if asked in (None, "", "all"):
+        return list(available)
+    if isinstance(asked, (int, float)) or str(asked).strip().isdigit():
+        return choose_flat_fields(list(available), int(asked), seed=0)
+    with open(str(asked), encoding="utf-8") as handle:
+        listed = [(str(w), int(site)) for w, site in json.load(handle)]
+    missing = sorted(set(listed) - set(available))
+    if missing:
+        raise ValueError(tr("ops_flatfield_object_fields names fields without phenotype masks: "
+                            "{missing}", missing=missing[:5]))
+    return listed
+
+
+def _ph_channel_offset(settings: Mapping[str, Any], plate: str, channel: str,
+                       method: Mapping[str, Any]) -> Tuple[Optional[float], str]:
+    """A channel's camera offset: ``ops_flatfield_dark``, else the offset ``ph_flatfield`` measured.
+
+    ``ops_flatfield_dark`` is a number (every channel), ``{channel: number}``, or
+    ``{plate: number or {channel: number}}``.
+    """
+    dark = settings.get("ops_flatfield_dark")
+    if isinstance(dark, Mapping):
+        dark = {str(k).upper(): v for k, v in dark.items()}
+        if str(plate).upper() in dark:
+            dark = dark[str(plate).upper()]
+            if isinstance(dark, Mapping):
+                dark = {str(k).upper(): v for k, v in dark.items()}.get(channel.upper())
+        else:
+            dark = dark.get(channel.upper())
+    if dark is not None:
+        return float(dark), "ops_flatfield_dark"
+    measured = (method.get(channel.upper()) or {}).get("offset")
+    return (None if measured is None else float(measured)), "ph_flatfield"
+
+
+def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
+                          settings: Mapping[str, Any], destination: str) -> Dict[str, Any]:
+    """Build the pending object-median flat-field maps; the ``ph_flatfield_objects`` phase.
+
+    Item 1006. A channel whose ``ops_flatfield_channel_fit`` is ``'nuclear_median'`` or
+    ``'cytoplasm_median'`` (every channel's default) is left pending by ``ph_flatfield``
+    (:func:`spacr.ops_flatfield.mark_pending`). This plate phase runs after ``ph_segment``:
+    for each chosen field (``ops_flatfield_object_fields``) it reads the pending channels' raw
+    planes and the field's ``ph_segment`` masks and takes every nucleus's (or cytoplasm's, at
+    its cell's centroid) raw mean, centroid and edge flag (:func:`spacr.ops_flatfield.field_object_means`); per channel it
+    builds the map with :func:`spacr.ops_flatfield.build_nuclear_flat` (item 912's fit settings,
+    ``ops_flatfield_fit`` and the rest), the held-out fields (``ops_flatfield_holdout_fields``
+    or ``ops_flatfield_holdout_n``) left out, and writes it into the same maps folder
+    (:func:`spacr.ops_flatfield.complete_pending_flat`) with its object table next to it. The
+    camera offset is ``ops_flatfield_dark``, else the offset ``ph_flatfield`` measured; never 0.
+    The map is never changed after the fit: the report gives its largest value, the map cell
+    and its multiple of the centre (:func:`spacr.ops_flatfield.flat_peak`), and a value above
+    :data:`spacr.ops_flatfield.FLAT_PEAK_WARN` of the centre is flagged with a warning. A
+    folder with nothing pending is left as it is.
+
+    :param plate: the plate name.
+    :param wells: the wells run.
+    :param phenotype_index: the phenotype tiles, ``{well: {cycle: {site: files}}}``.
+    :param settings: read for ``ops_flatfield_object_fields``, ``ops_flatfield_dark``, the
+        ``ops_flatfield_*`` fit and hold-out settings, ``ops_flatfield_maps`` and
+        ``n_workers``.
+    :param destination: the run folder holding ``<well>/phenotype_masks``.
+    :returns: the report, per channel: objects, objects per map cell, corner mean, % at floor,
+        the largest value (``peak``), md5 and offset.
+    :raises ValueError: when the maps folder or the masks are missing, a field is unreadable
+        or a channel has no offset.
+    """
+    import multiprocessing
+
+    import pandas as pd
+
+    from .ops_flatfield import (OBJECT_COMPARTMENTS, _holdout, _nuclear_options,
+                                build_nuclear_flat, complete_pending_flat, flat_peak)
+    from .qt.i18n import tr
+    from .resource_log import _parallel_process_executor as ProcessPoolExecutor
+    from .tabular import write_table
+
+    started = time.perf_counter()
+    folder = _ph_flat_folder(settings, destination)
+    info_path = os.path.join(folder, "flat_info.json")
+    if not os.path.isfile(info_path):
+        raise ValueError(tr("ph_flatfield_objects needs the maps folder {folder}; run "
+                            "ph_flatfield first", folder=folder))
+    with open(info_path, encoding="utf-8") as handle:
+        flat_info = json.load(handle)
+    method = {str(k).upper(): v for k, v in (flat_info.get("method") or {}).items()}
+    pending = [str(c).upper() for c in flat_info.get("pending") or []]
+    if not pending:
+        return {"reused": folder, "md5": dict(flat_info.get("md5") or {})}
+    fits = {c: method[c]["pending"] for c in pending}
+    offsets = {c: _ph_channel_offset(settings, plate, c, method) for c in pending}
+    missing = [c for c, (value, _src) in offsets.items() if value is None]
+    if missing:
+        raise ValueError(tr("ph_flatfield_objects needs the camera offset of {channels}; set "
+                            "ops_flatfield_dark", channels=missing))
+    available, files = [], {}
+    for well in wells:
+        index = phenotype_index.get(well) or {}
+        sites = index.get(min(index), {}) if index else {}
+        for site in sorted(sites):
+            mask = os.path.join(destination, well, "phenotype_masks", f"site-{site}.npz")
+            if os.path.isfile(mask):
+                available.append((well, int(site)))
+                files[(well, int(site))] = (sites[site], mask)
+    chosen = _ph_object_fields(settings, available)
+    if not chosen:
+        raise ValueError(tr("ph_flatfield_objects found no segmented field; run ph_segment first"))
+    tasks = [{"well": w, "site": s, "files": files[(w, s)][0], "mask_path": files[(w, s)][1],
+              "fits": fits} for w, s in chosen]
+    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks)))
+    if workers == 1:
+        results = [_ph_object_means(task) for task in tasks]
+    else:
+        with ProcessPoolExecutor(workers, mp_context=multiprocessing.get_context("spawn")) as pool:
+            results = list(pool.map(_ph_object_means, tasks))
+    unreadable = [u for r in results for u in r["unreadable"]]
+    if unreadable:
+        raise ValueError(tr("{count} fields could not be read for the object-median maps, "
+                            "first {first}", count=len(unreadable), first=unreadable[0]))
+    report: Dict[str, Any] = {"built": folder, "fields": len(chosen), "workers": workers,
+                              "channels": {}}
+    options = _nuclear_options(settings)
+    for channel in pending:
+        compartment, centroid = OBJECT_COMPARTMENTS[fits[channel]]
+        table = pd.concat([r["tables"][channel] for r in results], ignore_index=True)
+        held = _holdout(settings, plate, table)
+        offset, source = offsets[channel]
+        flat, info = build_nuclear_flat(
+            table, column=f"{compartment}_{channel.lower()}_mean_intensity", offset=offset,
+            holdout=held, cy=f"{centroid}_cy", cx=f"{centroid}_cx", **options)
+        peak = flat_peak(flat)
+        info.update(estimator=fits[channel], offset_source=source)
+        write_table(table, os.path.join(folder, f"objects_{plate}_{channel}.parquet"),
+                    canonicalise=False)
+        written = complete_pending_flat(folder, plate, channel, flat, info)
+        report["channels"][channel] = {
+            "fit": fits[channel], "md5": written["md5"][channel],
+            "objects": int(info["n_training_nuclei"]), "held_out_fields": len(held),
+            "held_out_objects": int(info["n_heldout_nuclei"]),
+            "objects_per_cell": info["nuclei_per_cell"], "corner_mean": info["corner_mean"],
+            "at_floor_pct": info["at_floor_pct"], "peak": peak, "offset": offset,
+            "offset_source": source}
+        if peak["flagged"]:
+            _say(tr("warning: the {plate} {channel} flat-field map reaches {ratio:.2f} of its "
+                    "centre at map cell {cell}; the map is used as fitted", plate=plate,
+                    channel=channel, ratio=peak["of_centre"], cell=peak["cell"]))
+        _say(tr("{plate} {channel} {fit} map from {objects} objects in {fields} fields written "
+                "to {folder}", plate=plate, channel=channel, fit=fits[channel],
+                objects=report["channels"][channel]["objects"], fields=len(chosen),
+                folder=folder))
+    report["seconds"] = round(time.perf_counter() - started, 1)
+    return report
 
 
 def _ph_mask_field(task: Mapping[str, Any]) -> Dict[str, Any]:
@@ -7537,7 +7790,21 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
 
         cells[dna_column] = correct_features(
             cells, cells, [dna_column], flat_offsets)[dna_column].to_numpy()
-    if mitotic_model is not None:
+    if str(settings.get("ops_mitotic_source") or "").strip().lower() == "cell_cycle":
+        from .ops_cell_cycle import MITOTIC_STAGES
+
+        staged = _rows_for_wells(db, "ops_cell_cycle", plate, pooled)
+        if staged is None:
+            raise ValueError(tr(
+                "ops_mitotic_source cell_cycle needs the ops_cell_cycle table; "
+                "set ops_cell_cycle or run the ph_cell_cycle phase first"))
+        staged = staged[["well", "site", "label", "cell_cycle_stage"]]
+        staged["well"] = staged["well"].astype(str)
+        joined = cells[["well", "site", "label"]].astype({"well": str}).merge(
+            staged, on=["well", "site", "label"], how="left")
+        cells["mitotic"] = joined["cell_cycle_stage"].isin(
+            (*MITOTIC_STAGES, "mitotic")).to_numpy()
+    elif mitotic_model is not None:
         from .ops_mitotic import predict_mitotic
         model_cells = cells
         if gain_columns:
@@ -9524,7 +9791,8 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
     ``cell_id`` and, when ``ph_crops`` cut the cell, its crop pointer, the
     crop copied pixel for pixel from the shard into the well's Zarr store;
     ``reads`` and ``barcodes``, the well's rows of ``ops_reads`` and
-    ``ops_barcodes``. The parts are registered in one catalog transaction
+    ``ops_barcodes``; and ``cell_cycle``, its rows of ``ops_cell_cycle`` when
+    the cell-cycle option ran. The parts are registered in one catalog transaction
     with the run's settings.
 
     :param db: the run's measurements database.
@@ -9586,15 +9854,17 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
             counts["cells"] = int(len(frame))
             counts["crops"] = 0 if crop_rows is None else int(len(crop_rows))
             del frame
-        for table, name, order in (("ops_reads", "reads", ("object_id",)),
-                                   ("ops_barcodes", "barcodes",
-                                    ("mapped_guide", "object_id"))):
+        for table, name, order, key in (
+                ("ops_reads", "reads", ("object_id",), ("object_id",)),
+                ("ops_barcodes", "barcodes", ("mapped_guide", "object_id"),
+                 ("object_id",)),
+                ("ops_cell_cycle", "cell_cycle", ("site", "label"),
+                 ("site", "label"))):
             rows = _well_rows(db, table, plate, well)
             if rows is None or rows.empty:
                 continue
             store.write_part(destination, name, rows, plate=plate, well=well,
-                             sort_by=order, key_columns=("object_id",),
-                             run_id=run_id)
+                             sort_by=order, key_columns=key, run_id=run_id)
             counts[name] = int(len(rows))
         report["wells"][well] = counts
     report["registered"] = store.register(destination, run={
@@ -10830,6 +11100,12 @@ def _ph_neighbour_effects(settings: Mapping[str, Any], cells, embedding, pcs: Se
     return {**summary, "outputs": outputs}
 
 
+#: How ``ops_profile_cell_cycle_method 'measure_fc'`` folds Measure's calls
+#: into the profile phases G1, SG2 and M.
+_MEASURE_FC_PROFILE_PHASES = {"G1": "G1", "subG1": "G1", "S": "SG2",
+                              "G2": "SG2", ">4N": "SG2", "M": "M"}
+
+
 def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
                         guides, genes, destination: str, label: str,
                         control_prefix: str = "nontargeting"
@@ -10873,9 +11149,14 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
     similarity = None
 
     cycle = str(settings.get("ops_profile_cell_cycle") or "").strip() or None
+    cycle_method = str(settings.get("ops_profile_cell_cycle_method") or ""
+                       ).strip().lower()
+    if cycle_method not in ("", "measure_fc"):
+        raise ValueError(tr("ops_profile_cell_cycle_method must be empty or "
+                            "measure_fc; got {value}", value=cycle_method))
     source = str(settings.get("ops_mitotic_source") or "rule").strip().lower()
-    if source not in ("rule", "classifier"):
-        raise ValueError(tr("ops_mitotic_source must be rule or classifier; "
+    if source not in ("rule", "classifier", "cell_cycle"):
+        raise ValueError(tr("ops_mitotic_source must be rule, classifier or cell_cycle; "
                             "got {value}", value=source))
     if source == "classifier" and not settings.get("ops_mitotic_model"):
         raise ValueError(tr(
@@ -10892,12 +11173,30 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         split = float(_setting_number(
             settings.get("ops_profile_g1_sg2_split_log2"),
             "ops_profile_g1_sg2_split_log2", 0.30))
-        phases = cell_cycle_phases(cells, dna="_dna_integrated",
-                                   control=control, split_log2=split)["phase"]
-        report["cell_cycle"] = {
-            "split_log2": split, "mitotic_source": source,
-            "fractions": {p: round(float((phases == p).mean()), 4)
-                          for p in CELL_CYCLE_PHASES}}
+        if cycle_method == "measure_fc":
+            from .measure import (_cell_cycle_fit_rows,
+                                  _cell_table_phases_measure_fc)
+
+            called, fits = _cell_table_phases_measure_fc(cells)
+            fine = called["phase"]
+            phases = fine.map(_MEASURE_FC_PROFILE_PHASES)
+            report["cell_cycle"] = {
+                "method": cycle_method, "mitotic_source": source,
+                "fractions": {p: round(float((phases == p).mean()), 4)
+                              for p in CELL_CYCLE_PHASES},
+                "call_fractions": {
+                    p: round(float((fine == p).mean()), 4)
+                    for p in ("G1", "S", "G2", "subG1", ">4N", "M")},
+                "fits": _cell_cycle_fit_rows(fits, "well").to_dict(
+                    orient="records")}
+        else:
+            phases = cell_cycle_phases(cells, dna="_dna_integrated",
+                                       control=control,
+                                       split_log2=split)["phase"]
+            report["cell_cycle"] = {
+                "split_log2": split, "mitotic_source": source,
+                "fractions": {p: round(float((phases == p).mean()), 4)
+                              for p in CELL_CYCLE_PHASES}}
     if cycle:
         frame = pd.concat([cells[["well", "sgRNA", "gene"]].reset_index(drop=True),
                            pd.DataFrame(embedding, columns=pcs)], axis=1)
@@ -11270,8 +11569,9 @@ def run_ops(settings: Mapping[str, Any], *,
         alpha ``"cluster_sweep"`` (item 916, the Leiden resolution sweep),
         ``"etest"`` (item 917, the per-gene E-test and its power curve),
         ``"cluster_consensus"`` (item 928, guide-bootstrap consensus
-        clustering) and ``"cluster_bench_test"`` (item 929, the calibrated
-        consensus test) phases run inside :func:`spacr.ops_tvn.run_profile_phases`. Like the
+        clustering), ``"cluster_bench_test"`` (item 929, the calibrated
+        consensus test) and ``"cluster_maxproj"`` (item 992, max-projection
+        clustering over feature views) phases run inside :func:`spacr.ops_tvn.run_profile_phases`. Like the
         profile path, the flat-field and score phases hold the BLAS and
         OpenMP pools at ``ops_blas_threads`` threads while
         ``ops_deterministic_blas`` is on (the result's ``blas_threads``). With ``ops_layout`` set to
@@ -11322,7 +11622,8 @@ def run_ops(settings: Mapping[str, Any], *,
 
         profile = [phase for phase in phases
                    if phase in ("profile", "evaluate", "cluster_sweep", "etest",
-                                "cluster_consensus", "cluster_bench_test", "voyager3")]
+                                "cluster_consensus", "cluster_bench_test", "cluster_maxproj",
+                                "voyager3")]
         result = run_profile_phases(settings, profile, report=_say) if profile else {}
         atlas = [phase for phase in phases if phase in ("modules", "mitocarta")]
         if atlas:
@@ -11471,6 +11772,22 @@ def run_ops(settings: Mapping[str, Any], *,
         with open(os.path.join(destination, f"ops_flatfield_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["ph_flatfield"], handle, indent=1, default=str)
+    if "ph_flatfield_objects" in phases:
+        if "ph_segment" in phases:
+            for well in chosen:
+                if well not in phenotype_index:
+                    continue
+                os.makedirs(os.path.join(destination, well), exist_ok=True)
+                secondary = _ph_secondary(settings)
+                if secondary and secondary["registration"] != "none":
+                    _ph_secondary_shifts(db, plate, well, phenotype_index[well], settings)
+                _ph_fields(db, plate, well, phenotype_index[well], settings, gpu,
+                           destination, segment=True, measure=False)
+        out["ph_flatfield_objects"] = _ph_flatfield_objects(plate, chosen, phenotype_index,
+                                                            settings, destination)
+        with open(os.path.join(destination, f"ops_flatfield_objects_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["ph_flatfield_objects"], handle, indent=1, default=str)
     archive_root = settings.get("ops_archive_root") or None
     well_phases = [p for p in phases if p not in _PH_PLATE_PHASES
                    and p not in ("decode_qc", "compare_calls")]
@@ -11610,6 +11927,15 @@ def run_ops(settings: Mapping[str, Any], *,
 
         out["archive_plate_done"] = mark_plate_done(str(archive_root), plate,
                                                     chosen)
+    if "ph_cell_cycle" in phases or (settings.get("ops_cell_cycle")
+                                      and "aggregate" in phases):
+        from .ops_cell_cycle import run_cell_cycle_phase
+
+        out["ph_cell_cycle"] = run_cell_cycle_phase(db, plate, chosen, settings,
+                                                    destination)
+        with open(os.path.join(destination, f"ops_ph_cell_cycle_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["ph_cell_cycle"], handle, indent=1, default=str)
     if "aggregate" in phases:
         out["aggregate"] = _ph_aggregate(db, plate, chosen, settings,
                                          destination,

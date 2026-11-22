@@ -40,23 +40,23 @@ def _hub(monkeypatch, inventory):
     return module
 
 
-def test_the_published_tars_come_back_and_nothing_else_does(monkeypatch):
-    """Only ``.tar`` archives; the repo also holds a README and a .gitattributes."""
-    _hub(monkeypatch, lambda repo, **kw: [
-        "README.md", ".gitattributes", "plate1.tar", "crops/plate2.tar",
-        "plate3.tar.sha256",
-    ])
-
-    assert screen_data.published_archives("some/repo") == {
-        "plate1.tar", "crops/plate2.tar",
-    }
-
-
-def test_a_repository_that_publishes_nothing_is_an_empty_set(monkeypatch):
-    """Empty is an ANSWER: the picker greys the rows out and is right to."""
-    _hub(monkeypatch, lambda repo, **kw: ["README.md"])
-
-    assert screen_data.published_archives("some/repo") == set()
+@pytest.mark.parametrize('inventory, expected', [
+    pytest.param(
+        ['README.md', '.gitattributes', 'plate1.tar', 'crops/plate2.tar',
+         'plate3.tar.sha256'],
+        {'plate1.tar', 'crops/plate2.tar'},
+        id='test_the_published_tars_come_back_and_nothing_else_does',
+    ),
+    pytest.param(
+        ['README.md'], set(),
+        id='test_a_repository_that_publishes_nothing_is_an_empty_set',
+    ),
+])
+def test_original_published_archive_inventories_keep_their_result_sets(
+        monkeypatch, inventory, expected):
+    """Preserve each original archive inventory and its native result set."""
+    _hub(monkeypatch, lambda repo, **kw: [*inventory])
+    assert screen_data.published_archives("some/repo") == expected
 
 
 def test_a_hub_that_does_not_answer_is_none_and_not_an_empty_set(monkeypatch):

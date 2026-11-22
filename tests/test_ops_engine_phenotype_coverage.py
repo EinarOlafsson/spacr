@@ -111,7 +111,8 @@ def models(monkeypatch):
     return built
 
 
-SETTINGS = {"ops_ph_channels": "DAPI,AF750", "ops_ph_downsample": 1,
+#: ops_flatfield is set: these runs build no flat-field maps, and the engine default is 'exact'.
+SETTINGS = {"ops_ph_channels": "DAPI,AF750", "ops_ph_downsample": 1, "ops_flatfield": "none",
             "ops_ph_texture": False, "n_workers": 1}
 
 

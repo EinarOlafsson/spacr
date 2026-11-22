@@ -222,24 +222,22 @@ def test_invalid_utf8_is_a_checkpoint_error_and_is_not_overwritten(tmp_path):
     assert path.read_bytes() == b"\xff"
 
 
-def test_a_completed_table_that_is_not_a_table_is_refused(tmp_path):
+@pytest.mark.parametrize('completed, metadata, match', [
+    pytest.param(
+        ['f1'], {}, 'completed-unit table',
+        id='test_a_completed_table_that_is_not_a_table_is_refused',
+    ),
+    pytest.param(
+        {}, 'round two', 'invalid workflow metadata',
+        id='test_workflow_metadata_that_is_not_a_mapping_is_refused',
+    ),
+])
+def test_original_malformed_checkpoint_mappings_keep_their_refusals(tmp_path, completed, metadata, match):
+    """Preserve each original malformed checkpoint mapping and its refusal."""
     path = tmp_path / "run.json"
-    _write(path, {"version": cp.CHECKPOINT_VERSION, "workflow": "w",
-                  "signature": "x" * 64, "boundary": "field",
-                  "completed": ["f1"], "meta": {}})
-    with pytest.raises(cp.CheckpointError, match="completed-unit table"):
-        cp.CheckpointStore(path, workflow="w", signature="x" * 64,
-                           boundary="field", resume=True)
-
-
-def test_workflow_metadata_that_is_not_a_mapping_is_refused(tmp_path):
-    path = tmp_path / "run.json"
-    _write(path, {"version": cp.CHECKPOINT_VERSION, "workflow": "w",
-                  "signature": "x" * 64, "boundary": "field",
-                  "completed": {}, "meta": "round two"})
-    with pytest.raises(cp.CheckpointError, match="invalid workflow metadata"):
-        cp.CheckpointStore(path, workflow="w", signature="x" * 64,
-                           boundary="field", resume=True)
+    _write(path, {"version": cp.CHECKPOINT_VERSION, "workflow": "w", "signature": "x" * 64, "boundary": "field", "completed": completed, "meta": metadata})
+    with pytest.raises(cp.CheckpointError, match=match):
+        cp.CheckpointStore(path, workflow="w", signature="x" * 64, boundary="field", resume=True)
 
 
 # --------------------------------------------------------------------------

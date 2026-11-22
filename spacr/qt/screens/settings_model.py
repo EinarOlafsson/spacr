@@ -2327,7 +2327,7 @@ _APP_CATEGORY_PARENTS["measure"] = {
         "Intensity Calibration α",
         "Plate Barcode Linkage α")},
     **{title: "Features" for title in (
-        "Confluency α", "Cell Cycle α", "Wound Closure α", "Viability α",
+        "Vacuoles α", "Confluency α", "Cell Cycle α", "Wound Closure α", "Viability α",
         "CellProfiler α", "GPU Measurement α", "Time To Event α")},
     **{title: "Postprocessing" for title in (
         "Runtime & Reliability", "GPU Memory α", "Profiling α",
@@ -2366,12 +2366,12 @@ _APP_CATEGORY_PARENTS["ops"] = {
         "Field alignment", "Cell ownership", "Yield report")},
     **{title: "OPS aggregate" for title in (
         "Pooling & normalisation", "Gene tests & hits",
-        "Cell cycle & mitosis", "Penetrance, escapers & neighbours",
+        "Cell cycle & mitosis", "Cell-cycle stages", "Penetrance, escapers & neighbours",
         "Profile weighting & shrinkage", "Profile run", "Energy-distance test",
         "Power simulation")},
     **{title: "OPS cluster" for title in (
         "Cluster benchmark", "Resolution sweep", "Consensus clustering",
-        "Consensus inputs", "Calibrated cluster test",
+        "Consensus inputs", "Calibrated cluster test", "Max-projection clustering",
         "Module atlas & MitoCarta", "Voyager3 cluster annotation")},
     **{title: "OPS evaluation" for title in (
         "Profile scoring", "Scoring references", "Reference evaluation")},
@@ -3168,6 +3168,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How mitotic cells are called, whether profiles are split by "
         "cell-cycle phase, the per-phase gene tests, and the mitotic-index "
         "test against a published table.",
+    "CELL-CYCLE STAGES":
+        "The ops_cell_cycle option: each cell's stage, probability and flag "
+        "from a model and the DNA-content fit, the model it starts from, the "
+        "user's labels that refit and verify it, and its self-checks.",
     "PENETRANCE, ESCAPERS & NEIGHBOURS":
         "Per-gene penetrance, genes whose cells split into responders and "
         "escapers, and the effect of a knockout on its unperturbed "
@@ -3209,6 +3213,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "The cluster_bench_test phase: paired replicates, the jitter gate "
         "that calibrates it, the test level and margin, the reference half "
         "and the size-matched null.",
+    "MAX-PROJECTION CLUSTERING":
+        "The cluster_maxproj phase: the views file and its tables, each "
+        "view's similarity and permutation null, the max-statistic null, "
+        "the projected graph and its Leiden sweep, and the optional "
+        "consensus.",
     "MODULE ATLAS & MITOCARTA":
         "The modules phase, which clusters gene profiles into a module "
         "atlas, and the mitocarta phase, which scores clusterings against "

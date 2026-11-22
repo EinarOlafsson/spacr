@@ -56,7 +56,7 @@ class StoreError(ValueError):
 #: phenotype measurement pass has to read as an undeclared file beside the
 #: database.
 OPS_TABLES = ("ops_geometry", "ops_phenotype", "ops_objects", "ops_reads",
-              "ops_barcodes", "ops_merge")
+              "ops_barcodes", "ops_merge", "ops_cell_cycle", "ops_cell_cycle_checks")
 
 #: The two that also get a parquet sidecar. 372 names these specifically --
 #: they are "the wide numeric tables where a columnar scan is worth an order

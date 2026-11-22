@@ -93,11 +93,20 @@ class TestTheColumnComesFromTheClasses:
     """`metadata_type_by` named the column a class is defined by, which is
     the Classes editor's own column field."""
 
-    def test_it_is_read_off_classes(self):
+    @pytest.mark.parametrize('options, expected', [
+        pytest.param(
+            {'classes': {'pc': {'column': 'rowID', 'value': 'r2'}}}, 'rowID',
+            id='test_it_is_read_off_classes',
+        ),
+        pytest.param(
+            {}, 'columnID',
+            id='test_the_default_is_what_it_always_was',
+        ),
+    ])
+    def test_original_class_mappings_keep_their_column_strings(self, options, expected):
+        """Preserve each original class-column mapping and its string result."""
         from spacr.io import _class_column
-
-        assert _class_column(
-            {"classes": {"pc": {"column": "rowID", "value": "r2"}}}) == "rowID"
+        assert _class_column(options) == expected
 
     def test_an_old_key_still_wins(self):
         """A CSV written before the removal runs unchanged."""
@@ -108,11 +117,6 @@ class TestTheColumnComesFromTheClasses:
             "metadata_type_by": "condition",
             "classes": {"pc": {"column": "rowID", "value": "r2"}},
         }) == "condition"
-
-    def test_the_default_is_what_it_always_was(self):
-        from spacr.io import _class_column
-
-        assert _class_column({}) == "columnID"
 
 
 class TestTheSampleRename:

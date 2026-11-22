@@ -4775,6 +4775,167 @@ def _ngff06_runtime_sources(tree: ast.Module, owners: set[str]) -> set[str]:
     return found
 
 
+def _unknown_settings_runtime_sources() -> set[str]:
+    """Return the three settings-file notices from their exact CLI owners."""
+    path = ROOT / "spacr" / "cli.py"
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except SyntaxError:
+        return set()
+    prefixes = {
+        "_report_unknown_keys": "Unknown setting '",
+        "_unknown_setting_fix": "Remove it from the settings file,",
+    }
+    found: set[str] = set()
+    for owner in tree.body:
+        if not (isinstance(owner, ast.FunctionDef) and owner.name in prefixes):
+            continue
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+                continue
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name) and node.func.id == "tr"):
+                text = _literal(node.args[0])
+                if (text is not None and text.startswith(prefixes[owner.name])
+                        and _looks_translatable(text)):
+                    found.add(text.strip())
+            pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
+def _ops_profile_cell_cycle_method_sources(tree: ast.Module) -> set[str]:
+    """Return only the field-centred profile refusal from its top-level owner."""
+    caption = ("ops_profile_cell_cycle_method must be empty or "
+               "measure_fc; got {value}")
+    found: set[str] = set()
+    for owner in tree.body:
+        if not (isinstance(owner, ast.FunctionDef)
+                and owner.name == "_ph_profile_options"):
+            continue
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+                continue
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name) and node.func.id == "tr"
+                    and _literal(node.args[0]) == caption):
+                found.add(caption)
+            pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
+def _ops_cell_cycle_runtime_sources() -> set[str]:
+    """Return the two cell-cycle refusals from their exact engine owners."""
+    path = ROOT / "spacr" / "ops_engine.py"
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except SyntaxError:
+        return set()
+    prefixes = {
+        "_ph_aggregate": "ops_mitotic_source cell_cycle needs ",
+        "_ph_profile_options": "ops_mitotic_source must be ",
+    }
+    found: set[str] = set()
+    for owner in tree.body:
+        if not (isinstance(owner, ast.FunctionDef)
+                and owner.name in prefixes):
+            continue
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+                continue
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id == "tr"):
+                text = _literal(node.args[0])
+                if (text is not None and _looks_translatable(text)
+                        and text.startswith(prefixes[owner.name])):
+                    found.add(text.strip())
+            pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
+def _flatfield_fit_runtime_sources(tree: ast.Module, owners: set[str]) -> set[str]:
+    """Return direct flat-field captions from their declared top-level owners.
+
+    :param tree: parsed backend module, without importing runtime code.
+    :param owners: functions that own the per-channel flat-field messages.
+    :returns: literal captions, excluding nested definitions and unrelated calls.
+    """
+    found: set[str] = set()
+    for owner in tree.body:
+        if not isinstance(owner, ast.FunctionDef) or owner.name not in owners:
+            continue
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef,
+                                 ast.ClassDef, ast.Lambda)):
+                continue
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name) and node.func.id == "tr"):
+                source = _literal(node.args[0])
+                if isinstance(source, str) and _looks_translatable(source):
+                    found.add(source.strip())
+            pending.extend(ast.iter_child_nodes(node))
+    return found
+
+
+def _cpg_measure_runtime_sources(tree: ast.Module) -> set[str]:
+    """Return painting-frame messages from their module constants and owners."""
+    owners = {
+        "painting_frame_mode": {"_UNKNOWN_MODE", "_UNKNOWN_FRAME", "_GUARD",
+                                "_PAINTING_MASKS"},
+        "site_painting_shift": {"_NO_RECORD"},
+        "_site_masks": {"_NO_MASKS"},
+        "run_cpg_measure": {"_NO_DESTINATION", "_SHAPES"},
+    }
+    constants = {
+        node.targets[0].id: _literal(node.value)
+        for node in tree.body
+        if isinstance(node, ast.Assign) and len(node.targets) == 1
+        and isinstance(node.targets[0], ast.Name)
+    }
+    found: set[str] = set()
+    for owner in tree.body:
+        if not isinstance(owner, ast.FunctionDef) or owner.name not in owners:
+            continue
+        shadowed = {node.arg for node in ast.walk(owner.args)
+                    if isinstance(node, ast.arg)}
+        referenced: set[str] = set()
+        pending = list(owner.body)
+        while pending:
+            node = pending.pop()
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                shadowed.add(node.name)
+                continue
+            if isinstance(node, ast.Lambda):
+                continue
+            if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+                shadowed.add(node.id)
+            if isinstance(node, (ast.Import, ast.ImportFrom)):
+                shadowed.update(alias.asname or alias.name.split(".")[0]
+                                for alias in node.names)
+            if (isinstance(node, ast.Call) and node.args
+                    and isinstance(node.func, ast.Name) and node.func.id == "tr"
+                    and isinstance(node.args[0], ast.Name)
+                    and node.args[0].id in owners[owner.name]):
+                referenced.add(node.args[0].id)
+            pending.extend(ast.iter_child_nodes(node))
+        for name in referenced - shadowed:
+            value = constants.get(name)
+            if value is not None and _looks_translatable(value):
+                found.add(value.strip())
+    return found
+
+
 def extract_static_ui_sources() -> tuple[str, ...]:
     """Return literal spaCR-owned Qt presentation strings from the AST."""
     # Compact-catalog ownership is registered lazily by the screens that own
@@ -4823,6 +4984,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "regression_failure.py")
     paths.add(ROOT / "spacr" / "ml.py")
     paths.add(ROOT / "spacr" / "power_model.py")
+    paths.add(ROOT / "spacr" / "ops_mitotic.py")
     paths.add(ROOT / "spacr" / "gene_measurement_compare.py")
     paths.add(ROOT / "spacr" / "ops_prefix.py")
     paths.add(ROOT / "spacr" / "_mask_array_batches.py")
@@ -4835,6 +4997,10 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "crop_store.py")
     paths.add(ROOT / "spacr" / "crops.py")
     paths.add(ROOT / "spacr" / "ops_engine.py")
+    paths.add(ROOT / "spacr" / "ops_flatfield.py")
+    # Item 990: the OPS cell-cycle option's refusals, report text and Home job go through tr().
+    paths.add(ROOT / "spacr" / "ops_cell_cycle.py")
+    paths.add(ROOT / "spacr" / "cpg_measure.py")
     paths.add(ROOT / "spacr" / "ome_zarr.py")
     paths.add(ROOT / "spacr" / "image_store.py")
     source_root = ROOT / "spacr"
@@ -4845,6 +5011,18 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         try:
             tree = ast.parse(path.read_text(encoding="utf-8"))
         except SyntaxError:
+            continue
+        if path == source_root / "ops_engine.py":
+            # 995's and 1006's owners are read here; the file then goes on to the
+            # crop owners below (train 7), which a `continue` here skipped.
+            found.update(_ops_profile_cell_cycle_method_sources(tree))
+            found.update(_flatfield_fit_runtime_sources(
+                tree, {"_ph_channel_fits", "_ph_object_fields", "_ph_flatfield_objects"}))
+        if path == source_root / "ops_flatfield.py":
+            found.update(_flatfield_fit_runtime_sources(tree, {"load_flat_maps"}))
+            continue
+        if path == source_root / "cpg_measure.py":
+            found.update(_cpg_measure_runtime_sources(tree))
             continue
         if path == source_root / "ome_zarr.py":
             found.update(_ngff06_runtime_sources(tree, {
@@ -4975,6 +5153,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                              "_measurement_channel_names", "_granularity_frames",
                              "_promote_merged_to_uint16", "_measure_field_confluency",
                              "_fit_dna_content", "_fucci_states",
+                             "_cell_cycle_fit_groups", "_cell_table_phases_measure_fc",
+                             "_phases_by_centred_measurements", "_external_mitotic_call",
                              "_resolve_cell_cycle_methods", "_wound_condition_lookup",
                              "_well_roles", "_read_plate_map", "_classify_viability",
                              "_checked_intensity", "_checked_label",
@@ -5240,6 +5420,9 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                 for value in _literal_strings(argument, constants):
                     if _looks_translatable(value):
                         found.add(value.strip())
+
+    found.update(_ops_cell_cycle_runtime_sources())
+    found.update(_unknown_settings_runtime_sources())
 
     # These shared tables are applied indirectly after widget construction,
     # so no literal text-setting call points back to their values in the AST.

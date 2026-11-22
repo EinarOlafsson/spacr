@@ -1,0 +1,217 @@
+{
+  "base": "04ec46d3705a6f116c3a725163c4f62a388b9896",
+  "changed_file": "tests/test_every_measurement_in_the_database_is_offered.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_prcfo_is_used_when_it_is_there": "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_original_object_key_columns_keep_their_ordered_identities[test_prcfo_is_used_when_it_is_there]",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_prc_and_a_field_will_do": "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_original_object_key_columns_keep_their_ordered_identities[test_prc_and_a_field_will_do]"
+  },
+  "literal_class_case_contracts": {
+    "test_prcfo_is_used_when_it_is_there": [
+      {
+        "prcfo": [
+          "a_b_c_1_5"
+        ],
+        "label": [
+          "9"
+        ]
+      },
+      [
+        "a_b_c_1_5"
+      ]
+    ],
+    "test_prc_and_a_field_will_do": [
+      {
+        "prc": [
+          "plate1_A_01"
+        ],
+        "fieldID": [
+          "1"
+        ],
+        "object_label": [
+          "7"
+        ]
+      },
+      [
+        "plate1_A_01_1_7"
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_prcfo_is_used_when_it_is_there": "({'prcfo': ['a_b_c_1_5'], 'label': ['9']}, ['a_b_c_1_5'])",
+    "test_prc_and_a_field_will_do": "({'prc': ['plate1_A_01'], 'fieldID': ['1'], 'object_label': ['7']}, ['plate1_A_01_1_7'])"
+  },
+  "contract_scope": "Exact original TestAnObjectIsIdentifiedTheSameWayOnBothSides class/self scope, ordered string column dictionaries including prcfo/label or prc/fieldID/object_label, fresh pd.DataFrame/frame assignment, object_identity call and native list conversion/ordered string-list equality retained. Every other original class/method/import/helper/fixture/label-spelling/SQLite-join/index/measurement-detection case retains AST and relative order.",
+  "collected_before": [
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_an_unmatched_row_is_counted_out_loud",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_rows_with_no_identity_say_so",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_two_databases_are_both_read",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_a_repeated_index_does_not_multiply_the_rows",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_the_columns_the_montage_selected_on_are_not_replaced",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_the_values_land_on_the_right_cells",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_the_columns_arrive",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_the_index_is_untouched",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_an_unreadable_database_is_a_sentence_not_a_traceback",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestThePanelCanTellWhetherItNeedsTheJoin::test_png_list_rows_are_not_joined",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestThePanelCanTellWhetherItNeedsTheJoin::test_joined_rows_are",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestThePanelCanTellWhetherItNeedsTheJoin::test_an_id_column_is_not_a_measurement",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_prcfo_is_used_when_it_is_there",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_no_label_is_none",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_every_label_spelling_is_read",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_prc_and_a_field_will_do",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_it_is_composed_from_prcf_and_a_label",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_no_well_is_none"
+  ],
+  "collected_after": [
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_original_object_key_columns_keep_their_ordered_identities[test_prc_and_a_field_will_do]",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_no_label_is_none",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_original_object_key_columns_keep_their_ordered_identities[test_prcfo_is_used_when_it_is_there]",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_every_label_spelling_is_read",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_no_well_is_none",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_it_is_composed_from_prcf_and_a_label",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestThePanelCanTellWhetherItNeedsTheJoin::test_png_list_rows_are_not_joined",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestThePanelCanTellWhetherItNeedsTheJoin::test_an_id_column_is_not_a_measurement",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestThePanelCanTellWhetherItNeedsTheJoin::test_joined_rows_are",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_an_unmatched_row_is_counted_out_loud",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_the_columns_the_montage_selected_on_are_not_replaced",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_two_databases_are_both_read",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_a_repeated_index_does_not_multiply_the_rows",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_an_unreadable_database_is_a_sentence_not_a_traceback",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_the_columns_arrive",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_the_values_land_on_the_right_cells",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_the_index_is_untouched",
+    "tests/test_every_measurement_in_the_database_is_offered.py::TestTheJoinBringsTheMeasurementsAcross::test_rows_with_no_identity_say_so"
+  ],
+  "tests_before": {
+    "passed": 18,
+    "seconds": 11.73
+  },
+  "tests_after": {
+    "passed": 18,
+    "seconds": 11.3
+  },
+  "coverage_scope": "spacr.gene_measurement_compare under the complete selected object-identity/SQLite-join/index/measurement-detection module; not full-suite coverage. Existing small DataFrames and 12-row local SQLite fixtures only. Tests do not open the placeholder PNG paths or construct the comparison panel. No source-image loading, chart rendering, model fitting, new reader, network or GPU work. Production settings names/defaults/schema/categories unchanged.",
+  "coverage_before": {
+    "covered_lines": 245,
+    "num_statements": 2751,
+    "percent_covered": 7.446512920255627,
+    "percent_covered_display": "7",
+    "missing_lines": 2506,
+    "excluded_lines": 0,
+    "percent_statements_covered": 8.9058524173028,
+    "percent_statements_covered_display": "9",
+    "num_branches": 848,
+    "num_partial_branches": 7,
+    "covered_branches": 23,
+    "missing_branches": 825,
+    "percent_branches_covered": 2.7122641509433962,
+    "percent_branches_covered_display": "3"
+  },
+  "coverage_after": {
+    "covered_lines": 245,
+    "num_statements": 2751,
+    "percent_covered": 7.446512920255627,
+    "percent_covered_display": "7",
+    "missing_lines": 2506,
+    "excluded_lines": 0,
+    "percent_statements_covered": 8.9058524173028,
+    "percent_statements_covered_display": "9",
+    "num_branches": 848,
+    "num_partial_branches": 7,
+    "covered_branches": 23,
+    "missing_branches": 825,
+    "percent_branches_covered": 2.7122641509433962,
+    "percent_branches_covered_display": "3"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "94c22faaa184b0468202b7a6eeaf7c7b07267a1ff7184cd8dd6744e0005bbd6c",
+  "production_source_sha256": "1aa92a07e7f307fac319a67b2b32896cf1ce1ec08a931f729875e061b6436fec",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "existing-object-key-replaced-by-label",
+      "source_variant": {
+        "path": "spacr/gene_measurement_compare.py",
+        "line": 815,
+        "old": "return frame[\"prcfo\"].astype(str)",
+        "new": "return frame[\"label\"].astype(str)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_prcfo_is_used_when_it_is_there"
+        ],
+        "failure_summary_lines": [
+          "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_prcfo_is_used_when_it_is_there"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_original_object_key_columns_keep_their_ordered_identities[test_prcfo_is_used_when_it_is_there]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_original_object_key_columns_keep_their_ordered_identities[test_prcfo_is_used_when_it_is_there]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "field-component-omitted",
+      "source_variant": {
+        "path": "spacr/gene_measurement_compare.py",
+        "line": 822,
+        "old": "head = frame[\"prc\"].astype(str) + \"_\" + frame[\"fieldID\"].astype(str)",
+        "new": "head = frame[\"prc\"].astype(str)"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_prc_and_a_field_will_do"
+        ],
+        "failure_summary_lines": [
+          "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_prc_and_a_field_will_do"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_original_object_key_columns_keep_their_ordered_identities[test_prc_and_a_field_will_do]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_every_measurement_in_the_database_is_offered.py::TestAnObjectIsIdentifiedTheSameWayOnBothSides::test_original_object_key_columns_keep_their_ordered_identities[test_prc_and_a_field_will_do]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in object_identity before and after: use the label instead of an existing prcfo key; omit fieldID from a prc-plus-field identity. Each fault selects the same one original/mapped class method before/after and must fail with AssertionError from unchanged native ordered-list equality. Exact record/key order, string input/result types, fresh DataFrame and native list conversion retained. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_every_measurement_in_the_database_is_offered.py",
+      "line": 89,
+      "symbol": "test_original_object_key_columns_keep_their_ordered_identities",
+      "new": "Preserve each original object-key table and its ordered string identities.",
+      "old": {
+        "test_prcfo_is_used_when_it_is_there": null,
+        "test_prc_and_a_field_will_do": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

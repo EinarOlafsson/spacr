@@ -2620,6 +2620,30 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in preflight_arrivals} == preflight_arrivals
     assert not preflight_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **preflight_arrivals}
+    maxproj_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "992_ops_maxproj_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert len(maxproj_arrivals) == 14
+    assert {key: docs[key] for key in maxproj_arrivals} == maxproj_arrivals
+    assert not maxproj_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **maxproj_arrivals}
+    cell_cycle_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "990_ops_cell_cycle_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert len(cell_cycle_arrivals) == 20
+    assert {key: docs[key] for key in cell_cycle_arrivals} == cell_cycle_arrivals
+    assert not cell_cycle_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **cell_cycle_arrivals}
+    channel_fit_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert len(channel_fit_arrivals) == 4
+    assert {key: docs[key] for key in channel_fit_arrivals} == channel_fit_arrivals
+    assert not channel_fit_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **channel_fit_arrivals}
+    cpg_measure_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "998_cpg_measure_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert len(cpg_measure_arrivals) == 9
+    assert {key: docs[key] for key in cpg_measure_arrivals} == cpg_measure_arrivals
+    assert not cpg_measure_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **cpg_measure_arrivals}
     ome_zarr_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
     from tests.test_documentation_i18n import _current_1007_ome_zarr_api
@@ -2644,6 +2668,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         / "data/release_contracts" / "w_mask_tracing_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
     assert set(mask_tracing_w_arrivals) == {"spacr._mask_tracing"}
     assert {key: docs[key] for key in mask_tracing_w_arrivals} == mask_tracing_w_arrivals
+    unknown_keys_1002_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1002_settings_unknown_keys_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert set(unknown_keys_1002_arrivals) == {"spacr.settings.unknown_setting_keys"}
+    assert {key: docs[key] for key in unknown_keys_1002_arrivals} == unknown_keys_1002_arrivals
+    assert not unknown_keys_1002_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **unknown_keys_1002_arrivals}
     assert not mask_tracing_w_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **mask_tracing_w_arrivals}
     ngff06_arrivals = json.loads((Path(__file__).resolve().parent

@@ -3962,6 +3962,65 @@ def _validated_ome_zarr_convert_985_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_ops_maxproj_992_callables(callables):
+    """Check the public callables of item 992 (max-projection clustering, spacr.ops_maxproj) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "992_ops_maxproj_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    names = ("calibrate_view", "cell_bins", "cluster_maxproj_phase", "label_clusters_by_view",
+             "max_null_pvalues", "max_projection", "maxproj_scores", "pair_bins", "permuted_rows",
+             "projected_graph", "projected_rows_graph", "read_views", "view_similarity")
+    assert set(entries) == {"spacr.ops_maxproj"} | {f"spacr.ops_maxproj.{n}" for n in names}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == {f"spacr.ops_maxproj.{n}" for n in names}
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_ops_cell_cycle_990_callables(callables):
+    """Check the public callables of item 990 (the OPS cell-cycle option, spacr.ops_cell_cycle) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "990_ops_cell_cycle_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    names = ('build_label_queue', 'collapse_stage', 'collect_label_queue', 'failed_stages', 'final_stages', 'fine_tune', 'finish_label_job', 'load_cell_cycle_checkpoint', 'open_label_job', 'predict_stages', 'read_cell_cycle_labels', 'run_cell_cycle_phase', 'save_cell_cycle_checkpoint', 'screen_collapses', 'self_checks', 'track_label_job', 'train_cell_cycle_model', 'verified_stages', 'write_label_queue')
+    assert set(entries) == {"spacr.ops_cell_cycle"} | {f"spacr.ops_cell_cycle.{n}" for n in names}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == {f"spacr.ops_cell_cycle.{n}" for n in names}
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_ops_flatfield_channel_fit_1006_callables(callables):
+    """Check the public callables of item 1006 (per-channel OPS flat-field fits) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    names = ('complete_pending_flat', 'field_object_means', 'flat_peak', 'mark_pending')
+    assert set(entries) == {f"spacr.ops_flatfield.{n}" for n in names}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_ops_power_sim_968_callables(callables):
     """Check the public callables of item 968 (the OPS power simulation) against their source."""
     import json
@@ -3973,6 +4032,24 @@ def _validated_ops_power_sim_968_callables(callables):
     assert all(symbol.split(".")[:2] == ["spacr", "power_ops"] for symbol in entries)
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert len(found) == 10
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_cpg_measure_998_callables(callables):
+    """Check the public callables of item 998 (PERISCOPE painting features in the mask frame) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "998_cpg_measure_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    assert len(entries) == 9 and "spacr.cpg_measure" in entries
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys() - {"spacr.cpg_measure"}
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters
@@ -4233,6 +4310,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_codex_issues_1119_callables(callables)
     callables = _validated_ome_zarr_983_callables(callables)
     callables = _validated_ome_zarr_convert_985_callables(callables)
+    callables = _validated_ops_maxproj_992_callables(callables)
+    callables = _validated_ops_cell_cycle_990_callables(callables)
+    callables = _validated_ops_flatfield_channel_fit_1006_callables(callables)
+    callables = _validated_cpg_measure_998_callables(callables)
     callables = _validated_ome_zarr_ngff06_1007_callables(callables)
     callables = _validated_measure_blocks_1008a_callables(callables)
     callables = _validated_ome_zarr_registration_1007c_callables(callables)
@@ -5094,7 +5175,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # of the paper items' public callables, which
     # _validated_bmc_paper_items_callables checks against the arrival
     # contract 871_911_bmc_paper_items_api_arrivals_2026-11-09.json.
-    assert len(callables) == len(by_symbol) == 10062
+    # 2026-11-21, item 1002: +1, spacr.settings.unknown_setting_keys (arrival
+    # contract 1002_settings_unknown_keys_api_arrivals_2026-11-20.json).
+    assert len(callables) == len(by_symbol) == 10063
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -5191,7 +5274,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # the rest of the BMC paper items' public callables, which the
         # arrival contract 871_911_bmc_paper_items_api_arrivals_2026-11-09.json
         # checks (-32 function, -1 method, -1 constructor).
-        "function": 4524,
+        "function": 4525,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         # Items 591-592: +2 method (the object grid's filter rows and the
@@ -5295,7 +5378,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3 autoapi, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17 autoapi, the functions named in the total.
         # 2026-11-06 item 773: +1 autoapi, IlluminationField.correct_window.
-        "autoapi": 10057,
+        "autoapi": 10058,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -5361,7 +5444,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     # 2026-11-05 items 791, 770, 771: +17, one variant each: sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, and the fourteen spacr.division_analysis functions.
     # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-    assert sum(item.variant_count for item in callables) == 10069
+    # 2026-11-21 item 1002: +1, spacr.settings.unknown_setting_keys.
+    assert sum(item.variant_count for item in callables) == 10070
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -5391,7 +5475,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
         # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-        1: 10055,
+        1: 10056,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -5753,7 +5837,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-21 (1007 lane C): PlateWriter gains optional registration,
     # checked by the 983/C arrival binding above and projected out of this
     # inventory. The measured public parameter sum stays at 20,273.
-    assert sum(len(item.parameters) for item in callables) == 20273
+    # 20,273 -> 20,276 on 2026-11-22 (pilot on landing train 8): item 1002's `strict` of
+    # spacr.cli.resolve_settings and `settings`, `app` of spacr.settings.unknown_setting_keys.
+    assert sum(len(item.parameters) for item in callables) == 20276
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5818,7 +5904,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-07 item 772: 10,377 -> 10,372, -5 required: CustomCellClassifier's
     # num_classes, pathogen_channel, use_attention, use_checkpoint and
     # dropout_rate now have defaults (model_type='custom').
-    assert sum(len(item.required_parameters) for item in callables) == 10372
+    # 10,372 -> 10,373 on 2026-11-21 (item 1002): `settings` of spacr.settings.unknown_setting_keys has no default.
+    assert sum(len(item.required_parameters) for item in callables) == 10373
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -5866,6 +5953,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-19 (was 6e569df7...): CustomCellClassifier drops its three
     # ignored optional parameters under rule 41, the parameter total above
     # moves by the same three and the required total does not.
+    # Moved 2026-11-21 (was 361a1012...): item 1002 adds spacr.settings.unknown_setting_keys and the optional `strict` of spacr.cli.resolve_settings.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -6119,7 +6207,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-21 lane C: optional PlateWriter registration is checked by
     # the 983/C arrival binding and projected out above; the measured
     # signature digest stays unchanged (public-inventory test verified).
-) == 'd2d9fcfe2231caa28395d681abbdc7378b3993b629d265660674e570decf6bba'
+    # Moved 2026-11-22 for the pilot on landing train 8 (was d2d9fcfe...): item
+    # 1002's `strict` of spacr.cli.resolve_settings and spacr.settings.unknown_setting_keys
+    # join the 1007 lane A parameters above.
+) == '565ced552919061ecaa98b3dc32e09bc557fbc13c773571df4325b1c95cb27bd'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -7059,10 +7150,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("961_ops_insitu_api_arrivals_2026-11-17.json", 1),
         ("987b_mask_batches_api_arrivals_2026-11-20.json", 1),
         ("993_cli_preflight_reporting_api_arrivals_2026-11-20.json", 1),
+        ("992_ops_maxproj_api_arrivals_2026-11-20.json", 14),
+        ("990_ops_cell_cycle_api_arrivals_2026-11-21.json", 20),
+        ("1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json", 4),
+        ("998_cpg_measure_api_arrivals_2026-11-20.json", 9),
         ("983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json", 49),
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
+        ("1002_settings_unknown_keys_api_arrivals_2026-11-20.json", 1),
         ("1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json", 3),
         ("1008a_measure_block_families_api_arrivals_2026-11-21.json", 1),
         ("1007c_ome_zarr_registration_api_arrivals_2026-11-21.json", 2),
@@ -7704,11 +7800,16 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
                      "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
+                     "992_ops_maxproj_api_arrivals_2026-11-20.json",
+                     "990_ops_cell_cycle_api_arrivals_2026-11-21.json",
+                     "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json",
+                     "998_cpg_measure_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
                      "w_mask_tracing_api_arrivals_2026-11-20.json",
+                     "1002_settings_unknown_keys_api_arrivals_2026-11-20.json",
                      "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json",
                      "1008a_measure_block_families_api_arrivals_2026-11-21.json",
                      "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json",
@@ -7875,11 +7976,16 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "codex_issues_1119_api_arrivals_2026-11-19.json",
                      "987b_mask_batches_api_arrivals_2026-11-20.json",
                      "993_cli_preflight_reporting_api_arrivals_2026-11-20.json",
+                     "992_ops_maxproj_api_arrivals_2026-11-20.json",
+                     "990_ops_cell_cycle_api_arrivals_2026-11-21.json",
+                     "1006_ops_flatfield_channel_fit_api_arrivals_2026-11-21.json",
+                     "998_cpg_measure_api_arrivals_2026-11-20.json",
                      "cachepos_ops_field_cache_api_arrivals_2026-11-20.json",
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
                      "w_mask_tracing_api_arrivals_2026-11-20.json",
+                     "1002_settings_unknown_keys_api_arrivals_2026-11-20.json",
                      "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json",
                      "1008a_measure_block_families_api_arrivals_2026-11-21.json",
                      "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json",

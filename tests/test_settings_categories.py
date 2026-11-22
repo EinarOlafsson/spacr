@@ -802,6 +802,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 967 (2026-11-17): the spacer-prefix cell call ignores minority
     # stray barcodes.
     "ops_prefix_minority_min_reads",
+    # Item 995 (2026-11-20): field centring, a per-well fit and an external
+    # mitotic call for Measure's DNA-content cell-cycle fit, and its OPS
+    # profile method.
+    "cell_cycle_field_centre",
+    "cell_cycle_field_min_cells",
+    "cell_cycle_fit_group",
+    "cell_cycle_mitotic_column",
+    "ops_profile_cell_cycle_method",
     # Item 988 (2026-11-18): distance-aware read weights, the neighbour-bleed
     # discount and the multi-guide table in the guide call.
     "ops_read_distance_weight",
@@ -823,6 +831,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_tuning_min_sites",
     # Item 919 frame fix (2026-11-19): painting-frame labels onto the sequencing frame.
     "ops_prefix_masks_frame", "cpg_align_source", "cpg_align_table",
+    # Item 998 (2026-11-20): painting images moved into the mask frame.
+    "cpg_painting_frame_shift",
     # Item 955 (2026-11-16): the matched-FDR sweep of prefix decodes.
     "ops_fdr_sweep_targets",
     "ops_fdr_sweep_max_distance",
@@ -946,6 +956,39 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_consensus_workers",
     "ops_consensus_cells",
     "ops_consensus_view_columns",
+    "ops_maxproj_enabled",
+    "ops_maxproj_rows",
+    "ops_maxproj_guides",
+    "ops_maxproj_views",
+    "ops_maxproj_pca_variance",
+    "ops_maxproj_similarity",
+    "ops_maxproj_bins",
+    "ops_maxproj_calibration_permutations",
+    "ops_maxproj_null_permutations",
+    "ops_maxproj_seed",
+    "ops_maxproj_graph",
+    "ops_maxproj_knn",
+    "ops_maxproj_edge_p",
+    "ops_maxproj_resolutions",
+    "ops_maxproj_leiden_seeds",
+    "ops_maxproj_k",
+    "ops_maxproj_consensus",
+    "ops_maxproj_save_views",
+    "ops_maxproj_workers",
+    "ops_cell_cycle",
+    "ops_cell_cycle_model_family",
+    "ops_cell_cycle_tabular",
+    "ops_cell_cycle_base_model",
+    "ops_cell_cycle_finetune",
+    "ops_cell_cycle_dna_channel",
+    "ops_cell_cycle_mt_channel",
+    "ops_cell_cycle_arrest_genes",
+    "ops_cell_cycle_labels",
+    "ops_cell_cycle_label_queue",
+    "ops_cell_cycle_seed",
+    "ops_flatfield_channel_fit",
+    "ops_flatfield_nuclear_stains",
+    "ops_flatfield_object_fields",
     "ops_consensus_guides",
     "ops_bench_replicates",
     "ops_bench_replicate_seed",

@@ -195,6 +195,11 @@ def test_the_engine_reads_every_setting_the_panel_offers(declared):
     # 973: the voyager3 phase reads the ops_voyager3_* settings in voyager3.
     # 961: the prefix decode reads its in situ settings in ops_insitu.
     from spacr import ops_insitu
+    # 998: the cpg_measure phase reads cpg_painting_frame_shift in cpg_measure.
+    from spacr import cpg_measure
+    # 990: the cell-cycle phase reads the ops_cell_cycle_* settings in ops_cell_cycle.
+    # 992: the maxproj phase reads the ops_maxproj_* settings in ops_maxproj.
+    from spacr import ops_cell_cycle, ops_maxproj
 
     # 960: the prefix_grid_search phase reads the ops_grid_* settings in
     # ops_grid_search.
@@ -207,6 +212,7 @@ def test_the_engine_reads_every_setting_the_panel_offers(declared):
                                ops_flatfield, ops_scoring,
                                gene_measurement_compare, cpg_cropped,
                                ops_prefix, voyager3, ops_grid_search, power_ops,
-                               ops_feature_info, ops_insitu))
+                               ops_feature_info, ops_insitu, cpg_measure,
+                               ops_cell_cycle, ops_maxproj))
     unread = sorted(key for key in keys if f'"{key}"' not in source)
     assert not unread, f"in the OPS panel and never read by the engine: {unread}"

@@ -75,19 +75,23 @@ def objects():
 
 class TestAnObjectIsIdentifiedTheSameWayOnBothSides:
 
-    def test_prcfo_is_used_when_it_is_there(self):
-        frame = pd.DataFrame({"prcfo": ["a_b_c_1_5"], "label": ["9"]})
-
-        assert list(object_identity(frame)) == ["a_b_c_1_5"]
+    @pytest.mark.parametrize('records, expected', [
+        pytest.param(
+            {'prcfo': ['a_b_c_1_5'], 'label': ['9']}, ['a_b_c_1_5'],
+            id='test_prcfo_is_used_when_it_is_there',
+        ),
+        pytest.param(
+            {'prc': ['plate1_A_01'], 'fieldID': ['1'], 'object_label': ['7']}, ['plate1_A_01_1_7'],
+            id='test_prc_and_a_field_will_do',
+        ),
+    ])
+    def test_original_object_key_columns_keep_their_ordered_identities(self, records, expected):
+        """Preserve each original object-key table and its ordered string identities."""
+        frame = pd.DataFrame(records)
+        assert list(object_identity(frame)) == expected
 
     def test_it_is_composed_from_prcf_and_a_label(self, objects):
         assert list(object_identity(objects))[0] == "plate1_A_01_1_1"
-
-    def test_prc_and_a_field_will_do(self):
-        frame = pd.DataFrame({"prc": ["plate1_A_01"], "fieldID": ["1"],
-                              "object_label": ["7"]})
-
-        assert list(object_identity(frame)) == ["plate1_A_01_1_7"]
 
     def test_every_label_spelling_is_read(self):
         for column in ("object_label", "label", "cell_id", "nucleus_id",

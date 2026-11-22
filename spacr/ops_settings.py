@@ -134,9 +134,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_align_tile_min_nuclei": 200,
     "ops_align_match_radius": 3.0,
     "ops_align_trim_passes": 3,
-    "ops_flatfield": "none",
+    "ops_flatfield": "exact",
     "ops_flatfield_maps": None,
     "ops_flatfield_fields": 204,
+    "ops_flatfield_channel_fit": None,
+    "ops_flatfield_nuclear_stains": ['A594'],
+    "ops_flatfield_object_fields": 'all',
     "ops_flatfield_field_list": None,
     "ops_flatfield_nuclear_channel": None,
     "ops_flatfield_nuclei": None,
@@ -292,7 +295,19 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_guide_efficacy_emax": 1.0,
     "ops_profile_cell_cycle": None,
     "ops_profile_g1_sg2_split_log2": 0.3,
+    "ops_profile_cell_cycle_method": "",
     "ops_mitotic_source": "rule",
+    "ops_cell_cycle": None,
+    "ops_cell_cycle_model_family": 'tabular',
+    "ops_cell_cycle_tabular": 'hgb',
+    "ops_cell_cycle_base_model": '',
+    "ops_cell_cycle_finetune": 'screen',
+    "ops_cell_cycle_dna_channel": None,
+    "ops_cell_cycle_mt_channel": None,
+    "ops_cell_cycle_arrest_genes": 'default',
+    "ops_cell_cycle_labels": '',
+    "ops_cell_cycle_label_queue": 0,
+    "ops_cell_cycle_seed": 0,
     "ops_tvn_fit_cells": "pooled",
     "ops_penetrance": False,
     "ops_penetrance_folds": 5,
@@ -439,6 +454,25 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_bench_gate_arm": 'consensus',
     "ops_bench_half": 1,
     "ops_bench_null_permutations": 1000,
+    "ops_maxproj_enabled": False,
+    "ops_maxproj_rows": None,
+    "ops_maxproj_guides": None,
+    "ops_maxproj_views": None,
+    "ops_maxproj_pca_variance": 0.99,
+    "ops_maxproj_similarity": 'cosine',
+    "ops_maxproj_bins": 3,
+    "ops_maxproj_calibration_permutations": 50,
+    "ops_maxproj_null_permutations": 200,
+    "ops_maxproj_seed": 20261119,
+    "ops_maxproj_graph": 'knn',
+    "ops_maxproj_knn": 10,
+    "ops_maxproj_edge_p": 0.05,
+    "ops_maxproj_resolutions": None,
+    "ops_maxproj_leiden_seeds": [42, 1, 2],
+    "ops_maxproj_k": None,
+    "ops_maxproj_consensus": False,
+    "ops_maxproj_save_views": True,
+    "ops_maxproj_workers": 1,
     "ops_voyager3_enabled": False,
     "ops_voyager3_clusters": None,
     "ops_voyager3_cluster_column": "cluster",
@@ -489,6 +523,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "cpg_md5": False,
     "cpg_align_source": "periscope_logged",
     "cpg_align_table": None,
+    "cpg_painting_frame_shift": "periscope_logged",
     "ops_library_mode": "barcode",
     "ops_library_sequence_col": "sgRNA",
     "ops_library_gene_col": "gene_symbol",
@@ -700,6 +735,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_flatfield": str,
     "ops_flatfield_maps": (str, type(None)),
     "ops_flatfield_fields": int,
+    "ops_flatfield_channel_fit": (dict, str, type(None)),
+    "ops_flatfield_nuclear_stains": (list, str, type(None)),
+    "ops_flatfield_object_fields": (str, int),
     "ops_flatfield_field_list": (str, type(None)),
     "ops_flatfield_nuclear_channel": (str, type(None)),
     "ops_flatfield_nuclei": (str, dict, type(None)),
@@ -853,7 +891,19 @@ OPS_TYPES: Dict[str, object] = {
     "ops_guide_efficacy_emax": (float, int),
     "ops_profile_cell_cycle": (str, type(None)),
     "ops_profile_g1_sg2_split_log2": (float, int),
+    "ops_profile_cell_cycle_method": str,
     "ops_mitotic_source": str,
+    "ops_cell_cycle": (str, type(None)),
+    "ops_cell_cycle_model_family": str,
+    "ops_cell_cycle_tabular": str,
+    "ops_cell_cycle_base_model": str,
+    "ops_cell_cycle_finetune": str,
+    "ops_cell_cycle_dna_channel": (str, type(None)),
+    "ops_cell_cycle_mt_channel": (str, type(None)),
+    "ops_cell_cycle_arrest_genes": (str, list, type(None)),
+    "ops_cell_cycle_labels": str,
+    "ops_cell_cycle_label_queue": int,
+    "ops_cell_cycle_seed": int,
     "ops_tvn_fit_cells": str,
     "ops_penetrance": bool,
     "ops_penetrance_folds": int,
@@ -1000,6 +1050,25 @@ OPS_TYPES: Dict[str, object] = {
     "ops_bench_gate_arm": str,
     "ops_bench_half": (int, type(None)),
     "ops_bench_null_permutations": int,
+    "ops_maxproj_enabled": bool,
+    "ops_maxproj_rows": (str, type(None)),
+    "ops_maxproj_guides": (str, type(None)),
+    "ops_maxproj_views": (str, type(None)),
+    "ops_maxproj_pca_variance": (float, int),
+    "ops_maxproj_similarity": str,
+    "ops_maxproj_bins": int,
+    "ops_maxproj_calibration_permutations": int,
+    "ops_maxproj_null_permutations": int,
+    "ops_maxproj_seed": int,
+    "ops_maxproj_graph": str,
+    "ops_maxproj_knn": int,
+    "ops_maxproj_edge_p": (float, int),
+    "ops_maxproj_resolutions": (list, type(None)),
+    "ops_maxproj_leiden_seeds": list,
+    "ops_maxproj_k": (int, type(None)),
+    "ops_maxproj_consensus": bool,
+    "ops_maxproj_save_views": bool,
+    "ops_maxproj_workers": int,
     "ops_voyager3_enabled": bool,
     "ops_voyager3_clusters": (str, type(None)),
     "ops_voyager3_cluster_column": str,
@@ -1048,6 +1117,7 @@ OPS_TYPES: Dict[str, object] = {
     "cpg_sbs_resample": str,
     "cpg_align_source": str,
     "cpg_align_table": (str, type(None)),
+    "cpg_painting_frame_shift": str,
     "cpg_missing": str,
     "cpg_md5": bool,
     "ops_library_mode": str,
@@ -1149,6 +1219,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "cpg_root", "cpg_wells", "cpg_sites", "cpg_phenotype_channels",
         "cpg_sbs_cycles", "cpg_sbs_bases", "cpg_sbs_dapi", "cpg_sbs_resample",
         "cpg_missing", "cpg_md5", "cpg_align_source", "cpg_align_table",
+        "cpg_painting_frame_shift",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers", "ops_deterministic_blas", "ops_blas_threads",
@@ -1297,6 +1368,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Cytoskeleton measurements": ["ops_ph_cytoskeleton_channels"],
     "Flat-field correction": [
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
+        "ops_flatfield_channel_fit", "ops_flatfield_nuclear_stains",
+        "ops_flatfield_object_fields",
         "ops_flatfield_field_list", "ops_flatfield_nuclear_channel",
         "ops_flatfield_nuclei", "ops_flatfield_dark",
         "ops_flatfield_nuclear_maps",
@@ -1362,8 +1435,21 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Cell cycle & mitosis": [
         "ops_mitotic_dna_z", "ops_mitotic_model", "ops_mitotic_source",
         "ops_profile_cell_cycle", "ops_profile_g1_sg2_split_log2",
-        "ops_phase_tests", "ops_phase_null", "ops_mitotic_index_test",
+        "ops_profile_cell_cycle_method", "ops_phase_tests", "ops_phase_null", "ops_mitotic_index_test",
         "ops_mitotic_index_min_cells", "ops_mitotic_index_reference",
+    ],
+    "Cell-cycle stages": [
+        "ops_cell_cycle",
+        "ops_cell_cycle_model_family",
+        "ops_cell_cycle_tabular",
+        "ops_cell_cycle_base_model",
+        "ops_cell_cycle_finetune",
+        "ops_cell_cycle_dna_channel",
+        "ops_cell_cycle_mt_channel",
+        "ops_cell_cycle_arrest_genes",
+        "ops_cell_cycle_labels",
+        "ops_cell_cycle_label_queue",
+        "ops_cell_cycle_seed",
     ],
     "Penetrance, escapers & neighbours": [
         "ops_penetrance", "ops_penetrance_folds", "ops_penetrance_nt_pool",
@@ -1434,6 +1520,16 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_bench_gate_noise", "ops_bench_gate_alpha", "ops_bench_gate_limit",
         "ops_bench_margin_quantile", "ops_bench_gate_record",
         "ops_bench_gate_arm", "ops_bench_half", "ops_bench_null_permutations",
+    ],
+    "Max-projection clustering": [
+        "ops_maxproj_enabled", "ops_maxproj_rows", "ops_maxproj_guides",
+        "ops_maxproj_views", "ops_maxproj_pca_variance", "ops_maxproj_similarity",
+        "ops_maxproj_bins",
+        "ops_maxproj_calibration_permutations", "ops_maxproj_null_permutations",
+        "ops_maxproj_seed", "ops_maxproj_graph", "ops_maxproj_knn",
+        "ops_maxproj_edge_p", "ops_maxproj_resolutions", "ops_maxproj_leiden_seeds",
+        "ops_maxproj_k", "ops_maxproj_consensus", "ops_maxproj_save_views",
+        "ops_maxproj_workers",
     ],
     "Module atlas & MitoCarta": [
         "ops_modules_runs", "ops_modules_precomputed_embedding",
@@ -1968,7 +2064,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "measured intensity features from each cell's mean flat-field gain "
         "(phase ph_masks), in about a minute per plate. 'exact' divides "
         "every pixel before measuring, so it needs the raw images again. "
-        "Default 'none'. Alpha.",
+        "Default 'exact'; settings files saved before item 1006 keep 'none'. "
+        "Alpha.",
     "ops_profile_cell_state":
         "(str, list or None) - Which cells the profile phase profiles. "
         "'interphase_rule' drops the cells the stored DNA rule calls mitotic, "
@@ -2209,6 +2306,28 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - How many random fields (seed 0) the ph_flatfield phase "
         "builds the maps from. Fewer fields leave cells in the median; 204 "
         "built the Funk et al. plate maps. Default 204. Alpha.",
+    "ops_flatfield_channel_fit":
+        "(dict, str or None) - The flat-field fit of each phenotype channel, "
+        "as {channel: fit}: 'nuclear_median' (the median raw intensity of the "
+        "nuclei in each map cell), 'cytoplasm_median' (of the cytoplasm, at "
+        "the cell centre), 'pixel_median' (the smoothed pixel median of the "
+        "drawn fields) or 'polynomial' (that median, 4th-order polynomial). "
+        "A channel not named takes 'nuclear_median' if it is DNA or in "
+        "ops_flatfield_nuclear_stains, else 'cytoplasm_median', the most "
+        "accurate maps on Funk plate A, built by ph_flatfield_objects after "
+        "segmentation. 'legacy' gives the earlier maps. Default None. Alpha.",
+    "ops_flatfield_nuclear_stains":
+        "(list or None) - Channels other than DNA that stain the nucleus, "
+        "such as a nuclear antibody; their flat-field map is the nuclear "
+        "median unless ops_flatfield_channel_fit names them. Names not among "
+        "the phenotype channels are ignored. Default ['A594'], the gammaH2AX "
+        "stain of Funk et al. Alpha.",
+    "ops_flatfield_object_fields":
+        "(str or int) - The fields ph_flatfield_objects builds the nuclear- "
+        "and cytoplasm-median maps from: 'all', every segmented field of the wells "
+        "run; a number, that many drawn with seed 0; or a JSON file of [well, "
+        "site] pairs. More fields put more objects in each map cell, at one "
+        "image and mask read per field. Default 'all'. Alpha.",
     "ops_flatfield_field_list":
         "(str or None) - A JSON file of [well, site] pairs to build the "
         "maps from instead of a random draw, such as the fields.json an "
@@ -2829,6 +2948,84 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Carlo error left shuffled-label controls about 0.2 points below "
         "zero on complexes; the first 200 of the 1000 are the same. Settings "
         "files saved before item 954 rerun with 200. Default 1000. Alpha.",
+    "ops_maxproj_enabled":
+        "(bool) - Run the cluster_maxproj phase: cluster the genes on the "
+        "strongest calibrated similarity of every gene pair over several "
+        "feature views, so a phenotype carried by a few columns is not "
+        "drowned by the rest of the profile. Needs ops_maxproj_views. Default "
+        "False. Alpha.",
+    "ops_maxproj_rows":
+        "(str or None) - The gene table the phase clusters, in named "
+        "measurement columns with gene and n_cells. Empty uses the profile "
+        "phase's own gene table. Default None. Alpha.",
+    "ops_maxproj_guides":
+        "(str or None) - The guide table the permutations rebuild gene rows "
+        "from: guide, gene, n_cells and the gene table's columns. Empty uses "
+        "the profile phase's own guide table. Default None. Alpha.",
+    "ops_maxproj_views":
+        "(str or None) - The views file: a JSON list of views, each with a "
+        "name, a block and the columns it keeps. Every view is scored on its "
+        "own and the pairs keep their strongest view. Its md5 is written to "
+        "the summary. Required when the phase runs. Default None. Alpha.",
+    "ops_maxproj_pca_variance":
+        "(float) - The share of variance the PCA of each view keeps before it "
+        "is whitened on the non-targeting genes. Default 0.99. Alpha.",
+    "ops_maxproj_similarity":
+        "(str) - The pair similarity inside each view: 'cosine', the cosine "
+        "of the whitened rows; or 'shrunk', their inner product divided by "
+        "the square root of the product of their squared norms, each plus the "
+        "non-targeting genes' mean squared norm, so a gene no stronger than "
+        "the controls stays near zero, which in a view of few "
+        "columns finds thin phenotypes that cosine misses. Default 'cosine'. "
+        "Alpha.",
+    "ops_maxproj_bins":
+        "(int) - Cell-count bins per gene; a pair is calibrated against the "
+        "null pairs of the same two bins, so well-measured genes are not "
+        "favoured. Default 3. Alpha.",
+    "ops_maxproj_calibration_permutations":
+        "(int) - Guide-label permutations that give every view its own null "
+        "of pair similarities. Default 50. Alpha.",
+    "ops_maxproj_null_permutations":
+        "(int) - Joint permutations, one shuffle for every view, that give "
+        "the null of the strongest pair score over the views, which each "
+        "pair's p value is read from. Default 200. Alpha.",
+    "ops_maxproj_seed":
+        "(int) - The base seed: calibration permutation p uses seed + p and "
+        "null permutation p uses seed + 100000 + p. Default 20261119. Alpha.",
+    "ops_maxproj_graph":
+        "(str) - The graph Leiden clusters: 'knn', each gene's strongest "
+        "partners by p value, or 'phate', PHATE on the projected scores. "
+        "Default 'knn'. Alpha.",
+    "ops_maxproj_knn":
+        "(int) - Partners per gene in the projected graph (and PHATE's "
+        "neighbours). More partners join weaker pairs, so clusters grow and "
+        "fewer genes stay alone; fewer keep only the strongest pairs. Default "
+        "10. Alpha.",
+    "ops_maxproj_edge_p":
+        "(float) - A pair is an edge only below this p value of the max null; "
+        "every gene keeps its best partner. Default 0.05. Alpha.",
+    "ops_maxproj_resolutions":
+        "(list or None) - The Leiden resolutions of the sweep. Empty uses 20 "
+        "log-spaced values from 0.05 to 50. Default None. Alpha.",
+    "ops_maxproj_leiden_seeds":
+        "(list) - The Leiden seeds of the sweep; the first also seeds the "
+        "partition matched to the target count. Default [42, 1, 2]. Alpha.",
+    "ops_maxproj_k":
+        "(int or None) - The target cluster count. Empty uses 209 clusters "
+        "per 2,647 genes, as the consensus clustering does. Default None. "
+        "Alpha.",
+    "ops_maxproj_consensus":
+        "(bool) - Also cluster ops_consensus_bootstraps guide bootstraps on "
+        "the projected graph and keep their consensus partition. Default "
+        "False. Alpha.",
+    "ops_maxproj_save_views":
+        "(bool) - Save every view's calibrated pair scores "
+        "(per_view_scores.npz), the structure at each view. Default True. "
+        "Alpha.",
+    "ops_maxproj_workers":
+        "(int) - Processes for the permutations. More processes finish sooner "
+        "and need more memory, each holding a copy of the gene and guide "
+        "tables; the results do not depend on it. Default 1. Alpha.",
     "ops_etest":
         "(bool) - Keep the per-cell aligned embedding when the profile phase "
         "runs (cells_E.npy and cells_meta.parquet in its folder), which the "
@@ -3540,11 +3737,73 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "G1 peak of integrated nuclear DNA are S/G2, the rest G1. 0.30 is "
         "about 1.23 times G1 DNA, the dip of the control histogram on Funk "
         "plate A. Default 0.30. Alpha.",
+    "ops_profile_cell_cycle_method":
+        "(str) - How cells get their G1, S/G2 or M phase for cell-cycle "
+        "profiles. Blank splits interphase cells at "
+        "ops_profile_g1_sg2_split_log2 above their well's G1 peak. "
+        "'measure_fc' uses Measure's DNA-content fit instead: every site is "
+        "centred on its own G1 peak, one G1/S/G2 histogram is fitted per "
+        "well on the non-mitotic cells, and the mitotic call gives M; S, G2 "
+        "and >4N count as S/G2 and subG1 as G1. Default blank. Alpha.",
     "ops_mitotic_source":
         "(str) - Where the M phase of cell-cycle profiles comes from: "
         "'rule' (the DNA rule of ops_mitotic_dna_z, or the classifier when "
         "ops_mitotic_model is set) or 'classifier', which refuses to run "
         "without ops_mitotic_model. Default 'rule'. Alpha.",
+    "ops_cell_cycle":
+        "(str or None) - Call every cell's cell-cycle stage with a "
+        "probability and a flag: None (off; the run is unchanged), 'DNA' (a "
+        "DNA-stain model) or 'DNA+MT' (DNA and microtubule stains). G1, S and "
+        "G2 come from the field-centred DNA-content fit; ops_mitotic_source "
+        "'cell_cycle' takes the mitotic cells of profiles from these stages. "
+        "Default None. Alpha.",
+    "ops_cell_cycle_model_family":
+        "(str) - The model family: 'tabular' runs on the cell tables. 'cnn' "
+        "and 'transformer' are not available in this build; a run that asks "
+        "for them uses the tabular learner and says so in its report. Default "
+        "'tabular'. Alpha.",
+    "ops_cell_cycle_tabular":
+        "(str) - The tabular learner: 'hgb' (HistGradientBoosting) or "
+        "'xgboost'. Changing it changes every stage call and probability, so "
+        "a base model trained with one learner is refitted with the other "
+        "when labels are given. Default 'hgb'. Alpha.",
+    "ops_cell_cycle_base_model":
+        "(str) - The base checkpoint folder the model starts from, written by "
+        "spacr.ops_cell_cycle.save_cell_cycle_checkpoint. Empty uses the "
+        "shipped base model; none is registered yet, so a run then needs "
+        "ops_cell_cycle_labels. Default ''. Alpha.",
+    "ops_cell_cycle_finetune":
+        "(str) - How the user's labels refit the model: 'screen' (every "
+        "plate's labels pooled; each plate's run adds its labelled cells to a "
+        "pool kept beside the labels file), 'plate' (this plate's labels "
+        "only) or 'none' (the base model as is). Without labels nothing is "
+        "refitted. Default 'screen'. Alpha.",
+    "ops_cell_cycle_dna_channel":
+        "(str or None) - The DNA stain's channel name in the cell tables. "
+        "Empty uses nucleus_channel. Default None. Alpha.",
+    "ops_cell_cycle_mt_channel":
+        "(str or None) - The microtubule (tubulin) stain's channel name; "
+        "required for 'DNA+MT', where its cell and cytoplasm features join "
+        "the DNA features the model reads. Default None. Alpha.",
+    "ops_cell_cycle_arrest_genes":
+        "(str, list or None) - Knockouts with a known mitotic arrest, for the "
+        "knockout self-check when the library has 100 of their cells: "
+        "'default' (21 spindle and APC/C genes), a list, or None to skip it. "
+        "Default 'default'. Alpha.",
+    "ops_cell_cycle_labels":
+        "(str) - The user's labels: a CSV with plate, well, site, label and "
+        "stage. With labels the model is refitted, their stages can become "
+        "verified, and the shuffled-label check runs. Default ''. Alpha.",
+    "ops_cell_cycle_label_queue":
+        "(int) - How many cells the run queues for labelling, the most "
+        "uncertain with every stage and plate represented. The queue goes to "
+        "cell_cycle_labels/<plate> in the run folder; the Home job built from "
+        "it opens the cells in Annotate, and its answers refit the model. 0 "
+        "queues none; 100 is recommended. Default 0. Alpha.",
+    "ops_cell_cycle_seed":
+        "(int) - The seed of every random draw of the option: folds, "
+        "shuffles, the learner and the self-check permutations. Default 0. "
+        "Alpha.",
     "ops_tvn_fit_cells":
         "(str) - The cells the aggregate phase fits TVN on: 'pooled' (every "
         "pooled cell) or 'interphase' (the interphase cells, the fit then "
@@ -3828,6 +4087,17 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "{plate}, {well}, {well_number} and {site} fields. Empty finds it from "
         "cpg_root in the cpg0021 layout (workspace/analysis/<batch>/"
         "<plate>-Well<N>-<site>/Image.csv). Default None. Alpha.",
+    "cpg_painting_frame_shift":
+        "(str) - How painting images are moved into the mask frame before "
+        "cpg_measure measures them. 'periscope_logged' uses the shift "
+        "PERISCOPE recorded per site (Image.csv or cpg_align_table); "
+        "'register' measures it from the images; 'none' applies no shift and "
+        "suits only masks drawn on the painting images "
+        "(ops_prefix_masks_frame 'painting'), so sequencing-frame masks with "
+        "'none', and sites with no recorded shift, are refused. Shifts are "
+        "written to painting_frame_shift_<plate>_<well>.csv; cells touching "
+        "the zero-filled band are flagged in painting_shift_border. Default "
+        "'periscope_logged'. Alpha.",
     "ops_library_mode":
         "(str) - What the library holds. 'barcode' is a separate barcode "
         "per guide, matched by the tile decode. 'spacer_prefix' reads the "

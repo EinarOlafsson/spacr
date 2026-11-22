@@ -1073,7 +1073,8 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     assert diameter["source_sha256"] == "872bf102684298902ddc7125086b211aa1147004ac597dddf106fdf2c5f73dc1"
     assert hashlib.sha256(diameter["source"].encode()).hexdigest() == diameter["source_sha256"]
     assert reviewed[diameter["source"]] == diameter["translation"]
-    current_tooltips = canonical_sources()["setting_tooltips"]
+    current_sources = canonical_sources()
+    current_tooltips = current_sources["setting_tooltips"]
     assert current_tooltips["robustness_diameter_factors"] == diameter["source"]
     current_timelapse = current_tooltips["timelapse_events"]
     assert current_timelapse.startswith("After the run, detect events on every tracked object")
@@ -1190,6 +1191,9 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
         # 2026-11-16 (item 963): Annotate's classifier choice binds the reviewed
         # "Threshold" setting label as a plain ui caption, with the same wording.
         "Threshold": "0da627ada476c179bb6421d267cb6de8c9f770a2274b5d673d898e33cea29247",
+        # The OPS labels and report title reuse the fifth-pass cell-cycle wording.
+        "Cell cycle": "45f43a6352af32b97473bda5d55c311973b7db8ce7155a2696a4de687c0ea8f6",
+        "Cell cycle labels": "306d2139302eddfa0411233fe9d209f393d09c7a63cbc5655ec129384314f93a",
     }
     assert latest_batches & sources == repeated_sources.keys()
     current_files = {
@@ -1200,13 +1204,21 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
         "Screen type": "2026-10-31-factual-map-barcodes-pipeline-ai-review.json",
         "Layout": "2026-11-17-ops-settings-layout-969-ai-review.json",
         "Threshold": "2026-11-16-annotate-classifier-choice-963-ai-review.json",
+        "Cell cycle": "2026-11-21-ops-cell-cycle-codex-ai-review.json",
+        "Cell cycle labels": "2026-11-21-ops-cell-cycle-codex-ai-review.json",
     }
-    current_identities = {"Replicate column": ("setting_labels", "replicate_column"),
-                          "Screen type": ("setting_labels", "screen_type"),
-                          "Layout": ("setting_labels", "ops.ops_layout")}
+    current_identities = {
+        "Replicate column": (("setting_labels", "replicate_column"),),
+        "Screen type": (("setting_labels", "screen_type"),),
+        "Layout": (("setting_labels", "ops.ops_layout"),),
+        "Cell cycle": (("setting_labels", "ops.ops_cell_cycle"), ("ui", "Cell cycle")),
+        "Cell cycle labels": (("setting_labels", "ops.ops_cell_cycle_labels"),),
+    }
     previous_identities = {
         "Replicate column": ("2026-09-27-runtime-debt-sixth-pass-captions.json", "ui", "Replicate column"),
         "Screen type": ("2026-09-27-runtime-debt-sixth-pass-captions.json", "ui", "Screen type"),
+        "Cell cycle": ("2026-09-26-runtime-debt-fifth-pass-setting-labels.json", "setting_labels", "cell_cycle"),
+        "Cell cycle labels": ("2026-09-26-runtime-debt-fifth-pass-setting-labels.json", "setting_labels", "cell_cycle_labels"),
     }
     previous_keys = {"Batch size": "batch_size", "Learning rate": "learning_rate", "Train": "train",
                      "Object type": "object_type", "Save measurements": "save_measurements",
@@ -1216,10 +1228,14 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
         current_file = current_files.get(source, "2026-10-15-f561-classifier-ui-runtime-home-b.json")
         current = [row for row in json.loads((folder / current_file).read_text(encoding="utf-8"))["records"]
                    if row["source"] == source]
-        assert len(current) == 1
-        current = current[0]
-        assert (current["table"], current["key"]) == current_identities.get(source, ("ui", source))
-        assert current["source_sha256"] == source_hash
+        identities = current_identities.get(source, (("ui", source),))
+        assert sorted((row["table"], row["key"]) for row in current) == sorted(identities)
+        for row in current:
+            assert row["source_sha256"] == source_hash
+            if row["table"] == "ui":
+                assert row["key"] == source and source in current_sources["ui"]
+            else:
+                assert current_sources[row["table"]][row["key"]] == source
         assert hashlib.sha256(source.encode()).hexdigest() == source_hash
         previous_file, previous_table, previous_key = previous_identities.get(source, (
             "2026-09-30-runtime-meaning-fixes-eleventh-pass.json"
@@ -1233,8 +1249,9 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
         assert previous["table"] == previous_table
         assert previous["key"] == previous_key
         assert previous["source_sha256"] == source_hash
-        assert previous["translation"] == current["translation"] == reviewed[source]
-        assert [row for row in batches if row["source"] == source] == [current]
+        assert previous["translation"] == reviewed[source]
+        assert all(row["translation"] == previous["translation"] for row in current)
+        assert [row for row in batches if row["source"] == source] == current
     sources |= latest_batches
     assert sources <= reviewed.keys()
     return sources

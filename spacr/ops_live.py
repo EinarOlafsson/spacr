@@ -648,6 +648,7 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
                     and left - shape[1] < centre[1] < right + shape[1]):
                 continue
             fields.append({"site": site, "centre": centre,
+                           "source": str(getattr(row, "transform_source", "") or ""),
                            "scale": float(row.scale),
                            "rotation": float(row.rotation_deg),
                            "shape": (int(row.field_height), int(row.field_width)),
@@ -701,6 +702,9 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     placement = (_placement(ctx, sample_field, tiles, crop_site, crop,
                             sbs_dapi[y0:y0 + size, x0:x0 + size])
                  if sbs_dapi is not None else None)
+    placed_after = (_tile_affine_placement(ctx, plate, sample_field, tiles, crop_site,
+                                           crop, sbs_dapi[y0:y0 + size, x0:x0 + size])
+                    if sbs_dapi is not None else None)
     return {
         "db": db, "plate": plate, "reference": reference, "block": block,
         "tiles": tiles, "tile_shape": shape, "origin": (top, left),
@@ -710,7 +714,7 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         "kept": list(aligned.kept), "refused": list(aligned.refused),
         "missing": list(aligned.missing), "last_cycle": int(last),
         "before": before, "after": after, "notes": notes,
-        "seam": seam, "placement": placement,
+        "seam": seam, "placement": placement, "placed_after": placed_after,
         "phases": phases, "sample_block": settings["ops_sites"],
     }
 
@@ -1252,17 +1256,11 @@ def _placement(ctx: _Context, field_info: Optional[Mapping[str, Any]],
     """
     from scipy import ndimage
 
-    from . import ops_engine as engine
     from .ops_merge import field_transform
 
-    if not field_info or not field_info.get("files"):
+    dna = _field_dna(ctx, field_info)
+    if dna is None:
         return None
-    channels = engine._ph_channels(ctx.settings)
-    try:
-        stack, _key = _ph_stack(ctx, field_info, channels)
-    except ValueError:
-        return None
-    dna = stack[..., channels.index("DAPI")] if "DAPI" in channels else stack[..., 0]
     scale, rotation, translation = field_transform(
         field_info["scale"], field_info["rotation"], field_info["centre"],
         dna.shape[:2])
@@ -1277,6 +1275,108 @@ def _placement(ctx: _Context, field_info: Optional[Mapping[str, Any]],
     return {"site": int(field_info["site"]), "scale": float(field_info["scale"]),
             "rotation": float(field_info["rotation"]),
             "centre": tuple(float(v) for v in field_info["centre"]),
+            "source": str(field_info.get("source") or ""),
+            "sbs": np.asarray(sbs, np.float32), "phenotype": sampled}
+
+
+def _field_dna(ctx: _Context, field_info: Optional[Mapping[str, Any]]
+               ) -> Optional[np.ndarray]:
+    """The sampled phenotype field's DNA plane, or None when it cannot be read."""
+    from . import ops_engine as engine
+
+    if not field_info or not field_info.get("files"):
+        return None
+    channels = engine._ph_channels(ctx.settings)
+    try:
+        stack, _key = _ph_stack(ctx, field_info, channels)
+    except ValueError:
+        return None
+    return stack[..., channels.index("DAPI")] if "DAPI" in channels else stack[..., 0]
+
+
+def _merged_placement_row(ctx: _Context, plate: str, site: int):
+    """The finished merge's tile-affine row of one phenotype field, or None.
+
+    For the test data the stored ``reference/merge/tile_affine`` table; for a
+    user's data the ``ops_phenotype`` table of the run in ``dst_root``.
+    """
+    import pandas as pd
+
+    if ctx.test_root is not None:
+        path = ctx.test_root / "reference" / "merge" / "tile_affine" / "ops_phenotype.parquet"
+        table = pd.read_parquet(path) if path.is_file() else None
+    else:
+        run = str(ctx.settings.get("dst_root") or "")
+        table = _rows(os.path.join(run, "measurements.db"), "ops_phenotype", plate,
+                      ctx.well) if run else None
+    if table is None or table.empty or "align_a11" not in table.columns:
+        return None
+    rows = table[(table["site"].astype(int) == int(site))
+                 & (table["align_model"].astype(str) == "tile_affine")]
+    if rows.empty or not np.isfinite(float(rows["align_a11"].iloc[0])):
+        return None
+    return rows.iloc[0]
+
+
+def _tile_affine_placement(ctx: _Context, plate: str,
+                           field_info: Optional[Mapping[str, Any]],
+                           tiles: Mapping[int, Tuple[float, float]], crop_site: int,
+                           crop: Tuple[int, int, int], sbs: np.ndarray
+                           ) -> Optional[Dict[str, Any]]:
+    """The sampled field's DNA resampled onto the sequencing crop at its tile-affine placement.
+
+    The finished merge's affine (:func:`_merged_placement_row`) is in that run's
+    well frame. Both runs place the field before merge from the same seed or
+    raster, so the difference of the two stored centres moves the affine into
+    the preview's frame. The crop takes the affine of its own sequencing tile
+    group when the merge fitted one, else the field affine
+    (:func:`spacr.ops_merge.tile_affine_to_well`).
+
+    :param sbs: the crop of the reference cycle's DAPI plane.
+    :returns: the field's site, the affine used (``'tile'`` or ``'field'``),
+        how far the tile-affine placement moves the field at the crop centre
+        from the placement before, ``(dy, dx)`` in well pixels, and the two
+        planes; None without a finished tile-affine merge of the field.
+    """
+    import json
+
+    from scipy import ndimage
+
+    from .ops_merge import field_to_well, field_transform
+
+    if not field_info:
+        return None
+    row = _merged_placement_row(ctx, plate, int(field_info["site"]))
+    dna = _field_dna(ctx, field_info) if row is not None else None
+    if dna is None:
+        return None
+    offset = (np.asarray(field_info["centre"], float)
+              - np.array([float(row["centre_y"]), float(row["centre_x"])]))
+    matrix = np.array([[row["align_a11"], row["align_a12"]],
+                       [row["align_a21"], row["align_a22"]]], float)
+    translation = np.array([row["align_ty"], row["align_tx"]], float)
+    used = "field"
+    for group in json.loads(row["align_tile_transforms"] or "[]"):
+        if int(group[0]) == int(crop_site):
+            matrix = np.array(group[2:6], float).reshape(2, 2)
+            translation = np.array(group[6:8], float)
+            used = "tile"
+            break
+    y0, x0, size = crop
+    ty, tx = tiles[crop_site]
+    rows, cols = np.mgrid[0:size, 0:size].astype(float)
+    well = np.stack([rows.ravel() + ty + y0, cols.ravel() + tx + x0], axis=1)
+    inside = np.linalg.solve(matrix, (well - offset - translation).T).T
+    sampled = ndimage.map_coordinates(np.asarray(dna, np.float32),
+                                      [inside[:, 0], inside[:, 1]], order=1,
+                                      cval=0.0).reshape(size, size)
+    middle = np.array([[size / 2.0 + ty + y0, size / 2.0 + tx + x0]])
+    before = field_transform(field_info["scale"], field_info["rotation"],
+                             field_info["centre"], dna.shape[:2])
+    seen = np.linalg.solve(matrix, (middle - offset - translation).T).T
+    shift = middle - field_to_well(seen, before)
+    return {"site": int(field_info["site"]), "affine": used,
+            "shift": (float(shift[0, 0]), float(shift[0, 1])),
             "sbs": np.asarray(sbs, np.float32), "phenotype": sampled}
 
 

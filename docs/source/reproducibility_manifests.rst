@@ -174,6 +174,15 @@ default after a higher-numbered item takes the next free number:
   Explicit source selections always win. Native classification datasets keep
   one ``crop_index.csv`` pointing to committed crops instead of exporting an
   image file per object; keep the source project with the dataset when moving it.
+- 952 (item 1006): ``ops_flatfield`` was ``'none'``; it is now ``'exact'``, so
+  an OPS phenotype run divides every pixel by the plate's flat-field maps
+  before measuring and needs them (phases ``ph_flatfield`` and
+  ``ph_flatfield_objects``, or a prebuilt ``ops_flatfield_maps`` folder).
+  ``ops_flatfield_channel_fit`` was the earlier maps, ``'legacy'`` (the
+  polynomial DNA map and pixel-median maps of the other channels); it is now
+  the object median of every channel, nuclear for DNA and
+  ``ops_flatfield_nuclear_stains``, cytoplasmic for the others. 949-951 belong
+  to other items.
 
 - 955 (item 1011): new Mask Generation and OPS runs use ``batch_size='auto_vram'``
   and ``mask_eval_batch_size='auto_vram'``. One shared plan measures GPU memory,

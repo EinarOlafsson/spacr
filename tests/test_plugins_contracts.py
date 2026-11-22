@@ -151,17 +151,20 @@ def test_string_maps_coerce_keys_and_values_to_strings(field):
     assert getattr(plugin.apps[0], field) == {"3": "7"}
 
 
-def test_categories_must_map_a_tab_name_to_setting_keys():
-    with pytest.raises(TypeError, match="categories must be a mapping"):
-        plugins.plugin_from_mapping(_manifest(categories=["src"]))
-
-
-def test_categories_report_which_tab_held_the_bad_keys():
-    """A manifest with ten tabs must say which one is wrong."""
-    with pytest.raises(TypeError, match=r"categories\['Detection'\]"):
-        plugins.plugin_from_mapping(
-            _manifest(categories={"Input": ["src"], "Detection": "distance_px"})
-        )
+@pytest.mark.parametrize('categories, match', [
+    pytest.param(
+        ['src'], 'categories must be a mapping',
+        id='test_categories_must_map_a_tab_name_to_setting_keys',
+    ),
+    pytest.param(
+        {'Input': ['src'], 'Detection': 'distance_px'}, "categories\\['Detection'\\]",
+        id='test_categories_report_which_tab_held_the_bad_keys',
+    ),
+])
+def test_original_invalid_plugin_categories_keep_their_messages(categories, match):
+    """Preserve each original invalid plugin category shape and its message."""
+    with pytest.raises(TypeError, match=match):
+        plugins.plugin_from_mapping(_manifest(categories=categories))
 
 
 # --------------------------------------------------------------------------
@@ -312,18 +315,20 @@ def test_a_report_section_defaults_to_following_the_statistics_section():
 # the manifest as a whole
 # --------------------------------------------------------------------------
 
-def test_a_manifest_must_be_a_mapping():
-    with pytest.raises(TypeError, match="plugin manifest must be a mapping"):
-        plugins.plugin_from_mapping([("name", "P"), ("version", "1")])
-
-
-def test_one_bad_language_is_named_by_its_code():
-    with pytest.raises(TypeError, match=r"translations\['sv'\] must be a mapping"):
-        plugins.plugin_from_mapping({
-            "name": "P", "version": "1",
-            "translations": {"de": {"Contact Assay": "Kontaktanalyse"},
-                             "sv": ["Kontaktanalys"]},
-        })
+@pytest.mark.parametrize('manifest, match', [
+    pytest.param(
+        [('name', 'P'), ('version', '1')], 'plugin manifest must be a mapping',
+        id='test_a_manifest_must_be_a_mapping',
+    ),
+    pytest.param(
+        {'name': 'P', 'version': '1', 'translations': {'de': {'Contact Assay': 'Kontaktanalyse'}, 'sv': ['Kontaktanalys']}}, "translations\\['sv'\\] must be a mapping",
+        id='test_one_bad_language_is_named_by_its_code',
+    ),
+])
+def test_original_invalid_plugin_manifests_keep_their_refusals(manifest, match):
+    """Preserve each original malformed plugin manifest and its refusal."""
+    with pytest.raises(TypeError, match=match):
+        plugins.plugin_from_mapping(manifest)
 
 
 @pytest.mark.parametrize("field", ["name", "version"])

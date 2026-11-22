@@ -124,11 +124,16 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-19: in situ sequencing modes of the prefix decode (961) make 168.
     # 2026-11-19: ops_phases, a settings file names its own OPS phases (977), makes 169.
     # 2026-11-20: OME-Zarr images and crops (983) make 170.
+    # 2026-11-20: max-projection clustering over feature views (992) makes 171.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    # 2026-11-21: the OME-Zarr 0.6 write option (1007) makes 171.
+    # 2026-11-20: field centring and the external mitotic call for the
+    # DNA-content cell-cycle fit (995) make 172.
+    # 2026-11-21: the OPS cell-cycle option (990) makes 173.
+    # 2026-11-21: per-channel flat-field fits (1006) make 174.
+    # 2026-11-21: the OME-Zarr 0.6 write option (1007) makes 175.
     # 2026-11-21: item 1011 adds the cap, seed and declared VRAM controls.
-    # 2026-11-21: item 1008 adds shared Otsu and cell-only cytoskeleton settings, making 173.
-    assert count == 173
+    # 2026-11-21: item 1008 adds shared Otsu and cell-only cytoskeleton settings, making 177.
+    assert count == 177
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

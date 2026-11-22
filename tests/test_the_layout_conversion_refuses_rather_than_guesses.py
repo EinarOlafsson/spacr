@@ -146,15 +146,21 @@ class TestTheLongToWideRefusals:
 
 class TestTheCountTableLayout:
 
-    def test_a_layout_nobody_offers(self):
-        frame = pd.DataFrame({"grna": ["g1"], "count": [1]})
-        with pytest.raises(ValueError, match="choose one of"):
-            normalise_count_table_layout(frame, layout="sideways")
-
-    def test_a_long_table_missing_its_columns_is_named(self):
-        frame = pd.DataFrame({"prc": ["p1_A01"]})
-        with pytest.raises(ValueError, match="lacks"):
-            normalise_count_table_layout(frame, layout="long")
+    @pytest.mark.parametrize('records, layout, match', [
+        pytest.param(
+            {'grna': ['g1'], 'count': [1]}, 'sideways', 'choose one of',
+            id='test_a_layout_nobody_offers',
+        ),
+        pytest.param(
+            {'prc': ['p1_A01']}, 'long', 'lacks',
+            id='test_a_long_table_missing_its_columns_is_named',
+        ),
+    ])
+    def test_original_invalid_count_layouts_keep_their_refusals(self, records, layout, match):
+        """Preserve each original invalid count table and its layout refusal."""
+        frame = pd.DataFrame(records)
+        with pytest.raises(ValueError, match=match):
+            normalise_count_table_layout(frame, layout=layout)
 
     def test_a_long_table_passes_through_and_says_so(self):
         frame = pd.DataFrame({"prc": ["p1_A01"], "grna": ["g1"],

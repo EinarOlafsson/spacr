@@ -7081,6 +7081,7 @@ def _monolayer_qc(frame, confluency, *, value_columns=(), drop_failing=False,
 
 _CELL_CYCLE_TABLE = 'cell_cycle'
 _CELL_CYCLE_WELL_TABLE = 'cell_cycle_well'
+_CELL_CYCLE_FIT_TABLE = 'cell_cycle_fit'
 _CELL_CYCLE_PHASES = ('G1', 'S', 'G2', 'M')
 _CELL_CYCLE_BELOW = 'subG1'
 _CELL_CYCLE_ABOVE = '>4N'
@@ -7088,6 +7089,8 @@ _CELL_CYCLE_METHODS = ('measurements', 'xgboost', 'torch')
 _CELL_CYCLE_CHOICES = _CELL_CYCLE_METHODS + ('all',)
 _CELL_CYCLE_KEYS = ('plateID', 'rowID', 'columnID', 'fieldID')
 _CELL_CYCLE_MIN_FIT = 30
+_CELL_CYCLE_FIELD_MIN_CELLS = 50
+_CELL_CYCLE_FIT_GROUPS = ('plate', 'well')
 _CELL_CYCLE_RATIO_BOUNDS = (1.6, 2.4)
 _CELL_CYCLE_OUTLIER_SD = 4.0
 _CELL_CYCLE_OUTLIER_CAP = 0.15
@@ -7470,8 +7473,228 @@ def _plate_groups(nuclei):
             for name, block in nuclei.groupby(keys, dropna=False, sort=True)]
 
 
+def _cell_cycle_fit_groups(nuclei, fit_group='plate'):
+    """Row groups the DNA histogram is fitted over, by ``cell_cycle_fit_group``.
+
+    ``'plate'`` is :func:`_plate_groups`: one fit per plate and time point.
+    ``'well'`` adds the row and column, so every well gets its own fit.
+
+    :param nuclei: the ``nucleus`` table.
+    :param fit_group: ``'plate'`` or ``'well'``.
+    :returns: a list of ``(name, index)`` pairs.
+    :raises ValueError: an unknown fit group.
+    """
+    fit_group = str(fit_group or 'plate').strip().lower()
+    if fit_group not in _CELL_CYCLE_FIT_GROUPS:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: cell_cycle_fit_group must be one of {choices}; got "
+            "{value!r}. Choose plate for one DNA-content fit per plate, or "
+            "well for one fit per well.",
+            choices=list(_CELL_CYCLE_FIT_GROUPS), value=fit_group))
+    if fit_group == 'plate':
+        return _plate_groups(nuclei)
+    keys = [k for k in ('plateID', 'timeID', 'rowID', 'columnID')
+            if k in nuclei.columns and nuclei[k].notna().any()]
+    if not keys:
+        return [('all', nuclei.index)]
+    return [(name if isinstance(name, tuple) else (name,), block.index)
+            for name, block in nuclei.groupby(keys, dropna=False, sort=True)]
+
+
+def _dna_field_offsets(log_dna, fields, use, *,
+                       min_cells=_CELL_CYCLE_FIELD_MIN_CELLS):
+    """The log2 shift that moves every field's G1 peak onto the median field.
+
+    DNA-stain scaling can differ between the fields of one well, which
+    broadens both peaks of a pooled histogram. Each field's G1 peak is the
+    mode of its smoothed log2 histogram
+    (:func:`spacr.gene_measurement_compare.g1_mode`), found on the nuclei
+    flagged by ``use``; its offset is that peak minus the median peak of all
+    fields with enough nuclei. Fields with fewer than ``min_cells`` such
+    nuclei keep offset 0.
+
+    :param log_dna: log2 DNA content of the nuclei of one fit group.
+    :param fields: the field of each nucleus, a number or string label.
+    :param use: True for the nuclei the peaks are found on: non-mitotic,
+        with a finite DNA content.
+    :param min_cells: the nuclei a field needs to be shifted.
+    :returns: ``(offsets, shifted)``: the log2 offset of each nucleus and the
+        number of fields that got a peak.
+    """
+    from .gene_measurement_compare import g1_mode
+
+    log_dna = np.asarray(log_dna, dtype=float)
+    use = np.asarray(use, dtype=bool)
+    codes, _labels = pd.factorize(np.asarray(fields), sort=True)
+    order = np.argsort(codes, kind='stable')
+    bounds = np.flatnonzero(np.diff(codes[order])) + 1
+    offsets = np.zeros(log_dna.shape)
+    modes = []
+    for rows in np.split(order, bounds):
+        chosen = rows[use[rows]]
+        if rows.size and chosen.size >= int(min_cells):
+            modes.append((rows, g1_mode(log_dna[chosen])))
+    if modes:
+        median = float(np.median([mode for _rows, mode in modes]))
+        for rows, mode in modes:
+            offsets[rows] = mode - median
+    return offsets, len(modes)
+
+
+def _field_centred_dna_phases(content, *, groups, fields=None, mitotic=None,
+                              centre=True,
+                              min_cells=_CELL_CYCLE_FIELD_MIN_CELLS,
+                              gates=None):
+    """G1, S, G2, subG1, >4N or M of every nucleus from field-centred DNA.
+
+    With ``centre``, the DNA content is taken as
+    ``x = log2(max(content, 1))``, every field is shifted by
+    :func:`_dna_field_offsets` within its fit group, and the centred content
+    is ``2 ** (x - offset)``; without it the content is used as it is. One
+    :func:`_fit_dna_content` is fitted per group on its non-mitotic nuclei,
+    every nucleus of the group is gated with :func:`_gate_dna_content`, and
+    the nuclei of the external ``mitotic`` call are M. A group with too few
+    nuclei to fit is gated with the fit of all groups pooled.
+
+    :param content: background-subtracted integrated DNA intensity per
+        nucleus, in row order.
+    :param groups: ``(name, positions)`` pairs, the rows of each fit group.
+    :param fields: the field of each nucleus; needed with ``centre``.
+    :param mitotic: optional boolean external mitotic call per nucleus.
+    :param centre: centre each field on its G1 peak first.
+    :param min_cells: the non-mitotic nuclei a field needs to be shifted.
+    :param gates: optional ``[G1/S, S/G2]`` in DNA content units.
+    :returns: ``(frame, fits)``: per nucleus ``field_offset_log2``,
+        ``dna_content_centred``, ``phase``, ``confidence`` and the fitted
+        ``posterior_G1``, ``posterior_S`` and ``posterior_G2``; ``fits``
+        maps each group name to ``{'fit': _DnaFit, 'fields_shifted': int,
+        'pooled': bool}``.
+    """
+    raw = np.asarray(content, dtype=float)
+    log_dna = np.log2(np.maximum(raw, 1.0))
+    mitotic = (np.zeros(raw.shape, dtype=bool) if mitotic is None
+               else np.asarray(mitotic, dtype=bool))
+    offsets = np.zeros(raw.shape)
+    shifted = {}
+    groups = [(name, np.asarray(rows, dtype=np.int64)) for name, rows in groups]
+    if centre:
+        labels = np.asarray(fields)
+        usable = np.isfinite(log_dna) & ~mitotic
+        for name, rows in groups:
+            offsets[rows], shifted[name] = _dna_field_offsets(
+                log_dna[rows], labels[rows], usable[rows], min_cells=min_cells)
+    centred = 2.0 ** (log_dna - offsets) if centre else raw.copy()
+    phases = np.full(raw.shape, None, dtype=object)
+    confidence = np.full(raw.shape, np.nan)
+    posterior = np.full((raw.size, 3), np.nan)
+    pooled = None
+    fits = {}
+    for name, rows in groups:
+        values = centred[rows]
+        interphase = ~mitotic[rows]
+        used_pool = False
+        try:
+            fit = _fit_dna_content(values[interphase], gates=gates)
+        except ValueError:
+            if pooled is None:
+                pooled = _fit_dna_content(centred[~mitotic], gates=gates)
+            fit, used_pool = pooled, True
+        called, sure, three = _gate_dna_content(values, fit)
+        called = np.asarray(called, dtype=object)
+        called[~interphase] = _CELL_CYCLE_PHASES[3]
+        phases[rows] = called
+        confidence[rows] = sure
+        posterior[rows] = three
+        fits[name] = {'fit': fit, 'fields_shifted': int(shifted.get(name, 0)),
+                      'pooled': used_pool}
+    frame = pd.DataFrame({
+        'field_offset_log2': offsets, 'dna_content_centred': centred,
+        'phase': phases, 'confidence': confidence,
+        'posterior_G1': posterior[:, 0], 'posterior_S': posterior[:, 1],
+        'posterior_G2': posterior[:, 2]})
+    return frame, fits
+
+
+def _cell_cycle_fit_rows(fits, fit_group):
+    """One row per fit group: the fitted peaks, width, weights and gates.
+
+    :param fits: the ``fits`` of :func:`_field_centred_dna_phases`.
+    :param fit_group: the ``cell_cycle_fit_group`` the fits were made over.
+    :returns: a frame with ``fit_group``, ``group``, ``g1``, ``g2``,
+        ``g2_over_g1``, ``cv``, ``weight_G1``, ``weight_S``, ``weight_G2``,
+        ``weight_outlier``, ``gate_g1_s`` and ``gate_s_g2`` in C units,
+        ``fitted_gates``, ``n``, ``iterations``, ``fields_shifted`` and
+        ``pooled``.
+    """
+    rows = []
+    for name, entry in fits.items():
+        fit = entry['fit']
+        label = '_'.join(str(v) for v in name) if isinstance(
+            name, tuple) else str(name)
+        rows.append({
+            'fit_group': str(fit_group), 'group': label, 'g1': fit.g1,
+            'g2': fit.g2, 'g2_over_g1': fit.g2 / fit.g1,
+            'cv': fit.sd1 / fit.g1,
+            **{f'weight_{k}': float(w) for k, w in zip(
+                ('G1', 'S', 'G2', 'outlier'), fit.weights)},
+            'gate_g1_s': float(fit.c_value(fit.gates[0])),
+            'gate_s_g2': float(fit.c_value(fit.gates[1])),
+            'fitted_gates': bool(fit.fitted_gates), 'n': int(fit.n),
+            'iterations': int(fit.iterations),
+            'fields_shifted': int(entry['fields_shifted']),
+            'pooled': bool(entry['pooled'])})
+    return pd.DataFrame(rows)
+
+
+def _cell_table_phases_measure_fc(cells, *, dna='_dna_integrated',
+                                  group='well', field='site',
+                                  mitotic='mitotic',
+                                  min_cells=_CELL_CYCLE_FIELD_MIN_CELLS):
+    """Measure's field-centred DNA-content call on an OPS cell table.
+
+    The ``ops_profile_cell_cycle_method 'measure_fc'`` path: one fit per
+    ``group`` (well) on field-centred DNA, the fields being ``field``
+    (site), with the ``mitotic`` column as the external M call
+    (:func:`_field_centred_dna_phases`).
+
+    :param cells: one row per cell.
+    :param dna: the integrated nuclear DNA intensity column.
+    :param group: the fit-group column.
+    :param field: the field column, nested in ``group``.
+    :param mitotic: the boolean mitotic-call column.
+    :param min_cells: the non-mitotic cells a field needs to be shifted.
+    :returns: ``(frame, fits)`` of :func:`_field_centred_dna_phases`, the
+        frame on the index of ``cells``; ``phase`` is G1, S, G2, subG1,
+        >4N or M.
+    :raises ValueError: a column is missing.
+    """
+    missing = [c for c in (dna, group, field, mitotic) if c not in cells]
+    if missing:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "The field-centred cell-cycle call needs the cell-table columns "
+            "{columns}, which are missing. Measure the nuclear DNA stain and "
+            "keep the well, site and mitotic-call columns in the cell "
+            "tables.", columns=missing))
+    flat = cells.reset_index(drop=True)
+    groups = list(flat.groupby(group, sort=True).indices.items())
+    frame, fits = _field_centred_dna_phases(
+        pd.to_numeric(flat[dna], errors='coerce').to_numpy(dtype=float),
+        groups=groups, fields=flat[field].to_numpy(),
+        mitotic=flat[mitotic].astype(object).where(
+            flat[mitotic].notna(), False).astype(bool).to_numpy(),
+        centre=True, min_cells=min_cells)
+    frame.index = cells.index
+    return frame, fits
+
+
 def _phases_by_measurements(nuclei, *, column, gates=None,
-                            mitotic_ratio=1.8):
+                            mitotic_ratio=1.8, field_centre=False,
+                            field_min_cells=_CELL_CYCLE_FIELD_MIN_CELLS,
+                            fit_group='plate', mitotic=None):
     """Cell-cycle phase of every nucleus from its measured DNA stain.
 
     Per plate (and time point), fits :func:`_fit_dna_content` and gates the
@@ -7482,17 +7705,39 @@ def _phases_by_measurements(nuclei, *, column, gates=None,
     can fall short of the S/G2 gate. A plate
     with too few nuclei to fit is gated with the fit of all plates pooled.
 
+    With ``field_centre``, ``fit_group='well'`` or an external ``mitotic``
+    call, the phases come from :func:`_field_centred_dna_phases` instead:
+    every field is shifted onto the median G1 peak of its fit group, one
+    histogram is fitted per plate or per well on the non-mitotic nuclei, and
+    the external call, when given, replaces the condensation rule for M.
+
     :param nuclei: the ``nucleus`` table.
     :param column: the ``channel_<i>`` index of the DNA stain.
     :param gates: optional ``[G1/S, S/G2]`` in DNA content units.
     :param mitotic_ratio: condensation cut for M; ``None`` keeps G2 and M
-        together as G2.
+        together as G2. Not applied with an external ``mitotic`` call.
+    :param field_centre: centre every field on its G1 peak before the fit
+        (``cell_cycle_field_centre``).
+    :param field_min_cells: the non-mitotic nuclei a field needs to be
+        shifted (``cell_cycle_field_min_cells``).
+    :param fit_group: ``'plate'`` or ``'well'`` (``cell_cycle_fit_group``).
+    :param mitotic: optional boolean mitotic call per nucleus, aligned with
+        ``nuclei`` (``cell_cycle_mitotic_column``).
     :returns: ``(frame, fits)``: per nucleus ``dna_content``, ``dna_mean``,
         ``dna_c``, ``condensation``, ``gate_g1_s`` and ``gate_s_g2`` (in C
         units), ``phase_measurements``, ``confidence_measurements`` and the
-        fitted ``posterior_G1``, ``posterior_S`` and ``posterior_G2``;
-        ``fits`` maps each group to its :class:`_DnaFit`.
+        fitted ``posterior_G1``, ``posterior_S`` and ``posterior_G2``, plus
+        ``field_offset_log2`` and ``dna_content_centred`` on the centred
+        path; ``fits`` maps each group to its :class:`_DnaFit`. On the
+        centred path ``frame.attrs['cell_cycle_fits']`` holds the
+        :func:`_cell_cycle_fit_rows` table.
     """
+    if field_centre or mitotic is not None or str(
+            fit_group or 'plate').strip().lower() != 'plate':
+        return _phases_by_centred_measurements(
+            nuclei, column=column, gates=gates, mitotic_ratio=mitotic_ratio,
+            field_centre=bool(field_centre), field_min_cells=field_min_cells,
+            fit_group=fit_group, mitotic=mitotic)
     dna = _nucleus_dna(nuclei, column)
     out = dna.copy()
     for name in ('dna_c', 'condensation', 'gate_g1_s', 'gate_s_g2',
@@ -7529,6 +7774,95 @@ def _phases_by_measurements(nuclei, *, column, gates=None,
         out.loc[index, 'confidence_measurements'] = confidence
         for column, name in enumerate(('G1', 'S', 'G2')):
             out.loc[index, f'posterior_{name}'] = posterior[:, column]
+    return out, fits
+
+
+def _field_labels(nuclei, groups):
+    """One field code per nucleus, unique within its fit group.
+
+    :param nuclei: the ``nucleus`` table.
+    :param groups: the fit groups of :func:`_cell_cycle_fit_groups`.
+    :returns: an integer array; nuclei share a code when they share the
+        plate, time point, row, column and field.
+    """
+    keys = [k for k in ('plateID', 'timeID', *_CELL_CYCLE_KEYS[1:])
+            if k in nuclei.columns and nuclei[k].notna().any()]
+    if not keys:
+        return np.zeros(len(nuclei), dtype=np.int64)
+    return nuclei.groupby(keys, dropna=False, sort=True).ngroup().to_numpy()
+
+
+def _phases_by_centred_measurements(nuclei, *, column, gates, mitotic_ratio,
+                                    field_centre, field_min_cells, fit_group,
+                                    mitotic):
+    """The centred path of :func:`_phases_by_measurements`.
+
+    :param nuclei: the ``nucleus`` table, on a 0..n-1 index.
+    :param column: the ``channel_<i>`` index of the DNA stain.
+    :param gates: optional ``[G1/S, S/G2]`` in DNA content units.
+    :param mitotic_ratio: condensation cut for M without ``mitotic``.
+    :param field_centre: centre every field on its G1 peak.
+    :param field_min_cells: the nuclei a field needs to be shifted.
+    :param fit_group: ``'plate'`` or ``'well'``.
+    :param mitotic: optional boolean external mitotic call per nucleus.
+    :returns: ``(frame, fits)`` as :func:`_phases_by_measurements`.
+    :raises ValueError: a field minimum below 1 or an unknown fit group.
+    """
+    try:
+        field_min_cells = int(field_min_cells)
+    except (TypeError, ValueError):
+        field_min_cells = 0
+    if field_min_cells < 1:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: cell_cycle_field_min_cells must be a whole number of "
+            "at least 1. Enter the non-mitotic nuclei a field needs to be "
+            "centred, such as 50."))
+    groups = _cell_cycle_fit_groups(nuclei, fit_group)
+    positions = [(name, nuclei.index.get_indexer(index))
+                 for name, index in groups]
+    dna = _nucleus_dna(nuclei, column)
+    external = None if mitotic is None else np.asarray(mitotic, dtype=bool)
+    called, details = _field_centred_dna_phases(
+        dna['dna_content'].to_numpy(dtype=float), groups=positions,
+        fields=_field_labels(nuclei, groups) if field_centre else None,
+        mitotic=external, centre=field_centre, min_cells=field_min_cells,
+        gates=gates)
+    out = dna.copy()
+    out['field_offset_log2'] = called['field_offset_log2'].to_numpy()
+    out['dna_content_centred'] = called['dna_content_centred'].to_numpy()
+    for name in ('dna_c', 'condensation', 'gate_g1_s', 'gate_s_g2'):
+        out[name] = np.nan
+    out['phase_measurements'] = None
+    out['confidence_measurements'] = called['confidence'].to_numpy()
+    for name in ('G1', 'S', 'G2'):
+        out[f'posterior_{name}'] = called[f'posterior_{name}'].to_numpy()
+    centred = called['dna_content_centred'].to_numpy()
+    mean = dna['dna_mean'].to_numpy(dtype=float)
+    phases_all = called['phase'].to_numpy(dtype=object)
+    fits = {}
+    for name, rows in positions:
+        fit = details[name]['fit']
+        fits[name] = fit
+        phases = phases_all[rows].copy()
+        g2 = phases == 'G2'
+        reference = np.nanmedian(mean[rows][g2]) if g2.any() else np.nan
+        condensation = (mean[rows] / reference if np.isfinite(reference)
+                        and reference > 0 else np.full(rows.shape, np.nan))
+        if external is None and mitotic_ratio is not None:
+            late = (phases == 'S') | g2
+            phases[late & (condensation >= float(mitotic_ratio))] = 'M'
+        out.iloc[rows, out.columns.get_loc('dna_c')] = fit.c_value(
+            centred[rows])
+        out.iloc[rows, out.columns.get_loc('condensation')] = condensation
+        out.iloc[rows, out.columns.get_loc('gate_g1_s')] = float(
+            fit.c_value(fit.gates[0]))
+        out.iloc[rows, out.columns.get_loc('gate_s_g2')] = float(
+            fit.c_value(fit.gates[1]))
+        out.iloc[rows, out.columns.get_loc('phase_measurements')] = phases
+    out.attrs['cell_cycle_fits'] = _cell_cycle_fit_rows(
+        details, str(fit_group or 'plate').strip().lower())
     return out, fits
 
 
@@ -8316,6 +8650,37 @@ def _resolve_cell_cycle_methods(method):
     return ('measurements', method)
 
 
+def _external_mitotic_call(nuclei, column):
+    """The boolean mitotic call ``cell_cycle_mitotic_column`` names.
+
+    :param nuclei: the ``nucleus`` table.
+    :param column: the column name; blank keeps the condensation rule.
+    :returns: a boolean array aligned with ``nuclei`` (missing values are
+        not mitotic), or ``None`` when ``column`` is blank.
+    :raises ValueError: the column is not in the nucleus table.
+    """
+    column = str(column or '').strip()
+    if not column:
+        return None
+    if column not in nuclei.columns:
+        from .qt.i18n import tr
+
+        raise ValueError(tr(
+            "Setting: cell_cycle_mitotic_column names {column!r}, which is "
+            "not a column of the nucleus table. Add the mitotic call (True "
+            "for a mitotic nucleus) to the nucleus table, or leave "
+            "cell_cycle_mitotic_column blank to call M by condensation.",
+            column=column))
+    values = nuclei[column]
+    if values.dtype == bool:
+        return values.to_numpy(dtype=bool)
+    if values.dtype == object:
+        text = values.astype(str).str.strip().str.lower()
+        values = values.where(~text.isin(('true', 'false')),
+                              text.eq('true').astype(float))
+    return (pd.to_numeric(values, errors='coerce').fillna(0) != 0).to_numpy()
+
+
 def _classify_cell_cycle(db_path, settings, *, plot=None):
     """Call every nucleus's cell-cycle phase and write it to the database.
 
@@ -8337,7 +8702,12 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
     ``cell_cycle_well`` holds the phase fractions per well and method,
     overall and among infected and uninfected cells, and
     ``cell_cycle_agreement`` the largest difference between methods per
-    well, on the nuclei they all called. With ``plot``, each plate's fitted histogram is saved under
+    well, on the nuclei they all called. With ``cell_cycle_field_centre``,
+    ``cell_cycle_fit_group='well'`` or ``cell_cycle_mitotic_column``, the
+    measurement call is field-centred (:func:`_phases_by_measurements`), the
+    table gains ``field_offset_log2`` and ``dna_content_centred``, and
+    ``cell_cycle_fit`` holds the fitted peaks, width, weights and gates of
+    every fit group. With ``plot``, each fit group's histogram is saved under
     ``results/cell_cycle``.
 
     :param db_path: a ``measurements.db`` with a ``nucleus`` table.
@@ -8361,9 +8731,19 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
     nuclei = read_table(db_path, table='nucleus', report=None)
     nuclei = nuclei.reset_index(drop=True)
     ratio = settings.get('cell_cycle_mitotic_ratio', 1.8)
+    fit_group = str(settings.get('cell_cycle_fit_group') or 'plate'
+                    ).strip().lower()
+    centre = bool(settings.get('cell_cycle_field_centre', False))
+    mitotic = _external_mitotic_call(
+        nuclei, settings.get('cell_cycle_mitotic_column'))
     measured, fits = _phases_by_measurements(
         nuclei, column=column, gates=settings.get('cell_cycle_gates') or None,
-        mitotic_ratio=None if ratio in (None, '') else float(ratio))
+        mitotic_ratio=None if ratio in (None, '') else float(ratio),
+        field_centre=centre,
+        field_min_cells=settings.get('cell_cycle_field_min_cells',
+                                     _CELL_CYCLE_FIELD_MIN_CELLS),
+        fit_group=fit_group, mitotic=mitotic)
+    fit_rows = measured.attrs.get('cell_cycle_fits')
     table = nuclei[[k for k in (*_CELL_CYCLE_KEYS, 'timeID', 'prcf',
                                 'object_label', 'cell_id', 'file_name')
                     if k in nuclei.columns]].copy()
@@ -8373,6 +8753,9 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
                  'confidence_measurements', 'posterior_G1', 'posterior_S',
                  'posterior_G2'):
         table[name] = measured[name]
+    if fit_rows is not None:
+        for name in ('field_offset_log2', 'dna_content_centred'):
+            table[name] = measured[name]
     report = {'methods': list(methods), 'channel': channel,
               'plates': {str(k): {'g1': f.g1, 'g2': f.g2,
                                   'g2_over_g1': f.g2 / f.g1,
@@ -8381,6 +8764,10 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
                                   'fitted_gates': f.fitted_gates,
                                   'n': f.n}
                          for k, f in fits.items()}}
+    if fit_rows is not None:
+        report['fit_group'] = fit_group
+        report['field_centre'] = centre
+        report['fits'] = fit_rows.to_dict(orient='records')
     labels = source = None
     if len(methods) > 1:
         labels, source = _cell_cycle_labels(
@@ -8434,11 +8821,14 @@ def _classify_cell_cycle(db_path, settings, *, plot=None):
                        if_exists='replace', canonicalise=False)
         report['max_fraction_difference'] = float(
             agreement['max_fraction_difference'].max())
+    if fit_rows is not None and not fit_rows.empty:
+        write_database(fit_rows, db_path, _CELL_CYCLE_FIT_TABLE,
+                       if_exists='replace', canonicalise=False)
     if settings.get('plot') if plot is None else plot:
         from .plot import save_figure
 
         root = os.path.dirname(os.path.dirname(os.path.abspath(db_path)))
-        for name, index in _plate_groups(nuclei):
+        for name, index in _cell_cycle_fit_groups(nuclei, fit_group):
             fit = fits[name]
             label = '_'.join(str(v) for v in name) if isinstance(
                 name, tuple) else str(name)

@@ -2086,6 +2086,10 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('cell_cycle_labels', '')
     settings.setdefault('cell_cycle_model', '')
     settings.setdefault('cell_cycle_epochs', 20)
+    settings.setdefault('cell_cycle_field_centre', False)
+    settings.setdefault('cell_cycle_field_min_cells', 50)
+    settings.setdefault('cell_cycle_fit_group', 'plate')
+    settings.setdefault('cell_cycle_mitotic_column', '')
     settings.setdefault('wound_closure', False)
     settings.setdefault('wound_source', 'texture')
     settings.setdefault('wound_channel', None)
@@ -2553,10 +2557,69 @@ def surviving_setting_name(key):
     return names
 
 
+#: Keys a settings file may carry that no pipeline reads: provenance, a run
+#: note, a tool's private option. They never warn and are never refused in
+#: strict mode. A name leaves this set when it becomes a real setting; the
+#: ratchet in tests/test_settings_unknown_keys.py fails while one is in both.
+RECORD_ONLY_SETTINGS = frozenset({
+    'spacr_settings_version', 'settings_strict',
+    'seg_cells_from_nucleus_seeds', 'seg_merge_small_nuclei_frac',
+    'seg_tile_overlap_px', 'seg_tile_px', 'seg_diameter_sites',
+})
+
+#: Prefixes of record-only keys (``_comment``, ``_comment_ops``, ``_meta_run``).
+RECORD_ONLY_PREFIXES = ('_comment', '_meta')
+
+
+def _known_keys_for_app(app=''):
+    """Every settings key spaCR reads for ``app`` (the generic set when blank)."""
+    from .validate import _APP_EXTRA_KEYS, _known_setting_keys, _module_default_keys
+
+    return (_known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
+            | _module_default_keys(app) | {'model_metadata'})
+
+
+def unknown_setting_keys(settings, app=''):
+    """The keys of a settings mapping that spaCR does not read.
+
+    One definition of "known" for the CLI, the pre-flight and the GUI: the
+    generic set, the app's own keys and the module's default keys. A retired,
+    renamed or withdrawn key is not unknown (its own notice speaks for it),
+    and neither is a record-only key (:data:`RECORD_ONLY_SETTINGS`,
+    :data:`RECORD_ONLY_PREFIXES`). Values are never looked at.
+
+    :param settings: the mapping read from a settings file.
+    :param app: canonical app key, or blank for the generic set only.
+    :returns: ``(key, nearest known key or None)`` per unknown key, in file
+        order; the nearest key is a lexical hint, not a rename.
+    """
+    import difflib
+    from .object_roles import withdrawn_setting_reason
+    from .validate import RETIRED_SETTINGS
+
+    known = _known_keys_for_app(app)
+    nearest_pool = None
+    found = []
+    for key in settings:
+        if not isinstance(key, str) or key in known:
+            continue
+        if key in RECORD_ONLY_SETTINGS or key.startswith(RECORD_ONLY_PREFIXES):
+            continue
+        if key in RETIRED_SETTINGS:
+            continue
+        if surviving_setting_name(key) or withdrawn_setting_reason(key):
+            continue
+        if nearest_pool is None:
+            nearest_pool = sorted(known)
+        close = difflib.get_close_matches(key, nearest_pool, n=1, cutoff=0.6)
+        found.append((key, close[0] if close else None))
+    return found
+
+
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
 SETTINGS_SCHEMA_VERSION = 958
-SETTINGS_FORMAT_VERSIONS = frozenset({950})
+SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2588,6 +2651,7 @@ DEFAULT_CHANGES = {
     949: {'mask_image_format': 'npy', 'crop_image_format': 'png',
           'crop_source': 'auto', 'image_source': 'load_images',
           'ops_ph_image_format': 'npz', 'ops_crop_image_format': 'tiff-tar'},
+    952: {'ops_flatfield': 'none', 'ops_flatfield_channel_fit': 'legacy'},
     955: {'batch_size': 0, 'mask_eval_batch_size': 0, 'randomize': False},
     958: {'cytoskeleton_object_support': False},
 }
@@ -2698,6 +2762,16 @@ def _fold_older_defaults(settings, version, known=None):
     renamed to this key), ``ops_sbs_tile_batch`` 16 (stitched sequencing
     nuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and
     947 belong to other items, so this takes 948.
+    951 is item 992's nineteen ``ops_maxproj_*`` settings. They are all
+    new, so no default changed: 951 is a format-only version
+    (``SETTINGS_FORMAT_VERSIONS``), and files stamped before lack them and
+    take their defaults, the phase off.
+    952 is item 1006's flat-field correction on by default: ``ops_flatfield``
+    ``'exact'`` (was ``'none'``) with every channel's map an object median
+    (``ops_flatfield_channel_fit``, which is ``'legacy'`` for older files:
+    the polynomial DNA map and the pixel-median maps of the other channels).
+    Files stamped before keep ``'none'``, so their phenotype pixels are
+    measured as acquired, and one that sets ``'exact'`` keeps the legacy maps.
     955 is item 1011's measured VRAM-aware batching for Mask Generation and
     OPS: ``batch_size`` and ``mask_eval_batch_size`` now default to
     ``'auto_vram'``. Files stamped before keep their previous defaults (0
@@ -4511,6 +4585,10 @@ expected_types = {
     "cell_cycle_labels": str,
     "cell_cycle_model": str,
     "cell_cycle_epochs": int,
+    "cell_cycle_field_centre": bool,
+    "cell_cycle_field_min_cells": int,
+    "cell_cycle_fit_group": str,
+    "cell_cycle_mitotic_column": str,
     "wound_closure": bool,
     "wound_source": str,
     "wound_channel": (int, type(None)),
@@ -6049,6 +6127,10 @@ tooltips = {
     "cell_cycle_labels": "(str) - A png_list column holding Annotate labels the xgboost and torch methods learn from: 1 to 4 for G1, S, G2 and M, or the phase names. Labels are matched to nuclei through their cell. Blank trains on the confident gate calls instead, so the learned methods reproduce the gate calls; annotated prophase and anaphase nuclei add information the gates do not provide. Default blank.",
     "cell_cycle_model": "(str) - A torch model this step trained earlier, with its cell_cycle_phases.json beside it, applied to the nucleus crops instead of training a new one. Use it to call a second plate with the model trained on the first. Ignored unless cell_cycle_method is torch or all. Default blank.",
     "cell_cycle_epochs": "(int) - Training epochs of the torch phase classifier. It is a ResNet-18 trained from scratch on crops as small as 32 pixels, so each epoch is quick on a GPU and slow on a busy CPU. Ignored when cell_cycle_model names a trained model. Default 20.",
+    "cell_cycle_field_centre": "(bool) - Centre every field on its own G1 peak before the DNA-content fit, so differences in DNA-stain brightness between fields do not broaden the G1 and G2 peaks. Each field's G1 peak is found on its non-mitotic nuclei and shifted onto the median peak of its plate or well (cell_cycle_fit_group); a field with fewer than cell_cycle_field_min_cells such nuclei is not shifted. Writes field_offset_log2 and dna_content_centred per nucleus and the fitted peaks per group to measurements.db:cell_cycle_fit. Default False.",
+    "cell_cycle_field_min_cells": "(int) - The non-mitotic nuclei a field needs before cell_cycle_field_centre shifts it; fields with fewer keep their DNA content as measured. Default 50.",
+    "cell_cycle_fit_group": "(str) - Which nuclei share one DNA-content fit: plate fits each plate (and time point) once; well fits every well on its own, which follows staining differences between wells. Default plate.",
+    "cell_cycle_mitotic_column": "(str) - A True/False column of the nucleus table that marks mitotic nuclei, for example the call of a trained mitotic classifier. These nuclei are called M and are left out of the field peaks and the DNA-content fit, and cell_cycle_mitotic_ratio is then not used. Blank calls M from chromatin condensation as before. Default blank.",
     'intensity_calibration': '(bool) - Calibrate intensities before measuring, using beads or reference wells acquired in each imaging session. By default each plate is a session. An optional sessions CSV assigns fields independently of plates; an external bead folder can supply the reference images. Gains match the selected reference session or plate; blank choices keep the first-by-name default. The existing camera-offset gain method is unchanged. Gains and reference content identities are recorded in measurements.db:intensity_rescale. Default False.',
     'intensity_calibration_wells': "(list or None) - Wells holding the same calibration sample in each acquisition session, such as ['A01'] or ['A01', 'P24']. References come from the selected external bead folder, or otherwise the measured merged folder. Every measured session must have a usable reference field. In-source reference wells are measured like any other well. Default None.",
     'intensity_calibration_reference_plate': '(str or None) - Exact reference plate identifier from merged filenames, such as plate2. Without a sessions CSV, blank keeps the first plate by name. With explicit sessions, this plate must belong to one session, or pair it with an exact reference session on that plate. The selected plate must be present in the measured run. Default blank.',
@@ -6961,7 +7043,9 @@ categories = {
         "cell_cycle", "cell_cycle_method", "cell_cycle_channel",
         "cell_cycle_gates", "cell_cycle_mitotic_ratio",
         "cell_cycle_fucci_channels", "cell_cycle_labels", "cell_cycle_model",
-        "cell_cycle_epochs",
+        "cell_cycle_epochs", "cell_cycle_field_centre",
+        "cell_cycle_field_min_cells", "cell_cycle_fit_group",
+        "cell_cycle_mitotic_column",
     ],
 
     "Wound Closure α": [
@@ -9640,6 +9724,16 @@ ALPHA_FEATURES = {
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides', 'ops_consensus_space',),
     },
+    992: {
+        'settings': ('ops_maxproj_enabled', 'ops_maxproj_rows', 'ops_maxproj_guides', 'ops_maxproj_views', 'ops_maxproj_pca_variance', 'ops_maxproj_similarity', 'ops_maxproj_bins', 'ops_maxproj_calibration_permutations', 'ops_maxproj_null_permutations', 'ops_maxproj_seed', 'ops_maxproj_graph', 'ops_maxproj_knn', 'ops_maxproj_edge_p', 'ops_maxproj_resolutions', 'ops_maxproj_leiden_seeds', 'ops_maxproj_k', 'ops_maxproj_consensus', 'ops_maxproj_save_views', 'ops_maxproj_workers',),
+    },
+    990: {
+        'settings': ('ops_cell_cycle', 'ops_cell_cycle_model_family', 'ops_cell_cycle_tabular', 'ops_cell_cycle_base_model', 'ops_cell_cycle_finetune', 'ops_cell_cycle_dna_channel', 'ops_cell_cycle_mt_channel', 'ops_cell_cycle_arrest_genes', 'ops_cell_cycle_labels', 'ops_cell_cycle_label_queue', 'ops_cell_cycle_seed',),
+    },
+    1006: {
+        'settings': ('ops_flatfield_channel_fit', 'ops_flatfield_nuclear_stains',
+                     'ops_flatfield_object_fields',),
+    },
     948: {
         'settings': ('ops_consensus_mode', 'ops_consensus_pairs_search', 'ops_consensus_workers', 'ops_consensus_cells', 'ops_consensus_view_columns',),
     },
@@ -9713,7 +9807,8 @@ ALPHA_FEATURES = {
         'settings': ('ops_layout', 'cpg_root', 'cpg_wells', 'cpg_sites',
                      'cpg_phenotype_channels', 'cpg_sbs_cycles', 'cpg_sbs_bases',
                      'cpg_sbs_dapi', 'cpg_sbs_resample', 'cpg_missing', 'cpg_md5',
-                     'cpg_align_source', 'cpg_align_table', 'ops_prefix_masks_frame'),
+                     'cpg_align_source', 'cpg_align_table', 'ops_prefix_masks_frame',
+                     'cpg_painting_frame_shift'),
     },
     920: {
         'settings': ('ops_library_mode', 'ops_library_sequence_col',
@@ -9912,6 +10007,11 @@ ALPHA_FEATURES = {
         'settings': ('ops_grid_search', 'ops_grid_params', 'ops_grid_tiles',
                      'ops_grid_tile_mode', 'ops_grid_n_tiles', 'ops_grid_seed',
                      'ops_grid_run_id'),
+    },
+    995: {
+        'settings': ('cell_cycle_field_centre', 'cell_cycle_field_min_cells',
+                     'cell_cycle_fit_group', 'cell_cycle_mitotic_column',
+                     'ops_profile_cell_cycle_method'),
     },
     988: {
         'settings': ('ops_read_distance_weight', 'ops_read_distance_decay_px',
