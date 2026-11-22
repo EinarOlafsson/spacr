@@ -4424,6 +4424,141 @@ def measure_costes(labels, image, steps=PROFILE_COSTES_STEPS):
     return pd.DataFrame(out)
 
 
+def _otsu_by_label(flat, values, presorted=None):
+    """Observed-value Otsu thresholds per label, with the first maximum winning.
+
+    :param flat: positive integer label index for each foreground pixel.
+    :param values: real intensities of those pixels.
+    :param presorted: optional :func:`_sorted_by_label` result for ``values``.
+    :returns: one threshold per label index; 0 for a constant object or an
+        absent label. Integer data follow :func:`mahotas.thresholding.otsu`.
+
+    All candidate splits are evaluated together from sorted cumulative sums;
+    a split places values equal to its threshold in the lower class.
+    Centring and power-of-two scaling within each object keep the score
+    stable across intensity scales. A segmented prefix scan keeps sums
+    independent of the intensity and size of earlier labels.
+    """
+    order, ordered, starts, counts, present = (
+        presorted if presorted is not None else _sorted_by_label(flat, values))
+    size = int(flat.max()) + 1
+    thresholds = np.zeros(size)
+    labels_sorted = flat[order]
+    positions = np.arange(ordered.size)
+    low, high = _label_extremes(flat, values, size)
+    shifted = ordered.astype(np.longdouble) - low[labels_sorted]
+    exponent = np.frexp(high.astype(np.longdouble) - low)[1]
+    shifted = np.ldexp(shifted, -exponent[labels_sorted])
+    lower_sum = shifted.copy()
+    stride = 1
+    while stride < int(counts.max()):
+        same_label = labels_sorted[stride:] == labels_sorted[:-stride]
+        lower_sum[stride:] += np.where(same_label, lower_sum[:-stride], 0.0)
+        stride *= 2
+    total_sum = np.zeros(size, dtype=np.longdouble)
+    total_sum[present] = np.add.reduceat(shifted, starts)
+    total_count = np.bincount(flat, minlength=size)
+    group_starts = np.repeat(starts, counts)
+    lower_count = positions - group_starts + 1
+    upper_count = total_count[labels_sorted] - lower_count
+    candidates = np.zeros(ordered.size, dtype=bool)
+    candidates[:-1] = ((labels_sorted[:-1] == labels_sorted[1:])
+                      & (ordered[:-1] != ordered[1:]))
+    score = np.full(ordered.size, -np.inf, dtype=np.longdouble)
+    numerator = (total_sum[labels_sorted] * lower_count
+                 - lower_sum * total_count[labels_sorted])
+    score[candidates] = numerator[candidates] ** 2 / (
+        lower_count[candidates] * upper_count[candidates])
+    maximum = np.full(size, -np.inf, dtype=np.longdouble)
+    np.maximum.at(maximum, labels_sorted, score)
+    first = np.full(size, ordered.size, dtype=np.int64)
+    winners = candidates & (score == maximum[labels_sorted])
+    np.minimum.at(first, labels_sorted[winners], positions[winners])
+    varying = present[first[present] < ordered.size]
+    thresholds[varying] = ordered[first[varying]]
+    return thresholds
+
+
+def measure_colocalisation_otsu(labels, image):
+    """Raw overlap, regression and Otsu colocalisation of each object and channel pair.
+
+    :param labels: 2-D label mask; positive labels identify objects.
+    :param image: ``(H, W, C)`` raw real intensities over the mask.
+    :returns: ``label`` and nine ``channel_<i>_channel_<j>_<stat>`` columns
+        per pair ``i < j``, with one row per positive label in ascending order:
+
+        - ``lstsq_slope_ij`` and ``lstsq_slope_ji``: least-squares slopes
+          with an intercept, of channel j on i and i on j;
+        - ``raw_overlap``: ``sum(i j) / sqrt(sum(i^2) sum(j^2))``;
+        - ``raw_k1`` and ``raw_k2``: ``sum(i j) / sum(i^2)`` and its
+          counterpart with ``sum(j^2)`` in the denominator;
+        - ``otsu_m1`` and ``otsu_m2``: the fraction of raw intensity in
+          channel i where channel j exceeds its object Otsu threshold, and
+          the reverse;
+        - ``otsu_rwc1`` and ``otsu_rwc2``: the same fractions weighted by
+          ``(R - abs(rank_i - rank_j)) / R``, with dense ranks within the
+          object and R the larger maximum rank (Singan et al., 2011).
+
+    These are the raw-pixel definitions in Brieflow ``cp_emulator``. Otsu
+    selects the first observed value maximising between-class variance,
+    placing equal values in the lower class; a constant object has threshold
+    0. Integer thresholds equal :func:`mahotas.thresholding.otsu`; real
+    images use the same observed-value rule without histogram binning.
+    Colocalisation coefficients are 0.0 when either channel sums to zero;
+    a slope is 0.0 when its predictor has zero variance. These replace
+    undefined values with 0.0 so feature filtering retains the columns.
+    Four channels give 54 columns per compartment, or 162 over cell,
+    nucleus and cytoplasm. Pearson is supplied by the shared Funk block.
+    """
+    from itertools import combinations
+
+    labels, image, present = _profile_inputs(labels, image)
+    out = {'label': present}
+    stats = ('lstsq_slope_ij', 'lstsq_slope_ji', 'raw_overlap', 'raw_k1',
+             'raw_k2', 'otsu_m1', 'otsu_m2', 'otsu_rwc1', 'otsu_rwc2')
+    pairs = list(combinations(range(image.shape[-1]), 2))
+    if present.size == 0:
+        for i, j in pairs:
+            for stat in stats:
+                out[f'channel_{i}_channel_{j}_{stat}'] = np.zeros(0)
+        return pd.DataFrame(out)
+    flat, _rows, _cols, inside, size = _foreground(labels)
+    planes = [image[..., c].ravel()[inside] for c in range(image.shape[-1])]
+    above, ranks, sums, squares = [], [], [], []
+    for values in planes:
+        ordered = _sorted_by_label(flat, values)
+        above.append(values > _otsu_by_label(flat, values, ordered)[flat])
+        ranks.append(_within_label_ranks(flat, values, ordered))
+        sums.append(np.bincount(flat, values, size))
+        squares.append(np.bincount(flat, values * values, size))
+    for i, j in pairs:
+        x, y = planes[i], planes[j]
+        _r, dx, dy = _pearson_by_label(flat, x, y, size)
+        covariance = np.bincount(flat, dx * dy, size)
+        var_x = np.bincount(flat, dx * dx, size)
+        var_y = np.bincount(flat, dy * dy, size)
+        product = np.bincount(flat, x * y, size)
+        maximum = np.maximum(ranks[i][2], ranks[j][2])[flat]
+        weight = (maximum - np.abs(ranks[i][1] - ranks[j][1])) / maximum
+        valid = (sums[i] != 0) & (sums[j] != 0)
+        varying = (ranks[i][2] > 1) & (ranks[j][2] > 1)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            values = (
+                np.where(varying & (var_x > 0), covariance / var_x, 0.0),
+                np.where(varying & (var_y > 0), covariance / var_y, 0.0),
+                product / np.sqrt(squares[i] * squares[j]),
+                product / squares[i], product / squares[j],
+                np.bincount(flat, x * above[j], size) / sums[i],
+                np.bincount(flat, y * above[i], size) / sums[j],
+                np.bincount(flat, x * weight * above[j], size) / sums[i],
+                np.bincount(flat, y * weight * above[i], size) / sums[j])
+        for index, (stat, result) in enumerate(zip(stats, values)):
+            if index >= 2:
+                result = np.where(valid, result, 0.0)
+            out[f'channel_{i}_channel_{j}_{stat}'] = result[present]
+    return pd.DataFrame(out)
+
+
 def measure_neighbours(labels, radius=50):
     """Each object's neighbourhood: spaCR's spatial block.
 
