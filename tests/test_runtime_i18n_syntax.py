@@ -1836,3 +1836,40 @@ def test_hitchhiker_title_preserves_guide_without_changing_molecular_guides(monk
     assert not builder._translation_rejection_reasons(source, target, "zh_CN", force=True)
     assert builder._contextualize("每个基因的指南数量。", "zh_CN",
                                   "Count guides per gene.") == "每个基因的引导 RNA数量。"
+
+
+def test_derived_ngff_label_uses_exact_reviewed_acronyms_without_new_ui_caption(tmp_path, monkeypatch):
+    """Load approved label glosses while retaining strict syntax for other wording."""
+    import build_i18n_catalogs as builder
+
+    source = 'Ome zarr ngff version'
+    targets = {
+        'sv': 'OME-Zarr NGFF-version',
+        'de': 'OME-Zarr-NGFF-Version',
+        'es': 'Versión NGFF de OME-Zarr',
+        'zh_CN': 'OME-Zarr NGFF 版本',
+        'pt': 'Versão NGFF do OME-Zarr',
+        'hi': 'OME-Zarr NGFF संस्करण',
+        'ko': 'OME-Zarr NGFF 버전',
+        'is': 'NGFF-útgáfa OME-Zarr',
+        'fr': 'Version NGFF d’OME-Zarr',
+    }
+    assert source not in builder.MANUAL_UI
+    monkeypatch.setattr(builder, 'REVIEWED_RUNTIME_DIR', tmp_path)
+    canonical = {'setting_labels': {'ome_zarr_ngff_version': source}}
+    for language, target in targets.items():
+        directory = tmp_path / language
+        directory.mkdir()
+        record = {
+            'table': 'setting_labels', 'key': 'ome_zarr_ngff_version',
+            'source': source, 'source_sha256': hashlib.sha256(source.encode()).hexdigest(),
+            'translation': target,
+        }
+        (directory / 'reviewed.json').write_text(json.dumps({
+            'language': language, 'records': [record], 'schema': 1,
+        }, ensure_ascii=False), encoding='utf-8')
+        assert builder._reviewed_runtime_translations(language, sources=canonical) == {source: target}
+        assert not builder._syntax_preserved(source, target)
+        assert not builder._syntax_preserved_or_reviewed(
+            source, target.replace('OME-Zarr', 'Cellpose'), language)
+        assert not builder._syntax_preserved_or_reviewed(source, target + ' {unexpected}', language)

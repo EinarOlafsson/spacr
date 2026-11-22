@@ -3793,6 +3793,19 @@ MANUAL_TRANSLATIONS["Ome zarr store registration"] = {
 }
 
 
+MANUAL_TRANSLATIONS["Ome zarr ngff version"] = {
+    "sv": "OME-Zarr NGFF-version",
+    "de": "OME-Zarr-NGFF-Version",
+    "es": "Versión NGFF de OME-Zarr",
+    "zh_CN": "OME-Zarr NGFF 版本",
+    "pt": "Versão NGFF do OME-Zarr",
+    "hi": "OME-Zarr NGFF संस्करण",
+    "ko": "OME-Zarr NGFF 버전",
+    "is": "NGFF-útgáfa OME-Zarr",
+    "fr": "Version NGFF d’OME-Zarr",
+}
+
+
 MANUAL_TRANSLATIONS["Power hit rate"] = {
     "sv": "Effektens träfffrekvens",
     "de": "Trefferquote der Teststärke",
