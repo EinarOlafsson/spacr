@@ -4934,6 +4934,467 @@ def _cpg_measure_runtime_sources(tree: ast.Module) -> set[str]:
             if value is not None and _looks_translatable(value):
                 found.add(value.strip())
     return found
+_STATIC_UI_FILE_CACHE: dict[object, object] = {}
+
+
+def _static_ui_rules() -> tuple[object, ...]:
+    """Return copies of every table and helper the per-file extraction reads.
+
+    :func:`extract_static_ui_sources` reuses a file's result only while this
+    value is unchanged, so a patched or edited rule table invalidates it.
+
+    :returns: the rule tables (copied) and helper functions.
+    """
+    return (
+        frozenset(_IDENTITY_TEXT), dict(_HELPER_CAPTION_RULES),
+        frozenset(_TEXT_METHODS), frozenset(_TEXT_CONSTRUCTORS),
+        frozenset(_DIALOG_METHODS), frozenset(_FILE_DIALOG_METHODS),
+        frozenset(_INPUT_DIALOG_METHODS), _looks_translatable,
+        _literal_strings, _literal, _call_name, _candidate_arguments,
+        _helper_caption_arguments, _metadata_type_status_sources,
+        _cpg_measure_runtime_sources, _flatfield_fit_runtime_sources, _ops_profile_cell_cycle_method_sources, _static_ui_sources_of_file,
+        _ngff06_runtime_sources,
+    )
+
+
+def _static_ui_sources_of_file(
+    path: Path, text: str, source_root: Path, preferences_path: Path,
+) -> frozenset[str]:
+    """Return the literal Qt presentation strings one source file contributes.
+
+    The result depends only on the file's path and text and on the rule
+    tables :func:`_static_ui_rules` lists, so within one process each file
+    is parsed once however often the sources are inventoried.
+
+    :param path: the source file.
+    :param text: its contents.
+    :param source_root: the ``spacr`` package directory.
+    :param preferences_path: ``spacr/qt/preferences.py``.
+    :returns: the stripped presentation strings found in the file.
+    """
+    found: set[str] = set()
+    if "i18n_catalogs" in path.parts:
+        return frozenset(found)
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return frozenset(found)
+    if path == source_root / "ops_engine.py":
+        # 995's and 1006's owners are read here; the file then goes on to the
+        # crop owners below (train 7), which a `continue` here skipped.
+        found.update(_ops_profile_cell_cycle_method_sources(tree))
+        found.update(_flatfield_fit_runtime_sources(
+            tree, {"_ph_channel_fits", "_ph_object_fields", "_ph_flatfield_objects"}))
+    if path == source_root / "ops_flatfield.py":
+        found.update(_flatfield_fit_runtime_sources(tree, {"load_flat_maps"}))
+        return frozenset(found)
+    if path == source_root / "cpg_measure.py":
+        found.update(_cpg_measure_runtime_sources(tree))
+        return frozenset(found)
+    if path == source_root / "ome_zarr.py":
+        found.update(_ngff06_runtime_sources(tree, {
+            "_warn_transform_once", "_ngff06_endpoint", "_check_ngff06_transform",
+            "_ngff06_layout", "write_ome_zarr", "multiscale_to_ngff06",
+            "_check_extra_ngff06", "_dataset_to_ngff06", "multiscale_to_ngff05",
+            "_transform_values", "_transform_stored", "_matrix",
+        }))
+        return frozenset(found)
+    if path == source_root / "image_store.py":
+        found.update(_ngff06_runtime_sources(tree, {"PlateWriter.__init__", "PlateWriter.write_field"}))
+        return frozenset(found)
+    if path == source_root / "ops_engine.py":
+        found.update(_ngff06_runtime_sources(tree, {"_ph_ngff_version"}))
+    if path.parent == source_root and path.name in {"settings.py", "object.py"}:
+        diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}
+        if path.name == "object.py":
+            diagnostic_owners.update({"_diameter_bindings", "_remember_diameter",
+                                      "_cellpose3_resolved_sizes"})
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in diagnostic_owners]
+    if path == source_root / "_mask_workers.py":
+        diagnostic_methods = {
+            "_MaskBatchLedger": {"_resolved_receipt", "verified"},
+            "_MaskWorkerPool": {"_handle"},
+        }
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.ClassDef)
+                     and node.name in diagnostic_methods]
+        for node in tree.body:
+            node.body = [method for method in node.body
+                         if isinstance(method, ast.FunctionDef)
+                         and method.name in diagnostic_methods[node.name]]
+    if path == source_root / "io.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in {"_validate_normalized_source_channels",
+                                       "_resume_normalized_archives",
+                                       "_normalize_recorded_batch", "_dataset_crop_refs",
+                                       "generate_dataset_from_lists"}]
+    if path == source_root / "data_manager.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "is_prunable"]
+    if path == source_root / "model_zoo.py":
+        # Shared acquisition diagnostics and curated scorecard display
+        # text own captions; unrelated metadata and backend prose do not.
+        diagnostic_owners = {
+            "_ensure_catalogue_model_file", "_curated_scorecard_rows",
+            "_curated_scorecard_lines", "_model_resolution_context",
+            "scorecard_state_text",
+        }
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in diagnostic_owners]
+    if path == source_root / "validate.py":
+        # Only the regression preflight findings shown before a run are
+        # catalogued; the other settings checks stay English for now.
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in {"_check_regression_inputs",
+                                       "_check_regression_score_columns",
+                                       "_check_annotation_column_in_png_list"}]
+    if path == source_root / "uniprot.py":
+        # The busy-UniProt notice the gene annotation shows is the
+        # module's only caption; cache and request prose stays internal.
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "annotation_for"]
+    if path == source_root / "run_journal.py":
+        # Keep the Windows secret refusal and exact saved-run diagnostics;
+        # other captions reach the catalog through the GUI.
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in {"_restrict_to_owner", "_resolved_plain",
+                                       "_validate_resolved_parameters", "_resolved_field_id",
+                                       "_resolved_source", "_resolved_parameter",
+                                       "_record_resolved_parameter"}]
+    if path == source_root / "utils.py":
+        tree.body = [node for node in tree.body
+                     if (isinstance(node, ast.FunctionDef)
+                         and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
+                                           "_cellpose_stock_preflight", "filter_dataframe_features"})
+                     or (isinstance(node, ast.ClassDef)
+                         and node.name == "CustomCellClassifier")]
+    if path == source_root / "torch_artifacts.py":
+        # The refusals of old custom-classifier models are its only captions.
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in {"_old_custom_head_message", "_refuse_old_custom_head"}]
+    if path == source_root / "attribution.py":
+        diagnostic_owners = {
+            "_cf_preserved_channels", "_cf_preserve_reference_channels",
+            "_counterfactual_sequences", "_counterfactual_report",
+            "_cf_structure_weight", "_cf_diffusion_strength", "_cf_structure_loss",
+            "_cf_checkpoint_error",
+        }
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in diagnostic_owners]
+    if path == source_root / "embeddings.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in {"encoder_entry", "_mil_frame_from_db", "_mil_frame_from_result", "_mil_bags",
+                                       "_backbone_scorecards", "_dino_classifier_from_config",
+                                       "_dino_classifier_from_checkpoint",
+                                       "_dino_finetune_classifier", "_dino_classifier_apply"}]
+    if path == source_root / "measure.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in {
+                         "_phases_by_xgboost", "_phases_by_torch", "_wound_plane",
+                         "_viability_manual",
+                         "_measurement_channel_index",
+                         "measure_cytoskeleton",
+                         "_measurement_run_locks",
+                         "_archive_measurement_run",
+                         "_wound_calibration",
+                         "measure_from_field_table",
+                         "_volume_measure_spacing", "_volume_measure_input",
+                         "_write_volume_measurements", "measure_volume_rows",
+                         "_validate_measurement_coordinate_source",
+                         "_calibrated_measurement_checkpoint",
+                         "_publish_calibrated_measurement_directory",
+                         "_calibrated_cell_statistics", "measure_calibrated_cells",
+                         "resolve_n_jobs", "resolve_measurement_spacing",
+                         "_measurement_channel_names", "_granularity_frames",
+                         "_promote_merged_to_uint16", "_measure_field_confluency",
+                         "_fit_dna_content", "_fucci_states",
+                         "_cell_cycle_fit_groups", "_cell_table_phases_measure_fc",
+                         "_phases_by_centred_measurements", "_external_mitotic_call",
+                         "_resolve_cell_cycle_methods", "_wound_condition_lookup",
+                         "_well_roles", "_read_plate_map", "_classify_viability",
+                         "_checked_intensity", "_checked_label",
+                         "write_field_table_project",
+                         "_read_measure_field", "measure_crop",
+                     }]
+    if path == source_root / "channel_sorting.py":
+        tree.body = [node for node in tree.body
+                     if (isinstance(node, ast.FunctionDef)
+                         and node.name in {"build_plan", "_few"})
+                     or (isinstance(node, ast.ClassDef)
+                         and node.name == "SetReport")]
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef):
+                node.body = [method for method in node.body
+                             if isinstance(method, ast.FunctionDef)
+                             and method.name == "summary"]
+    if path == source_root / "object_classifier.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "_annotated_real_crops"]
+    if path == source_root / "core.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in {"_microscope_positions", "preprocess_generate_masks"}]
+    if path == source_root / "pipeline_v2.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in {"_read_plane", "_calibrated_label_array",
+                                       "stream_originals_to_stack", "stream_masks_from_stack", "run_v2",
+                                       "_run_partitioned_v2"}]
+    if path == source_root / "psf_pipeline.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, (ast.FunctionDef, ast.ClassDef))
+                     and node.name in {"_prepare_unmixing", "_prepare_measure_unmixing",
+                                       "_load_unmix_calibration", "_UnmixCalibration",
+                                       "_UnmixPlan", "_initialize_calibrated_output",
+                                       "_validate_calibrated_batch_settings",
+                                       "_validate_unmix_plate_scope", "_plate_unmix_controls",
+                                       "_partition_input_error", "_validate_unmix_partition_scope",
+                                       "_validate_unmix_matrix_scope", "_matrix_input_error",
+                                       "_plate_control_input",
+                                       "_prepare_segmentation_psf", "_SegmentationPSFSession",
+                                       "_cell_record_error", "_CalibratedCellDataset"}]
+    if path == source_root / "ops_sbs.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "never_barcodes"]
+    if path == source_root / "ops_decode.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name in {"_vote_weighting", "cached_neighbours",
+                                       "never_scale", "calibrate_fdr_scale",
+                                       "_field_candidates", "_write_calibration_report",
+                                       "_never_settings"}]
+    if path == source_root / "_lineage_trees.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef)
+                     and node.name == "_lineage_explicit_parents"]
+    is_preferences = path == preferences_path
+    if path == source_root / "classification_pixels.py":
+        tree.body = [node for node in tree.body
+                     if (isinstance(node, ast.FunctionDef) and node.name in {
+                         "_read_crop_index", "_crop_index_integer",
+                         "_native_crop_reference", "_indexed_crop_samples"})
+                     or (isinstance(node, ast.ClassDef)
+                         and node.name == "_NativeCropReference")]
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef):
+                node.body = [method for method in node.body
+                             if isinstance(method, ast.FunctionDef) and method.name == "raw"]
+    if path == source_root / "crop_store.py":
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.ClassDef) and node.name == "CropPoolWriter"]
+        for node in tree.body:
+            node.body = [method for method in node.body
+                         if isinstance(method, ast.FunctionDef)
+                         and method.name in {"__init__", "_set_attributes", "add"}]
+    crop_owners = {
+        "crop_loader.py": {"plan_from_database", "load_page", "load_crops"},
+        "crops.py": {"_ome_zarr_crop_source", "resolve_crop_source"},
+        "ops_engine.py": {"_ph_crop_format", "_ph_image_format", "_ph_write_crop_pool", "_ph_crops", "_ph_segmentation_inputs"},
+    }
+    if path.parent == source_root and path.name in crop_owners:
+        tree.body = [node for node in tree.body
+                     if isinstance(node, ast.FunctionDef) and node.name in crop_owners[path.name]]
+    filename = path.name
+    helper_module = path.relative_to(source_root).as_posix().removeprefix("qt/")
+    constants: dict[str, ast.AST] = {}
+    for statement in tree.body:
+        if (isinstance(statement, ast.Assign)
+                and len(statement.targets) == 1
+                and isinstance(statement.targets[0], ast.Name)):
+            constants[statement.targets[0].id] = statement.value
+        elif (isinstance(statement, ast.AnnAssign)
+              and isinstance(statement.target, ast.Name)
+              and statement.value is not None):
+            constants[statement.target.id] = statement.value
+    if helper_module == "screens/settings_model.py":
+        found.update(_metadata_type_status_sources(tree, constants))
+    if helper_module == "shortcuts.py":
+        for statement in tree.body:
+            if not (
+                isinstance(statement, ast.AnnAssign)
+                and isinstance(statement.target, ast.Name)
+                and statement.target.id == "SHORTCUTS"
+                and isinstance(statement.value, ast.List)
+            ):
+                continue
+            for shortcut in statement.value.elts:
+                if not (
+                    isinstance(shortcut, ast.Call)
+                    and isinstance(shortcut.func, ast.Name)
+                    and shortcut.func.id == "ShortcutSpec"
+                    and len(shortcut.args) >= 2
+                    and isinstance(shortcut.args[0], ast.Constant)
+                    and shortcut.args[0].value == "Ctrl+Alt+0"
+                    and isinstance(shortcut.args[1], ast.Constant)
+                    and isinstance(shortcut.args[1].value, str)
+                ):
+                    continue
+                value = shortcut.args[1].value
+                if _looks_translatable(value):
+                    found.add(value.strip())
+    if helper_module == "widgets/model_zoo_picker.py":
+        mapping = constants.get("_SOURCE_TOOLTIPS")
+        if isinstance(mapping, ast.Dict):
+            for field in mapping.values:
+                if isinstance(field, ast.Constant) and isinstance(field.value, str):
+                    found.update(value.strip() for value in
+                                 _literal_strings(field, constants)
+                                 if _looks_translatable(value))
+    for node in ast.walk(tree):
+        if (
+            is_preferences
+            and isinstance(node, ast.For)
+            and isinstance(node.target, ast.Tuple)
+            and tuple(getattr(item, "id", None) for item in node.target.elts)
+            == ("key", "check", "label", "note")
+            and isinstance(node.iter, (ast.Tuple, ast.List))
+        ):
+            # Spaceout's effect rows keep storage keys and widgets beside
+            # presentation fields. Inventory only the label/note columns;
+            # tr(label) and tr(note) cannot expose those literals alone.
+            for row in node.iter.elts:
+                if isinstance(row, (ast.Tuple, ast.List)) and len(row.elts) == 4:
+                    for field in row.elts[2:]:
+                        found.update(value.strip() for value in
+                                     _literal_strings(field, constants)
+                                     if _looks_translatable(value))
+        if (
+            isinstance(node, (ast.Assign, ast.AnnAssign))
+            and (
+                (
+                    isinstance(node, ast.Assign)
+                    and len(node.targets) == 1
+                    and isinstance(node.targets[0], ast.Name)
+                    and node.targets[0].id == "preview_controls"
+                )
+                or (
+                    isinstance(node, ast.AnnAssign)
+                    and isinstance(node.target, ast.Name)
+                    and node.target.id == "preview_controls"
+                )
+            )
+        ):
+            # ``AppScreen`` stores each runtime-preview tooltip in a
+            # local mapping as ``app_key: (card_attribute, tooltip)`` and
+            # passes the selected value indirectly to ``AiToggleLabel``.
+            # Inspect only tuple item 1 so private attribute names never
+            # enter the presentation catalog.
+            mapping = node.value
+            if isinstance(mapping, ast.Dict):
+                for item in mapping.values:
+                    if isinstance(item, (ast.Tuple, ast.List)) and len(
+                        item.elts
+                    ) >= 2:
+                        for value in _literal_strings(
+                            item.elts[1], constants
+                        ):
+                            if _looks_translatable(value):
+                                found.add(value.strip())
+        if (
+            filename == "measure_preview.py"
+            and isinstance(node, (ast.Assign, ast.AnnAssign))
+            and (
+                (
+                    isinstance(node, ast.Assign)
+                    and len(node.targets) == 1
+                    and isinstance(node.targets[0], ast.Name)
+                    and node.targets[0].id == "tooltips"
+                )
+                or (
+                    isinstance(node, ast.AnnAssign)
+                    and isinstance(node.target, ast.Name)
+                    and node.target.id == "tooltips"
+                )
+            )
+            and isinstance(node.value, ast.Dict)
+        ):
+            # Measure Preview attaches these values in a local
+            # widget->tooltip mapping, so the later ``setToolTip(text)``
+            # call has no literal argument for the generic walker.
+            for item in node.value.values:
+                for value in _literal_strings(item, constants):
+                    if _looks_translatable(value):
+                        found.add(value.strip())
+        if (
+            filename == "annotate.py"
+            and isinstance(node, (ast.Assign, ast.AnnAssign))
+            and (
+                (
+                    isinstance(node, ast.Assign)
+                    and len(node.targets) == 1
+                    and isinstance(node.targets[0], ast.Name)
+                    and node.targets[0].id == "_PRIMARY_LABELS"
+                )
+                or (
+                    isinstance(node, ast.AnnAssign)
+                    and isinstance(node.target, ast.Name)
+                    and node.target.id == "_PRIMARY_LABELS"
+                )
+            )
+            and isinstance(node.value, ast.Dict)
+        ):
+            for item in node.value.values:
+                for value in _literal_strings(item, constants):
+                    if _looks_translatable(value):
+                        found.add(value.strip())
+        if (
+            filename == "distributed_jobs.py"
+            and isinstance(node, ast.Tuple)
+            and len(node.elts) == 3
+            and isinstance(node.elts[0], ast.Constant)
+            and isinstance(node.elts[0].value, str)
+            and isinstance(node.elts[2], ast.Constant)
+            and isinstance(node.elts[2].value, str)
+            and node.elts[2].value.startswith("ssh_")
+        ):
+            # SSH profile rows use (caption, widget, API key) tuples;
+            # the eventual translated label receives a loop variable.
+            found.add(node.elts[0].value.strip())
+        if not isinstance(node, ast.Call):
+            continue
+        name = _call_name(node)
+        for argument in _helper_caption_arguments(
+            node, helper_module, name,
+        ):
+            for value in _literal_strings(argument, constants):
+                if _looks_translatable(value):
+                    found.add(value.strip())
+        if not (
+            name in _TEXT_METHODS
+            or name in _TEXT_CONSTRUCTORS
+            or name in _DIALOG_METHODS
+            or name in _FILE_DIALOG_METHODS
+            or name in _INPUT_DIALOG_METHODS
+            or name == "QProgressDialog"
+            or name in {"addTab", "addItem", "addItems",
+                        "setHorizontalHeaderLabels", "setHeaderLabels"}
+        ):
+            continue
+        if name in {"addItems", "setHorizontalHeaderLabels",
+                    "setHeaderLabels"} and node.args:
+            for value in _literal_strings(node.args[0], constants):
+                if _looks_translatable(value):
+                    found.add(value.strip())
+            continue
+        for argument in _candidate_arguments(node, name):
+            for value in _literal_strings(argument, constants):
+                if _looks_translatable(value):
+                    found.add(value.strip())
+    return frozenset(found)
 
 
 def extract_static_ui_sources() -> tuple[str, ...]:
@@ -5006,428 +5467,22 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "image_store.py")
     source_root = ROOT / "spacr"
     preferences_path = source_root / "qt" / "preferences.py"
+    rules = _static_ui_rules()
+    if _STATIC_UI_FILE_CACHE.get("rules") != rules:
+        _STATIC_UI_FILE_CACHE.clear()
+        _STATIC_UI_FILE_CACHE["rules"] = rules
     for path in sorted(paths):
         if "i18n_catalogs" in path.parts:
             continue
-        try:
-            tree = ast.parse(path.read_text(encoding="utf-8"))
-        except SyntaxError:
-            continue
-        if path == source_root / "ops_engine.py":
-            # 995's and 1006's owners are read here; the file then goes on to the
-            # crop owners below (train 7), which a `continue` here skipped.
-            found.update(_ops_profile_cell_cycle_method_sources(tree))
-            found.update(_flatfield_fit_runtime_sources(
-                tree, {"_ph_channel_fits", "_ph_object_fields", "_ph_flatfield_objects"}))
-        if path == source_root / "ops_flatfield.py":
-            found.update(_flatfield_fit_runtime_sources(tree, {"load_flat_maps"}))
-            continue
-        if path == source_root / "cpg_measure.py":
-            found.update(_cpg_measure_runtime_sources(tree))
-            continue
-        if path == source_root / "ome_zarr.py":
-            found.update(_ngff06_runtime_sources(tree, {
-                "_warn_transform_once", "_ngff06_endpoint", "_check_ngff06_transform",
-                "_ngff06_layout", "write_ome_zarr", "multiscale_to_ngff06",
-                "_check_extra_ngff06", "_dataset_to_ngff06", "multiscale_to_ngff05",
-                "_transform_values", "_transform_stored", "_matrix",
-            }))
-            continue
-        if path == source_root / "image_store.py":
-            found.update(_ngff06_runtime_sources(tree, {"PlateWriter.__init__", "PlateWriter.write_field"}))
-            continue
-        if path == source_root / "ops_engine.py":
-            found.update(_ngff06_runtime_sources(tree, {"_ph_ngff_version"}))
-        if path.parent == source_root and path.name in {"settings.py", "object.py"}:
-            diagnostic_owners = {"_own_diameter", "_eval_diameter", "_note_the_diameter"}
-            if path.name == "object.py":
-                diagnostic_owners.update({"_diameter_bindings", "_remember_diameter",
-                                          "_cellpose3_resolved_sizes"})
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in diagnostic_owners]
-        if path == source_root / "_mask_workers.py":
-            diagnostic_methods = {
-                "_MaskBatchLedger": {"_resolved_receipt", "verified"},
-                "_MaskWorkerPool": {"_handle"},
-            }
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.ClassDef)
-                         and node.name in diagnostic_methods]
-            for node in tree.body:
-                node.body = [method for method in node.body
-                             if isinstance(method, ast.FunctionDef)
-                             and method.name in diagnostic_methods[node.name]]
-        if path == source_root / "io.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_validate_normalized_source_channels",
-                                           "_resume_normalized_archives",
-                                           "_normalize_recorded_batch", "_dataset_crop_refs",
-                                           "generate_dataset_from_lists"}]
-        if path == source_root / "data_manager.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name == "is_prunable"]
-        if path == source_root / "model_zoo.py":
-            # Shared acquisition diagnostics and curated scorecard display
-            # text own captions; unrelated metadata and backend prose do not.
-            diagnostic_owners = {
-                "_ensure_catalogue_model_file", "_curated_scorecard_rows",
-                "_curated_scorecard_lines", "_model_resolution_context",
-                "scorecard_state_text",
-            }
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in diagnostic_owners]
-        if path == source_root / "validate.py":
-            # Only the regression preflight findings shown before a run are
-            # catalogued; the other settings checks stay English for now.
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_check_regression_inputs",
-                                           "_check_regression_score_columns",
-                                           "_check_annotation_column_in_png_list"}]
-        if path == source_root / "uniprot.py":
-            # The busy-UniProt notice the gene annotation shows is the
-            # module's only caption; cache and request prose stays internal.
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name == "annotation_for"]
-        if path == source_root / "run_journal.py":
-            # Keep the Windows secret refusal and exact saved-run diagnostics;
-            # other captions reach the catalog through the GUI.
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_restrict_to_owner", "_resolved_plain",
-                                           "_validate_resolved_parameters", "_resolved_field_id",
-                                           "_resolved_source", "_resolved_parameter",
-                                           "_record_resolved_parameter"}]
-        if path == source_root / "utils.py":
-            tree.body = [node for node in tree.body
-                         if (isinstance(node, ast.FunctionDef)
-                             and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
-                                               "_cellpose_stock_preflight", "filter_dataframe_features"})
-                         or (isinstance(node, ast.ClassDef)
-                             and node.name == "CustomCellClassifier")]
-        if path == source_root / "torch_artifacts.py":
-            # The refusals of old custom-classifier models are its only captions.
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_old_custom_head_message", "_refuse_old_custom_head"}]
-        if path == source_root / "attribution.py":
-            diagnostic_owners = {
-                "_cf_preserved_channels", "_cf_preserve_reference_channels",
-                "_counterfactual_sequences", "_counterfactual_report",
-                "_cf_structure_weight", "_cf_diffusion_strength", "_cf_structure_loss",
-                "_cf_checkpoint_error",
-            }
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in diagnostic_owners]
-        if path == source_root / "embeddings.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in {"encoder_entry", "_mil_frame_from_db", "_mil_frame_from_result", "_mil_bags",
-                                           "_backbone_scorecards", "_dino_classifier_from_config",
-                                           "_dino_classifier_from_checkpoint",
-                                           "_dino_finetune_classifier", "_dino_classifier_apply"}]
-        if path == source_root / "measure.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in {
-                             "_phases_by_xgboost", "_phases_by_torch", "_wound_plane",
-                             "_viability_manual",
-                             "_measurement_channel_index",
-                             "measure_cytoskeleton",
-                             "_measurement_run_locks",
-                             "_archive_measurement_run",
-                             "_wound_calibration",
-                             "measure_from_field_table",
-                             "_volume_measure_spacing", "_volume_measure_input",
-                             "_write_volume_measurements", "measure_volume_rows",
-                             "_validate_measurement_coordinate_source",
-                             "_calibrated_measurement_checkpoint",
-                             "_publish_calibrated_measurement_directory",
-                             "_calibrated_cell_statistics", "measure_calibrated_cells",
-                             "resolve_n_jobs", "resolve_measurement_spacing",
-                             "_measurement_channel_names", "_granularity_frames",
-                             "_promote_merged_to_uint16", "_measure_field_confluency",
-                             "_fit_dna_content", "_fucci_states",
-                             "_cell_cycle_fit_groups", "_cell_table_phases_measure_fc",
-                             "_phases_by_centred_measurements", "_external_mitotic_call",
-                             "_resolve_cell_cycle_methods", "_wound_condition_lookup",
-                             "_well_roles", "_read_plate_map", "_classify_viability",
-                             "_checked_intensity", "_checked_label",
-                             "write_field_table_project",
-                             "_read_measure_field", "measure_crop",
-                         }]
-        if path == source_root / "channel_sorting.py":
-            tree.body = [node for node in tree.body
-                         if (isinstance(node, ast.FunctionDef)
-                             and node.name in {"build_plan", "_few"})
-                         or (isinstance(node, ast.ClassDef)
-                             and node.name == "SetReport")]
-            for node in tree.body:
-                if isinstance(node, ast.ClassDef):
-                    node.body = [method for method in node.body
-                                 if isinstance(method, ast.FunctionDef)
-                                 and method.name == "summary"]
-        if path == source_root / "object_classifier.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name == "_annotated_real_crops"]
-        if path == source_root / "core.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_microscope_positions", "preprocess_generate_masks"}]
-        if path == source_root / "pipeline_v2.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_read_plane", "_calibrated_label_array",
-                                           "stream_originals_to_stack", "stream_masks_from_stack", "run_v2",
-                                           "_run_partitioned_v2"}]
-        if path == source_root / "psf_pipeline.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, (ast.FunctionDef, ast.ClassDef))
-                         and node.name in {"_prepare_unmixing", "_prepare_measure_unmixing",
-                                           "_load_unmix_calibration", "_UnmixCalibration",
-                                           "_UnmixPlan", "_initialize_calibrated_output",
-                                           "_validate_calibrated_batch_settings",
-                                           "_validate_unmix_plate_scope", "_plate_unmix_controls",
-                                           "_partition_input_error", "_validate_unmix_partition_scope",
-                                           "_validate_unmix_matrix_scope", "_matrix_input_error",
-                                           "_plate_control_input",
-                                           "_prepare_segmentation_psf", "_SegmentationPSFSession",
-                                           "_cell_record_error", "_CalibratedCellDataset"}]
-        if path == source_root / "ops_sbs.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name == "never_barcodes"]
-        if path == source_root / "ops_decode.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_vote_weighting", "cached_neighbours",
-                                           "never_scale", "calibrate_fdr_scale",
-                                           "_field_candidates", "_write_calibration_report",
-                                           "_never_settings"}]
-        if path == source_root / "_lineage_trees.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef)
-                         and node.name == "_lineage_explicit_parents"]
-        is_preferences = path == preferences_path
-        if path == source_root / "classification_pixels.py":
-            tree.body = [node for node in tree.body
-                         if (isinstance(node, ast.FunctionDef) and node.name in {
-                             "_read_crop_index", "_crop_index_integer",
-                             "_native_crop_reference", "_indexed_crop_samples"})
-                         or (isinstance(node, ast.ClassDef)
-                             and node.name == "_NativeCropReference")]
-            for node in tree.body:
-                if isinstance(node, ast.ClassDef):
-                    node.body = [method for method in node.body
-                                 if isinstance(method, ast.FunctionDef) and method.name == "raw"]
-        if path == source_root / "crop_store.py":
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.ClassDef) and node.name == "CropPoolWriter"]
-            for node in tree.body:
-                node.body = [method for method in node.body
-                             if isinstance(method, ast.FunctionDef)
-                             and method.name in {"__init__", "_set_attributes", "add"}]
-        crop_owners = {
-            "crop_loader.py": {"plan_from_database", "load_page", "load_crops"},
-            "crops.py": {"_ome_zarr_crop_source", "resolve_crop_source"},
-            "ops_engine.py": {"_ph_crop_format", "_ph_image_format", "_ph_write_crop_pool", "_ph_crops", "_ph_segmentation_inputs"},
-        }
-        if path.parent == source_root and path.name in crop_owners:
-            tree.body = [node for node in tree.body
-                         if isinstance(node, ast.FunctionDef) and node.name in crop_owners[path.name]]
-        filename = path.name
-        helper_module = path.relative_to(source_root).as_posix().removeprefix("qt/")
-        constants: dict[str, ast.AST] = {}
-        for statement in tree.body:
-            if (isinstance(statement, ast.Assign)
-                    and len(statement.targets) == 1
-                    and isinstance(statement.targets[0], ast.Name)):
-                constants[statement.targets[0].id] = statement.value
-            elif (isinstance(statement, ast.AnnAssign)
-                  and isinstance(statement.target, ast.Name)
-                  and statement.value is not None):
-                constants[statement.target.id] = statement.value
-        if helper_module == "screens/settings_model.py":
-            found.update(_metadata_type_status_sources(tree, constants))
-        if helper_module == "shortcuts.py":
-            for statement in tree.body:
-                if not (
-                    isinstance(statement, ast.AnnAssign)
-                    and isinstance(statement.target, ast.Name)
-                    and statement.target.id == "SHORTCUTS"
-                    and isinstance(statement.value, ast.List)
-                ):
-                    continue
-                for shortcut in statement.value.elts:
-                    if not (
-                        isinstance(shortcut, ast.Call)
-                        and isinstance(shortcut.func, ast.Name)
-                        and shortcut.func.id == "ShortcutSpec"
-                        and len(shortcut.args) >= 2
-                        and isinstance(shortcut.args[0], ast.Constant)
-                        and shortcut.args[0].value == "Ctrl+Alt+0"
-                        and isinstance(shortcut.args[1], ast.Constant)
-                        and isinstance(shortcut.args[1].value, str)
-                    ):
-                        continue
-                    value = shortcut.args[1].value
-                    if _looks_translatable(value):
-                        found.add(value.strip())
-        if helper_module == "widgets/model_zoo_picker.py":
-            mapping = constants.get("_SOURCE_TOOLTIPS")
-            if isinstance(mapping, ast.Dict):
-                for field in mapping.values:
-                    if isinstance(field, ast.Constant) and isinstance(field.value, str):
-                        found.update(value.strip() for value in
-                                     _literal_strings(field, constants)
-                                     if _looks_translatable(value))
-        for node in ast.walk(tree):
-            if (
-                is_preferences
-                and isinstance(node, ast.For)
-                and isinstance(node.target, ast.Tuple)
-                and tuple(getattr(item, "id", None) for item in node.target.elts)
-                == ("key", "check", "label", "note")
-                and isinstance(node.iter, (ast.Tuple, ast.List))
-            ):
-                # Spaceout's effect rows keep storage keys and widgets beside
-                # presentation fields. Inventory only the label/note columns;
-                # tr(label) and tr(note) cannot expose those literals alone.
-                for row in node.iter.elts:
-                    if isinstance(row, (ast.Tuple, ast.List)) and len(row.elts) == 4:
-                        for field in row.elts[2:]:
-                            found.update(value.strip() for value in
-                                         _literal_strings(field, constants)
-                                         if _looks_translatable(value))
-            if (
-                isinstance(node, (ast.Assign, ast.AnnAssign))
-                and (
-                    (
-                        isinstance(node, ast.Assign)
-                        and len(node.targets) == 1
-                        and isinstance(node.targets[0], ast.Name)
-                        and node.targets[0].id == "preview_controls"
-                    )
-                    or (
-                        isinstance(node, ast.AnnAssign)
-                        and isinstance(node.target, ast.Name)
-                        and node.target.id == "preview_controls"
-                    )
-                )
-            ):
-                # ``AppScreen`` stores each runtime-preview tooltip in a
-                # local mapping as ``app_key: (card_attribute, tooltip)`` and
-                # passes the selected value indirectly to ``AiToggleLabel``.
-                # Inspect only tuple item 1 so private attribute names never
-                # enter the presentation catalog.
-                mapping = node.value
-                if isinstance(mapping, ast.Dict):
-                    for item in mapping.values:
-                        if isinstance(item, (ast.Tuple, ast.List)) and len(
-                            item.elts
-                        ) >= 2:
-                            for value in _literal_strings(
-                                item.elts[1], constants
-                            ):
-                                if _looks_translatable(value):
-                                    found.add(value.strip())
-            if (
-                filename == "measure_preview.py"
-                and isinstance(node, (ast.Assign, ast.AnnAssign))
-                and (
-                    (
-                        isinstance(node, ast.Assign)
-                        and len(node.targets) == 1
-                        and isinstance(node.targets[0], ast.Name)
-                        and node.targets[0].id == "tooltips"
-                    )
-                    or (
-                        isinstance(node, ast.AnnAssign)
-                        and isinstance(node.target, ast.Name)
-                        and node.target.id == "tooltips"
-                    )
-                )
-                and isinstance(node.value, ast.Dict)
-            ):
-                # Measure Preview attaches these values in a local
-                # widget->tooltip mapping, so the later ``setToolTip(text)``
-                # call has no literal argument for the generic walker.
-                for item in node.value.values:
-                    for value in _literal_strings(item, constants):
-                        if _looks_translatable(value):
-                            found.add(value.strip())
-            if (
-                filename == "annotate.py"
-                and isinstance(node, (ast.Assign, ast.AnnAssign))
-                and (
-                    (
-                        isinstance(node, ast.Assign)
-                        and len(node.targets) == 1
-                        and isinstance(node.targets[0], ast.Name)
-                        and node.targets[0].id == "_PRIMARY_LABELS"
-                    )
-                    or (
-                        isinstance(node, ast.AnnAssign)
-                        and isinstance(node.target, ast.Name)
-                        and node.target.id == "_PRIMARY_LABELS"
-                    )
-                )
-                and isinstance(node.value, ast.Dict)
-            ):
-                for item in node.value.values:
-                    for value in _literal_strings(item, constants):
-                        if _looks_translatable(value):
-                            found.add(value.strip())
-            if (
-                filename == "distributed_jobs.py"
-                and isinstance(node, ast.Tuple)
-                and len(node.elts) == 3
-                and isinstance(node.elts[0], ast.Constant)
-                and isinstance(node.elts[0].value, str)
-                and isinstance(node.elts[2], ast.Constant)
-                and isinstance(node.elts[2].value, str)
-                and node.elts[2].value.startswith("ssh_")
-            ):
-                # SSH profile rows use (caption, widget, API key) tuples;
-                # the eventual translated label receives a loop variable.
-                found.add(node.elts[0].value.strip())
-            if not isinstance(node, ast.Call):
-                continue
-            name = _call_name(node)
-            for argument in _helper_caption_arguments(
-                node, helper_module, name,
-            ):
-                for value in _literal_strings(argument, constants):
-                    if _looks_translatable(value):
-                        found.add(value.strip())
-            if not (
-                name in _TEXT_METHODS
-                or name in _TEXT_CONSTRUCTORS
-                or name in _DIALOG_METHODS
-                or name in _FILE_DIALOG_METHODS
-                or name in _INPUT_DIALOG_METHODS
-                or name == "QProgressDialog"
-                or name in {"addTab", "addItem", "addItems",
-                            "setHorizontalHeaderLabels", "setHeaderLabels"}
-            ):
-                continue
-            if name in {"addItems", "setHorizontalHeaderLabels",
-                        "setHeaderLabels"} and node.args:
-                for value in _literal_strings(node.args[0], constants):
-                    if _looks_translatable(value):
-                        found.add(value.strip())
-                continue
-            for argument in _candidate_arguments(node, name):
-                for value in _literal_strings(argument, constants):
-                    if _looks_translatable(value):
-                        found.add(value.strip())
+        text = path.read_text(encoding="utf-8")
+        key = (str(path), text)
+        sources_of_file = _STATIC_UI_FILE_CACHE.get(key)
+        if sources_of_file is None:
+            sources_of_file = _static_ui_sources_of_file(
+                path, text, source_root, preferences_path,
+            )
+            _STATIC_UI_FILE_CACHE[key] = sources_of_file
+        found.update(sources_of_file)
 
     found.update(_ops_cell_cycle_runtime_sources())
     found.update(_unknown_settings_runtime_sources())
@@ -5443,6 +5498,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     # The compact catalog already owns these and has stronger human review.
     from spacr.qt.i18n import _ROWS, _TERM_ROWS
     return tuple(sorted(found - set(_ROWS) - set(_TERM_ROWS)))
+
+
 
 
 def canonical_sources() -> dict[str, object]:
@@ -6650,7 +6707,10 @@ def _syntax_preserved(
     # ensure that every nested literal is retained byte-for-byte.
     missing_or_changed = False
     unexpected_nonquotes = False
+    source_text, value_text = str(source), str(value)
     for pattern in _PROTECT_PATTERNS:
+        if pattern.search(source_text) is None and pattern.search(value_text) is None:
+            continue
         protected = matches(pattern, source)
         rendered = matches(pattern, value)
         if any(rendered[literal] < count
@@ -8431,20 +8491,22 @@ def write_language(
     return path
 
 
-def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
-    """Validate key coverage, source freshness and basic translation safety."""
+def _audit_language_failures(
+    sources: Mapping[str, object], language: str,
+) -> list[str]:
+    """Return one locale's runtime catalog audit failures, in audit order.
+
+    :param sources: the canonical English sources.
+    :param language: the locale whose catalog module is checked.
+    :returns: the failure lines; empty when the locale passes.
+    """
     from string import Formatter
     from types import SimpleNamespace
 
-    languages = tuple(languages)
-    if "zh_CN" in languages:
-        # Dependency availability is part of the zh_CN release contract, not
-        # contingent on whether a particular catalog happens to contain a
-        # Traditional character today.
-        _simplify_chinese_prose("")
     failures: list[str] = []
 
     def fields(text: str) -> set[str]:
+        """Return the ``str.format`` field names in ``text``."""
         try:
             return {
                 name for _literal, name, _spec, _conversion
@@ -8454,9 +8516,290 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
             return set()
 
     def html_tags(text: str) -> list[str]:
+        """Return the HTML tags in ``text``, in order."""
         return re.findall(r"</?[A-Za-z][^>]*>", str(text))
 
     expected_labels = set(sources["setting_labels"])
+    expected_tips = set(sources["setting_tooltips"])
+    expected_categories = set(sources["categories"])
+    expected_ui = set(sources["ui"])
+    expected_modules = set(sources["module_summaries"])
+    expected_hashes = _source_hashes(sources)
+    script_pattern = {
+        "zh_CN": re.compile(r"[\u3400-\u9fff]"),
+        "hi": re.compile(r"[\u0900-\u097f]"),
+        "ko": re.compile(r"[\uac00-\ud7af]"),
+    }
+    catalog_path = CATALOG_DIR / f"{language}.py"
+    try:
+        namespace: dict[str, object] = {}
+        exec(
+            compile(
+                catalog_path.read_text(encoding="utf-8"),
+                str(catalog_path),
+                "exec",
+            ),
+            namespace,
+        )
+        module = SimpleNamespace(**namespace)
+    except FileNotFoundError:
+        failures.append(f"{language}: catalog module is missing")
+        return failures
+    if getattr(module, "SECONDARY_MODEL", None) != SECONDARY_MODEL:
+        failures.append(
+            f"{language}: secondary translation model provenance is stale"
+        )
+    if getattr(module, "SECONDARY_LICENSE", None) != SECONDARY_LICENSE:
+        failures.append(
+            f"{language}: secondary translation license provenance is stale"
+        )
+    tables = {
+        "SETTING_LABELS": expected_labels,
+        "SETTING_TOOLTIPS": expected_tips,
+        "CATEGORY_HELP": expected_categories,
+        "UI": expected_ui,
+        "MODULE_SUMMARIES": expected_modules,
+    }
+    source_tables = {
+        "SETTING_LABELS": sources["setting_labels"],
+        "SETTING_TOOLTIPS": sources["setting_tooltips"],
+        "CATEGORY_HELP": {
+            source: source for source in sources["categories"]
+        },
+        "UI": {source: source for source in sources["ui"]},
+        "MODULE_SUMMARIES": sources["module_summaries"],
+    }
+    for name, expected in tables.items():
+        table = getattr(module, name, {})
+        missing = expected - set(table)
+        extra = set(table) - expected
+        blank = [key for key, value in table.items() if not str(value).strip()]
+        if missing:
+            failures.append(f"{language}/{name}: {len(missing)} missing")
+        if extra:
+            failures.append(f"{language}/{name}: {len(extra)} stale")
+        if blank:
+            failures.append(f"{language}/{name}: {len(blank)} blank")
+        degenerate = [
+            key for key, value in table.items()
+            if _looks_degenerate(
+                str(source_tables[name].get(key, key)),
+                str(value), language,
+            )
+        ]
+        if degenerate:
+            failures.append(
+                f"{language}/{name}: {len(degenerate)} degenerate "
+                f"translations ({', '.join(map(str, degenerate[:5]))})"
+            )
+        contextual_errors = [
+            key for key, value in table.items()
+            if _contextualize(
+                str(value), language,
+                str(source_tables[name].get(key, key)),
+            ) != str(value)
+        ]
+        if contextual_errors:
+            failures.append(
+                f"{language}/{name}: {len(contextual_errors)} unresolved "
+                "contextual false friends "
+                f"({', '.join(map(str, contextual_errors[:5]))})"
+            )
+        semantic_errors = [
+            key for key, value in table.items()
+            if _semantic_false_friends(
+                str(source_tables[name].get(key, key)),
+                str(value),
+                language,
+            )
+        ]
+        if semantic_errors:
+            failures.append(
+                f"{language}/{name}: {len(semantic_errors)} semantic "
+                "false friends "
+                f"({', '.join(map(str, semantic_errors[:5]))})"
+            )
+        identity_errors = [
+            key for key, value in table.items()
+            if (
+                str(source_tables[name].get(key, key)) in _IDENTITY_TEXT
+                and str(value) != str(source_tables[name].get(key, key))
+            )
+        ]
+        if identity_errors:
+            failures.append(
+                f"{language}/{name}: {len(identity_errors)} technical "
+                "identity values changed "
+                f"({', '.join(map(str, identity_errors[:5]))})"
+            )
+        reviewed_ui_errors = [
+            key for key, value in table.items()
+            if (
+                _reviewed_translation(
+                    str(source_tables[name].get(key, key)), language,
+                ) is not None
+                and str(value) != _reviewed_translation(
+                    str(source_tables[name].get(key, key)), language,
+                )
+            )
+        ]
+        if reviewed_ui_errors:
+            failures.append(
+                f"{language}/{name}: {len(reviewed_ui_errors)} reviewed "
+                "translations changed "
+                f"({', '.join(map(str, reviewed_ui_errors[:5]))})"
+            )
+        syntax_errors = [
+            key for key, value in table.items()
+            if not _syntax_preserved_or_reviewed(
+                str(source_tables[name].get(key, key)),
+                str(value),
+                language,
+            )
+        ]
+        if syntax_errors:
+            failures.append(
+                f"{language}/{name}: {len(syntax_errors)} protected "
+                "literal or markup failures "
+                f"({', '.join(map(str, syntax_errors[:5]))})"
+            )
+        exact_english = [
+            key for key, value in table.items()
+            if (
+                str(value) == str(source_tables[name].get(key, key))
+                and _looks_translatable(
+                    str(source_tables[name].get(key, key))
+                )
+                and _has_prose_outside_protected_literals(
+                    str(source_tables[name].get(key, key))
+                )
+                and _reviewed_translation(
+                    str(source_tables[name].get(key, key)), language
+                ) != str(value)
+            )
+        ]
+        if exact_english:
+            failures.append(
+                f"{language}/{name}: {len(exact_english)} rows remain "
+                "exact English "
+                f"({', '.join(map(str, exact_english[:5]))})"
+            )
+    localized_hashes = getattr(module, "SOURCE_HASHES", {})
+    if localized_hashes != expected_hashes:
+        missing_hashes = set(expected_hashes) - set(localized_hashes)
+        stale_hashes = set(localized_hashes) - set(expected_hashes)
+        wrong_hashes = {
+            key for key in set(expected_hashes) & set(localized_hashes)
+            if localized_hashes[key] != expected_hashes[key]
+        }
+        failures.append(
+            f"{language}/SOURCE_HASHES: missing={len(missing_hashes)} "
+            f"stale={len(stale_hashes)} wrong={len(wrong_hashes)}"
+        )
+    if language == "zh_CN":
+        if getattr(module, "NORMALIZER", None) != "OpenCC 1.1+ t2s":
+            failures.append(
+                "zh_CN/NORMALIZER: expected OpenCC 1.1+ t2s provenance"
+            )
+        non_normalized = [
+            f"{name}/{key}"
+            for name in tables
+            for key, value in getattr(module, name, {}).items()
+            if _has_traditional_chinese_prose(str(value))
+        ]
+        if non_normalized:
+            failures.append(
+                "zh_CN: OpenCC t2s normalization is not at a fixed point "
+                f"({', '.join(non_normalized[:5])})"
+            )
+    for key, source in sources["setting_tooltips"].items():
+        value = module.SETTING_TOOLTIPS.get(key, "")
+        if fields(value) != fields(source):
+            failures.append(f"{language}/tooltip/{key}: format fields changed")
+        if html_tags(value) != html_tags(source):
+            failures.append(f"{language}/tooltip/{key}: HTML tags changed")
+        if _TOKEN_RE.search(value):
+            failures.append(f"{language}/tooltip/{key}: leaked token")
+    for key, source in sources["setting_labels"].items():
+        reviewed = _reviewed_translation(str(source), language)
+        if reviewed is not None and module.SETTING_LABELS.get(key) != reviewed:
+            failures.append(
+                f"{language}/label/{key}: reviewed translation changed"
+            )
+    for source in sources["ui"]:
+        reviewed = _reviewed_translation(str(source), language)
+        if reviewed is not None and module.UI.get(source) != reviewed:
+            failures.append(
+                f"{language}/ui/{source!r}: reviewed translation changed"
+            )
+    if language in script_pattern:
+        missing_script = [
+            key
+            for key, source in sources["setting_tooltips"].items()
+            if (
+            len(source) >= 40
+            and bool(re.search(r"[A-Za-z]{4}", source))
+            and not script_pattern[language].search(
+                str(module.SETTING_TOOLTIPS.get(key, ""))
+            )
+            )
+        ]
+        if missing_script:
+            failures.append(
+                f"{language}: {len(missing_script)} prose tooltips lack "
+                "target script "
+                f"({', '.join(missing_script[:5])})"
+            )
+    for source in sources["ui"]:
+        value = module.UI.get(source, "")
+        if fields(value) != fields(source):
+            failures.append(f"{language}/ui/{source!r}: format fields changed")
+        if html_tags(value) != html_tags(source):
+            failures.append(f"{language}/ui/{source!r}: HTML tags changed")
+    installer_path = ROOT / "packaging" / "i18n" / f"{language}.json"
+    try:
+        installer = json.loads(installer_path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        failures.append(f"{language}/installer: catalog is missing or invalid")
+    else:
+        if set(installer) != set(sources["installer"]):
+            failures.append(f"{language}/installer: keys differ from English")
+        if installer.get("language_name") != NATIVE_LANGUAGE_NAMES[language]:
+            failures.append(
+                f"{language}/installer: native language name is wrong"
+            )
+        for key, source in sources["installer"].items():
+            value = str(installer.get(key, ""))
+            if re.findall(r"%(?:\d+\$)?[sd]", value) != re.findall(
+                r"%(?:\d+\$)?[sd]", source
+            ):
+                failures.append(
+                    f"{language}/installer/{key}: placeholders changed"
+                )
+    return failures
+
+
+def audit(
+    sources: Mapping[str, object], languages: Iterable[str], *, workers: int | None = None,
+) -> int:
+    """Validate key coverage, source freshness and basic translation safety.
+
+    :param sources: the canonical English sources.
+    :param languages: the locales to check.
+    :param workers: processes that check locales side by side; the failures
+        are reported in locale order whatever the count. ``None`` uses the
+        command line's ``SCHED_THREADS`` grant when :func:`main` runs, else one.
+    :returns: 0 when every check passes, else 1.
+    """
+    if workers is None:
+        workers = _CLI_AUDIT_WORKERS
+    languages = tuple(languages)
+    if "zh_CN" in languages:
+        # Dependency availability is part of the zh_CN release contract, not
+        # contingent on whether a particular catalog happens to contain a
+        # Traditional character today.
+        _simplify_chinese_prose("")
+    failures: list[str] = []
     expected_tips = set(sources["setting_tooltips"])
     expected_categories = set(sources["categories"])
     expected_ui = set(sources["ui"])
@@ -8489,258 +8832,18 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
         for name, expected_value in english_contract.items():
             if english_namespace.get(name) != expected_value:
                 failures.append(f"en/{name}: canonical source catalog is stale")
-    script_pattern = {
-        "zh_CN": re.compile(r"[\u3400-\u9fff]"),
-        "hi": re.compile(r"[\u0900-\u097f]"),
-        "ko": re.compile(r"[\uac00-\ud7af]"),
-    }
-    for language in languages:
-        catalog_path = CATALOG_DIR / f"{language}.py"
-        try:
-            namespace: dict[str, object] = {}
-            exec(
-                compile(
-                    catalog_path.read_text(encoding="utf-8"),
-                    str(catalog_path),
-                    "exec",
-                ),
-                namespace,
-            )
-            module = SimpleNamespace(**namespace)
-        except FileNotFoundError:
-            failures.append(f"{language}: catalog module is missing")
-            continue
-        if getattr(module, "SECONDARY_MODEL", None) != SECONDARY_MODEL:
-            failures.append(
-                f"{language}: secondary translation model provenance is stale"
-            )
-        if getattr(module, "SECONDARY_LICENSE", None) != SECONDARY_LICENSE:
-            failures.append(
-                f"{language}: secondary translation license provenance is stale"
-            )
-        tables = {
-            "SETTING_LABELS": expected_labels,
-            "SETTING_TOOLTIPS": expected_tips,
-            "CATEGORY_HELP": expected_categories,
-            "UI": expected_ui,
-            "MODULE_SUMMARIES": expected_modules,
-        }
-        source_tables = {
-            "SETTING_LABELS": sources["setting_labels"],
-            "SETTING_TOOLTIPS": sources["setting_tooltips"],
-            "CATEGORY_HELP": {
-                source: source for source in sources["categories"]
-            },
-            "UI": {source: source for source in sources["ui"]},
-            "MODULE_SUMMARIES": sources["module_summaries"],
-        }
-        for name, expected in tables.items():
-            table = getattr(module, name, {})
-            missing = expected - set(table)
-            extra = set(table) - expected
-            blank = [key for key, value in table.items() if not str(value).strip()]
-            if missing:
-                failures.append(f"{language}/{name}: {len(missing)} missing")
-            if extra:
-                failures.append(f"{language}/{name}: {len(extra)} stale")
-            if blank:
-                failures.append(f"{language}/{name}: {len(blank)} blank")
-            degenerate = [
-                key for key, value in table.items()
-                if _looks_degenerate(
-                    str(source_tables[name].get(key, key)),
-                    str(value), language,
-                )
-            ]
-            if degenerate:
-                failures.append(
-                    f"{language}/{name}: {len(degenerate)} degenerate "
-                    f"translations ({', '.join(map(str, degenerate[:5]))})"
-                )
-            contextual_errors = [
-                key for key, value in table.items()
-                if _contextualize(
-                    str(value), language,
-                    str(source_tables[name].get(key, key)),
-                ) != str(value)
-            ]
-            if contextual_errors:
-                failures.append(
-                    f"{language}/{name}: {len(contextual_errors)} unresolved "
-                    "contextual false friends "
-                    f"({', '.join(map(str, contextual_errors[:5]))})"
-                )
-            semantic_errors = [
-                key for key, value in table.items()
-                if _semantic_false_friends(
-                    str(source_tables[name].get(key, key)),
-                    str(value),
-                    language,
-                )
-            ]
-            if semantic_errors:
-                failures.append(
-                    f"{language}/{name}: {len(semantic_errors)} semantic "
-                    "false friends "
-                    f"({', '.join(map(str, semantic_errors[:5]))})"
-                )
-            identity_errors = [
-                key for key, value in table.items()
-                if (
-                    str(source_tables[name].get(key, key)) in _IDENTITY_TEXT
-                    and str(value) != str(source_tables[name].get(key, key))
-                )
-            ]
-            if identity_errors:
-                failures.append(
-                    f"{language}/{name}: {len(identity_errors)} technical "
-                    "identity values changed "
-                    f"({', '.join(map(str, identity_errors[:5]))})"
-                )
-            reviewed_ui_errors = [
-                key for key, value in table.items()
-                if (
-                    _reviewed_translation(
-                        str(source_tables[name].get(key, key)), language,
-                    ) is not None
-                    and str(value) != _reviewed_translation(
-                        str(source_tables[name].get(key, key)), language,
-                    )
-                )
-            ]
-            if reviewed_ui_errors:
-                failures.append(
-                    f"{language}/{name}: {len(reviewed_ui_errors)} reviewed "
-                    "translations changed "
-                    f"({', '.join(map(str, reviewed_ui_errors[:5]))})"
-                )
-            syntax_errors = [
-                key for key, value in table.items()
-                if not _syntax_preserved_or_reviewed(
-                    str(source_tables[name].get(key, key)),
-                    str(value),
-                    language,
-                )
-            ]
-            if syntax_errors:
-                failures.append(
-                    f"{language}/{name}: {len(syntax_errors)} protected "
-                    "literal or markup failures "
-                    f"({', '.join(map(str, syntax_errors[:5]))})"
-                )
-            exact_english = [
-                key for key, value in table.items()
-                if (
-                    str(value) == str(source_tables[name].get(key, key))
-                    and _looks_translatable(
-                        str(source_tables[name].get(key, key))
-                    )
-                    and _has_prose_outside_protected_literals(
-                        str(source_tables[name].get(key, key))
-                    )
-                    and _reviewed_translation(
-                        str(source_tables[name].get(key, key)), language
-                    ) != str(value)
-                )
-            ]
-            if exact_english:
-                failures.append(
-                    f"{language}/{name}: {len(exact_english)} rows remain "
-                    "exact English "
-                    f"({', '.join(map(str, exact_english[:5]))})"
-                )
-        localized_hashes = getattr(module, "SOURCE_HASHES", {})
-        if localized_hashes != expected_hashes:
-            missing_hashes = set(expected_hashes) - set(localized_hashes)
-            stale_hashes = set(localized_hashes) - set(expected_hashes)
-            wrong_hashes = {
-                key for key in set(expected_hashes) & set(localized_hashes)
-                if localized_hashes[key] != expected_hashes[key]
-            }
-            failures.append(
-                f"{language}/SOURCE_HASHES: missing={len(missing_hashes)} "
-                f"stale={len(stale_hashes)} wrong={len(wrong_hashes)}"
-            )
-        if language == "zh_CN":
-            if getattr(module, "NORMALIZER", None) != "OpenCC 1.1+ t2s":
-                failures.append(
-                    "zh_CN/NORMALIZER: expected OpenCC 1.1+ t2s provenance"
-                )
-            non_normalized = [
-                f"{name}/{key}"
-                for name in tables
-                for key, value in getattr(module, name, {}).items()
-                if _has_traditional_chinese_prose(str(value))
-            ]
-            if non_normalized:
-                failures.append(
-                    "zh_CN: OpenCC t2s normalization is not at a fixed point "
-                    f"({', '.join(non_normalized[:5])})"
-                )
-        for key, source in sources["setting_tooltips"].items():
-            value = module.SETTING_TOOLTIPS.get(key, "")
-            if fields(value) != fields(source):
-                failures.append(f"{language}/tooltip/{key}: format fields changed")
-            if html_tags(value) != html_tags(source):
-                failures.append(f"{language}/tooltip/{key}: HTML tags changed")
-            if _TOKEN_RE.search(value):
-                failures.append(f"{language}/tooltip/{key}: leaked token")
-        for key, source in sources["setting_labels"].items():
-            reviewed = _reviewed_translation(str(source), language)
-            if reviewed is not None and module.SETTING_LABELS.get(key) != reviewed:
-                failures.append(
-                    f"{language}/label/{key}: reviewed translation changed"
-                )
-        for source in sources["ui"]:
-            reviewed = _reviewed_translation(str(source), language)
-            if reviewed is not None and module.UI.get(source) != reviewed:
-                failures.append(
-                    f"{language}/ui/{source!r}: reviewed translation changed"
-                )
-        if language in script_pattern:
-            missing_script = [
-                key
-                for key, source in sources["setting_tooltips"].items()
-                if (
-                len(source) >= 40
-                and bool(re.search(r"[A-Za-z]{4}", source))
-                and not script_pattern[language].search(
-                    str(module.SETTING_TOOLTIPS.get(key, ""))
-                )
-                )
-            ]
-            if missing_script:
-                failures.append(
-                    f"{language}: {len(missing_script)} prose tooltips lack "
-                    "target script "
-                    f"({', '.join(missing_script[:5])})"
-                )
-        for source in sources["ui"]:
-            value = module.UI.get(source, "")
-            if fields(value) != fields(source):
-                failures.append(f"{language}/ui/{source!r}: format fields changed")
-            if html_tags(value) != html_tags(source):
-                failures.append(f"{language}/ui/{source!r}: HTML tags changed")
-        installer_path = ROOT / "packaging" / "i18n" / f"{language}.json"
-        try:
-            installer = json.loads(installer_path.read_text(encoding="utf-8"))
-        except (FileNotFoundError, json.JSONDecodeError):
-            failures.append(f"{language}/installer: catalog is missing or invalid")
-        else:
-            if set(installer) != set(sources["installer"]):
-                failures.append(f"{language}/installer: keys differ from English")
-            if installer.get("language_name") != NATIVE_LANGUAGE_NAMES[language]:
-                failures.append(
-                    f"{language}/installer: native language name is wrong"
-                )
-            for key, source in sources["installer"].items():
-                value = str(installer.get(key, ""))
-                if re.findall(r"%(?:\d+\$)?[sd]", value) != re.findall(
-                    r"%(?:\d+\$)?[sd]", source
-                ):
-                    failures.append(
-                        f"{language}/installer/{key}: placeholders changed"
-                    )
+    if workers <= 1:
+        for language in languages:
+            failures.extend(_audit_language_failures(sources, language))
+    else:
+        from functools import partial
+
+        from i18n_language_pool import catalog_audit_failures, map_languages
+
+        for outcome in map_languages(
+                partial(catalog_audit_failures, dict(sources)), languages,
+                workers=workers):
+            failures.extend(outcome.unwrap())
     if failures:
         print("\n".join(failures[:200]), file=sys.stderr)
         if len(failures) > 200:
@@ -8755,7 +8858,14 @@ def audit(sources: Mapping[str, object], languages: Iterable[str]) -> int:
     return 0
 
 
+_CLI_AUDIT_WORKERS = 1
+
+
 def main() -> int:
+    global _CLI_AUDIT_WORKERS
+    from i18n_language_pool import language_workers
+
+    _CLI_AUDIT_WORKERS = language_workers()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--languages", nargs="+", choices=tuple(MODEL_SPECS),
