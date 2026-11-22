@@ -505,7 +505,9 @@ def _calibrate(model, sample, settings, *, site, evaluate=None, per_field=None,
     cap = _tile_cap(settings)
     per_field = int(getattr(sample, 'nbytes', 0) if per_field is None else per_field)
     device = governor._model_device(model)
-    index = governor._device_index(device)
+    # A model that names no device runs on the CPU; _device_index(None) would
+    # mean the current CUDA card and probe a CPU or UNet-only backend.
+    index = None if device is None else governor._device_index(device)
     record = {'cap': cap, 'per_field': per_field, 'versions': _library_versions()}
     if index is None:
         record.update({'tiles': min(cap, _CPU_TILE_BATCH), 'max_fields': None, 'per_tile': None,
