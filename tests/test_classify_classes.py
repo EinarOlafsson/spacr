@@ -167,11 +167,30 @@ def test_the_complement_is_reproducible():
     assert not first.equals(assign_classes(frame, settings, seed=8))
 
 
-def test_a_complement_with_nothing_left_says_so():
-    settings = {"classes": {"a": {"column": "annot_2", "value": 0},
-                            "b": {"column": "annot_2", "value": 1},
-                            "rest": {"random_complement": True}}}
-    with pytest.raises(ClassDefinitionError, match="already claimed"):
+@pytest.mark.parametrize('settings_input, match_pattern', [
+    pytest.param(
+        {
+            'classes': {
+                'a': {'column': 'annot_2', 'value': 0},
+                'b': {'column': 'annot_2', 'value': 1},
+                'rest': {'random_complement': True},
+            },
+        },
+        'already claimed',
+        id='test_a_complement_with_nothing_left_says_so',
+    ),
+    pytest.param(
+        {'classes': {'a': {'column': 'ghost', 'value': 1}}},
+        'ghost',
+        id='test_a_rule_on_a_column_the_table_lacks_names_it',
+    ),
+])
+def test_class_assignment_keeps_original_refusal_matches(
+    settings_input, match_pattern,
+):
+    """Preserve each class-assignment refusal and original exception match pattern."""
+    settings = settings_input
+    with pytest.raises(ClassDefinitionError, match=match_pattern):
         assign_classes(_annotated(), settings)
 
 
@@ -250,12 +269,6 @@ def test_downstream_still_gets_a_list_of_names():
         {"classes": {"a": {"column": "annot_1", "value": 1},
                      "b": {"column": "annot_1", "value": 2}}})
     assert settings["class_names"] == ["a", "b"]
-
-
-def test_a_rule_on_a_column_the_table_lacks_names_it():
-    settings = {"classes": {"a": {"column": "ghost", "value": 1}}}
-    with pytest.raises(ClassDefinitionError, match="ghost"):
-        assign_classes(_annotated(), settings)
 
 
 # ---------------------------------------------------------------------------
