@@ -2517,6 +2517,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     from tests.test_ops_fdr_never_1014 import _never_api_contracts, _validate_never_api_source
     never_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
         / "1014_never_api_arrivals_2026-11-22.json").read_text(encoding="utf-8"))
+    never_arrivals = _current_never_api(never_arrivals)
     assert set(never_arrivals) == {"spacr.ops_sbs.never_barcodes", "spacr.ops_decode.never_scale"}
     for symbol, body in never_arrivals.items():
         assert body == _validate_never_api_source(symbol, _never_api_contracts()[symbol])
