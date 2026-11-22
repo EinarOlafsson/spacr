@@ -2632,6 +2632,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         _current_queue_api, _current_inherited_module_api)
 
     cell_cycle_arrivals = _current_inherited_module_api(_current_queue_api(cell_cycle_arrivals))
+    from tests.test_ops_cell_cycle_followup_990 import _current_followup_api
+
+    cell_cycle_arrivals = _current_followup_api(cell_cycle_arrivals, docs)
     assert len(cell_cycle_arrivals) == 20
     assert {key: docs[key] for key in cell_cycle_arrivals} == cell_cycle_arrivals
     assert not cell_cycle_arrivals.keys() & zoo_arrivals.keys()

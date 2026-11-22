@@ -529,6 +529,10 @@ def test_cytoskeleton_channel_selection_reaches_the_measurement_worker(monkeypat
     expected = ops_sample.measure_phenotype_field(
         nuclei, cells, image, names, texture=False, profile_features=["cytoskeleton"],
         cytoskeleton_channels=selection)
+    expected["nucleus_centroid_y"] = expected["centroid_row"]
+    expected["nucleus_centroid_x"] = expected["centroid_col"]
+    if "nucleus_area" not in expected:
+        expected["nucleus_area"] = np.bincount(nuclei.ravel())[expected["label"].to_numpy()]
     expected.insert(0, "site", 7)
     pd.testing.assert_frame_equal(table, expected, check_exact=True)
     assert unreadable == [] and shape == image.shape[:2]

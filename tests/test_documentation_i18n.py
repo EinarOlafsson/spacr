@@ -3924,6 +3924,9 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
                 _current_queue_api, _current_inherited_module_api)
 
             arrivals = _current_inherited_module_api(_current_queue_api(arrivals))
+            from tests.test_ops_cell_cycle_followup_990 import _current_followup_api
+
+            arrivals = _current_followup_api(arrivals, docs)
         assert len(arrivals) == count
         source_docs = historical_docs if filename == "699_ssh_connection_worker_api_arrival_2026-10-14.json" else docs
         assert {key: source_docs[key] for key in arrivals} == arrivals

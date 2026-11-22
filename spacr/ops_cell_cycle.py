@@ -82,12 +82,62 @@ def _features(columns: Sequence[str], dna: str, mt: Optional[str]) -> List[str]:
     return features
 
 
-def _matrix(cells: pd.DataFrame, features: Sequence[str]) -> np.ndarray:
-    """The features as robust z against all cells of each well (item 856's normalisation)."""
-    from .ops_mitotic import _well_robust_z
+def _matrix(cells: pd.DataFrame, features: Sequence[str], *,
+            reference_cells: Optional[pd.DataFrame] = None) -> np.ndarray:
+    """Normalize rows against complete reference wells using the shared mitotic helpers.
 
-    group = "well" if "well" in cells.columns else None
-    return np.nan_to_num(_well_robust_z(cells, features, group), nan=0.0)
+    :param cells: labelled or prediction rows, in the required output order.
+    :param features: ordered model feature columns.
+    :param reference_cells: every cell of the reference wells; None treats cells as
+        the complete population. Plates are separate when both tables identify them.
+    :returns: finite float32 features, with unavailable robust z values set to zero.
+    :raises ValueError: when the reference omits a requested plate or well.
+    """
+    from .ops_mitotic import (_apply_population_normalization,
+                             _fit_population_normalization, _normalization_groups,
+                             _well_robust_z)
+    from .qt.i18n import tr
+
+    population = cells if reference_cells is None else reference_cells
+    if "well" not in cells:
+        return np.nan_to_num(_well_robust_z(cells, features, None), nan=0.0)
+    if "plate" in cells and "plate" in population:
+        reference_groups = _normalization_groups(population, "plate")
+        groups = _normalization_groups(cells, "plate")
+    else:
+        reference_groups = {None: np.arange(len(population))}
+        groups = {None: np.arange(len(cells))}
+    out = np.empty((len(cells), len(features)), np.float32)
+    for plate, rows in groups.items():
+        if plate not in reference_groups:
+            raise ValueError(tr("reference_cells has no full population for plate {plate}",
+                                plate=repr(plate)))
+        all_rows = reference_groups[plate]
+        full = population if len(all_rows) == len(population) else population.iloc[all_rows]
+        query = cells if len(rows) == len(cells) else cells.iloc[rows]
+        reference = _fit_population_normalization(full, features, "well")
+        out[rows] = _apply_population_normalization(query, reference)
+    return np.nan_to_num(out, nan=0.0)
+
+
+def _training_reference(cells: pd.DataFrame, reference_cells: Optional[pd.DataFrame]
+                        ) -> pd.DataFrame:
+    """Resolve complete reference wells, warning about the legacy population assumption.
+
+    :param cells: labelled training rows.
+    :param reference_cells: complete wells or None for a complete labelled population.
+    :returns: the reference cells used by the shared normalizer.
+    """
+    if reference_cells is None:
+        import warnings
+        from .qt.i18n import tr
+
+        warnings.warn(tr(
+            "reference_cells was not supplied; training rows are used as the full "
+            "normalization population. For enriched label sets, pass all cells "
+            "of the reference wells in reference_cells"), UserWarning, stacklevel=3)
+        return cells
+    return reference_cells
 
 
 def _learner(tabular: str, seed: int):
@@ -210,7 +260,8 @@ def train_cell_cycle_model(cells: pd.DataFrame, labels: Sequence[str], *, input_
                            dna: str = "dapi", mt: Optional[str] = None, tabular: str = "hgb",
                            seed: int = 0, groups: Optional[Sequence[Any]] = None,
                            repeats: int = 5, permutations: int = PERMUTATIONS,
-                           data_files: Sequence[str] = ()) -> Dict[str, Any]:
+                           data_files: Sequence[str] = (),
+                           reference_cells: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
     """A base cell-cycle model and its card, from labelled cells (the one call that trains it).
 
     :param cells: the labelled cells: ``well``, the field column of ``groups``, the feature
@@ -227,6 +278,8 @@ def train_cell_cycle_model(cells: pd.DataFrame, labels: Sequence[str], *, input_
     :param repeats: repeats of the field-grouped 5-fold cross-validation.
     :param permutations: shuffled-label models of the control.
     :param data_files: the training data files, recorded with their SHA-256 in the card.
+    :param reference_cells: full wells including unlabelled cells. Required for enriched
+        label samples; omission treats cells as the full population with a warning.
     :returns: ``{"model", "features", "card", "training"}``; ``training`` keeps the labelled
         rows (features and labels) that fine-tuning refits on. The card's ``cv`` holds the
         field-grouped repeats, per-class F1 with field-bootstrap intervals, the shuffled-label
@@ -242,7 +295,7 @@ def train_cell_cycle_model(cells: pd.DataFrame, labels: Sequence[str], *, input_
     if input_mode == "DNA+MT" and not mt:
         raise ValueError(tr("'DNA+MT' needs the microtubule channel"))
     features = _features(cells.columns, dna, mt if input_mode == "DNA+MT" else None)
-    x = _matrix(cells, features)
+    x = _matrix(cells, features, reference_cells=_training_reference(cells, reference_cells))
     y = _encode(labels)
     groups = (np.asarray(groups) if groups is not None else
               (cells["well"].astype(str) + "/" + cells["site"].astype(str)).to_numpy())
@@ -296,44 +349,82 @@ def _sha256(path: str) -> str:
     return digest.hexdigest()
 
 
+def _checkpoint_key(bundle: Mapping[str, Any]) -> str:
+    """Hash canonical prediction probes and saved labelled rows instead of joblib bytes.
+
+    :param bundle: model, ordered features, optional labelled training rows and card.
+    :returns: deterministic SHA-256 identity for the model input and predictions.
+    """
+    digest = hashlib.sha256()
+    features = list(bundle["features"])
+    header = {"input": bundle["card"]["input"], "features": features,
+              "classes": list(CLASSES)}
+    digest.update(json.dumps(header, sort_keys=True, separators=(",", ":")).encode())
+    probe = np.random.default_rng(0).standard_normal((256, len(features))).astype(np.float32)
+    probe = np.vstack([probe, np.zeros((1, len(features)), np.float32),
+                       np.full((1, len(features)), -6, np.float32),
+                       np.full((1, len(features)), 6, np.float32)])
+    probabilities = np.asarray(_probabilities(bundle["model"], probe), dtype="<f8")
+    digest.update(probabilities.tobytes(order="C"))
+    training = bundle.get("training")
+    if training is not None:
+        rows = np.asarray(training[features], dtype="<f8")
+        digest.update(json.dumps(list(rows.shape)).encode())
+        digest.update(rows.tobytes(order="C"))
+        digest.update(json.dumps(training["stage"].astype(str).tolist(),
+                                 ensure_ascii=False, separators=(",", ":")).encode())
+    return digest.hexdigest()
+
+
 def save_cell_cycle_checkpoint(bundle: Mapping[str, Any], folder: str, *,
                                base: Optional[str] = None) -> str:
-    """Write a checkpoint directory ``cell_cycle_tabular_<input>_<hash12>``.
+    """Save every model and card revision under one stable checkpoint identity.
 
-    It holds ``model.joblib`` (the learner, its features and its training rows),
-    ``card.json`` and ``SHA256SUMS``; ``hash12`` is the start of the SHA-256 of
-    ``model.joblib``, so two identical models get the same name.
+    The directory is ``cell_cycle_tabular_<input>_<identity12>``. Its model,
+    card and SHA256SUMS are staged completely before publication. Each file
+    is replaced atomically, with the card before the model and checksums last;
+    an interrupted publication is refused by the loader rather than using a
+    stale card with a new model.
 
-    :param bundle: from :func:`train_cell_cycle_model` or a fine-tune.
-    :param folder: where the directory is made.
-    :param base: the base checkpoint's ``model.joblib`` SHA-256, recorded in the card of a
-        fine-tuned checkpoint.
-    :returns: the checkpoint directory.
+    :param bundle: fitted model, features, optional training rows and mutable card.
+        The canonical checkpoint_id hashes input features, classes, fixed normalized
+        probe probabilities and saved labelled rows. It is retained across saves;
+        the rest of the card is excluded so updated cards replace the same path.
+    :param folder: directory containing checkpoints.
+    :param base: base model SHA-256 recorded for fine-tuning.
+    :returns: the stable checkpoint directory, also when model bytes change.
     """
+    import shutil
     import tempfile
-
     import joblib
+    from .ops_engine import _say
+    from .qt.i18n import tr
 
+    identity = str(bundle["card"].get("checkpoint_id") or _checkpoint_key(bundle))
+    if isinstance(bundle["card"], dict):
+        bundle["card"]["checkpoint_id"] = identity
+    card = dict(bundle["card"], checkpoint_id=identity)
+    name = identity[:12]
+    target = os.path.join(folder, f"cell_cycle_tabular_{card['input'].replace('+', '_')}_{name}")
     os.makedirs(folder, exist_ok=True)
     stage = tempfile.mkdtemp(prefix=".cell_cycle_", dir=folder)
-    model_path = os.path.join(stage, "model.joblib")
-    joblib.dump({"model": bundle["model"], "features": list(bundle["features"]),
-                 "training": bundle.get("training")}, model_path)
-    digest = _sha256(model_path)
-    card = dict(bundle["card"], model_sha256=digest, base_sha256=base)
-    with open(os.path.join(stage, "card.json"), "w", encoding="utf-8") as handle:
-        json.dump(card, handle, indent=1, sort_keys=True, default=str)
-    sums = {name: _sha256(os.path.join(stage, name)) for name in ("card.json", "model.joblib")}
-    with open(os.path.join(stage, "SHA256SUMS"), "w", encoding="utf-8") as handle:
-        handle.writelines(f"{value}  {name}\n" for name, value in sorted(sums.items()))
-    target = os.path.join(folder, f"cell_cycle_tabular_{card['input'].replace('+', '_')}"
-                                  f"_{digest[:12]}")
-    if os.path.isdir(target):
-        import shutil
-
+    try:
+        model_path = os.path.join(stage, "model.joblib")
+        joblib.dump({"model": bundle["model"], "features": list(bundle["features"]),
+                     "training": bundle.get("training")}, model_path)
+        card.update(model_sha256=_sha256(model_path), base_sha256=base)
+        with open(os.path.join(stage, "card.json"), "w", encoding="utf-8") as handle:
+            json.dump(card, handle, indent=1, sort_keys=True, default=str)
+        sums = {name: _sha256(os.path.join(stage, name))
+                for name in ("card.json", "model.joblib")}
+        with open(os.path.join(stage, "SHA256SUMS"), "w", encoding="utf-8") as handle:
+            handle.writelines(f"{value}  {name}\n" for name, value in sorted(sums.items()))
+        os.makedirs(target, exist_ok=True)
+        for filename in ("card.json", "model.joblib", "SHA256SUMS"):
+            os.replace(os.path.join(stage, filename), os.path.join(target, filename))
+    finally:
         shutil.rmtree(stage)
-    else:
-        os.replace(stage, target)
+    _say(tr("Cell-cycle checkpoint saved with current card: {path}", path=target))
     return target
 
 
@@ -385,7 +476,8 @@ def load_cell_cycle_checkpoint(path: str) -> Dict[str, Any]:
 
 def fine_tune(base: Mapping[str, Any], cells: pd.DataFrame, labels: Sequence[str], *,
               seed: int = 0, tabular: Optional[str] = None,
-              pooled: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
+              pooled: Optional[pd.DataFrame] = None,
+              reference_cells: Optional[pd.DataFrame] = None) -> Dict[str, Any]:
     """The base model refitted on its own labels plus the screen's, the screen's weighted ×5.
 
     :param base: from :func:`load_cell_cycle_checkpoint` (its ``training`` rows are used), or a
@@ -397,13 +489,16 @@ def fine_tune(base: Mapping[str, Any], cells: pd.DataFrame, labels: Sequence[str
     :param tabular: the learner; the base card's when None.
     :param pooled: other plates' labelled rows (the model's features, already robust z, and
         ``stage``) for a fine-tune of the whole screen; None refits on this plate's alone.
+    :param reference_cells: full wells including unlabelled cells, normalized by the same
+        helper as prediction. Omission assumes cells is the full population and warns.
     :returns: a bundle for :func:`save_cell_cycle_checkpoint`, its card recording the base;
         ``weights`` are the sample weights, the screen rows (other plates first, this plate
         last) after the base rows.
     """
     tabular = tabular or base["card"].get("tabular", "hgb")
     features = list(base["features"])
-    x_plate = _matrix(cells, features)
+    x_plate = _matrix(cells, features,
+                      reference_cells=_training_reference(cells, reference_cells))
     y_plate = _encode(labels)
     training = base.get("training")
     x_base = training[features].to_numpy() if training is not None else np.empty((0, len(features)))
@@ -419,6 +514,7 @@ def fine_tune(base: Mapping[str, Any], cells: pd.DataFrame, labels: Sequence[str
     model = _fit(tabular, seed, x, y, weight)
     card = dict(base["card"], fine_tuned=True, screen_labels=int(len(y_pool) + len(y_plate)),
                 screen_weight=SCREEN_WEIGHT, seed=int(seed), tabular=tabular)
+    card.pop("checkpoint_id", None)
     rows = pd.DataFrame(x, columns=features)
     rows["stage"] = [CLASSES[i] for i in y]
     return {"model": model, "features": features, "card": card, "training": rows,
@@ -426,9 +522,19 @@ def fine_tune(base: Mapping[str, Any], cells: pd.DataFrame, labels: Sequence[str
 
 
 def _labelled_rows(cells: pd.DataFrame, labels: pd.Series, features: Sequence[str],
-                   plate: str) -> pd.DataFrame:
-    """One plate's labelled cells as model rows: keys, robust-z features and stage."""
-    rows = pd.DataFrame(_matrix(cells, features), columns=list(features))
+                   plate: str, *, reference_cells: Optional[pd.DataFrame] = None
+                   ) -> pd.DataFrame:
+    """Labelled model rows normalized against the complete reference wells.
+
+    :param cells: labelled cells with the original object keys.
+    :param labels: their stages.
+    :param features: the model feature columns.
+    :param plate: the plate identifier written to the pool.
+    :param reference_cells: all cells of the plate, including unlabelled cells.
+    :returns: object keys, full-well robust-z features and stages.
+    """
+    rows = pd.DataFrame(_matrix(cells, features, reference_cells=reference_cells),
+                        columns=list(features))
     for key in KEY:
         rows[key] = cells[key].to_numpy()
     rows["plate"] = str(plate)
@@ -519,37 +625,126 @@ def _nuclear_diameter(cells: pd.DataFrame) -> np.ndarray:
     return 2.0 * np.sqrt(cells["nucleus_area"].to_numpy(float) / np.pi)
 
 
-def _pair_share(cells: pd.DataFrame, called: np.ndarray, two_n: np.ndarray,
-                log2_dna: np.ndarray) -> float:
-    """Share of 2N daughter-stage calls with a 2N daughter-stage partner nearby (S2's statistic)."""
+def _pair_centroids(cells: pd.DataFrame) -> Optional[Tuple[str, str]]:
+    """Resolve OPS profile coordinates first, followed by supported legacy cell tables."""
+    for pair in (("nucleus_cy", "nucleus_cx"),
+                 ("nucleus_centroid_y", "nucleus_centroid_x"),
+                 ("centroid_row", "centroid_col")):
+        if set(pair) <= set(cells.columns):
+            return pair
+    return None
+
+
+def _field_rows(cells: pd.DataFrame) -> List[np.ndarray]:
+    """Group field positions once in lexical order without scanning all cells per field."""
+    fields = cells["well"].astype(str) + "/" + cells["site"].astype(str)
+    if "plate" in cells:
+        fields = cells["plate"].astype(str) + "/" + fields
+    codes, names = pd.factorize(fields, sort=True)
+    order = np.argsort(codes, kind="stable")
+    return list(np.split(order, np.cumsum(np.bincount(codes, minlength=len(names)))[:-1]))
+
+
+def _pair_neighbours(cells: pd.DataFrame, two_n: np.ndarray, log2_dna: np.ndarray,
+                     groups: Sequence[np.ndarray]) -> Tuple[np.ndarray, np.ndarray]:
+    """Cache directed nearby 2N partners with the original diameter and DNA gates.
+
+    :param cells: full cell table with a supported centroid pair and nucleus_area.
+    :param two_n: eligibility at the G1/G2 midpoint.
+    :param log2_dna: log2 centred DNA content.
+    :param groups: precomputed field row indices.
+    :returns: source and target positions for partners within 2.5 source diameters
+        and 0.3 log2 DNA units, excluding the source itself.
+    """
     from scipy.spatial import cKDTree
 
-    hits, total = 0, 0
-    y, x = cells["nucleus_centroid_y"].to_numpy(float), cells["nucleus_centroid_x"].to_numpy(float)
+    points = cells[list(_pair_centroids(cells))].to_numpy(float)
     diameter = _nuclear_diameter(cells)
-    fields = (cells["well"].astype(str) + "/" + cells["site"].astype(str)).to_numpy()
-    for field in np.unique(fields[called & two_n]):
-        rows = np.flatnonzero((fields == field) & called & two_n)
-        total += len(rows)
+    valid = (two_n & np.isfinite(points).all(axis=1) & np.isfinite(log2_dna)
+             & np.isfinite(diameter) & (diameter > 0))
+    sources, targets = [], []
+    for group in groups:
+        rows = group[valid[group]]
         if len(rows) < 2:
             continue
-        tree = cKDTree(np.c_[y[rows], x[rows]])
-        for k, row in enumerate(rows):
-            near = tree.query_ball_point([y[row], x[row]], 2.5 * diameter[row])
-            if any(j != k and abs(log2_dna[rows[j]] - log2_dna[row]) <= 0.3 for j in near):
-                hits += 1
-    return hits / total if total else float("nan")
+        tree = cKDTree(points[rows])
+        nearby = tree.query_ball_point(points[rows], 2.5 * diameter[rows])
+        for row, neighbours in zip(rows, nearby):
+            candidates = rows[np.asarray(neighbours, dtype=np.intp)]
+            partners = candidates[(candidates != row)
+                                  & (np.abs(log2_dna[candidates] - log2_dna[row]) <= 0.3)]
+            if len(partners):
+                sources.append(np.full(len(partners), row, dtype=np.intp))
+                targets.append(partners)
+    empty = np.empty(0, dtype=np.intp)
+    return (np.concatenate(sources) if sources else empty,
+            np.concatenate(targets) if targets else empty)
+
+
+def _pair_share(cells: pd.DataFrame, called: np.ndarray, two_n: np.ndarray,
+                log2_dna: np.ndarray, *,
+                neighbours: Optional[Tuple[np.ndarray, np.ndarray]] = None) -> float:
+    """Share of 2N daughter calls with a selected eligible partner, using cached geometry.
+
+    :param cells: the full reference population.
+    :param called: the observed or within-field permuted daughter-stage labels.
+    :param two_n: eligibility below the G1/G2 midpoint.
+    :param log2_dna: centred DNA on the log2 scale.
+    :param neighbours: precomputed directed partner graph; None builds it once.
+    :returns: the original S2 share, or NaN when no selected cell is 2N.
+    """
+    if neighbours is None:
+        neighbours = _pair_neighbours(cells, two_n, log2_dna, _field_rows(cells))
+    left, right = neighbours
+    selected = np.asarray(called, bool) & two_n
+    total = int(selected.sum())
+    counts = np.bincount(left, weights=selected[right], minlength=len(cells))
+    return float(np.count_nonzero(selected & (counts > 0)) / total) if total else float("nan")
+
+
+def _s5_power(baseline: float, *, enrichment: float = 3.0,
+              alpha: float = 0.05, power: float = 0.80) -> Dict[str, Any]:
+    """Required arrest cells for the specified one-sided proportion alternative.
+
+    :param baseline: observed non-targeting mitotic share.
+    :param enrichment: alternative mitotic share divided by baseline, above one.
+    :param alpha: one-sided type-I error.
+    :param power: desired probability of rejecting the null at the alternative.
+    :returns: baseline, alternative, enrichment, alpha, power and required_cells;
+        the last is infinite when the baseline cannot identify an alternative.
+    :raises ValueError: for invalid rates, enrichment, alpha or power.
+    """
+    from statistics import NormalDist
+    from .qt.i18n import tr
+
+    if (not np.isfinite(baseline) or not 0 <= baseline <= 1
+            or not np.isfinite(enrichment) or enrichment <= 1
+            or not 0 < alpha < 0.5 or not 0.5 < power < 1):
+        raise ValueError(tr("S5 needs a baseline in [0, 1], enrichment above 1, "
+                            "alpha in (0, 0.5) and power in (0.5, 1)"))
+    alternative = min(float(baseline * enrichment), 1.0)
+    required = float("inf")
+    if alternative > baseline:
+        normal = NormalDist()
+        numerator = (normal.inv_cdf(1 - alpha) * np.sqrt(baseline * (1 - baseline))
+                     + normal.inv_cdf(power) * np.sqrt(alternative * (1 - alternative)))
+        required = int(np.ceil((numerator / (alternative - baseline)) ** 2))
+    return {"baseline": float(baseline), "alternative": alternative,
+            "enrichment": float(enrichment), "alpha": float(alpha), "power": float(power),
+            "required_cells": required}
 
 
 def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
                 fits: Mapping[str, Any], *, card: Mapping[str, Any], seed: int = 0,
                 arrest_genes: Optional[Sequence[str]] = ARREST_GENES,
                 control_prefix: str = "nontargeting", permutations: int = PERMUTATIONS,
-                labelled: Optional[Mapping[str, Any]] = None) -> pd.DataFrame:
+                labelled: Optional[Mapping[str, Any]] = None,
+                arrest_enrichment: float = 3.0) -> pd.DataFrame:
     """Checks S1-S6 of one plate.
 
     :param cells: the plate's cells: ``well``, ``site``, ``nucleus_area``,
-        ``nucleus_centroid_y``/``_x`` (S2) and ``gene`` (S5) when present.
+        OPS ``nucleus_cy``/``nucleus_cx`` (S2; legacy centroid pairs also accepted)
+        and ``gene`` (S5) when present.
     :param stages: from :func:`predict_stages`.
     :param dna: the frame of :func:`_dna_phases`.
     :param fits: its fits per group.
@@ -558,12 +753,17 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
     :param seed: the permutations' seed.
     :param arrest_genes: S5's knockouts with a known mitotic arrest; None skips S5.
     :param control_prefix: the non-targeting gene prefix.
-    :param permutations: permutations of S2, S3 and S5.
+    :param permutations: permutations of S2, S3 and S5. The S2 null now
+        permutes daughter-eligible cells within each field, preserving their
+        daughter count; the previous all-rows null is replaced.
     :param labelled: ``{"truth", "predicted", "shuffled_macro"}`` for S3; None skips it.
+    :param arrest_enrichment: S5 alternative relative to observed NT, default threefold;
+        one-sided alpha 0.05 and power 0.80 determine its minimum arrest count.
     :returns: one row per check: ``check``, ``stages`` (judged), ``value``, ``control``,
         ``threshold``, ``passed`` (True, False or None when skipped) and ``note``; the frame's
         ``attrs["samples"]`` keeps S2's observed share and its permutation shares for the
-        report.
+        report. S5 also reports baseline, alternative, enrichment, alpha, power,
+        required_cells, judged_cells and status (UNDERPOWERED, PASS, FAIL or SKIPPED).
     """
     from .qt.i18n import tr
 
@@ -588,27 +788,31 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
                  "passed": None if not condensed.any() else bool(s1 >= s1_threshold),
                  "note": tr("share of prometaphase and metaphase calls above the G1/G2 midpoint")})
     late = np.isin(stage, DAUGHTER_STAGES)
-    needed = {"nucleus_centroid_y", "nucleus_centroid_x", "nucleus_area"}
-    if late.sum() >= 2 and needed <= set(cells.columns):
+    centroids = _pair_centroids(cells)
+    if late.sum() >= 2 and centroids is not None and "nucleus_area" in cells:
         two_n = ~four_n
-        observed = _pair_share(cells, late, two_n, log2_dna)
-        fields = (cells["well"].astype(str) + "/" + cells["site"].astype(str)).to_numpy()
+        groups = [rows[two_n[rows]] for rows in _field_rows(cells)]
+        neighbours = _pair_neighbours(cells, two_n, log2_dna, groups)
+        observed = _pair_share(cells, late, two_n, log2_dna, neighbours=neighbours)
         null = []
         for _ in range(int(permutations)):
             shuffled = late.copy()
-            for field in np.unique(fields):
-                idx = np.flatnonzero(fields == field)
+            for idx in groups:
                 shuffled[idx] = late[rng.permutation(idx)]
-            null.append(_pair_share(cells, shuffled, two_n, log2_dna))
+            null.append(_pair_share(cells, shuffled, two_n, log2_dna,
+                                    neighbours=neighbours))
         control = float(np.nanpercentile(null, 97.5))
         samples["S2"] = (observed, [float(v) for v in null])
         rows.append({"check": "S2", "stages": ",".join(DAUGHTER_STAGES), "value": observed,
                      "control": control, "threshold": control,
                      "passed": bool(observed > control), "note": tr("2N daughter pairs")})
     else:
+        reason = (tr("skipped: fewer than two daughter-stage calls") if late.sum() < 2 else
+                  tr("skipped: S2 needs nucleus_area and a centroid pair: nucleus_cy/nucleus_cx, "
+                     "nucleus_centroid_y/nucleus_centroid_x or centroid_row/centroid_col"))
         rows.append({"check": "S2", "stages": ",".join(DAUGHTER_STAGES), "value": float("nan"),
                      "control": float("nan"), "threshold": float("nan"), "passed": None,
-                     "note": tr("skipped: needs two daughter-stage calls and nucleus centroids")})
+                     "note": reason})
     if labelled is not None:
         value = _macro_f1(labelled["truth"], labelled["predicted"])
         control = float(np.percentile(labelled["shuffled_macro"], 97.5))
@@ -646,7 +850,20 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
         genes = cells["gene"].astype(str).to_numpy()
         arrest = np.isin(np.char.upper(genes.astype(str)), [g.upper() for g in arrest_genes])
         control = np.char.startswith(np.char.lower(genes.astype(str)), control_prefix.lower())
-        if arrest.sum() >= 100 and control.any():
+        judged = int(arrest.sum())
+        power_info = (_s5_power(float(mitotic[control].mean()), enrichment=arrest_enrichment)
+                      if control.any() else {})
+        if control.any() and judged < power_info["required_cells"]:
+            rows.append({"check": "S5", "stages": "prometaphase,metaphase",
+                         "value": float("nan"), "control": float("nan"),
+                         "threshold": power_info["alpha"], "passed": None,
+                         "status": "UNDERPOWERED", "judged_cells": judged, **power_info,
+                         "note": tr("UNDERPOWERED: S5 has {judged} arrest cells; needs {needed} "
+                                    "for {enrichment}x enrichment at alpha {alpha}, power {power}",
+                                    judged=judged, needed=power_info["required_cells"],
+                                    enrichment=power_info["enrichment"], alpha=power_info["alpha"],
+                                    power=power_info["power"])})
+        elif control.any() and judged:
             observed = float(mitotic[arrest].mean() - mitotic[control].mean())
             upper = {g.upper() for g in arrest_genes}
             others = [g for g in np.unique(genes) if g.upper() not in upper
@@ -666,15 +883,19 @@ def self_checks(cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame,
             rows.append({"check": "S5", "stages": "prometaphase,metaphase", "value": observed,
                          "control": float(np.percentile(null, 95)), "threshold": 0.05,
                          "passed": bool(p_value < 0.05),
+                         "status": "PASS" if p_value < 0.05 else "FAIL",
+                         "judged_cells": judged, **power_info,
                          "note": tr("arrest knockouts vs non-targeting, permutation p = {p}",
                                     p=f"{p_value:.4f}")})
         else:
             rows.append({"check": "S5", "stages": "prometaphase,metaphase", "value": float("nan"),
                          "control": float("nan"), "threshold": float("nan"), "passed": None,
-                         "note": tr("skipped: fewer than 100 cells of the arrest set")})
+                         "status": "SKIPPED", "judged_cells": judged, **power_info,
+                         "note": tr("skipped: no non-targeting cells for the S5 baseline")})
     else:
         rows.append({"check": "S5", "stages": "prometaphase,metaphase", "value": float("nan"),
                      "control": float("nan"), "threshold": float("nan"), "passed": None,
+                     "status": "SKIPPED", "judged_cells": 0,
                      "note": tr("skipped: no arrest set or no gene per cell")})
     quality = []
     for well, info in fits.items():
@@ -1030,8 +1251,15 @@ def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
 
 
 def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
-                         settings: Mapping[str, Any], destination: str) -> Dict[str, Any]:
+                         settings: Mapping[str, Any], destination: str, *,
+                         permutations: int = PERMUTATIONS,
+                         arrest_enrichment: float = 3.0) -> Dict[str, Any]:
     """The ``ph_cell_cycle`` phase: stages, probabilities and flags of every cell of a plate.
+
+    A full-plate run requires at least 20 GB declared RAM in sched or a Home job
+    template: six wells and 5.53 million cells took 2.2-2.6 hours at four threads,
+    with peak RSS 17.6 GB; a 16 GB allocation failed. A single CP186A well took
+    22-37 minutes and 2.8 GB.
 
     Reads the per-well phenotype cell tables, calls the model (fine-tuned on the user's
     labels when given), takes G1 / S / G2 from :func:`_dna_phases`, runs
@@ -1047,6 +1275,8 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
     :param settings: read for every ``ops_cell_cycle_*`` setting, ``nucleus_channel``,
         ``cell_cycle_field_min_cells``, ``ops_design`` and ``ops_control_prefix``.
     :param destination: the run folder holding the cell tables.
+    :param permutations: S2, S3 and S5 control draws, default 500.
+    :param arrest_enrichment: the S5 power alternative, default threefold.
     :returns: the phase report; ``label_queue`` names the queue folder, its size and the
         labels file, or is None.
     :raises ValueError: for a bad setting, missing cell tables or no model to start from.
@@ -1103,14 +1333,16 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
             if options["finetune"] == "screen":
                 pooled = _screen_pool(f"{options['labels']}.features.parquet", plate,
                                       _labelled_rows(joined, joined["stage"],
-                                                     start["features"], plate),
+                                                     start["features"], plate, reference_cells=cells),
                                       start["features"])
                 notes.append(tr("fine-tuned on the screen's labels: {here} of this plate and "
                                 "{others} of other plates", here=len(joined),
                                 others=len(pooled)))
             model = fine_tune(start, joined, joined["stage"], seed=options["seed"],
-                              tabular=options["tabular"], pooled=pooled)
-            labelled = _labelled_scores(model, joined, options)
+                              tabular=options["tabular"], pooled=pooled,
+                              reference_cells=cells)
+            labelled = _labelled_scores(model, joined, options, reference_cells=cells,
+                                         permutations=permutations)
     stages = predict_stages(model, cells)
     excluded = stages["model_stage"].to_numpy() != "interphase"
     dna_frame, fits = _dna_phases(cells, settings, excluded)
@@ -1118,7 +1350,8 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
     checks = self_checks(cells, stages, dna_frame, fits, card=model["card"], seed=options["seed"],
                          arrest_genes=options["arrest"],
                          control_prefix=str(settings.get("ops_control_prefix") or "nontargeting"),
-                         permutations=PERMUTATIONS, labelled=labelled)
+                         permutations=permutations, labelled=labelled,
+                         arrest_enrichment=arrest_enrichment)
     failed = failed_stages(checks)
     checks.insert(0, "plate", str(plate))
     checks["collapsed"] = ",".join(failed)
@@ -1172,10 +1405,20 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
 
 
 def _labelled_scores(model: Mapping[str, Any], joined: pd.DataFrame,
-                     options: Mapping[str, Any]) -> Dict[str, Any]:
-    """Out-of-fold predictions and the shuffled control on the screen's labelled cells (S3)."""
+                     options: Mapping[str, Any], *,
+                     reference_cells: Optional[pd.DataFrame] = None,
+                     permutations: int = PERMUTATIONS) -> Dict[str, Any]:
+    """Score screen labels using the same complete reference wells as prediction.
+
+    :param model: fitted bundle with features and optional pooled training rows.
+    :param joined: cells joined to user labels.
+    :param options: learner and random seed.
+    :param reference_cells: full wells including unlabelled cells.
+    :param permutations: shuffled-label control draws.
+    :returns: held-out predictions and shuffled-label controls for S3.
+    """
     features = list(model["features"])
-    x = _matrix(joined, features)
+    x = _matrix(joined, features, reference_cells=reference_cells)
     y = _encode(joined["stage"])
     groups = (joined["well"].astype(str) + "/" + joined["site"].astype(str)).to_numpy()
     training = model.get("training")
@@ -1195,7 +1438,7 @@ def _labelled_scores(model: Mapping[str, Any], joined: pd.DataFrame,
     predicted = _out_of_fold(options["tabular"], options["seed"], x_all, y_all, g_all, w_all,
                              scored)[scored]
     macro, per_class = _shuffled_f1(options["tabular"], options["seed"], x_all, y_all, g_all,
-                                    w_all, scored, PERMUTATIONS)
+                                    w_all, scored, int(permutations))
     return {"truth": y, "predicted": predicted, "groups": groups, "shuffled_macro": macro,
             "shuffled": per_class}
 

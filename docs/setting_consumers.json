@@ -5340,7 +5340,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_cycle_field_min_cells",
-    "line": 496,
+    "line": 602,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_dna_phases"
@@ -13577,7 +13577,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_margin_px",
-    "line": 9516,
+    "line": 9530,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -14097,7 +14097,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_zero_outside",
-    "line": 9524,
+    "line": 9538,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -15290,7 +15290,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "cytoskeleton_channels",
-    "line": 6035,
+    "line": 6049,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
@@ -15299,7 +15299,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cytoskeleton_channels",
-    "line": 6277,
+    "line": 6291,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -17181,7 +17181,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 11682,
+    "line": 11696,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -17190,7 +17190,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 12076,
+    "line": 12090,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ops_admitted_run"
@@ -21450,7 +21450,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 11029,
+    "line": 11043,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_neighbour_effects"
@@ -21459,7 +21459,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 11676,
+    "line": 11690,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -21468,7 +21468,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 12076,
+    "line": 12090,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ops_admitted_run"
@@ -29918,7 +29918,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mask_image_format",
-    "line": 14248,
+    "line": 14262,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -29974,7 +29974,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mask_inference_precision",
-    "line": 5994,
+    "line": 6008,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -29983,7 +29983,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mask_inference_precision",
-    "line": 14143,
+    "line": 14157,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -30589,7 +30589,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "measure_gpu",
-    "line": 6037,
+    "line": 6051,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
@@ -30598,7 +30598,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "measure_gpu",
-    "line": 6041,
+    "line": 6055,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -30607,7 +30607,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "measure_gpu",
-    "line": 6088,
+    "line": 6102,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -30616,7 +30616,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "measure_gpu",
-    "line": 6230,
+    "line": 6244,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -30625,7 +30625,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "measure_gpu",
-    "line": 6279,
+    "line": 6293,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -33906,7 +33906,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 1095,
+    "line": 1325,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "run_cell_cycle_phase"
@@ -33915,7 +33915,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "mode",
-    "line": 1098,
+    "line": 1328,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "run_cell_cycle_phase"
@@ -35962,7 +35962,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 5847,
+    "line": 5861,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_measure_workers"
@@ -35971,7 +35971,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 8654,
+    "line": 8668,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merged"
@@ -35980,7 +35980,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 9625,
+    "line": 9639,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -38124,7 +38124,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 862,
+    "line": 1083,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -39813,7 +39813,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ome_zarr_store_registration",
-    "line": 8632,
+    "line": 8646,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merged"
@@ -39911,7 +39911,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_aggregate_level",
-    "line": 7586,
+    "line": 7600,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -39949,7 +39949,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_align_match_radius",
-    "line": 6387,
+    "line": 6401,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_align_options"
@@ -39969,7 +39969,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_align_model",
-    "line": 6379,
+    "line": 6393,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_align_options"
@@ -39989,7 +39989,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_align_tile_min_nuclei",
-    "line": 6385,
+    "line": 6399,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_align_options"
@@ -40009,7 +40009,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_align_trim_passes",
-    "line": 6389,
+    "line": 6403,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_align_options"
@@ -40029,7 +40029,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_archive_delete_local",
-    "line": 11902,
+    "line": 11916,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -40038,7 +40038,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_archive_delete_local",
-    "line": 12151,
+    "line": 12165,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_archive_resume"
@@ -40058,7 +40058,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_archive_root",
-    "line": 11791,
+    "line": 11805,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -40087,7 +40087,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_archive_verify",
-    "line": 12110,
+    "line": 12124,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_archive_verify"
@@ -40435,7 +40435,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_bootstrap",
-    "line": 7835,
+    "line": 7849,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -40542,7 +40542,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle",
-    "line": 838,
+    "line": 1059,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -40551,7 +40551,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle",
-    "line": 11930,
+    "line": 11944,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -40571,7 +40571,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_arrest_genes",
-    "line": 857,
+    "line": 1078,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -40591,7 +40591,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_base_model",
-    "line": 864,
+    "line": 1085,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -40764,7 +40764,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_dna_channel",
-    "line": 862,
+    "line": 1083,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -40829,7 +40829,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_finetune",
-    "line": 841,
+    "line": 1062,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -40849,7 +40849,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_label_channels",
-    "line": 1159,
+    "line": 1392,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "run_cell_cycle_phase"
@@ -40869,7 +40869,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_label_queue",
-    "line": 1145,
+    "line": 1378,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "run_cell_cycle_phase"
@@ -40889,7 +40889,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_labels",
-    "line": 865,
+    "line": 1086,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -40909,7 +40909,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_model_family",
-    "line": 839,
+    "line": 1060,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -41082,7 +41082,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_mt_channel",
-    "line": 854,
+    "line": 1075,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -41147,7 +41147,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_seed",
-    "line": 863,
+    "line": 1084,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -41167,7 +41167,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_cycle_tabular",
-    "line": 840,
+    "line": 1061,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_options"
@@ -41196,7 +41196,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_rule",
-    "line": 8715,
+    "line": 8729,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_genotype_rule"
@@ -41254,7 +41254,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_benchmark",
-    "line": 8002,
+    "line": 8016,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -41820,7 +41820,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_compare_match",
-    "line": 11669,
+    "line": 11683,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -41987,7 +41987,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_compare_tables",
-    "line": 11916,
+    "line": 11930,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -42590,7 +42590,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 1120,
+    "line": 1352,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "run_cell_cycle_phase"
@@ -42617,7 +42617,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 7598,
+    "line": 7612,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -42626,7 +42626,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 9104,
+    "line": 9118,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crop_targets"
@@ -42635,7 +42635,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 11970,
+    "line": 11984,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -42747,7 +42747,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_all_nt",
-    "line": 9109,
+    "line": 9123,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crop_targets"
@@ -42756,7 +42756,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_all_nt",
-    "line": 9534,
+    "line": 9548,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42776,7 +42776,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_channels",
-    "line": 9502,
+    "line": 9516,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42796,7 +42796,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_control_fraction",
-    "line": 9513,
+    "line": 9527,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42816,7 +42816,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_flat_mean_one",
-    "line": 9538,
+    "line": 9552,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42836,7 +42836,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_flatfield",
-    "line": 9528,
+    "line": 9542,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42876,7 +42876,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_masks",
-    "line": 9515,
+    "line": 9529,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42896,7 +42896,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_per_guide",
-    "line": 9092,
+    "line": 9106,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crop_targets"
@@ -42905,7 +42905,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_per_guide",
-    "line": 9533,
+    "line": 9547,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42914,7 +42914,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_per_guide",
-    "line": 9545,
+    "line": 9559,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42934,7 +42934,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_seed",
-    "line": 9099,
+    "line": 9113,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crop_targets"
@@ -42943,7 +42943,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_seed",
-    "line": 9536,
+    "line": 9550,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42963,7 +42963,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crop_size",
-    "line": 9509,
+    "line": 9523,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -42983,7 +42983,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cross_field_metric",
-    "line": 10198,
+    "line": 10212,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_cross_field_ownership"
@@ -43003,7 +43003,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cross_field_min_overlap",
-    "line": 10205,
+    "line": 10219,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_cross_field_ownership"
@@ -43023,7 +43023,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cross_field_ownership",
-    "line": 7762,
+    "line": 7776,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -43032,7 +43032,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cross_field_ownership",
-    "line": 8373,
+    "line": 8387,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_owned_flags"
@@ -43041,7 +43041,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cross_field_ownership",
-    "line": 8590,
+    "line": 8604,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merged"
@@ -43050,7 +43050,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cross_field_ownership",
-    "line": 10195,
+    "line": 10209,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_cross_field_ownership"
@@ -43070,7 +43070,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cross_field_policy",
-    "line": 9906,
+    "line": 9920,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_cross_field_policy"
@@ -43693,7 +43693,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_design",
-    "line": 1211,
+    "line": 1454,
     "module": "spacr.ops_cell_cycle",
     "nested": false,
     "qualname": "_attach_genes"
@@ -43702,7 +43702,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_design",
-    "line": 7593,
+    "line": 7607,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -43711,7 +43711,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_design",
-    "line": 9544,
+    "line": 9558,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -43767,7 +43767,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_deterministic_blas",
-    "line": 11610,
+    "line": 11624,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43776,7 +43776,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_deterministic_blas",
-    "line": 11630,
+    "line": 11644,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43785,7 +43785,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_deterministic_blas",
-    "line": 11649,
+    "line": 11663,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43794,7 +43794,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_deterministic_blas",
-    "line": 11665,
+    "line": 11679,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43823,7 +43823,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_drop_failed_fields",
-    "line": 7035,
+    "line": 7049,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merge"
@@ -43832,7 +43832,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_drop_failed_fields",
-    "line": 7726,
+    "line": 7740,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -43852,7 +43852,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_drop_nonfinite_rows",
-    "line": 7767,
+    "line": 7781,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -43872,7 +43872,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_escaper_dbic",
-    "line": 11366,
+    "line": 11380,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -43892,7 +43892,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_escaper_min_sep",
-    "line": 11368,
+    "line": 11382,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -43912,7 +43912,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_escapers",
-    "line": 11350,
+    "line": 11364,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -43921,7 +43921,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_escapers",
-    "line": 11375,
+    "line": 11389,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -44501,7 +44501,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_feature_qc",
-    "line": 7861,
+    "line": 7875,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -45742,7 +45742,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_fusion_blocks",
-    "line": 11434,
+    "line": 11448,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -45782,7 +45782,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_genotype_table",
-    "line": 7607,
+    "line": 7621,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -45791,7 +45791,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_genotype_table",
-    "line": 8712,
+    "line": 8726,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_genotype_rule"
@@ -45800,7 +45800,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_genotype_table",
-    "line": 9585,
+    "line": 9599,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -45809,7 +45809,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_genotype_table",
-    "line": 9586,
+    "line": 9600,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -45818,7 +45818,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_genotype_table",
-    "line": 10853,
+    "line": 10867,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_report"
@@ -45827,7 +45827,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_genotype_table",
-    "line": 10854,
+    "line": 10868,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_report"
@@ -45847,7 +45847,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu",
-    "line": 11693,
+    "line": 11707,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -45921,7 +45921,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu_admission",
-    "line": 5849,
+    "line": 5863,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_measure_workers"
@@ -45930,7 +45930,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu_admission",
-    "line": 11597,
+    "line": 11611,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -45939,7 +45939,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu_admission",
-    "line": 11799,
+    "line": 11813,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -46046,7 +46046,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu_vram_cap_gb",
-    "line": 5850,
+    "line": 5864,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_measure_workers"
@@ -46278,7 +46278,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_guide_efficacy",
-    "line": 11290,
+    "line": 11304,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -46316,7 +46316,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_guide_efficacy_emax",
-    "line": 11301,
+    "line": 11315,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -46354,7 +46354,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_guide_efficacy_iters",
-    "line": 11299,
+    "line": 11313,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -46383,7 +46383,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_guide_null_size",
-    "line": 11322,
+    "line": 11336,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -46619,7 +46619,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_layout",
-    "line": 11614,
+    "line": 11628,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -46657,7 +46657,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_library",
-    "line": 11697,
+    "line": 11711,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -46791,7 +46791,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_max_files_per_folder",
-    "line": 9511,
+    "line": 9525,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_crops"
@@ -47083,7 +47083,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merge_fallback_share",
-    "line": 6470,
+    "line": 6484,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_merge_strategy_options"
@@ -47103,7 +47103,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merge_min_match_fraction",
-    "line": 6468,
+    "line": 6482,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_merge_strategy_options"
@@ -47123,7 +47123,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merge_min_votes",
-    "line": 6465,
+    "line": 6479,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_merge_strategy_options"
@@ -47143,7 +47143,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merge_stage_positions",
-    "line": 6524,
+    "line": 6538,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_merge_stage_positions"
@@ -47163,7 +47163,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merge_stitch_source",
-    "line": 6459,
+    "line": 6473,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_merge_strategy_options"
@@ -47183,7 +47183,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merge_strategy",
-    "line": 6453,
+    "line": 6467,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_merge_strategy_options"
@@ -47203,7 +47203,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merge_threshold",
-    "line": 6931,
+    "line": 6945,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merge"
@@ -47223,7 +47223,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merged_dtype",
-    "line": 8567,
+    "line": 8581,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merged"
@@ -47243,7 +47243,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merged_flatfield",
-    "line": 8592,
+    "line": 8606,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merged"
@@ -47263,7 +47263,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merged_root",
-    "line": 8305,
+    "line": 8319,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merged_root"
@@ -47283,7 +47283,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merged_save_sbs",
-    "line": 8688,
+    "line": 8702,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merged"
@@ -47343,7 +47343,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_mitotic_dna_z",
-    "line": 7786,
+    "line": 7800,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -47441,7 +47441,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_mitotic_model",
-    "line": 7654,
+    "line": 7668,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -47450,7 +47450,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_mitotic_model",
-    "line": 7656,
+    "line": 7670,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -47459,7 +47459,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_mitotic_model",
-    "line": 8050,
+    "line": 8064,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -47468,7 +47468,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_mitotic_model",
-    "line": 11161,
+    "line": 11175,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -47506,7 +47506,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_mitotic_source",
-    "line": 7793,
+    "line": 7807,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -47515,7 +47515,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_mitotic_source",
-    "line": 11157,
+    "line": 11171,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -47635,7 +47635,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_neighbour_active",
-    "line": 10949,
+    "line": 10963,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_active_genes"
@@ -47644,7 +47644,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_neighbour_active",
-    "line": 11016,
+    "line": 11030,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_neighbour_effects"
@@ -47664,7 +47664,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_neighbour_effects",
-    "line": 11393,
+    "line": 11407,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -47684,7 +47684,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_neighbour_grid_px",
-    "line": 11005,
+    "line": 11019,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_neighbour_effects"
@@ -47704,7 +47704,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_neighbour_null_reps",
-    "line": 11007,
+    "line": 11021,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_neighbour_effects"
@@ -47724,7 +47724,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_neighbour_radius_px",
-    "line": 11003,
+    "line": 11017,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_neighbour_effects"
@@ -47744,7 +47744,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_neighbour_receivers",
-    "line": 11009,
+    "line": 11023,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_neighbour_effects"
@@ -47764,7 +47764,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_nt_rows",
-    "line": 7587,
+    "line": 7601,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -47864,7 +47864,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_penetrance",
-    "line": 11350,
+    "line": 11364,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -47873,7 +47873,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_penetrance",
-    "line": 11353,
+    "line": 11367,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -47893,7 +47893,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_penetrance_folds",
-    "line": 11360,
+    "line": 11374,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -47913,7 +47913,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_penetrance_lambda",
-    "line": 11364,
+    "line": 11378,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -47933,7 +47933,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_penetrance_nt_pool",
-    "line": 11362,
+    "line": 11376,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -48382,7 +48382,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_cell_model",
-    "line": 5861,
+    "line": 5875,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_model_pair"
@@ -48391,7 +48391,7 @@
     "form": "helper-key",
     "function_depth": 1,
     "key": "ops_ph_cell_model",
-    "line": 5864,
+    "line": 5878,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_model_pair"
@@ -48440,7 +48440,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_cytoskeleton_channels",
-    "line": 6011,
+    "line": 6025,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -48507,7 +48507,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_funk_features",
-    "line": 6007,
+    "line": 6021,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -48563,7 +48563,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_granularity_subsample",
-    "line": 5832,
+    "line": 5846,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_granularity_subsample"
@@ -48603,7 +48603,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_measure_gpu",
-    "line": 6013,
+    "line": 6027,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -48632,7 +48632,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_measure_gpu_check",
-    "line": 6042,
+    "line": 6056,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -48652,7 +48652,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_measure_workers",
-    "line": 5847,
+    "line": 5861,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_measure_workers"
@@ -48845,7 +48845,7 @@
     "form": "helper-key",
     "function_depth": 1,
     "key": "ops_ph_nucleus_model",
-    "line": 5860,
+    "line": 5874,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_model_pair"
@@ -48854,7 +48854,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_nucleus_model",
-    "line": 5862,
+    "line": 5876,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_model_pair"
@@ -48863,7 +48863,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_nucleus_model",
-    "line": 5865,
+    "line": 5879,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_model_pair"
@@ -49911,7 +49911,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_pipeline",
-    "line": 6043,
+    "line": 6057,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50014,7 +50014,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_profile_features",
-    "line": 5814,
+    "line": 5828,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_features"
@@ -50061,7 +50061,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_profile_optional_families",
-    "line": 5815,
+    "line": 5829,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_features"
@@ -50081,7 +50081,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_secondary_channels",
-    "line": 8105,
+    "line": 8119,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_secondary"
@@ -50090,7 +50090,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_secondary_channels",
-    "line": 11746,
+    "line": 11760,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -50099,7 +50099,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_ph_secondary_channels",
-    "line": 11747,
+    "line": 11761,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -50119,7 +50119,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_secondary_fallback",
-    "line": 8114,
+    "line": 8128,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_secondary"
@@ -50139,7 +50139,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_secondary_registration",
-    "line": 8108,
+    "line": 8122,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_secondary"
@@ -50159,7 +50159,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_secondary_window",
-    "line": 8120,
+    "line": 8134,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_secondary"
@@ -50188,7 +50188,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_sites",
-    "line": 5944,
+    "line": 5958,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50197,7 +50197,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_sites",
-    "line": 8580,
+    "line": 8594,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merged"
@@ -50217,7 +50217,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_stage_ahead",
-    "line": 6078,
+    "line": 6092,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50237,7 +50237,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_stage_dir",
-    "line": 6044,
+    "line": 6058,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50257,7 +50257,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_stage_threads",
-    "line": 6080,
+    "line": 6094,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50304,7 +50304,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "ops_ph_texture",
-    "line": 6030,
+    "line": 6044,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
@@ -50391,7 +50391,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_zernike",
-    "line": 6009,
+    "line": 6023,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50420,7 +50420,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_phase_null",
-    "line": 11381,
+    "line": 11395,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -50440,7 +50440,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_phase_tests",
-    "line": 11166,
+    "line": 11180,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -50449,7 +50449,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_phase_tests",
-    "line": 11380,
+    "line": 11394,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -50469,7 +50469,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_phases",
-    "line": 11999,
+    "line": 12013,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_run_phases"
@@ -50716,7 +50716,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_pool_interphase",
-    "line": 7832,
+    "line": 7846,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -50736,7 +50736,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_pool_wells",
-    "line": 7600,
+    "line": 7614,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -51073,7 +51073,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_sim",
-    "line": 11604,
+    "line": 11618,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -51943,7 +51943,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_cell_cycle",
-    "line": 11151,
+    "line": 11165,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -51963,7 +51963,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_cell_cycle_method",
-    "line": 11152,
+    "line": 11166,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52059,7 +52059,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_essential_axis_min_rho",
-    "line": 11248,
+    "line": 11262,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52079,7 +52079,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_g1_sg2_split_log2",
-    "line": 11174,
+    "line": 11188,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52137,7 +52137,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_generic_axes",
-    "line": 11165,
+    "line": 11179,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52222,7 +52222,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_normalisation",
-    "line": 7842,
+    "line": 7856,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -52262,7 +52262,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_responder_alpha",
-    "line": 11332,
+    "line": 11346,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52329,7 +52329,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_shrinkage",
-    "line": 11218,
+    "line": 11232,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52338,7 +52338,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_shrinkage",
-    "line": 11272,
+    "line": 11286,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52367,7 +52367,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_shrinkage_prior_df",
-    "line": 11223,
+    "line": 11237,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52396,7 +52396,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_similarity",
-    "line": 11315,
+    "line": 11329,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52434,7 +52434,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_space",
-    "line": 11398,
+    "line": 11412,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52463,7 +52463,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_weighting",
-    "line": 11268,
+    "line": 11282,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -52521,7 +52521,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_pvalue_null",
-    "line": 7837,
+    "line": 7851,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -52902,7 +52902,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_reference_counts",
-    "line": 10830,
+    "line": 10844,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_report"
@@ -52922,7 +52922,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_reference_counts_level",
-    "line": 10837,
+    "line": 10851,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_report"
@@ -53025,7 +53025,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_reference_seed",
-    "line": 10845,
+    "line": 10859,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_report"
@@ -53045,7 +53045,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_reference_shuffles",
-    "line": 10843,
+    "line": 10857,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_report"
@@ -53188,7 +53188,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_report_edge_bin_px",
-    "line": 10558,
+    "line": 10572,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_overlap_report"
@@ -53208,7 +53208,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_report_external_cells",
-    "line": 10566,
+    "line": 10580,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_overlap_report"
@@ -53228,7 +53228,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_report_external_max_px",
-    "line": 10560,
+    "line": 10574,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_overlap_report"
@@ -53248,7 +53248,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_report_overlap_zones",
-    "line": 10827,
+    "line": 10841,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_report"
@@ -53286,7 +53286,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_report_read_stage",
-    "line": 10794,
+    "line": 10808,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_report"
@@ -53306,7 +53306,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_retry_missing",
-    "line": 6050,
+    "line": 6064,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -54021,7 +54021,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_storage",
-    "line": 9691,
+    "line": 9705,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ops_storage"
@@ -54081,7 +54081,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_store_row_copy",
-    "line": 9853,
+    "line": 9867,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ops_store_write"
@@ -54101,7 +54101,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_stress_report",
-    "line": 11965,
+    "line": 11979,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -54130,7 +54130,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_tables_integer_keys",
-    "line": 8933,
+    "line": 8947,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_tables"
@@ -54139,7 +54139,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_tables_integer_keys",
-    "line": 9822,
+    "line": 9836,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ops_store_write"
@@ -54159,7 +54159,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_tables_layout",
-    "line": 8934,
+    "line": 8948,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_tables"
@@ -54179,7 +54179,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_tables_parquet_threshold",
-    "line": 8927,
+    "line": 8941,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_tables"
@@ -54199,7 +54199,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_test_features",
-    "line": 7848,
+    "line": 7862,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -54259,7 +54259,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_tvn_fit_cells",
-    "line": 7976,
+    "line": 7990,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -54339,7 +54339,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_tvn_whiten_epsilon",
-    "line": 11422,
+    "line": 11436,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_profile_options"
@@ -66161,7 +66161,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "phenotype_source",
-    "line": 11726,
+    "line": 11740,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -67030,7 +67030,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate",
-    "line": 11027,
+    "line": 11041,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_neighbour_effects"
@@ -67039,7 +67039,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate",
-    "line": 11691,
+    "line": 11705,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -67048,7 +67048,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate",
-    "line": 12078,
+    "line": 12092,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ops_admitted_run"
@@ -69509,7 +69509,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "profile_features",
-    "line": 6034,
+    "line": 6048,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
@@ -69518,7 +69518,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "profile_features",
-    "line": 6276,
+    "line": 6290,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -70890,7 +70890,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "randomize",
-    "line": 6064,
+    "line": 6078,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -70899,7 +70899,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "randomize",
-    "line": 6064,
+    "line": 6078,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -76717,7 +76717,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_anndata",
-    "line": 14547,
+    "line": 14561,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -76737,7 +76737,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 14425,
+    "line": 14439,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -76746,7 +76746,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 14487,
+    "line": 14501,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -76784,7 +76784,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_cell_expansion_um",
-    "line": 14095,
+    "line": 14109,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -76804,7 +76804,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_cellpose_model",
-    "line": 14142,
+    "line": 14156,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -76896,7 +76896,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 14093,
+    "line": 14107,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77006,7 +77006,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_dst",
-    "line": 14073,
+    "line": 14087,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77026,7 +77026,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_gene",
-    "line": 14580,
+    "line": 14594,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -77046,7 +77046,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_gpu",
-    "line": 14144,
+    "line": 14158,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77055,7 +77055,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_gpu",
-    "line": 14159,
+    "line": 14173,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77075,7 +77075,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_level",
-    "line": 14054,
+    "line": 14068,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77095,7 +77095,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_masks_dir",
-    "line": 14384,
+    "line": 14398,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -77144,7 +77144,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_min_pathogen_transcripts",
-    "line": 14545,
+    "line": 14559,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -77164,7 +77164,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_min_qv",
-    "line": 14426,
+    "line": 14440,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -77173,7 +77173,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_min_qv",
-    "line": 14427,
+    "line": 14441,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -77213,7 +77213,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_objects",
-    "line": 14416,
+    "line": 14430,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -77233,7 +77233,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_pathogen_genes",
-    "line": 14544,
+    "line": 14558,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -77253,7 +77253,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_platform",
-    "line": 14051,
+    "line": 14065,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77262,7 +77262,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_platform",
-    "line": 14424,
+    "line": 14438,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -77291,7 +77291,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_sample",
-    "line": 14075,
+    "line": 14089,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77311,7 +77311,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_segmenter",
-    "line": 14089,
+    "line": 14103,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77331,7 +77331,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_source",
-    "line": 14046,
+    "line": 14060,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77340,7 +77340,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_source",
-    "line": 14383,
+    "line": 14397,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -77369,7 +77369,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_stain",
-    "line": 14088,
+    "line": 14102,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77400,7 +77400,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_tile_overlap",
-    "line": 14066,
+    "line": 14080,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77420,7 +77420,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_tile_size",
-    "line": 14065,
+    "line": 14079,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77440,7 +77440,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_window",
-    "line": 14058,
+    "line": 14072,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -77460,7 +77460,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_window_unit",
-    "line": 14059,
+    "line": 14073,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -94903,7 +94903,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "zernike",
-    "line": 6033,
+    "line": 6047,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
@@ -94912,7 +94912,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "zernike",
-    "line": 6275,
+    "line": 6289,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"

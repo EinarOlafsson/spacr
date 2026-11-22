@@ -5688,6 +5688,10 @@ _PH_WORKER_FIELDS = {"count": 0}
 def _ph_measure_table(task: Mapping[str, Any]):
     """One segmented phenotype field measured: ``(table or None, unreadable, shape)``.
 
+    Nuclear mask geometry always supplies nucleus_centroid_y,
+    nucleus_centroid_x and nucleus_area for S2, while existing measurements
+    retain their values and order.
+
     :param task: as :func:`_ph_measure_field` takes it; ``staged``, when
         set, is the field's stack staged by :class:`spacr.ops_run_infra.FieldStager`,
         read in place of the raw files.
@@ -5725,6 +5729,16 @@ def _ph_measure_table(task: Mapping[str, Any]):
         profile_features=task.get("profile_features"),
         granularity_subsample=float(task.get("granularity_subsample") or 1.0),
         cytoskeleton_channels=task.get("cytoskeleton_channels"))
+    from skimage.measure import regionprops_table
+    import pandas as pd
+
+    geometry = pd.DataFrame(regionprops_table(
+        nuclei, properties=("label", "centroid", "area"))).rename(columns={
+            "centroid-0": "nucleus_centroid_y", "centroid-1": "nucleus_centroid_x",
+            "area": "nucleus_area"}).set_index("label")
+    for column in ("nucleus_centroid_y", "nucleus_centroid_x", "nucleus_area"):
+        if column not in table:
+            table[column] = table["label"].map(geometry[column])
     if task.get("objects") and len(table):
         from .ops_sample import _cell_object_features
 

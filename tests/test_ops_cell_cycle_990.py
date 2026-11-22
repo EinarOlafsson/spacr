@@ -89,7 +89,8 @@ def _run(tmp_path, base, *, labels=None, folder="run", seed=3):
     settings = {"ops_cell_cycle": "DNA", "ops_cell_cycle_base_model": base,
                 "nucleus_channel": "dapi", "ops_cell_cycle_labels": labels or ""}
     db = str(destination / "measurements.db")
-    out = cc.run_cell_cycle_phase(db, PLATE, ["A1", "A2"], settings, str(destination))
+    out = cc.run_cell_cycle_phase(db, PLATE, ["A1", "A2"], settings, str(destination),
+                                  permutations=cc.PERMUTATIONS)
     from spacr.ops_store import read_table
 
     return out, cells, read_table(db, "ops_cell_cycle"), read_table(db, "ops_cell_cycle_checks")
@@ -214,7 +215,8 @@ def test_cnn_falls_back_to_the_tabular_learner_and_says_so(tmp_path, monkeypatch
     out = cc.run_cell_cycle_phase(str(destination / "measurements.db"), PLATE, ["A1", "A2"],
                                   {"ops_cell_cycle": "DNA", "ops_cell_cycle_base_model": base,
                                    "ops_cell_cycle_model_family": "cnn",
-                                   "nucleus_channel": "dapi"}, str(destination))
+                                   "nucleus_channel": "dapi"}, str(destination),
+                                   permutations=cc.PERMUTATIONS)
     assert any("tabular" in note and "cnn" in note for note in out["notes"])
 
 
@@ -373,7 +375,8 @@ def test_a_run_with_a_label_queue_writes_the_pending_queue(tmp_path):
     out = cc.run_cell_cycle_phase(str(destination / "measurements.db"), PLATE, ["A1", "A2"],
                                   {"ops_cell_cycle": "DNA", "nucleus_channel": "dapi",
                                    "ops_cell_cycle_base_model": _base(tmp_path),
-                                   "ops_cell_cycle_label_queue": 50}, str(destination))
+                                   "ops_cell_cycle_label_queue": 50}, str(destination),
+                                   permutations=cc.PERMUTATIONS)
     pending = pd.read_csv(os.path.join(out["label_queue"]["folder"], "queue_pending.csv"))
     assert len(pending) == 50 and out["label_queue"]["labels"].endswith("labels.csv")
 
@@ -524,7 +527,8 @@ def _plate_run(tmp_path, base, labels, plate, seed, finetune):
                                    {"ops_cell_cycle": "DNA", "nucleus_channel": "dapi",
                                     "ops_cell_cycle_base_model": base,
                                     "ops_cell_cycle_labels": labels,
-                                    "ops_cell_cycle_finetune": finetune}, str(destination))
+                                    "ops_cell_cycle_finetune": finetune}, str(destination),
+                                   permutations=cc.PERMUTATIONS)
 
 
 def test_screen_fine_tune_pools_the_plates_and_plate_fine_tune_does_not(tmp_path):
