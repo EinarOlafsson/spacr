@@ -72,7 +72,8 @@ def _columns(tables):
 
 
 def test_the_blocks_are_names_of_profile_features_and_not_of_its_presets():
-    assert M.MEASURE_BLOCK_FAMILIES == ("coloc_block", "legacy_radial")
+    """Keep all three explicit blocks outside the profiling presets."""
+    assert M.MEASURE_BLOCK_FAMILIES == ("coloc_block", "legacy_radial", "cytoskeleton")
     assert M.profile_feature_families(["legacy_radial", "edge_intensity", "coloc_block"]) == (
         "edge_intensity", "coloc_block", "legacy_radial")
     assert M.profile_feature_families("coloc_block,profiling")[-1] == "coloc_block"
@@ -215,10 +216,11 @@ def _measure_named(nuclei, cells, image, names, families):
 
 
 def test_final_list_parity_in_both_directions():
-    """P1: with the final list (the names this branch measures), every OPS
+    """P1: with the complete final family list, every OPS
     column is a Measure column with the same value, and every Measure
     per-cell column of the three compartments is an OPS column."""
     pytest.importorskip("mahotas")
+    assert PENDING == [] and AVAILABLE == list(FINAL_RUN_FAMILIES_1008)
     nuclei, cells, image, names = _ops_field()
     table, missing, unequal = _ops_against_measure(
         nuclei, cells, image, names, texture=True, funk=True, zernike=True,
@@ -230,6 +232,9 @@ def test_final_list_parity_in_both_directions():
     assert absent == []
     assert any("manders" in c for c in table.columns)
     assert any("rad_dist" in c for c in table.columns)
+    assert any("otsu_m1" in c for c in table.columns)
+    assert any(c.startswith("cell_") and "skeleton_length" in c for c in table.columns)
+    assert not any("skeleton" in c and not c.startswith("cell_") for c in table.columns)
 
 
 #: The OPS phenotype path measures a float32 copy of the field and Measure
@@ -288,3 +293,66 @@ def test_the_final_list_is_explicit_and_every_name_can_be_dropped():
         table = ops_sample.measure_phenotype_field(nuclei, cells, image, names,
                                                    profile_features=rest)
         assert set(table.columns) < set(full.columns), name
+
+
+@pytest.mark.parametrize("channels, indices", [(None, (0, 1, 2)), ([1], (1,)), (["GFP"], (1,))])
+def test_ops_cytoskeleton_selection_reaches_the_shared_cell_only_measurement(channels, indices):
+    """Resolve selected channels through OPS and match direct per-cell skeleton values."""
+    nuclei, cells, image, names = _ops_field()
+    table = ops_sample.measure_phenotype_field(
+        nuclei, cells, image, names, texture=False,
+        profile_features=["cytoskeleton"], cytoskeleton_channels=channels)
+    expected = M.measure_cytoskeleton(cells, image, list(indices))
+    actual_columns = {column for column in table if "skeleton" in column}
+    expected_columns = {
+        f"cell_{names[index].lower()}_{stat}"
+        for index in indices for stat in ("skeleton_length", "skeleton_branch_points")}
+    assert actual_columns == expected_columns
+    expected = expected.set_index("label").reindex(table["label"])
+    for index in indices:
+        for stat in ("skeleton_length", "skeleton_branch_points"):
+            np.testing.assert_array_equal(
+                table[f"cell_{names[index].lower()}_{stat}"],
+                expected[f"channel_{index}_{stat}"])
+    inactive = ops_sample.measure_phenotype_field(
+        nuclei, cells, image, names, texture=False, cytoskeleton_channels=channels)
+    assert not any("skeleton" in column for column in inactive)
+
+
+@pytest.mark.parametrize("change", ["none", "name", "default", "type", "before", "after"])
+def test_cytoskeleton_api_revision_rejects_unrecorded_source_drift(tmp_path, monkeypatch, change):
+    """Bind the actual API source and reject altered keywords, defaults or hash-chain records."""
+    import json
+    from tests import test_documentation_i18n as owner
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    filename = "1008a2_phenotype_cytoskeleton_api_change_2026-11-21.json"
+    record = json.loads((root / "tests/data/release_contracts" / filename).read_text())
+    source = (root / "spacr/ops_sample.py").read_text()
+    entries = json.loads((root / "tests/data/release_contracts" /
+                          "ops_phenotype_path_api_arrivals_2026-11-05.json").read_text())
+    if change == "name":
+        source = source.replace("                            cytoskeleton_channels=None):",
+                                "                            skeleton_channels=None):")
+    elif change == "default":
+        source = source.replace("                            cytoskeleton_channels=None):",
+                                "                            cytoskeleton_channels=False):")
+    elif change == "type":
+        source = source.replace("granularity_subsample: float = 1.0,",
+                                "granularity_subsample: float = 1,")
+    elif change == "before":
+        entries[record["symbol"]] += " unrecorded"
+    elif change == "after":
+        record["after"] += " unrecorded"
+    (tmp_path / "spacr").mkdir()
+    (tmp_path / "spacr/ops_sample.py").write_text(source)
+    folder = tmp_path / "tests/data/release_contracts"
+    folder.mkdir(parents=True)
+    (folder / filename).write_text(json.dumps(record))
+    monkeypatch.setattr(owner, "ROOT", tmp_path)
+    if change == "none":
+        actual = owner._current_1008a2_ops_api(entries)
+        assert actual == {**entries, record["symbol"]: record["after"]}
+    else:
+        with pytest.raises(AssertionError):
+            owner._current_1008a2_ops_api(entries)

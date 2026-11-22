@@ -53,15 +53,18 @@ def _slow(columns):
 
 
 def test_profiling_preset_leaves_the_slow_families_out():
+    """Preserve the profiling preset while all gains Otsu colocalisation."""
     families = M.profile_feature_families("profiling")
     assert families == M.PROFILE_FEATURE_DEFAULT
     assert not set(families) & set(SLOW)
     assert set(M.PROFILE_FEATURE_OPTIONAL) == set(SLOW)
-    assert set(families) | set(SLOW) == set(M.PROFILE_FEATURE_FAMILIES)
+    assert set(families) | set(SLOW) | {"colocalisation_otsu"} == set(M.PROFILE_FEATURE_FAMILIES)
+    assert "colocalisation_otsu" not in families
     assert M.profile_feature_families("all") == M.PROFILE_FEATURE_FAMILIES
 
 
 def test_optional_families_parse_and_only_widen_profiling():
+    """Keep historical optional-family selections independent of new families."""
     assert M.profile_optional_families(None) == ()
     assert M.profile_optional_families(False) == ()
     assert M.profile_optional_families("") == ()
@@ -73,7 +76,8 @@ def test_optional_families_parse_and_only_widen_profiling():
         M.profile_optional_families(["texture_haralick"])
     previous = ["texture_gabor", "colocalisation", "colocalisation_extra"]
     assert M.profile_feature_families("profiling", previous) == PROFILING_BEFORE_941
-    assert M.profile_feature_families("profiling", True) == M.PROFILE_FEATURE_FAMILIES
+    assert M.profile_feature_families("profiling", True) == tuple(
+        name for name in M.PROFILE_FEATURE_FAMILIES if name != "colocalisation_otsu")
     assert M.profile_feature_families(None, True) == ()
     assert M.profile_feature_families("edge_intensity", True) == ("edge_intensity",)
     assert M.profile_feature_families("all", None) == M.PROFILE_FEATURE_FAMILIES
@@ -104,6 +108,7 @@ def test_default_ops_table_has_no_slow_columns_and_flags_restore_the_previous_ta
 
 
 def test_ops_settings_resolve_with_the_flag():
+    """Restore the historical optional set without adding the new Otsu family."""
     from spacr.ops_engine import _ph_granularity_subsample, _ph_profile_features
     from spacr.ops_settings import OPS_TO_MEASURE_KEYS, ops_defaults
 
@@ -113,7 +118,8 @@ def test_ops_settings_resolve_with_the_flag():
         "profile_optional_families")
     on = {"ops_ph_profile_features": "profiling",
           "ops_ph_profile_optional_families": True}
-    assert _ph_profile_features(on) == list(M.PROFILE_FEATURE_FAMILIES)
+    assert _ph_profile_features(on) == [
+        name for name in M.PROFILE_FEATURE_FAMILIES if name != "colocalisation_otsu"]
     assert _ph_granularity_subsample(on) == 1.0
     off = {"ops_ph_profile_features": "profiling"}
     assert _ph_profile_features(off) == list(M.PROFILE_FEATURE_DEFAULT)

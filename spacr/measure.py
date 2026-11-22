@@ -1873,7 +1873,9 @@ def _intensity_measurements(
         profiling families of :func:`measure_profile_features`, 2-D only;
         empty adds nothing; the blocks it names,
         :data:`MEASURE_BLOCK_FAMILIES`, switch ``calculate_correlation`` and
-        ``radial_dist`` on, each computed once when both name it),
+        ``radial_dist`` on, each computed once when both name it;
+        ``cytoskeleton`` measures cells only, using
+        ``cytoskeleton_channels`` and ``channel_names``),
         ``profile_optional_families`` (the slow
         families ``'profiling'`` adds, :func:`profile_optional_families`),
         ``profile_granularity_subsample`` and the ``<object>_mask_dim`` toggles).
@@ -2051,6 +2053,15 @@ def _intensity_measurements(
                         coloc_df = _calculate_correlation_object_level(chan_i, chan_j, mask, settings)
                         coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
                         dfs[m].append(coloc_df)
+
+    if 'cytoskeleton' in blocks and ndim == 2:
+        skeleton = measure_cytoskeleton(
+            cell_mask, channel_arrays, settings.get('cytoskeleton_channels'),
+            channel_names=settings.get('channel_names'))
+        skeleton = skeleton.rename(columns={
+            column: f'cell_{column}' for column in skeleton.columns
+            if column != 'label'})
+        dfs[0].append(skeleton)
 
     families = tuple(name for name in selected
                      if name != 'neighbours' and name not in blocks)
@@ -3427,7 +3438,7 @@ PROFILE_FEATURE_FAMILIES = (
     'shape_extended', 'texture_haralick', 'texture_pftas',
     'texture_lbp', 'texture_gabor', 'periphery', 'outside',
     'colocalisation', 'colocalisation_extra', 'colocalisation_costes',
-    'neighbours', 'granularity',
+    'colocalisation_otsu', 'neighbours', 'granularity',
 )
 
 #: The families switched on by ``profile_features='profiling'``: the ones that
@@ -3459,7 +3470,7 @@ PROFILE_FEATURE_OPTIONAL = (
 #: (the ``calculate_correlation`` setting), ``legacy_radial`` the six-bin radial
 #: distribution of :func:`_calculate_radial_distribution` (``radial_dist``).
 #: ``'profiling'`` and ``'all'`` name none of them.
-MEASURE_BLOCK_FAMILIES = ('coloc_block', 'legacy_radial')
+MEASURE_BLOCK_FAMILIES = ('coloc_block', 'legacy_radial', 'cytoskeleton')
 
 #: Haralick's 13 statistics in mahotas' order (Haralick et al. 1973).
 _HARALICK_NAMES = (
@@ -5018,6 +5029,8 @@ def measure_profile_features(labels, image, families='profiling',
                                                        costes=False))
         elif family == 'colocalisation_costes':
             frames.append(measure_costes(labels, image))
+        elif family == 'colocalisation_otsu':
+            frames.append(measure_colocalisation_otsu(labels, image))
         elif family == 'neighbours':
             frames.append(measure_neighbours(labels, neighbour_radius))
         elif family == 'granularity':
