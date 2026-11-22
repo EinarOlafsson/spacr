@@ -1662,7 +1662,8 @@ def _merge_channels(src, plot=False):
 
     return num_matching_folders
 
-def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_size=100):
+def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_size=100,
+                         settings=None):
     """
     Concatenates channel data from multiple files and saves the concatenated data as numpy arrays.
 
@@ -1672,6 +1673,7 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
         randomize (bool, optional): Whether to randomize the order of the files. Defaults to True.
         timelapse (bool, optional): Whether the channel data is from a timelapse experiment. Defaults to False.
         batch_size (int, optional): The number of files to be processed in each batch. Defaults to 100.
+        settings (dict, optional): Shared settings carrying mask_batch_seed.
 
     Returns:
         str: The directory path where the concatenated channel data is saved.
@@ -1718,8 +1720,9 @@ def _concatenate_channel(src, channels, randomize=True, timelapse=False, batch_s
             if file.endswith('.npy'):
                 path = os.path.join(src, file)
                 paths.append(path)
-        if randomize:
-            random.shuffle(paths)
+        from ._mask_batches import _field_order
+
+        paths = _field_order(sorted(paths), dict(settings or {}, randomize=randomize))
         nr_files = len(paths)
         batch_index = 0
         stack_ls = []
@@ -1872,6 +1875,11 @@ def _normalize_recorded_batch(stack, channels, save_dtype, settings, field_ids,
         region = tuple(slice(0, size) for size in shape)
         source = _resolved_source(stack[(index, *region, slice(None))][..., channels])
         identities.append(source)
+        membership = settings.get('_mask_batch_membership', {}).get(field_id)
+        if membership is not None:
+            from .object import _record_mask_batch
+
+            _record_mask_batch(settings, field_id, source, membership)
         found, value = _resolved_parameter(settings, field_id, kind, source, configuration)
         if found:
             try:
@@ -2683,8 +2691,10 @@ def _concatenate_and_normalize_impl(
                     continue
                 path = os.path.join(src, file)
                 paths.append(path)
-        if settings['randomize']:
-            random.shuffle(paths)
+        from ._mask_batches import _field_order
+
+        paths = _field_order(paths, dict(settings, randomize=False)
+                             if settings.get('timelapse') else settings)
         intended_fields = [
             os.path.splitext(os.path.basename(path))[0] for path in paths
         ]
@@ -2698,8 +2708,26 @@ def _concatenate_and_normalize_impl(
             request = (settings['_batch_size_request'] if '_batch_size_request' in settings
                        else mask_batches._batch_size_request(settings.get('batch_size')))
             names = [os.path.basename(path) for path in paths]
-            size = int(request) if request else len(names)
+            size = (len(names) if request in (None, mask_batches._AUTO_VRAM)
+                    else int(request))
             batches = [names[i:i + size] for i in range(0, len(names), size)]
+            from .run_journal import _resolved_parameters
+
+            saved = mask_batches._read_plan(output_fldr)
+            if (_resolved_parameters(settings).replay and saved is not None
+                    and saved.get('resolved') and request == mask_batches._AUTO_VRAM):
+                from .object import _restore_mask_calibration, _validate_mask_batch_draw
+
+                _restore_mask_calibration(settings, saved)
+                _validate_mask_batch_draw(settings, names)
+                if (saved.get('batch_size_request') == request
+                        and saved['channels'] == channels
+                        and saved['save_dtype'] == np.dtype(save_dtype).name
+                        and os.path.normpath(os.path.join(output_fldr, saved['stack_dir']))
+                        == os.path.normpath(src)):
+                    saved['_runtime_settings'] = settings
+                    ledger.finalize()
+                    return output_fldr
             moved = mask_batches._supersede_archives(output_fldr, _listdir_visible)
             if moved:
                 print(f'Set {len(moved)} earlier normalised archive(s) aside as '

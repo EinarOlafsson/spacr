@@ -1,6 +1,8 @@
 """Object segmentation, filtering, mask generation, and post-processing."""
 
 import os, torch, time
+import contextvars
+import threading
 
 from . import _gc as gc
 from .mask_io import _as_uint16_mask
@@ -1427,15 +1429,20 @@ def _assigned_mask_archives(src, batch_paths):
 def _eval_tile_batch(settings, field_count):
     """The tile batch Cellpose's network runs at, from ``mask_eval_batch_size``.
 
-    ``0`` (the default) keeps the rule the masks were always made with: one
-    tile per field in the batch. A positive number is the tiles passed
-    through the network at once, which a GPU with room runs faster.
+    ``'auto_vram'`` reads the calibrated tile count from the shared plan,
+    or the CPU rule when no CUDA model is available. ``0`` retains one tile
+    per field in the batch. A positive number explicitly selects the tiles
+    passed through the network at once.
 
     :param settings: run settings.
     :param field_count: fields in the batch.
     :returns: the ``batch_size`` handed to Cellpose's ``eval``.
     :raises ValueError: when the setting is negative or not a whole number.
     """
+    from ._mask_batches import _resolved_tiles, _wants_auto_tiles
+
+    if _wants_auto_tiles(settings):
+        return _resolved_tiles(settings, field_count)
     value = (settings or {}).get('mask_eval_batch_size', 0)
     if value in (None, ''):
         return field_count
@@ -1711,6 +1718,266 @@ def _add_stage(stages, stage, since):
     return now
 
 
+_MASK_MODEL_SESSION = contextvars.ContextVar('spacr_mask_model_session', default=None)
+_MASK_MODEL_CONSTRUCTION_LOCK = threading.RLock()
+
+
+@contextmanager
+def _mask_model_session(settings=None):
+    """Reuse calibrated-run models while retaining uncached construction for legacy requests."""
+    from . import _mask_workers as workers
+
+    from ._mask_batches import _AUTO_VRAM, _batch_size_request, _wants_auto_tiles
+
+    enabled = (settings is None or _wants_auto_tiles(settings) or _batch_size_request(
+        settings.get('_batch_size_request', settings.get('batch_size'))) == _AUTO_VRAM)
+    current = _MASK_MODEL_SESSION.get() if enabled else None
+    with _MASK_MODEL_CONSTRUCTION_LOCK:
+        cache = (current if current is not None else workers._MODEL_CACHE) if enabled else None
+        if cache is None and enabled:
+            cache = dict(key=None, model=None, hits=0, loads=0)
+    token = _MASK_MODEL_SESSION.set(cache)
+    try:
+        yield cache
+    finally:
+        _MASK_MODEL_SESSION.reset(token)
+
+
+def _session_cached_mask_model(key, build):
+    """Reuse the one existing model identity implementation within a context-local session."""
+    from . import _mask_workers as workers
+
+    cache = _MASK_MODEL_SESSION.get()
+    with _MASK_MODEL_CONSTRUCTION_LOCK:
+        previous = workers._MODEL_CACHE
+        if cache is not None:
+            workers._MODEL_CACHE = cache
+        try:
+            return workers._cached_model(key, build)
+        finally:
+            workers._MODEL_CACHE = previous
+
+
+def _release_calibration_model():
+    """Release coordinator weights before subprocess workers load their own models."""
+    from ._mask_batches import _empty_cache
+
+    cache = _MASK_MODEL_SESSION.get()
+    if cache is None:
+        return
+    with _MASK_MODEL_CONSTRUCTION_LOCK:
+        if cache.get('model') is None:
+            return
+        cache.update(key=None, model=None)
+    gc.collect()
+    _empty_cache()
+
+
+def _mask_model_setup(settings, object_type, *, z_plan=None, t_plan=None,
+                      channel_configuration=None):
+    """Reuse the segmentation model, precision, backend and channel configuration."""
+    from .settings import _get_object_settings
+    from .utils import _get_cellpose_channels, _resolve_cellpose_pretrained
+
+    if channel_configuration is None:
+        _fill_cellpose_channel_positions(settings)
+        channels_to_extract, cellpose_channels = _get_cellpose_channels(settings)
+        channels = cellpose_channels.get(object_type, [])
+    else:
+        channels_to_extract, channels = channel_configuration
+    object_settings = _get_object_settings(object_type, settings)
+    model_name = object_settings['model_name']
+    if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
+        model_name = settings['pathogen_model']
+    from ._segmentation_backends import (_backend_name, _load_backend,
+                                         _cellpose3_choice, _CELLPOSE3,
+                                         _cellpose_dino_choice, _CELLPOSE_DINO,
+                                         _prefixed_backend)
+    segmentation_backend = _backend_name(
+        settings.get('segmentation_backend', 'cellpose'))
+    if _cellpose3_choice(model_name) is not None:
+        segmentation_backend = _CELLPOSE3
+    elif _cellpose_dino_choice(model_name) is not None:
+        segmentation_backend = _CELLPOSE_DINO
+    elif _prefixed_backend(model_name) is not None:
+        segmentation_backend = _prefixed_backend(model_name)
+    model_name = _pinned_object_model(settings, object_type, model_name, segmentation_backend)
+    if segmentation_backend == 'cellpose':
+        model_key = ('pathogen_model' if object_type == 'pathogen'
+                     and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
+        pretrained = _resolve_cellpose_pretrained(
+            model_name, object_type=object_type, setting=model_key)
+        model_kwargs = _with_inference_precision(accelerator.cellpose_kwargs(), settings)
+        model = _session_cached_mask_model(
+            ('cellpose', pretrained, model_kwargs),
+            lambda: cp_models.CellposeModel(pretrained_model=pretrained, **model_kwargs))
+    else:
+        model = _load_backend(segmentation_backend, z_plan=z_plan,
+                              t_plan=t_plan, model_name=model_name,
+                              object_type=object_type)
+    channels = _segmentation_input_channels(
+        channels, len(channels_to_extract), model)
+    return model, channels, segmentation_backend
+
+
+def _mask_eval_options(settings, object_type, object_settings):
+    """The ordinary two-dimensional evaluation options shared by probes and masks."""
+    return dict(
+        normalize=False, channel_axis=-1, min_size=object_settings['min_size'],
+        progress=True,
+        diameter=_eval_diameter(settings.get(f'{object_type}_diameter'),
+                                object_type, object_settings['diameter']),
+        flow_threshold=settings[f'{object_type}_flow_threshold'],
+        cellprob_threshold=settings[f'{object_type}_cellprob_threshold'],
+        resample=object_settings['resample'])
+
+
+def _organelle_channel_position(settings):
+    """Resolve the selected slot through the existing dense channel mapping."""
+    from .utils import dense_mask_channel_positions
+
+    raw = settings['organelle_channel']
+    recorded = settings.get('cellpose_organelle_channel')
+    return (int(recorded) if recorded is not None else
+            dense_mask_channel_positions(settings).get(raw, raw))
+
+
+def _organelle_model_setup(settings, object_type):
+    """Reuse the existing organelle backend constructor for probes and actual masks."""
+    method = settings['organelle_method']
+    if method == 'cellpose':
+        from .utils import _choose_model
+
+        device = accelerator.torch_device()
+        model_name = _pinned_object_model(
+            settings, object_type, settings['organelle_model_name'], 'cellpose')
+        return _session_cached_mask_model(
+            ('organelle_cellpose', model_name, {'device': device}),
+            partial(_choose_model, model_name, device, object_type=object_type,
+                    restore_type=None, object_settings=_build_object_settings(settings)))
+    if method == 'unet':
+        return _load_unet_model(settings)
+    return None
+
+
+def _organelle_input_batch(batch, settings, channel, filenames, cell_mask_folder=None):
+    """Share channel extraction, cell restriction and classical preprocessing with probes."""
+    if batch.ndim == 4:
+        images = batch[..., 0 if channel is None else channel].astype(np.float32)
+    else:
+        images = batch.astype(np.float32)
+    if cell_mask_folder is not None:
+        images = _apply_cell_mask(images, filenames, cell_mask_folder)
+    return _preprocess_batch(images, settings)
+
+
+def _organelle_eval_options(settings, object_type):
+    """The unchanged public Cellpose options used by the organelle segmentation path."""
+    return dict(normalize=False, channel_axis=-1, diameter=None,
+                flow_threshold=settings[f'{object_type}_flow_threshold'],
+                cellprob_threshold=settings[f'{object_type}_cellprob_threshold'],
+                resample=settings.get(f'{object_type}_resample', True))
+
+
+def _mask_calibration_setup(resident, settings, masks_dir, filename):
+    """Select the actual tile-based backend and its existing prepared sample, or no model."""
+    from .object_roles import enabled_organelle_roles, organelle_settings_view
+    from .settings import _get_object_settings
+    from .utils import prepare_batch_for_segmentation
+
+    role = next((role for role in ('cell', 'nucleus', 'pathogen')
+                 if settings.get(f'{role}_channel') is not None), None)
+    if role is not None:
+        model, channels, _backend = _mask_model_setup(settings, role)
+        sample = prepare_batch_for_segmentation(np.take(resident, channels, axis=-1))
+        return (model, [sample[0]],
+                _mask_eval_options(settings, role, _get_object_settings(role, settings)),
+                'mask_shared_gpu' if _shares_a_gpu(settings) else 'mask_sam')
+    for role in enabled_organelle_roles(settings):
+        view = organelle_settings_view(settings, role)
+        if view.get('organelle_method') != 'cellpose':
+            continue
+        model = _organelle_model_setup(view, role)
+        folder = os.path.join(os.path.dirname(os.fspath(masks_dir)), 'cell_mask_stack')
+        folder = (folder if view.get('organelle_mask_within_cells')
+                  and os.path.isdir(folder) else None)
+        images = _organelle_input_batch(
+            resident, view, _organelle_channel_position(view), [filename], folder)
+        sample = prepare_batch_for_segmentation(images[..., None])
+        return model, [sample[0]], _organelle_eval_options(view, role), 'mask_organelle'
+    return None, resident, {}, 'mask_sam'
+
+
+def _restore_mask_calibration(settings, saved=None, *, context=None):
+    """Restore the exact saved calibration before resolving a resumed batch plan."""
+    calibration = ((saved or {}).get('calibration')
+                   or (saved or {}).get('settings', {}).get('_mask_calibration'))
+    if calibration:
+        settings['_mask_calibration'] = dict(calibration)
+    if settings.get('_mask_calibration'):
+        return True
+    from .run_journal import _resolved_parameters
+
+    for parameters in _resolved_parameters(settings)['fields'].values():
+        record = parameters.get('mask_batch', {})
+        calibration = record.get('value', {}).get('calibration')
+        if calibration and record.get('configuration', {}).get('calibration_context') == context:
+            settings['_mask_calibration'] = dict(calibration)
+            return True
+    return False
+
+
+def _mask_probe_eval(model, sample, settings, site, options, tiles):
+    """Measure the requested tiles once, preserving evaluation routing and propagating OOM."""
+    probe_settings = dict(settings or {}, gpu_adaptive_batch=False)
+    _mask_eval(model, sample, site=site, settings=probe_settings, batch_size=tiles, **options)
+
+
+def _mask_batch_configuration(settings, order_sha256):
+    """Describe the exact draw and tile policy used by either mask entry point."""
+    from ._mask_batches import _batch_seed, _tile_cap
+
+    calibration = settings.get('_mask_calibration') or {}
+    return {
+        'request': settings.get('_batch_size_request', settings.get('batch_size')),
+        'mask_batch_seed': _batch_seed(settings),
+        'mask_eval_batch_size': settings.get('mask_eval_batch_size', 0),
+        'randomize': settings.get('randomize', True) is not False,
+        'budget_source': calibration.get('budget_source', 'cpu'),
+        'cap': _tile_cap(settings), 'order_sha256': order_sha256,
+        'calibration_context': settings.get('_mask_calibration_context')}
+
+
+def _validate_mask_batch_draw(settings, names, *, field_id=str):
+    """Refuse a changed saved cohort before probing, grouping or skipping completed fields."""
+    from ._mask_batches import _order_sha256
+    from .run_journal import (_resolved_parameters, _resolved_parameter,
+                              _resolved_field_id)
+
+    names = list(names)
+    configuration = _mask_batch_configuration(settings, _order_sha256(map(str, names)))
+    context = _resolved_parameters(settings)
+    for name in names:
+        identity = _resolved_field_id(field_id(name))
+        record = context['fields'].get(identity, {}).get('mask_batch')
+        if record is not None or context.replay:
+            _resolved_parameter(settings, identity, 'mask_batch',
+                                record['source'] if record is not None else {}, configuration)
+
+
+def _record_mask_batch(settings, field_id, source, membership):
+    """Validate and journal one field against the common resolved batching policy."""
+    from ._mask_batches import _resolved_tiles
+    from .run_journal import _record_resolved_parameter, _resolved_parameter
+
+    configuration = _mask_batch_configuration(settings, membership['order_sha256'])
+    value = {key: membership[key] for key in ('batch', 'position', 'size')}
+    value.update(tiles=membership.get('tiles', _resolved_tiles(settings, membership['size'])),
+                 calibration=settings.get('_mask_calibration') or {})
+    _resolved_parameter(settings, field_id, 'mask_batch', source, configuration)
+    _record_resolved_parameter(settings, field_id, 'mask_batch', source, configuration, value)
+
+
 def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 on_batch_done=None, run_qc=True,
                                 progress_share=None):
@@ -1759,6 +2026,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         every worker finishes, instead of writing reports from each worker.
     :returns: None.
     """
+    from ._segmentation_backends import _CELLPOSE3
     from .utils import print_progress
     from .utils import (_masks_to_masks_stack, all_elements_match,
                         prepare_batch_for_segmentation, _get_cellpose_channels,
@@ -1857,38 +2125,9 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     if settings['verbose']:
         print(channels)
 
-    model_name = object_settings['model_name']
-    if object_type == 'pathogen' and settings.get('pathogen_model') is not None:
-        model_name = settings['pathogen_model']
-    from ._segmentation_backends import (_backend_name, _load_backend,
-                                         _cellpose3_choice, _CELLPOSE3,
-                                         _cellpose_dino_choice, _CELLPOSE_DINO,
-                                         _prefixed_backend)
-    segmentation_backend = _backend_name(
-        settings.get('segmentation_backend', 'cellpose'))
-    if _cellpose3_choice(model_name) is not None:
-        segmentation_backend = _CELLPOSE3
-    elif _cellpose_dino_choice(model_name) is not None:
-        segmentation_backend = _CELLPOSE_DINO
-    elif _prefixed_backend(model_name) is not None:
-        segmentation_backend = _prefixed_backend(model_name)
-    model_name = _pinned_object_model(settings, object_type, model_name, segmentation_backend)
-    if segmentation_backend == 'cellpose':
-        model_key = ('pathogen_model' if object_type == 'pathogen'
-                     and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
-        pretrained = _resolve_cellpose_pretrained(
-            model_name, object_type=object_type, setting=model_key)
-        from ._mask_workers import _cached_model
-        model_kwargs = _with_inference_precision(accelerator.cellpose_kwargs(), settings)
-        model = _cached_model(
-            ('cellpose', pretrained, model_kwargs),
-            lambda: cp_models.CellposeModel(pretrained_model=pretrained, **model_kwargs))
-    else:
-        model = _load_backend(segmentation_backend, z_plan=z_plan,
-                              t_plan=t_plan, model_name=model_name,
-                              object_type=object_type)
-    channels = _segmentation_input_channels(
-        channels, len(channels_to_extract), model)
+    model, channels, segmentation_backend = _mask_model_setup(
+        settings, object_type, z_plan=z_plan, t_plan=t_plan,
+        channel_configuration=(channels_to_extract, channels))
     _note_the_diameter(settings, object_type)
     count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
@@ -2026,17 +2265,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 {**settings, f'{object_type}_diameter': 'auto'},
                                 object_type, float(np.median(measured)))
                     elif z_plan is None and t_plan is None:
-                        eval_kwargs = dict(
-                            normalize=False,
-                            channel_axis=-1,
-                            min_size=object_settings['min_size'],
-                            progress=True,
-                            diameter=_eval_diameter(
-                                settings.get(f'{object_type}_diameter'),
-                                object_type, object_settings['diameter']),
-                            flow_threshold=flow_threshold,
-                            cellprob_threshold=cellprob_threshold,
-                            resample=object_settings['resample'])
+                        eval_kwargs = _mask_eval_options(settings, object_type, object_settings)
                         output = _diameter_eval(
                             model, batch_list,
                             site=('mask_shared_gpu' if _shares_a_gpu(settings)
@@ -2710,16 +2939,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
     morphology = settings['organelle_morphology']
     method = settings['organelle_method']
 
-    from .utils import dense_mask_channel_positions
-
-    _raw_organelle_channel = settings['organelle_channel']
-    _recorded = settings.get('cellpose_organelle_channel')
-    if _recorded is not None:
-        organelle_channel = int(_recorded)
-    else:
-        _positions = dense_mask_channel_positions(settings)
-        organelle_channel = _positions.get(_raw_organelle_channel,
-                                           _raw_organelle_channel)
+    organelle_channel = _organelle_channel_position(settings)
 
     _validate_organelle_settings(morphology, method)
 
@@ -2751,23 +2971,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
     average_counts = []
     time_ls = []
 
-    dl_model = None
     is_dl_method = method in ('cellpose', 'unet')
-
-    if method == 'cellpose':
-        from .utils import _choose_model
-        device = accelerator.torch_device()
-        model_name = _pinned_object_model(
-            settings, object_type, settings['organelle_model_name'], 'cellpose')
-        dl_model = _choose_model(
-            model_name,
-            device,
-            object_type=object_type,
-            restore_type=None,
-            object_settings=_build_object_settings(settings),
-        )
-    elif method == 'unet':
-        dl_model = _load_unet_model(settings)
+    dl_model = _organelle_model_setup(settings, object_type)
 
     classical_settings = _extract_classical_settings(settings)
 
@@ -2808,21 +3013,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
                 continue
             fields_attempted += len(batch_filenames)
 
-            if organelle_channel is not None:
-                if batch.ndim == 4:
-                    img_batch = batch[:, :, :, organelle_channel].astype(np.float32)
-                else:
-                    img_batch = batch.astype(np.float32)
-            else:
-                if batch.ndim == 4:
-                    img_batch = batch[:, :, :, 0].astype(np.float32)
-                else:
-                    img_batch = batch.astype(np.float32)
-
-            if cell_mask_folder is not None:
-                img_batch = _apply_cell_mask(img_batch, batch_filenames, cell_mask_folder)
-
-            img_batch = _preprocess_batch(img_batch, settings)
+            img_batch = _organelle_input_batch(
+                batch, settings, organelle_channel, batch_filenames, cell_mask_folder)
 
             if method == 'cellpose':
                 masks = _segment_cellpose_sam(
@@ -3138,12 +3330,7 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
         model, batch_list, site='mask_organelle', settings=settings,
         object_type=object_type, field_ids=batch_filenames,
         batch_size=_eval_tile_batch(settings, len(batch_list)),
-        normalize=False,
-        channel_axis=-1,
-        diameter=None,
-        flow_threshold=settings[f'{object_type}_flow_threshold'],
-        cellprob_threshold=settings[f'{object_type}_cellprob_threshold'],
-        resample=settings.get(f'{object_type}_resample', True)
+        **_organelle_eval_options(settings, object_type)
     )
 
     masks, flows, _, _, _ = parse_cellpose4_output(output)

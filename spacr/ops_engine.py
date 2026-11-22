@@ -15,6 +15,8 @@ listed in the report; it does not cost the well.
 from __future__ import annotations
 
 import contextvars
+import functools
+from contextlib import ExitStack, contextmanager
 import json
 import logging
 import os
@@ -2161,7 +2163,8 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
 
 _OPS_MASK_SETTINGS = ("batch_size", "mask_eval_batch_size",
                       "mask_inference_precision", "gpu_memory_margin_gb",
-                      "ops_sbs_tile_batch")
+                      "ops_sbs_tile_batch", "randomize", "mask_batch_seed",
+                      "mask_eval_batch_cap", "gpu_vram_budget_gb")
 
 #: The per-path tile batch override each OPS segmentation site reads.
 _OPS_TILE_BATCH_KEYS = {"ops_phenotype": "ops_ph_tile_batch",
@@ -2212,6 +2215,156 @@ def _ops_mask_eval(model, image, settings, *, site, field_count=1, **extra):
 
     return _mask_eval(model, image, site='mask_' + site, settings=settings,
                        batch_size=_ops_tile_batch(settings, site, field_count), **extra)
+
+
+def _ops_calibration_context(settings, site):
+    """Identify the site, model and preparation options behind one calibration record."""
+    from ._mask_batches import _order_sha256
+
+    keys = (*_OPS_MASK_SETTINGS, *_OPS_TILE_BATCH_KEYS.values(), 'ops_ph_nucleus_model', 'ops_ph_cell_model',
+            'ops_ph_channels', 'ops_ph_cell_channel', 'ops_ph_downsample',
+            'ops_ph_nucleus_diameter', 'ops_ph_cell_diameter',
+            'ops_sbs_nucleus_model', 'cellpose_diameter',
+            'spatial_cellpose_model', 'spatial_stain', 'spatial_level')
+    basis = {key: settings.get(key) for key in keys}
+    return _order_sha256([site, json.dumps(basis, sort_keys=True, default=str)])
+
+
+def _ops_prefetched_load(prefetched, load, available, record):
+    """Read each field once and retain only availability metadata for journal positions."""
+    if prefetched:
+        found, image, metadata = prefetched.pop(0)
+        assert found == record
+    else:
+        image, metadata = load(record)
+    available[str(record)] = image is not None
+    return image, metadata
+
+
+def _ops_journal_plan(path, settings, names, field_id):
+    """Restore recorded membership into the existing shared plan without estimating groups."""
+    from ._mask_array_batches import _batch_plan
+    from .run_journal import _resolved_parameters, _resolved_field_id
+    from .io import _replace_atomically
+
+    _unused, plan = _batch_plan(None, settings)
+    fields = _resolved_parameters(settings)['fields']
+    groups = {}
+    for name in names:
+        record = fields.get(_resolved_field_id(field_id(name)), {}).get('mask_batch')
+        if record is None:
+            continue
+        value = record['value']
+        group = groups.setdefault(int(value['batch']), {'records': [], 'fields': value['size']})
+        group['records'].append((int(value['position']), str(name)))
+    plan['groups'] = [dict(records=[name for _position, name in sorted(group['records'])],
+                           positions={name: position for position, name in group['records']},
+                           batch=index, fields=group['fields'])
+                      for index, group in sorted(groups.items())]
+    _replace_atomically(path, lambda handle: handle.write(
+        json.dumps(plan, indent=1).encode('utf-8')), prefix='.spacr_plan_')
+
+
+def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
+                      field_id, names, active, context, site, available):
+    """Journal actual groups produced by the single existing resident batch planner."""
+    from . import _mask_batches as batches
+    from ._mask_array_batches import _array_batches
+    from .object import _record_mask_batch
+    from .run_journal import _resolved_source
+    from .io import _replace_atomically
+
+    order_sha256 = batches._order_sha256(map(str, names))
+    with _array_batches(records, load, settings, gpu=gpu, plan_path=plan_path,
+                        max_fields=max_fields) as resident:
+        for record, image, metadata, count in resident:
+            if active and image is not None:
+                with open(plan_path, encoding='utf-8') as handle:
+                    plan = json.load(handle)
+                group_index, group = next(
+                    (i, group) for i, group in enumerate(plan['groups'])
+                    if str(record) in group['records'])
+                present = [name for name in group['records'] if available.get(name, True)]
+                membership = dict(batch=group.get('batch', group_index),
+                                  position=group.get('positions', {}).get(
+                                      str(record), present.index(str(record))),
+                                  size=group['fields'], order_sha256=order_sha256)
+                plan.update(calibration=settings.get('_mask_calibration'),
+                            calibration_context=context,
+                            seed=batches._batch_seed(settings), order_sha256=order_sha256,
+                            order=list(map(str, names)),
+                            missing_records=sorted(name for name, valid in available.items() if not valid),
+                            sizes=[group['fields'] for group in plan['groups']])
+                membership['tiles'] = _ops_tile_batch(settings, site, count)
+                _record_mask_batch(settings, field_id(record), _resolved_source(image), membership)
+                _replace_atomically(plan_path, lambda handle: handle.write(
+                    json.dumps(plan, indent=1).encode('utf-8')), prefix='.spacr_plan_')
+            yield record, image, metadata, count
+
+
+@contextmanager
+def _ops_array_batches(records, load, settings, *, prepare, site, gpu=False,
+                       plan_path=None, max_fields=None, field_id=str, order=None):
+    """Adapt existing OPS readers to the shared calibrated resident batch planner."""
+    from tempfile import TemporaryDirectory
+    from . import _mask_batches as batches
+    from .object import (_mask_probe_eval, _restore_mask_calibration,
+                         _validate_mask_batch_draw)
+
+    records = list(records)
+    names = list(records if order is None else order)
+    active = (batches._batch_size_request(settings.get('batch_size')) == batches._AUTO_VRAM
+              or batches._wants_auto_tiles(settings))
+    context = _ops_calibration_context(settings, site)
+    saved = None
+    if active and plan_path is not None and os.path.isfile(plan_path):
+        with open(plan_path, encoding='utf-8') as handle:
+            saved = json.load(handle)
+    prefetched = []
+    if active:
+        settings.pop('_mask_calibration', None)
+        settings['_mask_calibration_context'] = context
+        restored = bool(saved and saved.get('calibration_context') == context
+                        and _restore_mask_calibration(settings, saved, context=context))
+        if not restored:
+            _restore_mask_calibration(settings, context=context)
+        _validate_mask_batch_draw(settings, names, field_id=field_id)
+        if not restored:
+            cache = settings.setdefault('_mask_calibrations', {})
+            for record in records:
+                image, metadata = load(record)
+                prefetched.append((record, image, metadata))
+                if image is None:
+                    continue
+                identity = context + ':' + str(image.shape) + ':' + image.dtype.str
+                calibration = cache.get(identity)
+                journal = settings.get('_mask_calibration') or {}
+                if calibration is None and journal.get('per_field') == image.nbytes:
+                    calibration = journal
+                if calibration is None:
+                    model, sample, options = prepare(image)
+                    calibration = batches._calibrate(
+                        model, sample, settings, site='mask_' + site,
+                        evaluate=functools.partial(_mask_probe_eval, model, sample,
+                                                   settings, 'mask_' + site, options),
+                        per_field=image.nbytes)
+                    cache[identity] = calibration
+                settings['_mask_calibration'] = dict(calibration)
+                break
+    available = {str(name): False for name in (saved or {}).get('missing_records', [])}
+    with ExitStack() as resources:
+        if active and plan_path is None:
+            folder = resources.enter_context(TemporaryDirectory(prefix='spacr-mask-plan-'))
+            plan_path = os.path.join(folder, 'mask_batch_plan.json')
+            _ops_journal_plan(plan_path, settings, names, field_id)
+        iterator = _ops_batch_fields(
+            records, functools.partial(_ops_prefetched_load, prefetched, load, available), settings,
+            gpu=gpu, plan_path=plan_path, max_fields=max_fields, field_id=field_id,
+            names=names, active=active, context=context, site=site, available=available)
+        try:
+            yield iterator
+        finally:
+            iterator.close()
 
 
 def _compose_blend(settings: Mapping[str, Any]) -> str:
@@ -2517,8 +2670,10 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         return fill, (key, gain, covered)
 
     plan_path = os.path.join(folder, 'mask_batch_plan.json') if folder else None
-    with _array_batches(windows, load_window, settings, gpu=gpu,
-                        plan_path=plan_path) as resident:
+    with _ops_array_batches(windows, load_window, settings, gpu=gpu,
+                            prepare=lambda image: (model, image, extra), site='ops_stitched',
+                            plan_path=plan_path,
+                            field_id=lambda window: f'{plate}_{well}_window_{windows.index(window)}') as resident:
         for count, (window, fill, details, field_count) in enumerate(resident, start=1):
             key, value, covered = details
             if fill is None:
@@ -4504,6 +4659,28 @@ def _ph_upscale(mask: np.ndarray, factor: int, shape) -> np.ndarray:
     return np.ascontiguousarray(mask[:shape[0], :shape[1]]).astype(np.int32)
 
 
+def _ph_segmentation_inputs(stack, channels, settings):
+    """Prepare the same downsampled nucleus and cell inputs for probes and segmentation."""
+    from .qt.i18n import tr
+
+    factor = max(1, int(_setting_number(settings.get("ops_ph_downsample"),
+                                        "ops_ph_downsample", 2)))
+    cell_channel = str(settings.get("ops_ph_cell_channel") or "AF750")
+    if _NUCLEAR not in channels or cell_channel not in channels:
+        raise ValueError(tr(
+            "ops_ph_channels {channels} must name {nuclear} and the cell "
+            "channel {cell}", channels=list(channels), nuclear=_NUCLEAR,
+            cell=cell_channel))
+    dna = _ph_downscale(stack[..., channels.index(_NUCLEAR)], factor)
+    body = _ph_downscale(stack[..., channels.index(cell_channel)], factor)
+    extra = {}
+    for key, name in (("ops_ph_nucleus_diameter", "nucleus"),
+                      ("ops_ph_cell_diameter", "cell")):
+        value = settings.get(key)
+        extra[name] = {"diameter": float(value) / factor} if value else {}
+    return dna, np.stack([body, dna], axis=-1), extra, factor
+
+
 def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
                       settings: Mapping[str, Any], *, field_count=1):
     """Nuclei and cells of one field, paired so nucleus k is in cell k.
@@ -4526,26 +4703,12 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
     from .ops_sample import pair_nuclei_with_cells
     from .qt.i18n import tr
 
-    factor = max(1, int(_setting_number(settings.get("ops_ph_downsample"),
-                                        "ops_ph_downsample", 2)))
-    cell_channel = str(settings.get("ops_ph_cell_channel") or "AF750")
-    if _NUCLEAR not in channels or cell_channel not in channels:
-        raise ValueError(tr(
-            "ops_ph_channels {channels} must name {nuclear} and the cell "
-            "channel {cell}", channels=list(channels), nuclear=_NUCLEAR,
-            cell=cell_channel))
-    dna = _ph_downscale(stack[..., channels.index(_NUCLEAR)], factor)
-    body = _ph_downscale(stack[..., channels.index(cell_channel)], factor)
-    extra = {}
-    for key, name in (("ops_ph_nucleus_diameter", "nucleus"),
-                      ("ops_ph_cell_diameter", "cell")):
-        value = settings.get(key)
-        extra[name] = {"diameter": float(value) / factor} if value else {}
+    dna, body, extra, factor = _ph_segmentation_inputs(stack, channels, settings)
     nucleus_model, cell_model = models
     nuclei = _ops_mask_eval(nucleus_model, dna, settings, site='ops_phenotype',
                             field_count=field_count,
                             **extra["nucleus"])[0]
-    cells = _ops_mask_eval(cell_model, np.stack([body, dna], axis=-1), settings,
+    cells = _ops_mask_eval(cell_model, body, settings,
                            site='ops_phenotype', field_count=field_count, channel_axis=-1,
                            **extra["cell"])[0]
     shape = stack.shape[:2]
@@ -5422,6 +5585,25 @@ def _ph_measure_workers(settings: Mapping[str, Any], fields: int,
     return workers
 
 
+def _ph_model_pair(settings, gpu, object_models):
+    """Load the existing phenotype model pair once for both probes and segmentation."""
+    nucleus_model = _cellpose_model(settings, gpu, 'ops_ph_nucleus_model')
+    same = (str(settings.get("ops_ph_cell_model") or 'cpsam')
+            == str(settings.get("ops_ph_nucleus_model") or 'cpsam'))
+    models = (nucleus_model, nucleus_model if same else
+              _cellpose_model(settings, gpu, 'ops_ph_cell_model'))
+    object_models[str(settings.get("ops_ph_nucleus_model") or 'cpsam').strip() or 'cpsam'] = nucleus_model
+    return models
+
+
+def _ph_probe_input(stack, *, channels, settings, models, gpu, object_models):
+    """Use the real downsampled cell input while retaining the complete resident field cost."""
+    if not models:
+        models.extend(_ph_model_pair(settings, gpu, object_models))
+    _dna, body, extra, _factor = _ph_segmentation_inputs(stack, channels, settings)
+    return models[1], body, dict(extra['cell'], channel_axis=-1)
+
+
 def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                settings: Mapping[str, Any], gpu: bool, destination: str, *,
                segment: bool, measure: bool) -> Dict[str, Any]:
@@ -5532,11 +5714,15 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     if segment:
         from .object import _eval_tile_batch
 
-        tile_setting = _eval_tile_batch(settings, 0)
+        from ._mask_batches import _wants_auto_tiles
+        from ._mask_array_batches import _tile_override
+
+        tile_setting = ("auto_vram" if _wants_auto_tiles(settings)
+                        else _eval_tile_batch(settings, 0))
         precision = str(settings.get("mask_inference_precision") or 'auto').strip().lower()
         mask_options = {
             "mask_eval_batch_size": tile_setting,
-            "ops_ph_tile_batch": _ops_tile_batch(settings, "ops_phenotype", 0),
+            "ops_ph_tile_batch": (_tile_override(settings, "ops_ph_tile_batch") or tile_setting),
             "mask_inference_precision": precision}
         if object_roles:
             mask_options["objects"] = _ph_object_options(settings)
@@ -5599,6 +5785,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     to_measure = ({s for s in sites if not os.path.isfile(cell_path(s))
                    and (s in stored_masks or s in todo)}
                   if measure else set())
+    from ._mask_batches import _field_order
+
+    processing_order = _field_order(sites, dict(settings, randomize=settings.get('randomize', False)))
     stager = None
     if stage_dir:
         from .ops_run_infra import FieldStager
@@ -5611,7 +5800,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
 
         stager = FieldStager(
             os.path.join(str(stage_dir), str(plate), str(well)),
-            [s for s in sites if s in to_measure or s in todo], stage_read,
+            [s for s in processing_order if s in to_measure or s in todo], stage_read,
             ahead=int(_setting_number(settings.get("ops_ph_stage_ahead"),
                                       "ops_ph_stage_ahead", 48)),
             threads=int(_setting_number(settings.get("ops_ph_stage_threads"),
@@ -5651,12 +5840,10 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     stream_tick = time.perf_counter()
     try:
         if segment:
-            models = None
+            models = []
             seconds = Counter()
             counts = Counter()
-            order = ([s for s in sites if s in todo or s in to_measure]
-                     if streamed else todo)
-            from ._mask_array_batches import _array_batches
+            order = [s for s in processing_order if s in todo or (streamed and s in to_measure)]
 
             def load_field(site):
                 """Read one unchanged OPS field once for every segmentation role."""
@@ -5676,7 +5863,13 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                                             unreadable[before:]) or "unreadable"
                 return stack, None
 
-            with _array_batches(order, load_field, settings, gpu=gpu,
+            with _ops_array_batches(order, load_field, settings, gpu=gpu,
+                                    prepare=functools.partial(_ph_probe_input, channels=channels,
+                                                              settings=settings, models=models,
+                                                              gpu=gpu, object_models=object_models),
+                                    site="ops_phenotype",
+                                    field_id=lambda site: f"{plate}_{well}_{site}",
+                                    order=processing_order,
                                 max_fields=stager.ahead if stager is not None else None,
                                 plan_path=os.path.join(mask_dir, 'mask_batch_plan.json')) as resident:
                 for count, (site, stack, _metadata, field_count) in enumerate(resident, start=1):
@@ -5686,18 +5879,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                     if stack is None:
                         continue
                     field_shape = field_shape or stack.shape[:2]
-                    if models is None:
-                        nucleus_model = _cellpose_model(settings, gpu,
-                                                        "ops_ph_nucleus_model")
-                        same = (str(settings.get("ops_ph_cell_model") or "cpsam")
-                                == str(settings.get("ops_ph_nucleus_model")
-                                       or "cpsam"))
-                        models = (nucleus_model, nucleus_model if same else
-                                  _cellpose_model(settings, gpu,
-                                                  "ops_ph_cell_model"))
-                        object_models[str(settings.get("ops_ph_nucleus_model")
-                                          or "cpsam").strip() or "cpsam"] = (
-                            nucleus_model)
+                    if not models:
+                        models.extend(_ph_model_pair(settings, gpu, object_models))
                     tick = time.perf_counter()
                     nuclei, cells, paired = _ph_segment_field(
                         stack, channels, models, settings, field_count=field_count)
@@ -13619,8 +13802,10 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
                 """Keep the prepared spatial stain unchanged for shared residency."""
                 return image, None
 
-            with _array_batches([index], load_spatial, settings,
-                                gpu=bool(settings.get("spatial_gpu", False))) as resident:
+            with _ops_array_batches([index], load_spatial, settings,
+                                    prepare=lambda image: (model, image, extra), site='ops_spatial',
+                                    field_id=lambda index: f'{plate}_spatial_{index}',
+                                    gpu=bool(settings.get("spatial_gpu", False))) as resident:
                 for _index, prepared, _metadata, field_count in resident:
                     nuclei = np.asarray(_ops_mask_eval(
                         model, prepared, settings, site='ops_spatial',

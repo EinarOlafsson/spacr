@@ -279,8 +279,53 @@ def _save_resolved_mask_settings(settings, source):
     from .utils import save_settings
 
     snapshot = dict(settings, src=source)
+    if settings.get('_batch_size_request') == 'auto_vram':
+        snapshot['batch_size'] = settings['_batch_size_request']
     _publish_resolved_settings(snapshot)
     save_settings(snapshot, name='gen_mask_settings')
+
+
+def _prepare_mask_batch_plan(mask_src, settings):
+    """Calibrate the loaded real model before fixing any field normalization cohort."""
+    from functools import partial
+    from . import _mask_batches as batches
+    from .io import _load_array_any, _normalize_img_batch
+    from .object import (_mask_calibration_setup, _mask_probe_eval,
+                         _restore_mask_calibration, _validate_mask_batch_draw)
+
+    batches._legacy_batch_size(settings)
+    plan = batches._read_plan(mask_src)
+    if plan is None:
+        return None
+    active = (settings['_batch_size_request'] == batches._AUTO_VRAM
+              or batches._wants_auto_tiles(settings))
+    if active:
+        restored = _restore_mask_calibration(settings, plan)
+        names = [name for batch in plan['batches'] for name in batch['fields']]
+        _validate_mask_batch_draw(settings, names)
+        if not restored and batches._needs_calibration(mask_src, settings):
+            names = [name for batch in plan['batches'] for name in batch['fields']]
+            first = _load_array_any(os.path.normpath(os.path.join(
+                mask_src, plan['stack_dir'], names[0])))
+            normalized = _normalize_img_batch(
+                first[None], plan['channels'], np.dtype(plan['save_dtype']), dict(settings))
+            resident = normalized[..., plan['channels']]
+            model, inputs, options, site = _mask_calibration_setup(
+                resident, settings, mask_src, names[0])
+
+            settings['_mask_calibration'] = batches._calibrate(
+                model, inputs, settings, site=site, evaluate=partial(_mask_probe_eval, model, inputs, settings, site, options),
+                per_field=resident[0].nbytes)
+    plan = batches._resolve_plan(mask_src, settings)
+    if active:
+        names = [name for batch in plan['batches'] for name in batch['fields']]
+        order = batches._order_sha256(names)
+        settings['_mask_batch_membership'] = {
+            os.path.splitext(name)[0]: dict(batch=i, position=j, size=len(batch['fields']),
+                                           order_sha256=order)
+            for i, batch in enumerate(plan['batches']) for j, name in enumerate(batch['fields'])}
+        plan['_runtime_settings'] = settings
+    return plan
 
 
 def preprocess_generate_masks(settings):
@@ -596,7 +641,9 @@ def preprocess_generate_masks(settings):
     ledger = RunLedger('preprocess_generate_masks')
     module_key = 'timelapse' if settings.get('timelapse') else 'mask'
     from ._mask_workers import _MaskWorkerPool
-    with run_context(module_key, settings, ledger=ledger) as run, _MaskWorkerPool() as mask_pool:
+    from .object import _mask_model_session, _release_calibration_model
+
+    with run_context(module_key, settings, ledger=ledger) as run, _MaskWorkerPool() as mask_pool, _mask_model_session(settings):
         for folder_index, source_folder in enumerate(source_folders):
             settings = (caller_settings if folder_index == 0
                         else deepcopy(requested_settings))
@@ -705,10 +752,7 @@ def preprocess_generate_masks(settings):
                         mask_src = os.path.join(src, 'masks')
                         os.makedirs(mask_src, exist_ok=True)
 
-                        from ._mask_batches import _legacy_batch_size, _resolve_plan
-                        _legacy_batch_size(settings)
-                        _resolve_plan(mask_src, settings)
-
+                        _prepare_mask_batch_plan(mask_src, settings)
                         _check_archives_without_preprocessing(src, settings=settings)
                         if not settings['preprocess']:
                             from .psf_pipeline import (
@@ -762,6 +806,7 @@ def preprocess_generate_masks(settings):
                                 _note_the_diameter(settings, parallel_role)
                                 parallel_roles.append(parallel_role)
                         if parallel_roles:
+                            _release_calibration_model()
                             from ._mask_workers import _generate_roles_in_parallel
                             role_seconds = _generate_roles_in_parallel(
                                 mask_src, settings, parallel_roles, gpu_plan, pool=mask_pool)
