@@ -15427,6 +15427,7 @@ SETTING_CONSUMERS = {
     'offset_start': (('spacr.barcode_search', 'propose_map_barcodes_settings'), ('spacr.sequencing', 'generate_barecode_mapping'), ('spacr.settings', 'set_default_generate_barecode_mapping'),),
     'ome_zarr_ngff_version': (('spacr.ops_settings', 'ops_defaults'),),
     'ome_zarr_store_registration': (('spacr.ops_settings', 'ops_defaults'),),
+    'ome_zarr_upgrade_link': (('spacr.ops_settings', 'ops_defaults'),),
     'on_error': (('spacr.runctx', 'resolve_error_policy'),),
     'on_error_attempts': (('spacr.runctx', 'resolve_error_policy'),),
     'on_error_backoff': (('spacr.runctx', 'resolve_error_policy'),),
