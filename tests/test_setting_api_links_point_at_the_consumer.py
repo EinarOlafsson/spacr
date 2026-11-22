@@ -104,3 +104,19 @@ def test_an_unmapped_setting_still_gets_the_module_link():
     url = api_docs_url("mask", "a_setting_that_does_not_exist")
     assert url.endswith("index.html"), url
     assert "#" not in url
+
+
+def test_declared_ops_setting_is_found_before_english_catalog_rebuild(tmp_path, monkeypatch):
+    """Discover an annotated app-local setting through the existing source table reader."""
+    from importlib.util import module_from_spec, spec_from_file_location
+
+    spec = spec_from_file_location("consumer_source_fixture", ROOT / "tools/build_setting_consumer_map.py")
+    tool = module_from_spec(spec)
+    spec.loader.exec_module(tool)
+    package = tmp_path / "spacr"
+    package.mkdir()
+    (package / "settings.py").write_text("tooltips = {}\nexpected_types = {}\n")
+    (package / "ops_settings.py").write_text(
+        "OPS_TOOLTIPS: dict[str, str] = {'ops_source_only': 'Declared help'}\n")
+    monkeypatch.setattr(tool, "PKG", package)
+    assert "ops_source_only" in tool.setting_keys()

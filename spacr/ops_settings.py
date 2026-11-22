@@ -165,6 +165,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_funk_features": False,
     "ops_ph_zernike": False,
     "ops_ph_profile_features": None,
+    "ops_ph_cytoskeleton_channels": None,
     "ops_ph_profile_optional_families": None,
     "ops_ph_granularity_subsample": 1.0,
     "ops_drop_failed_fields": False,
@@ -562,6 +563,7 @@ OPS_TO_MEASURE_KEYS: Dict[str, str] = {
     "ops_ph_measure_gpu_check": "measure_gpu_check",
     "ops_ph_channels": "channel_names",
     "ops_ph_profile_features": "profile_features",
+    "ops_ph_cytoskeleton_channels": "cytoskeleton_channels",
     "ops_ph_profile_optional_families": "profile_optional_families",
     "ops_ph_granularity_subsample": "profile_granularity_subsample",
 }
@@ -726,6 +728,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_funk_features": bool,
     "ops_ph_zernike": bool,
     "ops_ph_profile_features": (str, list, type(None)),
+    "ops_ph_cytoskeleton_channels": (str, list, type(None)),
     "ops_ph_profile_optional_families": (bool, str, list, type(None)),
     "ops_ph_granularity_subsample": (float, int),
     "ops_drop_failed_fields": bool,
@@ -1291,6 +1294,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_feature_screen_greedy_threshold", "ops_feature_screen_mlp",
         "ops_feature_screen_dst",
     ],
+    "Cytoskeleton measurements": ["ops_ph_cytoskeleton_channels"],
     "Flat-field correction": [
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
         "ops_flatfield_field_list", "ops_flatfield_nuclear_channel",
@@ -1920,16 +1924,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Measure does with mahotas. They describe the shape of each object "
         "and slow measurement. Needs spacr[zernike]. Default False. Alpha.",
     "ops_ph_profile_features":
-        "(str, list or None) - Also measure spaCR's image-based profiling "
-        "families on the nucleus, cell and cytoplasm, as Measure's "
-        "profile_features does: 'profiling' adds edge intensity, intensity "
-        "moments, radial distribution, extra shape, Haralick, PFTAS and LBP"
-        " texture, periphery and outside-ring intensity and neighbours; "
-        "ops_ph_profile_optional_families adds the slow Gabor, "
-        "colocalisation and granularity families to it; 'all' adds every "
-        "family; a list picks families. Turn ops_ph_zernike on with it for "
-        "the full profiling set. Empty measures exactly as before. Default "
-        "None. Alpha.",
+        "(str, list or None) - Add the same per-object measurements as Measure to the nucleus, cell and cytoplasm. 'profiling' selects fast profiling families; ops_ph_profile_optional_families adds slow families. 'all' includes every profiling family, including colocalisation_otsu, but excludes measurement blocks. Lists also accept coloc_block (Pearson, Manders and overlap), legacy_radial (six radial bins) and cytoskeleton (cell-only skeleton measurements using ops_ph_cytoskeleton_channels). Empty measures exactly as before. Default None. Alpha.",
+    "ops_ph_cytoskeleton_channels":
+        "(str, list or None) - Image channel indices or names from ops_ph_channels for the cell-only cytoskeleton block in ops_ph_profile_features. None measures every channel when cytoskeleton is selected; otherwise this setting has no effect. Default None. Alpha.",
     "ops_ph_profile_optional_families":
         "(bool, str, list or None) - The slow families that 'profiling' in "
         "ops_ph_profile_features also measures, as Measure's "

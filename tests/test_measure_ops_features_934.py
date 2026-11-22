@@ -389,13 +389,14 @@ def test_the_ratchet_catches_an_ops_only_column(monkeypatch):
 
 
 def test_every_ops_measurement_setting_maps_to_a_measure_setting():
+    """Map every OPS measurement control to its existing Measure setting."""
     from spacr.settings import ALPHA_FEATURES, get_measure_crop_settings
     measure = get_measure_crop_settings(settings={})
     assert set(OPS_TO_MEASURE_KEYS) == {
         'ops_ph_texture', 'ops_ph_funk_features', 'ops_ph_zernike',
         'ops_ph_measure_gpu', 'ops_ph_measure_gpu_check', 'ops_ph_channels',
         'ops_ph_profile_features', 'ops_ph_granularity_subsample',
-        'ops_ph_profile_optional_families'}
+        'ops_ph_profile_optional_families', 'ops_ph_cytoskeleton_channels'}
     assert set(OPS_TO_MEASURE_KEYS) <= set(OPS_DEFAULTS)
     assert set(OPS_TO_MEASURE_KEYS.values()) <= set(measure)
     assert set(ALPHA_FEATURES[934]['settings']) == set(NEW_KEYS)
@@ -512,3 +513,70 @@ def test_the_default_check_measures_a_merged_field_on_both_paths(tmp_path):
     assert set(summary) == {'cell', 'nucleus', 'cytoplasm'}
     assert all(record['rows'] == 3 and record['columns'] > 50
                for record in summary.values())
+
+
+@pytest.mark.parametrize("selection", [None, [1], ["GFP"], "GFP"])
+def test_cytoskeleton_channel_selection_reaches_the_measurement_worker(monkeypatch, selection):
+    """The real phenotype worker forwards a saved channel choice to shared Measure code."""
+    from spacr import ops_engine
+
+    nuclei, cells, image, names = _ops_field()
+    monkeypatch.setattr(ops_engine, "_ph_read_field", lambda *args, **kwargs: image)
+    monkeypatch.setattr(ops_engine, "_ph_read_masks", lambda *args: {"nuclei": nuclei, "cells": cells})
+    task = {"site": 7, "files": {}, "channels": names, "mask_path": "unused", "texture": False,
+            "profile_features": ["cytoskeleton"], "cytoskeleton_channels": selection}
+    table, unreadable, shape = ops_engine._ph_measure_table(task)
+    expected = ops_sample.measure_phenotype_field(
+        nuclei, cells, image, names, texture=False, profile_features=["cytoskeleton"],
+        cytoskeleton_channels=selection)
+    expected.insert(0, "site", 7)
+    pd.testing.assert_frame_equal(table, expected, check_exact=True)
+    assert unreadable == [] and shape == image.shape[:2]
+    wanted = 6 if selection is None else 2
+    assert sum("skeleton" in column for column in table) == wanted
+
+
+@pytest.mark.parametrize("app,key", [("measure", "cytoskeleton_channels"),
+                                     ("ops", "ops_ph_cytoskeleton_channels")])
+@pytest.mark.parametrize("selection", [None, [1], ["GFP"], "GFP"])
+def test_cytoskeleton_channels_survive_saved_cli_settings(tmp_path, app, key, selection):
+    """Load actual saved settings through each app without changing the selected channels."""
+    import json
+    from spacr.cli import resolve_module, resolve_settings
+    from spacr.settings import SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
+
+    path = tmp_path / "settings.json"
+    path.write_text(json.dumps({key: selection, SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION}))
+    actual = resolve_settings(resolve_module(app), str(path))
+    assert actual[key] == selection
+
+
+def test_cytoskeleton_families_and_settings_are_scoped_to_item_1008():
+    """Register the new controls and typed families without treating text fields as dropdowns."""
+    from spacr import settings
+    from spacr.ops_settings import OPS_TYPES
+
+    entry = settings.ALPHA_FEATURES[1008]
+    assert set(entry["settings"]) == {"cytoskeleton_channels", "ops_ph_cytoskeleton_channels"}
+    families = {"colocalisation_otsu", "coloc_block", "legacy_radial", "cytoskeleton"}
+    assert set(entry["families"]) == {"profile_features", "ops_ph_profile_features"}
+    assert all(set(values) == families for values in entry["families"].values())
+    assert set(entry["families"]) <= settings._alpha_names("families")
+    assert all(not settings._alpha_choices(key) for key in entry["families"])
+    assert settings.get_measure_crop_settings({})["cytoskeleton_channels"] is None
+    assert OPS_DEFAULTS["ops_ph_cytoskeleton_channels"] is None
+    assert settings.expected_types["cytoskeleton_channels"] == OPS_TYPES["ops_ph_cytoskeleton_channels"]
+
+
+def test_historical_phenotype_parts_accept_default_channels_and_refuse_changed_selection(tmp_path):
+    """Reuse old default parts while preventing a mixture of different selected skeleton channels."""
+    import json
+    from spacr.ops_engine import _ph_options_marker
+
+    marker = tmp_path / "part_options.json"
+    old = {"profile_features": ["cytoskeleton"], "funk_features": False}
+    marker.write_text(json.dumps(old))
+    _ph_options_marker(str(tmp_path), {**old, "cytoskeleton_channels": None})
+    assert json.loads(marker.read_text())["cytoskeleton_channels"] is None
+    with pytest.raises(ValueError, match="Move the folder away or rerun with the same options"):
+        _ph_options_marker(str(tmp_path), {**old, "cytoskeleton_channels": [1]})

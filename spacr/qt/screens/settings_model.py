@@ -1440,7 +1440,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Plate Barcode Linkage α", ("@Plate Barcode Linkage α",)),
         ("Features", (
             "save_measurements", "calculate_correlation",
-            "profile_features", "profile_optional_families",
+            "profile_features", "cytoskeleton_channels", "profile_optional_families",
             "profile_granularity_subsample",
             "funk_object_features", "zernike", "channel_names",
             "spatial_measurements",
@@ -2359,7 +2359,7 @@ _APP_CATEGORY_PARENTS["ops"] = {
     **{title: "OPS phenotype" for title in (
         "Phenotype segmentation", "Additional phenotype objects",
         "Phenotype acquisitions",
-        "Feature families", "Flat-field correction", "Flat-field map fit",
+        "Feature families", "Cytoskeleton measurements", "Flat-field correction", "Flat-field map fit",
         "Flat-field validation", "Merged images & tables",
         "Single-cell crops")},
     **{title: "OPS merge" for title in (
@@ -3117,6 +3117,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "For a plate whose phenotype channels were imaged in more than one "
         "acquisition: which acquisition holds which channels, and how a "
         "second acquisition is registered onto the first.",
+    "CYTOSKELETON MEASUREMENTS":
+        "The image channels used for cell skeleton length and branch points. "
+        "Select cytoskeleton in Feature families to add these measurements.",
     "FEATURE FAMILIES":
         "Which feature families are measured beyond the standard intensity "
         "and shape set: texture, Zernike moments, Funk et al. 2022's "

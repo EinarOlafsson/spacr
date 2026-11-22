@@ -5470,7 +5470,8 @@ def _ph_measure_table(task: Mapping[str, Any]):
         zernike=bool(task.get("zernike", False)),
         gpu=bool(task.get("measure_gpu", False)),
         profile_features=task.get("profile_features"),
-        granularity_subsample=float(task.get("granularity_subsample") or 1.0))
+        granularity_subsample=float(task.get("granularity_subsample") or 1.0),
+        cytoskeleton_channels=task.get("cytoskeleton_channels"))
     if task.get("objects") and len(table):
         from .ops_sample import _cell_object_features
 
@@ -5488,7 +5489,8 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         ``cell_path`` and ``texture``; optionally ``flat_folder``, whose
         maps correct the field before it is measured
         (:func:`spacr.ops_flatfield.correct_field`), ``funk_features``,
-        ``zernike``, ``profile_features``, ``measure_gpu``, which measures intensity and
+        ``zernike``, ``profile_features``, ``cytoskeleton_channels`` for the
+        cell-only skeleton block, ``measure_gpu``, which measures intensity and
         texture on the card, and ``staged``, a staged copy of the field
         read in place of its raw files.
     :returns: ``site``, ``cells``, ``seconds``, ``unreadable`` and
@@ -5753,6 +5755,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                                                False)),
             "zernike": bool(settings.get("ops_ph_zernike", False)),
             "profile_features": _ph_profile_features(settings),
+            "cytoskeleton_channels": settings.get("ops_ph_cytoskeleton_channels"),
             "granularity_subsample": _ph_granularity_subsample(settings),
             "measure_gpu": bool(settings.get("ops_ph_measure_gpu", False)),
             "secondary": _ph_secondary(settings) if secondary else None}
@@ -5776,6 +5779,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 "funk_features": options["funk_features"],
                 "zernike": options["zernike"],
                 "profile_features": options["profile_features"],
+                "cytoskeleton_channels": options["cytoskeleton_channels"],
                 "granularity_subsample": options["granularity_subsample"],
                 "measure_gpu": options["measure_gpu"],
                 "secondary": secondary.get(site),
@@ -6017,6 +6021,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "funk_features": options["funk_features"],
             "zernike": options["zernike"],
             "profile_features": options["profile_features"],
+            "cytoskeleton_channels": options["cytoskeleton_channels"],
             "granularity_subsample": options["granularity_subsample"],
             "measure_gpu": options["measure_gpu"],
         }
