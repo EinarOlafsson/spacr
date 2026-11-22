@@ -2548,7 +2548,7 @@ def surviving_setting_name(key):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 950
+SETTINGS_SCHEMA_VERSION = 957
 SETTINGS_FORMAT_VERSIONS = frozenset({950})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2578,6 +2578,7 @@ DEFAULT_CHANGES = {
     947: {'ops_prefix_minority_min_reads': 0},
     948: {'ops_ph_tile_batch': 8, 'ops_sbs_tile_batch': 16,
           'spatial_tile_batch': 16},
+    957: {'ops_decode_fdr_calibration': 'none', 'ops_prefix_fdr_calibration': 'none'},
     949: {'mask_image_format': 'npy', 'crop_image_format': 'png',
           'crop_source': 'auto', 'image_source': 'load_images',
           'ops_ph_image_format': 'npz', 'ops_crop_image_format': 'tiff-tar'},
@@ -2689,6 +2690,10 @@ def _fold_older_defaults(settings, version, known=None):
     renamed to this key), ``ops_sbs_tile_batch`` 16 (stitched sequencing
     nuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and
     947 belong to other items, so this takes 948.
+
+    957 adds automatic FDR-scale calibration from never-should-appear
+    barcodes (item 1014, method ``'never'``). Files stamped before keep
+    the entered fixed scale (``'none'``).
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9842,8 +9847,10 @@ ALPHA_FEATURES = {
                      'ops_prefix_tuning_grid'),
     },
     949: {
-        'settings': ('ops_prefix_nearmiss_decoy_k', 'ops_prefix_fdr_calibration',
-                     'ops_decode_fdr_calibration'),
+        'settings': ('ops_prefix_nearmiss_decoy_k',),
+    },
+    1014: {
+        'settings': ('ops_never_barcode_k', 'ops_never_barcode_seed', 'ops_never_barcode_sets'),
     },
     955: {
         'settings': ('ops_fdr_sweep_targets', 'ops_fdr_sweep_max_distance',

@@ -28,6 +28,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "uniprot.py", "validate.py", "torch_artifacts.py",
         "classification_pixels.py", "crop_loader.py", "crop_store.py",
         "crops.py", "ops_engine.py",
+        'ops_sbs.py',
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -793,3 +794,24 @@ def test_old_custom_classifier_refusals_enter_their_owners(extract_backend_sourc
     assert any(text.startswith("This custom classifier checkpoint records") for text in artifacts)
     utils = extract_backend_sources('utils.py', (root / "utils.py").read_text(encoding="utf-8"))
     assert any(text.startswith("This classifier was trained on {expected}-channel") for text in utils)
+
+
+@pytest.mark.parametrize('filename,owner', [
+    ('ops_sbs.py', 'never_barcodes'), ('ops_decode.py', 'never_scale'),
+    ('ops_decode.py', 'calibrate_fdr_scale'), ('ops_decode.py', '_field_candidates'),
+    ('ops_decode.py', '_write_calibration_report'), ('ops_decode.py', '_never_settings')])
+def test_never_calibration_captions_have_exact_top_level_owners(extract_backend_sources, filename, owner):
+    """Admit the shared controls without exposing unrelated, nested or same-named methods."""
+    caption = 'A never-control run needs valid settings.'
+    source = f"""raise RuntimeError('Backend source must not be imported')
+tr('Unrelated module metadata')
+def {owner}():
+    return tr({caption!r})
+def unrelated():
+    def {owner}():
+        return tr('Unrelated nested caption')
+class Other:
+    def {owner}(self):
+        return tr('Unrelated method caption')
+"""
+    assert extract_backend_sources(filename, source) == {caption}

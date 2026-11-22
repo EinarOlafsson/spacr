@@ -3207,6 +3207,8 @@ def _validated_bmc_paper_items_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "871_911_bmc_paper_items_api_arrivals_2026-11-09.json").read_text(encoding="utf-8"))
+    from tests.test_ops_fdr_never_1014 import _current_never_api
+    entries = _current_never_api(entries)
     assert len(entries) == 171
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -3265,6 +3267,8 @@ def _validated_bmc_paper_items_4_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json").read_text(encoding="utf-8"))
+    from tests.test_ops_fdr_never_1014 import _current_never_api
+    entries = _current_never_api(entries)
     assert len(entries) == 112
     assert {"spacr.cpg_cropped", "spacr.ops_prefix", "spacr.ops_image_umap",
             "spacr.ops_large_sites", "spacr.ops_decode.run_compare_masks",
@@ -3387,6 +3391,8 @@ def _validated_threshold_auto_939_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    from tests.test_ops_fdr_never_1014 import _current_never_api
+    entries = _current_never_api(entries)
     assert set(entries) == {
         "spacr.ops_decode.choose_well_thresholds",
         "spacr.ops_decode.threshold_settings",
@@ -3611,6 +3617,8 @@ def _validated_fdr_calibration_949_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "949_ops_fdr_calibration_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
+    from tests.test_ops_fdr_never_1014 import _current_never_api
+    entries = _current_never_api(entries)
     assert set(entries) == {"spacr.ops_decode.calibrate_fdr_scale",
                             "spacr.ops_decode.shuffle_call_rate",
                             "spacr.ops_prefix.prefix_nearmiss_decoys"}
@@ -4069,6 +4077,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
             _validated_prior_radius_callables(
                 _validated_prior_worker_callables(
                     list(_public_callables()), replay_dialog_signature=True))))
+    from tests.test_ops_fdr_never_1014 import _validated_never_arrivals
+    callables = _validated_never_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -6938,9 +6948,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("985_ome_zarr_convert_api_arrivals_2026-11-19.json", 2),
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
+        ("1014_never_api_arrivals_2026-11-22.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        from tests.test_ops_fdr_never_1014 import _current_never_api
+        additions = _current_never_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
@@ -7572,6 +7585,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
+                     "1014_never_api_arrivals_2026-11-22.json",
                      "w_mask_tracing_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7738,6 +7752,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "983_ome_zarr_images_and_crops_api_arrivals_2026-11-19.json",
                      "985_ome_zarr_convert_api_arrivals_2026-11-19.json",
                      "x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json",
+                     "1014_never_api_arrivals_2026-11-22.json",
                      "w_mask_tracing_api_arrivals_2026-11-20.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))

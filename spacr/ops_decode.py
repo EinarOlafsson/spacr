@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+from functools import lru_cache
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -707,27 +708,43 @@ def threshold_settings(settings: Mapping[str, Any],
         ``ops_decode_auto_tune_fraction``, ``ops_decode_auto_seed`` and the
         shared tuner's ``ops_decode_auto_ci``, ``ops_decode_auto_objective``,
         ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``, and
-        item 949's ``ops_decode_fdr_calibration``.
+        ``ops_decode_fdr_calibration`` and the shared controls
+        ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and
+        ``ops_never_barcode_sets``.
     :param rule: from :func:`decode_rule`; a grid without the pixel quality,
         or a rule without the pixel fallback, keeps ``pixel_quality``.
-    :returns: ``mode``; in auto mode also ``floors`` and ``pixel_qualities``
+    Manual never-barcode calibration uses a single setting, preserving the
+    entered thresholds. Without decoys it requests the reported fallback.
+
+    :returns: ``mode``; in auto mode or manual never calibration also ``floors`` and ``pixel_qualities``
         (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``,
         ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and
         ``spot_thresholds`` (the read thresholds tried jointly, sorted; empty
         when the read threshold stays as entered); with
-        ``ops_decode_fdr_calibration`` 'shuffle' also ``fdr_calibration``.
+        a calibration method also ``fdr_calibration``.
     :raises ValueError: for an unknown mode or FDR calibration, an FDR target that is not
         above 0, a tuning fraction outside (0, 1), a grid that is not a
         mapping of the two thresholds to lists of numbers 0 or above, or
         auto mode without decoys (``ops_decoy_library_k`` 0).
     """
+    from .ops_settings import OPS_DEFAULTS
+
+    _never_settings({
+        'ops_never_barcode_k': settings.get('ops_never_barcode_k', OPS_DEFAULTS['ops_never_barcode_k']),
+        'ops_never_barcode_seed': settings.get('ops_never_barcode_seed', OPS_DEFAULTS['ops_never_barcode_seed']),
+        'ops_never_barcode_sets': settings.get('ops_never_barcode_sets', OPS_DEFAULTS['ops_never_barcode_sets'])})
     mode = str(settings.get("ops_decode_threshold_mode") or THRESHOLD_MODES[0]
                ).strip().lower()
     if mode not in THRESHOLD_MODES:
         raise ValueError(f"ops_decode_threshold_mode must be one of "
                          f"{list(THRESHOLD_MODES)}; got {mode!r}")
-    if mode == "manual":
+    calibration = str(settings.get("ops_decode_fdr_calibration")
+                      or FDR_CALIBRATIONS[0]).strip().lower()
+    manual_calibration = mode == "manual" and calibration in ("never", "never+shuffle")
+    if mode == "manual" and not manual_calibration:
         return {"mode": mode}
+    if manual_calibration and int(rule.get("decoy_k") or 0) < 1:
+        return {"mode": mode, "fdr_calibration": calibration, "no_decoys": True}
     if int(rule.get("decoy_k") or 0) < 1:
         raise ValueError("ops_decode_threshold_mode 'auto' chooses thresholds "
                          "from decoy calls; set ops_decoy_library_k to 1 or "
@@ -748,7 +765,11 @@ def threshold_settings(settings: Mapping[str, Any],
     if not 0 < tune < 1:
         raise ValueError("ops_decode_auto_tune_fraction must lie in (0, 1); "
                          f"got {tune}")
-    grid = settings.get("ops_decode_auto_grid")
+    grid = ({"ops_single_read_quality": [float(settings.get("ops_single_read_quality")
+                                              if settings.get("ops_single_read_quality") is not None
+                                              else OPS_DEFAULTS["ops_single_read_quality"])],
+             "ops_pixel_quality": [rule["pixel_quality"]]}
+            if manual_calibration else settings.get("ops_decode_auto_grid"))
     if isinstance(grid, str) and grid.strip():
         try:
             grid = json.loads(grid)
@@ -779,8 +800,8 @@ def threshold_settings(settings: Mapping[str, Any],
             raise ValueError(f"ops_decode_auto_grid {key} needs values of 0 "
                              f"or more; got {values!r}")
         axes[key] = values
-    spots = _spot_grid(settings.get("ops_decode_auto_spot_grid"),
-                      "ops_decode_auto_spot_grid")
+    spots = ([] if manual_calibration else _spot_grid(settings.get("ops_decode_auto_spot_grid"),
+                                        "ops_decode_auto_spot_grid"))
     out = {"mode": mode, "floors": axes["ops_single_read_quality"],
            "pixel_qualities": axes["ops_pixel_quality"], "fdr_max": fdr_max,
            **_tuning_options(settings), "tune_fraction": tune, "seed": seed,
@@ -885,10 +906,33 @@ def _prune_tallies(tallies: Mapping[str, Any], keys) -> Dict[str, Any]:
     return out
 
 
+@lru_cache(maxsize=2)
+def _opportunity_index(guides):
+    """Index a sorted guide tuple once for both decode opportunity counters.
+
+    :param guides: the ordered real guide keys used by the distance profiles.
+    :returns: guide key to aligned profile row.
+    """
+    return {guide: index for index, guide in enumerate(guides)}
+
+
+def _opportunity_totals(guides, profiles, guide_index):
+    """Reduce real-cell guide winners to shared distance-shell opportunity totals.
+
+    :param guides: the real guide selected for each called cell.
+    :param profiles: named L/D/N1/N2 matrices with columns for distances one to three.
+    :param guide_index: the shared mapping from guide key to aligned matrix row.
+    :returns: twelve integer sums from one guide histogram and the same dot products.
+    """
+    bins = np.bincount([guide_index[guide] for guide in guides], minlength=len(guide_index))
+    return {f'opp{d}_{name}': int(total)
+            for name, matrix in profiles.items() for d, total in enumerate(bins @ matrix, 1)}
+
+
 def _field_candidates(votes: Dict[str, Any], floors: Sequence[float],
                       pixel_qualities: Sequence[float], decoys,
-                      pixels: bool) -> Dict[str, Any]:
-    """One field's calls at every grid setting, counted, and what rebuilds them.
+                      pixels: bool, *, opportunity_profiles=None) -> Dict[str, Any]:
+    """Count calls at every grid setting in one field and retain their reconstruction data.
 
     :param votes: from :func:`_field_votes` with no single-read floor and
         the pixel votes at every grid pixel quality.
@@ -896,9 +940,14 @@ def _field_candidates(votes: Dict[str, Any], floors: Sequence[float],
     :param pixel_qualities: the pixel qualities of the grid.
     :param decoys: the decoy set.
     :param pixels: whether the rule has the pixel fallback.
+    :param opportunity_profiles: optional sorted ``guides`` and L/D/N1/N2
+        distance-profile arrays, each shaped ``(guides, 3)``. The same
+        selected primary and pixel calls supply the guide bincount.
     :returns: ``counts`` -- ``(floors, pixel qualities, 2)`` real and decoy
         calls -- ``nuclei``, and ``votes`` with the tallies pruned to the
-        rows any setting can write, for :func:`_candidate_calls`.
+        rows any setting can write, for :func:`_candidate_calls`. With
+        opportunity profiles, also ``opportunities``: twelve named
+        distance-shell grids, without retaining a dense guide-count grid.
     """
     owned = votes["owned"]
     primary = votes["primary"]
@@ -909,22 +958,42 @@ def _field_candidates(votes: Dict[str, Any], floors: Sequence[float],
     owners = [o for o, _ in mine]
     is_decoy = {o: h["guide"] in decoys for o, h in mine}
     counts = np.zeros((len(floors), len(pixel_qualities), 2), np.int64)
+    profiles = dict(opportunity_profiles or {})
+    guide_index = _opportunity_index(tuple(profiles.pop('guides', ())))
+    profiles = {name: np.asarray(values, np.int64) for name, values in profiles.items()}
+    if any(values.shape != (len(guide_index), 3) for values in profiles.values()):
+        from .qt.i18n import tr
+
+        raise ValueError(tr('Opportunity profiles must align with their sorted guide library.'))
+    opportunities = {f'opp{d}_{name}': np.zeros(counts.shape[:-1], np.int64)
+                     for name in profiles for d in (1, 2, 3)}
     for i, floor in enumerate(floors):
         keep = ~((support == 1) & (best < floor))
         kept = {o for o, k in zip(owners, keep) if k}
         decoy = sum(is_decoy[o] for o in kept)
         for j, q in enumerate(pixel_qualities):
-            extra = [h["guide"] in decoys for o, h in pixel[q].items()
-                     if o in owned and o not in kept]
-            counts[i, j] = (len(kept) - decoy + len(extra) - sum(extra),
-                            decoy + sum(extra))
+            extra = [h for o, h in pixel[q].items() if o in owned and o not in kept]
+            extra_decoys = sum(h['guide'] in decoys for h in extra)
+            counts[i, j] = (len(kept) - decoy + len(extra) - extra_decoys,
+                            decoy + extra_decoys)
+            if profiles:
+                selected = [primary[o]['guide'] for o in kept] + [h['guide'] for h in extra]
+                real_guides = [guide for guide in selected if guide not in decoys]
+                if any(guide not in guide_index for guide in real_guides):
+                    from .qt.i18n import tr
+
+                    raise ValueError(tr('Opportunity profiles do not contain every called guide.'))
+                for name, total in _opportunity_totals(real_guides, profiles, guide_index).items():
+                    opportunities[name][i, j] = total
     if votes["tallies"] is not None:
         keys = {(o, h["guide"]) for o, h in primary.items()}
         keys |= {(o, h["guide"]) for table in pixel.values()
                  for o, h in table.items()}
         votes = {**votes, "tallies": _prune_tallies(votes["tallies"], keys)}
-    return {"counts": counts, "nuclei": len(owned),
-            "votes": {**votes, "pixel": pixel}}
+    out = {"counts": counts, "nuclei": len(owned), "votes": {**votes, "pixel": pixel}}
+    if profiles:
+        out['opportunities'] = opportunities
+    return out
 
 
 def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
@@ -932,8 +1001,9 @@ def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[st
                             spot_thresholds: Sequence[float], floors: Sequence[float],
                             pixel_qualities: Sequence[float], footprint: float,
                             max_distance: int, min_fraction: float,
-                            crosstalk: str, pixel_votes=None) -> Dict[str, Any]:
-    """One field's calls at every read threshold and call-threshold setting (item 942).
+                            crosstalk: str, pixel_votes=None,
+                            opportunity_profiles=None) -> Dict[str, Any]:
+    """Calls in one field at every read threshold and call-threshold setting (item 942).
 
     Spot detection and calling are tuned together: for each read threshold
     the reads at or below it are dropped, the reads left are called and
@@ -956,6 +1026,9 @@ def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[st
     :param crosstalk: the unmixing method.
     :param pixel_votes: the pixel votes of another pass over the same field
         (item 952: the log pass, reused by the raw pass); None votes them here.
+    :param opportunity_profiles: the optional guide profiles passed to
+        ``_field_candidates``; returned opportunities are stacked across
+        the read-threshold axis alongside counts.
     :returns: ``counts`` -- ``(read thresholds, floors, pixel qualities, 2)``
         real and decoy calls -- ``nuclei``, and ``by_spot``, one
         :func:`_field_candidates` result per read threshold with its read
@@ -975,12 +1048,17 @@ def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[st
             pixel = votes["pixel"]
         votes["pixel"] = pixel
         calls = _field_candidates(votes, floors, pixel_qualities, decoys,
-                                  bool(rule["pixels"]))
+                                  bool(rule["pixels"]),
+                                  opportunity_profiles=opportunity_profiles)
         calls.update({key: votes[key] for key in (
             "reads", "reads_owned", "reads_near", "reads_ambiguous")})
         by_spot.append(calls)
-    return {"counts": np.stack([c["counts"] for c in by_spot]),
-            "nuclei": by_spot[0]["nuclei"] if by_spot else 0, "by_spot": by_spot}
+    out = {"counts": np.stack([c["counts"] for c in by_spot]),
+           "nuclei": by_spot[0]["nuclei"] if by_spot else 0, "by_spot": by_spot}
+    if by_spot and 'opportunities' in by_spot[0]:
+        out['opportunities'] = {key: np.stack([row['opportunities'][key] for row in by_spot])
+                                for key in by_spot[0]['opportunities']}
+    return out
 
 
 #: Shuffled-barcode matchers built once per process (item 949), keyed by
@@ -1065,6 +1143,133 @@ def _field_shuffle_counts(evidence: Mapping[str, np.ndarray], rule: Mapping[str,
             out[a] += _field_candidates(votes, floors, pixel_qualities, frozenset(),
                                         bool(rule["pixels"]))["counts"][..., 0]
     return out / max(len(seeds), 1)
+
+
+def _never_settings(settings):
+    """Validate the shared substitution-control settings for either decode.
+
+    :param settings: run settings, with absent controls taking their defaults.
+    :returns: the three normalized setting keys.
+    :raises ValueError: for negative or fractional counts/seeds or an unknown set choice.
+    """
+    from .qt.i18n import tr
+
+    out = {'ops_never_barcode_k': settings.get('ops_never_barcode_k', 4),
+           'ops_never_barcode_seed': settings.get('ops_never_barcode_seed', 1)}
+    for key, value in out.items():
+        try:
+            number = int(value)
+            valid = not isinstance(value, bool) and float(value) == number and number >= 0
+        except (TypeError, ValueError, OverflowError):
+            valid = False
+        if not valid:
+            raise ValueError(tr('{key} must be a nonnegative integer.').format(key=key))
+        out[key] = number
+    sets = str(settings.get('ops_never_barcode_sets', 'n1_n2')).strip().lower()
+    if sets not in ('n1_n2', 'n2'):
+        raise ValueError(tr('ops_never_barcode_sets must be n1_n2 or n2.'))
+    out['ops_never_barcode_sets'] = sets
+    return out
+
+
+@lru_cache(maxsize=2)
+def _never_context(library: tuple, decoys: tuple, k: int, seed: int, sets: str):
+    """Build independent controls and aligned opportunity profiles once per library.
+
+    :param library: sorted production guide sequences, after any cycle mask.
+    :param decoys: sorted production decoy sequences.
+    :param k: attempted controls per guide in each requested set.
+    :param seed: deterministic substitution seed.
+    :param sets: ``n1_n2`` or ``n2``; the latter skips the report-only pass.
+    :returns: controls, guide profiles and serializable run metadata shared
+        by both decode paths. No production calls are replaced.
+    """
+    from .ops_sbs import never_barcodes, _barcode_distance_profiles
+
+    controls = {name: never_barcodes(library, distance=distance, k=k, seed=seed)
+                for name, distance in ((('N1', 1), ('N2', 2)) if sets == 'n1_n2'
+                                       else (('N2', 2),))}
+    profiles = {'guides': library,
+                'L': controls['N2']['library_m_d'],
+                'D': _barcode_distance_profiles(library, decoys),
+                **{name: data['m_d'] for name, data in controls.items()}}
+    profiles.setdefault('N1', np.zeros((len(library), 3), np.int64))
+    metadata = {'k': int(k), 'seed': int(seed), 'sets': sets,
+                'sizes': {'L': len(library), 'D': len(decoys),
+                          **{name: len(data['barcodes']) for name, data in controls.items()}},
+                'mean_m_d': {name: np.asarray(values).mean(axis=0).tolist()
+                             if len(library) else [0.0, 0.0, 0.0]
+                             for name, values in profiles.items() if name != 'guides'}}
+    return {'controls': controls, 'profiles': profiles, 'never_sets': metadata,
+            'library_size': len(library)}
+
+
+@lru_cache(maxsize=2)
+def _never_matchers(library: tuple, controls: tuple):
+    """Cache existing matcher objects for each independent control whitelist.
+
+    :param library: sorted production guide sequences.
+    :param controls: named tuples of control sequences from ``_never_context``.
+    :returns: named matcher/decoy-set pairs from ``matcher_for``.
+    """
+    return {name: matcher_for(library, barcodes) for name, barcodes in controls}
+
+
+def _never_payload(grids, metadata):
+    """Bind measured field grids and shared control metadata for the existing calibrator.
+
+    :param grids: aligned control and opportunity arrays from either decode.
+    :param metadata: library size and ``never_sets`` from the shared builder.
+    :returns: a calibrator payload. If N1 voting was skipped, its zero
+        exposure marks its rate unavailable; a library with distance-one
+        pairs then retains the entered scale rather than omitting that term.
+    """
+    out = {key: grids[key] for key in ('never2_calls', 'opp2_N2', 'opp2_L',
+                                       'opp1_L', 'real_calls_n2')}
+    if 'never1_calls' in grids:
+        out.update({key: grids[key] for key in ('never1_calls', 'opp1_N1', 'real_calls_n1')})
+    else:
+        out.update(never1_calls=np.zeros_like(out['never2_calls']),
+                   opp1_N1=np.zeros_like(out['never2_calls']))
+    return {**out, 'library_size': metadata['library_size'], 'never_sets': metadata['never_sets']}
+
+
+def _field_never_counts(evidence, rule, library, context, *, spot_thresholds,
+                        floors, pixel_qualities, footprint, max_distance,
+                        min_fraction, crosstalk, pixel_votes=None):
+    """Vote each never whitelist through the production field candidate path.
+
+    :param evidence: the existing field evidence for one read mode.
+    :param rule: the production decode rule.
+    :param library: sorted production guides.
+    :param context: cached controls and profiles from ``_never_context``.
+    :param spot_thresholds: the read-threshold axis, including fixed mode.
+    :param floors: the single-read quality axis.
+    :param pixel_qualities: the pixel-quality axis.
+    :param footprint: production territory margin.
+    :param max_distance: production correction limit.
+    :param min_fraction: production vote share.
+    :param crosstalk: production unmixing method.
+    :param pixel_votes: optional votes by control name from the same field
+        and whitelist in another read mode; never production-whitelist votes.
+    :returns: control count grids and per-whitelist pixel votes for reuse.
+    """
+    controls = tuple((name, tuple(data['barcodes']))
+                     for name, data in context['controls'].items())
+    matchers = _never_matchers(tuple(library), controls)
+    out, pixels = {}, {}
+    for name, (matcher, decoys) in matchers.items():
+        called = _joint_field_candidates(
+            evidence, rule, library, matcher, decoys,
+            spot_thresholds=spot_thresholds, floors=floors,
+            pixel_qualities=pixel_qualities, footprint=footprint,
+            max_distance=max_distance, min_fraction=min_fraction,
+            crosstalk=crosstalk, pixel_votes=(pixel_votes or {}).get(name))
+        suffix = name.lower()
+        out[f'never{name[-1]}_calls'] = called['counts'][..., 1]
+        out[f'real_calls_{suffix}'] = called['counts'][..., 0]
+        pixels[name] = called['by_spot'][0]['votes']['pixel']
+    return out, pixels
 
 
 def _candidate_calls(candidates: Mapping[str, Any], floor: float,
@@ -1436,10 +1641,10 @@ def tune_thresholds(counts, nuclei, sites, axes: Sequence[Tuple[str, Sequence[fl
 
 
 #: The FDR calibrations ``ops_prefix_fdr_calibration`` and
-#: ``ops_decode_fdr_calibration`` may name (item 949), the first being the
-#: default: 'none' keeps the entered FDR scale, 'shuffle' raises it from the
-#: barcode-shuffle control.
-FDR_CALIBRATIONS = ("none", "shuffle")
+#: ``ops_decode_fdr_calibration`` may name. Defaults live in the settings;
+#: none keeps the entered scale, shuffle only raises it, and never measures
+#: it from substitution controls (items 949 and 1014).
+FDR_CALIBRATIONS = ("none", "shuffle", "never", "never+shuffle")
 
 #: The S2 (c) check item 949 calibrates to: the barcode-shuffle call rate
 #: (shuffle-called cells per 100 cells) may be at most this many times the
@@ -1517,90 +1722,260 @@ def _needed_scale(real: np.ndarray, decoy: np.ndarray, shuffled: np.ndarray,
     return float(np.percentile(ratio(stack @ weights.T), 97.5))
 
 
+def never_scale(real, decoy, never2_calls, opp2_N2, opp2_L, *, k,
+                ci=True, reps=_AUTO_REPS, seed=_AUTO_BOOT_SEED,
+                never1_calls=None, opp1_N1=None, opp1_L=None):
+    """Estimate the decoy FDR scale from calls on substitution-built controls.
+
+    The N2 call rate per distance-two opportunity predicts wrong library
+    calls at that distance. Libraries containing distance-one guide pairs
+    also contribute the N1 rate times their distance-one opportunities.
+    The expected wrong calls times k, divided by the observed decoy calls,
+    give the scale. A zero decoy sum uses ``_AUTO_ZERO_DECOYS``, as the
+    existing threshold tuner does. With ci, the chosen scale is the upper
+    end of the 95 percent field bootstrap, using the existing row sampler.
+    Clipping the chosen scale to one belongs to ``calibrate_fdr_scale``.
+
+    :param real: real production calls per field at one grid setting.
+    :param decoy: production decoy calls in the same fields.
+    :param never2_calls: calls on the distance-two control set.
+    :param opp2_N2: production guide counts times their N2 distance-two neighbours.
+    :param opp2_L: the corresponding other-library distance-two opportunities.
+    :param k: positive matched-decoy multiplicity.
+    :param ci: choose the upper bootstrap scale rather than its point estimate.
+    :param reps: bootstrap draws, default the existing ``_AUTO_REPS``.
+    :param seed: field-bootstrap seed, default ``_AUTO_BOOT_SEED``.
+    :param never1_calls: optional distance-one control calls per field.
+    :param opp1_N1: N1 distance-one opportunities; supplied with never1_calls.
+    :param opp1_L: other-library distance-one opportunities, otherwise zero.
+    :returns: dict with ``scale``, ``scale_point``, ``scale_ci95``, ``rho1``,
+        ``rho2``, ``rho1_over_rho2``, ``fdr_cal_pct``, their ``*_ci95``
+        intervals, ``expected_wrong`` and summed real/decoy/control counts.
+        Intervals are None for fewer than two fields. Rates with no
+        control opportunities and estimates depending on them are None;
+        a ratio with zero rho2 is also unavailable.
+    :raises ValueError: for misaligned, negative or nonfinite counts, a
+        nonpositive multiplicity, or incomplete N1 inputs.
+    """
+    from .qt.i18n import tr
+
+    first = np.asarray(real, float).reshape(-1)
+    if (never1_calls is None) != (opp1_N1 is None):
+        raise ValueError(tr('Never-barcode calibration needs both N1 calls and N1 opportunities.'))
+    has_n1 = never1_calls is not None
+    values = (real, decoy, never2_calls, opp2_N2, opp2_L,
+              np.zeros_like(first) if never1_calls is None else never1_calls,
+              np.zeros_like(first) if opp1_N1 is None else opp1_N1,
+              np.zeros_like(first) if opp1_L is None else opp1_L)
+    arrays = [np.asarray(value, float).reshape(-1) for value in values]
+    if (any(value.shape != first.shape for value in arrays)
+            or any(not np.all(np.isfinite(value) & (value >= 0)) for value in arrays)):
+        raise ValueError(tr('Never-barcode calibration needs aligned, finite, nonnegative field counts.'))
+    if not np.isfinite(float(k)) or float(k) <= 0:
+        raise ValueError(tr('Never-barcode calibration needs a positive decoy multiplicity.'))
+    if not has_n1 and np.any(arrays[7]):
+        raise ValueError(tr('Distance-one library neighbours require N1 calls and opportunities.'))
+    stack = np.stack(arrays)
+
+    def estimates(sums):
+        """Compute scale, both rates, their ratio and wrong-call FDR from field sums."""
+        r, d, n2, o2, library2, n1, o1, library1 = sums
+        rho2 = np.divide(n2, o2, out=np.full_like(n2, np.nan), where=o2 > 0)
+        rho1 = np.divide(n1, o1, out=np.full_like(n1, np.nan), where=o1 > 0)
+        wrong = (np.where(library2 > 0, rho2 * library2, 0.0)
+                 + np.where(library1 > 0, rho1 * library1, 0.0))
+        scale = float(k) * wrong / np.where(d > 0, d, float(_AUTO_ZERO_DECOYS))
+        ratio = np.divide(rho1, rho2, out=np.full_like(rho2, np.nan), where=rho2 > 0)
+        return np.stack((scale, rho1, rho2, ratio, 100 * wrong / np.maximum(r, 1), wrong))
+
+    point = estimates(stack.sum(axis=1))
+    names = ('scale', 'rho1', 'rho2', 'rho1_over_rho2', 'fdr_cal_pct', 'expected_wrong')
+    out = {name: float(value) if np.isfinite(value) else None for name, value in zip(names, point)}
+    out.update({name + '_ci95': None for name in names[:-1]})
+    out['scale_point'] = out['scale']
+    if ci and first.size > 1:
+        draws = _bootstrap_rows(first.size, reps, seed)
+        weights = np.stack([np.bincount(row, minlength=first.size) for row in draws])
+        boot = estimates(stack @ weights.T)
+        for index, name in enumerate(names[:-1]):
+            finite = boot[index][np.isfinite(boot[index])]
+            if finite.size:
+                low, high = np.percentile(finite, (2.5, 97.5))
+                if out[name] is not None:
+                    low, high = min(float(low), out[name]), max(float(high), out[name])
+                out[name + '_ci95'] = [float(low), float(high)]
+        out['scale'] = out['scale_ci95'][1] if out['scale_ci95'] else out['scale_point']
+    if not has_n1:
+        for name in ('rho1', 'rho1_ci95', 'rho1_over_rho2', 'rho1_over_rho2_ci95'):
+            out[name] = None
+    out.update(real=float(stack[0].sum()), decoy=float(stack[1].sum()),
+               never2_calls=float(stack[2].sum()), never1_calls=float(stack[5].sum()) if has_n1 else None)
+    return out
+
+
 def calibrate_fdr_scale(counts, shuffled, nuclei, sites,
                         axes: Sequence[Tuple[str, Sequence[float]]], *, k: int,
                         scale: float, ci: bool = True, max_rounds: int = 20,
-                        **options: Any) -> Dict[str, Any]:
-    """Tune one well's thresholds with the FDR scale set from the shuffle control (item 949).
+                        method: str = 'shuffle', never=None, **options: Any) -> Dict[str, Any]:
+    """Tune one well with a scale measured by shuffle or never-barcode controls.
 
-    A decoy sits two or more edits from every barcode, so it misses the
-    reads that land one edit from a guide, and with short prefixes the decoy
-    FDR then runs below the barcode-shuffle call rate. Here the scale is
-    raised until the shuffle call rate is at most
-    :data:`SHUFFLE_FDR_RATIO` times the calibrated FDR on the tuning
-    fields: :func:`tune_thresholds` chooses at the current scale; at the
-    chosen setting the scale needed is the tuning fields' shuffle call rate
-    over 1.5 times the scale-1 FDR (the upper end of its 95 %
-    field-bootstrap interval with ``ci``); while that exceeds the current
-    scale the scale becomes it and the tuner chooses again. The scale only
-    rises, so the loop ends. Only decoy and shuffle calls are read, never a
-    reference call set, and the report fields are not used.
+    The existing shuffle method only raises the entered scale until its
+    call-rate check passes. Never calibration measures wrong library calls
+    from substitution-control opportunities and may lower or raise the
+    scale, with a floor of one. Both methods use this loop and the same
+    threshold tuner. A repeated never setting ends the loop; a cycle keeps
+    the larger tested cycling scale and its matching threshold result.
+    The report half is held out from never calibration.
 
     :param counts: ``(fields, *axis lengths, 2)`` real and decoy calls.
-    :param shuffled: ``(fields, *axis lengths)`` shuffle-called cells (a
-        mean over the shuffled whitelists).
+    :param shuffled: matching shuffle-call grid, or None without shuffle.
     :param nuclei: cells per field.
-    :param sites: the site of each field.
-    :param axes: ``(name, values)`` per axis, as :func:`tune_thresholds`
-        takes them.
-    :param k: decoys per guide.
-    :param scale: the entered FDR scale; the calibrated scale is never
-        below it (nor below 1).
-    :param ci: judge the tuner's FDR and the needed scale by the upper end
-        of their intervals.
-    :param max_rounds: the most tuner passes.
-    :param options: the other :func:`tune_thresholds` keywords.
-    :returns: :func:`tune_thresholds`'s result at the calibrated scale,
-        with ``fdr_scale`` and ``calibration``: ``method`` ('shuffle'),
-        ``ratio``, ``entered_scale``, ``scale``, ``rounds`` (per pass the
-        scale, the setting chosen and the scale it needed), ``converged``,
-        and per part (``tune``, ``report``, ``all_fields``)
-        :func:`shuffle_call_rate` at the chosen setting with the
-        calibrated ``fdr_per_100``, ``shuffle_limit_pct`` (1.5 times it)
-        and ``passes`` (rate at or below the limit, to a relative 1e-9).
-    :raises ValueError: when ``shuffled`` is not the grid of ``counts``.
+    :param sites: each field site.
+    :param axes: axis names and values passed to ``tune_thresholds``.
+    :param k: positive matched-decoy multiplicity.
+    :param scale: entered scale; shuffle cannot lower it, never can.
+    :param ci: choose the upper field-bootstrap scale and tuner intervals.
+    :param max_rounds: maximum tuner passes, default 20.
+    :param method: none, shuffle (the compatibility default), never or
+        never+shuffle, which takes the larger of the two measured scales.
+    :param never: mapping of ``never2_calls``, ``opp2_N2``, ``opp2_L`` and
+        optional ``never1_calls``, ``opp1_N1``, ``opp1_L`` field/grid arrays.
+        Entry points also supply ``library_size`` for the 50-guide guard,
+        ``never_sets`` metadata and optional N1/N2 real-call grids.
+        Fewer than 30 tuning-half N2 calls keep the entered scale.
+    :param options: other ``tune_thresholds`` keywords.
+    :returns: the tuner result with ``fdr_scale`` and ``calibration``.
+        Shuffle keeps its existing ratio, per-part call-rate checks and
+        round structure. Never adds point/interval estimates for each
+        half, entered-scale FDR, status, control metadata and perturbation
+        changes. Production calls are never replaced by control calls.
+    :raises ValueError: for an unknown method, invalid grid shape, missing
+        never arrays or fewer than one permitted tuner pass.
     """
+    from .qt.i18n import tr
+
+    method = str(method).lower()
+    if method not in FDR_CALIBRATIONS:
+        raise ValueError(tr('Unknown FDR calibration method: {method}.').format(method=method))
+    if int(max_rounds) < 1:
+        raise ValueError(tr('FDR calibration needs at least one tuning round.'))
+    using_never = method in ('never', 'never+shuffle')
     counts = np.asarray(counts, np.int64)
-    shuffled = np.asarray(shuffled, float)
+    has_shuffle = shuffled is not None
+    shuffled = np.asarray(shuffled, float) if has_shuffle else np.zeros(counts.shape[:-1])
     nuclei = np.asarray(nuclei, np.int64)
-    if shuffled.shape != counts.shape[:-1]:
-        raise ValueError("shuffled must be (fields, *axis lengths), the grid of counts")
+    if shuffled.shape != counts.shape[:-1] or (method in ('shuffle', 'never+shuffle') and not has_shuffle):
+        raise ValueError('shuffled must be (fields, *axis lengths), the grid of counts')
+    payload = dict(never or {})
+    array_keys = ('never2_calls', 'opp2_N2', 'opp2_L', 'never1_calls', 'opp1_N1', 'opp1_L',
+                  'real_calls_n1', 'real_calls_n2')
+    arrays = {key: np.asarray(payload[key], float) for key in array_keys if key in payload}
+    if using_never and (not {'never2_calls', 'opp2_N2', 'opp2_L'} <= arrays.keys()
+                        or any(value.shape != counts.shape[:-1] for value in arrays.values())):
+        raise ValueError(tr('Never-barcode calibration needs complete control arrays matching the field grid.'))
+
+    def never_at(at, selected_ci):
+        """Estimate exactly one selected grid point over the requested field half."""
+        keywords = {key: value[at] for key, value in arrays.items()
+                    if key in ('never1_calls', 'opp1_N1', 'opp1_L')}
+        return never_scale(counts[at][:, 0], counts[at][:, 1], arrays['never2_calls'][at],
+                           arrays['opp2_N2'][at], arrays['opp2_L'][at], k=k,
+                           ci=selected_ci, **keywords)
+
     position_of = {int(site): i for i, site in enumerate(np.asarray(sites, np.int64))}
     entered = max(float(scale), 1.0)
     current, rounds, converged = entered, [], False
     choice: Dict[str, Any] = {}
-    for _ in range(int(max_rounds)):
+    history, seen = [], {}
+    status, cycle, reason = 'ok', False, None
+    for iteration in range(int(max_rounds)):
         choice = tune_thresholds(counts, nuclei, sites, axes, k=k, scale=current,
                                  ci=ci, **options)
-        fields = [position_of[s] for s in choice["tune_sites"]] or \
-            [position_of[s] for s in choice["report_sites"]]
-        at = (np.asarray(fields, np.int64),) + tuple(choice["index"])
-        needed = (_needed_scale(counts[at][:, 0], counts[at][:, 1], shuffled[at],
-                                nuclei[fields], k, ci) if fields else 1.0)
-        rounds.append({"scale": current, "chosen": choice["chosen"],
-                       "needed_scale": needed})
-        if needed <= current * (1.0 + 1e-9):
+        fields = [position_of[s] for s in choice['tune_sites']]
+        if not using_never and not fields:
+            fields = [position_of[s] for s in choice['report_sites']]
+        at = (np.asarray(fields, np.int64),) + tuple(choice['index'])
+        if using_never:
+            measured = never_at(at, ci)
+            if 'library_size' in payload and int(payload['library_size']) < 50:
+                status, reason = 'insufficient_never_calls', 'insufficient_library_guides'
+            elif measured['never2_calls'] < 30:
+                status = 'insufficient_never_calls'
+            elif measured['scale'] is None:
+                status = 'insufficient_never_opportunities'
+            needed = entered if status != 'ok' else max(float(measured['scale']), 1.0)
+            if method == 'never+shuffle' and status == 'ok':
+                needed = max(needed, _needed_scale(counts[at][:, 0], counts[at][:, 1],
+                                                   shuffled[at], nuclei[fields], k, ci))
+        elif method == 'shuffle':
+            needed = (_needed_scale(counts[at][:, 0], counts[at][:, 1], shuffled[at],
+                                    nuclei[fields], k, ci) if fields else 1.0)
+        else:
+            needed = current
+        rounds.append({'scale': current, 'chosen': choice['chosen'], 'needed_scale': needed})
+        if using_never:
+            signature = tuple(choice['index'])
+            if signature in seen:
+                previous = seen[signature]
+                if previous == len(history) - 1:
+                    converged = True
+                else:
+                    cycle = True
+                    current, choice = max(history[previous:] + [(current, choice)], key=lambda row: row[0])
+                break
+            seen[signature] = len(history)
+            history.append((current, choice))
+            if status != 'ok' or abs(needed - current) <= 1e-9 * max(current, 1.0):
+                converged = True
+                break
+            if iteration + 1 == int(max_rounds):
+                break
+        elif needed <= current * (1.0 + 1e-9):
             converged = True
             break
         current = float(needed)
     parts = {}
-    for part, part_sites in (("tune", choice["tune_sites"]),
-                             ("report", choice["report_sites"]),
-                             ("all_fields", sorted(choice["tune_sites"]
-                                                   + choice["report_sites"]))):
+    for part, part_sites in (('tune', choice['tune_sites']),
+                             ('report', choice['report_sites']),
+                             ('all_fields', sorted(choice['tune_sites'] + choice['report_sites']))):
         idx = np.asarray([position_of[s] for s in part_sites], np.int64)
-        at = (idx,) + tuple(choice["index"])
-        rate = shuffle_call_rate(shuffled[at], nuclei[idx])
-        fdr_part = choice[part]["fdr_per_100"]
-        limit = None if fdr_part is None else SHUFFLE_FDR_RATIO * float(fdr_part)
-        parts[part] = {**rate, "fdr_per_100": fdr_part, "shuffle_limit_pct": limit,
-                       "passes": (None if limit is None else bool(
-                           rate["shuffle_call_rate_pct"] <= limit * (1.0 + 1e-9)))}
-    return {**choice, "fdr_scale": current,
-            "calibration": {"method": "shuffle", "ratio": SHUFFLE_FDR_RATIO,
-                            "entered_scale": entered, "scale": current,
-                            "rounds": rounds, "converged": converged, **parts}}
-
+        at = (idx,) + tuple(choice['index'])
+        fdr_part = choice[part]['fdr_per_100']
+        row = {'fdr_per_100': fdr_part}
+        if has_shuffle:
+            rate = shuffle_call_rate(shuffled[at], nuclei[idx])
+            limit = None if fdr_part is None else SHUFFLE_FDR_RATIO * float(fdr_part)
+            row = {**rate, 'fdr_per_100': fdr_part, 'shuffle_limit_pct': limit,
+                   'passes': None if limit is None else bool(rate['shuffle_call_rate_pct'] <= limit * (1.0 + 1e-9))}
+        if using_never:
+            row.update(never_at(at, True))
+            real = float(counts[at][:, 0].sum())
+            decoy = float(counts[at][:, 1].sum())
+            row['fdr_at_entered_scale_pct'] = fdr(int(real), int(decoy), k, entered) if idx.size else None
+            row['real_call_change_pct'] = {
+                name: 100.0 * (float(arrays[key][at].sum()) - real) / max(real, 1.0)
+                for name, key in (('n1', 'real_calls_n1'), ('n2', 'real_calls_n2')) if key in arrays}
+        parts[part] = row
+    calibration = {'method': method}
+    if method == 'shuffle':
+        calibration['ratio'] = SHUFFLE_FDR_RATIO
+    calibration.update(entered_scale=entered, scale=current, rounds=rounds, converged=converged, **parts)
+    if using_never:
+        tune = parts['tune']
+        calibration.update(status=status, reason=reason, cycle=cycle, never_sets=payload.get('never_sets', {}),
+                           scale_ci95=tune['scale_ci95'] if status == 'ok' else None,
+                           scale_report_half=parts['report']['scale_point'],
+                           rho1=tune['rho1'], rho1_ci95=tune['rho1_ci95'],
+                           rho2=tune['rho2'], rho2_ci95=tune['rho2_ci95'],
+                           rho1_over_rho2=tune['rho1_over_rho2'],
+                           rho1_over_rho2_ci95=tune['rho1_over_rho2_ci95'],
+                           fdr_cal_pct=tune['fdr_cal_pct'], fdr_cal_pct_ci95=tune['fdr_cal_pct_ci95'],
+                           fdr_at_entered_scale_pct=tune['fdr_at_entered_scale_pct'],
+                           real_call_change_pct=parts['all_fields']['real_call_change_pct'],
+                           fields={'tune': choice['tune_sites'], 'report': choice['report_sites']})
+        if has_shuffle:
+            calibration['shuffle_call_rate'] = parts['all_fields']['shuffle_call_rate_pct']
+    return {**choice, 'fdr_scale': current, 'calibration': calibration}
 
 def write_tuning_curve(choice: Mapping[str, Any], folder: str, name: str,
                        title: str = "") -> Dict[str, str]:
@@ -1667,16 +2042,80 @@ def write_tuning_curve(choice: Mapping[str, Any], folder: str, name: str,
     return paths
 
 
+def _write_calibration_report(folder, plate, well, calibration, *, csv=True, log=print):
+    """Write and describe one never-control calibration for either decode path.
+
+    :param folder: existing decode or prefix results folder.
+    :param plate: plate identifier.
+    :param well: well identifier.
+    :param calibration: the shared calibrator report, including guard status.
+    :param csv: also write a one-row CSV, as the full-barcode path requires.
+    :param log: console logger, or None to suppress the summary.
+    :returns: paths keyed by ``fdr_calibration`` and optionally
+        ``fdr_calibration_csv``. Nested CSV values are JSON strings.
+        Only N2 real-call changes above 0.5 percent emit a warning.
+    """
+    import warnings
+    import pandas as pd
+
+    from .qt.i18n import tr
+    from .tabular import write_table
+
+    os.makedirs(folder, exist_ok=True)
+    payload = {'plate': plate, 'well': well, **calibration}
+    path = os.path.join(folder, f'fdr_calibration_{well}.json')
+    with open(path, 'w', encoding='utf-8') as handle:
+        json.dump(payload, handle, indent=1, allow_nan=False)
+    paths = {'fdr_calibration': path}
+    if csv:
+        row = {key: json.dumps(value, sort_keys=True, allow_nan=False)
+               if isinstance(value, (dict, list, tuple)) else value for key, value in payload.items()}
+        csv_path = os.path.join(folder, f'fdr_calibration_{well}.csv')
+        write_table(pd.DataFrame([row]), csv_path, canonicalise=False)
+        paths['fdr_calibration_csv'] = csv_path
+    if log is not None:
+        scale = format(float(calibration['scale']), '.4g')
+        status = calibration.get('status', 'ok')
+        if calibration.get('reason') == 'insufficient_library_guides':
+            message = tr('{well}: FDR scale kept at {scale}; the library has fewer than 50 guides.').format(well=well, scale=scale)
+        elif status == 'insufficient_never_calls':
+            message = tr('{well}: FDR scale kept at {scale}; fewer than 30 tuning-half control calls.').format(well=well, scale=scale)
+        elif status == 'insufficient_never_opportunities':
+            message = tr('{well}: FDR scale kept at {scale}; control opportunities are unavailable at the chosen setting.').format(well=well, scale=scale)
+        elif status == 'no_decoys':
+            message = tr('{well}: FDR scale kept at {scale}; never-barcode calibration needs a positive decoy multiplicity.').format(well=well, scale=scale)
+        else:
+            interval = calibration.get('scale_ci95')
+            text = ', '.join(format(float(value), '.4g') for value in interval) if interval else tr('not estimated')
+            message = tr(
+                '{well}: FDR scale calibrated from never-should-appear barcodes: '
+                '{entered} entered -> {scale} [{interval}]; FDR at the chosen setting '
+                '{fdr} % (entered scale {entered_fdr} %).').format(
+                    well=well, entered=format(float(calibration['entered_scale']), '.4g'),
+                    scale=scale, interval=text, fdr=format(float(calibration['fdr_cal_pct']), '.4g'),
+                    entered_fdr=format(float(calibration['fdr_at_entered_scale_pct']), '.4g'))
+            if calibration.get('cycle'):
+                message += ' ' + tr('Conservative scale retained after a threshold cycle.')
+        log(message)
+    change = calibration.get('real_call_change_pct', {}).get('n2')
+    if change is not None and abs(float(change)) > 0.5:
+        warnings.warn(tr(
+            '{well}: N2 control voting changed real calls by {change} %, above the 0.5 % perturbation guard; '
+            'production calls were kept.').format(well=well, change=format(float(change), '.4g')),
+            RuntimeWarning, stacklevel=2)
+    return paths
+
+
 def _write_threshold_report(db: str, plate: str, well: str,
                             choice: Mapping[str, Any]) -> Dict[str, str]:
-    """Write one well's chosen thresholds and update the plate's table.
+    """Write the chosen thresholds for one well and update the plate table.
 
     :param db: the measurements database.
     :param plate: the plate.
     :param well: the well.
     :param choice: from :func:`choose_well_thresholds`, or the shared
-        tuner's choice; with a shuffle calibration (item 949) the table row
-        adds ``fdr_scale`` and the whole well's ``shuffle_call_rate_pct``.
+        tuner choice; with calibration the table row adds the applied and entered
+        scales, method and whichever control rates were measured.
     :returns: the paths of ``decode_thresholds_<well>.json`` and
         ``decode_thresholds_<plate>.csv`` under ``results/ops_decode``; the
         table holds one row per well, this well's replaced.
@@ -1685,6 +2124,7 @@ def _write_threshold_report(db: str, plate: str, well: str,
 
     from .tabular import read_table, write_table
 
+    choice = {**choice.get('chosen', {}), **choice}
     folder = results_folder(db)
     path = os.path.join(folder, f"decode_thresholds_{well}.json")
     with open(path, "w", encoding="utf-8") as handle:
@@ -1697,9 +2137,15 @@ def _write_threshold_report(db: str, plate: str, well: str,
         row.update({"read_threshold": choice["read_threshold"],
                     "objective": choice["objective"]})
     if "calibration" in choice:
-        row.update({"fdr_scale": choice["fdr_scale"],
-                    "shuffle_call_rate_pct":
-                        choice["calibration"]["all_fields"]["shuffle_call_rate_pct"]})
+        calibration = choice['calibration']
+        row.update(fdr_scale=choice['fdr_scale'])
+        whole = calibration.get('all_fields', {})
+        if 'shuffle_call_rate_pct' in whole:
+            row['shuffle_call_rate_pct'] = whole['shuffle_call_rate_pct']
+        if str(calibration['method']).startswith('never'):
+            row.update(fdr_calibration=calibration['method'],
+                       fdr_scale_entered=calibration['entered_scale'])
+            row.update({key: calibration[key] for key in ('rho1', 'rho2', 'fdr_cal_pct') if key in calibration})
     if "read_mode" in choice:
         row["read_mode"] = choice["read_mode"]
     for part in ("tune", "report", "all_fields"):
@@ -1812,8 +2258,8 @@ def fdr(real: int, decoy: int, k: float, scale: float) -> float:
 
 
 def fdr_report(field_stats, *, plate: str, well: str, k: int, scale: float,
-               skipped_sites: Sequence[int] = ()) -> Dict[str, Any]:
-    """One well's decoy FDR report.
+               skipped_sites: Sequence[int] = (), calibration=None) -> Dict[str, Any]:
+    """The decoy FDR report for one well.
 
     :param field_stats: one row per decoded field with ``nuclei``,
         ``assigned_real`` and ``assigned_decoy``.
@@ -1823,31 +2269,55 @@ def fdr_report(field_stats, *, plate: str, well: str, k: int, scale: float,
     :param scale: the FDR calibration (:func:`fdr`).
     :param skipped_sites: the sites not decoded because the stitch did not
         place them.
+    :param calibration: optional shared calibration report; supplied only
+        after controls were measured. Available shuffle fields retain
+        their existing names. Never calibration adds its full report,
+        point estimates and confidence intervals.
     :returns: the report: nuclei, assigned, assigned %, decoy calls, FDR per
         100, and the skipped sites.
     """
     nuclei = int(field_stats["nuclei"].sum()) if len(field_stats) else 0
     real = int(field_stats["assigned_real"].sum()) if len(field_stats) else 0
     decoy = int(field_stats["assigned_decoy"].sum()) if len(field_stats) else 0
-    return {"plate": plate, "well": well, "fields": int(len(field_stats)),
+    report = {"plate": plate, "well": well, "fields": int(len(field_stats)),
             "nuclei": nuclei, "assigned": real, "assigned_decoy": decoy,
             "pct": round(100 * real / max(nuclei, 1), 2),
             "fdr_per_100": round(fdr(real, decoy, k, scale), 3) if k else None,
             "decoy_library_k": int(k), "fdr_scale": float(scale),
             "skipped_sites": sorted(int(s) for s in skipped_sites)}
 
+    if calibration:
+        whole = calibration.get('all_fields', {})
+        report.update(fdr_calibration=calibration['method'], fdr_scale_entered=calibration['entered_scale'])
+        report.update({key: whole[key] for key in ('shuffle_called', 'shuffle_call_rate_pct',
+                                                  'shuffle_ci95', 'shuffle_limit_pct') if key in whole})
+        if 'passes' in whole:
+            report['shuffle_le_limit'] = whole['passes']
+        if (str(calibration['method']).startswith('never')
+                or str(calibration.get('requested_method', '')).startswith('never')):
+            report['calibration'] = dict(calibration)
+            report.update({key: calibration[key] for key in ('scale_ci95', 'scale_report_half',
+                           'rho1', 'rho1_ci95', 'rho2', 'rho2_ci95', 'rho1_over_rho2',
+                           'rho1_over_rho2_ci95', 'fdr_cal_pct', 'fdr_cal_pct_ci95',
+                           'fdr_at_entered_scale_pct') if key in calibration})
+    return report
+
 
 def plate_fdr_summary(folder: str, *, plate: str, k: int, scale: float,
                       reps: int = 1000, seed: int = 0) -> Dict[str, Any]:
-    """The plate's assigned % and FDR, from every well's field stats.
+    """Assigned percentages and FDR across all field statistics for the plate.
 
     :param folder: the ``results/ops_decode`` folder holding
         ``field_stats_<well>.csv`` files.
     :param plate: the plate.
     :param k: decoys per guide.
     :param scale: the FDR calibration.
-    :param reps: field-bootstrap replicates for the FDR's 95 % interval.
+    :param reps: field-bootstrap replicates for the 95 % FDR interval.
     :param seed: the bootstrap seed.
+    Per-well never reports provide their applied scales; the plate FDR
+    and its existing field bootstrap use those same scales. Fixed and
+    shuffle-only plates retain their previous summary calculation.
+
     :returns: the summary, with per-well rows; empty wells when no stats
         were written.
     """
@@ -1863,25 +2333,42 @@ def plate_fdr_summary(folder: str, *, plate: str, k: int, scale: float,
                                   report=None) for name in names], ignore_index=True)
     real = stats["assigned_real"].to_numpy()
     decoy = stats["assigned_decoy"].to_numpy()
+    records = {}
+    for well in stats['well'].astype(str).unique():
+        report_path = os.path.join(folder, f'decode_fdr_{well}.json')
+        if os.path.isfile(report_path):
+            with open(report_path, encoding='utf-8') as handle:
+                records[well] = json.load(handle)
+    calibrated = any(record.get('calibration') for record in records.values())
+    scales = np.array([max(float(records.get(str(well), {}).get('fdr_scale', scale)), 1.0)
+                       for well in stats['well']]) if calibrated else None
+    effective_decoy = decoy * scales if calibrated else decoy
+    effective_scale = 1.0 if calibrated else scale
     rng = np.random.default_rng(seed)
-    boot = [fdr(real[i].sum(), decoy[i].sum(), k, scale)
+    boot = [fdr(real[i].sum(), effective_decoy[i].sum(), k, effective_scale)
             for i in (rng.integers(0, len(stats), len(stats))
                       for _ in range(int(reps)))] if k else []
     summary = {
         "plate": plate, "nuclei_in_decoded_fields": int(stats["nuclei"].sum()),
         "assigned": int(real.sum()), "assigned_decoy": int(decoy.sum()),
         "pct_of_decoded_field_nuclei": round(100 * real.sum() / max(stats["nuclei"].sum(), 1), 2),
-        "fdr_per_100": round(fdr(real.sum(), decoy.sum(), k, scale), 3) if k else None,
+        "fdr_per_100": round(fdr(real.sum(), effective_decoy.sum(), k, effective_scale), 3) if k else None,
         "fdr_ci95": ([round(float(np.percentile(boot, 2.5)), 3),
                       round(float(np.percentile(boot, 97.5)), 3)] if boot else None),
         "per_well": {},
     }
     for well, group in stats.groupby("well"):
+        record = records.get(str(well), {})
+        well_scale = float(record.get('fdr_scale', scale)) if calibrated else scale
         summary["per_well"][str(well)] = {
             "pct": round(100 * group["assigned_real"].sum() / max(group["nuclei"].sum(), 1), 2),
             "fdr_per_100": (round(fdr(group["assigned_real"].sum(),
-                                      group["assigned_decoy"].sum(), k, scale), 3)
+                                      group["assigned_decoy"].sum(), k, well_scale), 3)
                             if k else None)}
+        if record.get('calibration'):
+            summary['per_well'][str(well)].update(fdr_report(
+                group, plate=plate, well=str(well), k=k, scale=well_scale,
+                calibration=record['calibration']))
     return summary
 
 
@@ -1900,7 +2387,7 @@ def results_folder(db: str, name: str = "ops_decode") -> str:
 def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping[str, Any]],
                        rule: Mapping[str, Any], skipped_sites: Sequence[int]
                        ) -> Dict[str, Any]:
-    """Write one well's field stats, FDR report and the plate summary.
+    """Write field statistics, FDR report and plate summary for one well.
 
     :param db: the measurements database.
     :param plate: the plate.
@@ -1911,9 +2398,13 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
         shuffle calibration (item 949) its ``fdr_scale`` is the calibrated
         scale and its ``threshold_choice`` holds the calibration.
     :param skipped_sites: the unplaced sites.
-    :returns: the well's FDR report, with the paths written under ``paths``;
+    Never calibration writes its JSON and CSV through the same report
+    writer used by the prefix path, with point and interval fields folded
+    into this report and the per-well plate summary.
+
+    :returns: the FDR report for one well, with the paths written under ``paths``;
         with a shuffle calibration it adds ``fdr_calibration``,
-        ``fdr_scale_entered``, the whole well's ``shuffle_called``,
+        ``fdr_scale_entered``, ``shuffle_called`` for the whole well,
         ``shuffle_call_rate_pct``, ``shuffle_ci95``, ``shuffle_limit_pct``
         (1.5 times the calibrated FDR) and ``shuffle_le_limit``.
     """
@@ -1935,18 +2426,14 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
         stats = stats.drop(columns=["nuclei_with_read"])
     stats_path = os.path.join(folder, f"field_stats_{well}.csv")
     write_table(stats, stats_path, canonicalise=False)
-    report = fdr_report(stats, plate=plate, well=well, k=int(rule["decoy_k"]),
-                        scale=float(rule["fdr_scale"]),
-                        skipped_sites=skipped_sites)
-    calibration = (rule.get("threshold_choice") or {}).get("calibration")
-    if calibration:
-        whole = calibration["all_fields"]
-        report.update({"fdr_calibration": calibration["method"],
-                       "fdr_scale_entered": calibration["entered_scale"],
-                       **{key: whole[key] for key in (
-                           "shuffle_called", "shuffle_call_rate_pct", "shuffle_ci95",
-                           "shuffle_limit_pct")},
-                       "shuffle_le_limit": whole["passes"]})
+    calibration = (rule.get('threshold_choice') or {}).get('calibration')
+    report = fdr_report(stats, plate=plate, well=well, k=int(rule['decoy_k']),
+                        scale=float(rule['fdr_scale']), skipped_sites=skipped_sites,
+                        calibration=calibration)
+    calibration_paths = {}
+    if calibration and (str(calibration['method']).startswith('never')
+                        or str(calibration.get('requested_method', '')).startswith('never')):
+        calibration_paths = _write_calibration_report(folder, plate, well, calibration)
     report_path = os.path.join(folder, f"decode_fdr_{well}.json")
     with open(report_path, "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=1)
@@ -1956,7 +2443,7 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
     with open(summary_path, "w", encoding="utf-8") as handle:
         json.dump(summary, handle, indent=1)
     report["paths"] = {"field_stats": stats_path, "fdr": report_path,
-                       "plate_summary": summary_path}
+                       "plate_summary": summary_path, **calibration_paths}
     return report
 
 
@@ -3117,20 +3604,45 @@ def compare_field(tables: Mapping[str, Any], calls: Mapping[str, Mapping[int, st
     return rows
 
 
+def _reported_fdr_scale(db, well, entered, method):
+    """Read the applied scale from the current well report for never methods.
+
+    :param db: the production measurements database path.
+    :param well: the production well identifier.
+    :param entered: the scale to keep when no matching report exists.
+    :param method: the requested calibration method; legacy methods keep
+        their previous comparison and preview behavior.
+    :returns: the reported scale for a matching never-method decode, or
+        the entered scale. A stale calibration sidecar is never consulted.
+    """
+    if method not in ('never', 'never+shuffle'):
+        return float(entered)
+    path = os.path.join(os.path.dirname(os.path.abspath(db)), 'results', 'ops_decode',
+                        f'decode_fdr_{well}.json')
+    if not os.path.isfile(path):
+        return float(entered)
+    with open(path, encoding='utf-8') as handle:
+        record = json.load(handle)
+    if record.get('fdr_calibration') != method:
+        return float(entered)
+    return float(record.get('fdr_scale', entered))
+
+
 def compare_summary(units, names: Sequence[str], *, decoy_k: int = 4,
                     fdr_scale: float = 1.268,
                     labels: Optional[Mapping[str, str]] = None):
     """Category counts with a decoy FDR per table, and per-table totals.
 
     :param units: rows from :func:`compare_field` with ``plate`` and
-        ``field`` added.
+        ``field`` added. Optional per-row ``fdr_scale`` values carry the
+        applied well scales; pooling weights decoy counts by those scales.
     :param names: the table names, in order.
     :param decoy_k: decoys per guide.
     :param fdr_scale: the FDR calibration.
     :param labels: display names for the columns.
     :returns: ``(categories, tables)`` DataFrames: per plate and category,
-        ``n``, ``pct_of_matched_triples``, ``fields`` and each table's real
-        and decoy calls and FDR; per plate and table over the units every
+        ``n``, ``pct_of_matched_triples``, ``fields`` and real calls for each table
+        with decoy calls and FDR; per plate and table over the units every
         table holds, real calls, assigned % and FDR.
     """
     import pandas as pd
@@ -3149,6 +3661,23 @@ def compare_summary(units, names: Sequence[str], *, decoy_k: int = 4,
     u["cat_full"] = np.where(u["subcategory"].fillna("") != "",
                              u["category"] + " | " + u["subcategory"].fillna(""),
                              u["category"])
+    def call_fdr(rows, name, real, decoy):
+        """Use one shared FDR calculation for either category or table totals.
+
+        :param rows: the category or table rows.
+        :param name: the table name.
+        :param real: the selected real-call count.
+        :param decoy: the selected decoy-call count.
+        :returns: the rounded FDR at per-well scales, or the entered fallback.
+        """
+        if not real:
+            return np.nan
+        if 'fdr_scale' in rows:
+            weighted = float(np.dot(rows[f'{name}_decoy'].to_numpy(float),
+                                     np.maximum(rows['fdr_scale'].to_numpy(float), 1.0)))
+            return round(fdr(real, weighted, decoy_k, 1.0), 3)
+        return round(fdr(real, decoy, decoy_k, fdr_scale), 3)
+
     rows = []
     for plate, g in list(u.groupby("plate")) + [("ALL", u)]:
         triples = int((g["present"] == full).sum())
@@ -3164,8 +3693,7 @@ def compare_summary(units, names: Sequence[str], *, decoy_k: int = 4,
                 real, decoy = int(h[f"{m}_real"].sum()), int(h[f"{m}_decoy"].sum())
                 row.update({f"{labels[m]}_real_calls": real,
                             f"{labels[m]}_decoy_calls": decoy,
-                            f"{labels[m]}_decoy_FDR_pct": (round(fdr(real, decoy, decoy_k, fdr_scale), 3)
-                                                           if real else np.nan)})
+                            f"{labels[m]}_decoy_FDR_pct": call_fdr(h, m, real, decoy)})
             rows.append(row)
     triples = u[u["present"] == full]
     per_table = []
@@ -3176,8 +3704,7 @@ def compare_summary(units, names: Sequence[str], *, decoy_k: int = 4,
                               "matched_triples": len(g), "real_calls": real,
                               "assigned_pct": round(100 * real / max(len(g), 1), 2),
                               "decoy_calls": decoy,
-                              "decoy_FDR_pct": round(fdr(real, decoy, decoy_k, fdr_scale), 3)
-                              if real else np.nan})
+                              "decoy_FDR_pct": call_fdr(g, m, real, decoy)})
     return pd.DataFrame(rows), pd.DataFrame(per_table)
 
 
@@ -3249,11 +3776,14 @@ def run_compare_calls(db: str, plate: str, wells: Sequence[str],
     :param settings: read for ``ops_compare_tables``,
         ``ops_compare_match_px``, ``ops_compare_fields`` (``well:site``
         pairs separated by commas, or empty for every site of the tables),
-        ``ops_decoy_library_k`` and ``ops_fdr_scale``.
+        ``ops_decoy_library_k``, ``ops_fdr_scale`` and
+        ``ops_decode_fdr_calibration``. Never methods read applied scales
+        from current per-well decode reports; missing reports keep the
+        entered scale. Legacy methods retain their earlier tables.
     :param library: the guide barcodes, for the decoy set.
     :returns: the report, with the paths written under
         ``results/ops_compare``.
-    :raises ValueError: when a table lacks its columns or the decode's
+    :raises ValueError: when a table lacks its columns or the decode
         calls are missing.
     """
     import pandas as pd
@@ -3289,6 +3819,9 @@ def run_compare_calls(db: str, plate: str, wells: Sequence[str],
     else:
         fields = sorted({(str(w), int(s)) for frame in external.values()
                          for w, s in zip(frame["well"], frame["site"])})
+    method = str(settings.get("ops_decode_fdr_calibration") or "none").strip().lower()
+    scales = {well: _reported_fdr_scale(db, well, rule["fdr_scale"], method)
+              for well in {well for well, _site in fields}}
     geometry = read_ops_table(db, "ops_geometry")
     geometry = geometry[geometry["plate"].astype(str) == str(plate)]
     objects = read_ops_table(db, "ops_objects")
@@ -3328,6 +3861,8 @@ def run_compare_calls(db: str, plate: str, wells: Sequence[str],
         for row in compare_field(tables, calls, decoys, max_px=max_px):
             row.update({"plate": plate, "well": well, "site": site,
                         "field": f"{plate}_{well}_{site}"})
+            if method.startswith("never"):
+                row["fdr_scale"] = scales[well]
             units.append(row)
     frame = pd.DataFrame(units)
     folder = results_folder(db, "ops_compare")

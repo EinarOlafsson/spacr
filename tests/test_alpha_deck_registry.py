@@ -17,6 +17,7 @@ SPEC.loader.exec_module(deck)
 
 
 def test_the_published_alpha_page_covers_the_current_registry():
+    """Match the current registry, count and published alpha summary."""
     from pypdf import PdfReader
 
     # 634, 2026-10-03: with 633, the five alpha organism pages make 60.
@@ -124,7 +125,8 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-19: ops_phases, a settings file names its own OPS phases (977), makes 169.
     # 2026-11-20: OME-Zarr images and crops (983) make 170.
     count = deck._check_registry(ROOT / "spacr/settings.py")
-    assert count == 170
+    # 2026-11-22: the three never-barcode controls (1014) make 171.
+    assert count == 171
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

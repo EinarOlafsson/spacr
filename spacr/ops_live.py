@@ -817,8 +817,8 @@ def _write_crop(folder: Path, planes: Mapping[Tuple[int, str], np.ndarray]
     return out
 
 
-def _decode_options(settings: Mapping[str, Any], library: Sequence[str]
-                    ) -> Dict[str, Any]:
+def _decode_options(settings: Mapping[str, Any], library: Sequence[str], *,
+                    well: Optional[str] = None) -> Dict[str, Any]:
     """The per-field decode options, read from the settings as ``_decode`` reads them.
 
     Mirrors the option block of :func:`spacr.ops_engine._decode` for one
@@ -826,9 +826,13 @@ def _decode_options(settings: Mapping[str, Any], library: Sequence[str]
     threshold mode tunes over a whole well, so a crop is decoded at the
     entered thresholds.
 
+    :param settings: effective settings before preview workspace overrides.
+    :param library: production guide sequences.
+    :param well: production well when known; never methods then read its
+        saved scale from dst_root without calibrating the preview crop.
     :returns: the task keys every field shares, ``rule`` and the decoys.
     """
-    from .ops_decode import decode_rule, resolve_settings
+    from .ops_decode import decode_rule, resolve_settings, _reported_fdr_scale
     from .ops_engine import (_CHANNEL_REGISTRATION, _CHANNEL_REGISTRATIONS,
                              _CROSSTALK, _CROSSTALK_METHODS, _FOOTPRINT,
                              _SINGLE_READ_QUALITY, _THRESHOLD_READS,
@@ -879,6 +883,10 @@ def _decode_options(settings: Mapping[str, Any], library: Sequence[str]
             "features": rule_a["features"],
             "store_cache": True,
         })
+        if well is not None and settings.get("dst_root"):
+            rule_a["fdr_scale"] = _reported_fdr_scale(
+                os.path.join(str(settings["dst_root"]), "measurements.db"), well,
+                rule_a["fdr_scale"], str(settings.get("ops_decode_fdr_calibration") or "none"))
         if rule_a["decoy_k"] > 0:
             decoys = decoy_library(library, k=rule_a["decoy_k"])
         if read_mode != "log":
@@ -957,7 +965,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     areas = (np.asarray(ndimage.sum(np.ones_like(nuclei), nuclei, labels), float)
              if len(labels) else np.zeros(0))
     library = engine._load_library(ctx.settings.get("ops_library") or None)
-    options = _decode_options(ctx.settings, library)
+    options = _decode_options(ctx.settings, library, well=ctx.well)
     channels = engine._base_channels(ctx.settings)
     cycles = sorted(index)
     crop_planes: Dict[Tuple[int, str], np.ndarray] = {}

@@ -723,7 +723,10 @@ def analyse() -> dict:
 
 @lru_cache(maxsize=1)
 def _tooltips() -> Dict[str, str]:
-    """``spacr.settings.tooltips``, read with `ast` rather than imported.
+    """Setting tooltip sources, read with `ast` rather than imported.
+
+    Declared OPS help fills gaps without replacing existing catalog or
+    global-setting text.
 
     IMPORTING IT WOULD HAVE BEEN ONE LINE and it broke the tool's central
     promise: everything here is pure `ast`, so a broken import cannot
@@ -752,11 +755,13 @@ def _tooltips() -> Dict[str, str]:
                         "SETTING_TOOLTIPS"),
                        (ROOT / "spacr" / "settings.py", "tooltips")):
         out.update(_literal_dict(path, name))
+    for key, value in _literal_dict(ROOT / "spacr" / "ops_settings.py", "OPS_TOOLTIPS").items():
+        out.setdefault(key, value)
     return out
 
 
 def _literal_dict(path: Path, name: str) -> Dict[str, str]:
-    """One module-scope ``name = {...}`` of plain strings, read with `ast`.
+    """One module-scope plain-string dictionary, including annotated assignments.
 
     Entries whose key or value is not a string constant -- an f-string, a
     concatenation, a name -- are skipped rather than guessed at.
@@ -766,9 +771,13 @@ def _literal_dict(path: Path, name: str) -> Dict[str, str]:
     except (OSError, SyntaxError):                           # noqa: BLE001
         return {}
     for node in tree.body:
-        if not isinstance(node, ast.Assign):
+        if isinstance(node, ast.AnnAssign):
+            targets = (node.target,)
+        elif isinstance(node, ast.Assign):
+            targets = node.targets
+        else:
             continue
-        if not any(getattr(t, "id", None) == name for t in node.targets):
+        if not any(getattr(t, "id", None) == name for t in targets):
             continue
         if not isinstance(node.value, ast.Dict):
             continue

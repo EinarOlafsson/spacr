@@ -39,7 +39,8 @@ def setting_keys() -> set[str]:
     """The user-facing setting keys.
 
     ``settings.py``'s ``tooltips`` and ``expected_types``, PLUS the EN i18n
-    catalog's ``SETTING_TOOLTIPS``.
+    catalog's ``SETTING_TOOLTIPS``. Declared OPS tooltips also supply
+    their keys before a generated catalog has caught up.
 
     WHY THE CATALOG IS NEEDED. A module may declare its own settings
     locally: `hit_investigation_default_settings` builds a `tips` dict
@@ -64,6 +65,10 @@ def setting_keys() -> set[str]:
             continue
         keys |= {k.value for k in node.value.keys
                  if isinstance(k, ast.Constant) and isinstance(k.value, str)}
+    ops = PKG / "ops_settings.py"
+    if ops.is_file():
+        tables = _module_tables(ast.parse(ops.read_text(encoding="utf-8")))
+        keys.update(tables.get("OPS_TOOLTIPS", set()))
     catalog = PKG / "qt" / "i18n_catalogs" / "en.py"
     try:
         tree = ast.parse(catalog.read_text(encoding="utf-8"))

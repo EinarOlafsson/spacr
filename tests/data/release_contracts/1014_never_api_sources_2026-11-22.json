@@ -1,0 +1,1693 @@
+{
+  "schema": 1,
+  "base": "19a95cd7993e0ce44078c779828b91098820598f",
+  "symbols": {
+    "spacr.ops_decode.calibrate_fdr_scale": {
+      "file": "spacr/ops_decode.py",
+      "line": 1816,
+      "signature": "counts, shuffled, nuclei, sites, axes: Sequence[Tuple[str, Sequence[float]]], *, k: int, scale: float, ci: bool=True, max_rounds: int=20, method: str='shuffle', never=None, **options: Any",
+      "before": "Tune one well's thresholds with the FDR scale set from the shuffle control (item 949).\n\nA decoy sits two or more edits from every barcode, so it misses the\nreads that land one edit from a guide, and with short prefixes the decoy\nFDR then runs below the barcode-shuffle call rate. Here the scale is\nraised until the shuffle call rate is at most\n:data:`SHUFFLE_FDR_RATIO` times the calibrated FDR on the tuning\nfields: :func:`tune_thresholds` chooses at the current scale; at the\nchosen setting the scale needed is the tuning fields' shuffle call rate\nover 1.5 times the scale-1 FDR (the upper end of its 95 %\nfield-bootstrap interval with ``ci``); while that exceeds the current\nscale the scale becomes it and the tuner chooses again. The scale only\nrises, so the loop ends. Only decoy and shuffle calls are read, never a\nreference call set, and the report fields are not used.\n\n:param counts: ``(fields, *axis lengths, 2)`` real and decoy calls.\n:param shuffled: ``(fields, *axis lengths)`` shuffle-called cells (a\n    mean over the shuffled whitelists).\n:param nuclei: cells per field.\n:param sites: the site of each field.\n:param axes: ``(name, values)`` per axis, as :func:`tune_thresholds`\n    takes them.\n:param k: decoys per guide.\n:param scale: the entered FDR scale; the calibrated scale is never\n    below it (nor below 1).\n:param ci: judge the tuner's FDR and the needed scale by the upper end\n    of their intervals.\n:param max_rounds: the most tuner passes.\n:param options: the other :func:`tune_thresholds` keywords.\n:returns: :func:`tune_thresholds`'s result at the calibrated scale,\n    with ``fdr_scale`` and ``calibration``: ``method`` ('shuffle'),\n    ``ratio``, ``entered_scale``, ``scale``, ``rounds`` (per pass the\n    scale, the setting chosen and the scale it needed), ``converged``,\n    and per part (``tune``, ``report``, ``all_fields``)\n    :func:`shuffle_call_rate` at the chosen setting with the\n    calibrated ``fdr_per_100``, ``shuffle_limit_pct`` (1.5 times it)\n    and ``passes`` (rate at or below the limit, to a relative 1e-9).\n:raises ValueError: when ``shuffled`` is not the grid of ``counts``.",
+      "before_sha256": "662d381984d69e69a49573399c151f7ae63759b1fdb5808569b6fac1cc71c332",
+      "source": "Tune one well with a scale measured by shuffle or never-barcode controls.\n\nThe existing shuffle method only raises the entered scale until its\ncall-rate check passes. Never calibration measures wrong library calls\nfrom substitution-control opportunities and may lower or raise the\nscale, with a floor of one. Both methods use this loop and the same\nthreshold tuner. A repeated never setting ends the loop; a cycle keeps\nthe larger tested cycling scale and its matching threshold result.\nThe report half is held out from never calibration.\n\n:param counts: ``(fields, *axis lengths, 2)`` real and decoy calls.\n:param shuffled: matching shuffle-call grid, or None without shuffle.\n:param nuclei: cells per field.\n:param sites: each field site.\n:param axes: axis names and values passed to ``tune_thresholds``.\n:param k: positive matched-decoy multiplicity.\n:param scale: entered scale; shuffle cannot lower it, never can.\n:param ci: choose the upper field-bootstrap scale and tuner intervals.\n:param max_rounds: maximum tuner passes, default 20.\n:param method: none, shuffle (the compatibility default), never or\n    never+shuffle, which takes the larger of the two measured scales.\n:param never: mapping of ``never2_calls``, ``opp2_N2``, ``opp2_L`` and\n    optional ``never1_calls``, ``opp1_N1``, ``opp1_L`` field/grid arrays.\n    Entry points also supply ``library_size`` for the 50-guide guard,\n    ``never_sets`` metadata and optional N1/N2 real-call grids.\n    Fewer than 30 tuning-half N2 calls keep the entered scale.\n:param options: other ``tune_thresholds`` keywords.\n:returns: the tuner result with ``fdr_scale`` and ``calibration``.\n    Shuffle keeps its existing ratio, per-part call-rate checks and\n    round structure. Never adds point/interval estimates for each\n    half, entered-scale FDR, status, control metadata and perturbation\n    changes. Production calls are never replaced by control calls.\n:raises ValueError: for an unknown method, invalid grid shape, missing\n    never arrays or fewer than one permitted tuner pass.",
+      "source_sha256": "2b1a788f4b372b797c49100cfc5cadda7febcd56b847fd703e26ad6a118250dc",
+      "blocks": [
+        {
+          "source": "Tune one well with a scale measured by shuffle or never-barcode controls.",
+          "source_sha256": "6955c5129aeb8b30b6c572185e9665cbe5e584d965c2df52958a42114fde59fb"
+        },
+        {
+          "source": "The existing shuffle method only raises the entered scale until its call-rate check passes. Never calibration measures wrong library calls from substitution-control opportunities and may lower or raise the scale, with a floor of one. Both methods use this loop and the same threshold tuner. A repeated never setting ends the loop; a cycle keeps the larger tested cycling scale and its matching threshold result. The report half is held out from never calibration.",
+          "source_sha256": "90079e607d2f3009e8eb3f547c8ab6a5f744b57c4a167584b834b6ea4fc8d182"
+        },
+        {
+          "source": "``(fields, *axis lengths, 2)`` real and decoy calls.",
+          "source_sha256": "452f5eabd24ece5cbf1b108115794d2d4967ef4b0c41a774fbd0d87c42fc6653"
+        },
+        {
+          "source": "matching shuffle-call grid, or None without shuffle.",
+          "source_sha256": "e582c580be584e79af47d8b49759cda12f3b7811c8b095fbe2c6ca103a026bde"
+        },
+        {
+          "source": "cells per field.",
+          "source_sha256": "eba79b4aa764ed343ae12d1ea32ba0cd7ee3af31c8fd9634ff43552421d5c0d7"
+        },
+        {
+          "source": "each field site.",
+          "source_sha256": "2afc1759220cca06b9a674e3ccc3fa10d8e0b3067b6a6c437c3ca4159e6fba2e"
+        },
+        {
+          "source": "axis names and values passed to ``tune_thresholds``.",
+          "source_sha256": "f94ce8430df0eb83aed16f81fc8594ea7a4f6387fb509902ad884b3d1081a019"
+        },
+        {
+          "source": "positive matched-decoy multiplicity.",
+          "source_sha256": "94d433ba684d031af38ee88c797fd7f4b0605c51a6be3216f08e22edfdb461f9"
+        },
+        {
+          "source": "entered scale; shuffle cannot lower it, never can.",
+          "source_sha256": "e39613ff13fc283e7520b6cd7a59fa993bca8624f97a7d81aaefd4710a2fc081"
+        },
+        {
+          "source": "choose the upper field-bootstrap scale and tuner intervals.",
+          "source_sha256": "ea167e63710e66cff3a6f2f9098911ab0cdd4c1a0698816e0ba3d894d6aec065"
+        },
+        {
+          "source": "maximum tuner passes, default 20.",
+          "source_sha256": "c7b4123c7dd29e4836305e53aaaa6b25ace2a6a2f5c035b1eebf39ac3dfa2c8c"
+        },
+        {
+          "source": "none, shuffle (the compatibility default), never or never+shuffle, which takes the larger of the two measured scales.",
+          "source_sha256": "76e5b8c79ab4b9e0e1986e92f495b3ebcc317d3d4a54ad1014091c54b5b0b2ad"
+        },
+        {
+          "source": "mapping of ``never2_calls``, ``opp2_N2``, ``opp2_L`` and optional ``never1_calls``, ``opp1_N1``, ``opp1_L`` field/grid arrays. Entry points also supply ``library_size`` for the 50-guide guard, ``never_sets`` metadata and optional N1/N2 real-call grids. Fewer than 30 tuning-half N2 calls keep the entered scale.",
+          "source_sha256": "1769cb633f3cee22bdaa7254bf17186cc16a3a4b864d7b4760988827f5d62831"
+        },
+        {
+          "source": "other ``tune_thresholds`` keywords.",
+          "source_sha256": "307dd94b7325022b1fa044e081d05c7a31cc7d008e2328765ebed546d5373722"
+        },
+        {
+          "source": "the tuner result with ``fdr_scale`` and ``calibration``. Shuffle keeps its existing ratio, per-part call-rate checks and round structure. Never adds point/interval estimates for each half, entered-scale FDR, status, control metadata and perturbation changes. Production calls are never replaced by control calls.",
+          "source_sha256": "3f607e93f4f7d05763c6072318663a14bd40025873e8bf998e8d3f5428ed76b6"
+        },
+        {
+          "source": "for an unknown method, invalid grid shape, missing never arrays or fewer than one permitted tuner pass.",
+          "source_sha256": "2241267e8b041013f9ba982b38dfaaee5f6b778aab4be4769a24c06eb222af98"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param counts:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param shuffled:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param nuclei:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param sites:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param axes:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param k:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param scale:",
+            [
+              8
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param ci:",
+            [
+              9
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param max_rounds:",
+            [
+              10
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param method:",
+            [
+              11
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param never:",
+            [
+              12
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param options:",
+            [
+              13
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              14
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              15
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": "Dict[str, Any]",
+      "historical_contracts": [
+        "949_ops_fdr_calibration_api_arrivals_2026-11-16.json"
+      ]
+    },
+    "spacr.ops_decode.compare_summary": {
+      "file": "spacr/ops_decode.py",
+      "line": 3631,
+      "signature": "units, names: Sequence[str], *, decoy_k: int=4, fdr_scale: float=1.268, labels: Optional[Mapping[str, str]]=None",
+      "before": "Category counts with a decoy FDR per table, and per-table totals.\n\n:param units: rows from :func:`compare_field` with ``plate`` and\n    ``field`` added.\n:param names: the table names, in order.\n:param decoy_k: decoys per guide.\n:param fdr_scale: the FDR calibration.\n:param labels: display names for the columns.\n:returns: ``(categories, tables)`` DataFrames: per plate and category,\n    ``n``, ``pct_of_matched_triples``, ``fields`` and each table's real\n    and decoy calls and FDR; per plate and table over the units every\n    table holds, real calls, assigned % and FDR.",
+      "before_sha256": "1a0f9d622b283b5b5f8382bb7ac2317e73f9cd6d1ab947a57752a48adc67efc5",
+      "source": "Category counts with a decoy FDR per table, and per-table totals.\n\n:param units: rows from :func:`compare_field` with ``plate`` and\n    ``field`` added. Optional per-row ``fdr_scale`` values carry the\n    applied well scales; pooling weights decoy counts by those scales.\n:param names: the table names, in order.\n:param decoy_k: decoys per guide.\n:param fdr_scale: the FDR calibration.\n:param labels: display names for the columns.\n:returns: ``(categories, tables)`` DataFrames: per plate and category,\n    ``n``, ``pct_of_matched_triples``, ``fields`` and real calls for each table\n    with decoy calls and FDR; per plate and table over the units every\n    table holds, real calls, assigned % and FDR.",
+      "source_sha256": "c9174f08da5b11ef1a2361b78eca5be5a272f956495d838157c129e6d155dae2",
+      "blocks": [
+        {
+          "source": "Category counts with a decoy FDR per table, and per-table totals.",
+          "source_sha256": "6d265ae2e1181032a3f398c467eaaa50d25d5e49275d4ace87f4fbb8fb260228"
+        },
+        {
+          "source": "rows from :func:`compare_field` with ``plate`` and ``field`` added. Optional per-row ``fdr_scale`` values carry the applied well scales; pooling weights decoy counts by those scales.",
+          "source_sha256": "cf194491937754f4409fdb25a3611dc933811c069155a54549f6e4e4a5f48e4e"
+        },
+        {
+          "source": "the table names, in order.",
+          "source_sha256": "37c91171b4438044dc8b72af53c353fa313de9607c1a3c59ffdc23393c72ea85"
+        },
+        {
+          "source": "decoys per guide.",
+          "source_sha256": "1f566694515e66762bd2a646d1e0c25b1dec1c13992e8c8145e7c5869616f3ba"
+        },
+        {
+          "source": "the FDR calibration.",
+          "source_sha256": "997c54b83d46d31625f46379cc0137bfad2b45ddb90e722fb64d6f7b3f2abe0a"
+        },
+        {
+          "source": "display names for the columns.",
+          "source_sha256": "f767b28df753e36e659cc0e8dff9ca9d3d7753654136b8007d501a8eac8daaf7"
+        },
+        {
+          "source": "``(categories, tables)`` DataFrames: per plate and category, ``n``, ``pct_of_matched_triples``, ``fields`` and real calls for each table with decoy calls and FDR; per plate and table over the units every table holds, real calls, assigned % and FDR.",
+          "source_sha256": "2e997ac3c4a24a28bf0ad7586d7ca956a2c8a329b13969ea8b20aad66d129343"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param units:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param names:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param decoy_k:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param fdr_scale:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param labels:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              6
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": null,
+      "historical_contracts": [
+        "871_911_bmc_paper_items_api_arrivals_2026-11-09.json"
+      ]
+    },
+    "spacr.ops_decode.fdr_report": {
+      "file": "spacr/ops_decode.py",
+      "line": 2260,
+      "signature": "field_stats, *, plate: str, well: str, k: int, scale: float, skipped_sites: Sequence[int]=(), calibration=None",
+      "before": "One well's decoy FDR report.\n\n:param field_stats: one row per decoded field with ``nuclei``,\n    ``assigned_real`` and ``assigned_decoy``.\n:param plate: the plate.\n:param well: the well.\n:param k: decoys per guide.\n:param scale: the FDR calibration (:func:`fdr`).\n:param skipped_sites: the sites not decoded because the stitch did not\n    place them.\n:returns: the report: nuclei, assigned, assigned %, decoy calls, FDR per\n    100, and the skipped sites.",
+      "before_sha256": "9b6da890afe3feb4f273fb492bcb3903b990f0e4a8ac34b19114a1f1395fe618",
+      "source": "The decoy FDR report for one well.\n\n:param field_stats: one row per decoded field with ``nuclei``,\n    ``assigned_real`` and ``assigned_decoy``.\n:param plate: the plate.\n:param well: the well.\n:param k: decoys per guide.\n:param scale: the FDR calibration (:func:`fdr`).\n:param skipped_sites: the sites not decoded because the stitch did not\n    place them.\n:param calibration: optional shared calibration report; supplied only\n    after controls were measured. Available shuffle fields retain\n    their existing names. Never calibration adds its full report,\n    point estimates and confidence intervals.\n:returns: the report: nuclei, assigned, assigned %, decoy calls, FDR per\n    100, and the skipped sites.",
+      "source_sha256": "04b42dbbeabee30537f20418810e6171e88fbf9e33e4a019cf84648e1813611c",
+      "blocks": [
+        {
+          "source": "The decoy FDR report for one well.",
+          "source_sha256": "1116cdae3056dd90525b065827b3dc134cb65e26249cffd7b25824d727563e04"
+        },
+        {
+          "source": "one row per decoded field with ``nuclei``, ``assigned_real`` and ``assigned_decoy``.",
+          "source_sha256": "37bd4adb475d4ae30c08f11a77964c11259c59b7f0bebccfaaac3dcb22e09e60"
+        },
+        {
+          "source": "the plate.",
+          "source_sha256": "10b08477093ac78797467e1c884ab297720b4df285c5cb6baa5821839eae3ccc"
+        },
+        {
+          "source": "the well.",
+          "source_sha256": "310380911e1ad14f2b6c265d14537c513b8f07e2e6ac940d8e3bf9acd0ec8e88"
+        },
+        {
+          "source": "decoys per guide.",
+          "source_sha256": "1f566694515e66762bd2a646d1e0c25b1dec1c13992e8c8145e7c5869616f3ba"
+        },
+        {
+          "source": "the FDR calibration (:func:`fdr`).",
+          "source_sha256": "12214e92092f18246ccd53cfe603f8175211f20778950006b3bf2f1b3aa3ee74"
+        },
+        {
+          "source": "the sites not decoded because the stitch did not place them.",
+          "source_sha256": "546448baae31268533966bc7a16ff55552b10ffe40d9e20c75b53397d08378b0"
+        },
+        {
+          "source": "optional shared calibration report; supplied only after controls were measured. Available shuffle fields retain their existing names. Never calibration adds its full report, point estimates and confidence intervals.",
+          "source_sha256": "89fe5855e26d00f77a8d58c9d79e9b7c13dc8950b2f26e816fb0cd8ab70688d2"
+        },
+        {
+          "source": "the report: nuclei, assigned, assigned %, decoy calls, FDR per 100, and the skipped sites.",
+          "source_sha256": "0d8e0c338e0dcbe0e3b2f4347244297dd132bfaf5560d15ce8233eb140e24740"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param field_stats:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param plate:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param well:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param k:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param scale:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param skipped_sites:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param calibration:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              8
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": "Dict[str, Any]",
+      "historical_contracts": [
+        "871_911_bmc_paper_items_api_arrivals_2026-11-09.json"
+      ]
+    },
+    "spacr.ops_decode.never_scale": {
+      "file": "spacr/ops_decode.py",
+      "line": 1725,
+      "signature": "real, decoy, never2_calls, opp2_N2, opp2_L, *, k, ci=True, reps=_AUTO_REPS, seed=_AUTO_BOOT_SEED, never1_calls=None, opp1_N1=None, opp1_L=None",
+      "before": null,
+      "before_sha256": null,
+      "source": "Estimate the decoy FDR scale from calls on substitution-built controls.\n\nThe N2 call rate per distance-two opportunity predicts wrong library\ncalls at that distance. Libraries containing distance-one guide pairs\nalso contribute the N1 rate times their distance-one opportunities.\nThe expected wrong calls times k, divided by the observed decoy calls,\ngive the scale. A zero decoy sum uses ``_AUTO_ZERO_DECOYS``, as the\nexisting threshold tuner does. With ci, the chosen scale is the upper\nend of the 95 percent field bootstrap, using the existing row sampler.\nClipping the chosen scale to one belongs to ``calibrate_fdr_scale``.\n\n:param real: real production calls per field at one grid setting.\n:param decoy: production decoy calls in the same fields.\n:param never2_calls: calls on the distance-two control set.\n:param opp2_N2: production guide counts times their N2 distance-two neighbours.\n:param opp2_L: the corresponding other-library distance-two opportunities.\n:param k: positive matched-decoy multiplicity.\n:param ci: choose the upper bootstrap scale rather than its point estimate.\n:param reps: bootstrap draws, default the existing ``_AUTO_REPS``.\n:param seed: field-bootstrap seed, default ``_AUTO_BOOT_SEED``.\n:param never1_calls: optional distance-one control calls per field.\n:param opp1_N1: N1 distance-one opportunities; supplied with never1_calls.\n:param opp1_L: other-library distance-one opportunities, otherwise zero.\n:returns: dict with ``scale``, ``scale_point``, ``scale_ci95``, ``rho1``,\n    ``rho2``, ``rho1_over_rho2``, ``fdr_cal_pct``, their ``*_ci95``\n    intervals, ``expected_wrong`` and summed real/decoy/control counts.\n    Intervals are None for fewer than two fields. Rates with no\n    control opportunities and estimates depending on them are None;\n    a ratio with zero rho2 is also unavailable.\n:raises ValueError: for misaligned, negative or nonfinite counts, a\n    nonpositive multiplicity, or incomplete N1 inputs.",
+      "source_sha256": "a040cd58b688e529fc0381b83a214bf40ce537ee9dc8410eea9f5f0c6909245f",
+      "blocks": [
+        {
+          "source": "Estimate the decoy FDR scale from calls on substitution-built controls.",
+          "source_sha256": "5489a7825613d7e1473a356754b90fa84bb9c034b9ce2b05b9a06716b34f2a97"
+        },
+        {
+          "source": "The N2 call rate per distance-two opportunity predicts wrong library calls at that distance. Libraries containing distance-one guide pairs also contribute the N1 rate times their distance-one opportunities. The expected wrong calls times k, divided by the observed decoy calls, give the scale. A zero decoy sum uses ``_AUTO_ZERO_DECOYS``, as the existing threshold tuner does. With ci, the chosen scale is the upper end of the 95 percent field bootstrap, using the existing row sampler. Clipping the chosen scale to one belongs to ``calibrate_fdr_scale``.",
+          "source_sha256": "916a82464993377a2c8a4bebda1ad2a4f95f5a40fa3d8333bee130a7a1fcf07d"
+        },
+        {
+          "source": "real production calls per field at one grid setting.",
+          "source_sha256": "e68463e3e59ab249bb6340a1dc4ad8674ef8fd3f70bde0346a1a21b2ddc0c8bd"
+        },
+        {
+          "source": "production decoy calls in the same fields.",
+          "source_sha256": "c27db45d03f470375cdc711c7ee58f86532a42f3abf1626d5777b7d6520c210c"
+        },
+        {
+          "source": "calls on the distance-two control set.",
+          "source_sha256": "839f5618756e681645da3a06fe222cc9a5434f87e80a8e000d8569ce8f8242ea"
+        },
+        {
+          "source": "production guide counts times their N2 distance-two neighbours.",
+          "source_sha256": "a6d00c1d65cdaf0e113f953596e8bd57816dcd176bb439929de59a702063b220"
+        },
+        {
+          "source": "the corresponding other-library distance-two opportunities.",
+          "source_sha256": "9554d273c18b67e2d184de3073f078b7e6cfc5f83ab583d6d0b450efa6adaf3a"
+        },
+        {
+          "source": "positive matched-decoy multiplicity.",
+          "source_sha256": "94d433ba684d031af38ee88c797fd7f4b0605c51a6be3216f08e22edfdb461f9"
+        },
+        {
+          "source": "choose the upper bootstrap scale rather than its point estimate.",
+          "source_sha256": "7806c821b798b7c6576ed7346696311946b47f0808ab86795433d3ceddaf0549"
+        },
+        {
+          "source": "bootstrap draws, default the existing ``_AUTO_REPS``.",
+          "source_sha256": "c7bfeaad923206cd53b4a53c421769dc76282ab39c095337458d3ba3c2ffd0a3"
+        },
+        {
+          "source": "field-bootstrap seed, default ``_AUTO_BOOT_SEED``.",
+          "source_sha256": "f050831ed40a4760779bdf61e8844e835e2116eff49ea7b6785dcbfb03240070"
+        },
+        {
+          "source": "optional distance-one control calls per field.",
+          "source_sha256": "e1170e9b81660d1a9dd0c1fcfc5fdad8ba5cb9b62d2ad58c40c33585dbe1d8c3"
+        },
+        {
+          "source": "N1 distance-one opportunities; supplied with never1_calls.",
+          "source_sha256": "faf115df36f04602fb8f5cc74ebc7c6d39243bab5f4e709b98e354c4811df7b3"
+        },
+        {
+          "source": "other-library distance-one opportunities, otherwise zero.",
+          "source_sha256": "c5879633d27a9e08700e7704715b9d658852512d002da0325a3a33cbe5ea07e2"
+        },
+        {
+          "source": "dict with ``scale``, ``scale_point``, ``scale_ci95``, ``rho1``, ``rho2``, ``rho1_over_rho2``, ``fdr_cal_pct``, their ``*_ci95`` intervals, ``expected_wrong`` and summed real/decoy/control counts. Intervals are None for fewer than two fields. Rates with no control opportunities and estimates depending on them are None; a ratio with zero rho2 is also unavailable.",
+          "source_sha256": "14a412fcf4ec9c2a3588102e0019bca5c177226233c084f652bf17b7cd5b5c96"
+        },
+        {
+          "source": "for misaligned, negative or nonfinite counts, a nonpositive multiplicity, or incomplete N1 inputs.",
+          "source_sha256": "317f3b63ee53c3c1c527792687656fdd94624fa81667362e09f65e18b00a4b6b"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param real:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param decoy:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param never2_calls:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param opp2_N2:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param opp2_L:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param k:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param ci:",
+            [
+              8
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param reps:",
+            [
+              9
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param seed:",
+            [
+              10
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param never1_calls:",
+            [
+              11
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param opp1_N1:",
+            [
+              12
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param opp1_L:",
+            [
+              13
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              14
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              15
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": null
+    },
+    "spacr.ops_decode.plate_fdr_summary": {
+      "file": "spacr/ops_decode.py",
+      "line": 2306,
+      "signature": "folder: str, *, plate: str, k: int, scale: float, reps: int=1000, seed: int=0",
+      "before": "The plate's assigned % and FDR, from every well's field stats.\n\n:param folder: the ``results/ops_decode`` folder holding\n    ``field_stats_<well>.csv`` files.\n:param plate: the plate.\n:param k: decoys per guide.\n:param scale: the FDR calibration.\n:param reps: field-bootstrap replicates for the FDR's 95 % interval.\n:param seed: the bootstrap seed.\n:returns: the summary, with per-well rows; empty wells when no stats\n    were written.",
+      "before_sha256": "0c208fe0d0031ef22d747109548736861a8eccfcc156de3f1c3a5cf1d6144c1b",
+      "source": "Assigned percentages and FDR across all field statistics for the plate.\n\n:param folder: the ``results/ops_decode`` folder holding\n    ``field_stats_<well>.csv`` files.\n:param plate: the plate.\n:param k: decoys per guide.\n:param scale: the FDR calibration.\n:param reps: field-bootstrap replicates for the 95 % FDR interval.\n:param seed: the bootstrap seed.\nPer-well never reports provide their applied scales; the plate FDR\nand its existing field bootstrap use those same scales. Fixed and\nshuffle-only plates retain their previous summary calculation.\n\n:returns: the summary, with per-well rows; empty wells when no stats\n    were written.",
+      "source_sha256": "d3e4bc6058eb0e30d4704dcc036f296d7e52998eb77d96d9eaca1172185ab752",
+      "blocks": [
+        {
+          "source": "Assigned percentages and FDR across all field statistics for the plate.",
+          "source_sha256": "a675ea6bfa8a361f6e22296e7a93def3d5499a0ea4b54ea7a0454a640e4ce6c8"
+        },
+        {
+          "source": "the ``results/ops_decode`` folder holding ``field_stats_<well>.csv`` files.",
+          "source_sha256": "17ead682c09c57ed256c178b5249e69a6670f35d378942c64dffdb9f432528bd"
+        },
+        {
+          "source": "the plate.",
+          "source_sha256": "10b08477093ac78797467e1c884ab297720b4df285c5cb6baa5821839eae3ccc"
+        },
+        {
+          "source": "decoys per guide.",
+          "source_sha256": "1f566694515e66762bd2a646d1e0c25b1dec1c13992e8c8145e7c5869616f3ba"
+        },
+        {
+          "source": "the FDR calibration.",
+          "source_sha256": "997c54b83d46d31625f46379cc0137bfad2b45ddb90e722fb64d6f7b3f2abe0a"
+        },
+        {
+          "source": "field-bootstrap replicates for the 95 % FDR interval.",
+          "source_sha256": "56e02ac2ef19a534f319b2c62b8e397242af505e5125483fa5c272eebe11a648"
+        },
+        {
+          "source": "the bootstrap seed.",
+          "source_sha256": "e2e12c3d24e365a7e1705df9e657c5b65803a6eb31a04878bd39326630785b3e"
+        },
+        {
+          "source": "Per-well never reports provide their applied scales; the plate FDR and its existing field bootstrap use those same scales. Fixed and shuffle-only plates retain their previous summary calculation.",
+          "source_sha256": "240429d352a4074eb73d0e9b3067bbb385cb264bcbf6ce542de663270848dc69"
+        },
+        {
+          "source": "the summary, with per-well rows; empty wells when no stats were written.",
+          "source_sha256": "97fb77544769ae21f4faada899069348af9767ab3297e3a73dab31a814509ced"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param folder:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param plate:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param k:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param scale:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param reps:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param seed:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated",
+          [
+            7
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              8
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": "Dict[str, Any]",
+      "historical_contracts": [
+        "871_911_bmc_paper_items_api_arrivals_2026-11-09.json"
+      ]
+    },
+    "spacr.ops_decode.run_compare_calls": {
+      "file": "spacr/ops_decode.py",
+      "line": 3759,
+      "signature": "db: str, plate: str, wells: Sequence[str], settings: Mapping[str, Any], library: Sequence[str]",
+      "before": "The compare_calls phase: spaCR's genotype calls against other pipelines'.\n\nEach external table holds one row per cell with ``well``, ``site``,\n``y`` and ``x`` in that site's tile frame (the sequencing cycle-1 tile)\nand ``call`` (or ``guide``), empty for an uncalled cell, optionally\n``cell``. spaCR's side is every nucleus of the decoded fields with its\ncall from ``results/ops_decode/calls_<well>.parquet``, decoys included.\nCells are compared where their field owns them and at least\n:data:`COMPARE_EDGE_PX` from its border; matched units are categorised\nand each category gets a decoy FDR per table.\n\n:param db: the measurements database.\n:param plate: the plate.\n:param wells: the wells decoded.\n:param settings: read for ``ops_compare_tables``,\n    ``ops_compare_match_px``, ``ops_compare_fields`` (``well:site``\n    pairs separated by commas, or empty for every site of the tables),\n    ``ops_decoy_library_k`` and ``ops_fdr_scale``.\n:param library: the guide barcodes, for the decoy set.\n:returns: the report, with the paths written under\n    ``results/ops_compare``.\n:raises ValueError: when a table lacks its columns or the decode's\n    calls are missing.",
+      "before_sha256": "0643d05d9826c03f014af21f3ce87cf003de4da6943b4872eaa7e96aa57fb750",
+      "source": "The compare_calls phase: spaCR's genotype calls against other pipelines'.\n\nEach external table holds one row per cell with ``well``, ``site``,\n``y`` and ``x`` in that site's tile frame (the sequencing cycle-1 tile)\nand ``call`` (or ``guide``), empty for an uncalled cell, optionally\n``cell``. spaCR's side is every nucleus of the decoded fields with its\ncall from ``results/ops_decode/calls_<well>.parquet``, decoys included.\nCells are compared where their field owns them and at least\n:data:`COMPARE_EDGE_PX` from its border; matched units are categorised\nand each category gets a decoy FDR per table.\n\n:param db: the measurements database.\n:param plate: the plate.\n:param wells: the wells decoded.\n:param settings: read for ``ops_compare_tables``,\n    ``ops_compare_match_px``, ``ops_compare_fields`` (``well:site``\n    pairs separated by commas, or empty for every site of the tables),\n    ``ops_decoy_library_k``, ``ops_fdr_scale`` and\n    ``ops_decode_fdr_calibration``. Never methods read applied scales\n    from current per-well decode reports; missing reports keep the\n    entered scale. Legacy methods retain their earlier tables.\n:param library: the guide barcodes, for the decoy set.\n:returns: the report, with the paths written under\n    ``results/ops_compare``.\n:raises ValueError: when a table lacks its columns or the decode\n    calls are missing.",
+      "source_sha256": "7c26a8857e68a67d354bbf67561de5f700c6ce9c82914752a8d42c222e70b813",
+      "blocks": [
+        {
+          "source": "The compare_calls phase: spaCR's genotype calls against other pipelines'.",
+          "source_sha256": "4e46f189185850cff7d3245818b3d9a4dba57f6bd7432f8b2d080d281242c1ee"
+        },
+        {
+          "source": "Each external table holds one row per cell with ``well``, ``site``, ``y`` and ``x`` in that site's tile frame (the sequencing cycle-1 tile) and ``call`` (or ``guide``), empty for an uncalled cell, optionally ``cell``. spaCR's side is every nucleus of the decoded fields with its call from ``results/ops_decode/calls_<well>.parquet``, decoys included. Cells are compared where their field owns them and at least :data:`COMPARE_EDGE_PX` from its border; matched units are categorised and each category gets a decoy FDR per table.",
+          "source_sha256": "1f7f727fb378c8d0a77f393855c4902b040591007d0f40001b0cad1facea0d5c"
+        },
+        {
+          "source": "the measurements database.",
+          "source_sha256": "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864"
+        },
+        {
+          "source": "the plate.",
+          "source_sha256": "10b08477093ac78797467e1c884ab297720b4df285c5cb6baa5821839eae3ccc"
+        },
+        {
+          "source": "the wells decoded.",
+          "source_sha256": "56b114d94f6711c233ff628d2ae1626d3bcb6d6e4a47db1981706f7751b837b3"
+        },
+        {
+          "source": "read for ``ops_compare_tables``, ``ops_compare_match_px``, ``ops_compare_fields`` (``well:site`` pairs separated by commas, or empty for every site of the tables), ``ops_decoy_library_k``, ``ops_fdr_scale`` and ``ops_decode_fdr_calibration``. Never methods read applied scales from current per-well decode reports; missing reports keep the entered scale. Legacy methods retain their earlier tables.",
+          "source_sha256": "d13a63538266b54dd370cf54c0c4d11cc30691c214767c025e832e89c5da80ce"
+        },
+        {
+          "source": "the guide barcodes, for the decoy set.",
+          "source_sha256": "9aed07e30cc14b61a14174d2edf8548b55aeca62d5cb5e8d4bce000016017026"
+        },
+        {
+          "source": "the report, with the paths written under ``results/ops_compare``.",
+          "source_sha256": "1e0543e8b9a99d69a183d0928f3faf1ff2cb4fd3d3c1682c91d27fb02675811a"
+        },
+        {
+          "source": "when a table lacks its columns or the decode calls are missing.",
+          "source_sha256": "b636d976339c4757d919caa3033d85d069329943ec7a2adcb8c73f8bb3bbf485"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param db:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param plate:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param wells:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param settings:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param library:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              8
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": "Dict[str, Any]",
+      "historical_contracts": [
+        "871_911_bmc_paper_items_api_arrivals_2026-11-09.json"
+      ]
+    },
+    "spacr.ops_decode.threshold_settings": {
+      "file": "spacr/ops_decode.py",
+      "line": 701,
+      "signature": "settings: Mapping[str, Any], rule: Mapping[str, Any]",
+      "before": "The decode threshold mode and, in auto mode, its grid and target.\n\n:param settings: the run's settings, read for\n    ``ops_decode_threshold_mode``, ``ops_decode_fdr_max``,\n    ``ops_decode_auto_grid``, ``ops_decode_auto_spot_grid``,\n    ``ops_decode_auto_tune_fraction``, ``ops_decode_auto_seed`` and the\n    shared tuner's ``ops_decode_auto_ci``, ``ops_decode_auto_objective``,\n    ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``, and\n    item 949's ``ops_decode_fdr_calibration``.\n:param rule: from :func:`decode_rule`; a grid without the pixel quality,\n    or a rule without the pixel fallback, keeps ``pixel_quality``.\n:returns: ``mode``; in auto mode also ``floors`` and ``pixel_qualities``\n    (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``,\n    ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and\n    ``spot_thresholds`` (the read thresholds tried jointly, sorted; empty\n    when the read threshold stays as entered); with\n    ``ops_decode_fdr_calibration`` 'shuffle' also ``fdr_calibration``.\n:raises ValueError: for an unknown mode or FDR calibration, an FDR target that is not\n    above 0, a tuning fraction outside (0, 1), a grid that is not a\n    mapping of the two thresholds to lists of numbers 0 or above, or\n    auto mode without decoys (``ops_decoy_library_k`` 0).",
+      "before_sha256": "5d4fdadb03f9b04ee26373889e4d0d41b6bd3c949309d8b57a06deb782d6f6e2",
+      "source": "The decode threshold mode and, in auto mode, its grid and target.\n\n:param settings: the run's settings, read for\n    ``ops_decode_threshold_mode``, ``ops_decode_fdr_max``,\n    ``ops_decode_auto_grid``, ``ops_decode_auto_spot_grid``,\n    ``ops_decode_auto_tune_fraction``, ``ops_decode_auto_seed`` and the\n    shared tuner's ``ops_decode_auto_ci``, ``ops_decode_auto_objective``,\n    ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``, and\n    ``ops_decode_fdr_calibration`` and the shared controls\n    ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and\n    ``ops_never_barcode_sets``.\n:param rule: from :func:`decode_rule`; a grid without the pixel quality,\n    or a rule without the pixel fallback, keeps ``pixel_quality``.\nManual never-barcode calibration uses a single setting, preserving the\nentered thresholds. Without decoys it requests the reported fallback.\n\n:returns: ``mode``; in auto mode or manual never calibration also ``floors`` and ``pixel_qualities``\n    (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``,\n    ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and\n    ``spot_thresholds`` (the read thresholds tried jointly, sorted; empty\n    when the read threshold stays as entered); with\n    a calibration method also ``fdr_calibration``.\n:raises ValueError: for an unknown mode or FDR calibration, an FDR target that is not\n    above 0, a tuning fraction outside (0, 1), a grid that is not a\n    mapping of the two thresholds to lists of numbers 0 or above, or\n    auto mode without decoys (``ops_decoy_library_k`` 0).",
+      "source_sha256": "172cba2e797e4a0bfe195f58f5e1c5aeb8eacb113d2bdedf9f0a5c517ef6c6b4",
+      "blocks": [
+        {
+          "source": "The decode threshold mode and, in auto mode, its grid and target.",
+          "source_sha256": "984c9d4c5b121db70f8d35db3275cedf9e811bf1898ca228b8b2770033fce008"
+        },
+        {
+          "source": "the run's settings, read for ``ops_decode_threshold_mode``, ``ops_decode_fdr_max``, ``ops_decode_auto_grid``, ``ops_decode_auto_spot_grid``, ``ops_decode_auto_tune_fraction``, ``ops_decode_auto_seed`` and the shared tuner's ``ops_decode_auto_ci``, ``ops_decode_auto_objective``, ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``, and ``ops_decode_fdr_calibration`` and the shared controls ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and ``ops_never_barcode_sets``.",
+          "source_sha256": "a9a2ae0993010552ae91e35be4aa080ad2f980ec29404569ff5aee49e691774c"
+        },
+        {
+          "source": "from :func:`decode_rule`; a grid without the pixel quality, or a rule without the pixel fallback, keeps ``pixel_quality``.",
+          "source_sha256": "af6ace933feaca9f8fef54179076ee991d5cb43cab3cdfd54599c3600c19cba9"
+        },
+        {
+          "source": "Manual never-barcode calibration uses a single setting, preserving the entered thresholds. Without decoys it requests the reported fallback.",
+          "source_sha256": "a95a1c78470f09669b2ad50ddb3b87933aabf8f2c07a307497a7c52b7a7c030e"
+        },
+        {
+          "source": "``mode``; in auto mode or manual never calibration also ``floors`` and ``pixel_qualities`` (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``, ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and ``spot_thresholds`` (the read thresholds tried jointly, sorted; empty when the read threshold stays as entered); with a calibration method also ``fdr_calibration``.",
+          "source_sha256": "280b60b8bbc72a0c6ffe3a70812fcbedda7eaa53d426a6913e6e61d617ebe9ae"
+        },
+        {
+          "source": "for an unknown mode or FDR calibration, an FDR target that is not above 0, a tuning fraction outside (0, 1), a grid that is not a mapping of the two thresholds to lists of numbers 0 or above, or auto mode without decoys (``ops_decoy_library_k`` 0).",
+          "source_sha256": "1ebd216b5b52143175e0ef94f47337f1c27e190cdccc2b6863e322b269636275"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param settings:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param rule:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated",
+          [
+            3
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              5
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": "Dict[str, Any]",
+      "historical_contracts": [
+        "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json"
+      ]
+    },
+    "spacr.ops_decode.write_well_reports": {
+      "file": "spacr/ops_decode.py",
+      "line": 2387,
+      "signature": "db: str, plate: str, well: str, decoded: Sequence[Mapping[str, Any]], rule: Mapping[str, Any], skipped_sites: Sequence[int]",
+      "before": "Write one well's field stats, FDR report and the plate summary.\n\n:param db: the measurements database.\n:param plate: the plate.\n:param well: the well.\n:param decoded: the decoded fields, each with ``site`` and ``rule_a``\n    from :func:`field_calls`.\n:param rule: from :func:`decode_rule`; after auto thresholds with a\n    shuffle calibration (item 949) its ``fdr_scale`` is the calibrated\n    scale and its ``threshold_choice`` holds the calibration.\n:param skipped_sites: the unplaced sites.\n:returns: the well's FDR report, with the paths written under ``paths``;\n    with a shuffle calibration it adds ``fdr_calibration``,\n    ``fdr_scale_entered``, the whole well's ``shuffle_called``,\n    ``shuffle_call_rate_pct``, ``shuffle_ci95``, ``shuffle_limit_pct``\n    (1.5 times the calibrated FDR) and ``shuffle_le_limit``.",
+      "before_sha256": "75f70b010fdae0bfa5d7c2da98ed3625083895ea98e1bcfb1bbffad916a91544",
+      "source": "Write field statistics, FDR report and plate summary for one well.\n\n:param db: the measurements database.\n:param plate: the plate.\n:param well: the well.\n:param decoded: the decoded fields, each with ``site`` and ``rule_a``\n    from :func:`field_calls`.\n:param rule: from :func:`decode_rule`; after auto thresholds with a\n    shuffle calibration (item 949) its ``fdr_scale`` is the calibrated\n    scale and its ``threshold_choice`` holds the calibration.\n:param skipped_sites: the unplaced sites.\nNever calibration writes its JSON and CSV through the same report\nwriter used by the prefix path, with point and interval fields folded\ninto this report and the per-well plate summary.\n\n:returns: the FDR report for one well, with the paths written under ``paths``;\n    with a shuffle calibration it adds ``fdr_calibration``,\n    ``fdr_scale_entered``, ``shuffle_called`` for the whole well,\n    ``shuffle_call_rate_pct``, ``shuffle_ci95``, ``shuffle_limit_pct``\n    (1.5 times the calibrated FDR) and ``shuffle_le_limit``.",
+      "source_sha256": "b60a898d64c8391a419dfc1b06918647c658d4946bf75b80f17d9619c7d62280",
+      "blocks": [
+        {
+          "source": "Write field statistics, FDR report and plate summary for one well.",
+          "source_sha256": "b09425bb60d2aab536902a743677ab3a3e1fbfc67cf271223c85db7465079206"
+        },
+        {
+          "source": "the measurements database.",
+          "source_sha256": "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864"
+        },
+        {
+          "source": "the plate.",
+          "source_sha256": "10b08477093ac78797467e1c884ab297720b4df285c5cb6baa5821839eae3ccc"
+        },
+        {
+          "source": "the well.",
+          "source_sha256": "310380911e1ad14f2b6c265d14537c513b8f07e2e6ac940d8e3bf9acd0ec8e88"
+        },
+        {
+          "source": "the decoded fields, each with ``site`` and ``rule_a`` from :func:`field_calls`.",
+          "source_sha256": "77ad194fb29803422c91b1c2308695ad10b58bb9ef397e12a37e13bd97cd84f2"
+        },
+        {
+          "source": "from :func:`decode_rule`; after auto thresholds with a shuffle calibration (item 949) its ``fdr_scale`` is the calibrated scale and its ``threshold_choice`` holds the calibration.",
+          "source_sha256": "6ee07a004523626dca706d20f701e21d8b3fb92e271b5c2aabd8b510bf4d74ba"
+        },
+        {
+          "source": "the unplaced sites.",
+          "source_sha256": "f5f571ed29f9b3aba50b2ec73dcf73cffdb73a67c07a63b61b6d3261a6f5d593"
+        },
+        {
+          "source": "Never calibration writes its JSON and CSV through the same report writer used by the prefix path, with point and interval fields folded into this report and the per-well plate summary.",
+          "source_sha256": "c52a6d2c7e51b2b48effb08c3e4b20c1e04fd2806f4fe4515d0e19ed1d81ed31"
+        },
+        {
+          "source": "the FDR report for one well, with the paths written under ``paths``; with a shuffle calibration it adds ``fdr_calibration``, ``fdr_scale_entered``, ``shuffle_called`` for the whole well, ``shuffle_call_rate_pct``, ``shuffle_ci95``, ``shuffle_limit_pct`` (1.5 times the calibrated FDR) and ``shuffle_le_limit``.",
+          "source_sha256": "e4599b66a54173b192f11ebf698b9c5de4e361859053d647b08ee2a2d5dd376a"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param db:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param plate:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param well:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param decoded:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param rule:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param skipped_sites:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated",
+          [
+            7
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              8
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": "Dict[str, Any]",
+      "historical_contracts": [
+        "871_911_bmc_paper_items_api_arrivals_2026-11-09.json"
+      ]
+    },
+    "spacr.ops_prefix.prefix_settings": {
+      "file": "spacr/ops_prefix.py",
+      "line": 2005,
+      "signature": "settings: Mapping[str, Any]",
+      "before": "The item-920 settings, checked and with defaults filled in.\n\n:param settings: the OPS settings: ``ops_library``,\n    ``ops_library_sequence_col``, ``ops_library_gene_col``,\n    ``ops_prefix_length``, ``ops_sbs_cycles``, ``ops_cycle_mask``,\n    ``ops_prefix_collision``, ``ops_prefix_metric``,\n    ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``,\n    ``ops_quality_min_reads``, ``ops_prefix_quality_method``,\n    ``ops_random_barcode_control``, ``ops_control_seed``,\n    ``ops_prefix_masks``, ``ops_read_threshold`` and the item-942 decoy\n    and tuning settings (``ops_prefix_decoy_k``,\n    ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``,\n    ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,\n    ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the\n    item-949 ``ops_prefix_nearmiss_decoy_k`` and\n    ``ops_prefix_fdr_calibration``, the item-967\n    ``ops_prefix_minority_min_reads``, the item-982 small-well guard\n    ``ops_prefix_tuning_min_sites``, and the item-988 weighted-majority\n    settings: ``ops_prefix_distance_weight``,\n    ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``,\n    ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``,\n    ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``,\n    ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and\n    ``ops_multi_guide_min_reads``.\n:returns: the normalised values under the same keys.\n:raises ValueError: without a library, for an unknown choice, for\n    tuning or a shuffle calibration without decoys, for a negative\n    decoy count, minority-read floor or small-well site count, or for a\n    weight setting that is out of range or set without\n    ``'weighted_majority'``.",
+      "before_sha256": "ee9b5ba2568c534a4cb8fc7e153c4dd9ac620afbae7b44b82a0b07a0b11bab66",
+      "source": "The item-920 settings, checked and with defaults filled in.\n\n:param settings: the OPS settings: ``ops_library``,\n    ``ops_library_sequence_col``, ``ops_library_gene_col``,\n    ``ops_prefix_length``, ``ops_sbs_cycles``, ``ops_cycle_mask``,\n    ``ops_prefix_collision``, ``ops_prefix_metric``,\n    ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``,\n    ``ops_quality_min_reads``, ``ops_prefix_quality_method``,\n    ``ops_random_barcode_control``, ``ops_control_seed``,\n    ``ops_prefix_masks``, ``ops_read_threshold`` and the item-942 decoy\n    and tuning settings (``ops_prefix_decoy_k``,\n    ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``,\n    ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``,\n    ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the\n    item-949 ``ops_prefix_nearmiss_decoy_k`` and\n    ``ops_prefix_fdr_calibration``, the item-967\n    ``ops_prefix_minority_min_reads``, the item-982 small-well guard\n    ``ops_prefix_tuning_min_sites``, and the item-988 weighted-majority\n    settings: ``ops_prefix_distance_weight``,\n    ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``,\n    ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``,\n    ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``,\n    ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and\n    ``ops_multi_guide_min_reads``, and shared controls\n    ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and\n    ``ops_never_barcode_sets``. Never calibration without decoys keeps\n    the entered scale and reports the fallback.\n:returns: the normalised values under the same keys.\n:raises ValueError: without a library, for an unknown choice, for\n    tuning or a shuffle calibration without decoys, for a negative\n    decoy count, minority-read floor or small-well site count, or for a\n    weight setting that is out of range or set without\n    ``'weighted_majority'``.",
+      "source_sha256": "28dd5e00157aa92fca09e74dcbe03b4bd841aa1ac30a1a5c27dec2f53968ac17",
+      "blocks": [
+        {
+          "source": "The item-920 settings, checked and with defaults filled in.",
+          "source_sha256": "3b21f4b265859ac22fb002c45384b7a3db0bdb1e6344060215c8d90fc5ee6f7e"
+        },
+        {
+          "source": "the OPS settings: ``ops_library``, ``ops_library_sequence_col``, ``ops_library_gene_col``, ``ops_prefix_length``, ``ops_sbs_cycles``, ``ops_cycle_mask``, ``ops_prefix_collision``, ``ops_prefix_metric``, ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``, ``ops_quality_min_reads``, ``ops_prefix_quality_method``, ``ops_random_barcode_control``, ``ops_control_seed``, ``ops_prefix_masks``, ``ops_read_threshold`` and the item-942 decoy and tuning settings (``ops_prefix_decoy_k``, ``ops_prefix_decoy_seed``, ``ops_prefix_fdr_scale``, ``ops_prefix_min_read_quality``, ``ops_prefix_threshold_tuning``, ``ops_prefix_fdr_target_pct``, ``ops_prefix_tuning_grid``) and the item-949 ``ops_prefix_nearmiss_decoy_k`` and ``ops_prefix_fdr_calibration``, the item-967 ``ops_prefix_minority_min_reads``, the item-982 small-well guard ``ops_prefix_tuning_min_sites``, and the item-988 weighted-majority settings: ``ops_prefix_distance_weight``, ``ops_prefix_distance_decay_px``, ``ops_prefix_distance_interior_px``, ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``, ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``, ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and ``ops_multi_guide_min_reads``, and shared controls ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and ``ops_never_barcode_sets``. Never calibration without decoys keeps the entered scale and reports the fallback.",
+          "source_sha256": "6d5e86c0abef7d44a26d217e18afa62d14151cb3230faab347303237bd73c180"
+        },
+        {
+          "source": "the normalised values under the same keys.",
+          "source_sha256": "eca32f404b0a27c33a1ba790c2708fa4fae12f5c0ef7b24856ab1ddbf59442d2"
+        },
+        {
+          "source": "without a library, for an unknown choice, for tuning or a shuffle calibration without decoys, for a negative decoy count, minority-read floor or small-well site count, or for a weight setting that is out of range or set without ``'weighted_majority'``.",
+          "source_sha256": "5847fede8462a26597d5774647e944775b3704a66d56a8ccd632d744bbef53cb"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param settings:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              3
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": "Dict[str, Any]",
+      "historical_contracts": [
+        "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json"
+      ]
+    },
+    "spacr.ops_prefix.run_prefix_decode": {
+      "file": "spacr/ops_prefix.py",
+      "line": 2585,
+      "signature": "settings: Mapping[str, Any], report: Optional[Callable[[str], None]]=None",
+      "before": "The ``prefix_decode`` phase: decode every indexed site against spacer prefixes.\n\nReads the cropped-site layout (item 919, ``ops_layout='cpg_cropped'``),\nbuilds the whitelist, decodes each complete site's sequencing stack\n(cycles 1 to the prefix's last cycle), takes each read's cell from\n``ops_prefix_masks`` (or the site's ``merged/`` labels), calls cells and\nwrites, under ``<dst_root>/results/ops_prefix/``:\n\n* ``library_prefix_collisions.csv`` and ``library_summary.json``;\n* ``quality_classes.json`` (the quality method, its class definitions\n  and the settings);\n* ``reads_<plate>_<well_id>.parquet`` (one row per read) and\n  ``cells_<plate>_<well_id>.csv`` (:func:`prefix_cell_calls`);\n* ``site_summary.csv`` (per site: :func:`read_fractions`, cells with\n  reads, cells with an exact read, cells per class);\n* ``cells_per_guide.csv`` and ``cells_per_gene.csv`` (perfect and great\n  cells);\n* with decoys (``ops_prefix_decoy_k`` above 0, item 942): a ``decoy``\n  column in the cell tables (a decoy call keeps its prefix but no\n  genotype), ``cells_in_labels``, ``cells_real``, ``cells_decoy`` and\n  ``fdr_pct`` in ``site_summary.csv``, and ``fdr_<plate>_<well_id>.json``\n  (:func:`spacr.ops_decode.fdr_report`);\n* with ``ops_prefix_threshold_tuning`` 'per_well_decoy': per well\n  ``threshold_tuning_<plate>_<well_id>.csv`` and ``.png`` (every grid\n  setting's tuning numbers and the genotyped-vs-FDR curve,\n  :func:`spacr.ops_decode.write_tuning_curve`) and ``.json`` (the choice,\n  :func:`spacr.ops_decode.tune_thresholds`); each site's spots are found\n  once, down to the lowest read threshold, and the chosen setting's reads\n  and cells are written;\n* with near-miss decoys (``ops_prefix_nearmiss_decoy_k`` above 0, item\n  949, :func:`prefix_nearmiss_decoys`): a ``decoy_class`` column\n  (``'far'`` or ``'nearmiss'``) in the cell tables,\n  ``cells_decoy_nearmiss`` and ``fdr_nearmiss_pct`` (near-miss calls per\n  100 real calls over ``ops_prefix_nearmiss_decoy_k``, scale 1) in\n  ``site_summary.csv``, and the near-miss count, FDR and its interval in\n  ``fdr_<plate>_<well_id>.json``; ``cells_decoy`` and ``fdr_pct`` keep\n  counting the far decoys only;\n* with ``ops_prefix_fdr_calibration`` 'shuffle' (item 949): every read is\n  also matched against :data:`spacr.ops_decode.SHUFFLE_SEEDS` shuffled\n  whitelists (:func:`shuffled_library`, seeds ``ops_control_seed`` and\n  up), and each well's FDR scale is raised from that control\n  (:func:`spacr.ops_decode.calibrate_fdr_scale`; without tuning at the\n  entered setting); ``fdr_pct`` uses the calibrated scale, and\n  ``site_summary.csv`` gains ``shuffle_called`` (mean over the shuffled\n  whitelists), ``shuffle_call_rate_pct`` and ``fdr_scale``; the FDR\n  report gains the entered scale, the calibration, the FDR's interval\n  and the shuffle call rate with its interval\n  (:func:`spacr.ops_decode.shuffle_call_rate`). With both item-949\n  settings off the outputs are those of item 942;\n* with ``ops_prefix_minority_min_reads`` 2 or more (item 967, alpha): the\n  cell calls and the tuning leave out minority stray reads\n  (:func:`prefix_cell_calls`), the cell table gains\n  ``minority_ignored`` and ``minority_rescued``, ``site_summary.csv``\n  gains ``cells_minority_rescued`` (genotyped cells called only because\n  of the rule), and one line per well reports the rescued cells. 0, the\n  default, writes what the run wrote before;\n* with ``ops_prefix_quality_method`` 'weighted_majority' (item 988,\n  alpha): cells are called by their barcodes' summed read weights\n  (:func:`prefix_cell_calls`, classes :data:`WEIGHTED_CLASSES`), the\n  tuning also tries the weight axes (:data:`WEIGHT_GRID_KEYS`;\n  :data:`PREFIX_TUNING_GRID_WEIGHTED` when the grid is empty), and the\n  cell table gains the weight columns. With a distance term the read\n  table gains ``nuc_gap_px`` and ``nuc_gap_fallback``, measured to the\n  nuclei of ``ops_prefix_nuclei_masks``;\n* with ``ops_keep_multi_guide_cells`` (item 988, alpha): per well\n  ``guide_multiplicity_<plate>_<well_id>.csv`` (the share of cells by\n  number of guides, and the share of two-guide cells whose runner-up is\n  a touching cell's top guide) and ``multi_guide_cells_<plate>_<well_id>.csv``\n  (the cells with two or more guides of ``ops_multi_guide_min_reads``\n  reads, none of them from a neighbour). With both item-988 settings\n  off the run writes what it wrote before.\n* with ``ops_prefix_tuning_min_sites`` above 0 (item 982 small-well\n  guard, alpha): a tuned well with fewer sites keeps the read-quality\n  floor at :data:`SMALL_WELL_FLOOR` and tunes only the other settings;\n  the log says so, and the well's tuning json and ``tuning`` entry gain\n  ``small_well_floor`` and ``small_well_sites``. 0, the default, writes\n  what the run wrote before.\n\n:param settings: the OPS settings: ``dst_root``, the ``cpg_*`` reader\n    settings, the item-920, item-942, item-949, item-967 and item-988\n    settings\n    (:func:`prefix_settings`)\n    and, for tuning, the shared tuner's settings\n    (``ops_decode_auto_objective``, ``ops_decode_auto_f_beta``,\n    ``ops_decode_auto_unreachable``, ``ops_decode_auto_ci``,\n    ``ops_decode_auto_tune_fraction`` and ``ops_decode_auto_seed``).\n:param report: called with progress lines.\n:returns: the output paths, the library summary and the run's totals;\n    with any item-942 setting on also ``seconds_per_well``, ``fdr`` (per\n    well) and ``tuning`` (per well: the choice and its numbers); with\n    the shuffle calibration also ``calibration`` (per well); with the\n    minority-read rule (item 967) also ``minority_rescued`` (genotyped\n    cells rescued, per well); with ``ops_keep_multi_guide_cells`` (item\n    988) also ``multi_guide`` (per well: the two table paths and the\n    number of multi-guide cells); with tuning also ``well_choices``, one\n    line per well (item 966): the read mode and thresholds chosen and\n    the decoy FDR on the tuning and the report sites, also sent to\n    ``report`` last. An empty ``ops_read_mode`` is\n    ``'auto'`` with tuning and ``'log'`` without.\n:raises ValueError: without ``dst_root`` or a library, when the layout\n    has fewer sequencing cycles than the prefix needs, for tuning,\n    near-miss decoys or a shuffle calibration without decoys, or for a\n    distance term or the touching cells without the labels they need.",
+      "before_sha256": "d2e2aaa2e48b7b8713cab35c0f06e9e430172557b6815b385b513f0fd0d64502",
+      "source": "The ``prefix_decode`` phase: decode every indexed site against spacer prefixes.\n\nReads the cropped-site layout (item 919, ``ops_layout='cpg_cropped'``),\nbuilds the whitelist, decodes each complete site's sequencing stack\n(cycles 1 to the prefix's last cycle), takes each read's cell from\n``ops_prefix_masks`` (or the site's ``merged/`` labels), calls cells and\nwrites, under ``<dst_root>/results/ops_prefix/``:\n\n* ``library_prefix_collisions.csv`` and ``library_summary.json``;\n* ``quality_classes.json`` (the quality method, its class definitions\n  and the settings);\n* ``reads_<plate>_<well_id>.parquet`` (one row per read) and\n  ``cells_<plate>_<well_id>.csv`` (:func:`prefix_cell_calls`);\n* ``site_summary.csv`` (per site: :func:`read_fractions`, cells with\n  reads, cells with an exact read, cells per class);\n* ``cells_per_guide.csv`` and ``cells_per_gene.csv`` (perfect and great\n  cells);\n* with decoys (``ops_prefix_decoy_k`` above 0, item 942): a ``decoy``\n  column in the cell tables (a decoy call keeps its prefix but no\n  genotype), ``cells_in_labels``, ``cells_real``, ``cells_decoy`` and\n  ``fdr_pct`` in ``site_summary.csv``, and ``fdr_<plate>_<well_id>.json``\n  (:func:`spacr.ops_decode.fdr_report`);\n* with ``ops_prefix_threshold_tuning`` 'per_well_decoy': per well\n  ``threshold_tuning_<plate>_<well_id>.csv`` and ``.png`` (every grid\n  setting's tuning numbers and the genotyped-vs-FDR curve,\n  :func:`spacr.ops_decode.write_tuning_curve`) and ``.json`` (the choice,\n  :func:`spacr.ops_decode.tune_thresholds`); each site's spots are found\n  once, down to the lowest read threshold, and the chosen setting's reads\n  and cells are written;\n* with near-miss decoys (``ops_prefix_nearmiss_decoy_k`` above 0, item\n  949, :func:`prefix_nearmiss_decoys`): a ``decoy_class`` column\n  (``'far'`` or ``'nearmiss'``) in the cell tables,\n  ``cells_decoy_nearmiss`` and ``fdr_nearmiss_pct`` (near-miss calls per\n  100 real calls over ``ops_prefix_nearmiss_decoy_k``, scale 1) in\n  ``site_summary.csv``, and the near-miss count, FDR and its interval in\n  ``fdr_<plate>_<well_id>.json``; ``cells_decoy`` and ``fdr_pct`` keep\n  counting the far decoys only;\n* with ``ops_prefix_fdr_calibration`` 'shuffle' (item 949): every read is\n  also matched against :data:`spacr.ops_decode.SHUFFLE_SEEDS` shuffled\n  whitelists (:func:`shuffled_library`, seeds ``ops_control_seed`` and\n  up), and each well's FDR scale is raised from that control\n  (:func:`spacr.ops_decode.calibrate_fdr_scale`; without tuning at the\n  entered setting); ``fdr_pct`` uses the calibrated scale, and\n  ``site_summary.csv`` gains ``shuffle_called`` (mean over the shuffled\n  whitelists), ``shuffle_call_rate_pct`` and ``fdr_scale``; the FDR\n  report gains the entered scale, the calibration, the FDR's interval\n  and the shuffle call rate with its interval\n  (:func:`spacr.ops_decode.shuffle_call_rate`). With both item-949\n  settings off the outputs are those of item 942;\n* with ``ops_prefix_minority_min_reads`` 2 or more (item 967, alpha): the\n  cell calls and the tuning leave out minority stray reads\n  (:func:`prefix_cell_calls`), the cell table gains\n  ``minority_ignored`` and ``minority_rescued``, ``site_summary.csv``\n  gains ``cells_minority_rescued`` (genotyped cells called only because\n  of the rule), and one line per well reports the rescued cells. 0, the\n  default, writes what the run wrote before;\n* with ``ops_prefix_quality_method`` 'weighted_majority' (item 988,\n  alpha): cells are called by their barcodes' summed read weights\n  (:func:`prefix_cell_calls`, classes :data:`WEIGHTED_CLASSES`), the\n  tuning also tries the weight axes (:data:`WEIGHT_GRID_KEYS`;\n  :data:`PREFIX_TUNING_GRID_WEIGHTED` when the grid is empty), and the\n  cell table gains the weight columns. With a distance term the read\n  table gains ``nuc_gap_px`` and ``nuc_gap_fallback``, measured to the\n  nuclei of ``ops_prefix_nuclei_masks``;\n* with ``ops_keep_multi_guide_cells`` (item 988, alpha): per well\n  ``guide_multiplicity_<plate>_<well_id>.csv`` (the share of cells by\n  number of guides, and the share of two-guide cells whose runner-up is\n  a touching cell's top guide) and ``multi_guide_cells_<plate>_<well_id>.csv``\n  (the cells with two or more guides of ``ops_multi_guide_min_reads``\n  reads, none of them from a neighbour). With both item-988 settings\n  off the run writes what it wrote before.\n* with ``ops_prefix_tuning_min_sites`` above 0 (item 982 small-well\n  guard, alpha): a tuned well with fewer sites keeps the read-quality\n  floor at :data:`SMALL_WELL_FLOOR` and tunes only the other settings;\n  the log says so, and the well's tuning json and ``tuning`` entry gain\n  ``small_well_floor`` and ``small_well_sites``. 0, the default, writes\n  what the run wrote before.\n\nNever-barcode calibration (item 1014) adds independent distance-one\nand distance-two control passes through the same prefix matcher and\ncell votes. Their calls never replace production calls. The shared\nestimator calibrates on tuning sites and reports held-out sites;\nfixed thresholds use a one-setting grid. The shuffle call rate is\nreported alongside never calibration and enters its scale only with\n``'never+shuffle'``. Each well writes ``fdr_calibration_<well>.json``.\n\n:param settings: the OPS settings: ``dst_root``, the ``cpg_*`` reader\n    settings, the item-920, item-942, item-949, item-967 and item-988\n    settings\n    (:func:`prefix_settings`)\n    and, for tuning, the shared tuner's settings\n    (``ops_decode_auto_objective``, ``ops_decode_auto_f_beta``,\n    ``ops_decode_auto_unreachable``, ``ops_decode_auto_ci``,\n    ``ops_decode_auto_tune_fraction`` and ``ops_decode_auto_seed``).\n:param report: called with progress lines.\n:returns: the output paths, the library summary and the run's totals;\n    with any item-942 setting on also ``seconds_per_well``, ``fdr`` (per\n    well) and ``tuning`` (per well: the choice and its numbers); with\n    the shuffle calibration also ``calibration`` (per well); with the\n    minority-read rule (item 967) also ``minority_rescued`` (genotyped\n    cells rescued, per well); with ``ops_keep_multi_guide_cells`` (item\n    988) also ``multi_guide`` (per well: the two table paths and the\n    number of multi-guide cells); with tuning also ``well_choices``, one\n    line per well (item 966): the read mode and thresholds chosen and\n    the decoy FDR on the tuning and the report sites, also sent to\n    ``report`` last. An empty ``ops_read_mode`` is\n    ``'auto'`` with tuning and ``'log'`` without.\n:raises ValueError: without ``dst_root`` or a library, when the layout\n    has fewer sequencing cycles than the prefix needs, for tuning,\n    near-miss decoys or a shuffle calibration without decoys, or for a\n    distance term or the touching cells without the labels they need.",
+      "source_sha256": "bf083411d43111ab67ce1ac5b9f51128d65adf79c91041ee433656a78a6d290b",
+      "blocks": [
+        {
+          "source": "The ``prefix_decode`` phase: decode every indexed site against spacer prefixes.",
+          "source_sha256": "0cf93a0c4e949538c1392f7f24f8de187119b5b782dfbde18467ca88bb7d6738"
+        },
+        {
+          "source": "Reads the cropped-site layout (item 919, ``ops_layout='cpg_cropped'``), builds the whitelist, decodes each complete site's sequencing stack (cycles 1 to the prefix's last cycle), takes each read's cell from ``ops_prefix_masks`` (or the site's ``merged/`` labels), calls cells and writes, under ``<dst_root>/results/ops_prefix/``:",
+          "source_sha256": "66b933ff1fb6eb31392fc3aabd8d2cd66bdd4beaad3a703dff757633056b9964"
+        },
+        {
+          "source": "``library_prefix_collisions.csv`` and ``library_summary.json``;",
+          "source_sha256": "455335676c5f4535ddfb86a1a99a25c3fc63f812b2000e401557b121f52b951b"
+        },
+        {
+          "source": "``quality_classes.json`` (the quality method, its class definitions and the settings);",
+          "source_sha256": "61659ff1f47ee0b09d6fe1248c06fd71585f68d71ac9bf5bf6f573060cbb029b"
+        },
+        {
+          "source": "``reads_<plate>_<well_id>.parquet`` (one row per read) and ``cells_<plate>_<well_id>.csv`` (:func:`prefix_cell_calls`);",
+          "source_sha256": "cdfa0191316a3ed60011a96f57e220e021b824e398591002146e73f7165f17b4"
+        },
+        {
+          "source": "``site_summary.csv`` (per site: :func:`read_fractions`, cells with reads, cells with an exact read, cells per class);",
+          "source_sha256": "1f4b1a2b9b8ca33ec4650ed23b770cfae7bf185db9b331539113b8c156c81cd8"
+        },
+        {
+          "source": "``cells_per_guide.csv`` and ``cells_per_gene.csv`` (perfect and great cells);",
+          "source_sha256": "60d07233ee779e2e2e9733607d1ef611458036263c1e62185233ad241765ceb3"
+        },
+        {
+          "source": "with decoys (``ops_prefix_decoy_k`` above 0, item 942): a ``decoy`` column in the cell tables (a decoy call keeps its prefix but no genotype), ``cells_in_labels``, ``cells_real``, ``cells_decoy`` and ``fdr_pct`` in ``site_summary.csv``, and ``fdr_<plate>_<well_id>.json`` (:func:`spacr.ops_decode.fdr_report`);",
+          "source_sha256": "ad6c79ceaff3d27e802f6e0839021678b712843287cbe3038d62ff891eef55ba"
+        },
+        {
+          "source": "with ``ops_prefix_threshold_tuning`` 'per_well_decoy': per well ``threshold_tuning_<plate>_<well_id>.csv`` and ``.png`` (every grid setting's tuning numbers and the genotyped-vs-FDR curve, :func:`spacr.ops_decode.write_tuning_curve`) and ``.json`` (the choice, :func:`spacr.ops_decode.tune_thresholds`); each site's spots are found once, down to the lowest read threshold, and the chosen setting's reads and cells are written;",
+          "source_sha256": "ceaa2c3698f1ded9dc5909558fe0c9a4f8b8a170c108f00d512ca570997bf909"
+        },
+        {
+          "source": "with near-miss decoys (``ops_prefix_nearmiss_decoy_k`` above 0, item 949, :func:`prefix_nearmiss_decoys`): a ``decoy_class`` column (``'far'`` or ``'nearmiss'``) in the cell tables, ``cells_decoy_nearmiss`` and ``fdr_nearmiss_pct`` (near-miss calls per 100 real calls over ``ops_prefix_nearmiss_decoy_k``, scale 1) in ``site_summary.csv``, and the near-miss count, FDR and its interval in ``fdr_<plate>_<well_id>.json``; ``cells_decoy`` and ``fdr_pct`` keep counting the far decoys only;",
+          "source_sha256": "ff262cb6facc129e0e38349a022189a9391e3d4834df589360da25f17535b2e8"
+        },
+        {
+          "source": "with ``ops_prefix_fdr_calibration`` 'shuffle' (item 949): every read is also matched against :data:`spacr.ops_decode.SHUFFLE_SEEDS` shuffled whitelists (:func:`shuffled_library`, seeds ``ops_control_seed`` and up), and each well's FDR scale is raised from that control (:func:`spacr.ops_decode.calibrate_fdr_scale`; without tuning at the entered setting); ``fdr_pct`` uses the calibrated scale, and ``site_summary.csv`` gains ``shuffle_called`` (mean over the shuffled whitelists), ``shuffle_call_rate_pct`` and ``fdr_scale``; the FDR report gains the entered scale, the calibration, the FDR's interval and the shuffle call rate with its interval (:func:`spacr.ops_decode.shuffle_call_rate`). With both item-949 settings off the outputs are those of item 942;",
+          "source_sha256": "cf6cdb622bef0148fa0e5f050e6ec83ed0ca6dc2de3d47bc4429613c071c834e"
+        },
+        {
+          "source": "with ``ops_prefix_minority_min_reads`` 2 or more (item 967, alpha): the cell calls and the tuning leave out minority stray reads (:func:`prefix_cell_calls`), the cell table gains ``minority_ignored`` and ``minority_rescued``, ``site_summary.csv`` gains ``cells_minority_rescued`` (genotyped cells called only because of the rule), and one line per well reports the rescued cells. 0, the default, writes what the run wrote before;",
+          "source_sha256": "17570cdda7028839d380d9e81e3a9bfd3f2fe044e7d8259fa3a861530f5b2c1f"
+        },
+        {
+          "source": "with ``ops_prefix_quality_method`` 'weighted_majority' (item 988, alpha): cells are called by their barcodes' summed read weights (:func:`prefix_cell_calls`, classes :data:`WEIGHTED_CLASSES`), the tuning also tries the weight axes (:data:`WEIGHT_GRID_KEYS`; :data:`PREFIX_TUNING_GRID_WEIGHTED` when the grid is empty), and the cell table gains the weight columns. With a distance term the read table gains ``nuc_gap_px`` and ``nuc_gap_fallback``, measured to the nuclei of ``ops_prefix_nuclei_masks``;",
+          "source_sha256": "d0de6f6c2728862dd14b6034bfc15dafa20b4eb1c738f6e3f3cea6be8981a1e7"
+        },
+        {
+          "source": "with ``ops_keep_multi_guide_cells`` (item 988, alpha): per well ``guide_multiplicity_<plate>_<well_id>.csv`` (the share of cells by number of guides, and the share of two-guide cells whose runner-up is a touching cell's top guide) and ``multi_guide_cells_<plate>_<well_id>.csv`` (the cells with two or more guides of ``ops_multi_guide_min_reads`` reads, none of them from a neighbour). With both item-988 settings off the run writes what it wrote before.",
+          "source_sha256": "7c825418f98564b6a29bd9e6d048c227c71d534097e2a6986515409090ac5411"
+        },
+        {
+          "source": "with ``ops_prefix_tuning_min_sites`` above 0 (item 982 small-well guard, alpha): a tuned well with fewer sites keeps the read-quality floor at :data:`SMALL_WELL_FLOOR` and tunes only the other settings; the log says so, and the well's tuning json and ``tuning`` entry gain ``small_well_floor`` and ``small_well_sites``. 0, the default, writes what the run wrote before.",
+          "source_sha256": "d33dbe3340d7724eef909e158d70b6a98c0d09dda95644927b52bafc6e0d04ce"
+        },
+        {
+          "source": "Never-barcode calibration (item 1014) adds independent distance-one and distance-two control passes through the same prefix matcher and cell votes. Their calls never replace production calls. The shared estimator calibrates on tuning sites and reports held-out sites; fixed thresholds use a one-setting grid. The shuffle call rate is reported alongside never calibration and enters its scale only with ``'never+shuffle'``. Each well writes ``fdr_calibration_<well>.json``.",
+          "source_sha256": "171c4b52965b3c7ae1f9d6b81f5aca0583371bb951389818fe1d156d0be2e359"
+        },
+        {
+          "source": "the OPS settings: ``dst_root``, the ``cpg_*`` reader settings, the item-920, item-942, item-949, item-967 and item-988 settings (:func:`prefix_settings`) and, for tuning, the shared tuner's settings (``ops_decode_auto_objective``, ``ops_decode_auto_f_beta``, ``ops_decode_auto_unreachable``, ``ops_decode_auto_ci``, ``ops_decode_auto_tune_fraction`` and ``ops_decode_auto_seed``).",
+          "source_sha256": "76098974346cd9672a730ae0827711462065b39f871c1c6f95490e994442af16"
+        },
+        {
+          "source": "called with progress lines.",
+          "source_sha256": "af180464f5ebfea75d9e56d72c11bffddd7076d26203a4795a1c157ff419a14c"
+        },
+        {
+          "source": "the output paths, the library summary and the run's totals; with any item-942 setting on also ``seconds_per_well``, ``fdr`` (per well) and ``tuning`` (per well: the choice and its numbers); with the shuffle calibration also ``calibration`` (per well); with the minority-read rule (item 967) also ``minority_rescued`` (genotyped cells rescued, per well); with ``ops_keep_multi_guide_cells`` (item 988) also ``multi_guide`` (per well: the two table paths and the number of multi-guide cells); with tuning also ``well_choices``, one line per well (item 966): the read mode and thresholds chosen and the decoy FDR on the tuning and the report sites, also sent to ``report`` last. An empty ``ops_read_mode`` is ``'auto'`` with tuning and ``'log'`` without.",
+          "source_sha256": "db04739c3e868f9855312db07bfb9be747642705b55a5f7264f3a3e89fd2037d"
+        },
+        {
+          "source": "without ``dst_root`` or a library, when the layout has fewer sequencing cycles than the prefix needs, for tuning, near-miss decoys or a shuffle calibration without decoys, or for a distance term or the touching cells without the labels they need.",
+          "source_sha256": "6bffad6f1d12315f3068a04b29a2172330e5ad752aed9d56c5d5fb63250ccfb1"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              8
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              9
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              10
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              11
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              12
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              13
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "* ",
+            [
+              14
+            ]
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            15
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param settings:",
+            [
+              16
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param report:",
+            [
+              17
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              18
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              19
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": "Dict[str, Any]",
+      "historical_contracts": [
+        "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json"
+      ]
+    },
+    "spacr.ops_sbs.never_barcodes": {
+      "file": "spacr/ops_sbs.py",
+      "line": 923,
+      "signature": "library, *, distance, k=4, seed=1, exclude=()",
+      "before": null,
+      "before_sha256": null,
+      "source": "Substitution-built barcodes that no cell in the guide library should carry.\n\nDistance-one controls have exactly one nearest guide and use a different\nsubstituted position for each accepted control of that guide.\nDistance-two controls have no guide at distance zero or one. Every\ncontrol lies at least two substitutions from previously accepted and\nexcluded controls. Sorted unique guides are visited round by round,\nwith one seeded generator and up to 200 attempts per guide and round.\nThe same builder serves full-barcode and sequenced-prefix calibration.\n\n:param library: real guide barcodes, using nonempty A/C/G/T strings.\n    Duplicates and input order do not affect the result.\n:param distance: nearest-guide Hamming distance, 1 (N1) or 2 (N2).\n:param k: maximum controls per guide, default 4; zero gives an empty set.\n:param seed: nonnegative generator seed, default 1.\n:param exclude: controls already taken, such as matched decoys or N1.\n:returns: dict with ``barcodes`` in acceptance order, sorted ``guides``,\n    ``distance``, ``k``, ``seed``, and read-only int64 ``m_d`` and\n    ``library_m_d`` arrays. Both arrays have shape ``(guides, 3)``;\n    columns count control or other-library barcodes at distances 1–3.\n    Exact matches are excluded. Results are memoised per process.\n:raises ValueError: for an unsupported distance, negative or fractional\n    k or seed, or a barcode containing letters outside A/C/G/T.",
+      "source_sha256": "c2264601fd61bdd443276f0189f22fc806516bb5ec8b98aa844676b11bfd099a",
+      "blocks": [
+        {
+          "source": "Substitution-built barcodes that no cell in the guide library should carry.",
+          "source_sha256": "294ed8869ecf1c866c0944dc49286b4c88daab595bc95aaa89449f2313d6d7b5"
+        },
+        {
+          "source": "Distance-one controls have exactly one nearest guide and use a different substituted position for each accepted control of that guide. Distance-two controls have no guide at distance zero or one. Every control lies at least two substitutions from previously accepted and excluded controls. Sorted unique guides are visited round by round, with one seeded generator and up to 200 attempts per guide and round. The same builder serves full-barcode and sequenced-prefix calibration.",
+          "source_sha256": "63d9d0f1694959eed3a5bd5af41c41a58e8c863c0cbc0a13d102b78565147215"
+        },
+        {
+          "source": "real guide barcodes, using nonempty A/C/G/T strings. Duplicates and input order do not affect the result.",
+          "source_sha256": "cbc059824fc215a8fb8e484fa1909c28f779f0392f7ec9169b461c45d02f0951"
+        },
+        {
+          "source": "nearest-guide Hamming distance, 1 (N1) or 2 (N2).",
+          "source_sha256": "9d56b3a00245ccfab1382825bbecc04a62549d23aa2de79b6c13b19ac3647f2b"
+        },
+        {
+          "source": "maximum controls per guide, default 4; zero gives an empty set.",
+          "source_sha256": "35012142f0e5b961691c56dae2a64e8f1f70124f62ea6590d8841a32a4c54f36"
+        },
+        {
+          "source": "nonnegative generator seed, default 1.",
+          "source_sha256": "4bc1be4c92e2d2dd0111d54b8b7866ae942ba233028fccec10d9b1bb307f060a"
+        },
+        {
+          "source": "controls already taken, such as matched decoys or N1.",
+          "source_sha256": "f4ed3080b5aec7035db62c3c2c9860641c9d37597693f52bd3529737eff3c9ae"
+        },
+        {
+          "source": "dict with ``barcodes`` in acceptance order, sorted ``guides``, ``distance``, ``k``, ``seed``, and read-only int64 ``m_d`` and ``library_m_d`` arrays. Both arrays have shape ``(guides, 3)``; columns count control or other-library barcodes at distances 1–3. Exact matches are excluded. Results are memoised per process.",
+          "source_sha256": "3ab67d4ecd446d2cb99f3e3ed757ba0e81a8a6e2094508b86354e7a388f3304e"
+        },
+        {
+          "source": "for an unsupported distance, negative or fractional k or seed, or a barcode containing letters outside A/C/G/T.",
+          "source_sha256": "b4c4d0cb6f0443bed58729536775ca7c21663f685d1b6081ba7c775513d01b7a"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param library:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param distance:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param k:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param seed:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param exclude:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              8
+            ]
+          ]
+        ]
+      ],
+      "return_annotation": null
+    }
+  }
+}

@@ -174,6 +174,11 @@ default after a higher-numbered item takes the next free number:
   Explicit source selections always win. Native classification datasets keep
   one ``crop_index.csv`` pointing to committed crops instead of exporting an
   image file per object; keep the source project with the dataset when moving it.
+- 957 (item 1014): ``ops_decode_fdr_calibration`` and
+  ``ops_prefix_fdr_calibration`` were ``'none'``; new files use ``'never'``
+  to measure the FDR scale from substitution-built control barcodes. Older
+  files keep the entered fixed scale and their original decode tables.
+  ``'none'`` keeps the earlier uncalibrated tables and reports no shuffles.
 
 Public API
 ----------

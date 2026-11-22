@@ -2289,6 +2289,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **moa_benchmark_arrivals}
     paper_item_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "871_911_bmc_paper_items_api_arrivals_2026-11-09.json").read_text(encoding="utf-8"))
+    from tests.test_ops_fdr_never_1014 import _current_never_api
+    paper_item_arrivals = _current_never_api(paper_item_arrivals)
     assert len(paper_item_arrivals) == 171
     assert {key: docs[key] for key in paper_item_arrivals} == paper_item_arrivals
     assert not paper_item_arrivals.keys() & (
@@ -2316,6 +2318,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **paper_item_3_arrivals}
     paper_item_4_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json").read_text(encoding="utf-8"))
+    from tests.test_ops_fdr_never_1014 import _current_never_api
+    paper_item_4_arrivals = _current_never_api(paper_item_4_arrivals)
     assert len(paper_item_4_arrivals) == 112
     assert {key: docs[key] for key in paper_item_4_arrivals} == paper_item_4_arrivals
     assert not paper_item_4_arrivals.keys() & (
@@ -2406,6 +2410,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **nuclear_flatfield_arrivals}
     threshold_auto_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    from tests.test_ops_fdr_never_1014 import _current_never_api
+    threshold_auto_arrivals = _current_never_api(threshold_auto_arrivals)
     assert len(threshold_auto_arrivals) == 2
     assert {key: docs[key] for key in threshold_auto_arrivals} == threshold_auto_arrivals
     assert not threshold_auto_arrivals.keys() & (
@@ -2496,6 +2502,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **autotune_arrivals}
     calibration_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "949_ops_fdr_calibration_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
+    from tests.test_ops_fdr_never_1014 import _current_never_api
+    calibration_arrivals = _current_never_api(calibration_arrivals)
     assert len(calibration_arrivals) == 3
     assert {key: docs[key] for key in calibration_arrivals} == calibration_arrivals
     assert not calibration_arrivals.keys() & (
@@ -2503,6 +2511,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **calibration_arrivals}
+    from tests.test_ops_fdr_never_1014 import _never_api_contracts, _validate_never_api_source
+    never_arrivals = json.loads((Path(__file__).resolve().parent / "data/release_contracts"
+        / "1014_never_api_arrivals_2026-11-22.json").read_text(encoding="utf-8"))
+    assert set(never_arrivals) == {"spacr.ops_sbs.never_barcodes", "spacr.ops_decode.never_scale"}
+    for symbol, body in never_arrivals.items():
+        assert body == _validate_never_api_source(symbol, _never_api_contracts()[symbol])
+    assert {key: docs[key] for key in never_arrivals} == never_arrivals
+    assert not never_arrivals.keys() & (zoo_arrivals.keys() | hidden_close.keys()
+        | worker_arrivals.keys() | home_ui_arrivals.keys() | volume_arrivals.keys())
+    zoo_arrivals = {**zoo_arrivals, **never_arrivals}
     sweep_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "955_ops_fdr_sweep_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
     assert len(sweep_arrivals) == 1

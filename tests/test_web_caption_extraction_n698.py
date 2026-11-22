@@ -94,6 +94,7 @@ tr("Adjacent " "literal {value}", value=3)
 
 
 def test_web_sources_join_production_inventory_before_compact_filtering(web_sources, monkeypatch):
+    """Exercise caption extraction over every registered backend source path."""
     builder, write, root = web_sources
     source_root = root / "spacr"
     (source_root / "qt").mkdir(parents=True)
@@ -106,6 +107,7 @@ def test_web_sources_join_production_inventory_before_compact_filtering(web_sour
         "psf_pipeline.py", "image_import.py",
         "_lineage_trees.py", "run_journal.py", "ml.py",
         "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py", "io.py", "uniprot.py",
+        '_mask_array_batches.py', '_mask_workers.py', 'classification_pixels.py', 'crop_loader.py', 'crop_store.py', 'crops.py', 'gene_measurement_compare.py', 'ome_zarr_convert.py', 'ops_decode.py', 'ops_engine.py', 'ops_prefix.py', 'ops_sbs.py', 'torch_artifacts.py', 'validate.py',
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "_indirect_runtime_ui_sources", set)
