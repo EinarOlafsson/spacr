@@ -3211,6 +3211,8 @@ def _validated_bmc_paper_items_callables(callables):
         / "871_911_bmc_paper_items_api_arrivals_2026-11-09.json").read_text(encoding="utf-8"))
     from tests.test_ops_fdr_never_1014 import _current_never_api
     entries = _current_never_api(entries)
+    from tests.test_ops_maxproj_sources_1012 import _current_external_maxproj_api
+    entries = _current_external_maxproj_api(entries)
     assert len(entries) == 171
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -3977,6 +3979,8 @@ def _validated_ops_maxproj_992_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "992_ops_maxproj_api_arrivals_2026-11-20.json").read_text(encoding="utf-8"))
+    from tests.test_ops_maxproj_sources_1012 import _current_external_maxproj_api
+    entries = _current_external_maxproj_api(entries)
     names = ("calibrate_view", "cell_bins", "cluster_maxproj_phase", "label_clusters_by_view",
              "max_null_pvalues", "max_projection", "maxproj_scores", "pair_bins", "permuted_rows",
              "projected_graph", "projected_rows_graph", "read_views", "view_similarity")
@@ -7187,6 +7191,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         from tests.test_ops_fdr_never_1014 import _current_never_api
         additions = _current_never_api(additions)
+        from tests.test_ops_maxproj_sources_1012 import _current_external_maxproj_api
+        additions = _current_external_maxproj_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":

@@ -1,0 +1,24 @@
+def _knn_graph(similarity: np.ndarray, k: int):
+    """The union of every row's ``k`` most similar rows, as a weighted graph.
+
+    :param similarity: a symmetric rows-by-rows similarity; its diagonal is
+        ignored, and a pair at minus infinity is never an edge.
+    :param k: the neighbours of every row.
+    :returns: an undirected ``igraph.Graph``, each edge weighted by its
+        similarity clipped at 1e-6.
+    :raises ImportError: when the ``clustering`` extra is not installed.
+    """
+    igraph = _optional("igraph")
+    similarity = np.array(similarity, float)
+    np.fill_diagonal(similarity, -np.inf)
+    nearest = np.argpartition(-similarity, k, axis=1)[:, :k]
+    edges: Dict[Tuple[int, int], float] = {}
+    for i in range(len(similarity)):
+        for j in nearest[i]:
+            if not np.isfinite(similarity[i, j]):
+                continue
+            a, b = (i, int(j)) if i < j else (int(j), i)
+            edges[(a, b)] = max(float(similarity[a, b]), 1e-6)
+    graph = igraph.Graph(n=len(similarity), edges=list(edges), directed=False)
+    graph.es["weight"] = list(edges.values())
+    return graph

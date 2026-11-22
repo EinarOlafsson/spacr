@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "base": "817e64b2ce2b770dbc0f8453053bbcaeef3c9556",
+  "maxproj_source_sha256": "ab334a89c63b499b4bb1ae1cc255f8b05b69584743907692efa4912a2fcf88dd",
+  "embedding_helpers_sha256": "cd8b47fe3b651b75cf499922783c4f3e0fd6e603d5a939f8a3c77d36aaf18520",
+  "purpose": "Portable byte oracle: evaluate the frozen original and current code in the same process and numerical environment."
+}

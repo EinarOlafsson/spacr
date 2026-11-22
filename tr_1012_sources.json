@@ -1,0 +1,2226 @@
+{
+  "task": "1012",
+  "base": "299179d9530ac618d82f11cc823f3ad8abd1c001",
+  "api_revisions": {
+    "base": "299179d9530ac618d82f11cc823f3ad8abd1c001",
+    "before_api_count": 14961,
+    "after_api_count": 14961,
+    "baseline_api_sha256": "fad1583e50faf7e8e34e5298393130609701faac72cdbb7dbdef4ce51a9cae7b",
+    "method": "Exact base canonical dictionary reused from the completed 1014s2j overlay; actual shipped public_docstrings parser after, with each revision bound to git-show base syntax.",
+    "symbols": {
+      "spacr.ops_maxproj.calibrate_view": {
+        "file": "spacr/ops_maxproj.py",
+        "line": 403,
+        "before": "A view's pair similarities as normal scores against its own permutation null.\n\nEach similarity's upper-tail probability in the pooled null of its pair bin, with the\nusual +1 correction, ``(1 + nulls at or above it) / (1 + nulls)``, is turned into the normal\nscore ``-Phi^-1(p)``; a high similarity gets a high score.\n\n:param similarity: from :func:`view_similarity`.\n:param null_counts: the view's null counts per pair bin on :data:`SIMILARITY_GRID`.\n:param bins_of_pairs: from :func:`pair_bins`.\n:returns: a symmetric score matrix, zero on the diagonal.",
+        "before_sha256": "c9910d3f58bbbef5c3e65aaa1cc7c69dc2cc52bf6eeade24327d90e1a9173e3e",
+        "source": "Convert square or packed similarities to calibrated upper-tail normal scores.\n\nThe empirical tail uses ``(1 + nulls at or above it) / (1 + nulls)``\nwithin each unordered pair bin. Uncovered negative-infinity similarities\nremain negative infinity, so they cannot win a projection.\n\n:param similarity: from :func:`view_similarity`.\n:param null_counts: per-bin counts on :data:`SIMILARITY_GRID`.\n:param bins_of_pairs: from :func:`pair_bins`, in the same storage layout.\n:returns: calibrated scores with the input precision and storage layout;\n    a square result has zero on the diagonal.",
+        "source_sha256": "687621a43a9fad3413f276179e07be082fd870762d15bb5731b4e5fcc8232018",
+        "signature": "similarity: np.ndarray, null_counts: np.ndarray, bins_of_pairs: np.ndarray",
+        "before_signature": "similarity: np.ndarray, null_counts: np.ndarray, bins_of_pairs: np.ndarray",
+        "return_annotation": "np.ndarray",
+        "before_return_annotation": "np.ndarray",
+        "blocks": [
+          {
+            "source": "Convert square or packed similarities to calibrated upper-tail normal scores.",
+            "source_sha256": "ea45026c471f5f9ca397d78f474851ad2fe1d044bc73f585afc6c792d6a369e8"
+          },
+          {
+            "source": "The empirical tail uses ``(1 + nulls at or above it) / (1 + nulls)`` within each unordered pair bin. Uncovered negative-infinity similarities remain negative infinity, so they cannot win a projection.",
+            "source_sha256": "e50e9b0ac08dd4038e2422ce143fa2bfdae6bf73d4f2e97da9435d637b602ab7"
+          },
+          {
+            "source": "from :func:`view_similarity`.",
+            "source_sha256": "fe8070f5de98211ba91984ab3d54ade8868dc948b7130a4975f52b76bcfb4ef1"
+          },
+          {
+            "source": "per-bin counts on :data:`SIMILARITY_GRID`.",
+            "source_sha256": "cd36bd078e053e6a2d1456ecefb9fe0b069ca99510845d496456706afb8ddcc4"
+          },
+          {
+            "source": "from :func:`pair_bins`, in the same storage layout.",
+            "source_sha256": "e1a6d614b7550175c3f221abcc81b561d9f6acf28f890889b583d4a98d1ab66d"
+          },
+          {
+            "source": "calibrated scores with the input precision and storage layout; a square result has zero on the diagonal.",
+            "source_sha256": "5dbf3ffb32bba28393e9b3a338b900bab8c531b21076aa5e1a871c6f81466e01"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated",
+            [
+              1
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param similarity:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param null_counts:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param bins_of_pairs:",
+              [
+                4
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                5
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_maxproj.label_clusters_by_view": {
+        "file": "spacr/ops_maxproj.py",
+        "line": 534,
+        "before": "Each cluster's within-cluster edges by argmax view, and its broad / thin / mixed label.\n\nA view is broad when its block is ``W`` (the whole profile) or a ``P1`` block holding at\nleast a quarter of the ``n_columns`` columns, and thin when it has at most\n:data:`THIN_COLUMNS` columns. A cluster is ``broad`` when its broad views carry at least\nhalf of its within-cluster edges, else ``thin`` when its thin views do, else ``mixed``.\n\n:param labels: one cluster per gene.\n:param graph: from :func:`projected_graph`.\n:param view: the argmax view matrix from :func:`max_projection`.\n:param views: the views, as from :func:`read_views`.\n:param scores: each view's calibrated scores, as from :func:`calibrate_view`.\n:param null_counts: the max null's counts (all pair bins pooled for the threshold).\n:param n_columns: the profile's measurement columns.\n:param edge_p: the p value the max-null threshold is read at.\n:returns: ``(shares, kinds)``: one row per cluster and view with its ``block``, ``share``\n    of the edges, ``mean_score`` (the mean calibrated score of the within-cluster edges in\n    that view) and ``max_null_score`` (the max-null score at ``edge_p``); and one row per\n    cluster with its ``edges``, ``label`` and ``views`` (every view carrying at least\n    :data:`LISTED_SHARE`, ``;``-joined).",
+        "before_sha256": "3124ce00a9c8148039a7ea5b9994df4d48d3083114e1c2834b1f2ddc7aac1695",
+        "source": "Summarise within-cluster edges by argmax view and broad, thin or mixed label.\n\nA view is broad when its block is ``W`` (the whole profile) or a ``P1`` block holding at\nleast a quarter of the ``n_columns`` columns, and thin when it has at most\n:data:`THIN_COLUMNS` columns. A cluster is ``broad`` when its broad views carry at least\nhalf of its within-cluster edges, else ``thin`` when its thin views do, else ``mixed``.\n\n:param labels: one cluster per gene.\n:param graph: from :func:`projected_graph`.\n:param view: square or packed argmax views from :func:`max_projection`;\n    edges with view -1 have no measured support and are excluded.\n:param views: the views, as from :func:`read_views`.\n:param scores: calibrated score matrices or packed vectors from :func:`calibrate_view`.\n:param null_counts: the max null's counts (all pair bins pooled for the threshold).\n:param n_columns: the number of profile measurement columns.\n:param edge_p: the p value the max-null threshold is read at.\n:returns: ``(shares, kinds)``: one row per cluster and view with its ``block``, ``share``\n    of the edges, ``mean_score`` (the mean calibrated score of the within-cluster edges in\n    that view) and ``max_null_score`` (the max-null score at ``edge_p``); and one row per\n    cluster with its ``edges``, ``label`` and ``views`` (every view carrying at least\n    :data:`LISTED_SHARE`, ``;``-joined).",
+        "source_sha256": "0eaabb4fc19ebc09e29e2910386a1ee4d8aa19c2c4a9d5253c829e8bf6dcf872",
+        "signature": "labels: np.ndarray, graph, view: np.ndarray, views: Sequence[Mapping[str, Any]], scores: Sequence[np.ndarray], null_counts: np.ndarray, n_columns: int, edge_p: float=0.05",
+        "before_signature": "labels: np.ndarray, graph, view: np.ndarray, views: Sequence[Mapping[str, Any]], scores: Sequence[np.ndarray], null_counts: np.ndarray, n_columns: int, edge_p: float=0.05",
+        "return_annotation": "Tuple[pd.DataFrame, pd.DataFrame]",
+        "before_return_annotation": "Tuple[pd.DataFrame, pd.DataFrame]",
+        "blocks": [
+          {
+            "source": "Summarise within-cluster edges by argmax view and broad, thin or mixed label.",
+            "source_sha256": "eb98865bcb200cc58ae31b76481a18cf67994c41e8e5e047d176102b74772531"
+          },
+          {
+            "source": "A view is broad when its block is ``W`` (the whole profile) or a ``P1`` block holding at least a quarter of the ``n_columns`` columns, and thin when it has at most :data:`THIN_COLUMNS` columns. A cluster is ``broad`` when its broad views carry at least half of its within-cluster edges, else ``thin`` when its thin views do, else ``mixed``.",
+            "source_sha256": "636cdef22ed4b51aa605a3a1d39093ec0b54922a12a6aa07cb28fd7378abd16e"
+          },
+          {
+            "source": "one cluster per gene.",
+            "source_sha256": "95fda0655096f004f01fae0ea4d6e46b5689a472736e0a9db2c8e063fccde5c7"
+          },
+          {
+            "source": "from :func:`projected_graph`.",
+            "source_sha256": "1dd17f8f850ec26002301a055bf55fc1e0bcba5a6ceceddb90ccc447955c2b8e"
+          },
+          {
+            "source": "square or packed argmax views from :func:`max_projection`; edges with view -1 have no measured support and are excluded.",
+            "source_sha256": "cde342c6b579e305a3bfaa0b056e6028c06a308b3854ca0166d38688d378d4b3"
+          },
+          {
+            "source": "the views, as from :func:`read_views`.",
+            "source_sha256": "14d0999ce3f6374930dffddf64d82adea2e3a49ec741e23fa8c73db54c0517e5"
+          },
+          {
+            "source": "calibrated score matrices or packed vectors from :func:`calibrate_view`.",
+            "source_sha256": "89ec03f258b339f228121ffbda5afb369d3c3f23d4a3c0f0ac4ad877091e7ce3"
+          },
+          {
+            "source": "the max null's counts (all pair bins pooled for the threshold).",
+            "source_sha256": "9a79445cd3a75be7aa6f3250e5b7a5f653382103446fcf0ccc4f587e658a6c3b"
+          },
+          {
+            "source": "the number of profile measurement columns.",
+            "source_sha256": "8eb3a3201065eec4a1719517421bd67bc0cf1af7b4cd81c4a92655b7737e235f"
+          },
+          {
+            "source": "the p value the max-null threshold is read at.",
+            "source_sha256": "f069efcdf44f822ad52829a8c1f2a59706ab4cf2ff244f652bedd976f4501230"
+          },
+          {
+            "source": "``(shares, kinds)``: one row per cluster and view with its ``block``, ``share`` of the edges, ``mean_score`` (the mean calibrated score of the within-cluster edges in that view) and ``max_null_score`` (the max-null score at ``edge_p``); and one row per cluster with its ``edges``, ``label`` and ``views`` (every view carrying at least :data:`LISTED_SHARE`, ``;``-joined).",
+            "source_sha256": "0c256605eebce9da4d5880187cf75701f4c12178a13d60409a0d729a89fdb0dd"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated",
+            [
+              1
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param labels:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param graph:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param view:",
+              [
+                4
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param views:",
+              [
+                5
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param scores:",
+              [
+                6
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param null_counts:",
+              [
+                7
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param n_columns:",
+              [
+                8
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param edge_p:",
+              [
+                9
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                10
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_maxproj.max_null_pvalues": {
+        "file": "spacr/ops_maxproj.py",
+        "line": 466,
+        "before": "Pair p values of the projected scores against the pooled max-statistic null of their bin.\n\n:param projected: ``M`` from :func:`max_projection`.\n:param null_counts: counts of the null ``M`` per pair bin on :data:`SCORE_GRID`.\n:param bins_of_pairs: from :func:`pair_bins`.\n:returns: ``(1 + null maxima at or above M) / (1 + null maxima)``; one on the diagonal.",
+        "before_sha256": "ddb76f4be8c46802cc974beb326ef8ad4a7adc00dd25c2ff013aadd068668c74",
+        "source": "Return max-null pair p values in square or packed storage.\n\n:param projected: M from :func:`max_projection`.\n:param null_counts: per-bin max-null counts on :data:`SCORE_GRID`.\n:param bins_of_pairs: pair bins in the same layout.\n:returns: upper-tail p values with the input precision; diagonal square\n    entries and pairs without a covered view have p equal to one.",
+        "source_sha256": "9204e7537978c4ae7627c57e6eba7208a42f86b17c1aedebd0781d99ae306c32",
+        "signature": "projected: np.ndarray, null_counts: np.ndarray, bins_of_pairs: np.ndarray",
+        "before_signature": "projected: np.ndarray, null_counts: np.ndarray, bins_of_pairs: np.ndarray",
+        "return_annotation": "np.ndarray",
+        "before_return_annotation": "np.ndarray",
+        "blocks": [
+          {
+            "source": "Return max-null pair p values in square or packed storage.",
+            "source_sha256": "eb2d753deaf9a7f7982b84f2777c55ca044767f75a490fc303d455b02b63930b"
+          },
+          {
+            "source": "M from :func:`max_projection`.",
+            "source_sha256": "9cd9f5ddfa45a7fa2160f0a6824a6d2eaf96a9ff3a6418debb64723114ba5ad7"
+          },
+          {
+            "source": "per-bin max-null counts on :data:`SCORE_GRID`.",
+            "source_sha256": "2a2122bacb683e5fc83a293fc23828cef3cf034eb86e17fb3c1e855452691181"
+          },
+          {
+            "source": "pair bins in the same layout.",
+            "source_sha256": "4e035bca13ddc2fe55201dec202ad7e5675fba3d0b53c4a8c722447488ab67df"
+          },
+          {
+            "source": "upper-tail p values with the input precision; diagonal square entries and pairs without a covered view have p equal to one.",
+            "source_sha256": "f849936c82f98ed99c590e683d1917643d4759b9bc79b8cd365d1d110dc4e1d4"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param projected:",
+              [
+                1
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param null_counts:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param bins_of_pairs:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                4
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_maxproj.max_projection": {
+        "file": "spacr/ops_maxproj.py",
+        "line": 437,
+        "before": "The strongest calibrated score of every pair over the views, and the view it came from.\n\n:param scores: one score matrix per view, in the views file's order.\n:returns: ``(M, view)``; ties go to the lower view index.",
+        "before_sha256": "33880eb4fb830b68405a60aeaed4708b309f2af742c1ff2a1eba5416289c27ca",
+        "source": "Return the strongest calibrated pair score and its first eligible view.\n\n:param scores: score arrays in view order, square or packed.\n:param valid: optional pair masks in the same order and storage layout.\n:returns: ``(M, view)``; ties select the lower eligible view index.\n    Pairs without any eligible view have negative-infinity M and view -1.\n    Packed inputs are consumed one view at a time without stacking them.",
+        "source_sha256": "9bc983b865afe4ae460c968e0c6d7a6fb93616510090a451e6dd3084cd98ba15",
+        "signature": "scores: Sequence[np.ndarray], *, valid=None",
+        "before_signature": "scores: Sequence[np.ndarray]",
+        "return_annotation": "Tuple[np.ndarray, np.ndarray]",
+        "before_return_annotation": "Tuple[np.ndarray, np.ndarray]",
+        "blocks": [
+          {
+            "source": "Return the strongest calibrated pair score and its first eligible view.",
+            "source_sha256": "67cb1c5e18ed96e50f8e978b1f3c65740af598f5c950b99596303594a2b09e9c"
+          },
+          {
+            "source": "score arrays in view order, square or packed.",
+            "source_sha256": "1f1e8e381b63efdfd2b190cc1c8d902136c37d3be67d9db73caf571446a7f353"
+          },
+          {
+            "source": "optional pair masks in the same order and storage layout.",
+            "source_sha256": "9bb4bce5fdcbc066833b94094f4b8229ba8ff11dbffefc8a7a8de2cfaa9a15d0"
+          },
+          {
+            "source": "``(M, view)``; ties select the lower eligible view index. Pairs without any eligible view have negative-infinity M and view -1. Packed inputs are consumed one view at a time without stacking them.",
+            "source_sha256": "463d9192d8840aecffda6f965c4dda11a3272ae84875f75f18ce2a0bc299ef16"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param scores:",
+              [
+                1
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param valid:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                3
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_maxproj.maxproj_scores": {
+        "file": "spacr/ops_maxproj.py",
+        "line": 695,
+        "before": "The calibrated scores of every view, their max projection and its max-null p values.\n\n:param rows: genes by columns (named measurement columns, controls included).\n:param names: the gene names; guides are matched on them.\n:param n_cells: cells per gene (the pair bins).\n:param guide_rows: one row per guide, in the profile's columns.\n:param guide_genes: each guide's gene.\n:param guide_cells: each guide's cell count.\n:param views_ix: each view's column indices.\n:param variance: the per-view PCA variance kept.\n:param similarity: see :func:`view_similarity`.\n:param bins: cell-count quantile bins per gene.\n:param calibration: permutations of each view's null; permutation ``p`` is seeded\n    ``seed + p``.\n:param null: joint permutations of the max null, seeded ``seed + 100000 + p``.\n:param seed: the base seed.\n:param prefix: the control prefix.\n:param workers: processes; the results do not depend on it.\n:param report: called with progress lines.\n:returns: ``{\"scores\", \"projected\", \"view\", \"p\", \"q\", \"pair_bins\", \"calibration_counts\",\n    \"null_counts\", \"control\"}``.",
+        "before_sha256": "956fa1ceff6b45bbfde6c3c1f3933d5ea70b506d66c78bb32d4af736e5ca9993",
+        "source": "Calibrate feature views and compute their max projection and max-null p values.\n\nDefaults retain the signed OPS cosine, guide-permutation null and square\nfloat64 results. The opt-in column null independently shuffles every column\namong covered genes of each view, with independent seeds for each view and\ndraw. A row-label permutation is not used as a gene-level null.\n\n:param rows: genes by named measurement columns.\n:param names: gene names, in row order.\n:param n_cells: cell counts for pair bins, or None to use view-coverage counts.\n:param guide_rows: guide profiles for the guide null; None for the column null.\n:param guide_genes: gene names of guide rows, or None for the column null.\n:param guide_cells: guide cell counts, or None for the column null.\n:param views_ix: measurement-column indices of every view, in fixed order.\n:param variance: the per-view PCA variance kept.\n:param similarity: ``'cosine'`` or ``'shrunk'``.\n:param bins: quantile bins per gene, giving bins squared unordered-pair bins.\n:param calibration: per-view null draws, seeded ``seed + p``.\n:param null: fresh joint max-null draws, seeded ``seed + 100000 + p``.\n:param seed: the base seed; column seeds derive from that draw seed and view index.\n:param prefix: the default non-targeting prefix.\n:param workers: worker processes; results retain the fixed draw order.\n:param report: optional progress-line callback.\n:param null_mode: ``'guides'`` (the OPS default) or opt-in ``'columns'``.\n:param control: ``'prefix'`` derives the OPS control mask; a boolean gene mask\n    supplies controls; None skips TVN and fits shrunk c over all covered rows.\n    Column mode with no matching prefix also uses all covered rows for c.\n:param coverage: genes by views boolean mask; uncovered pairs cannot win a view.\n:param dtype: ``'float64'`` or opt-in ``'float32'`` similarity and result storage.\n:param packed: return row-ordered pairs ``i < j`` in vectors, avoiding dense\n    view stacks; returned metadata includes ``packed`` and ``n_genes``.\n:param block_size: row count of packed similarity tiles, at most this squared.\n:param max_missing: embedding column-missingness cutoff; None keeps the OPS\n    0.05 cutoff in guide mode and all nonempty columns in column mode.\n:returns: ``scores``, ``projected``, ``view``, ``p``, ``q``, ``pair_bins``,\n    ``calibration_counts``, ``null_counts`` and ``control``. Pairs sharing no\n    covered view have score negative infinity, view -1 and p/q equal to one.\n    Coverage restricts the BH family to pairs sharing a measured view.",
+        "source_sha256": "bd3de2e5764e950526d816cf8a74849b86bf73521d3507e89c3dc058a7adf3ed",
+        "signature": "rows: np.ndarray, names: Sequence[str], n_cells=None, guide_rows=None, guide_genes=None, guide_cells=None, views_ix=None, *, variance: float=0.99, similarity: str='cosine', bins: int=3, calibration: int=50, null: int=200, seed: int=DEFAULT_SEED, prefix: str='nontargeting', workers: int=1, report=None, null_mode: str='guides', control='prefix', coverage=None, dtype='float64', packed: bool=False, block_size: int=1024, max_missing=None",
+        "before_signature": "rows: np.ndarray, names: Sequence[str], n_cells: np.ndarray, guide_rows: np.ndarray, guide_genes: Sequence[str], guide_cells: np.ndarray, views_ix: Sequence[np.ndarray], *, variance: float=0.99, similarity: str='cosine', bins: int=3, calibration: int=50, null: int=200, seed: int=DEFAULT_SEED, prefix: str='nontargeting', workers: int=1, report=None",
+        "return_annotation": "Dict[str, Any]",
+        "before_return_annotation": "Dict[str, Any]",
+        "blocks": [
+          {
+            "source": "Calibrate feature views and compute their max projection and max-null p values.",
+            "source_sha256": "49fcc10da063bb38d6cab1df3d9bb1664adc6eada64225d86084bf945cac9580"
+          },
+          {
+            "source": "Defaults retain the signed OPS cosine, guide-permutation null and square float64 results. The opt-in column null independently shuffles every column among covered genes of each view, with independent seeds for each view and draw. A row-label permutation is not used as a gene-level null.",
+            "source_sha256": "4ab8a7b9aab8ef813e101008beec33a59ddfaa668d982f3dd379b44f672ba6ef"
+          },
+          {
+            "source": "genes by named measurement columns.",
+            "source_sha256": "0cd75a51b9fe11387c3229144fa58a3124a98b7207bbca0c1ce727296f8c7c54"
+          },
+          {
+            "source": "gene names, in row order.",
+            "source_sha256": "51e292edec4e986ff475a107ece86efc85a0bad675496f9dbff63844cc69f3c8"
+          },
+          {
+            "source": "cell counts for pair bins, or None to use view-coverage counts.",
+            "source_sha256": "95b1a8e5e50f6a9b18eb18ba9cc4bd182c557e287a763e76ae03009d2bfb6e58"
+          },
+          {
+            "source": "guide profiles for the guide null; None for the column null.",
+            "source_sha256": "2055331c1a1460d5b1b0de585eaa96b98cb8e19c06430c66cd5791ccaa7f82d8"
+          },
+          {
+            "source": "gene names of guide rows, or None for the column null.",
+            "source_sha256": "af10b4c96ada98df74a1d0d179935600df2a49115ffcd1102281aa8cb7abc255"
+          },
+          {
+            "source": "guide cell counts, or None for the column null.",
+            "source_sha256": "14ed450c0ea42b3463db92e8a296bcfc570da41461b369769a07f490a26c3119"
+          },
+          {
+            "source": "measurement-column indices of every view, in fixed order.",
+            "source_sha256": "b1af2d992b0bc3a2550cae5b924292f5f5d2d24ed542a578aed8f4f8c5cbd55f"
+          },
+          {
+            "source": "the per-view PCA variance kept.",
+            "source_sha256": "3aade8f2d1e66996c90de17dd07151f28f261d07952106fbad8761ee352770bc"
+          },
+          {
+            "source": "``'cosine'`` or ``'shrunk'``.",
+            "source_sha256": "160a6ef259fc9c7414e75b239b09d5d5d78db6b0bac4a405fc74c5d27dd24ae7"
+          },
+          {
+            "source": "quantile bins per gene, giving bins squared unordered-pair bins.",
+            "source_sha256": "8b868f5c7a3a50b9f1c9d70de9cf18433b5cafa91bcb83f5a299197384a160d7"
+          },
+          {
+            "source": "per-view null draws, seeded ``seed + p``.",
+            "source_sha256": "63417404d4b3458cdea91502e059f3d3b9764a8faa05813858117f50e5bf57aa"
+          },
+          {
+            "source": "fresh joint max-null draws, seeded ``seed + 100000 + p``.",
+            "source_sha256": "8df8b95fe2b8d113c239e60e5a9a15d383384ad1402e94a9329cba767d08d495"
+          },
+          {
+            "source": "the base seed; column seeds derive from that draw seed and view index.",
+            "source_sha256": "15a0f732fe0b0553e6abdccd98c08d69b9e3f023c5419502e417574e5292349e"
+          },
+          {
+            "source": "the default non-targeting prefix.",
+            "source_sha256": "8b9ce868041f7b5562cb9c0ea9b78a5bcb78f3a335627f63f03450cc76fae9c6"
+          },
+          {
+            "source": "worker processes; results retain the fixed draw order.",
+            "source_sha256": "cbb02d2d0d83297cd7df1badbdf6788778770c6bcbaa1b179da0a0b6f5415158"
+          },
+          {
+            "source": "optional progress-line callback.",
+            "source_sha256": "b84b5d9e730a14300ca8c2f7cae705378b06f86857c93926b62ac88f8a9c497c"
+          },
+          {
+            "source": "``'guides'`` (the OPS default) or opt-in ``'columns'``.",
+            "source_sha256": "99234ce4ac8bdf72dd74735fa05c3fd6d9037cfc46fd4f1a56dba01252ff99b1"
+          },
+          {
+            "source": "``'prefix'`` derives the OPS control mask; a boolean gene mask supplies controls; None skips TVN and fits shrunk c over all covered rows. Column mode with no matching prefix also uses all covered rows for c.",
+            "source_sha256": "5f5e09b69f3bc7513dd93c0cdad113be075635a43e140282d00b0b914de174c1"
+          },
+          {
+            "source": "genes by views boolean mask; uncovered pairs cannot win a view.",
+            "source_sha256": "fc0a3ec69cac43f0c7a45bce2862f7d6da8944e3a4b01b3e22c281337ca13a64"
+          },
+          {
+            "source": "``'float64'`` or opt-in ``'float32'`` similarity and result storage.",
+            "source_sha256": "3e2fc93c3b42e4a1a5574fab0a9f067baa84d1f24efec5826b131cca911dd118"
+          },
+          {
+            "source": "return row-ordered pairs ``i < j`` in vectors, avoiding dense view stacks; returned metadata includes ``packed`` and ``n_genes``.",
+            "source_sha256": "cf4b18e4012e55ae7159f55c7d1cbeb1516742af7931775c6a96fe1a3c7efd46"
+          },
+          {
+            "source": "row count of packed similarity tiles, at most this squared.",
+            "source_sha256": "0c779a2c7fbe50cee10d23056b478b1fdbd3dd9bc77fdb0a2145ad5b59fb73b5"
+          },
+          {
+            "source": "embedding column-missingness cutoff; None keeps the OPS 0.05 cutoff in guide mode and all nonempty columns in column mode.",
+            "source_sha256": "9c13e82134b8f13cfc11758b8f77e8ca01dffa72fed49e8fbea7df9c4a33988c"
+          },
+          {
+            "source": "``scores``, ``projected``, ``view``, ``p``, ``q``, ``pair_bins``, ``calibration_counts``, ``null_counts`` and ``control``. Pairs sharing no covered view have score negative infinity, view -1 and p/q equal to one. Coverage restricts the BH family to pairs sharing a measured view.",
+            "source_sha256": "5131bf0e1e51fce578c4c6449d1955764afff7b587ab84c85efbcb0f3036d43c"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated",
+            [
+              1
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param rows:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param names:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param n_cells:",
+              [
+                4
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param guide_rows:",
+              [
+                5
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param guide_genes:",
+              [
+                6
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param guide_cells:",
+              [
+                7
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param views_ix:",
+              [
+                8
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param variance:",
+              [
+                9
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param similarity:",
+              [
+                10
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param bins:",
+              [
+                11
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param calibration:",
+              [
+                12
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param null:",
+              [
+                13
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param seed:",
+              [
+                14
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param prefix:",
+              [
+                15
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param workers:",
+              [
+                16
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param report:",
+              [
+                17
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param null_mode:",
+              [
+                18
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param control:",
+              [
+                19
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param coverage:",
+              [
+                20
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param dtype:",
+              [
+                21
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param packed:",
+              [
+                22
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param block_size:",
+              [
+                23
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param max_missing:",
+              [
+                24
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                25
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_maxproj.pair_bins": {
+        "file": "spacr/ops_maxproj.py",
+        "line": 233,
+        "before": "The pair bin of every gene pair: the two genes' bins, unordered.\n\n:param gene_bins: from :func:`cell_bins`.\n:param bins: the number of gene bins.\n:returns: a symmetric integer matrix, ``min(b_i, b_j) * bins + max(b_i, b_j)``.",
+        "before_sha256": "2718e1b2a1e2e7698946952d07fb3693a8e6f1ba4edd7966a6a69132d387a97d",
+        "source": "Return unordered gene-bin pairs in a square or packed upper-triangle array.\n\n:param gene_bins: from :func:`cell_bins`.\n:param bins: the number of gene bins.\n:param packed: return row-ordered pairs ``i < j`` without diagonal entries.\n:returns: ``min(b_i, b_j) * bins + max(b_i, b_j)`` for every pair.",
+        "source_sha256": "75b47c856d4fe75c2a916c6c13db028e783a072190e8e12be14234e209753bca",
+        "signature": "gene_bins: np.ndarray, bins: int, *, packed: bool=False",
+        "before_signature": "gene_bins: np.ndarray, bins: int",
+        "return_annotation": "np.ndarray",
+        "before_return_annotation": "np.ndarray",
+        "blocks": [
+          {
+            "source": "Return unordered gene-bin pairs in a square or packed upper-triangle array.",
+            "source_sha256": "61d60b6e2497d7d1f338ca25a8e021fb7c9ce83fcf7c15b51ea6de02d515d260"
+          },
+          {
+            "source": "from :func:`cell_bins`.",
+            "source_sha256": "5b7b1f5a2b3e6fc38bcf4b1e8d2e814691cedc3199b2d5bd45048ac5af4a1303"
+          },
+          {
+            "source": "the number of gene bins.",
+            "source_sha256": "949130a277ad7aac275c0a2889674f10c436334f25228a0d05c41af9e44b8bdf"
+          },
+          {
+            "source": "return row-ordered pairs ``i < j`` without diagonal entries.",
+            "source_sha256": "3855359d419676b59c21069495f2d30f75296d7a9a3c0ad338abc53179f095b3"
+          },
+          {
+            "source": "``min(b_i, b_j) * bins + max(b_i, b_j)`` for every pair.",
+            "source_sha256": "3021036e565fba55f2490e347a9611291b6e24c4645265b82936fcc407829522"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param gene_bins:",
+              [
+                1
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param bins:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param packed:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                4
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_maxproj.projected_graph": {
+        "file": "spacr/ops_maxproj.py",
+        "line": 486,
+        "before": "The gene graph of the projected pairs.\n\nEach gene keeps its ``knn`` strongest partners by ``-log10 p`` among the pairs below\n``edge_p``, and always its single best partner, through\n:func:`spacr.ops_clusters._knn_graph`.\n\n:param pvalues: from :func:`max_null_pvalues`.\n:param knn: partners per gene.\n:param edge_p: the p value an edge must stay below.\n:returns: an undirected igraph graph weighted by ``-log10 p``.",
+        "before_sha256": "a50a5d3c5c1242a9e3b520ed31cc1b11eb8b66657613a265a78a74b8e63155cd",
+        "source": "Build the gene graph of the calibrated projected pairs.\n\nEach gene keeps its ``knn`` strongest partners by ``-log10 p`` among\npairs below ``edge_p`` and its single best partner, through the shared\n:func:`spacr.ops_clusters._knn_graph` owner. Packed input streams one row\nat a time. An explicit validity mask excludes unsupported pairs, leaving\ngenes with no supported partner isolated. The original square call keeps\nits existing graph and tie order.\n\n:param pvalues: square or packed values from :func:`max_null_pvalues`.\n:param knn: partners per gene.\n:param edge_p: the p value an edge must stay below.\n:param n_genes: required gene count for packed input.\n:param valid: optional boolean pair mask in the same layout; use\n    ``result['view'] >= 0`` to retain only pairs sharing a covered view.\n:returns: an undirected igraph graph weighted by ``-log10 p``.",
+        "source_sha256": "b3f786c68efd151d68d0c5c5a17a72f43e5693ef8a00b390fe3eb28b8f42e0c8",
+        "signature": "pvalues: np.ndarray, knn: int, edge_p: float, *, n_genes: Optional[int]=None, valid=None",
+        "before_signature": "pvalues: np.ndarray, knn: int, edge_p: float",
+        "return_annotation": null,
+        "before_return_annotation": null,
+        "blocks": [
+          {
+            "source": "Build the gene graph of the calibrated projected pairs.",
+            "source_sha256": "36abacff469aeb606dd610c68bb180ac6f3e0a73f27b7c14931b5d84f0674425"
+          },
+          {
+            "source": "Each gene keeps its ``knn`` strongest partners by ``-log10 p`` among pairs below ``edge_p`` and its single best partner, through the shared :func:`spacr.ops_clusters._knn_graph` owner. Packed input streams one row at a time. An explicit validity mask excludes unsupported pairs, leaving genes with no supported partner isolated. The original square call keeps its existing graph and tie order.",
+            "source_sha256": "6654dbdfad80546266eafeed5ef83bd4d1be53f23bde473e07684d1fe85207e0"
+          },
+          {
+            "source": "square or packed values from :func:`max_null_pvalues`.",
+            "source_sha256": "0645cee5f2564311e140230079f8edf2d6765c04ebe02a7d90fa0355d83af433"
+          },
+          {
+            "source": "partners per gene.",
+            "source_sha256": "0e93762197d7ad1d7fe4eeb5e4073b918d153751ed64b90df87a1770c41bea7a"
+          },
+          {
+            "source": "the p value an edge must stay below.",
+            "source_sha256": "c3bf3386dee564b085baa981e806a2f9ecbb43f4c5570a80d10b5a188edb6445"
+          },
+          {
+            "source": "required gene count for packed input.",
+            "source_sha256": "fda84a6cff978bb06d691567dd3eedf0e7a3ed2507145acfe9aa74a4f252da23"
+          },
+          {
+            "source": "optional boolean pair mask in the same layout; use ``result['view'] >= 0`` to retain only pairs sharing a covered view.",
+            "source_sha256": "3ffd2f24cc14db1824de9ced8a82b44dc7ecae28af18b9a3f03b905e733d68f5"
+          },
+          {
+            "source": "an undirected igraph graph weighted by ``-log10 p``.",
+            "source_sha256": "2583dceda398a4fc151c439307dec6fa8e13b31cf09ff3ebcf715bfb0b2a3c64"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated",
+            [
+              1
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param pvalues:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param knn:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param edge_p:",
+              [
+                4
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param n_genes:",
+              [
+                5
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param valid:",
+              [
+                6
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                7
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_maxproj.view_similarity": {
+        "file": "spacr/ops_maxproj.py",
+        "line": 254,
+        "before": "The similarity of every gene pair within one view.\n\nThe view's columns are embedded as the evaluate phase embeds a profile\n(:func:`spacr.ops_reference.embed_gene_profiles`: standardise, PCA keeping ``variance``),\nthen whitened on the non-targeting genes in the PCA space\n(:func:`spacr.ops_tvn.tvn_on_controls`, one batch). ``'cosine'`` is the cosine of the\nwhitened rows. ``'shrunk'`` is ``x . y / sqrt((|x|^2 + c) (|y|^2 + c))`` with ``c`` the mean\nsquared norm of the non-targeting rows (the component count once whitened): a gene no\nstronger than the controls stays near zero, which plain cosine cannot do in a view of few\ncolumns, where unrelated genes often point the same way.\n\n:param rows: genes by the view's columns.\n:param control: True for the non-targeting rows.\n:param variance: the PCA variance kept.\n:param seed: the PCA seed.\n:param similarity: ``'cosine'`` (the default) or ``'shrunk'``.\n:returns: a symmetric genes-by-genes matrix in [-1, 1].",
+        "before_sha256": "2f19ddac2a29fb07c948274b9a5f18399eb365cb79e6a37938d0b8c3cf87d2e0",
+        "source": "Compute gene-pair similarities within one covered feature view.\n\nThe existing :func:`spacr.ops_reference.embed_gene_profiles` standardises\nand embeds the covered rows. Controls enable the existing gene-level TVN\nwhen their count exceeds the component count. None skips TVN. The shrunk\nsimilarity is ``x . y / sqrt((|x|^2 + c) (|y|^2 + c))``; without controls,\n``c`` is the mean squared norm over all covered rows.\n\n:param rows: genes by the view columns.\n:param control: a gene-control mask, or None for no control normalisation.\n:param variance: the PCA variance kept.\n:param seed: the PCA seed.\n:param similarity: ``'cosine'`` or ``'shrunk'``.\n:param coverage: a gene mask; uncovered pairs receive negative infinity.\n:param dtype: ``'float64'`` or the opt-in ``'float32'`` computation.\n:param packed: return row-ordered upper-triangle pairs without the diagonal.\n:param block_size: the maximum row count of a packed similarity tile.\n:param max_missing: drop columns at or above this missing fraction.\n:returns: a square or packed similarity array; covered values lie in [-1, 1].",
+        "source_sha256": "d1e30d561d67c3643212553bc1a3e8c52773b8460c14cd6cda1681543c2ca851",
+        "signature": "rows: np.ndarray, control: Optional[np.ndarray], variance: float, seed: int, similarity: str='cosine', *, coverage=None, dtype='float64', packed: bool=False, block_size: int=1024, max_missing: float=0.05",
+        "before_signature": "rows: np.ndarray, control: np.ndarray, variance: float, seed: int, similarity: str='cosine'",
+        "return_annotation": "np.ndarray",
+        "before_return_annotation": "np.ndarray",
+        "blocks": [
+          {
+            "source": "Compute gene-pair similarities within one covered feature view.",
+            "source_sha256": "3963746748402e7162aeda6088520453df97334c158d458b9ef2fc98286da585"
+          },
+          {
+            "source": "The existing :func:`spacr.ops_reference.embed_gene_profiles` standardises and embeds the covered rows. Controls enable the existing gene-level TVN when their count exceeds the component count. None skips TVN. The shrunk similarity is ``x . y / sqrt((|x|^2 + c) (|y|^2 + c))``; without controls, ``c`` is the mean squared norm over all covered rows.",
+            "source_sha256": "9702aab42a90625ab7db56e5cfda7595ed4ad6f9b909fad5cb5bf7e537be47f2"
+          },
+          {
+            "source": "genes by the view columns.",
+            "source_sha256": "a10a2412174cdb0f3b9a9285d753cf2cf6352dcf3956277a36c0b82c1885307d"
+          },
+          {
+            "source": "a gene-control mask, or None for no control normalisation.",
+            "source_sha256": "a436fa82170e7f2aefe29f99ee69f22807bf3e7acfd3056301a7b213152fdbfa"
+          },
+          {
+            "source": "the PCA variance kept.",
+            "source_sha256": "bb4e3fcd9dc26c1c4154a06d3e998ca4fc386004b86b095b8d49e229b7df4554"
+          },
+          {
+            "source": "the PCA seed.",
+            "source_sha256": "fd77912e5e53b70899d068d16d97346429ad8a2e86b5dca65e547d988e28bfd3"
+          },
+          {
+            "source": "``'cosine'`` or ``'shrunk'``.",
+            "source_sha256": "160a6ef259fc9c7414e75b239b09d5d5d78db6b0bac4a405fc74c5d27dd24ae7"
+          },
+          {
+            "source": "a gene mask; uncovered pairs receive negative infinity.",
+            "source_sha256": "61b425bd6485bd31f2d38e3e72788d2201a09893b4b7025825fbf20381828338"
+          },
+          {
+            "source": "``'float64'`` or the opt-in ``'float32'`` computation.",
+            "source_sha256": "6a424e477fb42894afaa30cb8df6adcd5b03f22d5504530bbff30416c7df917f"
+          },
+          {
+            "source": "return row-ordered upper-triangle pairs without the diagonal.",
+            "source_sha256": "24ee027d7ad9349f517d8ae55570887d441796b91568c5248ffc44adb2eb69bf"
+          },
+          {
+            "source": "the maximum row count of a packed similarity tile.",
+            "source_sha256": "f9f51760e298d1b6cbb21b2f12899f6d9f071551b364021c21c0726adb15f73e"
+          },
+          {
+            "source": "drop columns at or above this missing fraction.",
+            "source_sha256": "cfda4fe7805813dcf7d0b71fa938b6c0b29ce55086504c7e65779c91a35e7cf3"
+          },
+          {
+            "source": "a square or packed similarity array; covered values lie in [-1, 1].",
+            "source_sha256": "f5f9c41a0514da038ba57bde534e01db7003cca239036c94fa7a308526e87e8e"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated",
+            [
+              1
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param rows:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param control:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param variance:",
+              [
+                4
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param seed:",
+              [
+                5
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param similarity:",
+              [
+                6
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param coverage:",
+              [
+                7
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param dtype:",
+              [
+                8
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param packed:",
+              [
+                9
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param block_size:",
+              [
+                10
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param max_missing:",
+              [
+                11
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                12
+              ]
+            ]
+          ]
+        ]
+      },
+      "spacr.ops_reference.embed_gene_profiles": {
+        "file": "spacr/ops_reference.py",
+        "line": 579,
+        "before": "The components gene profiles are compared in, as Brieflow embeds them.\n\nColumns with 5 % or more missing values are dropped, other gaps take the\ncolumn median, constant columns are dropped, the rest are standardised,\nand a PCA keeping ``variance`` of the variance is fitted and applied in\none step (``fit_transform``), as ``funk_benchmark.py`` does.\n\n:param values: rows by features.\n:param variance: the share of variance kept.\n:param seed: the PCA seed.\n:returns: rows by components, double precision.",
+        "before_sha256": "301fe72eb89898744af8266fb646fa7b08fbcba98dd8145875bc6871d8476117",
+        "source": "The components gene profiles are compared in, as Brieflow embeds them.\n\nColumns with a missing fraction at or above ``max_missing`` are dropped; other gaps take the\ncolumn median, constant columns are dropped, the rest are standardised,\nand a PCA keeping ``variance`` of the variance is fitted and applied in\none step (``fit_transform``), as ``funk_benchmark.py`` does.\n\n:param values: rows by features.\n:param variance: the share of variance kept.\n:param seed: the PCA seed.\n:param max_missing: the column-missingness cutoff, 0.05 for the existing OPS\n    path; 1.0 retains every nonempty column for an explicit external view.\n:returns: rows by components, double precision.",
+        "source_sha256": "e600b2eeaf560a1fb8a7158aa66377983576c0aa2f2e1e4fe45154b34abe7892",
+        "signature": "values, variance: float=0.99, seed: int=0, *, max_missing: float=0.05",
+        "before_signature": "values, variance: float=0.99, seed: int=0",
+        "return_annotation": "np.ndarray",
+        "before_return_annotation": "np.ndarray",
+        "blocks": [
+          {
+            "source": "The components gene profiles are compared in, as Brieflow embeds them.",
+            "source_sha256": "161fb78c9a33ec4c64e48614f2040e623aa5cc19d40e22d5ab6cfde6c62bf2d5"
+          },
+          {
+            "source": "Columns with a missing fraction at or above ``max_missing`` are dropped; other gaps take the column median, constant columns are dropped, the rest are standardised, and a PCA keeping ``variance`` of the variance is fitted and applied in one step (``fit_transform``), as ``funk_benchmark.py`` does.",
+            "source_sha256": "5a460088e91d3227f601eda7163f54c8fb04a88b2eba61e7a9a7d50c1216e76c"
+          },
+          {
+            "source": "rows by features.",
+            "source_sha256": "18654a4923931d08b8101023653618869e89bcd5376f4dd738778cc3666d3581"
+          },
+          {
+            "source": "the share of variance kept.",
+            "source_sha256": "2a9e7ec25e43a47f472c22ab9878d4f1dc33b12e44b65c908a7d02ccac8ed8f4"
+          },
+          {
+            "source": "the PCA seed.",
+            "source_sha256": "fd77912e5e53b70899d068d16d97346429ad8a2e86b5dca65e547d988e28bfd3"
+          },
+          {
+            "source": "the column-missingness cutoff, 0.05 for the existing OPS path; 1.0 retains every nonempty column for an explicit external view.",
+            "source_sha256": "e528afc779a1aae2fa32d6e989ff09feaffd0279694922c1d97d00493c0914c4"
+          },
+          {
+            "source": "rows by components, double precision.",
+            "source_sha256": "7fd27bb4d2d925fb54bb2a6ad15b483f7ba9fd1a728ac24d8e01bd3fa0a1f38f"
+          }
+        ],
+        "layout": [
+          [
+            "translated",
+            [
+              0
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated",
+            [
+              1
+            ]
+          ],
+          [
+            "raw",
+            ""
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param values:",
+              [
+                2
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param variance:",
+              [
+                3
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param seed:",
+              [
+                4
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":param max_missing:",
+              [
+                5
+              ]
+            ]
+          ],
+          [
+            "translated_prefixed",
+            [
+              ":returns:",
+              [
+                6
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    "source_sha256": {
+      "spacr/ops_maxproj.py": "476e5d6c8a5fede3f85237eb0561d606131c86bc5de18a7fe170437381fb95fb",
+      "spacr/ops_reference.py": "3ff3f6e8ca0698496d5bf80859ecbf9189da78f0a34b3ed8eb8521c41439e785",
+      "spacr/ops_clusters.py": "3bfc9c0c464f3371ec3e6cf4fc02ba037d4f6698fdc33357da54f010dce18656"
+    }
+  },
+  "docstrings": [
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 39,
+      "symbol": "_packed_indices",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Locate unordered, distinct gene pairs in row-ordered upper-triangle storage.",
+      "source_sha256": "4ac02c1150bf72bc31c3a13874e319ccf6087f7783bbc373c92f3da4e1a2c2cb"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 44,
+      "symbol": "_pair_values",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Read the same gene pairs from square or packed storage.",
+      "source_sha256": "b0237e6919b33c3138f11639fc32af667b3014866401ce5f93dd6fc4714fab28"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 49,
+      "symbol": "_pair_row",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Materialise one symmetric pair row, keeping the complete matrix unallocated.",
+      "source_sha256": "624409791d95e855e14eaecbf54473ab48df42183e734920e02d958bac8e5da4"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 58,
+      "symbol": "_projected_strength_rows",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Yield the existing symmetric threshold-and-best graph strengths one row at a time.",
+      "source_sha256": "90ba3e91bbc5aedda3f49751cca5f3f57f5582032a422bf7f31fee26ddf11573"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 80,
+      "symbol": "_pair_rows",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Yield a gene index and the corresponding packed upper-triangle slice.",
+      "source_sha256": "b07272a1a3e1983fd28a6f0badce486f05c21a4e4c77f06fce38d841b35c7ba4"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 89,
+      "symbol": "_covered_pairs",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Cache an immutable pair mask for one exact gene-coverage vector.",
+      "source_sha256": "7078eff14e80d621e98c0e5c0bf6bdef6f3563884ba68f001a454743bfecce36"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 101,
+      "symbol": "_coverage_pairs",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Return the pair mask in the requested layout, without global pair indices.",
+      "source_sha256": "3f0d0633ffb0a7660fe9d850102591a9d6603d43bd72e287ae9a2d8392a8d8b9"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 106,
+      "symbol": "_joint_coverage",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Return pairs sharing at least one covered view, or no restriction.",
+      "source_sha256": "6cacd4503f78efe64e660062a5b70f7e76e977180b4a4d5904ad46f01a6cefab"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 115,
+      "symbol": "_view_arrays",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Embed covered rows with the shared PCA owner and compute similarity scales.",
+      "source_sha256": "8f645011f06eb84ce9397c03408a3ad861818b928fcd9ad6c8e0d48d00debff8"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 134,
+      "symbol": "_column_rows",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Shuffle each column independently among covered genes in one view and draw.",
+      "source_sha256": "bb40917a0f7cfb81cb4f8871ef407a8dd1fe637fe3abe868291ce33dc6c8bd3b"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 143,
+      "symbol": "_iter_view_rows",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Yield view rows and independent column seeds, preserving the guide seed order.",
+      "source_sha256": "902668bf8b7e20ffdca35cf0dbe7a0c813846fd7a9b8a20d7f318ab5324d49ee"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 159,
+      "symbol": "_projection",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Share observed and null view calibration, streaming packed maxima.",
+      "source_sha256": "2dcdb108535ce21a886a66743a73a326760e683c8c5f60e00affadc00ef77d71"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 167,
+      "symbol": "_projection.scores",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Yield each calibrated view and retain only requested observed scores.",
+      "source_sha256": "72bdd69bc9f4ade4d565a1e2e02013f763617cfb6897d8e97318bd0980ce46b1"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 234,
+      "symbol": "pair_bins",
+      "admission": "canonical API",
+      "before": "The pair bin of every gene pair: the two genes' bins, unordered.\n\n:param gene_bins: from :func:`cell_bins`.\n:param bins: the number of gene bins.\n:returns: a symmetric integer matrix, ``min(b_i, b_j) * bins + max(b_i, b_j)``.",
+      "source": "Return unordered gene-bin pairs in a square or packed upper-triangle array.\n\n:param gene_bins: from :func:`cell_bins`.\n:param bins: the number of gene bins.\n:param packed: return row-ordered pairs ``i < j`` without diagonal entries.\n:returns: ``min(b_i, b_j) * bins + max(b_i, b_j)`` for every pair.",
+      "source_sha256": "75b47c856d4fe75c2a916c6c13db028e783a072190e8e12be14234e209753bca"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 258,
+      "symbol": "view_similarity",
+      "admission": "canonical API",
+      "before": "The similarity of every gene pair within one view.\n\nThe view's columns are embedded as the evaluate phase embeds a profile\n(:func:`spacr.ops_reference.embed_gene_profiles`: standardise, PCA keeping ``variance``),\nthen whitened on the non-targeting genes in the PCA space\n(:func:`spacr.ops_tvn.tvn_on_controls`, one batch). ``'cosine'`` is the cosine of the\nwhitened rows. ``'shrunk'`` is ``x . y / sqrt((|x|^2 + c) (|y|^2 + c))`` with ``c`` the mean\nsquared norm of the non-targeting rows (the component count once whitened): a gene no\nstronger than the controls stays near zero, which plain cosine cannot do in a view of few\ncolumns, where unrelated genes often point the same way.\n\n:param rows: genes by the view's columns.\n:param control: True for the non-targeting rows.\n:param variance: the PCA variance kept.\n:param seed: the PCA seed.\n:param similarity: ``'cosine'`` (the default) or ``'shrunk'``.\n:returns: a symmetric genes-by-genes matrix in [-1, 1].",
+      "source": "Compute gene-pair similarities within one covered feature view.\n\nThe existing :func:`spacr.ops_reference.embed_gene_profiles` standardises\nand embeds the covered rows. Controls enable the existing gene-level TVN\nwhen their count exceeds the component count. None skips TVN. The shrunk\nsimilarity is ``x . y / sqrt((|x|^2 + c) (|y|^2 + c))``; without controls,\n``c`` is the mean squared norm over all covered rows.\n\n:param rows: genes by the view columns.\n:param control: a gene-control mask, or None for no control normalisation.\n:param variance: the PCA variance kept.\n:param seed: the PCA seed.\n:param similarity: ``'cosine'`` or ``'shrunk'``.\n:param coverage: a gene mask; uncovered pairs receive negative infinity.\n:param dtype: ``'float64'`` or the opt-in ``'float32'`` computation.\n:param packed: return row-ordered upper-triangle pairs without the diagonal.\n:param block_size: the maximum row count of a packed similarity tile.\n:param max_missing: drop columns at or above this missing fraction.\n:returns: a square or packed similarity array; covered values lie in [-1, 1].",
+      "source_sha256": "d1e30d561d67c3643212553bc1a3e8c52773b8460c14cd6cda1681543c2ca851"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 352,
+      "symbol": "_packed_grid_indices",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Match clipped searchsorted bins on a declared uniform grid with bounded work arrays.\n\n:param values: one packed float32 vector.\n:param grid: the declared similarity or normal-score grid.\n:returns: right-sided bin indices, clipped to the last histogram interval.\n    Estimates are corrected against actual floating-point grid boundaries;\n    endpoints, infinities and NaNs match the existing searchsorted result.",
+      "source_sha256": "2245ee7e53dd6b77db6a98bd16583cf750c7955eec682febe9660381af0a530e"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 382,
+      "symbol": "_counts",
+      "admission": "private/nested",
+      "before": "Counts of the upper-triangle values on a grid, one row per pair bin.",
+      "source": "Count eligible upper-triangle values on a grid in either storage layout.",
+      "source_sha256": "77aca3867a411fb6319cdcf7c55ec66bc75c90631e86583912e210c172c730f9"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 405,
+      "symbol": "calibrate_view",
+      "admission": "canonical API",
+      "before": "A view's pair similarities as normal scores against its own permutation null.\n\nEach similarity's upper-tail probability in the pooled null of its pair bin, with the\nusual +1 correction, ``(1 + nulls at or above it) / (1 + nulls)``, is turned into the normal\nscore ``-Phi^-1(p)``; a high similarity gets a high score.\n\n:param similarity: from :func:`view_similarity`.\n:param null_counts: the view's null counts per pair bin on :data:`SIMILARITY_GRID`.\n:param bins_of_pairs: from :func:`pair_bins`.\n:returns: a symmetric score matrix, zero on the diagonal.",
+      "source": "Convert square or packed similarities to calibrated upper-tail normal scores.\n\nThe empirical tail uses ``(1 + nulls at or above it) / (1 + nulls)``\nwithin each unordered pair bin. Uncovered negative-infinity similarities\nremain negative infinity, so they cannot win a projection.\n\n:param similarity: from :func:`view_similarity`.\n:param null_counts: per-bin counts on :data:`SIMILARITY_GRID`.\n:param bins_of_pairs: from :func:`pair_bins`, in the same storage layout.\n:returns: calibrated scores with the input precision and storage layout;\n    a square result has zero on the diagonal.",
+      "source_sha256": "687621a43a9fad3413f276179e07be082fd870762d15bb5731b4e5fcc8232018"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 438,
+      "symbol": "max_projection",
+      "admission": "canonical API",
+      "before": "The strongest calibrated score of every pair over the views, and the view it came from.\n\n:param scores: one score matrix per view, in the views file's order.\n:returns: ``(M, view)``; ties go to the lower view index.",
+      "source": "Return the strongest calibrated pair score and its first eligible view.\n\n:param scores: score arrays in view order, square or packed.\n:param valid: optional pair masks in the same order and storage layout.\n:returns: ``(M, view)``; ties select the lower eligible view index.\n    Pairs without any eligible view have negative-infinity M and view -1.\n    Packed inputs are consumed one view at a time without stacking them.",
+      "source_sha256": "9bc983b865afe4ae460c968e0c6d7a6fb93616510090a451e6dd3084cd98ba15"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 468,
+      "symbol": "max_null_pvalues",
+      "admission": "canonical API",
+      "before": "Pair p values of the projected scores against the pooled max-statistic null of their bin.\n\n:param projected: ``M`` from :func:`max_projection`.\n:param null_counts: counts of the null ``M`` per pair bin on :data:`SCORE_GRID`.\n:param bins_of_pairs: from :func:`pair_bins`.\n:returns: ``(1 + null maxima at or above M) / (1 + null maxima)``; one on the diagonal.",
+      "source": "Return max-null pair p values in square or packed storage.\n\n:param projected: M from :func:`max_projection`.\n:param null_counts: per-bin max-null counts on :data:`SCORE_GRID`.\n:param bins_of_pairs: pair bins in the same layout.\n:returns: upper-tail p values with the input precision; diagonal square\n    entries and pairs without a covered view have p equal to one.",
+      "source_sha256": "9204e7537978c4ae7627c57e6eba7208a42f86b17c1aedebd0781d99ae306c32"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 488,
+      "symbol": "projected_graph",
+      "admission": "canonical API",
+      "before": "The gene graph of the projected pairs.\n\nEach gene keeps its ``knn`` strongest partners by ``-log10 p`` among the pairs below\n``edge_p``, and always its single best partner, through\n:func:`spacr.ops_clusters._knn_graph`.\n\n:param pvalues: from :func:`max_null_pvalues`.\n:param knn: partners per gene.\n:param edge_p: the p value an edge must stay below.\n:returns: an undirected igraph graph weighted by ``-log10 p``.",
+      "source": "Build the gene graph of the calibrated projected pairs.\n\nEach gene keeps its ``knn`` strongest partners by ``-log10 p`` among\npairs below ``edge_p`` and its single best partner, through the shared\n:func:`spacr.ops_clusters._knn_graph` owner. Packed input streams one row\nat a time. An explicit validity mask excludes unsupported pairs, leaving\ngenes with no supported partner isolated. The original square call keeps\nits existing graph and tie order.\n\n:param pvalues: square or packed values from :func:`max_null_pvalues`.\n:param knn: partners per gene.\n:param edge_p: the p value an edge must stay below.\n:param n_genes: required gene count for packed input.\n:param valid: optional boolean pair mask in the same layout; use\n    ``result['view'] >= 0`` to retain only pairs sharing a covered view.\n:returns: an undirected igraph graph weighted by ``-log10 p``.",
+      "source_sha256": "b3f786c68efd151d68d0c5c5a17a72f43e5693ef8a00b390fe3eb28b8f42e0c8"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 538,
+      "symbol": "label_clusters_by_view",
+      "admission": "canonical API",
+      "before": "Each cluster's within-cluster edges by argmax view, and its broad / thin / mixed label.\n\nA view is broad when its block is ``W`` (the whole profile) or a ``P1`` block holding at\nleast a quarter of the ``n_columns`` columns, and thin when it has at most\n:data:`THIN_COLUMNS` columns. A cluster is ``broad`` when its broad views carry at least\nhalf of its within-cluster edges, else ``thin`` when its thin views do, else ``mixed``.\n\n:param labels: one cluster per gene.\n:param graph: from :func:`projected_graph`.\n:param view: the argmax view matrix from :func:`max_projection`.\n:param views: the views, as from :func:`read_views`.\n:param scores: each view's calibrated scores, as from :func:`calibrate_view`.\n:param null_counts: the max null's counts (all pair bins pooled for the threshold).\n:param n_columns: the profile's measurement columns.\n:param edge_p: the p value the max-null threshold is read at.\n:returns: ``(shares, kinds)``: one row per cluster and view with its ``block``, ``share``\n    of the edges, ``mean_score`` (the mean calibrated score of the within-cluster edges in\n    that view) and ``max_null_score`` (the max-null score at ``edge_p``); and one row per\n    cluster with its ``edges``, ``label`` and ``views`` (every view carrying at least\n    :data:`LISTED_SHARE`, ``;``-joined).",
+      "source": "Summarise within-cluster edges by argmax view and broad, thin or mixed label.\n\nA view is broad when its block is ``W`` (the whole profile) or a ``P1`` block holding at\nleast a quarter of the ``n_columns`` columns, and thin when it has at most\n:data:`THIN_COLUMNS` columns. A cluster is ``broad`` when its broad views carry at least\nhalf of its within-cluster edges, else ``thin`` when its thin views do, else ``mixed``.\n\n:param labels: one cluster per gene.\n:param graph: from :func:`projected_graph`.\n:param view: square or packed argmax views from :func:`max_projection`;\n    edges with view -1 have no measured support and are excluded.\n:param views: the views, as from :func:`read_views`.\n:param scores: calibrated score matrices or packed vectors from :func:`calibrate_view`.\n:param null_counts: the max null's counts (all pair bins pooled for the threshold).\n:param n_columns: the number of profile measurement columns.\n:param edge_p: the p value the max-null threshold is read at.\n:returns: ``(shares, kinds)``: one row per cluster and view with its ``block``, ``share``\n    of the edges, ``mean_score`` (the mean calibrated score of the within-cluster edges in\n    that view) and ``max_null_score`` (the max-null score at ``edge_p``); and one row per\n    cluster with its ``edges``, ``label`` and ``views`` (every view carrying at least\n    :data:`LISTED_SHARE`, ``;``-joined).",
+      "source_sha256": "0eaabb4fc19ebc09e29e2910386a1ee4d8aa19c2c4a9d5253c829e8bf6dcf872"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 662,
+      "symbol": "_view_job",
+      "admission": "private/nested",
+      "before": "One permutation of every view: the null similarities' grid counts (a worker task).",
+      "source": "Count one calibration draw over all views with its declared null and coverage.",
+      "source_sha256": "e765014b9d12a966b67f3bc09aac6d88b733c1860bf2279d58a28f2386268280"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 678,
+      "symbol": "_max_job",
+      "admission": "private/nested",
+      "before": "One joint permutation: the null maxima's grid counts (a worker task).",
+      "source": "Count one joint max-null draw, including eligible negative-infinity scores.",
+      "source_sha256": "39dab6808884ecfdf164e321fae189d208d656c674e90ab6b1ad1c9c2018aaf6"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 704,
+      "symbol": "maxproj_scores",
+      "admission": "canonical API",
+      "before": "The calibrated scores of every view, their max projection and its max-null p values.\n\n:param rows: genes by columns (named measurement columns, controls included).\n:param names: the gene names; guides are matched on them.\n:param n_cells: cells per gene (the pair bins).\n:param guide_rows: one row per guide, in the profile's columns.\n:param guide_genes: each guide's gene.\n:param guide_cells: each guide's cell count.\n:param views_ix: each view's column indices.\n:param variance: the per-view PCA variance kept.\n:param similarity: see :func:`view_similarity`.\n:param bins: cell-count quantile bins per gene.\n:param calibration: permutations of each view's null; permutation ``p`` is seeded\n    ``seed + p``.\n:param null: joint permutations of the max null, seeded ``seed + 100000 + p``.\n:param seed: the base seed.\n:param prefix: the control prefix.\n:param workers: processes; the results do not depend on it.\n:param report: called with progress lines.\n:returns: ``{\"scores\", \"projected\", \"view\", \"p\", \"q\", \"pair_bins\", \"calibration_counts\",\n    \"null_counts\", \"control\"}``.",
+      "source": "Calibrate feature views and compute their max projection and max-null p values.\n\nDefaults retain the signed OPS cosine, guide-permutation null and square\nfloat64 results. The opt-in column null independently shuffles every column\namong covered genes of each view, with independent seeds for each view and\ndraw. A row-label permutation is not used as a gene-level null.\n\n:param rows: genes by named measurement columns.\n:param names: gene names, in row order.\n:param n_cells: cell counts for pair bins, or None to use view-coverage counts.\n:param guide_rows: guide profiles for the guide null; None for the column null.\n:param guide_genes: gene names of guide rows, or None for the column null.\n:param guide_cells: guide cell counts, or None for the column null.\n:param views_ix: measurement-column indices of every view, in fixed order.\n:param variance: the per-view PCA variance kept.\n:param similarity: ``'cosine'`` or ``'shrunk'``.\n:param bins: quantile bins per gene, giving bins squared unordered-pair bins.\n:param calibration: per-view null draws, seeded ``seed + p``.\n:param null: fresh joint max-null draws, seeded ``seed + 100000 + p``.\n:param seed: the base seed; column seeds derive from that draw seed and view index.\n:param prefix: the default non-targeting prefix.\n:param workers: worker processes; results retain the fixed draw order.\n:param report: optional progress-line callback.\n:param null_mode: ``'guides'`` (the OPS default) or opt-in ``'columns'``.\n:param control: ``'prefix'`` derives the OPS control mask; a boolean gene mask\n    supplies controls; None skips TVN and fits shrunk c over all covered rows.\n    Column mode with no matching prefix also uses all covered rows for c.\n:param coverage: genes by views boolean mask; uncovered pairs cannot win a view.\n:param dtype: ``'float64'`` or opt-in ``'float32'`` similarity and result storage.\n:param packed: return row-ordered pairs ``i < j`` in vectors, avoiding dense\n    view stacks; returned metadata includes ``packed`` and ``n_genes``.\n:param block_size: row count of packed similarity tiles, at most this squared.\n:param max_missing: embedding column-missingness cutoff; None keeps the OPS\n    0.05 cutoff in guide mode and all nonempty columns in column mode.\n:returns: ``scores``, ``projected``, ``view``, ``p``, ``q``, ``pair_bins``,\n    ``calibration_counts``, ``null_counts`` and ``control``. Pairs sharing no\n    covered view have score negative infinity, view -1 and p/q equal to one.\n    Coverage restricts the BH family to pairs sharing a measured view.",
+      "source_sha256": "bd3de2e5764e950526d816cf8a74849b86bf73521d3507e89c3dc058a7adf3ed"
+    },
+    {
+      "file": "spacr/ops_reference.py",
+      "line": 581,
+      "symbol": "embed_gene_profiles",
+      "admission": "canonical API",
+      "before": "The components gene profiles are compared in, as Brieflow embeds them.\n\nColumns with 5 % or more missing values are dropped, other gaps take the\ncolumn median, constant columns are dropped, the rest are standardised,\nand a PCA keeping ``variance`` of the variance is fitted and applied in\none step (``fit_transform``), as ``funk_benchmark.py`` does.\n\n:param values: rows by features.\n:param variance: the share of variance kept.\n:param seed: the PCA seed.\n:returns: rows by components, double precision.",
+      "source": "The components gene profiles are compared in, as Brieflow embeds them.\n\nColumns with a missing fraction at or above ``max_missing`` are dropped; other gaps take the\ncolumn median, constant columns are dropped, the rest are standardised,\nand a PCA keeping ``variance`` of the variance is fitted and applied in\none step (``fit_transform``), as ``funk_benchmark.py`` does.\n\n:param values: rows by features.\n:param variance: the share of variance kept.\n:param seed: the PCA seed.\n:param max_missing: the column-missingness cutoff, 0.05 for the existing OPS\n    path; 1.0 retains every nonempty column for an explicit external view.\n:returns: rows by components, double precision.",
+      "source_sha256": "e600b2eeaf560a1fb8a7158aa66377983576c0aa2f2e1e4fe45154b34abe7892"
+    },
+    {
+      "file": "spacr/ops_reference.py",
+      "line": 608,
+      "symbol": "_GeneEmbedding.__init__",
+      "admission": "private/nested",
+      "before": "Fit the embedding on ``values`` (rows by features) and keep the fitted rows as ``rows``.",
+      "source": "Fit the existing embedding with an explicit missingness cutoff and retain ``rows``.",
+      "source_sha256": "902d5f0f73db9e4a3a37996d9f3bafcd133b6db59cf0d5187203062aafa73f71"
+    },
+    {
+      "file": "spacr/ops_clusters.py",
+      "line": 1304,
+      "symbol": "_knn_rows",
+      "admission": "private/nested",
+      "before": null,
+      "source": "Select neighbours from one owned row at a time for the shared graph edge loop.",
+      "source_sha256": "edb4d4f8915152ead775c94878c1c39f6fdd7c2a1656814576d30755d7d675a6"
+    },
+    {
+      "file": "spacr/ops_clusters.py",
+      "line": 1322,
+      "symbol": "_knn_graph",
+      "admission": "private/nested",
+      "before": "The union of every row's ``k`` most similar rows, as a weighted graph.\n\n:param similarity: a symmetric rows-by-rows similarity; its diagonal is\n    ignored, and a pair at minus infinity is never an edge.\n:param k: the neighbours of every row.\n:returns: an undirected ``igraph.Graph``, each edge weighted by its\n    similarity clipped at 1e-6.\n:raises ImportError: when the ``clustering`` extra is not installed.",
+      "source": "Return the union of the strongest neighbours as one shared weighted graph.\n\n:param similarity: a symmetric matrix, or an iterator over symmetric rows\n    when ``n_rows`` is provided; diagonal and nonfinite values are ignored.\n:param k: neighbours per row.\n:param n_rows: opt-in row count for streaming input without a dense copy.\n:returns: an undirected igraph graph with similarities clipped at 1e-6.\n:raises ImportError: when the clustering extra is not installed.",
+      "source_sha256": "26524ba23035689a58558dfc303cd0951b4db6c13b919759a5c5a2d6a76e41eb"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 1,
+      "symbol": "<module>",
+      "admission": "test",
+      "before": null,
+      "source": "Opt-in external feature views preserve the signed OPS path and calibrate gene nulls.",
+      "source_sha256": "702f555ed96f6d1907cbb4546261d86f6592494fef18752dcb9fd30f83bb1f6f"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 22,
+      "symbol": "_one_blas_thread",
+      "admission": "test",
+      "before": null,
+      "source": "Keep nested numerical libraries within the scheduled CPU allocation.",
+      "source_sha256": "14b64c2d2bc21e272122654e7eb828a9159dd3bead7194b46fa8b693f0ed5702"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 31,
+      "symbol": "legacy",
+      "admission": "test",
+      "before": null,
+      "source": "Load hash-bound original scoring and embedding code in this numerical environment.",
+      "source_sha256": "87616ab62277256bdeee8f00566ecf291c4c59788a78108e29d1225dc973339e"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 52,
+      "symbol": "_ops_inputs",
+      "admission": "test",
+      "before": null,
+      "source": "Build an OPS profile exercising guide aggregation and control TVN in both views.",
+      "source_sha256": "b83a8a73817ac94cfe3ebbdec1bc2b50664bedce3c587d80d8f4fb647d9dc2f9"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 65,
+      "symbol": "_assert_result_bytes",
+      "admission": "test",
+      "before": null,
+      "source": "Require identical result keys, array shapes, dtypes and bytes for every output field.",
+      "source_sha256": "7893c2b488f31bb5ebdf6eac987a8e5a469fd14c75e313d9425fdefcad18c972"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 80,
+      "symbol": "test_default_ops_outputs_are_byte_identical_to_frozen_original_code",
+      "admission": "test",
+      "before": null,
+      "source": "Preserve every original OPS result byte with TVN, both similarities and distinct seeds.",
+      "source_sha256": "95971a123a1596b93054e4b3235a8078fa68c5049b69f4bb6eb6ad6fc9c8ff61"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 91,
+      "symbol": "test_column_null_shuffles_columns_independently_within_covered_genes",
+      "admission": "test",
+      "before": null,
+      "source": "Break cross-column structure without relabelling rows or changing uncovered values.",
+      "source_sha256": "086f59a0355fdb945d69d79604c65813cd9cbff51e5433b1e8f076e4eeb78ac3"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 106,
+      "symbol": "_external",
+      "admission": "test",
+      "before": null,
+      "source": "Return unstructured gene measurements with no guides or non-targeting rows.",
+      "source_sha256": "1329386ba5517814fb470fb38a5644e2dafb0f9799c264f0b18b4b97fba94c21"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 113,
+      "symbol": "test_coverage_excludes_unmeasured_pairs_from_each_view_and_every_null",
+      "admission": "test",
+      "before": null,
+      "source": "No-view pairs have score -inf, view -1 and p/q one; null denominators use measured pairs.",
+      "source_sha256": "7551fea7d79b44df169913e94c1326483c96f48fdebb5eda0ca41158698dd0c7"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 141,
+      "symbol": "test_float32_packed_scores_agree_with_float64_square_results",
+      "admission": "test",
+      "before": null,
+      "source": "Precision and storage options preserve pair ordering and calibrated probabilities.",
+      "source_sha256": "f4f08c5f423d7a177fbfa2c72faace530d1c24cf8348c44211c18a89c234855f"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 158,
+      "symbol": "test_packed_pipeline_does_not_allocate_global_upper_triangle_indices",
+      "admission": "test",
+      "before": null,
+      "source": "Keep the external path free of the two quadratic integer-index arrays.",
+      "source_sha256": "f00c4033e24c9ae75fa97f841ee4fc4657995b7c71df9ecd6a38478a54809378"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 162,
+      "symbol": "test_packed_pipeline_does_not_allocate_global_upper_triangle_indices.refused",
+      "admission": "test",
+      "before": null,
+      "source": "Reject a global triangular-index allocation during packed scoring.",
+      "source_sha256": "a930a2ccce8bc4c24dfc34bbc3b3194058fde44200cf57f00d5b6f1453b281c1"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 173,
+      "symbol": "test_packed_projection_streams_views_and_selects_the_first_eligible_tie",
+      "admission": "test",
+      "before": null,
+      "source": "Consume a generator without a view stack and preserve coverage-aware tie handling.",
+      "source_sha256": "eb4857311395c91198b7913dac63dcad393611546c625a5f9fb7098240d88b19"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 178,
+      "symbol": "test_packed_projection_streams_views_and_selects_the_first_eligible_tie.refused",
+      "admission": "test",
+      "before": null,
+      "source": "Reject stacking full view arrays in the packed projection path.",
+      "source_sha256": "923f0243e33c5251f2276d5b76cbbfbc082f7b9fe65e58474b000bc7899bfcfb"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 188,
+      "symbol": "test_optional_missingness_cutoff_reuses_embedding_and_preserves_ops_default",
+      "admission": "test",
+      "before": null,
+      "source": "Retain nonempty external columns while keeping the old OPS embedding bytes.",
+      "source_sha256": "837932f2e6f47df731f4d68d9112163ec7a55d9d6d44b867ad1ff71e3d265a95"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 206,
+      "symbol": "test_shrunk_similarity_without_controls_uses_all_covered_rows",
+      "admission": "test",
+      "before": null,
+      "source": "Compute the explicit all-covered shrinkage constant through the existing embedding.",
+      "source_sha256": "2f0f8a0f0613ca41ae8bb7477c3efa8902948300407440183644e0d3c05d01cf"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 219,
+      "symbol": "test_column_null_calibrates_unstructured_gene_profiles",
+      "admission": "test",
+      "before": null,
+      "source": "Check pooled p-value uniformity across independent structure-free profiles.",
+      "source_sha256": "f5ad1bdcc13795b70474703fbe6a92d71c06b1c1fc508e96d7e96d6331ad2eb2"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 236,
+      "symbol": "test_column_null_recovers_small_planted_complexes",
+      "admission": "test",
+      "before": null,
+      "source": "Recover strong complexes in distinct views above unplanted pair scores.",
+      "source_sha256": "bcc4136c2d67273672d5ea28e83b47a71e251312e9e387738c9dc37932deb414"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 256,
+      "symbol": "test_column_draws_keep_identical_bytes_across_worker_counts",
+      "admission": "test",
+      "before": null,
+      "source": "Use fixed per-view and per-draw seeds independent of process completion order.",
+      "source_sha256": "c75be9f1f4d7243c17550d6426ebd2a0e2230a554b4b3090d47c96690dbd5a60"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 271,
+      "symbol": "legacy_knn",
+      "admission": "test",
+      "before": null,
+      "source": "Load the exact original shared KNN owner to verify default graph bytes.",
+      "source_sha256": "ed87efd02919949d6bd123f4a5bc888bf78eb8b0fd5e2b03d7062ad5f3f52854"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 283,
+      "symbol": "_graph_bytes",
+      "admission": "test",
+      "before": null,
+      "source": "Return the exact vertex count, ordered edges and binary edge weights.",
+      "source_sha256": "502ea2a1b24824d5a1e3ff69c2d9ac11e11c9b654f04f7371fd7a3083750140f"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 289,
+      "symbol": "test_default_dense_graph_and_labels_match_the_original_owners",
+      "admission": "test",
+      "before": null,
+      "source": "Preserve the dense graph edge order, weights and view-label tables exactly.",
+      "source_sha256": "9458761ed1a3c5558212622da255692ef59c766567c5a6c2e0d03b4ecc4a8b35"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 319,
+      "symbol": "test_packed_graph_matches_dense_without_global_pair_or_square_helpers",
+      "admission": "test",
+      "before": null,
+      "source": "Match graph edges and weights while streaming the shared KNN rows.",
+      "source_sha256": "2b9c7ef7ec960e156b05c305dd175f5fd4e8e49515af95f5668194e86326067c"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 329,
+      "symbol": "test_packed_graph_matches_dense_without_global_pair_or_square_helpers.no_global_matrix",
+      "admission": "test",
+      "before": null,
+      "source": "Reject matrix-only helpers while the packed graph is constructed.",
+      "source_sha256": "88a80175a3bcfa4405965989e7e248f064d0228ec02245b23e719b194c34013f"
+    },
+    {
+      "file": "tests/test_ops_maxproj_external_1012.py",
+      "line": 339,
+      "symbol": "test_graph_and_view_labels_exclude_pairs_without_covered_support",
+      "admission": "test",
+      "before": null,
+      "source": "Keep unsupported genes isolated and exclude unmeasured edges from view summaries.",
+      "source_sha256": "1a155cd29e60df7fe3b52aa96c428397145a7b49e910b05fd97c48c364df13c1"
+    },
+    {
+      "file": "tests/test_ops_maxproj_packed_lookup_1012.py",
+      "line": 1,
+      "symbol": "<module>",
+      "admission": "test",
+      "before": null,
+      "source": "Exact packed lookup acceleration preserves legacy histogram and calibrated-score values.",
+      "source_sha256": "421273ea88a552d30d23d901f779ae5ae4c1512bf7e8bc8d4a02aac74c73881b"
+    },
+    {
+      "file": "tests/test_ops_maxproj_packed_lookup_1012.py",
+      "line": 11,
+      "symbol": "test_packed_grid_indices_match_searchsorted_at_every_boundary_and_neighbour",
+      "admission": "test",
+      "before": null,
+      "source": "Match the original bins at all grid boundaries, adjacent float32 values and random inputs.",
+      "source_sha256": "a90465a33c1b223c4ae99e2aff74c457ff4e2b760bf2659910459e0d1c5db896"
+    },
+    {
+      "file": "tests/test_ops_maxproj_packed_lookup_1012.py",
+      "line": 24,
+      "symbol": "_square_values",
+      "admission": "test",
+      "before": null,
+      "source": "Build an exact symmetric similarity/pair-bin fixture with boundary and nonfinite values.",
+      "source_sha256": "5477c15490d7ff524cdf0802494d0db4f96749ff0fcac728ae99b5d5e74fd0bb"
+    },
+    {
+      "file": "tests/test_ops_maxproj_packed_lookup_1012.py",
+      "line": 40,
+      "symbol": "test_packed_histogram_counts_are_exactly_the_frozen_legacy_counts",
+      "admission": "test",
+      "before": null,
+      "source": "Preserve every histogram integer while using packed boundary-corrected lookup.",
+      "source_sha256": "e3405f92bf8fa8a3db17a36967b4727a7ae6c37419aafe4e6154df0cb220b279"
+    },
+    {
+      "file": "tests/test_ops_maxproj_packed_lookup_1012.py",
+      "line": 49,
+      "symbol": "test_packed_calibration_scores_match_frozen_legacy_bytes",
+      "admission": "test",
+      "before": null,
+      "source": "Reuse normal quantiles without changing score bits, signed zero or infinite endpoints.",
+      "source_sha256": "eeed726188b50a5f491a2546cf8925aaf3a157c41193d47430fbfe3750d40442"
+    },
+    {
+      "file": "tests/test_ops_maxproj_sources_1012.py",
+      "line": 1,
+      "symbol": "<module>",
+      "admission": "test",
+      "before": null,
+      "source": "Source-only exact adapters for the opt-in external max-projection API revisions.",
+      "source_sha256": "5977cf77be13e57c2e8b1c4e22d7bcd3c7a9419d4e0e15ef4504a38b8e14d38b"
+    },
+    {
+      "file": "tests/test_ops_maxproj_sources_1012.py",
+      "line": 20,
+      "symbol": "_external_api_sources",
+      "admission": "test",
+      "before": null,
+      "source": "Bind exactly nine revisions to current syntax, prose hashes and immutable before bodies.",
+      "source_sha256": "e1ffe27b281e43f3ce9094c09ec475cbd561899bcc7d9819199381bbee61d8b7"
+    },
+    {
+      "file": "tests/test_ops_maxproj_sources_1012.py",
+      "line": 41,
+      "symbol": "_current_external_maxproj_api",
+      "admission": "test",
+      "before": null,
+      "source": "Apply only the exact bound external-API revisions after existing arrival adapters.",
+      "source_sha256": "b2c5f49821dc91ea1c7a22594aee071ee8d2182bf57523e8b3f20379037b6d19"
+    },
+    {
+      "file": "tests/test_ops_maxproj_sources_1012.py",
+      "line": 51,
+      "symbol": "_historical_external_arrivals",
+      "admission": "test",
+      "before": null,
+      "source": "Read both immutable historical arrivals containing the nine revised symbols.",
+      "source_sha256": "23844327791fc713d475f8ab5ded439cdf1a3fac2e99db1472904c88809e3e60"
+    },
+    {
+      "file": "tests/test_ops_maxproj_sources_1012.py",
+      "line": 60,
+      "symbol": "test_external_adapter_changes_only_its_exact_symbols_and_is_idempotent",
+      "admission": "test",
+      "before": null,
+      "source": "Retain every unrelated arrival, the input mapping and the historical bodies.",
+      "source_sha256": "8e7d19f858da2b02c9692d640ac5d8afb10a83b2011115ac704bf80c419e5352"
+    },
+    {
+      "file": "tests/test_ops_maxproj_sources_1012.py",
+      "line": 74,
+      "symbol": "test_external_adapter_composes_with_existing_never_calibration_revisions",
+      "admission": "test",
+      "before": null,
+      "source": "Keep the prior 1014 adapter and the external revisions independent and composable.",
+      "source_sha256": "37860e547072b319f327672f22c32cea14356c7dd4824904b7fc79a14387d8b8"
+    },
+    {
+      "file": "tests/test_ops_maxproj_sources_1012.py",
+      "line": 86,
+      "symbol": "test_external_adapter_refuses_unbound_third_bodies",
+      "admission": "test",
+      "before": null,
+      "source": "Reject unknown prose instead of weakening an arrival-body assertion.",
+      "source_sha256": "fd2fcf8466563b3bbe39914f2264fea4a86a90b35eb6b8d648680f19471da1ba"
+    }
+  ],
+  "messages": [
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 281,
+      "symbol": "view_similarity",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection dtype must be float32 or float64'",
+      "source_sha256": "3851540ba3400016c29d5d0accd74a806420381f3314522a2d733a8387b87597"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 283,
+      "symbol": "view_similarity",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection similarity must be cosine or shrunk'",
+      "source_sha256": "da94658075033a0de22aecf9c69b994280b8310970b2f1c6c2bb239278350bef"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 285,
+      "symbol": "view_similarity",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection block_size must be a positive integer'",
+      "source_sha256": "774f1efa554c4844d991b49bfcac84bd4017f5f112f8b2e02944bb8266baf9c9"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 288,
+      "symbol": "view_similarity",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'view coverage must have one boolean per gene'",
+      "source_sha256": "3b7ecc665a315f2dba707d9987983736353ace4bd5d37b4563c441d5ecde8274"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 290,
+      "symbol": "view_similarity",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'view controls must have one boolean per gene'",
+      "source_sha256": "0bfd85242dba8c9a9767c2a10e0fea53f9e3d04b445db4c8b25426a128802dfe"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 511,
+      "symbol": "projected_graph",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'packed graph probabilities require n_genes of at least two'",
+      "source_sha256": "983ba9c1dc7e3c540e6fd1be234da61944991a325869c2ac0a76e1ccb8ee46d0"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 514,
+      "symbol": "projected_graph",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'packed graph probabilities must contain every unordered gene pair'",
+      "source_sha256": "2c35481ecb03052a7dd8fab37c9a48fc3ed2556cabb6264058719419025e7a42"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 518,
+      "symbol": "projected_graph",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'graph probabilities must be a square matrix or a packed vector'",
+      "source_sha256": "6b8ce77c45ed9244c194d4e388c05b37c379429759d2b2020a999b340ca042a9"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 522,
+      "symbol": "projected_graph",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'graph validity must have the same layout as its probabilities'",
+      "source_sha256": "d0858d2d8905586fc3206c021a2e0141c62d6c0472729f3fd7f509f6e7078b54"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 747,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection null_mode must be guides or columns'",
+      "source_sha256": "ed3295092b4d0997c95815ee0929838de28283984b964ae1f610bd95de1df4e2"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 749,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection calibration, null and bins must be positive'",
+      "source_sha256": "e971cfa876afdf407f8cff15e7562864c30af405964183b87fcff3ef5f27ffee"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 752,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection dtype must be float32 or float64'",
+      "source_sha256": "3851540ba3400016c29d5d0accd74a806420381f3314522a2d733a8387b87597"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 757,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection needs at least two gene rows and matching names'",
+      "source_sha256": "d5093910dcb9a234dac81216ef61adcc4a4e9c306be8edb3f2fcebccbe5a4c3e"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 759,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection needs at least one view'",
+      "source_sha256": "7c61fd6e5950f7e04a337fc17dcf6118cd42ea01031c93ea7c3bc460ae6537dd"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 763,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection views must contain valid measurement-column indices'",
+      "source_sha256": "b5f35c868c32c90f0fc00da7a35465491170dc981b1bfd4afebc3e037dd4d7e9"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 767,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection coverage must have shape genes by views'",
+      "source_sha256": "19c72d442f4193019c01dc8dc435650182ea56069723bfa589f63d0f5a1233fc"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 770,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection control must be prefix, None or a boolean mask'",
+      "source_sha256": "02be022e76e9e7f06b1a4101e683e2952bab4771a1f47e47d42724066b8bae9d"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 777,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection controls must have one boolean per gene'",
+      "source_sha256": "d3092cf1d67852a093878945ad817c0498756b88931ae524c97191415dd7d811"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 782,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'the guide null needs guide rows, gene names and cell counts'",
+      "source_sha256": "d81fb63392c321c7d43111dcb985eea2cd8cc5501eb499962cf60c640cfb5b32"
+    },
+    {
+      "file": "spacr/ops_maxproj.py",
+      "line": 792,
+      "symbol": "maxproj_scores",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max-projection cell counts must have one value per gene'",
+      "source_sha256": "ad9f9564985429a3d623f5d4b8cdec6face8a5f3bbbe3f4abdabc1cb986d78fa"
+    },
+    {
+      "file": "spacr/ops_reference.py",
+      "line": 613,
+      "symbol": "_GeneEmbedding.__init__",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'max_missing must be greater than zero and at most one'",
+      "source_sha256": "ae23545aaca40d152da443c33fb0e66ca0637241961654cdecc8d42f6af7f4a3"
+    },
+    {
+      "file": "spacr/ops_clusters.py",
+      "line": 1306,
+      "symbol": "_knn_rows",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'streamed graph neighbours must be positive and below the row count'",
+      "source_sha256": "e5823296372bcb77bece09d5574f2ce8528885f272b9255ff2eb8c0787d7920a"
+    },
+    {
+      "file": "spacr/ops_clusters.py",
+      "line": 1310,
+      "symbol": "_knn_rows",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'streamed graph has more rows than declared'",
+      "source_sha256": "4971b956bec9d6c7543d12e44ed28fbc852d111481c75a1c0955ee488ef80949"
+    },
+    {
+      "file": "spacr/ops_clusters.py",
+      "line": 1313,
+      "symbol": "_knn_rows",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'each streamed graph row must contain one value per vertex'",
+      "source_sha256": "6d6bb941f1f8fefa154ad6c8a6abf2107ffd838c466c1044b4fdf7eaf49c5a88"
+    },
+    {
+      "file": "spacr/ops_clusters.py",
+      "line": 1318,
+      "symbol": "_knn_rows",
+      "admission": "API exception, runtime not admitted",
+      "source_expression": "'streamed graph has fewer rows than declared'",
+      "source_sha256": "b6334b108eb7871c9ff4890aca8d4943b88f2682c859331323b5eb2b112abcc4"
+    }
+  ],
+  "home_locales": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "policy": "No translation records are authored here. Canonical API bodies are admitted by the approved exact adapters. New argument-validation exceptions follow the existing English numeric-API pattern and have no new GUI control or runtime UI admission.",
+  "checkpoint_status": "Source checkpoint only; planted and no-place full acceptance receipts remain pending. Not FINAL.",
+  "completed_code_gates": [
+    {
+      "name": "focused core",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "75",
+        "time": "70.096",
+        "timestamp": "2026-11-22T09:57:29.537071-05:00",
+        "hostname": "carruthers"
+      },
+      "console_summary": "75 passed, 20 warnings in 70.28s (0:01:10)"
+    },
+    {
+      "name": "source contracts",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "3",
+        "time": "7.253",
+        "timestamp": "2026-11-22T10:18:57.278888-05:00",
+        "hostname": "carruthers"
+      },
+      "console_summary": "3 passed in 7.46s"
+    },
+    {
+      "name": "full items",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "10",
+        "tests": "2569",
+        "time": "780.589",
+        "timestamp": "2026-11-22T10:27:29.721770-05:00",
+        "hostname": "carruthers"
+      },
+      "console_summary": "1599 passed, 10 skipped, 153 warnings, 960 subtests passed in 780.76s (0:13:00)"
+    },
+    {
+      "name": "full settings",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "2",
+        "tests": "1001",
+        "time": "128.564",
+        "timestamp": "2026-11-22T10:40:34.119546-05:00",
+        "hostname": "carruthers"
+      },
+      "console_summary": "630 passed, 2 skipped, 369 subtests passed in 128.84s (0:02:08)"
+    },
+    {
+      "name": "full ratchets",
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "79",
+        "tests": "4172",
+        "time": "3106.167",
+        "timestamp": "2026-11-22T10:46:04.803933-05:00",
+        "hostname": "carruthers"
+      },
+      "console_summary": "4093 passed, 76 skipped, 3 xfailed, 71 warnings in 3106.29s (0:51:46)"
+    }
+  ],
+  "home_catalog_deselections": [
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
+    "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+    "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
+    "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
+    "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
+    "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
+  ],
+  "strict_source_checks_retained": [
+    "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+    "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
+    "tests/test_the_raw_reader_count_only_goes_down.py",
+    "tests/test_nested_functions_are_documented.py"
+  ],
+  "native_source_consumers": [
+    {
+      "module": "test_docstring_correctness",
+      "test": "test_public_callable_inventory_is_source_derived_not_docstring_derived",
+      "passed": true,
+      "seconds": 57.9980612770014,
+      "new_production_modules": []
+    },
+    {
+      "module": "test_docstring_correctness",
+      "test": "test_callable_boundary_is_cross_checked_with_i18n_extractor",
+      "passed": true,
+      "seconds": 52.44218200999603,
+      "new_production_modules": []
+    },
+    {
+      "module": "test_api_i18n_extractor",
+      "test": "test_public_docstrings_matches_reviewed_visible_coverage",
+      "passed": true,
+      "seconds": 79.96266299799026,
+      "new_production_modules": []
+    }
+  ]
+}

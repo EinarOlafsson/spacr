@@ -1,0 +1,45 @@
+def embed_gene_profiles(values, variance: float = 0.99, seed: int = 0) -> np.ndarray:
+    """The components gene profiles are compared in, as Brieflow embeds them.
+
+    Columns with 5 % or more missing values are dropped, other gaps take the
+    column median, constant columns are dropped, the rest are standardised,
+    and a PCA keeping ``variance`` of the variance is fitted and applied in
+    one step (``fit_transform``), as ``funk_benchmark.py`` does.
+
+    :param values: rows by features.
+    :param variance: the share of variance kept.
+    :param seed: the PCA seed.
+    :returns: rows by components, double precision.
+    """
+    return _GeneEmbedding(values, variance, seed).rows
+
+class _GeneEmbedding:
+    """The gene-level embedding of :func:`embed_gene_profiles`, kept so other rows can be put in it.
+
+    Fitted on the gene rows exactly as :func:`embed_gene_profiles` embeds
+    them; :meth:`transform` then sends rows of the same columns (the guide
+    rows) through the same column screen, fill values, centring, scaling and
+    PCA, as the plate A Hybrid profile's harness does.
+    """
+
+    def __init__(self, values, variance: float = 0.99, seed: int = 0):
+        """Fit the embedding on ``values`` (rows by features) and keep the fitted rows as ``rows``."""
+        from sklearn.decomposition import PCA
+
+        x = np.asarray(values, dtype=float)
+        x = np.where(np.isfinite(x), x, np.nan)
+        self.keep = np.isnan(x).mean(axis=0) < 0.05
+        x = x[:, self.keep]
+        self.fill = np.nanmedian(x, axis=0)
+        x = np.where(np.isnan(x), self.fill, x)
+        spread = x.std(axis=0)
+        self.varying = spread > 0
+        self.mean, self.spread = x[:, self.varying].mean(axis=0), spread[self.varying]
+        self.pca = PCA(n_components=variance, random_state=seed)
+        self.rows = self.pca.fit_transform((x[:, self.varying] - self.mean) / self.spread)
+
+    def transform(self, values) -> np.ndarray:
+        """Rows of the fitted columns in the fitted components, double precision."""
+        x = np.asarray(values, dtype=float)[:, self.keep]
+        x = np.where(np.isfinite(x), x, self.fill)
+        return self.pca.transform((x[:, self.varying] - self.mean) / self.spread)

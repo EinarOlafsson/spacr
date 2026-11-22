@@ -576,10 +576,11 @@ EVALUATION_DEFAULTS: Dict[str, Any] = {
 }
 
 
-def embed_gene_profiles(values, variance: float = 0.99, seed: int = 0) -> np.ndarray:
+def embed_gene_profiles(values, variance: float = 0.99, seed: int = 0, *,
+                        max_missing: float = 0.05) -> np.ndarray:
     """The components gene profiles are compared in, as Brieflow embeds them.
 
-    Columns with 5 % or more missing values are dropped, other gaps take the
+    Columns with a missing fraction at or above ``max_missing`` are dropped; other gaps take the
     column median, constant columns are dropped, the rest are standardised,
     and a PCA keeping ``variance`` of the variance is fitted and applied in
     one step (``fit_transform``), as ``funk_benchmark.py`` does.
@@ -587,9 +588,11 @@ def embed_gene_profiles(values, variance: float = 0.99, seed: int = 0) -> np.nda
     :param values: rows by features.
     :param variance: the share of variance kept.
     :param seed: the PCA seed.
+    :param max_missing: the column-missingness cutoff, 0.05 for the existing OPS
+        path; 1.0 retains every nonempty column for an explicit external view.
     :returns: rows by components, double precision.
     """
-    return _GeneEmbedding(values, variance, seed).rows
+    return _GeneEmbedding(values, variance, seed, max_missing=max_missing).rows
 
 
 class _GeneEmbedding:
@@ -601,13 +604,16 @@ class _GeneEmbedding:
     PCA, as the plate A Hybrid profile's harness does.
     """
 
-    def __init__(self, values, variance: float = 0.99, seed: int = 0):
-        """Fit the embedding on ``values`` (rows by features) and keep the fitted rows as ``rows``."""
+    def __init__(self, values, variance: float = 0.99, seed: int = 0, *, max_missing: float = 0.05):
+        """Fit the existing embedding with an explicit missingness cutoff and retain ``rows``."""
         from sklearn.decomposition import PCA
 
+        max_missing = float(max_missing)
+        if not 0.0 < max_missing <= 1.0:
+            raise ValueError("max_missing must be greater than zero and at most one")
         x = np.asarray(values, dtype=float)
         x = np.where(np.isfinite(x), x, np.nan)
-        self.keep = np.isnan(x).mean(axis=0) < 0.05
+        self.keep = np.isnan(x).mean(axis=0) < max_missing
         x = x[:, self.keep]
         self.fill = np.nanmedian(x, axis=0)
         x = np.where(np.isnan(x), self.fill, x)

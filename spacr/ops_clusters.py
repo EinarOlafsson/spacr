@@ -1300,30 +1300,56 @@ def gene_graph(rows: np.ndarray, kind: str = "phate", k: int = 12, seed: int = 4
     return _knn_graph(unit @ unit.T, k)
 
 
-def _knn_graph(similarity: np.ndarray, k: int):
-    """The union of every row's ``k`` most similar rows, as a weighted graph.
+def _knn_rows(rows, k, n):
+    """Select neighbours from one owned row at a time for the shared graph edge loop."""
+    if not isinstance(k, (int, np.integer)) or not 0 < k < n:
+        raise ValueError("streamed graph neighbours must be positive and below the row count")
+    count = 0
+    for index, values in enumerate(rows):
+        if index >= n:
+            raise ValueError("streamed graph has more rows than declared")
+        values = np.array(values, float)
+        if values.shape != (n,):
+            raise ValueError("each streamed graph row must contain one value per vertex")
+        values[index] = -np.inf
+        yield index, values, np.argpartition(-values, k)[:k]
+        count += 1
+    if count != n:
+        raise ValueError("streamed graph has fewer rows than declared")
 
-    :param similarity: a symmetric rows-by-rows similarity; its diagonal is
-        ignored, and a pair at minus infinity is never an edge.
-    :param k: the neighbours of every row.
-    :returns: an undirected ``igraph.Graph``, each edge weighted by its
-        similarity clipped at 1e-6.
-    :raises ImportError: when the ``clustering`` extra is not installed.
+
+def _knn_graph(similarity: np.ndarray, k: int, *, n_rows: Optional[int] = None):
+    """Return the union of the strongest neighbours as one shared weighted graph.
+
+    :param similarity: a symmetric matrix, or an iterator over symmetric rows
+        when ``n_rows`` is provided; diagonal and nonfinite values are ignored.
+    :param k: neighbours per row.
+    :param n_rows: opt-in row count for streaming input without a dense copy.
+    :returns: an undirected igraph graph with similarities clipped at 1e-6.
+    :raises ImportError: when the clustering extra is not installed.
     """
     igraph = _optional("igraph")
-    similarity = np.array(similarity, float)
-    np.fill_diagonal(similarity, -np.inf)
-    nearest = np.argpartition(-similarity, k, axis=1)[:, :k]
+    if n_rows is None:
+        similarity = np.array(similarity, float)
+        np.fill_diagonal(similarity, -np.inf)
+        nearest = np.argpartition(-similarity, k, axis=1)[:, :k]
+        n = len(similarity)
+        rows = ((i, similarity[i], nearest[i]) for i in range(n))
+    else:
+        n = int(n_rows)
+        rows = _knn_rows(similarity, k, n)
     edges: Dict[Tuple[int, int], float] = {}
-    for i in range(len(similarity)):
-        for j in nearest[i]:
-            if not np.isfinite(similarity[i, j]):
+    for i, values, neighbours in rows:
+        for j in neighbours:
+            if not np.isfinite(values[j]):
                 continue
             a, b = (i, int(j)) if i < j else (int(j), i)
-            edges[(a, b)] = max(float(similarity[a, b]), 1e-6)
-    graph = igraph.Graph(n=len(similarity), edges=list(edges), directed=False)
+            value = similarity[a, b] if n_rows is None else values[j]
+            edges[(a, b)] = max(float(value), 1e-6)
+    graph = igraph.Graph(n=n, edges=list(edges), directed=False)
     graph.es["weight"] = list(edges.values())
     return graph
+
 
 
 def leiden_partitions(graph, resolutions: Iterable[float], seeds: Iterable[int]
