@@ -483,6 +483,9 @@ def _calibrate(model, sample, settings, *, site, evaluate=None, per_field=None,
     per_field)``. Without a CUDA device nothing is probed: ``tiles = min(cap, 8)``
     and ``max_fields`` is None (the caller applies its RAM limit, capped at 50).
 
+    A model that names no device runs on the CPU; the current CUDA card is
+    never assumed.
+
     :param model: the loaded segmentation model.
     :param sample: the first field of the seeded order, as the real call gets it.
     :param settings: the run settings (``mask_eval_batch_cap``,
