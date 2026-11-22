@@ -1,0 +1,286 @@
+{
+  "task": "1012fix",
+  "base": "2c65174074ca3900a83fcc71ea07a5e179202bf4",
+  "overall_acceptance": "FAIL",
+  "keep_1012_off_nightly": true,
+  "primary": {
+    "method": "AUDIT specified FALLBACK; no per-pair p/view was persisted by the original harness.",
+    "gates": {
+      "map_excess_ci_lower_positive": true,
+      "map_spearman_positive_p05": true,
+      "pair_share_spearman_positive_p05": true,
+      "no_plant_p05_share_in_03_07": false
+    },
+    "pooled8": {
+      "complexes": 65,
+      "members": 520,
+      "map_planted": 0.009585502732495305,
+      "map_no_plant": 0.0020652727328825437,
+      "paired_map_excess": 0.00752022999961276,
+      "paired_complex_bootstrap_95_ci": [
+        0.003632283359532346,
+        0.01260981077873691
+      ],
+      "pair_share_planted": 0.03736263736263737,
+      "pair_share_no_plant": 0.002747252747252747,
+      "random": {
+        "pair_share": {
+          "pooled500_view_means": {
+            "mean": 0.0025879120879120877,
+            "range_2_5_97_5": [
+              0.0,
+              0.010989010989010988
+            ]
+          },
+          "all6500_set_distribution": {
+            "mean": 0.0025879120879120877,
+            "range_2_5_97_5": [
+              0.0,
+              0.03571428571428571
+            ]
+          }
+        },
+        "pair_p05_share_all_views": {
+          "pooled500_view_means": {
+            "mean": 0.03297802197802197,
+            "range_2_5_97_5": [
+              0.008241758241758242,
+              0.07836538461538455
+            ]
+          },
+          "all6500_set_distribution": {
+            "mean": 0.03297802197802197,
+            "range_2_5_97_5": [
+              0.0,
+              0.14285714285714285
+            ]
+          }
+        },
+        "map": {
+          "pooled500_view_means": {
+            "mean": 0.002639892324026711,
+            "range_2_5_97_5": [
+              0.0015737614514382586,
+              0.006328714522922524
+            ]
+          },
+          "all6500_set_distribution": {
+            "mean": 0.0026398923240267113,
+            "range_2_5_97_5": [
+              0.0012516025272588996,
+              0.009663889555499204
+            ]
+          }
+        }
+      }
+    },
+    "trend": {
+      "pair_share": {
+        "rho": 0.28791652887913527,
+        "p": 0.038473177237406266,
+        "positive_p05": true
+      },
+      "map": {
+        "rho": 0.5638639804469234,
+        "p": 1.3434362155571691e-05,
+        "positive_p05": true
+      }
+    },
+    "no_plant_p05_share_all260_complexes": 0.025686813186813186,
+    "seconds": 260.4292897609994
+  },
+  "pooled_map_not_strictly_monotone": {
+    "strength": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "mean": [
+      0.002122245652322191,
+      0.005125873806005323,
+      0.0035557930739616387,
+      0.009585502732495307
+    ]
+  },
+  "readout_complete": true,
+  "random_sets": 25900,
+  "separate_sensitivity_sets": 100,
+  "graph_unchanged": true,
+  "original_pipeline_arms_not_rerun": true,
+  "original1012_branch_unchanged": "2c65174074ca3900a83fcc71ea07a5e179202bf4",
+  "plant_retention": "the plant survives into PCA; the matched graph loses it",
+  "primary_receipt": "primary-fallback-readout.json",
+  "validation": {
+    "focused": {
+      "passed": 48,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "junit_seconds": 17.646,
+      "subtests_passed": 0,
+      "seconds": 17.79,
+      "pytest_summary": "48 passed, 7 warnings in 17.79s",
+      "junit_case_outcomes": {
+        "passed": 48,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "xfailed": 0,
+        "junit_seconds": 17.646
+      }
+    },
+    "source_contracts": {
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "xfailed": 0,
+      "junit_seconds": 2.877,
+      "subtests_passed": 0,
+      "seconds": 3.03,
+      "pytest_summary": "3 passed in 3.03s",
+      "junit_case_outcomes": {
+        "passed": 3,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "xfailed": 0,
+        "junit_seconds": 2.877
+      }
+    },
+    "items": {
+      "passed": 1599,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 10,
+      "xfailed": 0,
+      "junit_seconds": 495.826,
+      "subtests_passed": 960,
+      "seconds": 496.36,
+      "pytest_summary": "1599 passed, 10 skipped, 153 warnings, 960 subtests passed in 496.36s (0:08:16)",
+      "junit_case_outcomes": {
+        "passed": 1599,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 10,
+        "xfailed": 0,
+        "junit_seconds": 495.826
+      }
+    },
+    "settings": {
+      "passed": 630,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 2,
+      "xfailed": 0,
+      "junit_seconds": 76.194,
+      "subtests_passed": 369,
+      "seconds": 76.31,
+      "pytest_summary": "630 passed, 2 skipped, 369 subtests passed in 76.31s (0:01:16)",
+      "junit_case_outcomes": {
+        "passed": 629,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 1,
+        "xfailed": 0,
+        "junit_seconds": 76.194
+      }
+    },
+    "source_rules": {
+      "passed": 4093,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 76,
+      "xfailed": 3,
+      "junit_seconds": 1496.712,
+      "subtests_passed": 0,
+      "seconds": 1496.84,
+      "pytest_summary": "4093 passed, 76 skipped, 3 xfailed, 71 warnings in 1496.84s (0:24:56)",
+      "junit_case_outcomes": {
+        "passed": 4093,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 76,
+        "xfailed": 3,
+        "junit_seconds": 1496.712
+      }
+    }
+  },
+  "process_results": {
+    "recovery-source-contracts": 0,
+    "items-settings": 0,
+    "collect-ratchets": 0,
+    "ratchets": 0
+  },
+  "native_source_consumers": [
+    {
+      "module": "test_docstring_correctness",
+      "test": "test_public_callable_inventory_is_source_derived_not_docstring_derived",
+      "passed": true,
+      "seconds": 34.72898081499443,
+      "new_production_modules": []
+    },
+    {
+      "module": "test_docstring_correctness",
+      "test": "test_callable_boundary_is_cross_checked_with_i18n_extractor",
+      "passed": true,
+      "seconds": 37.92115944100078,
+      "new_production_modules": []
+    },
+    {
+      "module": "test_api_i18n_extractor",
+      "test": "test_public_docstrings_matches_reviewed_visible_coverage",
+      "passed": true,
+      "seconds": 55.47887533198809,
+      "new_production_modules": []
+    }
+  ],
+  "standing_home_catalog_deselections": [
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
+    "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+    "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
+    "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
+    "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
+    "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
+  ],
+  "strict_source_checks_retained": [
+    "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+    "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
+    "tests/test_the_raw_reader_count_only_goes_down.py",
+    "tests/test_nested_functions_are_documented.py"
+  ],
+  "english_docstrings": 17,
+  "canonical_public_api_revisions": [
+    "spacr.ops_clusters.complex_metrics"
+  ],
+  "canonical_public_api_blocks": 6,
+  "e2e_standing_rule_scope": "No OPS default, decode, segmentation or calling-path change in1012fix; new standing rule not triggered.",
+  "translations": "Home-owned, none authored; no generated catalogs/pins changed.",
+  "source_rule_pytest_summary": "4093 passed, 76 skipped, 3 xfailed, 71 warnings in 1496.84s (0:24:56)"
+}

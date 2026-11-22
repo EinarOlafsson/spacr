@@ -1,0 +1,16 @@
+{
+  "base": "2c65174074ca3900a83fcc71ea07a5e179202bf4",
+  "historical_arrival": "912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json",
+  "symbols": {
+    "spacr.ops_clusters.complex_metrics": {
+      "file": "spacr/ops_clusters.py",
+      "line": 1382,
+      "before": "Complex recovery and partner-in-cluster share of one clustering.\n\n:param genes: the scored genes.\n:param labels: one cluster label per gene.\n:param groups: ``{complex: members}`` (CORUM).\n:param halves: ``{complex: 0 or 1}``; complexes of half 1 (REPORT) are\n    scored for recovery.\n:returns: ``REPORT_complexes`` (REPORT complexes with at least three\n    scored members), ``complexes_recovered_pct`` (those with at least\n    half their scored members in one cluster) and\n    ``CORUM_partner_in_cluster_pct`` (genes with a CORUM partner among\n    the scored genes, of any half, that share its cluster).",
+      "source": "Complex recovery and partner-in-cluster share of one clustering.\n\n:param genes: the scored genes.\n:param labels: one cluster label per gene.\n:param groups: ``{complex: members}`` (CORUM).\n:param halves: ``{complex: 0 or 1}``; complexes of half 1 (REPORT) are\n    scored for recovery.\n:returns: ``REPORT_complexes`` (REPORT complexes with at least three\n    distinct scored members), ``complexes_recovered_pct`` (those with\n    at least two members in a cluster enriched by a one-sided Fisher\n    test, Bonferroni-corrected over all nonempty scored clusters at\n    p < 0.05) and ``CORUM_partner_in_cluster_pct`` (genes with a CORUM\n    partner among the scored genes, of any half, that share its cluster).\n    Recovery therefore accounts for the scored set size, cluster sizes\n    and number of clusters; sharing half a set is not a fixed cutoff.",
+      "before_sha256": "53ec454e89a09eb50c8489b9f33d067fe0b7d254e3f6bb9d415a1c64d3bab9bb",
+      "source_sha256": "bd56ebc662848e770c6b19f256163d05befc23154e37b146d717a45109984554",
+      "signature": "genes: Sequence[str], labels: np.ndarray, groups: Mapping[str, Sequence[str]], halves: Mapping[str, int]",
+      "return_annotation": "Dict[str, Any]"
+    }
+  }
+}

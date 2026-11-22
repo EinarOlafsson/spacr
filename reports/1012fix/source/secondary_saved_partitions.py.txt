@@ -1,0 +1,72 @@
+"""Read saved matched partitions and compare co-clustering with size-preserving nulls."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import sys
+import time
+
+import numpy as np
+
+R=Path(__file__).resolve().parent
+T=Path('/media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-1012fix')
+sys.path[:0]=[str(T),str(R.parent/'1012')]
+from acceptance_inputs import input_hashes,load_inputs
+from spacr import ops_clusters as C
+from spacr.tabular import read_table
+
+
+def kept(labels,members):
+    """Use the production partner metric to detect any shared cluster within each set."""
+    names=[str(i) for i in range(8)]
+    return np.array([C.complex_metrics(names,labels[ix],{'set':names},{})[
+        'CORUM_partner_in_cluster_pct']>0 for ix in members],dtype=bool)
+
+
+def main():
+    """Permute the saved full label vectors 500 times without rebuilding either arm."""
+    assert os.environ['CUDA_VISIBLE_DEVICES']==''
+    start=time.monotonic()
+    hashes=input_hashes()
+    _,names,_,_,_,planted,_,_,_=load_inputs()
+    index={gene:i for i,gene in enumerate(names)}
+    groups=list(planted.groupby('complex',sort=False))
+    members=[np.array([index[str(g)] for g in group.gene]) for _,group in groups]
+    assert len(members)==260 and all(len(ix)==8 for ix in members)
+    descriptions=[{'complex':str(name),'view':str(group.view.iloc[0]),
+                   'strength':float(group.strength.iloc[0])} for name,group in groups]
+    result={'method':'At least two members co-clustered, via complex_metrics partner share > 0; 500 full-vector label permutations preserve every cluster size.',
+            'seed':C.SWEEP_CONTROL_SEED,'permutations':500,'arms':{},'input_sha256':hashes}
+    for arm in ('no_plant','planted'):
+        path=R.parent/'1012'/'acceptance'/arm/'matched_partition.parquet'
+        before=hashlib.sha256(path.read_bytes()).hexdigest()
+        table=read_table(path,canonicalise=False,report=None)
+        print(arm,'columns',list(table.columns),flush=True)
+        assert list(table.columns)==['gene','cluster'],list(table.columns)
+        assert len(table)==len(names) and table.gene.astype(str).is_unique
+        labels=table.set_index('gene').loc[names,'cluster'].to_numpy()
+        observed=kept(labels,members)
+        rng=np.random.default_rng(C.SWEEP_CONTROL_SEED)
+        null=np.stack([kept(rng.permutation(labels),members) for _ in range(500)])
+        strata=[]
+        for strength in (1,2,4,8):
+            ix=np.array([i for i,row in enumerate(descriptions) if row['strength']==strength])
+            null_share=null[:,ix].mean(axis=1)
+            share=float(observed[ix].mean())
+            strata.append({'strength':strength,'complexes':len(ix),'kept':int(observed[ix].sum()),
+                           'share':share,'null_mean':float(null_share.mean()),
+                           'null_95_interval':np.percentile(null_share,[2.5,97.5]).tolist(),
+                           'permutation_p_greater':float((1+np.sum(null_share>=share))/501)})
+        result['arms'][arm]={'partition_sha256':before,'clusters':len(np.unique(labels)),
+            'strata':strata,'complexes':[{**row,'kept':bool(observed[i]),
+                'null_kept_count':int(null[:,i].sum())} for i,row in enumerate(descriptions)]}
+        assert hashlib.sha256(path.read_bytes()).hexdigest()==before
+        print(arm,json.dumps(strata),flush=True)
+    assert input_hashes()==hashes
+    result['seconds']=time.monotonic()-start
+    (R/'secondary-saved-partitions.json').write_text(json.dumps(result,indent=2)+'\n')
+    print('seconds',result['seconds'],flush=True)
+
+
+if __name__=='__main__':
+    main()

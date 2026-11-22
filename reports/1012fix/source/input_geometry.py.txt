@@ -1,0 +1,105 @@
+"""Measure prescribed 8x input geometry without any null fit, arm rerun or rescoring."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import sys
+import time
+
+import numpy as np
+
+R=Path(__file__).resolve().parent
+PRIOR=R.parent/'1012'
+T=Path('/media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-1012fix')
+sys.path[:0]=[str(T),str(PRIOR)]
+from acceptance_inputs import input_hashes,load_inputs,plant_views
+
+
+def cosines(values):
+    """Report pair cosines for a small diagnostic block with missing entries zero-filled."""
+    x=np.nan_to_num(np.asarray(values,float),nan=0,posinf=0,neginf=0)
+    norm=np.linalg.norm(x,axis=1)
+    x=x/np.maximum(norm[:,None],1e-24)
+    return (x@x.T)[np.triu_indices(len(x),1)]
+
+
+def main():
+    """Reconstruct the exact deterministic inputs and quantify direction and partner alignment."""
+    assert os.environ['CUDA_VISIBLE_DEVICES']==''
+    started=time.monotonic()
+    saved=json.loads((PRIOR/'acceptance/planted/summary.json').read_text())
+    unplanted=json.loads((PRIOR/'acceptance/no_plant/summary.json').read_text())
+    hashes=input_hashes()
+    assert hashes==saved['input_sha256']==unplanted['input_sha256']
+    handoff=json.loads((T/'reports/1012_external_maxproj/acceptance.json').read_text())
+    assert hashlib.sha256((PRIOR/'acceptance_inputs.py').read_bytes()).hexdigest()==handoff['acceptance_scripts_at_handoff']['acceptance_inputs.py']['sha256']
+    rows,names,views,indices,coverage,planted,pairs,markers,manifest=load_inputs()
+    shifted,expanded,records=plant_views(rows,names,views,indices,coverage,planted,manifest)
+    assert records==saved['plant_records']
+    gene_index={name:i for i,name in enumerate(names)}
+    by_view={view['name']:i for i,view in enumerate(views)}
+    dimensions={view['name']:len(indices[i]) for i,view in enumerate(views)}
+    statistics={name:{'raw_before':[],'raw_after':[],'standardized_before':[],
+                      'standardized_after':[],'alignment_before':[],'alignment_after':[],
+                      'missing_counts':[]} for name in by_view}
+    checks=[]
+    for record in records:
+        if record['strength']!=8:
+            continue
+        v=by_view[record['view']]
+        members=planted.loc[planted['complex'].astype(str)==record['complex'],'gene'].astype(str)
+        members=np.array([gene_index[name] for name in members],dtype=int)
+        assert coverage[members,v].all() and len(members)==8
+        base=rows[:,indices[v]]
+        before=base[members]
+        after=shifted[np.ix_(members,expanded[v])]
+        observed=np.where(np.isfinite(base[coverage[:,v]]),base[coverage[:,v]],np.nan)
+        mean=np.nanmean(observed,axis=0)
+        spread=np.nanstd(observed,axis=0,ddof=0)
+        varying=np.isfinite(spread)&(spread>0)
+        rng=np.random.default_rng(int(manifest['planted']['seed'])+record['complex_index'])
+        direction=rng.normal(size=base.shape[1]);direction/=np.linalg.norm(direction)
+        assert hashlib.sha256(direction.tobytes()).hexdigest()==record['direction_sha256']
+        standardized_before=(before[:,varying]-mean[varying])/spread[varying]
+        standardized_after=(after[:,varying]-mean[varying])/spread[varying]
+        unit=direction[varying];unit=unit/np.linalg.norm(unit)
+        z0=np.nan_to_num(standardized_before,nan=0,posinf=0,neginf=0)
+        z1=np.nan_to_num(standardized_after,nan=0,posinf=0,neginf=0)
+        a0=z0@unit/np.maximum(np.linalg.norm(z0,axis=1),1e-24)
+        a1=z1@unit/np.maximum(np.linalg.norm(z1,axis=1),1e-24)
+        stats=statistics[record['view']]
+        for key,value in (('raw_before',cosines(before)),('raw_after',cosines(after)),
+                          ('standardized_before',cosines(standardized_before)),
+                          ('standardized_after',cosines(standardized_after)),
+                          ('alignment_before',a0),('alignment_after',a1)):
+            stats[key].extend(np.asarray(value).tolist())
+        stats['missing_counts'].extend(np.sum(~np.isfinite(before),axis=1).tolist())
+        checks.append({'complex':record['complex'],'view':record['view'],'members':8,
+                       'direction_alignment_after_median':float(np.median(a1)),
+                       'standardized_pair_cosine_after_median':float(np.median(cosines(standardized_after)))})
+    result=[]
+    for name,values in statistics.items():
+        d=dimensions[name]
+        result.append({'view':name,'dimensions':d,'members':len(values['alignment_after']),
+                       'pairs':len(values['standardized_after']),
+                       'recipe_8_over_sqrt_d':8/np.sqrt(d),
+                       'bounded_alignment_reference':8/np.sqrt(d+64),
+                       'isotropic_pair_reference':64/(d+64),
+                       **{key+'_median':float(np.median(value)) for key,value in values.items()}})
+    assert len(checks)==65 and sum(row['members'] for row in result)==520
+    assert hashes==input_hashes()
+    receipt={'kind':'Diagnostic input geometry only; no PCA/null fit, scoring or arm rerun.',
+             'saved_arrays_available':False,
+             'reconstruction':'Exact eight saved approved inputs and original adapter, all260 saved direction records equal; original result arrays were metadata only and discarded.',
+             'baseline_commit':'2c65174074ca3900a83fcc71ea07a5e179202bf4',
+             'input_sha256':hashes,'all260_direction_records_match':True,
+             'view_rows':result,'complex_rows':checks,'seconds':time.monotonic()-started,
+             'interpretation':'8/sqrt(d) is a large-d approximation to individual direction alignment, not pair cosine; bounded references are stated separately. These are input-space diagnostics, not the PCA/score output.'}
+    (R/'input-cosine-diagnostic.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    for row in result:
+        print(json.dumps(row),flush=True)
+    print('seconds',receipt['seconds'],flush=True)
+
+
+if __name__=='__main__':
+    main()

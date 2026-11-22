@@ -3916,6 +3916,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         arrivals = _current_never_api(arrivals)
         from tests.test_ops_maxproj_sources_1012 import _current_external_maxproj_api
         arrivals = _current_external_maxproj_api(arrivals)
+        from tests.test_ops_complex_recovery_sources_1012fix import _current_complex_recovery_api
+        arrivals = _current_complex_recovery_api(arrivals)
         if filename == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             arrivals = _posix_update_prepared_key_move(arrivals, docs)
         if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":

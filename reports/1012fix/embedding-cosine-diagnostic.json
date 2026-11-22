@@ -1,0 +1,303 @@
+{
+  "kind": "Production PCA/view diagnostic only. No calibration/null fitting, graph rebuild, arm rerun or acceptance rescoring.",
+  "production_owners": "ops_maxproj._view_arrays -> ops_reference.embed_gene_profiles -> _GeneEmbedding; constructor captured while original constructor executes unchanged.",
+  "config": {
+    "variance": 0.99,
+    "max_missing": 1.0,
+    "control": null,
+    "dtype": "float32",
+    "seeds": "Original per-view SeedSequence([savedbase,v])"
+  },
+  "input_sha256": {
+    "genes.parquet": "f862800a67050aff0fdff720a734bf498928ca849e75d141de60454dc5a9a59b",
+    "coverage.parquet": "4dd0a000102b6b370c9f74d7c8195ff76721cc52b0a5fcbd4933333a4d33141a",
+    "views.json": "8e6697a6434dc51bdc003929ea2b670c29d0b8e49d645a4fee18e1b89cd6347c",
+    "pairs.csv": "d1a6bbb0c60dba6d4c6067d87ea553e4947967730f77d7190205c7621c196095",
+    "markers.csv": "9b55dd8e7db3b56a12f61bd712a61d39fb533fda8c9650d8fa529f1d436ad0b2",
+    "planted.csv": "26b327538b3150bbfebfae1b3958e49203a51ca335cd974ca3241d32b1e332c1",
+    "labels.parquet": "d2e41e7692577addc16aa8549cf2948be21ee9d51504609bbde0040261b0b185",
+    "manifest.json": "aba323f3bfd5ef9cf5eda37e616f51e1d5b2cab26fdb81435864a743a17adb9d"
+  },
+  "source_sha256": {
+    "spacr/ops_maxproj.py": "476e5d6c8a5fede3f85237eb0561d606131c86bc5de18a7fe170437381fb95fb",
+    "spacr/ops_reference.py": "3ff3f6e8ca0698496d5bf80859ecbf9189da78f0a34b3ed8eb8521c41439e785",
+    "spacr/ops_clusters.py": "3bfc9c0c464f3371ec3e6cf4fc02ba037d4f6698fdc33357da54f010dce18656"
+  },
+  "views": [
+    {
+      "view": "transcript",
+      "raw_dimensions": 171,
+      "before": {
+        "components": 95,
+        "pair_cosine_median": -0.02896679937839508,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.0012920665163190144
+      },
+      "after": {
+        "components": 97,
+        "pair_cosine_median": 0.3290995806455612,
+        "top10_any_partner_members": 21,
+        "members": 40,
+        "top10_any_partner_pct": 52.5,
+        "partner_map": 0.17484603347998756
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.8680910530486072
+    },
+    {
+      "view": "translation",
+      "raw_dimensions": 46,
+      "before": {
+        "components": 27,
+        "pair_cosine_median": -0.08886656165122986,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.0016196602846688126
+      },
+      "after": {
+        "components": 29,
+        "pair_cosine_median": 0.47354656457901,
+        "top10_any_partner_members": 31,
+        "members": 40,
+        "top10_any_partner_pct": 77.5,
+        "partner_map": 0.3365436851031
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.7030075815341239
+    },
+    {
+      "view": "chromatin",
+      "raw_dimensions": 3,
+      "before": {
+        "components": 3,
+        "pair_cosine_median": 0.08191424608230591,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.001419650745420666
+      },
+      "after": {
+        "components": 3,
+        "pair_cosine_median": 0.9833014607429504,
+        "top10_any_partner_members": 19,
+        "members": 40,
+        "top10_any_partner_pct": 47.5,
+        "partner_map": 0.11060450225390336
+      },
+      "plant_energy_retained_by_actual_pca_median": 1.0
+    },
+    {
+      "view": "protein_abundance",
+      "raw_dimensions": 25,
+      "before": {
+        "components": 11,
+        "pair_cosine_median": 0.021873367950320244,
+        "top10_any_partner_members": 1,
+        "members": 40,
+        "top10_any_partner_pct": 2.5,
+        "partner_map": 0.0027922366709863403
+      },
+      "after": {
+        "components": 15,
+        "pair_cosine_median": 0.3138826787471771,
+        "top10_any_partner_members": 24,
+        "members": 40,
+        "top10_any_partner_pct": 60.0,
+        "partner_map": 0.20708596730315448
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.9606810209978828
+    },
+    {
+      "view": "fitness",
+      "raw_dimensions": 29,
+      "before": {
+        "components": 23,
+        "pair_cosine_median": 0.1602783501148224,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.0028196822015822175
+      },
+      "after": {
+        "components": 23,
+        "pair_cosine_median": 0.6638042032718658,
+        "top10_any_partner_members": 35,
+        "members": 40,
+        "top10_any_partner_pct": 87.5,
+        "partner_map": 0.625083671443981
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.9166584075728902
+    },
+    {
+      "view": "place",
+      "raw_dimensions": 2,
+      "before": {
+        "components": 2,
+        "pair_cosine_median": 0.0029803377110511065,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.002747381560575496
+      },
+      "after": {
+        "components": 2,
+        "pair_cosine_median": 0.9948781728744507,
+        "top10_any_partner_members": 31,
+        "members": 40,
+        "top10_any_partner_pct": 77.5,
+        "partner_map": 0.40822871168681746
+      },
+      "plant_energy_retained_by_actual_pca_median": 1.0
+    },
+    {
+      "view": "interaction",
+      "raw_dimensions": 6,
+      "before": {
+        "components": 6,
+        "pair_cosine_median": 0.04634170979261398,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.0013976976208332308
+      },
+      "after": {
+        "components": 6,
+        "pair_cosine_median": 0.9784498512744904,
+        "top10_any_partner_members": 40,
+        "members": 40,
+        "top10_any_partner_pct": 100.0,
+        "partner_map": 0.9694127053502054
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.9999999999999996
+    },
+    {
+      "view": "sequence",
+      "raw_dimensions": 11,
+      "before": {
+        "components": 10,
+        "pair_cosine_median": 0.057529374957084656,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.0019577478119404646
+      },
+      "after": {
+        "components": 10,
+        "pair_cosine_median": 0.8383577764034271,
+        "top10_any_partner_members": 37,
+        "members": 40,
+        "top10_any_partner_pct": 92.5,
+        "partner_map": 0.6841605324657736
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.9957930451892192
+    },
+    {
+      "view": "structure_computed",
+      "raw_dimensions": 2,
+      "before": {
+        "components": 2,
+        "pair_cosine_median": 0.27314990758895874,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.0015891388506541735
+      },
+      "after": {
+        "components": 2,
+        "pair_cosine_median": 0.9961788058280945,
+        "top10_any_partner_members": 18,
+        "members": 40,
+        "top10_any_partner_pct": 45.0,
+        "partner_map": 0.12309314341729508
+      },
+      "plant_energy_retained_by_actual_pca_median": 1.0
+    },
+    {
+      "view": "conservation",
+      "raw_dimensions": 6,
+      "before": {
+        "components": 5,
+        "pair_cosine_median": 0.19418971240520477,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.001317255224482262
+      },
+      "after": {
+        "components": 5,
+        "pair_cosine_median": 0.9873089790344238,
+        "top10_any_partner_members": 38,
+        "members": 40,
+        "top10_any_partner_pct": 95.0,
+        "partner_map": 0.7507185622602353
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.9737468950613689
+    },
+    {
+      "view": "esm",
+      "raw_dimensions": 320,
+      "before": {
+        "components": 187,
+        "pair_cosine_median": -0.008542457595467567,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.0011802072815896157
+      },
+      "after": {
+        "components": 189,
+        "pair_cosine_median": 0.14206873625516891,
+        "top10_any_partner_members": 2,
+        "members": 40,
+        "top10_any_partner_pct": 5.0,
+        "partner_map": 0.006427453296763722
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.8750577413630245
+    },
+    {
+      "view": "secondary_structure",
+      "raw_dimensions": 12,
+      "before": {
+        "components": 6,
+        "pair_cosine_median": -0.11801816523075104,
+        "top10_any_partner_members": 3,
+        "members": 40,
+        "top10_any_partner_pct": 7.5,
+        "partner_map": 0.004818666659118742
+      },
+      "after": {
+        "components": 8,
+        "pair_cosine_median": 0.8860625326633453,
+        "top10_any_partner_members": 40,
+        "members": 40,
+        "top10_any_partner_pct": 100.0,
+        "partner_map": 0.797894993667844
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.943322662115534
+    },
+    {
+      "view": "3di",
+      "raw_dimensions": 20,
+      "before": {
+        "components": 15,
+        "pair_cosine_median": -0.08366400003433228,
+        "top10_any_partner_members": 0,
+        "members": 40,
+        "top10_any_partner_pct": 0.0,
+        "partner_map": 0.0020670018004347907
+      },
+      "after": {
+        "components": 16,
+        "pair_cosine_median": 0.7986029386520386,
+        "top10_any_partner_members": 40,
+        "members": 40,
+        "top10_any_partner_pct": 100.0,
+        "partner_map": 0.722074040790987
+      },
+      "plant_energy_retained_by_actual_pca_median": 0.8910856799013405
+    }
+  ],
+  "seconds": 2.0144166329992004,
+  "ranking": "Full covered gene universe; stable input-order ties; self excluded; seven true partners per member."
+}

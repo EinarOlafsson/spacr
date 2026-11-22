@@ -1,0 +1,14 @@
+{
+  "tests/test_docstring_correctness.py": {
+    "assertions": 1099,
+    "all_original_assertions_unchanged": true
+  },
+  "tests/test_documentation_i18n.py": {
+    "assertions": 775,
+    "all_original_assertions_unchanged": true
+  },
+  "tests/test_api_i18n_extractor.py": {
+    "assertions": 493,
+    "all_original_assertions_unchanged": true
+  }
+}

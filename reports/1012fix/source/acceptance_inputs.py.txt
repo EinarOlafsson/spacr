@@ -1,0 +1,112 @@
+"""Adapt only the eight approved ParaScape inputs to existing spaCR numerical owners."""
+import hashlib
+import json
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from spacr import ops_clusters as oc
+from spacr import ops_maxproj as om
+from spacr.tabular import read_table
+
+INPUTS = Path('/media/carruthers/mnt2/parascape/maxproj_inputs')
+FILES = ('genes.parquet', 'coverage.parquet', 'views.json', 'pairs.csv', 'markers.csv',
+         'planted.csv', 'labels.parquet', 'manifest.json')
+
+
+def input_hashes():
+    """Hash only the approved files; ignore outside provenance paths in the manifest."""
+    return {name: hashlib.sha256((INPUTS / name).read_bytes()).hexdigest() for name in FILES}
+
+
+def load_inputs():
+    """Keep exact gene, column and view order using the existing spaCR table readers."""
+    genes = read_table(INPUTS / 'genes.parquet', canonicalise=False, report=None)
+    names = genes['gene_id'].astype(str).to_numpy()
+    columns = list(genes.columns[1:])
+    assert len(names) == len(set(names)) == 8140 and len(columns) == 651
+    views, _ = om.read_views(str(INPUTS / 'views.json'), columns)
+    positions = {name: index for index, name in enumerate(columns)}
+    indices = [np.array([positions[name] for name in view['columns']]) for view in views]
+    coverage = read_table(INPUTS / 'coverage.parquet', canonicalise=False, report=None)
+    coverage = coverage.set_index('gene_id').loc[names, [view['name'] for view in views]]
+    assert coverage.notna().all().all()
+    planted = read_table(INPUTS / 'planted.csv', canonicalise=False, report=None)
+    pairs = read_table(INPUTS / 'pairs.csv', canonicalise=False, report=None)
+    markers = read_table(INPUTS / 'markers.csv', canonicalise=False, report=None)
+    manifest = json.loads((INPUTS / 'manifest.json').read_text())
+    assert len(views) == 13 and len(pairs) == 2842
+    assert len(planted) == 2080 and planted['complex'].nunique() == 260
+    assert set(planted['gene']) <= set(names)
+    return genes[columns].to_numpy(float), names, views, indices, coverage.to_numpy(bool), planted, pairs, markers, manifest
+
+
+def plant_views(rows, names, views, indices, coverage, planted, manifest):
+    """Apply the prescribed plant once per complex to independent per-view column copies."""
+    blocks = [rows[:, index].copy() for index in indices]
+    spread = [np.nanstd(np.where(np.isfinite(block), block, np.nan)[coverage[:, i]],
+                        axis=0, ddof=0) for i, block in enumerate(blocks)]
+    spread = [np.nan_to_num(value, nan=0.0, posinf=0.0, neginf=0.0) for value in spread]
+    gene_index = {name: i for i, name in enumerate(names)}
+    view_index = {view['name']: i for i, view in enumerate(views)}
+    records = []
+    for complex_index, (name, group) in enumerate(planted.groupby('complex', sort=False)):
+        assert group['view'].nunique() == group['strength'].nunique() == 1
+        v = view_index[str(group['view'].iloc[0])]
+        strength = float(group['strength'].iloc[0])
+        rng = np.random.default_rng(int(manifest['planted']['seed']) + complex_index)
+        direction = rng.normal(size=blocks[v].shape[1])
+        direction /= np.linalg.norm(direction)
+        members = np.array([gene_index[str(gene)] for gene in group['gene']])
+        members = members[coverage[members, v]]
+        selected = blocks[v][members]
+        delta = strength * spread[v] * direction
+        blocks[v][members] = np.where(np.isfinite(selected), selected + delta, selected)
+        records.append({'complex': str(name), 'complex_index': complex_index,
+                        'view': views[v]['name'], 'strength': strength,
+                        'covered_members': len(members), 'members': len(group),
+                        'direction_sha256': hashlib.sha256(direction.tobytes()).hexdigest()})
+    width = np.cumsum([0] + [block.shape[1] for block in blocks])
+    expanded = [np.arange(width[i], width[i + 1]) for i in range(len(blocks))]
+    return np.concatenate(blocks, axis=1), expanded, records
+
+
+def references(planted, pairs, markers, *, niches):
+    """Map supplied labels into existing generic enrichment, pair and complex scorers."""
+    empty = pd.DataFrame({'gene_name': pd.Series(dtype=str), 'group': pd.Series(dtype=str)})
+    ec = markers.loc[markers['label_set'] == 'EC class', ['gene', 'label']]
+    niche = markers.loc[markers['label_set'] == 'hyperLOPIT niche', ['gene', 'label']]
+    assert len(ec) == 1313 and len(niche) == 716
+    ec = ec.rename(columns={'gene': 'gene_name', 'label': 'group'})
+    niche = niche.rename(columns={'gene': 'gene_name', 'label': 'group'}) if niches else empty
+    pair_rows = []
+    for index, row in pairs.iterrows():
+        pair_rows.extend([{'gene_name': row['gene_a'], 'pair': str(index)},
+                          {'gene_name': row['gene_b'], 'pair': str(index)}])
+    positives = oc.string_positives(pd.DataFrame(pair_rows))
+    groups = {str(name): group['gene'].astype(str).tolist()
+              for name, group in planted.groupby('complex', sort=False)}
+    return {'corum': ec, 'kegg': niche, 'positives': positives, 'groups': groups,
+            'halves': {name: 1 for name in groups}}
+
+
+def rename_metrics(frame, *, niches):
+    """Label generic scorer columns by the actual supplied positive-control roles."""
+    renamed = {}
+    drop = []
+    for column in frame.columns:
+        if column == 'CORUM_partner_in_cluster_pct':
+            renamed[column] = 'planted_partner_in_cluster_pct'
+        elif column.startswith('CORUM_pct_'):
+            renamed[column] = column.replace('CORUM', 'EC', 1)
+        elif column.startswith('KEGG_'):
+            if niches:
+                renamed[column] = column.replace('KEGG', 'niche', 1)
+            else:
+                drop.append(column)
+        elif column.startswith('STRING_'):
+            renamed[column] = column.replace('STRING', 'direct_pair', 1)
+        elif column in ('REPORT_complexes', 'complexes_recovered_pct'):
+            renamed[column] = 'planted_' + column
+    return frame.drop(columns=drop).rename(columns=renamed)

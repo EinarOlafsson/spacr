@@ -1,0 +1,112 @@
+"""Trace fixed 8x inputs through the unchanged production PCA owner without null fitting or arm rescoring."""
+import hashlib
+import json
+import os
+from pathlib import Path
+import sys
+import time
+from unittest.mock import patch
+
+import numpy as np
+
+R=Path(__file__).resolve().parent
+PRIOR=R.parent/'1012'
+T=Path('/media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-1012fix')
+sys.path[:0]=[str(T),str(PRIOR)]
+from acceptance_inputs import input_hashes,load_inputs,plant_views
+from spacr import ops_maxproj as om,ops_reference as reference
+
+
+def ranks_and_pairs(unit, selected, complexes):
+    """Measure fixed target-view partner ranks against all covered genes for diagnostics."""
+    positions={int(gene):i for i,gene in enumerate(selected)}
+    pair_values=[]
+    hits=[]
+    aps=[]
+    for members in complexes:
+        local=np.array([positions[int(gene)] for gene in members],int)
+        similarity=unit[local]@unit.T
+        for i,self_id in enumerate(local):
+            similarity[i,self_id]=-np.inf
+        order=np.argsort(-similarity,axis=1,kind='stable')
+        truth=np.isin(order,local)
+        for i in range(len(local)):
+            truth[i,order[i]==local[i]]=False
+            ranked=np.flatnonzero(truth[i])+1
+            assert len(ranked)==7
+            hits.append(bool(np.any(ranked<=10)))
+            aps.append(float(np.mean(np.arange(1,8)/ranked)))
+        pair_values.extend((unit[local]@unit[local].T)[np.triu_indices(8,1)].tolist())
+    return {'pair_cosine_median':float(np.median(pair_values)),
+            'top10_any_partner_members':int(sum(hits)),'members':len(hits),
+            'top10_any_partner_pct':100*float(np.mean(hits)),
+            'partner_map':float(np.mean(aps))}
+
+
+def main():
+    """Use exact original seeds/variance and capture the existing fitted owner for energy tracing."""
+    assert os.environ['CUDA_VISIBLE_DEVICES']==''
+    state=json.loads((R/'state.json').read_text())
+    assert state['diagnostic_first_numbers_logged']
+    started=time.monotonic()
+    saved=json.loads((PRIOR/'acceptance/planted/summary.json').read_text())
+    hashes=input_hashes();assert hashes==saved['input_sha256']
+    rows,names,views,indices,coverage,planted,pairs,markers,manifest=load_inputs()
+    shifted,expanded,records=plant_views(rows,names,views,indices,coverage,planted,manifest)
+    assert records==saved['plant_records']
+    gene_index={name:i for i,name in enumerate(names)}
+    rows_out=[]
+    original=reference._GeneEmbedding
+    fitted=[]
+
+    def capture(*args,**kwargs):
+        """Capture the actual shared PCA instance while delegating its construction unchanged."""
+        model=original(*args,**kwargs)
+        fitted.append(model)
+        return model
+
+    for v,view in enumerate(views):
+        groups=planted.loc[(planted['view']==view['name'])&(planted['strength']==8)]
+        complexes=[np.array([gene_index[name] for name in group['gene'].astype(str)],int)
+                   for name,group in groups.groupby('complex',sort=False)]
+        assert len(complexes)==5 and all(coverage[members,v].all() for members in complexes)
+        seed=int(np.random.SeedSequence([int(saved['config']['seed']),v]).generate_state(1)[0])
+        raw_before=rows[:,indices[v]]
+        raw_after=shifted[:,expanded[v]]
+        arms=[]
+        models=[]
+        selections=[]
+        for raw in (raw_before,raw_after):
+            fitted.clear()
+            with patch.object(reference,'_GeneEmbedding',capture):
+                selected,embedded,scale=om._view_arrays(raw,None,0.99,seed,'cosine',coverage[:,v],np.dtype('float32'),1.0)
+            assert len(fitted)==1
+            model=fitted[0]
+            unit=embedded/scale[:,None]
+            arms.append({'components':embedded.shape[1],**ranks_and_pairs(unit,selected,complexes)})
+            models.append(model);selections.append(selected)
+        assert np.array_equal(selections[0],selections[1])
+        members=np.concatenate(complexes)
+        model=models[1]
+        a=raw_before[members][:,model.keep];b=raw_after[members][:,model.keep]
+        a=np.where(np.isfinite(a),a,model.fill)[:,model.varying]
+        b=np.where(np.isfinite(b),b,model.fill)[:,model.varying]
+        delta=(b-a)/model.spread
+        projected=model.transform(raw_after[members])-model.transform(raw_before[members])
+        energy=np.sum(projected**2,axis=1)/np.maximum(np.sum(delta**2,axis=1),1e-24)
+        row={'view':view['name'],'raw_dimensions':len(indices[v]),'before':arms[0],'after':arms[1],
+             'plant_energy_retained_by_actual_pca_median':float(np.median(energy))}
+        rows_out.append(row);print(json.dumps(row),flush=True)
+    assert hashes==input_hashes()
+    output={'kind':'Production PCA/view diagnostic only. No calibration/null fitting, graph rebuild, arm rerun or acceptance rescoring.',
+            'production_owners':'ops_maxproj._view_arrays -> ops_reference.embed_gene_profiles -> _GeneEmbedding; constructor captured while original constructor executes unchanged.',
+            'config':{'variance':0.99,'max_missing':1.0,'control':None,'dtype':'float32','seeds':'Original per-view SeedSequence([savedbase,v])'},
+            'input_sha256':hashes,'source_sha256':{file:hashlib.sha256((T/file).read_bytes()).hexdigest() for file in ('spacr/ops_maxproj.py','spacr/ops_reference.py','spacr/ops_clusters.py')},
+            'views':rows_out,'seconds':time.monotonic()-started,
+            'ranking':'Full covered gene universe; stable input-order ties; self excluded; seven true partners per member.'}
+    (R/'embedding-cosine-diagnostic.json').write_text(json.dumps(output,indent=2)+'\n')
+    print('seconds',output['seconds'],flush=True)
+
+
+if __name__=='__main__':
+    main()

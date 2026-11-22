@@ -1,0 +1,73 @@
+{
+  "input_sha256": {
+    "genes.parquet": "f862800a67050aff0fdff720a734bf498928ca849e75d141de60454dc5a9a59b",
+    "coverage.parquet": "4dd0a000102b6b370c9f74d7c8195ff76721cc52b0a5fcbd4933333a4d33141a",
+    "views.json": "8e6697a6434dc51bdc003929ea2b670c29d0b8e49d645a4fee18e1b89cd6347c",
+    "pairs.csv": "d1a6bbb0c60dba6d4c6067d87ea553e4947967730f77d7190205c7621c196095",
+    "markers.csv": "9b55dd8e7db3b56a12f61bd712a61d39fb533fda8c9650d8fa529f1d436ad0b2",
+    "planted.csv": "26b327538b3150bbfebfae1b3958e49203a51ca335cd974ca3241d32b1e332c1",
+    "labels.parquet": "d2e41e7692577addc16aa8549cf2948be21ee9d51504609bbde0040261b0b185",
+    "manifest.json": "aba323f3bfd5ef9cf5eda37e616f51e1d5b2cab26fdb81435864a743a17adb9d"
+  },
+  "coverage_pools": [
+    {
+      "coverage_count": 7,
+      "all_genes": 1,
+      "planted_genes": 1,
+      "eligible_outside_all_planted_sets": 0
+    },
+    {
+      "coverage_count": 8,
+      "all_genes": 154,
+      "planted_genes": 21,
+      "eligible_outside_all_planted_sets": 133
+    },
+    {
+      "coverage_count": 9,
+      "all_genes": 634,
+      "planted_genes": 117,
+      "eligible_outside_all_planted_sets": 517
+    },
+    {
+      "coverage_count": 10,
+      "all_genes": 542,
+      "planted_genes": 124,
+      "eligible_outside_all_planted_sets": 418
+    },
+    {
+      "coverage_count": 11,
+      "all_genes": 3042,
+      "planted_genes": 730,
+      "eligible_outside_all_planted_sets": 2312
+    },
+    {
+      "coverage_count": 12,
+      "all_genes": 1053,
+      "planted_genes": 275,
+      "eligible_outside_all_planted_sets": 778
+    },
+    {
+      "coverage_count": 13,
+      "all_genes": 2714,
+      "planted_genes": 812,
+      "eligible_outside_all_planted_sets": 1902
+    }
+  ],
+  "infeasible_templates": [
+    {
+      "complex": "plant_conservation_s1_0",
+      "view": "conservation",
+      "strength": 1.0,
+      "shortages": [
+        {
+          "coverage_count": 7,
+          "required_without_replacement": 1,
+          "eligible": 0
+        }
+      ]
+    }
+  ],
+  "templates": 260,
+  "infeasible_template_count": 1,
+  "definition": "Exact coverage count, without replacement within each eight-member set, exclude all planted genes."
+}

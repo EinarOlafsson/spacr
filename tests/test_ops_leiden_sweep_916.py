@@ -159,12 +159,13 @@ def test_a_missing_extra_names_it(monkeypatch):
 
 
 def test_complex_metrics_count_recovered_report_complexes():
+    """Tiny groups retain partner hits but lack recovery evidence after cluster-search correction."""
     genes = ["a", "b", "c", "d", "e", "f", "g"]
     labels = np.array([0, 0, 1, 2, 2, 2, 3])
     groups = {"A": ["a", "b", "c", "x"], "B": ["d", "e", "f"], "C": ["g", "a"], "D": ["c", "y"]}
     out = oc.complex_metrics(genes, labels, groups, {"A": 1, "B": 1, "C": 0, "D": 1})
     assert out["REPORT_complexes"] == 2
-    assert out["complexes_recovered_pct"] == 100.0
+    assert out["complexes_recovered_pct"] == 0.0
     assert out["CORUM_partner_in_cluster_pct"] == pytest.approx(100 * 5 / 7)
     out = oc.complex_metrics(genes, np.arange(7), groups, {"A": 1, "B": 1})
     assert out["complexes_recovered_pct"] == 0.0 and out["CORUM_partner_in_cluster_pct"] == 0.0

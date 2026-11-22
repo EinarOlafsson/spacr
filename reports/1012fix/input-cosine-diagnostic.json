@@ -1,0 +1,686 @@
+{
+  "kind": "Diagnostic input geometry only; no PCA/null fit, scoring or arm rerun.",
+  "saved_arrays_available": false,
+  "reconstruction": "Exact eight saved approved inputs and original adapter, all260 saved direction records equal; original result arrays were metadata only and discarded.",
+  "baseline_commit": "2c65174074ca3900a83fcc71ea07a5e179202bf4",
+  "input_sha256": {
+    "genes.parquet": "f862800a67050aff0fdff720a734bf498928ca849e75d141de60454dc5a9a59b",
+    "coverage.parquet": "4dd0a000102b6b370c9f74d7c8195ff76721cc52b0a5fcbd4933333a4d33141a",
+    "views.json": "8e6697a6434dc51bdc003929ea2b670c29d0b8e49d645a4fee18e1b89cd6347c",
+    "pairs.csv": "d1a6bbb0c60dba6d4c6067d87ea553e4947967730f77d7190205c7621c196095",
+    "markers.csv": "9b55dd8e7db3b56a12f61bd712a61d39fb533fda8c9650d8fa529f1d436ad0b2",
+    "planted.csv": "26b327538b3150bbfebfae1b3958e49203a51ca335cd974ca3241d32b1e332c1",
+    "labels.parquet": "d2e41e7692577addc16aa8549cf2948be21ee9d51504609bbde0040261b0b185",
+    "manifest.json": "aba323f3bfd5ef9cf5eda37e616f51e1d5b2cab26fdb81435864a743a17adb9d"
+  },
+  "all260_direction_records_match": true,
+  "view_rows": [
+    {
+      "view": "transcript",
+      "dimensions": 171,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 0.611775290321498,
+      "bounded_alignment_reference": 0.5218624584427538,
+      "isotropic_pair_reference": 0.2723404255319149,
+      "raw_before_median": 0.8638034464094108,
+      "raw_after_median": 0.8830427851453645,
+      "standardized_before_median": -0.02561361915490072,
+      "standardized_after_median": 0.36603162299323566,
+      "alignment_before_median": 0.012883232807919033,
+      "alignment_after_median": 0.6174159575640519,
+      "missing_counts_median": 2.0
+    },
+    {
+      "view": "translation",
+      "dimensions": 46,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 1.179535649239177,
+      "bounded_alignment_reference": 0.7627700713964739,
+      "isotropic_pair_reference": 0.5818181818181818,
+      "raw_before_median": -0.04228389484649704,
+      "raw_after_median": 0.6406577221697245,
+      "standardized_before_median": -0.0784056380024502,
+      "standardized_after_median": 0.5507552079615365,
+      "alignment_before_median": 0.03851568451352001,
+      "alignment_after_median": 0.7586141962812896,
+      "missing_counts_median": 0.0
+    },
+    {
+      "view": "chromatin",
+      "dimensions": 3,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 4.618802153517007,
+      "bounded_alignment_reference": 0.9773555548504418,
+      "isotropic_pair_reference": 0.9552238805970149,
+      "raw_before_median": 0.9986986463498879,
+      "raw_after_median": 0.9996526119879572,
+      "standardized_before_median": 0.08215550042431263,
+      "standardized_after_median": 0.9832949028535252,
+      "alignment_before_median": -0.07342916758489883,
+      "alignment_after_median": 0.993055699822887,
+      "missing_counts_median": 0.0
+    },
+    {
+      "view": "protein_abundance",
+      "dimensions": 25,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 1.6,
+      "bounded_alignment_reference": 0.847998304005088,
+      "isotropic_pair_reference": 0.7191011235955056,
+      "raw_before_median": 0.00786286480856729,
+      "raw_after_median": 0.07158526058551211,
+      "standardized_before_median": -0.01703418459702386,
+      "standardized_after_median": 0.31511950397382094,
+      "alignment_before_median": -0.043019719002303336,
+      "alignment_after_median": 0.629956520363769,
+      "missing_counts_median": 8.0
+    },
+    {
+      "view": "fitness",
+      "dimensions": 29,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 1.4855627054164149,
+      "bounded_alignment_reference": 0.8295613557843402,
+      "isotropic_pair_reference": 0.6881720430107527,
+      "raw_before_median": 0.3099994180934934,
+      "raw_after_median": 0.9678855813676868,
+      "standardized_before_median": 0.10889293629458896,
+      "standardized_after_median": 0.6999419777422257,
+      "alignment_before_median": -0.06828730436609474,
+      "alignment_after_median": 0.8354810807953301,
+      "missing_counts_median": 0.5
+    },
+    {
+      "view": "place",
+      "dimensions": 2,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 5.65685424949238,
+      "bounded_alignment_reference": 0.9847319278346618,
+      "isotropic_pair_reference": 0.9696969696969697,
+      "raw_before_median": 0.9988129727188325,
+      "raw_after_median": 0.9982451133024294,
+      "standardized_before_median": 0.0029803481527390955,
+      "standardized_after_median": 0.994387249048053,
+      "alignment_before_median": -0.14487911056423952,
+      "alignment_after_median": 0.9967627929732608,
+      "missing_counts_median": 0.0
+    },
+    {
+      "view": "interaction",
+      "dimensions": 6,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 3.2659863237109046,
+      "bounded_alignment_reference": 0.9561828874675149,
+      "isotropic_pair_reference": 0.9142857142857143,
+      "raw_before_median": 0.9033480110769103,
+      "raw_after_median": 0.9823722650064421,
+      "standardized_before_median": 0.04634171006627682,
+      "standardized_after_median": 0.9785225908006105,
+      "alignment_before_median": -0.11720001575155717,
+      "alignment_after_median": 0.9932534409302832,
+      "missing_counts_median": 0.0
+    },
+    {
+      "view": "sequence",
+      "dimensions": 11,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 2.412090756622109,
+      "bounded_alignment_reference": 0.9237604307034011,
+      "isotropic_pair_reference": 0.8533333333333334,
+      "raw_before_median": 0.9186309366352032,
+      "raw_after_median": 0.9916291648332556,
+      "standardized_before_median": 0.15113955693311448,
+      "standardized_after_median": 0.861980691333504,
+      "alignment_before_median": 0.028477741509668465,
+      "alignment_after_median": 0.9298368270635409,
+      "missing_counts_median": 0.0
+    },
+    {
+      "view": "structure_computed",
+      "dimensions": 2,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 5.65685424949238,
+      "bounded_alignment_reference": 0.9847319278346618,
+      "isotropic_pair_reference": 0.9696969696969697,
+      "raw_before_median": 0.9989681789746839,
+      "raw_after_median": 0.9930990946952729,
+      "standardized_before_median": 0.2973919684035896,
+      "standardized_after_median": 0.9959764243990277,
+      "alignment_before_median": 0.1231480915996774,
+      "alignment_after_median": 0.9985556254656347,
+      "missing_counts_median": 0.0
+    },
+    {
+      "view": "conservation",
+      "dimensions": 6,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 3.2659863237109046,
+      "bounded_alignment_reference": 0.9561828874675149,
+      "isotropic_pair_reference": 0.9142857142857143,
+      "raw_before_median": 0.9722894007913947,
+      "raw_after_median": 0.9974997571254921,
+      "standardized_before_median": 0.1941897000243294,
+      "standardized_after_median": 0.9876072452920105,
+      "alignment_before_median": -0.10486123062791829,
+      "alignment_after_median": 0.9932715417260269,
+      "missing_counts_median": 0.0
+    },
+    {
+      "view": "esm",
+      "dimensions": 320,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 0.4472135954999579,
+      "bounded_alignment_reference": 0.4082482904638631,
+      "isotropic_pair_reference": 0.16666666666666666,
+      "raw_before_median": 0.9020563150674132,
+      "raw_after_median": 0.9054930447205405,
+      "standardized_before_median": -0.008623688020830267,
+      "standardized_after_median": 0.16192512211923943,
+      "alignment_before_median": -0.00679366512429466,
+      "alignment_after_median": 0.417594358149192,
+      "missing_counts_median": 0.0
+    },
+    {
+      "view": "secondary_structure",
+      "dimensions": 12,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 2.3094010767585034,
+      "bounded_alignment_reference": 0.917662935482247,
+      "isotropic_pair_reference": 0.8421052631578947,
+      "raw_before_median": 0.9311432178197735,
+      "raw_after_median": 0.9713045007043632,
+      "standardized_before_median": -0.11801838079860279,
+      "standardized_after_median": 0.8930631347018132,
+      "alignment_before_median": -0.09652222723558246,
+      "alignment_after_median": 0.9484697445638672,
+      "missing_counts_median": 0.0
+    },
+    {
+      "view": "3di",
+      "dimensions": 20,
+      "members": 40,
+      "pairs": 140,
+      "recipe_8_over_sqrt_d": 1.7888543819998317,
+      "bounded_alignment_reference": 0.8728715609439696,
+      "isotropic_pair_reference": 0.7619047619047619,
+      "raw_before_median": 0.8736829071966626,
+      "raw_after_median": 0.931850344469147,
+      "standardized_before_median": -0.08149724597711151,
+      "standardized_after_median": 0.8168598398439335,
+      "alignment_before_median": 0.04088330446924129,
+      "alignment_after_median": 0.899113200102231,
+      "missing_counts_median": 0.0
+    }
+  ],
+  "complex_rows": [
+    {
+      "complex": "plant_transcript_s8_0",
+      "view": "transcript",
+      "members": 8,
+      "direction_alignment_after_median": 0.6213113379439383,
+      "standardized_pair_cosine_after_median": 0.4629979614867716
+    },
+    {
+      "complex": "plant_transcript_s8_1",
+      "view": "transcript",
+      "members": 8,
+      "direction_alignment_after_median": 0.6331265893069075,
+      "standardized_pair_cosine_after_median": 0.3117986629238697
+    },
+    {
+      "complex": "plant_transcript_s8_2",
+      "view": "transcript",
+      "members": 8,
+      "direction_alignment_after_median": 0.5154236885324308,
+      "standardized_pair_cosine_after_median": 0.2715234640875912
+    },
+    {
+      "complex": "plant_transcript_s8_3",
+      "view": "transcript",
+      "members": 8,
+      "direction_alignment_after_median": 0.4514489500691082,
+      "standardized_pair_cosine_after_median": 0.26224741362406195
+    },
+    {
+      "complex": "plant_transcript_s8_4",
+      "view": "transcript",
+      "members": 8,
+      "direction_alignment_after_median": 0.6887768098275429,
+      "standardized_pair_cosine_after_median": 0.4208185253914665
+    },
+    {
+      "complex": "plant_translation_s8_0",
+      "view": "translation",
+      "members": 8,
+      "direction_alignment_after_median": 0.7404860499233881,
+      "standardized_pair_cosine_after_median": 0.7539683837908759
+    },
+    {
+      "complex": "plant_translation_s8_1",
+      "view": "translation",
+      "members": 8,
+      "direction_alignment_after_median": 0.7818056153254869,
+      "standardized_pair_cosine_after_median": 0.5957813612735808
+    },
+    {
+      "complex": "plant_translation_s8_2",
+      "view": "translation",
+      "members": 8,
+      "direction_alignment_after_median": 0.7721611593740444,
+      "standardized_pair_cosine_after_median": 0.5414795952240503
+    },
+    {
+      "complex": "plant_translation_s8_3",
+      "view": "translation",
+      "members": 8,
+      "direction_alignment_after_median": 0.7859977364196542,
+      "standardized_pair_cosine_after_median": 0.566249996670724
+    },
+    {
+      "complex": "plant_translation_s8_4",
+      "view": "translation",
+      "members": 8,
+      "direction_alignment_after_median": 0.7189889218370682,
+      "standardized_pair_cosine_after_median": 0.2994129894293216
+    },
+    {
+      "complex": "plant_chromatin_s8_0",
+      "view": "chromatin",
+      "members": 8,
+      "direction_alignment_after_median": 0.9923950887372384,
+      "standardized_pair_cosine_after_median": 0.9912035044215977
+    },
+    {
+      "complex": "plant_chromatin_s8_1",
+      "view": "chromatin",
+      "members": 8,
+      "direction_alignment_after_median": 0.9958148424691396,
+      "standardized_pair_cosine_after_median": 0.9880508001658117
+    },
+    {
+      "complex": "plant_chromatin_s8_2",
+      "view": "chromatin",
+      "members": 8,
+      "direction_alignment_after_median": 0.993055699822887,
+      "standardized_pair_cosine_after_median": 0.9798196757977582
+    },
+    {
+      "complex": "plant_chromatin_s8_3",
+      "view": "chromatin",
+      "members": 8,
+      "direction_alignment_after_median": 0.9751649197655525,
+      "standardized_pair_cosine_after_median": 0.6819745281070119
+    },
+    {
+      "complex": "plant_chromatin_s8_4",
+      "view": "chromatin",
+      "members": 8,
+      "direction_alignment_after_median": 0.990611579514768,
+      "standardized_pair_cosine_after_median": 0.9829792772848247
+    },
+    {
+      "complex": "plant_protein_abundance_s8_0",
+      "view": "protein_abundance",
+      "members": 8,
+      "direction_alignment_after_median": 0.5205123514145406,
+      "standardized_pair_cosine_after_median": 0.19647188432670304
+    },
+    {
+      "complex": "plant_protein_abundance_s8_1",
+      "view": "protein_abundance",
+      "members": 8,
+      "direction_alignment_after_median": 0.41061716595230885,
+      "standardized_pair_cosine_after_median": 0.18103420343530285
+    },
+    {
+      "complex": "plant_protein_abundance_s8_2",
+      "view": "protein_abundance",
+      "members": 8,
+      "direction_alignment_after_median": 0.6516134840791984,
+      "standardized_pair_cosine_after_median": 0.4233070391316792
+    },
+    {
+      "complex": "plant_protein_abundance_s8_3",
+      "view": "protein_abundance",
+      "members": 8,
+      "direction_alignment_after_median": 0.8634947396413293,
+      "standardized_pair_cosine_after_median": 0.4802256804804692
+    },
+    {
+      "complex": "plant_protein_abundance_s8_4",
+      "view": "protein_abundance",
+      "members": 8,
+      "direction_alignment_after_median": 0.4828698377692373,
+      "standardized_pair_cosine_after_median": 0.26812753772837505
+    },
+    {
+      "complex": "plant_fitness_s8_0",
+      "view": "fitness",
+      "members": 8,
+      "direction_alignment_after_median": 0.826534140886412,
+      "standardized_pair_cosine_after_median": 0.8282425847712891
+    },
+    {
+      "complex": "plant_fitness_s8_1",
+      "view": "fitness",
+      "members": 8,
+      "direction_alignment_after_median": 0.8400014972400325,
+      "standardized_pair_cosine_after_median": 0.6927218425632153
+    },
+    {
+      "complex": "plant_fitness_s8_2",
+      "view": "fitness",
+      "members": 8,
+      "direction_alignment_after_median": 0.7868952163832719,
+      "standardized_pair_cosine_after_median": 0.6333008597125946
+    },
+    {
+      "complex": "plant_fitness_s8_3",
+      "view": "fitness",
+      "members": 8,
+      "direction_alignment_after_median": 0.8211647542626679,
+      "standardized_pair_cosine_after_median": 0.7221450550711019
+    },
+    {
+      "complex": "plant_fitness_s8_4",
+      "view": "fitness",
+      "members": 8,
+      "direction_alignment_after_median": 0.8598523026373578,
+      "standardized_pair_cosine_after_median": 0.7781512827486115
+    },
+    {
+      "complex": "plant_place_s8_0",
+      "view": "place",
+      "members": 8,
+      "direction_alignment_after_median": 0.9967627929732608,
+      "standardized_pair_cosine_after_median": 0.994387249048053
+    },
+    {
+      "complex": "plant_place_s8_1",
+      "view": "place",
+      "members": 8,
+      "direction_alignment_after_median": 0.9963457382793918,
+      "standardized_pair_cosine_after_median": 0.999999961787719
+    },
+    {
+      "complex": "plant_place_s8_2",
+      "view": "place",
+      "members": 8,
+      "direction_alignment_after_median": 0.9975030693620006,
+      "standardized_pair_cosine_after_median": 0.9533056461007834
+    },
+    {
+      "complex": "plant_place_s8_3",
+      "view": "place",
+      "members": 8,
+      "direction_alignment_after_median": 0.9988488153929376,
+      "standardized_pair_cosine_after_median": 0.9922288035333718
+    },
+    {
+      "complex": "plant_place_s8_4",
+      "view": "place",
+      "members": 8,
+      "direction_alignment_after_median": 0.9999799200738095,
+      "standardized_pair_cosine_after_median": 0.9956478211199279
+    },
+    {
+      "complex": "plant_interaction_s8_0",
+      "view": "interaction",
+      "members": 8,
+      "direction_alignment_after_median": 0.9957905982293064,
+      "standardized_pair_cosine_after_median": 0.9879749181399745
+    },
+    {
+      "complex": "plant_interaction_s8_1",
+      "view": "interaction",
+      "members": 8,
+      "direction_alignment_after_median": 0.9923453655823176,
+      "standardized_pair_cosine_after_median": 0.9693372822543177
+    },
+    {
+      "complex": "plant_interaction_s8_2",
+      "view": "interaction",
+      "members": 8,
+      "direction_alignment_after_median": 0.9923262535998347,
+      "standardized_pair_cosine_after_median": 0.9611966210968961
+    },
+    {
+      "complex": "plant_interaction_s8_3",
+      "view": "interaction",
+      "members": 8,
+      "direction_alignment_after_median": 0.9876816754107334,
+      "standardized_pair_cosine_after_median": 0.9713487468760942
+    },
+    {
+      "complex": "plant_interaction_s8_4",
+      "view": "interaction",
+      "members": 8,
+      "direction_alignment_after_median": 0.9933209814015426,
+      "standardized_pair_cosine_after_median": 0.987278158437716
+    },
+    {
+      "complex": "plant_sequence_s8_0",
+      "view": "sequence",
+      "members": 8,
+      "direction_alignment_after_median": 0.9685359642741478,
+      "standardized_pair_cosine_after_median": 0.7185155931416602
+    },
+    {
+      "complex": "plant_sequence_s8_1",
+      "view": "sequence",
+      "members": 8,
+      "direction_alignment_after_median": 0.9219954477905739,
+      "standardized_pair_cosine_after_median": 0.8533858391263598
+    },
+    {
+      "complex": "plant_sequence_s8_2",
+      "view": "sequence",
+      "members": 8,
+      "direction_alignment_after_median": 0.8405095102969619,
+      "standardized_pair_cosine_after_median": 0.8731187763592452
+    },
+    {
+      "complex": "plant_sequence_s8_3",
+      "view": "sequence",
+      "members": 8,
+      "direction_alignment_after_median": 0.9562554266132601,
+      "standardized_pair_cosine_after_median": 0.8748156935429866
+    },
+    {
+      "complex": "plant_sequence_s8_4",
+      "view": "sequence",
+      "members": 8,
+      "direction_alignment_after_median": 0.9232979556384968,
+      "standardized_pair_cosine_after_median": 0.861980691333504
+    },
+    {
+      "complex": "plant_structure_computed_s8_0",
+      "view": "structure_computed",
+      "members": 8,
+      "direction_alignment_after_median": 0.991984792373175,
+      "standardized_pair_cosine_after_median": 0.9690919671993732
+    },
+    {
+      "complex": "plant_structure_computed_s8_1",
+      "view": "structure_computed",
+      "members": 8,
+      "direction_alignment_after_median": 0.9988459620734322,
+      "standardized_pair_cosine_after_median": 0.9958070882981733
+    },
+    {
+      "complex": "plant_structure_computed_s8_2",
+      "view": "structure_computed",
+      "members": 8,
+      "direction_alignment_after_median": 0.9986240033514653,
+      "standardized_pair_cosine_after_median": 0.9959180712397886
+    },
+    {
+      "complex": "plant_structure_computed_s8_3",
+      "view": "structure_computed",
+      "members": 8,
+      "direction_alignment_after_median": 0.9996893144184724,
+      "standardized_pair_cosine_after_median": 0.9985461550710069
+    },
+    {
+      "complex": "plant_structure_computed_s8_4",
+      "view": "structure_computed",
+      "members": 8,
+      "direction_alignment_after_median": 0.9989013624839522,
+      "standardized_pair_cosine_after_median": 0.9995231531221699
+    },
+    {
+      "complex": "plant_conservation_s8_0",
+      "view": "conservation",
+      "members": 8,
+      "direction_alignment_after_median": 0.9891392989580092,
+      "standardized_pair_cosine_after_median": 0.9418594517825106
+    },
+    {
+      "complex": "plant_conservation_s8_1",
+      "view": "conservation",
+      "members": 8,
+      "direction_alignment_after_median": 0.9951120703174618,
+      "standardized_pair_cosine_after_median": 0.9974441333919521
+    },
+    {
+      "complex": "plant_conservation_s8_2",
+      "view": "conservation",
+      "members": 8,
+      "direction_alignment_after_median": 0.9958827561295263,
+      "standardized_pair_cosine_after_median": 0.9939846488125923
+    },
+    {
+      "complex": "plant_conservation_s8_3",
+      "view": "conservation",
+      "members": 8,
+      "direction_alignment_after_median": 0.9880266062901224,
+      "standardized_pair_cosine_after_median": 0.9615371645306563
+    },
+    {
+      "complex": "plant_conservation_s8_4",
+      "view": "conservation",
+      "members": 8,
+      "direction_alignment_after_median": 0.9899074139559156,
+      "standardized_pair_cosine_after_median": 0.9618465568135715
+    },
+    {
+      "complex": "plant_esm_s8_0",
+      "view": "esm",
+      "members": 8,
+      "direction_alignment_after_median": 0.3853174312357862,
+      "standardized_pair_cosine_after_median": 0.11987263033400872
+    },
+    {
+      "complex": "plant_esm_s8_1",
+      "view": "esm",
+      "members": 8,
+      "direction_alignment_after_median": 0.4714069415700317,
+      "standardized_pair_cosine_after_median": 0.273194499762627
+    },
+    {
+      "complex": "plant_esm_s8_2",
+      "view": "esm",
+      "members": 8,
+      "direction_alignment_after_median": 0.4433136224983647,
+      "standardized_pair_cosine_after_median": 0.12715770020889
+    },
+    {
+      "complex": "plant_esm_s8_3",
+      "view": "esm",
+      "members": 8,
+      "direction_alignment_after_median": 0.43238401670296467,
+      "standardized_pair_cosine_after_median": 0.16776758823935606
+    },
+    {
+      "complex": "plant_esm_s8_4",
+      "view": "esm",
+      "members": 8,
+      "direction_alignment_after_median": 0.4011421720878757,
+      "standardized_pair_cosine_after_median": 0.13648441414125984
+    },
+    {
+      "complex": "plant_secondary_structure_s8_0",
+      "view": "secondary_structure",
+      "members": 8,
+      "direction_alignment_after_median": 0.9657580022783658,
+      "standardized_pair_cosine_after_median": 0.9179550399707533
+    },
+    {
+      "complex": "plant_secondary_structure_s8_1",
+      "view": "secondary_structure",
+      "members": 8,
+      "direction_alignment_after_median": 0.9492357297681746,
+      "standardized_pair_cosine_after_median": 0.8883901009868811
+    },
+    {
+      "complex": "plant_secondary_structure_s8_2",
+      "view": "secondary_structure",
+      "members": 8,
+      "direction_alignment_after_median": 0.9373148527302256,
+      "standardized_pair_cosine_after_median": 0.8761237076825888
+    },
+    {
+      "complex": "plant_secondary_structure_s8_3",
+      "view": "secondary_structure",
+      "members": 8,
+      "direction_alignment_after_median": 0.903152553846986,
+      "standardized_pair_cosine_after_median": 0.660969219783307
+    },
+    {
+      "complex": "plant_secondary_structure_s8_4",
+      "view": "secondary_structure",
+      "members": 8,
+      "direction_alignment_after_median": 0.9492211593075369,
+      "standardized_pair_cosine_after_median": 0.9114598473307057
+    },
+    {
+      "complex": "plant_3di_s8_0",
+      "view": "3di",
+      "members": 8,
+      "direction_alignment_after_median": 0.9151307820825426,
+      "standardized_pair_cosine_after_median": 0.8704197072501116
+    },
+    {
+      "complex": "plant_3di_s8_1",
+      "view": "3di",
+      "members": 8,
+      "direction_alignment_after_median": 0.8685874956840555,
+      "standardized_pair_cosine_after_median": 0.7942742209249403
+    },
+    {
+      "complex": "plant_3di_s8_2",
+      "view": "3di",
+      "members": 8,
+      "direction_alignment_after_median": 0.8855040084254701,
+      "standardized_pair_cosine_after_median": 0.7522503616613041
+    },
+    {
+      "complex": "plant_3di_s8_3",
+      "view": "3di",
+      "members": 8,
+      "direction_alignment_after_median": 0.9208786848224808,
+      "standardized_pair_cosine_after_median": 0.8553345016910993
+    },
+    {
+      "complex": "plant_3di_s8_4",
+      "view": "3di",
+      "members": 8,
+      "direction_alignment_after_median": 0.8681028528521995,
+      "standardized_pair_cosine_after_median": 0.7736404718300208
+    }
+  ],
+  "seconds": 0.8955479889991693,
+  "interpretation": "8/sqrt(d) is a large-d approximation to individual direction alignment, not pair cosine; bounded references are stated separately. These are input-space diagnostics, not the PCA/score output."
+}

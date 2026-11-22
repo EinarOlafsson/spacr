@@ -205,19 +205,23 @@ def phate_leiden(components: np.ndarray, resolutions: Iterable[float], *,
     return out
 
 
-def _fisher_p(a: int, k: int, n: int, *, n_background: int) -> float:
+def _fisher_p(a: int, k: int, n: int, *, n_background: int,
+              alternative: str = "two-sided") -> float:
     """The Fisher exact p-value of one cluster against one group.
 
     :param a: genes both in the cluster and in the group.
     :param k: genes in the group.
     :param n: genes in the cluster.
     :param n_background: genes in the background.
-    :returns: the two-sided Fisher exact p-value of the 2x2 table.
+    :param alternative: the Fisher tail; the existing enrichment default is
+        ``"two-sided"``. Complex recovery uses ``"greater"``.
+    :returns: the requested Fisher exact p-value of the 2x2 table.
     """
     from scipy.stats import fisher_exact
 
     b, c = k - a, n - a
-    return fisher_exact([[a, b], [c, max(n_background - (a + b + c), 0)]])[1]
+    return fisher_exact([[a, b], [c, max(n_background - (a + b + c), 0)]],
+                        alternative=alternative)[1]
 
 
 def group_enrichment(groups: pd.DataFrame, genes: Sequence[str], clusters: np.ndarray, *,
@@ -1386,24 +1390,34 @@ def complex_metrics(genes: Sequence[str], labels: np.ndarray,
     :param halves: ``{complex: 0 or 1}``; complexes of half 1 (REPORT) are
         scored for recovery.
     :returns: ``REPORT_complexes`` (REPORT complexes with at least three
-        scored members), ``complexes_recovered_pct`` (those with at least
-        half their scored members in one cluster) and
-        ``CORUM_partner_in_cluster_pct`` (genes with a CORUM partner among
-        the scored genes, of any half, that share its cluster).
+        distinct scored members), ``complexes_recovered_pct`` (those with
+        at least two members in a cluster enriched by a one-sided Fisher
+        test, Bonferroni-corrected over all nonempty scored clusters at
+        p < 0.05) and ``CORUM_partner_in_cluster_pct`` (genes with a CORUM
+        partner among the scored genes, of any half, that share its cluster).
+        Recovery therefore accounts for the scored set size, cluster sizes
+        and number of clusters; sharing half a set is not a fixed cutoff.
     """
     labels = np.asarray(labels)
     index = {g: i for i, g in enumerate(genes)}
+    clusters, sizes = np.unique(labels, return_counts=True)
+    cluster_sizes = dict(zip(clusters, sizes))
+    tests = len(clusters)
+    fisher = lru_cache(maxsize=None)(partial(
+        _fisher_p, n_background=len(index), alternative="greater"))
     recovered: List[bool] = []
     has = np.zeros(len(index), bool)
     hit = np.zeros(len(index), bool)
     for name, members in groups.items():
-        idx = np.array([index[x] for x in members if x in index], dtype=int)
+        idx = np.array(sorted({index[x] for x in members if x in index}), dtype=int)
         if len(idx) >= 2:
             has[idx] = True
             values, counts = np.unique(labels[idx], return_counts=True)
             hit[idx[np.isin(labels[idx], values[counts >= 2])]] = True
         if len(idx) >= 3 and halves.get(name) == 1:
-            recovered.append(np.unique(labels[idx], return_counts=True)[1].max() / len(idx) >= 0.5)
+            recovered.append(any(
+                tests * fisher(int(count), len(idx), int(cluster_sizes[value])) < 0.05
+                for value, count in zip(values, counts) if count >= 2))
     return {"REPORT_complexes": len(recovered),
             "complexes_recovered_pct": 100 * float(np.mean(recovered)) if recovered else float("nan"),
             "CORUM_partner_in_cluster_pct": 100 * float(hit[has].mean()) if has.any() else float("nan")}

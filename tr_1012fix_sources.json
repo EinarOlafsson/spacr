@@ -1,0 +1,263 @@
+{
+  "task": "1012fix",
+  "base": "2c65174074ca3900a83fcc71ea07a5e179202bf4",
+  "translation_owner": "Home; no translated records, generated catalogs or pins edited",
+  "source_docstrings": [
+    {
+      "file": "spacr/ops_clusters.py",
+      "symbol": "_fisher_p",
+      "kind": "production",
+      "change": "revised",
+      "source": "The Fisher exact p-value of one cluster against one group.\n\n:param a: genes both in the cluster and in the group.\n:param k: genes in the group.\n:param n: genes in the cluster.\n:param n_background: genes in the background.\n:param alternative: the Fisher tail; the existing enrichment default is\n    ``\"two-sided\"``. Complex recovery uses ``\"greater\"``.\n:returns: the requested Fisher exact p-value of the 2x2 table.",
+      "line": 208,
+      "source_sha256": "cdd4566bd2a99c1058ca71f34ca42b562fbe1632eb7824ac8adf99513fdf3086"
+    },
+    {
+      "file": "spacr/ops_clusters.py",
+      "symbol": "complex_metrics",
+      "kind": "production",
+      "change": "revised",
+      "source": "Complex recovery and partner-in-cluster share of one clustering.\n\n:param genes: the scored genes.\n:param labels: one cluster label per gene.\n:param groups: ``{complex: members}`` (CORUM).\n:param halves: ``{complex: 0 or 1}``; complexes of half 1 (REPORT) are\n    scored for recovery.\n:returns: ``REPORT_complexes`` (REPORT complexes with at least three\n    distinct scored members), ``complexes_recovered_pct`` (those with\n    at least two members in a cluster enriched by a one-sided Fisher\n    test, Bonferroni-corrected over all nonempty scored clusters at\n    p < 0.05) and ``CORUM_partner_in_cluster_pct`` (genes with a CORUM\n    partner among the scored genes, of any half, that share its cluster).\n    Recovery therefore accounts for the scored set size, cluster sizes\n    and number of clusters; sharing half a set is not a fixed cutoff.",
+      "line": 1382,
+      "source_sha256": "bd56ebc662848e770c6b19f256163d05befc23154e37b146d717a45109984554"
+    },
+    {
+      "file": "tests/test_ops_leiden_sweep_916.py",
+      "symbol": "test_complex_metrics_count_recovered_report_complexes",
+      "kind": "test",
+      "change": "new",
+      "source": "Tiny groups retain partner hits but lack recovery evidence after cluster-search correction.",
+      "line": 161,
+      "source_sha256": "25ed442c153e7530b2d98ba09ff62f792edd5dc6c169eed997b60c5c4a20b391"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_chance_1012fix.py",
+      "symbol": "<module>",
+      "kind": "test",
+      "change": "new",
+      "source": "Chance-corrected complex recovery for four- and eight-member report controls.",
+      "line": 1,
+      "source_sha256": "2d7b6219fe993e730659f1f99881b05c6c93eb9cc318ff6d90bac8c25f582597"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_chance_1012fix.py",
+      "symbol": "_recovery",
+      "kind": "test",
+      "change": "new",
+      "source": "Call the sole production recovery owner with a full scored background.",
+      "line": 8,
+      "source_sha256": "ff6e5aca1b5580a636550abf47ded2c50c50093b1b7ccab1cb7a4a96250813eb"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_chance_1012fix.py",
+      "symbol": "test_existing_fisher_tail_remains_two_sided_by_default",
+      "kind": "test",
+      "change": "new",
+      "source": "The original two-sided table probability remains distinct from enrichment-only recovery.",
+      "line": 15,
+      "source_sha256": "f820f903997fa34bc4362f6b46cc2c9e45b59412e20f0ce9c11e320e61688e5e"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_chance_1012fix.py",
+      "symbol": "test_two_members_recover_four_and_eight_member_sets_when_chance_is_small",
+      "kind": "test",
+      "change": "new",
+      "source": "An informative shared pair can recover either set size at many small clusters.",
+      "line": 22,
+      "source_sha256": "a1ef327a4d5317cf9472320fbeda5d442aa139b81952f2037423cd3b444d7467"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_chance_1012fix.py",
+      "symbol": "test_large_clusters_and_single_cluster_partitions_do_not_supply_recovery_evidence",
+      "kind": "test",
+      "change": "new",
+      "source": "Coincidental overlap in a large background cluster cannot satisfy the new recovery rule.",
+      "line": 32,
+      "source_sha256": "3259e63925d4b9f0e6fdd6b1a810f865a507462fea6ea05b699cbca3761be4e8"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_chance_1012fix.py",
+      "symbol": "test_searching_more_clusters_changes_the_family_correction",
+      "kind": "test",
+      "change": "new",
+      "source": "Identical local overlap is assessed against the actual number of searched clusters.",
+      "line": 39,
+      "source_sha256": "460407b5414c90132dc81879126893d6c3cd8fb4460cb6dc28a9e26715ca8292"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_chance_1012fix.py",
+      "symbol": "test_repeated_members_do_not_inflate_set_size_or_support",
+      "kind": "test",
+      "change": "new",
+      "source": "Membership is a gene set, so repeated annotations retain the same statistic.",
+      "line": 48,
+      "source_sha256": "5c6d3788af334156f83247b894e5ad15c45d7d88fdd4092014946d95fe386383"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_chance_1012fix.py",
+      "symbol": "test_shuffled_sets_have_recovery_near_the_nominal_five_percent",
+      "kind": "test",
+      "change": "new",
+      "source": "Fixed balanced null partitions give the predicted conservative rate near five percent.",
+      "line": 55,
+      "source_sha256": "e4da8ed869e242eed3f5ec918b3fba6cb7b800e6095aebc5974aed4fdd0214ee"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_sources_1012fix.py",
+      "symbol": "<module>",
+      "kind": "test",
+      "change": "new",
+      "source": "Bind the chance-corrected recovery prose to its exact single-symbol API revision.",
+      "line": 1,
+      "source_sha256": "b3600183f2793bef0817ed0808b1584b4fbd3ecf7ca6dc53e6eadbd557a7eb01"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_sources_1012fix.py",
+      "symbol": "_complex_recovery_api_source",
+      "kind": "test",
+      "change": "new",
+      "source": "Validate source syntax and both immutable bodies without importing production code.",
+      "line": 14,
+      "source_sha256": "69c585a858a2a323f0a1c3bb878bea9fc4bafe8ef742ba94e66c8625f90c9312"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_sources_1012fix.py",
+      "symbol": "_current_complex_recovery_api",
+      "kind": "test",
+      "change": "new",
+      "source": "Revise only the bound recovery body, accepting its original or already revised form.",
+      "line": 31,
+      "source_sha256": "e5ee16aa4c6856a72ca4e005abdd36c3bcd4c63bc21a4e80babb3aafb9bc66bb"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_sources_1012fix.py",
+      "symbol": "test_recovery_adapter_preserves_all_other_symbols_and_the_input",
+      "kind": "test",
+      "change": "new",
+      "source": "Keep the historical arrival intact while revising exactly one current API body.",
+      "line": 41,
+      "source_sha256": "dd4a0960150aa0b1ac7bc2588ef1f581ba9f2d3ef79255c6dff8f22eecf6670a"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_sources_1012fix.py",
+      "symbol": "test_recovery_adapter_rejects_an_unbound_third_body",
+      "kind": "test",
+      "change": "new",
+      "source": "Unknown documentation cannot silently bypass the exact revision contract.",
+      "line": 51,
+      "source_sha256": "cd71664863a48955698d8f62d015ab6a55bae99ca48e8b34d98889ff397fc89a"
+    },
+    {
+      "file": "tests/test_ops_complex_recovery_sources_1012fix.py",
+      "symbol": "test_recovery_adapter_composes_with_the_external_projection_revision",
+      "kind": "test",
+      "change": "new",
+      "source": "The independent recovery and projection owners compose in either order.",
+      "line": 59,
+      "source_sha256": "48ea635bef04ac8d3c3aa69f211a0c29920b8e0d1275b5f0aec43f2a0c0277b8"
+    }
+  ],
+  "user_facing_messages": [],
+  "canonical_public_api_revision": {
+    "spacr.ops_clusters.complex_metrics": {
+      "file": "spacr/ops_clusters.py",
+      "line": 1382,
+      "before": "Complex recovery and partner-in-cluster share of one clustering.\n\n:param genes: the scored genes.\n:param labels: one cluster label per gene.\n:param groups: ``{complex: members}`` (CORUM).\n:param halves: ``{complex: 0 or 1}``; complexes of half 1 (REPORT) are\n    scored for recovery.\n:returns: ``REPORT_complexes`` (REPORT complexes with at least three\n    scored members), ``complexes_recovered_pct`` (those with at least\n    half their scored members in one cluster) and\n    ``CORUM_partner_in_cluster_pct`` (genes with a CORUM partner among\n    the scored genes, of any half, that share its cluster).",
+      "source": "Complex recovery and partner-in-cluster share of one clustering.\n\n:param genes: the scored genes.\n:param labels: one cluster label per gene.\n:param groups: ``{complex: members}`` (CORUM).\n:param halves: ``{complex: 0 or 1}``; complexes of half 1 (REPORT) are\n    scored for recovery.\n:returns: ``REPORT_complexes`` (REPORT complexes with at least three\n    distinct scored members), ``complexes_recovered_pct`` (those with\n    at least two members in a cluster enriched by a one-sided Fisher\n    test, Bonferroni-corrected over all nonempty scored clusters at\n    p < 0.05) and ``CORUM_partner_in_cluster_pct`` (genes with a CORUM\n    partner among the scored genes, of any half, that share its cluster).\n    Recovery therefore accounts for the scored set size, cluster sizes\n    and number of clusters; sharing half a set is not a fixed cutoff.",
+      "before_sha256": "53ec454e89a09eb50c8489b9f33d067fe0b7d254e3f6bb9d415a1c64d3bab9bb",
+      "source_sha256": "bd56ebc662848e770c6b19f256163d05befc23154e37b146d717a45109984554",
+      "signature": "genes: Sequence[str], labels: np.ndarray, groups: Mapping[str, Sequence[str]], halves: Mapping[str, int]",
+      "return_annotation": "Dict[str, Any]",
+      "blocks": [
+        {
+          "source": "Complex recovery and partner-in-cluster share of one clustering.",
+          "source_sha256": "2fbce592509bac319a33325180971653209c15bc6bdc4b3bdf607965d025bba4"
+        },
+        {
+          "source": "the scored genes.",
+          "source_sha256": "8e0554645ef0057bf58b61e1e6d2abb5f5505a38d1695c1340494fb1fcfe07e1"
+        },
+        {
+          "source": "one cluster label per gene.",
+          "source_sha256": "ec16ec4fe8dcfe9b134479f95a73c33c730ba4a4f6cd32385ad0096d66bbe99f"
+        },
+        {
+          "source": "``{complex: members}`` (CORUM).",
+          "source_sha256": "6dd55784ad6f903adb6a9b2ce192c866043e180f8a6a7dc7a90032b44a70fa3b"
+        },
+        {
+          "source": "``{complex: 0 or 1}``; complexes of half 1 (REPORT) are scored for recovery.",
+          "source_sha256": "283e177ade76c3d414b7a5845b0029086daa22e005f28aefbb78fa06ffa26523"
+        },
+        {
+          "source": "``REPORT_complexes`` (REPORT complexes with at least three distinct scored members), ``complexes_recovered_pct`` (those with at least two members in a cluster enriched by a one-sided Fisher test, Bonferroni-corrected over all nonempty scored clusters at p < 0.05) and ``CORUM_partner_in_cluster_pct`` (genes with a CORUM partner among the scored genes, of any half, that share its cluster). Recovery therefore accounts for the scored set size, cluster sizes and number of clusters; sharing half a set is not a fixed cutoff.",
+          "source_sha256": "11c03f485ded0018132021fb64060d6f00b59fe6211d3725843551e69c84c050"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param genes:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param labels:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param groups:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param halves:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              5
+            ]
+          ]
+        ]
+      ]
+    }
+  },
+  "protected_consumer_approval": {
+    "inbox_sha256": "072f25655ea5850e5de0ab69e757015dab2eb667e448b8856f9b81f200324ed0",
+    "patch_sha256": "578308d9c230ea5975e4d17f6566dc44d21933f693e073effb97f757e22b3819",
+    "all2367assertions_preserved": true
+  },
+  "canonical_blocks_method": "Actual shipped build_documentation_i18n.translatable_blocks; source-only import, no docs build.",
+  "primary_result": "FAIL: no-plant p<0.05 share187/7280=0.025686813186813186 is below0.03; no tuning."
+}

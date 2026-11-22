@@ -1,0 +1,91 @@
+{
+  "main400": {
+    "pair_share": {
+      "mean": 0.003928571428571428,
+      "range_2_5_97_5": [
+        0.0,
+        0.03571428571428571
+      ]
+    },
+    "pair_p05_share_all_views": {
+      "mean": 0.033124999999999995,
+      "range_2_5_97_5": [
+        0.0,
+        0.10714285714285714
+      ]
+    },
+    "map": {
+      "mean": 0.002372345583814588,
+      "range_2_5_97_5": [
+        0.0012338636562213947,
+        0.0070830580939880965
+      ]
+    }
+  },
+  "sensitivity_only": {
+    "label": "SENSITIVITY ONLY; excluded from PASS",
+    "complex": "plant_conservation_s1_0",
+    "change": "Only the matching coverage count for the coverage-7 member is8, using the nearest133-gene eligible pool; no measurement, profile, p value or planted template changes.",
+    "random_sets": 100,
+    "seed": 0,
+    "observed_planted": {
+      "pair_share": 0.0,
+      "pair_p05_share_all_views": 0.0,
+      "map": 0.0013792953109027506,
+      "member_ap": [
+        0.0015658728923769218,
+        0.0015008315983459925,
+        0.0013424900772151219,
+        0.0014801726707896821,
+        0.0013712745458708687,
+        0.0010075657054567384,
+        0.0015052481125702125,
+        0.0012609068845964666
+      ]
+    },
+    "observed_no_plant": {
+      "pair_share": 0.0,
+      "pair_p05_share_all_views": 0.0,
+      "map": 0.0012907424055412513,
+      "member_ap": [
+        0.0015302913560410153,
+        0.0014062309675115711,
+        0.001012319431740295,
+        0.0014581290290489968,
+        0.0013652190016861208,
+        0.0009992806537511532,
+        0.0015024667645183712,
+        0.0010520020400324875
+      ]
+    },
+    "random": {
+      "pair_share": {
+        "mean": 0.003214285714285714,
+        "range_2_5_97_5": [
+          0.0,
+          0.03571428571428571
+        ]
+      },
+      "pair_p05_share_all_views": {
+        "mean": 0.033928571428571426,
+        "range_2_5_97_5": [
+          0.0,
+          0.10714285714285714
+        ]
+      },
+      "map": {
+        "mean": 0.0023586976233725006,
+        "range_2_5_97_5": [
+          0.0012411522534362368,
+          0.004402505835859452
+        ]
+      }
+    },
+    "random_set_indices_sha256": "7db8c74467eb849fe533ebeb8ab01084e0f6594239a0684af8b68c8d71dea4af"
+  },
+  "owner_extension_proof": {
+    "default500_matched_indices_byte_equal": true,
+    "old_script_sha256": "71882f613b658ac8e2d683d6299279510af0d66bce018d6b33cbf6fa74c6b12d",
+    "extended_script_sha256": "b24efcf57c03cbe61559956a67f16842a79e5a51688163bc42d11aaa12d333fa"
+  }
+}

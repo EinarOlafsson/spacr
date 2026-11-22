@@ -1,0 +1,283 @@
+"""Run the specified 1012fix fallback without rerunning pipeline arms or changing the graph."""
+import hashlib
+import inspect
+import json
+import os
+from pathlib import Path
+import sys
+import time
+
+import numpy as np
+import pandas as pd
+from scipy.stats import spearmanr
+
+R=Path(__file__).resolve().parent
+T=Path('/media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-1012fix')
+sys.path[:0]=[str(T),str(R.parent/'1012')]
+from acceptance_inputs import input_hashes,load_inputs,plant_views
+from spacr import ops_maxproj as M,sp_stats as S,ops_clusters as C
+
+N_NULL=200000
+N_SETS=500
+
+
+def projected_fallback(rows,indices,coverage,planted_members,arm,approval):
+    """Apply the exact per-view empirical cosine null and thirteen-view Bonferroni fallback."""
+    assert approval['missing_z_fill']==0 and approval['null_self_pairs_retained'] and approval['null_pool_excludes_all_planted_genes']
+    n=len(rows)
+    out=R/'primary-arrays';out.mkdir(exist_ok=True)
+    receipt=out/(arm+'-metadata.json')
+    key=hashlib.sha256((hashlib.sha256(np.ascontiguousarray(rows).tobytes()).hexdigest()+
+        hashlib.sha256(coverage.tobytes()).hexdigest()+
+        hashlib.sha256(planted_members.tobytes()).hexdigest()+
+        json.dumps([ix.tolist() for ix in indices])+json.dumps(approval,sort_keys=True)+
+        inspect.getsource(projected_fallback)+
+        hashlib.sha256((T/'spacr/sp_stats.py').read_bytes()).hexdigest()).encode()).hexdigest()
+    if receipt.exists():
+        metadata=json.loads(receipt.read_text())
+        assert metadata['cache_key']==key, 'Fallback cache mismatch requires review'
+        for suffix in ('p','view'):
+            path=out/(arm+'-'+suffix+'.npy')
+            assert hashlib.sha256(path.read_bytes()).hexdigest()==metadata[suffix+'_file_sha256']
+        print(arm,'REUSING exact persisted fallback p/view',flush=True)
+        return (np.load(out/(arm+'-p.npy'),mmap_mode='r',allow_pickle=False),
+                np.load(out/(arm+'-view.npy'),mmap_mode='r',allow_pickle=False),metadata['details'])
+    p=np.ones(n*(n-1)//2,dtype=np.float64)
+    best=np.zeros(len(p),dtype=np.int8)
+    details=[]
+    for v,ix in enumerate(indices):
+        frame=pd.DataFrame(rows[:,ix])
+        scaled=S._normalize_profiles(frame,list(frame.columns),method='standardize',by=None).to_numpy(float)
+        missing=int(np.sum(~np.isfinite(scaled)))
+        unit=S._unit_rows(np.nan_to_num(scaled,nan=0,posinf=0,neginf=0))
+        pool=np.flatnonzero(coverage[:,v]&~np.isin(np.arange(n),planted_members))
+        rng=np.random.default_rng(0)
+        left=pool[rng.integers(0,len(pool),N_NULL)]
+        right=pool[rng.integers(0,len(pool),N_NULL)]
+        null=np.sort(np.sum(unit[left]*unit[right],axis=1))
+        before=int(np.sum(p<.05))
+        for i,span in M._pair_rows(n):
+            similarity=unit[i]@unit[i+1:].T
+            counts=N_NULL-np.searchsorted(null,similarity,side='left')
+            pv=np.minimum(1.0,13.0*counts/N_NULL)
+            pv=np.where(coverage[i,v]&coverage[i+1:,v],pv,1.0)
+            improve=pv<p[span]
+            p[span]=np.where(improve,pv,p[span])
+            best[span]=np.where(improve,v,best[span])
+        detail={'view_index':v,'dimensions':len(ix),'covered_genes':int(coverage[:,v].sum()),
+                'null_pool_genes':len(pool),'null_pairs':N_NULL,'self_pairs_retained':int(np.sum(left==right)),'missing_z_entries_filled_zero':missing,
+                'null_cosine_quantiles':np.percentile(null,[0,2.5,50,95,97.5,100]).tolist(),
+                'significant_projected_pairs_after_view':int(np.sum(p<.05)),
+                'significant_projected_pairs_before_view':before,
+                'seed':0,'null_sha256':hashlib.sha256(null.tobytes()).hexdigest()}
+        details.append(detail)
+        print(arm,'fallback view',v,json.dumps(detail),flush=True)
+    np.save(out/(arm+'-p.npy'),p)
+    np.save(out/(arm+'-view.npy'),best)
+    receipt.write_text(json.dumps({'cache_key':key,'details':details,
+        'p_file_sha256':hashlib.sha256((out/(arm+'-p.npy')).read_bytes()).hexdigest(),
+        'view_file_sha256':hashlib.sha256((out/(arm+'-view.npy')).read_bytes()).hexdigest()},indent=2)+'\n')
+    return p,best,details
+
+
+def set_metrics(p,best,members,target,n):
+    """Read packed pairs and delegate full-universe partner AP to the existing statistics owner."""
+    members=np.asarray(members,dtype=int)
+    assert len(members)==len(np.unique(members))==8
+    a,b=np.triu_indices(8,1)
+    values=M._pair_values(p,n,members[a],members[b])
+    winners=M._pair_values(best,n,members[a],members[b])
+    order=np.r_[members,np.flatnonzero(~np.isin(np.arange(n),members))]
+    sims=-np.stack([M._pair_row(p,n,int(gene),1.0) for gene in members])[:,order]
+    positives=np.zeros((8,n),bool);positives[:,:8]=True
+    ap,n_pos,n_total=S._pair_average_precision(sims,positives,np.ones(n,bool))
+    assert np.all(n_pos==7) and np.all(n_total==n-1)
+    return {'pair_share':float(np.mean((values<.05)&(winners==target))),
+            'pair_p05_share_all_views':float(np.mean(values<.05)),
+            'map':float(np.mean(ap)),'member_ap':ap.tolist()}
+
+
+
+def verify_ap_adapter():
+    """Compare the eight-query adapter with the unchanged full-square owner, including ties."""
+    n=14
+    rng=np.random.default_rng(0)
+    p=np.round(rng.random(n*(n-1)//2),1)
+    full=np.stack([M._pair_row(p,n,i,1.0) for i in range(n)])
+    members=np.array([9,1,13,2,6,11,4,7])
+    positive=np.zeros((n,n),bool)
+    positive[np.ix_(members,members)]=True
+    expected,n_pos,n_total=S._pair_average_precision(-full,positive,np.ones(n,bool))
+    actual=set_metrics(p,np.zeros(len(p),np.int8),members,0,n)
+    assert np.array_equal(expected[members],actual['member_ap'])
+    assert np.all(n_pos[members]==7) and np.all(n_total[members]==13)
+    return {'passed':True,'fixture_genes':14,'queries':8,'ties':True,
+            'full_square_and_query_adapter_ap_byte_equal':True}
+
+
+def random_sets(templates,coverage_counts,eligible,*,sets=500):
+    """Draw the requested count by cycling coverage-count templates without replacement within a set."""
+    rng=np.random.default_rng(0)
+    pools={int(k):np.flatnonzero(eligible&(coverage_counts==k)) for k in np.unique(coverage_counts)}
+    result=[]
+    assert len(templates)>0
+    for i in range(int(sets)):
+        template=templates[i%len(templates)]
+        used=[]
+        for member in template:
+            pool=pools[int(coverage_counts[member])]
+            choices=pool[~np.isin(pool,used)]
+            assert len(choices)>0
+            used.append(int(rng.choice(choices)))
+        result.append(np.array(used,int))
+    return result
+
+
+def summary(values):
+    """Describe the specified random-set distribution without fitting or tuning parameters."""
+    values=np.asarray(values,float)
+    return {'mean':float(np.mean(values)),'range_2_5_97_5':np.percentile(values,[2.5,97.5]).tolist()}
+
+
+
+def recovery_null_calibration():
+    """Report the exact shuffled calibration rates using the same fixed designs as the regression tests."""
+    rows=[]
+    for size,n,clusters in ((4,10000,10),(8,6400,640)):
+        rng=np.random.default_rng(C.SWEEP_CONTROL_SEED)
+        names=[str(i) for i in range(n)]
+        labels=np.arange(n)//(n//clusters)
+        groups={str(i):[names[j] for j in rng.choice(n,size,replace=False)] for i in range(20000)}
+        result=C.complex_metrics(names,labels,groups,dict.fromkeys(groups,1))
+        rows.append({'set_size':size,'genes':n,'clusters':clusters,'random_sets':20000,
+                     'recovery_pct':result['complexes_recovered_pct'],'seed':C.SWEEP_CONTROL_SEED})
+    return rows
+
+
+def main():
+    """Score the exact fallback, matched controls and paired complex bootstrap with full receipts."""
+    assert os.environ['CUDA_VISIBLE_DEVICES']==''
+    approval=json.loads((R/'fallback-conventions-approval.json').read_text())
+    assert approval['approved']
+    start=time.monotonic()
+    ap_adapter_proof=verify_ap_adapter()
+    recovery_calibration=recovery_null_calibration()
+    hashes=input_hashes()
+    saved=json.loads((R.parent/'1012/acceptance/planted/summary.json').read_text())
+    assert hashes==saved['input_sha256']
+    rows,names,views,indices,coverage,planted,_,_,manifest=load_inputs()
+    shifted,expanded,records=plant_views(rows,names,views,indices,coverage,planted,manifest)
+    assert records==saved['plant_records']
+    n=len(names);assert n==8140 and len(views)==13
+    assert not np.isinf(rows).any()
+    profile_presence=np.column_stack([np.isfinite(rows[:,ix]).any(axis=1) for ix in indices])
+    assert np.array_equal(coverage,profile_presence), 'Coverage counts must mean non-missing profiles as specified'
+    index={name:i for i,name in enumerate(names)}
+    vindex={view['name']:i for i,view in enumerate(views)}
+    groups=[]
+    for name,group in planted.groupby('complex',sort=False):
+        groups.append({'complex':str(name),'view':str(group.view.iloc[0]),
+                       'view_index':vindex[str(group.view.iloc[0])],
+                       'strength':float(group.strength.iloc[0]),
+                       'members':np.array([index[str(g)] for g in group.gene],int)})
+    planted_members=np.concatenate([g['members'] for g in groups])
+    eligible=~np.isin(np.arange(n),np.concatenate([g['members'] for g in groups]))
+    counts=coverage.sum(axis=1)
+    keys=list(dict.fromkeys((g['view'],g['strength']) for g in groups))
+    controls={};control_blockers=[]
+    for key in keys:
+        matching_groups=[g for g in groups if (g['view'],g['strength'])==key]
+        templates=[g['members'] for g in matching_groups]
+        shortages=[]
+        for group in matching_groups:
+            values,required=np.unique(counts[group['members']],return_counts=True)
+            for value,need in zip(values,required):
+                available=int(np.sum(eligible&(counts==value)))
+                if available<int(need):
+                    shortages.append({'complex':group['complex'],'coverage_count':int(value),
+                                      'required':int(need),'eligible':available})
+        if shortages:
+            controls[key]=None
+            control_blockers.append({'view':key[0],'strength':key[1],'shortages':shortages})
+            print('MATCHING_BLOCKED',json.dumps(control_blockers[-1]),flush=True)
+        else:
+            controls[key]=random_sets(templates,counts,eligible)
+    arms={};null_details={}
+    for arm,matrix,vix in [('no_plant',rows,indices),('planted',shifted,expanded)]:
+        p,best,details=projected_fallback(matrix,vix,coverage,planted_members,arm,approval)
+        arms[arm]={'p':p,'view':best}
+        null_details[arm]=details
+    measured=[]
+    for group in groups:
+        row={key:value for key,value in group.items() if key!='members'}
+        for arm,arrays in arms.items():
+            row[arm]=set_metrics(arrays['p'],arrays['view'],group['members'],group['view_index'],n)
+        measured.append(row)
+    strata=[];null_rows=[]
+    for view,strength in keys:
+        ix=[i for i,g in enumerate(groups) if (g['view'],g['strength'])==(view,strength)]
+        templates=[groups[i]['members'] for i in ix]
+        null_sets=controls[(view,strength)]
+        results=[] if null_sets is None else [set_metrics(arms['planted']['p'],arms['planted']['view'],members,vindex[view],n) for members in null_sets]
+        match_ok=None if null_sets is None else all(np.array_equal(counts[members],counts[templates[i%5]]) and len(set(members))==8 and eligible[members].all() for i,members in enumerate(null_sets))
+        assert null_sets is None or match_ok
+        row={'view':view,'strength':strength,'complexes':len(ix),'random_sets':len(results),'requested_random_sets':500,
+             'random_sets_match_coverage_counts':match_ok,
+             'random_set_indices_sha256':None if null_sets is None else hashlib.sha256(np.stack(null_sets).tobytes()).hexdigest()}
+        for arm in arms:
+            row[arm]={key:float(np.mean([measured[i][arm][key] for i in ix])) for key in ('pair_share','pair_p05_share_all_views','map')}
+        row['random']=None if not results else {key:summary([item[key] for item in results]) for key in ('pair_share','pair_p05_share_all_views','map')}
+        strata.append(row)
+        null_rows.append({'view':view,'strength':strength,'results':[{key:item[key] for key in ('pair_share','pair_p05_share_all_views','map')} for item in results]})
+        print('STRATUM',json.dumps(row),flush=True)
+        (R/'primary-strata-checkpoint.json').write_text(json.dumps(strata,indent=2)+'\n')
+    ix8=[i for i,g in enumerate(groups) if g['strength']==8]
+    excess=[measured[i]['planted']['map']-measured[i]['no_plant']['map'] for i in ix8]
+    ci=S.bootstrap_ci(excess,n_boot=2000,seed=0)
+    trends={}
+    for metric in ('pair_share','map'):
+        test=spearmanr([row['strength'] for row in strata],[row['planted'][metric] for row in strata])
+        trends[metric]={'rho':float(test.statistic),'p':float(test.pvalue),'positive_p05':bool(test.statistic>0 and test.pvalue<.05)}
+    no_plant_share=float(np.mean([row['no_plant']['pair_p05_share_all_views'] for row in measured]))
+    gates={'map_excess_ci_lower_positive':bool(ci[0]>0),
+           'map_spearman_positive_p05':trends['map']['positive_p05'],
+           'pair_share_spearman_positive_p05':trends['pair_share']['positive_p05'],
+           'no_plant_p05_share_in_03_07':bool(.03<=no_plant_share<=.07)}
+    pooled_random={}
+    for key in ('pair_share','pair_p05_share_all_views','map'):
+        values=np.array([[item[key] for item in row['results']] for row in null_rows if row['strength']==8])
+        assert values.shape==(13,500)
+        pooled_random[key]={'pooled500_view_means':summary(values.mean(axis=0)),
+                            'all6500_set_distribution':summary(values.ravel())}
+    result={'method':'AUDIT specified FALLBACK; no per-pair p/view was persisted by the original harness.',
+            'evidence':'Original summary contains shape/dtype/SHA only; original run_full_acceptance.py deletes result; bounded saved folders contain no numerical score arrays.',
+            'definitions_inbox_sha256':'0055b77e4ea21137900f1ffe72dc3259ce6d0fc5a23c213d84989804e3114077',
+            'additional_conventions_approval':approval,'input_sha256':hashes,
+            'input_reconstruction':'Exact eight approved files, original plant adapter, all260direction records verified. Not a pipeline arm rerun.',
+            'production_graph_unchanged':True,'ap_adapter_proof':ap_adapter_proof,'recovery_null_calibration':recovery_calibration,
+            'owners':{'standardize':'sp_stats._normalize_profiles standardize/by=None',
+                      'unit_rows':'sp_stats._unit_rows','pair_storage':'ops_maxproj._pair_rows/_pair_row/_pair_values',
+                      'average_precision':'sp_stats._pair_average_precision, eight query rows reordered before all remaining candidates;7partners and8139candidates asserted',
+                      'bootstrap':'sp_stats.bootstrap_ci,2000draws,seed0'},
+            'ranking':'All8139othergenes by ascending corrected pair p; existing AP owner ranks single precision, tied partners first.',
+            'null_details':null_details,'complexes':measured,'strata':strata,
+            'control_blockers':control_blockers,'readout_complete':not control_blockers,
+            'pooled8':{'complexes':65,'members':520,'map_planted':float(np.mean([measured[i]['planted']['map'] for i in ix8])),
+                       'map_no_plant':float(np.mean([measured[i]['no_plant']['map'] for i in ix8])),
+                       'paired_map_excess':float(np.mean(excess)),'paired_complex_bootstrap_95_ci':list(ci),
+                       'pair_share_planted':float(np.mean([measured[i]['planted']['pair_share'] for i in ix8])),
+                       'pair_share_no_plant':float(np.mean([measured[i]['no_plant']['pair_share'] for i in ix8])),
+                       'random':pooled_random},
+            'trend':trends,'no_plant_p05_share_all260_complexes':no_plant_share,
+            'gates':gates,'all_reported_gates_pass':all(gates.values()),
+            'source_sha256':{name:hashlib.sha256((T/name).read_bytes()).hexdigest() for name in ('spacr/ops_clusters.py','spacr/ops_maxproj.py','spacr/ops_reference.py','spacr/sp_stats.py')},
+            'script_sha256':hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            'seconds':time.monotonic()-start}
+    assert hashes==input_hashes()
+    (R/'primary-random-sets.json').write_text(json.dumps(null_rows,indent=2)+'\n')
+    (R/'primary-fallback-readout.json').write_text(json.dumps(result,indent=2)+'\n')
+    print('PRIMARY_RESULT',json.dumps({key:result[key] for key in ('pooled8','trend','no_plant_p05_share_all260_complexes','gates','all_reported_gates_pass','seconds')}),flush=True)
+
+
+if __name__=='__main__':
+    main()
