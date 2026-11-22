@@ -1,0 +1,245 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_openmp_guard.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_clamps_when_duplicated": "tests/test_openmp_guard.py::TestGuardedNJobs::test_original_runtime_inventories_keep_their_guarded_job_counts[test_clamps_when_duplicated]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_leaves_the_request_alone_when_single": "tests/test_openmp_guard.py::TestGuardedNJobs::test_original_runtime_inventories_keep_their_guarded_job_counts[test_leaves_the_request_alone_when_single]"
+  },
+  "literal_class_case_contracts": {
+    "test_clamps_when_duplicated": [
+      [
+        "/a/libomp.dylib",
+        "/b/libomp.dylib"
+      ],
+      1
+    ],
+    "test_leaves_the_request_alone_when_single": [
+      [
+        "/a/libomp.dylib"
+      ],
+      -1
+    ]
+  },
+  "case_contract_representations": {
+    "test_clamps_when_duplicated": "(['/a/libomp.dylib', '/b/libomp.dylib'], 1)",
+    "test_leaves_the_request_alone_when_single": "(['/a/libomp.dylib'], -1)"
+  },
+  "contract_scope": "Exact original TestGuardedNJobs class/self scope, monkeypatch and clamping_platform fixtures, ordered native runtime filename lists, integer request -1, expected integer results and openmp_guard.guarded_n_jobs(-1) native equality retained. Callback [*runtimes] creates a fresh list on every invocation, matching the original list literal. Every other original class, method, nested helper, import, fixture, marker, real-process mapping probe and source-text wiring check retains executable AST and relative order. No estimator/joblib execution assertion is added; all other tests and regressions remain.",
+  "collected_before": [
+    "tests/test_openmp_guard.py::TestCallSitesAreWired::test_call_site_uses_the_guard[spacr/ml.py-@single_threaded_openmp('classical ML training')]",
+    "tests/test_openmp_guard.py::TestCallSitesAreWired::test_call_site_uses_the_guard[spacr/ml.py-guarded_n_jobs(n_jobs, 'permutation importance')]",
+    "tests/test_openmp_guard.py::TestCallSitesAreWired::test_call_site_uses_the_guard[spacr/timelapse.py-@single_threaded_openmp('XGBoost infection QC')]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[No]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_clamps_when_duplicated",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_a_broken_probe_costs_the_caller_nothing",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[OFF]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[off]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_unset_escape_hatch_keeps_the_guard_on",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_leaves_the_request_alone_when_single",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[false]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_off_platform_leaves_the_request_alone",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[0]",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_a_context_instance_can_be_nested_without_losing_outer_state",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_recursive_decorator_calls_restore_the_outer_limit",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_a_broken_probe_costs_the_caller_nothing",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_linux_reports_but_does_not_clamp",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_explains_itself_once_and_names_the_runtimes",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_a_broken_warning_cannot_prevent_the_clamp",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_restores_even_when_the_body_raises",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_works_as_a_decorator",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_decorator_keeps_the_wrapped_signature",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_single_runtime_does_not_touch_anything",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_forcing_the_guard_on_clamps_off_darwin",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_two_runtimes_clamp_to_one_and_restore",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_a_runtime_without_the_symbols_is_skipped",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_no_runtime_does_not_touch_anything",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_the_escape_hatch_disables_the_clamp",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_runtime_names_must_start_with_a_supported_marker[/usr/lib/libomp.dylib-True]",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_recognises_a_content_hashed_wheel_runtime",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_runtime_names_must_start_with_a_supported_marker[/usr/lib/notlibomp.so-False]",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_two_distinct_files_are_two_runtimes",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_reads_the_real_process",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_probe_failure_reports_nothing",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_filtering_failure_reports_unknown",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_runtime_names_must_start_with_a_supported_marker[/wheel/libgomp-a34b3233.so.1-True]",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_returns_realpaths_without_duplicates",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_recognises_gnu_and_intel_runtimes",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_unknown_platform_reports_nothing",
+    "tests/test_openmp_guard.py::TestDuplicationPredicate::test_true_only_above_one"
+  ],
+  "collected_after": [
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_recursive_decorator_calls_restore_the_outer_limit",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_restores_even_when_the_body_raises",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_a_context_instance_can_be_nested_without_losing_outer_state",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_a_broken_probe_costs_the_caller_nothing",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_a_broken_warning_cannot_prevent_the_clamp",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_decorator_keeps_the_wrapped_signature",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_no_runtime_does_not_touch_anything",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_forcing_the_guard_on_clamps_off_darwin",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_single_runtime_does_not_touch_anything",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_explains_itself_once_and_names_the_runtimes",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_the_escape_hatch_disables_the_clamp",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_two_runtimes_clamp_to_one_and_restore",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_a_runtime_without_the_symbols_is_skipped",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_linux_reports_but_does_not_clamp",
+    "tests/test_openmp_guard.py::TestSingleThreadedOpenmp::test_works_as_a_decorator",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_off_platform_leaves_the_request_alone",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[off]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_original_runtime_inventories_keep_their_guarded_job_counts[test_clamps_when_duplicated]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[OFF]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[No]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_original_runtime_inventories_keep_their_guarded_job_counts[test_leaves_the_request_alone_when_single]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[0]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_unset_escape_hatch_keeps_the_guard_on",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_escape_hatch_spellings[false]",
+    "tests/test_openmp_guard.py::TestGuardedNJobs::test_a_broken_probe_costs_the_caller_nothing",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_recognises_a_content_hashed_wheel_runtime",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_runtime_names_must_start_with_a_supported_marker[/wheel/libgomp-a34b3233.so.1-True]",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_reads_the_real_process",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_probe_failure_reports_nothing",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_recognises_gnu_and_intel_runtimes",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_filtering_failure_reports_unknown",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_returns_realpaths_without_duplicates",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_runtime_names_must_start_with_a_supported_marker[/usr/lib/notlibomp.so-False]",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_two_distinct_files_are_two_runtimes",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_runtime_names_must_start_with_a_supported_marker[/usr/lib/libomp.dylib-True]",
+    "tests/test_openmp_guard.py::TestResidentRuntimes::test_unknown_platform_reports_nothing",
+    "tests/test_openmp_guard.py::TestDuplicationPredicate::test_true_only_above_one",
+    "tests/test_openmp_guard.py::TestCallSitesAreWired::test_call_site_uses_the_guard[spacr/ml.py-@single_threaded_openmp('classical ML training')]",
+    "tests/test_openmp_guard.py::TestCallSitesAreWired::test_call_site_uses_the_guard[spacr/ml.py-guarded_n_jobs(n_jobs, 'permutation importance')]",
+    "tests/test_openmp_guard.py::TestCallSitesAreWired::test_call_site_uses_the_guard[spacr/timelapse.py-@single_threaded_openmp('XGBoost infection QC')]"
+  ],
+  "tests_before": {
+    "passed": 40,
+    "seconds": 4.67
+  },
+  "tests_after": {
+    "passed": 40,
+    "seconds": 4.46
+  },
+  "coverage_scope": "spacr.openmp_guard under the complete selected guard test module, not full-suite, model-fitting or scheduler coverage. Complete 535-line test module and complete production guard source read. Tiny temporary empty/identical-byte files and symlinks, fake runtime handle/history objects, fake resident path lists, contexts/decorators and environment/platform monkeypatches only; the original real-process test reads mapped image metadata from /proc/self/maps. Clamp paths replace _handle with fake Python objects, so no runtime library is loaded or real OpenMP thread limit changed. Source-text wiring checks read ml.py and timelapse.py only, without executing their workflows. No actual model fit, estimator/joblib worker launch, scientific analysis/chart, image/new reader, network, download or GPU work. Upfront private offline0 control fixed in scheduler wrapper for every phase. Production/settings/environment defaults unchanged.",
+  "coverage_before": {
+    "covered_lines": 106,
+    "num_statements": 128,
+    "percent_covered": 84.375,
+    "percent_covered_display": "84",
+    "missing_lines": 22,
+    "excluded_lines": 0,
+    "percent_statements_covered": 82.8125,
+    "percent_statements_covered_display": "83",
+    "num_branches": 32,
+    "num_partial_branches": 1,
+    "covered_branches": 29,
+    "missing_branches": 3,
+    "percent_branches_covered": 90.625,
+    "percent_branches_covered_display": "91"
+  },
+  "coverage_after": {
+    "covered_lines": 106,
+    "num_statements": 128,
+    "percent_covered": 84.375,
+    "percent_covered_display": "84",
+    "missing_lines": 22,
+    "excluded_lines": 0,
+    "percent_statements_covered": 82.8125,
+    "percent_statements_covered_display": "83",
+    "num_branches": 32,
+    "num_partial_branches": 1,
+    "covered_branches": 29,
+    "missing_branches": 3,
+    "percent_branches_covered": 90.625,
+    "percent_branches_covered_display": "91"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "db37c6cd3828005f2cd4f71499361ee46a6c88454d973f2fec060a9c8ecf55f2",
+  "production_source_sha256": "db3aeb77b8ab313a6c696dcd0b53515a250ee075155ab662fe9710af3addb5af",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "duplicated-runtimes-keep-the-unclamped-request",
+      "source_variant": {
+        "path": "spacr/openmp_guard.py",
+        "line": 250,
+        "old": "return 1 if len(resident_openmp_runtimes()) > 1 else requested",
+        "new": "return requested"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_openmp_guard.py::TestGuardedNJobs::test_clamps_when_duplicated"
+        ],
+        "failure_summary_lines": [
+          "tests/test_openmp_guard.py::TestGuardedNJobs::test_clamps_when_duplicated"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_openmp_guard.py::TestGuardedNJobs::test_original_runtime_inventories_keep_their_guarded_job_counts[test_clamps_when_duplicated]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_openmp_guard.py::TestGuardedNJobs::test_original_runtime_inventories_keep_their_guarded_job_counts[test_clamps_when_duplicated]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "single-runtime-clamps-the-request",
+      "source_variant": {
+        "path": "spacr/openmp_guard.py",
+        "line": 250,
+        "old": "return 1 if len(resident_openmp_runtimes()) > 1 else requested",
+        "new": "return 1"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_openmp_guard.py::TestGuardedNJobs::test_leaves_the_request_alone_when_single"
+        ],
+        "failure_summary_lines": [
+          "tests/test_openmp_guard.py::TestGuardedNJobs::test_leaves_the_request_alone_when_single"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_openmp_guard.py::TestGuardedNJobs::test_original_runtime_inventories_keep_their_guarded_job_counts[test_leaves_the_request_alone_when_single]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_openmp_guard.py::TestGuardedNJobs::test_original_runtime_inventories_keep_their_guarded_job_counts[test_leaves_the_request_alone_when_single]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in guarded_n_jobs before and after: return requested unconditionally at the runtime-count decision; return one unconditionally at that same decision. Each selects the same one original/mapped duplicate-runtime or single-runtime case and must fail its unchanged native integer equality. The first loses the duplicate clamp; the second incorrectly clamps a single runtime. This establishes job-count return-value sensitivity only, not actual joblib or process-thread containment. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_openmp_guard.py",
+      "line": 468,
+      "symbol": "test_original_runtime_inventories_keep_their_guarded_job_counts",
+      "new": "Preserve each original runtime inventory and its guarded job count.",
+      "old": {
+        "test_clamps_when_duplicated": null,
+        "test_leaves_the_request_alone_when_single": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
