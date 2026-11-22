@@ -1,0 +1,298 @@
+{
+  "root": "/media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-1008c",
+  "supplemental_sources": [
+    {
+      "file": "docs/source/reproducibility_manifests.rst",
+      "line": 178,
+      "source": "- 958 (item 1008): ``cytoskeleton_object_support`` is now ``True``.\n  Measure no longer counts cytoskeleton skeleton pixels outside the object.\n  Older Overview settings retain ``False`` and reproduce their whole-image\n  fibre counts. New per-cell cytoskeleton measurements use the corrected\n  object support and 24-pixel padded crops.",
+      "source_sha256": "23987065f9a364649bf804ea09560a07bdcff871afb6dc7218aba44bfae7b17f"
+    },
+    {
+      "file": "docs/notes/release_notes_1.5.1.8.md",
+      "line": 37,
+      "source": "- Measure no longer counts cytoskeleton skeleton pixels outside the object.",
+      "source_sha256": "6900fe5362dde0c23cc7c087550541a2b3490bf0847ae8edf2c0f9c8444a9d47"
+    }
+  ],
+  "base_commit": "e2a1ace77c537e4d3783f57055214040a9272741",
+  "source_file_sha256": "cdf19ea56da054d4783b71bc6943286111289ca502ca626ca372ab738f670bd5",
+  "runtime": [
+    {
+      "table": "ui",
+      "key": "Cytoskeleton channel {channel!r} is not available. Choose an image channel index or a name from channel_names.",
+      "source": "Cytoskeleton channel {channel!r} is not available. Choose an image channel index or a name from channel_names.",
+      "locations": [
+        "spacr/measure.py:856",
+        "spacr/measure.py:852"
+      ],
+      "source_sha256": "b818e527c1cf714b3f91b927ebe5280a39054b6b92b2b42e12d22e532f775f4e"
+    },
+    {
+      "table": "ui",
+      "key": "Cytoskeleton channel_names must give one distinct name per image channel.",
+      "source": "Cytoskeleton channel_names must give one distinct name per image channel.",
+      "locations": [
+        "spacr/measure.py:831"
+      ],
+      "source_sha256": "fc71195927bc4f63d4c2d32bbf2531e6bc760b534d931543bc56288ec719d828"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cytoskeleton_object_support",
+      "source": "Cytoskeleton object support",
+      "locations": [
+        "spacr/settings.py:964"
+      ],
+      "source_sha256": "35b526668725250e42ed5448c5158f5a993bffa67d21e7e31c60ca9797ebf797"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cytoskeleton_object_support",
+      "source": "Restrict cytoskeleton skeleton pixels to the object mask. Settings saved before schema 958 retain False to reproduce earlier counts. Default True.",
+      "locations": [
+        "spacr/settings.py:1013"
+      ],
+      "source_sha256": "c8fc806ef8018c603d8e552ca639b20fdb1a16cdda70cb861777dee148ecfff6"
+    }
+  ],
+  "api": {
+    "spacr.measure.measure_cytoskeleton": {
+      "source": "Measure skeleton length and branch points in each cell and selected channel.\n\n:param labels: Two-dimensional cell label mask; zero is background.\n:param image: Intensity image with channels last, or a single 2-D plane.\n:param channels: Channel indices, names, or a comma-separated selection.\n    ``None`` selects every channel. Repeated selections are measured once.\n:param channel_names: One name per image channel, required when selecting\n    channels by name. Name matching ignores case and surrounding spaces.\n:returns: One row per positive cell label in ascending order, with\n    ``label``, ``channel_<c>_skeleton_length`` and\n    ``channel_<c>_skeleton_branch_points`` for each selected index.\n    Background-only and single-positive-pixel objects receive zeros.\n    The caller adds the ``cell_`` prefix and uses only the cell mask.\n:raises ValueError: When a selected channel is absent or invalid.\n\nEach object is measured by :func:`_analyze_cytoskeleton` in its bounding\nbox enlarged by 24 pixels and clipped to the field. Other objects are\nzeroed by the same helper before local thresholding.",
+      "line": 801,
+      "source_sha256": "6a4b67e1595eeb306dd37f0abf2503367d6d629d36f0482b72590d05ce34c259",
+      "blocks": [
+        {
+          "source": "Measure skeleton length and branch points in each cell and selected channel.",
+          "source_sha256": "2b9a9acb0390574e62f952a2e20e27b64011e22ce4664e9a9acb152d9c4c6b84"
+        },
+        {
+          "source": "Two-dimensional cell label mask; zero is background.",
+          "source_sha256": "abde3f9d8a6047023c28899946c5e737e828f67b2431de6203dc3fb9bc87e35c"
+        },
+        {
+          "source": "Intensity image with channels last, or a single 2-D plane.",
+          "source_sha256": "96cf63c50f99965e0c01482896df4ba95803a16b8ac5a006acbe1837b12616bc"
+        },
+        {
+          "source": "Channel indices, names, or a comma-separated selection. ``None`` selects every channel. Repeated selections are measured once.",
+          "source_sha256": "ea113809d3bde0fec976ded9800863cc954f675501de580e16e89a9d89ad2b65"
+        },
+        {
+          "source": "One name per image channel, required when selecting channels by name. Name matching ignores case and surrounding spaces.",
+          "source_sha256": "ca5580ff03e3e1a214bea2abb1b14d5c2d421eeb8a8fe851a1379a507ea16dc5"
+        },
+        {
+          "source": "One row per positive cell label in ascending order, with ``label``, ``channel_<c>_skeleton_length`` and ``channel_<c>_skeleton_branch_points`` for each selected index. Background-only and single-positive-pixel objects receive zeros. The caller adds the ``cell_`` prefix and uses only the cell mask.",
+          "source_sha256": "40892176fc864e77000b47e3cc4edbffbc446279e5a42b15171f6aa3931a7d03"
+        },
+        {
+          "source": "When a selected channel is absent or invalid.",
+          "source_sha256": "7da0a1efb73d4782a8405b3bf293c88db8218467c3f44e10cfea47d7d4233738"
+        },
+        {
+          "source": "Each object is measured by :func:`_analyze_cytoskeleton` in its bounding box enlarged by 24 pixels and clipped to the field. Other objects are zeroed by the same helper before local thresholding.",
+          "source_sha256": "fdcb63845bd555f4cf777d4c48bc40a8042066d19f40273e1f379dc8a1977e0d"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param labels:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param image:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param channels:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param channel_names:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            7
+          ]
+        ]
+      ]
+    }
+  },
+  "private_owners": [
+    {
+      "symbol": "_analyze_cytoskeleton",
+      "line": 740,
+      "records": "none: private API"
+    },
+    {
+      "symbol": "_create_dataframe",
+      "line": 2121,
+      "records": "none: private API"
+    },
+    {
+      "symbol": "_image_fibres",
+      "line": 17949,
+      "records": "none: private API"
+    },
+    {
+      "symbol": "_image_level_features",
+      "line": 18036,
+      "records": "none: private API"
+    },
+    {
+      "symbol": "spacr.settings._fold_older_defaults",
+      "file": "spacr/settings.py",
+      "line": 2625,
+      "records": "none: private API"
+    },
+    {
+      "symbol": "spacr.qt.widgets.qc_field_browser._overview_measurement",
+      "file": "spacr/qt/widgets/qc_field_browser.py",
+      "line": 3459,
+      "records": "none: private API"
+    }
+  ],
+  "validation": {
+    "authorized_by": "WORK_TASKS v77/v78 and parent bounded v74 tooltip-deferral acceptance",
+    "schema": 958,
+    "scientific": {
+      "exit": 0,
+      "passed": 182,
+      "seconds": 10.18
+    },
+    "corrected_source_and_migration": {
+      "exit": 0,
+      "passed": 12,
+      "seconds": 15.33
+    },
+    "existing_measure_and_overview": {
+      "exit": 0,
+      "passed": 132,
+      "seconds": 49.68
+    },
+    "functional": {
+      "exit": 0,
+      "accepted": true,
+      "items": 1260,
+      "ops": 1240,
+      "settings": 614
+    },
+    "ratchets": {
+      "raw_exit": 1,
+      "raw_runner_accepted": false,
+      "passed": 4070,
+      "skipped": 76,
+      "xfailed": 3,
+      "deferred_failures": [
+        {
+          "group": "ratchets",
+          "nodeid": "tests.qt.test_external_i18n_catalogs::test_runtime_source_inventory_is_complete_before_optional_module_imports",
+          "kind": "failure",
+          "message": "AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\n  \n  Extra items in the left set:\n  'cytoskeleton_object_support'\n  Use -v to get more diff"
+        },
+        {
+          "group": "ratchets",
+          "nodeid": "tests.qt.test_external_i18n_catalogs::test_runtime_source_inventory_is_stable_after_runctx_import",
+          "kind": "failure",
+          "message": "AssertionError: assert {'CP_prob', '...t_cells', ...} == {'CP_prob', '...t_cells', ...}\n  \n  Extra items in the left set:\n  'cytoskeleton_object_support'\n  Use -v to get more diff"
+        }
+      ]
+    },
+    "report_only_translation_nodes": [
+      "tests.qt.test_external_i18n_catalogs::test_runtime_catalogs_need_no_incremental_repairs",
+      "tests.qt.test_i18n_caption_ratchet::test_external_caption_layer_is_complete_exclusive_and_pinned",
+      "tests.qt.test_external_i18n_catalogs::test_runtime_catalogs_resolve_all_reviewed_false_friend_variants"
+    ],
+    "actual_catalog_deselections": [
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
+      "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+      "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
+      "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
+      "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
+      "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
+    ],
+    "scope_acceptance": "Parent independently validated exactly two missing-Home-tooltip failures; raw reports remain unchanged. Separate parent proof accompanies publication.",
+    "shared_helper": "One implementation; object_support=True corrects support, False preserves legacy counts.",
+    "saved_settings": "DEFAULT_CHANGES[958] preserves False for older Overview files; fresh/current defaults use True. The compatibility value is hidden and retained by import/collect.",
+    "new_per_cell_api": "Always corrected; no historical per-cell path existed.",
+    "publication": "Local commit for parent review only; no push by this agent."
+  }
+}

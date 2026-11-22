@@ -3463,7 +3463,9 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
 
     ``measurements`` is the Overview settings mapping (or a group list) that
     selects the image-level groups; ``advanced`` the prepared Advanced
-    options from ``spacr.measure._image_advanced_prepare``. Without
+    options from ``spacr.measure._image_advanced_prepare``. The hidden
+    ``cytoskeleton_object_support`` setting preserves pre-958 fibre counts
+    for imported files. Without
     ``advanced`` the Advanced switches in ``measurements`` run offline.
     """
     import json
@@ -3473,9 +3475,9 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
                             _image_feature_groups)
 
     groups = _image_feature_groups(measurements)
-    choices = measurements if isinstance(measurements, dict) else {}
+    settings = measurements if isinstance(measurements, dict) else {}
     if advanced is None:
-        advanced = _image_advanced_options(choices)
+        advanced = _image_advanced_options(settings)
         if any(advanced[name] for name in ("embedding", "deep_qc", "filter_bank")):
             advanced = _image_advanced_prepare(advanced, download=False)
 
@@ -3531,9 +3533,11 @@ def _overview_measurement(field, channels, cancelled=None, *, time_index=None,
         if shape is None:
             raise ValueError(tr("Choose one or more nonnegative channel indices."))
         from ...measure import _image_advanced_features, _image_level_features, _image_object_record
-        record.update(_image_level_features(collected, {}, groups=groups))
+        record.update(_image_level_features(
+            collected, {}, groups=groups,
+            cytoskeleton_object_support=settings.get("cytoskeleton_object_support", True)))
         record.update(_image_object_record(collected, field.files, field.plate, field.well,
-                                           field.field, choices))
+                                           field.field, settings))
         if cancelled is not None and cancelled.is_set():
             raise CancelledError()
         record.update(_image_advanced_features(collected, advanced))

@@ -737,12 +737,16 @@ def _load_zernike_moments():
         ) from exc
     return zernike_moments
 
-def _analyze_cytoskeleton(array, mask, channel):
+def _analyze_cytoskeleton(array, mask, channel, *, object_support=True):
     """Extract per-object skeleton length and branch counts from a cytoskeleton channel.
+
+    Skeleton pixels are restricted to the object mask after local thresholding.
 
     :param array: Multi-channel intensity image ``(H, W, C)``.
     :param mask: Label mask; each non-zero label defines one object.
     :param channel: Channel index in ``array`` holding the cytoskeleton signal.
+    :param object_support: Restrict skeleton pixels to the object mask after
+        local thresholding. False reproduces measurements before schema 958.
     :returns: DataFrame with ``object_label``, ``skeleton_length`` and
         ``skeleton_branch_points`` columns.
     """
@@ -765,6 +769,8 @@ def _analyze_cytoskeleton(array, mask, channel):
                 block_size = 35
                 local_thresh = filters.threshold_local(region_intensity, block_size=block_size, offset=offset)
                 cytoskeleton = region_intensity > local_thresh
+                if object_support:
+                    cytoskeleton = (region_intensity > local_thresh) & object_region
 
                 skeleton = morphology.skeletonize(img_as_bool(cytoskeleton))
 
@@ -790,6 +796,87 @@ def _analyze_cytoskeleton(array, mask, channel):
                 })
 
     return pd.DataFrame(properties_list)
+
+
+def measure_cytoskeleton(labels, image, channels=None, *, channel_names=None):
+    """Measure skeleton length and branch points in each cell and selected channel.
+
+    :param labels: Two-dimensional cell label mask; zero is background.
+    :param image: Intensity image with channels last, or a single 2-D plane.
+    :param channels: Channel indices, names, or a comma-separated selection.
+        ``None`` selects every channel. Repeated selections are measured once.
+    :param channel_names: One name per image channel, required when selecting
+        channels by name. Name matching ignores case and surrounding spaces.
+    :returns: One row per positive cell label in ascending order, with
+        ``label``, ``channel_<c>_skeleton_length`` and
+        ``channel_<c>_skeleton_branch_points`` for each selected index.
+        Background-only and single-positive-pixel objects receive zeros.
+        The caller adds the ``cell_`` prefix and uses only the cell mask.
+    :raises ValueError: When a selected channel is absent or invalid.
+
+    Each object is measured by :func:`_analyze_cytoskeleton` in its bounding
+    box enlarged by 24 pixels and clipped to the field. Other objects are
+    zeroed by the same helper before local thresholding.
+    """
+    from .qt.i18n import tr
+
+    original_image = np.asarray(image)
+    labels, image, present = _profile_inputs(labels, original_image)
+    image = original_image[..., None] if original_image.ndim == 2 else original_image
+    count = image.shape[-1]
+    if channel_names is not None:
+        names = channel_names.split(',') if isinstance(channel_names, str) else list(channel_names)
+        names = [str(name).strip().lower() for name in names]
+        if len(names) != count or len(set(names)) != count:
+            raise ValueError(tr(
+                "Cytoskeleton channel_names must give one distinct name per image channel."))
+    else:
+        names = []
+    if channels is None:
+        channels = range(count)
+    elif isinstance(channels, str):
+        channels = channels.split(',')
+    elif np.ndim(channels) == 0:
+        channels = [channels]
+    selected = []
+    for value in channels:
+        name = str(value).strip().lower()
+        if isinstance(value, str) and name in names:
+            index = names.index(name)
+        else:
+            try:
+                if isinstance(value, str) and not name.isdecimal():
+                    raise ValueError
+                index = _measurement_channel_index(value)
+            except ValueError:
+                raise ValueError(tr(
+                    "Cytoskeleton channel {channel!r} is not available. Choose an image channel index or a name from channel_names.",
+                    channel=value)) from None
+            if index >= count:
+                raise ValueError(tr(
+                    "Cytoskeleton channel {channel!r} is not available. Choose an image channel index or a name from channel_names.",
+                    channel=value))
+        if index not in selected:
+            selected.append(index)
+    columns = {'label': present}
+    for channel in selected:
+        columns[f'channel_{channel}_skeleton_length'] = np.zeros(len(present))
+        columns[f'channel_{channel}_skeleton_branch_points'] = np.zeros(len(present))
+    boxes = _label_bounding_boxes(labels)
+    for row, label in enumerate(present):
+        box = boxes.get(int(label))
+        if box is None:
+            coordinates = np.nonzero(labels == label)
+            box = tuple(slice(int(axis.min()), int(axis.max()) + 1) for axis in coordinates)
+        window = _grow_window(box, 24, labels.shape)
+        mask = labels[window] == label
+        for channel in selected:
+            measured = _analyze_cytoskeleton(image[window], mask, channel)
+            if not measured.empty:
+                for statistic in ('skeleton_length', 'skeleton_branch_points'):
+                    columns[f'channel_{channel}_{statistic}'][row] = measured.iloc[0][statistic]
+    return pd.DataFrame(columns)
+
 
 def _safe_morphology_table(mask, properties, spacing=None):
     """Return morphology properties without asking Qhull to hull flat volumes.
@@ -2032,16 +2119,30 @@ def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
 
 
 def _create_dataframe(radial_distributions, object_type):
-        """Convert a ``{(cell, obj, ch): bins}`` mapping into a per-object DataFrame."""
-        df = pd.DataFrame()
-        for key, value in radial_distributions.items():
-            cell_label, object_label, channel_index = key
-            for i in range(len(value)):
-                col_name = f'{object_type}_rad_dist_channel_{channel_index}_bin_{i}'
-                df.loc[object_label, col_name] = value[i]
-            df.loc[object_label, 'cell_id'] = cell_label
-        df = df.reset_index().rename(columns={'index': 'label'})
-        return df
+    """Convert radial bins to rows, preserving insertion order and cell identity.
+
+    :param radial_distributions: Mapping from ``(cell, object, channel)``
+        to radial intensity bins.
+    :param object_type: Object prefix in the radial column names.
+    :returns: One row per object, with ``label``, the radial columns and
+        ``cell_id`` in their original order. Repeated entries for an object
+        overwrite only the supplied bins and its cell identity.
+    """
+    rows = {}
+    columns = {}
+    for (cell_label, object_label, channel_index), values in radial_distributions.items():
+        row = rows.setdefault(object_label, {})
+        for index, value in enumerate(values):
+            column = f'{object_type}_rad_dist_channel_{channel_index}_bin_{index}'
+            columns.setdefault(column, None)
+            row[column] = value
+        columns.setdefault('cell_id', None)
+        row['cell_id'] = cell_label
+    frame = pd.DataFrame.from_dict(rows, orient='index', dtype=float)
+    index = [label.item() if isinstance(label, np.generic) else label for label in rows]
+    frame = frame.reindex(index=index, columns=list(columns))
+    return frame.reset_index().rename(columns={'index': 'label'})
+
 
 def _whole_field_window(shape):
     """The slice tuple covering every voxel of an array of ``shape``."""
@@ -17845,18 +17946,24 @@ def _image_homogeneity(values, finite, distances=(2, 4, 8, 16, 32, 64)):
     return {name: float(value) for name, value in table.iloc[0].items()}
 
 
-def _image_fibres(values, finite):
+def _image_fibres(values, finite, *, object_support=True):
     """Measure's cytoskeleton skeleton analysis of the whole image.
 
     :func:`_analyze_cytoskeleton` thresholds the image locally, skeletonises
     the fibres and counts skeleton pixels and branch points; densities are
     per finite pixel and per 10,000 pixels.
 
+    :param values: Image plane with finite replacements for filter input.
+    :param finite: Mask of the original finite image pixels.
+    :param object_support: Restrict the skeleton to finite pixels; False
+        preserves the whole-image counts from settings before schema 958.
+
     :returns: ``fibres_skeleton_length``, ``fibres_skeleton_density``,
         ``fibres_branch_points`` and ``fibres_branch_density``.
     """
     shifted = np.where(finite, values - min(0.0, float(values[finite].min())), 0.0)
-    table = _analyze_cytoskeleton(shifted[..., None], _image_region_label(finite), 0)
+    table = _analyze_cytoskeleton(shifted[..., None], _image_region_label(finite), 0,
+                                   object_support=object_support)
     area = float(np.count_nonzero(finite))
     length = float(table['skeleton_length'].iloc[0]) if len(table) else 0.0
     branches = float(table['skeleton_branch_points'].iloc[0]) if len(table) else 0.0
@@ -17927,7 +18034,8 @@ _IMAGE_FEATURE_SETTING = {
 
 
 def _image_level_features(planes, masks=None, *, saturation_levels=None, min_object_area=9,
-                          confluency=True, confluency_edge=1024, groups=None):
+                          confluency=True, confluency_edge=1024, groups=None,
+                          cytoskeleton_object_support=True):
     """Measure whole-image intensity, focus, texture, coverage and objects.
 
     Every value is computed on raw stored pixels; nonfinite pixels are
@@ -17966,6 +18074,8 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
         Per-channel names are ``channel_<c>_<group>_<stat>`` and per-pair
         names ``channels_<a>_<b>_<group>_<stat>``, except for the earlier
         coverage, background and object columns, which keep their names.
+    :param cytoskeleton_object_support: Restrict fibre skeletons to the finite
+        pixel mask. False preserves the counts from settings before schema 958.
     :returns: flat ``dict`` of measurement names to numbers.
     :raises ValueError: for non-2-D planes or mismatched shapes.
     """
@@ -18036,7 +18146,8 @@ def _image_level_features(planes, masks=None, *, saturation_levels=None, min_obj
         if 'homogeneity' in groups:
             stats.update(_image_homogeneity(values, finite))
         if 'fibres' in groups:
-            stats.update(_image_fibres(values, finite))
+            stats.update(_image_fibres(values, finite,
+                                       object_support=cytoskeleton_object_support))
         above = np.zeros(values.shape, dtype=bool)
         if thresholds:
             threshold = _image_otsu(values, finite)

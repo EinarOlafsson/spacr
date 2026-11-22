@@ -237,6 +237,7 @@ def test_documented_parameter_names_match_the_source_signatures():
 
 
 def test_public_docstrings_matches_reviewed_visible_coverage():
+    """Bind exact source arrivals before comparing the historical API surface."""
     docs = builder.public_docstrings()
     from tests.test_documentation_i18n import _retired_732_remote_api, _retired_801_mask_worker_api
     historical_docs = docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
@@ -2651,6 +2652,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in ngff06_arrivals} == ngff06_arrivals
     assert not ngff06_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **ngff06_arrivals}
+    cytoskeleton_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1008c_cytoskeleton_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(cytoskeleton_arrivals) == {"spacr.measure.measure_cytoskeleton"}
+    assert {key: docs[key] for key in cytoskeleton_arrivals} == cytoskeleton_arrivals
+    assert not cytoskeleton_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **cytoskeleton_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

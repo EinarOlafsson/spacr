@@ -175,6 +175,12 @@ default after a higher-numbered item takes the next free number:
   one ``crop_index.csv`` pointing to committed crops instead of exporting an
   image file per object; keep the source project with the dataset when moving it.
 
+- 958 (item 1008): ``cytoskeleton_object_support`` is now ``True``.
+  Measure no longer counts cytoskeleton skeleton pixels outside the object.
+  Older Overview settings retain ``False`` and reproduce their whole-image
+  fibre counts. New per-cell cytoskeleton measurements use the corrected
+  object support and 24-pixel padded crops.
+
 Public API
 ----------
 
