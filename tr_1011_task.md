@@ -1,4 +1,10 @@
-# Item1011 L2 source handover
+# Item1011 translation and source handover
+
+This branch combines the shared-plan wiring and schema955 settings. Home owns locale records and catalog rebuilds for sv, de, es, zh_CN, pt, hi, ko, is and fr.
+
+The portable inventories are `tr_1011_sources.json` for L2 and `tr_1011c_sources.json` for L3; the short L3 handover is `tr_1011c_task.md`. WORK_TASKS v88 admits the moved OPS error through its exact scanner owner and resolves the inherited calibration summary as English console/log text. The preserved L2 JSON is historical; the current dispositions here supersede its earlier follow-up notes. The published alpha-page check is deferred to the master under WORK_TASKS v80.
+
+## Item1011 L2 source handover
 
 Source branch: `ws-offload-codex-work-1011b`; base: `9b3dbe01976dcc21becabb0e51e2c24c24d60728`.
 
@@ -8,7 +14,7 @@ Canonical extraction used `canonical_sources()` and `public_docstrings()` withou
 
 New or changed admitted sources in the L2 delta against the stated base: 0 API blocks; 0 runtime literals.
 
-## Source files
+### Source files
 
 - `spacr/core.py`: SHA256 `47d9edb81da6bbad085860d5e38e14a8fdc897726284f743d05c440f640181bc`.
 - `spacr/io.py`: SHA256 `6f8f32858e780c77ab8a4f3a266f5079e141bd2f8a924077eb44a54aade61833`.
@@ -16,17 +22,17 @@ New or changed admitted sources in the L2 delta against the stated base: 0 API b
 - `spacr/ops_engine.py`: SHA256 `ce28c614356b54cdedc0ff90a9291ced52105b883712495ee7b20eb986ce354a`.
 - `tests/test_mask_batches_vram_auto_1011_wiring.py`: SHA256 `1862979973876fcf6945a0ff429122069843719e8fc1691ca34d5c639735b835`.
 
-## Existing runtime source moved during input factoring
+### Existing runtime source moved during input factoring
 
 spacr/ops_engine.py:4670
 
-Canonical ID: none; unchanged literal is not admitted by the existing runtime scan and needs no locale record.
+WORK_TASKS v88 disposition: this user-visible error is admitted in L3 by the exact `_ph_segmentation_inputs` scanner owner. Its UI canonical ID, exact source and locale handover are in `tr_1011c_task.md` and `tr_1011c_sources.json`.
 
-SHA256: `15dfbc983a90d0f5f9d02f3f73f6e51a79df0ee9bf1b79920d4151508de6c7fe`; admitted: False. Existing translations remain the same.
+SHA256: `15dfbc983a90d0f5f9d02f3f73f6e51a79df0ee9bf1b79920d4151508de6c7fe`; admitted by L3 under WORK_TASKS v88. The literal itself is unchanged.
 
 ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}
 
-## Private, nested and test documentation
+### Private, nested and test documentation
 
 No records are needed for the following docstrings.
 
@@ -119,8 +125,167 @@ No records are needed for the following docstrings.
 - `test_legacy_coordinator_release_does_not_clear_another_run_cache.ordinary_auto` — `tests/test_mask_batches_vram_auto_1011_wiring.py:947`; no records: test callable; SHA256 `691b1f08d8707b378a6e3a0e04b250ca90c45bf36248813ef35ffafccc1c7b5d`.
 - `test_legacy_coordinator_release_does_not_clear_another_run_cache.legacy_parallel` — `tests/test_mask_batches_vram_auto_1011_wiring.py:955`; no records: test callable; SHA256 `87cfa34c3d71e9b455967980b57589f02460862be9100a39f38d97ee0567ee05`.
 
-## Inherited L1 console source outside the L2 delta
+### Inherited L1 console source outside the L2 delta
 
-`spacr/_mask_batches.py:607–627`, `_calibration_line`, called at line 814, constructs the Mask batches / no CUDA device / VRAM budget / measured console text as plain f-strings. It is **runtime-not-admitted**: no `tr()` wrapper or canonical ID. This is an inherited L1 owner follow-up, not merely missing Home locale records. L2 does not edit this owner file. Exact raw function source and SHA256 are in `tr_1011_sources.json` under `inherited_l1_runtime_not_admitted`.
+`spacr/_mask_batches.py:607–627`, `_calibration_line`, called at line 814, constructs the Mask batches / no CUDA device / VRAM budget / measured console text as plain f-strings. It is **runtime-not-admitted**: no `tr()` wrapper or canonical ID. WORK_TASKS v88 resolves its owner disposition: retain English console/log text through `log=print`, as in987b. L3 does not route it to a dialog or status label; no `tr()` or locale record is required. L2 does not edit this owner file. Exact raw function source and SHA256 are in `tr_1011_sources.json` under `inherited_l1_runtime_not_admitted`.
 
 Raw function source SHA256: `d0686827af079bb1b0d7a00d9769f5d9245c49e2fc13778eb156206d7c7f71a9`.
+
+## Item1011 L3 translation handover
+
+Translate the exact admitted English sources below into sv, de, es, zh_CN, pt, hi, ko, is and fr. Home owns records and catalog rebuilds. This source lane writes no locale records. The combined L2/L3 handover is tr_1011_task.md; this lane handover is tr_1011c_task.md.
+
+Canonical source: `tools/build_i18n_catalogs.py:canonical_sources()`. Source base: `762e1d8255a8f7b2abf8b1d3c688f6f018024741`. Full manifest: `tr_1011c_sources.json`.
+
+No public API blocks or console strings changed in L3. The changed private helper and test docstrings are inventoried as no records in the manifest.
+
+Owner decision (WORK_TASKS v88): _mask_batches._calibration_line stays English console/log text through log=print, as in987b. L3 does not route it to a dialog or status label. No tr or locale record is required. The preserved L2 inventory is historical; this disposition supersedes its earlier unresolved follow-up note.
+
+### SETTING_TOOLTIPS / batch_size
+
+spacr/settings.py:5614
+
+Admission: admitted by canonical_sources.setting_tooltips.
+
+SHA-256: `9687c8c4f1a6afb449e03ef680624f2c4c5e57fe0e422342e2630baa95d891d9`
+
+How many images are processed together: fields during mask generation and OPS, or crops per classifier step. For Mask Generation and OPS, 'auto_vram' measures GPU memory on the run data, then divides fields into batches whose sizes differ by at most one. Resident field arrays count toward the memory budget. Use 0 or 'whole' for the earlier largest-fitting-batch estimate, or a positive number to request a field count; it is reduced with a warning if the fields do not fit in memory. Defaults: 'auto_vram' for Mask Generation and OPS, 64 for training.
+
+### SETTING_TOOLTIPS / mask_eval_batch_size
+
+spacr/settings.py:5743
+
+Admission: admitted by canonical_sources.setting_tooltips.
+
+SHA-256: `0bff4fb4c8c5f03723acb71f4d8faaa0ce94e9d77c6973bdf009a9b051bd8d19`
+
+How many 256-pixel tiles Cellpose passes through the network at once in Mask Generation and OPS. 'auto_vram' measures the GPU working memory and resolves the largest tile batch that fits, up to mask_eval_batch_cap, before segmentation. CPU and external backends use at most 8. Use 0 for one tile per resident field, or a positive number to request the tile batch. The tile batch can move a few mask pixels; resume keeps the recorded value. Default 'auto_vram'.
+
+### SETTING_TOOLTIPS / gpu_vram_budget_gb
+
+spacr/settings.py:5744
+
+Admission: admitted by canonical_sources.setting_tooltips.
+
+SHA-256: `b04491fec06264fe535f4b7258d16ee4cc1fd7a4f842aaf3b3c2eeb4be325edb`
+
+GPU memory budget in GB for automatic mask batches in Mask Generation and OPS, including resident field arrays and network working memory. Empty uses SPACR_GPU_VRAM_GB when set, then the free card memory. The governor reserves its memory margin and CUDA context and divides the budget among mask workers. Set the same budget to reproduce batch sizes across cards; it can resolve fewer than mask_eval_batch_cap tiles. Default None. Alpha.
+
+### SETTING_TOOLTIPS / mask_batch_seed
+
+spacr/settings.py:5745
+
+Admission: admitted by canonical_sources.setting_tooltips.
+
+SHA-256: `7bafb2113f66f26a8518a2bc192ab171388a5074cc06d4dccea1d96b41345395`
+
+Seed for the shared field shuffle in Mask Generation and OPS phenotype segmentation when randomize is True. The same field set and seed keep the same order; batch sizes also depend on the GPU budget. The plan and run journal record the order. Stitched sequencing windows, Spatial Mask Generation and timelapse keep acquisition order. Default 42. Alpha.
+
+### SETTING_TOOLTIPS / mask_eval_batch_cap
+
+spacr/settings.py:5746
+
+Admission: admitted by canonical_sources.setting_tooltips.
+
+SHA-256: `c4852ddcfef6922d8185e2c10b5f906ac900103fdd4a302360f1a49c2fb4303e`
+
+Largest tile batch allowed when mask_eval_batch_size is 'auto_vram'. The measured GPU budget can resolve a smaller value; CPU and external backends use at most 8. A batch of 32 can need about 8 GB including resident fields, so a smaller GPU budget can select fewer tiles. Must be at least 1. Default 32. Alpha.
+
+### SETTING_TOOLTIPS / randomize
+
+spacr/settings.py:6090
+
+Admission: admitted by canonical_sources.setting_tooltips.
+
+SHA-256: `6192704dca48af46aa82d6bf7ba75513f0c310087fe910f2eac38a40523d3184`
+
+Shuffle fields with mask_batch_seed before batching in Mask Generation and OPS phenotype segmentation. Mask Generation pools normalization percentiles over each batch, so random order spreads acquisition drift across batches; OPS normalizes each field separately. Stitched sequencing windows and Spatial Mask Generation keep acquisition order. Forced to False for timelapse. Default True.
+
+### SETTING_TOOLTIPS / ops_sbs_tile_batch
+
+spacr/ops_settings.py:1461
+
+Admission: admitted by canonical_sources.setting_tooltips.
+
+SHA-256: `c5fc97b0dce0383e6377e5201f125012463aaa144ae193dec7e6bb640bbe1e3d`
+
+How many 256-pixel tiles Cellpose passes through the network at once when it segments the sequencing nuclei of each stitched well and of the live spot preview. 0 uses the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value the sequencing path always used. Default 0.
+
+### SETTING_TOOLTIPS / ops_ph_tile_batch
+
+spacr/ops_settings.py:1785
+
+Admission: admitted by canonical_sources.setting_tooltips.
+
+SHA-256: `700a3c38ca82bbdb27d3389a0d8b145902caa9216fc2a88094bd01cdc5172c17`
+
+How many 256-pixel tiles Cellpose passes through the network at once when it segments phenotype nuclei, cells, pathogens and organelles. 0 follows the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 8, the value the phenotype path always used. Default 0. Alpha.
+
+### SETTING_TOOLTIPS / spatial_tile_batch
+
+spacr/ops_settings.py:4360
+
+Admission: admitted by canonical_sources.setting_tooltips.
+
+SHA-256: `f132fc959f42a8c0bc09a88e9c091ff95aea76ed51d6c9e5a4f8981a9778f38c`
+
+How many 256-pixel tiles Cellpose passes through the network at once when it segments the stain. 0 follows the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value Spatial Mask Generation always used. Default 0.
+
+### SETTING_LABELS / mask_eval_batch_cap
+
+spacr/settings.py:5746
+
+Admission: admitted by canonical_sources.setting_labels; derived from key.
+
+SHA-256: `2aea70aedd9d81122a060e1a226fd2175c148c550212207622a96bbdf78af48d`
+
+Mask eval batch cap
+
+### SETTING_LABELS / mask_batch_seed
+
+spacr/settings.py:5745
+
+Admission: admitted by canonical_sources.setting_labels; derived from key.
+
+SHA-256: `1e4da9db52ebe257fa6881d421e0494daec7445b37f9fefbbd06d7f417da1099`
+
+Mask batch seed
+
+### SETTING_LABELS / gpu_vram_budget_gb
+
+spacr/settings.py:5744
+
+Admission: admitted by canonical_sources.setting_labels; derived from key.
+
+SHA-256: `161347dc559e8814f5fedd7d52ddafc620bcc9e55295e59b129f1c7bcdb0895c`
+
+GPU vram budget gb
+
+### UI / ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}
+
+spacr/ops_engine.py:4671
+
+Admission: admitted by canonical_sources.ui through the exact v88-approved owner.
+
+SHA-256: `15dfbc983a90d0f5f9d02f3f73f6e51a79df0ee9bf1b79920d4151508de6c7fe`
+
+ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}
+
+## Validation on the combined branch
+
+- items: 1432 passed, 3 skipped, 144 warnings, 960 subtests passed in 183.53s (0:03:03).
+- ops: 1181 passed, 28 skipped, 177 warnings, 102 subtests passed in 354.32s (0:05:54).
+- settings: 614 passed, 2 skipped, 369 subtests passed in 66.81s (0:01:06).
+- ratchets: 3 failed, 4089 passed, 76 skipped, 13 xfailed, 69 warnings in 909.81s (0:15:09).
+
+All implementation/source checks passed. The raw ratchet run retains three Home-owned catalog/review failures; they are deferred and are not reported as passed. Generated catalogs, locale records and the awaiting-catalog table were not edited. The exact deferred checks are:
+
+- `tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_complete_before_optional_module_imports`
+- `tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_stable_after_runctx_import`
+- `tests/qt/test_external_i18n_catalogs.py::test_empty_flowchart_caption_translates_without_changing_python_none`
+
+The first two require the three new control tooltips in the generated English catalog. The third reaches six stale Swedish reviewed tooltip sources before checking the unrelated flowchart caption. Home must also rebuild catalogs with the newly admitted moved OPS error.
+
+The strict published alpha-page check `tests/test_alpha_deck_registry.py::test_the_published_alpha_page_covers_the_current_registry` is deferred to the master rebuild under WORK_TASKS v80. All six required rules passed; no-new-hash-comments was run separately because the shared selector omitted it. CPU checks loaded no real GPU models.
+
+After the full groups, v88 changed only the source scanner and its exact-owner regression, with no spaCR runtime changes. Affected tool/source checks: 202 passed, 14 warnings in 312.18s (0:05:12). Canonical proof: exactly one UI source added, none removed, every other table unchanged. Current L3 inventory: 13 runtime blocks, 0 API blocks, 0 console blocks, 1 private helper doc and 22 changed-test docs (no records for private/test docs).

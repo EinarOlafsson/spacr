@@ -130,9 +130,9 @@ def test_resolved_parameters_are_a_format_change_without_new_defaults():
     payload = {"version": 1, "fields": {"field1": {
         "diameter:nucleus": {"source": {}, "configuration": {}, "value": None}}}}
     for version in (945, 949, 950):
-        settings = {RESOLVED_PARAMETERS_KEY: payload, "src": "/saved/plate"}
+        settings = {RESOLVED_PARAMETERS_KEY: payload, "src": "/saved/plate", "batch_size": 0}
         assert _fold_older_defaults(settings, version, known={"batch_size"}) == {}
-        assert settings == {RESOLVED_PARAMETERS_KEY: payload, "src": "/saved/plate"}
+        assert settings == {RESOLVED_PARAMETERS_KEY: payload, "src": "/saved/plate", "batch_size": 0}
 
 
 def test_a_pre_931_journal_replays_with_average(tmp_path, monkeypatch, caplog):

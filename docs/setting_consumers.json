@@ -21479,6 +21479,62 @@
     "qualname": "deep_spacr_defaults"
    }
   ],
+  "gpu_vram_budget_gb": [
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "gpu_vram_budget_gb",
+    "line": 130,
+    "module": "spacr._gpu_governor",
+    "nested": false,
+    "qualname": "_config"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "gpu_vram_budget_gb",
+    "line": 195,
+    "module": "spacr._gpu_governor",
+    "nested": false,
+    "qualname": "_effective_fraction"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "gpu_vram_budget_gb",
+    "line": 223,
+    "module": "spacr._gpu_governor",
+    "nested": false,
+    "qualname": "_vram_budget"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "gpu_vram_budget_gb",
+    "line": 224,
+    "module": "spacr._gpu_governor",
+    "nested": false,
+    "qualname": "_vram_budget"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "gpu_vram_budget_gb",
+    "line": 4170,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "gpu_vram_budget_gb",
+    "line": 1387,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
+   }
+  ],
   "gradient_accumulation_steps": [
    {
     "form": "keyword",
@@ -29257,6 +29313,64 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_default_generate_activation_map_settings"
+   }
+  ],
+  "mask_batch_seed": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mask_batch_seed",
+    "line": 349,
+    "module": "spacr._mask_batches",
+    "nested": false,
+    "qualname": "_batch_seed"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "mask_batch_seed",
+    "line": 4170,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mask_batch_seed",
+    "line": 1386,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
+   }
+  ],
+  "mask_eval_batch_cap": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mask_eval_batch_cap",
+    "line": 376,
+    "module": "spacr._mask_batches",
+    "nested": false,
+    "qualname": "_tile_cap"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "mask_eval_batch_cap",
+    "line": 4170,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "mask_eval_batch_cap",
+    "line": 1385,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "set_default_settings_preprocess_generate_masks"
    }
   ],
   "mask_eval_batch_size": [
@@ -92564,11 +92678,11 @@
    }
   ]
  },
- "exact_targets": 1426,
+ "exact_targets": 1429,
  "nested_consumers_only": 0,
  "no_consumer_found": 151,
- "setting_count": 2130,
- "target_count": 1827,
+ "setting_count": 2133,
+ "target_count": 1830,
  "targets": {
   "CP_prob": {
    "exact": true,
@@ -94245,6 +94359,11 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "gpu_vram_budget_gb": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "gradient_accumulation_steps": {
    "exact": true,
    "module": "spacr.deep_spacr",
@@ -95144,6 +95263,16 @@
    "exact": true,
    "module": "spacr.deep_spacr",
    "symbol": "generate_activation_map"
+  },
+  "mask_batch_seed": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "mask_eval_batch_cap": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
   },
   "mask_eval_batch_size": {
    "exact": true,
@@ -101859,6 +101988,6 @@
   "umap_stability_repeats",
   "umap_stability_weight"
  ],
- "with_addressable_consumer": 1979,
- "with_any_consumer": 1979
+ "with_addressable_consumer": 1982,
+ "with_any_consumer": 1982
 }

@@ -45,8 +45,9 @@ def test_other_values_are_refused(value):
         MB._batch_size_request(value)
 
 
-def test_the_default_is_automatic_and_old_files_keep_fifty():
-    assert set_default_settings_preprocess_generate_masks({"src": "/x"})["batch_size"] == 0
+def test_explicit_987b_mode_and_old_files_keep_fifty():
+    """The earlier automatic selector remains explicit and schema 945 keeps its history."""
+    assert set_default_settings_preprocess_generate_masks({"src": "/x", "batch_size": 0})["batch_size"] == 0
     assert DEFAULT_CHANGES[945] == {"batch_size": 50} and SETTINGS_SCHEMA_VERSION >= 945
 
 

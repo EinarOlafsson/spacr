@@ -175,6 +175,27 @@ default after a higher-numbered item takes the next free number:
   one ``crop_index.csv`` pointing to committed crops instead of exporting an
   image file per object; keep the source project with the dataset when moving it.
 
+- 955 (item 1011): new Mask Generation and OPS runs use ``batch_size='auto_vram'``
+  and ``mask_eval_batch_size='auto_vram'``. One shared plan measures GPU memory,
+  including resident field arrays, resolves a tile batch up to 32, and splits
+  fields evenly. CPU runs use at most 8 tiles and 50 fields per batch. Fields
+  are shuffled with ``mask_batch_seed=42`` when ``randomize`` is true; stitched
+  sequencing windows, Spatial Mask Generation and timelapse keep acquisition
+  order. The earlier Mask shuffle was unseeded. The plan and run journal retain
+  the seed, field order, batch sizes and resolved tile batch for resume and replay.
+  A declared ``gpu_vram_budget_gb`` (or ``SPACR_GPU_VRAM_GB``) pins the budget
+  across cards; without it, free GPU memory can change the resolved sizes.
+  A 32-tile phenotype batch can need about 8 GB including resident fields.
+  Only the cap, seed and budget controls require Show alpha features; the
+  automatic behavior applies with alpha controls hidden. Files stamped before
+  955 retain their historical field count and tile defaults: 0 for both keys
+  since schema 945, and 50 fields before 945. Explicit values always win;
+  pre-948 OPS files still retain their per-path tile batches of 8/16/16.
+  Old OPS files that omit ``randomize`` keep acquisition order (False); Mask
+  keeps its earlier True default, and an explicit choice always wins.
+  Set ``batch_size=0`` or ``'whole'`` for the earlier batch estimate and
+  ``mask_eval_batch_size=0`` for one tile per resident field.
+
 Public API
 ----------
 

@@ -4974,7 +4974,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
         crop_owners = {
             "crop_loader.py": {"plan_from_database", "load_page", "load_crops"},
             "crops.py": {"_ome_zarr_crop_source", "resolve_crop_source"},
-            "ops_engine.py": {"_ph_crop_format", "_ph_image_format", "_ph_write_crop_pool", "_ph_crops"},
+            "ops_engine.py": {"_ph_crop_format", "_ph_image_format", "_ph_write_crop_pool", "_ph_crops", "_ph_segmentation_inputs"},
         }
         if path.parent == source_root and path.name in crop_owners:
             tree.body = [node for node in tree.body

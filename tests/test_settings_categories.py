@@ -1415,6 +1415,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTINGS, not a regrouping (item 987b, 2026-11-19): the Cellpose
     # network number format and tile batch, beside mask_workers_per_gpu.
     "mask_inference_precision", "mask_eval_batch_size",
+    "mask_eval_batch_cap", "mask_batch_seed", "gpu_vram_budget_gb",
     # NEW SETTINGS, not a regrouping (TASK X, settings version 948,
     # 2026-11-20): the per-path Cellpose tile batches of OPS phenotype, OPS
     # sequencing and Spatial Mask Generation, beside each path's diameter.

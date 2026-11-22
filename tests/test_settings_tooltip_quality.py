@@ -1526,6 +1526,11 @@ if app_key == "mask":
     # Item 987b added mask_inference_precision ("Default auto.") and
     # mask_eval_batch_size ("Default 0."), resolved by Mask; one of them is a
     # compared claim: 1004 -> 1005.
+    item_1011 = {("mask", key) for key in (
+        "mask_eval_batch_cap", "mask_batch_seed", "gpu_vram_budget_gb")}
+    assert item_1011 <= compared_pairs
+    assert not item_1011 & recognized_arrivals
+    recognized_arrivals |= item_1011
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
