@@ -7225,7 +7225,7 @@ def _dna_gates(fit):
     return float(g1_s), float(s_g2)
 
 
-def _fit_dna_content(content, *, gates=None, max_iter=300, tol=1e-7):
+def _fit_dna_content(content, *, gates=None, max_iter=300, tol=1e-7, diagnostics=None):
     """Fit G1 and G2 peaks with an S phase between them to DNA content.
 
     A Dean-Jett-Fox style mixture fitted by expectation maximisation: a
@@ -7245,11 +7245,16 @@ def _fit_dna_content(content, *, gates=None, max_iter=300, tol=1e-7):
         crossings.
     :param max_iter: iteration cap.
     :param tol: convergence tolerance on the mean log-likelihood.
+    :param diagnostics: optional mapping receiving exact selected and trimmed
+        input copies and seed-relative trim bounds; None retains no inputs.
+        Capture never changes the fitted model or the numerical procedure.
     :returns: a :class:`_DnaFit`.
     :raises ValueError: fewer than 30 usable nuclei, or gates that are not
         two increasing numbers.
     """
     x = np.asarray(content, dtype=float)
+    if diagnostics is not None:
+        diagnostics["fit_mask_content"] = x.copy()
     x = x[np.isfinite(x) & (x > 0)]
     if x.size < _CELL_CYCLE_MIN_FIT:
         from .qt.i18n import tr
@@ -7261,8 +7266,13 @@ def _fit_dna_content(content, *, gates=None, max_iter=300, tol=1e-7):
             "a positive DNA signal before rerunning cell-cycle analysis.",
             minimum=_CELL_CYCLE_MIN_FIT, count=x.size))
     g1 = _dna_seed(x)
+    if diagnostics is not None:
+        diagnostics["trim_bounds"] = (float(_CELL_CYCLE_FIT_RANGE[0] * g1),
+                                      float(_CELL_CYCLE_FIT_RANGE[1] * g1))
     x = x[(x >= _CELL_CYCLE_FIT_RANGE[0] * g1)
           & (x <= _CELL_CYCLE_FIT_RANGE[1] * g1)]
+    if diagnostics is not None:
+        diagnostics["trimmed_content"] = x.copy()
     if x.size < _CELL_CYCLE_MIN_FIT:
         from .qt.i18n import tr
 
@@ -7546,7 +7556,7 @@ def _dna_field_offsets(log_dna, fields, use, *,
 def _field_centred_dna_phases(content, *, groups, fields=None, mitotic=None,
                               centre=True,
                               min_cells=_CELL_CYCLE_FIELD_MIN_CELLS,
-                              gates=None):
+                              gates=None, capture_diagnostics=False):
     """G1, S, G2, subG1, >4N or M of every nucleus from field-centred DNA.
 
     With ``centre``, the DNA content is taken as
@@ -7566,6 +7576,8 @@ def _field_centred_dna_phases(content, *, groups, fields=None, mitotic=None,
     :param centre: centre each field on its G1 peak first.
     :param min_cells: the non-mitotic nuclei a field needs to be shifted.
     :param gates: optional ``[G1/S, S/G2]`` in DNA content units.
+    :param capture_diagnostics: retain exact fitting populations and trim
+        bounds for fixed-fit audits; False preserves the earlier fit records.
     :returns: ``(frame, fits)``: per nucleus ``field_offset_log2``,
         ``dna_content_centred``, ``phase``, ``confidence`` and the fitted
         ``posterior_G1``, ``posterior_S`` and ``posterior_G2``; ``fits``
@@ -7590,17 +7602,23 @@ def _field_centred_dna_phases(content, *, groups, fields=None, mitotic=None,
     confidence = np.full(raw.shape, np.nan)
     posterior = np.full((raw.size, 3), np.nan)
     pooled = None
+    pooled_diagnostics = None
     fits = {}
     for name, rows in groups:
         values = centred[rows]
         interphase = ~mitotic[rows]
         used_pool = False
+        diagnostics = {} if capture_diagnostics else None
+        fit_options = {"diagnostics": diagnostics} if capture_diagnostics else {}
         try:
-            fit = _fit_dna_content(values[interphase], gates=gates)
+            fit = _fit_dna_content(values[interphase], gates=gates, **fit_options)
         except ValueError:
             if pooled is None:
-                pooled = _fit_dna_content(centred[~mitotic], gates=gates)
+                pooled_diagnostics = {} if capture_diagnostics else None
+                pool_options = {"diagnostics": pooled_diagnostics} if capture_diagnostics else {}
+                pooled = _fit_dna_content(centred[~mitotic], gates=gates, **pool_options)
             fit, used_pool = pooled, True
+            diagnostics = pooled_diagnostics
         called, sure, three = _gate_dna_content(values, fit)
         called = np.asarray(called, dtype=object)
         called[~interphase] = _CELL_CYCLE_PHASES[3]
@@ -7609,6 +7627,8 @@ def _field_centred_dna_phases(content, *, groups, fields=None, mitotic=None,
         posterior[rows] = three
         fits[name] = {'fit': fit, 'fields_shifted': int(shifted.get(name, 0)),
                       'pooled': used_pool}
+        if capture_diagnostics:
+            fits[name]["diagnostics"] = diagnostics
     frame = pd.DataFrame({
         'field_offset_log2': offsets, 'dna_content_centred': centred,
         'phase': phases, 'confidence': confidence,
@@ -7651,7 +7671,8 @@ def _cell_cycle_fit_rows(fits, fit_group):
 def _cell_table_phases_measure_fc(cells, *, dna='_dna_integrated',
                                   group='well', field='site',
                                   mitotic='mitotic',
-                                  min_cells=_CELL_CYCLE_FIELD_MIN_CELLS):
+                                  min_cells=_CELL_CYCLE_FIELD_MIN_CELLS,
+                                  capture_diagnostics=False):
     """Measure's field-centred DNA-content call on an OPS cell table.
 
     The ``ops_profile_cell_cycle_method 'measure_fc'`` path: one fit per
@@ -7665,6 +7686,8 @@ def _cell_table_phases_measure_fc(cells, *, dna='_dna_integrated',
     :param field: the field column, nested in ``group``.
     :param mitotic: the boolean mitotic-call column.
     :param min_cells: the non-mitotic cells a field needs to be shifted.
+    :param capture_diagnostics: retain exact fit populations for diagnostic
+        reporting without changing phases, fitting or verdicts.
     :returns: ``(frame, fits)`` of :func:`_field_centred_dna_phases`, the
         frame on the index of ``cells``; ``phase`` is G1, S, G2, subG1,
         >4N or M.
@@ -7686,7 +7709,7 @@ def _cell_table_phases_measure_fc(cells, *, dna='_dna_integrated',
         groups=groups, fields=flat[field].to_numpy(),
         mitotic=flat[mitotic].astype(object).where(
             flat[mitotic].notna(), False).astype(bool).to_numpy(),
-        centre=True, min_cells=min_cells)
+        centre=True, min_cells=min_cells, capture_diagnostics=capture_diagnostics)
     frame.index = cells.index
     return frame, fits
 

@@ -593,7 +593,8 @@ def _dna_phases(cells: pd.DataFrame, settings: Mapping[str, Any], mitotic: np.nd
     :param settings: read for ``cell_cycle_field_min_cells`` (default 50).
     :param mitotic: True for the cells the model calls mitotic, g2_prophase or artefact;
         they stay out of the field modes and the fit.
-    :returns: the frame and fits of :func:`spacr.measure._cell_table_phases_measure_fc`.
+    :returns: the frame and fits of :func:`spacr.measure._cell_table_phases_measure_fc`,
+        retaining exact fit populations for a separate fixed-fit diagnostic report.
     """
     from . import measure
 
@@ -602,7 +603,7 @@ def _dna_phases(cells: pd.DataFrame, settings: Mapping[str, Any], mitotic: np.nd
     min_cells = int(settings.get("cell_cycle_field_min_cells") or 50)
     return measure._cell_table_phases_measure_fc(table, dna="_dna_integrated", group="well",
                                                  field="site", mitotic="mitotic",
-                                                 min_cells=min_cells)
+                                                 min_cells=min_cells, capture_diagnostics=True)
 
 
 def _fit_quality(content: np.ndarray, fit) -> Tuple[float, float]:
@@ -618,6 +619,46 @@ def _fit_quality(content: np.ndarray, fit) -> Tuple[float, float]:
     total = ((counts - counts.mean()) ** 2).sum()
     r2 = 1 - ((counts - model) ** 2).sum() / total if total > 0 else float("nan")
     return float(r2), float(fit.g2 / fit.g1)
+
+
+def _s6_population_diagnostics(cells, dna, fits):
+    """Score recorded fit populations and the production population using each fixed fit.
+
+    :param cells: full OPS reference cells with their well labels.
+    :param dna: current centred DNA values, in the same row order.
+    :param fits: current fixed fits and optional exact fit-population records.
+    :returns: diagnostic rows only; missing retained populations remain unavailable.
+        No model is fitted and no production verdict is calculated or changed.
+    """
+    rows = []
+    centred = dna["dna_content_centred"].to_numpy(float)
+    wells = cells["well"].astype(str).to_numpy()
+    for well, info in fits.items():
+        fit = info["fit"]
+        recorded = info.get("diagnostics") or {}
+        populations = (("fit_mask", recorded.get("fit_mask_content")),
+                       ("trimmed", recorded.get("trimmed_content")),
+                       ("scored", centred[wells == str(well)]))
+        bounds = recorded.get("trim_bounds", (float("nan"), float("nan")))
+        for population, values in populations:
+            available = values is not None
+            values = np.asarray([] if values is None else values, dtype=float)
+            finite = values[np.isfinite(values)]
+            r2, ratio = _fit_quality(values, fit)
+            rows.append({"well": str(well), "population": population,
+                         "scope": "pooled" if info.get("pooled") else "well",
+                         "cells": len(values) if available else None,
+                         "finite_cells": len(finite) if available else None,
+                         "dna_min": float(finite.min()) if len(finite) else float("nan"),
+                         "dna_max": float(finite.max()) if len(finite) else float("nan"),
+                         "r2": r2, "g2_g1": ratio, "available": available,
+                         "trim_low": float(bounds[0]), "trim_high": float(bounds[1])})
+    frame = pd.DataFrame(rows, columns=["well", "population", "scope", "cells", "finite_cells",
+                                       "dna_min", "dna_max", "r2", "g2_g1", "available",
+                                       "trim_low", "trim_high"])
+    for name in ("cells", "finite_cells"):
+        frame[name] = frame[name].astype("Int64")
+    return frame
 
 
 def _nuclear_diameter(cells: pd.DataFrame) -> np.ndarray:
@@ -1218,7 +1259,8 @@ def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
 
     A failed S6 R² below 0.90 labels its report row and G1, S and G2 as
     not judged, with the measured R². Counts, check verdicts and collapse
-    decisions remain unchanged.
+    decisions remain unchanged. Optional retained populations appear in a
+    separate fixed-fit diagnostic block that never changes the verdict.
     """
     import html
 
@@ -1240,6 +1282,30 @@ def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
                         .get(k, [np.nan, np.nan])[0], "CI high": card.get("cv", {})
                         .get("f1_ci95", {}).get(k, [np.nan, np.nan])[1]}
                        for k, v in card.get("cv", {}).get("f1", {}).items()])
+    diagnostic_sections = []
+    diagnostic = checks.attrs.get("s6_population_diagnostics")
+    if diagnostic is not None and len(diagnostic):
+        diagnostic = diagnostic.copy()
+        diagnostic["population"] = diagnostic["population"].map({
+            "fit_mask": tr("Fit mask"), "trimmed": tr("Trimmed fitting range"),
+            "scored": tr("Production scored population")})
+        diagnostic["scope"] = diagnostic["scope"].map({
+            "well": tr("Well"), "pooled": tr("Pooled wells")})
+        diagnostic["available"] = diagnostic["available"].map({
+            True: tr("available"), False: tr("not retained")})
+        diagnostic = diagnostic.rename(columns={
+            "well": tr("Well"), "population": tr("Population"), "scope": tr("Fit scope"),
+            "cells": tr("Selected cells"), "finite_cells": tr("Finite cells"),
+            "dna_min": tr("Minimum DNA"), "dna_max": tr("Maximum DNA"),
+            "r2": tr("Fit R2"), "g2_g1": tr("G2/G1 ratio"), "available": tr("Availability"),
+            "trim_low": tr("Trim lower bound"), "trim_high": tr("Trim upper bound")})
+        diagnostic_sections = [
+            "<h2>" + esc(tr("S6 populations: diagnostic, not used for the verdict")) + "</h2>",
+            "<p>" + esc(tr(
+                "Each row scores the same saved fit on the labelled population; no refit is performed. "
+                "R^2 uses 100 bins between the finite population 0.5th and 99.5th percentiles, "
+                "with the existing finite-cell density scaling. The production verdict uses "
+                "all finite scored cells.")) + "</p>", table(diagnostic)]
     body = [f"<h1>{esc(tr('Cell cycle (OPS), plate {plate}', plate=str(plate)))}</h1>",
             "<p>" + esc(tr(
                 "Stages: G1, S, G2 (DNA-content fit); g2_prophase (G2 prophase, a flag class); "
@@ -1250,6 +1316,7 @@ def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
             "<p>" + esc(tr("Collapsed: {stages}", stages=", ".join(failed) or tr("none")))
             + "</p>",
             *stage_judgements,
+            *diagnostic_sections,
             f"<h2>{esc(tr('Cells per stage'))}</h2>",
             table(counts.rename_axis("stage").reset_index(name="cells")),
             f"<h2>{esc(tr('Base model cross-validation F1'))}</h2>",
@@ -1413,6 +1480,7 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
                 _dna_figure(cells, dna_frame, fits)),
                (tr("4N in mitosis (S1) and 2N daughter pairs (S2), each against its control"),
                 _checks_figure(cells, stages, dna_frame, fits, checks))]
+    checks.attrs["s6_population_diagnostics"] = _s6_population_diagnostics(cells, dna_frame, fits)
     report = _report_html(os.path.join(destination, f"ops_cell_cycle_report_{plate}.html"),
                           plate, checks, counts, union, notes, model["card"], figures)
     return {"cells": int(len(table)), "collapsed": union, "plate_collapsed": failed,
