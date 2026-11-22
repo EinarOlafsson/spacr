@@ -9679,7 +9679,7 @@ ALPHA_FEATURES = {
         'settings': ('ops_maxproj_enabled', 'ops_maxproj_rows', 'ops_maxproj_guides', 'ops_maxproj_views', 'ops_maxproj_pca_variance', 'ops_maxproj_similarity', 'ops_maxproj_bins', 'ops_maxproj_calibration_permutations', 'ops_maxproj_null_permutations', 'ops_maxproj_seed', 'ops_maxproj_graph', 'ops_maxproj_knn', 'ops_maxproj_edge_p', 'ops_maxproj_resolutions', 'ops_maxproj_leiden_seeds', 'ops_maxproj_k', 'ops_maxproj_consensus', 'ops_maxproj_save_views', 'ops_maxproj_workers',),
     },
     990: {
-        'settings': ('ops_cell_cycle', 'ops_cell_cycle_model_family', 'ops_cell_cycle_tabular', 'ops_cell_cycle_base_model', 'ops_cell_cycle_finetune', 'ops_cell_cycle_dna_channel', 'ops_cell_cycle_mt_channel', 'ops_cell_cycle_arrest_genes', 'ops_cell_cycle_labels', 'ops_cell_cycle_label_queue', 'ops_cell_cycle_seed',),
+        'settings': ('ops_cell_cycle', 'ops_cell_cycle_model_family', 'ops_cell_cycle_tabular', 'ops_cell_cycle_base_model', 'ops_cell_cycle_finetune', 'ops_cell_cycle_dna_channel', 'ops_cell_cycle_mt_channel', 'ops_cell_cycle_arrest_genes', 'ops_cell_cycle_labels', 'ops_cell_cycle_label_queue', 'ops_cell_cycle_label_channels', 'ops_cell_cycle_seed',),
     },
     1006: {
         'settings': ('ops_flatfield_channel_fit', 'ops_flatfield_nuclear_stains',

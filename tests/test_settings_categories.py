@@ -984,6 +984,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cell_cycle_arrest_genes",
     "ops_cell_cycle_labels",
     "ops_cell_cycle_label_queue",
+    "ops_cell_cycle_label_channels",
     "ops_cell_cycle_seed",
     "ops_flatfield_channel_fit",
     "ops_flatfield_nuclear_stains",

@@ -3887,6 +3887,11 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
             arrivals = _posix_update_prepared_key_move(arrivals, docs)
         if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
             arrivals = _current_718_metal_class_api(arrivals, docs)
+        if filename == "990_ops_cell_cycle_api_arrivals_2026-11-21.json":
+            from tests.test_ops_cell_cycle_queue_990 import (
+                _current_queue_api, _current_inherited_module_api)
+
+            arrivals = _current_inherited_module_api(_current_queue_api(arrivals))
         assert len(arrivals) == count
         source_docs = historical_docs if filename == "699_ssh_connection_worker_api_arrival_2026-10-14.json" else docs
         assert {key: source_docs[key] for key in arrivals} == arrivals

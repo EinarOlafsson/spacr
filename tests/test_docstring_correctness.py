@@ -3885,6 +3885,9 @@ def _validated_ops_cell_cycle_990_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "990_ops_cell_cycle_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    from tests.test_ops_cell_cycle_queue_990 import _current_queue_api
+
+    entries = _current_queue_api(entries)
     names = ('build_label_queue', 'collapse_stage', 'collect_label_queue', 'failed_stages', 'final_stages', 'fine_tune', 'finish_label_job', 'load_cell_cycle_checkpoint', 'open_label_job', 'predict_stages', 'read_cell_cycle_labels', 'run_cell_cycle_phase', 'save_cell_cycle_checkpoint', 'screen_collapses', 'self_checks', 'track_label_job', 'train_cell_cycle_model', 'verified_stages', 'write_label_queue')
     assert set(entries) == {"spacr.ops_cell_cycle"} | {f"spacr.ops_cell_cycle.{n}" for n in names}
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -7043,6 +7046,11 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         if contract == "733_easy_mode_api_arrivals_2026_10_26.json":
             from tests.test_documentation_i18n import _current_733_easy_mode_api
             additions = _current_733_easy_mode_api(additions, docs)
+        if contract == "990_ops_cell_cycle_api_arrivals_2026-11-21.json":
+            from tests.test_ops_cell_cycle_queue_990 import (
+                _current_queue_api, _current_inherited_module_api)
+
+            additions = _current_inherited_module_api(_current_queue_api(additions))
         assert len(additions) == expected_count
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()

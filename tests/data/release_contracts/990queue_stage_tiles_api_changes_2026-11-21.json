@@ -1,0 +1,37 @@
+{
+  "spacr.ops_cell_cycle.write_label_queue": {
+    "before_sha256": "f1772545d4223a04aa1b3c57ab6e4d3d7a533236d8af313bcb768e97bcd1eb62",
+    "docstring": "Write blind stage-labelling tiles from unmasked context and the own object mask.\n\nA fixed 96 by 96 source window starts at the rounded table centroid minus\n48; cells whose window crosses the available field context are excluded.\n``radius`` is a dilation of the own nucleus mask by one Euclidean disk,\nindependent of that window. Funk defaults use the nucleus mask. Pixels outside\nthe dilation are black, while neighbouring objects inside it remain visible.\n\nThe panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin\ncomposite with a zero red channel. Each panel is enlarged threefold with\nnearest neighbours, followed by a one-pixel yellow own-mask outline. Two\nfour-pixel grey separators give a tile of 872 by 288 pixels. A white 10 \u00b5m\nscale bar requires explicit source pixel calibration; no physical size is\ninferred from image dimensions.\n\nThe fixed Funk display bounds are DAPI 550\u201323,039 and GFP 1,084\u20135,002 in raw\nuint16 units. ``ranges`` overrides these bounds in selected-channel order;\nno crop or queue statistics are used. Opaque PNG names map exactly to cells\nin the separate ``queue.csv`` manifest, which must stay outside blind inputs.\nAnnotation 1 to 7 follows :data:`CLASSES`.\n\n:param queue: unique cells from :func:`build_label_queue`, in display order;\n    optional ``cy, cx`` are field coordinates and ``pixel_size_um`` supplies\n    source calibration. A crop with a stored bounding box keeps its origin.\n:param crop_root: a ``ph_crops`` context-crop project, or a field-context\n    folder with ``crop_index.csv`` (keys plus ``cy, cx``), ``fields/`` and\n    ``masks/``. The supplied Funk plate-A layout is supported directly; its\n    recorded calibration assumption is 0.33 \u00b5m per pixel. Other field\n    indices supply ``field_path, mask_path, pixel_size_um`` explicitly.\n:param folder: the Annotate project folder to create.\n:param labels: the CSV to which collected answers are appended.\n:param channels: up to two zero-based crop indices, DNA first and tubulin\n    second; None selects the first two available planes. Other stains can\n    be selected in either slot with explicit display bounds.\n:param ranges: fixed ``(low, high)`` pairs in selected-channel order, or a\n    mapping with ``dna`` and optional ``mt`` pairs; None uses the Funk bounds.\n:param radius: nonnegative nucleus-mask dilation radius in source pixels,\n    30 by default, giving a 61 by 61 Euclidean disk.\n:param crop_source: optional source exposing ``get_raw(row)`` and returning\n    unmasked ``(pixels (C, H, W), own_object_mask)`` through existing spaCR\n    readers. Pixel calibration can be supplied as ``pixel_size_um`` or an\n    existing micrometre :class:`spacr.layers.Spacing` on the source. None\n    uses native OPS context crops or full fields with the nucleus mask; masked\n    legacy crops cannot provide neighbour context.\n:returns: ``folder``; excluded identities and reasons are kept in ``queue.json``.\n:raises ValueError: for invalid controls, missing context or nucleus masks,\n    missing physical calibration, or a queue with no complete windows.",
+    "signature": {
+      "parameters": [
+        "queue",
+        "crop_root",
+        "folder",
+        "labels",
+        "channels",
+        "ranges",
+        "radius",
+        "crop_source"
+      ],
+      "required": [
+        "queue",
+        "crop_root",
+        "folder",
+        "labels"
+      ],
+      "keyword_only": [
+        "labels",
+        "channels",
+        "ranges",
+        "radius",
+        "crop_source"
+      ],
+      "defaults": {
+        "channels": null,
+        "ranges": null,
+        "radius": 30,
+        "crop_source": null
+      }
+    }
+  }
+}

@@ -2625,6 +2625,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **maxproj_arrivals}
     cell_cycle_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "990_ops_cell_cycle_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    from tests.test_ops_cell_cycle_queue_990 import (
+        _current_queue_api, _current_inherited_module_api)
+
+    cell_cycle_arrivals = _current_inherited_module_api(_current_queue_api(cell_cycle_arrivals))
     assert len(cell_cycle_arrivals) == 20
     assert {key: docs[key] for key in cell_cycle_arrivals} == cell_cycle_arrivals
     assert not cell_cycle_arrivals.keys() & zoo_arrivals.keys()
