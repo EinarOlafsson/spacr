@@ -119,26 +119,27 @@ def test_folding_a_settings_dict_with_nothing_to_derive_adds_no_keys():
     assert "class_metadata" not in out
 
 
-def test_folding_keeps_a_legacy_column_when_the_classes_only_give_values():
-    """One half derivable and the other not: the derived half is written and
-    the other is left exactly as the file had it."""
-    settings = {"classes": {"pc": {"column": "", "value": "c3"}},
-                "annotation_column": "test"}
-
+@pytest.mark.parametrize('settings_input, expected_column, expected_metadata', [
+    pytest.param(
+        {'classes': {'pc': {'column': '', 'value': 'c3'}},
+         'annotation_column': 'test'},
+        'test', [['c3']],
+        id='test_folding_keeps_a_legacy_column_when_the_classes_only_give_values',
+    ),
+    pytest.param(
+        {'classes': {'pc': {'column': 'rowID'}},
+         'class_metadata': [['r2']]},
+        'rowID', [['r2']],
+        id='test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value',
+    ),
+])
+def test_original_partial_definitions_keep_both_compatibility_fields(
+        settings_input, expected_column, expected_metadata):
+    """Preserve each original partial class definition and both compatibility values."""
+    settings = settings_input
     out = cc.fold_into_classes(settings)
-
-    assert out["annotation_column"] == "test"
-    assert out["class_metadata"] == [["c3"]]
-
-
-def test_folding_keeps_a_legacy_metadata_list_when_no_class_has_a_value():
-    settings = {"classes": {"pc": {"column": "rowID"}},
-                "class_metadata": [["r2"]]}
-
-    out = cc.fold_into_classes(settings)
-
-    assert out["annotation_column"] == "rowID"
-    assert out["class_metadata"] == [["r2"]]
+    assert out["annotation_column"] == expected_column
+    assert out["class_metadata"] == expected_metadata
 
 
 # ---------------------------------------------------------------------------
