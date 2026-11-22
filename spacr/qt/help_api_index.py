@@ -4056,7 +4056,7 @@ API_ENTRIES = (
     ('spacr.ops_cell_cycle.predict_stages', "Every class probability and the model's stage of every cell."),
     ('spacr.ops_cell_cycle.read_cell_cycle_labels', "The user's labels: a CSV with ``plate, well, site, label, stage`` (and user, time)."),
     ('spacr.ops_cell_cycle.run_cell_cycle_phase', 'The ``ph_cell_cycle`` phase: stages, probabilities and flags of every cell of a plate.'),
-    ('spacr.ops_cell_cycle.save_cell_cycle_checkpoint', 'Write a checkpoint directory ``cell_cycle_tabular_<input>_<hash12>``.'),
+    ('spacr.ops_cell_cycle.save_cell_cycle_checkpoint', 'Save every model and card revision under one stable checkpoint identity.'),
     ('spacr.ops_cell_cycle.screen_collapses', 'The stages collapsed for the whole screen: any stage a plate collapses.'),
     ('spacr.ops_cell_cycle.self_checks', 'Checks S1-S6 of one plate.'),
     ('spacr.ops_cell_cycle.track_label_job', 'Register the labelling job on Home and in the Jobs window (a Qt application must run).'),

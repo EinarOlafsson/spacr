@@ -1,0 +1,1416 @@
+{
+  "branch": "ws-offload-codex-work-990fix",
+  "base": "e2febd27aa65a46fc195948ca9af995076947aa4",
+  "locales": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "api": {
+    "spacr.ops_cell_cycle.fine_tune": {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 477,
+      "before": "The base model refitted on its own labels plus the screen's, the screen's weighted ×5.\n\n:param base: from :func:`load_cell_cycle_checkpoint` (its ``training`` rows are used), or a\n    bundle with ``features``, ``card`` and no ``training`` to fit on the screen's labels\n    alone.\n:param cells: this plate's labelled cells.\n:param labels: their stages.\n:param seed: the learner seed.\n:param tabular: the learner; the base card's when None.\n:param pooled: other plates' labelled rows (the model's features, already robust z, and\n    ``stage``) for a fine-tune of the whole screen; None refits on this plate's alone.\n:returns: a bundle for :func:`save_cell_cycle_checkpoint`, its card recording the base;\n    ``weights`` are the sample weights, the screen rows (other plates first, this plate\n    last) after the base rows.",
+      "before_sha256": "8d231ec1b3154c1b9ffe43ce500282c8b180938ba0cc4043e52a31fa3cc9b3e4",
+      "source": "The base model refitted on its own labels plus the screen's, the screen's weighted ×5.\n\n:param base: from :func:`load_cell_cycle_checkpoint` (its ``training`` rows are used), or a\n    bundle with ``features``, ``card`` and no ``training`` to fit on the screen's labels\n    alone.\n:param cells: this plate's labelled cells.\n:param labels: their stages.\n:param seed: the learner seed.\n:param tabular: the learner; the base card's when None.\n:param pooled: other plates' labelled rows (the model's features, already robust z, and\n    ``stage``) for a fine-tune of the whole screen; None refits on this plate's alone.\n:param reference_cells: full wells including unlabelled cells, normalized by the same\n    helper as prediction. Omission assumes cells is the full population and warns.\n:returns: a bundle for :func:`save_cell_cycle_checkpoint`, its card recording the base;\n    ``weights`` are the sample weights, the screen rows (other plates first, this plate\n    last) after the base rows.",
+      "source_sha256": "c9ba07bba5dcc5e9195cb268f515d96c1d5cc465d78865bc3ef26d31be28cf9e",
+      "signature": "base: Mapping[str, Any], cells: pd.DataFrame, labels: Sequence[str], *, seed: int=0, tabular: Optional[str]=None, pooled: Optional[pd.DataFrame]=None, reference_cells: Optional[pd.DataFrame]=None",
+      "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='base', annotation=Subscript(value=Name(id='Mapping', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='Any', ctx=Load())], ctx=Load()), ctx=Load())), arg(arg='cells', annotation=Attribute(value=Name(id='pd', ctx=Load()), attr='DataFrame', ctx=Load())), arg(arg='labels', annotation=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load()))], kwonlyargs=[arg(arg='seed', annotation=Name(id='int', ctx=Load())), arg(arg='tabular', annotation=Subscript(value=Name(id='Optional', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load())), arg(arg='pooled', annotation=Subscript(value=Name(id='Optional', ctx=Load()), slice=Attribute(value=Name(id='pd', ctx=Load()), attr='DataFrame', ctx=Load()), ctx=Load())), arg(arg='reference_cells', annotation=Subscript(value=Name(id='Optional', ctx=Load()), slice=Attribute(value=Name(id='pd', ctx=Load()), attr='DataFrame', ctx=Load()), ctx=Load()))], kw_defaults=[Constant(value=0), Constant(value=None), Constant(value=None), Constant(value=None)], defaults=[])",
+      "return_annotation_ast": "Subscript(value=Name(id='Dict', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='Any', ctx=Load())], ctx=Load()), ctx=Load())",
+      "default_bindings": {},
+      "historical_contract": "990_ops_cell_cycle_api_arrivals_2026-11-21.json",
+      "blocks": [
+        {
+          "source": "The base model refitted on its own labels plus the screen's, the screen's weighted ×5.",
+          "source_sha256": "743bc801412866897b01a42bdcef9b2bd738cb5be56d2a4fd838f21c458db845"
+        },
+        {
+          "source": "from :func:`load_cell_cycle_checkpoint` (its ``training`` rows are used), or a bundle with ``features``, ``card`` and no ``training`` to fit on the screen's labels alone.",
+          "source_sha256": "2512b0e3c2a64b13da4c39a76a154be716ef6ae6018e0dea66645f0916675ac5"
+        },
+        {
+          "source": "this plate's labelled cells.",
+          "source_sha256": "af71ee88c5d7f39b166a74841a89d4579e9fbb64507040f0a8719671d297eb58"
+        },
+        {
+          "source": "their stages.",
+          "source_sha256": "42ae064887b27a9420772bd5bac6eb2bd99385c3bc4316e5d2100d2958ad4695"
+        },
+        {
+          "source": "the learner seed.",
+          "source_sha256": "7476ceba58ab8054f42d74d31a587e998cfad8119f54e822cab23015d0ff1657"
+        },
+        {
+          "source": "the learner; the base card's when None.",
+          "source_sha256": "5fe68fd0a4aba5ba97fc09094bea5fc7986ee92cb7165c7412a652acf4e68cba"
+        },
+        {
+          "source": "other plates' labelled rows (the model's features, already robust z, and ``stage``) for a fine-tune of the whole screen; None refits on this plate's alone.",
+          "source_sha256": "4cd0dd8e720b8342523c84dde98406e5b862051f46492e45ffdaa7d9e9e10bc3"
+        },
+        {
+          "source": "full wells including unlabelled cells, normalized by the same helper as prediction. Omission assumes cells is the full population and warns.",
+          "source_sha256": "cbdea4e147027eb9914d0fbd1430d4d711a66863808fedebd001519691b0d128"
+        },
+        {
+          "source": "a bundle for :func:`save_cell_cycle_checkpoint`, its card recording the base; ``weights`` are the sample weights, the screen rows (other plates first, this plate last) after the base rows.",
+          "source_sha256": "674f49f19491a71d01f19e38b1017e89b1f997f94ec6d9f4959be247cdc646f5"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param base:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param cells:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param labels:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param seed:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param tabular:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param pooled:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param reference_cells:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              8
+            ]
+          ]
+        ]
+      ]
+    },
+    "spacr.ops_cell_cycle.run_cell_cycle_phase": {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1253,
+      "before": "The ``ph_cell_cycle`` phase: stages, probabilities and flags of every cell of a plate.\n\nReads the per-well phenotype cell tables, calls the model (fine-tuned on the user's\nlabels when given), takes G1 / S / G2 from :func:`_dna_phases`, runs\n:func:`self_checks`, collapses failed stages over every plate of the screen in ``db`` and\nwrites ``ops_cell_cycle`` (one row per cell), ``ops_cell_cycle_checks`` (one row per plate\nand check) and ``ops_cell_cycle_report_<plate>.html``. With ``ops_cell_cycle_label_queue``\nabove 0 it also draws the labelling queue (:func:`build_label_queue`) into\n``cell_cycle_labels/<plate>/queue_pending.csv``.\n\n:param db: the measurements database.\n:param plate: the plate.\n:param wells: its wells.\n:param settings: read for every ``ops_cell_cycle_*`` setting, ``nucleus_channel``,\n    ``cell_cycle_field_min_cells``, ``ops_design`` and ``ops_control_prefix``.\n:param destination: the run folder holding the cell tables.\n:returns: the phase report; ``label_queue`` names the queue folder, its size and the\n    labels file, or is None.\n:raises ValueError: for a bad setting, missing cell tables or no model to start from.",
+      "before_sha256": "e50067641a49d8210de2e0a5508ff868de40df7b9b438fc15acc6068e3d9e5ab",
+      "source": "The ``ph_cell_cycle`` phase: stages, probabilities and flags of every cell of a plate.\n\nA full-plate run requires at least 20 GB declared RAM in sched or a Home job\ntemplate: six wells and 5.53 million cells took 2.2-2.6 hours at four threads,\nwith peak RSS 17.6 GB; a 16 GB allocation failed. A single CP186A well took\n22-37 minutes and 2.8 GB.\n\nReads the per-well phenotype cell tables, calls the model (fine-tuned on the user's\nlabels when given), takes G1 / S / G2 from :func:`_dna_phases`, runs\n:func:`self_checks`, collapses failed stages over every plate of the screen in ``db`` and\nwrites ``ops_cell_cycle`` (one row per cell), ``ops_cell_cycle_checks`` (one row per plate\nand check) and ``ops_cell_cycle_report_<plate>.html``. With ``ops_cell_cycle_label_queue``\nabove 0 it also draws the labelling queue (:func:`build_label_queue`) into\n``cell_cycle_labels/<plate>/queue_pending.csv``.\n\n:param db: the measurements database.\n:param plate: the plate.\n:param wells: its wells.\n:param settings: read for every ``ops_cell_cycle_*`` setting, ``nucleus_channel``,\n    ``cell_cycle_field_min_cells``, ``ops_design`` and ``ops_control_prefix``.\n:param destination: the run folder holding the cell tables.\n:param permutations: S2, S3 and S5 control draws, default 500.\n:param arrest_enrichment: the S5 power alternative, default threefold.\n:returns: the phase report; ``label_queue`` names the queue folder, its size and the\n    labels file, or is None.\n:raises ValueError: for a bad setting, missing cell tables or no model to start from.",
+      "source_sha256": "c19a82331fc7a30619be43324922a3e75c42a0a9e47e7db776da6d3d0c20c623",
+      "signature": "db: str, plate: str, wells: Sequence[str], settings: Mapping[str, Any], destination: str, *, permutations: int=PERMUTATIONS, arrest_enrichment: float=3.0",
+      "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='db', annotation=Name(id='str', ctx=Load())), arg(arg='plate', annotation=Name(id='str', ctx=Load())), arg(arg='wells', annotation=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load())), arg(arg='settings', annotation=Subscript(value=Name(id='Mapping', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='Any', ctx=Load())], ctx=Load()), ctx=Load())), arg(arg='destination', annotation=Name(id='str', ctx=Load()))], kwonlyargs=[arg(arg='permutations', annotation=Name(id='int', ctx=Load())), arg(arg='arrest_enrichment', annotation=Name(id='float', ctx=Load()))], kw_defaults=[Name(id='PERMUTATIONS', ctx=Load()), Constant(value=3.0)], defaults=[])",
+      "return_annotation_ast": "Subscript(value=Name(id='Dict', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='Any', ctx=Load())], ctx=Load()), ctx=Load())",
+      "default_bindings": {
+        "PERMUTATIONS": "Constant(value=500)"
+      },
+      "historical_contract": "990_ops_cell_cycle_api_arrivals_2026-11-21.json",
+      "blocks": [
+        {
+          "source": "The ``ph_cell_cycle`` phase: stages, probabilities and flags of every cell of a plate.",
+          "source_sha256": "81faf4f754438653b2edc7641cfaaa5f3a384ae23c0867d632e6a8e98f6d00ef"
+        },
+        {
+          "source": "A full-plate run requires at least 20 GB declared RAM in sched or a Home job template: six wells and 5.53 million cells took 2.2-2.6 hours at four threads, with peak RSS 17.6 GB; a 16 GB allocation failed. A single CP186A well took 22-37 minutes and 2.8 GB.",
+          "source_sha256": "f581fbccedeec6d00ec9bf107e50d42477a10b4c61d90921586cb49a46e2a526"
+        },
+        {
+          "source": "Reads the per-well phenotype cell tables, calls the model (fine-tuned on the user's labels when given), takes G1 / S / G2 from :func:`_dna_phases`, runs :func:`self_checks`, collapses failed stages over every plate of the screen in ``db`` and writes ``ops_cell_cycle`` (one row per cell), ``ops_cell_cycle_checks`` (one row per plate and check) and ``ops_cell_cycle_report_<plate>.html``. With ``ops_cell_cycle_label_queue`` above 0 it also draws the labelling queue (:func:`build_label_queue`) into ``cell_cycle_labels/<plate>/queue_pending.csv``.",
+          "source_sha256": "ab3767b09cce7a4f0c217caa832b07c2f01d0000f1f703cc60931a5b09cac0ac"
+        },
+        {
+          "source": "the measurements database.",
+          "source_sha256": "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864"
+        },
+        {
+          "source": "the plate.",
+          "source_sha256": "10b08477093ac78797467e1c884ab297720b4df285c5cb6baa5821839eae3ccc"
+        },
+        {
+          "source": "its wells.",
+          "source_sha256": "ecd2410a415851a5ade66e671530b56c908174cdb5120229aa627db9b6769451"
+        },
+        {
+          "source": "read for every ``ops_cell_cycle_*`` setting, ``nucleus_channel``, ``cell_cycle_field_min_cells``, ``ops_design`` and ``ops_control_prefix``.",
+          "source_sha256": "49205c4aa98cbad77a17965865f668e7223557de3b0b47dc3ae23b7dbd3d5c2a"
+        },
+        {
+          "source": "the run folder holding the cell tables.",
+          "source_sha256": "bef5f72d00279b399e352b8bd94c87184bf25e795e24b6e12b2bc21f55346504"
+        },
+        {
+          "source": "S2, S3 and S5 control draws, default 500.",
+          "source_sha256": "58b7f46b4f495e3f6527115a21396270fbfc75507e3256f09a5f54bb51c6a9da"
+        },
+        {
+          "source": "the S5 power alternative, default threefold.",
+          "source_sha256": "51708f01abf4292a6686ac48759ef2d8c4e9736672870ae2c9742703cbc38066"
+        },
+        {
+          "source": "the phase report; ``label_queue`` names the queue folder, its size and the labels file, or is None.",
+          "source_sha256": "213a5c516e422de609867fcda38402308e585aef41433e8b50a43030195352ef"
+        },
+        {
+          "source": "for a bad setting, missing cell tables or no model to start from.",
+          "source_sha256": "6ab9f0acd53faade4319ee88c4960e31d27fd7c301b6906c3261f75835945dc0"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            2
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param db:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param plate:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param wells:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param settings:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param destination:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param permutations:",
+            [
+              8
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param arrest_enrichment:",
+            [
+              9
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              10
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              11
+            ]
+          ]
+        ]
+      ]
+    },
+    "spacr.ops_cell_cycle.save_cell_cycle_checkpoint": {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 379,
+      "before": "Write a checkpoint directory ``cell_cycle_tabular_<input>_<hash12>``.\n\nIt holds ``model.joblib`` (the learner, its features and its training rows),\n``card.json`` and ``SHA256SUMS``; ``hash12`` is the start of the SHA-256 of\n``model.joblib``, so two identical models get the same name.\n\n:param bundle: from :func:`train_cell_cycle_model` or a fine-tune.\n:param folder: where the directory is made.\n:param base: the base checkpoint's ``model.joblib`` SHA-256, recorded in the card of a\n    fine-tuned checkpoint.\n:returns: the checkpoint directory.",
+      "before_sha256": "33929d27bc8a9f1fde0e0875e59713fb97e6985df297d3741f2302be88ccab67",
+      "source": "Save every model and card revision under one stable checkpoint identity.\n\nThe directory is ``cell_cycle_tabular_<input>_<identity12>``. Its model,\ncard and SHA256SUMS are staged completely before publication. Each file\nis replaced atomically, with the card before the model and checksums last;\nan interrupted publication is refused by the loader rather than using a\nstale card with a new model.\n\n:param bundle: fitted model, features, optional training rows and mutable card.\n    The canonical checkpoint_id hashes input features, classes, fixed normalized\n    probe probabilities and saved labelled rows. It is retained across saves;\n    the rest of the card is excluded so updated cards replace the same path.\n:param folder: directory containing checkpoints.\n:param base: base model SHA-256 recorded for fine-tuning.\n:returns: the stable checkpoint directory, also when model bytes change.",
+      "source_sha256": "3fc53574214a93c0c6074a2a52423901227d9677985f77ae1e12b8686fedc7f8",
+      "signature": "bundle: Mapping[str, Any], folder: str, *, base: Optional[str]=None",
+      "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='bundle', annotation=Subscript(value=Name(id='Mapping', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='Any', ctx=Load())], ctx=Load()), ctx=Load())), arg(arg='folder', annotation=Name(id='str', ctx=Load()))], kwonlyargs=[arg(arg='base', annotation=Subscript(value=Name(id='Optional', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load()))], kw_defaults=[Constant(value=None)], defaults=[])",
+      "return_annotation_ast": "Name(id='str', ctx=Load())",
+      "default_bindings": {},
+      "historical_contract": "990_ops_cell_cycle_api_arrivals_2026-11-21.json",
+      "blocks": [
+        {
+          "source": "Save every model and card revision under one stable checkpoint identity.",
+          "source_sha256": "5b06cf6c97bec09f24410e195d2a01244ba4f661b29bc643a50dbd815db54cfc"
+        },
+        {
+          "source": "The directory is ``cell_cycle_tabular_<input>_<identity12>``. Its model, card and SHA256SUMS are staged completely before publication. Each file is replaced atomically, with the card before the model and checksums last; an interrupted publication is refused by the loader rather than using a stale card with a new model.",
+          "source_sha256": "c82adeeb48bffb49fba1133a54e2658833456eaa552864226edff81f61f0fb1e"
+        },
+        {
+          "source": "fitted model, features, optional training rows and mutable card. The canonical checkpoint_id hashes input features, classes, fixed normalized probe probabilities and saved labelled rows. It is retained across saves; the rest of the card is excluded so updated cards replace the same path.",
+          "source_sha256": "8988b76adac88e46a7c48d95f9ade1211db2d02cd68d0e81341c8861b98c47b1"
+        },
+        {
+          "source": "directory containing checkpoints.",
+          "source_sha256": "991ef25f836b5b2ef14017e861be9225f0ca222337d9e8d1e6f5934c36441551"
+        },
+        {
+          "source": "base model SHA-256 recorded for fine-tuning.",
+          "source_sha256": "20e5e5d599744e02d02c969630f528c4c8f2ba9b62976bb3a92ae75aecb2597d"
+        },
+        {
+          "source": "the stable checkpoint directory, also when model bytes change.",
+          "source_sha256": "0ccf8a406064b48d1fa833a5a0a45ab85334f56dca4ac451a3427e4a0a5b3310"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param bundle:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param folder:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param base:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              5
+            ]
+          ]
+        ]
+      ]
+    },
+    "spacr.ops_cell_cycle.self_checks": {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 737,
+      "before": "Checks S1-S6 of one plate.\n\n:param cells: the plate's cells: ``well``, ``site``, ``nucleus_area``,\n    ``nucleus_centroid_y``/``_x`` (S2) and ``gene`` (S5) when present.\n:param stages: from :func:`predict_stages`.\n:param dna: the frame of :func:`_dna_phases`.\n:param fits: its fits per group.\n:param card: the model card; its ``reference`` S1 value and S4 φ, when present, tighten\n    S1 and S4 as section 5 of the spec says.\n:param seed: the permutations' seed.\n:param arrest_genes: S5's knockouts with a known mitotic arrest; None skips S5.\n:param control_prefix: the non-targeting gene prefix.\n:param permutations: permutations of S2, S3 and S5.\n:param labelled: ``{\"truth\", \"predicted\", \"shuffled_macro\"}`` for S3; None skips it.\n:returns: one row per check: ``check``, ``stages`` (judged), ``value``, ``control``,\n    ``threshold``, ``passed`` (True, False or None when skipped) and ``note``; the frame's\n    ``attrs[\"samples\"]`` keeps S2's observed share and its permutation shares for the\n    report.",
+      "before_sha256": "fc952134fb4bd4a6ceab4ef22bc1d886f37f2d2bb67a6e420c6ed13d7c8c145f",
+      "source": "Checks S1-S6 of one plate.\n\n:param cells: the plate's cells: ``well``, ``site``, ``nucleus_area``,\n    OPS ``nucleus_cy``/``nucleus_cx`` (S2; legacy centroid pairs also accepted)\n    and ``gene`` (S5) when present.\n:param stages: from :func:`predict_stages`.\n:param dna: the frame of :func:`_dna_phases`.\n:param fits: its fits per group.\n:param card: the model card; its ``reference`` S1 value and S4 φ, when present, tighten\n    S1 and S4 as section 5 of the spec says.\n:param seed: the permutations' seed.\n:param arrest_genes: S5's knockouts with a known mitotic arrest; None skips S5.\n:param control_prefix: the non-targeting gene prefix.\n:param permutations: permutations of S2, S3 and S5. The S2 null now\n    permutes daughter-eligible cells within each field, preserving their\n    daughter count; the previous all-rows null is replaced.\n:param labelled: ``{\"truth\", \"predicted\", \"shuffled_macro\"}`` for S3; None skips it.\n:param arrest_enrichment: S5 alternative relative to observed NT, default threefold;\n    one-sided alpha 0.05 and power 0.80 determine its minimum arrest count.\n:returns: one row per check: ``check``, ``stages`` (judged), ``value``, ``control``,\n    ``threshold``, ``passed`` (True, False or None when skipped) and ``note``; the frame's\n    ``attrs[\"samples\"]`` keeps S2's observed share and its permutation shares for the\n    report. S5 also reports baseline, alternative, enrichment, alpha, power,\n    required_cells, judged_cells and status (UNDERPOWERED, PASS, FAIL or SKIPPED).",
+      "source_sha256": "a3c8e20a1ebb772379866233151703a9c6b794f92330a5cd7843a47f7e2f696e",
+      "signature": "cells: pd.DataFrame, stages: pd.DataFrame, dna: pd.DataFrame, fits: Mapping[str, Any], *, card: Mapping[str, Any], seed: int=0, arrest_genes: Optional[Sequence[str]]=ARREST_GENES, control_prefix: str='nontargeting', permutations: int=PERMUTATIONS, labelled: Optional[Mapping[str, Any]]=None, arrest_enrichment: float=3.0",
+      "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='cells', annotation=Attribute(value=Name(id='pd', ctx=Load()), attr='DataFrame', ctx=Load())), arg(arg='stages', annotation=Attribute(value=Name(id='pd', ctx=Load()), attr='DataFrame', ctx=Load())), arg(arg='dna', annotation=Attribute(value=Name(id='pd', ctx=Load()), attr='DataFrame', ctx=Load())), arg(arg='fits', annotation=Subscript(value=Name(id='Mapping', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='Any', ctx=Load())], ctx=Load()), ctx=Load()))], kwonlyargs=[arg(arg='card', annotation=Subscript(value=Name(id='Mapping', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='Any', ctx=Load())], ctx=Load()), ctx=Load())), arg(arg='seed', annotation=Name(id='int', ctx=Load())), arg(arg='arrest_genes', annotation=Subscript(value=Name(id='Optional', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load()), ctx=Load())), arg(arg='control_prefix', annotation=Name(id='str', ctx=Load())), arg(arg='permutations', annotation=Name(id='int', ctx=Load())), arg(arg='labelled', annotation=Subscript(value=Name(id='Optional', ctx=Load()), slice=Subscript(value=Name(id='Mapping', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='Any', ctx=Load())], ctx=Load()), ctx=Load()), ctx=Load())), arg(arg='arrest_enrichment', annotation=Name(id='float', ctx=Load()))], kw_defaults=[None, Constant(value=0), Name(id='ARREST_GENES', ctx=Load()), Constant(value='nontargeting'), Name(id='PERMUTATIONS', ctx=Load()), Constant(value=None), Constant(value=3.0)], defaults=[])",
+      "return_annotation_ast": "Attribute(value=Name(id='pd', ctx=Load()), attr='DataFrame', ctx=Load())",
+      "default_bindings": {
+        "ARREST_GENES": "Tuple(elts=[Constant(value='KIF11'), Constant(value='TPX2'), Constant(value='CENPE'), Constant(value='KIF18A'), Constant(value='NUF2'), Constant(value='NDC80'), Constant(value='SPC24'), Constant(value='SPC25'), Constant(value='CKAP5'), Constant(value='CDC20'), Constant(value='PLK1'), Constant(value='AURKA'), Constant(value='ANAPC1'), Constant(value='ANAPC2'), Constant(value='ANAPC4'), Constant(value='ANAPC5'), Constant(value='ANAPC10'), Constant(value='ANAPC11'), Constant(value='CDC16'), Constant(value='CDC23'), Constant(value='CDC27')], ctx=Load())",
+        "PERMUTATIONS": "Constant(value=500)"
+      },
+      "historical_contract": "990_ops_cell_cycle_api_arrivals_2026-11-21.json",
+      "blocks": [
+        {
+          "source": "Checks S1-S6 of one plate.",
+          "source_sha256": "eb670850e574c97918e1eaaac532abe835c60b55f564b1e925e94c346a07f08c"
+        },
+        {
+          "source": "the plate's cells: ``well``, ``site``, ``nucleus_area``, OPS ``nucleus_cy``/``nucleus_cx`` (S2; legacy centroid pairs also accepted) and ``gene`` (S5) when present.",
+          "source_sha256": "06c6b8996b2a28dbfdc5b55be09c94b0f93ee5b44ecc6a76b6a065468474459f"
+        },
+        {
+          "source": "from :func:`predict_stages`.",
+          "source_sha256": "f2db4f078545e9bea73a757726be888933f7b5dc31101737437ed9dea5b69895"
+        },
+        {
+          "source": "the frame of :func:`_dna_phases`.",
+          "source_sha256": "b89dbc9458cfbd284a494876a3c914b7d7c134c4b157b2642c26735f0effb571"
+        },
+        {
+          "source": "its fits per group.",
+          "source_sha256": "25c0e8d18a79fca6ebc6a1c63ca16d651ee02aa6921b0a291f133f9854c3b52f"
+        },
+        {
+          "source": "the model card; its ``reference`` S1 value and S4 φ, when present, tighten S1 and S4 as section 5 of the spec says.",
+          "source_sha256": "5d242c8c5b77236ebbcb3d61fe5c1a8ff8567897dfccfa222a58e03126a70fb8"
+        },
+        {
+          "source": "the permutations' seed.",
+          "source_sha256": "07a2f29931985069bbafbc51391c50598dc6ebf5fe58bdaec47877494f4803f9"
+        },
+        {
+          "source": "S5's knockouts with a known mitotic arrest; None skips S5.",
+          "source_sha256": "4be2e3cfb93b20e574bbaf350a0ff91a38d72fd610f03b3c46261c98935a76b7"
+        },
+        {
+          "source": "the non-targeting gene prefix.",
+          "source_sha256": "836f6488cd9fef0ce2a69cec62340ba9389aa1a45953d9809922606dcaee7ef9"
+        },
+        {
+          "source": "permutations of S2, S3 and S5. The S2 null now permutes daughter-eligible cells within each field, preserving their daughter count; the previous all-rows null is replaced.",
+          "source_sha256": "4e0e2a23b48e4f575c88b3f793370c3a907be966bbdb234991c12533b095501c"
+        },
+        {
+          "source": "``{\"truth\", \"predicted\", \"shuffled_macro\"}`` for S3; None skips it.",
+          "source_sha256": "3cdabd5ed2c30041ca719aeec8aad8a609bfc6cf692b4bc8ee0c78a76341c3bd"
+        },
+        {
+          "source": "S5 alternative relative to observed NT, default threefold; one-sided alpha 0.05 and power 0.80 determine its minimum arrest count.",
+          "source_sha256": "4d6e303518792ccc8ddcef35809704e5f6585ef0c8201f81cc433d17e340e281"
+        },
+        {
+          "source": "one row per check: ``check``, ``stages`` (judged), ``value``, ``control``, ``threshold``, ``passed`` (True, False or None when skipped) and ``note``; the frame's ``attrs[\"samples\"]`` keeps S2's observed share and its permutation shares for the report. S5 also reports baseline, alternative, enrichment, alpha, power, required_cells, judged_cells and status (UNDERPOWERED, PASS, FAIL or SKIPPED).",
+          "source_sha256": "9a648cb57177e66ee635a291df17649418c61286745afb3eda9807aba20ac15d"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param cells:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param stages:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param dna:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param fits:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param card:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param seed:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param arrest_genes:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param control_prefix:",
+            [
+              8
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param permutations:",
+            [
+              9
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param labelled:",
+            [
+              10
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param arrest_enrichment:",
+            [
+              11
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              12
+            ]
+          ]
+        ]
+      ]
+    },
+    "spacr.ops_cell_cycle.train_cell_cycle_model": {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 259,
+      "before": "A base cell-cycle model and its card, from labelled cells (the one call that trains it).\n\n:param cells: the labelled cells: ``well``, the field column of ``groups``, the feature\n    columns of the cell tables and, for the plate-held-out score of two or more plates,\n    ``plate``.\n:param labels: one stage of :data:`CLASSES` per cell.\n:param input_mode: ``'DNA'`` or ``'DNA+MT'``.\n:param dna: the DNA channel name in the feature columns.\n:param mt: the microtubule channel name; required for ``'DNA+MT'``.\n:param tabular: ``'hgb'`` or ``'xgboost'``.\n:param seed: the seed of the folds, the shuffles and the learner.\n:param groups: the cross-validation group of every cell (fields); the ``well`` and\n    ``site`` pair when None.\n:param repeats: repeats of the field-grouped 5-fold cross-validation.\n:param permutations: shuffled-label models of the control.\n:param data_files: the training data files, recorded with their SHA-256 in the card.\n:returns: ``{\"model\", \"features\", \"card\", \"training\"}``; ``training`` keeps the labelled\n    rows (features and labels) that fine-tuning refits on. The card's ``cv`` holds the\n    field-grouped repeats, per-class F1 with field-bootstrap intervals, the shuffled-label\n    control and, with two or more plates, ``plate_held_out`` (each plate predicted by a\n    model trained on the others).\n:raises ValueError: for an unknown mode or stage, or 'DNA+MT' without ``mt``.",
+      "before_sha256": "9314a28d91536f9e0fabcbffab98f2dd8d5bbe8baaa4c472fac66ec5a3f90d51",
+      "source": "A base cell-cycle model and its card, from labelled cells (the one call that trains it).\n\n:param cells: the labelled cells: ``well``, the field column of ``groups``, the feature\n    columns of the cell tables and, for the plate-held-out score of two or more plates,\n    ``plate``.\n:param labels: one stage of :data:`CLASSES` per cell.\n:param input_mode: ``'DNA'`` or ``'DNA+MT'``.\n:param dna: the DNA channel name in the feature columns.\n:param mt: the microtubule channel name; required for ``'DNA+MT'``.\n:param tabular: ``'hgb'`` or ``'xgboost'``.\n:param seed: the seed of the folds, the shuffles and the learner.\n:param groups: the cross-validation group of every cell (fields); the ``well`` and\n    ``site`` pair when None.\n:param repeats: repeats of the field-grouped 5-fold cross-validation.\n:param permutations: shuffled-label models of the control.\n:param data_files: the training data files, recorded with their SHA-256 in the card.\n:param reference_cells: full wells including unlabelled cells. Required for enriched\n    label samples; omission treats cells as the full population with a warning.\n:returns: ``{\"model\", \"features\", \"card\", \"training\"}``; ``training`` keeps the labelled\n    rows (features and labels) that fine-tuning refits on. The card's ``cv`` holds the\n    field-grouped repeats, per-class F1 with field-bootstrap intervals, the shuffled-label\n    control and, with two or more plates, ``plate_held_out`` (each plate predicted by a\n    model trained on the others).\n:raises ValueError: for an unknown mode or stage, or 'DNA+MT' without ``mt``.",
+      "source_sha256": "4043b92d89a4f32c7f7a16a4cabf57583df275599d40cf6d742669c5a365ec81",
+      "signature": "cells: pd.DataFrame, labels: Sequence[str], *, input_mode: str='DNA', dna: str='dapi', mt: Optional[str]=None, tabular: str='hgb', seed: int=0, groups: Optional[Sequence[Any]]=None, repeats: int=5, permutations: int=PERMUTATIONS, data_files: Sequence[str]=(), reference_cells: Optional[pd.DataFrame]=None",
+      "signature_ast": "arguments(posonlyargs=[], args=[arg(arg='cells', annotation=Attribute(value=Name(id='pd', ctx=Load()), attr='DataFrame', ctx=Load())), arg(arg='labels', annotation=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load()))], kwonlyargs=[arg(arg='input_mode', annotation=Name(id='str', ctx=Load())), arg(arg='dna', annotation=Name(id='str', ctx=Load())), arg(arg='mt', annotation=Subscript(value=Name(id='Optional', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load())), arg(arg='tabular', annotation=Name(id='str', ctx=Load())), arg(arg='seed', annotation=Name(id='int', ctx=Load())), arg(arg='groups', annotation=Subscript(value=Name(id='Optional', ctx=Load()), slice=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='Any', ctx=Load()), ctx=Load()), ctx=Load())), arg(arg='repeats', annotation=Name(id='int', ctx=Load())), arg(arg='permutations', annotation=Name(id='int', ctx=Load())), arg(arg='data_files', annotation=Subscript(value=Name(id='Sequence', ctx=Load()), slice=Name(id='str', ctx=Load()), ctx=Load())), arg(arg='reference_cells', annotation=Subscript(value=Name(id='Optional', ctx=Load()), slice=Attribute(value=Name(id='pd', ctx=Load()), attr='DataFrame', ctx=Load()), ctx=Load()))], kw_defaults=[Constant(value='DNA'), Constant(value='dapi'), Constant(value=None), Constant(value='hgb'), Constant(value=0), Constant(value=None), Constant(value=5), Name(id='PERMUTATIONS', ctx=Load()), Tuple(elts=[], ctx=Load()), Constant(value=None)], defaults=[])",
+      "return_annotation_ast": "Subscript(value=Name(id='Dict', ctx=Load()), slice=Tuple(elts=[Name(id='str', ctx=Load()), Name(id='Any', ctx=Load())], ctx=Load()), ctx=Load())",
+      "default_bindings": {
+        "PERMUTATIONS": "Constant(value=500)"
+      },
+      "historical_contract": "990_ops_cell_cycle_api_arrivals_2026-11-21.json",
+      "blocks": [
+        {
+          "source": "A base cell-cycle model and its card, from labelled cells (the one call that trains it).",
+          "source_sha256": "13fe2d22e436ffa921ea0c1a1e9a5db40d083a90691daf42452d55f1271497ba"
+        },
+        {
+          "source": "the labelled cells: ``well``, the field column of ``groups``, the feature columns of the cell tables and, for the plate-held-out score of two or more plates, ``plate``.",
+          "source_sha256": "c0823f54098aa3721926e408267346f23d58a5b43aa6480c86910c681efb2bdb"
+        },
+        {
+          "source": "one stage of :data:`CLASSES` per cell.",
+          "source_sha256": "e753ad8c5bb5a3872fbfaafcc9fadf7a801fcbd5185d6ef67406712a8544f9d6"
+        },
+        {
+          "source": "``'DNA'`` or ``'DNA+MT'``.",
+          "source_sha256": "4d71b12039358194db0a45645d6340b1fa83173821f0b24312be0580362e305a"
+        },
+        {
+          "source": "the DNA channel name in the feature columns.",
+          "source_sha256": "7317e60e8da89b87a195fc6ddff2a3626c4b264a84af3a349c13c1b5cc644eed"
+        },
+        {
+          "source": "the microtubule channel name; required for ``'DNA+MT'``.",
+          "source_sha256": "aa3c75f4cfccf88c00151cd47eff38e70acca1c7863308945ab392555fc12055"
+        },
+        {
+          "source": "``'hgb'`` or ``'xgboost'``.",
+          "source_sha256": "362e85e635752cd41886bed6403fd3b6b410f8b257c2156e53a8320278c7ecdd"
+        },
+        {
+          "source": "the seed of the folds, the shuffles and the learner.",
+          "source_sha256": "6d4d28f96aee8ee0e8f49d5753bbd387fb27298b122cb87d0c5994c8930c83b8"
+        },
+        {
+          "source": "the cross-validation group of every cell (fields); the ``well`` and ``site`` pair when None.",
+          "source_sha256": "13d382e7c242fe3c5ff35311c3e35518cba3f94957cda7d594cdafae20cdef6f"
+        },
+        {
+          "source": "repeats of the field-grouped 5-fold cross-validation.",
+          "source_sha256": "b277e08431c2ded1847f85c2d46ce54ba74065a216e50681cb7604178f2470dc"
+        },
+        {
+          "source": "shuffled-label models of the control.",
+          "source_sha256": "71253ff13ec23df66ee9e71e55aac452aafdeac76462e1c83d2adcc47fbdc4fd"
+        },
+        {
+          "source": "the training data files, recorded with their SHA-256 in the card.",
+          "source_sha256": "78c0e7db900b8ae8894b17dc7ab69c4aae6695ab923bd91092605bd282342686"
+        },
+        {
+          "source": "full wells including unlabelled cells. Required for enriched label samples; omission treats cells as the full population with a warning.",
+          "source_sha256": "49dd1c2eaf17f23d58c00c4d2b8bb260c57aa9ca3f8e0c800f03e54d9e55f1fd"
+        },
+        {
+          "source": "``{\"model\", \"features\", \"card\", \"training\"}``; ``training`` keeps the labelled rows (features and labels) that fine-tuning refits on. The card's ``cv`` holds the field-grouped repeats, per-class F1 with field-bootstrap intervals, the shuffled-label control and, with two or more plates, ``plate_held_out`` (each plate predicted by a model trained on the others).",
+          "source_sha256": "c8003d51fab04808a8264ee71b380c0b484196b54b9df5408114041bf18fe884"
+        },
+        {
+          "source": "for an unknown mode or stage, or 'DNA+MT' without ``mt``.",
+          "source_sha256": "e091aa24517192ba1962c1aecba3deb93e74c89953e6b37986bd6300bf26df76"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param cells:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param labels:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param input_mode:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param dna:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param mt:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param tabular:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param seed:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param groups:",
+            [
+              8
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param repeats:",
+            [
+              9
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param permutations:",
+            [
+              10
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param data_files:",
+            [
+              11
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param reference_cells:",
+            [
+              12
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              13
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              14
+            ]
+          ]
+        ]
+      ]
+    }
+  },
+  "runtime_sources": [
+    {
+      "table": "ui",
+      "change": "added",
+      "source": "Cell-cycle checkpoint saved with current card: {path}",
+      "source_sha256": "fd119ebdb4918baf9ffecd6e6ef6451d86e92382cf5034d48d1f73a0d7944d68",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 427
+        }
+      ],
+      "admission": "Actual build_i18n_catalogs.canonical_sources()"
+    },
+    {
+      "table": "ui",
+      "change": "added",
+      "source": "S5 needs a baseline in [0, 1], enrichment above 1, alpha in (0, 0.5) and power in (0.5, 1)",
+      "source_sha256": "00ca7522baf45b2f1dc057617762cbf1fee52c5213df78e80576bb2264aa1316",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 723
+        }
+      ],
+      "admission": "Actual build_i18n_catalogs.canonical_sources()"
+    },
+    {
+      "table": "ui",
+      "change": "added",
+      "source": "UNDERPOWERED: S5 has {judged} arrest cells; needs {needed} for {enrichment}x enrichment at alpha {alpha}, power {power}",
+      "source_sha256": "82e73d78746e03bcb359d32560fc6848b78e6b91aa167a0f2c2c2dbe6a67f259",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 861
+        }
+      ],
+      "admission": "Actual build_i18n_catalogs.canonical_sources()"
+    },
+    {
+      "table": "ui",
+      "change": "added",
+      "source": "reference_cells has no full population for plate {plate}",
+      "source_sha256": "653efea869780e71548762d54297a719a1bab912ad5acd7dc4c248ebf040c021",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 113
+        }
+      ],
+      "admission": "Actual build_i18n_catalogs.canonical_sources()"
+    },
+    {
+      "table": "ui",
+      "change": "added",
+      "source": "skipped: S2 needs nucleus_area and a centroid pair: nucleus_cy/nucleus_cx, nucleus_centroid_y/nucleus_centroid_x or centroid_row/centroid_col",
+      "source_sha256": "4e9436fbcfb5c30c65477ed22e2df67e599f960915be0e27156f16cde8a5be65",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 811
+        }
+      ],
+      "admission": "Actual build_i18n_catalogs.canonical_sources()"
+    },
+    {
+      "table": "ui",
+      "change": "added",
+      "source": "skipped: fewer than two daughter-stage calls",
+      "source_sha256": "824970f51dcefeeaec383baa3eeb7a985fe8c059840babd09705b65bc3700b79",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 810
+        }
+      ],
+      "admission": "Actual build_i18n_catalogs.canonical_sources()"
+    },
+    {
+      "table": "ui",
+      "change": "added",
+      "source": "skipped: no non-targeting cells for the S5 baseline",
+      "source_sha256": "18c4cbd9e4a6dd9ff10eb0455fc6c050f0e4443d2806b6bb0ab985e238050e6d",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 894
+        }
+      ],
+      "admission": "Actual build_i18n_catalogs.canonical_sources()"
+    },
+    {
+      "table": "ui",
+      "change": "removed",
+      "source": "skipped: fewer than 100 cells of the arrest set",
+      "source_sha256": "66d46429c84834a9b69b75601167668b610ccd4a354f7f5611edc7f9b4afb657",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 674
+        }
+      ],
+      "admission": "Actual build_i18n_catalogs.canonical_sources()"
+    },
+    {
+      "table": "ui",
+      "change": "removed",
+      "source": "skipped: needs two daughter-stage calls and nucleus centroids",
+      "source_sha256": "8bf37a21b37906a32ef9970eb618925f3d7acbf4094e235d136383f8eca6ddc9",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 611
+        }
+      ],
+      "admission": "Actual build_i18n_catalogs.canonical_sources()"
+    }
+  ],
+  "reused_runtime_sources": [
+    {
+      "source": "reference_cells was not supplied; training rows are used as the full normalization population. For enriched label sets, pass all cells of the reference wells in reference_cells",
+      "source_sha256": "e400bf65200e1dbd2f5ecf4a6d0ac7b5edc4af6bc45d38b4d9f7973d1aed2873",
+      "locations": [
+        {
+          "file": "spacr/ops_cell_cycle.py",
+          "line": 136
+        }
+      ],
+      "admission": "Existing canonical identity reused at a new normalization warning site."
+    }
+  ],
+  "private_and_test_docs": [
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 85,
+      "symbol": "_matrix",
+      "source": "Normalize rows against complete reference wells using the shared mitotic helpers.\n\n:param cells: labelled or prediction rows, in the required output order.\n:param features: ordered model feature columns.\n:param reference_cells: every cell of the reference wells; None treats cells as\n    the complete population. Plates are separate when both tables identify them.\n:returns: finite float32 features, with unavailable robust z values set to zero.\n:raises ValueError: when the reference omits a requested plate or well.",
+      "source_sha256": "2bba4debd48383eadbfe5c951af893e0cc1efce98429034bb26f92bbfce1ec60",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 123,
+      "symbol": "_training_reference",
+      "source": "Resolve complete reference wells, warning about the legacy population assumption.\n\n:param cells: labelled training rows.\n:param reference_cells: complete wells or None for a complete labelled population.\n:returns: the reference cells used by the shared normalizer.",
+      "source_sha256": "dd26644d0a7c175e6cbe508c1a95f9511da9895e458a06c7f2caf65082775444",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 352,
+      "symbol": "_checkpoint_key",
+      "source": "Hash canonical prediction probes and saved labelled rows instead of joblib bytes.\n\n:param bundle: model, ordered features, optional labelled training rows and card.\n:returns: deterministic SHA-256 identity for the model input and predictions.",
+      "source_sha256": "3b978dd6f802321ffa8c5c9b44cbc69db6c73575002896f6b8368df59dcca29f",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 524,
+      "symbol": "_labelled_rows",
+      "source": "Labelled model rows normalized against the complete reference wells.\n\n:param cells: labelled cells with the original object keys.\n:param labels: their stages.\n:param features: the model feature columns.\n:param plate: the plate identifier written to the pool.\n:param reference_cells: all cells of the plate, including unlabelled cells.\n:returns: object keys, full-well robust-z features and stages.",
+      "source_sha256": "9da1ae5a22fc2b077635ce53e9718639c86e12b9c4ea5cbe66b5ee758a64c7dd",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 628,
+      "symbol": "_pair_centroids",
+      "source": "Resolve OPS profile coordinates first, followed by supported legacy cell tables.",
+      "source_sha256": "94545915f9f09bb9c2e7bed996bc35ae00f28c7a33571382e3e2befe7c341b92",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 638,
+      "symbol": "_field_rows",
+      "source": "Group field positions once in lexical order without scanning all cells per field.",
+      "source_sha256": "7fdd91431e2fe67f387e578ce4f884f9aff610fb09e6de29a5d52930bf363090",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 648,
+      "symbol": "_pair_neighbours",
+      "source": "Cache directed nearby 2N partners with the original diameter and DNA gates.\n\n:param cells: full cell table with a supported centroid pair and nucleus_area.\n:param two_n: eligibility at the G1/G2 midpoint.\n:param log2_dna: log2 centred DNA content.\n:param groups: precomputed field row indices.\n:returns: source and target positions for partners within 2.5 source diameters\n    and 0.3 log2 DNA units, excluding the source itself.",
+      "source_sha256": "7a9d2587109805403e0f51fa3729caac39c9339e38129620f1af3bc9e66292e2",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 684,
+      "symbol": "_pair_share",
+      "source": "Share of 2N daughter calls with a selected eligible partner, using cached geometry.\n\n:param cells: the full reference population.\n:param called: the observed or within-field permuted daughter-stage labels.\n:param two_n: eligibility below the G1/G2 midpoint.\n:param log2_dna: centred DNA on the log2 scale.\n:param neighbours: precomputed directed partner graph; None builds it once.\n:returns: the original S2 share, or NaN when no selected cell is 2N.",
+      "source_sha256": "2978a30bdc2950736c616ca3689046e3d1ce8bf0e631820f49c4ea5d6b6d5ba7",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 705,
+      "symbol": "_s5_power",
+      "source": "Required arrest cells for the specified one-sided proportion alternative.\n\n:param baseline: observed non-targeting mitotic share.\n:param enrichment: alternative mitotic share divided by baseline, above one.\n:param alpha: one-sided type-I error.\n:param power: desired probability of rejecting the null at the alternative.\n:returns: baseline, alternative, enrichment, alpha, power and required_cells;\n    the last is infinite when the baseline cannot identify an alternative.\n:raises ValueError: for invalid rates, enrichment, alpha or power.",
+      "source_sha256": "e90c0e8ad614c501b5b3350b2b0f1dab9577a3a7e586fc10bfd1bf73820aa41c",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_cell_cycle.py",
+      "line": 1407,
+      "symbol": "_labelled_scores",
+      "source": "Score screen labels using the same complete reference wells as prediction.\n\n:param model: fitted bundle with features and optional pooled training rows.\n:param joined: cells joined to user labels.\n:param options: learner and random seed.\n:param reference_cells: full wells including unlabelled cells.\n:param permutations: shuffled-label control draws.\n:returns: held-out predictions and shuffled-label controls for S3.",
+      "source_sha256": "815abc6a9cbb9c30aa9bedf497d781beb8293797b267020a28434011bca63569",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 5688,
+      "symbol": "_ph_measure_table",
+      "source": "One segmented phenotype field measured: ``(table or None, unreadable, shape)``.\n\nNuclear mask geometry always supplies nucleus_centroid_y,\nnucleus_centroid_x and nucleus_area for S2, while existing measurements\nretain their values and order.\n\n:param task: as :func:`_ph_measure_field` takes it; ``staged``, when\n    set, is the field's stack staged by :class:`spacr.ops_run_infra.FieldStager`,\n    read in place of the raw files.",
+      "source_sha256": "fde9a1113069761db92c47821a95c8ebc172e1d2d995b4e3f186651cc206711b",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 11,
+      "symbol": "normalization_case",
+      "source": "An enriched label subset whose robust z differs markedly from the full wells.",
+      "source_sha256": "4f3cd6fee2216a1816c83765c3a56fe73588e877a876957279c82b14e9515945",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 25,
+      "symbol": "normalization_case.Model",
+      "source": "A learner exposing the matrix supplied to prediction without costly model fitting.",
+      "source_sha256": "d70690d406950aa88a209c51acbb744c1878e9dc2019b6bacf535307a49fb9b5",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 29,
+      "symbol": "normalization_case.Model.predict_proba",
+      "source": "Record query features and emit a fixed valid probability distribution.",
+      "source_sha256": "3a7d6e5226466208ddf50e8a6adc71c2dd4654ff83be33df869b25fbb1b51442",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 36,
+      "symbol": "normalization_case.fit",
+      "source": "Record the real training path matrix and return its lightweight learner.",
+      "source_sha256": "c34b9f4fc763cde0a3ac560e568cdf2c85438f00963d49f6cb16440ceeed240d",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 41,
+      "symbol": "normalization_case.out_of_fold",
+      "source": "Record the S3 model inputs while retaining genuine class encodings.",
+      "source_sha256": "53500a155ed130adf6e0aaaa53bfd834b9c08d5a80835031c6be27460fa464c8",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 46,
+      "symbol": "normalization_case.shuffled",
+      "source": "Return a nonempty finite control without fitting redundant models.",
+      "source_sha256": "9e3174e3e9128a516e34bf31742a1675b11208bbc73ea36f539662d05a7e5eec",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 50,
+      "symbol": "normalization_case.bootstrap",
+      "source": "Leave interval computation to the existing model tests.",
+      "source_sha256": "5a847a071016011370505ce29cb9ac26d4c73ba50933625302f231bfd340399f",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 62,
+      "symbol": "test_enriched_training_and_prediction_share_the_full_well_matrix",
+      "source": "All four labelled consumers match full-well prediction, including repeated well names.",
+      "source_sha256": "ce235fa0303c4dbdf5618dbc3d0522b2c46cc4ae02b24390dddd2734f3cb77e5",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 84,
+      "symbol": "test_reference_omitting_a_plate_is_refused",
+      "source": "A repeated well name cannot silently normalize against a different plate.",
+      "source_sha256": "964e1bb60581b9c9b110c45c36d27e02c9ad8ef33d791d73e5ed9383ebc5a54a",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 92,
+      "symbol": "_pair_case",
+      "source": "Two fields include eligible pairs, an isolated daughter and nearby ineligible cells.",
+      "source_sha256": "0da58381008fd3bb1aaa473aa4a274af0f05f580ff5eda3c3790271e8565449f",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 103,
+      "symbol": "_brute_pair_share",
+      "source": "Evaluate the specified directed geometry and DNA gates independently by all pairs.",
+      "source_sha256": "34c2ac08cbc22a084797c0c4bbbfa21ddc3d8c1630b15e6eb98c40ee224ac395",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 117,
+      "symbol": "test_cached_s2_pairs_match_independent_geometry_for_each_grouped_permutation",
+      "source": "Bincount reductions preserve the original statistic for every tested label draw.",
+      "source_sha256": "658b0440baf5983b72bdcfb7676a0a3de0e72c205ce806c066f5511a7524508b",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 135,
+      "symbol": "test_s2_builds_one_graph_and_permutes_only_eligible_rows",
+      "source": "The real self-check reuses one graph and its null leaves all 4N labels unchanged.",
+      "source_sha256": "a9b2f813ff07d5e54267741bb3ec969cd3aef43145f08a5b7b3a2767e4b9d2da",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 146,
+      "symbol": "test_s2_builds_one_graph_and_permutes_only_eligible_rows.graph",
+      "source": "Count graph construction without changing the spatial calculation.",
+      "source_sha256": "8e7ac822bd1e55e402fb552a983ad44ef14dae24ff9e20728f4a4572b6a3c8d1",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 151,
+      "symbol": "test_s2_builds_one_graph_and_permutes_only_eligible_rows.share",
+      "source": "Observe actual label draws before using the real shared reducer.",
+      "source_sha256": "f9df1f7c7e5e414a085ed5658a4d34960aa6fef4657a70e1829483da7e5ee9df",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 156,
+      "symbol": "test_s2_builds_one_graph_and_permutes_only_eligible_rows.quality",
+      "source": "Keep this regression focused on S2 rather than unrelated DNA model fitting.",
+      "source_sha256": "eb097de003d74f42cf5adbd386878bd6e88dcf0cc11cb45c3481614a167bc00f",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 170,
+      "symbol": "test_paper_s5_inputs_give_the_reported_required_counts",
+      "source": "The specified one-sample approximation rounds the measured example up to 2867.",
+      "source_sha256": "0deb7b0489c0d848a7f449a6ee03fa514b2573f1fc2d0173f0f020e52c1cd866",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 181,
+      "symbol": "test_112_arrest_cells_are_underpowered_and_do_not_collapse_stages",
+      "source": "A small arrest set is reported as UNDERPOWERED even when its observed enrichment is large.",
+      "source_sha256": "2090477aad98cc5246daea062cae2bacac9473f1235613e7349019d8b579e380",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 192,
+      "symbol": "test_112_arrest_cells_are_underpowered_and_do_not_collapse_stages.quality",
+      "source": "Hold the unrelated DNA fit quality fixed.",
+      "source_sha256": "88b8649efbba6e637d09152a264435df58142e11f40c856612603b0bcb173fd7",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 208,
+      "symbol": "test_checkpoint_card_replaces_old_revision_even_after_a_different_dump",
+      "source": "Canonical prediction identity survives byte changes and every card save is published.",
+      "source_sha256": "d9993f095db7189348512b101d7ea40637e3b77162fcc5a5caa22e0add1ce8a6",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 238,
+      "symbol": "test_ph_measure_adds_exact_nuclear_geometry_and_preserves_every_old_column",
+      "source": "The production worker adds S2 mask geometry while existing table bytes remain equal.",
+      "source_sha256": "953a8c16ce1d8c2e1f424e1bd3acba1e8600dd819faba999481f1636edc1e143",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 246,
+      "symbol": "test_ph_measure_adds_exact_nuclear_geometry_and_preserves_every_old_column.field",
+      "source": "Supply the unchanged synthetic image through the existing field reader.",
+      "source_sha256": "eb62a7e59f7484df9c9a16e006fad343b59542424437f370129cce6e89a588d0",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 250,
+      "symbol": "test_ph_measure_adds_exact_nuclear_geometry_and_preserves_every_old_column.masks",
+      "source": "Supply the exact nuclear and cell masks through the existing mask reader.",
+      "source_sha256": "c4f1194d92c184b21892d010780d7aa6e3b84fb5e9de4129779022a6db4d494d",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 269,
+      "symbol": "_current_followup_api",
+      "source": "Bind exactly five revised public bodies to their unchanged historical sources.\n\n:param entries: original item-990 arrival bodies after unrelated approved adapters.\n:param docs: optional canonical source inventory from the caller.\n:returns: the same keys with five exact reviewed source revisions.",
+      "source_sha256": "8dbd786d28ac36004ac02e909cd3e94306f1b6d817ac6e471afe1fe8e64fe1ab",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 310,
+      "symbol": "test_followup_api_preserves_all_historical_keys",
+      "source": "The source-only adapter revises five exact bodies and preserves all twenty symbols.",
+      "source_sha256": "c5dd69742b995ae06592cfdae0293e368ce9141ebb8bb83510bf77ea2ffcc3a6",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 336,
+      "symbol": "test_followup_api_rejects_unreviewed_body_signature_and_default_changes",
+      "source": "The approved revision cannot hide a changed body, optional parameter or default type.",
+      "source_sha256": "8c422296b32878312cfb48d01dd75891b751718ec6bdcf6b2579da3c9a95086d",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 346,
+      "symbol": "test_followup_api_rejects_unreviewed_body_signature_and_default_changes.changed",
+      "source": "Mutate only the apparent production source while retaining immutable fixtures.",
+      "source_sha256": "0c99dcbb0d60957a89f0e67d0443368d5d82b6db117fec75f4dd1b59c16c5f47",
+      "admission": "Private/tool/test documentation only."
+    },
+    {
+      "file": "tests/test_ops_cell_cycle_followup_990.py",
+      "line": 359,
+      "symbol": "test_queue_inherited_and_followup_adapters_compose_in_fixed_order",
+      "source": "Each reviewed adapter accepts its predecessor and revises only its own symbols.",
+      "source_sha256": "e6c66090ea26f2badc5583e8c57a1424bfbdd73eb5a61c25e53309b51f4933ef",
+      "admission": "Private/tool/test documentation only."
+    }
+  ],
+  "source_files": {
+    "docs/setting_consumers.json": "5895ac8369242d6694b720ac63ed553dcf811ae121e2c237c1a357c0477ad8fa",
+    "spacr/ops_cell_cycle.py": "e9e8cde39165c2b7690aaa20c90d332bb5306a7f1aa1a0cf9392adc6ce1a439b",
+    "spacr/ops_engine.py": "dd366fae9c6f1dd5ff34eaf8a389b839882212b82779ee136ef9845d90a89d00",
+    "spacr/qt/help_api_index.py": "7f38f6e633a26bd32081a9ceb281a207c077a0b89d874807e54dfcfaccb8daf2",
+    "tests/data/release_contracts/990fix_full_well_api_sources_2026-11-22.json": "003838a554e52d12671c99d6cf422adcd5065b0c384e26486a364d4a429f0a5c",
+    "tests/test_api_i18n_extractor.py": "d4d540c7f7a19aa18f10abb6f6a1af3ddf5ec97cf4dfec658f042771d339e543",
+    "tests/test_docstring_correctness.py": "4854d11a5e56ba123dac79f65b7a8c574d131f69bcc27e5e4fea76c7686f6938",
+    "tests/test_documentation_i18n.py": "709a541b2f540e238062a0e6484285228617d0674a4a292e507c3d93d9a8fe52",
+    "tests/test_measure_ops_features_934.py": "64cdcbbceeb8839608f564ff83aa92fb7171eea4fd35bafeadf07441679c683e",
+    "tests/test_ops_cell_cycle_990.py": "5ce52eda6df893e0beefb81bdbbda5c4fd38eacb8470766cdd5977ffcd43847a",
+    "tests/test_ops_cell_cycle_followup_990.py": "2fe2f57e955aaa2152822ef73c9573b584ab30ff6d8193212b4dd62252846cb7"
+  },
+  "validation": {
+    "affected-corrected-hidden": {
+      "tests": 157.0,
+      "failures": 1.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 1053.695
+    },
+    "affected-visible": {
+      "tests": 157.0,
+      "failures": 1.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 1066.47
+    },
+    "workers-hidden": {
+      "tests": 48.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 28.191
+    },
+    "workers-visible": {
+      "tests": 48.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 26.647
+    },
+    "final-item-corrected-hidden": {
+      "tests": 15.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 1.725
+    },
+    "final-item-corrected-visible": {
+      "tests": 15.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 1.902
+    },
+    "final-six-rules": {
+      "tests": 157.0,
+      "failures": 1.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 222.084
+    },
+    "final-metadata-tests": {
+      "tests": 162.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0,
+      "time": 158.851
+    }
+  },
+  "api_source_checks": [
+    {
+      "module": "test_docstring_correctness",
+      "test": "test_public_callable_inventory_is_source_derived_not_docstring_derived",
+      "passed": true,
+      "seconds": 23.45160119600041,
+      "new_production_modules": []
+    },
+    {
+      "module": "test_docstring_correctness",
+      "test": "test_callable_boundary_is_cross_checked_with_i18n_extractor",
+      "passed": true,
+      "seconds": 32.10081738700683,
+      "new_production_modules": []
+    },
+    {
+      "module": "test_api_i18n_extractor",
+      "test": "test_public_docstrings_matches_reviewed_visible_coverage",
+      "passed": true,
+      "seconds": 45.34137511799781,
+      "new_production_modules": []
+    }
+  ],
+  "inherited_comment_rule": {
+    "base": "e2febd27aa65a46fc195948ca9af995076947aa4",
+    "offenders": [
+      {
+        "file": "spacr/_mask_batches.py",
+        "base_removable": 2,
+        "current_removable": 2,
+        "byte_identical_to_base": true
+      }
+    ],
+    "all_inherited": true,
+    "owner_resolution": {
+      "owner_answer": "2026-11-22 02:42",
+      "decision": "Leave990fixunchanged; report inheritedfailure FINAL. Ownerfixedpilot2106ce3a4a.",
+      "do_not_apply_proposal": true,
+      "next_after_audits": "1011devdoc"
+    }
+  },
+  "s2_benchmark": {
+    "cells": 20000,
+    "fields": 50,
+    "permutations": 25,
+    "same_conditional_null": true,
+    "all_25_statistics_exact": true,
+    "setup_seconds": 0.27211657999578165,
+    "seconds": {
+      "old_scans": 1.0968594459991436,
+      "cached_groups": 0.008384149994526524
+    },
+    "speedup_including_setup": 3.9103621799381494,
+    "scope": "Synthetic bounded benchmark; not paper/full-plate performance validation."
+  },
+  "s5_reference": {
+    "source": "Paper-session inputs relayed in WORK_TASKS; formula checked locally.",
+    "p0": 0.0010413,
+    "measured_enrichment": 2.7597,
+    "measured_required": 2867,
+    "default_enrichment": 3.0,
+    "default_required": 2307,
+    "available": 112,
+    "alpha": 0.05,
+    "power": 0.8
+  },
+  "scope": "No item995 changes; Home owns the full-plate template and real-data acceptance run."
+}

@@ -4001,6 +4001,10 @@ def _validated_ops_cell_cycle_990_callables(callables):
     from tests.test_ops_cell_cycle_queue_990 import _current_queue_api
 
     entries = _current_queue_api(entries)
+    from tests.test_ops_cell_cycle_queue_990 import _current_inherited_module_api
+    from tests.test_ops_cell_cycle_followup_990 import _current_followup_api
+
+    entries = _current_followup_api(_current_inherited_module_api(entries))
     names = ('build_label_queue', 'collapse_stage', 'collect_label_queue', 'failed_stages', 'final_stages', 'fine_tune', 'finish_label_job', 'load_cell_cycle_checkpoint', 'open_label_job', 'predict_stages', 'read_cell_cycle_labels', 'run_cell_cycle_phase', 'save_cell_cycle_checkpoint', 'screen_collapses', 'self_checks', 'track_label_job', 'train_cell_cycle_model', 'verified_stages', 'write_label_queue')
     assert set(entries) == {"spacr.ops_cell_cycle"} | {f"spacr.ops_cell_cycle.{n}" for n in names}
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -7202,6 +7206,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                 _current_queue_api, _current_inherited_module_api)
 
             additions = _current_inherited_module_api(_current_queue_api(additions))
+            from tests.test_ops_cell_cycle_followup_990 import _current_followup_api
+
+            additions = _current_followup_api(additions, docs)
         assert len(additions) == expected_count
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()
