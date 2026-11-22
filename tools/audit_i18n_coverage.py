@@ -181,8 +181,14 @@ def main() -> int:
     parser.add_argument("--write-review-scope", action="store_true")
     args = parser.parse_args()
     if args.write_review_scope:
-        from build_documentation_i18n import reviewed_api_block_translations
-        from build_i18n_catalogs import canonical_sources, reviewed_runtime_translations
+        from functools import partial
+
+        from build_i18n_catalogs import canonical_sources
+        from i18n_language_pool import (
+            language_workers,
+            map_languages,
+            review_scope_counts,
+        )
 
         docs = _live_api_docstrings()
         sources = canonical_sources()
@@ -205,9 +211,10 @@ def main() -> int:
             "Remainder | Reviewed API blocks | Public API symbols | Reviewed blocks per 100 symbols |",
             "|---|---:|---:|---:|---:|---:|---:|",
         ]
-        for language in LANGUAGES:
-            runtime_count = len(reviewed_runtime_translations(language))
-            api_count = len(reviewed_api_block_translations(docs, language))
+        counts = map_languages(partial(review_scope_counts, docs), LANGUAGES,
+                               workers=language_workers())
+        for language, outcome in zip(LANGUAGES, counts):
+            runtime_count, api_count = outcome.unwrap()
             lines.append(
                 f"| {DISPLAY[language]} | {runtime_count:,} | "
                 f"{runtime_count / runtime_total:.2%} | "

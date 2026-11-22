@@ -327,6 +327,33 @@ def _module_name(path: Path, root: Path) -> str:
     return ".".join(parts)
 
 
+def _walk_with_scopes(tree: ast.AST):
+    """Yield every node in :func:`ast.walk` order with its enclosing scopes.
+
+    One breadth-first pass replaces a walk to map each node to its parent
+    followed by a second walk that climbed that map, and visits the nodes in
+    exactly the order ``ast.walk`` does.
+
+    :param tree: the parsed module.
+    :returns: ``(node, scopes)`` pairs; ``scopes`` lists the enclosing class
+        and function definitions outermost first, each as ``(name, is a
+        function)``.
+    """
+    from collections import deque
+
+    scope_types = (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)
+    function_types = (ast.FunctionDef, ast.AsyncFunctionDef)
+    pending = deque([(tree, ())])
+    while pending:
+        node, scopes = pending.popleft()
+        yield node, scopes
+        if isinstance(node, scope_types):
+            inner = (*scopes, (node.name, isinstance(node, function_types)))
+        else:
+            inner = scopes
+        pending.extend((child, inner) for child in ast.iter_child_nodes(node))
+
+
 def inventory(
     root: Path, *, ignore_patterns: Iterable[str],
 ) -> tuple[HelperDefinition, ...]:
@@ -348,31 +375,17 @@ absent package nor an unreadable/unparseable source yields a false empty pass.
             raise ValueError(f"Source escapes the package: {path}")
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         module = _module_name(path, root)
-        parents = {
-            child: node for node in ast.walk(tree)
-            for child in ast.iter_child_nodes(node)
-        }
         ignored_by = tuple(
             pattern for pattern in patterns
             if fnmatch.fnmatch(path.as_posix(), pattern)
         )
-        for node in ast.walk(tree):
+        for node, scopes in _walk_with_scopes(tree):
             if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
-            enclosing = parents.get(node)
-            scopes: list[str] = []
-            has_enclosing_function = False
-            while enclosing is not None:
-                if isinstance(enclosing, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                    has_enclosing_function = True
-                if isinstance(enclosing, (
-                    ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef,
-                )):
-                    scopes.append(enclosing.name)
-                enclosing = parents.get(enclosing)
+            has_enclosing_function = any(is_function for _name, is_function in scopes)
             if not has_enclosing_function:
                 continue
-            parent_id = ".".join([module, *reversed(scopes)])
+            parent_id = ".".join([module, *(name for name, _is_function in scopes)])
             signature = f"{node.name}({ast.unparse(node.args)})"
             if node.returns is not None:
                 signature += f" -> {ast.unparse(node.returns)}"

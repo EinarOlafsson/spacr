@@ -1626,6 +1626,51 @@ def _lower_shouted_emphasis(text: str) -> str:
     return _SHOUTED_PROSE_RE.sub(lower, str(text))
 
 
+_API_MEMO: list[dict[str, dict[object, object]]] = []
+
+
+class _api_memo:
+    """Reuse pure per-block results for the duration of one outermost call.
+
+    Assembly and review loading ask the same questions of the same English
+    blocks many times (each record's context, each symbol's block hashes,
+    repeated source/target pairs). Inside this context the answers are kept;
+    they are dropped when the outermost call returns, so a later call (or a
+    test that patches a rule table between calls) always recomputes.
+    """
+
+    def __enter__(self):
+        """Open the memo unless an enclosing call already did."""
+        self.owner = not _API_MEMO
+        if self.owner:
+            _API_MEMO.append({})
+        return self
+
+    def __exit__(self, *_exc):
+        """Drop the memo when this call opened it."""
+        if self.owner:
+            _API_MEMO.clear()
+        return False
+
+
+def _memoized(kind: str, key: object, compute):
+    """Return ``compute()``, reusing it inside an active :class:`_api_memo`.
+
+    :param kind: which question is asked.
+    :param key: the question's complete input.
+    :param compute: a pure function of ``key``.
+    :returns: the answer.
+    """
+    if not _API_MEMO:
+        return compute()
+    table = _API_MEMO[0].setdefault(kind, {})
+    try:
+        return table[key]
+    except KeyError:
+        value = table[key] = compute()
+        return value
+
+
 def _api_translation_source(block: str) -> str:
     """Return the deterministic, target-neutral English model input.
 
@@ -1638,7 +1683,11 @@ def _api_translation_source(block: str) -> str:
     reviewed = API_TRANSLATION_CONTEXT.get(source)
     if reviewed is not None:
         return reviewed
+    return _memoized("context", source, lambda: _derived_api_translation_source(source))
 
+
+def _derived_api_translation_source(source: str) -> str:
+    """Derive :func:`_api_translation_source` for a block without a reviewed context."""
     prose = _context_prose(source)
     # GUI evidence can itself be a protected dotted path. Inspect the full
     # source before the protection view blanks it; otherwise a paragraph that
@@ -4248,8 +4297,49 @@ def _is_rendered_autoapi_entry(
     return key not in AUTOAPI_NON_RENDERED_SYMBOLS
 
 
+_PUBLIC_DOCSTRINGS_CACHE: dict[str, object] = {}
+
+
+def _public_docstrings_inputs() -> tuple[object, ...]:
+    """Return everything :func:`public_docstrings` reads, for its memo.
+
+    :returns: the source root, every package file's path and text, copies
+        of the AutoAPI rule tables and the helper functions in use.
+    """
+    import copy
+
+    files = tuple(
+        (str(path), path.read_text(encoding="utf-8", errors="surrogateescape"))
+        for path in sorted((ROOT / "spacr").rglob("*.py"))
+    )
+    return (
+        str(ROOT), files,
+        copy.deepcopy((AUTOAPI_IGNORE, AUTOAPI_NON_RENDERED_MODULES,
+                       AUTOAPI_NON_RENDERED_SYMBOLS, API_VALUE_DOC_ASSIGNMENTS,
+                       dict(API_DOC_ALIASES), nested_helper_docs.ENABLED_MODULES)),
+        _public_docstrings_uncached, _module_name, _is_rendered_autoapi_entry,
+        _clean_doc, _additional_assignment_docs, _module_scope_nodes,
+        _is_visible_function_name, _autoapi_class_doc, _merge_source_doc,
+        nested_helper_docs.active_entries, nested_helper_docs.inventory,
+    )
+
+
 def public_docstrings() -> dict[str, str]:
-    """Extract every canonical or exact-alias body visible in AutoAPI."""
+    """Extract every canonical or exact-alias body visible in AutoAPI.
+
+    A process that asks again while every input is unchanged gets a copy of
+    the first answer instead of parsing the package again.
+    """
+    inputs = _public_docstrings_inputs()
+    if _PUBLIC_DOCSTRINGS_CACHE.get("inputs") != inputs:
+        _PUBLIC_DOCSTRINGS_CACHE.clear()
+        _PUBLIC_DOCSTRINGS_CACHE["docs"] = _public_docstrings_uncached()
+        _PUBLIC_DOCSTRINGS_CACHE["inputs"] = inputs
+    return dict(_PUBLIC_DOCSTRINGS_CACHE["docs"])
+
+
+def _public_docstrings_uncached() -> dict[str, str]:
+    """Parse the package for :func:`public_docstrings`."""
     docs: dict[str, str] = {}
     for path in sorted((ROOT / "spacr").rglob("*.py")):
         module = _module_name(path)
@@ -6058,6 +6148,12 @@ def assemble_api_catalog(docs: Mapping[str, str], language: str) -> dict[str, ob
     :param language: the locale.
     :returns: the catalog payload.
     """
+    with _api_memo():
+        return _assemble_api_catalog(docs, language)
+
+
+def _assemble_api_catalog(docs: Mapping[str, str], language: str) -> dict[str, object]:
+    """Build one locale's API catalog for :func:`assemble_api_catalog`."""
     memory = json.loads((API_DIR / f"{language}.json").read_text(encoding="utf-8"))
     if memory.get("schema") != 2 or memory.get("language") != language:
         raise ValueError(f"invalid API translation memory for {language}")
@@ -6195,6 +6291,14 @@ def reviewed_api_block_translations(
     exact symbol/block, canonical hash, and current reviewed model context;
     any drift is a hard error rather than a silently promoted translation.
     """
+    with _api_memo():
+        return _reviewed_api_block_translations(docs, language)
+
+
+def _reviewed_api_block_translations(
+    docs: Mapping[str, str], language: str,
+) -> dict[str, str]:
+    """Load and revalidate reviewed API blocks for :func:`reviewed_api_block_translations`."""
     _ensure_review_inputs(REVIEWED_API_DIR)
     directory = REVIEWED_API_DIR / language
     if not directory.is_dir():
@@ -6268,6 +6372,20 @@ def reviewed_api_block_translations(
 
 
 def _reviewed_api_block_valid(
+    source: str, value: str, language: str,
+) -> bool:
+    """Validate a source-bound API translation after language review.
+
+    See :func:`_reviewed_api_block_valid_uncached`; repeated pairs are
+    answered once inside an active :class:`_api_memo`.
+    """
+    return _memoized(
+        "reviewed_valid", (str(source), str(value), language),
+        lambda: _reviewed_api_block_valid_uncached(source, value, language),
+    )
+
+
+def _reviewed_api_block_valid_uncached(
     source: str, value: str, language: str,
 ) -> bool:
     """Validate a source-bound API translation after language review.

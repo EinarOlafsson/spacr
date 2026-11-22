@@ -1,0 +1,239 @@
+{
+  "schema": 1,
+  "base": "b9af1a272ba6f01a3aa8f6fd732e45c4cd2f0f3e",
+  "runtime_sources": [],
+  "public_api_sources": [],
+  "developer_documentation": [
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 1633,
+      "owner": "_api_memo",
+      "source": "Reuse pure per-block results for the duration of one outermost call.\n\nAssembly and review loading ask the same questions of the same English\nblocks many times (each record's context, each symbol's block hashes,\nrepeated source/target pairs). Inside this context the answers are kept;\nthey are dropped when the outermost call returns, so a later call (or a\ntest that patches a rule table between calls) always recomputes.",
+      "source_sha256": "d255881580d449287a9e20a5bf6561bbc044289dc946bf43e111212c127a9d15"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 1643,
+      "owner": "_api_memo.__enter__",
+      "source": "Open the memo unless an enclosing call already did.",
+      "source_sha256": "2af3d01afc9455ce446604d44a55d794ab8fe506be9c0fbafa8698b00381e095"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 1650,
+      "owner": "_api_memo.__exit__",
+      "source": "Drop the memo when this call opened it.",
+      "source_sha256": "bf33768d98cdbd17836dbd664304a1bcf39a534b4bbfbbdc35ae454c39e10d2b"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 1657,
+      "owner": "_memoized",
+      "source": "Return ``compute()``, reusing it inside an active :class:`_api_memo`.\n\n:param kind: which question is asked.\n:param key: the question's complete input.\n:param compute: a pure function of ``key``.\n:returns: the answer.",
+      "source_sha256": "181f7d10be68d1961e78db41a790b637adff1000d6ecc6476fc6edea11fa39c5"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 1690,
+      "owner": "_derived_api_translation_source",
+      "source": "Derive :func:`_api_translation_source` for a block without a reviewed context.",
+      "source_sha256": "3ca302d8d0a48b4613d9deefb59e5d4928144252034131875ee65d0e991e6ef5"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 4304,
+      "owner": "_public_docstrings_inputs",
+      "source": "Return everything :func:`public_docstrings` reads, for its memo.\n\n:returns: the source root, every package file's path and text, copies\n    of the AutoAPI rule tables and the helper functions in use.",
+      "source_sha256": "384b488194d2d78162cd158be4b8cea0cc3002d2303157b0d8a01a9e6fecbe8e"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 4328,
+      "owner": "public_docstrings",
+      "source": "Extract every canonical or exact-alias body visible in AutoAPI.\n\nA process that asks again while every input is unchanged gets a copy of\nthe first answer instead of parsing the package again.",
+      "source_sha256": "a4ba61b7be144034b89bec43d0f8783cfd6ffba605bb3e4d1c9a69ff566e0726"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 4342,
+      "owner": "_public_docstrings_uncached",
+      "source": "Parse the package for :func:`public_docstrings`.",
+      "source_sha256": "933d1b23e92838f7c480170bce3b7b95a53024d732ee297d40efa58d6977e7c0"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 6156,
+      "owner": "_assemble_api_catalog",
+      "source": "Build one locale's API catalog for :func:`assemble_api_catalog`.",
+      "source_sha256": "873c3d675fd8f3dd5e2230ea9d4e32ea1021c283e5795db4a7271197d76b2718"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 6301,
+      "owner": "_reviewed_api_block_translations",
+      "source": "Load and revalidate reviewed API blocks for :func:`reviewed_api_block_translations`.",
+      "source_sha256": "44febccbaa903528f056a18184c6647a2bf77303ec486dc2b86b562e69740795"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 6377,
+      "owner": "_reviewed_api_block_valid",
+      "source": "Validate a source-bound API translation after language review.\n\nSee :func:`_reviewed_api_block_valid_uncached`; repeated pairs are\nanswered once inside an active :class:`_api_memo`.",
+      "source_sha256": "51ad393034beaf9d7000d42c5e70bc4189e824ae0a000f3285eb91cc8d5b557e"
+    },
+    {
+      "path": "tools/build_documentation_i18n.py",
+      "line": 6391,
+      "owner": "_reviewed_api_block_valid_uncached",
+      "source": "Validate a source-bound API translation after language review.\n\nReviewed evidence may retain a cited name, an equation token or a\ndomain-standard English term that the generic copied-prose heuristic\ncannot distinguish from an untranslated sentence.  The exemption is\ndeliberately limited to exact evidence records: syntax, semantics,\nsource context, target script and degeneracy checks remain mandatory.",
+      "source_sha256": "ade4db3d2c42f871299b9d2b4110933980bfb376552e3af6937bc32cc75c4d7f"
+    },
+    {
+      "path": "tools/build_i18n_catalogs.py",
+      "line": 4941,
+      "owner": "_static_ui_rules",
+      "source": "Return copies of every table and helper the per-file extraction reads.\n\n:func:`extract_static_ui_sources` reuses a file's result only while this\nvalue is unchanged, so a patched or edited rule table invalidates it.\n\n:returns: the rule tables (copied) and helper functions.",
+      "source_sha256": "f84b6381906aae6b6ab2e234345cdeb26386351b685f4e4fd3429de17623e09a"
+    },
+    {
+      "path": "tools/build_i18n_catalogs.py",
+      "line": 4963,
+      "owner": "_static_ui_sources_of_file",
+      "source": "Return the literal Qt presentation strings one source file contributes.\n\nThe result depends only on the file's path and text and on the rule\ntables :func:`_static_ui_rules` lists, so within one process each file\nis parsed once however often the sources are inventoried.\n\n:param path: the source file.\n:param text: its contents.\n:param source_root: the ``spacr`` package directory.\n:param preferences_path: ``spacr/qt/preferences.py``.\n:returns: the stripped presentation strings found in the file.",
+      "source_sha256": "8bbae5700088463f44299822b009479e87f44a16bec35d7f0734ed5264321d5f"
+    },
+    {
+      "path": "tools/build_i18n_catalogs.py",
+      "line": 8497,
+      "owner": "_audit_language_failures",
+      "source": "Return one locale's runtime catalog audit failures, in audit order.\n\n:param sources: the canonical English sources.\n:param language: the locale whose catalog module is checked.\n:returns: the failure lines; empty when the locale passes.",
+      "source_sha256": "02e008fc517f96cb8b212a4546fd71a28d3785a5af894c7caff7fa246a329826"
+    },
+    {
+      "path": "tools/build_i18n_catalogs.py",
+      "line": 8509,
+      "owner": "_audit_language_failures.fields",
+      "source": "Return the ``str.format`` field names in ``text``.",
+      "source_sha256": "ea1cd09e0784b416f992c52089def57c7cb12d7c80e064dc73ef97a8cc180002"
+    },
+    {
+      "path": "tools/build_i18n_catalogs.py",
+      "line": 8519,
+      "owner": "_audit_language_failures.html_tags",
+      "source": "Return the HTML tags in ``text``, in order.",
+      "source_sha256": "b1fd97a71385b951bf9accd274a5d40b6d6ce99d97abe66af7e3ef7990a5f494"
+    },
+    {
+      "path": "tools/build_i18n_catalogs.py",
+      "line": 8785,
+      "owner": "audit",
+      "source": "Validate key coverage, source freshness and basic translation safety.\n\n:param sources: the canonical English sources.\n:param languages: the locales to check.\n:param workers: processes that check locales side by side; the failures\n    are reported in locale order whatever the count. ``None`` uses the\n    command line's ``SCHED_THREADS`` grant when :func:`main` runs, else one.\n:returns: 0 when every check passes, else 1.",
+      "source_sha256": "1c0d5f039effe31ed755a689329d1e0a12376e0d18bcc51fa479adb6da7dfc77"
+    },
+    {
+      "path": "tools/i18n_caption_arrivals.py",
+      "line": 54,
+      "owner": "pinned_external_sources",
+      "source": "Require exact current source/review evidence, then restore the old view.\n\n:param workers: processes that load the locales' reviews side by side.\n:param reviewed_snapshots: per locale, a ``(sources, reviewed)`` pair an\n    earlier load produced; it is reused only when ``sources`` equals the\n    fresh source snapshot taken here, so the result is the same as a\n    fresh load.",
+      "source_sha256": "86f56cc7627c903f924c5a3b4d43666f67973bab674b7c89f89fa68fd318ba7a"
+    },
+    {
+      "path": "tools/nested_helper_docs.py",
+      "line": 331,
+      "owner": "_walk_with_scopes",
+      "source": "Yield every node in :func:`ast.walk` order with its enclosing scopes.\n\nOne breadth-first pass replaces a walk to map each node to its parent\nfollowed by a second walk that climbed that map, and visits the nodes in\nexactly the order ``ast.walk`` does.\n\n:param tree: the parsed module.\n:returns: ``(node, scopes)`` pairs; ``scopes`` lists the enclosing class\n    and function definitions outermost first, each as ``(name, is a\n    function)``.",
+      "source_sha256": "18c935ba323aa1f84b48635115b20fe9580149e563e10b835236c2d1141a5f3e"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 1,
+      "owner": "<module>",
+      "source": "Run one independent piece of i18n work per locale, optionally in parallel.\n\nThe landing pipeline validates the same review evidence once per locale in\nseveral steps (catalog build and audit, caption arrivals, review scope), and\nthe locales do not share state. :func:`map_languages` runs such a function\nfor every locale either in this process or in spawned worker processes, and\nalways returns the outcomes in the order of the locales it was given, so a\nresult never depends on which worker finished first.\n\nLibrary callers get one worker unless they ask for more; only a command-line\nentry point reads :func:`language_workers`, which takes the count from\n``SCHED_THREADS`` (the thread grant of the shared job scheduler) and defaults\nto one. With one worker everything runs in the calling process, exactly as\nbefore this module existed, so tests that patch a builder's module globals\nkeep seeing their patches.\n\nThe worker functions live here rather than in the tools themselves because a\ntool runs as ``__main__`` and a spawned worker cannot import functions from a\n``__main__`` module by name.",
+      "source_sha256": "ab62130bf35d492672a6f95e91d4730e6fb4179c1213bb6dd70e87f44a102464"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 30,
+      "owner": "Outcome",
+      "source": "What one locale's work produced: a value, or the exception it raised.\n\n:param value: the function's return value when it succeeded.\n:param error: the exception it raised, or ``None``.",
+      "source_sha256": "34bd108af0c4fd094ba32941535f776f5f4320b0d2d33213d307703dde88e7fb"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 40,
+      "owner": "Outcome.unwrap",
+      "source": "Return the value, or raise the exception the work raised.\n\n:returns: the value of a successful outcome.",
+      "source_sha256": "72c7fdb41a11b88bd0ebf326b8ff3e52d2ee5819a63a9f9874a211318e8685f3"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 50,
+      "owner": "language_workers",
+      "source": "Return the worker count a command-line run may use.\n\n:param default: the count when ``SCHED_THREADS`` is unset or invalid.\n:returns: a positive worker count.",
+      "source_sha256": "3c926d90e41932231b60977da57b364d77e0988971f7182b199b4919988d2605"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 62,
+      "owner": "_outcome",
+      "source": "Run ``function(language)`` and capture its result or exception.\n\n:param function: the per-locale work.\n:param language: the locale.\n:returns: the outcome.",
+      "source_sha256": "060ed7ee350f7fab0db47851596d33aa3f597583dfc308ac66dea2c2b678f3f6"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 80,
+      "owner": "map_languages",
+      "source": "Run ``function`` once per locale and return outcomes in locale order.\n\nExceptions are captured rather than raised so a caller can raise them at\nexactly the point where a serial loop would have met them.\n\n:param function: a picklable, module-level callable taking a locale\n    (``functools.partial`` of one is fine).\n:param languages: the locales, in the order the results are wanted.\n:param workers: the number of processes; one or fewer runs in-process.\n:returns: one :class:`Outcome` per locale, in the given order.",
+      "source_sha256": "294c67f5194c6178564bedf5aebf79158c9a022a421fb73c2969cab6edf6f6c4"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 106,
+      "owner": "review_scope_counts",
+      "source": "Count one locale's reviewed runtime records and reviewed API blocks.\n\n:param docs: the current English API docstrings.\n:param language: the locale.\n:returns: ``(runtime records, API blocks)``.",
+      "source_sha256": "1629ea405f3e3e232d0ac554770a27cf1402b62fd9f76f7502dbee16ed1560ca"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 122,
+      "owner": "runtime_review_translations",
+      "source": "Load one locale's reviewed runtime translations.\n\n:param sources: a caller-owned source snapshot, or ``None`` for the\n    builder's own (cached) loader.\n:param language: the locale.\n:returns: the reviewed source-to-translation map.",
+      "source_sha256": "0a0fb3448eda113eb984c279703bedd54033c67270ee7f7af9724723cbe35a3b"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 137,
+      "owner": "catalog_audit_failures",
+      "source": "Return one locale's runtime catalog audit failures.\n\n:param sources: the canonical English sources.\n:param language: the locale.\n:returns: the failure lines, in the order the audit finds them.",
+      "source_sha256": "0ec8d930ee60298d50500b4db8470eb9041b72d0fb7e7ff2d095d37bed74317e"
+    },
+    {
+      "path": "tools/i18n_language_pool.py",
+      "line": 149,
+      "owner": "source_bound_review_snapshot",
+      "source": "Load one locale's reviewed runtime translations from fresh sources.\n\nThis is what ``reviewed_runtime_translations`` computes, returned together\nwith the source snapshot it was validated against, so a caller can reuse\nit wherever it would load the same locale against equal sources.\n\n:param language: the locale.\n:returns: ``(sources, reviewed source-to-translation map)``.",
+      "source_sha256": "d4b12e924901adc7c1743e6c0b172111d8a7a7d8722a829387d9dae2550a7350"
+    },
+    {
+      "path": "tests/test_pipeperf_current_source_owners.py",
+      "line": 1,
+      "owner": "<module>",
+      "source": "The current source owners remain active when their cached extraction policy changes.",
+      "source_sha256": "8caf8435dbd35c59660d46e2732a10eaef8d5bdc1611b47fe7100418eb4838bb"
+    },
+    {
+      "path": "tests/test_pipeperf_current_source_owners.py",
+      "line": 15,
+      "owner": "test_current_owner_callback_changes_invalidate_the_file_caption_cache",
+      "source": "A changed current owner contributes new text through a previously inventoried real tree.",
+      "source_sha256": "6d03e6d39a8c30b8970374f656d4e14bc881f8ac748c7f327f47feb49841a1fd"
+    },
+    {
+      "path": "tests/test_pipeperf_current_source_owners.py",
+      "line": 25,
+      "owner": "test_current_owner_callback_changes_invalidate_the_file_caption_cache.changed",
+      "source": "Add an observable caption through the real current owner callback.",
+      "source_sha256": "6f0cc6467af9ad27703054e819b4ad694af6211af9f4fa3d5491d691990b11b3"
+    }
+  ]
+}

@@ -48,8 +48,17 @@ def load_arrival_contract() -> dict:
 def pinned_external_sources(external: Mapping[str,object], *,
                             original_counts: Mapping[str,int],
                             original_identity_sha256: str,
-                            contract: dict | None = None) -> dict[str,dict[str,str]]:
-    """Require exact current source/review evidence, then restore the old view."""
+                            contract: dict | None = None,
+                            workers: int = 1,
+                            reviewed_snapshots: Mapping[str,tuple] | None = None) -> dict[str,dict[str,str]]:
+    """Require exact current source/review evidence, then restore the old view.
+
+    :param workers: processes that load the locales' reviews side by side.
+    :param reviewed_snapshots: per locale, a ``(sources, reviewed)`` pair an
+        earlier load produced; it is reused only when ``sources`` equals the
+        fresh source snapshot taken here, so the result is the same as a
+        fresh load.
+    """
     import importlib
     import build_i18n_catalogs as builder
     fixture = load_arrival_contract() if contract is None else contract
@@ -82,7 +91,15 @@ def pinned_external_sources(external: Mapping[str,object], *,
     # Normal review loading validates current source bindings and all ordinary
     # target gates. It is not an advisory compatibility hook.
     sources = builder.canonical_sources()
-    reviewed = {language:builder._reviewed_runtime_translations(language, sources=sources)
+    from functools import partial
+    from i18n_language_pool import Outcome, map_languages, runtime_review_translations
+    known = {language:Outcome(value=snapshot[1])
+             for language,snapshot in (reviewed_snapshots or {}).items()
+             if snapshot[0]==sources}
+    pending = [language for language in LANGUAGES if language not in known]
+    loaded = dict(zip(pending, map_languages(partial(runtime_review_translations, sources),
+                                             pending, workers=workers)))
+    reviewed = {language:(known.get(language) or loaded[language]).unwrap()
                 for language in LANGUAGES}
     proof_files = {}
     for identity,row in list(added.items())+list(changed_after.items()):
@@ -124,7 +141,7 @@ def pinned_external_sources(external: Mapping[str,object], *,
             for table in TABLE_NAMES}
 
 
-def refresh_arrival_contract() -> dict:
+def refresh_arrival_contract(*, workers: int = 1) -> dict:
     """Rebuild the current delta from canonical sources and exact locale reviews.
 
     The immutable baseline and its body hash are retained. Every arrival or
@@ -145,8 +162,16 @@ def refresh_arrival_contract() -> dict:
     actual = _source_rows(external)
     proof_index = {}
     catalogs = {}
+    reviewed_snapshots = {}
+    if workers > 1:
+        from i18n_language_pool import map_languages, source_bound_review_snapshot
+        snapshots = dict(zip(LANGUAGES, map_languages(source_bound_review_snapshot,
+                                                      LANGUAGES, workers=workers)))
     for language in LANGUAGES:
-        builder.reviewed_runtime_translations(language)
+        if workers <= 1:
+            builder.reviewed_runtime_translations(language)
+        else:
+            reviewed_snapshots[language] = snapshots[language].unwrap()
         catalogs[language] = importlib.import_module(f'spacr.qt.i18n_catalogs.{language}')
         for path in sorted((builder.REVIEWED_RUNTIME_DIR / language).glob('*.json')):
             raw = path.read_bytes()
@@ -185,7 +210,8 @@ def refresh_arrival_contract() -> dict:
     counts = {table:sum(name==table for name,key in baseline) for table in TABLE_NAMES}
     identity = _sha('\0'.join(f'{table}\0{key}' for table,key in sorted(baseline)))
     pinned_external_sources(external, original_counts=counts,
-                            original_identity_sha256=identity, contract=updated)
+                            original_identity_sha256=identity, contract=updated,
+                            workers=workers, reviewed_snapshots=reviewed_snapshots)
     assert updated['baseline'] == previous['baseline']
     FIXTURE.write_bytes(gzip.compress(
         (json.dumps(updated,ensure_ascii=False,sort_keys=True,indent=2)+'\n').encode('utf-8'),
@@ -302,5 +328,7 @@ if __name__ == '__main__':
     else:
         if args.approved_compact_addition or args.approved_compact_retirement:
             parser.error('compact approvals require --refresh-compact')
-        result = refresh_arrival_contract()
+        from i18n_language_pool import language_workers
+
+        result = refresh_arrival_contract(workers=language_workers())
     print(json.dumps(result, sort_keys=True))
