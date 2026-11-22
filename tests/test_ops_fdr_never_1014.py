@@ -479,7 +479,9 @@ def _never_api_contracts():
     from pathlib import Path
 
     path = Path(__file__).resolve().parent / 'data/release_contracts/1014_never_api_sources_2026-11-22.json'
-    return json.loads(path.read_text())['symbols']
+    from tests.test_ops_never_s2j_parity_1014 import _current_s2j_records
+
+    return _current_s2j_records(json.loads(path.read_text())['symbols'])
 
 
 def _validate_never_api_source(symbol, record, source=None):
@@ -516,7 +518,9 @@ def _current_never_api(entries):
         assert result[symbol] == record['before'], symbol
         assert hashlib.sha256(result[symbol].encode()).hexdigest() == record['before_sha256'], symbol
         result[symbol] = _validate_never_api_source(symbol, record)
-    return result
+    from tests.test_ops_never_s2j_parity_1014 import _current_s2j_api
+
+    return _current_s2j_api(result)
 
 
 def _validated_never_arrivals(callables):
@@ -527,6 +531,7 @@ def _validated_never_arrivals(callables):
     records = _never_api_contracts()
     path = Path(__file__).resolve().parent / 'data/release_contracts/1014_never_api_arrivals_2026-11-22.json'
     entries = json.loads(path.read_text())
+    entries = _current_never_api(entries)
     assert set(entries) == {'spacr.ops_sbs.never_barcodes', 'spacr.ops_decode.never_scale'}
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert found.keys() == entries.keys()

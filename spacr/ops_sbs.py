@@ -872,7 +872,7 @@ def _barcode_distance_profiles(guides: Tuple[str, ...], barcodes: Tuple[str, ...
 
 @lru_cache(maxsize=8)
 def _never_barcodes_cached(guides, distance, k, seed, excluded):
-    """Generate and profile one immutable substitution-control set per cache key.
+    """Generate and profile immutable controls in per-guide reference acceptance order.
 
     :param guides: sorted unique real guide strings.
     :param distance: nearest-guide Hamming distance, one or two.
@@ -883,37 +883,44 @@ def _never_barcodes_cached(guides, distance, k, seed, excluded):
     """
     known, guide_mask, _ = _library_index(guides)
     occupied, blocked_mask, _ = _library_index(excluded)
+    blocked_mask = set(blocked_mask)
     taken = known | occupied
     rng = np.random.default_rng(seed)
-    available = {guide: set(range(len(guide))) for guide in guides}
     output = []
-    for _ in range(k):
-        for guide in guides:
-            positions = sorted(available[guide]) if distance == 1 else list(range(len(guide)))
-            if len(positions) < distance:
-                continue
-            for _ in range(200):
-                changed = rng.choice(positions, size=distance, replace=False)
-                letters = list(guide)
-                for position in changed:
-                    options = [base for base in 'ACGT' if base != guide[position]]
-                    letters[position] = options[int(rng.integers(len(options)))]
-                candidate = ''.join(letters)
-                if candidate in taken:
-                    continue
-                slots = [(p, candidate[:p] + candidate[p + 1:]) for p in range(len(candidate))]
-                near = {entry for slot in slots for entry in guide_mask.get(slot, ())}
-                if (distance == 1 and near != {guide}) or (distance == 2 and near):
-                    continue
-                if any(slot in blocked_mask for slot in slots):
-                    continue
-                output.append(candidate)
-                taken.add(candidate)
-                for slot in slots:
-                    blocked_mask.setdefault(slot, []).append(candidate)
-                if distance == 1:
-                    available[guide].remove(int(changed[0]))
+    for guide in guides:
+        if len(guide) < distance:
+            continue
+        accepted = 0
+        used_positions = set()
+        for _ in range(200):
+            if accepted >= k:
                 break
+            if distance == 1:
+                free = [position for position in range(len(guide)) if position not in used_positions]
+                if not free:
+                    break
+                changed = [int(rng.choice(free))]
+            else:
+                changed = list(rng.choice(len(guide), 2, replace=False))
+            letters = list(guide)
+            for position in changed:
+                letters[position] = rng.choice([base for base in 'ACGT' if base != guide[position]])
+            candidate = ''.join(letters)
+            if candidate in taken:
+                continue
+            slots = [(position, candidate[:position] + candidate[position + 1:])
+                     for position in range(len(candidate))]
+            near = {entry for slot in slots for entry in guide_mask.get(slot, ())}
+            if (distance == 1 and near != {guide}) or (distance == 2 and near):
+                continue
+            if any(slot in blocked_mask for slot in slots):
+                continue
+            output.append(candidate)
+            taken.add(candidate)
+            blocked_mask.update(slots)
+            if distance == 1:
+                used_positions.add(changed[0])
+            accepted += 1
     barcodes = tuple(output)
     return {'barcodes': barcodes, 'guides': guides, 'distance': distance, 'k': k, 'seed': seed,
             'm_d': _barcode_distance_profiles(guides, tuple(sorted(barcodes))),
@@ -927,8 +934,9 @@ def never_barcodes(library, *, distance, k=4, seed=1, exclude=()):
     substituted position for each accepted control of that guide.
     Distance-two controls have no guide at distance zero or one. Every
     control lies at least two substitutions from previously accepted and
-    excluded controls. Sorted unique guides are visited round by round,
-    with one seeded generator and up to 200 attempts per guide and round.
+    excluded controls. Sorted unique guides are visited in order, accepting
+    up to k controls before moving to the next guide. One seeded generator
+    makes up to 200 total attempts per guide, matching the reference order.
     The same builder serves full-barcode and sequenced-prefix calibration.
 
     :param library: real guide barcodes, using nonempty A/C/G/T strings.

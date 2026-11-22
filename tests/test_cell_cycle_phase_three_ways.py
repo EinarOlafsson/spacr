@@ -409,7 +409,12 @@ def test_a_failed_step_is_reported_and_does_not_fail_the_run(tmp_path,
 @pytest.mark.slow
 def test_the_torch_route_trains_with_classify_and_reuses_its_model(
         tmp_path, monkeypatch):
+    """Keep the intended CPU fixture isolated from a GPU-visible worker cache."""
+    from spacr.accelerator import _reset_device_cache
+
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
+    monkeypatch.setenv("SPACR_DEVICE", "cpu")
+    _reset_device_cache()
     merged, truths = _write_plate(tmp_path, fields=4, seed=3,
                                  separate_wells=True, balanced_phases=True)
     measure.measure_crop(_measure_settings(
