@@ -490,6 +490,9 @@ def _validate_never_api_source(symbol, record, source=None):
 
     if source is None:
         source = (Path(__file__).resolve().parents[1] / record['file']).read_text()
+    if symbol == 'spacr.ops_prefix.prefix_settings':
+        from tests.test_ops_neighbour_sources_1013 import _neighbour_predecessor_source
+        source = _neighbour_predecessor_source(symbol, record, source)
     name = symbol.rsplit('.', 1)[-1]
     node = next(item for item in ast.parse(source).body
                 if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name == name)
@@ -574,7 +577,7 @@ def _full_never_field():
 
     library, decoys, evidence = _random_field(objects=80)
     context = D._never_context(tuple(sorted(library)), tuple(sorted(decoys)), 4, 1, 'n1_n2')
-    rule = D.decode_rule(_RULE)
+    rule = D.decode_rule({**_RULE, 'ops_read_neighbour_discount': 1.0})
     return library, decoys, evidence, context, rule, dict(_KW)
 
 

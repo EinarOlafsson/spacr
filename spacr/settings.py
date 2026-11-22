@@ -2563,6 +2563,7 @@ def surviving_setting_name(key):
 #: ratchet in tests/test_settings_unknown_keys.py fails while one is in both.
 RECORD_ONLY_SETTINGS = frozenset({
     'spacr_settings_version', 'settings_strict',
+    'ops_read_neighbour_discount_applied',
     'seg_cells_from_nucleus_seeds', 'seg_merge_small_nuclei_frac',
     'seg_tile_overlap_px', 'seg_tile_px', 'seg_diameter_sites',
 })
@@ -2618,7 +2619,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 958
+SETTINGS_SCHEMA_VERSION = 959
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2655,6 +2656,7 @@ DEFAULT_CHANGES = {
     955: {'batch_size': 0, 'mask_eval_batch_size': 0, 'randomize': False},
     957: {'ops_decode_fdr_calibration': 'none', 'ops_prefix_fdr_calibration': 'none'},
     958: {'cytoskeleton_object_support': False},
+    959: {'ops_read_neighbour_discount': 1.0},
 }
 
 
@@ -2791,6 +2793,9 @@ def _fold_older_defaults(settings, version, known=None):
     958 is item 1008: cytoskeleton skeletons are restricted to the object
     mask. Older Overview settings keep ``cytoskeleton_object_support``
     False so whole-image fibre counts retain their earlier values.
+
+    Version 959 changes the item-1013 neighbour-bleed discount to 0.25;
+    files stamped before retain 1.0 (off), including schemas 957 and 958.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -10020,10 +10025,13 @@ ALPHA_FEATURES = {
                      'cell_cycle_fit_group', 'cell_cycle_mitotic_column',
                      'ops_profile_cell_cycle_method'),
     },
+    1013: {
+        'settings': ('ops_prefix_bleed_in_recipe',),
+    },
     988: {
         'settings': ('ops_read_distance_weight', 'ops_read_distance_decay_px',
                      'ops_read_distance_interior_px', 'ops_read_distance_min_weight',
-                     'ops_read_neighbour_discount', 'ops_prefix_distance_weight',
+                     'ops_prefix_distance_weight',
                      'ops_prefix_distance_decay_px', 'ops_prefix_distance_interior_px',
                      'ops_prefix_distance_min_weight', 'ops_prefix_weighted_quality',
                      'ops_prefix_weighted_min_share', 'ops_prefix_nuclei_masks',

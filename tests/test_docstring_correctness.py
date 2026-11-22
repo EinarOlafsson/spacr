@@ -3211,6 +3211,8 @@ def _validated_bmc_paper_items_callables(callables):
         / "871_911_bmc_paper_items_api_arrivals_2026-11-09.json").read_text(encoding="utf-8"))
     from tests.test_ops_fdr_never_1014 import _current_never_api
     entries = _current_never_api(entries)
+    from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
+    entries = _current_neighbour_api(entries)
     assert len(entries) == 171
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -3271,6 +3273,8 @@ def _validated_bmc_paper_items_4_callables(callables):
         / "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json").read_text(encoding="utf-8"))
     from tests.test_ops_fdr_never_1014 import _current_never_api
     entries = _current_never_api(entries)
+    from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
+    entries = _current_neighbour_api(entries)
     assert len(entries) == 112
     assert {"spacr.cpg_cropped", "spacr.ops_prefix", "spacr.ops_image_umap",
             "spacr.ops_large_sites", "spacr.ops_decode.run_compare_masks",
@@ -4268,6 +4272,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                     list(_public_callables()), replay_dialog_signature=True))))
     from tests.test_ops_fdr_never_1014 import _validated_never_arrivals
     callables = _validated_never_arrivals(callables)
+    from tests.test_ops_neighbour_sources_1013 import _validated_neighbour_arrivals
+    callables = _validated_neighbour_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -7182,11 +7188,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("1008b_colocalisation_otsu_api_arrivals_2026-11-21.json", 1),
         ("1008c_cytoskeleton_api_arrivals_2026-11-21.json", 1),
         ("1014_never_api_arrivals_2026-11-22.json", 2),
+        ("1013_neighbour_bleed_api_arrivals_2026-11-22.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         from tests.test_ops_fdr_never_1014 import _current_never_api
         additions = _current_never_api(additions)
+        from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
+        additions = _current_neighbour_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
@@ -7843,7 +7852,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json",
                      "1008b_colocalisation_otsu_api_arrivals_2026-11-21.json",
                      "1008c_cytoskeleton_api_arrivals_2026-11-21.json",
-                     "1014_never_api_arrivals_2026-11-22.json"):
+                     "1014_never_api_arrivals_2026-11-22.json",
+                     "1013_neighbour_bleed_api_arrivals_2026-11-22.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -8020,7 +8030,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json",
                      "1008b_colocalisation_otsu_api_arrivals_2026-11-21.json",
                      "1008c_cytoskeleton_api_arrivals_2026-11-21.json",
-                     "1014_never_api_arrivals_2026-11-22.json"):
+                     "1014_never_api_arrivals_2026-11-22.json",
+                     "1013_neighbour_bleed_api_arrivals_2026-11-22.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

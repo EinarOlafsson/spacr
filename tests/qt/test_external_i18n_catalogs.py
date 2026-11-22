@@ -239,7 +239,8 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 #: (2026-11-20) rebuilt the catalogs with item 919's three tooltips.
 # Empty again since the pilot landing (2026-11-22) rebuilt the catalogs with the
 # 1007 OME-Zarr version and 990 label-channel tooltips.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+# 2026-11-22 1013: the bleed-in-recipe tooltip waits for the train 13 catalog rebuild
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({"ops_prefix_bleed_in_recipe"})
 
 
 def _assert_setting_tooltip_inventory(sources, en):

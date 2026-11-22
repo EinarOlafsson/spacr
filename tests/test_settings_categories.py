@@ -818,6 +818,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_read_distance_interior_px",
     "ops_read_distance_min_weight",
     "ops_read_neighbour_discount",
+    "ops_prefix_bleed_in_recipe",
     "ops_prefix_distance_weight",
     "ops_prefix_distance_decay_px",
     "ops_prefix_distance_interior_px",
