@@ -1207,6 +1207,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'offset_start',
     'ome_zarr_ngff_version',
     'ome_zarr_store_registration',
+    'ome_zarr_upgrade_link',
     'on_conflict',
     'on_error',
     'on_error_attempts',

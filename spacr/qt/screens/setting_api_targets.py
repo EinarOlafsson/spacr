@@ -711,6 +711,7 @@ SETTING_API_TARGETS = {
     'offset_start': ('spacr.barcode_search', 'propose_map_barcodes_settings', True),
     'ome_zarr_ngff_version': ('spacr.ops_settings', 'ops_defaults', True),
     'ome_zarr_store_registration': ('spacr.ops_settings', 'ops_defaults', True),
+    'ome_zarr_upgrade_link': ('spacr.ops_settings', 'ops_defaults', True),
     'on_error': ('spacr.runctx', 'resolve_error_policy', True),
     'on_error_attempts': ('spacr.runctx', 'resolve_error_policy', True),
     'on_error_backoff': ('spacr.runctx', 'resolve_error_policy', True),
