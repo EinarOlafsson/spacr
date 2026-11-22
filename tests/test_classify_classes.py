@@ -332,34 +332,33 @@ def test_folder_settings_keep_their_original_names_and_precedence(settings, expe
     assert folder_names(settings) == expected
 
 
-def test_a_defined_class_outranks_a_recorded_folder_list():
-    """The class field decides the folder names (instruction 229).
-
-    REVERSED DELIBERATELY. `class_folder_names` used to win here. It is a
-    RECORD of what a previous generation wrote to disk; a defined class is
-    the user's own statement of what they are training on, and letting the
-    record outrank the statement is how the folders on disk and the classes
-    in the panel come to disagree with nothing on screen saying so.
-
-    It still does NOT win over a list-shaped `classes` -- see
-    `test_a_legacy_list_beats_the_injected_folder_default` for why that
-    direction would silently retrain every settings file in existence.
-    """
+@pytest.mark.parametrize('settings_input, expected_names', [
+    pytest.param(
+        {
+            'classes': {'new': {'column': 'c', 'value': 1}},
+            'class_folder_names': ['new', 'newer'],
+        },
+        ['new'],
+        id='test_a_defined_class_outranks_a_recorded_folder_list',
+    ),
+    pytest.param(
+        {
+            'classes': {
+                'pc': {'column': 'columnID', 'value': 'c3'},
+                'nc': {'column': 'columnID', 'value': 'c1'},
+            },
+        },
+        ['pc', 'nc'],
+        id='test_defined_classes_name_their_own_folders',
+    ),
+])
+def test_defined_class_folders_keep_original_precedence_and_order(
+    settings_input, expected_names,
+):
+    """Preserve defined-class folder precedence and native definition order."""
     from spacr.classify_classes import folder_names
-
-    names = folder_names({"classes": {"new": {"column": "c", "value": 1}},
-                          "class_folder_names": ["new", "newer"]})
-    assert names == ["new"]
-
-
-def test_defined_classes_name_their_own_folders():
-    """With neither list set, the definitions are the answer, in order."""
-    from spacr.classify_classes import folder_names
-
-    names = folder_names({"classes": {
-        "pc": {"column": "columnID", "value": "c3"},
-        "nc": {"column": "columnID", "value": "c1"}}})
-    assert names == ["pc", "nc"]
+    names = folder_names(settings_input)
+    assert names == expected_names
 
 
 def test_an_empty_definition_still_derives_from_the_older_keys():
