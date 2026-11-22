@@ -3903,6 +3903,26 @@ def _validated_ome_zarr_registration_1007c_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_colocalisation_otsu_1008b_callables(callables):
+    """Validate the exact item 1008B colocalisation API before the old census."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "1008b_colocalisation_otsu_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(entries) == {"spacr.measure.measure_colocalisation_otsu"}
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.parameters == {"labels", "image"}
+        assert item.required_parameters == {"labels", "image"}
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_ome_zarr_convert_985_callables(callables):
     """Check the public callables of item 985 (the OME-Zarr converter, spacr.ome_zarr_convert) against their source."""
     import json
@@ -4195,6 +4215,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_ome_zarr_ngff06_1007_callables(callables)
     callables = _validated_measure_blocks_1008a_callables(callables)
     callables = _validated_ome_zarr_registration_1007c_callables(callables)
+    callables = _validated_colocalisation_otsu_1008b_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -7023,6 +7044,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json", 3),
         ("1008a_measure_block_families_api_arrivals_2026-11-21.json", 1),
         ("1007c_ome_zarr_registration_api_arrivals_2026-11-21.json", 2),
+        ("1008b_colocalisation_otsu_api_arrivals_2026-11-21.json", 1),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7663,7 +7685,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "w_mask_tracing_api_arrivals_2026-11-20.json",
                      "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json",
                      "1008a_measure_block_families_api_arrivals_2026-11-21.json",
-                     "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json"):
+                     "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json",
+                     "1008b_colocalisation_otsu_api_arrivals_2026-11-21.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7832,7 +7855,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "w_mask_tracing_api_arrivals_2026-11-20.json",
                      "1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json",
                      "1008a_measure_block_families_api_arrivals_2026-11-21.json",
-                     "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json"):
+                     "1007c_ome_zarr_registration_api_arrivals_2026-11-21.json",
+                     "1008b_colocalisation_otsu_api_arrivals_2026-11-21.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

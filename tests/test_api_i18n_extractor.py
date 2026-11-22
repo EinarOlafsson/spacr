@@ -237,6 +237,7 @@ def test_documented_parameter_names_match_the_source_signatures():
 
 
 def test_public_docstrings_matches_reviewed_visible_coverage():
+    """Bind exact source arrivals before comparing the historical API surface."""
     docs = builder.public_docstrings()
     from tests.test_documentation_i18n import _retired_732_remote_api, _retired_801_mask_worker_api
     historical_docs = docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
@@ -2664,6 +2665,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in registration_arrivals} == registration_arrivals
     assert not registration_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **registration_arrivals}
+    otsu_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "1008b_colocalisation_otsu_api_arrivals_2026-11-21.json").read_text(encoding="utf-8"))
+    assert set(otsu_arrivals) == {"spacr.measure.measure_colocalisation_otsu"}
+    assert {key: docs[key] for key in otsu_arrivals} == otsu_arrivals
+    assert not otsu_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **otsu_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

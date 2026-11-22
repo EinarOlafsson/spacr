@@ -3900,6 +3900,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json", 3),
         ("1008a_measure_block_families_api_arrivals_2026-11-21.json", 1),
         ("1007c_ome_zarr_registration_api_arrivals_2026-11-21.json", 2),
+        ("1008b_colocalisation_otsu_api_arrivals_2026-11-21.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

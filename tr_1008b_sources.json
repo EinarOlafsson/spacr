@@ -1,0 +1,533 @@
+{
+  "item": "1008B",
+  "source_branch": "ws-offload-codex-work-1008b",
+  "base_sha": "e2a1ace77c537e4d3783f57055214040a9272741",
+  "source_file_sha256": "a7a185ec90b594afff6a25cbc5205e886f4e443a13379e0998dc84b15bf5efd5",
+  "admission_authority": "WORK_TASKS v76,2026-11-21 19:07,lines4–6",
+  "api_source_blocks": [
+    {
+      "canonical_id": "spacr.measure.measure_colocalisation_otsu",
+      "kind": "api",
+      "file": "spacr/measure.py",
+      "callable_line": 4449,
+      "source_line": 4450,
+      "source_sha256": "2d17a3c8f8925f1662076372fa72a161670ff127c08fc6e150da8373e37b075c",
+      "source": "Raw overlap, regression and Otsu colocalisation of each object and channel pair.\n\n:param labels: 2-D label mask; positive labels identify objects.\n:param image: ``(H, W, C)`` raw real intensities over the mask.\n:returns: ``label`` and nine ``channel_<i>_channel_<j>_<stat>`` columns\n    per pair ``i < j``, with one row per positive label in ascending order:\n\n    - ``lstsq_slope_ij`` and ``lstsq_slope_ji``: least-squares slopes\n      with an intercept, of channel j on i and i on j;\n    - ``raw_overlap``: ``sum(i j) / sqrt(sum(i^2) sum(j^2))``;\n    - ``raw_k1`` and ``raw_k2``: ``sum(i j) / sum(i^2)`` and its\n      counterpart with ``sum(j^2)`` in the denominator;\n    - ``otsu_m1`` and ``otsu_m2``: the fraction of raw intensity in\n      channel i where channel j exceeds its object Otsu threshold, and\n      the reverse;\n    - ``otsu_rwc1`` and ``otsu_rwc2``: the same fractions weighted by\n      ``(R - abs(rank_i - rank_j)) / R``, with dense ranks within the\n      object and R the larger maximum rank (Singan et al., 2011).\n\nThese are the raw-pixel definitions in Brieflow ``cp_emulator``. Otsu\nselects the first observed value maximising between-class variance,\nplacing equal values in the lower class; a constant object has threshold\n0. Integer thresholds equal :func:`mahotas.thresholding.otsu`; real\nimages use the same observed-value rule without histogram binning.\nColocalisation coefficients are 0.0 when either channel sums to zero;\na slope is 0.0 when its predictor has zero variance. These replace\nundefined values with 0.0 so feature filtering retains the columns.\nFour channels give 54 columns per compartment, or 162 over cell,\nnucleus and cytoplasm. Pearson is supplied by the shared Funk block.",
+      "records": "Home translation task; not supplied in this source lane",
+      "admission": "Canonical builder.public_docstrings extraction and three structural source/signature checks passed; exact fixture joined in all three inventory owners; English documentation inventory fixture has a distinct v74-deferred reviewed-record error",
+      "arrival_fixture": "tests/data/release_contracts/1008b_colocalisation_otsu_api_arrivals_2026-11-21.json",
+      "canonical_extractor": "build_documentation_i18n.public_docstrings",
+      "translatable_blocks": [
+        {
+          "source": "Raw overlap, regression and Otsu colocalisation of each object and channel pair.",
+          "source_sha256": "92bdcaefa837ac57b8c0cd39553f7152f1298796de714b6aae96eb1ecf60446e"
+        },
+        {
+          "source": "2-D label mask; positive labels identify objects.",
+          "source_sha256": "1c58eb42f3cc290d6079149f68b47eb4c15ba08802fee58d3ba7572341aac8f0"
+        },
+        {
+          "source": "``(H, W, C)`` raw real intensities over the mask.",
+          "source_sha256": "0f9c2f7cf77296933d3574410ab7ca38b41c5550cb7564be10140ba55a93f4ea"
+        },
+        {
+          "source": "``label`` and nine ``channel_<i>_channel_<j>_<stat>`` columns per pair ``i < j``, with one row per positive label in ascending order:",
+          "source_sha256": "030415bee8d56dd37a67e7ccdb9e65c3a158431e927644e826d01962f9d10044"
+        },
+        {
+          "source": "``lstsq_slope_ij`` and ``lstsq_slope_ji``: least-squares slopes with an intercept, of channel j on i and i on j;",
+          "source_sha256": "e1803cd8dd72027f7f57518bc4fa00886e338929ed359fea91d3a43f603f1a19"
+        },
+        {
+          "source": "``raw_overlap``: ``sum(i j) / sqrt(sum(i^2) sum(j^2))``;",
+          "source_sha256": "9327cccd24d0c11f58c99ea492a1d361dea1a5146a4f52f89f8f5efea3aca286"
+        },
+        {
+          "source": "``raw_k1`` and ``raw_k2``: ``sum(i j) / sum(i^2)`` and its counterpart with ``sum(j^2)`` in the denominator;",
+          "source_sha256": "d9fc5d33f993eb62e254faa41b8f25f3f0177d4ba4f6c7010cf8d17434d7569e"
+        },
+        {
+          "source": "``otsu_m1`` and ``otsu_m2``: the fraction of raw intensity in channel i where channel j exceeds its object Otsu threshold, and the reverse;",
+          "source_sha256": "2c475a3fa9ee5effe8d533b31a768083c1e1e8432e1de9ad498f3d79b2614e6e"
+        },
+        {
+          "source": "``otsu_rwc1`` and ``otsu_rwc2``: the same fractions weighted by ``(R - abs(rank_i - rank_j)) / R``, with dense ranks within the object and R the larger maximum rank (Singan et al., 2011).",
+          "source_sha256": "74a83beaf6dc4344724994df5811b13ca9c9073c6da4c7244783f0e830ef1dfe"
+        },
+        {
+          "source": "These are the raw-pixel definitions in Brieflow ``cp_emulator``. Otsu selects the first observed value maximising between-class variance, placing equal values in the lower class; a constant object has threshold 0. Integer thresholds equal :func:`mahotas.thresholding.otsu`; real images use the same observed-value rule without histogram binning. Colocalisation coefficients are 0.0 when either channel sums to zero; a slope is 0.0 when its predictor has zero variance. These replace undefined values with 0.0 so feature filtering retains the columns. Four channels give 54 columns per compartment, or 162 over cell, nucleus and cytoplasm. Pearson is supplied by the shared Funk block.",
+          "source_sha256": "6b4e7d72fb88fa846839b9c3246c8a65367cfba48e0b00d612054ffce822206c"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param labels:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param image:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            "    - ",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "    - ",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "    - ",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "    - ",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            "    - ",
+            [
+              8
+            ]
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            9
+          ]
+        ]
+      ]
+    }
+  ],
+  "private_helper_docs": [
+    {
+      "canonical_id": "spacr.measure._otsu_by_label",
+      "kind": "private_helper",
+      "file": "spacr/measure.py",
+      "callable_line": 4394,
+      "source_line": 4395,
+      "source_sha256": "254dc302e45a01c3facb02c235241cbc4bd86b38264339c4c40be70d592e2dc3",
+      "source": "Observed-value Otsu thresholds per label, with the first maximum winning.\n\n:param flat: positive integer label index for each foreground pixel.\n:param values: real intensities of those pixels.\n:param presorted: optional :func:`_sorted_by_label` result for ``values``.\n:returns: one threshold per label index; 0 for a constant object or an\n    absent label. Integer data follow :func:`mahotas.thresholding.otsu`.\n\nAll candidate splits are evaluated together from sorted cumulative sums;\na split places values equal to its threshold in the lower class.\nCentring and power-of-two scaling within each object keep the score\nstable across intensity scales. A segmented prefix scan keeps sums\nindependent of the intensity and size of earlier labels.",
+      "records": "No records: private helper",
+      "admission": "Private source documentation inventory only"
+    }
+  ],
+  "test_doc_inventory": [
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 1,
+      "source_sha256": "738561207a4c70a57d119211a0bcfbd438f2311d331f222b04df55cf90cfe9ff",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008._reference_otsu",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 31,
+      "source_sha256": "329fbbc8ca061273a6b3e37086487cf7caf7abfe17e03ac888ac26bac82c7034",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008._cp_lstsq_slope_all_multichannel",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 47,
+      "source_sha256": "69dc33bfdec2327713ad2192becbabfa97db29bbb657f9208f1cf686266e8a80",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008._cp_measure_colocalization",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 64,
+      "source_sha256": "c618a7e88b1e4d3ad1c8556ff78a6382483e04920c5f88ca8eaaaf1627d84b61",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008._compartment_field",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 90,
+      "source_sha256": "dcc0bca6674f2af9af4a8b19e89da648fc3c54303c812154177418e1316d21a5",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008.test_raw_values_equal_vendored_cp_emulator_in_three_compartments",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 110,
+      "source_sha256": "15f2eeceb0b08e011d5395b8693a50d51113b19e19c41793207e08c5f6d0baf9",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008.test_otsu_matches_mahotas_for_200_uint16_objects",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 137,
+      "source_sha256": "69d458274d709ae34268dcd019d2c9a0212d3d441f5126450fdc63c3679148ba",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008.test_otsu_constant_ties_real_values_and_presorted_input",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 149,
+      "source_sha256": "f7ffd4f85187c6f961f3dce4f344d0b7fab3a35f765c12d84375ce9b9b6e83ae",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008.test_otsu_is_independent_of_other_label_intensity_and_pixel_count",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 172,
+      "source_sha256": "a35c66ac6a6b27a1fc2cb2739b437fdcd8329d7fb514af732b9190d9de5b92da",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008.test_flat_and_zero_channels_have_finite_declared_degenerate_values",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 188,
+      "source_sha256": "f4551f23f52340cf51fafc93c3a23567fd1a008e555735a70aebe9aada84c0de",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008.test_single_pixel_empty_and_single_channel_objects_keep_their_schema",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 208,
+      "source_sha256": "ee21d2bb0a94f03051ec81bc42508721e3e67e03e4136f7e55b0a2c554e1f2fb",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008.test_large_constant_predictors_have_exactly_zero_slopes",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 223,
+      "source_sha256": "5afdce0ba86c7a255c5a3ecd2b0eada31084cc9c131606dc0715d9e297fe8a94",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008.test_dense_ties_directionality_and_raw_values_are_preserved",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 232,
+      "source_sha256": "67f60011bb98392efd1e8b120e901edb1ee8a82cd512938d55e80546ab3081d7",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_colocalisation_otsu_1008.test_public_docstring_has_an_exact_arrival_contract",
+      "file": "tests/test_colocalisation_otsu_1008.py",
+      "source_line": 246,
+      "source_sha256": "d11e725c1a8d0ecfb0030b50c3f253eff3761ee49a317208830574d8a8604da5",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_docstring_correctness._validated_colocalisation_otsu_1008b_callables",
+      "file": "tests/test_docstring_correctness.py",
+      "source_line": 3865,
+      "source_sha256": "177eedb99d738d9646fe68653f277b3ca7a2f26dc2a874a9b08db5ab1619ea24",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_docstring_correctness.test_public_callable_inventory_is_source_derived_not_docstring_derived",
+      "file": "tests/test_docstring_correctness.py",
+      "source_line": 4101,
+      "source_sha256": "1010627ccbc18d26dd3a144354864e28379dda35b7b38d2a27af24057e02478f",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_docstring_correctness.test_callable_boundary_is_cross_checked_with_i18n_extractor",
+      "file": "tests/test_docstring_correctness.py",
+      "source_line": 6402,
+      "source_sha256": "7cf1233b97e7eab3898a052524d8d25a8b9e65f79fd47fe2678e9790bdcc9e94",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_api_i18n_extractor.test_public_docstrings_matches_reviewed_visible_coverage",
+      "file": "tests/test_api_i18n_extractor.py",
+      "source_line": 240,
+      "source_sha256": "8d9b801f52909f9d9f0dcd3cdde1e6a96f172d7078da9952908ae92934005b3f",
+      "records": "No records: test documentation"
+    },
+    {
+      "canonical_id": "tests.test_documentation_i18n.test_documentation_api_catalog_inventory_and_hashes_are_current",
+      "file": "tests/test_documentation_i18n.py",
+      "source_line": 3587,
+      "source_sha256": "44bc9a92773342ad0812e66c58afe83e1ea716ca1249565d43198eb1c10b454b",
+      "records": "No records: test documentation"
+    }
+  ],
+  "runtime_strings": [],
+  "catalog_records_supplied": false,
+  "gate_state": "Complete: all four selected full groups passed with actual exit0 and zero unexpected failures; exact30catalog nodes deferred. Explicit API source run:3passed+1distinct v74-deferred reviewed-record fixture error, actualexit1.",
+  "canonical_extraction_receipt": "canonical-source.log (scheduler source-admission job)",
+  "source_admissions": [
+    {
+      "file": "tests/test_docstring_correctness.py",
+      "callable": "_validated_colocalisation_otsu_1008b_callables",
+      "line": 3864,
+      "status": "Exact fixture join applied; three structural source checks passed, English catalog fixture blocked by the distinct v74-deferred reviewed record"
+    },
+    {
+      "file": "tests/test_docstring_correctness.py",
+      "callable": "test_public_callable_inventory_is_source_derived_not_docstring_derived",
+      "line": 4100,
+      "status": "Exact fixture join applied; three structural source checks passed, English catalog fixture blocked by the distinct v74-deferred reviewed record"
+    },
+    {
+      "file": "tests/test_docstring_correctness.py",
+      "callable": "test_callable_boundary_is_cross_checked_with_i18n_extractor",
+      "line": 6401,
+      "status": "Exact fixture join applied; three structural source checks passed, English catalog fixture blocked by the distinct v74-deferred reviewed record"
+    },
+    {
+      "file": "tests/test_api_i18n_extractor.py",
+      "callable": "test_public_docstrings_matches_reviewed_visible_coverage",
+      "line": 239,
+      "status": "Exact fixture join applied; three structural source checks passed, English catalog fixture blocked by the distinct v74-deferred reviewed record"
+    },
+    {
+      "file": "tests/test_documentation_i18n.py",
+      "callable": "test_documentation_api_catalog_inventory_and_hashes_are_current",
+      "line": 3585,
+      "status": "Exact fixture join applied; three structural source checks passed, English catalog fixture blocked by the distinct v74-deferred reviewed record"
+    }
+  ],
+  "deferred_catalog_nodes": [
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
+    "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
+    "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+    "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
+    "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
+    "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
+    "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
+    "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
+  ],
+  "source_admission_validation": {
+    "actual_process_exit": 1,
+    "result": "3 passed + 1 deferred fixture error",
+    "structural_pass_nodes": [
+      "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+      "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
+      "tests/test_api_i18n_extractor.py::test_public_docstrings_matches_reviewed_visible_coverage"
+    ],
+    "deferred_error_node": "tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current[en]",
+    "error_phase": "api_catalogs fixture setup before the test body",
+    "raw_error": "ValueError: stale reviewed API source 'spacr.ome_zarr.OmeZarrImage#11': /media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-1008b/docs/i18n/reviewed/api/sv/2026-09-27-api-delta2-000.json",
+    "authority": "WORK_TASKS v74 Home-owned reviewed-record deferral; parent explicitly accepted this exact fixture error",
+    "raw_log": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1008b/api-arrival.log",
+    "invocation_script": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1008b/test_api_arrival.sh",
+    "native_junit_xml": null,
+    "native_junit_note": "The original explicit API invocation did not request JUnit XML; no XML is fabricated or reconstructed. Full-group gates supply actual native JUnit XML.",
+    "canonical_source_extraction_exit": 0,
+    "canonical_source_log": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1008b/canonical-source.log",
+    "parent_disposition_receipt": "api-record-deferred.json"
+  },
+  "full_gate_result": {
+    "authorized_by": "WORK_TASKS v74 pilot catalog-record deferral",
+    "worktree": "/media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-1008b",
+    "accepted": true,
+    "actual_group_process_exit": 0,
+    "translation_deselections": [
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[de]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[en]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[es]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[fr]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[hi]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[is]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[ko]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[pt]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[sv]",
+      "tests/qt/test_external_i18n_catalogs.py::test_api_doc_catalog_is_symbol_keyed_and_source_hashed[zh_CN]",
+      "tests/qt/test_i18n_caption_ratchet.py::test_every_generated_catalog_candidate_has_a_source_hash",
+      "tests/test_api_i18n_frontend.py::test_english_catalog_keys_are_exactly_joinable",
+      "tests/test_api_i18n_frontend.py::test_every_complete_real_catalog_renders_through_the_browser_selector",
+      "tests/test_api_reference_drops_deleted_modules.py::test_a_partial_index_cannot_hide_a_nonzero_sphinx_exit",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[de]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[en]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[es]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[fr]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[hi]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[is]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[ko]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[pt]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[sv]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_no_api_catalog_documents_a_module_that_was_deleted[zh_CN]",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_api_catalogs_cover_english_and_the_translated_languages",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_keeps_a_package_without_an_init",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_deleted_module_rule_notices_a_module_that_disappears",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_starts_from_an_empty_generated_tree",
+      "tests/test_api_reference_drops_deleted_modules.py::test_the_documentation_build_treats_every_sphinx_warning_as_an_error",
+      "tests/test_built_nested_helper_api.py::test_empty_rollout_does_not_scan_or_touch_any_catalog"
+    ],
+    "groups": {
+      "items": {
+        "test_suites": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "3",
+            "tests": "2210",
+            "time": "215.457",
+            "timestamp": "2026-11-21T19:13:58.624361-05:00",
+            "hostname": "carruthers"
+          }
+        ],
+        "log": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1008b/full-gates/items.log"
+      },
+      "ops": {
+        "test_suites": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "28",
+            "tests": "1262",
+            "time": "305.858",
+            "timestamp": "2026-11-21T19:17:36.355932-05:00",
+            "hostname": "carruthers"
+          }
+        ],
+        "log": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1008b/full-gates/ops.log"
+      },
+      "settings": {
+        "test_suites": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "2",
+            "tests": "985",
+            "time": "74.781",
+            "timestamp": "2026-11-21T19:22:44.471510-05:00",
+            "hostname": "carruthers"
+          }
+        ],
+        "log": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1008b/full-gates/settings.log"
+      },
+      "ratchets": {
+        "test_suites": [
+          {
+            "name": "pytest",
+            "errors": "0",
+            "failures": "0",
+            "skipped": "79",
+            "tests": "4151",
+            "time": "699.382",
+            "timestamp": "2026-11-21T19:24:01.145964-05:00",
+            "hostname": "carruthers"
+          }
+        ],
+        "log": "/home/carruthers/Documents/repo/spacr-codex-recovery-20261121/1008b/full-gates/ratchets.log"
+      }
+    },
+    "unexpected": []
+  },
+  "measured_validation": {
+    "numeric": {
+      "exit": 0,
+      "passed": 66,
+      "log": "numeric.log"
+    },
+    "mandatory_six_code_rule_files": {
+      "exit": 0,
+      "passed": 157,
+      "log": "rules.log"
+    },
+    "throughput": {
+      "height": 640,
+      "width": 800,
+      "objects": 1280,
+      "pixels_per_object": 400,
+      "foreground_pixels": 512000,
+      "channels": 4,
+      "compartment_calls": 1,
+      "output_shape": [
+        1280,
+        55
+      ],
+      "cpu_seconds": 1.212213865,
+      "wall_seconds": 1.2366174970011343,
+      "cpu_seconds_per_100000_cells": 94.704208203125
+    }
+  },
+  "full_group_pytest_summaries": {
+    "items": "1248 passed,3 skipped,959 subtests passed; actualexit0",
+    "ops": "1132 passed,28 skipped,102 subtests passed; actualexit0",
+    "settings": "614 passed,2 skipped,369 subtests passed; actualexit0",
+    "ratchets": "4072 passed,76 skipped,3 xfailed; actualexit0"
+  }
+}
