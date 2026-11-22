@@ -34,6 +34,7 @@ Desktop installers are listed under **Assets** below.
 
 ### Bug fixes
 
+- The never-barcode decoy sets are now built guide by guide, so they match the published FDR calibration exactly.
 - Measure no longer counts cytoskeleton skeleton pixels outside the object.
 
 - **spaCR's AI calls through Claude Code no longer give the model any tools.** A question sent from the AI Console or from Voyager3 through the Claude Code command-line tool could make the model try a shell command or a web search on your computer (most were refused or did nothing). Every call now runs with `--tools ""` and `--strict-mcp-config`, so the model can only answer in text. The Codex and Gemini command-line tools were not installed on the test machine, so their tool modes are not yet checked.
