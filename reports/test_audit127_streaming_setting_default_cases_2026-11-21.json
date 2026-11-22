@@ -1,0 +1,281 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_images_are_streamed.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_an_unknown_source_still_opens_the_module": "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_streaming_defaults_keep_original_inputs_and_values[test_an_unknown_source_still_opens_the_module]",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_tables_defaults_to_the_four_objects": "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_streaming_defaults_keep_original_inputs_and_values[test_tables_defaults_to_the_four_objects]"
+  },
+  "literal_class_case_contracts": {
+    "test_an_unknown_source_still_opens_the_module": [
+      {
+        "crop_source": "nonsense"
+      },
+      "image_source",
+      "load_images"
+    ],
+    "test_tables_defaults_to_the_four_objects": [
+      {},
+      "tables",
+      [
+        "cell",
+        "nucleus",
+        "pathogen",
+        "cytoplasm"
+      ]
+    ]
+  },
+  "case_contract_representations": {
+    "test_an_unknown_source_still_opens_the_module": "({'crop_source': 'nonsense'}, 'image_source', 'load_images')",
+    "test_tables_defaults_to_the_four_objects": "({}, 'tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])"
+  },
+  "contract_scope": "Preserve exact original settings dictionaries, including crop_source=nonsense versus an empty dictionary; self; the direct deep_spacr_defaults call; original subscript keys image_source and tables; and native equality against the original string load_images or ordered four-object list. No copy or added assertion is introduced. Each row supplies its own dictionary, which the existing defaults helper still mutates in place. Runtime parameter repr is collected before tests run. Every other class, method, helper, import, legacy setting, streaming predicate, selection-table, fixed-seed split, crop shape and file-output check retains executable AST and relative order.",
+  "collected_before": [
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_it_is_written_before_any_image",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_a_different_seed_gives_a_different_one",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_the_same_settings_give_the_same_table",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_it_holds_the_columns_it_promises",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_an_object_table_that_names_no_object_raises",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_it_carries_the_train_test_annotation",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_the_two_read_different_settings",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_array_needs_the_plane_the_channels_and_the_box",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_there_are_two",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_column_needs_the_object_array_and_the_channels",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_an_unknown_method_raises",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_every_named_setting_exists",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_background_is_not_an_object",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_it_annotates_the_split_too",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_it_records_which_file_each_came_from",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_the_object_table_is_preferred_when_it_exists",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_an_empty_folder_raises",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_it_finds_the_objects_with_no_table_at_all",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_splits_become_folders",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_crops_carry_the_object_id",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_it_writes_every_selected_object",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_an_empty_selection_says_so",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_recorded_source_file_beats_a_rebuilt_name",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_stack_is_read_once_per_field",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_table_is_written_first",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_a_field_with_no_stack_is_counted_not_skipped",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_an_unknown_source_still_opens_the_module",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_the_two_options_are_the_two_choices",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_tables_defaults_to_the_four_objects",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_an_old_file_that_names_any_of_the_three_still_opens",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_a_set_train_channels_is_not_overwritten",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_and_its_value_moves_to_train_channels",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_image_source_replaces_crop_source",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_the_three_that_became_one_are_all_gone_now",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_extract_channels_is_gone",
+    "tests/test_images_are_streamed.py::TestTheCoordinateColumnIsDerived::test_changing_the_object_changes_it",
+    "tests/test_images_are_streamed.py::TestTheCoordinateColumnIsDerived::test_every_object_has_one",
+    "tests/test_images_are_streamed.py::TestTheCoordinateColumnIsDerived::test_it_is_not_asked_for",
+    "tests/test_images_are_streamed.py::TestTheCoordinateColumnIsDerived::test_an_object_spacr_does_not_measure_raises",
+    "tests/test_images_are_streamed.py::TestTheNamingMatchesMeasureCrop::test_the_object_id_is_in_the_name",
+    "tests/test_images_are_streamed.py::TestTheNamingMatchesMeasureCrop::test_it_is_a_png",
+    "tests/test_images_are_streamed.py::TestTheNamingMatchesMeasureCrop::test_it_is_measure_crops_own_function",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_an_absent_object_is_none_not_an_empty_array",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_the_box_keeps_its_corners",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_they_are_different_training_sets",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_without_it_only_the_mask_survives",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_it_is_the_shared_cutter",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_streaming_wakes_the_method",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_an_unknown_method_greys_nothing",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_the_gate_reads_method_settings_rather_than_a_copy",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_the_reason_names_the_setting_that_greyed_it",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_a_method_leaves_only_its_own_settings_live[array]",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_a_method_leaves_only_its_own_settings_live[column]",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_loading_images_greys_every_streaming_setting",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_the_old_spelling_greys_them_too",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_there_is_no_path_pattern_to_grey_any_more"
+  ],
+  "collected_after": [
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_a_different_seed_gives_a_different_one",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_the_same_settings_give_the_same_table",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_it_is_written_before_any_image",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_it_holds_the_columns_it_promises",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_it_carries_the_train_test_annotation",
+    "tests/test_images_are_streamed.py::TestTheSelectionTableComesFirst::test_an_object_table_that_names_no_object_raises",
+    "tests/test_images_are_streamed.py::TestTheNamingMatchesMeasureCrop::test_it_is_a_png",
+    "tests/test_images_are_streamed.py::TestTheNamingMatchesMeasureCrop::test_the_object_id_is_in_the_name",
+    "tests/test_images_are_streamed.py::TestTheNamingMatchesMeasureCrop::test_it_is_measure_crops_own_function",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_background_is_not_an_object",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_the_object_table_is_preferred_when_it_exists",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_it_records_which_file_each_came_from",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_it_annotates_the_split_too",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_an_empty_folder_raises",
+    "tests/test_images_are_streamed.py::TestTheNpyFallback::test_it_finds_the_objects_with_no_table_at_all",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_they_are_different_training_sets",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_it_is_the_shared_cutter",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_without_it_only_the_mask_survives",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_the_box_keeps_its_corners",
+    "tests/test_images_are_streamed.py::TestBoundingBoxOrTheMaskAlone::test_an_absent_object_is_none_not_an_empty_array",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_splits_become_folders",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_an_empty_selection_says_so",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_recorded_source_file_beats_a_rebuilt_name",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_it_writes_every_selected_object",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_stack_is_read_once_per_field",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_a_field_with_no_stack_is_counted_not_skipped",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_crops_carry_the_object_id",
+    "tests/test_images_are_streamed.py::TestTheStreamingPass::test_the_table_is_written_first",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_the_two_read_different_settings",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_array_needs_the_plane_the_channels_and_the_box",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_column_needs_the_object_array_and_the_channels",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_there_are_two",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_every_named_setting_exists",
+    "tests/test_images_are_streamed.py::TestTheStreamMethod::test_an_unknown_method_raises",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_a_method_leaves_only_its_own_settings_live[array]",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_the_old_spelling_greys_them_too",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_a_method_leaves_only_its_own_settings_live[column]",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_the_reason_names_the_setting_that_greyed_it",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_there_is_no_path_pattern_to_grey_any_more",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_the_gate_reads_method_settings_rather_than_a_copy",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_loading_images_greys_every_streaming_setting",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_streaming_wakes_the_method",
+    "tests/test_images_are_streamed.py::TestTheStreamingSettingsAreInertUntilStreamingIsChosen::test_an_unknown_method_greys_nothing",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_and_its_value_moves_to_train_channels",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_a_set_train_channels_is_not_overwritten",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_streaming_defaults_keep_original_inputs_and_values[test_tables_defaults_to_the_four_objects]",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_the_two_options_are_the_two_choices",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_the_three_that_became_one_are_all_gone_now",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_image_source_replaces_crop_source",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_an_old_file_that_names_any_of_the_three_still_opens",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_streaming_defaults_keep_original_inputs_and_values[test_an_unknown_source_still_opens_the_module]",
+    "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_extract_channels_is_gone",
+    "tests/test_images_are_streamed.py::TestTheCoordinateColumnIsDerived::test_it_is_not_asked_for",
+    "tests/test_images_are_streamed.py::TestTheCoordinateColumnIsDerived::test_an_object_spacr_does_not_measure_raises",
+    "tests/test_images_are_streamed.py::TestTheCoordinateColumnIsDerived::test_every_object_has_one",
+    "tests/test_images_are_streamed.py::TestTheCoordinateColumnIsDerived::test_changing_the_object_changes_it"
+  ],
+  "tests_before": {
+    "passed": 56,
+    "seconds": 12.36
+  },
+  "tests_after": {
+    "passed": 56,
+    "seconds": 13.42
+  },
+  "coverage_scope": "Cover spacr.settings under the complete531-line test module. The full547-line stream_dataset module and reached defaults, canonical-source, dependency-builder/predicate, crop, identifier, filename and table-writing helpers were reviewed. The selected pair only populates tiny settings dictionaries. The complete module also performs real local CSV selection writes, NumPy stack reads/writes and object-crop extraction:20-row tables,20x20x3 or24x24x3 synthetic merged stacks and a12x12x3 cutter fixture. These original workflows, array dtypes, original split seeds and output checks all remain. No actual model fitting/training/loading, chart rendering, GUI, live network/download or GPU work runs. Imports include broad image/plot/Torch dependencies without executing their pipelines. Use a single scheduler wrapper per heavy phase, filler t2/r8, CUDA hidden and offline discovery set upfront. Production/settings names, defaults, schema and categories remain unchanged; mnt2 checkout from freshly fetched nightly.",
+  "coverage_before": {
+    "covered_lines": 562,
+    "num_statements": 2963,
+    "percent_covered": 18.38540226707216,
+    "percent_covered_display": "18",
+    "missing_lines": 2401,
+    "excluded_lines": 0,
+    "percent_statements_covered": 18.967262909213634,
+    "percent_statements_covered_display": "19",
+    "num_branches": 654,
+    "num_partial_branches": 11,
+    "covered_branches": 103,
+    "missing_branches": 551,
+    "percent_branches_covered": 15.749235474006117,
+    "percent_branches_covered_display": "16"
+  },
+  "coverage_after": {
+    "covered_lines": 562,
+    "num_statements": 2963,
+    "percent_covered": 18.38540226707216,
+    "percent_covered_display": "18",
+    "missing_lines": 2401,
+    "excluded_lines": 0,
+    "percent_statements_covered": 18.967262909213634,
+    "percent_statements_covered_display": "19",
+    "num_branches": 654,
+    "num_partial_branches": 11,
+    "covered_branches": 103,
+    "missing_branches": 551,
+    "percent_branches_covered": 15.749235474006117,
+    "percent_branches_covered_display": "16"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "71d4f06e8575a989a28b0133fdf7c7b5f56510bafbfb9de4a0477cbd350d713e",
+  "production_source_sha256": "31e929317b9332cab660807d2a0e3568eaa0874a6e90d4ec4518afd4e01358c7",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "unknown-image-source-default-is-changed-to-streaming",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 5231,
+        "old": "return _IMAGE_SOURCES.get(str(value or \"\").strip().lower(),\n                              \"load_images\")",
+        "new": "return _IMAGE_SOURCES.get(str(value or \"\").strip().lower(),\n                              \"stream_images\")"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_an_unknown_source_still_opens_the_module"
+        ],
+        "failure_summary_lines": [
+          "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_an_unknown_source_still_opens_the_module"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_streaming_defaults_keep_original_inputs_and_values[test_an_unknown_source_still_opens_the_module]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_streaming_defaults_keep_original_inputs_and_values[test_an_unknown_source_still_opens_the_module]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "default-measurement-table-list-loses-cytoplasm",
+      "source_variant": {
+        "path": "spacr/settings.py",
+        "line": 3084,
+        "old": "settings.setdefault('channel_of_interest',3)\n    settings.setdefault('tables', ['cell', 'nucleus', 'pathogen',\n                                   'cytoplasm'])",
+        "new": "settings.setdefault('channel_of_interest',3)\n    settings.setdefault('tables', ['cell', 'nucleus', 'pathogen'])"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_tables_defaults_to_the_four_objects"
+        ],
+        "failure_summary_lines": [
+          "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_tables_defaults_to_the_four_objects"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_streaming_defaults_keep_original_inputs_and_values[test_tables_defaults_to_the_four_objects]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_images_are_streamed.py::TestTheSettingsAreRenamedAndMerged::test_streaming_defaults_keep_original_inputs_and_values[test_tables_defaults_to_the_four_objects]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Use two precise private import-loader faults in settings before and after. Change only the unknown _canonical_image_source fallback from load_images to stream_images: the first original/mapped case fails its native subscript-value equality. Remove cytoplasm from the exact deep_spacr_defaults table-default statement while retaining its adjacent unchanged setting: the second original/mapped case fails its original ordered-list equality. Establish returned default-value sensitivity only, without claiming independent crop-output, panel-visibility or training correctness. Repository production/settings files remain unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_images_are_streamed.py",
+      "line": 68,
+      "symbol": "test_streaming_defaults_keep_original_inputs_and_values",
+      "new": "Preserve original settings inputs and native default-value equality checks.",
+      "old": {
+        "test_an_unknown_source_still_opens_the_module": "A settings file naming a source spaCR never had should not stop\nthe module opening; the panel shows what it resolved to.",
+        "test_tables_defaults_to_the_four_objects": null
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}

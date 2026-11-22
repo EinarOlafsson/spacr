@@ -50,11 +50,25 @@ class TestTheSettingsAreRenamedAndMerged:
             {"crop_source": "pre_generated"})["image_source"] == \
             "load_images"
 
-    def test_an_unknown_source_still_opens_the_module(self):
-        """A settings file naming a source spaCR never had should not stop
-        the module opening; the panel shows what it resolved to."""
-        assert deep_spacr_defaults(
-            {"crop_source": "nonsense"})["image_source"] == "load_images"
+    @pytest.mark.parametrize('settings_input, setting_key, expected_value', [
+        pytest.param(
+            {'crop_source': 'nonsense'},
+            'image_source',
+            'load_images',
+            id='test_an_unknown_source_still_opens_the_module',
+        ),
+        pytest.param(
+            {},
+            'tables',
+            ['cell', 'nucleus', 'pathogen', 'cytoplasm'],
+            id='test_tables_defaults_to_the_four_objects',
+        ),
+    ])
+    def test_streaming_defaults_keep_original_inputs_and_values(
+        self, settings_input, setting_key, expected_value,
+    ):
+        """Preserve original settings inputs and native default-value equality checks."""
+        assert deep_spacr_defaults(settings_input)[setting_key] == expected_value
 
     def test_the_three_that_became_one_are_all_gone_now(self):
         """`file_metadata`, `path_string` and `file_type` described one
@@ -84,10 +98,6 @@ class TestTheSettingsAreRenamedAndMerged:
             got = deep_spacr_defaults({old: "pathogen_png"})
             assert got["image_source"] in ("ome-zarr", "load_images",
                                            "stream_images")
-
-    def test_tables_defaults_to_the_four_objects(self):
-        assert deep_spacr_defaults({})["tables"] == [
-            "cell", "nucleus", "pathogen", "cytoplasm"]
 
     def test_extract_channels_is_gone(self):
         from spacr.settings import expected_types, tooltips
