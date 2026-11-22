@@ -2,6 +2,8 @@
 
 Read-only specification, 2026-11-22. No application, settings or test changes.
 
+**Ownership update, inbox v172:** further original-data investigation belongs to Work Codex on the workstation, where surviving outputs reside. Home has stopped this task; no data transfer or additional Home computation. The requested concise handoff is [1012graph_home_synthetic_notes.md](1012graph_home_synthetic_notes.md). The findings below describe the completed Home audit and its limits; the earlier request for original arrays is superseded by workstation ownership.
+
 **The supplied 72.3% and 2.7% do not locate the loss step:** the first measures target-view PCA neighbours; the second measures final partition membership. The original intermediate arrays were discarded according to the Work diagnostic. A small, fixed synthetic experiment does locate losses at the probability threshold and partition stages. The existing shrunk similarity recovers the synthetic complexes, but that is not sufficient evidence to change the real-data default.
 
 ## Sources and scope
