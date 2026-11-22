@@ -3894,6 +3894,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("x_ops_cellpose_shared_batches_api_arrivals_2026-11-20.json", 4),
         ("w_mask_tracing_api_arrivals_2026-11-20.json", 1),
         ("1007_ome_zarr_ngff06_api_arrivals_2026-11-21.json", 3),
+        ("1008b_colocalisation_otsu_api_arrivals_2026-11-21.json", 1),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
