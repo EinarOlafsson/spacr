@@ -36,6 +36,43 @@ def test_phases_is_a_reviewed_same_spelling_word_in_french():
     assert not builder._translation_rejection_reasons('Phases', 'Phases', 'fr', force=True)
 
 
+def test_derived_registration_label_uses_exact_reviewed_acronym_without_new_ui_caption(tmp_path, monkeypatch):
+    """Load approved label glosses while retaining strict syntax for other wording."""
+    import build_i18n_catalogs as builder
+
+    source = 'Ome zarr store registration'
+    targets = {
+        "sv": "Lagra bildregistrering i OME-Zarr",
+        "de": "Bildregistrierung in OME-Zarr speichern",
+        "es": "Guardar el registro de imágenes en OME-Zarr",
+        "zh_CN": "在 OME-Zarr 中保存配准",
+        "pt": "Armazenar o registro de imagens em OME-Zarr",
+        "hi": "OME-Zarr में छवि संरेखण सहेजें",
+        "ko": "OME-Zarr 정합 저장",
+        "is": "Vista myndsamstillingu í OME-Zarr",
+        "fr": "Stocker le recalage dans OME-Zarr",
+    }
+    assert source not in builder.MANUAL_UI
+    monkeypatch.setattr(builder, 'REVIEWED_RUNTIME_DIR', tmp_path)
+    canonical = {'setting_labels': {'ome_zarr_store_registration': source}}
+    for language, target in targets.items():
+        directory = tmp_path / language
+        directory.mkdir()
+        record = {
+            'table': 'setting_labels', 'key': 'ome_zarr_store_registration',
+            'source': source, 'source_sha256': hashlib.sha256(source.encode()).hexdigest(),
+            'translation': target,
+        }
+        (directory / 'reviewed.json').write_text(json.dumps({
+            'language': language, 'records': [record], 'schema': 1,
+        }, ensure_ascii=False), encoding='utf-8')
+        assert builder._reviewed_runtime_translations(language, sources=canonical) == {source: target}
+        assert not builder._syntax_preserved(source, target)
+        assert not builder._syntax_preserved_or_reviewed(
+            source, target.replace('OME-Zarr', 'Cellpose'), language)
+        assert not builder._syntax_preserved_or_reviewed(source, target + ' {unexpected}', language)
+
+
 def test_pdf_plural_preserves_format_identity_without_forcing_english_grammar():
     import build_i18n_catalogs as builder
 
