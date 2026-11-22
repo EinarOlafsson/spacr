@@ -1,0 +1,198 @@
+{
+  "base": "c9fddfc769b2e311db2a76ecb45594ea15dc7e3a",
+  "changed_file": "tests/test_a_bystander_column_reaches_the_measurement_table.py",
+  "changed_test_directory": "tests (root-level module only)",
+  "definition_reduction": 1,
+  "case_mapping": {
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_a_reach_of_zero_makes_every_uninfected_cell_distal": "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_original_zero_or_unreadable_reaches_keep_their_bystander_counts[test_a_reach_of_zero_makes_every_uninfected_cell_distal]",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_an_unreadable_reach_does_not_invent_bystanders": "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_original_zero_or_unreadable_reaches_keep_their_bystander_counts[test_an_unreadable_reach_does_not_invent_bystanders]"
+  },
+  "literal_class_case_contracts": {
+    "test_a_reach_of_zero_makes_every_uninfected_cell_distal": [
+      0.0
+    ],
+    "test_an_unreadable_reach_does_not_invent_bystanders": [
+      "wide"
+    ]
+  },
+  "case_contract_representations": {
+    "test_a_reach_of_zero_makes_every_uninfected_cell_distal": "(0.0,)",
+    "test_an_unreadable_reach_does_not_invent_bystanders": "('wide',)"
+  },
+  "contract_scope": "Exact original TestTheReachIsALengthNotAPixelCount class/self scope, native float0.0 and string wide values, fresh _field() starred helper call, _cells keyword bystander_reach_in_diameters, frame binding and native frame[\"cell_is_bystander\"].sum()==0 assertion retained. Every other original class, method, helper, import, settings-table check, synthetic geometry, scale comparison, acceptance case, column check and captured-output refusal retains executable AST and relative order. No new numerical tolerance, count threshold or stronger distal-flag assertion is introduced.",
+  "collected_before": [
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheAcceptanceTestsInstruction388Names::test_the_bystander_count_rises_with_the_infected_count",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheAcceptanceTestsInstruction388Names::test_a_well_with_no_parasites_reports_no_bystanders",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_a_reach_of_zero_makes_every_uninfected_cell_distal",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_the_same_field_at_twice_the_size_classifies_the_same",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_a_wider_reach_catches_more",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_an_unreadable_reach_does_not_invent_bystanders",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheFourRulesEveryMeasurementColumnObeys::test_no_new_column_carries_label_or_count_in_its_name",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheFourRulesEveryMeasurementColumnObeys::test_nothing_is_ever_nan",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheFourRulesEveryMeasurementColumnObeys::test_every_new_column_is_numeric",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheFourRulesEveryMeasurementColumnObeys::test_a_field_with_nothing_infected_uses_the_sentinel_not_infinity",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_the_reach_defaults_to_one_measured_diameter",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_each_is_declared_typed_and_reachable[bystander_reach_in_diameters-float]",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_it_is_off_until_asked_for",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_the_tooltip_says_what_the_reach_is_measured_in",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_each_is_declared_typed_and_reachable[bystander_measurements-bool]",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestItDegradesVisiblyRatherThanQuietly::test_a_field_with_no_measurable_diameter_emits_nothing",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheColumnsReachTheCellTable::test_an_infected_cell_is_neither_flag",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheColumnsReachTheCellTable::test_all_three_arrive_when_it_is_on",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheColumnsReachTheCellTable::test_the_near_cell_is_a_bystander_and_the_far_ones_are_not",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheColumnsReachTheCellTable::test_nothing_is_added_when_it_is_off"
+  ],
+  "collected_after": [
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheFourRulesEveryMeasurementColumnObeys::test_nothing_is_ever_nan",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheFourRulesEveryMeasurementColumnObeys::test_every_new_column_is_numeric",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheFourRulesEveryMeasurementColumnObeys::test_no_new_column_carries_label_or_count_in_its_name",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheFourRulesEveryMeasurementColumnObeys::test_a_field_with_nothing_infected_uses_the_sentinel_not_infinity",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheAcceptanceTestsInstruction388Names::test_a_well_with_no_parasites_reports_no_bystanders",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheAcceptanceTestsInstruction388Names::test_the_bystander_count_rises_with_the_infected_count",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_a_wider_reach_catches_more",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_the_same_field_at_twice_the_size_classifies_the_same",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_original_zero_or_unreadable_reaches_keep_their_bystander_counts[test_a_reach_of_zero_makes_every_uninfected_cell_distal]",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_original_zero_or_unreadable_reaches_keep_their_bystander_counts[test_an_unreadable_reach_does_not_invent_bystanders]",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestItDegradesVisiblyRatherThanQuietly::test_a_field_with_no_measurable_diameter_emits_nothing",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheColumnsReachTheCellTable::test_an_infected_cell_is_neither_flag",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheColumnsReachTheCellTable::test_nothing_is_added_when_it_is_off",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheColumnsReachTheCellTable::test_all_three_arrive_when_it_is_on",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheColumnsReachTheCellTable::test_the_near_cell_is_a_bystander_and_the_far_ones_are_not",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_it_is_off_until_asked_for",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_the_reach_defaults_to_one_measured_diameter",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_each_is_declared_typed_and_reachable[bystander_measurements-bool]",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_the_tooltip_says_what_the_reach_is_measured_in",
+    "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheSettingExistsAndIsHonest::test_each_is_declared_typed_and_reachable[bystander_reach_in_diameters-float]"
+  ],
+  "tests_before": {
+    "passed": 20,
+    "seconds": 7.05
+  },
+  "tests_after": {
+    "passed": 20,
+    "seconds": 5.52
+  },
+  "coverage_scope": "spacr.measure under the complete selected bystander measurement-table test module, not full-suite, microscope data or segmentation coverage. Complete231line test module, complete _morphological_measurements function, reached CPU morphology/spacing/component-link/diameter/distance helpers and complete bystanders source read. Actual existing numerical morphology on tiny in-memory int32 label masks: four synthetic cells on140x140 grids, one scale comparison at280x280, and one30x30 border fixture; existing regionprops, component joins, cell-diameter summaries and SciPy surface-distance transforms run. Original zernike=None behavior is retained: optional Mahotas moments may run if installed, otherwise the existing missing-descriptor notice remains; no dependency is installed or forced. No image-file reader, field crop/export, plot/figure construction, GUI/window, actual segmentation/model fitting/training, full measurement pipeline/database write, live network/download or GPU work. measure_gpu is absent so the selected helper returns CPU immediately, and CUDA is hidden in all scheduled phases. Upfront private offline0 fixed. Repository production/settings names/defaults/schema/categories unchanged. New worktree is on mandatedmnt2disk, original c9base from fresh nightlyfetch.",
+  "coverage_before": {
+    "covered_lines": 910,
+    "num_statements": 9404,
+    "percent_covered": 7.524953212726139,
+    "percent_covered_display": "8",
+    "missing_lines": 8494,
+    "excluded_lines": 0,
+    "percent_statements_covered": 9.676733304976606,
+    "percent_statements_covered_display": "10",
+    "num_branches": 3420,
+    "num_partial_branches": 33,
+    "covered_branches": 55,
+    "missing_branches": 3365,
+    "percent_branches_covered": 1.608187134502924,
+    "percent_branches_covered_display": "2"
+  },
+  "coverage_after": {
+    "covered_lines": 910,
+    "num_statements": 9404,
+    "percent_covered": 7.524953212726139,
+    "percent_covered_display": "8",
+    "missing_lines": 8494,
+    "excluded_lines": 0,
+    "percent_statements_covered": 9.676733304976606,
+    "percent_statements_covered_display": "10",
+    "num_branches": 3420,
+    "num_partial_branches": 33,
+    "covered_branches": 55,
+    "missing_branches": 3365,
+    "percent_branches_covered": 1.608187134502924,
+    "percent_branches_covered_display": "2"
+  },
+  "coverage_delta_points": 0.0,
+  "executed_line_and_branch_sets_identical": true,
+  "original_tests_sha256": "50af74188e59d57b2161362065e3289ed53de7233bc7674209ad3f42deeed784",
+  "production_source_sha256": "3bf53058a6c41474ac8810e5db0ff5833684ebeb1bdc5543fd2d1e710d994820",
+  "production_source_unchanged": true,
+  "all_other_tests_helpers_fixtures_imports_unchanged": true,
+  "all_other_original_methods_classes_imports_helpers_fixtures_unchanged_and_passed": true,
+  "mutation_sample": [
+    {
+      "mutant": "zero-bystander-reach-is-replaced-with-one-diameter",
+      "source_variant": {
+        "path": "spacr/measure.py",
+        "line": 1408,
+        "old": "bystander_reach = float(settings.get('bystander_reach_in_diameters', 1.0))",
+        "new": "bystander_reach = float(settings.get('bystander_reach_in_diameters', 1.0)) or 1.0"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_a_reach_of_zero_makes_every_uninfected_cell_distal"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_a_reach_of_zero_makes_every_uninfected_cell_distal"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_original_zero_or_unreadable_reaches_keep_their_bystander_counts[test_a_reach_of_zero_makes_every_uninfected_cell_distal]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_original_zero_or_unreadable_reaches_keep_their_bystander_counts[test_a_reach_of_zero_makes_every_uninfected_cell_distal]"
+        ],
+        "application_markers": 2
+      }
+    },
+    {
+      "mutant": "unreadable-bystander-reach-falls-back-to-one-diameter",
+      "source_variant": {
+        "path": "spacr/measure.py",
+        "line": 1408,
+        "old": "bystander_reach = float(settings.get('bystander_reach_in_diameters', 1.0))\n    except (TypeError, ValueError):\n        bystander_reach = 0.0",
+        "new": "bystander_reach = float(settings.get('bystander_reach_in_diameters', 1.0))\n    except (TypeError, ValueError):\n        bystander_reach = 1.0"
+      },
+      "before": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_an_unreadable_reach_does_not_invent_bystanders"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_an_unreadable_reach_does_not_invent_bystanders"
+        ],
+        "application_markers": 2
+      },
+      "after": {
+        "killed": true,
+        "failure_ids": [
+          "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_original_zero_or_unreadable_reaches_keep_their_bystander_counts[test_an_unreadable_reach_does_not_invent_bystanders]"
+        ],
+        "failure_summary_lines": [
+          "tests/test_a_bystander_column_reaches_the_measurement_table.py::TestTheReachIsALengthNotAPixelCount::test_original_zero_or_unreadable_reaches_keep_their_bystander_counts[test_an_unreadable_reach_does_not_invent_bystanders]"
+        ],
+        "application_markers": 2
+      }
+    }
+  ],
+  "mutation_score_before": "2/2",
+  "mutation_score_after": "2/2",
+  "mutation_scope": "Two precise private import-loader faults in _morphological_measurements before and after: substitute one diameter when the parsed reach is zero; use one diameter in the TypeError/ValueError fallback for an unreadable reach. Each selects the same one original/mapped zero or wide case and must fail its unchanged native bystander sum equality. The original fixture then yields a bystander instead of zero. This establishes bystander-count sensitivity for these two reach paths, not stronger distal-flag, actual microscope-scale generalization, segmentation correctness or optional-descriptor correctness claims. Repository production/settings files unchanged.",
+  "mandatory_ratchets": {
+    "passed": 157,
+    "failed": 0,
+    "skipped": 0
+  },
+  "every_ratchet_and_issue_file_retained": true,
+  "runtime_saving_claimed": false,
+  "changed_test_docstrings": [
+    {
+      "path": "tests/test_a_bystander_column_reaches_the_measurement_table.py",
+      "line": 180,
+      "symbol": "test_original_zero_or_unreadable_reaches_keep_their_bystander_counts",
+      "new": "Preserve each original zero or unreadable reach and its native bystander-count check.",
+      "old": {
+        "test_a_reach_of_zero_makes_every_uninfected_cell_distal": "Turning the split off without a second setting.",
+        "test_an_unreadable_reach_does_not_invent_bystanders": "A mis-typed setting must not look like a finding."
+      }
+    }
+  ],
+  "resources": "sched owner codex, filler threads2 ram8, scheduler MemoryMax8G/swap0/nice19/CPU allocation, CUDA hidden, pytest -n SCHED_THREADS"
+}
