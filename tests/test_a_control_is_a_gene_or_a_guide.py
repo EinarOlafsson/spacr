@@ -354,20 +354,20 @@ class TestItSaysWhenAControlMatchedNothing:
         assert "nothing to measure" in said, "name the consequence"
         assert "GENE" in said and "GUIDE" in said, "and how it was read"
 
-    def test_a_control_that_matched_says_nothing(self, capsys):
+    @pytest.mark.parametrize('records, negative', [
+        pytest.param(
+            {'condition': ['nc', 'other']}, 'a',
+            id='test_a_control_that_matched_says_nothing',
+        ),
+        pytest.param(
+            {'condition': ['other']}, None,
+            id='test_an_empty_control_list_is_not_warned_about',
+        ),
+    ])
+    def test_original_quiet_control_cases_keep_their_warning_check(self, capsys, records, negative):
+        """Preserve each original quiet control case and its native captured-warning check."""
         from spacr.ml import _say_when_a_control_matched_nothing
-
-        _say_when_a_control_matched_nothing(
-            pd.DataFrame({"condition": ["nc", "other"]}), "a", None, None)
-
-        assert "WARNING" not in capsys.readouterr().out
-
-    def test_an_empty_control_list_is_not_warned_about(self, capsys):
-        from spacr.ml import _say_when_a_control_matched_nothing
-
-        _say_when_a_control_matched_nothing(
-            pd.DataFrame({"condition": ["other"]}), None, None, None)
-
+        _say_when_a_control_matched_nothing(pd.DataFrame(records), negative, None, None)
         assert "WARNING" not in capsys.readouterr().out
 
     def test_strict_is_still_available_for_a_caller_that_knows(self):
