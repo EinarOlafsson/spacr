@@ -129,9 +129,23 @@ def test_a_setting_that_is_a_number_in_a_string_is_not_a_path():
 # reading a hand-edited file
 # --------------------------------------------------------------------------
 
-def test_a_job_entry_that_is_not_an_object_says_what_one_looks_like():
-    with pytest.raises(QueueError, match="not an object"):
-        Job.from_dict(["mask"])
+@pytest.mark.parametrize(
+    'document, message',
+    [
+        pytest.param(
+            ['mask'], 'not an object',
+            id='test_a_job_entry_that_is_not_an_object_says_what_one_looks_like',
+        ),
+        pytest.param(
+            {'module': 'mask', 'status': 'halfway'}, 'not one of',
+            id='test_a_status_nobody_defined_is_refused_by_name',
+        ),
+    ],
+)
+def test_invalid_jobs_keep_original_refusal_contexts(document, message):
+    """Preserve each original invalid job and native refusal context."""
+    with pytest.raises(QueueError, match=message):
+        Job.from_dict(document)
 
 
 def test_a_job_entry_with_no_module_is_refused():
@@ -141,9 +155,6 @@ def test_a_job_entry_with_no_module_is_refused():
         Job.from_dict({"module": "   "})
 
 
-def test_a_status_nobody_defined_is_refused_by_name():
-    with pytest.raises(QueueError, match="not one of"):
-        Job.from_dict({"module": "mask", "status": "halfway"})
 
 
 def test_one_dependency_written_as_a_bare_string_is_still_a_list():
