@@ -374,6 +374,19 @@ def prefix_decoy_library(library: PrefixLibrary, k: int = 4,
 
     decoys = [key for key in decoy_library(library.keys, k=int(k), seed=int(seed))
               if key not in library.guides]
+    out = _with_prefix_decoys(library, decoys)
+    out.summary = {**library.summary, "decoys": len(decoys),
+                   "decoy_k": int(k), "decoy_seed": int(seed)}
+    return out
+
+
+def _with_prefix_decoys(library: PrefixLibrary, decoys) -> PrefixLibrary:
+    """Add named control sequences to the existing prefix whitelist representation.
+
+    :param library: the real prefix whitelist, including collision metadata.
+    :param decoys: control sequences assigned the existing decoy gene and level.
+    :returns: a whitelist for the unchanged prefix matcher and voters.
+    """
     keys = sorted(set(library.keys) | set(decoys))
     callable_keys = dict(library.callable_keys)
     guides = dict(library.guides)
@@ -385,9 +398,7 @@ def prefix_decoy_library(library: PrefixLibrary, k: int = 4,
     return PrefixLibrary(positions=library.positions, keys=keys, guides=guides,
                          genes=genes, callable_keys=callable_keys,
                          collisions=library.collisions, extended=library.extended,
-                         summary={**library.summary, "decoys": len(decoys),
-                                  "decoy_k": int(k), "decoy_seed": int(seed)})
-
+                         summary=library.summary)
 
 #: The gene a near-miss decoy prefix calls (item 949). A cell whose top
 #: barcode is a near-miss decoy is a decoy call, counted apart from the
@@ -974,7 +985,7 @@ def _discounted(weights: np.ndarray, groups: Mapping[str, np.ndarray],
 def _weighted_counts(reads: pd.DataFrame, *, neighbours: Optional[np.ndarray],
                      mode: str, decay: Sequence[float], discount: Sequence[float],
                      quality: Sequence[float], share: float, interior_px: float,
-                     min_weight: float) -> np.ndarray:
+                     min_weight: float, opportunity_profiles=None):
     """Real and decoy cells the weighted majority calls at every weight setting (item 988).
 
     :param reads: one site's rows with ``cell``, ``status``, ``prefix``,
@@ -987,12 +998,17 @@ def _weighted_counts(reads: pd.DataFrame, *, neighbours: Optional[np.ndarray],
     :param share: ``ops_prefix_weighted_min_share``.
     :param interior_px: ``ops_prefix_distance_interior_px``.
     :param min_weight: ``ops_prefix_distance_min_weight``.
-    :returns: ``(decay, discount, quality, 2)`` int64 real and decoy calls.
+    :param opportunity_profiles: optional shared guide profiles for opportunity totals.
+    :returns: ``(decay, discount, quality, 2)`` int64 real and decoy calls,
+        or a dict of counts and opportunity grids when profiles are supplied.
     """
     out = np.zeros((len(decay), len(discount), len(quality), 2), np.int64)
+    opportunities = {f'opp{d}_{name}': np.zeros(out.shape[:-1], np.int64)
+                     for name in (opportunity_profiles or {}) if name != 'guides'
+                     for d in (1, 2, 3)}
     matched = reads[(reads["cell"] > 0) & reads["status"].isin(("exact", "corrected"))]
     if matched.empty:
-        return out
+        return {'counts': out, 'opportunities': opportunities} if opportunity_profiles else out
     use_bleed = any(float(b) != 1.0 for b in discount)
     groups = _barcode_groups(matched["cell"].to_numpy(np.int64), matched["prefix"].to_numpy(),
                              neighbours if use_bleed else None)
@@ -1016,7 +1032,12 @@ def _weighted_counts(reads: pd.DataFrame, *, neighbours: Optional[np.ndarray],
                 is_decoy = decoy[top_bc] & called
                 real = called & ~decoy[top_bc] & ~near[top_bc]
                 out[a, b, c] = (int(real.sum()), int(is_decoy.sum()))
-    return out
+                if opportunity_profiles:
+                    values = _prefix_opportunities(groups['barcodes'][top_bc], real,
+                                                    opportunity_profiles)
+                    for key, value in values.items():
+                        opportunities[key][a, b, c] = value
+    return {'counts': out, 'opportunities': opportunities} if opportunity_profiles else out
 
 
 def _guide_multiplicity(reads: pd.DataFrame, neighbours: Optional[np.ndarray],
@@ -1873,7 +1894,7 @@ def _at_setting(reads: pd.DataFrame, min_quality: float, max_distance: int) -> p
 
 
 def _called_counts(reads: pd.DataFrame, method: str, nearmiss: bool = False,
-                   minority_min_reads: int = 0):
+                   minority_min_reads: int = 0, *, opportunity_profiles=None):
     """Real and decoy cells called from one site's reads, as :func:`prefix_cell_calls` calls them.
 
     :param reads: rows with ``cell``, ``status``, ``prefix`` and ``gene``.
@@ -1882,14 +1903,18 @@ def _called_counts(reads: pd.DataFrame, method: str, nearmiss: bool = False,
     :param nearmiss: also return the near-miss decoy calls (item 949).
     :param minority_min_reads: ``ops_prefix_minority_min_reads`` (item 967):
         the reads :func:`_minority_ignored` flags are left out first.
-    :returns: ``(real, decoy)`` called cells, or ``(real, decoy, nearmiss)``;
+    :param opportunity_profiles: optional shared profiles reduced from these same winners.
+    :returns: with profiles a dict of counts and opportunity totals; otherwise
+        ``(real, decoy)`` called cells, or ``(real, decoy, nearmiss)``;
         a near-miss decoy call is never a real call.
     """
     matched = reads[(reads["cell"] > 0) & reads["status"].isin(("exact", "corrected"))]
     if int(minority_min_reads or 0) > 1 and len(matched):
         matched = matched[~_minority_ignored(matched, ["cell"], minority_min_reads)]
     if matched.empty:
-        return (0, 0, 0) if nearmiss else (0, 0)
+        counts = (0, 0, 0) if nearmiss else (0, 0)
+        return {'counts': counts, 'opportunities': _prefix_opportunities([], [], opportunity_profiles)} \
+            if opportunity_profiles else counts
     tally = matched.groupby(["cell", "prefix"], sort=False).size().rename("n").reset_index()
     tally = tally.sort_values(["cell", "n"], ascending=[True, False], kind="stable")
     tally["rank"] = tally.groupby("cell", sort=False).cumcount()
@@ -1904,7 +1929,14 @@ def _called_counts(reads: pd.DataFrame, method: str, nearmiss: bool = False,
     gene = dict(zip(matched["prefix"], matched["gene"]))
     decoy = np.array([gene.get(p) == DECOY_GENE for p in top["prefix"]], bool)
     near = np.array([gene.get(p) == NEARMISS_GENE for p in top["prefix"]], bool)
-    real = int((called & ~decoy & ~near).sum())
+    selected = called & ~decoy & ~near
+    real = int(selected.sum())
+    if opportunity_profiles:
+        counts = (real, int((called & decoy).sum()))
+        if nearmiss:
+            counts += (int((called & near).sum()),)
+        return {'counts': counts,
+                'opportunities': _prefix_opportunities(top['prefix'], selected, opportunity_profiles)}
     if nearmiss:
         return real, int((called & decoy).sum()), int((called & near).sum())
     return real, int((called & decoy).sum())
@@ -1994,7 +2026,10 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         ``ops_prefix_distance_min_weight``, ``ops_prefix_weighted_quality``,
         ``ops_prefix_weighted_min_share``, ``ops_read_neighbour_discount``,
         ``ops_prefix_nuclei_masks``, ``ops_keep_multi_guide_cells`` and
-        ``ops_multi_guide_min_reads``.
+        ``ops_multi_guide_min_reads``, and shared controls
+        ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and
+        ``ops_never_barcode_sets``. Never calibration without decoys keeps
+        the entered scale and reports the fallback.
     :returns: the normalised values under the same keys.
     :raises ValueError: without a library, for an unknown choice, for
         tuning or a shuffle calibration without decoys, for a negative
@@ -2002,7 +2037,7 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         weight setting that is out of range or set without
         ``'weighted_majority'``.
     """
-    from .ops_decode import FDR_CALIBRATIONS
+    from .ops_decode import FDR_CALIBRATIONS, _never_settings
 
     library = settings.get("ops_library")
     if not library:
@@ -2069,6 +2104,12 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "ops_multi_guide_min_reads": int(settings.get("ops_multi_guide_min_reads") or 2),
         "ops_prefix_tuning_min_sites": int(settings.get("ops_prefix_tuning_min_sites") or 0),
     }
+    from .ops_settings import OPS_DEFAULTS
+
+    out.update(_never_settings({
+        'ops_never_barcode_k': settings.get('ops_never_barcode_k', OPS_DEFAULTS['ops_never_barcode_k']),
+        'ops_never_barcode_seed': settings.get('ops_never_barcode_seed', OPS_DEFAULTS['ops_never_barcode_seed']),
+        'ops_never_barcode_sets': settings.get('ops_never_barcode_sets', OPS_DEFAULTS['ops_never_barcode_sets'])}))
     if out["ops_prefix_threshold_tuning"] not in PREFIX_TUNING_MODES:
         raise ValueError(f"ops_prefix_threshold_tuning must be one of "
                          f"{list(PREFIX_TUNING_MODES)}")
@@ -2086,7 +2127,7 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         raise ValueError("ops_prefix_minority_min_reads must be 0 or more (0 = off)")
     if out["ops_prefix_fdr_calibration"] not in FDR_CALIBRATIONS:
         raise ValueError(f"ops_prefix_fdr_calibration must be one of {list(FDR_CALIBRATIONS)}")
-    if out["ops_prefix_fdr_calibration"] != "none" and out["ops_prefix_decoy_k"] < 1:
+    if out["ops_prefix_fdr_calibration"] == "shuffle" and out["ops_prefix_decoy_k"] < 1:
         raise ValueError("ops_prefix_fdr_calibration 'shuffle' scales the decoy FDR; set "
                          "ops_prefix_decoy_k to 1 or more (4 recommended)")
     if not out["ops_prefix_fdr_target_pct"] > 0:
@@ -2352,7 +2393,7 @@ def _weight_plan(chosen: Mapping[str, Any], axes: Sequence[Tuple[str, Sequence[f
 
 def _setting_counts(frame: pd.DataFrame, method: str, minority_k: int,
                     plan: Mapping[str, Any], chosen: Mapping[str, Any],
-                    neighbours: Optional[np.ndarray]):
+                    neighbours: Optional[np.ndarray], *, opportunity_profiles=None, sort=None):
     """Real and decoy calls of one site at one read setting, every weight setting included.
 
     :param frame: the site's reads at one read threshold, quality floor and
@@ -2362,19 +2403,34 @@ def _setting_counts(frame: pd.DataFrame, method: str, minority_k: int,
     :param plan: from :func:`_weight_plan`.
     :param chosen: from :func:`prefix_settings`.
     :param neighbours: the site's touching cells, or None.
+    :param opportunity_profiles: optional shared guide profiles; counts and
+        opportunities then share exactly the same selected winners.
+    :param sort: optional existing cell-call sort; sorted calls use
+        ``_prefix_cell_calls`` directly, including its tie decisions.
     :returns: :func:`_called_counts`'s ``(real, decoy)``, or under the
         weighted majority (item 988) :func:`_weighted_counts`'s array over
         the weight axes.
     """
+    if sort is not None:
+        cells = _prefix_cell_calls(frame, keys=['cell'], min_reads=chosen['ops_quality_min_reads'],
+                                    method=method, sort=sort, minority_min_reads=minority_k)
+        hit = cells['quality'].isin(('perfect', 'great'))
+        real = hit & ~cells['gene'].isin((DECOY_GENE, NEARMISS_GENE))
+        counts = (int(real.sum()), int((hit & cells['gene'].eq(DECOY_GENE)).sum()))
+        return {'counts': counts,
+                'opportunities': _prefix_opportunities(cells['prefix'], real, opportunity_profiles)} \
+            if opportunity_profiles else counts
     if not plan["weighted"]:
-        return _called_counts(frame, method, minority_min_reads=minority_k)
+        return _called_counts(frame, method, minority_min_reads=minority_k,
+                              opportunity_profiles=opportunity_profiles)
     named = plan["axes"]
     return _weighted_counts(
         frame, neighbours=neighbours, mode=chosen["ops_prefix_distance_weight"],
         decay=named[WEIGHT_GRID_KEYS[0]], discount=named[WEIGHT_GRID_KEYS[1]],
         quality=named[WEIGHT_GRID_KEYS[2]], share=chosen["ops_prefix_weighted_min_share"],
         interior_px=chosen["ops_prefix_distance_interior_px"],
-        min_weight=chosen["ops_prefix_distance_min_weight"])
+        min_weight=chosen["ops_prefix_distance_min_weight"],
+        opportunity_profiles=opportunity_profiles)
 
 
 def _weight_arguments(chosen: Mapping[str, Any], best: Optional[Mapping[str, Any]]
@@ -2606,6 +2662,14 @@ def run_prefix_decode(settings: Mapping[str, Any],
       ``small_well_floor`` and ``small_well_sites``. 0, the default, writes
       what the run wrote before.
 
+    Never-barcode calibration (item 1014) adds independent distance-one
+    and distance-two control passes through the same prefix matcher and
+    cell votes. Their calls never replace production calls. The shared
+    estimator calibrates on tuning sites and reports held-out sites;
+    fixed thresholds use a one-setting grid. The shuffle call rate is
+    reported alongside never calibration and enters its scale only with
+    ``'never+shuffle'``. Each well writes ``fdr_calibration_<well>.json``.
+
     :param settings: the OPS settings: ``dst_root``, the ``cpg_*`` reader
         settings, the item-920, item-942, item-949, item-967 and item-988
         settings
@@ -2635,7 +2699,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
     from . import __version__
     from .cpg_cropped import cpg_site_index, load_cpg_site, merged_path
     from .ops_decode import fdr, fdr_report, tune_thresholds, _tuning_options, \
-        write_tuning_curve, calibrate_fdr_scale, SHUFFLE_SEEDS
+        write_tuning_curve, calibrate_fdr_scale, SHUFFLE_SEEDS, _write_calibration_report
     from .tabular import write_table
 
     say = report or (lambda text: None)
@@ -2665,25 +2729,29 @@ def run_prefix_decode(settings: Mapping[str, Any],
     tuning = chosen["ops_prefix_threshold_tuning"] == "per_well_decoy"
     min_quality = chosen["ops_prefix_min_read_quality"]
     nearmiss_k = chosen["ops_prefix_nearmiss_decoy_k"]
-    calibration = chosen["ops_prefix_fdr_calibration"] == "shuffle"
+    calibration_method = chosen["ops_prefix_fdr_calibration"]
+    using_never = calibration_method.startswith("never") and decoy_k > 0
+    calibration = calibration_method != "none" and decoy_k > 0
+    report_shuffles = calibration
     minority_k = chosen["ops_prefix_minority_min_reads"]
     minority = minority_k > 1
     if nearmiss_k > 0 and decoy_k < 1:
         raise ValueError("ops_prefix_nearmiss_decoy_k reports near-miss decoys next to the "
                          "far decoys; set ops_prefix_decoy_k to 1 or more (4 recommended)")
     legacy = decoy_k == 0 and not tuning and min_quality <= 0
-    item_949 = nearmiss_k > 0 or calibration
+    item_949 = nearmiss_k > 0 or report_shuffles
     matching = (prefix_decoy_library(library, decoy_k, chosen["ops_prefix_decoy_seed"])
                 if decoy_k > 0 else library)
     if nearmiss_k > 0:
         matching = prefix_nearmiss_decoys(matching, nearmiss_k, chosen["ops_prefix_decoy_seed"])
+    never_context = _prefix_never_context(library, matching, chosen) if using_never else None
     axes = _tuning_axes(chosen) if tuning else []
     plan = _weight_plan(chosen, axes)
     options = _tuning_options(settings) if tuning or calibration else {}
     control = (shuffled_library(library, chosen["ops_control_seed"])
                if chosen["ops_random_barcode_control"] else None)
     shuffles = ([shuffled_library(library, chosen["ops_control_seed"] + s)
-                 for s in range(SHUFFLE_SEEDS)] if calibration else [])
+                 for s in range(SHUFFLE_SEEDS)] if report_shuffles else [])
     shuffle_memo: List[Dict[str, tuple]] = [{} for _ in shuffles]
     check_masks_frame(chosen)
     built = cpg_site_index(settings, md5=False)
@@ -2760,6 +2828,13 @@ def run_prefix_decode(settings: Mapping[str, Any],
             shape = tuple(len(values) for _, values in well_axes)
             counts = np.zeros((len(site_list),) + shape + (2,), np.int64)
             shuffled_grid = np.zeros((len(site_list),) + shape)
+            never_grid = ({key: np.zeros((len(site_list),) + shape, np.int64)
+                           for key in ([f'opp{d}_{name}' for name in ('L', 'D', 'N1', 'N2')
+                                        for d in (1, 2, 3)]
+                                       + [key for name in never_context['controls']
+                                          for key in (f'never{name[-1]}_calls',
+                                                      f'real_calls_{name.lower()}')])}
+                          if using_never else None)
             held = {}
             held_raw = {}
             loosest = int(max(axes[2][1]))
@@ -2807,9 +2882,19 @@ def run_prefix_decode(settings: Mapping[str, Any],
                             read_mode=mode, extra=site_extra[site])
                         for b, quality in enumerate(grid_axes[1][1]):
                             for c, distance in enumerate(axes[2][1]):
-                                counts[at + (a, b, c)] = _setting_counts(
-                                    _at_setting(frame, quality, int(distance)), method,
-                                    minority_k, plan, chosen, site_pairs[site])
+                                if using_never:
+                                    result = _prefix_never_counts(
+                                        frame, never_context, quality=quality, distance=int(distance),
+                                        metric=chosen["ops_prefix_metric"], method=method,
+                                        minority_k=minority_k, plan=plan, chosen=chosen,
+                                        neighbours=site_pairs[site], sort=insitu["call_sort"])
+                                    counts[at + (a, b, c)] = result['counts']
+                                    for key, value in result['never'].items():
+                                        never_grid[key][at + (a, b, c)] = value
+                                else:
+                                    counts[at + (a, b, c)] = _setting_counts(
+                                        _at_setting(frame, quality, int(distance)), method,
+                                        minority_k, plan, chosen, site_pairs[site])
                         for s, shuffled_lib in enumerate(shuffles):
                             shuffled_frame = _shuffle_frame(
                                 frame, shuffled_lib, shuffle_memo[s],
@@ -2830,11 +2915,15 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 fdr_max=chosen["ops_prefix_fdr_target_pct"],
                 tune_fraction=float(settings.get("ops_decode_auto_tune_fraction") or 0.5),
                 seed=int(settings.get("ops_decode_auto_seed") or 0), **options)
-            if calibration:
+            if shuffles:
                 shuffled_grid /= float(len(shuffles))
+            if calibration:
+                from .ops_decode import _never_payload
+
+                never = _never_payload(never_grid, never_context) if using_never else None
                 choice = calibrate_fdr_scale(
                     counts, shuffled_grid, [site_cells_n[s] for s in site_list], site_list,
-                    well_axes, **tune_args)
+                    well_axes, method=calibration_method, never=never, **tune_args)
                 scale = choice["fdr_scale"]
                 for i, site in enumerate(site_list):
                     site_shuffled[site] = float(shuffled_grid[(i,) + tuple(choice["index"])])
@@ -2842,6 +2931,9 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 choice = tune_thresholds(
                     counts, [site_cells_n[s] for s in site_list], site_list, well_axes,
                     **tune_args)
+            if shuffles:
+                for i, site in enumerate(site_list):
+                    site_shuffled[site] = float(shuffled_grid[(i,) + tuple(choice["index"])])
             stem = f"threshold_tuning_{plate}_{well_id}"
             paths = write_tuning_curve(choice, folder, stem,
                                        title=f"{plate} {well_id}: prefix decode tuning")
@@ -2933,6 +3025,14 @@ def run_prefix_decode(settings: Mapping[str, Any],
                                        max_distance=chosen["ops_prefix_max_distance"]),
                         method, minority_k, plan, chosen, site_pairs[site])).reshape(-1, 2)[0, 0]
                         for s, shuffled_lib in enumerate(shuffles)]))
+            never_row = None
+            if using_never and not tuning:
+                never_row = _prefix_never_counts(
+                    reads, never_context, quality=0.0,
+                    distance=chosen["ops_prefix_max_distance"],
+                    metric=chosen["ops_prefix_metric"], method=method,
+                    minority_k=minority_k, plan=plan, chosen=chosen,
+                    neighbours=site_pairs[site], sort=insitu["call_sort"])['never']
             reads.insert(0, "site", int(site))
             reads.insert(0, "well", well_id)
             reads.insert(0, "plate", plate)
@@ -2944,8 +3044,11 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 reads, plate=plate, well_id=well_id, site=site, chosen=chosen,
                 method=method, class_names=class_names, labelled=labelled,
                 n_labelled=n_labelled, decoy_k=decoy_k, nearmiss_k=nearmiss_k,
-                scale=scale, shuffled=site_shuffled.get(site, 0.0) if calibration else None,
+                scale=scale, shuffled=site_shuffled.get(site, 0.0) if report_shuffles else None,
                 weighting=weighting, sort=insitu["call_sort"])
+            if never_row is not None:
+                row.update({key: float(np.asarray(value).reshape(-1)[0])
+                            for key, value in never_row.items()})
             if plan["multi"]:
                 site_counts, site_table = _guide_multiplicity(
                     reads, site_pairs.get(site), chosen["ops_multi_guide_min_reads"],
@@ -2975,7 +3078,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
         if decoy_k > 0:
             here = [r for r in site_rows if r["plate"] == plate and r["well"] == well_id]
             if calibration and not tuning:
-                choice = _calibrate_fixed(here, chosen, decoy_k, settings, options)
+                choice = _calibrate_fixed(here, chosen, decoy_k, settings, options,
+                                          never_context=never_context)
                 scale = choice["fdr_scale"]
                 for r in here:
                     r.update({"fdr_pct": fdr(r["cells_real"], r["cells_decoy"], decoy_k, scale),
@@ -2985,7 +3089,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
                                    "assigned_decoy": r["cells_decoy"]}
                                   for r in here])
             well_fdr[f"{plate}_{well_id}"] = fdr_report(
-                stats, plate=plate, well=well_id, k=decoy_k, scale=scale)
+                stats, plate=plate, well=well_id, k=decoy_k, scale=scale,
+                calibration=choice["calibration"] if calibration else None)
             if item_949:
                 well_fdr[f"{plate}_{well_id}"].update(_well_report_949(
                     here, decoy_k=decoy_k, scale=scale, nearmiss_k=nearmiss_k,
@@ -2994,9 +3099,22 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 if calibration:
                     calibrated[f"{plate}_{well_id}"] = {
                         "fdr_scale": scale, "calibration": choice["calibration"]}
+            if report_shuffles and not calibration:
+                from .ops_decode import shuffle_call_rate
+
+                well_fdr[f"{plate}_{well_id}"].update(shuffle_call_rate(
+                    [r["shuffle_called"] for r in here], [r["cells_in_labels"] for r in here]))
+            if using_never:
+                _write_calibration_report(folder, plate, well_id, choice['calibration'],
+                                           csv=False, log=say)
             with open(os.path.join(folder, f"fdr_{plate}_{well_id}.json"), "w",
                       encoding="utf-8") as handle:
                 json.dump(well_fdr[f"{plate}_{well_id}"], handle, indent=1)
+        if calibration_method.startswith("never") and decoy_k < 1:
+            fallback = {"method": "none", "requested_method": calibration_method,
+                        "status": "no_decoys", "entered_scale": scale, "scale": scale,
+                        "rounds": [], "converged": False}
+            _write_calibration_report(folder, plate, well_id, fallback, csv=False, log=say)
         all_cells.append(cells_all)
         if minority:
             here_rescued = sum(r["cells_minority_rescued"] for r in site_rows
@@ -3198,6 +3316,75 @@ def _fdr_text(value: Any) -> str:
     return "n/a" if value is None else f"{float(value):.3f}"
 
 
+def _prefix_opportunities(prefixes, called, profiles):
+    """Reduce selected real prefix winners to the shared distance-shell opportunities.
+
+    :param prefixes: one production prefix per candidate cell.
+    :param called: boolean mask selecting real called cells.
+    :param profiles: aligned guide profiles from ``ops_decode._never_context``.
+    :returns: twelve scalar opportunity totals from the selected winners.
+    """
+    from .ops_decode import _opportunity_index, _opportunity_totals
+
+    index = _opportunity_index(tuple(profiles['guides']))
+    real = [str(prefix) for prefix, keep in zip(prefixes, called) if keep]
+    return _opportunity_totals(real, {name: values for name, values in profiles.items()
+                                      if name != 'guides'}, index)
+
+
+def _prefix_never_context(library, matching, chosen):
+    """Wrap the shared independent never sets in the existing prefix whitelist type.
+
+    :param library: the production prefix library with its cycle mask applied.
+    :param matching: the production whitelist carrying far decoys.
+    :param chosen: validated decode settings, including never-control options.
+    :returns: the shared profiles and metadata, named control whitelists and
+        independent match memos. Each control replaces the far decoys.
+    """
+    from .ops_decode import _never_context
+
+    far = tuple(sorted(key for key, value in matching.callable_keys.items()
+                       if value[1] == DECOY_GENE))
+    context = _never_context(tuple(sorted(library.keys)), far,
+                             chosen['ops_never_barcode_k'], chosen['ops_never_barcode_seed'],
+                             chosen['ops_never_barcode_sets'])
+    return {**context,
+            'whitelists': {name: _with_prefix_decoys(library, data['barcodes'])
+                           for name, data in context['controls'].items()},
+            'memos': {}}
+
+
+def _prefix_never_counts(reads, context, *, quality, distance, metric,
+                         method, minority_k, plan, chosen, neighbours, sort=None):
+    """Count production opportunities and control calls with the same prefix voters.
+
+    :param reads: all reads at the selected detection threshold, before mismatch filtering.
+    :param context: shared controls and prefix wrappers from ``_prefix_never_context``.
+    :param quality: minimum read quality.
+    :param distance: maximum correction distance.
+    :param metric: existing prefix matching metric.
+    :param method: existing cell vote method.
+    :param minority_k: existing minority-read rule.
+    :param plan: existing weighted-grid plan.
+    :param chosen: validated prefix settings.
+    :param neighbours: existing touching-cell pairs, or None.
+    :param sort: optional production cell-call sort.
+    :returns: production counts and the opportunity/control grids over any
+        weight axes. Control calls never replace production calls.
+    """
+    base = _setting_counts(_at_setting(reads, quality, distance), method, minority_k,
+                           plan, chosen, neighbours, opportunity_profiles=context['profiles'], sort=sort)
+    out = dict(base['opportunities'])
+    for name, library in context['whitelists'].items():
+        control = _shuffle_frame(reads, library, context['memos'].setdefault((name, distance), {}),
+                                  metric=metric, max_distance=distance)
+        counts = np.asarray(_setting_counts(_at_setting(control, quality, distance),
+                                            method, minority_k, plan, chosen, neighbours, sort=sort))
+        out[f'never{name[-1]}_calls'] = counts[..., 1]
+        out[f'real_calls_{name.lower()}'] = counts[..., 0]
+    return {'counts': base['counts'], 'never': out}
+
+
 def _shuffle_frame(reads: pd.DataFrame, shuffled_lib: PrefixLibrary, memo: Dict[str, tuple], *,
                    metric: str, max_distance: int) -> pd.DataFrame:
     """A site's reads matched against one shuffled whitelist instead of the library (item 949).
@@ -3213,14 +3400,15 @@ def _shuffle_frame(reads: pd.DataFrame, shuffled_lib: PrefixLibrary, memo: Dict[
     """
     matched = _matched_rows(list(reads["read"]), shuffled_lib, memo, metric=metric,
                             max_distance=int(max_distance))
-    kept = ["y", "x", "cell", "quality"] + (["nuc_gap_px"] if "nuc_gap_px" in reads.columns
-                                            else [])
+    kept = ["y", "x", "cell", "quality"] + [key for key in ("nuc_gap_px", "peak")
+                                                    if key in reads.columns]
     return pd.concat([reads[kept].reset_index(drop=True), matched], axis=1)
 
 
 def _calibrate_fixed(rows: Sequence[Mapping[str, Any]], chosen: Mapping[str, Any], decoy_k: int,
-                     settings: Mapping[str, Any], options: Mapping[str, Any]) -> Dict[str, Any]:
-    """The shuffle calibration of a well decoded at the entered thresholds (item 949).
+                     settings: Mapping[str, Any], options: Mapping[str, Any], *,
+                     never_context=None) -> Dict[str, Any]:
+    """The selected FDR calibration of a well decoded at the entered thresholds (item 949).
 
     :param rows: the well's site summary rows (``site``, ``cells_in_labels``,
         ``cells_real``, ``cells_decoy``, ``shuffle_called``).
@@ -3228,12 +3416,14 @@ def _calibrate_fixed(rows: Sequence[Mapping[str, Any]], chosen: Mapping[str, Any
     :param decoy_k: decoys per prefix.
     :param settings: read for ``ops_decode_auto_tune_fraction`` and
         ``ops_decode_auto_seed``.
-    :param options: the shared tuner's options (``ci`` and the objective).
+    :param options: the shared tuning options (``ci`` and the objective).
+    :param never_context: shared control metadata when rows carry never counts
+        and opportunities; None for the existing shuffle method.
     :returns: :func:`spacr.ops_decode.calibrate_fdr_scale` on a one-setting
         grid, so the scale is set on the tuning half of the sites and the
         other half reports.
     """
-    from .ops_decode import calibrate_fdr_scale
+    from .ops_decode import calibrate_fdr_scale, _never_payload
 
     counts = np.array([[r["cells_real"], r["cells_decoy"]] for r in rows],
                       np.int64).reshape(len(rows), 1, 1, 1, 2)
@@ -3241,12 +3431,21 @@ def _calibrate_fixed(rows: Sequence[Mapping[str, Any]], chosen: Mapping[str, Any
     axes = [("ops_read_threshold", [chosen["ops_read_threshold"]]),
             ("ops_prefix_min_read_quality", [chosen["ops_prefix_min_read_quality"]]),
             ("ops_prefix_max_distance", [float(chosen["ops_prefix_max_distance"])])]
+    never = None
+    if never_context is not None:
+        keys = ['never2_calls', 'opp2_N2', 'opp2_L', 'opp1_L', 'real_calls_n2']
+        if chosen['ops_never_barcode_sets'] == 'n1_n2':
+            keys += ['never1_calls', 'opp1_N1', 'real_calls_n1']
+        never = {key: np.array([r[key] for r in rows], float).reshape(len(rows), 1, 1, 1)
+                 for key in keys}
+        never = _never_payload(never, never_context)
     return calibrate_fdr_scale(
         counts, shuffled, [r["cells_in_labels"] for r in rows], [r["site"] for r in rows],
         axes, k=decoy_k, scale=chosen["ops_prefix_fdr_scale"],
         fdr_max=chosen["ops_prefix_fdr_target_pct"],
         tune_fraction=float(settings.get("ops_decode_auto_tune_fraction") or 0.5),
-        seed=int(settings.get("ops_decode_auto_seed") or 0), **options)
+        seed=int(settings.get("ops_decode_auto_seed") or 0),
+        method=chosen["ops_prefix_fdr_calibration"], never=never, **options)
 
 
 def _well_report_949(rows: Sequence[Mapping[str, Any]], *, decoy_k: int, scale: float,
@@ -3298,7 +3497,7 @@ def _well_report_949(rows: Sequence[Mapping[str, Any]], *, decoy_k: int, scale: 
         rate = shuffle_call_rate([r["shuffle_called"] for r in rows],
                                  [r["cells_in_labels"] for r in rows])
         limit = SHUFFLE_FDR_RATIO * fdr(int(real.sum()), int(decoy.sum()), decoy_k, scale)
-        out.update({"fdr_calibration": "shuffle", "fdr_scale_entered": float(entered_scale),
+        out.update({"fdr_calibration": choice["calibration"]["method"], "fdr_scale_entered": float(entered_scale),
                     **rate, "shuffle_limit_pct": limit,
                     "shuffle_le_limit": bool(rate["shuffle_call_rate_pct"] <= limit),
                     "calibration": choice["calibration"]})
@@ -3315,7 +3514,8 @@ _ITEM_942_KEYS = ("ops_prefix_decoy_k", "ops_prefix_decoy_seed", "ops_prefix_fdr
 #: The item-949 keys of :func:`prefix_settings`, left out of
 #: ``quality_classes.json`` while both are off, so such a run writes what it
 #: wrote before.
-_ITEM_949_KEYS = ("ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration")
+_ITEM_949_KEYS = ("ops_prefix_nearmiss_decoy_k", "ops_prefix_fdr_calibration",
+                  "ops_never_barcode_k", "ops_never_barcode_seed", "ops_never_barcode_sets")
 
 #: The item-967 key of :func:`prefix_settings`, left out of
 #: ``quality_classes.json`` while the minority-read rule is off, so such a

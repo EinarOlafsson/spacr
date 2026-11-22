@@ -799,6 +799,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_nearmiss_decoy_k",
     "ops_prefix_fdr_calibration",
     "ops_decode_fdr_calibration",
+    "ops_never_barcode_k", "ops_never_barcode_seed", "ops_never_barcode_sets",
     # Item 967 (2026-11-17): the spacer-prefix cell call ignores minority
     # stray barcodes.
     "ops_prefix_minority_min_reads",

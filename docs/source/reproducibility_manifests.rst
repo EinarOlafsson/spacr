@@ -204,6 +204,11 @@ default after a higher-numbered item takes the next free number:
   keeps its earlier True default, and an explicit choice always wins.
   Set ``batch_size=0`` or ``'whole'`` for the earlier batch estimate and
   ``mask_eval_batch_size=0`` for one tile per resident field.
+- 957 (item 1014): ``ops_decode_fdr_calibration`` and
+  ``ops_prefix_fdr_calibration`` were ``'none'``; new files use ``'never'``
+  to measure the FDR scale from substitution-built control barcodes. Older
+  files keep the entered fixed scale and their original decode tables.
+  ``'none'`` keeps the earlier uncalibrated tables and reports no shuffles.
 - 958 (item 1008): ``cytoskeleton_object_support`` is now ``True``.
   Measure no longer counts cytoskeleton skeleton pixels outside the object.
   Older Overview settings retain ``False`` and reproduce their whole-image

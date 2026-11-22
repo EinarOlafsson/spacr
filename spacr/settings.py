@@ -2653,6 +2653,7 @@ DEFAULT_CHANGES = {
           'ops_ph_image_format': 'npz', 'ops_crop_image_format': 'tiff-tar'},
     952: {'ops_flatfield': 'none', 'ops_flatfield_channel_fit': 'legacy'},
     955: {'batch_size': 0, 'mask_eval_batch_size': 0, 'randomize': False},
+    957: {'ops_decode_fdr_calibration': 'none', 'ops_prefix_fdr_calibration': 'none'},
     958: {'cytoskeleton_object_support': False},
 }
 
@@ -2782,6 +2783,10 @@ def _fold_older_defaults(settings, version, known=None):
     requires known pipeline keys containing ``ops_ph_tile_batch``.
     The existing Mask shuffle now uses ``mask_batch_seed`` (42 by default);
     the earlier unseeded shuffle had no reproducible order to preserve.
+
+    957 adds automatic FDR-scale calibration from never-should-appear
+    barcodes (item 1014, method ``'never'``). Files stamped before keep
+    the entered fixed scale (``'none'``).
 
     958 is item 1008: cytoskeleton skeletons are restricted to the object
     mask. Older Overview settings keep ``cytoskeleton_object_support``
@@ -9987,8 +9992,10 @@ ALPHA_FEATURES = {
                      'ops_prefix_tuning_grid'),
     },
     949: {
-        'settings': ('ops_prefix_nearmiss_decoy_k', 'ops_prefix_fdr_calibration',
-                     'ops_decode_fdr_calibration'),
+        'settings': ('ops_prefix_nearmiss_decoy_k',),
+    },
+    1014: {
+        'settings': ('ops_never_barcode_k', 'ops_never_barcode_seed', 'ops_never_barcode_sets'),
     },
     955: {
         'settings': ('ops_fdr_sweep_targets', 'ops_fdr_sweep_max_distance',

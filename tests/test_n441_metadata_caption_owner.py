@@ -20,7 +20,8 @@ def extract_metadata(tmp_path, monkeypatch):
             'psf_pipeline.py', 'pipeline_v2.py', '_lineage_trees.py', 'plot.py', 'run_journal.py', 'ml.py',
             'regression_layout.py', 'regression_failure.py', 'regression_backends.py', 'power_model.py', 'io.py', 'uniprot.py', 'ome_zarr_convert.py', 'gene_measurement_compare.py', 'ops_prefix.py', '_mask_array_batches.py', 'ops_decode.py', 'validate.py', 'torch_artifacts.py', 'cli.py',
             '_mask_workers.py', 'classification_pixels.py', 'cpg_measure.py', 'crop_loader.py', 'crop_store.py', 'crops.py', 'ops_cell_cycle.py', 'ops_engine.py', 'ops_flatfield.py', 'ops_mitotic.py',
-            'ome_zarr.py', 'image_store.py', 'ome_zarr_registration.py'):
+            'ome_zarr.py', 'image_store.py', 'ome_zarr_registration.py',
+            'ops_sbs.py'):
         (tmp_path / 'spacr' / name).write_text('', encoding="utf-8")
     monkeypatch.setattr(builder, 'ROOT', tmp_path)
     monkeypatch.setattr(builder, '_indirect_runtime_ui_sources', set)

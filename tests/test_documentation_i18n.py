@@ -3908,9 +3908,12 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("1007c_ome_zarr_registration_api_arrivals_2026-11-21.json", 2),
         ("1008b_colocalisation_otsu_api_arrivals_2026-11-21.json", 1),
         ("1008c_cytoskeleton_api_arrivals_2026-11-21.json", 1),
+        ("1014_never_api_arrivals_2026-11-22.json", 2),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
+        from tests.test_ops_fdr_never_1014 import _current_never_api
+        arrivals = _current_never_api(arrivals)
         if filename == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             arrivals = _posix_update_prepared_key_move(arrivals, docs)
         if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":

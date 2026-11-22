@@ -258,7 +258,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_auto_objective": "recall_at_fdr",
     "ops_decode_auto_f_beta": 1.0,
     "ops_decode_auto_unreachable": "lowest_fdr",
-    "ops_decode_fdr_calibration": "none",
+    "ops_decode_fdr_calibration": "never",
+    "ops_never_barcode_k": 4,
+    "ops_never_barcode_seed": 1,
+    "ops_never_barcode_sets": "n1_n2",
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
     "ops_decode_qc": False,
@@ -548,7 +551,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_fdr_target_pct": 1.0,
     "ops_prefix_tuning_grid": None,
     "ops_prefix_nearmiss_decoy_k": 0,
-    "ops_prefix_fdr_calibration": "none",
+    "ops_prefix_fdr_calibration": "never",
     "ops_prefix_minority_min_reads": 3,
     "ops_prefix_distance_weight": "off",
     "ops_prefix_distance_decay_px": 8.0,
@@ -856,6 +859,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_auto_f_beta": (float, int),
     "ops_decode_auto_unreachable": str,
     "ops_decode_fdr_calibration": str,
+    "ops_never_barcode_k": int,
+    "ops_never_barcode_seed": int,
+    "ops_never_barcode_sets": str,
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
     "ops_decode_qc": bool,
@@ -1285,7 +1291,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_auto_tune_fraction", "ops_decode_auto_seed",
         "ops_decode_auto_spot_grid", "ops_decode_auto_objective",
         "ops_decode_auto_f_beta", "ops_decode_auto_unreachable",
-        "ops_decode_fdr_calibration",
+        "ops_decode_fdr_calibration", "ops_never_barcode_k",
+        "ops_never_barcode_seed", "ops_never_barcode_sets",
     ],
     "Call quality & confidence": [
         "ops_decode_qc", "ops_decode_qc_model", "ops_decode_qc_features",
@@ -3486,10 +3493,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "per-field stats under results/ops_decode. 0 matches no decoys. "
         "Default 0.",
     "ops_fdr_scale":
-        "(float) - How much likelier a read is to land on a wrong real "
-        "guide than on a decoy, which turns decoy calls into an FDR. 1.268 "
-        "was measured for the Funk et al. 2022 library from its guides' "
-        "neighbour distances; values below 1 count as 1. Default 1.268.",
+        "(float) - Entered multiplier for the decoy FDR after accounting for decoys per guide. This is the starting scale and fallback when calibration has too little evidence; 'none' keeps it fixed. Values below 1 count as 1. The Funk library reference value is 1.268. Default 1.268.",
     "ops_decode_threshold_mode":
         "(str) - How the rule (a) decode's thresholds are set. 'manual' "
         "uses the values you enter. 'auto' tunes them well by well from "
@@ -3555,14 +3559,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "settings saved before item 942 do. Either way the report says "
         "auto_met False. Default 'lowest_fdr'. Alpha.",
     "ops_decode_fdr_calibration":
-        "(str) - How auto thresholds set the FDR scale. 'none' uses "
-        "ops_fdr_scale as entered. 'shuffle' also votes every field against "
-        "three shuffled copies of the library and raises the scale until "
-        "the shuffled libraries' call rate is at most 1.5 times the FDR on "
-        "the tuning fields, then tunes again at that scale. The scale used "
-        "and the shuffle call rate go into the threshold and FDR reports. "
-        "Costs about three more vote passes per field. Default 'none'. "
-        "Alpha.",
+        "(str) - How rule (a) sets the FDR scale. 'never' measures error calls on substitution-built barcodes through the same read and pixel votes: distance-two controls set the scale and distance-one controls report a check. It can raise or lower the entered scale, down to 1. Manual thresholds stay fixed while calibration runs. 'none' keeps ops_fdr_scale; 'shuffle' only raises it from three shuffled libraries; 'never+shuffle' takes the larger control-based scale. Never methods need decoys and keep the entered scale when evidence is insufficient. Default 'never'.",
+    'ops_never_barcode_k':
+        '(int) - Maximum substitution-built controls per guide in each never-barcode set, shared by full-barcode and spacer-prefix calibration. Fewer may be accepted when sequence constraints leave no candidate; 0 leaves calibration without control evidence, so it keeps the entered scale. Default 4. Alpha.',
+    'ops_never_barcode_seed':
+        '(int) - Nonnegative random seed for never-barcode substitution controls in both decodes. The same library and seed reproduce the same independent control sets. Default 1. Alpha.',
+    'ops_never_barcode_sets':
+        "(str) - Never-barcode passes in both decodes: 'n1_n2' measures distance-one and distance-two controls; 'n2' skips the distance-one report pass. Distance-two controls set the scale. A library with distance-one guide pairs needs N1 evidence and otherwise keeps the entered scale. Default 'n1_n2'. Alpha.",
     "ops_decode_skip_unplaced_sites":
         "(bool) - Decode only the sites the stitch placed and list the "
         "others in the decode and FDR reports. Off stops the well with an "
@@ -4194,10 +4197,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - Seed of the decoy prefixes (ops_prefix_decoy_k); the same "
         "seed draws the same decoys. Default 1. Alpha.",
     "ops_prefix_fdr_scale":
-        "(float) - How much likelier a read is to land on a wrong guide "
-        "than on a decoy prefix, which turns decoy calls into an FDR; values "
-        "below 1 count as 1. No calibration exists for spacer-prefix "
-        "libraries yet. Default 1. Alpha.",
+        "(float) - Entered multiplier for the decoy FDR after accounting for decoys per prefix. This is the starting scale and fallback when calibration has too little evidence; 'none' keeps it fixed. Values below 1 count as 1. Default 1. Alpha.",
     "ops_prefix_min_read_quality":
         "(float) - The weakest read the spacer-prefix decode calls cells "
         "from, as its worst cycle's margin between the two brightest bases. "
@@ -4231,13 +4231,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "site_summary.csv). Needs ops_prefix_decoy_k above 0. 0 adds none. "
         "Default 0. Alpha.",
     "ops_prefix_fdr_calibration":
-        "(str) - How the spacer-prefix decode sets its FDR scale. 'none' "
-        "uses ops_prefix_fdr_scale as entered. 'shuffle' also matches every "
-        "read against three shuffled whitelists and raises the scale until "
-        "the shuffle call rate is at most 1.5 times the FDR on the tuning "
-        "sites, then tunes again at that scale. The scale and the shuffle "
-        "call rate go into site_summary.csv and the FDR report. Needs "
-        "ops_prefix_decoy_k above 0. Default 'none'. Alpha.",
+        "(str) - Set the spacer-prefix FDR scale. 'never' measures substitution-built controls through the production matcher and votes; distance-two controls set the scale and distance-one controls provide a check. Fixed thresholds stay fixed. 'none' keeps the earlier uncalibrated tables and reports no shuffles. 'shuffle' only raises the scale; 'never+shuffle' takes the larger control-based scale. Never and shuffle methods report shuffle rates. Without decoys, never methods keep the entered scale. Default 'never'.",
     "ops_prefix_minority_min_reads":
         "(int) - Lets a cell be called when a second barcode has only a few "
         "stray reads: in a cell, a barcode with fewer reads than this is "

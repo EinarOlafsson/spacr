@@ -4992,6 +4992,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "validate.py")
     paths.add(ROOT / "spacr" / "torch_artifacts.py")
     paths.add(ROOT / "spacr" / "ops_decode.py")
+    paths.add(ROOT / "spacr" / "ops_sbs.py")
     paths.add(ROOT / "spacr" / "classification_pixels.py")
     paths.add(ROOT / "spacr" / "crop_loader.py")
     paths.add(ROOT / "spacr" / "crop_store.py")
@@ -5199,10 +5200,17 @@ def extract_static_ui_sources() -> tuple[str, ...]:
                                            "_plate_control_input",
                                            "_prepare_segmentation_psf", "_SegmentationPSFSession",
                                            "_cell_record_error", "_CalibratedCellDataset"}]
+        if path == source_root / "ops_sbs.py":
+            tree.body = [node for node in tree.body
+                         if isinstance(node, ast.FunctionDef)
+                         and node.name == "never_barcodes"]
         if path == source_root / "ops_decode.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)
-                         and node.name in {"_vote_weighting", "cached_neighbours"}]
+                         and node.name in {"_vote_weighting", "cached_neighbours",
+                                           "never_scale", "calibrate_fdr_scale",
+                                           "_field_candidates", "_write_calibration_report",
+                                           "_never_settings"}]
         if path == source_root / "_lineage_trees.py":
             tree.body = [node for node in tree.body
                          if isinstance(node, ast.FunctionDef)

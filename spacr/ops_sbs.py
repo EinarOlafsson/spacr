@@ -45,6 +45,7 @@ stage names.
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -819,6 +820,144 @@ def decoy_library(library: Sequence[str], k: int = 4,
                     masked.add((i, candidate[:i] + candidate[i + 1:]))
                 break
     return out
+
+
+@lru_cache(maxsize=8)
+def _barcode_distance_profiles(guides: Tuple[str, ...], barcodes: Tuple[str, ...]) -> np.ndarray:
+    """Count barcodes one, two and three substitutions from each sorted guide.
+
+    The existing one-deletion index supplies the distance-one matches.
+    Two- and three-deletion signatures count the other distances without
+    constructing the guide-by-barcode distance matrix. One signature
+    position set is held at a time. A pair at distance h contributes
+    ``choose(length - h, d - h)`` signatures of order d; subtracting the
+    lower-distance terms therefore gives exact Hamming counts.
+
+    :param guides: sorted unique guide strings, including mixed lengths.
+    :param barcodes: sorted unique strings whose distances are counted.
+    :returns: read-only int64 ``(guides, 3)`` array, columns distances 1–3;
+        exact matches, including a guide itself, are excluded.
+    """
+    from collections import Counter
+    from itertools import combinations
+
+    known, masked, arrays = _library_index(barcodes)
+    result = np.zeros((len(guides), 3), np.int64)
+    lengths = sorted({len(guide) for guide in guides})
+    for length in lengths:
+        indices = [i for i, guide in enumerate(guides) if len(guide) == length]
+        sources = [guides[i] for i in indices]
+        targets = arrays.get(length, ((), None))[0]
+        if not targets:
+            continue
+        exact = np.array([guide in known for guide in sources], np.int64)
+        sums = np.zeros((len(sources), 3), np.int64)
+        sums[:, 0] = [sum(len(masked.get((p, guide[:p] + guide[p + 1:]), ()))
+                          for p in range(length)) for guide in sources]
+        for order in (2, 3):
+            for positions in combinations(range(length), order):
+                spans = tuple(zip((0,) + tuple(p + 1 for p in positions),
+                                  positions + (length,)))
+                counts = Counter(''.join(entry[a:b] for a, b in spans) for entry in targets)
+                sums[:, order - 1] += [counts.get(''.join(guide[a:b] for a, b in spans), 0)
+                                       for guide in sources]
+        first = sums[:, 0] - length * exact
+        second = sums[:, 1] - math.comb(length, 2) * exact - max(length - 1, 0) * first
+        third = (sums[:, 2] - math.comb(length, 3) * exact
+                 - math.comb(max(length - 1, 0), 2) * first - max(length - 2, 0) * second)
+        result[indices] = np.column_stack((first, second, third))
+    result.setflags(write=False)
+    return result
+
+
+@lru_cache(maxsize=8)
+def _never_barcodes_cached(guides, distance, k, seed, excluded):
+    """Generate and profile one immutable substitution-control set per cache key.
+
+    :param guides: sorted unique real guide strings.
+    :param distance: nearest-guide Hamming distance, one or two.
+    :param k: maximum accepted controls per guide.
+    :param seed: the shared NumPy generator seed.
+    :param excluded: previously occupied control strings.
+    :returns: cached control strings and exact per-guide opportunity arrays.
+    """
+    known, guide_mask, _ = _library_index(guides)
+    occupied, blocked_mask, _ = _library_index(excluded)
+    taken = known | occupied
+    rng = np.random.default_rng(seed)
+    available = {guide: set(range(len(guide))) for guide in guides}
+    output = []
+    for _ in range(k):
+        for guide in guides:
+            positions = sorted(available[guide]) if distance == 1 else list(range(len(guide)))
+            if len(positions) < distance:
+                continue
+            for _ in range(200):
+                changed = rng.choice(positions, size=distance, replace=False)
+                letters = list(guide)
+                for position in changed:
+                    options = [base for base in 'ACGT' if base != guide[position]]
+                    letters[position] = options[int(rng.integers(len(options)))]
+                candidate = ''.join(letters)
+                if candidate in taken:
+                    continue
+                slots = [(p, candidate[:p] + candidate[p + 1:]) for p in range(len(candidate))]
+                near = {entry for slot in slots for entry in guide_mask.get(slot, ())}
+                if (distance == 1 and near != {guide}) or (distance == 2 and near):
+                    continue
+                if any(slot in blocked_mask for slot in slots):
+                    continue
+                output.append(candidate)
+                taken.add(candidate)
+                for slot in slots:
+                    blocked_mask.setdefault(slot, []).append(candidate)
+                if distance == 1:
+                    available[guide].remove(int(changed[0]))
+                break
+    barcodes = tuple(output)
+    return {'barcodes': barcodes, 'guides': guides, 'distance': distance, 'k': k, 'seed': seed,
+            'm_d': _barcode_distance_profiles(guides, tuple(sorted(barcodes))),
+            'library_m_d': _barcode_distance_profiles(guides, guides)}
+
+
+def never_barcodes(library, *, distance, k=4, seed=1, exclude=()):
+    """Substitution-built barcodes that no cell in the guide library should carry.
+
+    Distance-one controls have exactly one nearest guide and use a different
+    substituted position for each accepted control of that guide.
+    Distance-two controls have no guide at distance zero or one. Every
+    control lies at least two substitutions from previously accepted and
+    excluded controls. Sorted unique guides are visited round by round,
+    with one seeded generator and up to 200 attempts per guide and round.
+    The same builder serves full-barcode and sequenced-prefix calibration.
+
+    :param library: real guide barcodes, using nonempty A/C/G/T strings.
+        Duplicates and input order do not affect the result.
+    :param distance: nearest-guide Hamming distance, 1 (N1) or 2 (N2).
+    :param k: maximum controls per guide, default 4; zero gives an empty set.
+    :param seed: nonnegative generator seed, default 1.
+    :param exclude: controls already taken, such as matched decoys or N1.
+    :returns: dict with ``barcodes`` in acceptance order, sorted ``guides``,
+        ``distance``, ``k``, ``seed``, and read-only int64 ``m_d`` and
+        ``library_m_d`` arrays. Both arrays have shape ``(guides, 3)``;
+        columns count control or other-library barcodes at distances 1–3.
+        Exact matches are excluded. Results are memoised per process.
+    :raises ValueError: for an unsupported distance, negative or fractional
+        k or seed, or a barcode containing letters outside A/C/G/T.
+    """
+    from .qt.i18n import tr
+
+    if isinstance(distance, bool) or distance not in (1, 2):
+        raise ValueError(tr('Never-barcode distance must be 1 or 2.'))
+    if isinstance(k, bool) or int(k) != k or int(k) < 0:
+        raise ValueError(tr('Never-barcode count must be a nonnegative integer.'))
+    if isinstance(seed, bool) or int(seed) != seed or int(seed) < 0:
+        raise ValueError(tr('Never-barcode seed must be a nonnegative integer.'))
+    guides = tuple(sorted(set(str(entry) for entry in library)))
+    excluded = tuple(sorted(set(str(entry) for entry in exclude)))
+    if any(not entry or set(entry) - _ACGT for entry in (*guides, *excluded)):
+        raise ValueError(tr('Never-barcode libraries must contain nonempty DNA strings using A, C, G and T.'))
+    return dict(_never_barcodes_cached(guides, int(distance), int(k), int(seed), excluded))
 
 
 #: The letters the one-mismatch index of :class:`LibraryMatcher` covers.

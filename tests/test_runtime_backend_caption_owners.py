@@ -30,6 +30,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "crops.py", "ops_engine.py", "ome_zarr.py", "image_store.py",
         "ome_zarr_registration.py",
         "ops_cell_cycle.py", "ops_mitotic.py", "ops_flatfield.py", "cpg_measure.py", "cli.py",
+        "ops_sbs.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -974,3 +975,24 @@ def _unknown_setting_fix():
     return "Remove it from the settings file, or check the spelling."
 '''
     assert extract_backend_sources("cli.py", source) == set()
+
+
+@pytest.mark.parametrize('filename,owner', [
+    ('ops_sbs.py', 'never_barcodes'), ('ops_decode.py', 'never_scale'),
+    ('ops_decode.py', 'calibrate_fdr_scale'), ('ops_decode.py', '_field_candidates'),
+    ('ops_decode.py', '_write_calibration_report'), ('ops_decode.py', '_never_settings')])
+def test_never_calibration_captions_have_exact_top_level_owners(extract_backend_sources, filename, owner):
+    """Admit the shared controls without exposing unrelated, nested or same-named methods."""
+    caption = 'A never-control run needs valid settings.'
+    source = f"""raise RuntimeError('Backend source must not be imported')
+tr('Unrelated module metadata')
+def {owner}():
+    return tr({caption!r})
+def unrelated():
+    def {owner}():
+        return tr('Unrelated nested caption')
+class Other:
+    def {owner}(self):
+        return tr('Unrelated method caption')
+"""
+    assert extract_backend_sources(filename, source) == {caption}

@@ -87,7 +87,8 @@ _ID_KEYS = ("ops_library", "ops_library_sequence_col", "ops_library_gene_col",
             "ops_prefix_fdr_scale", "ops_prefix_min_read_quality",
             "ops_prefix_threshold_tuning", "ops_prefix_fdr_target_pct",
             "ops_prefix_tuning_grid", "ops_prefix_nearmiss_decoy_k",
-            "ops_prefix_fdr_calibration", "ops_read_mode", "cpg_root",
+            "ops_prefix_fdr_calibration", "ops_never_barcode_k", "ops_never_barcode_seed",
+            "ops_never_barcode_sets", "ops_read_mode", "cpg_root",
             "ops_decode_auto_tune_fraction", "ops_decode_auto_seed",
             "ops_decode_auto_objective", "ops_decode_auto_f_beta",
             "ops_decode_auto_unreachable", "ops_decode_auto_ci")
@@ -379,7 +380,7 @@ def _libraries(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """The whitelist with its decoys, the control and the shuffled whitelists, as the decode builds them."""
     from .ops_decode import SHUFFLE_SEEDS
     from .ops_prefix import (prefix_decoy_library, prefix_nearmiss_decoys, prefix_settings,
-                             shuffled_library, spacer_prefix_library)
+                             shuffled_library, spacer_prefix_library, _prefix_never_context)
 
     chosen = prefix_settings(settings)
     library = spacer_prefix_library(
@@ -397,8 +398,11 @@ def _libraries(settings: Mapping[str, Any]) -> Dict[str, Any]:
                if chosen["ops_random_barcode_control"] else None)
     shuffles = [shuffled_library(library, chosen["ops_control_seed"] + s)
                 for s in range(SHUFFLE_SEEDS)]
+    never = (_prefix_never_context(library, matching, chosen)
+             if chosen["ops_prefix_fdr_calibration"].startswith("never")
+             and chosen["ops_prefix_decoy_k"] > 0 else None)
     return {"library": library, "matching": matching, "control": control,
-            "shuffles": shuffles}
+            "shuffles": shuffles, "never": never}
 
 
 def _init_worker(libraries: Mapping[str, Any]) -> None:
@@ -423,7 +427,7 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
     from .ops_prefix import (DECOY_GENE, NEARMISS_GENE, QUALITY_CLASSES,
                              RECIPE_SIMPLE_CLASSES, WEIGHTED_CLASSES, WEIGHT_GRID_KEYS,
                              _at_setting, _labelled_cells, _neighbour_table, _raw_candidates,
-                             _setting_counts, _shuffle_frame, _site_geometry, _site_row,
+                             _setting_counts, _shuffle_frame, _site_geometry, _site_row, _prefix_never_counts,
                              _site_tuning_reads, _spot_candidates, match_prefix_reads,
                              _weight_arguments, _weight_plan, prefix_settings, site_labels)
 
@@ -433,6 +437,7 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
     points = task["points"]
     matching, control = _LIBRARIES["matching"], _LIBRARIES["control"]
     shuffles = _LIBRARIES["shuffles"]
+    never_context = _LIBRARIES.get("never")
     method = chosen["ops_prefix_quality_method"]
     class_names = (RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else
                    WEIGHTED_CLASSES if method == "weighted_majority" else QUALITY_CLASSES)
@@ -510,6 +515,13 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
                 method, chosen["ops_prefix_minority_min_reads"], plan, chosen,
                 pairs)).reshape(-1, 2)[0, 0])
         shuffled = float(np.mean(called)) if called else 0.0
+        never_row = (_prefix_never_counts(
+            frame, never_context, quality=float(point["ops_prefix_min_read_quality"]),
+            distance=distance, metric=metric, method=method,
+            minority_k=chosen["ops_prefix_minority_min_reads"], plan=plan, chosen=here,
+            neighbours=pairs,
+            sort=None if point["ops_call_sort"] == "none" else point["ops_call_sort"])
+                     if never_context is not None else None)
         reads.insert(0, "site", int(site))
         reads.insert(0, "well", well_id)
         reads.insert(0, "plate", plate)
@@ -521,7 +533,7 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
             n_labelled=n_labelled_of[point["ops_read_compartment"]],
             decoy_k=chosen["ops_prefix_decoy_k"], nearmiss_k=chosen["ops_prefix_nearmiss_decoy_k"],
             scale=chosen["ops_prefix_fdr_scale"],
-            shuffled=shuffled if chosen["ops_prefix_fdr_calibration"] == "shuffle" else None,
+            shuffled=shuffled if chosen["ops_prefix_fdr_calibration"] != "none" else None,
             sort=None if point["ops_call_sort"] == "none" else point["ops_call_sort"],
             weighting=weighting)
         hit = reads["status"].isin(("exact", "corrected")) & ~reads["gene"].isin(
@@ -534,6 +546,9 @@ def _score_tile(task: Mapping[str, Any]) -> Dict[str, Any]:
                                or row["cells_with_reads"]))
             row["cells_real"] = int((_cells["quality"].isin(("perfect", "great"))
                                      & ~_cells["gene"].isin((DECOY_GENE, NEARMISS_GENE))).sum())
+        if never_row is not None:
+            row.update({key: float(np.asarray(value).reshape(-1)[0])
+                        for key, value in never_row['never'].items()})
         rows.append(row)
         eval_s.append(time.perf_counter() - began)
     return {"rows": rows, "detect_s": detect_s, "eval_s": eval_s}
@@ -544,7 +559,8 @@ def _summarise(rows: Sequence[Mapping[str, Any]], *, k: int, scale: float) -> Di
 
     :param rows: the tiles' rows.
     :param k: decoys per prefix.
-    :param scale: the decoy FDR scale.
+    :param scale: the entered decoy FDR scale; rows with calibration use
+        their applied per-well scales in the shared FDR function.
     :returns: the summed counts, ``mapping_pct`` (reads matched to a guide,
         not a decoy, per 100 reads), ``assignment_pct`` (cells called to a
         guide per 100 cells), ``decoy_fdr_pct`` and ``shuffle_rate_pct``.
@@ -558,8 +574,14 @@ def _summarise(rows: Sequence[Mapping[str, Any]], *, k: int, scale: float) -> Di
     cells = max(out["cells_in_labels"], 1)
     out["mapping_pct"] = 100.0 * out["mapped_reads"] / max(out["reads"], 1)
     out["assignment_pct"] = 100.0 * out["cells_real"] / cells
-    out["decoy_fdr_pct"] = fdr(out["cells_real"], out["cells_decoy"], k, scale) if k > 0 \
+    weighted_decoys = sum(max(float(r.get('fdr_scale', scale)), 1.0) * float(r['cells_decoy'])
+                           for r in rows)
+    out["decoy_fdr_pct"] = fdr(out["cells_real"], weighted_decoys, k, 1.0) if k > 0 \
         else float("nan")
+    if any('calibration' in r for r in rows):
+        out['calibration'] = [r['calibration'] for r in rows]
+        out['fdr_scale'] = (float(rows[0]['fdr_scale'])
+                            if all(r['fdr_scale'] == rows[0]['fdr_scale'] for r in rows) else None)
     out["shuffle_rate_pct"] = 100.0 * out["shuffle_called"] / cells
     return out
 
@@ -718,6 +740,20 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
     n_points = 1 + sum(1 for p in _grid_points(grid) if p)
     grid_keys = list(_GRID_KEYS)
     lines, timing, pooled = [], [], []
+    if libraries.get('never') is not None:
+        from .ops_decode import _tuning_options
+        from .ops_prefix import _calibrate_fixed
+
+        for point_index in range(n_points):
+            wells = {}
+            for (_p, _w, _wid, _s), result in zip(tiles, scored):
+                wells.setdefault((_p, _wid), []).append(result['rows'][point_index])
+            for well_key, rows in wells.items():
+                fixed = {**chosen, **points_of[well_key][point_index]}
+                choice = _calibrate_fixed(rows, fixed, k, settings, _tuning_options(settings),
+                                           never_context=libraries['never'])
+                for row in rows:
+                    row.update(fdr_scale=choice['fdr_scale'], calibration=choice['calibration'])
     for i in range(n_points):
         tile_rows = []
         for key, (p, _w, wid, s), result in zip(keys, tiles, scored):

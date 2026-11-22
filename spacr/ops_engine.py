@@ -3358,6 +3358,35 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
                      "nuclei": by_mode[1]["nuclei"], "by_mode": by_mode,
                      **{key: by_mode[1][key] for key in (
                          "reads", "reads_owned", "reads_near", "reads_ambiguous")}}
+    if auto and auto.get("never"):
+        from .ops_decode import _field_never_counts, _never_context
+
+        context = _never_context(tuple(sorted(_LIBRARY)), tuple(sorted(_DECOYS)),
+                                 **auto["never"])
+        modes = ([(evidence, {**rule, "read_mode": "log"}),
+                  (raw_evidence, {**rule, "read_mode": "raw"})] if read_mode == "auto"
+                 else [(raw_evidence if read_mode == "raw" else evidence, rule)])
+        controls, control_pixels = [], None
+        for mode_evidence, mode_rule in modes:
+            control_counts, control_pixels = _field_never_counts(
+                mode_evidence, mode_rule, sorted(_LIBRARY), context,
+                spot_thresholds=spots or [rule["threshold"]], floors=auto["floors"],
+                pixel_qualities=auto["pixel_qualities"], footprint=rule["footprint"],
+                max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+                crosstalk=str(task.get("crosstalk") or "none"), pixel_votes=control_pixels)
+            controls.append(control_counts)
+        production = calls["by_mode"] if read_mode == "auto" else [calls]
+        opportunities = {key: (np.stack([row['opportunities'][key] for row in production])
+                               if read_mode == "auto" else production[0]['opportunities'][key])
+                         for key in production[0]['opportunities']}
+        if read_mode == "auto":
+            controls.reverse()
+        calls["never_metadata"] = {"library_size": context["library_size"],
+                                    "never_sets": context["never_sets"]}
+        calls["never"] = {**opportunities,
+                          **{key: np.stack([row[key] for row in controls])
+                             if read_mode == "auto" else controls[0][key]
+                             for key in controls[0]}}
     if auto and auto.get("shuffle_seeds"):
         modes = ([(raw_evidence, {**rule, "read_mode": "raw"}),
                   (evidence, {**rule, "read_mode": "log"})] if read_mode == "auto"
@@ -3415,13 +3444,20 @@ def _rule_a_calls(evidence: Mapping[str, Any], rule: Mapping[str, Any], auto, sp
                              _joint_field_candidates)
 
     matcher, decoys = matcher_for(_LIBRARY, _DECOYS)
+    profiles = None
+    if auto and auto.get("never"):
+        from .ops_decode import _never_context
+
+        profiles = _never_context(tuple(sorted(_LIBRARY)), tuple(sorted(_DECOYS)),
+                                  **auto["never"])["profiles"]
     if spots:
         calls = _joint_field_candidates(
             evidence, rule, sorted(_LIBRARY), matcher, decoys, spot_thresholds=spots,
             floors=auto["floors"], pixel_qualities=auto["pixel_qualities"],
             footprint=rule["footprint"], max_distance=rule["max_distance"],
             min_fraction=rule["min_fraction"],
-            crosstalk=str(task.get("crosstalk") or "none"), pixel_votes=pixel)
+            crosstalk=str(task.get("crosstalk") or "none"), pixel_votes=pixel,
+            opportunity_profiles=profiles)
         nearest = int(np.argmin([abs(t - rule["threshold"]) for t in spots]))
         calls.update({key: calls["by_spot"][nearest][key] for key in (
             "reads", "reads_owned", "reads_near", "reads_ambiguous")})
@@ -3437,7 +3473,8 @@ def _rule_a_calls(evidence: Mapping[str, Any], rule: Mapping[str, Any], auto, sp
         if pixel is not None:
             votes["pixel"] = pixel
         calls = _field_candidates(votes, auto["floors"], auto["pixel_qualities"],
-                                  decoys, bool(rule["pixels"]))
+                                  decoys, bool(rule["pixels"]),
+                                  opportunity_profiles=profiles)
         calls.update({key: votes[key] for key in (
             "reads", "reads_owned", "reads_near", "reads_ambiguous")})
     else:
@@ -3744,7 +3781,8 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
     grid_shape = (len(auto["floors"]), len(auto["pixel_qualities"]))
     nuclei = [r["candidates"]["nuclei"] for r in fields]
     sites = [r["site"] for r in fields]
-    calibrating = bool(auto.get("shuffle_seeds"))
+    method = thresholds.get("fdr_calibration", "none")
+    calibrating = method != "none"
     by_mode = rule_a.get("read_mode") == "auto"
     joint = bool(spots) or thresholds["unreachable"] != "strictest" \
         or thresholds["objective"] != "recall_at_fdr" or by_mode or calibrating
@@ -3764,9 +3802,24 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
             ci=thresholds["ci"], tune_fraction=thresholds["tune_fraction"],
             seed=thresholds["seed"])
         if calibrating:
-            shuffled = (np.stack([np.asarray(r["candidates"]["shuffled"]).reshape(shape)
-                                  for r in fields]) if fields else np.zeros((0,) + shape))
-            tuned = calibrate_fdr_scale(counts, shuffled, nuclei, sites, axes, **tune_args)
+            shuffled = ((np.stack([np.asarray(r["candidates"]["shuffled"]).reshape(shape)
+                                   for r in fields]) if fields else np.zeros((0,) + shape))
+                        if auto.get("shuffle_seeds") else None)
+            never = None
+            if auto.get("never"):
+                metadata = (fields[0]["candidates"]["never_metadata"] if fields
+                            else {"library_size": 0, "never_sets": {}})
+                from .ops_decode import _never_payload
+
+                keys = ('never2_calls', 'opp2_N2', 'opp2_L', 'opp1_L', 'real_calls_n2')
+                if auto["never"]["sets"] == "n1_n2":
+                    keys += ('never1_calls', 'opp1_N1', 'real_calls_n1')
+                never = {key: (np.stack([np.asarray(r["candidates"]["never"][key]).reshape(shape)
+                                         for r in fields]) if fields
+                                else np.zeros((0,) + shape)) for key in keys}
+                never = _never_payload(never, metadata)
+            tuned = calibrate_fdr_scale(counts, shuffled, nuclei, sites, axes,
+                                        method=method, never=never, **tune_args)
         else:
             tuned = tune_thresholds(counts, nuclei, sites, axes, **tune_args)
         choice = {"single_read_quality": tuned["chosen"]["single_read_quality"],
@@ -3803,30 +3856,32 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
         r["rule_a"] = _candidate_calls(candidates, choice["single_read_quality"],
                                        choice["pixel_quality"], decoy_set)
     choice["paths"] = _write_threshold_report(db, plate, well, choice)
-    if joint:
+    if joint and thresholds["mode"] == "auto":
         choice["paths"].update({f"curve_{key}": path for key, path in write_tuning_curve(
             choice, results_folder(db), f"decode_tuning_curve_{well}",
             title=f"{plate} {well}: decode auto thresholds").items()})
-    if not choice["auto_met"]:
+    if thresholds["mode"] == "auto" and not choice["auto_met"]:
         fallback = ("the setting with the lowest FDR"
                     if joint and thresholds["unreachable"] == "lowest_fdr"
                     else "the strictest setting")
         _say(f"{well} decode: no grid setting kept the decoy FDR at or below "
              f"{thresholds['fdr_max']} per 100 on the tuning fields; "
              f"{fallback} is used (auto_met False)")
-    _say(f"{well} decode: auto thresholds "
-         + (f"read mode {choice['read_mode']}, " if by_mode else "")
-         + (f"read threshold {choice['read_threshold']}, " if spots else "")
-         + f"single-read quality {choice['single_read_quality']}, pixel quality "
-         f"{choice['pixel_quality']}; report fields "
-         f"{choice['report']['genotyped_pct']} % genotyped, FDR "
-         f"{choice['report']['fdr_per_100']} per 100")
+    if thresholds["mode"] == "auto":
+        _say(f"{well} decode: auto thresholds "
+             + (f"read mode {choice['read_mode']}, " if by_mode else "")
+             + (f"read threshold {choice['read_threshold']}, " if spots else "")
+             + f"single-read quality {choice['single_read_quality']}, pixel quality "
+             f"{choice['pixel_quality']}; report fields "
+             f"{choice['report']['genotyped_pct']} % genotyped, FDR "
+             f"{choice['report']['fdr_per_100']} per 100")
     chosen_rule = {**rule_a, "single_read_quality": choice["single_read_quality"],
                    "pixel_quality": choice["pixel_quality"],
                    "threshold_choice": {key: value for key, value in choice.items()
                                         if key != "grid"}}
     if calibrating:
         chosen_rule["fdr_scale"] = float(choice["fdr_scale"])
+    if method == "shuffle":
         _say(f"{well} decode: FDR scale calibrated from the barcode-shuffle control: "
              f"{choice['calibration']['entered_scale']} -> {choice['fdr_scale']:.3f}; "
              f"shuffle call rate {choice['calibration']['all_fields']['shuffle_call_rate_pct']:.4f} "
@@ -3986,7 +4041,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         })
         if rule_a["decoy_k"] > 0:
             decoys = decoy_library(library, k=rule_a["decoy_k"])
-        if thresholds["mode"] == "auto":
+        if thresholds["mode"] == "auto" or (thresholds.get("fdr_calibration", "none").startswith("never")
+                                              and not thresholds.get("no_decoys")):
             if not decoys:
                 raise ValueError("ops_decode_threshold_mode 'auto' found no "
                                  "decoys for this library; check "
@@ -3994,10 +4050,23 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             rule_a["auto"] = {"floors": thresholds["floors"],
                               "pixel_qualities": thresholds["pixel_qualities"],
                               "spot_thresholds": thresholds["spot_thresholds"]}
-            if thresholds.get("fdr_calibration") == "shuffle":
+            if thresholds.get("fdr_calibration", "none").startswith("never"):
+                from .ops_decode import _never_settings
+
+                control_settings = _never_settings(settings)
+                rule_a["auto"]["never"] = {
+                    "k": control_settings["ops_never_barcode_k"],
+                    "seed": control_settings["ops_never_barcode_seed"],
+                    "sets": control_settings["ops_never_barcode_sets"]}
+            if thresholds.get("fdr_calibration") in ("shuffle", "never+shuffle"):
                 from .ops_decode import SHUFFLE_SEEDS
 
                 rule_a["auto"]["shuffle_seeds"] = list(range(SHUFFLE_SEEDS))
+        if thresholds.get("no_decoys"):
+            rule_a["threshold_choice"] = {"calibration": {
+                "method": "none", "requested_method": thresholds["fdr_calibration"],
+                "status": "no_decoys", "entered_scale": rule_a["fdr_scale"],
+                "scale": rule_a["fdr_scale"], "rounds": [], "converged": False}}
         if read_mode != "log":
             rule_a["read_mode"] = read_mode
         cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
