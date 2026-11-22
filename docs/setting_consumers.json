@@ -3224,7 +3224,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "batch_size",
-    "line": 758,
+    "line": 756,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_needs_calibration"
@@ -21829,7 +21829,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "gpu_memory_margin_gb",
-    "line": 545,
+    "line": 543,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_calibrate"
@@ -21838,7 +21838,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu_memory_margin_gb",
-    "line": 718,
+    "line": 716,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_resolve_plan"
@@ -21847,7 +21847,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "gpu_memory_margin_gb",
-    "line": 1367,
+    "line": 1365,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_batch_first"
@@ -29833,7 +29833,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mask_eval_batch_size",
-    "line": 711,
+    "line": 709,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_resolve_plan"
@@ -30088,7 +30088,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mask_workers_per_gpu",
-    "line": 546,
+    "line": 544,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_calibrate"
@@ -71031,7 +71031,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "randomize",
-    "line": 822,
+    "line": 820,
     "module": "spacr._mask_batches",
     "nested": false,
     "qualname": "_resolve_auto_vram"

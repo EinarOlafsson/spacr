@@ -71,7 +71,7 @@ This linked reference contains the full generated setting descriptions. Return t
 
 #### Advanced
 
-- **`batch_size`** *(optional)* — (int) - How many images are processed together in one pass: field stacks in normalization and Cellpose segmentation, crops per step in classifier training and activation maps. Larger is faster but uses more RAM/VRAM; lower it on out-of-memory errors. For mask generation, 0 or 'auto' picks the largest batch that fits the free GPU memory and RAM, and a number that does not fit is reduced with a warning. Defaults: 0 (automatic) for mask generation, 64 for training. Default: `50`.
+- **`batch_size`** *(optional)* — (int or str) - How many images are processed together: fields during mask generation and OPS, or crops per classifier step. For Mask Generation and OPS, 'auto_vram' measures GPU memory on the run data, then divides fields into batches whose sizes differ by at most one. Resident field arrays count toward the memory budget. Use 0 or 'whole' for the earlier largest-fitting-batch estimate, or a positive number to request a field count; it is reduced with a warning if the fields do not fit in memory. Defaults: 'auto_vram' for Mask Generation and OPS, 64 for training. Default: `50`.
 - **`save`** *(optional)* — (bool or list of bool) - Controls whether the current module writes its optional disk artifacts, such as masks, figures or result tables. Mask accepts a three-item list for [cell, nucleus, pathogen] independently; other modules use one boolean. Default varies by module. Default: `True`.
 
 </details>

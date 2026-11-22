@@ -10498,6 +10498,8 @@ Read by ``_intensity_measurements``, ``_ph_fields``, ``measure_task``, ``get_mea
 cytoskeleton_object_support
 ---------------------------
 
+Restrict cytoskeleton skeleton pixels to the object mask. Settings saved before schema 958 retain False to reproduce earlier counts. Default True.
+
 | ``_overview_measurement`` **-- reads it**
 
 Read by ``_overview_measurement``.
@@ -27681,7 +27683,7 @@ Read by ``propose_map_barcodes_settings``, ``generate_barecode_mapping``.
 ome_zarr_ngff_version
 ---------------------
 
-(str) - The OME-Zarr version of the phenotype plate stores, the merged field images and their masks, when ops_ph_image_format is ome-zarr. '0.5' writes the current spaCR format; '0.6' writes the same pixels with the version 0.6 metadata (named coordinate systems), which other OME-Zarr 0.6 tools read. One store holds one version, so a store started in the other version is refused. The cell crop pools are not OME-Zarr images and do not change. Default 0.5. Alpha.
+The OME-Zarr version of the phenotype plate stores, the merged field images and their masks, when ops_ph_image_format is ome-zarr. '0.5' writes the current spaCR format; '0.6' writes the same pixels with the version 0.6 metadata (named coordinate systems), which other OME-Zarr 0.6 tools read. One store holds one version, so a store started in the other version is refused. The cell crop pools are not OME-Zarr images and do not change. Default 0.5. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -27716,7 +27718,7 @@ Read by ``_ph_ngff_version``, ``ops_defaults``.
 ome_zarr_store_registration
 ---------------------------
 
-(bool) - Store the applied phenotype-to-SBS placement, secondary channel shifts and tile affine fits as named coordinate transformations in merged OME-Zarr field images. Requires ome_zarr_ngff_version 0.6. Pixels are unchanged; OPS sidecar tables remain the source of truth. Default False. Alpha.
+Store the applied phenotype-to-SBS placement, secondary channel shifts and tile affine fits as named coordinate transformations in merged OME-Zarr field images. Requires ome_zarr_ngff_version 0.6. Pixels are unchanged; OPS sidecar tables remain the source of truth. Default False. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -28627,7 +28629,7 @@ Read by ``_options``, ``ops_defaults``.
 ops_cell_cycle_label_channels
 -----------------------------
 
-(list or None) - Up to two crop channel indices for stage labelling, starting at 0. Select DNA first and tubulin second, or select another stain with explicit display bounds. Panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin overlay. Funk defaults use fixed raw DAPI and GFP bounds, a 96-pixel unmasked context window and the nucleus mask dilated by 30 pixels. None selects the first two crop channels. Default None. Alpha.
+Up to two crop channel indices for stage labelling, starting at 0. Select DNA first and tubulin second, or select another stain with explicit display bounds. Panels show grey DNA, grey tubulin and their blue-DNA/green-tubulin overlay. Funk defaults use fixed raw DAPI and GFP bounds, a 96-pixel unmasked context window and the nucleus mask dilated by 30 pixels. None selects the first two crop channels. Default None. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -30956,7 +30958,7 @@ Read by ``_tuning_options``, ``ops_defaults``.
 ops_decode_fdr_calibration
 --------------------------
 
-How auto thresholds set the FDR scale. 'none' uses ops_fdr_scale as entered. 'shuffle' also votes every field against three shuffled copies of the library and raises the scale until the shuffled libraries' call rate is at most 1.5 times the FDR on the tuning fields, then tunes again at that scale. The scale used and the shuffle call rate go into the threshold and FDR reports. Costs about three more vote passes per field. Default 'none'. Alpha.
+How rule (a) sets the FDR scale. 'never' measures error calls on substitution-built barcodes through the same read and pixel votes: distance-two controls set the scale and distance-one controls report a check. It can raise or lower the entered scale, down to 1. Manual thresholds stay fixed while calibration runs. 'none' keeps ops_fdr_scale; 'shuffle' only raises it from three shuffled libraries; 'never+shuffle' takes the larger control-based scale. Never methods need decoys and keep the entered scale when evidence is insufficient. Default 'never'.
 
 | ``_decode_options`` **-- reads it**
 | ``_run_align``
@@ -32022,7 +32024,7 @@ Read by ``_scored_references``, ``evaluate_gene_profiles``, ``specificity_metric
 ops_fdr_scale
 -------------
 
-How much likelier a read is to land on a wrong real guide than on a decoy, which turns decoy calls into an FDR. 1.268 was measured for the Funk et al. 2022 library from its guides' neighbour distances; values below 1 count as 1. Default 1.268.
+Entered multiplier for the decoy FDR after accounting for decoys per guide. This is the starting scale and fallback when calibration has too little evidence; 'none' keeps it fixed. Values below 1 count as 1. The Funk library reference value is 1.268. Default 1.268.
 
 | ``_decode_options``
 |     :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
@@ -35766,7 +35768,7 @@ Read by ``_ph_neighbour_effects``, ``ops_defaults``.
 ops_never_barcode_k
 -------------------
 
-(int) - Maximum substitution-built controls per guide in each never-barcode set, shared by full-barcode and spacer-prefix calibration. Fewer may be accepted when sequence constraints leave no candidate; 0 leaves calibration without control evidence, so it keeps the entered scale. Default 4. Alpha.
+Maximum substitution-built controls per guide in each never-barcode set, shared by full-barcode and spacer-prefix calibration. Fewer may be accepted when sequence constraints leave no candidate; 0 leaves calibration without control evidence, so it keeps the entered scale. Default 4. Alpha.
 
 | :py:func:`~spacr.cli.render_settings`
 |     ``_effective_read_mode``
@@ -35837,7 +35839,7 @@ Read by ``_never_settings``, ``threshold_settings``, ``prefix_settings``, ``ops_
 ops_never_barcode_seed
 ----------------------
 
-(int) - Nonnegative random seed for never-barcode substitution controls in both decodes. The same library and seed reproduce the same independent control sets. Default 1. Alpha.
+Nonnegative random seed for never-barcode substitution controls in both decodes. The same library and seed reproduce the same independent control sets. Default 1. Alpha.
 
 | :py:func:`~spacr.cli.render_settings`
 |     ``_effective_read_mode``
@@ -35908,7 +35910,7 @@ Read by ``_never_settings``, ``threshold_settings``, ``prefix_settings``, ``ops_
 ops_never_barcode_sets
 ----------------------
 
-(str) - Never-barcode passes in both decodes: 'n1_n2' measures distance-one and distance-two controls; 'n2' skips the distance-one report pass. Distance-two controls set the scale. A library with distance-one guide pairs needs N1 evidence and otherwise keeps the entered scale. Default 'n1_n2'. Alpha.
+Never-barcode passes in both decodes: 'n1_n2' measures distance-one and distance-two controls; 'n2' skips the distance-one report pass. Distance-two controls set the scale. A library with distance-one guide pairs needs N1 evidence and otherwise keeps the entered scale. Default 'n1_n2'. Alpha.
 
 | :py:func:`~spacr.cli.render_settings`
 |     ``_effective_read_mode``
@@ -36352,7 +36354,7 @@ Read by ``_ph_channels``, ``ops_defaults``.
 ops_ph_cytoskeleton_channels
 ----------------------------
 
-(str, list or None) - Image channel indices or names from ops_ph_channels for the cell-only cytoskeleton block in ops_ph_profile_features. None measures every channel when cytoskeleton is selected; otherwise this setting has no effect. Default None. Alpha.
+Image channel indices or names from ops_ph_channels for the cell-only cytoskeleton block in ops_ph_profile_features. None measures every channel when cytoskeleton is selected; otherwise this setting has no effect. Default None. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -37289,7 +37291,7 @@ Read by ``_phenotype``, ``_phenotype_seeded``, ``_test_settings``, ``ops_default
 ops_ph_profile_features
 -----------------------
 
-Also measure spaCR's image-based profiling families on the nucleus, cell and cytoplasm, as Measure's profile_features does: 'profiling' adds edge intensity, intensity moments, radial distribution, extra shape, Haralick, PFTAS and LBP texture, periphery and outside-ring intensity and neighbours; ops_ph_profile_optional_families adds the slow Gabor, colocalisation and granularity families to it; 'all' adds every family; a list picks families. Turn ops_ph_zernike on with it for the full profiling set. Empty measures exactly as before. Default None. Alpha.
+Add the same per-object measurements as Measure to the nucleus, cell and cytoplasm. 'profiling' selects fast profiling families; ops_ph_profile_optional_families adds slow families. 'all' includes every profiling family, including colocalisation_otsu, but excludes measurement blocks. Lists also accept coloc_block (Pearson, Manders and overlap), legacy_radial (six radial bins) and cytoskeleton (cell-only skeleton measurements using ops_ph_cytoskeleton_channels). Empty measures exactly as before. Default None. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -37805,7 +37807,7 @@ Read by ``measure_settings``, ``_ph_fields``, ``measure_task``, ``_run_objects``
 ops_ph_tile_batch
 -----------------
 
-How many 256-pixel tiles Cellpose passes through the network at once when it segments phenotype nuclei, cells, pathogens and organelles. 0 uses mask_eval_batch_size. The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 8, the value the phenotype path always used. Default 0. Alpha.
+How many 256-pixel tiles Cellpose passes through the network at once when it segments phenotype nuclei, cells, pathogens and organelles. 0 follows the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 8, the value the phenotype path always used. Default 0. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -39221,7 +39223,7 @@ Read by ``prefix_settings``, ``ops_defaults``.
 ops_prefix_fdr_calibration
 --------------------------
 
-How the spacer-prefix decode sets its FDR scale. 'none' uses ops_prefix_fdr_scale as entered. 'shuffle' also matches every read against three shuffled whitelists and raises the scale until the shuffle call rate is at most 1.5 times the FDR on the tuning sites, then tunes again at that scale. The scale and the shuffle call rate go into site_summary.csv and the FDR report. Needs ops_prefix_decoy_k above 0. Default 'none'. Alpha.
+Set the spacer-prefix FDR scale. 'never' measures substitution-built controls through the production matcher and votes; distance-two controls set the scale and distance-one controls provide a check. Fixed thresholds stay fixed. 'none' keeps the earlier uncalibrated tables and reports no shuffles. 'shuffle' only raises the scale; 'never+shuffle' takes the larger control-based scale. Never and shuffle methods report shuffle rates. Without decoys, never methods keep the entered scale. Default 'never'.
 
 | :py:func:`~spacr.cli.render_settings`
 |     ``_effective_read_mode``
@@ -39283,7 +39285,7 @@ Read by ``prefix_settings``, ``ops_defaults``.
 ops_prefix_fdr_scale
 --------------------
 
-How much likelier a read is to land on a wrong guide than on a decoy prefix, which turns decoy calls into an FDR; values below 1 count as 1. No calibration exists for spacer-prefix libraries yet. Default 1. Alpha.
+Entered multiplier for the decoy FDR after accounting for decoys per prefix. This is the starting scale and fallback when calibration has too little evidence; 'none' keeps it fixed. Values below 1 count as 1. Default 1. Alpha.
 
 | :py:func:`~spacr.cli.render_settings`
 |     ``_effective_read_mode``
@@ -42272,7 +42274,7 @@ Read by ``_objects_window_basis``, ``_run_spots``, ``ops_defaults``.
 ops_sbs_tile_batch
 ------------------
 
-How many 256-pixel tiles Cellpose passes through the network at once when it segments the sequencing nuclei of each stitched well and of the live spot preview. 0 uses mask_eval_batch_size. The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value the sequencing path always used. Default 0.
+How many 256-pixel tiles Cellpose passes through the network at once when it segments the sequencing nuclei of each stitched well and of the live spot preview. 0 uses the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value the sequencing path always used. Default 0.
 
 | ``_run_spots`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
@@ -54423,7 +54425,7 @@ Read by ``run_spatial_masks``, ``spatial_mask_defaults``.
 spatial_tile_batch
 ------------------
 
-How many 256-pixel tiles Cellpose passes through the network at once when it segments the stain. 0 uses one tile per image, or mask_eval_batch_size when that is set. The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value Spatial Mask Generation always used. Default 0.
+How many 256-pixel tiles Cellpose passes through the network at once when it segments the stain. 0 follows the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value Spatial Mask Generation always used. Default 0.
 
 | :py:func:`~spacr.ops_settings.spatial_mask_defaults` **-- reads it**
 
