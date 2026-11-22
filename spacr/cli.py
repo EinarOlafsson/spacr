@@ -1309,6 +1309,7 @@ def write_settings_file(settings: Mapping[str, Any], path: Any) -> List[str]:
 
 
 _TYPE_OVERRIDES: Dict[str, Tuple[type, ...]] = {
+    "batch_size": (int,),
     "src": (str, list),
     "normalize": (bool, list),
     "save": (bool, list),
@@ -1318,9 +1319,9 @@ _PATH_LIST_KEYS = frozenset({"src"})
 
 _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Tuple[type, ...]]] = {
     "foreign": {"masks": (str, list)},
-    "mask": {"batch_size": (int, str)},
+    "mask": {"batch_size": (int, str), "mask_eval_batch_size": (int, str)},
     "timelapse": {"batch_size": (int, str)},
-    "ops": {"batch_size": (int, str)},
+    "ops": {"batch_size": (int, str), "mask_eval_batch_size": (int, str)},
 }
 
 _TRUE_WORDS = frozenset({"true", "t", "yes", "y", "on", "1"})

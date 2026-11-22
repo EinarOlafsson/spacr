@@ -416,3 +416,18 @@ def test_ops_fixed_request_plan_basis_is_unchanged(tmp_path):
     """A numeric request keeps the two-key basis older plans were written with."""
     _path, plan = array_batches._batch_plan(None, {'batch_size': 6, 'mask_eval_batch_size': 8})
     assert plan['settings'] == {'batch_size': 6, 'mask_eval_batch_size': 8}
+
+
+def test_ops_auto_vram_even_sizes_respect_the_stager_capacity(monkeypatch):
+    """A stager smaller than the calibrated batch splits evenly by its own capacity, not 3 then ones."""
+    monkeypatch.setattr(B, '_store_on_gpu', lambda *args, **kwargs: None)
+    monkeypatch.setattr(B, '_available_ram_bytes', lambda: 64 * GIB)
+    records = [f'site_{i}' for i in range(7)]
+    settings = {'batch_size': 'auto_vram', 'mask_eval_batch_size': 'auto_vram',
+                '_mask_calibration': {'max_fields': 6, 'tiles': 8, 'budget_source': 'free'}}
+    counts = []
+    with array_batches._array_batches(records, lambda record: (np.ones((3, 3), np.uint16), {}),
+                                      settings, gpu=True, max_fields=3) as fields:
+        for _record, _image, _metadata, count in fields:
+            counts.append(count)
+    assert counts == [3, 3, 3, 2, 2, 2, 2]

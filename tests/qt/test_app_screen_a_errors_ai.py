@@ -65,11 +65,12 @@ def test_a_pipeline_error_is_printed_raw_unless_ai_routing_works(
             "must not route when routing is unavailable")
 
     def consent(mp, scr):
+        """Set the issue context without submitting a report."""
         mp.setattr("spacr.qt.ai.issue_report.submit_report",
                    lambda report: submitted.append(report))
         widgets = scr._settings_model._widgets
         widgets["src"].setText("/data/for_issue")
-        widgets["batch_size"].setValue(11)
+        widgets["batch_size"].set_value(11)
         widgets["plot"].setChecked(True)
 
     off, on = (lambda: False), (lambda: True)

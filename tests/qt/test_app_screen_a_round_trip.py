@@ -158,13 +158,13 @@ def test_widgets_accept_only_values_they_can_hold(qtbot, subtests):
         naming = widgets["metadata_type"]
         keep = naming.combo.currentData()
         assert keep is not None
-        widgets["batch_size"].setValue(7)
+        widgets["n_jobs"].setValue(7)
         widgets["seg_qc_count_ratio"].setValue(0.5)
         cases = [
-            ("int garbage", widgets["batch_size"], "not-a-number",
-             lambda: widgets["batch_size"].value() == 7),
-            ("int None", widgets["batch_size"], None,
-             lambda: widgets["batch_size"].value() == 7),
+            ("int garbage", widgets["n_jobs"], "not-a-number",
+             lambda: widgets["n_jobs"].value() == 7),
+            ("int None", widgets["n_jobs"], None,
+             lambda: widgets["n_jobs"].value() == 7),
             ("float garbage", widgets["seg_qc_count_ratio"], "not-a-number",
              lambda: widgets["seg_qc_count_ratio"].value() == pytest.approx(0.5)),
             ("combo unknown option", naming.combo, "no_such_option",

@@ -794,3 +794,24 @@ def test_old_custom_classifier_refusals_enter_their_owners(extract_backend_sourc
     assert any(text.startswith("This custom classifier checkpoint records") for text in artifacts)
     utils = extract_backend_sources('utils.py', (root / "utils.py").read_text(encoding="utf-8"))
     assert any(text.startswith("This classifier was trained on {expected}-channel") for text in utils)
+
+
+def test_ops_channel_refusal_enters_only_the_shared_input_owner(extract_backend_sources):
+    """Keep the moved GUI refusal admitted without scanning other OPS scopes."""
+    path = Path(__file__).resolve().parents[1] / "spacr" / "ops_engine.py"
+    text = path.read_text(encoding="utf-8")
+    owner = next(node for node in ast.parse(text).body
+                 if isinstance(node, ast.FunctionDef) and node.name == "_ph_segmentation_inputs")
+    source = ast.get_source_segment(text, owner) + """
+tr("Unrelated OPS module metadata.")
+def unrelated():
+    def _ph_segmentation_inputs():
+        return tr("A nested same-name helper is outside the owner.")
+    return tr("An unrelated OPS caption.")
+class Other:
+    def _ph_segmentation_inputs(self):
+        return tr("A same-name method is outside the owner.")
+"""
+    assert extract_backend_sources("ops_engine.py", source) == {
+        "ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}"
+    }

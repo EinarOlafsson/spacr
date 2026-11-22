@@ -1,0 +1,760 @@
+{
+  "root": "/media/carruthers/mnt2/spacr/codex-worktrees/ws-offload-codex-work-1011b",
+  "base": "9b3dbe01976dcc21becabb0e51e2c24c24d60728",
+  "branch": "ws-offload-codex-work-1011b",
+  "file_sha256": {
+    "spacr/core.py": "47d9edb81da6bbad085860d5e38e14a8fdc897726284f743d05c440f640181bc",
+    "spacr/io.py": "6f8f32858e780c77ab8a4f3a266f5079e141bd2f8a924077eb44a54aade61833",
+    "spacr/object.py": "ccdf1c77f25a88a2526589192e7e9f62da6fb50cf683df969e98a9a33fcb1716",
+    "spacr/ops_engine.py": "ce28c614356b54cdedc0ff90a9291ced52105b883712495ee7b20eb986ce354a",
+    "tests/test_mask_batches_vram_auto_1011_wiring.py": "1862979973876fcf6945a0ff429122069843719e8fc1691ca34d5c639735b835"
+  },
+  "api_source_blocks": [],
+  "runtime_source_blocks": [],
+  "moved_unchanged_runtime": [
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 4670,
+      "source": "ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}",
+      "source_sha256": "15dfbc983a90d0f5f9d02f3f73f6e51a79df0ee9bf1b79920d4151508de6c7fe",
+      "canonical_id": null,
+      "admitted": false,
+      "admission": "existing runtime literal; no changed translation source"
+    }
+  ],
+  "private_helper_docs": [
+    {
+      "file": "spacr/core.py",
+      "line": 288,
+      "owner": "_prepare_mask_batch_plan",
+      "source": "Calibrate the loaded real model before fixing any field normalization cohort.",
+      "source_sha256": "9994ab8f5cd4904660bfe8f9bc0ae153f61da89c2ac0b2ed824aa3f8069866db",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/io.py",
+      "line": 1665,
+      "owner": "_concatenate_channel",
+      "source": "Concatenates channel data from multiple files and saves the concatenated data as numpy arrays.\n\nArgs:\n    src (str): The source directory containing the channel data files.\n    channels (list): The list of channel indices to be concatenated.\n    randomize (bool, optional): Whether to randomize the order of the files. Defaults to True.\n    timelapse (bool, optional): Whether the channel data is from a timelapse experiment. Defaults to False.\n    batch_size (int, optional): The number of files to be processed in each batch. Defaults to 100.\n    settings (dict, optional): Shared settings carrying mask_batch_seed.\n\nReturns:\n    str: The directory path where the concatenated channel data is saved.",
+      "source_sha256": "be997b660db027c87967da5c768c8620c9c286a0fb924e1ccfc65ad6e462ae9c",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1429,
+      "owner": "_eval_tile_batch",
+      "source": "The tile batch Cellpose's network runs at, from ``mask_eval_batch_size``.\n\n``'auto_vram'`` reads the calibrated tile count from the shared plan,\nor the CPU rule when no CUDA model is available. ``0`` retains one tile\nper field in the batch. A positive number explicitly selects the tiles\npassed through the network at once.\n\n:param settings: run settings.\n:param field_count: fields in the batch.\n:returns: the ``batch_size`` handed to Cellpose's ``eval``.\n:raises ValueError: when the setting is negative or not a whole number.",
+      "source_sha256": "1222b94536cb4d6bce0f2ad9ab89dbab72519512f31743d74b29d3aa5d7ad07c",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1726,
+      "owner": "_mask_model_session",
+      "source": "Reuse calibrated-run models while retaining uncached construction for legacy requests.",
+      "source_sha256": "7ad762584683d6957bda1d88e46d164d7deb9f73e87ad3d1863c61f21cc29a63",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1746,
+      "owner": "_session_cached_mask_model",
+      "source": "Reuse the one existing model identity implementation within a context-local session.",
+      "source_sha256": "054752fe529348dfecf6c08560be5262ad179f3ac1d5e2c47538c070b1f0ea3a",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1761,
+      "owner": "_release_calibration_model",
+      "source": "Release coordinator weights before subprocess workers load their own models.",
+      "source_sha256": "5a87af8a0d03a7984b9ead19d90f4ce788a12579794e476ef7408aa59c34bf04",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1776,
+      "owner": "_mask_model_setup",
+      "source": "Reuse the segmentation model, precision, backend and channel configuration.",
+      "source_sha256": "61558907b09dc6d55877785d10ad4f471194545dc4e87576ac8630f71b9e3a5a",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1823,
+      "owner": "_mask_eval_options",
+      "source": "The ordinary two-dimensional evaluation options shared by probes and masks.",
+      "source_sha256": "3e1fe2e725f2e2d005442ceecdbeacf42d9c851e8d603735fd95046fb6605712",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1835,
+      "owner": "_organelle_channel_position",
+      "source": "Resolve the selected slot through the existing dense channel mapping.",
+      "source_sha256": "c395485dfe52b1612cee90245407b4a677002c1b92bd857803a50dcc817973cc",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1845,
+      "owner": "_organelle_model_setup",
+      "source": "Reuse the existing organelle backend constructor for probes and actual masks.",
+      "source_sha256": "31af96be6e4ffe9c4a1709d986102f850256b461748cc3622e71e0d66d4c192c",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1863,
+      "owner": "_organelle_input_batch",
+      "source": "Share channel extraction, cell restriction and classical preprocessing with probes.",
+      "source_sha256": "885bb2094858ef1739c4b54c4d0c90be01bb56a4e1f6ee3ff00d562706a1011b",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1874,
+      "owner": "_organelle_eval_options",
+      "source": "The unchanged public Cellpose options used by the organelle segmentation path.",
+      "source_sha256": "ed104a12d37d63558612b9979647c79c867ec5d0116b9fd50a5e26b7d55ff818",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1882,
+      "owner": "_mask_calibration_setup",
+      "source": "Select the actual tile-based backend and its existing prepared sample, or no model.",
+      "source_sha256": "0befa0f6da280e4c123a354d2b26814efcd6b411f4c14d7960e4c1ec105f01e3",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1911,
+      "owner": "_restore_mask_calibration",
+      "source": "Restore the exact saved calibration before resolving a resumed batch plan.",
+      "source_sha256": "1ec1cced4d33c59dc76b6e15a6b2faa2d07ce8e0d1f64a908c24df16c9696990",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1930,
+      "owner": "_mask_probe_eval",
+      "source": "Measure the requested tiles once, preserving evaluation routing and propagating OOM.",
+      "source_sha256": "1767f2d7561ecdc4e9730846b1473a197df6f25e7b8bada30320adeb50b991a1",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1936,
+      "owner": "_mask_batch_configuration",
+      "source": "Describe the exact draw and tile policy used by either mask entry point.",
+      "source_sha256": "6c920fb6a78be5ed2e9dfb4e66ce5348598cb7eb521c37e9b43e267f8ef5021d",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1951,
+      "owner": "_validate_mask_batch_draw",
+      "source": "Refuse a changed saved cohort before probing, grouping or skipping completed fields.",
+      "source_sha256": "906d671400ca570ae9958bb2e87f11e5f0b3d77c3e447fd5dd01eca6536cbc26",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/object.py",
+      "line": 1968,
+      "owner": "_record_mask_batch",
+      "source": "Validate and journal one field against the common resolved batching policy.",
+      "source_sha256": "2253a697c210389c5d5028f0020071cb824b818401dff9e9299d3dd1d0d6734d",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 2220,
+      "owner": "_ops_calibration_context",
+      "source": "Identify the site, model and preparation options behind one calibration record.",
+      "source_sha256": "9fcd83f42fb507aaf4a7157ac2cb481e00e4b0bfffe0291100280b1801a0e304",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 2233,
+      "owner": "_ops_prefetched_load",
+      "source": "Read each field once and retain only availability metadata for journal positions.",
+      "source_sha256": "a4b5bcd1be8496a14c5da94d6921702622733caf67c2a44d83cdb5a214ab93a4",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 2244,
+      "owner": "_ops_journal_plan",
+      "source": "Restore recorded membership into the existing shared plan without estimating groups.",
+      "source_sha256": "e7fd5d5f09aafc3acf2776b26af5c3ff0ea75efb1b30907b073dc209f3cbde65",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 2268,
+      "owner": "_ops_batch_fields",
+      "source": "Journal actual groups produced by the single existing resident batch planner.",
+      "source_sha256": "61c18ef45472a8ed6103162ed38f394271354286107134b8fc9342bbae792a90",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 2306,
+      "owner": "_ops_array_batches",
+      "source": "Adapt existing OPS readers to the shared calibrated resident batch planner.",
+      "source_sha256": "fe8f85c8d7c051f63e5cf4f26879202e21c4a6ec9b4821aaf764cdba3d4a1335",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 4662,
+      "owner": "_ph_segmentation_inputs",
+      "source": "Prepare the same downsampled nucleus and cell inputs for probes and segmentation.",
+      "source_sha256": "0a87c1251d65361ff70ccd7b7379737842deec95633f85676533d74932f71aab",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 5588,
+      "owner": "_ph_model_pair",
+      "source": "Load the existing phenotype model pair once for both probes and segmentation.",
+      "source_sha256": "d88270c112af37a3c437900f46ceafa827a8f07407a9e9707bd5532676fb7efc",
+      "admission": "no records: private or nested callable"
+    },
+    {
+      "file": "spacr/ops_engine.py",
+      "line": 5599,
+      "owner": "_ph_probe_input",
+      "source": "Use the real downsampled cell input while retaining the complete resident field cost.",
+      "source_sha256": "d3608963898353c9886698933e133f8900977067f0042ca89bb2f6794dadfd90",
+      "admission": "no records: private or nested callable"
+    }
+  ],
+  "test_doc_inventory": [
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 18,
+      "owner": "_mask_project",
+      "source": "Create a real provisional Mask plan from small uint16 source fields.",
+      "source_sha256": "751ca768a07dc99c147568e7f7b93a393834f88ebb67b0dc7773fd210619bb19",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 34,
+      "owner": "_direct_eval",
+      "source": "Keep the real calibration fitter but replace device evaluation with a measured fake.",
+      "source_sha256": "45f6568b976b1692137dcae09d50916c1625e4cede53fe65c0073769002796b7",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 38,
+      "owner": "_direct_eval.evaluate",
+      "source": "Update fake allocator peaks and run the actual caller input/options through the model.",
+      "source_sha256": "fc65aad8a724c4cdec7de931c6aa0c356cd3f6747f700620bb25b4c232e3e78e",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 48,
+      "owner": "test_mask_calibrates_before_planning_with_resident_bytes_and_reuses_model",
+      "source": "The first Mask sample uses real normalized channels; segmentation reuses its cached model.",
+      "source_sha256": "885f0f1b2d855faf39fa03f8735f832ceafa25e87bdddb1542fc6f021ebd1deb",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 81,
+      "owner": "test_mask_saved_gpu_plan_restores_calibration_without_new_probes",
+      "source": "A saved GPU plan restores calibration before resolution, preserving bytes and tiles.",
+      "source_sha256": "9752f368f9ea82535242dd28eae0188d636abe9805fabecd13a2a51655695d1c",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 99,
+      "owner": "test_model_session_restores_nested_and_exceptional_cache",
+      "source": "Nested runs reuse the existing cache; exceptions always restore its original identity.",
+      "source_sha256": "f0e57cc62c4bade674aea18f4b7dddcc779eedda26b7342d220f8a37d9850cd9",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 111,
+      "owner": "test_coordinator_releases_calibrated_weights_before_subprocess_workers",
+      "source": "The parent does not keep a second model resident while pooled workers load theirs.",
+      "source_sha256": "27478e45bac4a95b6bb3d21f2d5c10c6d5c908c73f75f7785f885fe755a52f23",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 124,
+      "owner": "test_ops_adapter_even_groups_journal_and_resume_keep_saved_calibration",
+      "source": "OPS uses the shared resident planner, exact full-stack bytes and no resume probes.",
+      "source_sha256": "dd0527cc700b776b6f4719e86e0f11aea2223f912a4450954a632bf5c862106f",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 135,
+      "owner": "test_ops_adapter_even_groups_journal_and_resume_keep_saved_calibration.load",
+      "source": "Keep every original full stack resident while the smaller model input is probed.",
+      "source_sha256": "5470a71ce7101cbb53c85ac0e76e52558714639febb85c942a40e63df0e636f9",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 140,
+      "owner": "test_ops_adapter_even_groups_journal_and_resume_keep_saved_calibration.prepare",
+      "source": "Match the real phenotype cell input contract with downsampling and channel stacking.",
+      "source_sha256": "8fac4580195abc7af9262347144f872705b61dd64a15ea83ca14660625112f6f",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 173,
+      "owner": "test_mask_batch_journal_refuses_a_changed_draw",
+      "source": "The existing resolved-parameter refusal protects the recorded seed and entire cohort.",
+      "source_sha256": "1f133990cc28b1929d9ade91f34796af3de6e739218c9a0887ce9bb87c3f1e6c",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 190,
+      "owner": "test_legacy_ops_selectors_keep_original_groups_without_calibration",
+      "source": "Legacy field and tile requests keep their existing shared grouping and tile policy.",
+      "source_sha256": "5320319371f171e40dfd3932988a07407a25b87799d483acbc9350f3c70b5b94",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 204,
+      "owner": "test_real_phenotype_stager_matches_seeded_segmentation_order",
+      "source": "The actual phenotype caller stages and segments the same seeded field sequence.",
+      "source_sha256": "5d408cecac26d3588995ae1beff1b273f43a284278ad225800aec214b1f11fa8",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 218,
+      "owner": "test_real_phenotype_stager_matches_seeded_segmentation_order.Stager",
+      "source": "Observe the order passed to the existing staging interface.",
+      "source_sha256": "2fdb129350fd80be051c5abb0e2b5c2b5b59e404aa4cf56b0153f90b1681251d",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 224,
+      "owner": "test_real_phenotype_stager_matches_seeded_segmentation_order.Stager.__init__",
+      "source": "Record the complete requested staging order.",
+      "source_sha256": "d2a3699104f6484705095e8c76af0c6e697a9d6e7c990ba5304d5f7cf6db45a9",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 228,
+      "owner": "test_real_phenotype_stager_matches_seeded_segmentation_order.Stager.load",
+      "source": "Expose the field identity through existing resident pixels.",
+      "source_sha256": "ad265fdea752dcdf8b3d78c7de32005c021075b1bfff9225857f062fe0d7ccb1",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 233,
+      "owner": "test_real_phenotype_stager_matches_seeded_segmentation_order.Stager.release",
+      "source": "Release a staged field after segmentation.",
+      "source_sha256": "cbcbaf3cae350560907c30334c111c7794a8b88cc289092d038626f7463210a9",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 236,
+      "owner": "test_real_phenotype_stager_matches_seeded_segmentation_order.Stager.close",
+      "source": "Finish this synthetic staging session.",
+      "source_sha256": "65cec6b71d3e8bdcef252b3add0886c6d1c90623c55193e316002431d563f8c0",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 261,
+      "owner": "test_cpu_mask_plan_never_evaluates_a_probe_and_caps_at_fifty",
+      "source": "The real Mask adapter retains seeded even CPU cohorts with no model probe calls.",
+      "source_sha256": "5269a60444c07bb658ffe1b6c28d1bc5f6138f7da99ba4d5fb01f2415eaf94fd",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 275,
+      "owner": "test_concurrent_mask_runs_reuse_models_only_within_their_own_context",
+      "source": "Two real threads use the existing cache identity without sharing models across runs.",
+      "source_sha256": "8902a0b304018c26a96b15eaee4937837bd3c7eb5c16047fd5b6c2b005b634fa",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 283,
+      "owner": "test_concurrent_mask_runs_reuse_models_only_within_their_own_context.run",
+      "source": "Build once inside one run while the other run has the same model identity.",
+      "source_sha256": "069661c8b0a0ac2451b27eb77c3f6127c3c0f1b3e6a65214f77dfd374fc49d8f",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 302,
+      "owner": "test_completed_ops_run_refuses_a_changed_draw_before_loading_or_probing",
+      "source": "A completed resume validates the full saved cohort even when no field needs segmentation.",
+      "source_sha256": "72a1daa16689631041d2867d32afeea16e26978d56a0a3876c92c1cb147e987b",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 328,
+      "owner": "test_completed_mask_run_refuses_changed_seed_before_loading_or_probing",
+      "source": "The Mask route validates the journal before deciding that completed masks need no work.",
+      "source_sha256": "7741690a3df2493026c9cc88ebd9555d901537f0e7cbb167086095a85a47b400",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 344,
+      "owner": "test_stitched_windows_keep_acquisition_order_with_randomize_enabled",
+      "source": "The actual stitched objects route retains the overlapping window sequence.",
+      "source_sha256": "55a71637fdc70c955454531eec058965c27001f6f71db998126086777d6de81b",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 359,
+      "owner": "test_stitched_windows_keep_acquisition_order_with_randomize_enabled.batches",
+      "source": "Observe records at the actual stitched resident-adapter boundary.",
+      "source_sha256": "bc135cda0b3b7e206e7f06f42d906d2695f2d9c64ea663196b13e90c1aa6dd4f",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 373,
+      "owner": "test_real_spatial_windows_keep_acquisition_order_with_randomize_enabled",
+      "source": "Spatial calls the shared sizing adapter without permuting its overlapping windows.",
+      "source_sha256": "0d5a3f258e36859a17f32f228f0a082a7a50e05faf59f8e9f2cc741eaba2f586",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 386,
+      "owner": "test_real_spatial_windows_keep_acquisition_order_with_randomize_enabled.batches",
+      "source": "Observe the actual spatial field indices before shared residency.",
+      "source_sha256": "f8dad581aa00ba018dfd31c7cc9407e9681ced7aaf4b7176c7780f4a00523083",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 397,
+      "owner": "test_sequential_ops_sites_use_their_own_resident_calibration_and_resume",
+      "source": "Stitched windows and phenotype stacks share the fitter while keeping distinct actual costs.",
+      "source_sha256": "083dd219c2d3635a23c775c17ec5cc1ed1146ee0cb3ef396aecd488c8d11144c",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 410,
+      "owner": "test_sequential_ops_sites_use_their_own_resident_calibration_and_resume.prepare",
+      "source": "Keep the preparation bound to the actual input of this site.",
+      "source_sha256": "95df4958d1f0877d26db347ba4124114ab9ee2fc2356be86709ce790e210bfb0",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 441,
+      "owner": "test_ops_journal_replay_without_external_plan_restores_matching_site",
+      "source": "Saved journal calibration suffices for a zero-probe replay without a plan file.",
+      "source_sha256": "9dc68a36f4c17e76b49e9136babe46356aa110f8bce95c8e124b28443ca142ab",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 465,
+      "owner": "test_ops_journal_records_the_actual_explicit_site_tile_override",
+      "source": "A path override remains effective while the resident groups use shared auto sizing.",
+      "source_sha256": "48f258d7d3a7a0514b60630fbbb81bd1adfd518ce5f711ee4e21cfb55a080c7c",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 479,
+      "owner": "test_real_mask_io_uses_repeatable_seeded_order_and_acquisition_control",
+      "source": "The actual Mask preprocessing writer delegates both random and control order to one helper.",
+      "source_sha256": "d4ea74df907fc66d49d0c45672f08b9fb9ecb92c362be6e4c665d3bed03b8f03",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 493,
+      "owner": "test_calibration_probes_keep_exact_tiles_when_runtime_controller_would_shrink",
+      "source": "The real governor must bypass fitting only for probes, retaining exact two-point tile counts.",
+      "source_sha256": "566cbdffbef6bb3d6dfc25b1de8bbff8e77362b0bdbb5d80a09a71436c351339",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 499,
+      "owner": "test_calibration_probes_keep_exact_tiles_when_runtime_controller_would_shrink.fit",
+      "source": "Model a busy card that would shrink ordinary segmentation to one tile.",
+      "source_sha256": "ee129288a69ce4934f2186f21e4ecca2165ab246903c7fff5753922e9c2e5eca",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 521,
+      "owner": "test_second_probe_oom_reaches_the_existing_calibrator_without_smaller_retry",
+      "source": "L1 owns the single-probe fallback when the exact eight-tile probe cannot fit.",
+      "source_sha256": "8f3e742fd04fd304707fba07236ec8973ed742cd2a14805e7d0f28b222202430",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 531,
+      "owner": "test_second_probe_oom_reaches_the_existing_calibrator_without_smaller_retry.evaluate",
+      "source": "Raise only on the exact eight-tile probe while measuring the two-tile call.",
+      "source_sha256": "77ffd9596e0bf0e7ce72ec3347fe790a96f75b8849f5fc8868ec71091de89087",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 556,
+      "owner": "test_journal_only_multi_group_membership_and_replay_ignore_changed_ram",
+      "source": "A route without a permanent checkpoint still journals and replays exact shared groups.",
+      "source_sha256": "8629b7f8df212162c7ad7f7bed69cf725b0d4e0a9ee84fb9b70bc906ce934d49",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 582,
+      "owner": "test_temporary_shared_plan_cleans_up_empty_and_missing_fields",
+      "source": "Temporary checkpoint ownership covers empty inputs and None images without false journal rows.",
+      "source_sha256": "b9899112a5cc489f45b6b8a97e18d49462bd7d3a2a9bf8b69cf8763986a45a10",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 590,
+      "owner": "test_temporary_shared_plan_cleans_up_empty_and_missing_fields.temporary",
+      "source": "Observe temporary plan ownership without changing the real cleanup behavior.",
+      "source_sha256": "0da60c02b2949989e782866164d88b179614a57b0c7110fb4caf6f33f2b96060",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 614,
+      "owner": "test_temporary_shared_plan_is_removed_on_a_segmentation_exception",
+      "source": "Closing a failing resident stream also removes its temporary shared checkpoint.",
+      "source_sha256": "27d787ed3e2d76e83c6927e1640076a6773b618a401e21b5e61adb2b188f7fb6",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 622,
+      "owner": "test_temporary_shared_plan_is_removed_on_a_segmentation_exception.temporary",
+      "source": "Keep the real context manager while recording its owned directory.",
+      "source_sha256": "18a1cb7e9c1f757f95d80dca9f70185f5ab7d5eff604e4b4f7dfd177d14178c4",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 642,
+      "owner": "test_classical_only_mask_caller_never_constructs_or_probes_cellpose",
+      "source": "Global auto batching must preserve real classical-only Mask runs without any model load.",
+      "source_sha256": "3dc7dec768cbb31e3d04271b0bb7206c9b1c982618b27815f4472d2a7e5949ed",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 664,
+      "owner": "test_organelle_cellpose_uses_real_preparation_options_and_the_same_loaded_model",
+      "source": "Calibration and the actual organelle caller reuse one constructor and identical eval policy.",
+      "source_sha256": "88cf2bd685c222e6b5f98ea7c1a4a788b5a6e42b8d755ab60f04f0360b899a5a",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 679,
+      "owner": "test_organelle_cellpose_uses_real_preparation_options_and_the_same_loaded_model.choose",
+      "source": "Replace only the existing model constructor without changing its caller configuration.",
+      "source_sha256": "837abb7e2bf7e9bffb5deed0d5cb294aafd34902103a0c1f7fdce07e65f65977",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 684,
+      "owner": "test_organelle_cellpose_uses_real_preparation_options_and_the_same_loaded_model.preprocess",
+      "source": "Observe real organelle preprocessing on both the probe and segmentation batch.",
+      "source_sha256": "0836906204423b93f5d3778282a9e64ccc0c59f7abdd363d6048a40b544e2c2a",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 713,
+      "owner": "test_unet_only_mask_plan_skips_tile_probes_and_loads_only_at_actual_segmentation",
+      "source": "A backend without Cellpose tiles retains the shared no-probe rule and its own loader.",
+      "source_sha256": "4858169de307370ab2d5855cfd448a6e7f3c84f1e8928c4b14af9bd42ee8a7ce",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 725,
+      "owner": "test_unet_only_mask_plan_skips_tile_probes_and_loads_only_at_actual_segmentation.load",
+      "source": "Represent the real native backend loader without a checkpoint or GPU.",
+      "source_sha256": "c7052038bc49848baa637513a80a45d19dd94a09429b92bda78f01fc3cf2e23b",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 730,
+      "owner": "test_unet_only_mask_plan_skips_tile_probes_and_loads_only_at_actual_segmentation.segment",
+      "source": "Retain the native backend call boundary without exercising its unrelated network.",
+      "source_sha256": "6f425ac78662f1261cdf9a2a71a58f66f6d8b6d5fd078555b393b0725ed70901",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 750,
+      "owner": "test_real_phenotype_preserves_legacy_limit_before_model_residency",
+      "source": "Legacy grouping sees the original free-VRAM state; calibration-active grouping sees loaded weights.",
+      "source_sha256": "560d2a2a9dd1ab5ba69385e69175d2c8be80d042b5eacae563d03ff1c3b62884",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 766,
+      "owner": "test_real_phenotype_preserves_legacy_limit_before_model_residency.load_model",
+      "source": "Make the real caller model factory observable without a real GPU.",
+      "source_sha256": "3e714f666d67f0ad116840dccca580ddab544afd63d4034202fe3e8643c77690",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 772,
+      "owner": "test_real_phenotype_preserves_legacy_limit_before_model_residency.limit",
+      "source": "Run the actual shared estimate with free memory dependent on weight residency.",
+      "source_sha256": "b01320925d5ed26f5c4629fcfe4be10db7f4f018a086f96952daec06383b41a2",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 805,
+      "owner": "test_legacy_mask_session_keeps_original_uncached_model_construction",
+      "source": "Legacy plates must not retain weights that alter the next plate's free-VRAM batch estimate.",
+      "source_sha256": "40342559b513b6451e1ff088b7a8a45faa9bd7c46332fe5ac0748a88e36a95f0",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 822,
+      "owner": "test_mask_tile_auto_session_reuses_model_when_field_count_is_explicit",
+      "source": "Tile calibration alone still reuses its actual model even with an explicit field batch.",
+      "source_sha256": "6ebed37d10bf1765219c8937fada1f6afb2e6778dc2dadf659f65c10ce923f86",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 836,
+      "owner": "test_published_mask_settings_replay_preserves_selectors_and_resolved_groups",
+      "source": "Published settings keep both selectors; replay retains exact groups and refuses overrides.",
+      "source_sha256": "00dcb4380e3a99ecc526ce7f3c68be6865c82572d9fb9d52b734b3a0d9fe9800",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 887,
+      "owner": "test_second_session_does_not_capture_an_in_progress_constructor_cache",
+      "source": "An overlapping session must read only the restored pooled-cache identity.",
+      "source_sha256": "e9bd562cab394d083b07c6d1135af8dec8041bbe79fa3d1a16d6d76289620e7e",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 896,
+      "owner": "test_second_session_does_not_capture_an_in_progress_constructor_cache.build",
+      "source": "Keep the first constructor's global swap visible until the second entry is attempted.",
+      "source_sha256": "0f1e0fc18311fed684b944a7b48c04f36bbcc3eb8589cd58e754331578a3d851",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 902,
+      "owner": "test_second_session_does_not_capture_an_in_progress_constructor_cache.first",
+      "source": "Start the first model construction inside an ordinary scoped session.",
+      "source_sha256": "bbf80a1f214a28008799d26e9cb8e3c7d052ac8787edaa178df6cf24a9f5ea6a",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 908,
+      "owner": "test_second_session_does_not_capture_an_in_progress_constructor_cache.second",
+      "source": "Enter the second session while the first constructor holds the existing identity lock.",
+      "source_sha256": "adceefee342c9ea6d3bf1dd8dfd4c6e4d9440c64f8a9d342bb59abcd295492e8",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 928,
+      "owner": "test_legacy_coordinator_release_does_not_clear_another_run_cache",
+      "source": "A disabled session follows the real parallel-role release call while another build completes.",
+      "source_sha256": "1fd474a7d4110a92a11a6bb6b5e4e09584c9333bfb87a7b8fca3162e698b1c24",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 940,
+      "owner": "test_legacy_coordinator_release_does_not_clear_another_run_cache.held_handoff",
+      "source": "Pause after real construction while the existing adapter still installs its global cache.",
+      "source_sha256": "bc81a381c5ebed2fd07e4fd928bb021238554cdc733c42933eac25c6adfa3f38",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 947,
+      "owner": "test_legacy_coordinator_release_does_not_clear_another_run_cache.ordinary_auto",
+      "source": "Construct the calibrated model after the legacy context is already open.",
+      "source_sha256": "691b1f08d8707b378a6e3a0e04b250ca90c45bf36248813ef35ffafccc1c7b5d",
+      "admission": "no records: test callable"
+    },
+    {
+      "file": "tests/test_mask_batches_vram_auto_1011_wiring.py",
+      "line": 955,
+      "owner": "test_legacy_coordinator_release_does_not_clear_another_run_cache.legacy_parallel",
+      "source": "Follow core's disabled-session context and coordinator release ordering.",
+      "source_sha256": "87cfa34c3d71e9b455967980b57589f02460862be9100a39f38d97ee0567ee05",
+      "admission": "no records: test callable"
+    }
+  ],
+  "locales": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "source_count_scope": "L2 delta against base 9b3dbe01976dcc21becabb0e51e2c24c24d60728",
+  "inherited_l1_runtime_not_admitted": [
+    {
+      "file": "spacr/_mask_batches.py",
+      "line": 607,
+      "end_line": 627,
+      "owner": "_calibration_line",
+      "call_site": "spacr/_mask_batches.py:814",
+      "canonical_id": null,
+      "admission": "runtime-not-admitted: inherited L1 plain f-strings have no tr() owner/admission",
+      "disposition": "L1 owner follow-up; not a Home locale-record-only deferral; no L1 source change in L2",
+      "source": "def _calibration_line(n_fields, sizes, calibration):\n    \"\"\"The one console line that reports an ``'auto_vram'`` plan (item 1011).\n\n    :param n_fields: fields in the run.\n    :param sizes: the batch sizes.\n    :param calibration: from :func:`_calibrate`.\n    :returns: e.g. ``Mask batches: 1,281 fields -> 6 batches of 213-214 (...)``.\n    \"\"\"\n    low, high = (min(sizes), max(sizes)) if sizes else (0, 0)\n    span = f'{low}' if low == high else f'{low}–{high}'\n    source = calibration.get('budget_source')\n    if source == 'cpu':\n        budget = 'no CUDA device'\n    else:\n        budget = (f\"VRAM budget {float(calibration.get('budget') or 0) / 2**30:.1f} GB \"\n                  f\"{'declared' if source == 'declared' else 'free'}\")\n    measured = ('' if not calibration.get('per_tile') else\n                f\"; {float(calibration['per_tile']) / 2**30:.2f} GB per tile measured\")\n    return (f\"Mask batches: {n_fields:,} fields → {len(sizes)} batch\"\n            f\"{'es' if len(sizes) != 1 else ''} of {span} ({budget}; tile batch \"\n            f\"{calibration.get('tiles')} of cap {calibration.get('cap')}{measured}).\")",
+      "source_sha256": "d0686827af079bb1b0d7a00d9769f5d9245c49e2fc13778eb156206d7c7f71a9",
+      "file_sha256": "b57e8231b9c0c5e71c1a40a5b5ac6ef4300b3aa2a059ce7314151b34d3a62173"
+    }
+  ]
+}

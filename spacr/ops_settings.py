@@ -77,8 +77,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_cell_diameter": None,
     "ops_ph_downsample": 2,
     "ops_ph_tile_batch": 0,
-    "batch_size": 0,
-    "mask_eval_batch_size": 0,
+    "batch_size": "auto_vram",
+    "mask_eval_batch_size": "auto_vram",
+    "mask_eval_batch_cap": 32,
+    "mask_batch_seed": 42,
+    "gpu_vram_budget_gb": None,
+    "randomize": True,
     "mask_inference_precision": "auto",
     "gpu_memory_margin_gb": 1.5,
     "ops_ph_sites": None,
@@ -583,6 +587,12 @@ FINAL_RUN_FAMILIES_1008: Tuple[str, ...] = (
 #: ``None`` is admissible for every path-like and every "work it out" default,
 #: which is why those carry a tuple including ``type(None)``.
 OPS_TYPES: Dict[str, object] = {
+    "batch_size": (int, str),
+    "mask_eval_batch_size": (int, str),
+    "mask_eval_batch_cap": int,
+    "mask_batch_seed": int,
+    "gpu_vram_budget_gb": (float, int, type(None)),
+    "randomize": bool,
     "dst_root": (str, type(None)),
     "genotype_source": (str, type(None)),
     "phenotype_source": (str, type(None)),
@@ -1124,6 +1134,7 @@ OPS_TYPES: Dict[str, object] = {
 #: module's OPS power curve section; ``_APP_HIDDEN_KEYS['ops']`` in
 #: :mod:`spacr.qt.screens.settings_model` hides them here.
 OPS_CATEGORIES: Dict[str, List[str]] = {
+    "GPU Memory α": ["mask_eval_batch_cap", "mask_batch_seed", "gpu_vram_budget_gb"],
     "OPS input": [
         "dst_root", "genotype_source", "phenotype_source", "ops_library",
         "ops_layout", "ops_phases",
@@ -1472,7 +1483,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - How many 256-pixel tiles Cellpose passes through the "
         "network at once when it segments the sequencing nuclei of each "
         "stitched well and of the live spot preview. 0 uses "
-        "mask_eval_batch_size. The tile batch can move a few mask pixels, so "
+        "the shared VRAM-aware mask_eval_batch_size (default auto_vram). "
+        "The tile batch can move a few mask pixels, so "
         "set it to keep a run identical to an earlier one. Settings files "
         "from before this setting get 16, the value the sequencing path "
         "always used. Default 0.",
@@ -1809,7 +1821,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_ph_tile_batch":
         "(int) - How many 256-pixel tiles Cellpose passes through the "
         "network at once when it segments phenotype nuclei, cells, pathogens "
-        "and organelles. 0 uses mask_eval_batch_size. The tile batch can move "
+        "and organelles. 0 follows the shared VRAM-aware mask_eval_batch_size "
+        "(default auto_vram). The tile batch can move "
         "a few mask pixels, so set it to keep a run identical to an earlier "
         "one. Settings files from before this setting get 8, the value the "
         "phenotype path always used. Default 0. Alpha.",
@@ -4382,8 +4395,8 @@ SPATIAL_TOOLTIPS: Dict[str, str] = {
         "image's own scale. Default None.",
     "spatial_tile_batch":
         "(int) - How many 256-pixel tiles Cellpose passes through the "
-        "network at once when it segments the stain. 0 uses one tile per "
-        "image, or mask_eval_batch_size when that is set. The tile batch can "
+        "network at once when it segments the stain. 0 follows the shared "
+        "VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can "
         "move a few mask pixels, so set it to keep a run identical to an "
         "earlier one. Settings files from before this setting get 16, the "
         "value Spatial Mask Generation always used. Default 0.",

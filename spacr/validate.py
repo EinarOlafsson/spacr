@@ -954,6 +954,7 @@ def _a_type_name(expected: Any) -> str:
 
 
 _EXPECTED_TYPE_OVERRIDES: Dict[str, Any] = {
+    "batch_size": int,
     "src": (str, list),
     "normalize": (bool, list),
     "save": (bool, list),
@@ -962,9 +963,9 @@ _EXPECTED_TYPE_OVERRIDES: Dict[str, Any] = {
 
 _APP_TYPE_OVERRIDES: Dict[str, Dict[str, Any]] = {
     "foreign": {"masks": (str, list)},
-    "mask": {"batch_size": (int, str)},
+    "mask": {"batch_size": (int, str), "mask_eval_batch_size": (int, str)},
     "timelapse": {"batch_size": (int, str)},
-    "ops": {"batch_size": (int, str)},
+    "ops": {"batch_size": (int, str), "mask_eval_batch_size": (int, str)},
 }
 
 
@@ -1477,7 +1478,7 @@ def _automatic_batch_problems(value: Any) -> List[Problem]:
 
     try:
         request = _batch_size_request(value)
-        if request is not None and float(value) != request:
+        if isinstance(request, int) and float(value) != request:
             raise ValueError(value)
     except ValueError:
         return [Problem(ERROR, "batch_size", f"batch_size={value} is not a batch size.",
@@ -1509,7 +1510,8 @@ def _check_numeric_sanity(settings: Dict[str, Any], app: str = "") -> List[Probl
         elif number is not None and key in (
                 "batch_size", "test_images", "test_nr", "nr_imgs",
                 "epochs", "n_epochs", "image_size", "size", "chunk_size",
-                "magnification", "examples_to_plot", "guide_permutations"):
+                "magnification", "examples_to_plot", "guide_permutations",
+                "mask_eval_batch_cap"):
             if number < 1:
                 problems.append(Problem(
                     ERROR, key, f"{key}={value} must be at least 1.",

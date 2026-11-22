@@ -1,0 +1,490 @@
+{
+  "item": "1011 L3",
+  "base_sha": "762e1d8255a8f7b2abf8b1d3c688f6f018024741",
+  "source_branch": "ws-offload-codex-work-1011c",
+  "admission_authority": "WORK_TASKS v88,2026-11-21 22:47; moved GUI channel error admitted by exact owner; calibration summary remains English console text; v84 legacy migration, v80 alpha and v78 source/Qt/map approvals retained",
+  "deferred_checks": [
+    "tests/test_alpha_deck_registry.py::test_the_published_alpha_page_covers_the_current_registry",
+    "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_complete_before_optional_module_imports",
+    "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_stable_after_runctx_import",
+    "tests/qt/test_external_i18n_catalogs.py::test_empty_flowchart_caption_translates_without_changing_python_none"
+  ],
+  "test_source_files": {
+    "tests/qt/test_app_screen_a_construction.py": "9e0563c0a848ae75c5a1847babc0fa9d00be31c0737ec8dad51a3263c9a54a45",
+    "tests/qt/test_app_screen_a_errors_ai.py": "eb51a14bef6aab413c5d8405cbcf8d16ddbc066d9c681b04c15539c2c2855fa7",
+    "tests/qt/test_app_screen_a_round_trip.py": "76e82f4d7e0f3a99f37211b84dbc6342f36bf680ae3c87ae18486e1247038357",
+    "tests/test_alpha_deck_registry.py": "5cdbe110aca599b1637545a1a6a18cd364313f6bcea9454be0ffd6e766dcedee",
+    "tests/test_default_settings_validate_1003.py": "c93a88d8fbbe2054a89b1bb2da6801ed85dcddfe24be3d0af257051c9f9a752f",
+    "tests/test_mask_batch_size_auto_987b.py": "78e4071c1fb1eb13a493c436a938100c1196a3ef4ce56f480831b2274ee8a6e2",
+    "tests/test_ops_tile_batch_per_path_948.py": "daa07db16b7bbd8f42b034430549ce1479b6e4055ad80760ef1fbd6bc12fa56c",
+    "tests/test_runtime_backend_caption_owners.py": "70977433cf8c5cf6455f490ad7e41748593bc20bd516e0b36385bd74a52f1b51",
+    "tests/test_settings_categories.py": "df3084e82976fa6133844ed6d9193f25dd5dcea9268f08fdf71f236e126f7a33",
+    "tests/test_settings_schema_version_931.py": "0d3b7663660974020d1c90f0170adfc1c4afb2a5c4b5db724cefa8d629b3ad3c",
+    "tests/test_settings_tooltip_quality.py": "25e726216a90dddf47d1b706ec0a5f9de994f97eaa95de806256de7d8ca47bf1"
+  },
+  "source_files": {
+    "spacr/cli.py": "c98c52aa50b09efdde68f05565d942f0a698cffafb574493288b6a84d7b7915c",
+    "spacr/ops_settings.py": "10e3c51b29078d4013e3aa9116a599ca9033cb39d829c5c6dd302d0a75ed6ba3",
+    "spacr/qt/help_api_index.py": "4b97f4ea91c4445a76b25d728193c2fd3c790f034abb8499b2a9de25c0c151d5",
+    "spacr/qt/screens/setting_api_targets.py": "6535b97a76125cdebcd41d2b06ff0bc218a7a7e0e2afea96a5cece52a534e3ae",
+    "spacr/qt/screens/settings_flow_index.py": "08ebfb4eac77c4f4e6fddf3c11f3ad811e0db119531e6a5cba00aaf1aa5dc706",
+    "spacr/qt/screens/settings_model.py": "7fba30037420d3656bef21c16b22fc1b6eb35ef6fe83eb9cd1e830777325dd93",
+    "spacr/settings.py": "94d24c3eec2eb8fe04b7b03e7b190073b435200685b3d00cd49beb62ce4cdfd1",
+    "spacr/validate.py": "7796f505e2d93a70f2c2b36d9a5109014431ced6983fb29cf062d55791a0d76d",
+    "tools/build_i18n_catalogs.py": "a3bb54f43e2bb91f651ed6de9845dd8262c4d5e20ad43abed95817485b128836",
+    "tools/refresh_alpha_deck.py": "4d37b0381f664d9656b774aacd42d42e9a36eea132ab8ad2b26b2bdd253f89fb"
+  },
+  "runtime_source_blocks": [
+    {
+      "kind": "setting_tooltip",
+      "table": "SETTING_TOOLTIPS",
+      "canonical_id": "batch_size",
+      "file": "spacr/settings.py",
+      "line": 5614,
+      "source": "How many images are processed together: fields during mask generation and OPS, or crops per classifier step. For Mask Generation and OPS, 'auto_vram' measures GPU memory on the run data, then divides fields into batches whose sizes differ by at most one. Resident field arrays count toward the memory budget. Use 0 or 'whole' for the earlier largest-fitting-batch estimate, or a positive number to request a field count; it is reduced with a warning if the fields do not fit in memory. Defaults: 'auto_vram' for Mask Generation and OPS, 64 for training.",
+      "source_sha256": "9687c8c4f1a6afb449e03ef680624f2c4c5e57fe0e422342e2630baa95d891d9",
+      "source_literal": "(int or str) - How many images are processed together: fields during mask generation and OPS, or crops per classifier step. For Mask Generation and OPS, 'auto_vram' measures GPU memory on the run data, then divides fields into batches whose sizes differ by at most one. Resident field arrays count toward the memory budget. Use 0 or 'whole' for the earlier largest-fitting-batch estimate, or a positive number to request a field count; it is reduced with a warning if the fields do not fit in memory. Defaults: 'auto_vram' for Mask Generation and OPS, 64 for training.",
+      "literal_sha256": "7edc65ec0310cac7f358c8a524eaac9c76b1d4a5a2af8eb78f432eb3b962570f",
+      "admission": "admitted by canonical_sources.setting_tooltips"
+    },
+    {
+      "kind": "setting_tooltip",
+      "table": "SETTING_TOOLTIPS",
+      "canonical_id": "mask_eval_batch_size",
+      "file": "spacr/settings.py",
+      "line": 5743,
+      "source": "How many 256-pixel tiles Cellpose passes through the network at once in Mask Generation and OPS. 'auto_vram' measures the GPU working memory and resolves the largest tile batch that fits, up to mask_eval_batch_cap, before segmentation. CPU and external backends use at most 8. Use 0 for one tile per resident field, or a positive number to request the tile batch. The tile batch can move a few mask pixels; resume keeps the recorded value. Default 'auto_vram'.",
+      "source_sha256": "0bff4fb4c8c5f03723acb71f4d8faaa0ce94e9d77c6973bdf009a9b051bd8d19",
+      "source_literal": "(int or str) - How many 256-pixel tiles Cellpose passes through the network at once in Mask Generation and OPS. 'auto_vram' measures the GPU working memory and resolves the largest tile batch that fits, up to mask_eval_batch_cap, before segmentation. CPU and external backends use at most 8. Use 0 for one tile per resident field, or a positive number to request the tile batch. The tile batch can move a few mask pixels; resume keeps the recorded value. Default 'auto_vram'.",
+      "literal_sha256": "261d7645a9edbd8d4836a8ee66d2e19db48ad57891ae8e041b1e7490b868731d",
+      "admission": "admitted by canonical_sources.setting_tooltips"
+    },
+    {
+      "kind": "setting_tooltip",
+      "table": "SETTING_TOOLTIPS",
+      "canonical_id": "gpu_vram_budget_gb",
+      "file": "spacr/settings.py",
+      "line": 5744,
+      "source": "GPU memory budget in GB for automatic mask batches in Mask Generation and OPS, including resident field arrays and network working memory. Empty uses SPACR_GPU_VRAM_GB when set, then the free card memory. The governor reserves its memory margin and CUDA context and divides the budget among mask workers. Set the same budget to reproduce batch sizes across cards; it can resolve fewer than mask_eval_batch_cap tiles. Default None. Alpha.",
+      "source_sha256": "b04491fec06264fe535f4b7258d16ee4cc1fd7a4f842aaf3b3c2eeb4be325edb",
+      "source_literal": "(float or None) - GPU memory budget in GB for automatic mask batches in Mask Generation and OPS, including resident field arrays and network working memory. Empty uses SPACR_GPU_VRAM_GB when set, then the free card memory. The governor reserves its memory margin and CUDA context and divides the budget among mask workers. Set the same budget to reproduce batch sizes across cards; it can resolve fewer than mask_eval_batch_cap tiles. Default None. Alpha.",
+      "literal_sha256": "5d0f559d00a94403d8c2c39fc90d6f6e7e00e297e41bebca1dbacf933714b075",
+      "admission": "admitted by canonical_sources.setting_tooltips"
+    },
+    {
+      "kind": "setting_tooltip",
+      "table": "SETTING_TOOLTIPS",
+      "canonical_id": "mask_batch_seed",
+      "file": "spacr/settings.py",
+      "line": 5745,
+      "source": "Seed for the shared field shuffle in Mask Generation and OPS phenotype segmentation when randomize is True. The same field set and seed keep the same order; batch sizes also depend on the GPU budget. The plan and run journal record the order. Stitched sequencing windows, Spatial Mask Generation and timelapse keep acquisition order. Default 42. Alpha.",
+      "source_sha256": "7bafb2113f66f26a8518a2bc192ab171388a5074cc06d4dccea1d96b41345395",
+      "source_literal": "(int) - Seed for the shared field shuffle in Mask Generation and OPS phenotype segmentation when randomize is True. The same field set and seed keep the same order; batch sizes also depend on the GPU budget. The plan and run journal record the order. Stitched sequencing windows, Spatial Mask Generation and timelapse keep acquisition order. Default 42. Alpha.",
+      "literal_sha256": "44d72e35b128bd30fa0bf0d0e28bb6a31fb0f8d169659d9c20ee9835b43bdb76",
+      "admission": "admitted by canonical_sources.setting_tooltips"
+    },
+    {
+      "kind": "setting_tooltip",
+      "table": "SETTING_TOOLTIPS",
+      "canonical_id": "mask_eval_batch_cap",
+      "file": "spacr/settings.py",
+      "line": 5746,
+      "source": "Largest tile batch allowed when mask_eval_batch_size is 'auto_vram'. The measured GPU budget can resolve a smaller value; CPU and external backends use at most 8. A batch of 32 can need about 8 GB including resident fields, so a smaller GPU budget can select fewer tiles. Must be at least 1. Default 32. Alpha.",
+      "source_sha256": "c4852ddcfef6922d8185e2c10b5f906ac900103fdd4a302360f1a49c2fb4303e",
+      "source_literal": "(int) - Largest tile batch allowed when mask_eval_batch_size is 'auto_vram'. The measured GPU budget can resolve a smaller value; CPU and external backends use at most 8. A batch of 32 can need about 8 GB including resident fields, so a smaller GPU budget can select fewer tiles. Must be at least 1. Default 32. Alpha.",
+      "literal_sha256": "f9da856639841f8d55dae78a4517e0ff8c66f1efc99e474c5e9bd30745da1aaa",
+      "admission": "admitted by canonical_sources.setting_tooltips"
+    },
+    {
+      "kind": "setting_tooltip",
+      "table": "SETTING_TOOLTIPS",
+      "canonical_id": "randomize",
+      "file": "spacr/settings.py",
+      "line": 6090,
+      "source": "Shuffle fields with mask_batch_seed before batching in Mask Generation and OPS phenotype segmentation. Mask Generation pools normalization percentiles over each batch, so random order spreads acquisition drift across batches; OPS normalizes each field separately. Stitched sequencing windows and Spatial Mask Generation keep acquisition order. Forced to False for timelapse. Default True.",
+      "source_sha256": "6192704dca48af46aa82d6bf7ba75513f0c310087fe910f2eac38a40523d3184",
+      "source_literal": "(bool) - Shuffle fields with mask_batch_seed before batching in Mask Generation and OPS phenotype segmentation. Mask Generation pools normalization percentiles over each batch, so random order spreads acquisition drift across batches; OPS normalizes each field separately. Stitched sequencing windows and Spatial Mask Generation keep acquisition order. Forced to False for timelapse. Default True.",
+      "literal_sha256": "fde9d2a4e477e52974a088c9ebfa058ff38ec07c97ab6f66106ebf8d9438d313",
+      "admission": "admitted by canonical_sources.setting_tooltips"
+    },
+    {
+      "kind": "setting_tooltip",
+      "table": "SETTING_TOOLTIPS",
+      "canonical_id": "ops_sbs_tile_batch",
+      "file": "spacr/ops_settings.py",
+      "line": 1461,
+      "source": "How many 256-pixel tiles Cellpose passes through the network at once when it segments the sequencing nuclei of each stitched well and of the live spot preview. 0 uses the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value the sequencing path always used. Default 0.",
+      "source_sha256": "c5fc97b0dce0383e6377e5201f125012463aaa144ae193dec7e6bb640bbe1e3d",
+      "source_literal": "(int) - How many 256-pixel tiles Cellpose passes through the network at once when it segments the sequencing nuclei of each stitched well and of the live spot preview. 0 uses the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value the sequencing path always used. Default 0.",
+      "literal_sha256": "4f232e7f472f85a4a229ad1ba00e0c6cfe7be71cb4b75323a816dbad0957f7f3",
+      "admission": "admitted by canonical_sources.setting_tooltips"
+    },
+    {
+      "kind": "setting_tooltip",
+      "table": "SETTING_TOOLTIPS",
+      "canonical_id": "ops_ph_tile_batch",
+      "file": "spacr/ops_settings.py",
+      "line": 1785,
+      "source": "How many 256-pixel tiles Cellpose passes through the network at once when it segments phenotype nuclei, cells, pathogens and organelles. 0 follows the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 8, the value the phenotype path always used. Default 0. Alpha.",
+      "source_sha256": "700a3c38ca82bbdb27d3389a0d8b145902caa9216fc2a88094bd01cdc5172c17",
+      "source_literal": "(int) - How many 256-pixel tiles Cellpose passes through the network at once when it segments phenotype nuclei, cells, pathogens and organelles. 0 follows the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 8, the value the phenotype path always used. Default 0. Alpha.",
+      "literal_sha256": "0d6e3546aec7ebb8fbe528e51c6c4d7453ca5fca0c74567d1ee91cc479bca811",
+      "admission": "admitted by canonical_sources.setting_tooltips"
+    },
+    {
+      "kind": "setting_tooltip",
+      "table": "SETTING_TOOLTIPS",
+      "canonical_id": "spatial_tile_batch",
+      "file": "spacr/ops_settings.py",
+      "line": 4360,
+      "source": "How many 256-pixel tiles Cellpose passes through the network at once when it segments the stain. 0 follows the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value Spatial Mask Generation always used. Default 0.",
+      "source_sha256": "f132fc959f42a8c0bc09a88e9c091ff95aea76ed51d6c9e5a4f8981a9778f38c",
+      "source_literal": "(int) - How many 256-pixel tiles Cellpose passes through the network at once when it segments the stain. 0 follows the shared VRAM-aware mask_eval_batch_size (default auto_vram). The tile batch can move a few mask pixels, so set it to keep a run identical to an earlier one. Settings files from before this setting get 16, the value Spatial Mask Generation always used. Default 0.",
+      "literal_sha256": "1ee254af6b64a2cf13a5e5120096454d993fcfbd767e0f6fe199f41d1d15db63",
+      "admission": "admitted by canonical_sources.setting_tooltips"
+    },
+    {
+      "kind": "setting_label",
+      "table": "SETTING_LABELS",
+      "canonical_id": "mask_eval_batch_cap",
+      "file": "spacr/settings.py",
+      "line": 5746,
+      "source": "Mask eval batch cap",
+      "source_sha256": "2aea70aedd9d81122a060e1a226fd2175c148c550212207622a96bbdf78af48d",
+      "admission": "admitted by canonical_sources.setting_labels; derived from key"
+    },
+    {
+      "kind": "setting_label",
+      "table": "SETTING_LABELS",
+      "canonical_id": "mask_batch_seed",
+      "file": "spacr/settings.py",
+      "line": 5745,
+      "source": "Mask batch seed",
+      "source_sha256": "1e4da9db52ebe257fa6881d421e0494daec7445b37f9fefbbd06d7f417da1099",
+      "admission": "admitted by canonical_sources.setting_labels; derived from key"
+    },
+    {
+      "kind": "setting_label",
+      "table": "SETTING_LABELS",
+      "canonical_id": "gpu_vram_budget_gb",
+      "file": "spacr/settings.py",
+      "line": 5744,
+      "source": "GPU vram budget gb",
+      "source_sha256": "161347dc559e8814f5fedd7d52ddafc620bcc9e55295e59b129f1c7bcdb0895c",
+      "admission": "admitted by canonical_sources.setting_labels; derived from key"
+    },
+    {
+      "kind": "runtime_ui",
+      "table": "UI",
+      "canonical_id": "ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}",
+      "file": "spacr/ops_engine.py",
+      "line": 4671,
+      "owner": "_ph_segmentation_inputs",
+      "owner_line": 4662,
+      "source": "ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}",
+      "source_sha256": "15dfbc983a90d0f5f9d02f3f73f6e51a79df0ee9bf1b79920d4151508de6c7fe",
+      "format_fields": [
+        "channels",
+        "nuclear",
+        "cell"
+      ],
+      "admission": "admitted by canonical_sources.ui through the exact v88-approved owner"
+    }
+  ],
+  "console_source_blocks": [],
+  "api_source_blocks": [],
+  "owner_dispositions": {
+    "calibration_console": "WORK_TASKS v88: _mask_batches._calibration_line stays English console/log text through log=print, as in987b. L3 does not route it to a dialog or status label; no tr or locale record required.",
+    "moved_ops_channel_error": "WORK_TASKS v88: user-visible ValueError in _ph_segmentation_inputs is admitted by the exact scanner owner; its UI template is included in this manifest.",
+    "historical_l2_inventory": "tr_1011_sources.json is preserved byte-for-byte from FINAL L2; these current v88 dispositions supersede its earlier follow-up/admission notes."
+  },
+  "private_helper_docs": [
+    {
+      "canonical_id": "spacr.settings._fold_older_defaults",
+      "file": "spacr/settings.py",
+      "line": 2626,
+      "source": "Give a file the defaults of the version it was written under.\n\nWHY (item 931). A saved settings file or run journal must give the same\nresult when it is run again, but a file only holds the keys that existed\nwhen it was written. When a later release changes a default, a key the\nfile never set would silently take the NEW default. Every file spaCR\nwrites therefore carries ``SETTINGS_VERSION_KEY`` =\n``SETTINGS_SCHEMA_VERSION``, and ``DEFAULT_CHANGES`` says, per version,\nwhat a key's default was BEFORE that version. A file with no stamp --\nhand-written or older than the stamp -- is read as the oldest version\nand gets every old default listed, with a logged notice naming each one\nand how to take today's default instead.\n\nTO CHANGE A DEFAULT: add one row to ``DEFAULT_CHANGES``, keyed by the\nitem number that changes it and holding the OLD default, and raise\n``SETTINGS_SCHEMA_VERSION`` to that number. The key must be above every\nexisting key, because files are already stamped with the current\nversion; an item whose number is lower takes the next free number and\nis listed under that number in docs/source/reproducibility_manifests.rst.\nA format-only change instead adds its version to\n``SETTINGS_FORMAT_VERSIONS`` and leaves ``DEFAULT_CHANGES`` unchanged.\nVersion 950 records exact resolved parameters without changing defaults.\n933 is item 930's switch of ``ops_align_model`` to ``'tile_affine'``:\nit landed after 932, so it could not take 930. 934 is item 937's\n``aggregation_defaults`` ``'per_feature'`` (the screen pipeline's\nper-feature well table); older files keep ``'legacy'``.\n935 is item 940's switch of ``ops_placement_seed_export`` to True: every\nsolved stitch writes a placement file, and files stamped before keep\nit off.\n936 is the OPS stage-3 Hybrid profile's ``ops_blas_threads`` (2, was\n1) and ``ops_consensus_space`` (``'hybrid'``, was ``'refit'``).\n937 is item 941's removal of Gabor and colocalisation from the\n``'profiling'`` preset of ``profile_features`` and\n``ops_ph_profile_features``: files stamped before get\n``profile_optional_families`` and ``ops_ph_profile_optional_families``\nwith the three families ``'profiling'`` measured then, so their columns\nare unchanged.\n938 is item 945's ``seg_mask_vram_gb``: the\nlarge-site mask step is sized to 6 GB of card memory, and files stamped\nbefore keep 0, no cap of its own.\n940 is item 946's switch of the OPS decode to the proven Funk decode:\n``ops_decode_preset`` ``'rule_a_s2'`` (was ``'none'``) and\n``ops_decode_threshold_mode`` ``'auto'`` (was ``'manual'``), with\n``ops_decode_auto_spot_grid`` back to ``[]`` (calling thresholds only;\nfiles stamped 939 keep item 942's joint grid).\n943 is item 965's large-site nuclei (R2): ``seg_cells_from_nucleus_seeds``\n``True`` (was ``False``) and ``seg_merge_small_nuclei_frac`` ``0.25``\n(was ``0.0``); files stamped before keep the cell model's own cells\nand no merge, so their labels are unchanged.\n944 is item 966's spacer-prefix decode default: ``ops_read_mode``\nempty, which that decode reads as ``'auto'`` while it tunes (was\n``'log'``), ``ops_prefix_threshold_tuning`` ``'per_well_decoy'`` (was\n``'none'``), ``ops_prefix_decoy_k`` 4 (was 0) and\n``ops_prefix_fdr_target_pct`` 1.0 (was 0.1); files stamped before keep\nthe fixed thresholds and the log read, and the OPS barcode decode reads\nan empty ``ops_read_mode`` as ``'log'`` either way.\n945 is item 987b's automatic ``batch_size`` of Make Masks (0, the largest\nbatch that fits the free GPU and RAM; was 50): files stamped before keep\n50, so their masks, normalised per batch, are unchanged.\n947 is item 967's minority-read rule on the spacer-prefix decode:\n``ops_prefix_minority_min_reads`` 3 (was 0, off); files stamped before\nkeep 0, so every barcode of a cell counts in its call as before.\n948 is TASK X's routing of OPS Cellpose through the shared mask tile\nbatch (``mask_eval_batch_size``; 0 is one tile per field in the resident\nbatch). Files stamped before get the tile batches the OPS paths always\nran at: ``ops_ph_tile_batch`` 8 (the phenotype path's\n``ops_ph_batch_size``, which an old file that sets it keeps, since it is\nrenamed to this key), ``ops_sbs_tile_batch`` 16 (stitched sequencing\nnuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and\n947 belong to other items, so this takes 948.\n955 is item 1011's measured VRAM-aware batching for Mask Generation and\nOPS: ``batch_size`` and ``mask_eval_batch_size`` now default to\n``'auto_vram'``. Files stamped before keep their previous defaults (0\nfor both since 945), and files before 945 still keep 50 fields. Explicit\nvalues and the older OPS per-path tile defaults remain unchanged.\nOPS files before 955 that omit ``randomize`` keep False (acquisition\norder); Mask keeps its existing True default. The OPS-only migration\nrequires known pipeline keys containing ``ops_ph_tile_batch``.\nThe existing Mask shuffle now uses ``mask_batch_seed`` (42 by default);\nthe earlier unseeded shuffle had no reproducible order to preserve.\n\n:param settings: the file's settings under today's names, edited in\n    place.\n:param version: the file's schema version from\n    :func:`_settings_file_version`; 0 for an unstamped file.\n:param known: the keys the pipeline being run reads, or None for any key.\n    A row for another pipeline's key is not added to this one's settings.\n    The OPS-only 955 ``randomize`` change requires its pipeline key set.\n:returns: ``key -> (old default, version that changed it)`` for every key\n    filled in. A key the file sets is never touched. When a key changed\n    more than once, the default of the earliest change after ``version``\n    is the one the file was written under. An explicit legacy\n    ``crop_source`` supplies a missing ``image_source`` before its old\n    default is inserted, preserving the requested source mode.",
+      "source_sha256": "7f814e428262bd15ce189a155febb7602f6885cb4e0474b109b9c9f20cf281eb",
+      "admission": "private; no records"
+    }
+  ],
+  "test_doc_inventory": [
+    {
+      "canonical_id": "tests/qt/test_app_screen_a_construction.py::test_each_setting_type_builds_its_widget_kind_carrying_the_default",
+      "file": "tests/qt/test_app_screen_a_construction.py",
+      "line": 161,
+      "source": "bool -> Toggle/QCheckBox, int -> QSpinBox, float -> QDoubleSpinBox,\nenumerated -> combo field, str/None -> _ScalarEdit; each widget starts at\nits setting's DEFAULT and a written value is collected back typed.",
+      "source_sha256": "5a36ab4d2ee66adb6cfed9f37fdbe003703fc34346c23d57499df596977fa47a",
+      "docstring_changed": false,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/qt/test_app_screen_a_errors_ai.py::test_a_pipeline_error_is_printed_raw_unless_ai_routing_works",
+      "file": "tests/qt/test_app_screen_a_errors_ai.py",
+      "line": 54,
+      "source": "The traceback reaches the console verbatim when AI is off, when routing\nis disabled, or when the AI lookup itself raises; the file-issue button\nappears only with consent (and then no report is submitted), and an\nunreadable consent preference keeps it hidden.",
+      "source_sha256": "a3ea47e4a6117cf60394ec3fe169d1e921136187e8d4709f15de61bd32393632",
+      "docstring_changed": false,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/qt/test_app_screen_a_errors_ai.py::test_a_pipeline_error_is_printed_raw_unless_ai_routing_works.consent",
+      "file": "tests/qt/test_app_screen_a_errors_ai.py",
+      "line": 68,
+      "source": "Set the issue context without submitting a report.",
+      "source_sha256": "bde5499f382f7076e241092c28dbe6228654766041f60b1c7b3bbfb195bbbdf3",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/qt/test_app_screen_a_round_trip.py::test_widgets_accept_only_values_they_can_hold",
+      "file": "tests/qt/test_app_screen_a_round_trip.py",
+      "line": 150,
+      "source": "A malformed value leaves a spin box / combo / format field at its\nprevious value, None clears a text field (never the text \"None\"), and an\nunhandled widget type is a silent no-op. ``AppScreen._truthy`` maps every\nCSV spelling of a flag to a bool; ``_ListEdit`` round-trips a Python list\nvia repr; ``_ScalarEdit`` collects empty as None and text as text.",
+      "source_sha256": "5207593ae310e8e5388d12bc3b40beff1c602c2860313c227feb36433f8b1339",
+      "docstring_changed": false,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_alpha_deck_registry.py::test_the_published_alpha_page_covers_the_current_registry",
+      "file": "tests/test_alpha_deck_registry.py",
+      "line": 20,
+      "source": "Match the current registry, count and published alpha summary.",
+      "source_sha256": "5daf06d158952c4b4feec9a483c639d1883ba9706bb1e3e581caa26d267903fd",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_both_mask_plan_apps_accept_the_shared_batch_selectors",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 75,
+      "source": "Mask Generation and OPS admit both automatic modes and explicit counts.",
+      "source_sha256": "4e3cbe80f024847b1f7f5f2a560644670a7f834835ad0f00369419aca9d71502",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_cli_and_qt_keep_vram_batch_values",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 84,
+      "source": "CLI coercion and the Qt run boundary accept the shared settings types.",
+      "source_sha256": "597e4469f1808ae0d96a70a32ef8e9e801f2bc6ffcbe8ea8d99fb52855a53398",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_current_mask_defaults_enable_vram_batches_with_alpha_controls_hidden",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 96,
+      "source": "Hiding tuning controls leaves the new Mask and OPS batching defaults active.",
+      "source_sha256": "ffd56973f659007a862590a83deae3805e0a36caf48ba04be79f8fb9447d14f0",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_schema_955_keeps_each_historical_batch_default",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 118,
+      "source": "Each settings era keeps its original field and tile request.",
+      "source_sha256": "450c784da73b32915ca5eee4bafc7170c429bd2393f410db65275428d2cd0492",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_schema_955_preserves_explicit_batch_selectors",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 139,
+      "source": "Folding old defaults never changes a request explicitly saved by the user.",
+      "source_sha256": "ee718547a9a878c1e15690292715cf2b9fde082e04eb2f1b00c296db184eab2f",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_new_batch_controls_have_qt_links_and_shared_types",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 147,
+      "source": "Every new control reaches the panel, tooltip and all three value indices.",
+      "source_sha256": "38ebcaf66b1c391d4dd74ab666464de00d3144046115f1d80528d7cf99af9918",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_mask_tile_cap_cannot_disable_the_one_tile_floor",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 165,
+      "source": "Invalid caps fail at validation before either mask application starts.",
+      "source_sha256": "b713e7905400a8d35b3afb0645b86146fce2b7d34125b78b2915828d37f6478a",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_qt_and_cli_parse_shared_mask_controls",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 178,
+      "source": "The settings widgets and CLI retain selectors and parse new numeric controls.",
+      "source_sha256": "af0143fcd1d1f0d3016a74ed6570416b7a7a89eddae9cc75d917134572d0851c",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_cli_loads_each_saved_batch_schema",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 189,
+      "source": "Loading a real saved file folds old defaults before the app fills new ones.",
+      "source_sha256": "b300629c9f34a4079e17343bc59132c5c11cf74c95d5033a6230a77c558fb4cd",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_shared_settings_type_admits_vram_selector_at_the_legacy_gui_boundary",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 202,
+      "source": "Both GUI settings boundaries can collect the automatic selector.",
+      "source_sha256": "18b94d497850ea7621e3272baba215f05c3f1fa670d80845d9ec3a309d14d50c",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_vram_field_selector_does_not_widen_numeric_batch_apps",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 215,
+      "source": "Apps without a mask plan continue to require numerical minibatches.",
+      "source_sha256": "66ebe74e8a8ed24c81c99e38a19aa62ad9ee9bcaf083da36bf69bc2b92d39526",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_default_settings_validate_1003.py::test_saved_randomize_preserves_each_pipeline_and_explicit_choice",
+      "file": "tests/test_default_settings_validate_1003.py",
+      "line": 227,
+      "source": "Saved settings reach the shared field-order helper with the original app default.",
+      "source_sha256": "98bb9fef75db9f2107985cc47dd475ca5c59d64e487bd40caea8ee16942028c3",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_mask_batch_size_auto_987b.py::test_explicit_987b_mode_and_old_files_keep_fifty",
+      "file": "tests/test_mask_batch_size_auto_987b.py",
+      "line": 49,
+      "source": "The earlier automatic selector remains explicit and schema 945 keeps its history.",
+      "source_sha256": "d8b86914bc101a0a3522adc583980329565b586b5bba522290a874491d4c3ee9",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_ops_tile_batch_per_path_948.py::test_shared_zero_uses_field_count_and_can_pin_each_path",
+      "file": "tests/test_ops_tile_batch_per_path_948.py",
+      "line": 89,
+      "source": "The explicit one-tile-per-field rule and per-path overrides remain available.",
+      "source_sha256": "9049083d420eca1afe5b73854a4eb503ee1b166ab93b27cfffd0ba0ab5954317",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_runtime_backend_caption_owners.py::test_ops_channel_refusal_enters_only_the_shared_input_owner",
+      "file": "tests/test_runtime_backend_caption_owners.py",
+      "line": 799,
+      "source": "Keep the moved GUI refusal admitted without scanning other OPS scopes.",
+      "source_sha256": "d930971ea2b4ea1cc3efc044b5d0d8f8b8f60614e86ee9aa07c94aafbaa66663",
+      "docstring_changed": true,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_settings_schema_version_931.py::test_resolved_parameters_are_a_format_change_without_new_defaults",
+      "file": "tests/test_settings_schema_version_931.py",
+      "line": 123,
+      "source": "Schema 950 records provenance without inventing a default migration.",
+      "source_sha256": "ecc6a3277711f45af577390b8c589c38621c170058f65962a740e8c52a0e228a",
+      "docstring_changed": false,
+      "admission": "test callable changed; no records"
+    },
+    {
+      "canonical_id": "tests/test_settings_tooltip_quality.py::test_real_default_claims_have_no_unrecorded_drift",
+      "file": "tests/test_settings_tooltip_quality.py",
+      "line": 621,
+      "source": "Compare parseable tooltip claims with every registered app default.\n\nMost comparisons are exact.  Intentional variants are compared with an\nexplicit app/setting/value contract above, including a reasoned\nclassification, so a same-size substitution cannot hide behind a digest.",
+      "source_sha256": "d544e212a331032f3d7529d1013821ef0bcd581a85d7e35853ef4e23a10ea3b7",
+      "docstring_changed": false,
+      "admission": "test callable changed; no records"
+    }
+  ],
+  "locales": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "records": "Home lane owns locale records; no records generated here",
+  "validation": {
+    "tested_head": "d3556bccba00d549c0e7712c7d1f459df0f1762f",
+    "tested_tree": "eafb88cf2394dc4edd68964b305f37c5fdf8e416",
+    "cpu_only": true,
+    "initial_deselections": [],
+    "full_groups": {
+      "items": {
+        "summary": "1432 passed, 3 skipped, 144 warnings, 960 subtests passed in 183.53s (0:03:03)",
+        "raw_failures": []
+      },
+      "ops": {
+        "summary": "1181 passed, 28 skipped, 177 warnings, 102 subtests passed in 354.32s (0:05:54)",
+        "raw_failures": []
+      },
+      "settings": {
+        "summary": "614 passed, 2 skipped, 369 subtests passed in 66.81s (0:01:06)",
+        "raw_failures": []
+      },
+      "ratchets": {
+        "summary": "3 failed, 4089 passed, 76 skipped, 13 xfailed, 69 warnings in 909.81s (0:15:09)",
+        "raw_failures": [
+          "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_complete_before_optional_module_imports",
+          "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_stable_after_runctx_import",
+          "tests/qt/test_external_i18n_catalogs.py::test_empty_flowchart_caption_translates_without_changing_python_none"
+        ]
+      }
+    },
+    "code_scope_result": "All implementation/source checks passed. Three raw Home-owned catalog/review failures are preserved and deferred; none is claimed passed.",
+    "deferred_catalog_checks": [
+      "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_complete_before_optional_module_imports",
+      "tests/qt/test_external_i18n_catalogs.py::test_runtime_source_inventory_is_stable_after_runctx_import",
+      "tests/qt/test_external_i18n_catalogs.py::test_empty_flowchart_caption_translates_without_changing_python_none"
+    ],
+    "deferred_published_page": "tests/test_alpha_deck_registry.py::test_the_published_alpha_page_covers_the_current_registry",
+    "deferral_authority": "WORK_TASKS v74 pilot Home-record/catalog-rebuild deferral; v80 exact published-alpha-page deferral; root review of the actual three failures",
+    "source_admission": "13 exact canonical runtime blocks verified; v88 adds only the moved user-visible OPS error, with all other canonical tables unchanged. Repository awaiting-catalog table remains unchanged.",
+    "focused_integration": "386 passed,1 native-Windows skip,25.39s",
+    "actual_legacy_migration": "54/54 passed; broader migration sweep228 passed,64 subtests,1 skip",
+    "six_required_rules": "Five required modules passed in native ratchets XML; omitted no-new-hash-comments rule passed separately:1 passed,7.37s",
+    "inherited_l1_console": "WORK_TASKS v88: _mask_batches._calibration_line stays English console/log text through log=print, as in987b. L3 does not route it to a dialog or status label; no tr or locale record required.",
+    "post_full_group_change": "WORK_TASKS v88 owner-scoped source scanner admission and one regression test only; no spacr runtime bytes changed after full groups.",
+    "post_full_group_focused": {
+      "summary": "202 passed, 14 warnings in 312.18s (0:05:12)"
+    },
+    "post_full_group_admission": {
+      "admission_authority": "WORK_TASKS v88",
+      "before_ui_count": 11053,
+      "after_ui_count": 11054,
+      "added": [
+        "ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}"
+      ],
+      "removed": [],
+      "other_tables_unchanged": true,
+      "source_sha256": "15dfbc983a90d0f5f9d02f3f73f6e51a79df0ee9bf1b79920d4151508de6c7fe",
+      "file": "spacr/ops_engine.py",
+      "line": 4670,
+      "owner": "_ph_segmentation_inputs",
+      "table": "UI",
+      "canonical_id": "ops_ph_channels {channels} must name {nuclear} and the cell channel {cell}",
+      "format_fields": [
+        "cell",
+        "channels",
+        "nuclear"
+      ]
+    },
+    "native_proof_note": "Native XML and logs are retained in the WS proof bundle; these summaries and deferred IDs are the actual results."
+  }
+}

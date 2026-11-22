@@ -175,8 +175,10 @@ def test_each_setting_type_builds_its_widget_kind_carrying_the_default(
                 assert any(isinstance(w, kind) for w in widgets.values())
 
         cases = [
-            ("batch_size", QSpinBox,
-             lambda w: w.value() == int(defaults["batch_size"])),
+            ("n_jobs", QSpinBox,
+             lambda w: w.value() == int(defaults["n_jobs"])),
+            ("batch_size", _ScalarEdit,
+             lambda w: w.get_value() == defaults["batch_size"]),
             ("plot", QCheckBox,
              lambda w: w.isChecked() == bool(defaults["plot"])),
             ("metadata_type", _MetadataTypeField,

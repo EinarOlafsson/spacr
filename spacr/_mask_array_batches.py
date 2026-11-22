@@ -139,7 +139,10 @@ def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields):
         if saved_group is None and auto_vram:
             if even is None:
                 remaining = len(records) - position + 1
-                even = batches._even_sizes(remaining, _batch_limit(settings, image, remaining, gpu))
+                capacity = _batch_limit(settings, image, remaining, gpu)
+                if max_fields is not None:
+                    capacity = min(capacity, max(1, int(max_fields)))
+                even = batches._even_sizes(remaining, capacity)
             limit = min(even.pop(0) if even else 1, len(records) - position + 1)
             for step in range(limit - 1):
                 if str(records[position + step]) in known:

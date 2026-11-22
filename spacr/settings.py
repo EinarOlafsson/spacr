@@ -1221,7 +1221,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('masks', True)
     settings.setdefault('save', True)
     settings.setdefault('consolidate', False)
-    settings.setdefault('batch_size', 0)
+    settings.setdefault('batch_size', 'auto_vram')
     settings.setdefault('test_mode', False)
     settings.setdefault('dry_run', False)
     settings.setdefault('test_images', 10)
@@ -1384,7 +1384,10 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('mask_gpu_indices', '')
     settings.setdefault('mask_workers_per_gpu', 1)
     settings.setdefault('mask_inference_precision', 'auto')
-    settings.setdefault('mask_eval_batch_size', 0)
+    settings.setdefault('mask_eval_batch_size', 'auto_vram')
+    settings.setdefault('mask_eval_batch_cap', 32)
+    settings.setdefault('mask_batch_seed', 42)
+    settings.setdefault('gpu_vram_budget_gb', None)
     settings.setdefault('illumination_for_later_masks', False)
     settings.setdefault('cell_from_nucleus_expand_px', 0)
     settings.setdefault('cell_from_nucleus_min_nucleus_size', 250)
@@ -2584,6 +2587,7 @@ DEFAULT_CHANGES = {
     949: {'mask_image_format': 'npy', 'crop_image_format': 'png',
           'crop_source': 'auto', 'image_source': 'load_images',
           'ops_ph_image_format': 'npz', 'ops_crop_image_format': 'tiff-tar'},
+    955: {'batch_size': 0, 'mask_eval_batch_size': 0, 'randomize': False},
     958: {'cytoskeleton_object_support': False},
 }
 
@@ -2693,6 +2697,16 @@ def _fold_older_defaults(settings, version, known=None):
     renamed to this key), ``ops_sbs_tile_batch`` 16 (stitched sequencing
     nuclei) and ``spatial_tile_batch`` 16 (Spatial Mask Generation). 946 and
     947 belong to other items, so this takes 948.
+    955 is item 1011's measured VRAM-aware batching for Mask Generation and
+    OPS: ``batch_size`` and ``mask_eval_batch_size`` now default to
+    ``'auto_vram'``. Files stamped before keep their previous defaults (0
+    for both since 945), and files before 945 still keep 50 fields. Explicit
+    values and the older OPS per-path tile defaults remain unchanged.
+    OPS files before 955 that omit ``randomize`` keep False (acquisition
+    order); Mask keeps its existing True default. The OPS-only migration
+    requires known pipeline keys containing ``ops_ph_tile_batch``.
+    The existing Mask shuffle now uses ``mask_batch_seed`` (42 by default);
+    the earlier unseeded shuffle had no reproducible order to preserve.
 
     958 is item 1008: cytoskeleton skeletons are restricted to the object
     mask. Older Overview settings keep ``cytoskeleton_object_support``
@@ -2704,6 +2718,7 @@ def _fold_older_defaults(settings, version, known=None):
         :func:`_settings_file_version`; 0 for an unstamped file.
     :param known: the keys the pipeline being run reads, or None for any key.
         A row for another pipeline's key is not added to this one's settings.
+        The OPS-only 955 ``randomize`` change requires its pipeline key set.
     :returns: ``key -> (old default, version that changed it)`` for every key
         filled in. A key the file sets is never touched. When a key changed
         more than once, the default of the earliest change after ``version``
@@ -2719,6 +2734,9 @@ def _fold_older_defaults(settings, version, known=None):
             if key in settings or key in applied:
                 continue
             if known is not None and key not in known:
+                continue
+            if (changed == 955 and key == 'randomize'
+                    and (known is None or 'ops_ph_tile_batch' not in known)):
                 continue
             if key == 'image_source' and settings.get('crop_source'):
                 settings[key] = _canonical_image_source(settings['crop_source'])
@@ -4253,7 +4271,10 @@ expected_types = {
     "mask_gpu_indices": str,
     "mask_workers_per_gpu": int,
     "mask_inference_precision": str,
-    "mask_eval_batch_size": int,
+    "mask_eval_batch_size": (int, str),
+    "mask_eval_batch_cap": int,
+    "mask_batch_seed": int,
+    "gpu_vram_budget_gb": (float, int, type(None)),
     "illumination_for_later_masks": bool,
     "gpu_memory_fraction": (float, int, type(None)),
     "gpu_memory_margin_gb": (float, int),
@@ -4739,7 +4760,7 @@ expected_types = {
     "Signal_to_noise": int,
     "learning_rate": float,
     "weight_decay": float,
-    "batch_size": int,
+    "batch_size": (int, str),
     "pipeline_style": str,
     "batch_fields": int,
     "n_epochs": int,
@@ -5599,7 +5620,7 @@ tooltips = {
     "nucleus_channel": "(int or None) - Zero-indexed raw acquisition channel segmented into nucleus masks, and the channel that nucleus_background, nucleus_signal_to_noise and remove_background_nucleus apply to. None means no nucleus masks, hence no nucleus table, no cell-to-nucleus linking, and nothing subtracted from the cytoplasm mask. Set it whenever a DNA stain was acquired. Default None.",
     "pathogen_channel": "(int or None) - Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.",
     "nucleus_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the nucleus label mask sits, one plane after the cell mask. With the default four image channels (0-3) that is 5; keep a different number of channels and it shifts by the same amount. None makes measure_crop skip nucleus measurements and cell-to-nucleus linking. Default 5.",
-    "batch_size": "(int) - How many images are processed together in one pass: field stacks in normalization and Cellpose segmentation, crops per step in classifier training and activation maps. Larger is faster but uses more RAM/VRAM; lower it on out-of-memory errors. For mask generation, 0 or 'auto' picks the largest batch that fits the free GPU memory and RAM, and a number that does not fit is reduced with a warning. Defaults: 0 (automatic) for mask generation, 64 for training.",
+    "batch_size": "(int or str) - How many images are processed together: fields during mask generation and OPS, or crops per classifier step. For Mask Generation and OPS, 'auto_vram' measures GPU memory on the run data, then divides fields into batches whose sizes differ by at most one. Resident field arrays count toward the memory budget. Use 0 or 'whole' for the earlier largest-fitting-batch estimate, or a positive number to request a field count; it is reduced with a warning if the fields do not fit in memory. Defaults: 'auto_vram' for Mask Generation and OPS, 64 for training.",
     "pipeline_style": "(str) - Which mask pipeline runs. 'v1' is the disk-based chain (rename, per-channel folders, npy, npz, mask npy, merged/) that measure, annotate and every downstream tool expect, and is the fully tested path. 'v2' streams from the originals and writes one npy per field with masks appended in place, using roughly 60-80% less disk but producing no .npz. Default 'v1'.",
     "batch_fields": "(int) - Streaming pipeline only (pipeline_style='v2'): how many whole field stacks are loaded into RAM before one Cellpose batch is segmented. Larger values keep the GPU busier and cut the number of read passes over the plate, at a memory cost of roughly one full field stack each. Ignored entirely by the v1 pipeline. Default 8.",
     "CP_probability": "(int) - Cellpose cellprob_threshold used by the standalone apply/test-model submodules, where it carries this name instead of the per-object <object>_cellprob_threshold used by the Mask module. Only pixels whose predicted cell probability exceeds it join a mask, so raising it shrinks outlines and drops faint objects while lowering it grows them and recovers dim ones. Default 0.",
@@ -5728,7 +5749,10 @@ tooltips = {
     "mask_parallel": "(bool) - Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
     "mask_gpu_indices": "(str) - GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
     "mask_inference_precision": "(str) - Number format of the Cellpose network in Make Masks: auto, bf16 or fp32. auto keeps what the run always used: bfloat16 weights on a CUDA GPU, float32 on a CPU or a Mac. bf16 forces bfloat16 weights, which need less GPU memory and run faster on a card that supports them; fp32 forces float32 weights, which use about twice the GPU memory and can move a few mask pixels. Changing it changes the masks, so a resumed run refuses to mix the two. Default auto.",
-    "mask_eval_batch_size": "(int) - How many 256-pixel tiles Cellpose passes through the network at once in Make Masks. 0 keeps the old rule: as many tiles as there are fields in the batch (batch_size), which leaves a large GPU mostly idle because a 2000 x 2000 field already has about 100 tiles. A larger number feeds the network more tiles per pass and is faster, within the GPU memory governor; the tile batch can move a few mask pixels, so a resumed run refuses to mix two values. Default 0.",
+    "mask_eval_batch_size": "(int or str) - How many 256-pixel tiles Cellpose passes through the network at once in Mask Generation and OPS. 'auto_vram' measures the GPU working memory and resolves the largest tile batch that fits, up to mask_eval_batch_cap, before segmentation. CPU and external backends use at most 8. Use 0 for one tile per resident field, or a positive number to request the tile batch. The tile batch can move a few mask pixels; resume keeps the recorded value. Default 'auto_vram'.",
+    "gpu_vram_budget_gb": '(float or None) - GPU memory budget in GB for automatic mask batches in Mask Generation and OPS, including resident field arrays and network working memory. Empty uses SPACR_GPU_VRAM_GB when set, then the free card memory. The governor reserves its memory margin and CUDA context and divides the budget among mask workers. Set the same budget to reproduce batch sizes across cards; it can resolve fewer than mask_eval_batch_cap tiles. Default None. Alpha.',
+    "mask_batch_seed": '(int) - Seed for the shared field shuffle in Mask Generation and OPS phenotype segmentation when randomize is True. The same field set and seed keep the same order; batch sizes also depend on the GPU budget. The plan and run journal record the order. Stitched sequencing windows, Spatial Mask Generation and timelapse keep acquisition order. Default 42. Alpha.',
+    "mask_eval_batch_cap": "(int) - Largest tile batch allowed when mask_eval_batch_size is 'auto_vram'. The measured GPU budget can resolve a smaller value; CPU and external backends use at most 8. A batch of 32 can need about 8 GB including resident fields, so a smaller GPU budget can select fewer tiles. Must be at least 1. Default 32. Alpha.",
     "mask_workers_per_gpu": "(int) - How many mask workers share each GPU. Above 1, Make Masks segments in that many processes per GPU, so one worker loads, normalises, filters and saves while another runs Cellpose and a single GPU stays busy. Without mask_parallel the first GPU is used, with it every GPU it selects. Workers share the card under the GPU memory governor; fewer start when memory within gpu_memory_fraction, less gpu_memory_margin_gb, cannot hold about 5 GB per worker. Each plate's GPU use is printed and written to gpu_utilisation.json. Not for timelapse or t_stack runs. Default 1.",
     "illumination_for_later_masks": "(bool) - With illumination_correction on, preprocess on and masks off, still apply the segmentation illumination correction to the prepared mask inputs and save its record in illumination/segmentation_application.json. A later run with preprocess off and masks on (illumination_correction on) then segments the same corrected inputs, so the masks equal those of one combined run. Off, a preprocess-only run leaves the mask inputs uncorrected. Default False.",
     "gpu_memory_fraction": "(float or None) - Hard ceiling on the share of each GPU's memory this run may use, from 0 to 1, applied with PyTorch's per-process memory fraction. 0.25 lets the run take at most a quarter of the card, so several jobs can share it. Blank sets no ceiling and the run sizes its batches to the memory that is free. Default None.",
@@ -6072,7 +6096,7 @@ tooltips = {
     "spatial_neighbor_radius": "(int) - Radius used by spatial_measurements when counting neighbouring objects. The value is expressed in the units recorded for the measurement table: pixels for two-dimensional data and micrometres for calibrated three-dimensional data. The radius is included in the output column name, so use one value consistently across plates that will be combined. Ignored unless spatial_measurements is enabled. Default 50.",
     "radial_dist": "(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.",
     "random_test": "(bool) - Seed the random draw of test-mode image sets with a fixed value (42), so every test run picks the same subset and results stay comparable. The selection is shuffled either way; set False when you want a different random subset each run to check that behaviour is not subset-specific. Default True.",
-    "randomize": "(bool) - Shuffle the order of the per-field arrays before they are grouped into normalization batches, so each batch spans plates and wells instead of one acquisition block - this matters because normalization percentiles are computed per batch. Forced to False for timelapse runs to keep frames in sequence. Default True.",
+    "randomize": '(bool) - Shuffle fields with mask_batch_seed before batching in Mask Generation and OPS phenotype segmentation. Mask Generation pools normalization percentiles over each batch, so random order spreads acquisition drift across batches; OPS normalizes each field separately. Stitched sequencing windows and Spatial Mask Generation keep acquisition order. Forced to False for timelapse. Default True.',
     "regression_type": "(str) - Model family. Default 'mixed' nests guides inside genes as random effects, so guides disagreeing widens that gene's interval; it answers both levels at once, which is why 'level' greys out. Otherwise: 'ols', 'wls', 'rlm', 'huber' or 'quantile' for a continuous response; 'logit', 'probit', 'beta' or 'quasi_binomial' for fractions; 'poisson' for counts; 'lasso', 'ridge', 'elasticnet' or 'horseshoe' when the predictors outnumber the wells. Note regression_type 'beta' fits a beta GLM, while transform 'beta' only transforms the response.",
     "regression_panel_manifest": "(dict, str, or None) - Publication panels built after the regression CSVs are written. None skips them. Supply a mapping, or a path to JSON/YAML, declaring each panel's result source, phenotype, gene/gRNA level and plot kind; the packages land under publication_panels/. Structured rather than a one-line field, so it is set from a script or a saved settings file rather than in the GUI. Default None.",
     "remove_background": "(bool) - Hard-clip every pixel below the 'background' value to zero before normalization and segmentation. Use it when a channel carries a bright, even haze that inflates the normalization floor; leave it off for dim or already flat-fielded data, since the clip silently deletes faint real signal. Default False.",
@@ -6912,6 +6936,7 @@ categories = {
     ],
     "GPU Memory α": [
         "gpu_memory_fraction", "gpu_memory_margin_gb", "gpu_adaptive_batch",
+        "mask_eval_batch_cap", "mask_batch_seed", "gpu_vram_budget_gb",
         "gpu_fallback_policy",
     ],
 
@@ -8802,6 +8827,9 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 
 
 ALPHA_FEATURES = {
+    1011: {
+        'settings': ('mask_eval_batch_cap', 'mask_batch_seed', 'gpu_vram_budget_gb'),
+    },
     372: {
         'widgets': ('MaskOpsSwitch',),
     },

@@ -85,8 +85,10 @@ def test_an_old_spatial_file_keeps_sixteen_tiles(tmp_path, monkeypatch):
     assert _tiles(monkeypatch, settings, "ops_spatial", 1) == 16
 
 
-def test_a_new_file_takes_the_shared_rule_and_can_pin_each_path(tmp_path, monkeypatch):
-    new = _resolved(tmp_path, "ops", [[SETTINGS_VERSION_KEY, SETTINGS_SCHEMA_VERSION]])
+def test_shared_zero_uses_field_count_and_can_pin_each_path(tmp_path, monkeypatch):
+    """The explicit one-tile-per-field rule and per-path overrides remain available."""
+    new = _resolved(tmp_path, "ops", [[SETTINGS_VERSION_KEY, SETTINGS_SCHEMA_VERSION],
+                                       ["mask_eval_batch_size", 0]])
     assert new["ops_ph_tile_batch"] == 0 and new["ops_sbs_tile_batch"] == 0
     assert _tiles(monkeypatch, new, "ops_phenotype", 3) == 3
     assert _tiles(monkeypatch, new, "ops_stitched", 3) == 3
