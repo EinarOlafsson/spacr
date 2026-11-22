@@ -902,14 +902,16 @@ def test_prefix_none_keeps_legacy_tables_even_after_a_new_schema_stamp(tmp_path)
         assert path.read_bytes() == (Path(new['folder']) / path.name).read_bytes(), path.name
 
 
-@pytest.mark.parametrize('version,method', [(None, 'none'), (956, 'none'), (957, 'never')])
+@pytest.mark.parametrize('version,method', [(None, 'none'), (956, 'none'), (957, 'never'), (958, 'never')])
 def test_saved_settings_schema_957_preserves_old_methods_and_enables_new_default(tmp_path, version, method):
     """The actual CLI loader folds old files before layering the new defaults."""
     import json
     from spacr.cli import resolve_module, resolve_settings
     from spacr.settings import DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
 
-    assert SETTINGS_SCHEMA_VERSION == 957
+    # 1014 is schema 957; the pilot also carries 1008's 958, so the current
+    # schema is at least 957 and any file stamped 957 or later gets 'never'.
+    assert SETTINGS_SCHEMA_VERSION >= 957
     assert DEFAULT_CHANGES[957] == {'ops_decode_fdr_calibration': 'none',
                                      'ops_prefix_fdr_calibration': 'none'}
     path = tmp_path / 'settings.json'

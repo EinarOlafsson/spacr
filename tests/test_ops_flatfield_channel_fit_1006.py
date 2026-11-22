@@ -313,12 +313,16 @@ def test_the_settings_are_alpha_and_flatfield_is_on_by_default():
     folded = _fold_older_defaults(old, 951)
     assert folded["ops_flatfield"] == ("none", 952)
     assert folded["ops_flatfield_channel_fit"] == ("legacy", 952)
-    assert old == {"ops_flatfield": "none", "ops_flatfield_channel_fit": "legacy"}
+    # Later schema rows (955 Mask batches, 957 FDR calibration, 958 cytoskeleton
+    # support) also fold into a 951 file, so only 1006's own keys are compared.
+    assert {key: old[key] for key in DEFAULT_CHANGES[952]} == {
+        "ops_flatfield": "none", "ops_flatfield_channel_fit": "legacy"}
     exact = {"ops_flatfield": "exact"}
     _fold_older_defaults(exact, 951)
     assert ops_engine._ph_channel_fits(exact, ["DAPI", "GFP"]) == {
         "DAPI": "polynomial", "GFP": "pixel_median"}
-    assert _fold_older_defaults({}, 952) == {}
+    assert not set(_fold_older_defaults({}, 952)) & set(DEFAULT_CHANGES[952])
+    assert _fold_older_defaults({}, SETTINGS_SCHEMA_VERSION) == {}
 
 
 @pytest.mark.skipif(not os.environ.get("SPACR_912_NUCLEI"),
