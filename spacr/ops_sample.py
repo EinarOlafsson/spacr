@@ -335,7 +335,9 @@ def _measurement_settings(channels: int, texture: bool,
                           granularity_subsample: float = 1.0,
                           funk_features: bool = False,
                           cytoskeleton_channels=None,
-                          channel_names=None
+                          channel_names=None,
+                          zernike: bool = False,
+                          summarize: bool = False
                           ) -> Dict[str, object]:
     """The measure settings one phenotype field is measured with.
 
@@ -359,9 +361,13 @@ def _measurement_settings(channels: int, texture: bool,
         every compartment, as Measure writes them.
     :param cytoskeleton_channels: channel indices or names for the cell-only
         cytoskeleton block; None measures every channel when selected.
-    :param channel_names: image channel names for resolving that selection.
-    :returns: the dict :func:`spacr.measure._morphological_measurements` and
-        :func:`spacr.measure._intensity_measurements` read.
+    :param channel_names: image channel names for resolving that selection
+        and for naming the columns (``cell_dapi_mean_intensity``).
+    :param zernike: ``zernike``, the Zernike moments of the cell and nucleus.
+    :param summarize: ``summarize_organelles_by='cell'``, the per-cell
+        summary of further objects (item 970).
+    :returns: the settings :func:`spacr.measure.measure_field_objects`
+        reads.
     """
     from .measure import profile_feature_families
     from .ops_settings import OPS_TO_MEASURE_KEYS
@@ -369,6 +375,7 @@ def _measurement_settings(channels: int, texture: bool,
     families = profile_feature_families(profile_features)
     ops = {"ops_ph_texture": bool(texture), "ops_ph_measure_gpu": bool(gpu),
            "ops_ph_funk_features": bool(funk_features),
+           "ops_ph_zernike": bool(zernike),
            "ops_ph_profile_features": list(families) or None,
            "ops_ph_granularity_subsample": float(granularity_subsample)}
     return {
@@ -381,6 +388,7 @@ def _measurement_settings(channels: int, texture: bool,
         "homogeneity_distances": [2, 4, 8],
         "distance_gaussian_sigma": 10, "spatial_measurements": False,
         "channels": list(range(channels)), "verbose": False,
+        "summarize_organelles_by": "cell" if summarize else None,
         **{OPS_TO_MEASURE_KEYS[key]: value for key, value in ops.items()},
     }
 
@@ -443,8 +451,9 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
                             gpu: bool = False,
                             profile_features=None,
                             granularity_subsample: float = 1.0,
-                            cytoskeleton_channels=None):
-    """Per-cell features of one phenotype field, with spaCR's own measurement.
+                            cytoskeleton_channels=None,
+                            objects=None, crop=None):
+    """Per-cell features of one phenotype field, measured by Measure's per-field core.
 
     :param nuclei: nucleus labels, paired with ``cells`` by
         :func:`pair_nuclei_with_cells`, so nucleus ``k`` is in cell ``k``.
@@ -470,7 +479,9 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
         (:func:`_measurement_settings`).
     :param profile_features: the profiling families spaCR's measure adds
         (:func:`spacr.measure.measure_profile_features`): ``'profiling'``
-        for the default set, ``'all'``, or family names. ``None``, the
+        for the default set, ``'all'``, or family names; the blocks
+        ``legacy_periphery`` and ``legacy_outside`` add the periphery and
+        outside ring statistics Measure always writes. ``None``, the
         default, measures exactly as before.
     :param granularity_subsample: the ``subsample`` of the granularity
         family (:func:`spacr.measure.measure_granularity`); 1.0 sieves at
@@ -478,24 +489,30 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     :param cytoskeleton_channels: image channel indices or names for the
         cell-only ``cytoskeleton`` block in ``profile_features``. None
         selects every channel. The block is absent unless selected.
+    :param objects: ``{class: labels}`` of further objects (item 970),
+        summarised per cell in the same pass: the columns of
+        :func:`_cell_object_features`. None adds none.
+    :param crop: the crops cut in the same pass, as
+        :func:`spacr.measure.measure_field_objects` takes them, with
+        ``settings`` holding the crop writer's settings (``src``,
+        ``crop_margin_px``, ``crop_zero_outside``). None cuts none.
     :returns: one row per cell, keyed by ``label``, with ``nucleus_``,
         ``cell_`` and ``cytoplasm_`` columns and the nucleus centroid as
         ``centroid_row``/``centroid_col`` in field pixels.
 
-    The features are the ones spaCR's measure writes -- morphology from
-    :func:`spacr.measure._morphological_measurements`, intensity and texture
-    from :func:`spacr.measure._intensity_measurements` -- so an OPS cell and
-    a measured well's cell carry the same columns and nothing is
-    re-derived. The cytoplasm is the cell minus its nucleus, under the
-    cell's label. The object labels the colocalisation block carries
-    (``*_label_correlation``) are left out, as spaCR's database write
-    leaves them out, so no column repeats the label.
+    The field is measured by :func:`spacr.measure.measure_field_objects`,
+    the per-field core Measure runs, so an OPS cell and a measured well's
+    cell carry the same columns and values and nothing is re-derived here:
+    this function only lays the core's per-compartment tables side by side
+    (:func:`spacr.measure.field_role_tables`). The cytoplasm is the cell
+    minus its nucleus, under the cell's label. The object labels the
+    colocalisation block carries (``*_label_correlation``) are left out,
+    as spaCR's database write leaves them out, so no column repeats the
+    label.
     """
     import pandas as pd
-    from scipy import ndimage
 
-    from .measure import (_channel_named, _intensity_measurements,
-                          _morphological_measurements)
+    from .measure import field_role_tables, label_centroids, measure_field_objects
 
     image = np.asarray(image, np.float32)
     nuclei = np.asarray(nuclei, np.int32)
@@ -507,53 +524,72 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     if len(channel_names) != image.shape[2]:
         raise SampleError(
             f"{len(channel_names)} channel names for {image.shape[2]} channels")
-    if not nuclei.any():
-        return pd.DataFrame(columns=["label", "centroid_row", "centroid_col"])
     cytoplasm = np.where(nuclei > 0, 0, cells).astype(np.int32)
-    blank = np.zeros_like(cells)
+    masks = {"cell": cells, "nucleus": nuclei, "cytoplasm": cytoplasm}
+    if not nuclei.any():
+        if crop is not None:
+            _measure_core(masks, image, {**_measurement_settings(
+                image.shape[2], texture), "channel_names": None}, crop,
+                tables=False)
+        return pd.DataFrame(columns=["label", "centroid_row", "centroid_col"])
     settings = _measurement_settings(image.shape[2], texture, gpu,
                                      profile_features, granularity_subsample,
                                      funk_features=funk_features,
                                      cytoskeleton_channels=cytoskeleton_channels,
-                                     channel_names=channel_names)
-    morphology = _morphological_measurements(
-        cells, nuclei, blank, blank, cytoplasm, settings,
-        zernike=bool(zernike))
-    intensity = _intensity_measurements(
-        cells, nuclei, blank, blank, cytoplasm, image, settings,
-        sizes=[1, 2, 3, 4, 5], periphery=False, outside=False)
-    names = [str(name).lower() for name in channel_names]
-    labels = np.unique(nuclei[nuclei > 0])
-    centres = np.asarray(ndimage.center_of_mass(
-        np.ones_like(nuclei), nuclei, labels), float).reshape(-1, 2)
-    out = pd.DataFrame({"label": labels.astype(np.int64),
-                        "centroid_row": centres[:, 0],
-                        "centroid_col": centres[:, 1]})
-    for slot, prefix in ((0, "cell"), (1, "nucleus"), (4, "cytoplasm")):
-        for frame in (morphology[slot], intensity[slot]):
-            if frame is None or not len(frame) or "label" not in frame:
-                continue
-            frame = frame.loc[:, ~frame.columns.duplicated()]
-            renamed = {}
-            for column in frame.columns:
-                if column == "label":
-                    continue
-                text = _channel_named(str(column), names)
-                if not text.startswith(f"{prefix}_"):
-                    text = f"{prefix}_{text}"
-                renamed[column] = text
-            frame = frame.rename(columns=renamed)
-            frame = frame.loc[:, [c for c in frame.columns
-                                  if "pathogen" not in str(c)
-                                  and not str(c).endswith("_cell_id")
-                                  and not str(c).endswith("label_correlation")]]
-            frame = frame.loc[:, [c for c in frame.columns
-                                  if c == "label" or c not in out.columns]]
-            frame = frame.assign(label=frame["label"].astype(np.int64))
-            frame = frame.drop_duplicates(subset=["label"])
-            out = out.merge(frame, on="label", how="left")
+                                     channel_names=channel_names,
+                                     zernike=zernike,
+                                     summarize=bool(objects))
+    measured = _measure_core(masks, image, settings, crop, objects=objects)
+    tables = field_role_tables(measured["morphology"], measured["intensity"],
+                               ("cell", "nucleus", "cytoplasm"))
+    centres = label_centroids(nuclei)
+    out = pd.DataFrame({"label": centres["label"],
+                        "centroid_row": centres["y"],
+                        "centroid_col": centres["x"]})
+    for prefix in ("cell", "nucleus", "cytoplasm"):
+        frame = tables.get(prefix)
+        if frame is None:
+            continue
+        frame = frame.rename(columns={
+            column: column if str(column).startswith(f"{prefix}_")
+            else f"{prefix}_{column}"
+            for column in frame.columns if column != "label"})
+        frame = frame.loc[:, [c for c in frame.columns
+                              if "pathogen" not in str(c)
+                              and not str(c).endswith("_cell_id")
+                              and not str(c).endswith("label_correlation")]]
+        frame = frame.loc[:, [c for c in frame.columns
+                              if c == "label" or c not in out.columns]]
+        frame = frame.assign(label=frame["label"].astype(np.int64))
+        frame = frame.drop_duplicates(subset=["label"])
+        out = out.merge(frame, on="label", how="left")
     keep = [c for c in out.columns if pd.api.types.is_numeric_dtype(out[c])]
-    return out.loc[:, keep].reset_index(drop=True)
+    out = out.loc[:, keep].reset_index(drop=True)
+    if objects:
+        out = out.merge(_cell_object_table(
+            cells, objects, measured["summaries"].get("cell"), channel_names),
+            on="label", how="left")
+    return out
+
+
+def _measure_core(masks, image, settings, crop, *, objects=None, tables=True):
+    """One call of :func:`spacr.measure.measure_field_objects` for the OPS field.
+
+    :param masks: the ``cell``, ``nucleus`` and ``cytoplasm`` labels.
+    :param image: the ``(H, W, C)`` intensities.
+    :param settings: :func:`_measurement_settings`.
+    :param crop: None, or the crop request with its writer ``settings``.
+    :param objects: ``{class: labels}`` summarised per cell, or None.
+    :param tables: False cuts the crops only.
+    """
+    from .measure import measure_field_objects
+
+    if crop is not None:
+        crop = dict(crop)
+        settings = {**settings, **dict(crop.pop("settings", None) or {})}
+    return measure_field_objects(
+        masks, image, settings, periphery=False, outside=False,
+        summarize=dict(objects) if objects else {}, crop=crop, tables=tables)
 
 
 #: The per-cell statistics :func:`spacr.measure._summarize_organelles_per_parent`
@@ -582,24 +618,45 @@ def _cell_object_features(cells: np.ndarray, objects, image: np.ndarray,
         of each object's mean intensity. A cell without objects has 0
         everywhere.
 
-    Mask Generation's and Measure's own summary,
-    :func:`spacr.measure._summarize_organelles_per_parent`: an object
+    Measure's own summary, computed by
+    :func:`spacr.measure.measure_field_objects` with
+    ``summarize_organelles_by='cell'``
+    (:func:`spacr.measure._summarize_organelles_per_parent`): an object
     belongs to the cell that holds most of its pixels
     (:func:`spacr.measure._map_child_to_parent`) and an object outside every
-    cell belongs to none. The ``cell_`` prefix makes the columns per-cell
-    features of the OPS tables, so the aggregate phase carries them into
-    the per-gene profiles as it does the cell's own.
+    cell belongs to none. :func:`measure_phenotype_field` takes the same
+    summary from its one call of the core with ``objects``.
+    """
+    cells = np.asarray(cells, np.int32)
+    image = np.asarray(image, np.float32)
+    summary = None
+    if (cells > 0).any():
+        settings = {**_measurement_settings(image.shape[2], False,
+                                            summarize=True),
+                    "channel_names": None}
+        summary = _measure_core({"cell": cells}, image, settings, None,
+                                objects=objects, tables=False)["summaries"].get("cell")
+    return _cell_object_table(cells, objects, summary, channel_names)
+
+
+def _cell_object_table(cells, objects, summary, channel_names):
+    """Measure's per-cell object summary under the OPS column names.
+
+    :param cells: cell labels.
+    :param objects: ``{class: labels}`` that were summarised.
+    :param summary: the ``cell`` table of
+        :func:`spacr.measure.measure_field_objects`, with its
+        ``organelle_summary_<class>_`` columns, or None.
+    :param channel_names: one short name per channel.
+    :returns: one row per cell label, as :func:`_cell_object_features`
+        documents.
     """
     import pandas as pd
 
-    from .measure import _summarize_organelles_per_parent
-
-    cells = np.asarray(cells, np.int32)
-    image = np.asarray(image, np.float32)
     names = [str(name).lower() for name in channel_names]
     labels = np.unique(cells[cells > 0]).astype(np.int64)
     out = pd.DataFrame({"label": labels})
-    for role, mask in objects.items():
+    for role in objects:
         columns = [f"cell_{role}_{stat}" for stat in _CELL_OBJECT_STATS]
         for name in names:
             columns += [f"cell_{role}_{name}_mean_intensity",
@@ -607,17 +664,18 @@ def _cell_object_features(cells: np.ndarray, objects, image: np.ndarray,
         if not len(labels):
             out = out.reindex(columns=["label", *columns])
             continue
-        summary = _summarize_organelles_per_parent(
-            np.asarray(mask, np.int32), cells, image, parent_name="cell")
-        renamed = {f"organelle_{stat}": f"cell_{role}_{stat}"
+        renamed = {f"organelle_summary_{role}_{stat}": f"cell_{role}_{stat}"
                    for stat in _CELL_OBJECT_STATS}
         for index, name in enumerate(names):
             for stat in ("mean", "std"):
-                renamed[f"organelle_channel_{index}_{stat}_intensity_per_cell"] = (
+                renamed[f"organelle_summary_{role}_channel_{index}_{stat}_intensity_per_cell"] = (
                     f"cell_{role}_{name}_{stat}_intensity")
-        summary = summary.rename(columns=renamed)
-        summary = summary.assign(label=summary["label"].astype(np.int64))
-        summary = summary.reindex(columns=["label", *columns])
-        summary[columns] = summary[columns].astype(np.float64).fillna(0.0)
-        out = out.merge(summary, on="label", how="left")
+        frame = (summary if summary is not None
+                 else pd.DataFrame({"label": np.zeros(0, np.int64)}))
+        frame = frame.loc[:, ["label", *[c for c in frame.columns if c in renamed]]]
+        frame = frame.rename(columns=renamed)
+        frame = frame.assign(label=frame["label"].astype(np.int64))
+        frame = frame.reindex(columns=["label", *columns])
+        frame[columns] = frame[columns].astype(np.float64).fillna(0.0)
+        out = out.merge(frame, on="label", how="left")
     return out

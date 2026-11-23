@@ -5757,13 +5757,19 @@ _PH_WORKER_FIELDS = {"count": 0}
 def _ph_measure_table(task: Mapping[str, Any]):
     """One segmented phenotype field measured: ``(table or None, unreadable, shape)``.
 
-    Nuclear mask geometry always supplies nucleus_centroid_y,
-    nucleus_centroid_x and nucleus_area for S2, while existing measurements
-    retain their values and order.
+    The field is measured, its further objects summarised and, with
+    ``crop`` set, its cells cut, in one call of Measure's per-field core
+    (:func:`spacr.measure.measure_field_objects`, through
+    :func:`spacr.ops_sample.measure_phenotype_field`); this function only
+    reads the field and its masks and corrects the field's flat field.
+    The nucleus centroid is also written as nucleus_centroid_y and
+    nucleus_centroid_x for S2, while existing measurements retain their
+    values and order.
 
     :param task: as :func:`_ph_measure_field` takes it; ``staged``, when
         set, is the field's stack staged by :class:`spacr.ops_run_infra.FieldStager`,
-        read in place of the raw files.
+        read in place of the raw files. ``crop``, when set, is
+        :func:`_ph_measure_crop_request` for the field.
     """
     from .ops_sample import measure_phenotype_field
 
@@ -5780,6 +5786,7 @@ def _ph_measure_table(task: Mapping[str, Any]):
     cells = saved["cells"].astype(np.int32)
     objects = _ph_saved_objects(saved, task.get("objects") or (),
                                 task["mask_path"])
+    raw = stack
     if task.get("flat_folder"):
         from .ops_flatfield import correct_field
 
@@ -5789,6 +5796,13 @@ def _ph_measure_table(task: Mapping[str, Any]):
     if task.get("measure_gpu"):
         os.environ.setdefault("CUPY_CACHE_DIR", os.path.join(
             os.path.expanduser("~"), ".spacr", "cupy_cache"))
+    crop = None
+    if task.get("crop"):
+        request = dict(task["crop"])
+        crop = {"file_name": request["file_name"], "modes": request["modes"],
+                "source": stack if request.get("flatfield") else raw,
+                "dtype": np.uint16, "channels": request["channels"],
+                "settings": request["settings"]}
     table = measure_phenotype_field(
         nuclei, cells, stack, task["channels"],
         texture=bool(task["texture"]),
@@ -5797,23 +5811,21 @@ def _ph_measure_table(task: Mapping[str, Any]):
         gpu=bool(task.get("measure_gpu", False)),
         profile_features=task.get("profile_features"),
         granularity_subsample=float(task.get("granularity_subsample") or 1.0),
-        cytoskeleton_channels=task.get("cytoskeleton_channels"))
-    from skimage.measure import regionprops_table
-    import pandas as pd
-
-    geometry = pd.DataFrame(regionprops_table(
-        nuclei, properties=("label", "centroid", "area"))).rename(columns={
-            "centroid-0": "nucleus_centroid_y", "centroid-1": "nucleus_centroid_x",
-            "area": "nucleus_area"}).set_index("label")
-    for column in ("nucleus_centroid_y", "nucleus_centroid_x", "nucleus_area"):
+        cytoskeleton_channels=task.get("cytoskeleton_channels"),
+        objects=objects if task.get("objects") else None, crop=crop)
+    object_columns = [c for c in table.columns
+                      if any(str(c).startswith(f"cell_{role}_")
+                             for role in (task.get("objects") or ()))
+                      and c not in ("cell_area",)]
+    at = (list(table.columns).index(object_columns[0]) if object_columns
+          else len(table.columns))
+    for column, source in (("nucleus_centroid_y", "centroid_row"),
+                           ("nucleus_centroid_x", "centroid_col")):
         if column not in table:
-            table[column] = table["label"].map(geometry[column])
-    if task.get("objects") and len(table):
-        from .ops_sample import _cell_object_features
-
-        table = table.merge(
-            _cell_object_features(cells, objects, stack, task["channels"]),
-            on="label", how="left")
+            table.insert(at, column, table[source])
+            at += 1
+    if "nucleus_area" not in table:
+        table.insert(at, "nucleus_area", np.nan)
     table.insert(0, "site", int(task["site"]))
     return table, unreadable, tuple(int(v) for v in stack.shape[:2])
 
