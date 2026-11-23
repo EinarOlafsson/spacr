@@ -1267,7 +1267,309 @@ def _raw_images_by_key(src, regular_expression, metadata_type, img_format, *,
     return image_paths_by_key
 
 
-def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True, metadata_well_map=None, source_plate=None):
+#: A plate well spaCR can store: one or two row letters and a column number
+#: of up to three digits, such as ``A1``, ``B03`` or ``AF48`` (item 0aj).
+_PLATE_WELL_NAME = re.compile(r'^[A-Za-z]{1,2}\d{1,3}$')
+
+
+def _mask_filename_pattern(src, settings):
+    """The compiled Mask filename pattern for the raw images of ``src``, or None.
+
+    The same pattern Mask stacking reads the plate with
+    (:func:`spacr.utils._get_regex` for the image extension most files in
+    ``src`` and ``src/orig`` have). None for ``metadata_type='auto'``, whose
+    names are rewritten by the conversion before they are read, and when
+    the folder holds no raw images.
+    """
+    from .utils import _get_regex
+
+    metadata_type = settings.get('metadata_type')
+    if not metadata_type or metadata_type == 'auto':
+        return None
+    names = (_raw_image_names(src) + _raw_image_names(os.path.join(src, 'orig')))
+    if not names:
+        return None
+    ext = Counter(name.rsplit('.', 1)[-1].lower() for name in names).most_common(1)[0][0]
+    try:
+        return re.compile(_get_regex(metadata_type, ext, settings.get('custom_regex')))
+    except Exception:  # an unusable pattern is reported by the run itself
+        return None
+
+
+def _well_name_refusal(src, settings):
+    """A plain refusal when a well name of ``src`` is not letter + number, else None (item 0aj).
+
+    fov.ome.zarr lays the plate out by row letter and column number, so a
+    well the filename pattern reads as anything else (a raw CQ1 ``W0017``
+    before conversion, an Opera ``r01c01``) cannot be stored. The wells are
+    read by the Mask parse (:func:`_raw_images_by_key`), including the CQ1
+    conversion Mask applies for ``metadata_type='cq1'``.
+
+    :param src: the plate folder.
+    :param settings: the Mask settings.
+    :returns: the message, or None when every well is letter + number.
+    """
+    from .qt.i18n import tr
+
+    if str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() != 'ome-zarr':
+        return None
+    if settings.get('timelapse'):
+        return None
+    regex = _mask_filename_pattern(src, settings)
+    if regex is None:
+        return None
+    try:
+        by_key = _raw_images_by_key(src, regex, settings.get('metadata_type'),
+                                    list(_RAW_IMAGE_SUFFIXES),
+                                    metadata_well_map=settings.get('metadata_well_map'))
+    except Exception:  # the run reports an unreadable folder itself
+        return None
+    bad = sorted({str(key[1]) for key in by_key
+                  if not _PLATE_WELL_NAME.match(str(key[1]))})
+    if not bad:
+        return None
+    shown = ', '.join(bad[:8]) + (tr(' and {count} more', count=len(bad) - 8)
+                                  if len(bad) > 8 else '')
+    return tr(
+        "The images in {src} name their wells {wells}, not a row letter and a "
+        "column number (such as B03). spaCR stores a plate by row and column, so "
+        "it stopped before changing anything. Convert the file names first: use "
+        "the Convert module, or set metadata_type to your microscope (for example "
+        "'cq1' for CQ1 'W0017' names), then run Mask again.",
+        src=src, wells=shown)
+
+
+def _source_plates(src, settings):
+    """The raw images directly in ``src``, by plate, as the Mask parse reads them (item 0aj).
+
+    :param src: the source folder.
+    :param settings: the Mask settings naming ``metadata_type`` and ``custom_regex``.
+    :returns: ``({plate: [file names]}, [names the pattern could not read])``;
+        empty when the pattern names no plate (one plate, the folder).
+    """
+    from .utils import _extract_filename_metadata
+
+    regex = _mask_filename_pattern(src, settings)
+    names = _raw_image_names(src)
+    if regex is None or 'plateID' not in regex.groupindex or not names:
+        return {}, []
+    by_plate = defaultdict(list)
+    placed = set()
+    parsed = _extract_filename_metadata(
+        names, src, regex, settings.get('metadata_type'),
+        metadata_well_map=settings.get('metadata_well_map'))
+    for key, paths in parsed.items():
+        for path in paths:
+            name = os.path.basename(path)
+            if name not in placed:
+                placed.add(name)
+                by_plate[str(key[0])].append(name)
+    return ({plate: sorted(files) for plate, files in sorted(by_plate.items())},
+            [name for name in names if name not in placed])
+
+
+#: The record a plate split leaves in the source folder (item 0aj).
+PLATE_SPLIT_RECORD = 'spacr_plate_split.json'
+
+
+def _plate_split_plan(src, settings):
+    """The files a split of a several-plate ``src`` moves, or None for one plate (item 0aj).
+
+    :returns: ``{"src", "plates": {plate: [file names]}, "unread": [...],
+        "moves": [(file, plate folder/file)]}``, or None.
+    """
+    by_plate, unread = _source_plates(src, settings)
+    if len(by_plate) < 2:
+        return None
+    moves = [(name, os.path.join(plate, name))
+             for plate, names in by_plate.items() for name in names]
+    return {"src": src, "plates": by_plate, "unread": unread, "moves": moves}
+
+
+def _describe_plate_split(plan, limit=20):
+    """The dry-run list of a plate split, as plain lines."""
+    from .qt.i18n import tr
+
+    lines = [tr("{src} holds images of {count} plates: {plates}.",
+                src=plan['src'], count=len(plan['plates']),
+                plates=', '.join(f"{p} ({len(n)} files)" for p, n in plan['plates'].items()))]
+    lines.append(tr("Dry run, nothing moved yet. Each plate's images go into its "
+                    "own folder inside {src}:", src=plan['src']))
+    for name, target in plan['moves'][:limit]:
+        lines.append(f"  {name} -> {target}")
+    if len(plan['moves']) > limit:
+        lines.append(tr("  ... and {count} more files", count=len(plan['moves']) - limit))
+    if plan['unread']:
+        lines.append(tr("{count} image file(s) the filename pattern cannot read stay "
+                        "where they are.", count=len(plan['unread'])))
+    return lines
+
+
+def _split_plates(src, plan, printer=print):
+    """Move each plate's images into ``<src>/<plate>/``, verified, never overwriting (item 0aj).
+
+    The full dry-run list is written to ``<src>/spacr_plate_split_plan.tsv``
+    and printed (shortened) first. Every target is checked before anything
+    moves: a plate name that is not a plain folder name, or a file already
+    at a target, stops the split with nothing moved. Each file is moved with
+    :func:`spacr.image_store._move_without_overwrite`. Afterwards every plate
+    folder must hold each of its files with the size it had, and the source
+    none of them; the split is recorded in ``<src>/spacr_plate_split.json``.
+    A split cut short is finished by running it again.
+
+    :param src: the source folder.
+    :param plan: from :func:`_plate_split_plan`.
+    :param printer: where the dry-run list and the summary go.
+    :returns: the plate folders, sorted.
+    :raises RuntimeError: a target is taken, or the check after the moves failed.
+    """
+    from .image_store import _move_without_overwrite
+    from .qt.i18n import tr
+
+    for line in _describe_plate_split(plan):
+        printer(line)
+    reserved = {'orig', 'stack', 'masks', 'merged', 'settings', 'measurements', 'qc',
+                'fov.ome.zarr', 'crop.ome.zarr', 'datasets', 'test'}
+    for plate in plan['plates']:
+        if (not plate or plate in ('.', '..') or os.sep in plate or '/' in plate
+                or plate in reserved):
+            raise RuntimeError(tr(
+                "Plate name {plate!r} cannot be a folder name inside {src}; nothing "
+                "was moved. Rename the files or move the plates by hand.",
+                plate=plate, src=src))
+    sizes = {}
+    for name, target in plan['moves']:
+        source = os.path.join(src, name)
+        destination = os.path.join(src, target)
+        sizes[target] = os.path.getsize(source)
+        if os.path.exists(destination) and not os.path.samefile(source, destination):
+            raise RuntimeError(tr(
+                "{target} already exists, so the plates were not split and nothing "
+                "was moved. Move that file away and run again.", target=destination))
+    plan_path = os.path.join(src, 'spacr_plate_split_plan.tsv')
+    with open(plan_path, 'w', encoding='utf-8') as handle:
+        handle.write('file\ttarget\tbytes\n')
+        for name, target in plan['moves']:
+            handle.write(f"{name}\t{target}\t{sizes[target]}\n")
+    printer(tr("The full list is in {path}.", path=plan_path))
+    for name, target in plan['moves']:
+        _move_without_overwrite(os.path.join(src, name), os.path.join(src, target))
+    problems = []
+    for name, target in plan['moves']:
+        destination = os.path.join(src, target)
+        if not os.path.isfile(destination):
+            problems.append(tr("{target} is missing", target=target))
+        elif os.path.getsize(destination) != sizes[target]:
+            problems.append(tr("{target} has another size", target=target))
+        if os.path.exists(os.path.join(src, name)):
+            problems.append(tr("{name} is still in the source folder", name=name))
+    for plate, names in plan['plates'].items():
+        held = set(_raw_image_names(os.path.join(src, plate)))
+        if not set(names) <= held:
+            problems.append(tr("{plate} holds {held} of its {count} files",
+                               plate=plate, held=len(held & set(names)), count=len(names)))
+    if problems:
+        raise RuntimeError(tr("The plate split could not be confirmed: {problems}. No file "
+                              "was deleted; check the folders before running again.",
+                              problems='; '.join(problems[:10])))
+    record_path = os.path.join(src, PLATE_SPLIT_RECORD)
+    record = {}
+    if os.path.isfile(record_path):
+        with open(record_path, encoding='utf-8') as handle:
+            record = json.load(handle)
+    plates = sorted(set(record.get('plates', [])) | set(plan['plates']))
+    record = {'plates': plates, 'files': int(record.get('files', 0)) + len(plan['moves'])}
+    with open(record_path, 'w', encoding='utf-8') as handle:
+        json.dump(record, handle, indent=2, sort_keys=True)
+    printer(tr("Split {files} files into {count} plate folders, each checked for its "
+               "file count and sizes: {plates}. Each plate is analysed as its own "
+               "project; run them one by one or together with the Batch Runner.",
+               files=len(plan['moves']), count=len(plan['plates']),
+               plates=', '.join(os.path.join(src, p) for p in plan['plates'])))
+    return [os.path.join(src, plate) for plate in sorted(plan['plates'])]
+
+
+#: Set by Mask Generation around its preprocessing (item 0aj): the originals
+#: stay in place until the run has committed and verified each field in
+#: fov.ome.zarr. A direct preprocess_img_data call moves them as before.
+import contextvars as _contextvars
+_ORIGINALS_WAIT = _contextvars.ContextVar('spacr_originals_wait_for_store', default=False)
+
+
+def _store_settles_originals(settings):
+    """Whether this Mask run's originals wait for fov.ome.zarr before they move (item 0aj).
+
+    True for a run that writes the project store (``mask_image_format``
+    'ome-zarr', the default, and not timelapse): each original is moved to
+    ``orig/`` (``keep_original_images``, the default) or deleted only once
+    its field is committed and verified in fov.ome.zarr. Other runs keep
+    their earlier behaviour (``save_original_images``).
+    """
+    return (str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() == 'ome-zarr'
+            and not settings.get('timelapse', False))
+
+
+def _keep_originals(settings):
+    """``keep_original_images`` as the run applies it (item 0aj).
+
+    The older ``save_original_images`` and ``delete_intermediate`` switches
+    still turn keeping off, as they did; a run that writes fov.ome.zarr then
+    deletes each original only after its field is verified there.
+    """
+    return bool(settings.get('keep_original_images', True)
+                and settings.get('save_original_images', True)
+                and not settings.get('delete_intermediate', False))
+
+
+def _plate_sources(sources, settings, printer=print):
+    """The project folders to run Mask on, after any plate split (item 0aj).
+
+    A source whose images belong to several plates (by the Mask filename
+    parse) is split into one folder per plate inside it when ``split_plates``
+    is on (the GUI turns it on once you confirm its popup); each plate
+    folder is then its own project with its own fov.ome.zarr. With
+    ``split_plates`` off, such a source stops the run with the dry-run list
+    and nothing is moved. A source a split already emptied runs the plate
+    folders it recorded.
+
+    :param sources: the source folders.
+    :param settings: the Mask settings.
+    :returns: the folders to process, in order.
+    :raises ValueError: several plates in a source and ``split_plates`` off.
+    """
+    from .qt.i18n import tr
+
+    folders = []
+    for src in sources:
+        plan = _plate_split_plan(src, settings)
+        record_path = os.path.join(src, PLATE_SPLIT_RECORD)
+        recorded = []
+        if os.path.isfile(record_path):
+            with open(record_path, encoding='utf-8') as handle:
+                recorded = [os.path.join(src, p) for p in json.load(handle).get('plates', [])]
+        if plan is None:
+            if recorded and not _raw_image_names(src):
+                printer(tr("{src} was split into plate folders earlier; running "
+                           "{count} plate folder(s).", src=src, count=len(recorded)))
+                folders.extend(recorded)
+            else:
+                folders.append(src)
+            continue
+        if not settings.get('split_plates', False):
+            for line in _describe_plate_split(plan):
+                printer(line)
+            raise ValueError(tr(
+                "{src} holds images of {count} plates, and one project holds one plate. "
+                "Nothing was moved. To split them into one folder per plate inside {src}, "
+                "confirm the split in the GUI or set split_plates to True; each plate is "
+                "then analysed on its own or together with the Batch Runner.",
+                src=src, count=len(plan['plates'])))
+        split = _split_plates(src, plan, printer=printer)
+        folders.extend(sorted(set(split) | set(recorded)))
+    return folders
+
+
+def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True, metadata_well_map=None, source_plate=None, defer_originals=False):
     """
     Convert z-stack images to maximum intensity projection (MIP) images and
     write the merged multi-channel ``stack/`` arrays **directly** — without
@@ -1317,6 +1619,10 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             lives only in ``stack/`` (no duplication); only an image whose field
             now has a stack is deleted, and ``orig/`` is never touched.
             Defaults to True.
+        defer_originals (bool, optional): leave every raw image where it is
+            (item 0aj): a run that writes fov.ome.zarr moves or deletes each
+            original only after its field is committed and verified there
+            (:func:`spacr.image_store._settle_originals`). Defaults to False.
 
     Returns:
         int: the number of distinct channels found (0 when nothing was processed).
@@ -1418,7 +1724,9 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                        operation_type='Preprocessing filenames')
 
     stacked = _stack_field_stems(stack_path)
-    if save_original_images:
+    if defer_originals:
+        pass
+    elif save_original_images:
         to_move = []
         if wanted & stacked:
             to_move = [filename for filename in _listdir_visible(src)
@@ -3682,6 +3990,7 @@ def _rebuild_stacks_from_raw(settings, src, metadata_well_map=None):
         src, regex, int(settings.get('batch_size') or 50), metadata_type,
         list(_RAW_IMAGE_SUFFIXES), timelapse=settings.get('timelapse', False),
         save_original_images=settings.get('save_original_images', True),
+        defer_originals=_ORIGINALS_WAIT.get() and _store_settles_originals(settings),
         metadata_well_map=(metadata_well_map if metadata_well_map is not None
                            else settings.get('metadata_well_map')),
         source_plate=os.path.basename(os.path.dirname(src)
@@ -4708,6 +5017,7 @@ def preprocess_img_data(settings):
                 src, regex, settings['batch_size'], settings['metadata_type'], img_format,
                 timelapse=settings['timelapse'],
                 save_original_images=settings.get('save_original_images', True),
+                defer_originals=_ORIGINALS_WAIT.get() and _store_settles_originals(settings),
                 metadata_well_map=(metadata_well_map if metadata_well_map is not None
                                    else settings.get('metadata_well_map')),
                 source_plate=os.path.basename(os.path.normpath(requested_src)))

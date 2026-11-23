@@ -10631,6 +10631,11 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     stack_files = set()
     if os.path.isdir(stack):
         stack_files = {f for f in _listdir_visible(stack) if f.endswith('.npy')}
+    if merged == store:
+        # Item 0aj: with fov.ome.zarr each original was already moved to
+        # orig/ or deleted after its field was verified (keep_original_images);
+        # orig/ is never removed wholesale here.
+        keep_original = True
     unmerged = []
     if not keep_original and os.path.isdir(orig) and stack_files:
         unmerged = _unmerged_fields(merged, stack_files, merged_files)

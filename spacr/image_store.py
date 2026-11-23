@@ -773,10 +773,10 @@ def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarra
         a field written before hashes were recorded is listed as unrecorded.
     """
     target = Path(store)
-    if not _is_merged_store(target):
+    if not (target.name.endswith(".ome.zarr") and _image_entries(target)):
         target = _merged_store_path(target)
     report: Dict[str, Any] = {"fields": 0, "planes": 0, "mismatches": [], "unrecorded": []}
-    for name, entry in sorted(_store_entries(target).items()):
+    for name, entry in sorted(_image_entries(target).items()):
         image = read_image(target / entry["key"]) if entry.get("image") else None
         if image is None:
             continue
@@ -835,6 +835,39 @@ def original_planes(project: Any, settings: Optional[Mapping[str, Any]] = None
         projected from several z slices or files has no single original
         plane, so it is left out with a note.
     """
+    project = Path(project)
+    fields, sorted_channels, notes = _original_files(project, settings)
+    store = _merged_store_path(project)
+    layout = _store_layout(store) or {}
+    entries = _image_entries(store)
+    planes: Dict[str, List[Callable[[], np.ndarray]]] = {}
+    for name, by_channel in sorted(fields.items()):
+        if any(len(paths) != 1 for paths in by_channel.values()):
+            notes.append(f"{name[:-4]}: a channel is projected from several files; "
+                         f"no single original plane to compare")
+            continue
+        entry = entries.get(name) or {}
+        order = [c for c in _source_channels(store, sorted_channels, entry) if c in by_channel]
+        if entry.get("image_planes") != "stack" and layout.get("intensity_channels") is not None:
+            order = [order[int(i)] for i in layout["intensity_channels"] if int(i) < len(order)]
+        planes[name] = [functools.partial(read_image, by_channel[c][0]) for c in order]
+    return planes, notes
+
+
+def _original_files(project: Any, settings: Optional[Mapping[str, Any]] = None
+                    ) -> Tuple[Dict[str, Dict[str, List[str]]], List[str], List[str]]:
+    """The acquired image files of a project's fields, by field and channel (item 0aj).
+
+    The raw images in the project folder and in ``orig/`` are grouped with
+    the filename pattern of the Mask settings, by the same function Mask
+    stacking uses (:func:`spacr.io._raw_images_by_key`).
+
+    :param project: the project folder.
+    :param settings: Mask settings naming ``metadata_type`` and
+        ``custom_regex``; by default the ones the project recorded.
+    :returns: ``({field file name: {channel id: [paths]}}, the sorted
+        channel ids, notes)``; channel ids are strings.
+    """
     import re
 
     from .io import _RAW_IMAGE_SUFFIXES, _escaped_field_stem, _raw_image_names, _raw_images_by_key
@@ -845,35 +878,245 @@ def original_planes(project: Any, settings: Optional[Mapping[str, Any]] = None
     names = (_raw_image_names(project, _RAW_IMAGE_SUFFIXES)
              + _raw_image_names(project / "orig", _RAW_IMAGE_SUFFIXES))
     if not names:
-        return {}, []
+        return {}, [], []
     if not settings.get("metadata_type"):
-        return {}, [f"{project}: no recorded Mask settings name the file pattern; "
-                    f"the originals were not compared"]
+        return {}, [], [f"{project}: no recorded Mask settings name the file pattern; "
+                        f"the originals were not compared"]
     ext = collections.Counter(n.rsplit(".", 1)[-1].lower() for n in names).most_common(1)[0][0]
     regex = re.compile(_get_regex(settings["metadata_type"], ext, settings.get("custom_regex")))
     by_key = _raw_images_by_key(str(project), regex, settings["metadata_type"],
                                 list(_RAW_IMAGE_SUFFIXES),
                                 metadata_well_map=settings.get("metadata_well_map"))
-    layout = _store_layout(_merged_store_path(project)) or {}
-    channels = layout.get("intensity_channels")
-    sorted_channels = sorted({key[3] for key in by_key})
-    fields: Dict[str, Dict[Any, List[str]]] = collections.defaultdict(dict)
+    sorted_channels = [str(c) for c in sorted({key[3] for key in by_key})]
+    fields: Dict[str, Dict[str, List[str]]] = collections.defaultdict(dict)
     for key, paths in by_key.items():
         stem = _escaped_field_stem(key[0], key[1], key[2], key[4])
-        fields[stem].setdefault(key[3], []).extend(paths)
-    planes: Dict[str, List[Callable[[], np.ndarray]]] = {}
-    notes: List[str] = []
-    for stem, by_channel in sorted(fields.items()):
-        if any(len(paths) != 1 for paths in by_channel.values()):
-            notes.append(f"{stem}: a channel is projected from several files; "
-                         f"no single original plane to compare")
+        fields[f"{stem}.npy"].setdefault(str(key[3]), []).extend(paths)
+    return dict(fields), sorted_channels, []
+
+
+def _source_channels(store: Path, found: Sequence[str],
+                     entry: Optional[Mapping[str, Any]] = None) -> List[str]:
+    """The channel ids of a field's stored planes, in plane order (item 0aj).
+
+    A field written by Mask preprocessing records its own (``source_channels``
+    in its ledger entry). Otherwise the plate's sorted channel ids are used,
+    recorded in the store the first time they are needed, so that a field
+    whose originals were partly deleted still maps each remaining file to
+    its plane.
+
+    :param store: the project's ``fov.ome.zarr``.
+    :param found: the sorted channel ids of the originals on disk now.
+    :param entry: the field's ledger entry.
+    """
+    recorded = (entry or {}).get("source_channels")
+    if recorded:
+        return [str(c) for c in recorded]
+    stored = _store_spacr_attrs(store).get("source_channels")
+    if stored:
+        return [str(c) for c in stored]
+    if found and _is_zarr_group(Path(store)):
+        _update_store_spacr_attrs(store, {"source_channels": list(found)})
+    return list(found)
+
+
+def _store_spacr_attrs(store: Any) -> Dict[str, Any]:
+    """A store root's ``spacr`` attributes; empty when it has none."""
+    try:
+        attrs = json.loads((Path(store) / "zarr.json").read_text(encoding="utf-8")).get(
+            "attributes", {})
+    except (OSError, ValueError):
+        return {}
+    return dict(attrs.get("spacr") or {})
+
+
+def _update_store_spacr_attrs(store: Any, values: Mapping[str, Any]) -> None:
+    """Merge ``values`` into a store root's ``spacr`` attributes."""
+    from .ome_zarr import require_zarr
+
+    group = require_zarr().open_group(str(store), mode="a", zarr_format=3)
+    stored = dict(group.attrs.get("spacr") or {})
+    stored.update(json.loads(json.dumps(dict(values), default=str)))
+    group.attrs.update({"spacr": stored})
+
+
+# ---------------------------------------------------------------------------
+# The originals (item 0aj P1b): keep_original_images
+# ---------------------------------------------------------------------------
+
+def _move_without_overwrite(source: Any, target: Any) -> str:
+    """Move one file to ``target``, never replacing a file that is already there.
+
+    The move is a hard link plus an unlink where the file system allows it,
+    so an existing ``target`` makes it fail instead of being replaced, and a
+    move cut short leaves the file under both names, never under neither.
+    A ``target`` that is already the same file (a move interrupted between
+    the link and the unlink) is finished. A different file at ``target``
+    with the same bytes counts as already moved, and ``source`` is removed.
+
+    :param source: the file to move.
+    :param target: its new path; the folder is created.
+    :returns: ``'moved'`` or ``'already there'``.
+    :raises FileExistsError: a different file of that name is at ``target``.
+    """
+    import errno
+    import filecmp
+
+    source, target = Path(source), Path(target)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists():
+        if os.path.samefile(source, target) or (
+                target.stat().st_size == source.stat().st_size
+                and filecmp.cmp(source, target, shallow=False)):
+            os.remove(source)
+            return "already there"
+        raise FileExistsError(f"{target} already exists and differs from {source}; "
+                              f"nothing was moved")
+    try:
+        os.link(source, target)
+    except OSError as exc:
+        if exc.errno == errno.EEXIST:
+            raise FileExistsError(f"{target} appeared while {source} was moved; "
+                                  f"nothing was replaced") from exc
+        # A file system without hard links: rename onto the free name.
+        os.rename(source, target)
+        return "moved"
+    os.remove(source)
+    return "moved"
+
+
+def _field_checksum_problems(name: str, entry: Mapping[str, Any], image: np.ndarray) -> List[str]:
+    """The planes of one stored field whose bytes differ from the recorded sha256."""
+    recorded = entry.get("plane_sha256")
+    if not recorded:
+        return [f"{name}: no checksums were recorded for its planes"]
+    problems = [f"{name} plane {i}: checksum" for i, (want, got)
+                in enumerate(zip(recorded, _plane_hashes(image))) if want != got]
+    if len(recorded) != image.shape[0]:
+        problems.append(f"{name}: {image.shape[0]} planes, {len(recorded)} recorded")
+    return problems
+
+
+def _stored_plane(entry: Mapping[str, Any], layout: Mapping[str, Any],
+                  channels: Sequence[str], channel: str) -> Optional[int]:
+    """The plane of a field's stored image that holds ``channel``, or None.
+
+    :param entry: the field's ledger entry.
+    :param layout: the store's merged plane layout.
+    :param channels: the field's channel ids in stack order.
+    :param channel: one channel id.
+    """
+    if str(channel) not in channels:
+        return None
+    position = channels.index(str(channel))
+    if entry.get("image_planes") == "stack":
+        return position
+    intensity = [int(i) for i in (layout.get("intensity_channels") or ())]
+    return intensity.index(position) if position in intensity else None
+
+
+def _delete_original(path: Any) -> None:
+    """Delete one original image whose field was verified (the one place spaCR does)."""
+    os.remove(path)
+
+
+def _settle_originals(project: Any, *, keep: bool = True,
+                     settings: Optional[Mapping[str, Any]] = None,
+                     names: Optional[Iterable[str]] = None,
+                     printer: Callable[[str], Any] = print) -> Dict[str, Any]:
+    """Move or delete each field's original images once its stored copy is verified (item 0aj).
+
+    For every field committed to ``fov.ome.zarr`` (or only ``names``), the
+    stored planes are re-hashed against the sha256 recorded at write, and
+    every original image of the field is read and compared with its stored
+    plane (values, dtype and shape). Only a field that passes both is
+    settled:
+
+    - ``keep=True`` (``keep_original_images``, the default): its originals
+      are moved into ``<project>/orig/``, never over another file.
+    - ``keep=False``: its originals are deleted, one file at a time, each
+      only after that check.
+
+    A field that fails is left exactly as it is and named in ``problems``.
+    A field whose channel was projected from several files (z slices), or
+    whose channel is not in the store, has no single plane to compare an
+    original with, so its originals are moved to ``orig/`` even when
+    ``keep`` is False, and named in ``kept``. Every step can be cut short
+    and run again: a deleted original is never needed again, because its
+    plane was verified first, and the others are checked anew.
+
+    :param project: the project folder.
+    :param keep: move (True) or delete (False) the verified originals.
+    :param settings: the Mask settings naming the filename pattern; by
+        default the ones the project recorded.
+    :param names: only these field file names; every committed field by default.
+    :param printer: where the one summary line goes.
+    :returns: ``{"moved": [...], "deleted": [...], "kept": [...], "problems": [...]}``.
+    """
+    from .qt.i18n import tr
+
+    project = Path(project)
+    store = _merged_store_path(project)
+    report: Dict[str, Any] = {"moved": [], "deleted": [], "kept": [], "problems": []}
+    entries = _image_entries(store)
+    if not entries:
+        return report
+    wanted = None if names is None else {os.path.basename(str(n)) for n in names}
+    files, found_channels, notes = _original_files(project, settings)
+    report["problems"].extend(notes if files == {} and notes else [])
+    layout = _store_layout(store) or {}
+    orig = project / "orig"
+    for name, entry in sorted(entries.items()):
+        if wanted is not None and name not in wanted:
             continue
-        order = [c for c in sorted_channels if c in by_channel]
-        if channels is not None:
-            order = [order[int(i)] for i in channels if int(i) < len(order)]
-        planes[f"{stem}.npy"] = [functools.partial(read_image, by_channel[c][0])
-                                 for c in order]
-    return planes, notes
+        by_channel = files.get(name)
+        if not by_channel:
+            continue
+        image = read_image(store / entry["key"])
+        image = image if image.ndim == 3 else image[None]
+        problems = _field_checksum_problems(name, entry, image)
+        reason = None
+        channels = _source_channels(store, found_channels, entry)
+        if not problems:
+            for channel, paths in sorted(by_channel.items()):
+                if len(paths) != 1:
+                    reason = tr("channel {channel} was projected from {count} files",
+                                channel=channel, count=len(paths))
+                    continue
+                plane = _stored_plane(entry, layout, channels, channel)
+                if plane is None or plane >= image.shape[0]:
+                    reason = tr("channel {channel} is not stored", channel=channel)
+                    continue
+                original = np.asarray(read_image(paths[0]))
+                stored = image[plane]
+                if (original.dtype != stored.dtype or original.shape != stored.shape
+                        or not np.array_equal(original, stored)):
+                    problems.append(f"{name} channel {channel}: {paths[0]} differs "
+                                    f"from stored plane {plane}")
+        if problems:
+            report["problems"].extend(problems)
+            continue
+        paths = sorted(p for ps in by_channel.values() for p in ps)
+        if keep or reason is not None:
+            for path in paths:
+                if Path(path).parent != orig:
+                    _move_without_overwrite(path, orig / Path(path).name)
+                    report["moved"].append(path)
+            if reason is not None and not keep:
+                report["kept"].append(f"{name}: {reason}")
+        else:
+            for path in paths:
+                _delete_original(path)
+                report["deleted"].append(path)
+    if report["moved"] or report["deleted"] or report["kept"]:
+        printer(tr("Original images: {moved} moved to orig/, {deleted} deleted, "
+                   "after each field was verified in fov.ome.zarr; {kept} field(s) "
+                   "kept because a plane could not be compared.",
+                   moved=len(report["moved"]), deleted=len(report["deleted"]),
+                   kept=len(report["kept"])))
+    for line in report["kept"]:
+        printer(tr("kept in orig/: {line}", line=line))
+    return report
 
 
 class _LazyPlanes:
@@ -899,13 +1142,13 @@ def verify_project(project: Any, *, originals: bool = True) -> Dict[str, Any]:
         (planes compared with an original) and ``notes``.
     """
     target = Path(project)
-    if _is_merged_store(target):
+    if target.name.endswith(".ome.zarr") and _image_entries(target):
         target = target.parent
     store = _merged_store_path(target)
-    if not _is_merged_store(store):
+    if not _image_entries(store):
         raise FileNotFoundError(f"{store} is not a spaCR fov.ome.zarr with committed fields")
     loaders, notes = original_planes(target) if originals else ({}, [])
-    entries = _store_entries(store)
+    entries = _image_entries(store)
     # Each field's originals are read only when verify_store reaches it, so
     # one field's planes are in memory at a time.
     compared = {name: _LazyPlanes(planes) for name, planes in loaders.items()
@@ -955,14 +1198,47 @@ def _parse_ledger(ledger: str) -> Dict[str, Dict[str, Any]]:
     return entries
 
 
-def _store_entries(store: Any) -> Dict[str, Dict[str, Any]]:
-    """``{field file name: ledger entry}`` of a merged store; empty when it has none."""
+def _entry_views(store: Any) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    """``{"merged": {...}, "image": {...}}`` of a store's ledger, cached while it is unchanged.
+
+    A field Mask preprocessing wrote (item 0aj P1c) holds its channels
+    only until its masks are added; it is an ``image`` entry, and becomes a
+    ``merged`` one (with the merged ``shape``) once its labels are committed.
+    """
     ledger = Path(store) / _LEDGER
     try:
         stat = os.stat(ledger)
     except OSError:
-        return {}
-    return _ledger_entries(str(ledger), stat.st_mtime_ns, stat.st_size)
+        return {"merged": {}, "image": {}}
+    entries = _ledger_entries(str(ledger), stat.st_mtime_ns, stat.st_size)
+    cached = _VIEW_CACHE.get(str(ledger))
+    if cached is not None and cached[0] is entries:
+        return cached[1]
+    views = {"merged": {n: e for n, e in entries.items() if "shape" in e},
+             "image": {n: e for n, e in entries.items() if e.get("image")}}
+    _VIEW_CACHE[str(ledger)] = (entries, views)
+    while len(_VIEW_CACHE) > _LEDGER_CACHE_SIZE:
+        _VIEW_CACHE.pop(next(iter(_VIEW_CACHE)))
+    return views
+
+
+#: ``{ledger path: (parsed entries, their views)}``, beside :data:`_LEDGER_CACHE`.
+_VIEW_CACHE: Dict[str, Tuple[Dict[str, Dict[str, Any]], Dict[str, Dict[str, Dict[str, Any]]]]] = {}
+
+
+def _store_entries(store: Any) -> Dict[str, Dict[str, Any]]:
+    """``{field file name: ledger entry}`` of a store's MERGED fields; empty when it has none.
+
+    A field whose channels are stored but whose masks are not yet (item 0aj
+    P1c) is not listed: Measure, the overlays and resume see a field only
+    once its labels are committed.
+    """
+    return _entry_views(store)["merged"]
+
+
+def _image_entries(store: Any) -> Dict[str, Dict[str, Any]]:
+    """``{field file name: ledger entry}`` of every store field with stored channels (item 0aj)."""
+    return _entry_views(store)["image"]
 
 
 def _is_merged_store(path: Any) -> bool:

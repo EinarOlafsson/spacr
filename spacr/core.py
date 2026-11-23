@@ -197,6 +197,42 @@ def _merged_source(src, image_format='ome-zarr'):
     return folder
 
 
+def _settle_run_originals(src, settings, merge_format):
+    """Move or delete the run's original images once their fields are verified (item 0aj).
+
+    With fov.ome.zarr, each field's originals go to ``orig/``
+    (``keep_original_images``, the default) or are deleted, only after the
+    field is committed and every plane is verified against them
+    (:func:`spacr.image_store._settle_originals`). A run that wrote no store
+    (``npy``/``tiff``, timelapse, or a folder the store cannot hold) sets
+    its originals aside in ``orig/`` as before, and the end-of-run cleanup
+    applies ``keep_original_images`` there.
+
+    :raises RuntimeError: a stored field does not match its originals;
+        those originals are left where they are.
+    """
+    from .image_store import _image_entries, _merged_store_path, _settle_originals
+    from .io import _keep_originals, _store_settles_originals
+    from .qt.i18n import tr
+
+    if not _store_settles_originals(settings):
+        return None
+    if not _image_entries(_merged_store_path(src)) or merge_format != 'ome-zarr':
+        from .io import _RAW_IMAGE_SUFFIXES, _raw_image_names
+        from .image_store import _move_without_overwrite
+        orig = os.path.join(src, 'orig')
+        for name in _raw_image_names(src, _RAW_IMAGE_SUFFIXES):
+            _move_without_overwrite(os.path.join(src, name), os.path.join(orig, name))
+        return None
+    report = _settle_originals(src, keep=_keep_originals(settings), settings=settings)
+    if report['problems']:
+        raise RuntimeError(tr(
+            "Original images were left where they are, because these fields do not "
+            "match them in fov.ome.zarr: {problems}.",
+            problems='; '.join(report['problems'][:5])))
+    return report
+
+
 def _cells_from_nuclei(mask_src, settings):
     """Grow Make Masks' cell masks from the nuclei when there is no cell stain (item 910, alpha).
 
@@ -657,6 +693,19 @@ def preprocess_generate_masks(settings):
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
+    # Item 0aj: one project holds one plate with letter + number wells. A
+    # source of several plates is split into plate folders (split_plates, or
+    # the GUI popup) or stopped; wells fov.ome.zarr cannot name stop the run
+    # before anything is changed.
+    from .io import _plate_sources, _well_name_refusal
+    checked = set_default_settings_preprocess_generate_masks(deepcopy(settings))
+    settings['src'] = _plate_sources(settings['src'], checked)
+    for source_folder in settings['src']:
+        refusal = _well_name_refusal(format_path_for_system(source_folder), checked)
+        if refusal:
+            print(f'Error: {refusal}')
+            raise ValueError(refusal)
+
     source_folders = settings['src']
     caller_settings = settings
     requested_settings = deepcopy(settings)
@@ -759,7 +808,14 @@ def preprocess_generate_masks(settings):
                     gpu_plan = _parallel_mask_plan(settings)
 
                     if settings['preprocess']:
-                        settings, src = preprocess_img_data(settings)
+                        from .io import _ORIGINALS_WAIT
+                        # Item 0aj: the originals stay put until each field is
+                        # committed and verified in fov.ome.zarr (below).
+                        wait = _ORIGINALS_WAIT.set(bool(settings['masks']))
+                        try:
+                            settings, src = preprocess_img_data(settings)
+                        finally:
+                            _ORIGINALS_WAIT.reset(wait)
                         _save_resolved_mask_settings(settings, source_folder)
 
                     organelle_roles = enabled_organelle_roles(settings)
@@ -999,6 +1055,7 @@ def preprocess_generate_masks(settings):
                             print(tr("fov.ome.zarr: {planes} channel planes of {fields} fields "
                                      "verified against their recorded checksums.",
                                      planes=checked['planes'], fields=checked['fields']))
+                        _settle_run_originals(src, settings, merge_format)
                         if settings.get('export_vvvv', False):
                             cancellation_checkpoint()
                             from .io import _export_vvvv_merged
