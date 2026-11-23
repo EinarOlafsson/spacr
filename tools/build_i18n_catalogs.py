@@ -5073,9 +5073,27 @@ def _static_ui_sources_of_file(
         tree.body = [node for node in tree.body
                      if (isinstance(node, ast.FunctionDef)
                          and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
-                                           "_cellpose_stock_preflight", "filter_dataframe_features"})
+                                           "_cellpose_stock_preflight", "filter_dataframe_features",
+                                           "_activation_grid", "_class_visualization_preview",
+                                           "_generate_representative_images", "_utility_image_style",
+                                           "model_metrics", "plot_clusters", "plot_clusters_grid",
+                                           "plot_grid", "plot_image", "plot_images_by_cluster",
+                                           "plot_umap_images", "process_masks"})
                      or (isinstance(node, ast.ClassDef)
-                         and node.name == "CustomCellClassifier")]
+                         and node.name in {"CustomCellClassifier", "SaliencyMapGenerator",
+                                           "GradCAMGenerator"})]
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef) and node.name in {
+                    "SaliencyMapGenerator", "GradCAMGenerator"}:
+                # Only the visible grid captions, not attribution internals.
+                node.body = [method for method in node.body
+                             if isinstance(method, ast.FunctionDef)
+                             and method.name == "plot_activation_grid"]
+            elif isinstance(node, ast.FunctionDef) and node.name == "process_masks":
+                # The nested PCA figure owns these captions; mask processing does not.
+                node.body = [child for child in node.body
+                             if isinstance(child, ast.FunctionDef)
+                             and child.name == "plot_clusters"]
     if path == source_root / "torch_artifacts.py":
         # The refusals of old custom-classifier models are its only captions.
         tree.body = [node for node in tree.body
@@ -5127,6 +5145,11 @@ def _static_ui_sources_of_file(
                          "_checked_intensity", "_checked_label",
                          "write_field_table_project",
                          "_read_measure_field", "measure_crop",
+                         "img_list_to_grid", "_confluency_figure", "_dna_histogram_figure",
+                         "_wound_edge_figure", "_wound_curve_figure", "_wound_half_closure_figure",
+                         "_wound_plate_figure", "_viability_threshold_figure",
+                         "_viability_controls_figure", "_viability_dose_figure",
+                         "_time_to_event_figure", "_hazard_ratio_figure",
                      }]
     if path == source_root / "channel_sorting.py":
         tree.body = [node for node in tree.body
