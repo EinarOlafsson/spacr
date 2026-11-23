@@ -1288,7 +1288,7 @@ def _regression_script() -> str:
     for obj in objects:
         tree = LocalImports().visit(ast.parse(textwrap.dedent(inspect.getsource(obj))))
         pieces.append(ast.unparse(ast.fix_missing_locations(tree)))
-    pieces.append("def table():\n    return _REGRESSION_LOCALISATIONS")
+    pieces.append('def table():\n    """Return captured localisation annotations."""\n    return _REGRESSION_LOCALISATIONS')
     pieces.append("_REGRESSION_PANELS = {" + ", ".join(
         f"{key!r}: {value.__name__}" for key, value in panels.REGISTRY.items()) + "}")
     return "\n\n".join(pieces)

@@ -13569,6 +13569,16 @@
       "source": "Observation count",
       "source_sha256": "010f99f58498653176a40c7f40b3a3a74e88c63f5358911656f2619f8d5cd4be",
       "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "internal_docstring",
+      "symbol": "spacr.figures.bundle._regression_script.generated.table",
+      "file": "spacr/figures/bundle.py",
+      "line": 1291,
+      "before": null,
+      "source": "Return captured localisation annotations.",
+      "source_sha256": "b434eb13eb447d4d1cd0a465f66b486dc1da7c6724a6c025f9f5852035e9d3fe",
+      "admission": "private/nested/tool/test; no translation records"
     }
   ],
   "shared_style_runtime": [

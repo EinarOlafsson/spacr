@@ -46,3 +46,10 @@ checks for these latest edits; refresh their galleries. Remaining G1 producers,
 manual/native replay, source-context closure, final English metadata, tutorial
 images and required GPU-visible/hidden checks remain open. Home owns G2 and its
 reserved producer paths. No final appearance certification or landing is sought.
+
+The generated regression-archive `table()` helper now documents its existing
+annotation lookup. A 0.07-second source-only check under one thread/four GB
+confirms that only this generated docstring changed, and both versions
+return the exact same captured annotation object. No production imports
+or renders ran. The private generated docstring is in the English handoff;
+it needs no translation records. All 283 route entries remain open.

@@ -936,3 +936,5 @@ Shared style and bundle replay enter the normal runtime collector. The feature p
 - `spacr/qt/widgets/feature_explorer.py:95` — Observation count; SHA-256 `010f99f58498653176a40c7f40b3a3a74e88c63f5358911656f2619f8d5cd4be`.
 - `spacr/qt/widgets/feature_explorer.py:97` — Area under the receiver operating characteristic curve; SHA-256 `584a68080c1da41f0d3fa6b12def57014ef23d1603f30919c7dde68a903660e0`.
 - `spacr/qt/widgets/feature_explorer.py:139` — Observation count; SHA-256 `010f99f58498653176a40c7f40b3a3a74e88c63f5358911656f2619f8d5cd4be`.
+
+Generated private helper documented during the HOLD: `spacr/figures/bundle.py:1291`, `spacr.figures.bundle._regression_script.generated.table`: “Return captured localisation annotations.” No translation records. A source-only check confirms that the executable lookup and exact returned annotation object are unchanged; no spaCR imports or renders.
