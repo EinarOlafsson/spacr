@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "task": "omezarr-native",
+  "state": "0aj English sources only; translations dropped until everything else is done (maintainer 2026-11-23 15:10)",
+  "templates": [
+    {
+      "file": "spacr/io.py",
+      "source": "merged.ome.zarr not written: {name} is not a field name; the fields are merged to merged/*.npy instead.",
+      "source_sha256": "b0ace1f38302153fda038d6c595ba3cce2c5a92cf58acf6a800af10b03613bb9"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "merged.ome.zarr not written: two files name the same field ({plate} {well} {field}), which one plate store cannot hold; the fields are merged to merged/*.npy instead.",
+      "source_sha256": "c297cd2b56a40f4d3cf0d8f866b3649837ec6b0ed9b6fccde65a264d72c0ac79"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "merged.ome.zarr not written: the fields belong to {count} plates ({plates}) and one store holds one plate; the fields are merged to merged/*.npy instead.",
+      "source_sha256": "53687e01183a102a4f288839d316d75429282777b771511dac6e58c467b62a20"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "merged.ome.zarr not written: the fields have time or depth axes, which the plate store has no place for yet; the fields are merged to merged/*.npy instead.",
+      "source_sha256": "4fabda17b6c1a621188e964d42bb2d73f97c885fd1b9527bd482785a5fe2cf4a"
+    },
+    {
+      "file": "spacr/measure.py",
+      "source": "[measure] Reading {count} fields from the merged store {path}.",
+      "source_sha256": "3ffedacfa881b193a371a189052fb99ac7177f183048a42ee9bc54d88ad29d03"
+    },
+    {
+      "file": "spacr/measure.py",
+      "source": "[measure] Older project layout: reading the fields in {path} (merged/*.npy). New Mask runs keep them in merged.ome.zarr.",
+      "source_sha256": "2d1e8bb05350fdd5da43099a202963d9020a24bf396602bf0abed4cae5f5ba7d"
+    },
+    {
+      "file": "spacr/measure.py",
+      "source": "crops: {count} {fmt} crops in crops.ome.zarr, indexed in measurements.db:ssCell_Crops",
+      "source_sha256": "34d21c1972c0b18be7896bae0e105991e3dee1b70be97e73fef5ffae80a0ac40"
+    },
+    {
+      "file": "spacr/image_store.py",
+      "source": "{path} holds plate {stored}; it cannot take fields of plate {wanted}, because one plate store holds one plate.",
+      "source_sha256": "e6d92a783b892680fda96b642611d2650685d1fca772ae5ababdeef1eb7da048"
+    },
+    {
+      "file": "spacr/ports.py",
+      "source": "{name} in merged.ome.zarr has shape {shape}, expected {ndim} axes",
+      "source_sha256": "2d547852f5a03f2dba893cc9bf114f2a3f6c81f229cf520748944f4e4cd0d6c9"
+    },
+    {
+      "file": "spacr/ports.py",
+      "source": "Re-run the module that wrote it.",
+      "source_sha256": "737cfbf0ea77530db6b6c5779934c73b7c7d838ff993ea1f77e529d569d020e5"
+    }
+  ],
+  "settings_help": {
+    "mask_image_format": {
+      "source": "(str) - Where Mask Generation keeps the merged fields Measure reads. 'ome-zarr' writes each field straight into merged.ome.zarr in the project folder: one OME-Zarr plate store (row/column/field) with the channels in their acquired dtype and every object mask as a label image, one shard file per field image and per label image; no merged/*.npy is written. 'npy' writes merged/*.npy as before. 'tiff' writes merged/*.npy plus merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse runs always write merged/*.npy, because the plate store has no time axis yet. Older projects with merged/*.npy or images/<plate>.ome.zarr still read. Default 'ome-zarr'. Alpha.",
+      "source_sha256": "8e1eeb3ec7bbd4b3374a64d51903d43ac9f4cd1ccf739c9cbcf449d2dd873455"
+    },
+    "keep_intermediate": {
+      "source": "(bool) - Keep the run's working stack/ and masks/ folders after every field is merged. Off by default: they are removed once each field is committed to merged.ome.zarr (or merged/ for 'npy' and timelapse runs), which holds the channels and every mask.",
+      "source_sha256": "744acaab832bae2935708261a7e024eb330ff409d42a58b7e01ed65b33317460"
+    },
+    "crop_image_format": {
+      "source": "(str) - The format Measure writes object crops in. 'ome-zarr' stores each object's bounding box plus crop_margin_px at its own size in crops.ome.zarr in the project folder, with every channel at full bit depth, the object's own mask, every object class's labels cut to the same box, and the object's ID; the crop index is listed in measurements.db table ssCell_Crops. Stored intensities are not stretched. 'png' writes the legacy PNG folders. Older projects' crops/ folders still read. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.",
+      "source_sha256": "2fc539ba706a466be340b53e4de90e555d213e3ac5586b81d95a24e4b64205f3"
+    }
+  },
+  "api": {
+    "spacr.image_store.export_merged": {
+      "kind": "changed",
+      "source": "Write every ``<src>/merged`` field in ``fmt`` (Mask Generation, item 983).\n\n:param src: the run root holding ``merged/`` and its plane layout.\n:param fmt: ``'ome-zarr'``: the project's merged store,\n    ``<src>/merged.ome.zarr`` (item 0aj), one shard file per field image\n    and label image, with the masks as labels and the field names and\n    plane layout recorded, so Measure reads it in place of the stacks.\n    ``'tiff'``: ``<src>/merged_tiff/<field>.tif`` (the image, planes\n    first) and ``<field>_<object>_mask.tif`` beside it, each in its own\n    dtype. ``'npy'`` writes nothing.\n:param workers: processes reading the merged stacks; the parent writes.\n:param channel_names: names for the intensity channels.\n:returns: per plate, what :func:`run_fields` reports; or ``tiff``, the\n    files written.\n\nThe merged ``.npy`` stacks are left in place. Mask Generation itself\nwrites the merged store field by field and no stacks (item 0aj); this\nconverts an older project's ``merged/`` folder. One store holds one\nplate, so a folder of several plates is refused.",
+      "source_sha256": "4cf63f799a7736a356d5cd6831c6db11c0f0cf044c936b4bf2a8ac1eb91a0c6a"
+    },
+    "spacr.image_store.PlateWriter": {
+      "kind": "changed",
+      "source": "The only writer of one plate's OME-Zarr store (item 983).\n\n:param root: the folder that holds ``<plate>.ome.zarr``.\n:param plate: the plate name.\n:param channel_names: the image channels' names, written to ``omero``.\n:param spacing: a :class:`spacr.layers.Spacing` for the pixel size, or\n    None to record pixels with no physical unit.\n:param ngff_version: ``'0.5'`` (the default) or ``'0.6'`` (item 1007):\n    the OME-Zarr version of every group in the store. One store holds\n    one version, so a store started in the other one is refused.\n:param registration: optional field-number to OPS registration-row mapping.\n    Requires version 0.6 and pixel coordinates (spacing=None). Existing\n    stores must use the same registration mode.\n:param store_path: the store folder itself, instead of\n    ``<root>/<plate>.ome.zarr`` (item 0aj: ``<project>/merged.ome.zarr``).\n:param shards: write each field image and each label image as ONE\n    zarr v3 shard file holding its 1 x 256 x 256 chunks (item 0aj),\n    instead of one file per chunk.\n:param attributes: JSON values merged into the store root's ``spacr``\n    attributes, such as the merged plane layout; a key stored with\n    another value is refused.\n\nFields are written whole with :meth:`write_field`; the plate and well\nmetadata are rewritten from the ledger after each field, so a reader\nopening the store mid-run sees only committed fields. Image and label\narrays share the OME-Zarr default chunk policy: one channel and up to\n256 x 256 spatial pixels per chunk, clipped to the array shape. These\n128 KiB uint16 tiles align with 64- and 128-pixel cell crops and bound\nthe amount decoded for a region read. Chunks remain unsharded and use\nBlosc LZ4 with byte shuffle.",
+      "source_sha256": "32e8e33ffceca3df06309773d57970188c40e5aa7c3bade9ecf39834a691af94"
+    },
+    "spacr.image_store.PlateWriter.write_field": {
+      "kind": "changed",
+      "source": "Write one field and its label images, then commit it.\n\n:param image: the field ``(C, Y, X)`` or ``(Y, X)``, or None to write\n    labels only.\n:param labels: ``{object class: label image (Y, X)}``.\n:param record: extra JSON values kept with the field's ledger entry,\n    such as the field's file ``name`` (item 0aj).\n:returns: the field's store key.\n\nEach array is written to a temporary group, closed and renamed into\nplace, and the field enters the ledger last, so a crash leaves an\nuncommitted field that the next run rewrites.\n\nOnly ``(C, Y, X)`` and ``(Y, X)`` are written. A field with time or\ndepth axes is refused before anything is written, never flattened\ninto channels: the HCS layout here has no ``t`` or ``z`` axis yet.\n\n:param well: the well name, e.g. ``'B03'``.\n:param field: the field number.\n:raises ValueError: the image is not 2-D or 3-D, or a label image is\n    not 2-D.",
+      "source_sha256": "50c9cf031b9e60badb9886ce2b92001192692ea0f674e5c150a87232c8faf0c4"
+    },
+    "spacr.crop_store.cut_crops": {
+      "kind": "changed",
+      "source": "Cut each object's bounding box plus ``margin`` out of a field.\n\n:param image: the field ``(C, Y, X)``.\n:param labels: the object labels ``(Y, X)``.\n:param margin: pixels added on every side, clipped at the field edge.\n:param zero_outside: set pixels outside the object to 0 in the crop.\n:param objects: the labels to cut, ascending; every label when None.\n:param all_labels: ``{object class: labels (Y, X)}``: every class's\n    labels cut to the same box go into the record's ``labels`` (item\n    0aj), as integers, unchanged.\n:returns: one record per object: ``object_label``, ``pixels``\n    ``(C, h, w)``, ``mask`` ``(h, w)`` bool, ``bbox_y0/x0/y1/x1`` (the\n    cut box, end-exclusive), ``margin_px`` and ``clipped_at_edge``; with\n    ``all_labels`` also ``labels`` ``{class: (h, w)}``.",
+      "source_sha256": "cd73b9faa6b8c85e4fea2459e2cffa0598c25dc7ac6868fe86c1ac37b5f6f9cf"
+    },
+    "spacr.crop_store.class_dir": {
+      "kind": "changed",
+      "source": "The folder of one well's crops of one class: ``<project>/crops/plate=<P>/well=<W>.zarr/<class>``.\n\nNew projects keep it at ``<project>/crops.ome.zarr/plate=<P>/well=<W>/<class>``\n(item 0aj); the older ``crops/`` folder is returned while only it exists.\n\n:param project: the project folder.\n:param plate: the plate name.\n:param well: the well name.\n:param object_type: the object class.",
+      "source_sha256": "03e0272d2e9690c33a2e23159456d5fd46abb56bb29a459e930ddbc16ea03e81"
+    },
+    "spacr.crop_store.committed_rows": {
+      "kind": "changed",
+      "source": "Every committed crop row of the project, by plate, well and class.\n\n:param project: the project folder holding ``crops.ome.zarr`` (or an\n    older project's ``crops/``).\n:returns: the rows :meth:`CropPoolWriter.commit` recorded, in path order.",
+      "source_sha256": "ffc1172f75270d70c41591c61ab5a789992f6a50f3c030cbf8eda5d898fdf627"
+    },
+    "spacr.crop_store.read_crop_labels": {
+      "kind": "added",
+      "source": "Every object class's labels cut to a crop's box (item 0aj).\n\n:param project: the project folder.\n:param row: the crop's table row; ``label_classes`` names the classes.\n:returns: ``{class: labels (h, w)}`` in the stored integer dtype; empty\n    for a crop of an older project, which stored its own mask only.\n    ``labels[row['object_type']] == row['object_label']`` is the crop's\n    own-object mask.",
+      "source_sha256": "f704d860a9d7a5186a27e8101c36a0382191693248ecd825cb5e120092cdb19e"
+    },
+    "spacr.crops.read_merged_plane_layout": {
+      "kind": "changed",
+      "source": "Read and validate a merged folder's optional plane-layout manifest.\n\nLegacy folders have no manifest and return ``None``. A present but\nmalformed manifest raises: once metadata exists, silently ignoring it\nwould recreate the exact wrong-plane failure the manifest prevents.\n\n:param path: a merged folder, or a ``.npy`` file inside one (its parent\n    folder is used); the ``.spacr_plane_layout.json`` sidecar is read\n    from that folder. A merged store (``merged.ome.zarr``, item 0aj) or a\n    field name inside one gives the layout kept in the store's\n    attributes.",
+      "source_sha256": "a4dcf424b9458817f311d7272417cf66599a45f64ed8fcab50fe69726556353a"
+    },
+    "spacr.utils.cleanup_pipeline_folders": {
+      "kind": "changed",
+      "source": "Delete the intermediate mask-pipeline folders once ``merged/`` is built.\n\nA project whose fields were merged into ``merged.ome.zarr`` (item 0aj)\nis checked against the store's committed fields instead; a field counts\nas merged only once its store entry is committed.\n\nBy default spaCR keeps only ``merged/`` (the concatenated image+mask arrays\nthat Measure reads). This removes ``stack/`` + ``masks/`` (their data is\nembedded in ``merged/`` and object labels are recorded in the database) and\nthe raw ``orig/`` backup, unless the caller opts to keep them.\n\nNothing is removed unless ``merged/`` holds at least one ``.npy``.\n``stack/``, ``masks/`` and the numbered folders are then removed only when\nevery ``stack/*.npy`` has a matching ``merged/*.npy``; without ``stack/``\nthere is no per-field check. With ``keep_original`` False, ``orig/`` is\nremoved only when every ``stack/*.npy`` field has a ``merged/`` array that\nloads completely. Otherwise ``orig/`` is kept, also when there is no\n``stack/`` list to check against, and a message naming the missing or\nincomplete fields is printed even with ``verbose=False``.\n\n:param src: run root folder (holds ``merged/``, ``stack/``, ``masks/``, ``orig/``).\n:param keep_intermediate: keep ``stack/`` + ``masks/`` when True.\n:param keep_original: keep the raw ``orig/`` backup when True.\n:returns: list of folder paths that were deleted; a kept ``orig/`` is not\n    in it.",
+      "source_sha256": "8a14635344e7fff262b3cbd40ae122bb34d2976e4eaf678e4887c26029db67eb"
+    },
+    "spacr.utils.measure_test_mode": {
+      "kind": "changed",
+      "source": "Copy a random subset of source files into a ``test/merged`` folder when ``test_mode`` is on.\n\nFewer files than ``test_nr`` is not an error: every available file is\ncopied and a message reports the shortfall, so test_mode also runs on a\nsmall plate.\n\nOnly visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never\nmeasured in place of a field. The folder's ``.spacr_plane_layout.json`` is\ncopied across as well when it exists: it is what says which plane is which,\nand a ``test/merged`` without it is read as a legacy folder, against the\ndefault plane order. From a merged store (``merged.ome.zarr``, item 0aj)\nthe sampled fields are written to ``test/merged`` as ``.npy`` arrays with\nthe store's plane layout: a test run's own scratch copy.\n\n:param settings: settings dict; must contain ``src``, ``test_mode``, ``test_nr``.\n:returns: settings dict with ``src`` optionally redirected to the test folder.\n:raises ValueError: if there is nothing to sample -- an empty ``src``, or a\n    ``test_nr`` below 1. Sampling zero files would point ``src`` at an\n    empty ``test/merged`` and the run would report \"no fields found\",\n    blaming the wrong thing.",
+      "source_sha256": "316e8c8cfa8b096c9400d5b0f29545cd7c76b46bcb264bb813bf9d8478156ed7"
+    },
+    "spacr.crop_store": {
+      "kind": "changed",
+      "source": "Ragged object crops in per-well Zarr pixel pools, with the ssCell_Crops table (items 983 and 984, alpha).\n\nEach crop is its object's bounding box plus a margin, stored at its own size.\nA well's crops of one object class go into flat pixel pools inside the\nproject's crop store, ``crops.ome.zarr/plate=<P>/well=<W>`` (item 0aj; older\nprojects have ``crops/plate=<P>/well=<W>.zarr``, which still reads):\n``<class>/pool/<k>`` holds the pixels ``(C, n)``, ``<class>/mask/<k>`` the\nobject's own mask pixels ``(n,)`` and ``<class>/labels/<other class>/<k>``\nEVERY object class's labels cut to the same box ``(n,)`` (uint16 or uint32\nby the shard's largest label), one pool array per shard of\n``crops_per_shard`` crops, written whole by the one writer. The crop table\ngives each crop its pool, offset, height and width, so a crop is one\ncontiguous read; its ``object_label`` with ``labels/<own class>`` rebuilds\nthe own-object mask exactly. The table is written through one adapter,\n:func:`_write_crop_index` (today ``measurements.db:ssCell_Crops``), so the\nunified measurement store can take it without changing any caller.\n\nThis is spaCR's own crop format, not an OME-Zarr image: viewers open the\nimages, not the pools. :func:`export_crops` writes crops out as TIFF, PNG\nor npy for other tools.",
+      "source_sha256": "87de73900006c573210ac7ec6639005700d71bc5b971b96fd5b9feb2d0e56f9e"
+    }
+  }
+}

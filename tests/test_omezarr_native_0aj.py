@@ -198,3 +198,14 @@ def test_old_crop_folders_still_read(tmp_path):
     assert class_dir(tmp_path, "plate1", "A01", "cell") == old / "cell"
     pixels, mask = read_crop(tmp_path, rows[0])
     assert mask.sum() == 100 and pixels.shape == (2, 10, 10)
+
+
+def test_the_chaining_port_finds_the_store_fields(tmp_path):
+    from spacr.ports import MERGED_ARRAYS, module_ports, port_problems, resolve_port
+
+    fields = _run_folder(tmp_path)
+    _merge(tmp_path, "ome-zarr")
+    port = next(p for p in module_ports("measure").consumes if p.kind == MERGED_ARRAYS)
+    resolved = resolve_port(port, str(tmp_path))
+    assert resolved.exists and resolved.count == len(fields)
+    assert port_problems(port, str(tmp_path)) == ()

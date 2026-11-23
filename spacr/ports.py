@@ -624,6 +624,14 @@ def resolve_port(port: Port, root: str) -> ResolvedPort:
             os.path.join(target, alternative), recursive=True))
     if port.extensions:
         found = {p for p in found if p.lower().endswith(port.extensions)}
+    if not found and port.kind == MERGED_ARRAYS:
+        # Item 0aj: a project's merged fields live in merged.ome.zarr; its
+        # field names stand for the arrays, read by the shared reader.
+        from .image_store import MERGED_STORE_NAME, _is_merged_store, _list_fields
+        store = os.path.join(os.path.dirname(target), MERGED_STORE_NAME)
+        if _is_merged_store(store):
+            target = store
+            found = {os.path.join(store, name) for name in _list_fields(store)}
     matches = tuple(sorted(found))
     return ResolvedPort(port=port, root=root, target=target, paths=matches,
                         exists=bool(matches), count=len(matches))
@@ -722,7 +730,18 @@ def _shape_problems(port: Port, paths: Sequence[str],
     """Check the first ``sample`` arrays at a port against its shape contract."""
     problems: List[Problem] = []
     contract = port.shape
+    from .image_store import _field_header, _store_field
     for path in list(paths)[:sample]:
+        if _store_field(path) is not None:
+            shape, _dtype = _field_header(path)
+            if contract.ndim is not None and len(shape) != contract.ndim:
+                from .qt.i18n import tr
+                problems.append(Problem(
+                    ERROR, port.role,
+                    tr("{name} in merged.ome.zarr has shape {shape}, expected {ndim} axes",
+                       name=os.path.basename(path), shape=tuple(shape), ndim=contract.ndim),
+                    tr("Re-run the module that wrote it.")))
+            continue
         try:
             header = read_npy_header(path)
         except (ValueError, OSError) as exc:
