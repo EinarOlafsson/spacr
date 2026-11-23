@@ -194,7 +194,6 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_merged_flatfield": True,
     "ops_merged_dtype": 'uint16',
     "ops_merged_save_sbs": False,
-    "ops_tables_parquet_threshold": 5000000,
     "ops_crop_per_guide": None,
     "ops_crop_size": 96,
     "ops_crop_image_format": "ome-zarr",
@@ -798,7 +797,6 @@ OPS_TYPES: Dict[str, object] = {
     "ops_merged_flatfield": bool,
     "ops_merged_dtype": str,
     "ops_merged_save_sbs": bool,
-    "ops_tables_parquet_threshold": int,
     "ops_crop_per_guide": (int, type(None)),
     "ops_crop_size": int,
     "ops_crop_image_format": str,
@@ -1405,7 +1403,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "Merged images & tables": [
         "ops_merged_root", "ops_merged_flatfield", "ops_merged_dtype",
-        "ops_merged_save_sbs", "ops_tables_parquet_threshold",
+        "ops_merged_save_sbs",
         "ops_tables_integer_keys", "ops_tables_layout", "ops_storage",
         "ops_store_row_copy",
     ],
@@ -3244,12 +3242,6 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Reserved for also storing the sequencing stacks under "
         "merged/sbs; not built yet, so the phase only reports it. Default "
         "False. Alpha.",
-    "ops_tables_parquet_threshold":
-        "(int) - Above this many owned cells in a plate, the ph_tables "
-        "phase writes the wide feature columns to one Parquet file per "
-        "table and well, and measurements.db keeps only the key columns; a "
-        "SQLite table of tens of millions of wide rows is slow to write and "
-        "to join. Default 5,000,000. Alpha.",
     "ops_crop_per_guide":
         "(int or None) - How many cells of each targeting guide the "
         "ph_crops phase cuts per well, chosen at random with ops_crop_seed. "

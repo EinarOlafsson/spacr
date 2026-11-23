@@ -352,7 +352,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # (item 974), so a store opens in a ``with`` block and closes after it.
     assert {"spacr.store.Store.__enter__",
             "spacr.store.Store.__exit__"} <= dunders
-    assert len(dunders) == 229
+    # 229 -> 231 on 2026-11-23: spacr.store.WellWriter.__enter__ and
+    # __exit__ (the P0 ph_tables store writer), so a well's part finishes
+    # in a ``with`` block and is aborted on an error.
+    writer_exits = {"spacr.store.WellWriter.__enter__",
+                    "spacr.store.WellWriter.__exit__"}
+    assert writer_exits <= dunders
+    assert len(dunders) == 231
+    # The historical digests below describe the surface without them.
+    dunders = dunders - writer_exits
     # The historical digest below is checked on the surface without it.
     dunders = dunders - {"spacr.qt.run_progress.ProgressSample.__repr__"}
     # It is counted here and left out of the historical fingerprints below,
@@ -2296,7 +2304,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     paper_item_arrivals = _current_never_api(paper_item_arrivals)
     from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
     paper_item_arrivals = _current_neighbour_api(paper_item_arrivals)
-    assert len(paper_item_arrivals) == 171
+    from tests.test_ops_phtables_store import _current_phtables_api
+    paper_item_arrivals = _current_phtables_api(paper_item_arrivals)
+    assert len(paper_item_arrivals) == 170
     assert {key: docs[key] for key in paper_item_arrivals} == paper_item_arrivals
     assert not paper_item_arrivals.keys() & (
         zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()

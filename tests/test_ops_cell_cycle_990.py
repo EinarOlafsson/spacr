@@ -497,7 +497,7 @@ def test_the_store_gets_a_cell_cycle_part(tmp_path, monkeypatch):
         "plate": PLATE, "well": "A1", "site": [2, 1], "label": [1, 1],
         "cell_cycle_stage": ["G1", "metaphase"]}))
     parts = []
-    monkeypatch.setattr(store, "write_part", lambda project, name, rows, **kw: parts.append(
+    monkeypatch.setattr(store, "write_table", lambda project, name, rows, **kw: parts.append(
         (name, list(rows["site"]), kw["key_columns"])))
     monkeypatch.setattr(store, "register", lambda project, run=None: 1)
     ops_engine._ops_store_write(db, PLATE, ["A1"], {}, str(tmp_path))

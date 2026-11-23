@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import builtins
 import datetime
+import functools
 import glob
 import hashlib
 import json
@@ -28,8 +29,9 @@ from typing import Any, Dict, Iterator, List, Mapping, Optional, Sequence
 
 import numpy as np
 
-__all__ = ["StoreError", "Store", "open", "write_part", "register",
-           "cleanup", "CATALOG", "SCHEMA_VERSION"]
+__all__ = ["StoreError", "Store", "open", "writer", "WellWriter",
+           "write_table", "write_part", "register", "cleanup", "CATALOG",
+           "SCHEMA_VERSION"]
 
 #: The catalog's file name at the project root.
 CATALOG = "spacr.duckdb"
@@ -76,6 +78,19 @@ _TOUCHED_GROUPS = 0.25
 _LOCATE_MAX = 2_000_000
 _LEGACY_NAMES = ("measurements.db", os.path.join("measurements",
                                                  "measurements.db"))
+
+#: The recorded storage dtype of each measurement column family, measured
+#: by ``tools/measure_store_dtypes.py`` (plate A, well A1 of the Funk OPS
+#: screen for the first map).
+_DTYPE_MAP_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                               "resources", "data", "store_dtypes.json")
+
+#: The object classes a column name may start with; any module's.
+_COMPARTMENTS = ("cell", "nucleus", "cytoplasm", "pathogen")
+
+#: The integer types a column may be stored in, narrowest first.
+_INT_LADDER = ("uint8", "int8", "uint16", "int16", "uint32", "int32",
+               "int64")
 
 
 class StoreError(ValueError):
@@ -261,6 +276,76 @@ def _write_crops(path: str, crops, order: np.ndarray, masks=None) -> None:
         json.dump({"zarr_format": 2}, handle)
 
 
+def write_table(project, table: str, frame, *, plate, well,
+                run_id: Optional[str] = None,
+                sort_by: Optional[Sequence[str]] = ("object_key", "timeID"),
+                key_columns: Optional[Sequence[str]] = None, crops=None,
+                crop_rows=None, masks=None,
+                row_group_rows: Optional[int] = None,
+                row_copy: bool = False, narrow: bool = False,
+                channels: Sequence[str] = ()) -> Dict[str, Any]:
+    """Write one well's rows of ``table``, held whole, and leave a manifest.
+
+    The one-shot form of :func:`writer`: the rows are sorted by
+    ``sort_by`` (those present, nulls last) and handed to one
+    :class:`WellWriter`, which writes them under a temporary name, flushes
+    and renames them into ``tables/<table>/plate=<P>/well=<W>/``, puts the
+    crops in ``crops/plate=<P>/well=<W>.zarr`` in the same row order (each
+    row gets ``crop_store`` and ``crop_index``) and writes the manifest in
+    ``_pending/`` last; nothing is visible to readers until
+    :func:`register` adds it to the catalog.
+
+    :param project: the project folder.
+    :param table: the object class or table, for example ``cell``.
+    :param frame: a DataFrame or Arrow table, one row per object.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param run_id: the run this write belongs to.
+    :param sort_by: the columns the rows are sorted by, those present.
+    :param key_columns: the columns every feature query returns.
+    :param crops: an array ``(k, C, H, W)`` indexable by an integer array.
+    :param crop_rows: the frame row of each crop; every row when None.
+    :param masks: an array ``(k, H, W)`` beside the crops, or None.
+    :param row_group_rows: rows per row group, under the byte cap.
+    :param row_copy: also write the float columns as a row-major Zarr copy,
+        which point lookups of every column read instead of the Parquet part.
+    :param narrow: store numeric columns in the recorded dtypes
+        (:func:`_stored_types`), guarded by the frame's own ranges.
+    :param channels: the run's channel names, for the dtype families.
+    :returns: the manifest.
+    :raises StoreError: when the frame's plate or well disagree with the
+        partition, or the crops do not match ``crop_rows``.
+    """
+    pa = _require("pyarrow")
+    data = _arrow_table(frame)
+    order = _sorted_order(data, sort_by or ())
+    data = data.take(pa.array(order))
+    position = None
+    if crops is not None:
+        rows = (np.arange(len(order)) if crop_rows is None
+                else np.asarray(crop_rows, dtype=np.int64))
+        if len(rows) != int(crops.shape[0]):
+            raise StoreError(
+                f"{table}: {crops.shape[0]} crops for {len(rows)} crop rows")
+        inverse = np.empty(len(order), dtype=np.int64)
+        inverse[order] = np.arange(len(order))
+        position = inverse[rows]
+    schema = ranges = None
+    if narrow:
+        schema = data.schema.remove_metadata()
+        ranges = _table_ranges(data)
+    part = WellWriter(project, table, plate=plate, well=well, schema=schema,
+                      ranges=ranges, narrow=narrow, channels=channels,
+                      sort_by=sort_by or (), key_columns=key_columns or (),
+                      crops=crops, crop_rows=position, masks=masks,
+                      run_id=run_id, row_group_rows=row_group_rows,
+                      row_copy=row_copy)
+    part._sorted_here = True
+    with part:
+        part.append(data)
+    return part.manifest
+
+
 def write_part(project, table: str, frame, *, plate, well,
                sort_by: Sequence[str] = ("gene", "cell_id"),
                key_columns: Sequence[str] = (), crops=None,
@@ -294,94 +379,547 @@ def write_part(project, table: str, frame, *, plate, well,
     :raises StoreError: when the frame's plate or well disagree with the
         partition, or the crops do not match ``crop_rows``.
     """
+    return write_table(project, table, frame, plate=plate, well=well,
+                       run_id=run_id, sort_by=sort_by,
+                       key_columns=key_columns, crops=crops,
+                       crop_rows=crop_rows, masks=masks,
+                       row_group_rows=row_group_rows, row_copy=row_copy)
+
+
+def writer(project, table: str, *, plate, well, run_id: Optional[str] = None,
+           sort_by: Sequence[str] = ("object_key", "timeID"),
+           key_columns: Optional[Sequence[str]] = None,
+           row_copy: bool = False, **options) -> "WellWriter":
+    """The streamed writer of one well's part of ``table``: every module's.
+
+    Measure, OPS and every other module that saves a table too large to
+    hold at once appends it here a field (or a batch) at a time and
+    finishes it once; :func:`write_table` is the same writer for a frame
+    held whole. Use it as a context manager: it finishes on success and
+    aborts on an error, so nothing half-written becomes visible.
+
+    :param project: the project folder (a run's ``measurements``).
+    :param table: the object class or table.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param run_id: the run this write belongs to.
+    :param sort_by: the order the rows are appended in (recorded only when
+        they did arrive in it).
+    :param key_columns: the columns every feature query returns.
+    :param row_copy: also write the row-major copy of the float columns.
+    :param options: :class:`WellWriter`'s other arguments: ``schema``,
+        ``ranges``, ``narrow``, ``channels``, ``dtype_map``, ``crops``,
+        ``crop_rows``, ``masks`` and ``row_group_rows``.
+    :returns: the :class:`WellWriter`.
+    """
+    return WellWriter(project, table, plate=plate, well=well, run_id=run_id,
+                      sort_by=sort_by, key_columns=key_columns or (),
+                      row_copy=row_copy, **options)
+
+
+def _table_ranges(data) -> Dict[str, tuple]:
+    """``column -> (min, max)`` of an Arrow table's numeric columns, NaN skipped."""
     pa = _require("pyarrow")
-    pq = _require("pyarrow.parquet")
-    project = os.path.abspath(os.fspath(project))
-    data = _arrow_table(frame)
-    for name, value in (("plate", plate), ("well", well)):
-        if name in data.column_names:
-            found = set(map(str, data.column(name).to_pylist()))
-            if found - {str(value)}:
-                raise StoreError(
-                    f"{table}: column {name} holds {sorted(found)[:3]}, not "
-                    f"only {value!r}; one part holds one {name}")
-            data = data.drop_columns([name])
-    data = data.drop_columns([c for c in _POINTER if c in data.column_names])
-    order = _sorted_order(data, sort_by)
-    data = data.take(pa.array(order))
-    uid = uuid.uuid4().hex
-    files: List[Dict[str, Any]] = []
-    crop_store = None
-    if crops is not None:
-        rows = (np.arange(len(order)) if crop_rows is None
-                else np.asarray(crop_rows, dtype=np.int64))
-        if len(rows) != int(crops.shape[0]):
-            raise StoreError(
-                f"{table}: {crops.shape[0]} crops for {len(rows)} crop rows")
-        crop_of = np.full(len(order), -1, dtype=np.int64)
-        crop_of[rows] = np.arange(len(rows))
-        sorted_crop = crop_of[order]
-        has = sorted_crop >= 0
-        crop_order = sorted_crop[has]
-        crop_dir = os.path.join(project, "crops", f"plate={_encoded(plate)}")
+    pc = _require("pyarrow.compute")
+    ranges: Dict[str, tuple] = {}
+    for field in data.schema:
+        if not (pa.types.is_floating(field.type)
+                or pa.types.is_integer(field.type)):
+            continue
+        column = data.column(field.name)
+        if pa.types.is_floating(field.type):
+            column = pc.if_else(pc.is_nan(column), pa.scalar(None, field.type),
+                                column)
+        found = pc.min_max(column)
+        low, high = found["min"].as_py(), found["max"].as_py()
+        ranges[field.name] = ((np.nan, np.nan) if low is None
+                              else (float(low), float(high)))
+    return ranges
+
+
+class _CropPieces:
+    """Crops appended a batch at a time, indexable as one array."""
+
+    def __init__(self):
+        """No pieces yet."""
+        self.pieces: List[tuple] = []
+        self.count = 0
+
+    def add(self, crops, masks, order) -> None:
+        """Keep ``crops[order]`` (and ``masks[order]``) as the next crops."""
+        self.pieces.append((crops, masks, np.asarray(order, dtype=np.int64)))
+        self.count += len(order)
+
+    @property
+    def shape(self):
+        """``(k, C, H, W)`` of every crop held."""
+        return (self.count,) + tuple(self.pieces[0][0].shape[1:])
+
+    @property
+    def dtype(self):
+        """The crops' dtype."""
+        return np.dtype(self.pieces[0][0].dtype)
+
+    def _take(self, rows, masks: bool) -> np.ndarray:
+        """Crops (or masks) of ``rows``, counted over every piece."""
+        rows = np.asarray(rows, dtype=np.int64)
+        starts = np.cumsum([0] + [len(p[2]) for p in self.pieces])
+        first = self.pieces[0][1 if masks else 0]
+        out = np.empty((len(rows),) + tuple(first.shape[1:]), dtype=first.dtype)
+        piece = np.searchsorted(starts, rows, side="right") - 1
+        for number in np.unique(piece):
+            crops, mask, order = self.pieces[int(number)]
+            mine = np.flatnonzero(piece == number)
+            source = mask if masks else crops
+            out[mine] = np.asarray(source[order[rows[mine] - starts[number]]])
+        return out
+
+    def __getitem__(self, rows) -> np.ndarray:
+        """The crops of ``rows``."""
+        return self._take(rows, False)
+
+    def masks(self):
+        """The masks as an indexable view, or None when no piece has any."""
+        if any(p[1] is None for p in self.pieces):
+            return None
+        holder = self
+
+        class _Masks:
+            """The masks of the held pieces."""
+
+            shape = (holder.count,) + tuple(holder.pieces[0][1].shape[1:])
+            dtype = np.dtype(holder.pieces[0][1].dtype)
+
+            def __getitem__(self, rows):
+                """The masks of ``rows``."""
+                return holder._take(rows, True)
+
+        return _Masks()
+
+
+class WellWriter:
+    """Write one well's part of a table in batches, then leave its manifest.
+
+    The one writer every module saves tables with (made by :func:`writer`;
+    :func:`write_table` hands it a frame held whole). Batches -- a well's
+    cells one field at a time -- are appended in order, so a well needs
+    the memory of one row group, not of the well, and the part is one file
+    per table per well: nothing is spooled and nothing needs compacting.
+    :meth:`finish` writes the key table, the crops and the row-major copy
+    from the finished part, and the manifest last.
+
+    Values: every batch is cast to the part's schema, which with
+    ``narrow`` is the recorded dtype map's (:func:`_stored_types`, keys
+    untouched), widened where ``ranges`` show a column does not fit. A
+    value the stored type cannot hold is refused, never wrapped or turned
+    infinite; NaN is stored as null (DuckDB orders NaN above every number
+    and averages it to NaN), and inf stays inf. float16 columns are not
+    byte-stream split, which DuckDB 2.0 cannot read.
+
+    :param project: the project folder.
+    :param table: the object class or table.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param schema: the part's Arrow schema without ``plate``, ``well`` and
+        the crop pointer, as the source holds it; a column a batch lacks is
+        null. None takes the first batch's schema.
+    :param ranges: ``column -> (min, max)`` over the whole part
+        (:func:`_column_ranges` of the source), for the dtype guard; without
+        them a float16 family is stored as float32.
+    :param narrow: apply the recorded dtype map to ``schema``.
+    :param channels: the run's channel names, for the dtype families.
+    :param dtype_map: the recorded dtype map.
+    :param sort_by: the order the caller appends the rows in. Nothing is
+        sorted here: the catalog records it only when the rows did arrive
+        non-decreasing in its first column, and records no order otherwise.
+    :param key_columns: the columns every feature query returns; never
+        narrowed.
+    :param crops: the well's crops, ``(k, C, H, W)`` indexable by an integer
+        array, given at once (or per batch to :meth:`append`, not both).
+    :param crop_rows: the part row of each of those crops; every row when
+        None.
+    :param masks: an array ``(k, H, W)`` beside them, or None.
+    :param run_id: the run this write belongs to.
+    :param row_group_rows: rows per row group, under the byte cap.
+    :param row_copy: also write the row-major copy of the float columns.
+    :raises StoreError: from :meth:`append` when a batch's plate or well
+        disagree with the partition, a value does not fit its column's type
+        or a column is not in the schema; from :meth:`finish` when the crops
+        do not match the rows written.
+    """
+
+    def __init__(self, project, table: str, *, plate, well, schema=None,
+                 ranges=None, narrow: bool = False,
+                 channels: Sequence[str] = (),
+                 dtype_map: str = _DTYPE_MAP_PATH,
+                 sort_by: Sequence[str] = (),
+                 key_columns: Sequence[str] = (), crops=None,
+                 crop_rows=None, masks=None, run_id: Optional[str] = None,
+                 row_group_rows: Optional[int] = None,
+                 row_copy: bool = False):
+        """Reserve the part's names; nothing is written before :meth:`append`."""
+        pa = _require("pyarrow")
+        self.project = os.path.abspath(os.fspath(project))
+        self.table = table
+        self.plate, self.well = plate, well
+        self.sort_by = list(sort_by)
+        self.key_columns = list(key_columns)
+        self.crops, self.masks = crops, masks
+        self.run_id = run_id
+        self.row_copy = row_copy
+        self.rows = 0
+        self.manifest: Optional[Dict[str, Any]] = None
+        self.promoted: List[Dict[str, Any]] = []
+        self._ordered = bool(self.sort_by)
+        self._sorted_here = False
+        self._last = None
+        self.uid = uuid.uuid4().hex
+        self._requested = row_group_rows
+        if schema is not None:
+            schema = schema.remove_metadata()
+            if narrow:
+                types, self.promoted = _stored_types(
+                    pa.schema([f for f in schema
+                               if f.name not in set(self.key_columns)]),
+                    ranges or {}, channels, path=dtype_map)
+                schema = pa.schema([pa.field(f.name, types.get(f.name, f.type))
+                                    for f in schema])
+        self._schema = schema
+        self._full = None
+        self._writer = None
+        self._pending: List[Any] = []
+        self._held = 0
+        self._group_rows = 0
+        self._crop_rows = None
+        self._ranked = None
+        self._crop_store = None
+        self._appended = None
+        if crops is not None:
+            count = int(crops.shape[0])
+            if crop_rows is not None:
+                self._crop_rows = np.asarray(crop_rows, dtype=np.int64)
+                if len(self._crop_rows) != count:
+                    raise StoreError(f"{table}: {count} crops for "
+                                     f"{len(self._crop_rows)} crop rows")
+                self._ranked = np.sort(self._crop_rows)
+                if len(self._ranked) and (
+                        self._ranked[0] < 0
+                        or np.any(np.diff(self._ranked) == 0)):
+                    raise StoreError(f"{table}: crop rows must be distinct "
+                                     f"and not negative")
+            self._reserve_crops()
+        folder = os.path.join(self.project, "tables", table,
+                              f"plate={_encoded(plate)}",
+                              f"well={_encoded(well)}")
+        os.makedirs(folder, exist_ok=True)
+        self._final = os.path.join(folder, _next_name(folder, "part-",
+                                                      ".parquet"))
+        self._temporary = f"{self._final}.tmp-{self.uid}"
+
+    def _reserve_crops(self) -> None:
+        """Choose the well's crop store name."""
+        crop_dir = os.path.join(self.project, "crops",
+                                f"plate={_encoded(self.plate)}")
         os.makedirs(crop_dir, exist_ok=True)
-        stem = f"well={_encoded(well)}"
+        stem = f"well={_encoded(self.well)}"
         name = (f"{stem}.zarr" if not os.path.exists(
             os.path.join(crop_dir, f"{stem}.zarr"))
             else _next_name(crop_dir, f"{stem}.v", ".zarr"))
-        final = os.path.join(crop_dir, name)
-        temporary = f"{final}.tmp-{uid}"
-        _write_crops(temporary, crops, crop_order, masks)
-        os.replace(temporary, final)
-        crop_store = os.path.relpath(final, project).replace(os.sep, "/")
-        index = np.full(len(order), -1, dtype=np.int64)
-        index[has] = np.arange(int(has.sum()))
-        data = data.append_column("crop_store", pa.array(
-            [crop_store if h else None for h in has], pa.string()))
-        data = data.append_column("crop_index", pa.array(
-            index, pa.int64(), mask=~has))
-        files.append({"path": crop_store, "kind": "zarr",
-                      "rows": int(has.sum()), **_fingerprint(final)})
-    data = data.append_column("plate", pa.array(
-        [str(plate)] * data.num_rows, pa.string()))
-    data = data.append_column("well", pa.array(
-        [str(well)] * data.num_rows, pa.string()))
-    folder = os.path.join(project, "tables", table, f"plate={_encoded(plate)}",
-                          f"well={_encoded(well)}")
-    os.makedirs(folder, exist_ok=True)
-    final = os.path.join(folder, _next_name(folder, "part-", ".parquet"))
-    temporary = f"{final}.tmp-{uid}"
-    floats = [f.name for f in data.schema if pa.types.is_floating(f.type)]
-    others = [n for n in data.column_names if n not in set(floats)]
-    group_rows = _row_group_rows(data.schema, row_group_rows)
-    pq.write_table(data, temporary, compression="zstd",
-                   row_group_size=group_rows,
-                   write_statistics=True, use_dictionary=others or False,
-                   use_byte_stream_split=floats or False)
-    _fsync(temporary)
-    os.replace(temporary, final)
-    rel = os.path.relpath(final, project).replace(os.sep, "/")
-    files.insert(0, {"path": rel, "kind": "parquet",
-                     "rows": int(data.num_rows), **_fingerprint(final)})
-    files.insert(1, _write_keys(project, table, data, rel, group_rows,
-                                key_columns, plate, well, uid))
-    if row_copy:
-        files.append(_write_row_copy(project, table, data, rel, key_columns,
-                                     uid))
-    manifest = {"uuid": uid, "table": table, "plate": str(plate),
-                "well": str(well), "sort_by": list(sort_by),
-                "key_columns": list(key_columns), "files": files,
-                "schema_version": SCHEMA_VERSION, "written_at": _now(),
-                "run_id": run_id}
-    pending = os.path.join(project, _PENDING)
-    os.makedirs(pending, exist_ok=True)
-    path = os.path.join(pending, f"{uid}.json")
-    with builtins.open(f"{path}.tmp", "w", encoding="utf-8") as handle:
-        json.dump(manifest, handle, indent=1)
-        handle.flush()
-        os.fsync(handle.fileno())
-    os.replace(f"{path}.tmp", path)
-    return manifest
+        self._crop_final = os.path.join(crop_dir, name)
+        self._crop_store = os.path.relpath(
+            self._crop_final, self.project).replace(os.sep, "/")
+
+    def __enter__(self) -> "WellWriter":
+        """The writer itself, for ``with``."""
+        return self
+
+    def __exit__(self, kind, value, trace) -> None:
+        """Finish on success, abort on an error."""
+        if kind is None:
+            self.finish()
+        else:
+            self.abort()
+
+    def _conform(self, data):
+        """``data`` cast to the part's schema, each value checked to fit."""
+        pa = _require("pyarrow")
+        pc = _require("pyarrow.compute")
+        if self._schema is None:
+            self._schema = data.schema.remove_metadata()
+        names = set(self._schema.names)
+        extra = [n for n in data.column_names if n not in names]
+        if extra:
+            raise StoreError(f"{self.table}: column {extra[:5]} is not in "
+                             f"the part's schema")
+        present = {n: i for i, n in enumerate(data.column_names)}
+        arrays = []
+        for field in self._schema:
+            if field.name not in present:
+                arrays.append(pa.nulls(data.num_rows, field.type))
+                continue
+            column = data.column(present[field.name])
+            if pa.types.is_floating(column.type):
+                nan = pc.is_nan(column)
+                if pc.any(nan).as_py():
+                    column = pc.if_else(nan, pa.scalar(None, column.type),
+                                        column)
+            if column.type == field.type:
+                arrays.append(column)
+                continue
+            try:
+                cast = pc.cast(column, field.type, safe=True)
+            except (pa.ArrowInvalid, pa.ArrowNotImplementedError) as error:
+                raise StoreError(f"{self.table}: column {field.name} does "
+                                 f"not fit {field.type}: {error}") from error
+            if (pa.types.is_floating(field.type)
+                    and pa.types.is_floating(column.type)
+                    and _overflows(column, cast)):
+                raise StoreError(
+                    f"{self.table}: column {field.name} holds finite values "
+                    f"beyond the range of {field.type}")
+            arrays.append(cast)
+        return pa.Table.from_arrays(arrays, schema=self._schema)
+
+    def append(self, frame, *, field=None, crops=None, crop_rows=None,
+               masks=None) -> int:
+        """Append the rows of ``frame``, a DataFrame or Arrow table.
+
+        :param frame: the rows, in the part's order.
+        :param field: the field they come from, for messages only.
+        :param crops: these rows' crops, ``(k, C, H, W)``, when the crops
+            were not given to the writer.
+        :param crop_rows: the frame row of each crop; every row when None.
+        :param masks: their masks, or None.
+        :returns: the rows written so far.
+        """
+        pa = _require("pyarrow")
+        data = _arrow_table(frame)
+        for name, value in (("plate", self.plate), ("well", self.well)):
+            if name in data.column_names:
+                found = set(map(str, data.column(name).to_pylist()))
+                if found - {str(value)}:
+                    raise StoreError(
+                        f"{self.table}: column {name} holds "
+                        f"{sorted(found)[:3]}, not only {value!r}; one part "
+                        f"holds one {name}")
+                data = data.drop_columns([name])
+        data = data.drop_columns([c for c in _POINTER
+                                  if c in data.column_names])
+        try:
+            data = self._conform(data)
+        except StoreError as error:
+            if field is None:
+                raise
+            raise StoreError(f"field {field}: {error}") from error
+        count = data.num_rows
+        if self._ordered and count and not self._sorted_here:
+            self._check_order(data)
+        if crops is not None:
+            if self.crops is not None:
+                raise StoreError(f"{self.table}: crops were given to the "
+                                 f"writer and to append")
+            local = (np.arange(count) if crop_rows is None
+                     else np.asarray(crop_rows, dtype=np.int64))
+            if len(local) != int(crops.shape[0]):
+                raise StoreError(f"{self.table}: {crops.shape[0]} crops for "
+                                 f"{len(local)} crop rows")
+            if self._appended is None:
+                self._appended = _CropPieces()
+                self._reserve_crops()
+            order = np.argsort(local, kind="stable")
+            index = np.full(count, -1, dtype=np.int64)
+            index[local[order]] = self._appended.count + np.arange(len(local))
+            self._appended.add(crops, masks, order)
+            has = index >= 0
+        elif self.crops is not None:
+            here = np.arange(self.rows, self.rows + count, dtype=np.int64)
+            if self._ranked is None:
+                index = here
+                has = here < int(self.crops.shape[0])
+            else:
+                index = np.searchsorted(self._ranked, here)
+                inside = index < len(self._ranked)
+                has = np.zeros(count, bool)
+                has[inside] = self._ranked[index[inside]] == here[inside]
+        else:
+            has = None
+        if has is not None or self._appended is not None:
+            if has is None:
+                has = np.zeros(count, bool)
+                index = np.full(count, -1, dtype=np.int64)
+            data = data.append_column("crop_store", pa.array(
+                [self._crop_store if h else None for h in has], pa.string()))
+            data = data.append_column("crop_index", pa.array(
+                np.where(has, index, -1), pa.int64(), mask=~has))
+        data = data.append_column("plate", pa.array(
+            [str(self.plate)] * count, pa.string()))
+        data = data.append_column("well", pa.array(
+            [str(self.well)] * count, pa.string()))
+        if self._writer is None:
+            self._open(data.schema)
+        elif data.schema != self._full:
+            raise StoreError(f"{self.table}: crops must come with every "
+                             f"batch or with none")
+        self.rows += count
+        self._pending.append(data)
+        self._held += count
+        if self._held >= self._group_rows:
+            self._flush(final=False)
+        return self.rows
+
+    def _check_order(self, data) -> None:
+        """Keep :attr:`sort_by` only while its first column never decreases."""
+        name = self.sort_by[0]
+        if name not in data.column_names or data.column(name).null_count:
+            self._ordered = False
+            return
+        values = data.column(name).to_numpy(zero_copy_only=False)
+        try:
+            ordered = bool(np.all(values[1:] >= values[:-1])) and (
+                self._last is None or values[0] >= self._last)
+        except TypeError:
+            ordered = False
+        self._ordered = ordered
+        self._last = values[-1]
+
+    def _open(self, schema) -> None:
+        """Open the temporary part with the store's encodings.
+
+        zstd; dictionaries for the non-float columns; byte-stream split for
+        float32 and float64 only, because DuckDB 2.0 reads byte-stream-split
+        data only for FLOAT, DOUBLE, INT32 and INT64.
+        """
+        pa = _require("pyarrow")
+        pq = _require("pyarrow.parquet")
+        self._full = schema
+        floats = [f.name for f in schema if pa.types.is_floating(f.type)]
+        split = [f.name for f in schema if pa.types.is_floating(f.type)
+                 and not pa.types.is_float16(f.type)]
+        others = [n for n in schema.names if n not in set(floats)]
+        self._group_rows = _row_group_rows(schema, self._requested)
+        self._writer = pq.ParquetWriter(
+            self._temporary, schema, compression="zstd",
+            write_statistics=True, use_dictionary=others or False,
+            use_byte_stream_split=split or False)
+
+    def _flush(self, *, final: bool) -> None:
+        """Write every whole row group held, and the remainder when ``final``."""
+        pa = _require("pyarrow")
+        if not self._pending:
+            return
+        held = (pa.concat_tables(self._pending) if len(self._pending) > 1
+                else self._pending[0])
+        size = self._group_rows
+        whole = held.num_rows if final else held.num_rows // size * size
+        for start in range(0, whole, size):
+            self._writer.write_table(held.slice(start, min(size,
+                                                           whole - start)),
+                                     row_group_size=size)
+        rest = held.slice(whole)
+        self._pending = [rest] if rest.num_rows else []
+        self._held = rest.num_rows
+
+    def finish(self) -> Dict[str, Any]:
+        """Finish the part, write its key table, crops and copy, then the manifest.
+
+        :returns: the manifest.
+        """
+        pa = _require("pyarrow")
+        pq = _require("pyarrow.parquet")
+        if self.manifest is not None:
+            return self.manifest
+        if self._writer is None:
+            if self._schema is None:
+                raise StoreError(f"{self.table}: no rows and no schema to "
+                                 f"write")
+            self.append(self._schema.empty_table())
+        self._flush(final=True)
+        self._writer.close()
+        self._writer = None
+        files: List[Dict[str, Any]] = []
+        if self.crops is not None or self._appended is not None:
+            if self._appended is not None:
+                source, masks = self._appended, self._appended.masks()
+                order = np.arange(self._appended.count)
+            else:
+                count = int(self.crops.shape[0])
+                rows = (np.arange(count) if self._crop_rows is None
+                        else self._crop_rows)
+                if len(rows) and int(rows.max()) >= self.rows:
+                    raise StoreError(f"{self.table}: a crop names row "
+                                     f"{int(rows.max())} of {self.rows}")
+                source, masks = self.crops, self.masks
+                order = np.argsort(rows, kind="stable")
+            temporary = f"{self._crop_final}.tmp-{self.uid}"
+            _write_crops(temporary, source, order, masks)
+            os.replace(temporary, self._crop_final)
+            files.append({"path": self._crop_store, "kind": "zarr",
+                          "rows": int(len(order)),
+                          **_fingerprint(self._crop_final)})
+        _fsync(self._temporary)
+        os.replace(self._temporary, self._final)
+        rel = os.path.relpath(self._final, self.project).replace(os.sep, "/")
+        files.insert(0, {"path": rel, "kind": "parquet", "rows": self.rows,
+                         **_fingerprint(self._final)})
+        part = pq.ParquetFile(self._final)
+        keep = set(self.key_columns) | set(_POINTER) | set(_PARTITION)
+        narrow = [f.name for f in self._full if f.name in keep
+                  or not pa.types.is_floating(f.type)]
+        files.insert(1, _write_keys(self.project, self.table,
+                                    part.read(columns=narrow), rel,
+                                    self._group_rows, self.key_columns,
+                                    self.plate, self.well, self.uid))
+        if self.row_copy:
+            files.append(_write_row_copy(self.project, self.table, part, rel,
+                                         self.key_columns, self.uid))
+        manifest = {"uuid": self.uid, "table": self.table,
+                    "plate": str(self.plate), "well": str(self.well),
+                    "sort_by": self.sort_by if self._ordered else [],
+                    "key_columns": self.key_columns, "files": files,
+                    "schema_version": SCHEMA_VERSION, "written_at": _now(),
+                    "run_id": self.run_id, "promoted": self.promoted}
+        pending = os.path.join(self.project, _PENDING)
+        os.makedirs(pending, exist_ok=True)
+        path = os.path.join(pending, f"{self.uid}.json")
+        with builtins.open(f"{path}.tmp", "w", encoding="utf-8") as handle:
+            json.dump(manifest, handle, indent=1)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(f"{path}.tmp", path)
+        self.manifest = manifest
+        return manifest
+
+    def abort(self) -> None:
+        """Drop the unfinished part; nothing of it reaches the catalog."""
+        if self._writer is not None:
+            try:
+                self._writer.close()
+            except Exception:
+                pass
+            self._writer = None
+        _remove(self._temporary)
+
+
+def _rebuild(project, tables: Sequence[str]) -> List[str]:
+    """Clear ``tables`` and an older ``measurements.db`` before a run rebuilds them.
+
+    For a phase that rewrites its tables on every run, so a well this run
+    does not write cannot survive from an older one (:func:`_drop_tables`).
+
+    :returns: the paths removed, relative to the project.
+    """
+    project = os.path.abspath(os.fspath(project))
+    for suffix in ("", "-wal", "-shm", "-journal"):
+        _remove(os.path.join(project, _LEGACY_NAMES[0] + suffix))
+    return _drop_tables(project, tables)
+
+
+def _overflows(original, cast) -> bool:
+    """Whether a float cast turned a finite value infinite."""
+    pc = _require("pyarrow.compute")
+    before = pc.sum(pc.is_finite(original)).as_py() or 0
+    after = pc.sum(pc.is_finite(cast)).as_py() or 0
+    return after < before
 
 
 def _keys_name(table: str) -> str:
@@ -441,28 +979,40 @@ def _write_row_copy(project: str, table: str, data, part: str,
     """Write the float columns of one part as a row-major Zarr array.
 
     The array ``features`` is ``(rows, float columns)`` in the part's row
-    order, in the widest float type of those columns, chunked
-    :data:`_ROW_CHUNK` rows by every column; its column names are in
-    ``columns.json``. Nulls are stored as NaN.
+    order, in the widest float type of those columns (float32 at least),
+    chunked :data:`_ROW_CHUNK` rows by every column; its column names are
+    in ``columns.json``. Nulls are stored as NaN. ``data`` is an Arrow
+    table or the written part as a ``pyarrow.parquet.ParquetFile``, which is
+    read a block of rows at a time.
     """
     pa = _require("pyarrow")
+    schema = getattr(data, "schema_arrow", None) or data.schema
+    total = (int(data.metadata.num_rows) if hasattr(data, "schema_arrow")
+             else data.num_rows)
     keep = set(key_columns) | set(_POINTER) | set(_PARTITION)
-    names = [f.name for f in data.schema if f.name not in keep
+    names = [f.name for f in schema if f.name not in keep
              and pa.types.is_floating(f.type)]
-    wide = any(data.schema.field(n).type == pa.float64() for n in names)
+    wide = any(schema.field(n).type == pa.float64() for n in names)
     dtype = np.dtype(np.float64 if wide else np.float32)
     final = os.path.join(project, _row_copy_path(part))
     temporary = f"{final}.tmp-{uid}"
     os.makedirs(temporary, exist_ok=True)
-    array = _create_crop_array(temporary, (data.num_rows, len(names)), dtype,
+    array = _create_crop_array(temporary, (total, len(names)), dtype,
                                "features", chunk_rows=_ROW_CHUNK)
-    for start in range(0, data.num_rows, _ROW_CHUNK * 64):
-        block = data.slice(start, _ROW_CHUNK * 64)
+    step = _ROW_CHUNK * 64
+    if hasattr(data, "schema_arrow"):
+        blocks = (_table_of([b]) for b in data.iter_batches(
+            batch_size=step, columns=names))
+    else:
+        blocks = (data.slice(s, step) for s in range(0, total, step))
+    start = 0
+    for block in blocks:
         matrix = np.empty((block.num_rows, len(names)), dtype=dtype)
         for position, name in enumerate(names):
             matrix[:, position] = block.column(name).to_numpy(
                 zero_copy_only=False)
         array[start:start + block.num_rows] = matrix
+        start += block.num_rows
     with builtins.open(os.path.join(temporary, "columns.json"), "w",
                        encoding="utf-8") as handle:
         json.dump(names, handle)
@@ -472,7 +1022,7 @@ def _write_row_copy(project: str, table: str, data, part: str,
     os.replace(temporary, final)
     return {"path": os.path.relpath(final, project).replace(os.sep, "/"),
             "kind": "zarr", "table": _rows_name(table),
-            "rows": int(data.num_rows), **_fingerprint(final)}
+            "rows": int(total), **_fingerprint(final)}
 
 
 _REGISTRY_DDL = (
@@ -1123,7 +1673,12 @@ class Store:
                                features, crops, as_)
 
     def _shaped(self, result, table, features, crops, as_):
-        """Convert an Arrow result to ``as_`` and attach the crops."""
+        """Convert an Arrow result to ``as_`` and attach the crops.
+
+        A float16 column is returned as float32, so nothing computes on
+        half precision.
+        """
+        result = _upcast_half(result)
         stack = self._crops_for(result) if crops else None
         if as_ == "arrow":
             shaped = result
@@ -1204,6 +1759,218 @@ class Store:
     def __exit__(self, *exc) -> None:
         """Close on leaving ``with``."""
         self.close()
+
+
+def _upcast_half(result):
+    """``result`` with every float16 column cast to float32."""
+    pa = _require("pyarrow")
+    if not any(pa.types.is_float16(f.type) for f in result.schema):
+        return result
+    fields = [pa.field(f.name, pa.float32(), f.nullable, f.metadata)
+              if pa.types.is_float16(f.type) else f for f in result.schema]
+    return result.cast(pa.schema(fields, metadata=result.schema.metadata))
+
+
+def _drop_tables(project, tables: Sequence[str]) -> List[str]:
+    """Remove ``tables`` from a store: their catalog rows, views and files.
+
+    For a writer that rebuilds its tables on every run, so the rows of a
+    well the new run does not write cannot survive from an older run, and
+    a waiting manifest of a killed run cannot be registered later. Their
+    key tables and row-major copies go too; other tables are untouched.
+
+    :param project: the project folder.
+    :param tables: the table names.
+    :returns: the paths removed, relative to the project.
+    """
+    project = os.path.abspath(os.fspath(project))
+    names = sorted({n for t in tables
+                    for n in (t, _keys_name(t), _rows_name(t))})
+    removed: List[str] = []
+    catalog = os.path.join(project, CATALOG)
+    if os.path.isfile(catalog):
+        conn = _connect(catalog)
+        try:
+            marks = ", ".join("?" for _ in names)
+            conn.execute("BEGIN TRANSACTION")
+            removed = [row[0] for row in conn.execute(
+                f"SELECT path FROM spacr_files WHERE table_name IN ({marks})",
+                names).fetchall()]
+            conn.execute(f"DELETE FROM spacr_files WHERE table_name IN "
+                         f"({marks})", names)
+            conn.execute(f"DELETE FROM spacr_tables WHERE name IN ({marks})",
+                         names)
+            for name in names:
+                conn.execute(f"DROP VIEW IF EXISTS {_ident(name)}")
+            conn.execute("COMMIT")
+        except BaseException:
+            conn.execute("ROLLBACK")
+            raise
+        finally:
+            conn.close()
+    for path in sorted(glob.glob(os.path.join(glob.escape(project), _PENDING,
+                                              "*.json"))):
+        with builtins.open(path, encoding="utf-8") as handle:
+            manifest = json.load(handle)
+        if manifest.get("table") in names:
+            removed.extend(entry["path"] for entry in manifest["files"])
+            _remove(path)
+    for rel in removed:
+        _remove(os.path.join(project, rel))
+    for name in names:
+        _remove(os.path.join(project, "tables", name))
+        _remove(os.path.join(project, "rows", name))
+    return removed
+
+
+def _dtype_family(column: str, channels: Sequence[str] = (), *,
+                  literal_numbers: bool = False) -> str:
+    """The column family a measurement column's storage dtype is chosen for.
+
+    The name is split at ``_``; a leading object class (``cell``,
+    ``nucleus``, ``cytoplasm``, ``pathogen``) becomes ``{compartment}``, a
+    channel of ``channels`` becomes ``{channel}`` and, unless
+    ``literal_numbers``, a whole number becomes ``{n}``: so
+    ``nucleus_gfp_percentile_95`` is
+    ``{compartment}_{channel}_percentile_{n}``. The finer family keeps the
+    numbers and is recorded where a family's columns need different dtypes.
+
+    :param column: the column name.
+    :param channels: the run's channel names, any case.
+    :param literal_numbers: keep whole numbers as they are.
+    :returns: the family.
+    """
+    names = {str(c).lower() for c in channels}
+    tokens = []
+    for position, token in enumerate(str(column).lower().split("_")):
+        if position == 0 and token in _COMPARTMENTS:
+            tokens.append("{compartment}")
+        elif token in names:
+            tokens.append("{channel}")
+        elif token.isdigit() and not literal_numbers:
+            tokens.append("{n}")
+        else:
+            tokens.append(token)
+    return "_".join(tokens)
+
+
+@functools.lru_cache(maxsize=4)
+def _dtype_map(path: str = _DTYPE_MAP_PATH) -> Dict[str, Any]:
+    """A recorded dtype map, read once: ``{"families": {family: {kind: entry}}}``.
+
+    Each entry names the dtype a family's float (``"float"``) or integer
+    (``"int"``) columns are stored in and the error measured for it.
+    """
+    with builtins.open(path, encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def _fitted_dtype(dtype: str, kind: str, low, high) -> str:
+    """``dtype``, or the next one up its ladder that holds ``[low, high]``.
+
+    :param dtype: the recorded dtype.
+    :param kind: ``"float"`` or ``"int"``.
+    :param low: the column's smallest value, None when no statistics were
+        written, NaN when every value is NaN.
+    :param high: its largest.
+    :returns: the dtype to store the column in.
+    """
+    if kind == "float":
+        if dtype != "float16":
+            return dtype
+        if low is None or high is None:
+            return "float32"
+        if np.isnan(low) and np.isnan(high):
+            return dtype
+        limit = max(abs(float(low)), abs(float(high)))
+        return dtype if limit <= float(np.finfo(np.float16).max) else "float32"
+    if low is None or high is None:
+        return "int64"
+    if np.isnan(low) and np.isnan(high):
+        return dtype
+    start = _INT_LADDER.index(dtype) if dtype in _INT_LADDER else 0
+    for name in _INT_LADDER[start:]:
+        info = np.iinfo(name)
+        if info.min <= low and high <= info.max:
+            return name
+    return "int64"
+
+
+def _column_ranges(meta) -> Dict[str, tuple]:
+    """``column -> (min, max)`` over a Parquet file's row-group statistics.
+
+    NaN is not counted; a column whose every value is NaN gives
+    ``(nan, nan)`` and one without statistics ``(None, None)``.
+
+    :param meta: a ``pyarrow.parquet.FileMetaData``.
+    """
+    ranges: Dict[str, tuple] = {}
+    for group in range(meta.num_row_groups):
+        row_group = meta.row_group(group)
+        for index in range(row_group.num_columns):
+            chunk = row_group.column(index)
+            name = chunk.path_in_schema
+            stats = chunk.statistics
+            low, high = ranges.get(name, (np.nan, np.nan))
+            if stats is None:
+                ranges[name] = (None, None)
+                continue
+            if low is None:
+                continue
+            if stats.has_min_max:
+                if not isinstance(stats.min, (int, float, np.number)):
+                    continue
+                low = float(np.fmin(low, float(stats.min)))
+                high = float(np.fmax(high, float(stats.max)))
+            ranges[name] = (low, high)
+    return ranges
+
+
+def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
+                  path: str = _DTYPE_MAP_PATH):
+    """The Arrow type each numeric column of a table is stored in.
+
+    The column's recorded dtype (the finer family first, then the family;
+    :func:`_dtype_family`), never wider than the column already is, moved
+    up its ladder when the table's range does not fit
+    (:func:`_fitted_dtype`). A column no family holds keeps its type.
+    Readers get float16 columns back as float32 (:meth:`Store.query`).
+
+    :param schema: the source table's Arrow schema.
+    :param ranges: :func:`_column_ranges` of the source.
+    :param channels: the run's channel names.
+    :param path: the dtype map.
+    :returns: ``({column: pyarrow type}, promotions)``; each promotion
+        names the column, the recorded dtype and the one used.
+    """
+    pa = _require("pyarrow")
+    families = _dtype_map(path)["families"]
+    types: Dict[str, Any] = {}
+    promoted: List[Dict[str, Any]] = []
+    for field in schema:
+        if pa.types.is_floating(field.type):
+            kind = "float"
+        elif pa.types.is_integer(field.type):
+            kind = "int"
+        else:
+            continue
+        source = np.dtype(field.type.to_pandas_dtype()).name
+        entry = None
+        for literal in (True, False):
+            entry = families.get(_dtype_family(
+                field.name, channels, literal_numbers=literal), {}).get(kind)
+            if entry:
+                break
+        chosen = entry["dtype"] if entry else source
+        if np.dtype(chosen).itemsize > np.dtype(source).itemsize:
+            chosen = source
+        low, high = ranges.get(field.name, (None, None))
+        fitted = _fitted_dtype(chosen, kind, low, high)
+        if fitted != chosen:
+            promoted.append({"column": field.name, "recorded": chosen,
+                             "stored": fitted})
+        types[field.name] = pa.from_numpy_dtype(np.dtype(fitted))
+    return types, promoted
 
 
 def _python(value):
