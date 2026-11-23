@@ -357,3 +357,36 @@ def _open_sans_if_a_run_started_this():
     if os.environ.get(_RUN_MARKER) != "1":
         return contextlib.nullcontext(False)
     return _open_sans_is_the_default()
+
+
+_qt_figure_font_ids = ()
+
+
+def use_open_sans_for_qt() -> bool:
+    """Register bundled Light, Regular and SemiBold faces for native figure text.
+
+    Qt remains an optional, lazy dependency. Registration waits for an
+    application and is reused by subsequent plots in that process.
+
+    :returns: whether all three bundled faces registered as Open Sans.
+    """
+    global _qt_figure_font_ids
+    from PySide6.QtGui import QFontDatabase, QGuiApplication
+
+    if QGuiApplication.instance() is None:
+        return False
+    if _qt_figure_font_ids:
+        return True
+    identifiers = []
+    for weight in ("Light", "Regular", "SemiBold"):
+        path = os.path.join(font_dir(), "OpenSans-" + weight + ".ttf")
+        identifier = QFontDatabase.addApplicationFont(path)
+        if identifier < 0 or FAMILY not in QFontDatabase.applicationFontFamilies(identifier):
+            if identifier >= 0:
+                QFontDatabase.removeApplicationFont(identifier)
+            for previous in identifiers:
+                QFontDatabase.removeApplicationFont(previous)
+            return False
+        identifiers.append(identifier)
+    _qt_figure_font_ids = tuple(identifiers)
+    return True

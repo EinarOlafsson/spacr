@@ -42,7 +42,7 @@ MARGIN = {"left": 0.28, "right": 0.10, "top": 0.20, "bottom": 0.58,
 #: Where the shared colour bar sits, in inches from the bottom of the
 #: figure, and how thick it is. Below it go its own tick labels and the
 #: measurement's name, which is why it is not at the very bottom.
-BAR = {"bottom": 0.24, "height": 0.075, "width": 2.4}
+BAR = {"bottom": 0.32, "height": 0.075, "width": 2.4}
 
 #: How dark the "no measurement here" wash is, as a fraction of the ink.
 #: Neutral, so an empty well differs from a measured one in HUE and not
@@ -53,53 +53,28 @@ EMPTY_WASH_ALPHA = 0.09
 
 
 def plate_ramp(target: str = "screen"):
-    """Create the sequential blue color map used for plate measurements.
+    """Return the shared sequential blue scale on the readable graph ground.
 
-    Parameters
-    ----------
-    target : str, default="screen"
-        ``"print"`` selects the print ramp. Every other value selects the
-        screen ramp, which avoids the darkest print color so high values
-        remain distinct from a dark interface background.
-
-    Returns
-    -------
-    matplotlib.colors.Colormap
-        Color map with a transparent bad-value color for unmeasured wells.
+    :param target: retained output-target argument; both themes use the same data colours.
+    :returns: detached shared colormap; missing cells are marked explicitly when drawn.
     """
-    from matplotlib.colors import LinearSegmentedColormap
+    from .style import heatmap_cmap
 
-    if target == "print":
-        stops = ["#F7FAFD", Palette.BLUE_LIGHT, Palette.BLUE, Palette.NAVY]
-    else:
-        stops = ["#E8EDEE", Palette.BLUE_LIGHT, Palette.BLUE]
-    ramp = LinearSegmentedColormap.from_list(f"spacr_plate_{target}", stops)
-    ramp.set_bad("none")
-    return ramp
+    return heatmap_cmap()
 
 
 def score_ramp(target: str = "screen"):
-    """Create the diverging color map used for signed plate scores.
+    """Return the shared diverging scale for explicitly signed plate scores.
 
-    A hit score (SSMD, robust z, B-score) is signed about the negative
-    control, which is what a diverging map is for. The ends are the house
-    ``down`` and ``up`` colours (:data:`spacr.figures.style.ROLES`), so a
-    well scored below the control reads rust and one above it green, the
-    same as on a volcano.
+    Zero is the declared reference. Display normalization centres it when it
+    lies inside the existing limits; source scores and endpoints do not change.
 
-    :param target: ``"print"`` centres on a near-white; every other value on
-        the light grey of the screen plate ramp.
-    :returns: A color map with a transparent bad-value color.
+    :param target: retained output-target argument; identity colours are shared across themes.
+    :returns: detached shared diverging colormap with an explicit zero reference.
     """
-    from matplotlib.colors import LinearSegmentedColormap
+    from .style import heatmap_cmap
 
-    middle = "#F7F7F7" if target == "print" else "#E8EDEE"
-    ramp = LinearSegmentedColormap.from_list(
-        f"spacr_score_{target}", [Palette.RUST, Palette.CORAL, middle,
-                                  "#8FC2A2", Palette.GREEN])
-    ramp.set_bad("none")
-    return ramp
-
+    return heatmap_cmap(signed=True)
 
 
 def plate_names(frame) -> List[str]:
@@ -384,14 +359,14 @@ def draw_plate(ax, matrix: np.ndarray, *, vmin: float, vmax: float, cmap,
                column_labels=None) -> None:
     """One plate into one axes, with square wells and no gridlines.
 
-    :param ax: matplotlib axes that receives the wash, image, ticks and title.
+    :param ax: matplotlib axes that receives the image, missing-cell crosses, ticks and title.
     :param matrix: ``(n_rows, n_columns)``, ``nan`` where no well was
         measured.
     :param vmin: lower endpoint shared by the plate's colour normalisation.
     :param vmax: upper endpoint shared by the plate's colour normalisation.
     :param cmap: matplotlib colormap (or registered colormap name) used for
         measured wells.
-    :param ink: colour used for ticks, labels, spines and the plate wash.
+    :param ink: colour used for ticks, labels and titles.
     :param name: optional plate title; false values leave the title unset.
     :param row_labels: ``True`` to draw the row letters, ``False`` to leave
         the axis bare (an inner plate of the small multiple shares the
@@ -400,14 +375,12 @@ def draw_plate(ax, matrix: np.ndarray, *, vmin: float, vmax: float, cmap,
         the axis bare when an outer plate already supplies them.
     :returns: ``None``; artists are added to ``ax`` in place.
     """
-    from matplotlib.patches import Rectangle
+    from .style import heatmap_image
 
     n_rows, n_columns = matrix.shape
-    ax.add_patch(Rectangle((0, 0), n_columns, n_rows,
-                           facecolor=_wash(ink), edgecolor="none", zorder=0))
-    ax.imshow(np.ma.masked_invalid(matrix), cmap=cmap, vmin=vmin, vmax=vmax,
-              origin="upper", extent=(0, n_columns, n_rows, 0),
-              interpolation="nearest", aspect="equal", zorder=1)
+    heatmap_image(ax, matrix, cmap=cmap, vmin=vmin, vmax=vmax,
+                  extent=(0, n_columns, n_rows, 0),
+                  centre=getattr(cmap, "_spacr_reference_value", None))
 
     from .. import schema as _schema
 
@@ -425,6 +398,7 @@ def draw_plate(ax, matrix: np.ndarray, *, vmin: float, vmax: float, cmap,
     for spine in ax.spines.values():
         spine.set_linewidth(WEIGHTS["spine"])
         spine.set_color(ink)
+        spine.set_visible(False)
     if name:
         ax.set_title(name, fontsize=TYPE_SCALE["annotation"], pad=2.0,
                      color=ink)
@@ -475,6 +449,7 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
         records the actual aggregation, well counts, and shared limits.
     """
     import matplotlib.pyplot as plt
+    from ..qt.i18n import tr
 
     target = target or theme_target()
     ink = resolve_ink(target)
@@ -533,7 +508,13 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
             if image is None:
                 image = ax.images[0]
 
-        _colour_bar(figure, image, variable, ink, width, height)
+        units = getattr(frame, "attrs", {}).get("units", {})
+        unit = "objects" if grouping == "count" else units.get(variable)
+        bar_variable = (tr("Objects per well") if grouping == "count"
+                        else str(variable).replace("_", " ").lower())
+        if unit and grouping != "count":
+            bar_variable = f"{bar_variable} ({unit})"
+        _colour_bar(figure, image, bar_variable, ink, width, height)
         from .. import schema as _schema
 
         recipes = []
@@ -547,6 +528,7 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
                         coordinates[key] = [row, column]
             recipes.append(dict(slot=index, rect=list(ax.get_position().bounds),
                 y=str(variable), measurement=f"{variable} ({name})", plate=dict(
+                    presentation=1, centre=getattr(ax.images[0].norm, "vcenter", None),
                     name=str(name), variable=str(variable), grouping=str(grouping),
                     min_count=min_count if isinstance(min_count, (int, float)) else 0,
                     coordinates=coordinates, shape=[n_rows, n_columns],
@@ -563,28 +545,49 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
         _register_figure_data(figure, frame, y=str(variable), kind="plate_heatmap",
             grid=[rows, columns], panels=recipes, plates=[str(name) for name in names],
             plate_colorbar=dict(rect=list(figure.axes[-1].get_position().bounds),
-                ticks=[vmin, vmax], ink=ink, linewidth=WEIGHTS["spine"],
-                fontsize=TYPE_SCALE["annotation"], text_position=[0.5, (BAR["bottom"] - 0.022) / height],
-                text=str(variable).replace("_", " ").lower()))
+                ticks=figure.axes[-1].get_xticks().tolist(),
+                ticklabels=[text.get_text() for text in figure.axes[-1].get_xticklabels()], alpha=image.get_alpha(), ink=ink, linewidth=WEIGHTS["spine"],
+                fontsize=TYPE_SCALE["annotation"], text_position=[0.5, (BAR["bottom"] - 0.17) / height],
+                text=bar_variable))
         blank = sum(m.size for m in matrices) - sum(measured)
         subject = ("objects per well, counted" if grouping == "count" else
                    f"{variable} per well, "
                    + ("summed" if grouping == "sum" else "averaged")
                    + " over the objects in it")
         plural = "" if len(matrices) == 1 else "s"
-        return figure, Panel(
+        panel = Panel(
             "plates", "plate heatmaps",
             caption=(
                 f"{subject}, for {len(matrices)} plate{plural} of "
                 f"{n_rows}x{n_columns} wells. All plates share one colour "
                 f"scale ({vmin:.3g} to {vmax:.3g}) so the same colour is the "
                 f"same number on every plate. {sum(measured)} wells were "
-                f"measured; the {blank} that were not are left as a neutral "
-                f"wash and are excluded from the scale."
+                + tr("measured; the {count} missing wells are marked with a thin "
+                     "black × and are excluded from the scale.").format(count=blank)
+                + ((tr(" The diverging colour scale uses zero as its reference.")
+                    if vmin < 0.0 < vmax else
+                    tr(" The zero reference is not inside the displayed colour range; "
+                       "the scale is not centred on zero."))
+                   if getattr(ramp, "_spacr_reference_value", None) is not None else "")
                 + (f" {sum(int(np.nansum(m > 0)) for m in marks if m is not None)}"
                    f" well(s) marked by {outline} are outlined."
                    if outline else "")),
             needs=("prc", variable))
+        from .style import apply_axes_style, resolve_style
+
+        reference = getattr(frame, "attrs", {}).get("reference")
+        centre = getattr(ramp, "_spacr_reference_value", None)
+        if centre is not None:
+            reference = tr("Zero score")
+        for ax in figure.axes[:-1]:
+            spec = resolve_style(target, "heatmap",
+                comparison={"experimental_unit": "well", "display_range": [vmin, vmax],
+                            "centre": centre, "colormap": ax.images[0].cmap.name,
+                            "reference": reference},
+                legend={"caption": panel.caption, "reference": reference,
+                        "quantities": {"value": bar_variable}, "units": {"value": unit}})
+            apply_axes_style(ax, spec, layout=False)
+        return figure, panel
 
 
 def _outline_wells(ax, marks: np.ndarray, ink: str) -> None:
@@ -630,7 +633,7 @@ def _colour_bar(figure, image, variable: str, ink: str, width: float,
 
     :param figure: figure receiving the colour-bar axes and variable label.
     :param image: plotted image carrying the shared colour normalization.
-    :param variable: measurement name rendered below the bar.
+    :param variable: objective quantity and declared unit rendered below the bar.
     :param ink: colour used for the outline, ticks, and label.
     :param width: figure width in inches.
     :param height: figure height in inches.
@@ -640,15 +643,23 @@ def _colour_bar(figure, image, variable: str, ink: str, width: float,
     cax = figure.add_axes([(width - bar_w) / 2 / width, BAR["bottom"] / height,
                            bar_w / width, BAR["height"] / height])
     cax.set_label("<colorbar>")
-    bar = figure.colorbar(image, cax=cax, orientation="horizontal")
+    from .style import _numeric_colourbar
+
+    bar = _numeric_colourbar(image, cax, orientation="horizontal")
     bar.outline.set_linewidth(WEIGHTS["spine"])
     bar.outline.set_edgecolor(ink)
     cax.tick_params(length=1.6, width=WEIGHTS["spine"], pad=1.2,
                     labelsize=TYPE_SCALE["annotation"], colors=ink)
-    bar.set_ticks([image.norm.vmin, image.norm.vmax])
-    cax.set_xticklabels([f"{image.norm.vmin:.3g}", f"{image.norm.vmax:.3g}"])
-    figure.text(0.5, (BAR["bottom"] - 0.022) / height,
-                str(variable).replace("_", " ").lower(),
+    ticks = [image.norm.vmin, image.norm.vmax]
+    if getattr(image.norm, "vcenter", None) is not None:
+        ticks.insert(1, image.norm.vcenter)
+    bar.set_ticks(ticks)
+    from .style import scale_tick_labels
+
+    cax.set_xticklabels(scale_tick_labels(ticks))
+    bar.solids.set_alpha(image.get_alpha())
+    figure.text(0.5, (BAR["bottom"] - 0.17) / height,
+                str(variable),
                 ha="center", va="top", color=ink,
                 fontsize=TYPE_SCALE["annotation"])
 

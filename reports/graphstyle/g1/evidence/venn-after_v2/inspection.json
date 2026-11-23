@@ -1,0 +1,22 @@
+{
+  "all_native_pngs_opened": true,
+  "pngs": {
+    "collision_dark": "54e170bf25e7e9157f5920dd3084d5d9d843d363d2580428a63fd41112ee8734",
+    "collision_light": "54e170bf25e7e9157f5920dd3084d5d9d843d363d2580428a63fd41112ee8734",
+    "disjoint_dark": "c9a298dfae6b58947a31da2c3202a30d6fe7f08353839b2729215c5ce221304c",
+    "disjoint_light": "c9a298dfae6b58947a31da2c3202a30d6fe7f08353839b2729215c5ce221304c",
+    "empty_dark": "8de2c605543c489220fe82480532561c7f2ba9b2b7b8b6fdf58e7aebf2c2f4fa",
+    "empty_light": "8de2c605543c489220fe82480532561c7f2ba9b2b7b8b6fdf58e7aebf2c2f4fa",
+    "identical_dark": "bad7f5b0c60bd02cceefb8a99ae765d386301bd47c66b1fec592b36f3625faab",
+    "identical_light": "bad7f5b0c60bd02cceefb8a99ae765d386301bd47c66b1fec592b36f3625faab",
+    "negative_dark": "451b2082cf7e60a80c67c7554241a6481c9ade3675d47524ffa7b978e909ef9a",
+    "negative_light": "451b2082cf7e60a80c67c7554241a6481c9ade3675d47524ffa7b978e909ef9a",
+    "positive_dark": "bd2f7dd03f9f0066f192470cd6cf7c1f5f628cf1b2aa65f8eb2e350515d0cbf4",
+    "positive_light": "bd2f7dd03f9f0066f192470cd6cf7c1f5f628cf1b2aa65f8eb2e350515d0cbf4",
+    "subset_dark": "451b2082cf7e60a80c67c7554241a6481c9ade3675d47524ffa7b978e909ef9a",
+    "subset_light": "451b2082cf7e60a80c67c7554241a6481c9ade3675d47524ffa7b978e909ef9a",
+    "unfiltered_dark": "54e170bf25e7e9157f5920dd3084d5d9d843d363d2580428a63fd41112ee8734",
+    "unfiltered_light": "54e170bf25e7e9157f5920dd3084d5d9d843d363d2580428a63fd41112ee8734"
+  },
+  "observations": "All16native300dpiPNGs opened. Empty/identical captions separated; no measured text overlaps/clipping. Scientific region numbers, paths and returned genes remain exact."
+}

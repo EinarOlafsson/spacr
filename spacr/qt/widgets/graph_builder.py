@@ -36,10 +36,9 @@ density raster or from a sample.
 Colour
 ------
 
-Categorical series take a fixed eight-hue order — never cycled, never
+Categorical series take a fixed eight-colour order — never cycled, never
 re-assigned when a filter changes the series count, so a gene keeps its colour
-between two charts. The order is the validated reference palette (light and
-dark steps kept separately rather than flipped), and a continuous colour column
+between two charts. The order uses the shared reference palette and two neutral tones in both themes, and a continuous colour column
 gets a single-hue light-to-dark ramp. Beyond eight levels the extras fold into
 one "other" grey rather than adding hues that are hard to tell apart.
 """
@@ -56,7 +55,7 @@ from PySide6.QtGui import QPainter
 from PySide6.QtWidgets import (
     QAbstractItemView, QComboBox, QFrame, QGridLayout, QHBoxLayout,
     QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSizePolicy,
-    QSpinBox, QVBoxLayout, QWidget,
+    QScrollArea, QSpinBox, QVBoxLayout, QWidget,
 )
 
 from ...selection import Selection, object_keys
@@ -112,19 +111,17 @@ CHANNEL_HINTS = {
 #: Assigned by position and never cycled: the ninth level is folded into
 #: :data:`OTHER_COLOUR`, because a generated ninth hue is one nobody can
 #: separate from the eight already there.
-_SERIES_LIGHT = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100",
-                 "#e87ba4", "#008300", "#4a3aa7", "#e34948")
-_SERIES_DARK = ("#3987e5", "#d95926", "#199e70", "#c98500",
-                "#d55181", "#008300", "#9085e9", "#e66767")
+
 
 #: Where levels past the eighth go.
-OTHER_COLOUR = "#898781"
+from ...figures.style import DATA_ALPHA, GENERAL_DEFAULTS, Palette, SERIES, WEIGHTS
+
+OTHER_COLOUR = Palette.BACKGROUND
 OTHER_LABEL = "other"
 
 #: Single-hue magnitude ramp, light → dark, for a continuous colour column and
 #: for the density raster. One hue, never a rainbow.
-_RAMP_LIGHT = ("#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#104281")
-_RAMP_DARK = ("#0d366b", "#184f95", "#256abf", "#3987e5", "#6da7ec", "#9ec5f4")
+
 
 #: How much opacity an unselected mark keeps while a selection is live. Dim,
 #: never hidden — the shape of what was *not* selected is half the answer.
@@ -150,44 +147,37 @@ def _is_light_surface() -> bool:
 
 
 def categorical_colours() -> Tuple[str, ...]:
-    """The fixed eight-hue series order for the active theme."""
-    return _SERIES_LIGHT if _is_light_surface() else _SERIES_DARK
+    """The shared six hues and two neutral tones, with unchanged eight-level capacity.
+
+    Neutral series do not declare a reference identity. References remain
+    explicit metadata rather than being inferred from a colour or label.
+    """
+    return (*SERIES, Palette.CONTROL, "#000000")
 
 
 def sequential_colours() -> Tuple[str, ...]:
-    """The single-hue magnitude ramp for the active theme, light → dark."""
-    return _RAMP_LIGHT if _is_light_surface() else _RAMP_DARK
+    """The shared white-to-blue magnitude ramp, identical in both GUI themes."""
+    from matplotlib import colormaps
+    from matplotlib.colors import to_hex
+
+    return tuple(to_hex(colour) for colour in colormaps["Blues"](np.linspace(0., 1., 6)))
 
 
 def _colormap():
-    """Build the sequential colour map graphs are drawn with.
+    """Return the shared sequential map without a theme-specific normalization.
 
-    :returns: the map, from spaCR's own sequential colours rather than a
-        matplotlib default, so a figure matches the application around it.
+    :returns: the white-to-blue map; existing numerical limits are unchanged.
     """
-    from matplotlib.colors import LinearSegmentedColormap
-    return LinearSegmentedColormap.from_list(
-        "spacr_graph_seq", list(sequential_colours()))
+    from matplotlib import colormaps
+
+    return colormaps["Blues"]
 
 
 def _orientation(vertical: bool) -> dict:
-    """``boxplot``/``violinplot`` orientation, spelled the way this matplotlib
-    wants it.
+    """Delegate box and violin orientation compatibility to the shared owner."""
+    from ...figures.style import _distribution_orientation
 
-    3.10 replaced ``vert=True`` with ``orientation="vertical"`` and warns on
-    the old spelling. spaCR is installed against both, and a
-    ``PendingDeprecationWarning`` per panel per render is noise that hides the
-    warnings worth reading.
-    """
-    import matplotlib
-    parts = matplotlib.__version__.split(".")
-    try:
-        modern = (int(parts[0]), int(parts[1])) >= (3, 10)
-    except (IndexError, ValueError):
-        modern = True
-    if modern:
-        return {"orientation": "vertical" if vertical else "horizontal"}
-    return {"vert": bool(vertical)}
+    return _distribution_orientation(vertical)
 
 
 
@@ -523,7 +513,7 @@ _CANVAS_CLASS = None
 
 
 def _draw_with_user_style(canvas) -> None:
-    """Apply the user's figure settings to new content, then draw ``canvas``.
+    """Apply figure settings, draw once, and validate with the actual live renderer.
 
     The shared canvas's ``draw``. Every screen on it draws into its figure
     again and again; the Preferences figure settings reach each new drawing
@@ -534,10 +524,19 @@ def _draw_with_user_style(canvas) -> None:
     try:
         from ...figures.style import _style_new_content
         _style_new_content(canvas.figure)
+        from ...figures.style import _apply_live_axes_geometry
+
+        _apply_live_axes_geometry(canvas.figure)
     except Exception:
         LOG.debug("could not apply the figure settings", exc_info=True)
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
     FigureCanvasQTAgg.draw(canvas)
+    try:
+        from ...figures.style import finalize_figure
+
+        finalize_figure(canvas.figure, renderer=canvas.get_renderer())
+    except Exception:
+        LOG.debug("could not validate the drawn figure", exc_info=True)
 
 
 def _canvas_class():
@@ -744,7 +743,11 @@ class GraphCanvas(LinkedView, QWidget):
 
         self._figure = Figure(figsize=(7.5, 5.0))
         self._canvas = _canvas_class()(self._figure)
-        outer.addWidget(self._canvas, 1)
+        self._plot_scroll = QScrollArea(self)
+        self._plot_scroll.setWidgetResizable(True)
+        self._plot_scroll.setFrameShape(QFrame.NoFrame)
+        self._plot_scroll.setWidget(self._canvas)
+        outer.addWidget(self._plot_scroll, 1)
 
         self._notice = QLabel("", self)
         self._notice.setObjectName("GraphNotice")
@@ -904,12 +907,19 @@ class GraphCanvas(LinkedView, QWidget):
         """Rebuild the figure from the current frame, spec, filter and selection."""
         self._debounce.stop()
         self._figure.clear()
-        self._figure.patch.set_alpha(0.0)
+        self._figure._spacr_live_geometry = None
+        self._canvas.setMinimumSize(0, 0)
+        self._figure.patch.set_facecolor(GENERAL_DEFAULTS["background"])
+        self._figure.patch.set_alpha(1.0)
         self._axes = {}
         self._axes_at = {}
         self._overlays = {}
         self._drag_patch = None
-        palette = active_palette()
+        palette = dict(active_palette())
+        for token in ("fg", "fg_dim", "fg_muted", "border", "border_soft"):
+            palette[token] = GENERAL_DEFAULTS["foreground"]
+        for token in ("surface", "surface_alt"):
+            palette[token] = GENERAL_DEFAULTS["background"]
 
         if self._frame is None or self._frame.empty:
             self._render_message(
@@ -986,9 +996,7 @@ class GraphCanvas(LinkedView, QWidget):
             self._label_panel(ax, panel, grid, nrows, ncols, palette)
 
         self._draw_legend(kind, palette)
-        from ...figures.style import _apply_user_style
-        _apply_user_style(self._figure, force=True)
-        self._figure.tight_layout(pad=0.8)
+        self._finish_layout()
         from ...figures.bundle import _register_figure_data
         _register_figure_data(self._figure, self._visible, x=spec.x or "",
                               y=spec.y or "", hue=spec.colour or "",
@@ -996,6 +1004,32 @@ class GraphCanvas(LinkedView, QWidget):
         self._canvas.draw_idle()
         self._notice.setText(self._notice_text(data, grid))
         self.rendered.emit(data)
+
+    def _finish_layout(self) -> None:
+        """Apply shared physical layout for every canvas subclass.
+
+        Visible panels share one packing route; hidden wrap slots are not
+        chart panels. Data filtering, selection and per-panel numerical
+        limits remain with the existing graph and trellis owners.
+
+        Source table registration stays at each original caller so layout
+        changes do not add or replace existing export tables.
+        """
+        from ...figures.style import _apply_user_style
+        from ...figures.style import _retain_live_axes_geometry, pack_axes_geometry, panel_letter
+
+        viewport = tuple(self._figure.get_size_inches())
+        active_axes = [ax for ax in self._axes.values() if ax.get_visible()]
+        if len(active_axes) > 1:
+            for index, ax in enumerate(active_axes):
+                panel_letter(ax, index)
+        _apply_user_style(self._figure, force=True)
+        pack_axes_geometry(active_axes, maximum_width=max(1., viewport[0]), legend_space=True)
+        required = tuple(self._figure.get_size_inches())
+        _retain_live_axes_geometry(self._figure, viewport)
+        logical_dpi = self._figure.dpi / self._canvas.device_pixel_ratio
+        self._canvas.setMinimumSize(int(np.ceil(required[0] * logical_dpi)),
+                                    int(np.ceil(required[1] * logical_dpi)))
 
     def _render_message(self, text: str) -> None:
         """Draw a sentence in place of a chart.
@@ -1006,16 +1040,10 @@ class GraphCanvas(LinkedView, QWidget):
 
         :param text: what to say.
         """
-        palette = active_palette()
+        from ...figures.style import _status_panel
+
         ax = self._figure.add_subplot(111)
-        _page_surface_axes(ax, palette)
-        for spine in ax.spines.values():
-            spine.set_visible(False)
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.text(0.5, 0.5, text, ha="center", va="center", wrap=True,
-                color=palette["fg_muted"], fontsize=10,
-                transform=ax.transAxes)
+        _status_panel(ax, text)
         self._render_data = None
         self._grid = None
         self._brush_grid = None
@@ -1058,16 +1086,71 @@ class GraphCanvas(LinkedView, QWidget):
             return None
 
     def _style_axes(self, ax, palette) -> None:
-        """Recessive chrome: hairline grid, two spines, muted ticks."""
-        _page_surface_axes(ax, palette)
-        ax.grid(True, color=palette["border_soft"], linewidth=0.6, alpha=0.5)
+        """Prepare the shared readable ground before data and explicit decorations."""
+        ax.set_facecolor(GENERAL_DEFAULTS["background"])
+        ax.patch.set_alpha(1.)
+        ax.grid(False)
         ax.set_axisbelow(True)
-        for side in ("top", "right"):
-            ax.spines[side].set_visible(False)
-        for side in ("left", "bottom"):
-            ax.spines[side].set_color(palette["border"])
-            ax.spines[side].set_linewidth(0.8)
-        ax.tick_params(colors=palette["fg_muted"], labelsize=8, length=3)
+        for spine in ax.spines.values():
+            spine.set_visible(True)
+            spine.set_color(GENERAL_DEFAULTS["foreground"])
+            spine.set_linewidth(WEIGHTS["spine"])
+        ax.tick_params(colors=GENERAL_DEFAULTS["foreground"], labelsize=8,
+                       direction="out", length=2.5, width=WEIGHTS["spine"])
+
+    def _register_presentation(self, ax, rows, kind) -> None:
+        """Declare actual plotted units and identities before explicit view decorations.
+
+        Source rows, grouping, numerical scales and reductions stay with the
+        existing graph engine. Missing references or units remain diagnostics.
+        """
+        from ...figures.style import apply_axes_style, resolve_style
+        from ...figures.spread import SPREAD_NONE, spread_label
+
+        spec, scales = self._spec, self._scales
+        x_column, y_column = value_axes(spec, self._kinds)
+        numeric_bar = kind in (BAR, BAR_JITTER) and y_column is not None
+        categorical = kind in (BOX, VIOLIN, JITTER, BAR_JITTER) or kind == BAR
+        labels = tuple(scales.x_levels or scales.y_levels or ()) if categorical else None
+        counts = getattr(ax, "_spacr_condition_counts", None)
+        if categorical and counts is None and labels:
+            cat_column = x_column if scales.x_levels else y_column
+            value_column = y_column if scales.x_levels else x_column
+            if value_column and value_column in rows:
+                text = rows[cat_column].astype(str).mask(rows[cat_column].isna(), MISSING_LEVEL)
+                values = pd.to_numeric(rows[value_column], errors="coerce")
+                counts = tuple(int(np.isfinite(values[text == label]).sum()) for label in labels)
+        attrs = getattr(self._frame, "attrs", {})
+        reference = attrs.get("reference")
+        controls = [index for index, label in enumerate(labels or ()) if reference is not None and label == str(reference)]
+        quantities = {"x": x_column, "y": y_column or "count"}
+        units = dict(attrs.get("units") or {})
+        if kind == HISTOGRAM or kind == BAR and not numeric_bar:
+            units["count"] = "observations"
+        if kind == HEATMAP:
+            quantities["value"] = "count"
+            units["count"] = "observations"
+        if kind == SCATTER and self._render_data.strategy == BINNED:
+            quantities["value"] = spec.colour if spec.colour and scales.colour_limits else "count"
+            if quantities["value"] == "count":
+                units["count"] = "observations"
+        caption = tr("{y} by {x}.").format(y=quantities["y"], x=quantities["x"])
+        spread = str(getattr(spec, "spread", SPREAD_NONE) or SPREAD_NONE)
+        if numeric_bar and spread != SPREAD_NONE:
+            caption += " " + tr("Bar whiskers: {spread}.").format(spread=spread_label(spread))
+        comparison = {"reference": reference, "graph_type": kind,
+                      "experimental_unit": attrs.get("experimental_unit"),
+                      "orientation": "horizontal" if scales.y_levels and not scales.x_levels else "vertical"}
+        if kind == BAR and not numeric_bar:
+            comparison["representation"] = "estimates"
+        if attrs.get("cut_axis_reason"):
+            comparison["cut_axis_reason"] = attrs["cut_axis_reason"]
+        declared = "heatmap" if kind == HEATMAP else "categorical" if categorical else "continuous"
+        presentation = resolve_style("screen", declared, conditions=labels,
+            sample_counts=counts, control=controls, comparison=comparison,
+            legend={"caption": caption, "reference": reference,
+                    "quantities": quantities, "units": units})
+        apply_axes_style(ax, presentation, layout=False)
 
     def _series_colour(self, index: int) -> str:
         """The colour one series is drawn in.
@@ -1132,6 +1215,9 @@ class GraphCanvas(LinkedView, QWidget):
         makes every axis look inapplicable.
         """
         updater = self._draw_panel_marks(ax, rows, mask, kind, data, palette)
+        self._register_presentation(ax, rows, kind)
+        if updater is not None and mask is not None:
+            updater(mask)
         self.decorate_axes(ax)
         return updater
 
@@ -1146,7 +1232,7 @@ class GraphCanvas(LinkedView, QWidget):
         if rows.empty:
             ax.text(0.5, 0.5, "no rows", ha="center", va="center",
                     color=palette["fg_muted"], fontsize=8,
-                    transform=ax.transAxes)
+                    transform=ax.transAxes, gid="spacr-status")
             return None
         if kind == SCATTER and data.strategy == BINNED:
             self._draw_density(ax, rows, palette)
@@ -1165,7 +1251,27 @@ class GraphCanvas(LinkedView, QWidget):
             self._draw_jitter(ax, rows, palette, over_bars=False)
             return None
         if kind in (BOX, VIOLIN):
-            self._draw_distribution(ax, rows, kind, palette)
+            from ...graph_types import chosen_for
+
+            if (self._spec.kind is None and (self._scales.x_levels or self._scales.y_levels)
+                    and chosen_for("categorical_continuous") in (None, "", "auto")):
+                from ...figures.style import condition_plot
+
+                vertical = bool(self._scales.x_levels)
+                labels = list(self._scales.x_levels if vertical else self._scales.y_levels)
+                category, value = (self._spec.x, self._spec.y) if vertical else (self._spec.y, self._spec.x)
+                text = rows[category].astype(str).mask(rows[category].isna(), MISSING_LEVEL)
+                values = pd.to_numeric(rows[value], errors="coerce")
+                groups = [values[text == label].to_numpy(float) for label in labels]
+                reference = getattr(self._frame, "attrs", {}).get("reference")
+                controls = [index for index, label in enumerate(labels) if reference is not None and label == str(reference)]
+                condition_plot(ax, groups, colours=[self._series_colour(0)], control=controls,
+                               seed=self._spec.seed, labels=labels,
+                               orientation="vertical" if vertical else "horizontal")
+                if not (self._spec.shared_x if vertical else self._spec.shared_y):
+                    ax.autoscale(enable=True, axis="x" if vertical else "y", tight=False)
+            else:
+                self._draw_distribution(ax, rows, kind, palette)
             return None
         if kind == HEATMAP:
             self._draw_heatmap(ax, rows, palette)
@@ -1194,8 +1300,8 @@ class GraphCanvas(LinkedView, QWidget):
     #: drawn at. Class attributes rather than literals inside `_draw_points`
     #: so a subclass whose user can set them -- the Gate Editor -- can, without
     #: reimplementing the drawing.
-    POINT_SIZE_BASE = 16.0
-    POINT_ALPHA = 0.7
+    POINT_SIZE_BASE = GENERAL_DEFAULTS["marker_size"]
+    POINT_ALPHA = DATA_ALPHA
 
     def point_colormap(self):
         """The colour map for a continuous colour axis.
@@ -1228,7 +1334,7 @@ class GraphCanvas(LinkedView, QWidget):
         if kind == LINE:
             order = np.argsort(x, kind="stable")
             ax.plot(x[order], y[order], color=self._series_colour(0),
-                    linewidth=2.0, solid_capstyle="round")
+                    linewidth=WEIGHTS["data"], alpha=DATA_ALPHA, solid_capstyle="round")
             return lambda _m: None
         if spec.colour and self._scales.colour_levels:
             colours, _levels = self._level_colours(rows[spec.colour])
@@ -1241,6 +1347,10 @@ class GraphCanvas(LinkedView, QWidget):
             base = ax.scatter(x, y, s=self._sizes(rows), c=values,
                               cmap=self.point_colormap(), vmin=low, vmax=high,
                               linewidths=0.0, alpha=self.POINT_ALPHA)
+            from ...figures.style import attach_colourbar
+
+            units = getattr(self._frame, "attrs", {}).get("units") or {}
+            attach_colourbar(ax, base, label=spec.colour, unit=units.get(spec.colour))
         else:
             base = self._draw_plain_points(ax, x, y, rows, palette)
         ring = ax.scatter([], [], s=54, facecolors="none",
@@ -1297,10 +1407,17 @@ class GraphCanvas(LinkedView, QWidget):
                 weighted = np.where(counts > 0, total / counts, np.nan)
         image = weighted if weighted is not None else np.where(counts > 0,
                                                                counts, np.nan)
-        ax.imshow(image.T, origin="lower", aspect="auto",
-                  cmap=self.point_colormap(),
-                  extent=(ex[0], ex[-1], ey[0], ey[-1]),
-                  interpolation="nearest")
+        from ...figures.style import Palette, _legend_note, attach_colourbar, heatmap_image
+
+        raster = heatmap_image(ax, image.T, origin="lower", aspect="auto",
+            cmap=self.point_colormap(), vmin=None, vmax=None,
+            extent=(ex[0], ex[-1], ey[0], ey[-1]))
+        units = getattr(self._frame, "attrs", {}).get("units") or {}
+        attach_colourbar(ax, raster, label=tr("Mean {quantity}").format(quantity=spec.colour)
+            if weighted is not None else tr("Observations per bin"),
+            unit=units.get(spec.colour) if weighted is not None else None)
+        _legend_note(ax, tr("Crosses mark bins without a finite displayed value."),
+                     Palette.CONTROL, "missing")
 
     def _draw_histogram(self, ax, rows, mask, palette) -> None:
         """Draw the data as a histogram.
@@ -1364,7 +1481,7 @@ class GraphCanvas(LinkedView, QWidget):
 
         counts = text.value_counts()
         heights = [float(counts.get(level, 0)) for level in levels]
-        ax.bar(range(len(levels)), heights, width=0.78,
+        ax.bar(range(len(levels)), heights, width=0.6,
                color=self._series_colour(0), linewidth=0.0)
         if mask is not None and mask.any():
             picked = text[mask].value_counts()
@@ -1392,15 +1509,15 @@ class GraphCanvas(LinkedView, QWidget):
 
         heights = [summary.get(level, {}).get("mean", float("nan"))
                    for level in levels]
-        ax.bar(range(len(levels)), heights, width=0.78,
+        ax.bar(range(len(levels)), heights, width=0.6,
                color=self._series_colour(0), linewidth=0.0)
 
         if kind != SPREAD_NONE:
             errors = [summary.get(level, {}).get("spread", float("nan"))
                       for level in levels]
             ax.errorbar(range(len(levels)), heights, yerr=errors,
-                        fmt="none", ecolor=palette["fg"], elinewidth=1.2,
-                        capsize=4, capthick=1.2)
+                        fmt="none", ecolor=palette["fg"], elinewidth=WEIGHTS["reference"],
+                        capsize=2.5, capthick=WEIGHTS["reference"])
             ax.set_ylabel(spread_label(kind, unit=str(column or "")))
         elif column:
             ax.set_ylabel(str(column))
@@ -1476,19 +1593,19 @@ class GraphCanvas(LinkedView, QWidget):
             return
         if kind == VIOLIN:
             parts = ax.violinplot(groups, positions=positions,
-                                  showmedians=True, widths=0.7,
+                                  showmedians=True, widths=0.6,
                                   **_orientation(categorical_on_x))
             for body in parts["bodies"]:
                 body.set_facecolor(self._series_colour(0))
                 body.set_alpha(0.55)
             for key in ("cbars", "cmins", "cmaxes", "cmedians"):
                 if key in parts:
-                    parts[key].set_color(palette["fg_muted"])
+                    parts[key].set_color("#000000")
         else:
             drawn = ax.boxplot(
                 groups, positions=positions, widths=0.6, patch_artist=True,
                 manage_ticks=False, **_orientation(categorical_on_x),
-                medianprops={"color": palette["fg"], "linewidth": 1.4},
+                medianprops={"color": "#000000", "linewidth": WEIGHTS["median"]},
                 flierprops={"marker": ".", "markersize": 2.5,
                             "markerfacecolor": palette["fg_muted"],
                             "markeredgecolor": "none", "alpha": 0.5})
@@ -1516,11 +1633,15 @@ class GraphCanvas(LinkedView, QWidget):
             rows[spec.x].astype(str).mask(rows[spec.x].isna(), MISSING_LEVEL))
         table = table.reindex(index=y_levels, columns=x_levels, fill_value=0)
         counts = table.to_numpy(dtype=float)
-        ax.imshow(np.where(counts > 0, counts, np.nan), origin="lower",
-                  aspect="auto", cmap=_colormap(),
-                  extent=(-0.5, len(x_levels) - 0.5,
-                          -0.5, len(y_levels) - 0.5),
-                  interpolation="nearest")
+        from ...figures.style import attach_colourbar, heatmap_image, _legend_note
+
+        raster = heatmap_image(ax, np.where(counts > 0, counts, np.nan), origin="lower",
+                      cmap=_colormap(), vmin=None, vmax=None,
+                      extent=(-0.5, len(x_levels) - 0.5,
+                              -0.5, len(y_levels) - 0.5))
+        attach_colourbar(ax, raster, label=tr("Observations per bin"))
+        _legend_note(ax, tr("A thin black × marks a category bin with no observations."),
+                     "#000000", "missing")
 
     def _apply_scales(self, ax, kind, scales, panel) -> None:
         """Give every panel the *same* limits, ticks and orders.
@@ -1536,10 +1657,10 @@ class GraphCanvas(LinkedView, QWidget):
         counts_on_y = kind in (HISTOGRAM, BAR, BAR_JITTER)
         if scales.x_levels is not None:
             ax.set_xticks(range(len(scales.x_levels)))
-            ax.set_xticklabels(scales.x_levels, rotation=30, ha="right",
-                               fontsize=7)
+            ax.set_xticklabels(scales.x_levels, rotation=45, ha="right",
+                               fontsize=8, fontfamily="Open Sans", fontweight="light")
             if spec.shared_x:
-                ax.set_xlim(-0.6, len(scales.x_levels) - 0.4)
+                ax.set_xlim(-0.5, len(scales.x_levels) - 0.5)
         elif spec.shared_x and scales.x_limits is not None:
             ax.set_xlim(*self._limits_for(ax.get_xscale(), scales.x_limits))
         if counts_on_y:
@@ -1547,11 +1668,15 @@ class GraphCanvas(LinkedView, QWidget):
                 ax.set_ylim(0, scales.count_limit)
         elif scales.y_levels is not None:
             ax.set_yticks(range(len(scales.y_levels)))
-            ax.set_yticklabels(scales.y_levels, fontsize=7)
+            ax.set_yticklabels(scales.y_levels, fontsize=8, fontfamily="Open Sans", fontweight="light")
             if spec.shared_y:
-                ax.set_ylim(-0.6, len(scales.y_levels) - 0.4)
+                ax.set_ylim(-0.5, len(scales.y_levels) - 0.5)
         elif spec.shared_y and scales.y_limits is not None:
             ax.set_ylim(*self._limits_for(ax.get_yscale(), scales.y_limits))
+
+        from ...figures.style import _apply_line_origin
+
+        _apply_line_origin(ax, ax._spacr_style_spec)
 
     def _label_panel(self, ax, panel, grid, nrows, ncols, palette) -> None:
         """Axis names on the outside edges only — the shared-axis convention.
@@ -1574,17 +1699,20 @@ class GraphCanvas(LinkedView, QWidget):
             y_label = (spread_label(spread, unit=str(y_column))
                        if spread != SPREAD_NONE else str(y_column))
         if panel.row == nrows - 1:
-            ax.set_xlabel(x_column or "", color=palette["fg_dim"], fontsize=9)
+            ax.set_xlabel(x_column or "", color=GENERAL_DEFAULTS["foreground"], fontsize=8, fontfamily="Open Sans", fontweight="light", labelpad=2)
         if panel.col == 0:
-            ax.set_ylabel(y_label, color=palette["fg_dim"], fontsize=9)
-        if grid.is_faceted:
-            title = panel.title()
-            if title:
-                ax.set_title(f"{title}  ·  n={panel.n:,}",
-                             color=palette["fg_dim"], fontsize=8, pad=3)
-        elif panel.n:
-            ax.set_title(f"n={panel.n:,}", color=palette["fg_muted"],
-                         fontsize=8, pad=3, loc="right")
+            ax.set_ylabel(y_label, color=GENERAL_DEFAULTS["foreground"], fontsize=8, fontfamily="Open Sans", fontweight="light", labelpad=2)
+        from ...figures.style import _legend_note
+
+        title = panel.title() if grid.is_faceted else ""
+        note = tr("{title}; n={count}").format(title=title, count=panel.n) if title else tr("n={count}").format(count=panel.n)
+        _legend_note(ax, note, "#000000", "sample_count")
+        x_low, x_high = ax.get_xlim(); y_low, y_high = ax.get_ylim()
+        _legend_note(ax, tr("Displayed ranges: x={x_low} to {x_high}; y={y_low} to {y_high}.").format(
+            x_low=f"{x_low:g}", x_high=f"{x_high:g}", y_low=f"{y_low:g}", y_high=f"{y_high:g}"), "#000000", "display_range")
+        reason = getattr(self._frame, "attrs", {}).get("cut_axis_reason")
+        if reason:
+            _legend_note(ax, tr("Axis range selected: {reason}.").format(reason=reason), "#000000", "display_range")
 
     def _draw_legend(self, kind, palette) -> None:
         """A legend whenever there are two or more series — identity is never
@@ -1595,21 +1723,26 @@ class GraphCanvas(LinkedView, QWidget):
         from matplotlib.lines import Line2D
         handles = [Line2D([], [], marker="o", linestyle="none", markersize=6,
                           markerfacecolor=self._series_colour(i),
-                          markeredgecolor="none", label=str(level))
+                          markeredgecolor="none", alpha=DATA_ALPHA, label=str(level))
                    for i, level in enumerate(levels[:len(categorical_colours())])]
         if len(levels) > len(categorical_colours()):
             handles.append(Line2D([], [], marker="o", linestyle="none",
                                   markersize=6, markerfacecolor=OTHER_COLOUR,
-                                  markeredgecolor="none",
+                                  markeredgecolor="none", alpha=DATA_ALPHA,
                                   label=f"{OTHER_LABEL} "
                                         f"({len(levels) - len(categorical_colours())})"))
-        legend = self._figure.legend(
-            handles=handles, loc="upper right", frameon=False, fontsize=8,
-            title=self._spec.colour, title_fontsize=8)
+        from ...figures.style import figure_style
+
+        with figure_style("screen"):
+            legend = self._figure.legend(
+                handles=handles, loc="upper right", frameon=False, fontsize=8,
+                title=self._spec.colour, title_fontsize=8)
         for text in legend.get_texts():
             text.set_color(palette["fg_dim"])
         if legend.get_title() is not None:
             legend.get_title().set_color(palette["fg_muted"])
+            declared = next(iter(self._axes.values()))._spacr_style_spec
+            legend.get_title().set_fontweight(dict(declared.font_weights)["title"])
 
     def _notice_text(self, data: RenderData, grid) -> str:
         """The sentence explaining why the chart looks the way it does.

@@ -65,8 +65,8 @@ def test_the_blank_slot_of_a_wrapped_grid_is_never_given_a_caption(qtbot):
     in this grid means "this plate was measured and every object was filtered
     out" — a fact about the data. The remainder of 7 / 3 is not a fact about
     the data. The labeller is driven both ways over the same Axes: the real
-    panel replaces the sentinel title with its group and its n, the blank slot
-    leaves whatever was there untouched.
+    panel supplies its group and n in external legend metadata, and the blank
+    slot leaves both the metadata and the explicit sentinel title untouched.
     """
     frame = pd.DataFrame({"plateID": [f"p{i}" for i in range(1, 8)],
                           "area": np.arange(7.0)})
@@ -86,12 +86,15 @@ def test_the_blank_slot_of_a_wrapped_grid_is_never_given_a_caption(qtbot):
 
     axes = canvas.panel_axes()[(0, 0)]
     axes.set_title("SENTINEL")
+    axes._spacr_legend_entries = ()
     canvas._label_trellis_panel(axes, blanks[0], result, active_palette())
     assert axes.get_title() == "SENTINEL"
+    assert axes._spacr_legend_entries == ()
 
     canvas._label_trellis_panel(axes, result.panel(0, 0), result,
                                 active_palette())
-    assert axes.get_title() == "p1  ·  n = 1"
+    assert axes.get_title() == "SENTINEL"
+    assert any(entry["label"] == "p1; n=1" for entry in axes._spacr_legend_entries)
 
 
 # ---------------------------------------------------------------------------

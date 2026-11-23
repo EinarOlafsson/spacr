@@ -270,6 +270,29 @@ def _ratio_ticks(ax, values) -> None:
     ax.xaxis.set_minor_locator(NullLocator())
 
 
+def _present_distribution(ax, panel, *, quantity, unit, reference=None) -> Panel:
+    """Attach explicit distribution semantics and shared defaults without changing calculations.
+
+    :param ax: axes containing the original histogram and reference artists.
+    :param panel: original panel record, including its complete numerical caption.
+    :param quantity: declared measurement or ratio displayed on the horizontal axis.
+    :param unit: explicit measurement unit, or None when not declared.
+    :param reference: actually drawn reference, or None when unavailable.
+    :returns: the unchanged panel record.
+    """
+    from .style import apply_axes_style, resolve_style
+
+    target = getattr(ax, "_spacr_distribution_target", None) or theme_target()
+    spec = resolve_style(target, "histogram",
+        comparison={"reference": reference, "graph_type": panel.key,
+                    "experimental_unit": ax.get_ylabel()},
+        legend={"caption": panel.caption, "reference": reference,
+                "quantities": {"x": quantity, "y": ax.get_ylabel()},
+                "units": {"x": unit, "y": "observations"}})
+    apply_axes_style(ax, spec, layout=False)
+    return panel
+
+
 def _normal_reference(ax, values, bins_edges) -> None:
     """Draw a normal reference scaled to the histogram's count axis.
 
@@ -278,12 +301,17 @@ def _normal_reference(ax, values, bins_edges) -> None:
     visually subordinate to the observed counts.
     """
     from scipy import stats
+    from ..qt.i18n import tr
+    from .style import DATA_ALPHA, _legend_note
 
     width = float(np.diff(bins_edges).mean())
     grid = np.linspace(bins_edges[0], bins_edges[-1], 200)
     curve = stats.norm.pdf(grid, values.mean(), values.std(ddof=1))
+    label = tr("Normal distribution with the sample mean and standard deviation")
     ax.plot(grid, curve * values.size * width, color=ROLES["reference"],
-            lw=WEIGHTS["reference"], ls=(0, (4, 3)), zorder=3)
+            lw=WEIGHTS["reference"], ls=(0, (4, 3)), alpha=DATA_ALPHA,
+            label=label, zorder=3)
+    _legend_note(ax, label, ROLES["reference"], "reference")
 
 
 def guide_fraction(ax, frame, *, well: Optional[str] = None,
@@ -365,12 +393,14 @@ def guide_fraction(ax, frame, *, well: Optional[str] = None,
                  f"spread ({spread[0]:.3f}–{spread[1]:.3f} over the middle "
                  f"80%) mixes uneven representation with how many guides a "
                  f"well kept; no well column was available to separate them")
-    return Panel(
+    panel = Panel(
         "guide_fraction", "guide representation",
         caption=(f"Representation of {values.size:,} gRNAs, {built} "
                  f"(Gini = {evenness:.2f}, where 0 is a perfectly even "
                  f"library and 1 is one guide holding everything).{dropped}"),
         needs=(fraction,) + ((well,) if relative else ()))
+    return _present_distribution(ax, panel, quantity=unit,
+        unit="dimensionless", reference="equal share" if floor is not None else None)
 
 
 def response(ax, frame, *, column: Optional[str] = None,
@@ -379,8 +409,8 @@ def response(ax, frame, *, column: Optional[str] = None,
     """Draw the response histogram with skewness and excess kurtosis on ``ax`` and return its panel record.
 
     For ``family='gaussian'`` a normal curve with the response's mean and SD
-    is drawn over the histogram. Skewness and excess kurtosis are printed on
-    the panel, so symmetry does not have to be judged by eye.
+    is drawn over the histogram. Skewness and excess kurtosis are retained in
+    the legend and panel caption, so symmetry need not be judged by eye.
 
     :param ax: Matplotlib axes on which to draw the histogram.
     :param frame: model-input table containing the response observations.
@@ -432,7 +462,7 @@ def response(ax, frame, *, column: Optional[str] = None,
     reference = (f", with a normal of the same mean ({values.mean():.3g}) and "
                  f"SD ({values.std(ddof=1):.3g}) dashed over it" if normal
                  else f" (fitted family: {family}, so no normal is drawn)")
-    return Panel(
+    panel = Panel(
         "response", "response distribution",
         caption=(f"Distribution of {name.replace('_', ' ')} over "
                  f"{values.size:,} {unit}{reference}. "
@@ -444,6 +474,9 @@ def response(ax, frame, *, column: Optional[str] = None,
                  f"flag to read the residual and q-q panels with, not a "
                  f"verdict on the model.{collapsed}"),
         needs=(name,))
+    reference = ax.lines[-1].get_label() if normal else None
+    return _present_distribution(ax, panel, quantity=name,
+        unit=(getattr(frame, "attrs", {}).get("units") or {}).get(name), reference=reference)
 
 
 #: This module's catalog. Deliberately NOT merged into
@@ -470,11 +503,9 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
                 figsize=(3.4, 2.6), **kwargs):
     """Draw one distribution panel on its own figure and return ``(figure, Panel)``.
 
-    The same shape and the same margins as :func:`spacr.figures.sheet.build_panel`
-    so a saved distribution sits beside a saved volcano at the same size on
-    the grid. The style is applied as a context manager, as everywhere in
-    this package: spaCR draws from a long-lived GUI and a global rcParams
-    write would restyle every later figure in the session.
+    The shared owner gives the default continuous plot a square physical
+    area with measured text margins. An explicitly supplied page size remains
+    intact. Scoped styling leaves later figures in the GUI unchanged.
 
     :param key: distribution-panel name from :data:`REGISTRY`.
     :param frame: data table consumed by the selected panel.
@@ -484,10 +515,16 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
     with figure_style(target or theme_target()):
         figure = plt.figure(figsize=figsize)
         ax = figure.add_subplot(111)
+        ax._spacr_distribution_target = target or theme_target()
         panel = REGISTRY[key](ax, frame, **kwargs)
         from .bundle import _register_figure_data
         _register_figure_data(figure, lambda: panel.data if getattr(panel, "data", None) is not None else frame, kind=str(key), title=str(getattr(panel, "title", "") or key))
-        figure.subplots_adjust(left=.16, right=.97, top=.92, bottom=.16)
+        if panel.drawn and tuple(figsize) == (3.4, 2.6):
+            from .style import fit_axes_geometry
+
+            fit_axes_geometry(ax, ax._spacr_style_spec)
+        else:
+            figure.subplots_adjust(left=.16, right=.97, top=.92, bottom=.16)
         return figure, panel
 
 

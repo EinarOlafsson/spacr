@@ -27,6 +27,13 @@ from tests.test_the_figure_house_style import _results
 ])
 def test_single_panel_recreation_preserves_complete_csv_and_numeric_artists(
         key, options, tmp_path, monkeypatch):
+    """Preserve complete CSV bytes and replayed artists, including boxes and sixty-percent marks.
+
+    On the 120-row synthetic control fixture, a box quartile changed by
+    5.551115123125783e-17 after CSV parsing. Allow eight float64 epsilon
+    (1.7763568394002505e-15) for path coordinates, with zero relative margin;
+    keep exact path codes and the existing rectangle/other-artist checks.
+    """
     from PySide6.QtCore import QSettings
     from spacr import localisation
     from spacr.qt import preferences
@@ -74,12 +81,19 @@ def test_single_panel_recreation_preserves_complete_csv_and_numeric_artists(
         before, after = figure.axes[0], restored.axes[0]
         assert after.get_xlabel() == before.get_xlabel()
         assert after.get_ylabel() == before.get_ylabel()
+        assert after.get_xlim() == pytest.approx(before.get_xlim())
+        assert after.get_ylim() == pytest.approx(before.get_ylim())
         assert after.get_position().bounds == pytest.approx(before.get_position().bounds)
         assert len(after.patches) == len(before.patches)
         for original, recreated in zip(before.patches, after.patches):
-            assert recreated.get_x() == pytest.approx(original.get_x())
-            assert recreated.get_height() == pytest.approx(original.get_height())
-            assert recreated.get_width() == pytest.approx(original.get_width())
+            if hasattr(original, "get_x"):
+                assert recreated.get_x() == pytest.approx(original.get_x())
+                assert recreated.get_height() == pytest.approx(original.get_height())
+                assert recreated.get_width() == pytest.approx(original.get_width())
+            else:
+                np.testing.assert_allclose(recreated.get_path().vertices, original.get_path().vertices,
+                                           rtol=0, atol=8*np.finfo(np.float64).eps)
+                np.testing.assert_array_equal(recreated.get_path().codes, original.get_path().codes)
         assert len(after.collections) == len(before.collections)
         for original, recreated in zip(before.collections, after.collections):
             np.testing.assert_allclose(recreated.get_offsets(), original.get_offsets(), equal_nan=True)

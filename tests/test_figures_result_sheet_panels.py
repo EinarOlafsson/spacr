@@ -51,7 +51,7 @@ COUNTS = ["3 up", "2 down", "0 not called"]
 
 def test_volcano_labels_named_hits_and_outlines_only_a_present_highlight(
         subtests, monkeypatch):
-    """Named hits are labelled, NaN never is; a highlight outlines one point."""
+    """Named hits and unchanged counts move to the legend; NaN stays absent and the selected point keeps its exact outline coordinates."""
     # (case id, label_top, highlight, labels, single-point outlines)
     cases = [
         ("the unnamed strongest point is not labelled nan", 5, None,
@@ -73,7 +73,8 @@ def test_volcano_labels_named_hits_and_outlines_only_a_present_highlight(
             panel = panels.volcano(axes, _called(), effect_threshold=None,
                                    label_top=top, highlight=highlight)
             assert (panel.drawn, panel.reason) == (True, "")
-            assert [text.get_text() for text in axes.texts] == labels
+            assert not axes.texts
+            assert [entry["label"] for entry in axes._spacr_legend_entries] == labels
             assert [c.get_offsets().tolist() for c in axes.collections[before:]
                     if len(c.get_offsets()) == 1] == outlines
             plt.close(figure)

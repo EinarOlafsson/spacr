@@ -21,7 +21,7 @@ keeping:
   two-guide well splits near 1/2 and a fifteen-guide well near 1/15. Pooling
   them measures how many guides landed per well.
 
-The numbers the in-panel notes state are recomputed by hand at the bottom,
+The numbers the external legend notes state are recomputed by hand at the bottom,
 so a change to how a share or a moment is computed has to be argued for rather
 than absorbed.
 """
@@ -68,6 +68,12 @@ def _draw(key, frame=None, **kwargs):
     frame = _wells() if frame is None else frame
     figure, panel = D.build_panel(key, frame, target="print", **kwargs)
     return figure, figure.axes[0], panel
+
+
+def _note_labels(ax):
+    """Read numerical notes retained for the external legend and caption."""
+    return [entry["label"] for entry in getattr(ax, "_spacr_legend_entries", ())
+            if entry["kind"] == "note"]
 
 
 # --------------------------------------------------------------------------- #
@@ -119,14 +125,11 @@ def test_the_module_never_writes_rcparams_or_calls_show():
 
 @pytest.mark.parametrize("key,kwargs", [("guide_fraction", {}),
                                         ("response", {"column": "log_pred"})])
-def test_the_fill_is_the_pale_house_fill_and_is_solid(key, kwargs):
-    """"Density/histogram fills: solid but pale (CORAL), not a translucent
-    saturated colour." The old one was #009B9B teal at alpha 0.6.
+def test_the_fill_uses_the_house_colour_at_sixty_percent_opacity(key, kwargs):
+    """Check effective RGBA opacity as well as the shared histogram colour.
 
-    THE TRANSPARENCY IS CHECKED ON THE RGBA, not on ``get_alpha()``. seaborn
-    bakes its ``alpha=`` into the facecolour and leaves the alpha property
-    None, so ``assert bar.get_alpha() in (None, 1.0)`` passes on the exact
-    figure this panel replaces.
+    An artist may store opacity in its face colour rather than its alpha
+    property, so checking the property alone does not verify the drawn fill.
     """
     figure, ax, _panel = _draw(key, **kwargs)
     try:
@@ -134,8 +137,8 @@ def test_the_fill_is_the_pale_house_fill_and_is_solid(key, kwargs):
         assert bars, "the panel drew no bars"
         for bar in bars:
             assert to_hex(bar.get_facecolor()).lower() == ROLES["fill"].lower()
-            assert bar.get_alpha() in (None, 1.0)
-            assert to_rgba(bar.get_facecolor())[3] == 1.0
+            assert bar.get_alpha() in (None, 0.6)
+            assert to_rgba(bar.get_facecolor())[3] == 0.6
             assert bar.get_edgecolor()[3] == 0.0, "bars are drawn without edges"
     finally:
         plt.close(figure)
@@ -157,17 +160,15 @@ def test_there_are_no_gridlines_and_no_sentence_title(key, kwargs):
 
 @pytest.mark.parametrize("key,kwargs", [("guide_fraction", {}),
                                         ("response", {"column": "log_pred"})])
-def test_the_reference_is_grey_thin_and_dashed(key, kwargs):
-    """A reference is not a result. Both panels carry one — the equal-share
-    line and the fitted family's own normal — and neither may out-weigh the
-    bars it is drawn over."""
+def test_the_reference_keeps_its_declared_colour_and_thin_dashes(key, kwargs):
+    """The shared equal-share rule now uses black; the independently drawn fitted normal retains its explicit grey. Keep the original reference presence, width and dash checks."""
     figure, ax, _panel = _draw(key, **kwargs)
     try:
         lines = [line for line in ax.lines if line.get_visible()]
         assert lines, "the panel drew no reference at all"
         for line in lines:
             assert to_hex(line.get_color()).lower() == \
-                ROLES["reference"].lower()
+                ("#000000" if key == "guide_fraction" else ROLES["reference"].lower())
             assert line.get_linewidth() <= WEIGHTS["reference"]
             assert line.get_linestyle() not in ("-", "solid")
     finally:
@@ -176,15 +177,13 @@ def test_the_reference_is_grey_thin_and_dashed(key, kwargs):
 
 @pytest.mark.parametrize("key,kwargs", [("guide_fraction", {}),
                                         ("response", {"column": "log_pred"})])
-def test_the_in_panel_note_has_no_frame_and_states_the_n(key, kwargs):
-    """"no frame, no box" — the old QC idiom put its stats in a white rounded
-    box. And the n is stated in-panel, which is the skill's rule for a
-    distribution and the thing a reader cannot recover from the bars."""
+def test_the_external_note_states_the_n_without_covering_the_data(key, kwargs):
+    """Keep sample counts in legend metadata without floating text or a box."""
     figure, ax, _panel = _draw(key, **kwargs)
     try:
-        notes = [t for t in ax.texts if "n = " in t.get_text()]
-        assert len(notes) == 1, [t.get_text() for t in ax.texts]
-        assert notes[0].get_bbox_patch() is None
+        notes = [text for text in _note_labels(ax) if "n = " in text]
+        assert len(notes) == 1, _note_labels(ax)
+        assert not any("n = " in text.get_text() for text in ax.texts)
         assert not ax.get_legend(), "a framed legend is not the house style"
     finally:
         plt.close(figure)
@@ -451,7 +450,7 @@ def test_the_panel_states_wells_when_it_deduplicated_and_says_so():
     try:
         assert panel.drawn is True
         assert ax.get_ylabel() == "wells"
-        note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
+        note = next(text for text in _note_labels(ax) if "n = " in text)
         assert "n = 10 wells" in note
         assert "30 guide-level rows collapse to 10" in panel.caption
     finally:
@@ -507,7 +506,7 @@ def test_the_before_transform_skew_is_stated_only_when_the_raw_column_is_there()
     frame = _wells()
     figure, ax, _panel = _draw("response", frame, column="log_pred")
     try:
-        note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
+        note = next(text for text in _note_labels(ax) if "n = " in text)
         assert "skew before log:" in note
     finally:
         plt.close(figure)
@@ -515,7 +514,7 @@ def test_the_before_transform_skew_is_stated_only_when_the_raw_column_is_there()
     figure, ax, _panel = _draw("response", frame.drop(columns=["pred"]),
                                column="log_pred")
     try:
-        note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
+        note = next(text for text in _note_labels(ax) if "n = " in text)
         assert "before log" not in note, note
         assert "skew = " in note
     finally:
@@ -584,13 +583,13 @@ def test_the_raw_fallback_does_not_claim_the_equal_share_construction():
         plt.close(figure)
 
 
-def test_the_raw_fallbacks_in_panel_note_does_not_say_equal_either():
+def test_the_raw_fallbacks_legend_note_does_not_say_equal_either():
     """On the raw axis there is no "equal" for a guide to be twice of, so
     "≥ 2× equal" there would attach a meaning the panel did not measure."""
     figure, ax, _panel = _draw("guide_fraction",
                                _wells().drop(columns=["prc"]), relative=False)
     try:
-        note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
+        note = next(text for text in _note_labels(ax) if "n = " in text)
         assert "equal" not in note, note
         assert "Gini" in note and "median" in note
     finally:
@@ -606,7 +605,7 @@ def test_a_library_where_every_share_is_identical_still_draws():
     try:
         assert panel.drawn is True
         assert sum(p.get_height() for p in ax.patches) == 20
-        note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
+        note = next(text for text in _note_labels(ax) if "n = " in text)
         assert "Gini = 0.00" in note, note
     finally:
         plt.close(figure)
@@ -743,7 +742,7 @@ def test_the_guide_panel_states_the_shares_of_the_multi_guide_wells_only():
 
     figure, ax, panel = _draw("guide_fraction", frame)
     try:
-        note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
+        note = next(text for text in _note_labels(ax) if "n = " in text)
         assert f"n = {shares.size:,} guides" in note, note
         assert f"Gini = {D.gini(shares):.2f}" in note, note
         assert f"({single_wells})" in panel.caption, panel.caption
@@ -763,7 +762,7 @@ def test_the_response_skews_are_measured_on_one_value_per_well():
 
     figure, ax, panel = _draw("response", frame, column="log_pred")
     try:
-        note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
+        note = next(text for text in _note_labels(ax) if "n = " in text)
         assert f"n = {len(per_well)} wells" in note, note
         assert f"skew = {logged:+.2f}" in note, note
         assert f"skew before log: {raw:+.2f}" in note, note

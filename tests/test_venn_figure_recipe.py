@@ -19,6 +19,7 @@ from spacr.figures import bundle
 @pytest.mark.parametrize("threshold", [0.1, -0.1, None])
 def test_venn_export_preserves_full_input_and_recreates_overlap(
         threshold, tmp_path, monkeypatch):
+    """Retain every input, filter and geometric assertion while comparing the actual text ink in RGBA form across JSON replay."""
     from PySide6.QtCore import QSettings
     from spacr.qt import preferences
 
@@ -88,7 +89,8 @@ def test_venn_export_preserves_full_input_and_recreates_overlap(
             for original, copied in zip(before.texts, restored.texts):
                 np.testing.assert_allclose(copied.get_position(), original.get_position())
                 assert copied.get_fontsize() == original.get_fontsize()
-                assert copied.get_color() == original.get_color()
+                np.testing.assert_array_equal(plot.mpl.colors.to_rgba(copied.get_color()),
+                                          plot.mpl.colors.to_rgba(original.get_color()))
         edited = frame.copy()
         edited.loc[edited["original_id"] == "first:0", "target"] = "new gene"
         changed = Figure()

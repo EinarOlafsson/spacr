@@ -868,7 +868,7 @@ def _format_row(suffix, writer):
         id="proportion-bars-object-level-raw-proportions"),
     pytest.param(
         _case_venn_show_branch_returns_overlap,
-        (["g2", "g3"], ["g1"], ["g4"], 1, "Venn Diagram of Overlapping Genes"),
+        (["g2", "g3"], ["g1"], ["g4"], 1, ""),
         id="venn-show-branch-returns-overlap"),
     pytest.param(
         _case_venn_negative_filter_coeff_keeps_downregulated,
@@ -923,9 +923,9 @@ def test_overlay_importance_proportion_and_venn_outputs(request, helper, expecte
          "xlim": (-5.0, 5.0), "ylim": (0.0, 12.0), "size": pytest.approx(55.0),
          "alpha": pytest.approx(0.5),
          "threshold_colours": [tuple(np.round(to_rgb("green"), 3))] * 3,
-         "linestyle": ":", "zero_line_colour": to_rgb(ROLES["reference"]),
+         "linestyle": ":", "zero_line_colour": to_rgb("black"),
          "hits": ["A", "B"], "annotation_fontsizes": [14, 14],
-         "spines_visible": (False, False), "saved": True},
+         "spines_visible": (True, True), "saved": True},
         id="uses-supplied-axes-and-style-kwargs"),
     pytest.param(_case_volcano_plot_show_true_calls_plt_show, 1,
                  id="show-true-calls-plt-show-once"),

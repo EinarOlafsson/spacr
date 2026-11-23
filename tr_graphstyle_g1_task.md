@@ -1,12 +1,731 @@
-# Graph style G1 translation task
+# Graph style G1 English source handoff
 
-This branch is still in progress; this file will be extended before FINAL.
+OPEN CHECKPOINT for Home G2. This is not FINAL; Home must not treat the API,
+caption admission, final galleries or complete G1 migration as finished.
 
-The first isolated commit fixes error-bar/category associations in multiple-measurement bar plots. It adds no runtime caption, setting, tooltip or public API docstring. The private helper `spacr.plot.spacrGraph._create_bar_plot` is absent from the canonical public API dictionary.
+The first isolated commit fixes the multi-field bar error/category association:
+summary values are unchanged and single-field output is byte-identical.
 
-Internal helper docstring, `spacr/plot.py`, `_create_bar_plot`:
+`tr_graphstyle_g1_sources.json` contains every current changed docstring,
+new literal tr()/shared replay-message template, exact canonical API bodies,
+prior/current hashes, translatable blocks and layout. Home owns the nine-language
+records. No catalog, translation pin, generated API catalog, historical arrival
+JSON or protected API consumer has been edited. Current public source delta:
+22 additions, 3 retired nested helpers and 35 revised bodies. Exact signature,
+birth/retirement bindings, three-consumer proposal and runtime scanner admission
+remain open and will be completed before FINAL.
 
-- Previous: Helper method to create a bar plot with consistent bar thickness and centered error bars.
-- Revised: Draw bars with consistent width and error bars matched to displayed categories.
+The shared owner is `spacr.figures.style`; the reference helper is never imported
+by the application. `reports/graphstyle/routes/` retains the complete 1,607-ID
+reviewed inventory, source-only scanner ratchet and separate per-function group
+backlogs. Home removes only its entries from `deferred_g2.json`. The initial plan
+bounds all IDs/reasons so exceptions cannot grow or swap. `deferred_g1.json` is
+checkpoint-only and must be empty before G1 FINAL; it includes source-context
+proof work as well as remaining independent GUI creators. Static reachability
+is paired with real geometry, form/count, identity, opacity, typography, limit,
+manual-style, vector and replay checks; it is not appearance certification.
 
-No catalog, pin or reviewed translation record is changed here. The rest of G1 is pending.
+Validation at this checkpoint: function-route ratchet 3 passed; all six mandatory
+structural ratchets 157 passed (14 inherited Windows escape warnings); latest
+control/replay/live/crop cohort 106 passed. The control-chart gallery has all
+16 PNGs reviewed, 112 exact original numerical CSVs and 32 PDF/SVG files without
+raster images. Wider focused checks and before/after galleries are preserved
+locally in the recovery workspace. Final full affected cohorts, GPU-visible/
+hidden gates where required, API hooks, all final galleries/tutorial images and
+remaining manual/native primitive replay remain open. The wider 68-file
+checkpoint cohort passed 1,086 tests and 350 subtests, with four stale grey
+reference-colour expectations; those four fixture assertions were aligned
+with the shared black reference default, preserving all coordinates, stats,
+widths, dashes and the independently drawn explicit-grey normal reference.
+Their full-file recheck is recorded in reports/graphstyle/g1/CHECKPOINT.md.
+Observed Open Sans arrow-glyph and existing Seaborn/log-view warnings remain
+visible for final review. No G2 reserved source file is changed in this branch.
+
+Source entries below are the checkpoint inventory. The JSON owns exact bodies.
+
+- `spacr/figure_font.py:365` — api_docstring; spacr.figure_font.use_open_sans_for_qt; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/__init__.py:10` — internal_docstring; spacr.figures.__getattr__; private/nested/tool/test; no translation records.
+- `spacr/figures/__init__.py:20` — internal_docstring; spacr.figures.__dir__; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:671` — internal_docstring; spacr.figures.bundle._CapturedControlChart; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:674` — internal_docstring; spacr.figures.bundle._CapturedControlChart.__len__; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:679` — internal_docstring; spacr.figures.bundle._control_chart_view; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:700` — internal_docstring; spacr.figures.bundle._draw; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1252` — internal_docstring; spacr.figures.bundle._condition_script; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1301` — internal_docstring; spacr.figures.bundle._portable_renderer_source; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1317` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1320` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_FunctionDef; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1331` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_Name; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1336` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_ImportFrom; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1347` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_Expr; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1353` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_If; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1370` — internal_docstring; spacr.figures.bundle._volcano_style_script; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1407` — internal_docstring; spacr.figures.bundle._control_chart_script; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1425` — internal_docstring; spacr.figures.bundle._appearance_script; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1437` — internal_docstring; spacr.figures.bundle._write_replay_fonts; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:684` — runtime; Unsupported captured control-chart recipe; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/bundle.py:688` — runtime; Captured control limits require the original plate identities and order; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/bundle.py:694` — runtime; Captured control arrays do not match the source plate count; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/bundle.py:725` — runtime; Captured control charts require their original panel; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/bundle.py:744` — runtime; Unsupported captured explorer volcano recipe or nested panel; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/bundle.py:1343` — runtime; Portable figure replay found an uncaptured application dependency; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/distributions.py:273` — internal_docstring; spacr.figures.distributions._present_distribution; private/nested/tool/test; no translation records.
+- `spacr/figures/distributions.py:406` — api_docstring; spacr.figures.distributions.response; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/distributions.py:502` — api_docstring; spacr.figures.distributions.build_panel; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/distributions.py:310` — runtime; Normal distribution with the sample mean and standard deviation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:342` — runtime; Regression coefficient; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:343` — runtime; −log₁₀(p-value); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:465` — runtime; p-value; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:466` — runtime; Coefficients; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:513` — runtime; Expected −log₁₀(p-value); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:514` — runtime; Observed −log₁₀(p-value); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:638` — runtime; Guides per gene; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:639` — runtime; Guide-sign agreement (fraction); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:585` — runtime; Regression coefficients by control class. Up to twenty finite coefficients, bars show means and every coefficient is shown; larger groups use boxes, or violins without points from one thousand coefficients. Black lines show medians. Control classes are grey and screen coefficients are blue.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/panels.py:578` — runtime; {condition}: n = {count}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/plates.py:55` — api_docstring; spacr.figures.plates.plate_ramp; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/plates.py:66` — api_docstring; spacr.figures.plates.score_ramp; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/plates.py:357` — api_docstring; spacr.figures.plates.draw_plate; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/plates.py:626` — internal_docstring; spacr.figures.plates._colour_bar; private/nested/tool/test; no translation records.
+- `spacr/figures/plates.py:513` — runtime; Objects per well; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/plates.py:581` — runtime; Zero score; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/plates.py:567` — runtime;  The diverging colour scale uses zero as its reference.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/plates.py:569` — runtime;  The zero reference is not inside the displayed colour range; the scale is not centred on zero.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/plates.py:565` — runtime; measured; the {count} missing wells are marked with a thin black × and are excluded from the scale.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/scene.py:230` — internal_docstring; spacr.figures.scene._alpha; private/nested/tool/test; no translation records.
+- `spacr/figures/scene.py:820` — internal_docstring; spacr.figures.scene._set_source_text_font; private/nested/tool/test; no translation records.
+- `spacr/figures/scene.py:885` — internal_docstring; spacr.figures.scene._native_scalar_limits; private/nested/tool/test; no translation records.
+- `spacr/figures/scene.py:944` — internal_docstring; spacr.figures.scene._axis_pen; private/nested/tool/test; no translation records.
+- `spacr/figures/scene.py:1354` — api_docstring; spacr.figures.scene.build_scene; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/scene.py:897` — runtime; Nonlinear scalar colour normalization needs native Matplotlib rendering; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/scene.py:1159` — runtime; Horizontal colour bars need native Matplotlib rendering; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/scene.py:902` — runtime; Opaque missing-cell colours need native Matplotlib rendering; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/scene.py:1010` — runtime; bidirectional tick marks; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/scene.py:1023` — runtime; Qt could not preserve the source tick font; tick text and view limits remain intact.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/scene.py:1025` — runtime; registered source tick font; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/sheet.py:169` — internal_docstring; spacr.figures.sheet._style_panel; private/nested/tool/test; no translation records.
+- `spacr/figures/sheet.py:186` — runtime; Declared significance threshold and zero regression coefficient; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/sheet.py:187` — runtime; Zero regression coefficient; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/sheet.py:189` — runtime; The explicitly classified control conditions; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/sheet.py:190` — runtime; Chance guide-sign agreement of 0.5; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/sheet.py:191` — runtime; Uniform null p-values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/sheet.py:192` — runtime; Expected p-values under the uniform null; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:522` — internal_docstring; spacr.figures.style._restyle; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:803` — api_docstring; spacr.figures.style.panel_letter; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:843` — internal_docstring; spacr.figures.style._legend_note; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:851` — api_docstring; spacr.figures.style.reference_line; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:872` — api_docstring; spacr.figures.style.text_legend; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:897` — api_docstring; spacr.figures.style.annotate; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1002` — api_docstring; spacr.figures.style.StyleSpec; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1049` — api_docstring; spacr.figures.style.StyleSpec.__post_init__; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1058` — api_docstring; spacr.figures.style.AxesGeometry; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1078` — api_docstring; spacr.figures.style.FigureDiagnostics; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1091` — api_docstring; spacr.figures.style.FigureDiagnostics.compliant; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1096` — internal_docstring; spacr.figures.style._style_metadata; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1109` — internal_docstring; spacr.figures.style._style_metadata_value; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1122` — api_docstring; spacr.figures.style.resolve_style; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1210` — api_docstring; spacr.figures.style.axes_geometry; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1248` — internal_docstring; spacr.figures.style._data_artists; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1259` — internal_docstring; spacr.figures.style._artist_alphas; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1284` — internal_docstring; spacr.figures.style._axis_overlay_parent; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1307` — internal_docstring; spacr.figures.style._axis_overlays; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1317` — internal_docstring; spacr.figures.style._axis_overlay_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1338` — internal_docstring; spacr.figures.style._axes_layout_bbox; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1356` — internal_docstring; spacr.figures.style._tight_export_artists; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1375` — api_docstring; spacr.figures.style.fit_axes_geometry; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1436` — api_docstring; spacr.figures.style.pack_axes_geometry; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1545` — internal_docstring; spacr.figures.style._retain_live_axes_geometry; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1562` — internal_docstring; spacr.figures.style._apply_live_axes_geometry; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1602` — internal_docstring; spacr.figures.style._figure_text_role; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1623` — internal_docstring; spacr.figures.style._line_origin_limits; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1639` — internal_docstring; spacr.figures.style._marker_display_bounds; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1687` — internal_docstring; spacr.figures.style._pad_marker_limits; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1718` — internal_docstring; spacr.figures.style._apply_line_origin; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1735` — api_docstring; spacr.figures.style.apply_axes_style; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1803` — internal_docstring; spacr.figures.style._status_panel; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1828` — internal_docstring; spacr.figures.style._text_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1840` — internal_docstring; spacr.figures.style._appearance_value; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1853` — internal_docstring; spacr.figures.style._colour_norm_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1877` — internal_docstring; spacr.figures.style._restore_colour_norm; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1894` — internal_docstring; spacr.figures.style._artist_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1939` — internal_docstring; spacr.figures.style._legend_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1962` — internal_docstring; spacr.figures.style._replay_message; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1971` — internal_docstring; spacr.figures.style._restore_legend_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2029` — internal_docstring; spacr.figures.style._capture_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2079` — internal_docstring; spacr.figures.style._restore_text_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2097` — internal_docstring; spacr.figures.style._restore_artist_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2146` — internal_docstring; spacr.figures.style._restore_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2245` — internal_docstring; spacr.figures.style._register_replay_fonts; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2261` — internal_docstring; spacr.figures.style._colour_contrast; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2273` — internal_docstring; spacr.figures.style._errorbar_colours; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2287` — internal_docstring; spacr.figures.style._heatmap_cell_sizes; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2309` — internal_docstring; spacr.figures.style._visible_artist_colours; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2337` — internal_docstring; spacr.figures.style._condition_record_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2379` — internal_docstring; spacr.figures.style._condition_presentation_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2413` — internal_docstring; spacr.figures.style._scalar_rgba; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2423` — internal_docstring; spacr.figures.style._colourbar_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2510` — internal_docstring; spacr.figures.style._quantity_unit_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2557` — internal_docstring; spacr.figures.style._heatmap_artist_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2628` — internal_docstring; spacr.figures.style._semantic_presentation_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2724` — internal_docstring; spacr.figures.style._apply_native_marks; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2778` — internal_docstring; spacr.figures.style._native_file_strokes; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2828` — internal_docstring; spacr.figures.style._native_file_strokes.adjusted; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2837` — internal_docstring; spacr.figures.style._native_file_strokes.change; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2845` — internal_docstring; spacr.figures.style._native_file_strokes.option; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2849` — internal_docstring; spacr.figures.style._native_file_strokes.scatter_pens; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2895` — internal_docstring; spacr.figures.style._write_native_raster; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2921` — internal_docstring; spacr.figures.style._finalize_native_figure; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3060` — api_docstring; spacr.figures.style.finalize_figure; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3225` — internal_docstring; spacr.figures.style._condition_kind_count; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3230` — api_docstring; spacr.figures.style.condition_kind; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3243` — internal_docstring; spacr.figures.style._distribution_orientation; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3259` — api_docstring; spacr.figures.style.categorical_artist_defaults; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3317` — api_docstring; spacr.figures.style.line_artist_defaults; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3348` — api_docstring; spacr.figures.style.categorical_slot_defaults; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3416` — api_docstring; spacr.figures.style.condition_plot; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3560` — api_docstring; spacr.figures.style.embedding_colours; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3577` — api_docstring; spacr.figures.style.embedding_reference; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3584` — api_docstring; spacr.figures.style.embedding_axes; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3636` — internal_docstring; spacr.figures.style._axis_colourbars; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3643` — internal_docstring; spacr.figures.style._position_colourbars; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3658` — api_docstring; spacr.figures.style.attach_colourbar; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3692` — internal_docstring; spacr.figures.style._detached_colour_norm; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3703` — internal_docstring; spacr.figures.style._vector_numeric_cells; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3768` — internal_docstring; spacr.figures.style._numeric_colourbar; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3826` — api_docstring; spacr.figures.style.scale_tick_labels; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3840` — api_docstring; spacr.figures.style.heatmap_cmap; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3855` — api_docstring; spacr.figures.style.heatmap_image; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:3956` — api_docstring; spacr.figures.style.figure_problems; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:2437` — runtime; Match the colour key to the plotted scalar values and opacity; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:3581` — runtime; Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:1329` — runtime; Link the overlay to a declared primary statistical axis; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:1334` — runtime; Align the linked axes on the same physical plotting area; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2575` — runtime; Draw scalar heatmap cells before validating their appearance; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2581` — runtime; Remove the frame from heatmap cells; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2711` — runtime; Move the plot title into the figure legend; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2445` — runtime; Register the scalar source associated with each colour key; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2532` — runtime; State units consistent with the declared mathematical transformation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2579` — runtime; Use the shared heatmap colour map; preserve manual colours with a diagnostic; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2593` — runtime; Declare scalar heatmap values for missing-cell validation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2611` — runtime; Mark every missing cell with a thin black ×; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2646` — runtime; The declared heatmap reference is not inside the displayed colour range; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2716` — runtime; Draw reference lines in black; preserve explicit colours with a diagnostic; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2946` — runtime; Axis overlays require a declared shared Matplotlib axis; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2114` — runtime; Captured appearance does not support this colour normalization; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2453` — runtime; Declare the quantity and unit represented by the colour key; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2495` — runtime; Use bundled Open Sans for every colour-key text element; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2497` — runtime; Use at least eight points for every colour-key text element; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2500` — runtime; Use the declared body font weight for colour-key text; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2503` — runtime; Keep colour-key text fully opaque; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2506` — runtime; Use readable text contrast against the colour-key background; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2624` — runtime; Use a colour from the heatmap scale beneath missing-cell crosses; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2656` — runtime; A status panel must not contain plotted observations; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:3629` — runtime; Cluster {cluster}: {count} points.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:1999` — runtime; Captured appearance does not support this custom legend key; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2458` — runtime; Match the colour-key label to its declared quantity and unit; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2670` — runtime; Match Venn region colours to the declared input and overlap identities; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:2672` — runtime; Draw every data mark at sixty percent opacity; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/style.py:3632` — runtime; Cluster {cluster} outline.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6848` — internal_docstring; spacr.plot._style_standalone_grouped; private/nested/tool/test; no translation records.
+- `spacr/plot.py:6932` — api_docstring; spacr.plot.create_grouped_plot; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/plot.py:7421` — internal_docstring; spacr.plot.spacrGraph._condition_values; private/nested/tool/test; no translation records.
+- `spacr/plot.py:7458` — internal_docstring; spacr.plot.spacrGraph._present_multiple_conditions; private/nested/tool/test; no translation records.
+- `spacr/plot.py:7503` — internal_docstring; spacr.plot.spacrGraph._apply_presentation; private/nested/tool/test; no translation records.
+- `spacr/plot.py:7951` — api_docstring; spacr.plot.spacrGraph.create_plot; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/plot.py:8165` — internal_docstring; spacr.plot.spacrGraph._draw_comparison_lines; private/nested/tool/test; no translation records.
+- `spacr/plot.py:9547` — api_docstring; spacr.plot.create_venn_diagram; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/plot.py:9656` — internal_docstring; spacr.plot._style_legacy_volcano; private/nested/tool/test; no translation records.
+- `spacr/plot.py:9763` — api_docstring; spacr.plot.volcano_plot; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/plot.py (retired)` — retired_api_docstring; spacr.plot.spacrGraph.create_plot._generate_tabels; explicit retirement; exact inventory hooks pending.
+- `spacr/plot.py (retired)` — retired_api_docstring; spacr.plot.spacrGraph.create_plot._place_symbols; explicit retirement; exact inventory hooks pending.
+- `spacr/plot.py (retired)` — retired_api_docstring; spacr.plot.spacrGraph.create_plot._get_positions; explicit retirement; exact inventory hooks pending.
+- `spacr/plot.py:9693` — runtime; Zero reference; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6902` — runtime; the standard error of the mean; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6902` — runtime; one standard deviation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9592` — runtime; Gene overlap between the two supplied inputs. Numbers count distinct non-missing genes after filtering; repeated identifiers count once. Blue identifies genes only in input 1, teal only in input 2, and navy in both inputs.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9679` — runtime; the supplied effect scale; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9679` — runtime; a base-2 logarithm; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9680` — runtime; a base-10 logarithm; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9680` — runtime; a natural logarithm; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9681` — runtime; raw p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9681` — runtime; negative base-10 logarithms of p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9682` — runtime; negative natural logarithms of p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9682` — runtime; base-10 logarithms of p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9683` — runtime; natural logarithms of p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6897` — runtime; source row; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6898` — runtime; {measurement} by {condition}; each supplied observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6901` — runtime; supplied summary; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6918` — runtime; Individual observations were hidden by an explicit display preference.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9684` — runtime; Effects use {effect_scale}; significance uses {significance_scale}. Both coordinates are dimensionless. The vertical reference marks zero on the displayed effect scale. {count} finite observations are displayed.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6900` — runtime; not declared; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6904` — runtime; Bars show {summary}; error bars show {spread}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6908` — runtime; Bars show arithmetic means. Boxes show medians and interquartile ranges with fifth-to-ninety-fifth percentile whiskers. Violins show distributions with a median line.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:7537` — runtime; {measurement} by {condition}; each observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9597` — runtime; No coefficient filter is applied.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9617` — runtime; Input 1; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9617` — runtime; Input 2; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9729` — runtime; Selected, effect ≥ 0; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9730` — runtime; Selected, effect < 0; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9731` — runtime; Other observations; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9731` — runtime; Observations; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6906` — runtime; Points show {summary}; error bars show {spread}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6911` — runtime; Boxes show medians and interquartile ranges; whiskers extend to observations within one and a half interquartile ranges.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9688` — runtime; The supplied effect threshold is {threshold}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9690` — runtime; The supplied raw p-value threshold is {threshold}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6913` — runtime; Violin envelopes show distributions; black horizontal lines show medians.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:6915` — runtime; Points show the supplied observations.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:7557` — runtime; {y} versus {x}; the line shows a mean pooled across groups at each x value, and shading shows one standard deviation. Each observation represents one {unit}. The statistical comparison reference is {reference}; it is not a separate plotted series.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:7563` — runtime; {y} versus {x}; lines show means for each {condition}, with the original line-renderer confidence intervals. Each observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:7568` — runtime; {y} by {condition}; points show the {summary} of each condition and error bars show one standard deviation. Each observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9594` — runtime; Coefficients must be greater than {threshold}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/plot.py:9595` — runtime; Coefficients must be less than {threshold}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/preferences.py:1816` — api_docstring; spacr.qt.preferences.auto_figure_colors; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/screens/control_chart.py:200` — internal_docstring; spacr.qt.screens.control_chart._draw_control_chart; private/nested/tool/test; no translation records.
+- `spacr/qt/screens/control_chart.py:266` — internal_docstring; spacr.qt.screens.control_chart._present_control_chart; private/nested/tool/test; no translation records.
+- `spacr/qt/screens/control_chart.py:310` — internal_docstring; spacr.qt.screens.control_chart._control_chart_recipe; private/nested/tool/test; no translation records.
+- `spacr/qt/screens/control_chart.py:369` — api_docstring; spacr.qt.screens.control_chart.ControlChartCanvas.set_result; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/screens/control_chart.py:386` — api_docstring; spacr.qt.screens.control_chart.ControlChartCanvas.render_now; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/screens/control_chart.py:1606` — internal_docstring; spacr.qt.screens.control_chart.ControlChartScreen._on_result; private/nested/tool/test; no translation records.
+- `spacr/qt/screens/control_chart.py:284` — runtime; Control series (reference); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:225` — runtime; Baseline centre; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:255` — runtime; Plate run order; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:255` — runtime; Plate run order — INFERRED; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:277` — runtime; Each point is the supplied plate-level {quantity}, ordered by the recorded run order. Nested blue bands show one, two and three baseline standard deviations. Black reference lines show the baseline centre, outer limits and the end of the baseline; grey marks identify the control series.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:281` — runtime; Run order was inferred from plate identifiers.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:283` — runtime; All control values are equal; no variable limits or rule violations were estimated.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:1613` — runtime; Z-prime assay separation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:221` — runtime; Three-standard-deviation limits; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:230` — runtime; Baseline ends; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:278` — runtime; The baseline contains {count} plates. The estimator is {estimator}. Coloured rings retain every rule applying to a plate; the key gives the rule numbers and definitions.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/screens/control_chart.py:246` — runtime; rule {number} — {description}; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:1106` — internal_docstring; spacr.qt.widgets.fast_plots._violin_profile; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1137` — internal_docstring; spacr.qt.widgets.fast_plots._recoloured_pen; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1148` — internal_docstring; spacr.qt.widgets.fast_plots._native_pen_appearance; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1156` — internal_docstring; spacr.qt.widgets.fast_plots._native_text_appearance; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1172` — internal_docstring; spacr.qt.widgets.fast_plots._native_mark_bounds; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1197` — internal_docstring; spacr.qt.widgets.fast_plots._native_text_geometry; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1267` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1273` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.__init__; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1281` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.set_categories; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1305` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.clear_categories; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1312` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.generateDrawSpecs; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1344` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.drawPicture; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1800` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._finish_diagnostic; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:2970` — api_docstring; spacr.qt.widgets.fast_plots.FastPlot.apply_text_style; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/fast_plots.py:3456` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._held_at_policy_geometry; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:4013` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._wear_the_print_look; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:5404` — api_docstring; spacr.qt.widgets.fast_plots.FastPlot.add_group_mark; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/fast_plots.py:5479` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._draw_group_mark; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:6089` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._spacr_style_observation; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:7316` — api_docstring; spacr.qt.widgets.fast_plots.EffectRankPlot; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/fast_plots.py:7352` — api_docstring; spacr.qt.widgets.fast_plots.EffectRankPlot.set_results; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/fast_plots.py:8460` — api_docstring; spacr.qt.widgets.fast_plots.ControlSeparation; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/fast_plots.py:8485` — internal_docstring; spacr.qt.widgets.fast_plots.ControlSeparation.__init__; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:8603` — runtime; Control group; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8624` — runtime; The supplied positive and negative control groups; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:7083` — runtime; The declared testing procedure and any defined thresholds; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:7857` — runtime; Uniform p-value distribution; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:7959` — runtime; Zero effect and the stated robust spread thresholds; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8020` — runtime; Identity of expected and observed quantiles; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8088` — runtime; Zero residual and the stated diagnostic trends; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8162` — runtime; A flat diagnostic trend indicates constant residual spread; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8251` — runtime; Zero standardised residual and the stated leverage criterion; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8843` — runtime; Single-guide support; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8845` — runtime; Other guide support; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8851` — runtime; Displayed sign-agreement reference: 0.5; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8622` — runtime; Automatic bars show means without error bars; black horizontal marks show medians.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8623` — runtime; Boxes show the interquartile range with 5th to 95th percentile whiskers; violins show the existing binned density.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/fast_plots.py:8850` — runtime; The initial guide-count view uses the existing 99th-percentile cutoff of {bound}; all source genes remain available through Reset view.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1` — api_docstring; spacr.qt.widgets.graph_builder; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/graph_builder.py:149` — api_docstring; spacr.qt.widgets.graph_builder.categorical_colours; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/graph_builder.py:158` — api_docstring; spacr.qt.widgets.graph_builder.sequential_colours; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/graph_builder.py:166` — internal_docstring; spacr.qt.widgets.graph_builder._colormap; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/graph_builder.py:176` — internal_docstring; spacr.qt.widgets.graph_builder._orientation; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/graph_builder.py:515` — internal_docstring; spacr.qt.widgets.graph_builder._draw_with_user_style; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/graph_builder.py:1008` — internal_docstring; spacr.qt.widgets.graph_builder.GraphCanvas._finish_layout; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/graph_builder.py:1088` — internal_docstring; spacr.qt.widgets.graph_builder.GraphCanvas._style_axes; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/graph_builder.py:1101` — internal_docstring; spacr.qt.widgets.graph_builder.GraphCanvas._register_presentation; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/graph_builder.py:1419` — runtime; Crosses mark bins without a finite displayed value.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1643` — runtime; A thin black × marks a category bin with no observations.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1137` — runtime; {y} by {x}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1642` — runtime; Observations per bin; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1708` — runtime; {title}; n={count}; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1708` — runtime; n={count}; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1711` — runtime; Displayed ranges: x={x_low} to {x_high}; y={y_low} to {y_high}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1140` — runtime; Bar whiskers: {spread}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1715` — runtime; Axis range selected: {reason}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1416` — runtime; Mean {quantity}; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/grouped_plot.py:176` — internal_docstring; spacr.qt.widgets.grouped_plot.GroupedPlot._draw; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/grouped_plot.py:259` — internal_docstring; spacr.qt.widgets.grouped_plot.GroupedPlot._draw_xy; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/grouped_plot.py:349` — runtime; Means with every observation through twenty values; boxes with observations above twenty; violins without points from one thousand. Box whiskers show the fifth and ninety-fifth percentiles.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/grouped_plot.py:361` — runtime; A zero-spread violin is a horizontal line at the shared value.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/grouped_plot.py:295` — runtime; {count} point(s).; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/grouped_plot.py:354` — runtime; Bar whiskers: {spread}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:356` — api_docstring; spacr.qt.widgets.pca_view.ScreePlot.render_now; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/pca_view.py:579` — internal_docstring; spacr.qt.widgets.pca_view.PCAScoresCanvas._register_presentation; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/pca_view.py:630` — internal_docstring; spacr.qt.widgets.pca_view.PCAScoresCanvas._draw_arrows; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/pca_view.py:405` — runtime; Total variance (100%); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:406` — runtime; Bars show explained variance per principal component; the line shows cumulative explained variance. The full decomposition accounts for 100% of the variance.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:383` — runtime; no components yet; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:400` — runtime; Principal component; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:401` — runtime; Explained variance (%); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:422` — runtime; Cumulative explained variance (%); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:435` — runtime; Cumulative explained variance; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:621` — runtime; Centred principal component score origin; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:663` — runtime; Pearson correlation magnitude 1; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:434` — runtime; Other components; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:623` — runtime; Principal component scores are dimensionless after standardisation.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:437` — runtime; Principal component analysis of {observations} observations and {features} features.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:669` — runtime; Centred score origin; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:431` — runtime; Selected components: {components}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:671` — runtime; Correlation vectors and the unit circle share display scale {scale}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/pca_view.py:683` — runtime; {feature}: Pearson r with {x_component} = {x}; with {y_component} = {y}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/trellis_view.py:1` — api_docstring; spacr.qt.widgets.trellis_view; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/trellis_view.py:252` — internal_docstring; spacr.qt.widgets.trellis_view.TrellisCanvas._label_trellis_panel; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/trellis_view.py:281` — runtime; Low sample count: {count} observations.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/umap_explorer.py:781` — internal_docstring; spacr.qt.widgets.umap_explorer.ImageUmapExplorer._draw_embedding; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/umap_explorer.py:866` — runtime; Click a point to preview; drag a lasso to select points.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/umap_figure_settings.py:331` — runtime; Embedding of the supplied observations and cluster labels.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:309` — api_docstring; spacr.qt.widgets.umap_search_viewer.thumbnail_image; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/umap_search_viewer.py:340` — api_docstring; spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/umap_search_viewer.py:593` — internal_docstring; spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView._refresh_presentation; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/umap_search_viewer.py:621` — internal_docstring; spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView._spacr_style_observation; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/umap_search_viewer.py:598` — runtime; drag to spin · wheel to zoom · right-click appearance; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:599` — runtime; wheel to zoom · right-click appearance; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:737` — runtime; Complete projected three-dimensional axis and occlusion observations before certification.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:604` — runtime; UMAP dimension 1; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:604` — runtime; UMAP dimension 2; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:612` — runtime; Cluster {cluster}: {count} points.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/style_base.py:32` — api_docstring; spacr.style_base.FigureStyle; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/volcano_style.py:104` — api_docstring; spacr.volcano_style.VolcanoStyle; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/volcano_style.py:379` — internal_docstring; spacr.volcano_style._present_volcano; private/nested/tool/test; no translation records.
+- `spacr/volcano_style.py:487` — api_docstring; spacr.volcano_style.render_volcano; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/volcano_style.py:578` — internal_docstring; spacr.volcano_style._localization_column; private/nested/tool/test; no translation records.
+- `spacr/volcano_style.py:585` — internal_docstring; spacr.volcano_style._captured_localizations; private/nested/tool/test; no translation records.
+- `spacr/volcano_style.py:687` — internal_docstring; spacr.volcano_style._draw_points; private/nested/tool/test; no translation records.
+- `spacr/volcano_style.py:917` — internal_docstring; spacr.volcano_style._finish_axes; private/nested/tool/test; no translation records.
+- `spacr/volcano_style.py:405` — runtime; Enabled zero-effect, significance and effect-threshold reference lines retain their original numerical positions.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:416` — runtime; Zero effect and the enabled thresholds; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:401` — runtime; Volcano of {effect} against {significance}. The supplied significance and effect-threshold rules determine selected observations; the plotted coordinates and selection are unchanged.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:403` — runtime; Significance uses the negative base-10 logarithm after clipping at the smallest positive floating-point value.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:404` — runtime; Significance values are displayed on their supplied scale.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:411` — runtime; The supplied broken-axis windows omit the intervening range.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:440` — runtime; Declared controls; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:593` — runtime; The captured localization identity column is missing from the source table; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:409` — runtime; Grey marks identify the explicitly declared control rows.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:407` — runtime; The explicit control column is {column}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `tests/qt/test_control_chart_screen.py:227` — internal_docstring; tests.qt.test_control_chart_screen.test_the_zprime_toggle_charts_the_assay_window; private/nested/tool/test; no translation records.
+- `tests/qt/test_cov_wf_qt_widgets_trellis_view.py:60` — internal_docstring; tests.qt.test_cov_wf_qt_widgets_trellis_view.test_the_blank_slot_of_a_wrapped_grid_is_never_given_a_caption; private/nested/tool/test; no translation records.
+- `tests/qt/test_fast_plots_marks_and_axes.py:419` — internal_docstring; tests.qt.test_fast_plots_marks_and_axes.test_the_violin_profile_is_a_closed_outline_or_nothing; private/nested/tool/test; no translation records.
+- `tests/qt/test_figures_scene_translation.py:269` — internal_docstring; tests.qt.test_figures_scene_translation._source_log_labels; private/nested/tool/test; no translation records.
+- `tests/qt/test_graph_builder.py:894` — internal_docstring; tests.qt.test_graph_builder.test_native_brush_updates_its_own_screen_and_clear_retires_the_handoff; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:1` — internal_docstring; tests.qt.test_graphstyle_control_chart; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:13` — internal_docstring; tests.qt.test_graphstyle_control_chart._result; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:23` — internal_docstring; tests.qt.test_graphstyle_control_chart.canvas; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:33` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_control_chart_declares_default_geometry_and_exact_original_result; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:55` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_control_chart_uses_supplied_units_and_keeps_negative_values; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:69` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_empty_control_canvas_uses_the_shared_status_owner; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:83` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_graph_builder_empty_state_uses_the_same_shared_status_owner; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:101` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_control_chart_recipe_replays_original_bands_limits_flags_and_keys; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:149` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_control_chart_replay_refuses_a_different_plate_order; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:163` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_control_chart_archive_entry_point_requires_neither_spacr_nor_qt; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:195` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_every_control_rule_ring_clears_the_physical_frame; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_control_chart.py:211` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_tight_control_chart_crop_keeps_full_long_label_and_external_key; private/nested/tool/test; no translation records.
+- `tests/qt/test_the_volcano_explorer_defaults_and_its_settings.py:149` — internal_docstring; tests.qt.test_the_volcano_explorer_defaults_and_its_settings.test_the_threshold_lines_are_black; private/nested/tool/test; no translation records.
+- `tests/qt/test_the_volcano_explorer_defaults_and_its_settings.py:189` — internal_docstring; tests.qt.test_the_volcano_explorer_defaults_and_its_settings.test_the_exported_ground_is_still_the_global_transparent_default; private/nested/tool/test; no translation records.
+- `tests/qt/test_trellis.py:393` — internal_docstring; tests.qt.test_trellis.test_external_facet_notes_carry_n; private/nested/tool/test; no translation records.
+- `tests/qt/test_umap_explorer.py:103` — internal_docstring; tests.qt.test_umap_explorer.test_embedding_uses_readable_shared_ground_and_cluster_palette; private/nested/tool/test; no translation records.
+- `tests/qt/test_volcano_explorer_behaviour.py:473` — internal_docstring; tests.qt.test_volcano_explorer_behaviour.test_a_limit_or_label_typed_into_the_menu_reaches_figure_panel_and_file; private/nested/tool/test; no translation records.
+- `tests/test_a_distribution_panel_says_when_it_cannot_be_drawn.py:175` — internal_docstring; tests.test_a_distribution_panel_says_when_it_cannot_be_drawn.test_a_logged_response_reports_the_skew_the_log_removed; private/nested/tool/test; no translation records.
+- `tests/test_cov_plot_grouped_graph.py:720` — internal_docstring; tests.test_cov_plot_grouped_graph._case_create_plot_single_data_column_graph_types; private/nested/tool/test; no translation records.
+- `tests/test_cov_plot_grouped_graph.py:797` — internal_docstring; tests.test_cov_plot_grouped_graph._case_create_plot_multi_data_column_builds_symbol_table; private/nested/tool/test; no translation records.
+- `tests/test_cov_plot_grouped_graph.py:821` — internal_docstring; tests.test_cov_plot_grouped_graph._case_create_plot_multi_data_column_jitter_bar_places_symbols_per_position; private/nested/tool/test; no translation records.
+- `tests/test_cov_plot_grouped_graph.py:848` — internal_docstring; tests.test_cov_plot_grouped_graph._case_create_plot_multi_data_column_graph_types; private/nested/tool/test; no translation records.
+- `tests/test_cov_w3_8_umap_search_viewer.py:221` — internal_docstring; tests.test_cov_w3_8_umap_search_viewer.test_the_backend_is_named_beside_the_caption; private/nested/tool/test; no translation records.
+- `tests/test_figure_style.py:47` — internal_docstring; tests.test_figure_style.TestResolution.test_a_graph_kind_only_states_what_it_differs_on; private/nested/tool/test; no translation records.
+- `tests/test_figures_result_sheet_panels.py:52` — internal_docstring; tests.test_figures_result_sheet_panels.test_volcano_labels_named_hits_and_outlines_only_a_present_highlight; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:1` — internal_docstring; tests.test_graphstyle_bundle_appearance; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:20` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_bundle_replays_actual_manual_fonts_colours_and_geometry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:55` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_relocated_bundle_resolves_font_from_its_own_files_without_spacr; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:90` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_incompatible_capture_reports_the_mismatch_without_recolouring_other_artists; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:104` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_legacy_recipe_has_no_implicit_style_upgrade; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:116` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_generic_condition_bundle_replays_captured_forms_order_and_observations; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:126` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_generic_condition_bundle_replays_captured_forms_order_and_observations.settings; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:130` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_generic_condition_bundle_replays_captured_forms_order_and_observations.avoid_display; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:166` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_generic_condition_bundle_replays_captured_forms_order_and_observations.reject_package; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:199` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_capture_preserves_manual_limits_inversion_scales_and_side_titles; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_bundle_appearance.py:225` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_portable_condition_recipe_keeps_horizontal_binding_and_actual_values; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbar_validation.py:1` — internal_docstring; tests.test_graphstyle_colourbar_validation; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbar_validation.py:12` — internal_docstring; tests.test_graphstyle_colourbar_validation._figure; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbar_validation.py:25` — internal_docstring; tests.test_graphstyle_colourbar_validation._state; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbar_validation.py:34` — internal_docstring; tests.test_graphstyle_colourbar_validation.test_key_mismatch_is_diagnosed_without_recolouring_or_changing_values; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbar_validation.py:50` — internal_docstring; tests.test_graphstyle_colourbar_validation.test_unchanged_key_keeps_its_true_range_and_has_no_mapping_diagnostic; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbar_validation.py:59` — internal_docstring; tests.test_graphstyle_colourbar_validation.test_key_body_fonts_and_contrast_are_checked_without_repair; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbars.py:1` — internal_docstring; tests.test_graphstyle_colourbars; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbars.py:11` — internal_docstring; tests.test_graphstyle_colourbars.test_attached_color_key_preserves_the_source_norm_arrays_and_actual_color_mapping; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbars.py:37` — internal_docstring; tests.test_graphstyle_colourbars.test_attached_color_keys_pack_with_multiple_primary_panels_without_overlap; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_colourbars.py:54` — internal_docstring; tests.test_graphstyle_colourbars.test_empty_color_mapping_keeps_its_unknown_limits_without_inventing_a_key; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_control_policy.py:1` — internal_docstring; tests.test_graphstyle_control_policy; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_control_policy.py:9` — internal_docstring; tests.test_graphstyle_control_policy.test_control_defaults_use_shared_forms_slots_and_explicit_grey_control_roles_without_changing_rows; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_lines.py:1` — internal_docstring; tests.test_graphstyle_core_lines; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_lines.py:12` — internal_docstring; tests.test_graphstyle_core_lines._draw; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_lines.py:23` — internal_docstring; tests.test_graphstyle_core_lines.test_numeric_line_metadata_names_the_actual_xy_columns_and_reference; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_lines.py:39` — internal_docstring; tests.test_graphstyle_core_lines.test_pooled_line_caption_does_not_claim_a_separately_drawn_reference; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_lines.py:55` — internal_docstring; tests.test_graphstyle_core_lines.test_group_trend_points_show_the_explicit_reference_and_replay_exactly; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_lines.py:82` — internal_docstring; tests.test_graphstyle_core_lines.test_actual_error_cap_marker_colour_is_validated_without_repair; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_manual.py:1` — internal_docstring; tests.test_graphstyle_core_manual; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_manual.py:13` — internal_docstring; tests.test_graphstyle_core_manual.test_core_manual_distribution_bodies_use_equal_slots_and_keep_the_original_tables; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_multi.py:1` — internal_docstring; tests.test_graphstyle_core_multi; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_multi.py:12` — internal_docstring; tests.test_graphstyle_core_multi._graph; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_multi.py:28` — internal_docstring; tests.test_graphstyle_core_multi.test_multi_field_auto_slots_observe_thresholds_and_keep_original_bookkeeping; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_multi.py:49` — internal_docstring; tests.test_graphstyle_core_multi.test_multi_field_manual_forms_keep_values_and_use_shared_slots; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_multi.py:71` — internal_docstring; tests.test_graphstyle_core_multi.test_multi_field_manual_palette_keeps_its_original_identity_mapping; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_multi.py:83` — internal_docstring; tests.test_graphstyle_core_multi.test_multi_field_portable_replay_preserves_each_wide_source_column; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_core_multi.py:113` — internal_docstring; tests.test_graphstyle_core_multi.test_slot_defaults_preserve_manual_marker_area_and_error_value_coordinates; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_density_policy.py:1` — internal_docstring; tests.test_graphstyle_density_policy; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_density_policy.py:15` — internal_docstring; tests.test_graphstyle_density_policy.test_density_keeps_original_counts_weights_and_masks_and_explains_empty_cells; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_density_policy.py:42` — internal_docstring; tests.test_graphstyle_density_policy.test_continuous_density_missing_marks_fit_dense_cells_without_changing_the_matrix; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_function_routes.py:1` — internal_docstring; tests.test_graphstyle_function_routes; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_function_routes.py:5` — internal_docstring; tests.test_graphstyle_function_routes.test_style_routes_resolve_aliases_and_inherited_helpers_without_certifying_nested_or_rebound_calls; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_function_routes.py:64` — internal_docstring; tests.test_graphstyle_function_routes.test_every_conditional_function_variant_needs_a_route_and_cycles_do_not_hang; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_function_routes.py:72` — internal_docstring; tests.test_graphstyle_function_routes.test_inventory_functions_and_new_creators_use_a_shared_route_or_an_explicit_shrinking_entry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_grouped_xy.py:1` — internal_docstring; tests.test_graphstyle_grouped_xy; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_grouped_xy.py:11` — internal_docstring; tests.test_graphstyle_grouped_xy.test_grouped_xy_exports_square_data_area_without_changing_coordinates_or_manual_choices; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_grouped_xy.py:53` — internal_docstring; tests.test_graphstyle_grouped_xy.test_continuous_numeric_ticks_use_normal_painting_after_a_categorical_view; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_grouped_xy.py:68` — internal_docstring; tests.test_graphstyle_grouped_xy.test_continuous_numeric_ticks_use_normal_painting_after_a_categorical_view.record; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_guide_policy.py:1` — internal_docstring; tests.test_graphstyle_guide_policy; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_guide_policy.py:10` — internal_docstring; tests.test_graphstyle_guide_policy.test_guide_agreement_preserves_quantitative_coordinates_keys_and_declares_its_opening_view; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_heatmap_canvas.py:1` — internal_docstring; tests.test_graphstyle_heatmap_canvas; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_heatmap_canvas.py:11` — internal_docstring; tests.test_graphstyle_heatmap_canvas.test_shared_heatmap_keeps_autoscaled_values_and_places_crosses_at_actual_missing_cells; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_heatmap_canvas.py:29` — internal_docstring; tests.test_graphstyle_heatmap_canvas.test_graph_canvas_count_heatmap_keeps_crosstab_and_lower_origin_with_explicit_empty_bin_marks; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legacy_volcano.py:1` — internal_docstring; tests.test_graphstyle_legacy_volcano; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legacy_volcano.py:12` — internal_docstring; tests.test_graphstyle_legacy_volcano._frame; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legacy_volcano.py:17` — internal_docstring; tests.test_graphstyle_legacy_volcano._defaults; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legacy_volcano.py:22` — internal_docstring; tests.test_graphstyle_legacy_volcano.test_legacy_volcano_uses_shared_ground_geometry_alpha_and_explained_colour_keys; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legacy_volcano.py:49` — internal_docstring; tests.test_graphstyle_legacy_volcano.test_volcano_explicit_view_marks_and_parent_contents_remain_unchanged; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legacy_volcano.py:68` — internal_docstring; tests.test_graphstyle_legacy_volcano.test_cloud_without_thresholds_uses_background_points_and_keeps_every_input_value; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legacy_volcano.py:79` — internal_docstring; tests.test_graphstyle_legacy_volcano.test_explicit_created_figure_choices_are_retained_and_diagnosed; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legacy_volcano.py:97` — internal_docstring; tests.test_graphstyle_legacy_volcano.test_default_black_reference_is_checked_against_actual_manual_ink; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legacy_volcano.py:113` — internal_docstring; tests.test_graphstyle_legacy_volcano.test_unannotated_legacy_volcano_replays_source_points_keys_and_reference_coordinates; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legend_replay.py:1` — internal_docstring; tests.test_graphstyle_legend_replay; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legend_replay.py:10` — internal_docstring; tests.test_graphstyle_legend_replay._scene; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legend_replay.py:22` — internal_docstring; tests.test_graphstyle_legend_replay._coordinates; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legend_replay.py:30` — internal_docstring; tests.test_graphstyle_legend_replay.test_axis_legend_replay_keeps_manual_keys_fonts_frame_and_external_position; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legend_replay.py:70` — internal_docstring; tests.test_graphstyle_legend_replay.test_figure_legend_and_notes_replay_in_the_original_order; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_legend_replay.py:87` — internal_docstring; tests.test_graphstyle_legend_replay.test_unsupported_custom_key_is_reported_without_adding_data_artists; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_linked_axes.py:1` — internal_docstring; tests.test_graphstyle_linked_axes; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_linked_axes.py:9` — internal_docstring; tests.test_graphstyle_linked_axes._linked_figure; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_linked_axes.py:36` — internal_docstring; tests.test_graphstyle_linked_axes.test_linked_axes_share_physical_slots_and_fit_both_sets_of_labels_without_changing_values; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_linked_axes.py:51` — internal_docstring; tests.test_graphstyle_linked_axes.test_an_unlinked_axis_cannot_claim_overlay_geometry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:1` — internal_docstring; tests.test_graphstyle_live_validation; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:9` — internal_docstring; tests.test_graphstyle_live_validation._registered_figure; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:21` — internal_docstring; tests.test_graphstyle_live_validation.test_existing_renderer_is_validated_without_another_draw; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:28` — internal_docstring; tests.test_graphstyle_live_validation.test_existing_renderer_is_validated_without_another_draw.forbidden; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:40` — internal_docstring; tests.test_graphstyle_live_validation.test_shared_qt_canvas_validates_after_exactly_one_actual_draw; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:48` — internal_docstring; tests.test_graphstyle_live_validation.test_shared_qt_canvas_validates_after_exactly_one_actual_draw.counted; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:61` — internal_docstring; tests.test_graphstyle_live_validation.test_native_grouped_display_records_the_same_semantic_checks; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:76` — internal_docstring; tests.test_graphstyle_live_validation.test_physical_layout_measures_text_without_painting_plot_marks; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:95` — internal_docstring; tests.test_graphstyle_live_validation.test_physical_layout_measures_text_without_painting_plot_marks.forbidden; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:123` — internal_docstring; tests.test_graphstyle_live_validation.test_builder_automatic_conditions_keep_physical_slots_after_viewport_resize; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:134` — internal_docstring; tests.test_graphstyle_live_validation.test_builder_automatic_conditions_keep_physical_slots_after_viewport_resize.no_choice; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:167` — internal_docstring; tests.test_graphstyle_live_validation.test_live_physical_layout_releases_explicit_later_panel_placement; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:179` — internal_docstring; tests.test_graphstyle_live_validation.test_wide_builder_conditions_scroll_instead_of_shrinking_slots; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:189` — internal_docstring; tests.test_graphstyle_live_validation.test_wide_builder_conditions_scroll_instead_of_shrinking_slots.no_choice; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:209` — internal_docstring; tests.test_graphstyle_live_validation.test_facet_panel_letters_continue_as_uppercase_identifiers; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_validation.py:218` — internal_docstring; tests.test_graphstyle_live_validation.test_packed_live_legend_has_its_own_column_and_keeps_later_manual_placement; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_diagnostics.py:1` — internal_docstring; tests.test_graphstyle_native_diagnostics; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_diagnostics.py:9` — internal_docstring; tests.test_graphstyle_native_diagnostics.test_native_diagnostics_register_actual_marks_and_preserve_source_arrays; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_diagnostics.py:56` — internal_docstring; tests.test_graphstyle_native_diagnostics.test_native_diagnostic_redraw_keeps_the_caption_and_an_explicit_manual_title; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:1` — internal_docstring; tests.test_graphstyle_native_geometry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:10` — internal_docstring; tests.test_graphstyle_native_geometry.rank; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:22` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_categorical_slots_use_the_shared_physical_geometry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:35` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_export_restores_interactive_layout_even_after_failure; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:45` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_category_labels_use_complete_names_and_bundled_light_font; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:57` — internal_docstring; tests.test_graphstyle_native_geometry.test_manual_page_shape_keeps_its_explicit_geometry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:67` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_automatic_forms_preserve_observations_and_dense_point_rule; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:100` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_automatic_caption_retains_the_selected_spread; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:111` — internal_docstring; tests.test_graphstyle_native_geometry.test_manual_free_page_size_is_preserved_by_the_native_adapter; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:121` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_colour_change_preserves_explicit_font_choices; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:136` — internal_docstring; tests.test_graphstyle_native_geometry.test_explicit_native_file_colours_reach_the_writer_unchanged; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:143` — internal_docstring; tests.test_graphstyle_native_geometry.test_explicit_native_file_colours_reach_the_writer_unchanged.capture; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:154` — internal_docstring; tests.test_graphstyle_native_geometry.test_temporary_native_file_styling_restores_fonts_and_each_mixed_pen_on_failure; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:171` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_shared_finalizer_observes_manual_font_and_opacity_without_restoring_defaults; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:190` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_snapshot_keeps_policy_actual_fonts_and_independent_pen_styles; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:214` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_export_runs_shared_finalization_at_actual_physical_write_boundary; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:218` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_export_runs_shared_finalization_at_actual_physical_write_boundary.capture; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:229` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_conditions_feed_shared_actual_form_count_width_and_control_checks; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:262` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_estimate_rank_registers_real_bar_and_interval_roles; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:275` — internal_docstring; tests.test_graphstyle_native_geometry.test_rotated_native_text_uses_actual_polygons_and_stays_in_the_physical_canvas; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:286` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_text_bounds_detect_a_manually_clipped_title_without_repositioning_it; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:301` — internal_docstring; tests.test_graphstyle_native_geometry.test_long_native_categories_reach_the_actual_rotated_painter; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:316` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_text_geometry_still_detects_a_real_title_label_collision; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:332` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_complete_observations_check_units_font_roles_and_manual_zoom_without_repair; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:358` — internal_docstring; tests.test_graphstyle_native_geometry._png_physical_resolution; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:373` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_bundle_captures_successful_file_state_and_exact_numerical_tables; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:401` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_explicit_raster_resolution_is_recorded_and_restored; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_geometry.py:413` — internal_docstring; tests.test_graphstyle_native_geometry.test_constant_dense_native_violins_keep_zero_spread_without_individual_points; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_strokes.py:1` — internal_docstring; tests.test_graphstyle_native_strokes; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_strokes.py:9` — internal_docstring; tests.test_graphstyle_native_strokes.test_native_exported_frame_ink_keeps_its_point_width_and_restores_the_live_scene; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_strokes.py:24` — internal_docstring; tests.test_graphstyle_native_strokes.test_native_exported_frame_ink_keeps_its_point_width_and_restores_the_live_scene.capture; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_strokes.py:46` — internal_docstring; tests.test_graphstyle_native_strokes.test_native_svg_frame_uses_the_same_physical_point_width; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_strokes.py:61` — internal_docstring; tests.test_graphstyle_native_strokes.test_device_pen_scaling_restores_mixed_manual_pens_ranges_and_autorange_after_failure; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_strokes.py:94` — internal_docstring; tests.test_graphstyle_native_strokes.test_translated_scene_uses_its_declared_coordinate_resolution; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_norm_replay.py:1` — internal_docstring; tests.test_graphstyle_norm_replay; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_norm_replay.py:10` — internal_docstring; tests.test_graphstyle_norm_replay._normalizations; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_norm_replay.py:20` — internal_docstring; tests.test_graphstyle_norm_replay.test_standard_normalization_replay_preserves_exact_type_parameters_and_rgba; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_norm_replay.py:42` — internal_docstring; tests.test_graphstyle_norm_replay.test_custom_normalization_gets_an_explicit_replay_finding; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_norm_replay.py:44` — internal_docstring; tests.test_graphstyle_norm_replay.test_custom_normalization_gets_an_explicit_replay_finding.SquaredNorm; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_norm_replay.py:46` — internal_docstring; tests.test_graphstyle_norm_replay.test_custom_normalization_gets_an_explicit_replay_finding.SquaredNorm.__call__; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:1` — internal_docstring; tests.test_graphstyle_pca_policy; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:14` — internal_docstring; tests.test_graphstyle_pca_policy._result; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:27` — internal_docstring; tests.test_graphstyle_pca_policy.test_scree_uses_shared_slots_and_linked_axes_with_exact_variance_values; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:31` — internal_docstring; tests.test_graphstyle_pca_policy.test_scree_uses_shared_slots_and_linked_axes_with_exact_variance_values.palette; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:65` — internal_docstring; tests.test_graphstyle_pca_policy.test_empty_scree_status_uses_readable_shared_text_without_inventing_a_decomposition; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:76` — internal_docstring; tests.test_graphstyle_pca_policy.test_biplot_preserves_every_correlation_vector_and_moves_feature_labels_to_the_legend; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:113` — internal_docstring; tests.test_graphstyle_pca_policy.test_shared_validation_observes_annotation_arrow_opacity_without_changing_it; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:132` — internal_docstring; tests.test_graphstyle_pca_policy.test_raw_pca_units_use_only_declared_common_feature_units_and_preserve_explicit_choices; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:1` — internal_docstring; tests.test_graphstyle_plate_policy; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:11` — internal_docstring; tests.test_graphstyle_plate_policy.test_plate_cells_use_shared_defaults_without_changing_values_or_limits; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:38` — internal_docstring; tests.test_graphstyle_plate_policy.test_signed_plate_colour_reference_is_zero_with_unchanged_scale_endpoints; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:51` — internal_docstring; tests.test_graphstyle_plate_policy.test_plate_replay_retains_crosses_reference_and_source_bytes; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:73` — internal_docstring; tests.test_graphstyle_plate_policy.test_plate_scale_names_the_quantity_and_stays_inside_the_live_canvas; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:83` — internal_docstring; tests.test_graphstyle_plate_policy.test_captured_colormap_keeps_exact_lookup_and_missing_colours; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:106` — internal_docstring; tests.test_graphstyle_plate_policy.test_a_zero_reference_outside_the_scale_interior_is_reported_without_changing_limits; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:118` — internal_docstring; tests.test_graphstyle_plate_policy.test_distinct_colour_limits_have_distinct_accurate_tick_labels; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:128` — internal_docstring; tests.test_graphstyle_plate_policy.test_heatmap_validation_observes_missing_marks_and_actual_colours_without_repair; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_plate_policy.py:160` — internal_docstring; tests.test_graphstyle_plate_policy.test_every_declared_numerical_quantity_requires_its_actual_unit; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_remaining_gui.py:1` — internal_docstring; tests.test_graphstyle_remaining_gui; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_remaining_gui.py:19` — internal_docstring; tests.test_graphstyle_remaining_gui.test_trellis_uses_shared_physical_slots_and_external_counts_without_changing_rows; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_remaining_gui.py:24` — internal_docstring; tests.test_graphstyle_remaining_gui.test_trellis_uses_shared_physical_slots_and_external_counts_without_changing_rows.automatic; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_remaining_gui.py:65` — internal_docstring; tests.test_graphstyle_remaining_gui.test_late_canvas_labels_and_letters_use_shared_font_and_ink; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_axes.py:1` — internal_docstring; tests.test_graphstyle_scene_axes; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_axes.py:15` — internal_docstring; tests.test_graphstyle_scene_axes.test_translated_frame_uses_actual_source_spine_width_colour_and_alpha; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_axes.py:46` — internal_docstring; tests.test_graphstyle_scene_axes.test_translated_tick_pens_lengths_text_ink_and_visibility_follow_the_source; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_axes.py:73` — internal_docstring; tests.test_graphstyle_scene_axes.test_translated_title_and_axis_label_retain_their_actual_source_ink; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_colour_fallback.py:1` — internal_docstring; tests.test_graphstyle_scene_colour_fallback; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_colour_fallback.py:14` — internal_docstring; tests.test_graphstyle_scene_colour_fallback.test_scene_declines_colour_semantics_it_cannot_reproduce_without_changing_values; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_colour_fallback.py:27` — internal_docstring; tests.test_graphstyle_scene_colour_fallback.test_scene_declines_colour_semantics_it_cannot_reproduce_without_changing_values.ready; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_colour_fallback.py:31` — internal_docstring; tests.test_graphstyle_scene_colour_fallback.test_scene_declines_colour_semantics_it_cannot_reproduce_without_changing_values.write; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:1` — internal_docstring; tests.test_graphstyle_scene_parity; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:11` — internal_docstring; tests.test_graphstyle_scene_parity.translated; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:15` — internal_docstring; tests.test_graphstyle_scene_parity.translated.build; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:29` — internal_docstring; tests.test_graphstyle_scene_parity._plots; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:36` — internal_docstring; tests.test_graphstyle_scene_parity._scatters; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:43` — internal_docstring; tests.test_graphstyle_scene_parity.test_collection_alpha_is_not_multiplied_twice; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:54` — internal_docstring; tests.test_graphstyle_scene_parity.test_line_markers_keep_source_alpha; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:66` — internal_docstring; tests.test_graphstyle_scene_parity.test_translated_spines_match_the_source_axes; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:77` — internal_docstring; tests.test_graphstyle_scene_parity.test_heatmap_opacity_and_masked_values_survive_translation; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:94` — internal_docstring; tests.test_graphstyle_scene_parity.test_scene_fonts_use_bundled_family_actual_light_and_bold_weights; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:106` — internal_docstring; tests.test_graphstyle_scene_parity.test_translated_registered_geometry_is_measured_and_never_inherits_source_certification; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_parity.py:134` — internal_docstring; tests.test_graphstyle_scene_parity.test_translated_scene_files_keep_source_inches_and_honest_png_resolution; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:1` — internal_docstring; tests.test_graphstyle_shared_policy; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:12` — internal_docstring; tests.test_graphstyle_shared_policy.test_specification_freezes_explicit_semantics_and_uses_reference_colours; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:26` — internal_docstring; tests.test_graphstyle_shared_policy.test_condition_geometry_matches_measured_slots_with_half_pixel_margin; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:34` — internal_docstring; tests.test_graphstyle_shared_policy.test_continuous_and_matrix_geometry_preserve_square_cells; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:44` — internal_docstring; tests.test_graphstyle_shared_policy.test_single_observations_remain_visible_and_dense_groups_drop_individual_points; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:56` — internal_docstring; tests.test_graphstyle_shared_policy.test_unregistered_empty_checker_result_is_not_a_compliance_certificate; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:67` — internal_docstring; tests.test_graphstyle_shared_policy.test_registered_geometry_and_effective_alpha_are_checked_without_repairing_data; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:81` — internal_docstring; tests.test_graphstyle_shared_policy.test_numpy_reference_indexes_and_identity_bindings_are_explicit; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:90` — internal_docstring; tests.test_graphstyle_shared_policy.test_skipped_render_checks_never_certify_a_registered_figure; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:100` — internal_docstring; tests.test_graphstyle_shared_policy.test_neutral_grey_errorbars_and_unreadable_dark_text_are_rejected; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:111` — internal_docstring; tests.test_graphstyle_shared_policy.test_heatmap_cell_geometry_and_opacity_are_checked_without_array_changes; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:124` — internal_docstring; tests.test_graphstyle_shared_policy.test_actual_single_rank_layout_keeps_intervals_and_measured_slot_width; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:145` — internal_docstring; tests.test_graphstyle_shared_policy.test_read_only_finalization_does_not_attach_state_to_source; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:153` — internal_docstring; tests.test_graphstyle_shared_policy.test_empty_collection_faces_do_not_hide_opaque_line_segments; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:166` — internal_docstring; tests.test_graphstyle_shared_policy.test_diagnostics_restore_the_original_canvas_and_skip_disabled_tick_labels; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:178` — internal_docstring; tests.test_graphstyle_shared_policy.test_packed_mixed_panels_preserve_slot_width_square_area_and_numerical_values; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:208` — internal_docstring; tests.test_graphstyle_shared_policy.test_finalizer_observes_real_forms_counts_width_and_reference_colour_without_repair; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:232` — internal_docstring; tests.test_graphstyle_shared_policy.test_finalizer_rejects_obsolete_dense_bars_and_out_of_palette_colours; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:246` — internal_docstring; tests.test_graphstyle_shared_policy.test_finalizer_matches_reference_legend_to_actual_line_and_rejects_floating_counts; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:261` — internal_docstring; tests.test_graphstyle_shared_policy.test_image_validation_requires_declared_display_metadata_without_changing_pixels; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:274` — internal_docstring; tests.test_graphstyle_shared_policy.test_matplotlib_finalizer_checks_declared_font_role_without_changing_manual_weight; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:291` — internal_docstring; tests.test_graphstyle_shared_policy.test_producer_policy_preserves_explicit_stored_choices_and_reports_conflicts; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:295` — internal_docstring; tests.test_graphstyle_shared_policy.test_producer_policy_preserves_explicit_stored_choices_and_reports_conflicts.manual_preferences; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:317` — internal_docstring; tests.test_graphstyle_shared_policy.test_panel_specific_stored_choices_preserve_sibling_appearance; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:321` — internal_docstring; tests.test_graphstyle_shared_policy.test_panel_specific_stored_choices_preserve_sibling_appearance.volcano_preferences; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:339` — internal_docstring; tests.test_graphstyle_shared_policy.test_direct_style_construction_freezes_caller_owned_semantic_containers; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:360` — internal_docstring; tests.test_graphstyle_shared_policy.test_figure_legend_fonts_weights_and_actual_frame_contrast_are_validated; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:390` — internal_docstring; tests.test_graphstyle_shared_policy.test_shared_condition_orientation_keeps_exact_observations_and_physical_slots; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:419` — internal_docstring; tests.test_graphstyle_shared_policy.test_both_approved_many_value_forms_pass_the_shared_condition_checks; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:434` — internal_docstring; tests.test_graphstyle_shared_policy.test_line_origin_keeps_zero_and_every_observed_interval; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_shared_policy.py:440` — internal_docstring; tests.test_graphstyle_shared_policy.test_shared_line_origin_preserves_explicit_views_and_reports_unauthorized_cuts; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_standalone_grouped.py:1` — internal_docstring; tests.test_graphstyle_standalone_grouped; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_standalone_grouped.py:14` — internal_docstring; tests.test_graphstyle_standalone_grouped._draw; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_standalone_grouped.py:31` — internal_docstring; tests.test_graphstyle_standalone_grouped.test_standalone_grouped_auto_uses_shared_semantics_and_physical_slots; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_standalone_grouped.py:46` — internal_docstring; tests.test_graphstyle_standalone_grouped.test_standalone_manual_forms_keep_their_type_and_declared_observations; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_standalone_grouped.py:60` — internal_docstring; tests.test_graphstyle_standalone_grouped.test_standalone_group_line_replay_preserves_original_error_widths_and_centres; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:1` — internal_docstring; tests.test_graphstyle_style_volcano; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:10` — internal_docstring; tests.test_graphstyle_style_volcano._results; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:17` — internal_docstring; tests.test_graphstyle_style_volcano._preferences; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:27` — internal_docstring; tests.test_graphstyle_style_volcano.test_explorer_volcano_default_geometry_ink_and_preparation_are_explicit; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:50` — internal_docstring; tests.test_graphstyle_style_volcano.test_explicit_explorer_volcano_styles_survive_validation; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:70` — internal_docstring; tests.test_graphstyle_style_volcano.test_explorer_volcano_broken_axis_preserves_supplied_intervals; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:88` — internal_docstring; tests.test_graphstyle_style_volcano.test_explorer_volcano_reference_lines_have_actual_shared_black_ink; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:100` — internal_docstring; tests.test_graphstyle_style_volcano.test_explicit_control_identity_changes_only_ink_and_has_a_matching_key; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:122` — internal_docstring; tests.test_graphstyle_style_volcano.test_numeric_volcano_key_uses_declared_units_and_checks_actual_label_without_mutation; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano.py:143` — internal_docstring; tests.test_graphstyle_style_volcano.test_default_constant_scalar_colour_stays_visible_without_inventing_a_range; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano_replay.py:1` — internal_docstring; tests.test_graphstyle_style_volcano_replay; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano_replay.py:13` — internal_docstring; tests.test_graphstyle_style_volcano_replay._close_replay_figures; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano_replay.py:24` — internal_docstring; tests.test_graphstyle_style_volcano_replay.test_explorer_volcano_replays_source_transform_masks_keys_and_annotations; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano_replay.py:91` — internal_docstring; tests.test_graphstyle_style_volcano_replay.test_replay_keeps_a_line_collection_explicitly_unfilled; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_style_volcano_replay.py:104` — internal_docstring; tests.test_graphstyle_style_volcano_replay.test_exported_volcano_script_runs_without_spacr_and_reads_exact_float_values; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_native.py:1` — internal_docstring; tests.test_graphstyle_umap_native; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_native.py:11` — internal_docstring; tests.test_graphstyle_umap_native.test_native_embedding_observes_actual_paint_and_retains_coordinates_and_camera; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_native.py:41` — internal_docstring; tests.test_graphstyle_umap_native.test_native_manual_appearance_remains_exact_and_is_diagnosed; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_native.py:55` — internal_docstring; tests.test_graphstyle_umap_native.test_native_shell_shows_caption_and_camera_help_outside_the_plot; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_native.py:65` — internal_docstring; tests.test_graphstyle_umap_native.test_clearing_a_native_map_clears_the_external_partition_and_paint_observation; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_policy.py:1` — internal_docstring; tests.test_graphstyle_umap_policy; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_policy.py:15` — internal_docstring; tests.test_graphstyle_umap_policy._payload; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_policy.py:23` — internal_docstring; tests.test_graphstyle_umap_policy.isolated_preferences; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_policy.py:31` — internal_docstring; tests.test_graphstyle_umap_policy.test_explorer_uses_shared_policy_and_retains_manual_choices_and_filter_dimming; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_policy.py:34` — internal_docstring; tests.test_graphstyle_umap_policy.test_explorer_uses_shared_policy_and_retains_manual_choices_and_filter_dimming.palette; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_policy.py:76` — internal_docstring; tests.test_graphstyle_umap_policy.test_redraw_preserves_all_cluster_coordinates_and_moves_centroid_labels_outside; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_policy.py:100` — internal_docstring; tests.test_graphstyle_umap_policy.test_explorer_selection_overlays_remain_visible_on_the_shared_ground; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_policy.py:102` — internal_docstring; tests.test_graphstyle_umap_policy.test_explorer_selection_overlays_remain_visible_on_the_shared_ground.palette; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_policy.py:118` — internal_docstring; tests.test_graphstyle_umap_policy.test_categorical_embedding_validation_checks_actual_colors_after_a_manual_colormap_change; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_vector_cells.py:1` — internal_docstring; tests.test_graphstyle_vector_cells; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_vector_cells.py:11` — internal_docstring; tests.test_graphstyle_vector_cells._state; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_vector_cells.py:28` — internal_docstring; tests.test_graphstyle_vector_cells.test_shared_numeric_image_exports_real_vector_cells_without_changing_its_source; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_vector_cells.py:40` — internal_docstring; tests.test_graphstyle_vector_cells.test_numeric_cell_export_restores_source_state_after_an_injected_write_failure; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_vector_cells.py:52` — internal_docstring; tests.test_graphstyle_vector_cells.test_untagged_microscopy_image_keeps_its_original_raster_output; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_vector_cells.py:63` — internal_docstring; tests.test_graphstyle_vector_cells.test_vector_cell_coordinates_and_colors_match_the_source_image; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_vector_cells.py:84` — internal_docstring; tests.test_graphstyle_vector_cells.test_explicit_manual_image_rendering_keeps_its_original_primitive; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_vector_cells.py:101` — internal_docstring; tests.test_graphstyle_vector_cells.test_per_cell_opacity_and_interpolation_replay_as_json_data; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_venn.py:1` — internal_docstring; tests.test_graphstyle_venn; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_venn.py:13` — internal_docstring; tests.test_graphstyle_venn.test_venn_declares_and_replays_actual_regions_without_altering_sets; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_venn.py:53` — internal_docstring; tests.test_graphstyle_venn.test_axis_off_schematic_is_validated_without_restyling_manual_regions; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_venn.py:73` — internal_docstring; tests.test_graphstyle_venn.test_legacy_venn_recipe_without_alpha_keeps_original_opaque_regions; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_venn.py:84` — internal_docstring; tests.test_graphstyle_venn.test_degenerate_venn_keeps_counts_and_has_separate_input_labels; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_volcano_policy.py:1` — internal_docstring; tests.test_graphstyle_volcano_policy; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_volcano_policy.py:10` — internal_docstring; tests.test_graphstyle_volcano_policy.test_volcano_uses_shared_defaults_and_preserves_explicit_opacity_encodings; private/nested/tool/test; no translation records.
+- `tests/test_numeric_line_figure_recipe.py:73` — internal_docstring; tests.test_numeric_line_figure_recipe.test_grouped_line_keeps_categorical_positions_and_group_summaries; private/nested/tool/test; no translation records.
+- `tests/test_regression_panel_recipe.py:28` — internal_docstring; tests.test_regression_panel_recipe.test_single_panel_recreation_preserves_complete_csv_and_numeric_artists; private/nested/tool/test; no translation records.
+- `tests/test_the_distribution_panels_are_house_style.py:144` — internal_docstring; tests.test_the_distribution_panels_are_house_style.test_the_uniform_expectation_is_a_black_dashed_reference; private/nested/tool/test; no translation records.
+- `tests/test_the_distribution_panels_are_house_style.py:226` — internal_docstring; tests.test_the_distribution_panels_are_house_style.test_the_n_is_still_stated_in_the_external_legend; private/nested/tool/test; no translation records.
+- `tests/test_the_distribution_panels_are_house_style.py:378` — internal_docstring; tests.test_the_distribution_panels_are_house_style.test_repointing_the_report_target_moves_the_chrome_too.target_ink; private/nested/tool/test; no translation records.
+- `tests/test_the_effect_panels_are_pyqtgraph_tabs.py:132` — internal_docstring; tests.test_the_effect_panels_are_pyqtgraph_tabs.intervals_of; private/nested/tool/test; no translation records.
+- `tests/test_the_effect_panels_are_pyqtgraph_tabs.py:378` — internal_docstring; tests.test_the_effect_panels_are_pyqtgraph_tabs.TestTheIntervalIsDrawnAndIsTheRightWidth.test_each_dot_carries_a_1_96_standard_error_interval; private/nested/tool/test; no translation records.
+- `tests/test_the_figure_house_style.py:150` — internal_docstring; tests.test_the_figure_house_style.test_the_ground_is_readable_by_default_and_explicit_transparency_remains_available; private/nested/tool/test; no translation records.
+- `tests/test_the_figure_house_style.py:161` — internal_docstring; tests.test_the_figure_house_style.test_the_ink_follows_where_the_figure_is_going; private/nested/tool/test; no translation records.
+- `tests/test_the_graph_type_fits_the_data.py:163` — internal_docstring; tests.test_the_graph_type_fits_the_data.TestTheDefaultIsPerDataType.test_each_shape_has_its_default; private/nested/tool/test; no translation records.
+- `tests/test_the_plate_panel_is_house_style.py:345` — internal_docstring; tests.test_the_plate_panel_is_house_style.test_the_ramp_uses_the_shared_blue_scale_in_both_themes; private/nested/tool/test; no translation records.
+- `tests/test_the_structure_panels_are_house_style.py:247` — internal_docstring; tests.test_the_structure_panels_are_house_style.test_the_thresholds_are_thin_black_dashes; private/nested/tool/test; no translation records.
+- `tests/test_the_well_distributions_are_house_style.py:1` — internal_docstring; tests.test_the_well_distributions_are_house_style; private/nested/tool/test; no translation records.
+- `tests/test_the_well_distributions_are_house_style.py:73` — internal_docstring; tests.test_the_well_distributions_are_house_style._note_labels; private/nested/tool/test; no translation records.
+- `tests/test_the_well_distributions_are_house_style.py:128` — internal_docstring; tests.test_the_well_distributions_are_house_style.test_the_fill_uses_the_house_colour_at_sixty_percent_opacity; private/nested/tool/test; no translation records.
+- `tests/test_the_well_distributions_are_house_style.py:163` — internal_docstring; tests.test_the_well_distributions_are_house_style.test_the_reference_keeps_its_declared_colour_and_thin_dashes; private/nested/tool/test; no translation records.
+- `tests/test_the_well_distributions_are_house_style.py:180` — internal_docstring; tests.test_the_well_distributions_are_house_style.test_the_external_note_states_the_n_without_covering_the_data; private/nested/tool/test; no translation records.
+- `tests/test_the_well_distributions_are_house_style.py:586` — internal_docstring; tests.test_the_well_distributions_are_house_style.test_the_raw_fallbacks_legend_note_does_not_say_equal_either; private/nested/tool/test; no translation records.
+- `tests/test_umap_search_viewer_view.py:245` — internal_docstring; tests.test_umap_search_viewer_view.test_every_marker_paints_its_own_picture; private/nested/tool/test; no translation records.
+- `tests/test_umap_search_viewer_view.py:266` — internal_docstring; tests.test_umap_search_viewer_view.test_every_marker_paints_its_own_picture.footer; private/nested/tool/test; no translation records.
+- `tests/test_venn_figure_recipe.py:20` — internal_docstring; tests.test_venn_figure_recipe.test_venn_export_preserves_full_input_and_recreates_overlap; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:1` — internal_docstring; tools.graphstyle_routes; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:19` — internal_docstring; tools.graphstyle_routes.owned_nodes; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:28` — internal_docstring; tools.graphstyle_routes.aliases_in; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:52` — internal_docstring; tools.graphstyle_routes.parse_file; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:63` — internal_docstring; tools.graphstyle_routes.parse_file.visit; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:83` — internal_docstring; tools.graphstyle_routes.parse_file.visit_definitions; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:101` — internal_docstring; tools.graphstyle_routes.resolve; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:122` — internal_docstring; tools.graphstyle_routes.scan_tree; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:140` — internal_docstring; tools.graphstyle_routes.resolve_method; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:158` — internal_docstring; tools.graphstyle_routes.call_graph; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:165` — internal_docstring; tools.graphstyle_routes.routed_functions; private/nested/tool/test; no translation records.

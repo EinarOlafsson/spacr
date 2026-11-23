@@ -405,10 +405,12 @@ class ImageUmapExplorer(LinkedView, QWidget):
         #: Set when this payload cannot answer the active filter, so the
         #: status line can say so rather than silently drawing everything.
         self._filter_note = ""
+        from ...figures.style import DATA_ALPHA, GENERAL_DEFAULTS
+
         self._display = {
-            "point_size": 26,
+            "point_size": GENERAL_DEFAULTS["marker_size"],
             "point_color": "cluster",
-            "point_alpha": 0.65,
+            "point_alpha": DATA_ALPHA,
             "outline_width": 1.0,
             "canvas_width": 900,
             "sidebar_width": 280,
@@ -777,20 +779,28 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         return self._point_keys
 
     def _draw_embedding(self) -> None:
-        """Draw every point of the embedding."""
+        """Draw unchanged embedding points with shared defaults before explicit display choices."""
+        from ..i18n import tr
         from matplotlib.widgets import LassoSelector
-        from ..theme import active_palette
+        from ...figures.style import DATA_ALPHA, GENERAL_DEFAULTS, Palette
 
-        palette = active_palette()
-        background = palette["surface_alt"]
-        foreground = palette["fg"]
+        background = GENERAL_DEFAULTS["background"]
+        foreground = GENERAL_DEFAULTS["foreground"]
         self._axes.clear()
         self._figure.patch.set_facecolor(background)
         self._axes.set_facecolor(background)
         requested_color = str(self._display["point_color"]).strip()
         color_key = requested_color.lower()
+        from ...figures.style import embedding_axes, embedding_colours
+        from matplotlib.colors import ListedColormap
+
+        colours = embedding_colours(self._labels, noise_label=-1)
         scatter_kwargs = {}
-        if color_key in {"", "cluster", "viridis"}:
+        if color_key in {"", "cluster"}:
+            identities = np.unique(self._labels)
+            scatter_kwargs.update(c=np.searchsorted(identities, self._labels),
+                cmap=ListedColormap([colours[label] for label in identities], name="spacr_clusters"))
+        elif color_key == "viridis":
             scatter_kwargs.update(c=self._labels, cmap="viridis")
         else:
             from matplotlib.colors import is_color_like
@@ -814,14 +824,14 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         for spine in self._axes.spines.values():
             spine.set_color(foreground)
         self._selection_artist = self._axes.scatter(
-            [], [], s=70, facecolors="none", edgecolors=foreground,
+            [], [], s=70, facecolors="none", edgecolors=foreground, alpha=DATA_ALPHA,
             linewidths=float(self._display["outline_width"]))
         self._picked_artist = self._axes.scatter(
-            [], [], s=110, facecolors="none", edgecolors="#ffcc33",
+            [], [], s=110, facecolors="none", edgecolors=Palette.AMBER, alpha=DATA_ALPHA,
             linewidths=float(self._display["outline_width"]))
         self._linked_artist = self._axes.scatter(
             [], [], s=90, facecolors="none",
-            edgecolors=palette.get("accent", "#4A9EFF"),
+            edgecolors=Palette.ACCENT, alpha=DATA_ALPHA,
             linewidths=float(self._display["outline_width"]) * 1.6)
         if self._lasso is not None:
             self._lasso.disconnect_events()
@@ -847,8 +857,16 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
                 self._embedding[self._picked].reshape(1, 2))
         self._apply_point_alpha()
         self._draw_linked_points()
+        self._scatter.update_scalarmappable()
+        faces = self._scatter.get_facecolors()
+        if len(faces):
+            colours = {label:faces[min(int(np.flatnonzero(self._labels == label)[0]), len(faces)-1)]
+                       for label in np.unique(self._labels)}
+        embedding_axes(self._axes, self._labels,
+            caption=tr("Click a point to preview; drag a lasso to select points."), colours=colours)
         from ...figures.style import _apply_user_style
         _apply_user_style(self._figure, "scatter", force=True)
+        self._apply_point_alpha()
         from ...figures.bundle import _register_figure_data
         _register_figure_data(
             self._figure, lambda: {

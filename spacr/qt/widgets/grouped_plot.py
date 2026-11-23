@@ -14,22 +14,15 @@ from typing import Any, Dict, Optional
 import numpy as np
 import pandas as pd
 
-from .fast_plots import FastPlot
+from .fast_plots import FastPlot, _CategoricalAxis
+from ...graph_types import MARKS
+from ..i18n import tr
 
 LOG = logging.getLogger("spacr.qt.grouped_plot")
 
 #: Map public graph-type names to marks accepted by
 #: :meth:`~spacr.qt.widgets.fast_plots.FastPlot.add_group_mark`.
-MARKS: Dict[str, str] = {
-    "bar": "bar",
-    "bar_jitter": "jitter_bar",
-    "box_jitter": "jitter_box",
-    "jitter": "jitter",
-    "box": "box",
-    "violin": "violin",
-    "line": "line",
-    "scatter": "points",
-}
+
 
 
 @dataclass
@@ -142,6 +135,11 @@ class GroupedPlot(FastPlot):
         """
         super().__init__(parent=parent, **kwargs)
         self.spec: Optional[PlotSpec] = None
+        if self.plots_available:
+            self.plot.setAxisItems({"bottom": _CategoricalAxis(dpi=self.logicalDpiX())})
+            self.plot.getAxis("bottom").setPen(self.plot.getAxis("left").pen())
+            self.plot.getAxis("bottom").setTickPen(self.plot.getAxis("left").pen())
+            self.apply_text_style()
         if spec is not None:
             self.show_spec(spec)
 
@@ -183,10 +181,8 @@ class GroupedPlot(FastPlot):
         every point at one categorical position -- a jitter under another name,
         which the graph-type table refuses to offer.
 
-        The group size goes on the axis label, not only in the caption: a
-        three-point group and a three-hundred-point group are the same bar, and
-        the label is the only place a reader meets the difference before reading
-        the sentence underneath.
+        Finite observation counts select the shared automatic representation.
+        Counts remain in the legend and status text rather than on axis ticks.
 
         :returns: the number of groups drawn; ``0`` when there was nothing.
         """
@@ -214,11 +210,26 @@ class GroupedPlot(FastPlot):
             self.add_group_mark(float(position), groups[label], mark,
                                 colour=colour, seed=position,
                                 spread=str(getattr(spec, "spread", "sem")))
-        self.plot.getAxis("bottom").setTicks(
-            [[(position, f"{label}\n(n={len(groups[label]):,})")
-              for position, label in enumerate(labels)]])
+        if self.plots_available:
+            self.plot.getAxis("bottom").set_categories(labels)
+        self.plot.setXRange(-0.5, len(labels) - 0.5, padding=0.0)
         self._label_axes(spec, categorical=True)
         self.set_status(self._caption(groups))
+        from ...figures.style import resolve_style
+
+        controls = [index for index, label in enumerate(labels) if background and str(label) == background]
+        self._spacr_style_spec = resolve_style("screen", "categorical", conditions=labels,
+            sample_counts=[int(np.isfinite(values).sum()) for values in groups.values()],
+            control=controls,
+            identities={label: "highlight" if str(label) == subject else "data" for label in labels} if subject else None,
+            comparison={"reference": background or None,
+                                        "experimental_unit": spec.unit, "graph_type": spec.kind},
+            legend={"caption": self._headline, "reference": background or None,
+                    "quantities": {"x": spec.x_label or spec.group, "y": spec.y_label or spec.value},
+                    "units": getattr(spec.frame, "attrs", {}).get("units") or {}})
+        from ...figures.style import finalize_figure
+
+        finalize_figure(self)
         return len(labels)
 
     @staticmethod
@@ -240,14 +251,25 @@ class GroupedPlot(FastPlot):
         except Exception:                                    # noqa: BLE001
             return colour_for(position)
         if background and str(label) == background:
-            return ROLES["data"]
+            return ROLES["control"]
         if not subject:
-            return colour_for(position)
+            return ROLES["primary"]
         return ROLES["highlight"] if str(label) == subject else ROLES["data"]
 
     def _draw_xy(self, mark: str) -> int:
-        """Two continuous axes: a scatter, or a line through ordered x."""
+        """Draw unchanged continuous coordinates with shared appearance and external semantics.
+
+        The original numeric coercion, missing-row handling and line sorting
+        remain unchanged. Only the data pen, declared units and line view
+        origin use the shared presentation owner.
+
+        :param mark: existing line or scatter rendering choice.
+        :returns: one drawn continuous series.
+        """
         spec = self.spec
+        axis = self.plot.getAxis("bottom")
+        if isinstance(axis, _CategoricalAxis):
+            axis.clear_categories()
         frame = spec.frame.dropna(subset=[spec.group, spec.value])
         x = pd.to_numeric(frame[spec.group], errors="coerce").to_numpy(float)
         y = pd.to_numeric(frame[spec.value], errors="coerce").to_numpy(float)
@@ -257,12 +279,40 @@ class GroupedPlot(FastPlot):
             from .fast_plots import colour_for
 
             order = np.argsort(x)
-            self.plot.plot(x[order], y[order],
-                           pen=pg.mkPen(colour_for(0), width=2))
+            from ...figures.style import DATA_ALPHA, WEIGHTS
+
+            artist = self.plot.plot(x[order], y[order],
+                pen=pg.mkPen(colour_for(0, int(round(DATA_ALPHA*255))),
+                             width=WEIGHTS["data"]*float(self.logicalDpiX())/72.))
         else:
-            self.add_scatter(x, y)
+            from ...figures.style import DATA_ALPHA
+            from .fast_plots import colour_for
+
+            artist = self.add_scatter(x, y,
+                colours=[colour_for(0, int(round(DATA_ALPHA*255))) for _ in x])
+        artist._spacr_condition_role = "data"
         self._label_axes(spec, categorical=False)
-        self.set_status(f"{len(x):,} point(s).")
+        self.set_status(tr("{count} point(s).").format(count=f"{len(x):,}"))
+        from ...figures.style import resolve_style, finalize_figure, _line_origin_limits
+
+        attrs = getattr(spec.frame, "attrs", {})
+        reference = attrs.get("reference")
+        comparison = {"reference": reference, "graph_type": spec.kind,
+                      "experimental_unit": spec.unit}
+        if attrs.get("cut_axis_reason"):
+            comparison["cut_axis_reason"] = attrs["cut_axis_reason"]
+        self._spacr_style_spec = resolve_style("screen", "continuous", comparison=comparison,
+            legend={"caption": spec.title or self._headline, "reference": reference,
+                    "quantities": {"x": spec.group, "y": spec.value},
+                    "units": attrs.get("units") or {}})
+        finite = y[np.isfinite(y)]
+        if mark == "line" and len(finite) and not comparison.get("cut_axis_reason"):
+            self.plot.getViewBox().updateAutoRange()
+            limits = self.plot.getViewBox().viewRange()[1]
+            low, high = _line_origin_limits(limits, (float(finite.min()), float(finite.max())))
+            if low != high:
+                self.plot.setYRange(low, high, padding=0.)
+        finalize_figure(self)
         return 1
 
     def _label_axes(self, spec, *, categorical: bool) -> None:
@@ -278,6 +328,7 @@ class GroupedPlot(FastPlot):
                                        else spec.group or ""))
         if spec.title:
             self.plot.setTitle(spec.title)
+        self.apply_text_style()
 
     def _caption(self, groups) -> str:
         """The sample count for every group, and what the whisker means.
@@ -291,6 +342,23 @@ class GroupedPlot(FastPlot):
                            for label, values in groups.items())
         spec = self.spec
         mark = MARKS.get(str(getattr(spec, "kind", "") or ""), "jitter_bar")
+        if mark == "auto":
+            from ...figures.spread import SPREAD_NONE, spread_label
+            from ...figures.style import AUTO_N, DENSE_N
+
+            caption = counts + " — " + tr("Means with every observation through twenty values; "
+                "boxes with observations above twenty; violins without points from one thousand. "
+                "Box whiskers show the fifth and ninety-fifth percentiles.")
+            spread = str(getattr(spec, "spread", "") or SPREAD_NONE)
+            if spread != SPREAD_NONE and any(1 < np.isfinite(values).sum() <= AUTO_N for values in groups.values()):
+                caption += " " + tr("Bar whiskers: {spread}.").format(spread=spread_label(spread))
+            if any(np.isfinite(values).sum() >= DENSE_N and np.ptp(values[np.isfinite(values)]) == 0
+                   for values in groups.values()):
+                caption += " " + tr("A zero-spread violin is a horizontal line at the shared value.")
+            return caption
+        if mark == "violin" and any(np.isfinite(values).any() and np.ptp(values[np.isfinite(values)]) == 0
+                                     for values in groups.values()):
+            return counts + " — " + tr("A zero-spread violin is a horizontal line at the shared value.")
         if mark not in ("bar", "jitter_bar"):
             return counts
         from ...figures.spread import SPREAD_NONE, spread_label

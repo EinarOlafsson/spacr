@@ -1,0 +1,6 @@
+{
+  "spacr.plot._imshow": {"reason": "G5 specialized developer/debug route; migrate after the user-facing groups. Reviewed operation: Display multiple images in a grid with corresponding labels.", "location": "spacr/plot.py:5535"},
+  "spacr.plot._imshow_gpu": {"reason": "G5 specialized developer/debug route; migrate after the user-facing groups. Reviewed operation: Display multiple images in a grid with corresponding labels.", "location": "spacr/plot.py:5571"},
+  "spacr.plot._plot_4D_arrays": {"reason": "G5 specialized developer/debug route; migrate after the user-facing groups. Reviewed operation: Plot 4D arrays from .npz files.", "location": "spacr/plot.py:4403"},
+  "spacr.plot.plot_arrays": {"reason": "G5 specialized developer/debug route; migrate after the user-facing groups. Reviewed operation: Plot random ``.npy`` / ``.npz`` arrays from ``src``, one channel per subplot.", "location": "spacr/plot.py:4740"}
+}

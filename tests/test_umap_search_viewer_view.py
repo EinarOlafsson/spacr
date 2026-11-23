@@ -243,7 +243,7 @@ def test_the_menu_editor_and_mouse_move_only_the_camera_they_should(
 # --------------------------------------------------------------------------
 
 def test_every_marker_paints_its_own_picture(qtbot, subtests):
-    """Each marker inks the canvas, two markers differ, 3-D adds a hint."""
+    """Each marker inks the canvas, two markers differ, and 3D camera help stays outside the plot."""
     labels = np.array([-1 if index % 7 == 0 else index % 3
                        for index in range(40)])
     for marker in ("circle", "square", "diamond", "cross"):
@@ -264,10 +264,12 @@ def test_every_marker_paints_its_own_picture(qtbot, subtests):
         flat = _embedding(2)
 
         def footer(coords):
+            """Return actual footer ink and the separately exposed camera instructions."""
             view = _view(qtbot, coords, size=(600, 400))
             view._zoom, view._pitch = 0.2, 0.0
-            return _ink(view, 370, 396)
+            return _ink(view, 370, 396), view.toolTip()
 
         two_d = footer(flat)
         three_d = footer(np.column_stack((flat, np.zeros(len(flat)))))
-        assert 0 < two_d < three_d
+        assert 0 < two_d[0] and 0 < three_d[0]
+        assert "drag to spin" not in two_d[1] and "drag to spin" in three_d[1]

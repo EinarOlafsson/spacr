@@ -352,7 +352,7 @@ def test_categorical_axes_are_ticked_but_not_pinned_when_sharing_is_off(qtbot):
 
     assert loose_ticks == ["g0", "g1", "g2"]
     assert [t.get_text() for t in shared.get_xticklabels()] == loose_ticks
-    assert shared.get_xlim() == (-0.6, 2.6)
+    assert shared.get_xlim() == (-0.5, 2.5)
     assert loose_limits != shared.get_xlim()
 
 
@@ -427,7 +427,7 @@ def test_a_categorical_y_is_ticked_but_not_pinned_when_sharing_is_off(qtbot):
     shared = view.axes_at(0, 0)
 
     assert loose_ticks == ["g0", "g1", "g2"]
-    assert shared.get_ylim() == (-0.6, 2.6)
+    assert shared.get_ylim() == (-0.5, 2.5)
     assert loose_limits != shared.get_ylim()
 
 

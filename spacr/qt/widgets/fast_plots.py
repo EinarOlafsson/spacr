@@ -17,6 +17,7 @@ from __future__ import annotations
 import logging
 from collections import namedtuple
 from contextlib import contextmanager
+from ..i18n import tr
 from typing import Any, List, Optional, Sequence
 
 import numpy as np
@@ -99,12 +100,7 @@ from PySide6.QtWidgets import (
 
 #: Colour-blind-safe qualitative order. A screen's categories are nominal, so a
 #: sequential map would imply a ranking that is not there.
-PALETTE = (
-    "#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B3", "#937860",
-    "#DA8BC3", "#8C8C8C", "#CCB974", "#64B5CD", "#4878CF", "#EE854A",
-    "#6ACC64", "#D65F5F", "#956CB4", "#8C613C", "#DC7EC0", "#797979",
-    "#D5BB67", "#82C6E2",
-)
+from ...figures.style import SERIES as PALETTE
 
 #: The two colours a "one thing against grey" plot needs. THE SAME OBJECTS
 #: the saved figure uses, not a second pair chosen to look similar: a run
@@ -177,6 +173,7 @@ SNAPSHOT_PX = (520, 380)
 #: example, ``jitter_box`` overlays individual points on the box plot so users
 #: can inspect both the distribution and its compact statistical summary.
 MARK_TYPES = (
+    ("auto", "Automatic"),
     ("points", "Points with a mean line"),
     ("line", "Means joined by a line"),
     ("bar", "Bar chart"),
@@ -1116,14 +1113,17 @@ def _violin_profile(values, half_width: float):
     decides the shape entirely. Counting into bins invents nothing; the bins
     are visible as steps, which is the honest tell that the shape is coarse.
 
-    Returns ``(None, None)`` when every value is identical: a density with no
-    width is a vertical line, and drawing one as a violin claims a spread that
-    is not there.
+    Identical values produce a zero-height outline across the selected mark
+    width. It represents their shared value without inventing vertical spread
+    or falling back to individual points in a dense group. Nonfinite limits
+    return ``(None, None)``.
     """
     v = np.asarray(values, dtype=float)
     low, high = float(np.min(v)), float(np.max(v))
-    if not np.isfinite(low) or not np.isfinite(high) or high <= low:
+    if not np.isfinite(low) or not np.isfinite(high):
         return None, None
+    if high == low:
+        return np.array([low, high]), np.full(2, float(half_width))
     bins = int(np.clip(np.sqrt(len(v)) * 2, 6, 24))
     counts, edges = np.histogram(v, bins=bins, range=(low, high))
     centres = (edges[:-1] + edges[1:]) / 2.0
@@ -1132,6 +1132,243 @@ def _violin_profile(values, half_width: float):
     centres = np.concatenate([[low], centres, [high]])
     density = np.concatenate([[0.0], density, [0.0]])
     return centres, density
+
+
+def _recoloured_pen(pen, colour):
+    """Copy a native pen while preserving opacity, width, dash and cap styles."""
+    from PySide6.QtGui import QPen
+
+    result = QPen(pg.mkPen(pen))
+    replacement = QColor(colour)
+    replacement.setAlphaF(result.color().alphaF())
+    result.setColor(replacement)
+    return result
+
+
+def _native_pen_appearance(pen) -> dict:
+    """Capture an actual native pen including independent opacity, width and custom dashes."""
+    return dict(colour=list(pen.color().getRgbF()), width=float(pen.widthF()),
+                style=int(pen.style().value), dash=[float(value) for value in pen.dashPattern()],
+                dash_offset=float(pen.dashOffset()), cap=int(pen.capStyle().value),
+                join=int(pen.joinStyle().value), cosmetic=pen.isCosmetic())
+
+
+def _native_text_appearance(item, role) -> dict:
+    """Read the resolved native font and actual rich-text ink from a rendered label."""
+    from PySide6.QtGui import QFontInfo
+
+    block = item.document().firstBlock()
+    iterator = block.begin()
+    fragment = iterator.fragment() if not iterator.atEnd() else None
+    font = fragment.charFormat().font() if fragment is not None else item.font()
+    actual = QFontInfo(font)
+    colour = fragment.charFormat().foreground().color() if fragment is not None else item.defaultTextColor()
+    return dict(role=role, family=actual.family(), size=actual.pointSizeF(),
+                weight=int(actual.weight()), italic=actual.italic(), selected=font.toString(),
+                colour=list(colour.getRgbF()), text=item.toPlainText())
+
+
+
+def _native_mark_bounds(artist) -> dict:
+    """Observe finite native data bounds without changing values, viewport limits or transforms."""
+    if isinstance(artist, pg.InfiniteLine):
+        value = float(artist.value())
+        if artist.angle == 90:
+            return {"x": [value, value], "y": None, "checked": True}
+        if artist.angle == 0:
+            return {"x": None, "y": [value, value], "checked": True}
+        return {"x": None, "y": None, "checked": False}
+    reader = getattr(artist, "dataBounds", None)
+    if reader is None:
+        return {"x": None, "y": None, "checked": False}
+    result = {"checked": True}
+    for axis, name in ((0, "x"), (1, "y")):
+        try:
+            values = reader(axis)
+            result[name] = [float(value) for value in values] if values is not None and all(
+                value is not None and np.isfinite(value) for value in values) else None
+        except (RuntimeError, ValueError, TypeError, AttributeError):
+            result[name] = None
+            result["checked"] = False
+    return result
+
+
+
+def _native_text_geometry(plot_item) -> dict:
+    """Measure actual native text polygons using the same axis specifications and fonts as painting.
+
+    Bounds allow half a logical display pixel. Rotated labels use polygon
+    intersections rather than their overlapping axis-aligned envelopes.
+    """
+    from PySide6.QtCore import QRectF
+    from PySide6.QtGui import QFontMetricsF, QPainter, QPainterPath, QPainterPathStroker, QPicture, QPolygonF, QTransform
+    from ...figures.style import TICK_ROTATION
+
+    polygons = []
+    failures = []
+    for edge in ("bottom", "left", "top", "right"):
+        axis = plot_item.getAxis(edge)
+        if not axis.isVisible():
+            continue
+        if axis.labelText and axis.label.isVisible():
+            polygons.append(("label", axis.mapToScene(axis.label.mapToParent(axis.label.boundingRect()))))
+        if not axis.style.get("showValues", True):
+            continue
+        picture = QPicture()
+        painter = QPainter(picture)
+        try:
+            if axis.style.get("tickFont") is not None:
+                painter.setFont(axis.style["tickFont"])
+            specs = axis.generateDrawSpecs(painter)
+            if specs is None:
+                failures.append("Native axis text specifications are unavailable")
+                continue
+            metrics = QFontMetricsF(painter.font())
+            for rect, flags, text in specs[2]:
+                if isinstance(axis, _CategoricalAxis) and axis._category_labels:
+                    glyph = metrics.boundingRect(text)
+                    glyph.translate(-metrics.horizontalAdvance(text), metrics.ascent())
+                    transform = QTransform()
+                    transform.translate(rect.center().x(), rect.top())
+                    transform.rotate(-TICK_ROTATION)
+                    polygon = transform.map(QPolygonF(glyph))
+                else:
+                    polygon = QPolygonF(metrics.boundingRect(QRectF(rect), int(flags), text))
+                polygons.append(("tick", axis.mapToScene(polygon)))
+        except (RuntimeError, ValueError, TypeError, AttributeError):
+            failures.append("Native axis text geometry could not be measured")
+        finally:
+            painter.end()
+    title = getattr(plot_item, "titleLabel", None)
+    if title is not None and title.text and title.isVisible():
+        polygons.append(("title", title.item.mapToScene(title.item.boundingRect())))
+    canvas = plot_item.sceneBoundingRect().adjusted(-.5, -.5, .5, .5)
+    outside = any(not canvas.contains(polygon.boundingRect()) for _, polygon in polygons)
+    overlaps = False
+    paths = []
+    for role, polygon in polygons:
+        path = QPainterPath()
+        path.addPolygon(polygon)
+        path.closeSubpath()
+        paths.append(path)
+    border = QPainterPathStroker()
+    border.setWidth(.5)
+    interiors = [path.subtracted(border.createStroke(path)) for path in paths]
+    for index, first in enumerate(interiors):
+        for second in interiors[index+1:]:
+            if first.intersects(second):
+                overlaps = True
+    return dict(checked=not failures, findings=tuple(dict.fromkeys(failures)), outside=outside,
+                overlaps=overlaps, elements=[dict(role=role, bounds=list(polygon.boundingRect().getRect()))
+                                            for role, polygon in polygons])
+
+
+
+class _CategoricalAxis(pg.AxisItem if HAVE_PYQTGRAPH else object):
+    """Render categorical tick labels at the shared angle without shortening identities.
+
+    :param orientation: native axis edge; categorical plots use bottom.
+    """
+
+    def __init__(self, orientation="bottom", dpi=96.):
+        """Create complete rotated labels and outward major ticks at the supplied logical DPI."""
+        super().__init__(orientation=orientation)
+        self._category_labels = ()
+        self.setStyle(textFillLimits=[(0, 10.0)], hideOverlappingLabels=False,
+                      autoExpandTextSpace=True, maxTickLevel=0, maxTextLevel=0,
+                      tickAlpha=255, tickLength=int(round(2.5 * float(dpi) / 72.)))
+
+    def set_categories(self, labels):
+        """Set complete category names and reserve their measured rotated height.
+
+        :param labels: ordered visible identities; no source labels are truncated.
+        """
+        from PySide6.QtGui import QFont, QFontMetricsF
+        from ...figures.style import GENERAL_DEFAULTS, TICK_ROTATION
+
+        self._category_labels = tuple(str(value) for value in labels)
+        self.setStyle(autoExpandTextSpace=False)
+        font = self.style.get("tickFont")
+        if font is None:
+            font = QFont(GENERAL_DEFAULTS["font_family"])
+            font.setPointSizeF(GENERAL_DEFAULTS["tick_size"])
+            font.setWeight(QFont.Light)
+            self.setStyle(tickFont=font)
+        metrics = QFontMetricsF(font)
+        longest = max((metrics.horizontalAdvance(value) for value in self._category_labels), default=0.)
+        angle = np.deg2rad(TICK_ROTATION)
+        label_height = metrics.height() if self.label.isVisible() else 0.
+        self.setHeight(int(np.ceil(longest * np.sin(angle) + metrics.height() *
+                                  np.cos(angle) + label_height + 12.)))
+        self.setTicks([[(float(index), name) for index, name in enumerate(self._category_labels)]])
+
+    def clear_categories(self) -> None:
+        """Restore ordinary numeric ticks after a categorical redraw without changing data limits."""
+        self._category_labels = ()
+        self.setTicks(None)
+        self.setHeight(None)
+        self.setStyle(autoExpandTextSpace=True)
+
+    def generateDrawSpecs(self, painter):
+        """Keep every visible explicit category label before rotation, without the unrotated-width filter.
+
+        The base axis discards long labels against its unrotated rectangle;
+        the categorical renderer paints them as rotated text instead.
+        """
+        from PySide6.QtCore import Qt, QRectF
+        from PySide6.QtGui import QFontMetricsF
+
+        specs = super().generateDrawSpecs(painter)
+        if (specs is None or not self._category_labels or self.orientation != "bottom" or self._tickLevels is None
+                or not self.style.get("showValues", True)):
+            return specs
+        low, high = self.range
+        if high == low:
+            return specs
+        bounds = self.mapRectFromParent(self.geometry())
+        font = self.style.get("tickFont") or painter.font()
+        metrics = QFontMetricsF(font)
+        top = bounds.top() + max(0, self.style["tickLength"]) + self.style["tickTextOffset"][1]
+        flags = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextDontClip
+        text_specs = []
+        for level in self._tickLevels:
+            for position, text in level:
+                if not min(low, high) <= position <= max(low, high):
+                    continue
+                x = bounds.left() + (position - low) / (high - low) * bounds.width()
+                width = metrics.horizontalAdvance(str(text))
+                text_specs.append((QRectF(x - width/2., top, width, metrics.height()), flags, str(text)))
+        return specs[0], specs[1], text_specs
+
+
+    def drawPicture(self, painter, axis_spec, tick_specs, text_specs):
+        """Paint normal boxed-axis lines and complete category labels at the shared rotation.
+
+        :param painter: native vector or raster painter.
+        :param axis_spec: source axis pen and endpoints.
+        :param tick_specs: source tick pens and endpoints.
+        :param text_specs: native tick label rectangles and strings.
+        """
+        from PySide6.QtCore import QPointF
+        from PySide6.QtGui import QFontMetricsF
+        from ...figures.style import TICK_ROTATION
+
+        if not self._category_labels:
+            return super().drawPicture(painter, axis_spec, tick_specs, text_specs)
+        painter.save()
+        super().drawPicture(painter, axis_spec, tick_specs, [])
+        painter.restore()
+        painter.setRenderHint(painter.RenderHint.TextAntialiasing, True)
+        font = self.style.get("tickFont") or painter.font()
+        metrics = QFontMetricsF(font)
+        painter.setFont(font)
+        painter.setPen(self.textPen())
+        for rect, flags, text in text_specs:
+            painter.save()
+            painter.translate(rect.center().x(), rect.top())
+            painter.rotate(-TICK_ROTATION)
+            painter.drawText(QPointF(-metrics.horizontalAdvance(text), metrics.ascent()), text)
+            painter.restore()
 
 
 class FastPlot(QWidget):
@@ -1205,9 +1442,12 @@ class FastPlot(QWidget):
         self._install_rubber_band()
         self.plot.setLabel("bottom", x_label)
         self.plot.setLabel("left", y_label)
-        self.plot.showGrid(x=True, y=True, alpha=0.25)
+        self.plot.showGrid(x=False, y=False, alpha=0.25)
+        for edge in ("top", "right"):
+            self.plot.showAxis(edge)
+            self.plot.getAxis(edge).setStyle(showValues=False)
         self.plot.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.plot.setBackground(None)
+        self.plot.setBackground(self._background)
         try:
             from ..theme import make_transparent
 
@@ -1321,6 +1561,20 @@ class FastPlot(QWidget):
 
         self.plot.setContextMenuPolicy(Qt.CustomContextMenu)
         self.plot.customContextMenuRequested.connect(self._style_menu)
+        from ...figures.style import GENERAL_DEFAULTS, WEIGHTS
+
+        pixel_scale = float(self.logicalDpiX()) / 72.
+        for axis in self.axis_items():
+            pen = pg.mkPen(QColor(self._foreground), width=WEIGHTS["spine"] * pixel_scale)
+            axis.setPen(pen)
+            axis.setTickPen(pen)
+            axis.setStyle(maxTickLevel=0, maxTextLevel=0, tickAlpha=255,
+                          tickLength=int(round(2.5 * pixel_scale)))
+        title_item = getattr(self.plot.plotItem, "titleLabel", None)
+        if title_item is not None:
+            title_item.setText(title_item.text or "", family=GENERAL_DEFAULTS["font_family"],
+                               size=f"{GENERAL_DEFAULTS['title_size']:g}pt", bold=False)
+        self.apply_text_style()
 
     def _build_without_pyqtgraph(self, title: str) -> None:
         """A usable, honest empty box instead of a traceback.
@@ -1396,6 +1650,9 @@ class FastPlot(QWidget):
         """
         self.plot.clear()
         self._row_xy = {}
+        self._spacr_style_spec = None
+        self._spacr_legend_entries = ()
+        self._spacr_last_export = None
         self._highlight = None
         self._labels = ()
         self._drawn = []
@@ -1539,6 +1796,78 @@ class FastPlot(QWidget):
                 self._smoother_chosen == name,
             ))
         return entries
+
+    def _finish_diagnostic(self, *, reference, units=(), diagonal=False, preserve_opacity=False, comparison=()) -> None:
+        """Declare a native diagnostic and apply shared mark defaults without changing its calculations.
+
+        Quantities come from the existing displayed axis labels. Only units
+        known from a mathematical definition are supplied by the producer;
+        unspecified model-response units remain explicit diagnostics.
+
+        :param reference: explicitly named analytical reference described by this diagnostic.
+        :param units: known axis-unit pairs, with missing measurement units left unspecified.
+        :param diagonal: whether the existing non-scatter curve is an identity reference.
+        :param preserve_opacity: retain explicitly selected per-point opacity channels unchanged.
+        :param comparison: explicit source view metadata, including a displayed subset and its reason.
+        """
+        if not self.plots_available:
+            return
+        from ...figures.style import resolve_style, finalize_figure, _apply_native_marks, Palette
+
+        quantities = {"x": str(self.plot.getAxis("bottom").labelText),
+                      "y": str(self.plot.getAxis("left").labelText)}
+        title = str(self.plot.plotItem.titleLabel.text or "")
+        if not hasattr(self, "_spacr_diagnostic_default_title"):
+            self._spacr_diagnostic_default_title = title
+        caption = title or self._spacr_diagnostic_default_title
+        if self._headline:
+            caption += " " + self._headline
+        details = dict(comparison)
+        details.setdefault("graph_type", "diagnostic")
+        details["reference"] = reference
+        self._spacr_style_spec = resolve_style("screen", "continuous",
+            comparison=details,
+            legend={"caption": caption.strip(), "reference": reference,
+                    "quantities": quantities, "units": dict(units)})
+        artists = []
+        entries = [dict(label=caption.strip(), colour="#000000", kind="caption"),
+                   dict(label=reference, colour=Palette.CONTROL, kind="reference")]
+        for artist in self.plot.plotItem.items:
+            if artist is self._highlight:
+                continue
+            if isinstance(artist, pg.InfiniteLine):
+                role, colour = "reference", Palette.CONTROL
+                label = getattr(artist, "label", None)
+                if label is not None:
+                    entries.append(dict(label=label.toPlainText(), colour=colour, kind="reference"))
+                    label.setVisible(False)
+            elif isinstance(artist, pg.ScatterPlotItem):
+                role, colour = getattr(artist, "_spacr_condition_role", "data"), None
+            elif isinstance(artist, pg.BarGraphItem):
+                role = getattr(artist, "_spacr_condition_role", "data")
+                colour = None if role in ("bar", "box") else Palette.ACCENT
+            elif isinstance(artist, pg.FillBetweenItem):
+                role, colour = "interval", Palette.TEAL
+            elif isinstance(artist, (pg.PlotDataItem, pg.PlotCurveItem)):
+                role = getattr(artist, "_spacr_condition_role", None)
+                if role in ("summary", "error"):
+                    colour = "#000000"
+                elif role == "violin":
+                    colour = None
+                else:
+                    role, colour = ("reference", Palette.CONTROL) if diagonal else ("trend", Palette.TEAL)
+            else:
+                continue
+            artists.append((artist, role, colour))
+        _apply_native_marks(self, self._spacr_style_spec, artists, preserve_opacity=preserve_opacity)
+        if details.get("display_range_reason"):
+            entries.append(dict(label=details["display_range_reason"], colour="#000000", kind="display_range"))
+        for label, colour in getattr(self, "_legend_colours", {}).items():
+            entries.append(dict(label=str(label), colour=QColor(colour).name(), kind="identity"))
+        self._spacr_legend_entries = tuple(entries)
+        if title == self._spacr_diagnostic_default_title:
+            self.plot.setTitle("")
+        finalize_figure(self)
 
     def add_smoother(self, x, y, *, method: str = "lowess",
                      colour: str = "#55A868") -> str:
@@ -1710,6 +2039,8 @@ class FastPlot(QWidget):
         self._shape_column: Optional[str] = None
         #: The width and height of a SAVED page, in millimetres. The height
         #: is None until asked for, meaning "follow the plot's own aspect".
+        self._explicit_file_colours = False
+        self._export_size_explicit = False
         self._export_width_mm: float = EXPORT_WIDTH_MM
         self._export_height_mm: Optional[float] = None
         #: Dots per inch a RASTER export is written at, or None to keep the
@@ -1879,7 +2210,7 @@ class FastPlot(QWidget):
         #: Whether the grid is drawn. State rather than a widget since the
         #: control moved onto the menu: a menu entry is built fresh on every
         #: right-click and cannot be the thing that remembers.
-        self._grid_on: bool = True
+        self._grid_on: bool = False
         #: ``(low, high)`` IN DATA UNITS of the band the y axis HIDES, or
         #: None while the axis is unbroken. Data units for the same reason
         #: :attr:`_pinned` is: it is what the user typed, and re-deriving it
@@ -2617,7 +2948,7 @@ class FastPlot(QWidget):
         :param points: font size in points, converted to ``int``.
         """
         self._font_size = int(points)
-        self.apply_text_style()
+        self.apply_text_style(resize=True)
 
     def font_colour(self) -> Optional[str]:
         """The ink chosen for text, or None while it follows the theme."""
@@ -2636,40 +2967,59 @@ class FastPlot(QWidget):
         self._font_colour = None if colour is None else QColor(colour).name()
         self.apply_text_style()
 
-    def apply_text_style(self) -> None:
+    def apply_text_style(self, *, resize=False) -> None:
         """Put the chosen size and ink onto both axes and the title.
 
         One place, because the size and the colour are set from two different
         menu entries and each has to leave the other's choice standing --
-        applied separately, one would revert the other.
+        applied separately, one would revert the other. Manual font families,
+        weights and title emphasis remain intact during a colour change.
+
+        :param resize: apply the selected common point size when true.
         """
+        if not self.plots_available:
+            return
         colour = self._font_colour or self._foreground
-        size = self._font_size
+        from ...figures.style import GENERAL_DEFAULTS
+        from ...figure_font import use_open_sans_for_qt
+
+        use_open_sans_for_qt()
+
+        size = self._font_size if self._font_size is not None else int(GENERAL_DEFAULTS["font_size"])
         pen = pg.mkPen(QColor(colour))
+        from PySide6.QtGui import QFont
+
         for name in ("bottom", "left"):
             try:
                 axis = self.plot.getAxis(name)
             except Exception:
                 continue
             axis.setTextPen(pen)
-            if size is not None:
-                from PySide6.QtGui import QFont
-
-                font = QFont()
+            existing = axis.style.get("tickFont")
+            if existing is None or resize:
+                font = QFont(existing) if existing is not None else QFont(GENERAL_DEFAULTS["font_family"])
+                if existing is None:
+                    font.setWeight(QFont.Light)
                 font.setPointSize(int(size))
                 axis.setStyle(tickFont=font)
             if axis.labelText:
-                style = {"color": colour}
-                if size is not None:
-                    style["font-size"] = f"{int(size)}pt"
-                axis.setLabel(axis.labelText, **style)
+                label_style = dict(getattr(axis, "labelStyle", {}))
+                label_style["color"] = colour
+                label_style.setdefault("font-family", GENERAL_DEFAULTS["font_family"])
+                label_style.setdefault("font-weight", "300")
+                if resize:
+                    label_style["font-size"] = f"{int(size)}pt"
+                else:
+                    label_style.setdefault("font-size", f"{int(size)}pt")
+                axis.setLabel(axis.labelText, **label_style)
+            if isinstance(axis, _CategoricalAxis) and axis._category_labels:
+                axis.set_categories(axis._category_labels)
         title = getattr(self.plot.plotItem, "titleLabel", None)
-        if title is not None and title.text:
-            if size is not None:
-                self.plot.setTitle(title.text, color=colour,
-                                   size=f"{int(size) + 2}pt")
-            else:
-                self.plot.setTitle(title.text, color=colour)
+        if title is not None:
+            options = dict(getattr(title, "opts", {}))
+            family = options.get("family") or GENERAL_DEFAULTS["font_family"]
+            title_size = f"{int(size)}pt" if resize else options.get("size") or f"{GENERAL_DEFAULTS['title_size']:g}pt"
+            title.setText(title.text or "", color=colour, size=title_size, family=family)
         for item in self.line_items():
             label = getattr(item, "label", None)
             if label is None:
@@ -2781,20 +3131,19 @@ class FastPlot(QWidget):
             if not hasattr(item, "_spacr_base_colour"):
                 item._spacr_base_colour = QColor(pen.color()).name()
             if theme:
-                pen.setColor(QColor(item._spacr_base_colour))
+                pen = _recoloured_pen(pen, item._spacr_base_colour)
             elif colour is not None:
-                pen.setColor(QColor(colour))
+                pen = _recoloured_pen(pen, colour)
             if width is not None:
                 pen.setWidthF(float(width))
             item.setPen(pen)
             touched += 1
         if colour is not None or theme:
             ink = self._foreground if theme else colour
-            axis_pen = pg.mkPen(QColor(ink))
             for axis in self.axis_items():
-                axis.setPen(axis_pen)
+                axis.setPen(_recoloured_pen(axis.pen(), ink))
                 try:
-                    axis.setTickPen(axis_pen)
+                    axis.setTickPen(_recoloured_pen(axis.tickPen(), ink))
                 except Exception:
                     pass
         return touched
@@ -3104,6 +3453,92 @@ class FastPlot(QWidget):
             self._apply_canvas_shape()
 
     @contextmanager
+    def _held_at_policy_geometry(self):
+        """Render declared categorical or continuous geometry, restoring the interactive layout.
+
+        The visible categorical viewport is recorded explicitly. Manual page
+        shapes retain their chosen geometry and remain subject to diagnostics.
+        """
+        from PySide6.QtCore import QRectF
+        from ...figures.style import axes_geometry
+
+        spec = getattr(self, "_spacr_style_spec", None)
+        if (spec is None or spec.kind not in ("categorical", "continuous") or self._canvas_shape != "free"
+                or getattr(self, "_export_size_explicit", False)):
+            yield False
+            return
+        geometry = axes_geometry(spec)
+        if geometry.width_inches is None or geometry.width_inches <= 0:
+            yield False
+            return
+        item = self.plot.plotItem
+        layout = item.layout
+        before = QRectF(item.geometry())
+        old_columns = (layout.columnMinimumWidth(1), layout.columnPreferredWidth(1), layout.columnMaximumWidth(1))
+        old_rows = (layout.rowMinimumHeight(2), layout.rowPreferredHeight(2), layout.rowMaximumHeight(2))
+        old_margins = layout.getContentsMargins()
+        old_page = (self._export_width_mm, self._export_height_mm, self._export_dpi)
+        dpi = float(self.logicalDpiX())
+        try:
+            padding = 4.0
+            from PySide6.QtGui import QFontMetricsF
+            from ...figures.style import GENERAL_DEFAULTS, TICK_ROTATION
+
+            axis = self.plot.getAxis("bottom")
+            labels = getattr(axis, "_category_labels", ())
+            extra_left = 0.0
+            if labels and axis.style.get("tickFont") is not None:
+                metrics = QFontMetricsF(axis.style["tickFont"])
+                angle = np.deg2rad(TICK_ROTATION)
+                overhang = (metrics.horizontalAdvance(labels[0]) * np.cos(angle) +
+                            metrics.height() * np.sin(angle) - spec.slot_inches * dpi / 2.)
+                extra_left = max(0., overhang - self.plot.getAxis("left").width())
+            layout.setContentsMargins(padding + extra_left, padding, padding, padding)
+            layout.setColumnFixedWidth(1, geometry.width_inches * dpi)
+            layout.setRowFixedHeight(2, geometry.height_inches * dpi)
+            width = geometry.width_inches * dpi + sum(self.plot.getAxis(edge).width() for edge in ("left", "right")) + 2 * padding + extra_left
+            title = getattr(item, "titleLabel", None)
+            title_height = float(title.height()) if title is not None and title.isVisible() else 0.0
+            height = geometry.height_inches * dpi + sum(self.plot.getAxis(edge).height() for edge in ("bottom", "top")) + title_height + 2 * padding
+            item.setGeometry(QRectF(before.x(), before.y(), width, height))
+            layout.activate()
+            for _ in range(3):
+                observed = _native_text_geometry(item)
+                if not observed["checked"] or not observed["elements"]:
+                    break
+                page = item.sceneBoundingRect()
+                boxes = [entry["bounds"] for entry in observed["elements"]]
+                left = max(0., page.left() + padding - min(box[0] for box in boxes))
+                top = max(0., page.top() + padding - min(box[1] for box in boxes))
+                right = max(0., max(box[0] + box[2] for box in boxes) - page.right() + padding)
+                bottom = max(0., max(box[1] + box[3] for box in boxes) - page.bottom() + padding)
+                if max(left, top, right, bottom) < .01:
+                    break
+                margins = layout.getContentsMargins()
+                layout.setContentsMargins(margins[0]+left, margins[1]+top,
+                                          margins[2]+right, margins[3]+bottom)
+                current = item.geometry()
+                item.setGeometry(QRectF(current.x(), current.y(), current.width()+left+right,
+                                        current.height()+top+bottom))
+                layout.activate()
+            self._export_width_mm = float(item.geometry().width()) / dpi * 25.4
+            self._export_height_mm = float(item.geometry().height()) / dpi * 25.4
+            self._export_dpi = self._export_dpi or int(GENERAL_DEFAULTS["dpi"])
+            yield True
+        finally:
+            self._export_width_mm, self._export_height_mm, self._export_dpi = old_page
+            layout.setColumnMinimumWidth(1, old_columns[0])
+            layout.setColumnPreferredWidth(1, old_columns[1])
+            layout.setColumnMaximumWidth(1, old_columns[2])
+            layout.setRowMinimumHeight(2, old_rows[0])
+            layout.setRowPreferredHeight(2, old_rows[1])
+            layout.setRowMaximumHeight(2, old_rows[2])
+            layout.setContentsMargins(*old_margins)
+            item.setGeometry(before)
+            layout.activate()
+
+
+    @contextmanager
     def _held_at_the_page_shape(self):
         """Give the SCENE the canvas shape's proportions for one render.
 
@@ -3122,6 +3557,11 @@ class FastPlot(QWidget):
         A free canvas yields without touching anything.
         """
         from PySide6.QtCore import QRectF
+
+        with self._held_at_policy_geometry() as applied:
+            if applied:
+                yield True
+                return
 
         ratio = self.canvas_ratio()
         item = getattr(self.plot, "plotItem", None)
@@ -3165,6 +3605,7 @@ class FastPlot(QWidget):
         :param height_mm: page height, or None to follow the plot's own
             aspect so nothing is stretched.
         """
+        self._export_size_explicit = True
         self._export_width_mm = float(width_mm)
         self._export_height_mm = (None if height_mm is None
                                   else float(height_mm))
@@ -3423,7 +3864,12 @@ class FastPlot(QWidget):
         for mark in marks:
             mark.setExportMode(True, {"painter": painter, "antialias": True})
         try:
-            item.scene().render(painter, target, source)
+            from ...figures.style import _native_file_strokes
+
+            device = painter.device() if callable(getattr(painter, "device", None)) else None
+            dpi = device.logicalDpiX() if device is not None else None
+            with _native_file_strokes(item, dpi=dpi):
+                item.scene().render(painter, target, source)
         finally:
             for mark in marks:
                 mark.setExportMode(False)
@@ -3564,8 +4010,10 @@ class FastPlot(QWidget):
         return QColor(0, 0, 0, 0)
 
     @classmethod
-    def _wear_the_print_look(cls, item) -> list:
-        """Repaint the CHROME for the page. Returns the undo callables.
+    def _wear_the_print_look(cls, item, *, mode=None) -> list:
+        """Repaint the chrome for the selected page mode and return undo callables.
+
+        :param mode: explicit file mode, or None to follow the saved preference.
 
         THE CHROME FLIPS, THE DATA DOES NOT, and that is the whole design
         (150 A). A blanket white-to-black would turn a white data point black,
@@ -3585,7 +4033,7 @@ class FastPlot(QWidget):
             LOG.debug("the saved-figure look is unavailable", exc_info=True)
             return []
         try:
-            look = saved_figure_appearance()
+            look = saved_figure_appearance(mode)
         except Exception:                                # noqa: BLE001
             return []
         if look is None or getattr(look, "mode", "") == "screen":
@@ -3610,13 +4058,13 @@ class FastPlot(QWidget):
             if axis is None:
                 continue
             pen = axis.pen()
-            repaint(None, lambda c, a=axis: a.setPen(pg.mkPen(c)),
+            repaint(None, lambda c, a=axis, p=pen: a.setPen(_recoloured_pen(p, c)),
                     pen.color().name() if pen is not None else "")
             text_pen = getattr(axis, "textPen", None)
             if callable(text_pen):
                 current = text_pen()
                 repaint(None,
-                        lambda c, a=axis: a.setTextPen(pg.mkPen(c)),
+                        lambda c, a=axis, p=current: a.setTextPen(_recoloured_pen(p, c)),
                         current.color().name() if current is not None else "")
         title = getattr(plot_item, "titleLabel", None)
         if title is not None and getattr(title, "text", ""):
@@ -4956,7 +5404,8 @@ class FastPlot(QWidget):
     def add_group_mark(self, position: float, values, kind: str = "points", *,
                        colour=None, rows=None, width: float = 0.6,
                        size: float = 7.0, seed: int = 0,
-                       centre: str = "mean", spread: str = "sem") -> int:
+                       centre: str = "mean", spread: str = "sem",
+                       whiskers=None, outliers: bool = True, summary: bool = True) -> int:
         """Draw one group's observations or summary at ``position``.
 
         Parameters
@@ -4988,11 +5437,51 @@ class FastPlot(QWidget):
             fifty-five -- so a caller that draws one has to say which, and
             ``none`` draws no whisker at all.
 
+        whiskers : tuple of float, optional
+            Explicit lower and upper box-whisker percentiles; None retains
+            the selected manual box convention.
+        outliers : bool, default=True
+            Show separate points beyond box whiskers. Automatic comparisons
+            instead show each observation once in their jitter layer.
+        summary : bool, default=True
+            Draw the centre line on point and jitter marks. Automatic plots
+            retain the summary already supplied by their bar, box or violin.
+
         Returns
         -------
         int
             Number of finite observations represented by the mark.
         """
+        if not self.plots_available:
+            return self._draw_group_mark(position, values, kind, colour=colour, rows=rows,
+                width=width, size=size, seed=seed, centre=centre, spread=spread,
+                whiskers=whiskers, outliers=outliers, summary=summary)
+        before = {id(item) for item in self.plot.plotItem.items}
+        drawn = self._draw_group_mark(position, values, kind, colour=colour, rows=rows,
+            width=width, size=size, seed=seed, centre=centre, spread=spread,
+            whiskers=whiskers, outliers=outliers, summary=summary)
+        for item in self.plot.plotItem.items:
+            if id(item) in before or hasattr(item, "_spacr_condition_role"):
+                continue
+            item._spacr_condition_index = int(position) if float(position).is_integer() else float(position)
+            if isinstance(item, pg.ScatterPlotItem):
+                role = "points" if kind in ("points", "jitter") else "estimate_point"
+            elif isinstance(item, pg.BarGraphItem):
+                role = "box" if kind == "box" else "bar"
+            elif getattr(item, "opts", {}).get("fillLevel") == "enclosed":
+                role = "violin"
+            else:
+                role = "summary"
+            item._spacr_condition_role = role
+        return drawn
+
+
+    def _draw_group_mark(self, position: float, values, kind: str = "points", *,
+                       colour=None, rows=None, width: float = 0.6,
+                       size: float = 7.0, seed: int = 0,
+                       centre: str = "mean", spread: str = "sem",
+                       whiskers=None, outliers: bool = True, summary: bool = True) -> int:
+        """Draw the selected existing numerical summary; the public wrapper registers created artist roles."""
         v = _finite(values)
         keep = ~np.isnan(v)
         if not keep.any():
@@ -5001,7 +5490,27 @@ class FastPlot(QWidget):
         picked = finite if rows is None else np.asarray(rows)[finite]
         v = v[keep]
         ink = QColor(colour) if colour is not None else colour_for(0, 200)
+        from ...figures.style import AUTO_N, DATA_ALPHA, DENSE_N, WEIGHTS, _condition_kind_count
+
+        ink.setAlphaF(DATA_ALPHA)
+        black = QColor("#000000")
+        black.setAlphaF(DATA_ALPHA)
+        pixel_scale = float(self.logicalDpiX()) / 72.
         half = float(width) / 2.0
+
+        if kind == "auto":
+            chosen = _condition_kind_count(len(v))
+            self.add_group_mark(position, values, chosen,
+                                colour=ink, rows=rows, width=width, size=size,
+                                seed=seed, centre=centre, spread=spread,
+                                whiskers=(5., 95.), outliers=False)
+            if len(v) < DENSE_N:
+                self.add_group_mark(position, values, "jitter", colour=ink,
+                                    rows=rows, width=width * 0.8,
+                                    size=(2. if len(v) <= AUTO_N else np.sqrt(1.2)) *
+                                         float(self.logicalDpiX()) / 72.,
+                                    seed=seed, centre=centre, spread=spread, summary=False)
+            return int(len(v))
 
         if kind in ("points", "jitter"):
             if kind == "jitter":
@@ -5012,8 +5521,9 @@ class FastPlot(QWidget):
             self.add_scatter(x, v, size=size, rows=picked,
                              colours=[ink] * len(v))
             level = float(np.median(v) if centre == "median" else np.mean(v))
-            self.plot.plot([position - half, position + half], [level, level],
-                           pen=pg.mkPen(QColor(self._foreground), width=2))
+            if summary:
+                self.plot.plot([position - half, position + half], [level, level],
+                               pen=pg.mkPen(black, width=WEIGHTS["median"] * pixel_scale))
             return int(len(v))
 
         if kind in ("jitter_box", "jitter_bar"):
@@ -5037,13 +5547,13 @@ class FastPlot(QWidget):
                     err = float(np.std(v, ddof=1)) / np.sqrt(len(v))
                     low, high = level - err, level + err
                 self.plot.plot([position, position], [low, high],
-                               pen=pg.mkPen(QColor(self._foreground), width=1))
+                               pen=pg.mkPen(black, width=WEIGHTS["reference"] * pixel_scale))
             return int(len(v))
 
         if kind == "bar":
             mean = float(np.mean(v))
             fill = QColor(ink)
-            fill.setAlpha(150)
+            fill.setAlphaF(DATA_ALPHA)
             self.plot.addItem(pg.BarGraphItem(
                 x=[position], height=[mean], width=width, brush=fill,
                 pen=pg.mkPen(ink)))
@@ -5054,7 +5564,7 @@ class FastPlot(QWidget):
                 if np.isfinite(err):
                     self.plot.plot([position, position],
                                    [mean - err, mean + err],
-                                   pen=pg.mkPen(QColor(self._foreground),
+                                   pen=pg.mkPen(black,
                                                 width=2))
             return int(len(v))
 
@@ -5064,9 +5574,11 @@ class FastPlot(QWidget):
             span = q3 - q1
             top = float(np.max(v[v <= q3 + 1.5 * span])) if span else high
             bottom = float(np.min(v[v >= q1 - 1.5 * span])) if span else low
-            pen = pg.mkPen(QColor(self._foreground), width=1.5)
+            if whiskers is not None:
+                bottom, top = (float(np.percentile(v, percentile)) for percentile in whiskers)
+            pen = pg.mkPen(black, width=WEIGHTS["reference"] * pixel_scale)
             fill = QColor(ink)
-            fill.setAlpha(110)
+            fill.setAlphaF(DATA_ALPHA)
             self.plot.addItem(pg.BarGraphItem(
                 x=[position], y0=[q1], y1=[q3], width=width, brush=fill,
                 pen=pg.mkPen(ink)))
@@ -5075,7 +5587,7 @@ class FastPlot(QWidget):
             self.plot.plot([position, position], [q3, top], pen=pen)
             self.plot.plot([position, position], [bottom, q1], pen=pen)
             beyond = (v > top) | (v < bottom)
-            if beyond.any():
+            if outliers and beyond.any():
                 self.add_scatter(np.full(int(beyond.sum()), float(position)),
                                  v[beyond], size=size, rows=picked[beyond],
                                  colours=[ink] * int(beyond.sum()))
@@ -5089,16 +5601,16 @@ class FastPlot(QWidget):
                                            width=width, size=size, seed=seed,
                                            centre=centre)
             fill = QColor(ink)
-            fill.setAlpha(110)
+            fill.setAlphaF(DATA_ALPHA)
             xs = np.concatenate([position + density, (position - density)[::-1]])
             ys = np.concatenate([centres, centres[::-1]])
             self.plot.addItem(pg.PlotCurveItem(
                 x=xs, y=ys, pen=pg.mkPen(ink, width=1.5), brush=fill,
-                fillLevel=None, connect="all"))
+                fillLevel="enclosed", connect="all"))
             median = float(np.median(v))
             self.plot.plot([position - half * 0.5, position + half * 0.5],
                            [median, median],
-                           pen=pg.mkPen(QColor(self._foreground), width=2))
+                           pen=pg.mkPen(black, width=WEIGHTS["median"] * pixel_scale))
             return int(len(v))
 
         raise ValueError(
@@ -5216,12 +5728,27 @@ class FastPlot(QWidget):
         from pyqtgraph import exporters
 
         item = self.plot.plotItem
-        width_mm, height_mm = self.export_size()
-        restore = self._wear_the_print_look(item)
+        restore = self._wear_the_print_look(item,
+            mode="screen" if self._explicit_file_colours else None)
+        previous_dpi = self._export_dpi
         try:
             with self._held_at_the_page_shape():
+                from ...figures.style import GENERAL_DEFAULTS, finalize_figure
+                from dataclasses import asdict
+
+                self._export_dpi = self._export_dpi or int(GENERAL_DEFAULTS["dpi"])
+                width_mm, height_mm = self.export_size()
+
+                result = finalize_figure(self)
+                appearance = self._spacr_style_observation()
+                appearance["output_target"] = "file"
+                appearance["output_format"] = str(path).rsplit(".", 1)[-1].lower()
                 self._write_export(item, path, width_mm, height_mm, exporters)
+                if appearance["output_format"] not in ("pdf", "svg"):
+                    appearance["raster_resolution_applied"] = getattr(self, "_spacr_raster_metadata_applied", False)
+                self._spacr_last_export = {"appearance": appearance, "diagnostics": asdict(result)}
         finally:
+            self._export_dpi = previous_dpi
             for undo in restore:
                 undo()
         return path
@@ -5238,8 +5765,11 @@ class FastPlot(QWidget):
                 exporter.parameters()["background"] = self._export_ground()
             except (KeyError, TypeError):
                 pass
+            from ...figures.style import GENERAL_DEFAULTS, _write_native_raster
+
             self._shape_the_image(exporter, width_mm, height_mm)
-            exporter.export(path)
+            self._spacr_raster_metadata_applied = _write_native_raster(exporter, path,
+                dpi=self._export_dpi or GENERAL_DEFAULTS["dpi"])
 
     @contextmanager
     def _dressed_for_the_file(self, ink: str = "", background: str = "",
@@ -5276,6 +5806,19 @@ class FastPlot(QWidget):
         than raised: this is a render, and a render that refuses to draw is
         the failure the caller is trying to avoid.
         """
+        from PySide6.QtGui import QFont, QPen
+
+        before_fonts = []
+        before_pens = []
+        for axis in self.axis_items():
+            font = axis.style.get("tickFont")
+            before_fonts.append((axis, QFont(font) if font is not None else None,
+                                 dict(getattr(axis, "labelStyle", {}))))
+            before_pens.append((axis, QPen(axis.pen()), QPen(axis.tickPen()), QPen(axis.textPen())))
+        before_lines = [(item, QPen(pg.mkPen(self._pen_of(item)))) for item in self.line_items()
+                        if self._pen_of(item) is not None]
+        title_item = getattr(self.plot.plotItem, "titleLabel", None)
+        before_title_style = dict(getattr(title_item, "opts", {})) if title_item is not None else {}
         before_bg, before_fg = self._background, self._foreground
         before_grid = self._grid_on
         before_font = self._font_size
@@ -5295,7 +5838,9 @@ class FastPlot(QWidget):
             state = box.state.get("aspectLocked", False)
             before_aspect = float(state) if state else None
         before_ground = getattr(self, "_chosen_ground", "")
+        before_explicit_colours = self._explicit_file_colours
         try:
+            self._explicit_file_colours = bool(ink or background or text_colour or line_colour)
             if canvas_shape and canvas_shape in dict(CANVAS_SHAPES):
                 self._canvas_shape = str(canvas_shape)
             if dpi:
@@ -5324,6 +5869,7 @@ class FastPlot(QWidget):
             yield self
         finally:
             self._chosen_ground = before_ground
+            self._explicit_file_colours = before_explicit_colours
             self._export_dpi = before_dpi
             self._canvas_shape = before_shape
             if line_colour:
@@ -5344,6 +5890,22 @@ class FastPlot(QWidget):
                 self.set_grid(before_grid)
             if ink or background:
                 self.restyle(background=before_bg, foreground=before_fg)
+            for axis, font, label_style in before_fonts:
+                axis.setStyle(tickFont=font)
+                if axis.labelText:
+                    axis.labelStyle = dict(label_style)
+                    axis.setLabel(axis.labelText, **label_style)
+                if isinstance(axis, _CategoricalAxis) and axis._category_labels:
+                    axis.set_categories(axis._category_labels)
+            for axis, axis_pen, tick_pen, text_pen in before_pens:
+                axis.setPen(axis_pen)
+                axis.setTickPen(tick_pen)
+                axis.setTextPen(text_pen)
+            for item, pen in before_lines:
+                item.setPen(pen)
+            if title_item is not None:
+                title_item.opts = dict(before_title_style)
+                title_item.setText(title_item.text or "", **before_title_style)
 
     def styled_snapshot(self, width: int = SNAPSHOT_PX[0], *, ink: str = "",
                         background: str = "", grid: Optional[bool] = None,
@@ -5447,6 +6009,7 @@ class FastPlot(QWidget):
         if not rows:
             return
         from PySide6.QtWidgets import QMenu
+        from ..i18n import tr
 
         show_as = QMenu("Show as", menu)
         show_as.setToolTipsVisible(True)
@@ -5454,8 +6017,8 @@ class FastPlot(QWidget):
         described = dict(GRAPH_TYPES)
         current = str(getattr(spec, "kind", "") or "")
         for kind, caption, reason in rows:
-            action = show_as.addAction(str(GRAPH_NAMES.get(kind, kind)))
-            action.setToolTip(reason or str(described.get(kind, caption)))
+            action = show_as.addAction(tr(str(GRAPH_NAMES.get(kind, kind))))
+            action.setToolTip(reason or tr(str(described.get(kind, caption))))
             action.setCheckable(True)
             action.setChecked(kind == current)
             if reason:
@@ -5523,9 +6086,108 @@ class FastPlot(QWidget):
         """Return the experimental unit used by exported statistics."""
         return "observation"
 
+    def _spacr_style_observation(self) -> dict:
+        """Observe actual native geometry, fonts, pens and brushes without changing the scene.
+
+        The same record supplies shared finalization and exported manual
+        appearance. Source arrays and statistical calculations are untouched.
+        """
+        from dataclasses import asdict
+        from PySide6.QtCore import Qt
+        from PySide6.QtGui import QFont, QFontInfo
+        from ...figures.style import POLICY_VERSION, StyleSpec
+
+        if not self.plots_available:
+            return {"backend": "pyqtgraph", "policy_version": POLICY_VERSION,
+                    "specification": None, "unavailable": True}
+        spec = getattr(self, "_spacr_style_spec", None)
+        item = self.plot.plotItem
+        view = item.vb
+        dpi = float(self.logicalDpiX())
+        area = view.geometry()
+        snapshot = dict(backend="pyqtgraph", schema=1, policy_version=POLICY_VERSION,
+            specification=asdict(spec) if isinstance(spec, StyleSpec) else None,
+            width_inches=float(area.width())/dpi, height_inches=float(area.height())/dpi,
+            logical_dpi=dpi, ranges=[[float(value) for value in pair] for pair in view.viewRange()],
+            page_mm=list(self.export_size()), export_dpi=self._export_dpi,
+            background=list(self._export_ground().getRgbF()),
+            frame=[], fonts=[], marks=[], text_bounds_checked=False)
+        for edge in ("bottom", "left", "top", "right"):
+            axis = self.plot.getAxis(edge)
+            record = dict(edge=edge, visible=axis.isVisible(), pen=_native_pen_appearance(axis.pen()),
+                          tick_pen=_native_pen_appearance(axis.tickPen()), text_pen=_native_pen_appearance(axis.textPen()),
+                          label=str(axis.labelText), label_style=dict(axis.labelStyle))
+            font = axis.style.get("tickFont") or QFont()
+            actual = QFontInfo(font)
+            record["tick_font"] = dict(family=actual.family(), size=actual.pointSizeF(),
+                weight=int(actual.weight()), italic=actual.italic(), selected=font.toString())
+            if axis.isVisible() and axis.style.get("showValues", True):
+                snapshot["fonts"].append(dict(record["tick_font"], role="tick",
+                                              colour=list(axis.textPen().color().getRgbF())))
+            if axis.isVisible() and axis.labelText:
+                snapshot["fonts"].append(_native_text_appearance(axis.label, "label"))
+            snapshot["frame"].append(record)
+        title = getattr(item, "titleLabel", None)
+        if title is not None and title.text:
+            snapshot["fonts"].append(_native_text_appearance(title.item, "title"))
+            snapshot["title"] = str(title.text)
+        for artist in item.items:
+            if artist is self._highlight or not artist.isVisible():
+                continue
+            options = getattr(artist, "opts", {})
+            mark = dict(type=type(artist).__name__, role=getattr(artist, "_spacr_condition_role", "unregistered"),
+                        condition=getattr(artist, "_spacr_condition_index", None),
+                        conditions=list(getattr(artist, "_spacr_condition_indices", ())),
+                        opacity=float(artist.opacity()), colours=[], pens=[], point_count=0,
+                        bounds=_native_mark_bounds(artist))
+            if isinstance(artist, pg.ScatterPlotItem):
+                mark["point_count"] = len(artist.data)
+                colours = set()
+                for point in artist.points():
+                    if point.brush().style() != Qt.BrushStyle.NoBrush:
+                        colours.add(tuple(point.brush().color().getRgbF()))
+                mark["colours"] = [list(colour) for colour in sorted(colours)]
+            else:
+                brush = options.get("brush")
+                if brush is None and callable(getattr(artist, "brush", None)):
+                    brush = artist.brush()
+                if brush is not None:
+                    brush = pg.mkBrush(brush)
+                    if brush.style() != Qt.BrushStyle.NoBrush:
+                        mark["colours"].append(list(brush.color().getRgbF()))
+                pen = self._pen_of(artist)
+                if pen is not None:
+                    record = _native_pen_appearance(pg.mkPen(pen))
+                    if record["style"] != int(Qt.PenStyle.NoPen.value):
+                        mark["pens"].append(record)
+                        if not mark["colours"]:
+                            mark["colours"].append(record["colour"])
+                if isinstance(artist, pg.BarGraphItem):
+                    width = options.get("width")
+                    mark["width"] = float(np.asarray(width).ravel()[0]) if width is not None else None
+                elif options.get("fillLevel") == "enclosed" and getattr(artist, "xData", None) is not None:
+                    mark["width"] = float(np.ptp(artist.xData))
+            snapshot["marks"].append(mark)
+        snapshot["text_geometry"] = _native_text_geometry(item)
+        snapshot["text_bounds_checked"] = snapshot["text_geometry"]["checked"]
+        return snapshot
+
+
     def export_settings(self) -> dict:
         """Return plot metadata written to the bundle settings file."""
+        from ...figures.style import finalize_figure
+        from dataclasses import asdict
+
         out = {"plot": type(self).__name__}
+        if self.plots_available:
+            out["appearance"] = self._spacr_style_observation()
+            out["presentation"] = out["appearance"].get("specification")
+            out["presentation_diagnostics"] = asdict(finalize_figure(self))
+            last_export = getattr(self, "_spacr_last_export", None)
+            if last_export is not None:
+                import copy
+
+                out["export_presentation"] = copy.deepcopy(last_export)
         title = getattr(self.plot.plotItem.titleLabel, "text", "")
         if title:
             out["title"] = str(title)
@@ -5703,15 +6365,18 @@ class FastPlot(QWidget):
             background = resolved_bg if background is None else background
             foreground = resolved_fg if foreground is None else foreground
         self._background, self._foreground = background, foreground
+        native_background = (None if isinstance(background, str)
+                             and background.strip().lower() in ("none", "transparent") else background)
+        self.plot.setBackground(native_background)
         pg.setConfigOptions(foreground=foreground)
-        axis_pen = pg.mkPen(foreground)
         for edge in ("bottom", "left", "top", "right"):
             try:
                 axis = self.plot.getAxis(edge)
             except Exception:
                 continue
-            axis.setPen(axis_pen)
-            axis.setTextPen(axis_pen)
+            axis.setPen(_recoloured_pen(axis.pen(), foreground))
+            axis.setTickPen(_recoloured_pen(axis.tickPen(), foreground))
+            axis.setTextPen(_recoloured_pen(axis.textPen(), foreground))
         title = getattr(self.plot.plotItem, "titleLabel", None)
         if title is not None and title.text:
             self.plot.setTitle(title.text, color=foreground)
@@ -6411,6 +7076,12 @@ class VolcanoPlot(FastPlot):
         self._offer_corrections(method)
         self._offer_encodings(method, method_label)
         self.set_status(f"{note} {self._caption} Click a point for detail.")
+        units = {"y": "dimensionless"}
+        declared = getattr(frame, "attrs", {}).get("units") or {}
+        if declared.get(effect):
+            units["x"] = declared[effect]
+        self._finish_diagnostic(reference=tr("The declared testing procedure and any defined thresholds"),
+            units=units.items(), preserve_opacity=self._q_mark == "opacity" or bool(self._opacity_legend))
         return plotted
 
 
@@ -6643,49 +7314,25 @@ class VolcanoPlot(FastPlot):
 
 
 class EffectRankPlot(FastPlot):
-    """Every coefficient ranked by effect, as a dot with its interval.
+    """Coefficients ranked by absolute effect as vertical bars with 95% intervals.
 
-    The interactive twin of :func:`spacr.figures.panels.effect_rank`, and shows
-    what a volcano cannot: how large each effect is, and how certain. A volcano
-    ranks by significance, so an effect of 0.02 measured on six hundred wells
-    outranks one of 2.0 measured on four; ranking by the effect itself puts
-    them the other way round, and the interval drawn through each dot is what
-    says which of the two to believe.
-
-    Coefficients are drawn as dots and lines, not bars: a bar replaces every
-    observation with one height and hides the uncertainty of each estimate.
-
-    The saved panel draws the strongest fourteen and this one draws them all,
-    because a zoomable plot does not have to choose. The opening view is the
-    strongest :data:`LABELLED`, because that is as many names as a y-axis can
-    carry and still be read, and "Reset view" reaches the rest -- the same rule
-    :class:`GuideAgreementPlot` follows for its over-represented gene, and for
-    the same reason: a point outside the opening view is still a point, and a
-    point that was dropped is gone.
+    Every finite coefficient remains linked to its original frame row for
+    hover, table selection, and cross-panel highlighting. The opening view
+    labels the strongest forty; Reset view reaches the remaining estimates.
 
     :param parent: parent widget.
     """
 
-    #: What multiplies a standard error into half an interval. 1.96 is the
-    #: normal 95%, which is what the saved panel draws and what a reader of a
-    #: regression table assumes unless they are told otherwise.
     INTERVAL_Z = 1.96
-
-    #: How many names the y-axis carries, and how many rows the opening view
-    #: shows. Past this the labels stop being legible at any window size and
-    #: the reader is decoding a wall of text instead of reading a figure.
     LABELLED = 40
-
-    #: Ink for a coefficient that was not called -- the house rule's default.
     GREY = MUTED
-    #: The two directions a called coefficient can point.
     UP_INK = UP
     DOWN_INK = DOWN
 
     def __init__(self, parent=None):
         """Build the plot and its controls."""
-        super().__init__(title="Effect rank", x_label="effect size",
-                         y_label="", parent=parent)
+        super().__init__(title="Effect rank", x_label="Gene",
+                         y_label="Regression coefficient", parent=parent)
         #: Every array below is in FRAME ORDER, not drawing order, because
         #: `_detail` is handed a frame row. The plot is sorted; the record of
         #: what it drew must not be, or a click would report its neighbour.
@@ -6694,7 +7341,13 @@ class EffectRankPlot(FastPlot):
         self._significance: np.ndarray = np.empty(0)
         self._significance_name = ""
         self._names: Sequence[str] = ()
-        self.plot.getViewBox().invertY(True)
+        self.plot.getViewBox().invertY(False)
+        if HAVE_PYQTGRAPH:
+            self.plot.setAxisItems({"bottom": _CategoricalAxis(dpi=self.logicalDpiX())})
+            self.plot.getAxis("bottom").setPen(self.plot.getAxis("left").pen())
+            self.plot.getAxis("bottom").setTickPen(self.plot.getAxis("left").pen())
+            self.plot.setLabel("bottom", "Gene")
+            self.apply_text_style()
 
     def set_results(self, frame, *, effect: str = "coefficient",
                     error_column: Optional[str] = None,
@@ -6703,7 +7356,7 @@ class EffectRankPlot(FastPlot):
                     key_column: Optional[str] = None,
                     alpha: float = 0.05,
                     drop_untested: bool = True) -> int:
-        """Draw ``frame`` ranked by absolute effect. Return the number of dots drawn.
+        """Draw vertical coefficient bars with intervals; return the finite estimate count.
 
         :param frame: the coefficient table.
         :param effect: the fitted-effect column.
@@ -6800,36 +7453,63 @@ class EffectRankPlot(FastPlot):
         code = np.where(called, np.where(x > 0, 1, 2), 0)
         inks = (QColor(self.GREY), QColor(self.UP_INK), QColor(self.DOWN_INK))
 
-        usable = np.isfinite(x) & np.isfinite(widths) & (widths > 0)
+        for ink in inks:
+            ink.setAlphaF(0.6)
         for value, ink in enumerate(inks):
-            picked = np.nonzero(usable & (code == value))[0]
-            if not len(picked):
-                continue
-            xs = np.empty(len(picked) * 2)
-            xs[0::2] = x[picked] - widths[picked]
-            xs[1::2] = x[picked] + widths[picked]
-            self.plot.addItem(pg.PlotCurveItem(
-                x=xs, y=np.repeat(ranks[picked], 2), connect="pairs",
-                pen=pg.mkPen(ink, width=1.0)))
+            picked = np.nonzero(np.isfinite(x) & (code == value))[0]
+            if len(picked):
+                bar = pg.BarGraphItem(x=ranks[picked], height=x[picked], width=0.6,
+                    brush=pg.mkBrush(ink), pen=pg.mkPen(None))
+                bar._spacr_condition_role = "bar"
+                bar._spacr_condition_indices = tuple(int(value) for value in ranks[picked])
+                self.plot.addItem(bar)
+        usable = np.isfinite(x) & np.isfinite(widths) & (widths > 0)
+        picked = np.nonzero(usable)[0]
+        if len(picked):
+            whisker = QColor("#000000")
+            whisker.setAlphaF(0.6)
+            centres = ranks[picked]
+            low = x[picked] - widths[picked]
+            high = x[picked] + widths[picked]
+            interval_x = np.column_stack((centres, centres, centres - 0.075,
+                                          centres + 0.075, centres - 0.075,
+                                          centres + 0.075)).ravel()
+            interval_y = np.column_stack((low, high, low, low, high, high)).ravel()
+            interval = pg.PlotCurveItem(x=interval_x, y=interval_y, connect="pairs",
+                pen=pg.mkPen(whisker, width=1.0))
+            interval._spacr_condition_role = "error"
+            self.plot.addItem(interval)
 
-        self.add_scatter(x, ranks, size=8.0, rows=order,
-                         colours=[inks[int(c)] for c in code])
-        self.add_line(x=0.0, colour=REFERENCE, width=1.0)
-
+        points = self.add_scatter(ranks, x, size=4.0, rows=order,
+                                  colours=[inks[int(c)] for c in code])
+        points._spacr_condition_role = "estimate_point"
+        reference = self.add_line(y=0.0, colour="#8C8C8C", width=1.0)
+        reference.setOpacity(0.6)
+        reference._spacr_condition_role = "reference"
         names = self._label_series(frame, label_column)
         self._names = names
         shown = min(len(order), self.LABELLED)
-        self.plot.getAxis("left").setTicks(
-            [[(float(row), str(names[int(order[row])])[:28])
-              for row in range(shown)]])
+        if HAVE_PYQTGRAPH:
+            self.plot.getAxis("bottom").set_categories(
+                [names[int(row)] for row in order])
+        self.plot.getAxis("left").setTicks(None)
         if shown:
-            self.plot.setYRange(-0.6, shown - 0.4, padding=0.02)
+            self.plot.setXRange(-0.5, shown - 0.5, padding=0.0)
 
         plotted = int(np.sum(np.isfinite(x)))
         self.set_status(self._sentence(plotted, len(order), shown, error,
                                        significance,
                                        int(np.sum(called & np.isfinite(x))),
                                        alpha, untested))
+        from ...figures.style import resolve_style
+
+        self._spacr_style_spec = resolve_style("screen", "effect_rank",
+            conditions=[names[int(row)] for row in order[:shown]],
+            comparison={"reference": "zero regression coefficient", "visible_conditions": shown,
+                        "total_estimates": len(order), "representation": "estimates"},
+            legend={"caption": self._headline, "reference": "zero regression coefficient",
+                    "quantities": {"x": "gene", "y": "regression coefficient"},
+                    "units": dict(getattr(frame, "attrs", {}).get("units") or {})})
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
         return plotted
@@ -6863,7 +7543,7 @@ class EffectRankPlot(FastPlot):
         each is said rather than left for the reader to notice.
         """
         note = f"{plotted} coefficients, ranked by the size of the effect."
-        note += (f" The bar through each dot is a "
+        note += (f" The black whisker on each bar is a "
                  f"{self.INTERVAL_Z:g}-standard-error interval from "
                  f"“{error}”." if error else
                  " This table carries no standard error, so there are no "
@@ -7174,6 +7854,7 @@ class PValueHistogram(BinnedPlot):
         self.set_status(note)
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
+        self._finish_diagnostic(reference=tr("Uniform p-value distribution"), units=(("x", "dimensionless"), ("y", "observations")))
         return len(held)
 
 
@@ -7275,6 +7956,7 @@ class EffectDistribution(BinnedPlot):
         self.set_status(note)
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
+        self._finish_diagnostic(reference=tr("Zero effect and the stated robust spread thresholds"), units=(("y", "coefficients"),))
         return len(held)
 
 
@@ -7335,6 +8017,7 @@ class QQPlot(FastPlot):
         self.set_status(note)
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
+        self._finish_diagnostic(reference=tr("Identity of expected and observed quantiles"), units=(("x", "dimensionless"), ("y", "dimensionless")), diagonal=True)
         return n
 
     def _detail(self, index: int) -> str:
@@ -7402,6 +8085,7 @@ class ResidualPlot(FastPlot):
             curve = self.add_smoother(f[good], r[good],
                                       method=self._smoother_chosen)
             self.set_status(f"{said} {curve}" if curve else said)
+        self._finish_diagnostic(reference=tr("Zero residual and the stated diagnostic trends"))
         return int(good.sum())
 
 
@@ -7475,6 +8159,7 @@ class ScaleLocationPlot(FastPlot):
         curve = self.add_smoother(f[good], root[good],
                                   method=self._smoother_chosen)
         self.set_status(f"{said} {curve}" if curve else said)
+        self._finish_diagnostic(reference=tr("A flat diagnostic trend indicates constant residual spread"), units=(("y", "dimensionless"),))
         return int(good.sum())
 
 
@@ -7563,6 +8248,7 @@ class InfluencePlot(FastPlot):
             self.set_status(
                 f"{n} wells; {count} past Cook's D > 4/n ({cut:.3g}), so "
                 f"those wells are moving the coefficients on their own.")
+        self._finish_diagnostic(reference=tr("Zero standardised residual and the stated leverage criterion"), units=(("x", "dimensionless"), ("y", "dimensionless")))
         return n
 
     def _detail(self, index: int) -> str:
@@ -7778,8 +8464,14 @@ class ControlSeparation(GroupedPlot):
     down the pipeline are unreliable, so this is worth checking before the
     volcano.
 
+    Default views follow the shared sample-count rule. Explicit saved or
+    manually selected marks remain unchanged, and medians retain their
+    original values in the marks and caption.
+
     :param parent: parent widget.
     """
+
+    DEFAULT_MARK = "auto"
 
     #: The medians are what the status line quotes and what the reader
     #: compares, so the line drawn across a points/jitter group has to be the
@@ -7791,9 +8483,14 @@ class ControlSeparation(GroupedPlot):
     MARK_WIDTH = 0.35
 
     def __init__(self, parent=None):
-        """Build the plot and its controls."""
+        """Build the controls with the shared categorical-axis adapter."""
         super().__init__(title="Control separation", x_label="",
                          y_label="effect", parent=parent)
+        if self.plots_available:
+            self.plot.setAxisItems({"bottom": _CategoricalAxis(dpi=self.logicalDpiX())})
+            self.plot.getAxis("bottom").setPen(self.plot.getAxis("left").pen())
+            self.plot.getAxis("bottom").setTickPen(self.plot.getAxis("left").pen())
+            self.apply_text_style()
         self._effects: np.ndarray = np.empty(0)
         #: ``(start, stop, group name)`` per group over the flat row space.
         self._spans: list = []
@@ -7845,6 +8542,8 @@ class ControlSeparation(GroupedPlot):
             return 0
 
         self._settle_mark(self.group_sizes())
+        from ...figures.style import AUTO_N, BAR_FRAC, DATA_ALPHA, Palette, WEIGHTS, resolve_style, finalize_figure
+        from ...figures.spread import SPREAD_NONE
 
         flat_keys: list = []
         columns: list = []
@@ -7876,10 +8575,18 @@ class ControlSeparation(GroupedPlot):
             total += len(finite)
             self.add_group_mark(position, v[finite], self._mark, size=7,
                                 rows=base[name] + finite,
-                                colour=colour_for(position, 200),
-                                width=self.MARK_WIDTH,
-                                centre=self.MARK_CENTRE)
+                                colour=QColor(Palette.CONTROL),
+                                width=BAR_FRAC if self._mark == "auto" else self.MARK_WIDTH,
+                                centre=self.MARK_CENTRE,
+                                spread=SPREAD_NONE if self._mark == "auto" else "sem")
             median = float(np.median(v[finite]))
+            if self._mark == "auto" and len(finite) <= AUTO_N and self.plots_available:
+                pen = pg.mkPen(QColor("#000000"), width=WEIGHTS["median"]*float(self.logicalDpiX())/72.)
+                ink = pen.color(); ink.setAlphaF(DATA_ALPHA); pen.setColor(ink)
+                line = self.plot.plot([position-BAR_FRAC/2., position+BAR_FRAC/2.],
+                                      [median, median], pen=pen)
+                line._spacr_condition_index = position
+                line._spacr_condition_role = "summary"
             summary.append(f"{name} n={len(finite)} median={median:.3g}")
             if self._mark == "line":
                 centre = (float(np.median(v[finite]))
@@ -7888,9 +8595,13 @@ class ControlSeparation(GroupedPlot):
                 line_points.append((float(position), centre))
         self._join_group_line(line_points)
         axis = self.plot.getAxis("bottom")
-        axis.setTicks([[(i, f"{name}\n(n={size})")
-                        for i, (name, size) in enumerate(
-                            zip(groups, self.group_sizes()))]])
+        if isinstance(axis, _CategoricalAxis):
+            axis.set_categories([str(name) for name in groups])
+        else:
+            axis.setTicks([[(i, str(name)) for i, name in enumerate(groups)]])
+        self.plot.setXRange(-0.5, len(groups)-0.5, padding=0.)
+        self.plot.setLabel("bottom", tr("Control group"))
+        self.apply_text_style()
         note = "   ".join(summary) if summary else "No control values."
         if (self._has_usable_keys() and summary
                 and self._mark in ("points", "jitter", "jitter_box",
@@ -7902,6 +8613,27 @@ class ControlSeparation(GroupedPlot):
         self.set_status(note)
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
+        if self.plots_available:
+            title = str(self.plot.plotItem.titleLabel.text or "")
+            if not hasattr(self, "_spacr_control_default_title"):
+                self._spacr_control_default_title = title
+            caption = (title or self._spacr_control_default_title) + " " + self._headline
+            if self._mark == "auto":
+                caption += " " + tr("Automatic bars show means without error bars; black horizontal marks show medians.")
+                caption += " " + tr("Boxes show the interquartile range with 5th to 95th percentile whiskers; violins show the existing binned density.")
+            reference = tr("The supplied positive and negative control groups")
+            self._spacr_style_spec = resolve_style("screen", "categorical", conditions=list(groups),
+                sample_counts=self.group_sizes(), control=list(range(len(groups))),
+                comparison={"reference": reference, "graph_type": self._mark,
+                            "manual_representation": self._mark != "auto"},
+                legend={"caption": caption, "reference": reference,
+                        "quantities": {"x": tr("Control group"), "y": str(self.plot.getAxis("left").labelText)},
+                        "units": {}})
+            self._spacr_legend_entries = (dict(label=caption, colour="#000000", kind="caption"),
+                dict(label=reference, colour=Palette.CONTROL, kind="reference"))
+            if title == self._spacr_control_default_title:
+                self.plot.setTitle("")
+            finalize_figure(self)
         return total
 
     def group_of(self, row: int) -> Optional[str]:
@@ -7951,9 +8683,9 @@ class GuideAgreementPlot(GroupedPlot):
     """
 
     #: Default ink for a gene whose guides corroborate each other.
-    GREY = "#B4B4B4"
+    GREY = MUTED
     #: The argument: a gene with nothing to corroborate it.
-    SINGLE = "#C44E52"
+    SINGLE = HIGHLIGHT
 
     #: Genes with the same guide count sit on the same integer x, so a mark a
     #: whole unit wide would touch its neighbour.
@@ -8105,6 +8837,19 @@ class GuideAgreementPlot(GroupedPlot):
         self.set_status(note)
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
+        self._legend_colours = {}
+        usable = ~(np.isnan(x) | np.isnan(agree))
+        if np.any(usable & single):
+            self._legend_colours[tr("Single-guide support")] = self.SINGLE
+        if np.any(usable & ~single):
+            self._legend_colours[tr("Other guide support")] = self.GREY
+        comparison = {"guide_mark": self._mark}
+        if beyond:
+            comparison.update(display_ranges={"x": tuple(self.plot.getViewBox().viewRange()[0])},
+                hidden_point_count=beyond,
+                display_range_reason=tr("The initial guide-count view uses the existing 99th-percentile cutoff of {bound}; all source genes remain available through Reset view.").format(bound=f"{bound:g}"))
+        self._finish_diagnostic(reference=tr("Displayed sign-agreement reference: 0.5"),
+            units=(("x", "guides"), ("y", "dimensionless")), comparison=comparison)
         return drawn
 
     def _detail(self, index: int) -> str:

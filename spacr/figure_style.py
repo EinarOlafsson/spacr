@@ -10,47 +10,9 @@ from __future__ import annotations
 
 from typing import Any, Mapping, NamedTuple, Optional, Tuple
 
+from .figures.style import GENERAL_DEFAULTS, GRAPH_DEFAULTS
+
 #: Default settings applied to every figure before per-graph overrides.
-GENERAL_DEFAULTS: dict[str, Any] = {
-    "font_family": "Open Sans",
-    "font_size": 11.0,
-    "title_size": 13.0,
-    "label_size": 11.0,
-    "tick_size": 9.0,
-    "palette": "colorblind",
-    "background": "none",
-    "foreground": "#222222",
-    "grid": True,
-    "grid_colour": "#DDDDDD",
-    "grid_width": 0.6,
-    "grid_style": "-",
-    "spines": "left_bottom",
-    "spine_width": 1.0,
-    "marker_size": 28.0,
-    "line_width": 1.4,
-    "dpi": 150,
-    "format": "pdf",
-    "tight_layout": True,
-
-    "chrome_colour": "",
-
-    "mark_colouring": "group",
-    "marker_style": "o",
-    "page_shape": "landscape",
-    "legend_size": 9.0,
-    "colormap": "viridis",
-    "figure_width": 6.4,
-    "figure_height": 4.8,
-    "despine_offset": 0.0,
-    "also_save": "none",
-    "vector_text": True,
-    "error_bars": "sem",
-    "ci_level": 95.0,
-    "error_capsize": 5.0,
-    "jitter_width": 0.4,
-    "point_alpha": 0.6,
-    "point_overlay": True,
-}
 
 
 def chrome_of(style, element: str = "grid") -> str:
@@ -70,58 +32,6 @@ def chrome_of(style, element: str = "grid") -> str:
 
 #: Default overrides for each graph type. Missing keys inherit
 #: :data:`GENERAL_DEFAULTS`.
-GRAPH_DEFAULTS: dict[str, dict[str, Any]] = {
-    "volcano": {
-        "marker_size": 22.0,
-        "point_alpha": 0.85,
-        "threshold_style": "--",
-        "threshold_colour": "#C44E52",
-        "threshold_width": 1.2,
-        "label_top_n": 10,
-        "annotate": True,
-        "split_axis": False,
-        "legend": False,
-    },
-    "plate_heatmap": {
-        "colormap": "viridis",
-        "centred": False,
-        "annotate_cells": False,
-        "per_row": 2,
-        "aspect": "equal",
-        "grid": False,
-    },
-    "histogram": {
-        "bins": "auto",
-        "fill_colour": "#4C72B0",
-        "edge_colour": "#FFFFFF",
-        "edge_width": 0.6,
-        "log_y": False,
-    },
-    "scatter": {
-        "marker_size": 20.0,
-        "point_alpha": 0.7,
-        "trend_line": True,
-        "trend_colour": "#DD8452",
-    },
-    "residuals": {
-        "marker_size": 16.0,
-        "point_alpha": 0.6,
-        "reference_style": "--",
-        "reference_colour": "#C44E52",
-        "trend_line": True,
-    },
-    "qq": {
-        "marker_size": 14.0,
-        "reference_style": "--",
-        "reference_colour": "#C44E52",
-    },
-    "jitter_bar": {
-        "jitter_width": 0.4,
-        "marker_size": 256.0,
-        "point_alpha": 0.6,
-        "error_bars": "sem",
-    },
-}
 
 #: Graph types available in the figure-style preferences, in display order.
 GRAPH_KINDS = ("volcano", "plate_heatmap", "histogram", "scatter",
@@ -131,7 +41,7 @@ GRAPH_KINDS = ("volcano", "plate_heatmap", "histogram", "scatter",
 #: Spine and line-style choices are derived separately by
 #: :func:`style_choices`; keys absent from these mappings are free-form.
 STYLE_CHOICES = {
-    "palette": ("colorblind", "deep", "muted", "pastel", "bright", "dark"),
+    "palette": ("reference", "colorblind", "deep", "muted", "pastel", "bright", "dark"),
     "format": ("pdf", "png", "svg", "tiff"),
     "also_save": ("none", "pdf", "png", "svg", "tiff"),
     "colormap": ("viridis", "cividis", "plasma", "inferno", "magma",
@@ -279,6 +189,9 @@ def rc_params(style: Mapping[str, Any]) -> dict:
                                SPINE_PRESETS["all"])
     params = {
         "font.family": style.get("font_family", "Open Sans"),
+        "font.weight": "light",
+        "axes.labelweight": "light",
+        "axes.titleweight": "regular",
         "font.size": float(style.get("font_size", 11.0)),
         "axes.titlesize": float(style.get("title_size", 13.0)),
         "axes.labelsize": float(style.get("label_size", 11.0)),
@@ -441,6 +354,10 @@ def palette_colours(name: Optional[str]) -> list:
     """
     if not name:
         return []
+    if str(name) == "reference":
+        from .figures.style import SERIES
+
+        return list(SERIES)
     try:
         import seaborn as sns
         return list(sns.color_palette(str(name)).as_hex())

@@ -173,12 +173,15 @@ def test_three_wells_are_not_a_response_distribution(axes):
 
 
 def test_a_logged_response_reports_the_skew_the_log_removed(axes):
+    """Retain measured skew before the log in the external legend notes."""
     frame = _library(wells=40, guides=2)
 
     panel = dist.response(axes, frame, column="log_pred")
 
     assert panel.drawn is True
-    texts = [child.get_text() for child in axes.texts]
+    texts = [entry["label"]
+             for entry in getattr(axes, "_spacr_legend_entries", ())
+             if entry["kind"] == "note"]
     assert any("skew before log" in text for text in texts), (
         "the raw column is here, so what the transform bought is stated")
 
