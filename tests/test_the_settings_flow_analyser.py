@@ -327,15 +327,31 @@ def test_the_page_stays_inside_the_docs_job_timeout(flow, data):
     That is inside the 13,578 page's 17:50 and well inside the docs job's
     60 minutes, so 300 of headroom is kept.
 
+    RAISED TO 14,745 ON 2026-11-22 on landing train 13, for the readers of
+    item 1013's neighbour-bleed settings (ops_read_neighbour_discount,
+    ops_prefix_bleed_in_recipe and the schema-959 meta key), which took the
+    page to 14,445. Measured on the WS with a whole-site build of a5bb3b5b95
+    (-W -E -b html --keep-going, English API catalogs, after the docs job's
+    Make Masks reference and --sources-only i18n steps) at a load average of
+    about 30:
+
+        14,445 xrefs   14:20.08 wall   6,907,480 KB peak   3 warnings
+
+    The settings-flow page itself raised no warning. The three docutils
+    warnings ("field list ends without a blank line") are in item 1014's
+    spacr.ops_decode docstrings (plate_fdr_summary, threshold_settings,
+    write_well_reports), already on nightly since the pilot, and are fixed
+    separately. 300 of headroom is kept.
+
     The builds also came back with ZERO warnings, which is the second
     thing this page can break: the docs job runs `-W`, so an xref the
     inventory cannot resolve fails it as surely as a timeout.
     """
     rst = flow.rst_for(data)
     xrefs = rst.count(":py:func:")
-    assert xrefs <= 14420, (
+    assert xrefs <= 14745, (
         f"{xrefs} cross-references on the settings-flow page, up from the "
-        "14,120 measured against a real sphinx-build on 2026-11-21. This is "
+        "14,445 measured against a real sphinx-build on 2026-11-21. This is "
         "the build-time ratchet; confirm a real sphinx-build before raising "
         "it, and record the wall clock in the docstring above")
 
