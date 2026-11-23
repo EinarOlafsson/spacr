@@ -8114,7 +8114,7 @@ class spacrGraph:
         ax.figure.canvas.draw()
         
     def _create_bar_plot(self, ax):
-        """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
+        """Draw bars with consistent width and error bars matched to displayed categories."""
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
@@ -8148,8 +8148,11 @@ class spacrGraph:
                 bar.set_x(bar.get_x() - target_width / 2)
             
         bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
+        summary_by_label = summary_df.set_index(x_axis_column) if len(self.data_column) > 1 else None
         for bar, (_, row) in zip(bars, summary_df.iterrows()):
             x_bar = bar.get_x() + bar.get_width() / 2
+            if summary_by_label is not None:
+                row = summary_by_label.loc[plot_order[int(round(x_bar))]]
             err = self._error_half_width(row)
             if err is None:
                 continue
