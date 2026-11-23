@@ -710,6 +710,7 @@ class Store:
         """Read the registry of ``project``; see :func:`open`."""
         self.project = os.path.abspath(os.fspath(project))
         self.threads = threads
+        self._lazy_legacy: Optional[List[str]] = None
         self._conn = None
         self._files: List[Dict[str, Any]] = []
         self._tables: Dict[str, Dict[str, Any]] = {}
@@ -729,11 +730,11 @@ class Store:
         """
         self.close()
         self._arrays = {}
-        self._conn = _connect(threads=self.threads)
         catalog = os.path.join(self.project, CATALOG)
         if os.path.isfile(self.project) or not os.path.isfile(catalog):
             self._attach_legacy()
             return self
+        self._conn = _connect(threads=self.threads)
         source = _connect(catalog, read_only=True)
         try:
             columns = [c[0] for c in source.execute(
@@ -763,7 +764,14 @@ class Store:
         return self
 
     def _attach_legacy(self) -> None:
-        """Open an older ``measurements.db`` through DuckDB's sqlite reader."""
+        """Open an older ``measurements.db``, ``.duckdb`` or ``.parquetdb``.
+
+        A SQLite file gets its DuckDB views on first SQL use.
+        """
+        from . import _store_legacy
+
+        if _store_legacy.attach(self):
+            return
         path = self.project
         if not os.path.isfile(path):
             path = next((os.path.join(self.project, n) for n in _LEGACY_NAMES
@@ -774,6 +782,13 @@ class Store:
                 f"{self.project} has neither {CATALOG} nor measurements.db")
         self.legacy = path
         names = _sqlite_tables(path)
+        self._tables = {name: {"sort_by": [], "key_columns": []}
+                        for name in names}
+        self._lazy_legacy = names
+
+    def _legacy_views(self, names: List[str]) -> None:
+        """One DuckDB view per table of the attached SQLite file."""
+        path = self.legacy
         try:
             for statement in ("LOAD sqlite", "INSTALL sqlite"):
                 try:
@@ -791,8 +806,6 @@ class Store:
         except Exception:
             for name in names:
                 self._conn.register(name, _sqlite_arrow(path, name))
-        self._tables = {name: {"sort_by": [], "key_columns": []}
-                        for name in names}
 
     def tables(self) -> List[str]:
         """The tables this store answers queries on."""
@@ -1193,9 +1206,10 @@ class Store:
 
     def close(self) -> None:
         """Close the in-memory connection."""
-        if self._conn is not None:
-            self._conn.close()
-            self._conn = None
+        self._lazy_legacy = None
+        if self._duck is not None:
+            self._duck.close()
+            self._duck = None
 
     def __enter__(self) -> "Store":
         """The store itself, for ``with``."""
@@ -1204,6 +1218,84 @@ class Store:
     def __exit__(self, *exc) -> None:
         """Close on leaving ``with``."""
         self.close()
+
+    @property
+    def _conn(self):
+        """The in-memory DuckDB connection.
+
+        An older SQLite file gets it, and its views, on first use, so a
+        caller that only reads whole tables never starts DuckDB.
+        """
+        if self._duck is None and self._lazy_legacy is not None:
+            names, self._lazy_legacy = self._lazy_legacy, None
+            self._duck = _connect(threads=self.threads)
+            self._legacy_views(names)
+        return self._duck
+
+    @_conn.setter
+    def _conn(self, value) -> None:
+        """Hold ``value`` as the DuckDB connection."""
+        self._duck = value
+
+    def _known(self, table: str) -> None:
+        """Refuse a table this store does not hold."""
+        if table not in self._tables:
+            raise StoreError(f"no table {table!r}; this store holds "
+                             f"{self.tables()}")
+
+    def _table_columns(self, table: str):
+        """The columns of one table, in stored order.
+
+        :param table: the table.
+        :returns: a DataFrame with ``name`` and ``type`` (the stored type).
+        :raises StoreError: when the store has no such table.
+        """
+        import pandas as pd
+
+        from . import _store_legacy
+
+        self._known(table)
+        if _store_legacy.is_sqlite(self):
+            rows = _store_legacy.sqlite_columns(self.legacy, table)
+        else:
+            rows = [(row[0], row[1]) for row in self._conn.execute(
+                f"DESCRIBE SELECT * FROM {_ident(table)}").fetchall()]
+        return pd.DataFrame(rows, columns=["name", "type"])
+
+    def _frames(self, table: str, *, limit: Optional[int] = None,
+                chunksize: int = 100_000, **sqlite_kwargs) -> Iterator[Any]:
+        """One table as stored, in pandas frames of at most ``chunksize`` rows.
+
+        At least one frame is yielded, empty with the table's columns when
+        there are no rows. An older SQLite file is read with SQLite's own
+        value types, as ``pandas.read_sql_query`` gives them.
+
+        :param table: the table.
+        :param limit: read at most this many rows; None reads every row.
+        :param chunksize: rows per frame.
+        :param sqlite_kwargs: passed to ``pandas.read_sql_query`` for an
+            older SQLite file; ignored otherwise.
+        :returns: an iterator over DataFrames.
+        :raises StoreError: when the store has no such table.
+        """
+        from . import _store_legacy
+
+        self._known(table)
+        if _store_legacy.is_sqlite(self):
+            yield from _store_legacy.sqlite_frames(
+                self.legacy, table, limit=limit, chunksize=chunksize,
+                **sqlite_kwargs)
+            return
+        sql = f"SELECT * FROM {_ident(table)}"
+        if limit is not None:
+            sql += f" LIMIT {max(int(limit), 0)}"
+        reader = _reader_of(self._conn, sql, None, int(chunksize))
+        yielded = False
+        for batch in reader:
+            yielded = True
+            yield _table_of([batch]).to_pandas(split_blocks=True)
+        if not yielded:
+            yield reader.schema.empty_table().to_pandas()
 
 
 def _python(value):
@@ -1301,13 +1393,9 @@ def _read_rows(array, indices: np.ndarray) -> np.ndarray:
 
 def _sqlite_tables(path: str) -> List[str]:
     """The table names of a SQLite file."""
-    import sqlite3
+    from . import _store_legacy
 
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True,
-                         timeout=30) as conn:
-        return [row[0] for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type = 'table' AND name "
-            "NOT LIKE 'sqlite_%' ORDER BY name").fetchall()]
+    return _store_legacy.sqlite_tables(path)
 
 
 def _sqlite_arrow(path: str, table: str):

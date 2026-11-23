@@ -264,7 +264,7 @@ def read_table(source: Any, *, table: Optional[str] = None,
     :returns: a :class:`pandas.DataFrame`.
     """
     kind = ('sqlite' if _backend_of(source) != 'sqlite'
-            else table_format(source))
+            or _is_project_folder(source) else table_format(source))
     source = _fetched(source)
     path = resolve_path(source)
     if kind == 'sqlite':
@@ -635,13 +635,83 @@ def _connect(db: Any, *, migrate: bool, read_only: bool = False):
     if migrate:
         from .database_schema import ensure_database_schema
         ensure_database_schema(path)
-    if read_only:
-        from .database_concurrency import connect
-        return connect(path, readonly=True)
-    from .database_concurrency import _inside_write_packet, connect
-    if _inside_write_packet(path):
-        return connect(path)
-    return sqlite3.connect(path, timeout=30)
+    from ._store_legacy import sqlite_connection
+    return sqlite_connection(path, read_only=read_only)
+
+
+def _is_project_folder(source: Any) -> bool:
+    """Whether ``source`` is a folder :func:`spacr.store.open` reads.
+
+    That is a store project (a folder holding ``spacr.duckdb``, or a
+    ``measurements/`` folder that does), a folder holding
+    ``measurements.db``, or a ``.parquetdb`` folder.
+    """
+    if not isinstance(source, (str, os.PathLike)):
+        return False
+    path = resolve_path(source)
+    return os.path.isdir(path) and _store_project(path) is not None
+
+
+def _store_project(source: Any) -> Optional[str]:
+    """The path :func:`spacr.store.open` reads for a spaCR measurement
+    locator, or None.
+
+    * a folder holding ``spacr.duckdb``, or holding ``measurements/`` that
+      does, opens as that store project;
+    * a ``spacr.duckdb`` path opens its project folder;
+    * a folder holding ``measurements.db`` (directly or in
+      ``measurements/``) and a ``.parquetdb`` folder open as older formats;
+    * any other path is a database file (SQLite or ``.duckdb``) and opens as
+      itself.
+
+    A PostgreSQL string, an open connection or a folder with none of these
+    gives None.
+
+    :param source: a path or connection string.
+    :returns: the path to open, or None.
+    """
+    from .store import _LEGACY_NAMES, CATALOG
+
+    if not isinstance(source, (str, os.PathLike)) or (
+            _backend_of(source) == 'postgres'):
+        return None
+    path = str(resolve_path(source)).rstrip('/\\') or str(resolve_path(source))
+    if os.path.isdir(path):
+        if _backend_of(path) == 'parquet':
+            return path
+        for folder in (path, os.path.join(path, 'measurements')):
+            if os.path.isfile(os.path.join(folder, CATALOG)):
+                return folder
+        if any(os.path.isfile(os.path.join(path, name))
+               for name in _LEGACY_NAMES):
+            return path
+        return None
+    if os.path.basename(path) == CATALOG:
+        return os.path.dirname(path)
+    return path
+
+
+@contextmanager
+def _opened_store(source: Any):
+    """The :class:`spacr.store.Store` for a measurement locator.
+
+    Yields None for a SQLite file that does not exist, so a reader sees an
+    empty database rather than creating one.
+
+    :param source: a path :func:`_store_project` resolves.
+    :raises ValueError: when ``source`` is not a spaCR measurement locator.
+    """
+    from . import store
+
+    project = _store_project(source)
+    if project is None:
+        raise ValueError(f'{source!r} is not a spaCR measurement store, '
+                         f'measurements.db or database file.')
+    if not os.path.exists(project) and _backend_of(project) == 'sqlite':
+        yield None
+        return
+    with store.open(project, verify='none') as opened:
+        yield opened
 
 
 def database_tables(db: Any, *, migrate: bool = False) -> Tuple[str, ...]:
@@ -657,10 +727,11 @@ def database_tables(db: Any, *, migrate: bool = False) -> Tuple[str, ...]:
     if backend != 'sqlite':
         return _store_tables(db, backend)
     db = _fetched(db)
-    with _connect(db, migrate=migrate) as conn:
-        rows = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-    return tuple(sorted(row[0] for row in rows))
+    if migrate and os.path.isfile(resolve_path(db)):
+        from .database_schema import ensure_database_schema
+        ensure_database_schema(resolve_path(db))
+    with _opened_store(db) as opened:
+        return tuple(opened.tables()) if opened is not None else ()
 
 
 def table_columns(source: Any, *, table: Optional[str] = None,
@@ -683,7 +754,8 @@ def table_columns(source: Any, *, table: Optional[str] = None,
     :returns: the column names, in order.
     """
     backend = _backend_of(source)
-    kind = 'sqlite' if backend != 'sqlite' else table_format(source)
+    kind = ('sqlite' if backend != 'sqlite' or _is_project_folder(source)
+            else table_format(source))
     source = _fetched(source)
     if kind == 'sqlite':
         if table is None:
@@ -747,7 +819,7 @@ def read_database(db: Any, tables: Any, *, canonicalise: bool = True,
         _quote_identifier(name)
     frames: List[pd.DataFrame] = []
     backend = _backend_of(db)
-    if backend != 'sqlite':
+    if backend == 'postgres':
         present = set(_store_tables(db, backend))
         for name in names:
             if name not in present:
@@ -761,25 +833,23 @@ def read_database(db: Any, tables: Any, *, canonicalise: bool = True,
                                         repair_plate_ids))
         return frames
     db = _fetched(db)
-    with _connect(db, migrate=migrate, read_only=read_only) as conn:
-        present = {row[0] for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    if read_only and migrate and backend == 'sqlite':
+        raise ValueError(
+            'read_only=True cannot migrate: a migration writes. Pass '
+            'migrate=False, or open read/write.')
+    path = resolve_path(db)
+    if migrate and backend == 'sqlite' and not os.path.isdir(path):
+        from .database_schema import ensure_database_schema
+        ensure_database_schema(path)
+    with _opened_store(db) as opened:
+        present = set(opened.tables()) if opened is not None else set()
         for name in names:
             if name not in present:
                 raise ValueError(f'Table not found in database: {name}')
-            quoted = _quote_identifier(name)
-            query = f'SELECT * FROM {quoted}'
-            if limit is not None:
-                query += f' LIMIT {int(limit)}'
-            chunks = list(pd.read_sql_query(
-                query, conn, chunksize=chunksize, **kwargs))
-            if not chunks:
-                frame = pd.read_sql_query(
-                    f'SELECT * FROM {quoted} LIMIT 0', conn, **kwargs)
-            elif len(chunks) == 1:
-                frame = chunks[0]
-            else:
-                frame = pd.concat(chunks, ignore_index=True)
+            chunks = list(opened._frames(name, limit=limit,
+                                        chunksize=chunksize, **kwargs))
+            frame = (chunks[0] if len(chunks) == 1
+                     else pd.concat(chunks, ignore_index=True))
             del chunks
             frames.append(_canonicalise(frame, canonicalise, report, warn,
                                         repair_plate_ids))
@@ -1153,31 +1223,19 @@ def _publish_parquet_manifest(folder: str, active: list, retired: list):
 
 
 def _store_tables(db: Any, backend: str) -> Tuple[str, ...]:
-    """The table names in a DuckDB, Parquet or PostgreSQL store, sorted."""
-    if backend == 'parquet':
-        store = resolve_path(db)
-        if not os.path.isdir(store):
-            return ()
-        names = []
-        for folder in os.listdir(store):
-            table = _parquet_table_name(folder)
-            if (table != folder and not _parquet_verbatim_folder(store, table)
-                    and _parquet_parts(store, table)):
-                names.append(table)
-            elif _parquet_parts(store, folder):
-                names.append(folder)
-        return tuple(sorted(set(names)))
+    """The table names in a DuckDB, Parquet or PostgreSQL store, sorted.
+
+    A DuckDB file and a Parquet folder are read through
+    :func:`spacr.store.open`; PostgreSQL, an export target, is asked here.
+    """
+    if backend in ('parquet', 'duckdb'):
+        with _opened_store(db) as opened:
+            return tuple(opened.tables())
     query = ("SELECT table_name FROM information_schema.tables "
              "WHERE table_schema = current_schema() "
              "AND table_type = 'BASE TABLE'")
-    if backend == 'duckdb':
-        if not os.path.exists(resolve_path(db)):
-            return ()
-        with _duckdb_connect(db, read_only=True) as conn:
-            rows = conn.execute(query).fetchall()
-    else:
-        with _postgres_connect(db) as conn:
-            rows = conn.execute(query).fetchall()
+    with _postgres_connect(db) as conn:
+        rows = conn.execute(query).fetchall()
     return tuple(sorted(row[0] for row in rows))
 
 
@@ -1188,59 +1246,21 @@ def _iter_chunks(db: Any, table: str, *, limit: Optional[int] = None,
     At least one frame is yielded, empty with the table's columns when the
     table has no rows, so a caller always learns the header. Nothing is
     canonicalised; the store's column names come back as written.
+
+    Every spaCR store (a store project, ``measurements.db``, a ``.duckdb``
+    copy or a ``.parquetdb`` folder) is read by :meth:`spacr.store.Store._frames`;
+    only PostgreSQL, an export target, is read here.
     """
-    backend = _backend_of(db)
+    if _backend_of(db) != 'postgres':
+        with _opened_store(db) as opened:
+            if opened is None or table not in opened.tables():
+                raise ValueError(f'Table not found in database: {table}')
+            yield from opened._frames(table, limit=limit, chunksize=chunksize)
+        return
     quoted = _quote_identifier(table)
     query = f'SELECT * FROM {quoted}'
     if limit is not None:
         query += f' LIMIT {int(limit)}'
-    if backend == 'sqlite':
-        with _connect(db, migrate=False) as conn:
-            yielded = False
-            for chunk in pd.read_sql_query(query, conn, chunksize=chunksize):
-                yielded = True
-                yield chunk
-            if not yielded:
-                yield pd.read_sql_query(f'SELECT * FROM {quoted} LIMIT 0',
-                                        conn)
-        return
-    if backend == 'parquet':
-        parquet = _require_optional('pyarrow.parquet',
-                                    _PYARROW_MISSING_MESSAGE)
-        parts = _parquet_parts(resolve_path(db), table)
-        if limit == 0 and parts:
-            yield parquet.read_schema(parts[0]).empty_table().to_pandas()
-            return
-        remaining = limit
-        yielded = False
-        for part in parts:
-            for batch in parquet.ParquetFile(part).iter_batches(
-                    batch_size=chunksize):
-                frame = batch.to_pandas()
-                if remaining is not None:
-                    frame = frame.iloc[:max(remaining, 0)]
-                    remaining -= len(frame)
-                if len(frame) or not yielded:
-                    yielded = True
-                    yield frame
-                if remaining is not None and remaining <= 0:
-                    return
-        if not yielded and parts:
-            yield parquet.read_schema(parts[0]).empty_table().to_pandas()
-        return
-    if backend == 'duckdb':
-        with _duckdb_connect(db, read_only=True) as conn:
-            result = conn.execute(query)
-            reader = (result.to_arrow_reader(chunksize)
-                      if hasattr(result, 'to_arrow_reader')
-                      else result.fetch_record_batch(chunksize))
-            yielded = False
-            for batch in reader:
-                yielded = True
-                yield batch.to_pandas()
-            if not yielded:
-                yield reader.schema.empty_table().to_pandas()
-        return
     with _postgres_connect(db) as conn:
         with conn.cursor(name='spacr_read') as cursor:
             cursor.execute(query)
@@ -1404,9 +1424,10 @@ def _query_store(db: Any, sql: str, *, canonicalise: bool = True,
                  warn: Optional[Callable[[str], None]] = None) -> pd.DataFrame:
     """Run one SQL query against any store and return the canonical frame.
 
-    A Parquet store is queried through an in-memory DuckDB whose views read
-    each table's parts, so an aggregate over a very large screen scans only
-    the columns it names instead of loading the table.
+    A SQLite file is queried in SQLite's dialect, through the store's SQLite
+    connection. A store project, a ``.duckdb`` copy and a ``.parquetdb``
+    folder are queried with :meth:`spacr.store.Store.sql` in DuckDB's
+    dialect, over views that read only the columns the query names.
 
     :param db: a SQLite, DuckDB or Parquet path, or a PostgreSQL string.
     :param sql: the query, naming tables as they are stored.
@@ -1416,24 +1437,12 @@ def _query_store(db: Any, sql: str, *, canonicalise: bool = True,
     :returns: a :class:`pandas.DataFrame`.
     """
     backend = _backend_of(db)
-    if backend == 'sqlite':
-        with _connect(db, migrate=False) as conn:
+    if backend == 'sqlite' and not os.path.isdir(resolve_path(db)):
+        with _connect(db, migrate=False, read_only=True) as conn:
             frame = pd.read_sql_query(sql, conn)
-    elif backend == 'duckdb':
-        with _duckdb_connect(db, read_only=True) as conn:
-            frame = conn.execute(sql).df()
-    elif backend == 'parquet':
-        duckdb = _require_optional('duckdb', _DUCKDB_MISSING_MESSAGE)
-        store = resolve_path(db)
-        with duckdb.connect() as conn:
-            conn.execute('SET enable_progress_bar = false')
-            for name in _store_tables(store, 'parquet'):
-                files = ', '.join("'" + part.replace("'", "''") + "'"
-                                  for part in _parquet_parts(store, name))
-                conn.execute(
-                    f'CREATE VIEW {_quote_identifier(name)} AS SELECT * FROM '
-                    f'read_parquet([{files}], union_by_name = true)')
-            frame = conn.execute(sql).df()
+    elif backend != 'postgres':
+        with _opened_store(db) as opened:
+            frame = opened.sql(sql)
     else:
         with _postgres_connect(db) as conn:
             cursor = conn.execute(sql)
