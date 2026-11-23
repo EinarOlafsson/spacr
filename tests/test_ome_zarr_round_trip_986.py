@@ -145,7 +145,7 @@ def test_the_crop_table_matches_png_list_membership_and_a_shuffle_does_not(runs)
 
 def test_png_mode_writes_no_crop_store_and_ome_zarr_writes_no_pngs(runs):
     assert not (runs["png"] / "crops").exists()
-    assert not (runs["png"] / "crops.ome.zarr").exists()
+    assert not (runs["png"] / "crop.ome.zarr").exists()
     assert not list(runs["zarr"].rglob("*_png/*.png"))
 
 
@@ -162,7 +162,7 @@ def test_an_old_stamped_run_keeps_the_exact_legacy_png_files(runs):
 
 def test_a_rerun_writes_byte_identical_crop_stores(runs):
     def files(root):
-        store = root / "crops.ome.zarr"
+        store = root / "crop.ome.zarr"
         return {str(p.relative_to(store)): p.read_bytes()
                 for p in sorted(store.rglob("*")) if p.is_file()}
 

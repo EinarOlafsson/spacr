@@ -132,6 +132,16 @@
       "file": "spacr/cli_store.py",
       "source": "FAILED: {n} mismatched plane(s).",
       "source_sha256": "432f53a425a652a8b57d605c695b7c6fcdc585d995fc93f528aaf538c5e908f8"
+    },
+    {
+      "file": "spacr/crop_store.py",
+      "source": "crop {object_id} has no stored pixels and no source field to cut it from; run Measure again",
+      "source_sha256": "6f6bdf95e0521e1d973c327229a68688416ac7e19afe5b5dc752d277d891781e"
+    },
+    {
+      "file": "spacr/measure.py",
+      "source": "crops: {count} {fmt} crops indexed in the spacr store (crop_index); saved in crop.ome.zarr when save_png is on, otherwise streamed from fov.ome.zarr",
+      "source_sha256": "076292569c1065b9349a7404134a4857aeac27583e0cd0352229ed4779cb1697"
     }
   ],
   "settings_help": {
@@ -144,12 +154,16 @@
       "source_sha256": "d3f3010aa7a16761b3125d0ee12c417869c967c539431255bfde0c17b48b5bf5"
     },
     "crop_image_format": {
-      "source": "(str) - The format Measure writes object crops in. 'ome-zarr' stores each object's bounding box plus crop_margin_px at its own size in crops.ome.zarr in the project folder, with every channel at full bit depth, the object's own mask, every object class's labels cut to the same box, and the object's ID; the crop index is listed in measurements.db table ssCell_Crops. Stored intensities are not stretched. 'png' writes the legacy PNG folders. Older projects' crops/ folders still read. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.",
-      "source_sha256": "2fc539ba706a466be340b53e4de90e555d213e3ac5586b81d95a24e4b64205f3"
+      "source": "(str) - The format Measure writes object crops in. 'ome-zarr' stores each object's bounding box plus crop_margin_px at its own size in crop.ome.zarr in the project folder when save_png is on (streamed from fov.ome.zarr when it is off), with every channel at full bit depth as stored in fov.ome.zarr, the object's own mask, every object class's labels cut to the same box, and the object's ID; the crop index is the spacr store table crop_index (mirrored to measurements.db table ssCell_Crops, where Annotate keeps its annotations). Stored intensities are not stretched. 'png' writes the legacy PNG folders. Older projects' crops/ folders still read. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.",
+      "source_sha256": "0e23a13eea10ccfebdd5f4045ea994213482064d6bcff15546e5b4d462844152"
     },
     "ome_zarr_ngff_version": {
       "source": "(str) - The OME-Zarr version of the phenotype plate stores, the merged field images and their masks, when ops_ph_image_format is ome-zarr. '0.6' (the default for new stores, as for every spaCR store) writes the version 0.6 metadata (named coordinate systems); '0.5' writes the same pixels with the older metadata, for tools that do not read 0.6 yet. spaCR reads 0.4 to 0.6. One store holds one version, so a store started in the other version is refused. The cell crop pools are not OME-Zarr images and do not change. Default 0.6. Alpha.",
       "source_sha256": "73a1ab63abcd1998224267cb12f77a066eba50f866e4a6b1d737fdf6c87ddc18"
+    },
+    "save_png": {
+      "source": "(bool) - Save crops. With crop_image_format 'ome-zarr' (the default): on, Measure cuts every object's crop while the field is in memory and saves it in crop.ome.zarr in the project folder; off, nothing is saved and Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, giving the same crops (the crop index in the spacr store lists every object either way). Saving costs disk and makes crop browsing faster; streaming saves the disk. With crop_image_format 'png': write one PNG crop per object into <crop_mode>_png/ and list it in the png_list table. Default True.",
+      "source_sha256": "f8cbb6ba8326d632eedec9c5bf3e14caf946bc73440edbbb9c7e1dca57f1a874"
     }
   },
   "api": {

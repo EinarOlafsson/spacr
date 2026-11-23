@@ -10302,6 +10302,7 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         if failed:
             from .qt.i18n import tr
             raise RuntimeError(tr("The native crop dataset index could not include every selected object. Correct the reported source error and generate the dataset again."))
+        index_rows = _save_native_dataset(dst, index_rows)
         write_table(pd.DataFrame(index_rows, dtype=object), os.path.join(dst, 'crop_index.csv'),
                     canonicalise=False, index=False)
     empty = []
@@ -10331,6 +10332,39 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
               f"training images; the model cannot learn them.")
 
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
+
+
+def _save_native_dataset(dst, index_rows):
+    """Save a native crop dataset as OME-Zarr under each source project's ``datasets/`` (item 0aj).
+
+    The selected crops are copied, through the shared crop reader and
+    writer, into ``<project>/datasets/<dataset name>.ome.zarr`` with their
+    class labels and keys back to the measured objects
+    (:func:`spacr.crop_store.write_training_dataset`), so a dataset no longer
+    depends on the crop store or the fields it was cut from. The rows of
+    ``crop_index.csv`` then point at the dataset store; PNG rows are kept.
+
+    :param dst: the generated dataset folder; its name names the store.
+    :param index_rows: the rows :func:`_dataset_index_row` built.
+    :returns: the rows to write to ``crop_index.csv``.
+    """
+    from .crop_store import write_training_dataset
+
+    name = os.path.basename(os.path.normpath(dst))
+    by_source = {}
+    for position, row in enumerate(index_rows):
+        if row.get('source_kind') == 'ome-zarr':
+            by_source.setdefault(row['source'], []).append(position)
+    out = list(index_rows)
+    for source, positions in by_source.items():
+        project = os.path.normpath(os.path.join(dst, source))
+        chosen = [index_rows[i] for i in positions]
+        saved = write_training_dataset(project, name, chosen)
+        for i, row, new in zip(positions, chosen, saved):
+            out[i] = {**new, 'source_kind': 'ome-zarr', 'source': source,
+                      'class': row['class'], 'split': row['split'],
+                      'crop_name': row['crop_name']}
+    return out
 
 
 def _dataset_index_row(item, root, class_name, split, destination, canonicalize, db_path):

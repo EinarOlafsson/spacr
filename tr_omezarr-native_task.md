@@ -37,3 +37,17 @@ P1a finish (second 0aj run):
   the stored version, else 0.6). Added: `spacr.image_store.original_planes`,
   `spacr.image_store.verify_project`, `spacr.io._raw_images_by_key`
   (private), `spacr.cli_store.build_parser`, `spacr.cli_store.main`.
+
+Crops (maintainer decision 16:30):
+
+- `spacr/crop_store.py`: the "no stored pixels and no source field" error of
+  a streamed crop.
+- `spacr/measure.py`: the end-of-run crop summary line (now names the spacr
+  store crop_index, crop.ome.zarr and streaming).
+- Changed settings help: `save_png` (now "save crops": on writes
+  crop.ome.zarr, off streams from fov.ome.zarr), `crop_image_format`.
+- Changed public docstrings: `spacr.crop_store` (`read_crop`, `cut_crops`
+  with `image=None`, `record_measure_field_crops` `index_only`,
+  `CropPoolWriter` `store_name`, `ome_zarr_crops_exist`). Added:
+  `crop_rows`, `write_training_dataset`, `read_training_dataset`,
+  `dataset_store`, `CROP_INDEX_TABLE`, `DATASETS_FOLDER`.

@@ -11921,32 +11921,48 @@ def _crops_per_shard(settings):
 
 
 def _record_ragged_crops(settings, file_name, crop_modes, crop_source, masks,
-                         data_type):
+                         data_type, index_only=False):
     """Cut one field's crops of every class in ``crop_modes``; send them in one packet.
 
     Each crop is the object's bounding box plus ``crop_margin_px``, with its
     own mask, every object class's labels cut to the same box (item 0aj) and
     the per-cell relationship columns beside it; outside pixels are zeroed
     only with ``crop_zero_outside``. Raw intensities: crops are
-    never stretched when written (the network transform normalises).
+    never stretched when written (the network transform normalises), and
+    they are cut from the field's stored channels (item 0aj), so a stored
+    crop equals the crop streamed from ``fov.ome.zarr``.
+
+    With ``index_only`` (saving crops is off) only each object's box enters
+    the crop index; the crop is cut from ``fov.ome.zarr`` when it is read.
     """
     from .crop_store import crop_relationships, cut_crops, record_measure_field_crops
 
     image = np.moveaxis(np.asarray(crop_source)[..., list(settings['channels'])], -1, 0)
     image = image.astype(data_type, copy=False)
+    # Only the classes this run has (a mask plane, or the cytoplasm it
+    # measures), so a stored crop and its streamed cut name the same classes.
     present = {name: np.asarray(mask) for name, mask in masks.items()
                if mask is not None and np.ndim(mask) == 2
-               and np.shape(mask) == image.shape[1:]}
+               and np.shape(mask) == image.shape[1:]
+               and (settings.get(f'{name}_mask_dim') is not None
+                    or (name == 'cytoplasm' and settings.get('cytoplasm')))}
     classes = []
     for crop_mode in crop_modes:
-        crops = cut_crops(image, np.asarray(masks[crop_mode]),
+        own = np.asarray(masks[crop_mode])
+        crops = cut_crops(None if index_only else image, own,
                           margin=int(settings.get('crop_margin_px') or 0),
                           zero_outside=bool(settings.get('crop_zero_outside', False)),
                           all_labels=present)
         for crop in crops:
-            crop.update(crop_relationships(crop, masks))
+            box = (crop['bbox_y0'], crop['bbox_x0'], crop['bbox_y1'], crop['bbox_x1'])
+            if index_only:
+                crop['label_classes'] = ','.join(sorted(present))
+                inside = own[box[0]:box[2], box[1]:box[3]] == crop['object_label']
+                crop.update(crop_relationships(dict(crop, mask=inside), masks))
+            else:
+                crop.update(crop_relationships(crop, masks))
         classes.append((crop_mode, crops, image.shape[0], image.dtype))
-    record_measure_field_crops(settings, file_name, classes)
+    record_measure_field_crops(settings, file_name, classes, index_only=index_only)
 
 
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
@@ -12460,6 +12476,17 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     confluency_plane, confluency_result, file_name)
         _write_image_record(source_folder, file_name, settings, image_values)
 
+        if (not volumetric and not settings['save_png']
+                and _crop_image_format(settings) != 'png'):
+            # Saving crops is off (item 0aj): index each object's box, so
+            # Annotate, Classify and the crop views stream it from fov.ome.zarr.
+            stream_modes = settings['crop_mode']
+            stream_modes = [stream_modes] if isinstance(stream_modes, str) else list(stream_modes or [])
+            _record_ragged_crops(
+                settings, file_name, [m for m in stream_modes if m in CROP_MODES], data,
+                {'cell': cell_mask, 'nucleus': nucleus_mask,
+                 'pathogen': pathogen_mask, **organelle_masks,
+                 'cytoplasm': cytoplasm_mask}, data_type, index_only=True)
         if volumetric and (settings['save_png'] or settings['save_arrays'] or settings['plot']):
             print(f"3-D field {file_name}: measurements written, but no PNG "
                   f"crops or region arrays. Cropping is 2-D; to get crops from "
@@ -12495,9 +12522,12 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
 
             crop_format = _crop_image_format(settings)
             if crop_format != 'png' and settings['save_png']:
+                # Item 0aj: the stored crops are cut from the stored channels
+                # (``data``), never from corrected ones, so they equal the
+                # crops streamed from fov.ome.zarr.
                 _record_ragged_crops(
                     settings, file_name, [m for m in crop_ls if m in CROP_MODES],
-                    crop_source,
+                    data,
                     {'cell': cell_mask, 'nucleus': nucleus_mask,
                      'pathogen': pathogen_mask, **organelle_masks,
                      'cytoplasm': cytoplasm_mask}, data_type)
@@ -14249,8 +14279,9 @@ def measure_crop(settings):
                     written = close_measure_sink(os.path.dirname(settings['src']),
                                                  db_path)
                     from .qt.i18n import tr
-                    print(tr("crops: {count} {fmt} crops in crops.ome.zarr, indexed in "
-                             "measurements.db:ssCell_Crops",
+                    print(tr("crops: {count} {fmt} crops indexed in the spacr store "
+                             "(crop_index); saved in crop.ome.zarr when save_png is "
+                             "on, otherwise streamed from fov.ome.zarr",
                              count=written, fmt=crop_format))
 
                 if str(settings.get('plate_barcode_source') or '').strip():

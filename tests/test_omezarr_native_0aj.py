@@ -186,12 +186,12 @@ def test_old_crop_folders_still_read(tmp_path):
     writer = CropPoolWriter(tmp_path, "plate1", "A01", "cell", 2, np.uint16)
     writer.add(cut_crops(image, labels), field=1, timepoint=None)
     writer.commit()
-    new = tmp_path / "crops.ome.zarr" / "plate=plate1" / "well=A01"
+    new = tmp_path / "crop.ome.zarr" / "plate=plate1" / "well=A01"
     old = tmp_path / "crops" / "plate=plate1" / "well=A01.zarr"
     old.parent.mkdir(parents=True)
     os.replace(new, old)
     import shutil
-    shutil.rmtree(tmp_path / "crops.ome.zarr")
+    shutil.rmtree(tmp_path / "crop.ome.zarr")
     rows = committed_rows(tmp_path)
     for row in rows:
         row["crop_store"] = "crops/plate=plate1/well=A01.zarr"

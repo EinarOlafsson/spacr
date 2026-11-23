@@ -1174,7 +1174,8 @@ _WATCH_SUFFIXES = ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2',
 _WATCH_KEY_GROUPS = ('plateID', 'wellID', 'timeID', 'fieldID')
 _WATCH_OUTPUT_DIRS = frozenset({_WATCH_DIR, 'orig', 'stack', 'masks', 'merged',
                                'measurements', 'results', 'test',
-                               'fov.ome.zarr', 'crops.ome.zarr'})
+                               'fov.ome.zarr', 'crop.ome.zarr',
+                               'crops.ome.zarr', 'datasets'})
 
 
 def _watch_truthy(value):
