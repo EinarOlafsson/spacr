@@ -226,5 +226,22 @@
       "kind": "added",
       "source": "see spacr/image_store.py verify_store docstring"
     }
-  }
+  },
+  "docstrings": [
+    {
+      "file": "spacr/crop_store.py",
+      "source": "crop_transformations",
+      "source_sha256": "f42bf8533d43915f22f7585f763fe2f7c9dd1d14ebed225d15ea76a9e599af0b"
+    },
+    {
+      "file": "spacr/crop_store.py",
+      "source": "crop_to_fov",
+      "source_sha256": "c9303e7d46a6551fa5ec5dab6687bb3d597ad2999dfad30d8fb7146bd1cfef23"
+    },
+    {
+      "file": "spacr/crop_store.py",
+      "source": "INDEX_EXTRA_COLUMNS",
+      "source_sha256": "2a50b9c9d5f87a6db9cb5deb22f60b3017b28ffaa0ebecf269670f110e63be01"
+    }
+  ]
 }

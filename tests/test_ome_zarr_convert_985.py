@@ -420,7 +420,9 @@ def test_raw_crop_conversion_preserves_native_pixels_nulls_and_source_database(t
     assert by_object.loc[(2, 7), "n_organelle"] == 3
     assert list(table.columns) == [
         *CROP_COLUMNS, "parent_cell_id", "nucleus_id", "has_nucleus", "n_nuclei",
-        "n_pathogens", "infected", "n_organelle", "annotation", "class", "class_score"]
+        "n_pathogens", "infected", "n_organelle", "annotation", "class", "class_score",
+        # Item 0aj: each converted crop records its 0.6 transform into its field.
+        "coordinate_transformations"]
     assert {"custom_annotation", "n_organelle_1", "mean_intensity"}.isdisjoint(table.columns)
     copied_db = destination / "measurements" / "measurements.db"
     copied_pngs = _read_crop_table(copied_db, "png_list")

@@ -494,10 +494,12 @@ def test_a_test_mode_mask_run_on_a_macos_volume_completes(
         (test_dir / "stack" / "._test_N06_6_1.npy").exists(), (
         "the emulated volume wrote no sidecar beside the stack, so this "
         "test is not exercising #117")
-    merged = sorted(p.name for p in (test_dir / "merged").iterdir()
-                    if p.suffix == ".npy" and not p.name.startswith("."))
+    from tests.conftest import merged_field_arrays
+
+    fields = merged_field_arrays(test_dir)  # item 0aj: fov.ome.zarr
+    merged = sorted(fields)
     assert len(merged) == 1 and merged[0].startswith("test_N06_")
-    array = np.load(test_dir / "merged" / merged[0])
+    array = fields[merged[0]]
     assert array.shape[-1] == 4 + 3
     for role in ("cell", "nucleus", "pathogen"):
         masks = [p.name for p in
@@ -610,8 +612,9 @@ def test_an_auto_metadata_mask_run_on_a_macos_volume_keeps_its_wells(
     assert "not a TIFF file" not in out
     assert "RUN INCOMPLETE" not in out
     assert not PICKLE_MESSAGE.search(out)
-    merged = sorted(p.name for p in (plate / "merged").iterdir()
-                    if p.suffix == ".npy" and not p.name.startswith("."))
+    from tests.conftest import merged_field_arrays
+
+    merged = sorted(merged_field_arrays(plate))  # item 0aj: fov.ome.zarr
     assert [name.split("_")[1] for name in merged] == ["B03", "C07"], merged
     import pandas as pd
     log = pd.read_csv(plate / "rename_log.csv")

@@ -171,3 +171,35 @@ def test_a_training_dataset_is_its_own_ome_zarr_store_under_datasets(tmp_path, s
         assert want[0].tobytes() == got[0].tobytes() and np.array_equal(want[1], got[1])
         for cls, plane in read_crop_labels(tmp_path, row).items():
             assert np.array_equal(read_crop_labels(tmp_path, stored)[cls], plane)
+
+
+@pytest.mark.parametrize("save", [True, False])
+def test_the_stored_transform_maps_every_crop_pixel_onto_its_fov_pixel(tmp_path, save):
+    """Crops (and dataset crops) record a 0.6 scale+translation into their source FOV."""
+    import json
+
+    from spacr.crop_store import (crop_to_fov, read_crop, read_crop_labels,
+                                  read_training_dataset, write_training_dataset)
+    from spacr.image_store import read_image, read_labels
+    from spacr.measure import measure_crop
+
+    _project(tmp_path)
+    measure_crop(_settings(tmp_path, save_png=save, crop_margin_px=5))
+    rows = list(_index(tmp_path).values())
+    write_training_dataset(tmp_path, "set1", [dict(r, **{"class": "a", "split": "train"}) for r in rows])
+    for row in rows + read_training_dataset(tmp_path, "set1"):
+        record = json.loads(row["coordinate_transformations"])
+        assert record["source_store"] == "fov.ome.zarr" and record["output"] == f"fov:{record['source_key']}"
+        assert [t["type"] for t in record["transformations"]] == ["scale", "translation"]
+        fov = read_image(tmp_path / "fov.ome.zarr", key=record["source_key"])
+        pixels, _mask = read_crop(tmp_path, row)
+        ys, xs = np.indices(pixels.shape[1:])
+        fy, fx = crop_to_fov(row, ys, xs)
+        assert np.array_equal(fy, np.round(fy)) and np.array_equal(fx, np.round(fx))
+        region = fov[:, fy.astype(int), fx.astype(int)]
+        assert region.tobytes() == pixels.tobytes()
+        nucleus = read_labels(tmp_path / "fov.ome.zarr", "nucleus", key=record["source_key"])
+        # The measured labels equal Mask's here (no size filter), so the label
+        # crop is the FOV label region the transform points to.
+        assert np.array_equal(read_crop_labels(tmp_path, row)["nucleus"],
+                              nucleus[fy.astype(int), fx.astype(int)])

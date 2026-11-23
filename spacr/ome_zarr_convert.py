@@ -1169,16 +1169,17 @@ def _plan_crops(src, plan, fields):
 def _crop_index_frame(rows):
     """Build native Measure index columns with explicit nullable scalar dtypes."""
     import pandas as pd
-    from .crop_store import CROP_COLUMNS
+    from .crop_store import CROP_COLUMNS, INDEX_EXTRA_COLUMNS
     from .schema import ORGANELLE_ROLES
 
     relationships = ["parent_cell_id", "nucleus_id", "has_nucleus", "n_nuclei",
                      "n_pathogens", "infected", *(f"n_{name}" for name in ORGANELLE_ROLES),
                      "annotation", "class", "class_score"]
     present = {name for row in rows for name in row}
-    if present - set(CROP_COLUMNS) - set(relationships):
+    if present - set(CROP_COLUMNS) - set(relationships) - set(INDEX_EXTRA_COLUMNS):
         raise ValueError(tr("Crop index columns differ from the native Measure schema; retain originals."))
-    columns = [*CROP_COLUMNS, *(name for name in relationships if name in present)]
+    columns = [*CROP_COLUMNS, *(name for name in relationships if name in present),
+               *(name for name in INDEX_EXTRA_COLUMNS if name in present)]
     frame = pd.DataFrame(rows, dtype=object).reindex(columns=columns)
     integers = {"column", "field", "timepoint", "object_label", "crop_index", "offset",
                 "height", "width", "mask_offset", "bbox_y0", "bbox_x0", "bbox_y1",

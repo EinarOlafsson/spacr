@@ -50,6 +50,12 @@ CROP_COLUMNS: Tuple[str, ...] = (
     "bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1", "margin_px", "clipped_at_edge",
     "png_path")
 
+#: Index columns item 0aj adds beside CROP_COLUMNS: the classes cut per crop,
+#: how to cut a crop again from fov.ome.zarr, and its 0.6 transformations.
+INDEX_EXTRA_COLUMNS: Tuple[str, ...] = (
+    "label_classes", "source_field", "source_channels", "crop_dtype",
+    "zero_outside", "coordinate_transformations")
+
 #: Crops per pool shard; each shard is one array written whole (16 chunks of 256).
 DEFAULT_CROPS_PER_SHARD = 4096
 
@@ -251,6 +257,10 @@ class CropPoolWriter:
                 "write this class to a new store."))
         attributes.pop("mask_dtype", None)
         wanted = {"dtype": self.dtype.str, "channels": self.channels,
+                  # Item 0aj: each row's coordinate_transformations map its
+                  # crop grid into its source field (crop_transformations).
+                  "coordinate_systems": {"crop": ["y", "x"], "fov": ["y", "x"],
+                                         "ngff_version": "0.6"},
                   "compression": "zstd-3", "crops_per_shard": self.crops_per_shard,
                   **json.loads(json.dumps(attributes, default=str))}
         if self.mask_dtype != np.dtype(bool):
@@ -393,7 +403,10 @@ def _index_row(plate: str, well: str, object_type: str, crop: Mapping[str, Any],
     width = int(crop["bbox_x1"]) - int(crop["bbox_x0"])
     classes = (",".join(sorted(crop["labels"])) if crop.get("labels")
                else crop.get("label_classes"))
+    transform = crop.get("coordinate_transformations") or crop_transformations(
+        plate, well, crop.get("field"), crop["bbox_y0"], crop["bbox_x0"])
     return {
+        "coordinate_transformations": transform,
         "object_type": object_type, "plate": plate,
         "row": row_letter, "column": int(column) if column else None,
         "well": well, "field": crop.get("field"),
@@ -412,7 +425,59 @@ def _index_row(plate: str, well: str, object_type: str, crop: Mapping[str, Any],
         **{k: v for k, v in crop.items() if k not in (
             "pixels", "mask", "labels", "field", "timepoint", "object_label",
             "object_id", "bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1",
-            "margin_px", "clipped_at_edge", "label_classes")}}
+            "margin_px", "clipped_at_edge", "label_classes",
+            "coordinate_transformations")}}
+
+
+def crop_transformations(plate: str, well: str, field: Any, y0: int, x0: int, *,
+                         scale: Sequence[float] = (1.0, 1.0)) -> str:
+    """Where a crop came from, as OME-Zarr 0.6 coordinate transformations (item 0aj).
+
+    A crop's pixel grid (coordinate system ``crop``, axes y, x) maps into
+    its source field's pixel grid (coordinate system ``fov:<row>/<col>/<field>``
+    of ``fov.ome.zarr``) by ``scale`` (1, 1 unless the crop was resized)
+    then a translation to the box's top-left corner (bbox y0, x0, which
+    already include the margin). Crops sit in pooled arrays, not one
+    OME-Zarr image each, and 0.6 has no reference from one store's
+    coordinate system into another store, so the transformation is kept
+    with each crop's index row (JSON), naming the source store and field
+    key beside it. :func:`crop_to_fov` applies it.
+
+    :returns: the JSON text of ``{"input", "output", "source_store",
+        "source_key", "transformations": [scale, translation]}``.
+    """
+    from .image_store import MERGED_STORE_NAME, field_key
+
+    try:
+        key = field_key(well, field) if field is not None else None
+    except (TypeError, ValueError):
+        key = None
+    record = {"input": "crop", "output": f"fov:{key}", "source_store": MERGED_STORE_NAME,
+              "source_key": key,
+              "transformations": [
+                  {"type": "scale", "scale": [float(v) for v in scale]},
+                  {"type": "translation", "translation": [float(y0), float(x0)]}]}
+    return json.dumps(record, sort_keys=True)
+
+
+def crop_to_fov(row: Mapping[str, Any], ys: Any, xs: Any) -> Tuple[np.ndarray, np.ndarray]:
+    """Map crop pixel coordinates into the source field's pixel grid (item 0aj).
+
+    :param row: the crop's index row (its ``coordinate_transformations``).
+    :param ys: crop row coordinates.
+    :param xs: crop column coordinates.
+    :returns: ``(fov_ys, fov_xs)``: scale, then translation, as 0.6 orders a sequence.
+    """
+    record = json.loads(str(_row_field(row, "coordinate_transformations")))
+    ys, xs = np.asarray(ys, dtype=np.float64), np.asarray(xs, dtype=np.float64)
+    for step in record["transformations"]:
+        if step["type"] == "scale":
+            ys, xs = ys * step["scale"][0], xs * step["scale"][1]
+        elif step["type"] == "translation":
+            ys, xs = ys + step["translation"][0], xs + step["translation"][1]
+        else:
+            raise ValueError(f"crop transformation {step['type']!r} is not one spaCR writes")
+    return ys, xs
 
 
 def _json_default(value: Any) -> Any:
@@ -718,6 +783,82 @@ def _source_field_path(project: Any, row: Mapping[str, Any]) -> str:
     return os.fspath(Path(project) / "merged" / name)
 
 
+@functools.lru_cache(maxsize=16)
+def _measured_record(path: str, stamp: Any) -> Dict[Any, np.ndarray]:
+    """The measured-mask planes of one fov.ome.zarr field, read once per record (item 0aj)."""
+    from .crops import _read_measured_masks
+    from .image_store import _read_field
+
+    if stamp is None:
+        return {}
+    return _read_measured_masks(path, _read_field(path, mmap_mode="r"))
+
+
+#: Open field readers of the crop streamer, by (field path, ledger entry, record stamp).
+_WINDOWS: "collections.OrderedDict[Any, _StoreFieldWindows]" = collections.OrderedDict()
+
+
+def _field_windows(path: str, store: Path, entry: Mapping[str, Any]) -> "_StoreFieldWindows":
+    """One cached :class:`_StoreFieldWindows` per field while its entry and record are unchanged."""
+    from .crops import _measured_masks_stamp
+
+    key = (path, json.dumps(dict(entry), sort_keys=True, default=str), _measured_masks_stamp(path))
+    found = _WINDOWS.get(key)
+    if found is None:
+        found = _WINDOWS[key] = _StoreFieldWindows(path, store, entry)
+        while len(_WINDOWS) > 32:
+            _WINDOWS.popitem(last=False)
+    else:
+        _WINDOWS.move_to_end(key)
+    return found
+
+
+class _StoreFieldWindows:
+    """Box reads of one fov.ome.zarr field: channels and labels, chunk by chunk (item 0aj).
+
+    The crop streamer reads only the chunks a crop's box covers, through
+    cached array handles, and applies the labels Measure measured with (the
+    field's measured-mask record), as :class:`spacr.crops.MergedField` does
+    for a whole field.
+    """
+
+    def __init__(self, path: str, store: Path, entry: Mapping[str, Any]):
+        from .crops import _measured_masks_stamp
+        from .image_store import _store_layout
+
+        layout = _store_layout(store) or {}
+        self.group = store / entry["key"]
+        self.n_intensity = len(layout.get("intensity_channels") or ())
+        self.mask_dims = {str(k): int(v) for k, v in (layout.get("mask_dims") or {}).items()}
+        self.dtype = np.dtype(entry["dtype"])
+        self.measured = _measured_record(path, _measured_masks_stamp(path))
+
+    def channels(self, channels: Sequence[int], y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
+        """``(C, h, w)`` of the given merged planes (intensity planes only)."""
+        image = _open_pool(self.group / "0")
+        if any(c >= self.n_intensity for c in channels):
+            raise ValueError(f"{self.group}: crop channels {list(channels)} include a mask plane")
+        block = np.asarray(image[:, y0:y1, x0:x1])
+        return block[list(channels)]
+
+    def labels(self, cls: str, y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
+        """One class's labels over the box: measured where Measure changed them."""
+        if cls == "cytoplasm":
+            if "cytoplasm" in self.measured:
+                return np.asarray(self.measured["cytoplasm"][y0:y1, x0:x1])
+            cell = self.labels("cell", y0, y1, x0, x1)
+            interior = np.zeros(cell.shape, bool)
+            for other in self.mask_dims:
+                if other != "cell":
+                    interior |= self.labels(other, y0, y1, x0, x1) != 0
+            return np.where(interior, 0, cell)
+        dim = self.mask_dims.get(cls)
+        if dim is not None and dim in self.measured:
+            return np.asarray(self.measured[dim][y0:y1, x0:x1]).astype(self.dtype, copy=False)
+        return np.asarray(_open_pool(self.group / "labels" / cls / "0")[y0:y1, x0:x1]
+                          ).astype(self.dtype, copy=False)
+
+
 def _stream_crop(project: Any, row: Mapping[str, Any], *, labels: bool = False
                  ) -> Dict[str, Any]:
     """Cut one crop from its field on the fly (item 0aj; saving crops off).
@@ -736,17 +877,29 @@ def _stream_crop(project: Any, row: Mapping[str, Any], *, labels: bool = False
         ``labels``, ``labels``.
     """
     from .crops import open_merged_field
-    from .image_store import _compact_labels
+    from .image_store import _compact_labels, _store_field
 
-    field = open_merged_field(_source_field_path(project, row))
+    path = _source_field_path(project, row)
     y0, x0, y1, x1 = (int(_row_field(row, k)) for k in ("bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1"))
     channels = [int(c) for c in str(_row_field(row, "source_channels")).split(",") if c != ""]
-    dtype = np.dtype(_row_field(row, "crop_dtype") or field.crop_dtype)
-    window = np.moveaxis(field.read_window(y0, y1, x0, x1, channels, dtype=dtype), -1, 0)
     local = (0, 0, y1 - y0, x1 - x0)
-    own = field.mask_plane(str(_row_field(row, "object_type")))[y0:y1, x0:x1]
-    planes = ({cls: _compact_labels(field.mask_plane(cls)[y0:y1, x0:x1])
-               for cls in _label_classes(row)} if labels else None)
+    object_type = str(_row_field(row, "object_type"))
+    found = _store_field(path)
+    if found is not None:
+        # fov.ome.zarr: read only the box's chunks of the channels and labels.
+        window_of = _field_windows(path, found[0], found[1])
+        dtype = np.dtype(_row_field(row, "crop_dtype") or window_of.dtype)
+        window = window_of.channels(channels, y0, y1, x0, x1).astype(dtype, copy=False)
+        own = window_of.labels(object_type, y0, y1, x0, x1)
+        planes = ({cls: _compact_labels(window_of.labels(cls, y0, y1, x0, x1))
+                   for cls in _label_classes(row)} if labels else None)
+    else:
+        field = open_merged_field(path)
+        dtype = np.dtype(_row_field(row, "crop_dtype") or field.crop_dtype)
+        window = np.moveaxis(field.read_window(y0, y1, x0, x1, channels, dtype=dtype), -1, 0)
+        own = field.mask_plane(object_type)[y0:y1, x0:x1]
+        planes = ({cls: _compact_labels(field.mask_plane(cls)[y0:y1, x0:x1])
+                   for cls in _label_classes(row)} if labels else None)
     zero = _row_field(row, "zero_outside")
     return _cut_box(window, own, int(_row_field(row, "object_label")), local,
                     zero_outside=bool(zero) and str(zero) not in ("0", "False", "nan"),

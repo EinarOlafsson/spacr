@@ -97,7 +97,10 @@ def test_one_mask_run_equals_the_two_pass_run(tmp_path, threshold_cellpose):
     preprocess_generate_masks(_mask_settings(two, preprocess=True, masks=False))
     preprocess_generate_masks(_mask_settings(two, preprocess=False, masks=True))
 
-    merged_one, merged_two = _arrays(one / "merged"), _arrays(two / "merged")
+    from tests.conftest import merged_field_arrays
+
+    # Item 0aj: the merged fields are in fov.ome.zarr, read by the shared reader.
+    merged_one, merged_two = merged_field_arrays(one), merged_field_arrays(two)
     assert len(merged_one) == 4 and merged_one.keys() == merged_two.keys()
     for name in merged_one:
         np.testing.assert_array_equal(merged_one[name], merged_two[name])
