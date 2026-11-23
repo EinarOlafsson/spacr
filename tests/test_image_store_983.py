@@ -156,21 +156,36 @@ def _merged_run(tmp_path):
 
 
 def test_mask_generation_exports_merged_fields_to_ome_zarr_pixel_exact(tmp_path):
-    from spacr.image_store import export_merged
+    """Item 0aj: the export writes the project's one merged store, merged.ome.zarr."""
+    from spacr.image_store import _read_field, export_merged
 
     stacks = _merged_run(tmp_path)
+    (tmp_path / "merged" / "plate2_C04_1.npy").unlink()
+    stacks.pop("plate2_C04_1")
     report = export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
-    assert sorted(report) == ["plate1", "plate2"]
+    assert sorted(report) == ["plate1"]
     assert report["plate1"]["written"] == 3
+    store = tmp_path / "merged.ome.zarr"
+    assert not (tmp_path / "images").exists()
     for name, stack in stacks.items():
         plate, well, field = name.split("_")
-        store = tmp_path / "images" / f"{plate}.ome.zarr"
         image = read_image(store, key=(well, int(field)))
         assert np.array_equal(image, np.moveaxis(stack[..., :3], -1, 0))
         assert np.array_equal(read_labels(store, "cell", key=(well, int(field))), stack[..., 3])
         assert np.array_equal(read_labels(store, "nucleus", key=(well, int(field))), stack[..., 4])
+        back = _read_field(store / f"{name}.npy")
+        assert back.dtype == stack.dtype and np.array_equal(back, stack)
     again = export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
     assert again["plate1"] == {"written": 0, "skipped": 3, "keys": []}
+
+
+def test_one_merged_store_holds_one_plate(tmp_path):
+    from spacr.image_store import export_merged
+
+    _merged_run(tmp_path)
+    with pytest.raises(ValueError, match="one merged store holds one plate"):
+        export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
+    assert not (tmp_path / "merged.ome.zarr").exists()
 
 
 def test_mask_generation_exports_tiff_pixel_exact_and_npy_writes_nothing(tmp_path):
@@ -212,6 +227,7 @@ def test_two_timepoints_of_one_field_are_refused_not_overwritten(tmp_path):
     with pytest.raises(ValueError, match="no time axis"):
         export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
     assert not (tmp_path / "images").exists()
+    assert not (tmp_path / "merged.ome.zarr").exists()
 
 
 @pytest.mark.parametrize("image_mode", ["channels", "plane", "labels-only"])

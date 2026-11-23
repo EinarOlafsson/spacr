@@ -2,12 +2,18 @@
 
 Each crop is its object's bounding box plus a margin, stored at its own size.
 A well's crops of one object class go into flat pixel pools inside the
-well's crop store, ``crops/plate=<P>/well=<W>.zarr`` (the per-well store of
-item 974): ``<class>/pool/<k>`` holds the pixels ``(C, n)`` and
-``<class>/mask/<k>`` the object's own mask pixels ``(n,)``, one pool array
-per shard of ``crops_per_shard`` crops, written whole by the one writer. The
-crop table gives each crop its pool, offset, height and width, so a crop is
-one contiguous read.
+project's crop store, ``crops.ome.zarr/plate=<P>/well=<W>`` (item 0aj; older
+projects have ``crops/plate=<P>/well=<W>.zarr``, which still reads):
+``<class>/pool/<k>`` holds the pixels ``(C, n)``, ``<class>/mask/<k>`` the
+object's own mask pixels ``(n,)`` and ``<class>/labels/<other class>/<k>``
+EVERY object class's labels cut to the same box ``(n,)`` (uint16 or uint32
+by the shard's largest label), one pool array per shard of
+``crops_per_shard`` crops, written whole by the one writer. The crop table
+gives each crop its pool, offset, height and width, so a crop is one
+contiguous read; its ``object_label`` with ``labels/<own class>`` rebuilds
+the own-object mask exactly. The table is written through one adapter,
+:func:`_write_crop_index` (today ``measurements.db:ssCell_Crops``), so the
+unified measurement store can take it without changing any caller.
 
 This is spaCR's own crop format, not an OME-Zarr image: viewers open the
 images, not the pools. :func:`export_crops` writes crops out as TIFF, PNG
@@ -46,13 +52,21 @@ CROP_COLUMNS: Tuple[str, ...] = (
 #: Crops per pool shard; each shard is one array written whole (16 chunks of 256).
 DEFAULT_CROPS_PER_SHARD = 4096
 
+#: The project's crop store (item 0aj): ``<project>/crops.ome.zarr``.
+CROP_STORE_NAME = "crops.ome.zarr"
+
+#: The older projects' crop root, ``<project>/crops/plate=<P>/well=<W>.zarr``.
+_LEGACY_CROP_ROOT = "crops"
+
+
 #: Crops per chunk inside a shard.
 CROPS_PER_CHUNK = 256
 
 
 def cut_crops(image: np.ndarray, labels: np.ndarray, *, margin: int = 0,
               zero_outside: bool = False,
-              objects: Optional[Sequence[int]] = None
+              objects: Optional[Sequence[int]] = None,
+              all_labels: Optional[Mapping[str, np.ndarray]] = None
               ) -> List[Dict[str, Any]]:
     """Cut each object's bounding box plus ``margin`` out of a field.
 
@@ -61,9 +75,13 @@ def cut_crops(image: np.ndarray, labels: np.ndarray, *, margin: int = 0,
     :param margin: pixels added on every side, clipped at the field edge.
     :param zero_outside: set pixels outside the object to 0 in the crop.
     :param objects: the labels to cut, ascending; every label when None.
+    :param all_labels: ``{object class: labels (Y, X)}``: every class's
+        labels cut to the same box go into the record's ``labels`` (item
+        0aj), as integers, unchanged.
     :returns: one record per object: ``object_label``, ``pixels``
         ``(C, h, w)``, ``mask`` ``(h, w)`` bool, ``bbox_y0/x0/y1/x1`` (the
-        cut box, end-exclusive), ``margin_px`` and ``clipped_at_edge``.
+        cut box, end-exclusive), ``margin_px`` and ``clipped_at_edge``; with
+        ``all_labels`` also ``labels`` ``{class: (h, w)}``.
     """
     from scipy import ndimage
 
@@ -90,10 +108,14 @@ def cut_crops(image: np.ndarray, labels: np.ndarray, *, margin: int = 0,
         pixels = np.array(image[:, y0:y1, x0:x1])
         if zero_outside:
             pixels[:, ~mask] = 0
-        out.append({"object_label": int(label), "pixels": pixels, "mask": mask,
-                    "bbox_y0": int(y0), "bbox_x0": int(x0), "bbox_y1": int(y1),
-                    "bbox_x1": int(x1), "margin_px": int(margin),
-                    "clipped_at_edge": bool(clipped)})
+        record = {"object_label": int(label), "pixels": pixels, "mask": mask,
+                  "bbox_y0": int(y0), "bbox_x0": int(x0), "bbox_y1": int(y1),
+                  "bbox_x1": int(x1), "margin_px": int(margin),
+                  "clipped_at_edge": bool(clipped)}
+        if all_labels:
+            record["labels"] = {str(name): np.array(np.asarray(plane)[y0:y1, x0:x1])
+                                for name, plane in all_labels.items()}
+        out.append(record)
     return out
 
 
@@ -149,9 +171,17 @@ class CropPoolWriter:
             from .qt.i18n import tr
             raise ValueError(tr("Crop mask_dtype must be bool or uint8."))
         self.crops_per_shard = max(1, int(crops_per_shard))
-        self.relative = (Path("crops") / f"plate={_encoded(plate)}"
-                         / f"well={_encoded(well)}.zarr")
+        self.relative = (Path(CROP_STORE_NAME) / f"plate={_encoded(plate)}"
+                         / f"well={_encoded(well)}")
         self.path = self.project / self.relative
+        root = self.project / CROP_STORE_NAME
+        root.mkdir(parents=True, exist_ok=True)
+        if not (root / "zarr.json").is_file():
+            self.zarr.open_group(str(root), mode="w", zarr_format=3).attrs[
+                "spacr"] = {"crop_store": 2, "layout": "plate=<P>/well=<W>/<class>"}
+        if not (self.path.parent / "zarr.json").is_file():
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            self.zarr.open_group(str(self.path.parent), mode="w", zarr_format=3)
         self.path.mkdir(parents=True, exist_ok=True)
         if not (self.path / "zarr.json").is_file():
             self.zarr.open_group(str(self.path), mode="w", zarr_format=3)
@@ -272,9 +302,18 @@ class CropPoolWriter:
         self._shard += 1
         self.pools.append(name)
         chunk = max(1, -(-total // 16)) if total else 1
-        for kind, array, chunks, shards in (
-                ("pool", pool, (self.channels, chunk), (self.channels, chunk * 16)),
-                ("mask", mask, (chunk,), (chunk * 16,))):
+        arrays = [("pool", pool, (self.channels, chunk), (self.channels, chunk * 16)),
+                  ("mask", mask, (chunk,), (chunk * 16,))]
+        classes = sorted({c for crop in crops for c in (crop.get("labels") or {})})
+        for cls in classes:
+            planes = [np.asarray((crop.get("labels") or {}).get(
+                cls, np.zeros(crop["pixels"].shape[1:], np.uint16))).reshape(size)
+                for crop, size in zip(crops, sizes)]
+            from .image_store import _compact_labels
+            joined = (_compact_labels(np.concatenate(planes)) if planes
+                      else np.zeros(0, np.uint16))
+            arrays.append((f"labels/{cls}", joined, (chunk,), (chunk * 16,)))
+        for kind, array, chunks, shards in arrays:
             parent = self.path / self.object_type / kind
             parent.mkdir(parents=True, exist_ok=True)
             tmp = parent / f".{name}.tmp"
@@ -288,6 +327,8 @@ class CropPoolWriter:
                 overwrite=True)
             if total:
                 out[...] = array
+            if (parent / name).exists():
+                shutil.rmtree(parent / name)
             os.replace(tmp, parent / name)
         row_letter = "".join(ch for ch in self.well if ch.isalpha())
         column = "".join(ch for ch in self.well if ch.isdigit())
@@ -309,10 +350,12 @@ class CropPoolWriter:
                 **{k: crop[k] for k in ("bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1",
                                          "margin_px", "clipped_at_edge")},
                 "png_path": None,
+                **({"label_classes": ",".join(sorted(crop["labels"]))}
+                   if crop.get("labels") else {}),
                 **{k: v for k, v in crop.items() if k not in (
-                    "pixels", "mask", "field", "timepoint", "object_label",
+                    "pixels", "mask", "labels", "field", "timepoint", "object_label",
                     "object_id", "bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1",
-                    "margin_px", "clipped_at_edge")}})
+                    "margin_px", "clipped_at_edge", "label_classes")}})
 
 
 def _json_default(value: Any) -> Any:
@@ -334,6 +377,9 @@ def _atomic_write(path: Path, text: str) -> None:
 def class_dir(project: Any, plate: str, well: str, object_type: str) -> Path:
     """The folder of one well's crops of one class: ``<project>/crops/plate=<P>/well=<W>.zarr/<class>``.
 
+    New projects keep it at ``<project>/crops.ome.zarr/plate=<P>/well=<W>/<class>``
+    (item 0aj); the older ``crops/`` folder is returned while only it exists.
+
     :param project: the project folder.
     :param plate: the plate name.
     :param well: the well name.
@@ -341,8 +387,11 @@ def class_dir(project: Any, plate: str, well: str, object_type: str) -> Path:
     """
     from .store import _encoded
 
-    return (Path(project) / "crops" / f"plate={_encoded(plate)}"
-            / f"well={_encoded(well)}.zarr" / str(object_type))
+    current = (Path(project) / CROP_STORE_NAME / f"plate={_encoded(plate)}"
+               / f"well={_encoded(well)}" / str(object_type))
+    legacy = (Path(project) / _LEGACY_CROP_ROOT / f"plate={_encoded(plate)}"
+              / f"well={_encoded(well)}.zarr" / str(object_type))
+    return legacy if legacy.exists() and not current.exists() else current
 
 
 #: The former private name, kept for existing callers.
@@ -382,22 +431,34 @@ def _crop_from_row(project: Any, row: Mapping[str, Any]
                    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """A committed crop read back as ``(crop, identity)`` for a new writer."""
     pixels, mask = read_crop(project, row)
-    crop = {k: v for k, v in row.items() if k not in _LAYOUT_COLUMNS}
+    crop = {k: v for k, v in row.items() if k not in _LAYOUT_COLUMNS + ("label_classes",)}
     crop.update(pixels=pixels, mask=mask)
+    labels = read_crop_labels(project, row)
+    if labels:
+        crop["labels"] = labels
     return crop, {"field": row.get("field"), "timepoint": row.get("timepoint")}
 
 
 def committed_rows(project: Any) -> List[Dict[str, Any]]:
     """Every committed crop row of the project, by plate, well and class.
 
-    :param project: the project folder holding ``crops/``.
+    :param project: the project folder holding ``crops.ome.zarr`` (or an
+        older project's ``crops/``).
     :returns: the rows :meth:`CropPoolWriter.commit` recorded, in path order.
     """
     rows: List[Dict[str, Any]] = []
-    for record in sorted((Path(project) / "crops").glob(
-            "plate=*/well=*.zarr/*/spacr_commit.json")):
+    seen = set()
+    records = (sorted((Path(project) / CROP_STORE_NAME).glob(
+        "plate=*/well=*/*/spacr_commit.json"))
+        + sorted((Path(project) / _LEGACY_CROP_ROOT).glob(
+            "plate=*/well=*.zarr/*/spacr_commit.json")))
+    for record in records:
         meta = json.loads(record.read_text(encoding="utf-8"))
-        found = read_commit(project, meta["plate"], meta["well"], meta["object_type"])
+        key = (meta["plate"], meta["well"], meta["object_type"])
+        if key in seen:
+            continue
+        seen.add(key)
+        found = read_commit(project, *key)
         rows.extend(found["rows"] if found else [])
     return rows
 
@@ -420,7 +481,9 @@ def discard_uncommitted(project: Any, plate: str, well: str,
     record = read_commit(project, plate, well, object_type)
     keep = set(record["pools"]) if record else set()
     removed = []
-    for kind in ("pool", "mask"):
+    kinds = ["pool", "mask"] + [f"labels/{entry.name}" for entry in sorted(
+        (base / "labels").iterdir()) if entry.is_dir()] if (base / "labels").is_dir() else ["pool", "mask"]
+    for kind in kinds:
         folder = base / kind
         if not folder.is_dir():
             continue
@@ -483,6 +546,42 @@ def read_crop(project: Any, row: Mapping[str, Any], *, context: bool = True,
     mask = np.asarray(zarr.open_array(str(store / mask_array), mode="r")[
         moff:moff + n]).reshape(height, width)
     return _finish_crop(pixels, mask, context or _mask_is_absent(row), size)
+
+
+def _label_classes(row: Mapping[str, Any]) -> List[str]:
+    """The object classes whose labels a crop row's shard stores (item 0aj)."""
+    value = row.get("label_classes")
+    if not isinstance(value, str) or not value:
+        return []
+    return [name for name in value.split(",") if name]
+
+
+def read_crop_labels(project: Any, row: Mapping[str, Any]) -> Dict[str, np.ndarray]:
+    """Every object class's labels cut to a crop's box (item 0aj).
+
+    :param project: the project folder.
+    :param row: the crop's table row; ``label_classes`` names the classes.
+    :returns: ``{class: labels (h, w)}`` in the stored integer dtype; empty
+        for a crop of an older project, which stored its own mask only.
+        ``labels[row['object_type']] == row['object_label']`` is the crop's
+        own-object mask.
+    """
+    from .ome_zarr import require_zarr
+
+    classes = _label_classes(row)
+    if not classes:
+        return {}
+    zarr = require_zarr()
+    store = Path(project) / str(row["crop_store"])
+    height, width = int(row["height"]), int(row["width"])
+    n = height * width
+    off = int(row["mask_offset"])
+    out = {}
+    for cls in classes:
+        array = str(row["crop_array"]).replace("/pool/", f"/labels/{cls}/")
+        out[cls] = np.asarray(zarr.open_array(str(store / array), mode="r")[
+            off:off + n]).reshape(height, width)
+    return out
 
 
 def _mask_is_absent(row: Mapping[str, Any]) -> bool:
@@ -824,9 +923,50 @@ def close_measure_sink(project: Any, db_path: Any) -> int:
         frame = pd.DataFrame(rows)
         ordered = [c for c in CROP_COLUMNS if c in frame.columns]
         frame = frame[ordered + [c for c in frame.columns if c not in ordered]]
-        write_database(frame, os.fspath(db_path), "ssCell_Crops",
-                       if_exists="replace", canonicalise=False)
+        _write_crop_index(db_path, frame)
     return written
+
+
+def _write_crop_index(db_path: Any, frame: Any) -> None:
+    """The crop-index adapter's writer (item 0aj): one place that stores the crop rows.
+
+    Today the rows go to ``measurements.db:ssCell_Crops`` exactly as before.
+    The unified measurement store being designed for every module will take
+    the index here, behind this adapter, so no caller changes when it does;
+    no new table or index structure is added meanwhile.
+
+    :param db_path: the run's ``measurements.db``.
+    :param frame: the crop rows, as :func:`committed_rows` gives them.
+    """
+    from .tabular import write_database
+
+    write_database(frame, os.fspath(db_path), "ssCell_Crops",
+                   if_exists="replace", canonicalise=False)
+
+
+def _read_crop_index(project: Any) -> Optional[Any]:
+    """The crop-index adapter's reader (item 0aj): the project's crop rows.
+
+    Reads ``measurements.db:ssCell_Crops`` today; the unified measurement
+    store will answer here instead (see :func:`_write_crop_index`).
+
+    :param project: the project folder (holding ``measurements/``).
+    :returns: a DataFrame of crop rows, or None when the project has none.
+    """
+    from .tabular import read_database
+
+    measurements = Path(project) / "measurements"
+    db = measurements / "measurements.db"
+    if db.is_file():
+        import sqlite3
+
+        with sqlite3.connect(str(db), timeout=30) as conn:
+            present = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
+                                   "AND name='ssCell_Crops'").fetchone()
+        if present:
+            return read_database(str(db), "ssCell_Crops", canonicalise=False,
+                                 report=None, migrate=False, read_only=True)[0]
+    return None
 
 
 def record_measure_crops(settings: Mapping[str, Any], file_name: str,
@@ -905,7 +1045,8 @@ def ome_zarr_crops_exist(root: Any) -> bool:
 
     root = Path(root)
     db = root / "measurements" / "measurements.db"
-    if not db.is_file() or not any((root / "crops").glob("plate=*/well=*.zarr")):
+    if not db.is_file() or not (any((root / CROP_STORE_NAME).glob("plate=*/well=*"))
+                                or any((root / "crops").glob("plate=*/well=*.zarr"))):
         return False
     with sqlite3.connect(str(db), timeout=30) as conn:
         return conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
@@ -979,8 +1120,10 @@ class OmeZarrCropSource(_lazy_crop_source_base()):
         if self._table is None:
             from .tabular import read_database
 
-            table = read_database(self.db_path, "ssCell_Crops", canonicalise=False,
-                                  report=None, migrate=False, read_only=True)[0]
+            table = (_read_crop_index(self.root) if self.root else None)
+            if table is None:
+                table = read_database(self.db_path, "ssCell_Crops", canonicalise=False,
+                                      report=None, migrate=False, read_only=True)[0]
             self._table = table.set_index("object_id", drop=False)
         return self._table
 

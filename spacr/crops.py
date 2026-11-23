@@ -387,18 +387,28 @@ def read_merged_plane_layout(path: str) -> Optional[Dict[str, Any]]:
 
     :param path: a merged folder, or a ``.npy`` file inside one (its parent
         folder is used); the ``.spacr_plane_layout.json`` sidecar is read
-        from that folder.
+        from that folder. A merged store (``merged.ome.zarr``, item 0aj) or a
+        field name inside one gives the layout kept in the store's
+        attributes.
     """
+    from .image_store import _is_merged_store, _store_layout
+
     folder = os.path.dirname(path) if str(path).endswith('.npy') else path
-    manifest = os.path.join(os.fspath(folder), MERGED_LAYOUT_SIDECAR)
-    if not os.path.exists(manifest):
-        return None
-    try:
-        with open(manifest, 'r', encoding='utf-8') as handle:
-            layout = json.load(handle)
-    except (OSError, json.JSONDecodeError) as exc:
-        raise CorruptMergedFile(
-            f"cannot read merged plane layout {manifest}: {exc}") from exc
+    if _is_merged_store(folder):
+        manifest = os.path.join(os.fspath(folder), 'zarr.json')
+        layout = _store_layout(folder)
+        if layout is None:
+            return None
+    else:
+        manifest = os.path.join(os.fspath(folder), MERGED_LAYOUT_SIDECAR)
+        if not os.path.exists(manifest):
+            return None
+        try:
+            with open(manifest, 'r', encoding='utf-8') as handle:
+                layout = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise CorruptMergedFile(
+                f"cannot read merged plane layout {manifest}: {exc}") from exc
     if not isinstance(layout, dict) or layout.get('version') != 1:
         raise CorruptMergedFile(
             f"unsupported merged plane layout in {manifest}: expected "
