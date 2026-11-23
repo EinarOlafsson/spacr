@@ -285,8 +285,8 @@ def test_mask_generation_exports_exactly_when_on(tmp_path, no_segmentation,
     from spacr.image_store import _list_fields
 
     preprocess_generate_masks(_mask_settings(src, export_vvvv=enabled))
-    # Item 0aj: the merged fields live in merged.ome.zarr, not merged/*.npy.
-    assert "plate1_A01_1.npy" in _list_fields(src / "merged.ome.zarr")
+    # Item 0aj: the merged fields live in fov.ome.zarr, not merged/*.npy.
+    assert "plate1_A01_1.npy" in _list_fields(src / "fov.ome.zarr")
     assert not (src / "merged").exists()
     root = src / "vvvv" / "mask"
     if not enabled:
@@ -333,9 +333,9 @@ def test_new_mask_defaults_write_ome_zarr_and_old_settings_keep_exact_npy(
     preprocess_generate_masks(old_settings)
     from spacr.image_store import _read_field
 
-    # Item 0aj: fresh defaults write merged.ome.zarr and no merged/*.npy.
-    store = fresh / 'merged.ome.zarr'
-    assert store.is_dir() and not (old / 'merged.ome.zarr').exists()
+    # Item 0aj: fresh defaults write fov.ome.zarr and no merged/*.npy.
+    store = fresh / 'fov.ome.zarr'
+    assert store.is_dir() and not (old / 'fov.ome.zarr').exists()
     assert not (fresh / 'merged').exists() and not (fresh / 'images').exists()
     for well in ('A01', 'B02'):
         name = f'plate1_{well}_1.npy'

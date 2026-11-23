@@ -625,7 +625,7 @@ def resolve_port(port: Port, root: str) -> ResolvedPort:
     if port.extensions:
         found = {p for p in found if p.lower().endswith(port.extensions)}
     if not found and port.kind == MERGED_ARRAYS:
-        # Item 0aj: a project's merged fields live in merged.ome.zarr; its
+        # Item 0aj: a project's merged fields live in fov.ome.zarr; its
         # field names stand for the arrays, read by the shared reader.
         from .image_store import MERGED_STORE_NAME, _is_merged_store, _list_fields
         store = os.path.join(os.path.dirname(target), MERGED_STORE_NAME)
@@ -738,7 +738,7 @@ def _shape_problems(port: Port, paths: Sequence[str],
                 from .qt.i18n import tr
                 problems.append(Problem(
                     ERROR, port.role,
-                    tr("{name} in merged.ome.zarr has shape {shape}, expected {ndim} axes",
+                    tr("{name} in fov.ome.zarr has shape {shape}, expected {ndim} axes",
                        name=os.path.basename(path), shape=tuple(shape), ndim=contract.ndim),
                     tr("Re-run the module that wrote it.")))
             continue

@@ -5844,7 +5844,7 @@ def _load_and_concatenate_arrays(
     Load and concatenate arrays from multiple folders.
 
     With ``image_format='ome-zarr'`` (item 0aj) each merged field goes
-    straight into the project's merged store, ``<src>/merged.ome.zarr``:
+    straight into the project's merged store, ``<src>/fov.ome.zarr``:
     the intensity planes as one image in their acquired dtype and every
     mask plane as a label image (uint16 or uint32 by its largest label),
     one shard file each, and the plane layout in the store's attributes.
@@ -5945,7 +5945,7 @@ def _load_and_concatenate_arrays(
     if to_store and first_npy is not None and np.load(
             os.path.join(reference_folder, first_npy), mmap_mode='r').ndim != 3:
         from .qt.i18n import tr
-        print(tr('merged.ome.zarr not written: the fields have time or depth axes, '
+        print(tr('fov.ome.zarr not written: the fields have time or depth axes, '
                  'which the plate store has no place for yet; the fields are '
                  'merged to merged/*.npy instead.'))
         to_store = None
@@ -6150,11 +6150,11 @@ def _merged_store_plan(names):
         try:
             plate, well, field = split_field_name(name)
         except ValueError:
-            print(tr('merged.ome.zarr not written: {name} is not a field name; '
+            print(tr('fov.ome.zarr not written: {name} is not a field name; '
                      'the fields are merged to merged/*.npy instead.', name=name))
             return None
         if (plate, well, field) in seen:
-            print(tr('merged.ome.zarr not written: two files name the same field '
+            print(tr('fov.ome.zarr not written: two files name the same field '
                      '({plate} {well} {field}), which one plate store cannot hold; '
                      'the fields are merged to merged/*.npy instead.',
                      plate=plate, well=well, field=field))
@@ -6162,7 +6162,7 @@ def _merged_store_plan(names):
         seen.add((plate, well, field))
         plates.add(plate)
     if len(plates) > 1:
-        print(tr('merged.ome.zarr not written: the fields belong to {count} '
+        print(tr('fov.ome.zarr not written: the fields belong to {count} '
                  'plates ({plates}) and one store holds one plate; the fields '
                  'are merged to merged/*.npy instead.',
                  count=len(plates), plates=', '.join(sorted(plates))))

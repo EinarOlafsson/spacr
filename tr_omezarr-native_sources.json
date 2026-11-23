@@ -5,33 +5,33 @@
   "templates": [
     {
       "file": "spacr/io.py",
-      "source": "merged.ome.zarr not written: {name} is not a field name; the fields are merged to merged/*.npy instead.",
-      "source_sha256": "b0ace1f38302153fda038d6c595ba3cce2c5a92cf58acf6a800af10b03613bb9"
+      "source": "fov.ome.zarr not written: {name} is not a field name; the fields are merged to merged/*.npy instead.",
+      "source_sha256": "f8b544afc4b5a4707c7a6b59c63cc3eef9f8c2103178798e46f28ae59ed21deb"
     },
     {
       "file": "spacr/io.py",
-      "source": "merged.ome.zarr not written: two files name the same field ({plate} {well} {field}), which one plate store cannot hold; the fields are merged to merged/*.npy instead.",
-      "source_sha256": "c297cd2b56a40f4d3cf0d8f866b3649837ec6b0ed9b6fccde65a264d72c0ac79"
+      "source": "fov.ome.zarr not written: two files name the same field ({plate} {well} {field}), which one plate store cannot hold; the fields are merged to merged/*.npy instead.",
+      "source_sha256": "4a4deaeafeb913377b5cb4dde3a2d59f73750a5937a4966af12d1e84177f1b24"
     },
     {
       "file": "spacr/io.py",
-      "source": "merged.ome.zarr not written: the fields belong to {count} plates ({plates}) and one store holds one plate; the fields are merged to merged/*.npy instead.",
-      "source_sha256": "53687e01183a102a4f288839d316d75429282777b771511dac6e58c467b62a20"
+      "source": "fov.ome.zarr not written: the fields belong to {count} plates ({plates}) and one store holds one plate; the fields are merged to merged/*.npy instead.",
+      "source_sha256": "63c7331a20539d1f4ed48319004e35a4384453a63d80edbafbd3b96db598f80f"
     },
     {
       "file": "spacr/io.py",
-      "source": "merged.ome.zarr not written: the fields have time or depth axes, which the plate store has no place for yet; the fields are merged to merged/*.npy instead.",
-      "source_sha256": "4fabda17b6c1a621188e964d42bb2d73f97c885fd1b9527bd482785a5fe2cf4a"
+      "source": "fov.ome.zarr not written: the fields have time or depth axes, which the plate store has no place for yet; the fields are merged to merged/*.npy instead.",
+      "source_sha256": "e8356bca8851b47fd0b287c09dfc435e79ffd82f509a734297a114cff2455487"
     },
     {
       "file": "spacr/measure.py",
-      "source": "[measure] Reading {count} fields from the merged store {path}.",
-      "source_sha256": "3ffedacfa881b193a371a189052fb99ac7177f183048a42ee9bc54d88ad29d03"
+      "source": "[measure] Reading {count} fields from the FOV store {path}.",
+      "source_sha256": "5ad5d2ffd6aa9af00409739dc532f9125da31435c9abe8e4d2f3b4c1ef87a69a"
     },
     {
       "file": "spacr/measure.py",
-      "source": "[measure] Older project layout: reading the fields in {path} (merged/*.npy). New Mask runs keep them in merged.ome.zarr.",
-      "source_sha256": "2d1e8bb05350fdd5da43099a202963d9020a24bf396602bf0abed4cae5f5ba7d"
+      "source": "[measure] Older project layout: reading the fields in {path} (merged/*.npy). New Mask runs keep them in fov.ome.zarr.",
+      "source_sha256": "80565f5a2c8eb5262d0df41eceb488c65571e2172ad827ecfeea1465b556faaa"
     },
     {
       "file": "spacr/measure.py",
@@ -45,23 +45,33 @@
     },
     {
       "file": "spacr/ports.py",
-      "source": "{name} in merged.ome.zarr has shape {shape}, expected {ndim} axes",
-      "source_sha256": "2d547852f5a03f2dba893cc9bf114f2a3f6c81f229cf520748944f4e4cd0d6c9"
+      "source": "{name} in fov.ome.zarr has shape {shape}, expected {ndim} axes",
+      "source_sha256": "3afa7309559856b7903722fc4db26297f007550310ae9db534669f13e2ee57c3"
     },
     {
       "file": "spacr/ports.py",
       "source": "Re-run the module that wrote it.",
       "source_sha256": "737cfbf0ea77530db6b6c5779934c73b7c7d838ff993ea1f77e529d569d020e5"
+    },
+    {
+      "file": "spacr/core.py",
+      "source": "fov.ome.zarr channel check failed: {problems}. The stored channels must equal the acquired pixels; nothing was deleted.",
+      "source_sha256": "1749e63e6bd07de075a95ecab0437f00b7ff1dbf35321fbbaa1b16fad77a301d"
+    },
+    {
+      "file": "spacr/core.py",
+      "source": "fov.ome.zarr: {planes} channel planes of {fields} fields verified against their recorded checksums.",
+      "source_sha256": "9d85f469e4b5e197f4c7eeb2b15d0a29bdf3589ce590ed3346b7cec4d0c25e5a"
     }
   ],
   "settings_help": {
     "mask_image_format": {
-      "source": "(str) - Where Mask Generation keeps the merged fields Measure reads. 'ome-zarr' writes each field straight into merged.ome.zarr in the project folder: one OME-Zarr plate store (row/column/field) with the channels in their acquired dtype and every object mask as a label image, one shard file per field image and per label image; no merged/*.npy is written. 'npy' writes merged/*.npy as before. 'tiff' writes merged/*.npy plus merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse runs always write merged/*.npy, because the plate store has no time axis yet. Older projects with merged/*.npy or images/<plate>.ome.zarr still read. Default 'ome-zarr'. Alpha.",
-      "source_sha256": "8e1eeb3ec7bbd4b3374a64d51903d43ac9f4cd1ccf739c9cbcf449d2dd873455"
+      "source": "(str) - Where Mask Generation keeps the merged fields Measure reads. 'ome-zarr' writes each field straight into fov.ome.zarr in the project folder: one OME-Zarr plate store (row/column/field) with the channels in their acquired dtype and every object mask as a label image, one shard file per field image and per label image; no merged/*.npy is written. 'npy' writes merged/*.npy as before. 'tiff' writes merged/*.npy plus merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse runs always write merged/*.npy, because the plate store has no time axis yet. Older projects with merged/*.npy or images/<plate>.ome.zarr still read. Default 'ome-zarr'. Alpha.",
+      "source_sha256": "bc3929e6dd47d1c032b9a207be865e4a087dfd5d488ffc765698c8e3135ef283"
     },
     "keep_intermediate": {
-      "source": "(bool) - Keep the run's working stack/ and masks/ folders after every field is merged. Off by default: they are removed once each field is committed to merged.ome.zarr (or merged/ for 'npy' and timelapse runs), which holds the channels and every mask.",
-      "source_sha256": "744acaab832bae2935708261a7e024eb330ff409d42a58b7e01ed65b33317460"
+      "source": "(bool) - Keep the run's working stack/ and masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' and timelapse runs), which holds the channels and every mask.",
+      "source_sha256": "d3f3010aa7a16761b3125d0ee12c417869c967c539431255bfde0c17b48b5bf5"
     },
     "crop_image_format": {
       "source": "(str) - The format Measure writes object crops in. 'ome-zarr' stores each object's bounding box plus crop_margin_px at its own size in crops.ome.zarr in the project folder, with every channel at full bit depth, the object's own mask, every object class's labels cut to the same box, and the object's ID; the crop index is listed in measurements.db table ssCell_Crops. Stored intensities are not stretched. 'png' writes the legacy PNG folders. Older projects' crops/ folders still read. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.",
@@ -71,13 +81,13 @@
   "api": {
     "spacr.image_store.export_merged": {
       "kind": "changed",
-      "source": "Write every ``<src>/merged`` field in ``fmt`` (Mask Generation, item 983).\n\n:param src: the run root holding ``merged/`` and its plane layout.\n:param fmt: ``'ome-zarr'``: the project's merged store,\n    ``<src>/merged.ome.zarr`` (item 0aj), one shard file per field image\n    and label image, with the masks as labels and the field names and\n    plane layout recorded, so Measure reads it in place of the stacks.\n    ``'tiff'``: ``<src>/merged_tiff/<field>.tif`` (the image, planes\n    first) and ``<field>_<object>_mask.tif`` beside it, each in its own\n    dtype. ``'npy'`` writes nothing.\n:param workers: processes reading the merged stacks; the parent writes.\n:param channel_names: names for the intensity channels.\n:returns: per plate, what :func:`run_fields` reports; or ``tiff``, the\n    files written.\n\nThe merged ``.npy`` stacks are left in place. Mask Generation itself\nwrites the merged store field by field and no stacks (item 0aj); this\nconverts an older project's ``merged/`` folder. One store holds one\nplate, so a folder of several plates is refused.",
-      "source_sha256": "4cf63f799a7736a356d5cd6831c6db11c0f0cf044c936b4bf2a8ac1eb91a0c6a"
+      "source": "Write every ``<src>/merged`` field in ``fmt`` (Mask Generation, item 983).\n\n:param src: the run root holding ``merged/`` and its plane layout.\n:param fmt: ``'ome-zarr'``: the project's merged store,\n    ``<src>/fov.ome.zarr`` (item 0aj), one shard file per field image\n    and label image, with the masks as labels and the field names and\n    plane layout recorded, so Measure reads it in place of the stacks.\n    ``'tiff'``: ``<src>/merged_tiff/<field>.tif`` (the image, planes\n    first) and ``<field>_<object>_mask.tif`` beside it, each in its own\n    dtype. ``'npy'`` writes nothing.\n:param workers: processes reading the merged stacks; the parent writes.\n:param channel_names: names for the intensity channels.\n:returns: per plate, what :func:`run_fields` reports; or ``tiff``, the\n    files written.\n\nThe merged ``.npy`` stacks are left in place. Mask Generation itself\nwrites the merged store field by field and no stacks (item 0aj); this\nconverts an older project's ``merged/`` folder. One store holds one\nplate, so a folder of several plates is refused.",
+      "source_sha256": "46509cb8870fef625298e17cd44d46cc9ae47ad78c8d4f8656dfa26b920d8984"
     },
     "spacr.image_store.PlateWriter": {
       "kind": "changed",
-      "source": "The only writer of one plate's OME-Zarr store (item 983).\n\n:param root: the folder that holds ``<plate>.ome.zarr``.\n:param plate: the plate name.\n:param channel_names: the image channels' names, written to ``omero``.\n:param spacing: a :class:`spacr.layers.Spacing` for the pixel size, or\n    None to record pixels with no physical unit.\n:param ngff_version: ``'0.5'`` (the default) or ``'0.6'`` (item 1007):\n    the OME-Zarr version of every group in the store. One store holds\n    one version, so a store started in the other one is refused.\n:param registration: optional field-number to OPS registration-row mapping.\n    Requires version 0.6 and pixel coordinates (spacing=None). Existing\n    stores must use the same registration mode.\n:param store_path: the store folder itself, instead of\n    ``<root>/<plate>.ome.zarr`` (item 0aj: ``<project>/merged.ome.zarr``).\n:param shards: write each field image and each label image as ONE\n    zarr v3 shard file holding its 1 x 256 x 256 chunks (item 0aj),\n    instead of one file per chunk.\n:param attributes: JSON values merged into the store root's ``spacr``\n    attributes, such as the merged plane layout; a key stored with\n    another value is refused.\n\nFields are written whole with :meth:`write_field`; the plate and well\nmetadata are rewritten from the ledger after each field, so a reader\nopening the store mid-run sees only committed fields. Image and label\narrays share the OME-Zarr default chunk policy: one channel and up to\n256 x 256 spatial pixels per chunk, clipped to the array shape. These\n128 KiB uint16 tiles align with 64- and 128-pixel cell crops and bound\nthe amount decoded for a region read. Chunks remain unsharded and use\nBlosc LZ4 with byte shuffle.",
-      "source_sha256": "32e8e33ffceca3df06309773d57970188c40e5aa7c3bade9ecf39834a691af94"
+      "source": "The only writer of one plate's OME-Zarr store (item 983).\n\n:param root: the folder that holds ``<plate>.ome.zarr``.\n:param plate: the plate name.\n:param channel_names: the image channels' names, written to ``omero``.\n:param spacing: a :class:`spacr.layers.Spacing` for the pixel size, or\n    None to record pixels with no physical unit.\n:param ngff_version: ``'0.5'`` (the default) or ``'0.6'`` (item 1007):\n    the OME-Zarr version of every group in the store. One store holds\n    one version, so a store started in the other one is refused.\n:param registration: optional field-number to OPS registration-row mapping.\n    Requires version 0.6 and pixel coordinates (spacing=None). Existing\n    stores must use the same registration mode.\n:param store_path: the store folder itself, instead of\n    ``<root>/<plate>.ome.zarr`` (item 0aj: ``<project>/fov.ome.zarr``).\n:param shards: write each field image and each label image as ONE\n    zarr v3 shard file holding its 1 x 256 x 256 chunks (item 0aj),\n    instead of one file per chunk.\n:param attributes: JSON values merged into the store root's ``spacr``\n    attributes, such as the merged plane layout; a key stored with\n    another value is refused.\n\nFields are written whole with :meth:`write_field`; the plate and well\nmetadata are rewritten from the ledger after each field, so a reader\nopening the store mid-run sees only committed fields. Image and label\narrays share the OME-Zarr default chunk policy: one channel and up to\n256 x 256 spatial pixels per chunk, clipped to the array shape. These\n128 KiB uint16 tiles align with 64- and 128-pixel cell crops and bound\nthe amount decoded for a region read. Chunks remain unsharded and use\nBlosc LZ4 with byte shuffle.",
+      "source_sha256": "3ae53ea11f4a6df78414c2e3a0bb8f701d0f7b4411f62d8a626329882e2e487f"
     },
     "spacr.image_store.PlateWriter.write_field": {
       "kind": "changed",
@@ -106,23 +116,27 @@
     },
     "spacr.crops.read_merged_plane_layout": {
       "kind": "changed",
-      "source": "Read and validate a merged folder's optional plane-layout manifest.\n\nLegacy folders have no manifest and return ``None``. A present but\nmalformed manifest raises: once metadata exists, silently ignoring it\nwould recreate the exact wrong-plane failure the manifest prevents.\n\n:param path: a merged folder, or a ``.npy`` file inside one (its parent\n    folder is used); the ``.spacr_plane_layout.json`` sidecar is read\n    from that folder. A merged store (``merged.ome.zarr``, item 0aj) or a\n    field name inside one gives the layout kept in the store's\n    attributes.",
-      "source_sha256": "a4dcf424b9458817f311d7272417cf66599a45f64ed8fcab50fe69726556353a"
+      "source": "Read and validate a merged folder's optional plane-layout manifest.\n\nLegacy folders have no manifest and return ``None``. A present but\nmalformed manifest raises: once metadata exists, silently ignoring it\nwould recreate the exact wrong-plane failure the manifest prevents.\n\n:param path: a merged folder, or a ``.npy`` file inside one (its parent\n    folder is used); the ``.spacr_plane_layout.json`` sidecar is read\n    from that folder. A merged store (``fov.ome.zarr``, item 0aj) or a\n    field name inside one gives the layout kept in the store's\n    attributes.",
+      "source_sha256": "6c83c1aad23f2f670e7eb3ff36d1b5b9b173f4a46ee49847960781443de4659b"
     },
     "spacr.utils.cleanup_pipeline_folders": {
       "kind": "changed",
-      "source": "Delete the intermediate mask-pipeline folders once ``merged/`` is built.\n\nA project whose fields were merged into ``merged.ome.zarr`` (item 0aj)\nis checked against the store's committed fields instead; a field counts\nas merged only once its store entry is committed.\n\nBy default spaCR keeps only ``merged/`` (the concatenated image+mask arrays\nthat Measure reads). This removes ``stack/`` + ``masks/`` (their data is\nembedded in ``merged/`` and object labels are recorded in the database) and\nthe raw ``orig/`` backup, unless the caller opts to keep them.\n\nNothing is removed unless ``merged/`` holds at least one ``.npy``.\n``stack/``, ``masks/`` and the numbered folders are then removed only when\nevery ``stack/*.npy`` has a matching ``merged/*.npy``; without ``stack/``\nthere is no per-field check. With ``keep_original`` False, ``orig/`` is\nremoved only when every ``stack/*.npy`` field has a ``merged/`` array that\nloads completely. Otherwise ``orig/`` is kept, also when there is no\n``stack/`` list to check against, and a message naming the missing or\nincomplete fields is printed even with ``verbose=False``.\n\n:param src: run root folder (holds ``merged/``, ``stack/``, ``masks/``, ``orig/``).\n:param keep_intermediate: keep ``stack/`` + ``masks/`` when True.\n:param keep_original: keep the raw ``orig/`` backup when True.\n:returns: list of folder paths that were deleted; a kept ``orig/`` is not\n    in it.",
-      "source_sha256": "8a14635344e7fff262b3cbd40ae122bb34d2976e4eaf678e4887c26029db67eb"
+      "source": "Delete the intermediate mask-pipeline folders once ``merged/`` is built.\n\nA project whose fields were merged into ``fov.ome.zarr`` (item 0aj)\nis checked against the store's committed fields instead; a field counts\nas merged only once its store entry is committed.\n\nBy default spaCR keeps only ``merged/`` (the concatenated image+mask arrays\nthat Measure reads). This removes ``stack/`` + ``masks/`` (their data is\nembedded in ``merged/`` and object labels are recorded in the database) and\nthe raw ``orig/`` backup, unless the caller opts to keep them.\n\nNothing is removed unless ``merged/`` holds at least one ``.npy``.\n``stack/``, ``masks/`` and the numbered folders are then removed only when\nevery ``stack/*.npy`` has a matching ``merged/*.npy``; without ``stack/``\nthere is no per-field check. With ``keep_original`` False, ``orig/`` is\nremoved only when every ``stack/*.npy`` field has a ``merged/`` array that\nloads completely. Otherwise ``orig/`` is kept, also when there is no\n``stack/`` list to check against, and a message naming the missing or\nincomplete fields is printed even with ``verbose=False``.\n\n:param src: run root folder (holds ``merged/``, ``stack/``, ``masks/``, ``orig/``).\n:param keep_intermediate: keep ``stack/`` + ``masks/`` when True.\n:param keep_original: keep the raw ``orig/`` backup when True.\n:returns: list of folder paths that were deleted; a kept ``orig/`` is not\n    in it.",
+      "source_sha256": "926bc71bcfa5a1de377af37e5e8fe2e108822915fdb397bebc037e7a12b9ef0b"
     },
     "spacr.utils.measure_test_mode": {
       "kind": "changed",
-      "source": "Copy a random subset of source files into a ``test/merged`` folder when ``test_mode`` is on.\n\nFewer files than ``test_nr`` is not an error: every available file is\ncopied and a message reports the shortfall, so test_mode also runs on a\nsmall plate.\n\nOnly visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never\nmeasured in place of a field. The folder's ``.spacr_plane_layout.json`` is\ncopied across as well when it exists: it is what says which plane is which,\nand a ``test/merged`` without it is read as a legacy folder, against the\ndefault plane order. From a merged store (``merged.ome.zarr``, item 0aj)\nthe sampled fields are written to ``test/merged`` as ``.npy`` arrays with\nthe store's plane layout: a test run's own scratch copy.\n\n:param settings: settings dict; must contain ``src``, ``test_mode``, ``test_nr``.\n:returns: settings dict with ``src`` optionally redirected to the test folder.\n:raises ValueError: if there is nothing to sample -- an empty ``src``, or a\n    ``test_nr`` below 1. Sampling zero files would point ``src`` at an\n    empty ``test/merged`` and the run would report \"no fields found\",\n    blaming the wrong thing.",
-      "source_sha256": "316e8c8cfa8b096c9400d5b0f29545cd7c76b46bcb264bb813bf9d8478156ed7"
+      "source": "Copy a random subset of source files into a ``test/merged`` folder when ``test_mode`` is on.\n\nFewer files than ``test_nr`` is not an error: every available file is\ncopied and a message reports the shortfall, so test_mode also runs on a\nsmall plate.\n\nOnly visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never\nmeasured in place of a field. The folder's ``.spacr_plane_layout.json`` is\ncopied across as well when it exists: it is what says which plane is which,\nand a ``test/merged`` without it is read as a legacy folder, against the\ndefault plane order. From a merged store (``fov.ome.zarr``, item 0aj)\nthe sampled fields are written to ``test/merged`` as ``.npy`` arrays with\nthe store's plane layout: a test run's own scratch copy.\n\n:param settings: settings dict; must contain ``src``, ``test_mode``, ``test_nr``.\n:returns: settings dict with ``src`` optionally redirected to the test folder.\n:raises ValueError: if there is nothing to sample -- an empty ``src``, or a\n    ``test_nr`` below 1. Sampling zero files would point ``src`` at an\n    empty ``test/merged`` and the run would report \"no fields found\",\n    blaming the wrong thing.",
+      "source_sha256": "eacfb11de011ab1bff896bfa342f0c107e407dbb10e2fb1e1fd112b00e663d6b"
     },
     "spacr.crop_store": {
       "kind": "changed",
       "source": "Ragged object crops in per-well Zarr pixel pools, with the ssCell_Crops table (items 983 and 984, alpha).\n\nEach crop is its object's bounding box plus a margin, stored at its own size.\nA well's crops of one object class go into flat pixel pools inside the\nproject's crop store, ``crops.ome.zarr/plate=<P>/well=<W>`` (item 0aj; older\nprojects have ``crops/plate=<P>/well=<W>.zarr``, which still reads):\n``<class>/pool/<k>`` holds the pixels ``(C, n)``, ``<class>/mask/<k>`` the\nobject's own mask pixels ``(n,)`` and ``<class>/labels/<other class>/<k>``\nEVERY object class's labels cut to the same box ``(n,)`` (uint16 or uint32\nby the shard's largest label), one pool array per shard of\n``crops_per_shard`` crops, written whole by the one writer. The crop table\ngives each crop its pool, offset, height and width, so a crop is one\ncontiguous read; its ``object_label`` with ``labels/<own class>`` rebuilds\nthe own-object mask exactly. The table is written through one adapter,\n:func:`_write_crop_index` (today ``measurements.db:ssCell_Crops``), so the\nunified measurement store can take it without changing any caller.\n\nThis is spaCR's own crop format, not an OME-Zarr image: viewers open the\nimages, not the pools. :func:`export_crops` writes crops out as TIFF, PNG\nor npy for other tools.",
       "source_sha256": "87de73900006c573210ac7ec6639005700d71bc5b971b96fd5b9feb2d0e56f9e"
+    },
+    "spacr.image_store.verify_store": {
+      "kind": "added",
+      "source": "see spacr/image_store.py verify_store docstring"
     }
   }
 }

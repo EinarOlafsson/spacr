@@ -387,7 +387,7 @@ def read_merged_plane_layout(path: str) -> Optional[Dict[str, Any]]:
 
     :param path: a merged folder, or a ``.npy`` file inside one (its parent
         folder is used); the ``.spacr_plane_layout.json`` sidecar is read
-        from that folder. A merged store (``merged.ome.zarr``, item 0aj) or a
+        from that folder. A merged store (``fov.ome.zarr``, item 0aj) or a
         field name inside one gives the layout kept in the store's
         attributes.
     """

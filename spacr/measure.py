@@ -13857,11 +13857,11 @@ def measure_crop(settings):
                 files = _list_fields(settings['src'])
                 from .qt.i18n import tr
                 if _is_merged_store(settings['src']):
-                    print(tr("[measure] Reading {count} fields from the merged store {path}.",
+                    print(tr("[measure] Reading {count} fields from the FOV store {path}.",
                              count=len(files), path=settings['src']))
                 else:
                     print(tr("[measure] Older project layout: reading the fields in {path} "
-                             "(merged/*.npy). New Mask runs keep them in merged.ome.zarr.",
+                             "(merged/*.npy). New Mask runs keep them in fov.ome.zarr.",
                              path=settings['src']))
                 if not _is_merged_store(settings['src']) and _measure_plan_loader(settings):
                     if not files:

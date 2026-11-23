@@ -8504,7 +8504,7 @@ def measure_test_mode(settings):
     measured in place of a field. The folder's ``.spacr_plane_layout.json`` is
     copied across as well when it exists: it is what says which plane is which,
     and a ``test/merged`` without it is read as a legacy folder, against the
-    default plane order. From a merged store (``merged.ome.zarr``, item 0aj)
+    default plane order. From a merged store (``fov.ome.zarr``, item 0aj)
     the sampled fields are written to ``test/merged`` as ``.npy`` arrays with
     the store's plane layout: a test run's own scratch copy.
 
@@ -10576,7 +10576,7 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                              verbose=True):
     """Delete the intermediate mask-pipeline folders once ``merged/`` is built.
 
-    A project whose fields were merged into ``merged.ome.zarr`` (item 0aj)
+    A project whose fields were merged into ``fov.ome.zarr`` (item 0aj)
     is checked against the store's committed fields instead; a field counts
     as merged only once its store entry is committed.
 

@@ -24,7 +24,7 @@ def test_the_default_writes_only_merged_npy(tmp_path):
 
 
 def test_ome_zarr_fields_and_masks_equal_the_merged_stacks(tmp_path):
-    """Item 0aj: spatial OME-Zarr writes merged.ome.zarr through the shared writer, equal to the npy run."""
+    """Item 0aj: spatial OME-Zarr writes fov.ome.zarr through the shared writer, equal to the npy run."""
     from spacr.image_store import _list_fields, _read_field
 
     source = xenium_slide(tmp_path / "bundle")
@@ -36,7 +36,7 @@ def test_ome_zarr_fields_and_masks_equal_the_merged_stacks(tmp_path):
     assert merged and report["image_format"] == "ome-zarr"
     assert not list((dst / "merged").glob("*.npy")) if (dst / "merged").exists() else True
     layout = json.loads((ref / "merged" / ".spacr_plane_layout.json").read_text())
-    store = dst / "merged.ome.zarr"
+    store = dst / "fov.ome.zarr"
     assert _list_fields(store) == sorted(p.name for p in merged)
     for path in merged:
         plate, well, field = split_field_name(path.name)

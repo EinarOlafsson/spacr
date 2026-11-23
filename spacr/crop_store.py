@@ -22,6 +22,7 @@ or npy for other tools.
 from __future__ import annotations
 
 import collections
+import functools
 import json
 import os
 import shutil
@@ -557,18 +558,42 @@ def read_crop(project: Any, row: Mapping[str, Any], *, context: bool = True,
     """
     from .ome_zarr import require_zarr
 
-    zarr = require_zarr()
     store = Path(project) / str(row["crop_store"])
     height, width = int(row["height"]), int(row["width"])
     n = height * width
     off = int(row["offset"])
-    pool = zarr.open_array(str(store / str(row["crop_array"])), mode="r")
+    pool = _open_pool(store / str(row["crop_array"]))
     pixels = np.asarray(pool[:, off:off + n]).reshape(pool.shape[0], height, width)
     mask_array = str(row["crop_array"]).replace("/pool/", "/mask/")
     moff = int(row["mask_offset"])
-    mask = np.asarray(zarr.open_array(str(store / mask_array), mode="r")[
+    mask = np.asarray(_open_pool(store / mask_array)[
         moff:moff + n]).reshape(height, width)
     return _finish_crop(pixels, mask, context or _mask_is_absent(row), size)
+
+
+@functools.lru_cache(maxsize=256)
+def _open_pool_cached(path: str, modified: int):
+    """One opened pool array, kept while its metadata file is unchanged."""
+    from .ome_zarr import require_zarr
+
+    return require_zarr().open_array(path, mode="r")
+
+
+def _open_pool(path: Any):
+    """Open a crop pool array once per process (item 0aj: random crop reads).
+
+    Pools are written whole and renamed into place, so an array whose
+    ``zarr.json`` is unchanged holds the same bytes; a rewritten pool gets a
+    new modification time and is opened afresh.
+    """
+    path = os.fspath(path)
+    try:
+        modified = os.stat(os.path.join(path, "zarr.json")).st_mtime_ns
+    except OSError:
+        from .ome_zarr import require_zarr
+
+        return require_zarr().open_array(path, mode="r")
+    return _open_pool_cached(path, modified)
 
 
 def _label_classes(row: Mapping[str, Any]) -> List[str]:
@@ -594,7 +619,6 @@ def read_crop_labels(project: Any, row: Mapping[str, Any]) -> Dict[str, np.ndarr
     classes = _label_classes(row)
     if not classes:
         return {}
-    zarr = require_zarr()
     store = Path(project) / str(row["crop_store"])
     height, width = int(row["height"]), int(row["width"])
     n = height * width
@@ -602,8 +626,7 @@ def read_crop_labels(project: Any, row: Mapping[str, Any]) -> Dict[str, np.ndarr
     out = {}
     for cls in classes:
         array = str(row["crop_array"]).replace("/pool/", f"/labels/{cls}/")
-        out[cls] = np.asarray(zarr.open_array(str(store / array), mode="r")[
-            off:off + n]).reshape(height, width)
+        out[cls] = np.asarray(_open_pool(store / array)[off:off + n]).reshape(height, width)
     return out
 
 

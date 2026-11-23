@@ -415,7 +415,7 @@ def _resolve_measure_src(src: str) -> Tuple[str, Optional[str]]:
     (``measurements``, ``measure``, ``masks``, ...) and that plate's
     ``merged`` folder holds ``.npy`` arrays, measure reads that folder
     instead, whether or not the subfolder itself exists. A plate whose
-    ``merged.ome.zarr`` store holds fields (item 0aj) is read from the
+    ``fov.ome.zarr`` store holds fields (item 0aj) is read from the
     store, which wins over a ``merged/`` folder left by an older run.
 
     :param src: the ``src`` setting, one path.

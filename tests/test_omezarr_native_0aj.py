@@ -1,4 +1,4 @@
-"""Item 0aj: Mask merges straight into merged.ome.zarr; Measure and crops read it."""
+"""Item 0aj: Mask merges straight into fov.ome.zarr; Measure and crops read it."""
 from __future__ import annotations
 
 import json
@@ -50,7 +50,7 @@ def test_the_store_field_equals_the_npy_merge_exactly(tmp_path, big_label):
     _run_folder(b, big_label=big_label)
     _merge(a, "npy")
     _merge(b, "ome-zarr")
-    store = b / "merged.ome.zarr"
+    store = b / "fov.ome.zarr"
     assert not (b / "merged").exists()
     names = _list_fields(store)
     assert names == sorted(n for n in os.listdir(a / "merged") if n.endswith(".npy"))
@@ -74,7 +74,7 @@ def test_the_store_field_equals_the_npy_merge_exactly(tmp_path, big_label):
 def test_resume_skips_only_committed_fields(tmp_path, capsys):
     fields = _run_folder(tmp_path)
     _merge(tmp_path, "ome-zarr")
-    ledger = tmp_path / "merged.ome.zarr" / "spacr_commits.jsonl"
+    ledger = tmp_path / "fov.ome.zarr" / "spacr_commits.jsonl"
     lines = ledger.read_text().splitlines()
     ledger.write_text("\n".join(lines[:1]) + "\n")
     _merge(tmp_path, "ome-zarr", resume=True)
@@ -87,7 +87,7 @@ def test_two_plates_fall_back_to_npy_with_a_note(tmp_path, capsys):
     _run_folder(tmp_path, names=("plate1_A01_1_1", "plate2_A01_1_1"))
     _merge(tmp_path, "ome-zarr")
     assert (tmp_path / "merged" / "plate1_A01_1_1.npy").is_file()
-    assert not (tmp_path / "merged.ome.zarr").exists()
+    assert not (tmp_path / "fov.ome.zarr").exists()
     assert "one store holds one plate" in capsys.readouterr().out
 
 
@@ -99,7 +99,7 @@ def test_cleanup_trusts_the_store_commits(tmp_path):
     deleted = cleanup_pipeline_folders(str(tmp_path), keep_intermediate=False,
                                        keep_original=True, verbose=False)
     assert str(tmp_path / "stack") in deleted and not (tmp_path / "masks").exists()
-    assert (tmp_path / "merged.ome.zarr").is_dir()
+    assert (tmp_path / "fov.ome.zarr").is_dir()
 
 
 def test_cleanup_keeps_intermediates_when_a_field_is_uncommitted(tmp_path):
@@ -120,7 +120,7 @@ def test_measure_resolves_and_lists_the_store(tmp_path):
 
     fields = _run_folder(tmp_path)
     _merge(tmp_path, "ome-zarr")
-    store = tmp_path / "merged.ome.zarr"
+    store = tmp_path / "fov.ome.zarr"
     for given in (tmp_path, tmp_path / "merged", store, tmp_path / "measurements"):
         assert _resolve_measure_src(str(given))[0] == str(store)
     assert _plate_folder_of_merged(str(store)) == str(tmp_path)
@@ -209,3 +209,22 @@ def test_the_chaining_port_finds_the_store_fields(tmp_path):
     resolved = resolve_port(port, str(tmp_path))
     assert resolved.exists and resolved.count == len(fields)
     assert port_problems(port, str(tmp_path)) == ()
+
+
+def test_channel_planes_are_hashed_at_write_and_verify_against_originals(tmp_path):
+    from spacr.image_store import _merged_store_path, _store_entries, verify_store
+
+    fields = _run_folder(tmp_path)
+    _merge(tmp_path, "ome-zarr")
+    store = _merged_store_path(tmp_path)
+    originals = {f"{n}.npy": [image[..., c] for c in range(3)]
+                 for n, (image, _cell, _nucleus) in fields.items()}
+    report = verify_store(tmp_path, originals)
+    assert report["fields"] == 3 and report["planes"] == 9
+    assert report["mismatches"] == [] and report["unrecorded"] == []
+    entry = next(iter(_store_entries(store).values()))
+    assert entry["image_dtype"] == "<u2" and len(entry["plane_sha256"]) == 3
+    import zarr
+    array = zarr.open_array(str(store / entry["key"] / "0"), mode="r+")
+    array[0, 0, 0] = int(array[0, 0, 0]) ^ 1
+    assert verify_store(store)["mismatches"] == [f"{entry['name']} plane 0: checksum"]

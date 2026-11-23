@@ -14280,7 +14280,7 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
         # Item 0aj: the same merged-store writer Mask Generation uses.
         from .image_store import _merged_writer, _write_merged_field
 
-        merged_store = os.path.join(dst, "merged.ome.zarr")
+        merged_store = os.path.join(dst, "fov.ome.zarr")
         if os.path.isdir(merged_store):
             shutil.rmtree(merged_store)
         store_writer = _merged_writer(dst, sample, layout)

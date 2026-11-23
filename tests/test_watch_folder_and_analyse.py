@@ -424,9 +424,9 @@ def test_files_copied_in_one_by_one_give_the_batch_runs_results(
     combined = watched / "spacr_watch"
     from spacr.image_store import _list_fields, _read_field
 
-    # Item 0aj: the batch run keeps its fields in merged.ome.zarr; the watch
+    # Item 0aj: the batch run keeps its fields in fov.ome.zarr; the watch
     # run assembles merged/*.npy. Both hold the same fields, pixel for pixel.
-    batch_store = batch / "merged.ome.zarr"
+    batch_store = batch / "fov.ome.zarr"
     batch_merged = sorted(_list_fields(batch_store))
     watch_merged = sorted(p for p in os.listdir(combined / "merged")
                           if p.endswith(".npy"))

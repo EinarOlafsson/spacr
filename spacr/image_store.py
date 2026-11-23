@@ -102,7 +102,7 @@ class PlateWriter:
         Requires version 0.6 and pixel coordinates (spacing=None). Existing
         stores must use the same registration mode.
     :param store_path: the store folder itself, instead of
-        ``<root>/<plate>.ome.zarr`` (item 0aj: ``<project>/merged.ome.zarr``).
+        ``<root>/<plate>.ome.zarr`` (item 0aj: ``<project>/fov.ome.zarr``).
     :param shards: write each field image and each label image as ONE
         zarr v3 shard file holding its 1 x 256 x 256 chunks (item 0aj),
         instead of one file per chunk.
@@ -548,7 +548,7 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
 
     :param src: the run root holding ``merged/`` and its plane layout.
     :param fmt: ``'ome-zarr'``: the project's merged store,
-        ``<src>/merged.ome.zarr`` (item 0aj), one shard file per field image
+        ``<src>/fov.ome.zarr`` (item 0aj), one shard file per field image
         and label image, with the masks as labels and the field names and
         plane layout recorded, so Measure reads it in place of the stacks.
         ``'tiff'``: ``<src>/merged_tiff/<field>.tif`` (the image, planes
@@ -622,17 +622,17 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
 
 
 # ---------------------------------------------------------------------------
-# The project's merged store (item 0aj): <project>/merged.ome.zarr
+# The project's merged store (item 0aj): <project>/fov.ome.zarr
 # ---------------------------------------------------------------------------
 
 #: The merged plate store of a project folder: the field channels with every
 #: object mask embedded as labels, one shard file per field image and label
 #: image. Measure reads it in place of ``merged/*.npy`` (item 0aj).
-MERGED_STORE_NAME = "merged.ome.zarr"
+MERGED_STORE_NAME = "fov.ome.zarr"
 
 
 def _merged_store_path(project: Any) -> Path:
-    """``<project>/merged.ome.zarr``."""
+    """``<project>/fov.ome.zarr``."""
     return Path(project) / MERGED_STORE_NAME
 
 
@@ -668,7 +668,7 @@ def _compact_labels(mask: np.ndarray) -> np.ndarray:
 
 def _merged_writer(project: Any, plate: str, layout: Mapping[str, Any], *,
                    channel_names: Optional[Sequence[str]] = None) -> PlateWriter:
-    """The single writer of ``<project>/merged.ome.zarr`` for one plate.
+    """The single writer of ``<project>/fov.ome.zarr`` for one plate.
 
     :param project: the project folder.
     :param plate: the plate name; one store holds one plate.
@@ -717,10 +717,66 @@ def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
     _plate, well, field = split_field_name(name)
     if not str(name).endswith(".npy"):
         name = f"{os.path.splitext(os.path.basename(str(name)))[0]}.npy"
-    return writer.write_field(well, field, np.ascontiguousarray(image), labels,
+    image = np.ascontiguousarray(image)
+    return writer.write_field(well, field, image, labels,
                               record={"name": os.path.basename(str(name)),
                                       "dtype": stack.dtype.str,
-                                      "shape": [int(v) for v in stack.shape]})
+                                      "shape": [int(v) for v in stack.shape],
+                                      "image_dtype": image.dtype.str,
+                                      "plane_sha256": _plane_hashes(image)})
+
+
+def _plane_hashes(image: np.ndarray) -> List[str]:
+    """The sha256 of each channel plane's raw bytes (C-order), recorded at write (item 0aj).
+
+    :param image: the field's channels ``(C, Y, X)``.
+    """
+    import hashlib
+
+    return [hashlib.sha256(np.ascontiguousarray(plane).tobytes()).hexdigest()
+            for plane in np.asarray(image)]
+
+
+def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarray]]] = None
+                 ) -> Dict[str, Any]:
+    """Re-hash every committed field's channel planes against what was recorded (item 0aj).
+
+    The channels of ``fov.ome.zarr`` are the acquired pixels, byte for byte;
+    this is the check every run ends with and that
+    ``keep_original_images=False`` passes before it deletes an original.
+
+    :param store: the project's ``fov.ome.zarr`` (or the project folder).
+    :param originals: optional ``{field file name: [plane, ...]}`` to compare
+        the stored planes with as well (value, dtype and shape).
+    :returns: ``{"fields": n, "planes": n, "mismatches": [...], "unrecorded": [...]}``;
+        a field written before hashes were recorded is listed as unrecorded.
+    """
+    target = Path(store)
+    if not _is_merged_store(target):
+        target = _merged_store_path(target)
+    report: Dict[str, Any] = {"fields": 0, "planes": 0, "mismatches": [], "unrecorded": []}
+    for name, entry in sorted(_store_entries(target).items()):
+        image = read_image(target / entry["key"]) if entry.get("image") else None
+        if image is None:
+            continue
+        image = image if image.ndim == 3 else image[None]
+        report["fields"] += 1
+        recorded = entry.get("plane_sha256")
+        if not recorded:
+            report["unrecorded"].append(name)
+        else:
+            for index, (want, got) in enumerate(zip(recorded, _plane_hashes(image))):
+                report["planes"] += 1
+                if want != got:
+                    report["mismatches"].append(f"{name} plane {index}: checksum")
+            if len(recorded) != image.shape[0]:
+                report["mismatches"].append(f"{name}: {image.shape[0]} planes, {len(recorded)} recorded")
+        for index, plane in enumerate((originals or {}).get(name, ())):
+            plane = np.asarray(plane)
+            if (index >= image.shape[0] or plane.dtype != image.dtype
+                    or plane.shape != image.shape[1:] or not np.array_equal(plane, image[index])):
+                report["mismatches"].append(f"{name} plane {index}: differs from the original")
+    return report
 
 
 @functools.lru_cache(maxsize=64)
@@ -810,7 +866,7 @@ def _read_field(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
     A store field is rebuilt from its image and labels exactly as
     ``merged/<name>.npy`` held it: same shape, dtype, plane order and values.
 
-    :param path: ``merged/<name>.npy``, or ``<project>/merged.ome.zarr/<name>.npy``
+    :param path: ``merged/<name>.npy``, or ``<project>/fov.ome.zarr/<name>.npy``
         (the field's name inside the store, which is not a file).
     :param mmap_mode: passed to :func:`numpy.load` for an ``.npy`` file.
     """

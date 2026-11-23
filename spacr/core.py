@@ -179,7 +179,7 @@ def _overlay_candidates(merged_src):
 
 
 def _merged_source(src, image_format='ome-zarr'):
-    """The merged fields of a plate folder: ``merged.ome.zarr`` or ``merged/`` (item 0aj).
+    """The merged fields of a plate folder: ``fov.ome.zarr`` or ``merged/`` (item 0aj).
 
     :param src: the plate folder.
     :param image_format: the run's merge format; ``'ome-zarr'`` reads the
@@ -987,6 +987,18 @@ def preprocess_generate_masks(settings):
                                if territory_folders else {}),
                             image_format=merge_format,
                         )
+                        from .image_store import _is_merged_store, _merged_store_path, verify_store
+                        if merge_format == 'ome-zarr' and _is_merged_store(_merged_store_path(src)):
+                            from .qt.i18n import tr
+                            checked = verify_store(src)
+                            if checked['mismatches']:
+                                raise RuntimeError(tr(
+                                    "fov.ome.zarr channel check failed: {problems}. The stored "
+                                    "channels must equal the acquired pixels; nothing was deleted.",
+                                    problems='; '.join(checked['mismatches'][:5])))
+                            print(tr("fov.ome.zarr: {planes} channel planes of {fields} fields "
+                                     "verified against their recorded checksums.",
+                                     planes=checked['planes'], fields=checked['fields']))
                         if settings.get('export_vvvv', False):
                             cancellation_checkpoint()
                             from .io import _export_vvvv_merged
@@ -1162,8 +1174,7 @@ _WATCH_SUFFIXES = ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2',
 _WATCH_KEY_GROUPS = ('plateID', 'wellID', 'timeID', 'fieldID')
 _WATCH_OUTPUT_DIRS = frozenset({_WATCH_DIR, 'orig', 'stack', 'masks', 'merged',
                                'measurements', 'results', 'test',
-                               'merged.ome.zarr', 'crops.ome.zarr', 'crops',
-                               'images'})
+                               'fov.ome.zarr', 'crops.ome.zarr'})
 
 
 def _watch_truthy(value):
