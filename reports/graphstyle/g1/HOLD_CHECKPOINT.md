@@ -11,6 +11,8 @@ and preserves complete automatic pages during ordinary file exports. File
 writing restores the live viewport, artist geometry and live diagnostic record
 after success or failure. Explicit page dimensions release automatic layout.
 Feature Explorer now scrolls its complete physical panels in a small viewport.
+Explicit legend font choices are applied before measuring the panel envelopes,
+so long class names at 16 points remain inside the page and clear other panels.
 The PCA unit reference circle uses black ink; manual changes remain diagnosed.
 
 The exact approved API patch changes four functions in the three protected
@@ -32,7 +34,8 @@ canvas wrapper differ in its constructor. The inspected pre-scroll feature
 file gallery retains 40 byte-identical scientific CSVs and 20 vector-only files.
 
 During the HOLD, tiny checks within one thread/four GB passed: the two PCA
-reference checks, the single live-scroll/clear-state check and the named API
+reference checks, the live-scroll/clear-state and larger manual-key checks,
+and the named API
 source/captured-record probe. The latter verifies 63 API records and 49 callable
 records, composes the existing nine-entry style arrival, preserves unlisted
 callables and rejects prose, parameter-name, default-type/value and retirement

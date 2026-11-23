@@ -462,8 +462,12 @@ class FeatureExplorerPanel(QWidget):
         original score, higher class, minimum count and shape warning.
         A retained physical page scrolls when its complete panels exceed the
         viewport; clearing the plot releases that automatic minimum size.
+        Explicit text choices are measured before packing the panel envelopes.
         """
-        from ...figures.style import DATA_ALPHA, SERIES, TYPE_SCALE, figure_style, pack_axes_geometry, _retain_live_axes_geometry
+        from ...figures.style import (
+            DATA_ALPHA, SERIES, TYPE_SCALE, _apply_user_style,
+            _retain_live_axes_geometry, figure_style, pack_axes_geometry,
+        )
         from ...figures.bundle import _register_figure_data
 
         self._figure.clear()
@@ -479,6 +483,7 @@ class FeatureExplorerPanel(QWidget):
                 colours=SERIES, alpha=DATA_ALPHA, font_points=TYPE_SCALE["legend"])
             self._figure.patch.set_alpha(1.0)
             if axes:
+                _apply_user_style(self._figure, kind="histogram", force=True)
                 pack_axes_geometry(axes, legend_space=True)
                 required = tuple(self._figure.get_size_inches())
                 _retain_live_axes_geometry(self._figure, viewport)

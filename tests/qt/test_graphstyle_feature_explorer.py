@@ -275,3 +275,36 @@ def test_eight_feature_panels_scroll_without_clipping_or_changing_source_values(
     assert not widget._figure.axes
     assert widget._figure._spacr_live_geometry is None
     assert widget._canvas.minimumWidth() == widget._canvas.minimumHeight() == 0
+
+
+
+def test_large_manual_feature_key_is_measured_before_packing(qtbot, monkeypatch):
+    """A chosen 16-point key with two long class names must fit without covering another panel. Use exact font preservation and actual rendered bounding boxes, without a new numerical tolerance or any ranking fit."""
+    from PySide6.QtWidgets import QApplication
+
+    monkeypatch.setattr(preferences,'get_figure_style',lambda:{'legend_size':16.})
+    monkeypatch.setattr(preferences,'get_figure_style_per_graph',dict)
+    values = np.arange(16,dtype=float)
+    frame = pd.DataFrame({'cls':['condition_alpha_with_a_long_sample_label']*8+['condition_beta_with_a_long_sample_label']*8})
+    for index in range(3):
+        frame['measurement_'+str(index)] = values*(index+1)+np.sin(values+index)
+    source = frame.to_csv(index=False)
+    widget = FeatureExplorerPanel()
+    qtbot.addWidget(widget)
+    widget.resize(1000,760)
+    widget._frame = frame
+    widget._spec = ExplorerSpec(label='cls',bins=8,n_permutations=0)
+    widget._draw(rank_features(frame,widget._spec))
+    widget.show()
+    qtbot.waitExposed(widget)
+    QApplication.processEvents()
+    widget._canvas.draw()
+    renderer = widget._canvas.get_renderer()
+    first = widget._figure.axes[0]
+    legend = first.get_legend()
+    assert all(text.get_fontsize()==16. for text in legend.get_texts())
+    key = legend.get_window_extent(renderer)
+    assert widget._figure.bbox.contains(key.x0,key.y0) and widget._figure.bbox.contains(key.x1,key.y1)
+    assert not key.overlaps(first.get_window_extent(renderer))
+    assert all(not key.overlaps(ax.get_tightbbox(renderer)) for ax in widget._figure.axes[1:])
+    assert frame.to_csv(index=False) == source

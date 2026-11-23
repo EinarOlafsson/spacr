@@ -506,6 +506,7 @@ Source entries below are current. The JSON owns the exact English bodies.
 - `tests/qt/test_graphstyle_feature_explorer.py:183` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_feature_replay_refuses_changed_class_identities; private/nested/tool/test; no translation records.
 - `tests/qt/test_graphstyle_feature_explorer.py:208` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_explicit_page_dimensions_release_automatic_export_geometry; private/nested/tool/test; no translation records.
 - `tests/qt/test_graphstyle_feature_explorer.py:239` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_eight_feature_panels_scroll_without_clipping_or_changing_source_values; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_feature_explorer.py:281` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_large_manual_feature_key_is_measured_before_packing; private/nested/tool/test; no translation records.
 - `tests/qt/test_graphstyle_purity.py:1` — internal_docstring; tests.qt.test_graphstyle_purity; private/nested/tool/test; no translation records.
 - `tests/qt/test_graphstyle_purity.py:12` — internal_docstring; tests.qt.test_graphstyle_purity.purity_plot; private/nested/tool/test; no translation records.
 - `tests/qt/test_graphstyle_purity.py:22` — internal_docstring; tests.qt.test_graphstyle_purity.test_purity_points_use_shared_geometry_opacity_and_keep_exact_rows_values_and_shapes; private/nested/tool/test; no translation records.

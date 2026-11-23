@@ -8500,8 +8500,8 @@
       "file": "spacr/qt/widgets/feature_explorer.py",
       "line": 457,
       "before": "A strip per feature, the classes overlaid on shared bin edges.",
-      "source": "Present the original per-class counts and ranking through the shared figure owner.\n\nThe ranking engine, feature order, shared-bin calculation, count\narrays, bar centres and widths are unchanged. Captions retain each\noriginal score, higher class, minimum count and shape warning.\nA retained physical page scrolls when its complete panels exceed the\nviewport; clearing the plot releases that automatic minimum size.",
-      "source_sha256": "639239b046b14f34933b1fdd6a73e6fdbf1ceeae4c5730b170a6adcc8be3808a",
+      "source": "Present the original per-class counts and ranking through the shared figure owner.\n\nThe ranking engine, feature order, shared-bin calculation, count\narrays, bar centres and widths are unchanged. Captions retain each\noriginal score, higher class, minimum count and shape warning.\nA retained physical page scrolls when its complete panels exceed the\nviewport; clearing the plot releases that automatic minimum size.\nExplicit text choices are measured before packing the panel envelopes.",
+      "source_sha256": "bf462fa19834189dbee733e506dcefb079586694ac6ec975a966a1ca8ac96d72",
       "admission": "private/nested/tool/test; no translation records"
     },
     {
@@ -9434,6 +9434,16 @@
       "before": null,
       "source": "Eight 40-mm panels exceed a 500-by-420-pixel window; require real scrolling and every full panel inside the canvas, keeping the existing half-pixel physical-size margin and all original observations. Clearing the plot must release its automatic minimum size.",
       "source_sha256": "73671e1399834f9d7a6d7f8653cb140496a94bdf82391eb3f20ed10a0d1d8fb2",
+      "admission": "private/nested/tool/test; no translation records"
+    },
+    {
+      "kind": "internal_docstring",
+      "symbol": "tests.qt.test_graphstyle_feature_explorer.test_large_manual_feature_key_is_measured_before_packing",
+      "file": "tests/qt/test_graphstyle_feature_explorer.py",
+      "line": 281,
+      "before": null,
+      "source": "A chosen 16-point key with two long class names must fit without covering another panel. Use exact font preservation and actual rendered bounding boxes, without a new numerical tolerance or any ranking fit.",
+      "source_sha256": "745b870a76ba154f132558cc6f12dfb1ed6144fcd87e410928cad8a8300b7be6",
       "admission": "private/nested/tool/test; no translation records"
     },
     {
