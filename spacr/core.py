@@ -197,7 +197,7 @@ def _merged_source(src, image_format='ome-zarr'):
     return folder
 
 
-def _settle_run_originals(src, settings, merge_format):
+def _settle_run_originals(src, settings, merge_format, source_plate=None):
     """Move or delete the run's original images once their fields are verified (item 0aj).
 
     With fov.ome.zarr, each field's originals go to ``orig/``
@@ -224,7 +224,8 @@ def _settle_run_originals(src, settings, merge_format):
         for name in _raw_image_names(src, _RAW_IMAGE_SUFFIXES):
             _move_without_overwrite(os.path.join(src, name), os.path.join(orig, name))
         return None
-    report = _settle_originals(src, keep=_keep_originals(settings), settings=settings)
+    report = _settle_originals(src, keep=_keep_originals(settings), settings=settings,
+                               source_plate=source_plate)
     if report['problems']:
         raise RuntimeError(tr(
             "Original images were left where they are, because these fields do not "
@@ -347,7 +348,7 @@ def _prepare_mask_batch_plan(mask_src, settings):
     """Calibrate the loaded real model before fixing any field normalization cohort."""
     from functools import partial
     from . import _mask_batches as batches
-    from .io import _load_array_any, _normalize_img_batch
+    from .io import _normalize_img_batch
     from .object import (_mask_calibration_setup, _mask_probe_eval,
                          _restore_mask_calibration, _validate_mask_batch_draw)
 
@@ -363,7 +364,8 @@ def _prepare_mask_batch_plan(mask_src, settings):
         _validate_mask_batch_draw(settings, names)
         if not restored and batches._needs_calibration(mask_src, settings):
             names = [name for batch in plan['batches'] for name in batch['fields']]
-            first = _load_array_any(os.path.normpath(os.path.join(
+            from .image_store import _read_stack
+            first = _read_stack(os.path.normpath(os.path.join(
                 mask_src, plan['stack_dir'], names[0])))
             normalized = _normalize_img_batch(
                 first[None], plan['channels'], np.dtype(plan['save_dtype']), dict(settings))
@@ -1055,7 +1057,8 @@ def preprocess_generate_masks(settings):
                             print(tr("fov.ome.zarr: {planes} channel planes of {fields} fields "
                                      "verified against their recorded checksums.",
                                      planes=checked['planes'], fields=checked['fields']))
-                        _settle_run_originals(src, settings, merge_format)
+                        _settle_run_originals(src, settings, merge_format,
+                                              os.path.basename(os.path.normpath(source_folder)))
                         if settings.get('export_vvvv', False):
                             cancellation_checkpoint()
                             from .io import _export_vvvv_merged

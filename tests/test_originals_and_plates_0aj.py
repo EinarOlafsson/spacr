@@ -85,9 +85,10 @@ def test_keep_moves_the_originals_to_orig_only_after_the_fields_are_verified(
     real = IS._settle_originals
 
     def settle(project, **kwargs):
-        # Called once the fields are committed: every original is still in src.
-        seen["in_src"] = _tiffs(project)
-        seen["committed"] = sorted(IS._image_entries(IS._merged_store_path(project)))
+        # First called once preprocessing committed the fields: every
+        # original is still in src.
+        seen.setdefault("in_src", _tiffs(project))
+        seen.setdefault("committed", sorted(IS._image_entries(IS._merged_store_path(project))))
         return real(project, **kwargs)
 
     monkeypatch.setattr(IS, "_settle_originals", settle)
@@ -122,8 +123,8 @@ def test_the_older_save_original_images_off_also_waits_for_the_store(
     real = IS._settle_originals
 
     def settle(project, **kwargs):
-        seen["in_src"] = len(_tiffs(project))
-        seen["keep"] = kwargs.get("keep")
+        seen.setdefault("in_src", len(_tiffs(project)))
+        seen.setdefault("keep", kwargs.get("keep"))
         return real(project, **kwargs)
 
     monkeypatch.setattr(IS, "_settle_originals", settle)
@@ -145,7 +146,7 @@ def test_a_run_stopped_between_commit_and_verify_loses_nothing_and_resumes(
         raise KeyboardInterrupt("stopped between commit and verify")
 
     with monkeypatch.context() as patch:
-        patch.setattr(IS, "verify_store", stopped)
+        patch.setattr(IS, "_field_checksum_problems", stopped)
         with pytest.raises(KeyboardInterrupt):
             _run(plate, keep_original_images=False)
     # The fields are committed; not one original moved or went.

@@ -1836,7 +1836,8 @@ def _mask_fits_its_field(mask_path, stack_path):
 
     try:
         mask = tuple(read_npy_header(mask_path)["shape"])
-        field = tuple(read_npy_header(stack_path)["shape"])
+        from .image_store import _stack_header
+        field = tuple(_stack_header(stack_path)[0])
     except Exception:
         return True
     if len(mask) != 2 or len(field) < 3:
@@ -1866,8 +1867,9 @@ def check_mask_folder(src, mask_fldr, resume=False):
     if not os.path.exists(mask_folder):
         return True
     
-    expected = [file for file in _listdir_visible(stack_folder)
-                if file.endswith('.npy')]
+    from .image_store import _stack_names
+    # stack/*.npy, or the field stacks in fov.ome.zarr (item 0aj P1c).
+    expected = _stack_names(stack_folder)
     if all(validate_merged_field(os.path.join(mask_folder, file))[0]
            and _mask_fits_its_field(os.path.join(mask_folder, file),
                                     os.path.join(stack_folder, file))

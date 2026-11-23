@@ -824,11 +824,13 @@ class _StoreFieldWindows:
 
     def __init__(self, path: str, store: Path, entry: Mapping[str, Any]):
         from .crops import _measured_masks_stamp
-        from .image_store import _store_layout
+        from .image_store import _image_planes, _store_layout
 
         layout = _store_layout(store) or {}
         self.group = store / entry["key"]
         self.n_intensity = len(layout.get("intensity_channels") or ())
+        # The stored plane of each merged intensity plane (item 0aj P1c).
+        self.planes = _image_planes(entry, layout)
         self.mask_dims = {str(k): int(v) for k, v in (layout.get("mask_dims") or {}).items()}
         self.dtype = np.dtype(entry["dtype"])
         self.measured = _measured_record(path, _measured_masks_stamp(path))
@@ -860,7 +862,7 @@ class _StoreFieldWindows:
         if any(c >= self.n_intensity for c in channels):
             raise ValueError(f"{self.group}: crop channels {list(channels)} include a mask plane")
         block = self._read("0", self.group / "0", y0, y1, x0, x1)
-        return np.array(block[list(channels)])
+        return np.array(block[[self.planes[c] for c in channels]])
 
     def labels(self, cls: str, y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
         """One class's labels over the box: measured where Measure changed them."""

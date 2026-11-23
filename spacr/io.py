@@ -1207,13 +1207,13 @@ def _raw_image_names(folder, img_format=_RAW_IMAGE_SUFFIXES):
 def _stack_field_stems(stack_path):
     """Return the field stems that have a ``.npy`` in ``stack_path``.
 
-    :param stack_path: a ``stack/`` folder; a missing one holds no fields.
+    :param stack_path: a ``stack/`` folder, or the project's stack path
+        when the fields live in fov.ome.zarr (item 0aj P1c); a missing one
+        holds no fields.
     :returns: set of file names without the ``.npy`` extension.
     """
-    if not os.path.isdir(_long_path(stack_path)):
-        return set()
-    return {os.path.splitext(name)[0] for name in _listdir_visible(stack_path)
-            if name.endswith('.npy')}
+    from .image_store import _stack_names
+    return {os.path.splitext(name)[0] for name in _stack_names(_long_path(stack_path))}
 
 
 def _raw_images_by_key(src, regular_expression, metadata_type, img_format, *,
@@ -1496,6 +1496,28 @@ import contextvars as _contextvars
 _ORIGINALS_WAIT = _contextvars.ContextVar('spacr_originals_wait_for_store', default=False)
 
 
+def _settle_ingested_originals(src, settings, source_plate):
+    """Move or delete the originals of every field preprocessing committed to fov.ome.zarr (item 0aj).
+
+    Each field's originals leave the source folder only once its stored
+    planes are verified against them (:func:`spacr.image_store._settle_originals`).
+
+    :raises RuntimeError: a stored field does not match its originals;
+        those originals stay where they are.
+    """
+    from .image_store import _settle_originals
+    from .qt.i18n import tr
+
+    report = _settle_originals(src, keep=_keep_originals(settings), settings=settings,
+                               source_plate=source_plate)
+    if report['problems']:
+        raise RuntimeError(tr(
+            "Original images were left where they are, because these fields do not "
+            "match them in fov.ome.zarr: {problems}.",
+            problems='; '.join(report['problems'][:5])))
+    return report
+
+
 def _store_settles_originals(settings):
     """Whether this Mask run's originals wait for fov.ome.zarr before they move (item 0aj).
 
@@ -1569,7 +1591,7 @@ def _plate_sources(sources, settings, printer=print):
     return folders
 
 
-def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True, metadata_well_map=None, source_plate=None, defer_originals=False):
+def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True, metadata_well_map=None, source_plate=None, defer_originals=False, store_fields=False):
     """
     Convert z-stack images to maximum intensity projection (MIP) images and
     write the merged multi-channel ``stack/`` arrays **directly** — without
@@ -1623,6 +1645,12 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             (item 0aj): a run that writes fov.ome.zarr moves or deletes each
             original only after its field is committed and verified there
             (:func:`spacr.image_store._settle_originals`). Defaults to False.
+        store_fields (bool, optional): write each field stack straight into
+            the project's fov.ome.zarr (item 0aj P1c) instead of
+            ``stack/<field>.npy``: the channels exactly as acquired, one shard
+            per field, committed field by field. Used when the fields are one
+            plate with one entry per field and no ``stack/*.npy`` exists yet;
+            otherwise ``stack/`` is written as before. Defaults to False.
 
     Returns:
         int: the number of distinct channels found (0 when nothing was processed).
@@ -1672,6 +1700,11 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     for key in pending_keys:
         field_keys[stem_of[key]].append(key)
     sorted_channels = sorted({key[3] for key in image_paths_by_key})
+    writer = None
+    if (store_fields and not _listdir_npy(stack_path)
+            and (plate := _merged_store_plan([stem + '.npy' for stem in sorted(wanted)]))):
+        from .image_store import _stack_writer
+        writer = _stack_writer(src, plate)
     files_to_process = sum(len(image_paths_by_key[key]) for key in pending_keys)
     time_ls = []
     for stem, keys in field_keys.items():
@@ -1679,7 +1712,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         start = time.time()
         output_filename = stem + '.tif'
         new_file = os.path.join(stack_path, stem + '.npy')
-        if os.path.exists(_long_path(new_file)):
+        if writer is None and os.path.exists(_long_path(new_file)):
             print(f'WARNING: A file with the same name already exists at location {new_file}')
             channels_seen.update(key[3] for key in keys)
             continue
@@ -1702,13 +1735,20 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                 plane = previous = None
                 files_processed += 1
         planes = []
+        plane_channels = []
         for channel in sorted_channels:
             mip = chan_mips.get(channel)
             if mip is None:
                 print(f"Warning: FOV {output_filename} is missing channel {channel}")
                 continue
             planes.append(np.expand_dims(mip, axis=2))
-        if planes:
+            plane_channels.append(channel)
+        if planes and writer is not None:
+            checkpoint()
+            from .image_store import _write_stack_field
+            _write_stack_field(writer, stem + '.npy', np.concatenate(planes, axis=2),
+                               plane_channels)
+        elif planes:
             checkpoint()
             os.makedirs(_long_path(stack_path), exist_ok=True)
             _save_array_atomic(new_file, np.concatenate(planes, axis=2))
@@ -1756,6 +1796,13 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                     print(f"Warning: could not delete original image {filename}: {e}")
     files_processed = 0
     return len(channels_seen)
+
+def _listdir_npy(folder):
+    """The visible ``.npy`` names directly in ``folder``; none when it is missing."""
+    try:
+        return [name for name in _listdir_visible(folder) if name.endswith('.npy')]
+    except OSError:
+        return []
 
 def _merge_file(chan_dirs, stack_dir, file_name):
     """
@@ -2871,11 +2918,12 @@ def _mask_batches_stay_in_memory(settings, paths):
     """
     if settings.get('plot') or settings.get('timelapse') or settings.get('t_stack'):
         return False
+    from .image_store import _stack_header
     try:
-        first = np.load(paths[0], mmap_mode='r')
+        shape, _dtype = _stack_header(paths[0])
     except (OSError, ValueError):
         return False
-    return first.ndim == 3
+    return len(shape) == 3
 
 
 def _concatenate_and_normalize_impl(
@@ -3020,7 +3068,8 @@ def _concatenate_and_normalize_impl(
             if illumination_session is not None or psf_session is not None:
                 raise
     else:
-        for file in sorted(_listdir_visible(src)):
+        from .image_store import _stack_names
+        for file in _stack_names(src):
             if file.endswith('.npy'):
                 if (only_fields is not None and
                         os.path.splitext(file)[0] not in only_fields):
@@ -3086,7 +3135,8 @@ def _concatenate_and_normalize_impl(
             start = time.time()
             with ledger.item(path, stage='load_npy',
                              echo=f"Error loading file {path}"):
-                array = np.load(path)
+                from .image_store import _read_stack
+                array = _read_stack(path)
                 stack_ls.append(array)
                 filenames_batch.append(os.path.basename(path))
                 stop = time.time()
@@ -4068,7 +4118,8 @@ def _resume_normalized_archives(settings, src, mask_channels, metadata_well_map=
         if recoverable:
             for field in stack_fields:
                 try:
-                    shape = read_npy_header(os.path.join(stack_path, field + '.npy'))['shape']
+                    from .image_store import _stack_header
+                    shape = _stack_header(os.path.join(stack_path, field + '.npy'))[0]
                     if not shape or any(not 0 <= channel < shape[-1] for channel in mask_channels):
                         recoverable = False
                         break
@@ -5001,12 +5052,16 @@ def preprocess_img_data(settings):
                 settings['random_test'])
     
     stack_path = os.path.join(src, 'stack')
+    from .image_store import _stack_exists, _stack_names
     _set_aside_damaged_stacks(stack_path)
     if img_format == None:
-        if not os.path.exists(stack_path) or _channel_folders(src):
+        if not _stack_exists(stack_path) or _channel_folders(src):
             _merge_channels(src, plot=False)   
    
-    resuming = os.path.exists(stack_path)
+    resuming = _stack_exists(stack_path)
+    # Item 0aj P1c: a Mask run writes each field stack straight into
+    # fov.ome.zarr (no stack/*.npy), then settles its originals.
+    store_fields = bool(_ORIGINALS_WAIT.get() and _store_settles_originals(settings))
     raw_waiting = bool(_raw_image_names(src) or
                        _raw_image_names(os.path.join(src, 'orig')))
     if not resuming or raw_waiting:
@@ -5017,12 +5072,16 @@ def preprocess_img_data(settings):
                 src, regex, settings['batch_size'], settings['metadata_type'], img_format,
                 timelapse=settings['timelapse'],
                 save_original_images=settings.get('save_original_images', True),
-                defer_originals=_ORIGINALS_WAIT.get() and _store_settles_originals(settings),
+                defer_originals=store_fields,
+                store_fields=store_fields,
                 metadata_well_map=(metadata_well_map if metadata_well_map is not None
                                    else settings.get('metadata_well_map')),
                 source_plate=os.path.basename(os.path.normpath(requested_src)))
+            if store_fields:
+                _settle_ingested_originals(src, settings, os.path.basename(
+                    os.path.normpath(requested_src)))
 
-            all_imgs = len([f for f in _listdir_visible(stack_path) if f.endswith('.npy')]) if os.path.isdir(stack_path) else 0
+            all_imgs = len(_stack_names(stack_path))
             if resuming and all_imgs == stacks_before:
                 print(f'Nothing was added to stack/; resuming from the '
                       f'{all_imgs} field stack(s) it holds.')
@@ -5056,8 +5115,7 @@ def preprocess_img_data(settings):
             print(f"Error: {e}")
 
     _report_unrebuilt_stacks(stack_path, src)
-    stacked = ([f for f in _listdir_visible(stack_path) if f.endswith('.npy')]
-               if os.path.isdir(stack_path) else [])
+    stacked = _stack_names(stack_path)
     stacked = select_fields(stacked, settings.get('fields'))
     if not stacked:
         raise _no_stacks_error(src, requested_src, regex,
@@ -6271,17 +6329,21 @@ def _load_and_concatenate_arrays(
 
     output_folder = src+'/merged'
     reference_folder = folder_paths[0]
+    # The field stacks: stack/*.npy, or (item 0aj P1c) the fields Mask
+    # preprocessing stored in fov.ome.zarr, through the one stack reader.
+    from .image_store import _read_stack, _stack_header, _stack_names
 
     count=0
-    reference_files = _listdir_visible(reference_folder)
+    reference_files = _stack_names(reference_folder)
+    stacks_in_store = not _listdir_npy(reference_folder) and bool(reference_files)
     from .image_quality import excluded_fields
     rejected_quality = excluded_fields(src)
     reference_files = [name for name in reference_files if name not in rejected_quality]
     to_store = (str(image_format or 'npy').strip().lower() == 'ome-zarr'
                 and _merged_store_plan(reference_files))
     first_npy = next((n for n in reference_files if n.endswith('.npy')), None)
-    if to_store and first_npy is not None and np.load(
-            os.path.join(reference_folder, first_npy), mmap_mode='r').ndim != 3:
+    if to_store and first_npy is not None and len(_stack_header(
+            os.path.join(reference_folder, first_npy))[0]) != 3:
         from .qt.i18n import tr
         print(tr('fov.ome.zarr not written: the fields have time or depth axes, '
                  'which the plate store has no place for yet; the fields are '
@@ -6297,9 +6359,8 @@ def _load_and_concatenate_arrays(
         (name for name in reference_files if name.endswith('.npy')), None)
     if reference_npy is not None:
         if channels is None:
-            reference_array = np.load(
-                os.path.join(reference_folder, reference_npy), mmap_mode='r')
-            n_intensity_for_layout = int(reference_array.shape[-1])
+            n_intensity_for_layout = int(_stack_header(
+                os.path.join(reference_folder, reference_npy))[0][-1])
         else:
             n_intensity_for_layout = len(channels)
         intended_layout = {
@@ -6326,8 +6387,13 @@ def _load_and_concatenate_arrays(
                     f'layout. Existing: {existing!r}; requested: '
                     f'{intended_layout!r}. Start a non-resume merge into a '
                     'clean destination so every field uses one layout.')
-            if not resume and os.path.isdir(store_path):
+            if not resume and os.path.isdir(store_path) and not stacks_in_store:
                 shutil.rmtree(store_path)
+            elif not resume and stacks_in_store:
+                # The store holds the acquired channels (item 0aj P1c); only
+                # its plane layout and labels are replaced by this merge.
+                from .image_store import _update_store_spacr_attrs
+                _update_store_spacr_attrs(store_path, {'merged_layout': intended_layout})
             store_writer = _merged_writer(src, to_store, intended_layout)
             store_layout = intended_layout
         elif resume and os.path.isfile(manifest_path):
@@ -6374,11 +6440,11 @@ def _load_and_concatenate_arrays(
 
             exists_in_all_folders = all(
                 _mask_variant_path(folder, filename) is not None
-                for folder in folder_paths)
+                for folder in folder_paths[1:])
 
             if exists_in_all_folders:
                 ref_array_path = os.path.join(reference_folder, filename)
-                concatenated_array = np.load(ref_array_path)
+                concatenated_array = _read_stack(ref_array_path)
 
                 if channels is not None:
                     concatenated_array = np.take(concatenated_array, channels, axis=-1)
