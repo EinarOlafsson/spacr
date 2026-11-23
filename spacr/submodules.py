@@ -681,7 +681,7 @@ def test_cellpose_model(settings):
             axs[0].axis('off')
 
             axs[1].imshow(lbl, cmap=cmap_lbl, interpolation='nearest')
-            axs[1].set_title(tr('True Mask'))
+            axs[1].set_title(tr('Ground-truth mask'))
             axs[1].axis('off')
 
             axs[2].imshow(pred, cmap=cmap_pred, interpolation='nearest')

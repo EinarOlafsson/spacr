@@ -387,6 +387,7 @@ _IDENTITY_TEXT = {
     # The relationship name is already translated before formatting; the
     # remaining fields are a count and object IDs, with no English prose.
     "{name}: {count} ({ids})",
+    "{well}: n={count}; BC={coefficient}.",
     # Instruction 316, 2026-09-25. A method and a parameter name shown as
     # standalone captions: the Isomap embedding in the dimensionality-
     # reduction choices, the U-Net organelle-detection mode, and the DBSCAN
@@ -3778,6 +3779,25 @@ MANUAL_UI['Load the example images…'] = {
 # Written here, not in MANUAL_UI: a MANUAL_UI row is also a static UI caption,
 # and "Phases" is only a setting label.
 MANUAL_TRANSLATIONS["Phases"] = {"fr": "Phases"}
+
+
+MANUAL_TRANSLATIONS.setdefault("Residual", {}).update({"sv": "Residual"})
+MANUAL_TRANSLATIONS.setdefault("Cluster {cluster}", {}).update({
+    "de": "Cluster {cluster}", "pt": "Cluster {cluster}",
+    "fr": "Cluster {cluster}",
+})
+MANUAL_TRANSLATIONS.setdefault("Label {index}", {}).update({"de": "Label {index}"})
+MANUAL_TRANSLATIONS.setdefault("Wells (%)", {}).update({"de": "Wells (%)"})
+MANUAL_TRANSLATIONS.setdefault("Pixels", {}).update({"pt": "Pixels", "fr": "Pixels"})
+MANUAL_TRANSLATIONS.setdefault("Concentration ({unit})", {}).update({
+    "fr": "Concentration ({unit})",
+})
+MANUAL_TRANSLATIONS.setdefault("Image {index}", {}).update({"fr": "Image {index}"})
+MANUAL_TRANSLATIONS.setdefault("Importance", {}).update({"fr": "Importance"})
+MANUAL_TRANSLATIONS.setdefault("Proportion", {}).update({"fr": "Proportion"})
+MANUAL_TRANSLATIONS.setdefault("fraction", {}).update({"fr": "fraction"})
+MANUAL_TRANSLATIONS.setdefault("observations", {}).update({"fr": "observations"})
+MANUAL_TRANSLATIONS.setdefault("parasites", {}).update({"fr": "parasites"})
 
 
 MANUAL_TRANSLATIONS["Ome zarr store registration"] = {
