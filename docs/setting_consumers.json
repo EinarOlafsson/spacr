@@ -15290,7 +15290,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "cytoskeleton_channels",
-    "line": 6118,
+    "line": 6119,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
@@ -29992,7 +29992,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mask_inference_precision",
-    "line": 6077,
+    "line": 6078,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -30607,7 +30607,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "measure_gpu",
-    "line": 6120,
+    "line": 6121,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
@@ -30616,7 +30616,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "measure_gpu",
-    "line": 6124,
+    "line": 6125,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -30625,7 +30625,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "measure_gpu",
-    "line": 6171,
+    "line": 6172,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -48610,7 +48610,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_cytoskeleton_channels",
-    "line": 6094,
+    "line": 6095,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -48677,7 +48677,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_funk_features",
-    "line": 6090,
+    "line": 6091,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -48773,7 +48773,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_measure_gpu",
-    "line": 6096,
+    "line": 6097,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -48802,7 +48802,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_measure_gpu_check",
-    "line": 6125,
+    "line": 6126,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50081,7 +50081,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_pipeline",
-    "line": 6126,
+    "line": 6127,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50358,7 +50358,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_sites",
-    "line": 6027,
+    "line": 6028,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50387,7 +50387,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_stage_ahead",
-    "line": 6161,
+    "line": 6162,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50407,7 +50407,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_stage_dir",
-    "line": 6127,
+    "line": 6128,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50427,7 +50427,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_stage_threads",
-    "line": 6163,
+    "line": 6164,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -50474,7 +50474,7 @@
     "form": "get",
     "function_depth": 2,
     "key": "ops_ph_texture",
-    "line": 6113,
+    "line": 6114,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
@@ -50561,7 +50561,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_zernike",
-    "line": 6092,
+    "line": 6093,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -53514,7 +53514,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_retry_missing",
-    "line": 6133,
+    "line": 6134,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -69735,7 +69735,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "profile_features",
-    "line": 6117,
+    "line": 6118,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
@@ -71116,7 +71116,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "randomize",
-    "line": 6147,
+    "line": 6148,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -71125,7 +71125,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "randomize",
-    "line": 6147,
+    "line": 6148,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -95129,7 +95129,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "zernike",
-    "line": 6116,
+    "line": 6117,
     "module": "spacr.ops_engine",
     "nested": true,
     "qualname": "_ph_fields.measure_task"
