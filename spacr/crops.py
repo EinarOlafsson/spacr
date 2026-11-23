@@ -224,6 +224,23 @@ class PlaneLayoutConflict(CropError):
 _MEASURED_MASKS_DIR = ".spacr_measured_masks"
 
 
+def _image_store():
+    """:mod:`spacr.image_store`, or None when this file runs outside the package."""
+    try:
+        from . import image_store
+    except ImportError:
+        return None
+    return image_store
+
+
+def _field_reader():
+    """The shared field reader (fov.ome.zarr or ``.npy``, item 0aj); ``np.load`` standalone."""
+    store = _image_store()
+    if store is not None:
+        return store._read_field
+    return lambda path, mmap_mode=None: np.load(path, mmap_mode=mmap_mode, allow_pickle=False)
+
+
 def measured_masks_path(merged_path: str) -> str:
     """The measured-mask record for the field at ``merged_path``.
 
@@ -261,9 +278,8 @@ def _write_measured_masks(merged_path: str, planes: Mapping[int, np.ndarray],
     :returns: the record's path, or ``None`` when every plane equals the
         field's own; any earlier record is then removed.
     """
-    from .image_store import _read_field
-
     path = _measured_masks_path(merged_path)
+    _read_field = _field_reader()
     # A field of fov.ome.zarr (item 0aj) is read through the shared reader;
     # its record goes to fov.ome.zarr/.spacr_measured_masks/<field>.npz.
     on_disk = _read_field(merged_path, mmap_mode="r")
@@ -330,9 +346,8 @@ def measured_masks_state(merged_path: str) -> str:
     :returns: ``'none'`` (no record), ``'current'`` or ``'stale'``.
     :raises CorruptMergedFile: the record exists but cannot be read.
     """
-    from .image_store import _read_field
-
     path = _measured_masks_path(merged_path)
+    _read_field = _field_reader()
     if not os.path.isfile(path):
         return "none"
     array = _read_field(merged_path, mmap_mode="r")
@@ -1099,9 +1114,10 @@ def _load_mmap(path: str):
     A field of ``fov.ome.zarr`` (item 0aj) is read whole through the shared
     reader, :func:`spacr.image_store._read_field`.
     """
-    from .image_store import _read_field, _store_field
-
-    store_field = not os.path.isfile(path) and _store_field(path) is not None
+    store = _image_store()
+    store_field = (store is not None and not os.path.isfile(path)
+                   and store._store_field(path) is not None)
+    _read_field = _field_reader()
     if not os.path.isfile(path) and not store_field:
         raise MergedFileMissing(f"merged array not found: {path}")
     try:
@@ -1266,8 +1282,8 @@ def _cache_key(path: str) -> Tuple[str, int, int, str]:
 
     :raises MergedFileMissing: If the path cannot be inspected.
     """
-    from .image_store import _field_stat, _store_field
-
+    store = _image_store()
+    _field_stat = store._field_stat if store is not None else os.stat
     try:
         st = _field_stat(path)
     except (OSError, ValueError) as exc:
@@ -1275,7 +1291,7 @@ def _cache_key(path: str) -> Tuple[str, int, int, str]:
     size = int(st.st_size)
     # A fov.ome.zarr field (item 0aj) is not one file; its shards' size and
     # newest time (see _field_stat) stand for its content.
-    fingerprint = (None if _store_field(path) is not None
+    fingerprint = (None if store is not None and store._store_field(path) is not None
                    else _content_fingerprint(path, size))
     return (os.path.abspath(path), int(st.st_mtime_ns), size, fingerprint)
 

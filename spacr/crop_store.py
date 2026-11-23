@@ -1271,6 +1271,10 @@ def receive_measure_crops(project: Any, file: str,
     """
     sink = _SINKS.get(os.path.abspath(os.fspath(project)))
     if sink is None:
+        if all(payload.get("index_only") for payload in payloads):
+            # Streamed crops of a field measured outside a Measure run (no
+            # sink): there is no run index to add their boxes to.
+            return
         raise RuntimeError(f"no crop sink is open for {project}")
     sink.receive(file, payloads)
 

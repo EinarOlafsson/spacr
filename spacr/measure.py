@@ -11920,6 +11920,18 @@ def _crops_per_shard(settings):
     return size
 
 
+def _streams_crops_from_store(settings):
+    """Whether this run's crops are streamed from fov.ome.zarr (item 0aj).
+
+    A run that reads a project's ``fov.ome.zarr`` and does not save crops
+    indexes every object's box so the crop reader can cut it on demand. A
+    run over an older ``merged/`` folder writes no index, as before.
+    """
+    from .image_store import _is_merged_store
+
+    return _is_merged_store(settings.get('src') or '')
+
+
 def _record_ragged_crops(settings, file_name, crop_modes, crop_source, masks,
                          data_type, index_only=False):
     """Cut one field's crops of every class in ``crop_modes``; send them in one packet.
@@ -12477,7 +12489,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         _write_image_record(source_folder, file_name, settings, image_values)
 
         if (not volumetric and not settings['save_png']
-                and _crop_image_format(settings) != 'png'):
+                and _crop_image_format(settings) != 'png'
+                and _streams_crops_from_store(settings)):
             # Saving crops is off (item 0aj): index each object's box, so
             # Annotate, Classify and the crop views stream it from fov.ome.zarr.
             stream_modes = settings['crop_mode']
