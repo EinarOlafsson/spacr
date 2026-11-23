@@ -1321,7 +1321,10 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # and its tooltip sentence.
 # 643/644/646, 2026-10-04: Preferences > Storage's "Measure sizes" button.
 # Landing train 11 (2026-11-22) catalogued 1007b's "Hard-link chunks" caption.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Phenotype field {site} is not in the staging queue; "
+    "request a field scheduled for this run.",
+})
 
 
 

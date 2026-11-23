@@ -170,9 +170,17 @@ class FieldStager:
         :param site: the site.
         :returns: ``(local path or None, unreadable)``; None when the field
             could not be read, in which case its slot is already free.
+        :raises ValueError: if the field is not in this staging queue.
         """
-        self._ready[int(site)].wait()
-        return self._futures[int(site)].result()
+        from .qt.i18n import tr
+
+        key = int(site)
+        ready = self._ready.get(key)
+        if ready is None:
+            raise ValueError(tr("Phenotype field {site} is not in the staging queue; "
+                                "request a field scheduled for this run.", site=key))
+        ready.wait()
+        return self._futures[key].result()
 
     def load(self, site: int) -> Tuple[Optional[np.ndarray], list]:
         """One staged field's stack.
