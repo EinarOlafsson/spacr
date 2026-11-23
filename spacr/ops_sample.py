@@ -282,12 +282,24 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     that cell; a cell keeps its largest such nucleus; cells without a
     nucleus and nuclei without a cell are dropped and counted.
     """
+    # Measure's own nucleus-cell ownership rule runs first, through the one
+    # shared implementation (maintainer decision 2026-11-23): a nucleus that
+    # spans several cells with under 90 % in any one MERGES those cells; with
+    # 90 % or more in one, its pixels in the others are removed
+    # (spacr.utils._merge_overlapping_objects). counts['merged_cells'] says
+    # how many cells were folded into others. The docstring above is pinned
+    # by a release contract, so the rule is documented here.
+    from .utils import _merge_overlapping_objects
+
     nuclei = np.asarray(nuclei)
     cells = np.asarray(cells)
     if nuclei.shape != cells.shape:
         raise SampleError(
             f"nucleus and cell masks differ in shape: {nuclei.shape} and "
             f"{cells.shape}")
+    before = int(np.unique(cells[cells > 0]).size)
+    nuclei, cells = _merge_overlapping_objects(nuclei.copy(), cells.copy())
+    merged = before - int(np.unique(cells[cells > 0]).size)
     n_flat = nuclei.ravel().astype(np.int64)
     c_flat = cells.ravel().astype(np.int64)
     both = (n_flat > 0) & (c_flat > 0)
@@ -296,10 +308,10 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     if not both.any():
         return (np.zeros(nuclei.shape, np.int32),
                 np.zeros(cells.shape, np.int32),
-                {"nuclei": n_total, "cells": c_total, "paired": 0,
+                {"nuclei": n_total, "cells": before, "paired": 0,
                  "nuclei_without_cell": n_total,
                  "cells_without_nucleus": c_total,
-                 "extra_nuclei_in_cell": 0})
+                 "extra_nuclei_in_cell": 0, "merged_cells": merged})
     width = int(c_flat.max()) + 1
     pair, overlap = np.unique(n_flat[both] * width + c_flat[both],
                               return_counts=True)
@@ -321,10 +333,11 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     new_nuclei = n_lut[nuclei.astype(np.int64)]
     new_nuclei[new_nuclei != new_cells] = 0
     counts = {
-        "nuclei": n_total, "cells": c_total, "paired": int(keep_n.size),
+        "nuclei": n_total, "cells": before, "paired": int(keep_n.size),
         "nuclei_without_cell": int(n_total - np.unique(pair_n).size),
         "cells_without_nucleus": int(c_total - np.unique(pair_c).size),
         "extra_nuclei_in_cell": int(best_n.size - keep_n.size),
+        "merged_cells": merged,
     }
     return new_nuclei, new_cells, counts
 
@@ -366,7 +379,7 @@ def _measurement_settings(channels: int, texture: bool,
     :param zernike: ``zernike``, the Zernike moments of the cell and nucleus.
     :param summarize: ``summarize_organelles_by='cell'``, the per-cell
         summary of further objects (item 970).
-    :returns: the settings :func:`spacr.measure.measure_field_objects`
+    :returns: the settings :func:`spacr.measure._measure_field_objects`
         reads.
     """
     from .measure import profile_feature_families
@@ -451,9 +464,8 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
                             gpu: bool = False,
                             profile_features=None,
                             granularity_subsample: float = 1.0,
-                            cytoskeleton_channels=None,
-                            objects=None, crop=None):
-    """Per-cell features of one phenotype field, measured by Measure's per-field core.
+                            cytoskeleton_channels=None):
+    """Per-cell features of one phenotype field, with spaCR's own measurement.
 
     :param nuclei: nucleus labels, paired with ``cells`` by
         :func:`pair_nuclei_with_cells`, so nucleus ``k`` is in cell ``k``.
@@ -479,9 +491,7 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
         (:func:`_measurement_settings`).
     :param profile_features: the profiling families spaCR's measure adds
         (:func:`spacr.measure.measure_profile_features`): ``'profiling'``
-        for the default set, ``'all'``, or family names; the blocks
-        ``legacy_periphery`` and ``legacy_outside`` add the periphery and
-        outside ring statistics Measure always writes. ``None``, the
+        for the default set, ``'all'``, or family names. ``None``, the
         default, measures exactly as before.
     :param granularity_subsample: the ``subsample`` of the granularity
         family (:func:`spacr.measure.measure_granularity`); 1.0 sieves at
@@ -489,30 +499,22 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     :param cytoskeleton_channels: image channel indices or names for the
         cell-only ``cytoskeleton`` block in ``profile_features``. None
         selects every channel. The block is absent unless selected.
-    :param objects: ``{class: labels}`` of further objects (item 970),
-        summarised per cell in the same pass: the columns of
-        :func:`_cell_object_features`. None adds none.
-    :param crop: the crops cut in the same pass, as
-        :func:`spacr.measure.measure_field_objects` takes them, with
-        ``settings`` holding the crop writer's settings (``src``,
-        ``crop_margin_px``, ``crop_zero_outside``). None cuts none.
     :returns: one row per cell, keyed by ``label``, with ``nucleus_``,
         ``cell_`` and ``cytoplasm_`` columns and the nucleus centroid as
         ``centroid_row``/``centroid_col`` in field pixels.
 
-    The field is measured by :func:`spacr.measure.measure_field_objects`,
-    the per-field core Measure runs, so an OPS cell and a measured well's
-    cell carry the same columns and values and nothing is re-derived here:
-    this function only lays the core's per-compartment tables side by side
-    (:func:`spacr.measure.field_role_tables`). The cytoplasm is the cell
-    minus its nucleus, under the cell's label. The object labels the
-    colocalisation block carries (``*_label_correlation``) are left out,
-    as spaCR's database write leaves them out, so no column repeats the
-    label.
+    The features are the ones spaCR's measure writes -- morphology from
+    :func:`spacr.measure._morphological_measurements`, intensity and texture
+    from :func:`spacr.measure._intensity_measurements` -- so an OPS cell and
+    a measured well's cell carry the same columns and nothing is
+    re-derived. The cytoplasm is the cell minus its nucleus, under the
+    cell's label. The object labels the colocalisation block carries
+    (``*_label_correlation``) are left out, as spaCR's database write
+    leaves them out, so no column repeats the label.
     """
     import pandas as pd
 
-    from .measure import field_role_tables, label_centroids, measure_field_objects
+    from .measure import _field_role_tables, _label_centroids
 
     image = np.asarray(image, np.float32)
     nuclei = np.asarray(nuclei, np.int32)
@@ -527,22 +529,17 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     cytoplasm = np.where(nuclei > 0, 0, cells).astype(np.int32)
     masks = {"cell": cells, "nucleus": nuclei, "cytoplasm": cytoplasm}
     if not nuclei.any():
-        if crop is not None:
-            _measure_core(masks, image, {**_measurement_settings(
-                image.shape[2], texture), "channel_names": None}, crop,
-                tables=False)
         return pd.DataFrame(columns=["label", "centroid_row", "centroid_col"])
     settings = _measurement_settings(image.shape[2], texture, gpu,
                                      profile_features, granularity_subsample,
                                      funk_features=funk_features,
                                      cytoskeleton_channels=cytoskeleton_channels,
                                      channel_names=channel_names,
-                                     zernike=zernike,
-                                     summarize=bool(objects))
-    measured = _measure_core(masks, image, settings, crop, objects=objects)
-    tables = field_role_tables(measured["morphology"], measured["intensity"],
+                                     zernike=zernike)
+    measured = _measure_core(masks, image, settings)
+    tables = _field_role_tables(measured["morphology"], measured["intensity"],
                                ("cell", "nucleus", "cytoplasm"))
-    centres = label_centroids(nuclei)
+    centres = _label_centroids(nuclei)
     out = pd.DataFrame({"label": centres["label"],
                         "centroid_row": centres["y"],
                         "centroid_col": centres["x"]})
@@ -564,32 +561,23 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
         frame = frame.drop_duplicates(subset=["label"])
         out = out.merge(frame, on="label", how="left")
     keep = [c for c in out.columns if pd.api.types.is_numeric_dtype(out[c])]
-    out = out.loc[:, keep].reset_index(drop=True)
-    if objects:
-        out = out.merge(_cell_object_table(
-            cells, objects, measured["summaries"].get("cell"), channel_names),
-            on="label", how="left")
-    return out
+    return out.loc[:, keep].reset_index(drop=True)
 
 
-def _measure_core(masks, image, settings, crop, *, objects=None, tables=True):
-    """One call of :func:`spacr.measure.measure_field_objects` for the OPS field.
+def _measure_core(masks, image, settings, *, objects=None, tables=True):
+    """One call of :func:`spacr.measure._measure_field_objects` for the OPS field.
 
     :param masks: the ``cell``, ``nucleus`` and ``cytoplasm`` labels.
     :param image: the ``(H, W, C)`` intensities.
     :param settings: :func:`_measurement_settings`.
-    :param crop: None, or the crop request with its writer ``settings``.
     :param objects: ``{class: labels}`` summarised per cell, or None.
-    :param tables: False cuts the crops only.
+    :param tables: False measures only the per-cell object summaries.
     """
-    from .measure import measure_field_objects
+    from .measure import _measure_field_objects
 
-    if crop is not None:
-        crop = dict(crop)
-        settings = {**settings, **dict(crop.pop("settings", None) or {})}
-    return measure_field_objects(
+    return _measure_field_objects(
         masks, image, settings, periphery=False, outside=False,
-        summarize=dict(objects) if objects else {}, crop=crop, tables=tables)
+        summarize=dict(objects) if objects else {}, tables=tables)
 
 
 #: The per-cell statistics :func:`spacr.measure._summarize_organelles_per_parent`
@@ -619,13 +607,14 @@ def _cell_object_features(cells: np.ndarray, objects, image: np.ndarray,
         everywhere.
 
     Measure's own summary, computed by
-    :func:`spacr.measure.measure_field_objects` with
+    :func:`spacr.measure._measure_field_objects` with
     ``summarize_organelles_by='cell'``
     (:func:`spacr.measure._summarize_organelles_per_parent`): an object
     belongs to the cell that holds most of its pixels
     (:func:`spacr.measure._map_child_to_parent`) and an object outside every
-    cell belongs to none. :func:`measure_phenotype_field` takes the same
-    summary from its one call of the core with ``objects``.
+    cell belongs to none. The ``cell_`` prefix makes the columns per-cell
+    features of the OPS tables, so the aggregate phase carries them into
+    the per-gene profiles as it does the cell's own.
     """
     cells = np.asarray(cells, np.int32)
     image = np.asarray(image, np.float32)
@@ -634,7 +623,7 @@ def _cell_object_features(cells: np.ndarray, objects, image: np.ndarray,
         settings = {**_measurement_settings(image.shape[2], False,
                                             summarize=True),
                     "channel_names": None}
-        summary = _measure_core({"cell": cells}, image, settings, None,
+        summary = _measure_core({"cell": cells}, image, settings,
                                 objects=objects, tables=False)["summaries"].get("cell")
     return _cell_object_table(cells, objects, summary, channel_names)
 
@@ -645,7 +634,7 @@ def _cell_object_table(cells, objects, summary, channel_names):
     :param cells: cell labels.
     :param objects: ``{class: labels}`` that were summarised.
     :param summary: the ``cell`` table of
-        :func:`spacr.measure.measure_field_objects`, with its
+        :func:`spacr.measure._measure_field_objects`, with its
         ``organelle_summary_<class>_`` columns, or None.
     :param channel_names: one short name per channel.
     :returns: one row per cell label, as :func:`_cell_object_features`

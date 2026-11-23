@@ -2682,11 +2682,11 @@ def _field_tables_for_check(field, settings):
         cytoplasm = np.where((nucleus > 0) | (pathogen > 0), 0, cell)
         cytoplasm = cytoplasm.astype(np.int32)
     channel_arrays = data[..., list(settings['channels'])]
-    measured = measure_field_objects(
+    measured = _measure_field_objects(
         {'cell': cell, 'nucleus': nucleus, 'pathogen': pathogen,
          'organelle': blank, 'cytoplasm': cytoplasm},
         channel_arrays, settings, summarize={})
-    return field_role_tables(measured['morphology'], measured['intensity'])
+    return _field_role_tables(measured['morphology'], measured['intensity'])
 
 
 def check_gpu_measurement(field, settings, *, measure=None, rtol=None):
@@ -3454,13 +3454,8 @@ PROFILE_FEATURE_OPTIONAL = (
 #: Pearson, Manders and overlap block of :func:`_calculate_correlation_object_level`
 #: (the ``calculate_correlation`` setting), ``legacy_radial`` the six-bin radial
 #: distribution of :func:`_calculate_radial_distribution` (``radial_dist``).
-#: ``legacy_periphery`` and ``legacy_outside`` are the periphery and outside
-#: ring statistics of :func:`_intensity_measurements` (``periphery_<stat>``,
-#: ``outside_<stat>``), which Measure always writes and the OPS phenotype
-#: path writes only when named (:func:`measure_field_objects`).
 #: ``'profiling'`` and ``'all'`` name none of them.
-MEASURE_BLOCK_FAMILIES = ('coloc_block', 'legacy_radial', 'cytoskeleton',
-                          'legacy_periphery', 'legacy_outside')
+MEASURE_BLOCK_FAMILIES = ('coloc_block', 'legacy_radial', 'cytoskeleton')
 
 #: Haralick's 13 statistics in mahotas' order (Haralick et al. 1973).
 _HARALICK_NAMES = (
@@ -11904,7 +11899,7 @@ def _crops_per_shard(settings):
     return size
 
 
-#: The roles :func:`measure_field_objects` measures, in the order
+#: The roles :func:`_measure_field_objects` measures, in the order
 #: :func:`_morphological_measurements` and :func:`_intensity_measurements`
 #: return them, before the further organelle roles and the cytoplasm.
 _FIELD_ROLES = ('cell', 'nucleus', 'pathogen', 'organelle')
@@ -11924,10 +11919,10 @@ def _requested_summary_parents(settings):
     return set(requested)
 
 
-def measure_field_objects(masks, channel_arrays, settings, *, spacing=None,
+def _measure_field_objects(masks, channel_arrays, settings, *, spacing=None,
                           shared_labels=None, periphery=True, outside=True,
-                          summarize=None, crop=None, tables=True):
-    """Measure, summarise and crop one prepared field: the per-field core of Measure and OPS.
+                          summarize=None, tables=True):
+    """Measure and summarise one prepared field: the per-field core of Measure and OPS.
 
     Measure (:func:`_measure_crop_core`), its GPU check
     (:func:`_field_tables_for_check`) and the OPS phenotype path
@@ -11935,8 +11930,8 @@ def measure_field_objects(masks, channel_arrays, settings, *, spacing=None,
     here, so one cell gives the same columns and the same values in every
     app. The caller prepares the masks (its own pairing and size filters)
     and the intensities (its own flat-field or calibration); this function
-    neither reads nor writes a file, except the crops it hands to the run's
-    crop writer.
+    neither reads nor writes a file (crops are cut by the caller, through
+    the run's one crop writer).
 
     :param masks: ``{role: labels}`` for ``'cell'``, ``'nucleus'``,
         ``'pathogen'``, ``'organelle'``, any further organelle role of
@@ -11956,22 +11951,17 @@ def measure_field_objects(masks, channel_arrays, settings, *, spacing=None,
     :param shared_labels: ``{'nucleus': labels, 'cell': labels}`` of
         :func:`_assign_shared_nuclei`; None adds no ``nucleus_shared`` column.
     :param periphery: the legacy periphery ring block of
-        :func:`_intensity_measurements`; ``'legacy_periphery'`` in
-        ``profile_features`` also switches it on.
-    :param outside: the legacy outside ring block; ``'legacy_outside'`` in
-        ``profile_features`` also switches it on.
+        :func:`_intensity_measurements` (``periphery_<stat>``), which
+        Measure writes and the OPS phenotype path leaves out.
+    :param outside: the legacy outside ring block (``outside_<stat>``),
+        likewise.
     :param summarize: ``{role: labels}`` of the objects summarised per
         parent named in ``summarize_organelles_by``
         (:func:`_summarize_organelles_per_parent`), also without
         ``tables``; None summarises the measured organelle roles of
         ``masks`` when ``tables`` is set.
-    :param crop: None, or the crops cut in the same pass by
-        :func:`_record_ragged_crops`: ``file_name``, ``modes`` (object
-        classes), ``source`` (the ``(..., C)`` pixels cut, raw), ``dtype``
-        and optionally ``channels`` (indices into ``source``; default
-        ``settings['channels']``).
-    :param tables: False skips the morphology and intensity tables (the
-        crops, or only the summaries, are wanted).
+    :param tables: False skips the morphology and intensity tables (only
+        the summaries are wanted).
     :returns: ``morphology`` and ``intensity``, ``{role: table}`` with the
         channel names of ``channel_names`` in the column names;
         ``summaries``, ``{parent: table}`` with Measure's
@@ -11987,9 +11977,6 @@ def measure_field_objects(masks, channel_arrays, settings, *, spacing=None,
     out = {'morphology': {}, 'intensity': {}, 'summaries': {},
            'compute_path': 'cpu'}
     if tables:
-        blocks = measure_block_families(profile_feature_families(
-            settings.get('profile_features'),
-            settings.get('profile_optional_families')))
         role_order = [*_FIELD_ROLES, *extra, 'cytoplasm']
         with _path_scope() as compute:
             morphology = dict(zip(role_order, _morphological_measurements(
@@ -12003,8 +11990,7 @@ def measure_field_objects(masks, channel_arrays, settings, *, spacing=None,
                 full['cell'], full['nucleus'], full['pathogen'],
                 full['organelle'], full['cytoplasm'], channel_arrays, settings,
                 sizes=[1, 2, 3, 4, 5],
-                periphery=bool(periphery) or 'legacy_periphery' in blocks,
-                outside=bool(outside) or 'legacy_outside' in blocks,
+                periphery=bool(periphery), outside=bool(outside),
                 extra_organelle_masks=extra)))
         names = _measurement_channel_names(settings)
         if names:
@@ -12045,18 +12031,14 @@ def measure_field_objects(masks, channel_arrays, settings, *, spacing=None,
             combined = combined.merge(frame, on='label', how='outer',
                                       validate='one_to_one')
         out['summaries'][parent] = combined
-    if crop is not None:
-        _record_ragged_crops(settings, crop['file_name'], list(crop['modes']),
-                             crop['source'], full, crop['dtype'],
-                             channels=crop.get('channels'))
     return out
 
 
-def field_role_tables(morphology, intensity, roles=None):
+def _field_role_tables(morphology, intensity, roles=None):
     """One table per role: its morphology and intensity columns side by side.
 
-    :param morphology: ``{role: table}`` of :func:`measure_field_objects`.
-    :param intensity: ``{role: table}`` of :func:`measure_field_objects`.
+    :param morphology: ``{role: table}`` of :func:`_measure_field_objects`.
+    :param intensity: ``{role: table}`` of :func:`_measure_field_objects`.
     :param roles: the roles to join, default every role of ``morphology``.
     :returns: ``{role: table}`` keyed by ``label``, repeated column names
         kept once, for the roles with any rows. A column of the intensity
@@ -12078,7 +12060,7 @@ def field_role_tables(morphology, intensity, roles=None):
     return tables
 
 
-def label_centroids(labels):
+def _label_centroids(labels):
     """``label``, ``y`` and ``x`` of every object of a 2-D label mask.
 
     :param labels: a label mask.
@@ -12096,21 +12078,17 @@ def label_centroids(labels):
 
 
 def _record_ragged_crops(settings, file_name, crop_modes, crop_source, masks,
-                         data_type, channels=None):
+                         data_type):
     """Cut one field's crops of every class in ``crop_modes``; send them in one packet.
 
     Each crop is the object's bounding box plus ``crop_margin_px``, with its
     own mask beside it and the per-cell relationship columns; outside pixels
     are zeroed only with ``crop_zero_outside``. Raw intensities: crops are
     never stretched when written (the network transform normalises).
-    ``channels`` picks the planes of ``crop_source`` cut (default
-    ``settings['channels']``).
     """
     from .crop_store import crop_relationships, cut_crops, record_measure_field_crops
 
-    if channels is None:
-        channels = settings['channels']
-    image = np.moveaxis(np.asarray(crop_source)[..., list(channels)], -1, 0)
+    image = np.moveaxis(np.asarray(crop_source)[..., list(settings['channels'])], -1, 0)
     image = image.astype(data_type, copy=False)
     classes = []
     for crop_mode in crop_modes:
@@ -12485,7 +12463,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
 
 
         if settings['save_measurements']:
-            measured = measure_field_objects(
+            measured = _measure_field_objects(
                 {'cell': cell_mask, 'nucleus': nucleus_mask,
                  'pathogen': pathogen_mask, **organelle_masks,
                  'cytoplasm': cytoplasm_mask},
@@ -12610,14 +12588,12 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
 
             crop_format = _crop_image_format(settings)
             if crop_format != 'png' and settings['save_png']:
-                measure_field_objects(
+                _record_ragged_crops(
+                    settings, file_name, [m for m in crop_ls if m in CROP_MODES],
+                    crop_source,
                     {'cell': cell_mask, 'nucleus': nucleus_mask,
                      'pathogen': pathogen_mask, **organelle_masks,
-                     'cytoplasm': cytoplasm_mask},
-                    channel_arrays, settings, tables=False,
-                    crop={'file_name': file_name,
-                          'modes': [m for m in crop_ls if m in CROP_MODES],
-                          'source': crop_source, 'dtype': data_type})
+                     'cytoplasm': cytoplasm_mask}, data_type)
             for crop_idx, crop_mode in enumerate(crop_ls):
                 if crop_format != 'png' and settings['save_png'] and crop_mode in CROP_MODES:
                     continue
