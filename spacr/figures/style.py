@@ -1245,6 +1245,26 @@ def axes_geometry(spec: StyleSpec, *, cell_count=None, panel_height=None) -> Axe
 
 
 
+def _physical_panel_problems(spec, width, height, *, pixel):
+    """Observe the common panel dimension without repairing manual geometry.
+
+    The required statistical plot-area height is 40 mm. Horizontal
+    categories rotate this dimension; split windows share a 40-mm width
+    and retain their independently checked declared height fractions.
+    The caller supplies one device pixel in inches, matching the existing
+    slot and aspect checks rather than changing their measured margin.
+    """
+    geometry = axes_geometry(spec)
+    if geometry.aspect not in ("categorical", "square", "split"):
+        return ()
+    across = geometry.aspect == "split" or dict(spec.comparison).get("orientation") == "horizontal"
+    measured = width if across else height
+    expected = geometry.width_inches if across else geometry.height_inches
+    if abs(measured - expected) > pixel:
+        return (_replay_message("Use the shared 40 mm panel dimension; preserve explicit manual sizes with a diagnostic"),)
+    return ()
+
+
 def _data_artists(ax) -> tuple:
     """Include visible annotation arrow patches in the actual statistical marks.
 
@@ -1597,6 +1617,57 @@ def _apply_live_axes_geometry(figure) -> bool:
         record["position"] = tuple(coordinates / np.tile(viewport, 2))
         legend.set_bbox_to_anchor(record["position"], transform=figure.transFigure)
     return True
+
+
+
+@contextlib.contextmanager
+def _file_axes_geometry(figure):
+    """Temporarily contain automatically packed live panels in the output page.
+
+    Interactive viewports can be smaller than the retained physical layout.
+    Expand only those automatic pages, preserving larger viewport dimensions.
+    Explicit panel placement or page dimensions release the retained layout.
+    Restore the viewport, panel and legend geometry, layout metadata and live
+    validation findings even when writing fails. Source values and axis limits are never changed.
+
+    :param figure: figure whose live viewport may contain a packed layout.
+    :yields: whether the file page was expanded.
+    """
+    import copy
+    import numpy as np
+
+    if not _apply_live_axes_geometry(figure):
+        yield False
+        return
+    saved = figure._spacr_live_geometry
+    viewport = np.asarray(figure.get_size_inches(), dtype=float)
+    page = np.maximum(viewport, saved["size"])
+    if np.array_equal(page, viewport):
+        yield False
+        return
+    layout = copy.deepcopy(saved)
+    missing = object()
+    diagnostics = getattr(figure, "_spacr_style_diagnostics", missing)
+    positions = [(ax.get_position(original=True).frozen(), ax.get_position().frozen())
+                 for ax in figure.axes]
+    legends = [(legend, legend.get_bbox_to_anchor().transformed(
+                    figure.transFigure.inverted()).frozen()) for legend in figure.legends]
+    try:
+        figure.set_size_inches(*page, forward=False)
+        _apply_live_axes_geometry(figure)
+        yield True
+    finally:
+        figure.set_size_inches(*viewport, forward=False)
+        for ax, (original, active) in zip(figure.axes, positions):
+            ax.set_position(original, which="original")
+            ax.set_position(active, which="active")
+        for legend, bounds in legends:
+            legend.set_bbox_to_anchor(bounds, transform=figure.transFigure)
+        figure._spacr_live_geometry = layout
+        if diagnostics is missing:
+            figure.__dict__.pop("_spacr_style_diagnostics", None)
+        else:
+            figure._spacr_style_diagnostics = diagnostics
 
 
 def _figure_text_role(text, ax=None) -> str:
@@ -2709,8 +2780,11 @@ def _semantic_presentation_problems(ax, spec) -> tuple:
         from ..qt.i18n import tr
 
         problems.append(tr("Move the plot title into the figure legend"))
-    for line in ax.lines:
-        if line.get_gid() == "spacr-reference" and not np.allclose(to_rgb(line.get_color()),(0.,0.,0.),rtol=0.,atol=1e-8):
+    for artist in (*ax.lines, *ax.patches):
+        if artist.get_gid() != "spacr-reference":
+            continue
+        colours = _visible_artist_colours(artist)
+        if not colours or any(not np.allclose(colour, (0.,0.,0.), rtol=0., atol=1e-8) for colour in colours):
             from ..qt.i18n import tr
 
             problems.append(tr("Draw reference lines in black; preserve explicit colours with a diagnostic"))
@@ -2721,6 +2795,278 @@ def _semantic_presentation_problems(ax, spec) -> tuple:
 
 
 
+def _native_colour_table(name, steps):
+    """Read the existing native colour lookup once through the shared colour owner."""
+    import pyqtgraph as pg
+
+    table = pg.colormap.get(name, source="matplotlib") if name == Palette.SEQUENTIAL else pg.colormap.get(name)
+    return table.getLookupTable(nPts=int(steps), alpha=True)
+
+
+def _native_scalar_steps(values, low, high, steps):
+    """Retain the original nearest-table-step mapping without modifying scalar values."""
+    import numpy as np
+
+    return np.clip(np.round((values - low) / (high - low) * (steps - 1)), 0, steps - 1)
+
+
+def _native_scalar_cells(plot, edges, colours):
+    """Paint supplied scalar boundaries and RGBA cells once for all native colour keys.
+
+    Adjacent vector cells disable antialias seams while keeping their exact
+    boundaries and colours. Source adapters retain normalization and chrome.
+    """
+    import numpy as np
+    import pyqtgraph as pg
+    from PySide6.QtGui import QColor, QPainter
+
+    class ScalarCells(pg.BarGraphItem):
+        """Paint adjacent key cells without antialias seams while retaining every supplied boundary and RGBA value."""
+
+        def paint(self, painter, *arguments):
+            """Keep shared cell edges solid and restore the surrounding painter state even on failure."""
+            painter.save()
+            try:
+                painter.setRenderHint(QPainter.Antialiasing, False)
+                super().paint(painter, *arguments)
+            finally:
+                painter.restore()
+
+    edges = np.asarray(edges, dtype=float)
+    rgba = np.asarray(colours, dtype=float)
+    if len(edges) != len(rgba) + 1 or not np.isfinite(edges).all() or np.any(np.diff(edges) <= 0):
+        raise ValueError(_replay_message("Numeric colour keys need increasing boundaries aligned with their colours"))
+    plot.clear()
+    cells = ScalarCells(x0=np.zeros(len(rgba)), x1=np.ones(len(rgba)),
+        y0=edges[:-1], y1=edges[1:], pen=None,
+        brushes=[pg.mkBrush(QColor.fromRgbF(*row)) for row in rgba])
+    cells._spacr_condition_role = "colour_key"
+    plot.addItem(cells)
+    return cells
+
+
+def _paint_native_scalar_key(plot, edges, colours, *, label, ink, font, dpi):
+    """Draw the declared native key around the same vector-cell painter used by scene translation."""
+    import pyqtgraph as pg
+
+    cells = _native_scalar_cells(plot, edges, colours)
+    for name in ("left", "bottom", "top"):
+        plot.showAxis(name, False)
+    plot.showAxis("right", True)
+    axis = plot.getAxis("right")
+    pen = pg.mkPen(ink, width=WEIGHTS["spine"] * float(dpi) / 72.)
+    axis.setPen(pen)
+    axis.setTickPen(pen)
+    axis.setTextPen(pg.mkPen(ink))
+    axis.setStyle(tickFont=font, tickLength=-max(1, int(round(2.5 * float(dpi) / 72.))))
+    axis.setLabel(label, color=ink, **{"font-family": font.family(),
+        "font-size": (f"{font.pointSizeF():g}pt" if font.pointSizeF() > 0 else f"{font.pixelSize()}px"), "font-weight": str(int(font.weight()))})
+    low, high = float(edges[0]), float(edges[-1])
+    axis.setTicks([[(value, f"{value:.3g}") for value in (low, (low + high) / 2., high)]])
+    view = plot.getViewBox()
+    view.setRange(xRange=(0., 1.), yRange=(low, high), padding=0.)
+    view.disableAutoRange()
+    plot.setMouseEnabled(x=False, y=False)
+    plot.setMenuEnabled(False)
+    plot.layout.setContentsMargins(0., 0., 0., 0.)
+    plot.layout.setHorizontalSpacing(0.)
+    plot.layout.setVerticalSpacing(0.)
+    plot.layout.setColumnFixedWidth(1, .10 * float(dpi))
+    plot._spacr_scalar_cells = cells
+    return cells
+
+
+def _remove_native_scalar_key(figure):
+    """Remove only the owned external scalar key when its original native scene is reset."""
+    key = getattr(figure, "_spacr_scalar_key", None)
+    if key is not None:
+        scene = key.scene()
+        layout = figure.plot.plotItem.layout
+        for index in range(layout.count()):
+            item = layout.itemAt(index)
+            if item is key or item.graphicsItem() is key:
+                layout.removeAt(index)
+                break
+        if scene is not None:
+            scene.removeItem(key)
+    figure._spacr_scalar_key = None
+    figure._spacr_scalar_channel = None
+
+
+def _native_scalar_label(comparison):
+    """Format the declared scalar quantity and unit as short, escaped native rich-text lines."""
+    import html
+    import textwrap
+
+    quantity = str(comparison.get("colour_quantity") or "")
+    unit = str(comparison.get("colour_unit") or "")
+    lines = textwrap.wrap(quantity, width=24) + (["(" + unit + ")"] if unit else [])
+    return "<br>".join(html.escape(line) for line in lines)
+
+
+def _bind_native_scalar_column(figure, channel):
+    """Bind a chosen column to explicit source metadata without carrying units from a different quantity."""
+    from dataclasses import replace
+
+    specification = getattr(figure, "_spacr_style_spec", None)
+    if channel is None or not isinstance(specification, StyleSpec):
+        return
+    comparison = dict(specification.comparison)
+    if "colour_quantity" not in comparison:
+        return
+    column = channel["column"]
+    frame = figure.frame()
+    same_quantity = comparison.get("colour_column") == column
+    comparison.update(colour_column=column,
+        colour_quantity=(frame.attrs.get("quantities") or {}).get(column,
+            comparison.get("colour_quantity") if same_quantity else str(column)),
+        colour_unit=(frame.attrs.get("units") or {}).get(column,
+            comparison.get("colour_unit") if same_quantity else None))
+    figure._spacr_style_spec = replace(specification, comparison=comparison)
+
+
+def _attach_native_scalar_key(figure):
+    """Attach a key to the actual recorded scalar operation, outside the source data viewport."""
+    import copy
+    import numpy as np
+    import pyqtgraph as pg
+    from PySide6.QtGui import QFont, QPen
+    from ..figure_font import use_open_sans_for_qt
+
+    channel = getattr(figure, "_spacr_scalar_channel", None)
+    _bind_native_scalar_column(figure, channel)
+    specification = getattr(figure, "_spacr_style_spec", None)
+    comparison = dict(specification.comparison) if isinstance(specification, StyleSpec) else {}
+    if channel is None or comparison.get("colour_column") != channel["column"]:
+        return None
+    use_open_sans_for_qt()
+    key = getattr(figure, "_spacr_scalar_key", None)
+    retained = None
+    if key is not None:
+        axis = key.getAxis("right")
+        retained = dict(font=QFont(axis.style["tickFont"]), label_style=dict(axis.labelStyle),
+            label=axis.labelText, pens=(QPen(axis.pen()), QPen(axis.tickPen()), QPen(axis.textPen())),
+            ticks=copy.deepcopy(axis._tickLevels), ranges=copy.deepcopy(key.getViewBox().viewRange()),
+            same_column=getattr(key, "_spacr_scalar_column", None) == channel["column"],
+            default_label=getattr(key, "_spacr_scalar_label", axis.labelText),
+            default_ticks=copy.deepcopy(getattr(key, "_spacr_scalar_ticks", axis._tickLevels)),
+            default_ranges=copy.deepcopy(getattr(key, "_spacr_scalar_ranges", key.getViewBox().viewRange())))
+    if key is None:
+        key = pg.PlotItem()
+        figure.plot.plotItem.layout.addItem(key, 2, 3)
+        figure._spacr_scalar_key = key
+    label = _native_scalar_label(comparison)
+    font = figure.plot.getAxis("bottom").style.get("tickFont")
+    if font is None:
+        font = QFont(specification.font_family)
+        font.setPointSizeF(specification.minimum_font_points)
+        font.setWeight(QFont.Light)
+    font = QFont(font)
+    rgba = np.asarray(channel["lookup"], dtype=float) / 255.
+    rgba[:, 3] = specification.alpha
+    steps = len(rgba)
+    fractions = np.r_[0., (np.arange(steps - 1) + .5) / (steps - 1), 1.]
+    edges = channel["low"] + fractions * (channel["high"] - channel["low"])
+    _paint_native_scalar_key(key, edges, rgba, label=label,
+        ink=figure._font_colour or figure._foreground, font=font, dpi=figure.logicalDpiX())
+    axis = key.getAxis("right")
+    key._spacr_scalar_label = label
+    key._spacr_scalar_ticks = copy.deepcopy(axis._tickLevels)
+    key._spacr_scalar_ranges = copy.deepcopy(key.getViewBox().viewRange())
+    key._spacr_scalar_edges = edges.copy()
+    key._spacr_scalar_column = channel["column"]
+    if retained is not None:
+        manual_label = retained["same_column"] and retained["label"] != retained["default_label"]
+        axis.setStyle(tickFont=retained["font"])
+        axis.labelStyle = dict(retained["label_style"])
+        axis.setLabel(retained["label"] if manual_label else label, **retained["label_style"])
+        axis.setPen(retained["pens"][0])
+        axis.setTickPen(retained["pens"][1])
+        axis.setTextPen(retained["pens"][2])
+        if retained["same_column"] and retained["ticks"] != retained["default_ticks"]:
+            axis.setTicks(retained["ticks"])
+        if retained["same_column"] and retained["ranges"] != retained["default_ranges"]:
+            key.getViewBox().setRange(xRange=retained["ranges"][0], yRange=retained["ranges"][1], padding=0.)
+    return key
+
+
+def _native_scalar_key_problems(figure, specification):
+    """Check actual source-to-key colours, numeric boundaries and quantity labels without repairing them.
+
+    A numeric palette exemption is returned only for a fully verified shared
+    ramp. Manual maps and tampered keys remain visible diagnostics.
+    """
+    import numpy as np
+    import pyqtgraph as pg
+    from PySide6.QtGui import QColor
+
+    channel = getattr(figure, "_spacr_scalar_channel", None)
+    comparison = dict(specification.comparison)
+    if not comparison.get("colour_column"):
+        return (), ()
+    problem = _replay_message("Match the native scalar key to its source values, colours, opacity, quantity and unit")
+    key = getattr(figure, "_spacr_scalar_key", None)
+    if channel is None or key is None or not key.isVisible() or channel["column"] != comparison["colour_column"]:
+        return (problem,), ()
+    cells = key._spacr_scalar_cells
+    lookup = np.asarray(channel["lookup"])
+    rgba = np.asarray([pg.mkBrush(brush).color().getRgbF() for brush in cells.opts["brushes"]])
+    expected = lookup.astype(float) / 255.
+    expected[:, 3] = specification.alpha
+    findings = []
+    if (rgba.shape != expected.shape or not np.allclose(rgba, expected, rtol=0., atol=1/65535)
+            or cells.opacity() != 1. or not cells.isVisible()):
+        findings.append(problem)
+    edges = np.r_[cells.opts["y0"], cells.opts["y1"][-1]]
+    steps = len(lookup)
+    expected_edges = channel["low"] + np.r_[0., (np.arange(steps - 1) + .5) / (steps - 1), 1.] * (channel["high"] - channel["low"])
+    if (not np.array_equal(edges, expected_edges) or not np.array_equal(cells.opts["y1"], expected_edges[1:])
+            or not np.array_equal(key.getViewBox().viewRange()[1], [channel["low"], channel["high"]])):
+        findings.append(problem)
+    quantity = str(comparison.get("colour_quantity") or "")
+    unit = str(comparison.get("colour_unit") or "")
+    expected_label = _native_scalar_label(comparison)
+    if not quantity or not unit or key.getAxis("right").labelText != expected_label:
+        findings.append(problem)
+    tick_levels = key.getAxis("right")._tickLevels
+    if not tick_levels:
+        findings.append(problem)
+    else:
+        for level in tick_levels:
+            for value, label in level:
+                try:
+                    printed = float(label)
+                    tolerance = abs(float(f"{value:.3g}") - value) + 4 * abs(np.spacing(float(value)))
+                    if not channel["low"] <= value <= channel["high"] or abs(printed - value) > tolerance:
+                        findings.append(problem)
+                except (ValueError, TypeError):
+                    findings.append(problem)
+    frame = figure.frame()
+    values = np.asarray(frame[channel["column"]], dtype=float)
+    finite = values[np.isfinite(values)]
+    if not len(finite) or (float(finite.min()), float(finite.max())) != (channel["low"], channel["high"]):
+        findings.append(problem)
+    for artist in figure._scatter_items():
+        rows = figure._rows_of(artist)
+        if rows is None:
+            findings.append(problem)
+            continue
+        picked = values[rows]
+        indices = _native_scalar_steps(picked, channel["low"], channel["high"], steps)
+        for point, value, index in zip(artist.points(), picked, indices):
+            expected_colour = (QColor(channel["missing_colour"]) if not np.isfinite(value)
+                               else QColor(*(int(c) for c in lookup[int(index)])))
+            expected_colour.setAlphaF(specification.alpha)
+            if point.brush().color() != expected_colour or artist.opacity() != 1.:
+                findings.append(problem)
+    approved = channel["colormap"] == Palette.SEQUENTIAL
+    if not approved or not np.array_equal(lookup, _native_colour_table(Palette.SEQUENTIAL, steps)):
+        findings.append(_replay_message("Use the shared sequential ramp for a numeric channel; keep explicit manual maps with a diagnostic"))
+        approved = False
+    allowed = tuple(tuple(row[:3]) for row in expected) if approved and not findings else ()
+    return tuple(dict.fromkeys(findings)), allowed
+
+
 def _apply_native_marks(figure, spec, artists, *, preserve_opacity=False) -> None:
     """Apply producer defaults to explicitly identified native marks before manual edits.
 
@@ -2728,6 +3074,8 @@ def _apply_native_marks(figure, spec, artists, *, preserve_opacity=False) -> Non
     :param spec: shared resolved presentation specification.
     :param artists: triples of original artist, explicit semantic role and optional colour.
         A missing colour retains the existing series identity.
+        Reference lines default to shared black; an explicit line-colour
+        preference is retained and remains subject to read-only validation.
     :param preserve_opacity: retain an explicit per-point opacity encoding instead of producer defaults.
     """
     import pyqtgraph as pg
@@ -2735,9 +3083,11 @@ def _apply_native_marks(figure, spec, artists, *, preserve_opacity=False) -> Non
 
     manual_line = getattr(figure, "_line_colour", None)
     for artist, role, colour in artists:
+        if role == "reference" and manual_line is None:
+            colour = "#000000"
         artist._spacr_condition_role = role
         if isinstance(artist, pg.ScatterPlotItem):
-            if preserve_opacity or getattr(figure, "_colour_column", None) is not None:
+            if preserve_opacity:
                 continue
             brushes = []
             cache = {}
@@ -2918,6 +3268,37 @@ def _write_native_raster(exporter, path, *, dpi) -> bool:
         return True
 
 
+def _queue_native_finalization(figure):
+    """Validate the latest native scene once the current burst of redraws finishes.
+
+    Full live observation is coalesced on the Qt event loop rather than
+    repeated inside each slider redraw. Pending observations never retain
+    an earlier compliance result. Explicit validation and file exports
+    still inspect the current scene synchronously and stop redundant work.
+    """
+    import weakref
+    from PySide6.QtCore import QTimer
+
+    timer = getattr(figure, "_spacr_style_validation_timer", None)
+    if timer is None:
+        timer = QTimer(figure)
+        timer.setSingleShot(True)
+        reference = weakref.ref(figure)
+
+        def validate():
+            """Observe the latest still-owned widget after the redraw burst, never a captured old scene."""
+            current = reference()
+            if current is not None:
+                finalize_figure(current)
+
+        timer.timeout.connect(validate)
+        figure._spacr_style_validation_timer = timer
+    figure._spacr_style_diagnostics = FigureDiagnostics(
+        getattr(getattr(figure, "_spacr_style_spec", None), "policy_version", ""),
+        (_replay_message("Validate the updated native plot before certifying its appearance"),), ())
+    timer.start(0)
+
+
 def _finalize_native_figure(figure, spec=None, *, diagnostics=True, record=True) -> FigureDiagnostics:
     """Validate native observations with shared policy values, retaining explicit incomplete checks.
 
@@ -2927,6 +3308,9 @@ def _finalize_native_figure(figure, spec=None, *, diagnostics=True, record=True)
     import numpy as np
     from matplotlib.colors import to_rgb
 
+    timer = getattr(figure, "_spacr_style_validation_timer", None)
+    if record and timer is not None:
+        timer.stop()
     observed = figure._spacr_style_observation()
     declared = observed.get("specification")
     item = spec or (StyleSpec(**declared) if declared else None)
@@ -2951,10 +3335,13 @@ def _finalize_native_figure(figure, spec=None, *, diagnostics=True, record=True)
         if not legend.get("caption") or not legend.get("quantities") or not (legend.get("unit") or legend.get("units")):
             problems.append("Declare the caption, plotted quantities and units before validation")
         problems.extend(_quantity_unit_problems(item))
+        if observed.get("title") and item.kind not in ("image", "schematic"):
+            problems.append(_replay_message("Move the plot title into the figure legend"))
         checks.append("declared reference and quantities")
         geometry = axes_geometry(item)
         pixel = 1. / observed["logical_dpi"]
         width, height = observed["width_inches"], observed["height_inches"]
+        problems.extend(_physical_panel_problems(item, width, height, pixel=pixel))
         if geometry.aspect == "categorical":
             horizontal = comparison.get("orientation") == "horizontal"
             measured, expected = (height, geometry.height_inches) if horizontal else (width, geometry.width_inches)
@@ -2984,7 +3371,10 @@ def _finalize_native_figure(figure, spec=None, *, diagnostics=True, record=True)
             if _colour_contrast(composited, ground_rgb) < 4.5:
                 problems.append("Use readable text contrast against the actual plot background")
         checks.extend(("actual native font family and size", "composited text contrast"))
+        scalar_problems, scalar_colours = _native_scalar_key_problems(figure, item)
+        problems.extend(scalar_problems)
         allowed = [to_rgb(value) for value in (*SERIES, Palette.CONTROL, Palette.BACKGROUND, "#000000", "#FFFFFF")]
+        allowed.extend(scalar_colours)
         for mark in observed["marks"]:
             for colour in mark["colours"]:
                 if colour[3] == 0:
@@ -2997,6 +3387,9 @@ def _finalize_native_figure(figure, spec=None, *, diagnostics=True, record=True)
                 problems.append("Register native artist roles before checking identities, forms and error bars")
             if mark["role"] in ("error", "summary") and any(not np.allclose(pen["colour"][:3], (0.,0.,0.), rtol=0, atol=1/65535) for pen in mark["pens"]):
                 problems.append("Draw every error bar and summary line in black")
+            if (mark["role"] == "reference"
+                    and any(not np.allclose(pen["colour"][:3], (0.,0.,0.), rtol=0, atol=1/65535) for pen in mark["pens"])):
+                problems.append(_replay_message("Draw reference lines in black; preserve explicit colours with a diagnostic"))
         checks.extend(("effective data opacity", "actual native palette", "registered native artist roles"))
         if item.kind == "categorical":
             records = []
@@ -3124,6 +3517,7 @@ def finalize_figure(figure, spec=None, *, diagnostics=True, record=True, rendere
             width, height = box.width * figure.get_size_inches()[0], box.height * figure.get_size_inches()[1]
             geometry = axes_geometry(item)
             pixel = 1.0 / float(figure.dpi)
+            problems.extend(_physical_panel_problems(item, width, height, pixel=pixel))
             if geometry.aspect == "categorical":
                 if item.conditions is None:
                     problems.append("Declare the number of categorical conditions")

@@ -69,6 +69,82 @@ def test_every_conditional_function_variant_needs_a_route_and_cycles_do_not_hang
     assert reached == {'owner', 'all', 'wrapper'}
 
 
+def test_reviewed_support_cannot_gain_even_an_unrecognized_drawing_call(tmp_path):
+    """A metadata getter is accepted only at its reviewed exact body; adding an unknown painter call must invalidate it even when the plotting-primitive scanner cannot name that operation."""
+    import pytest
+
+    package = tmp_path / 'spacr'
+    package.mkdir()
+    path = package / 'metadata.py'
+    body = 'def page_size():\n    """Return only a page tuple."""\n    return (40., 40.)\n'
+    path.write_text(body)
+    functions, _classes = routes.scan_tree(tmp_path)
+    identity = 'spacr.metadata.page_size'
+    contracts = {identity: {'reason': 'Returns metadata only.', 'file': 'spacr/metadata.py',
+        'syntax_sha256': [functions[identity][0]['syntax_sha256']],
+        'calls': [functions[identity][0]['calls']]}}
+    assert routes.reviewed_support_functions(functions, contracts) == {identity}
+    path.write_text(body.replace('    return', '    painter.draw_custom_chart()\n    return'))
+    changed, _classes = routes.scan_tree(tmp_path)
+    assert not changed[identity][0]['primitives']
+    with pytest.raises(ValueError, match='Review the changed support function'):
+        routes.reviewed_support_functions(changed, contracts)
+
+
+def test_reviewed_support_rejects_a_changed_import_target_even_with_the_same_function_body(tmp_path):
+    """A module import can turn a harmless metadata factory into an arbitrary chart call without changing the getter AST or its primitive names; exact resolved-call bindings must reject that drift."""
+    import pytest
+
+    package = tmp_path/'spacr'
+    package.mkdir()
+    path = package/'metadata.py'
+    body = 'from builtins import tuple as result\ndef page_size():\n    """Return page metadata."""\n    return result((40., 40.))\n'
+    path.write_text(body)
+    functions, _classes = routes.scan_tree(tmp_path)
+    identity = 'spacr.metadata.page_size'
+    original = functions[identity][0]
+    contracts = {identity: {'reason': 'Returns page metadata.', 'file': 'spacr/metadata.py',
+        'syntax_sha256': [original['syntax_sha256']], 'calls': [original['calls']]}}
+    assert routes.reviewed_support_functions(functions, contracts) == {identity}
+    path.write_text(body.replace('from builtins import tuple', 'from arbitrary_renderer import create_chart'))
+    changed, _classes = routes.scan_tree(tmp_path)
+    assert changed[identity][0]['syntax_sha256'] == original['syntax_sha256']
+    assert not changed[identity][0]['primitives']
+    with pytest.raises(ValueError, match='Review the changed support function'):
+        routes.reviewed_support_functions(changed, contracts)
+
+
+def test_caller_owned_adapters_do_not_certify_new_unstyled_callers_or_a_changed_host(tmp_path):
+    """An exact primitive/host path may close an internal adapter, but a new call outside that host or removal of its finalizer must fail; the adapter itself never becomes a routed root."""
+    import pytest
+
+    package = tmp_path/'spacr'
+    package.mkdir()
+    path = package/'scene.py'
+    body = 'from .figures.style import finalize_figure\ndef primitive(ax):\n    """Paint only in the caller-owned axes."""\n    ax.plot([0], [1])\ndef render(ax):\n    """Own and finalize the actual chart."""\n    primitive(ax)\n    finalize_figure(ax.figure)\n'
+    path.write_text(body)
+    functions, classes = routes.scan_tree(tmp_path)
+    graph = routes.call_graph(functions, classes)
+    helper, host = 'spacr.scene.primitive', 'spacr.scene.render'
+    records = {name: [{key: record[key] for key in ('file','syntax_sha256','calls','primitives')}
+                     for record in functions[name]] for name in (helper, host)}
+    contracts = {helper: {'reason': 'Draws only in the finalized host.', 'host': host,
+        'callers': [host], 'paths': [[host, helper]], 'records': records}}
+    assert routes.reviewed_context_functions(functions, graph, contracts) == {helper}
+    reached = routes.routed_functions(graph, {'spacr.figures.style.finalize_figure'})
+    assert host in reached and helper not in reached
+    path.write_text(body+'\ndef rogue(ax):\n    """An unstyled new caller."""\n    primitive(ax)\n')
+    changed, classes = routes.scan_tree(tmp_path)
+    changed_graph = routes.call_graph(changed, classes)
+    assert 'spacr.scene.rogue' not in routes.routed_functions(changed_graph, {'spacr.figures.style.finalize_figure'})
+    with pytest.raises(ValueError, match='Review the changed caller-owned graph adapter'):
+        routes.reviewed_context_functions(changed, changed_graph, contracts)
+    path.write_text(body.replace('    finalize_figure(ax.figure)', '    print("not finalized")'))
+    changed, classes = routes.scan_tree(tmp_path)
+    with pytest.raises(ValueError, match='Review the changed caller-owned graph adapter'):
+        routes.reviewed_context_functions(changed, routes.call_graph(changed, classes), contracts)
+
+
 def test_inventory_functions_and_new_creators_use_a_shared_route_or_an_explicit_shrinking_entry():
     """Retain all 1,607 reviewed identities, reject new bypasses and exception growth, and keep Home G2 removals in their own file; runtime style tests verify actual semantics and geometry separately."""
     import csv
@@ -79,7 +155,7 @@ def test_inventory_functions_and_new_creators_use_a_shared_route_or_an_explicit_
     root = Path(__file__).resolve().parents[1]
     folder = root / 'reports/graphstyle/routes'
     raw = (folder / 'initial_plan.json').read_bytes()
-    assert hashlib.sha256(raw).hexdigest() == 'cc41aef6994ecf2d4968b194564631cfc1d70e021c56bfbbe56f86910f079e79'
+    assert hashlib.sha256(raw).hexdigest() == '58aba19d929e122ee86d9b4809fce86755a46ef97a39eff068c4fd4298ce6277'
     plan = json.loads(raw)
     assert plan['schema'] == 1 and plan['source_spec'] == '4f14c247cf'
     inventory = (folder / 'inventory.csv').read_bytes()
@@ -96,7 +172,20 @@ def test_inventory_functions_and_new_creators_use_a_shared_route_or_an_explicit_
         assert all(value['reason'].strip() and value['location'].startswith('spacr/') for value in current.values())
         deferred.update(current)
     functions, classes = routes.scan_tree(root)
+    support_raw = (folder / 'support_contracts_g1.json').read_bytes()
+    assert hashlib.sha256(support_raw).hexdigest() == 'a2df8faa3d8e17a765838b53297920e172c39f9a5e0b8a557c4a60d22ca332d5'
+    contracts = json.loads(support_raw)
+    assert contracts.keys() <= plan['maximum_deferred']['1'].keys()
+    assert not contracts.keys() & deferred.keys()
+    support = routes.reviewed_support_functions(functions, contracts)
     graph = routes.call_graph(functions, classes)
+    context_raw = (folder / 'context_contracts_g1.json').read_bytes()
+    assert hashlib.sha256(context_raw).hexdigest() == '5ebb1c188cd97b859321aaaf92de3d4111c2d70a845a8a24291446021aac58ef'
+    context_contracts = json.loads(context_raw)
+    assert context_contracts.keys() <= plan['maximum_deferred']['1'].keys()
+    assert not context_contracts.keys() & (deferred.keys() | support)
+    contexts = routes.reviewed_context_functions(functions, graph, context_contracts)
+    assert all((root / path).is_file() for contract in context_contracts.values() for path in contract['validation_tests'])
     owners = set(plan['owners'])
     assert owners <= functions.keys(), 'Every explicit shared owner must still exist'
     reached = routes.routed_functions(graph, owners)
@@ -108,6 +197,8 @@ def test_inventory_functions_and_new_creators_use_a_shared_route_or_an_explicit_
         canonical = identity.replace('.__init__.', '.')
         records = functions.get(canonical, [])
         if identity in plan['retired']:
+            continue
+        if canonical in support or canonical in contexts:
             continue
         assert records, f'Review a removed or renamed inventoried function: {identity}'
         excluded = plan['non_plot'].get(identity)

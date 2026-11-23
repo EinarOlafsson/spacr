@@ -1138,18 +1138,14 @@ def _colorbar_of(axes):
 
 
 def _translate_colorbar(plot, axes, look, report: SceneReport) -> None:
-    """Translate a colour bar as the ramp it is, rather than as its mesh.
+    """Translate a linear scalar key through the shared vector-cell painter.
 
-    A matplotlib colour bar is a ``QuadMesh`` of 256 quadrilaterals plus a
-    ``_ColorbarSpine``, and translating it quad by quad would be 256 graphics
-    items drawing a gradient that one image draws exactly. So the RAMP is read
-    off the mappable's own colour map -- the same object the panel handed to
-    ``imshow``, so the bar and the image cannot come out keyed differently,
-    which is the one failure a colour bar has.
+    The original colormap, limits and alpha remain value channels. Native
+    source plots and translated Matplotlib keys share their cell operation;
+    no numeric key is embedded as a ramp bitmap.
     """
     import numpy as np
     import pyqtgraph as pg
-    from PySide6.QtCore import QRectF
 
     bar = _colorbar_of(axes)
     ink = look.paint("#FFFFFF", "chrome") or "#222222"
@@ -1158,14 +1154,17 @@ def _translate_colorbar(plot, axes, look, report: SceneReport) -> None:
 
         raise NotImplementedError(tr("Horizontal colour bars need native Matplotlib rendering"))
     low, high = (float(value) for value in _native_scalar_limits(bar.mappable))
-    ramp = np.linspace(low, high, 256).reshape(1, 256)
-    lut = (np.asarray(bar.mappable.get_cmap()(np.linspace(0, 1, 256))) * 255
-           ).astype(np.uint8)
-    image = pg.ImageItem(ramp)
-    image.setLookupTable(lut)
-    image.setLevels((low, high))
-    image.setRect(QRectF(0.0, low, 1.0, high - low))
-    plot.addItem(image)
+    recorded_limits = getattr(axes, "_spacr_colourbar_source_limits", None)
+    if low == high or recorded_limits is not None and recorded_limits[0] == recorded_limits[1]:
+        from ..qt.i18n import tr
+
+        raise NotImplementedError(tr("Constant scalar colour keys need native Matplotlib rendering"))
+    from .style import _native_scalar_cells
+
+    colours = np.asarray(bar.mappable.get_cmap()(np.linspace(0., 1., 256))).copy()
+    if bar.solids is not None and bar.solids.get_alpha() is not None:
+        colours[:, 3] = bar.solids.get_alpha()
+    _native_scalar_cells(plot, np.linspace(low, high, 257), colours)
     report.items += 1
     plot.showAxis("left", False)
     plot.showAxis("bottom", False)

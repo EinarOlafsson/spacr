@@ -4,6 +4,7 @@
   "source_inventory_sha256": "8c6de45f4436996eb55140f319245e3a8d6eb46cda7f2804fac018f713672c1c",
   "owners": [
     "spacr.figures.style._apply_native_marks",
+    "spacr.figures.style._native_scalar_cells",
     "spacr.figures.style._numeric_colourbar",
     "spacr.figures.style._status_panel",
     "spacr.figures.style._vector_numeric_cells",

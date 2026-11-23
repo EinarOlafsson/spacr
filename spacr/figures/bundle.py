@@ -433,8 +433,11 @@ def _capture_view(figure, spec) -> dict:
     So an edit made on screen is part of the recipe a saved figure is
     re-created from.
     """
+    from .style import _file_axes_geometry
+
     out = dict(spec)
-    out["appearance"] = _capture_appearance(figure)
+    with _file_axes_geometry(figure):
+        out["appearance"] = _capture_appearance(figure)
     from dataclasses import asdict
     from .style import StyleSpec
 
@@ -519,7 +522,7 @@ def _capture_view(figure, spec) -> dict:
                 record.update(xlim=list(ax.get_xlim()), ylim=list(limits))
             out["panels"].append(record)
     try:
-        out["size"] = [float(v) for v in figure.get_size_inches()]
+        out["size"] = out["appearance"]["size"] or [float(v) for v in figure.get_size_inches()]
         out["dpi"] = float(figure.get_dpi())
     except Exception:
         pass
@@ -697,6 +700,27 @@ def _control_chart_view(frame, recipe):
     return _CapturedControlChart(**attributes)
 
 
+
+def _feature_explorer_view(recipe, frame, levels_of):
+    """Bind captured ranking descriptions while the original engine recomputes source histogram counts.
+
+    :param recipe: additive feature-histogram recipe from the actual widget.
+    :param frame: source table whose original class identities must match.
+    :param levels_of: original class-level helper, or its unchanged portable copy.
+    :returns: original feature order and frozen ranking descriptions, without a new ranking run.
+    :raises ValueError: for an unsupported recipe version.
+    """
+    from types import SimpleNamespace
+
+    if recipe.get("schema") != 1:
+        raise ValueError(_replay_message("Unsupported captured feature-distribution recipe"))
+    _, classes = levels_of(frame, recipe["label"])
+    if tuple(recipe["classes"]) != classes:
+        raise ValueError(_replay_message("Captured feature class identities do not match the source table; retain the original class labels"))
+    return SimpleNamespace(label=recipe["label"],
+        scores=tuple(SimpleNamespace(**record) for record in recipe["features"]))
+
+
 def _draw(figure, frame, spec, *, axes=None):
     """Draw ``frame`` onto ``figure`` as ``spec`` describes, and return the axes.
 
@@ -762,6 +786,27 @@ def _draw(figure, frame, spec, *, axes=None):
         restored, panels = renderer(data, appearance, figure=figure, screen=volcano_recipe.get("screen", False))
         _restore_appearance(restored, spec.get("appearance"))
         return panels if len(panels) > 1 else panels[0]
+    feature_recipe = spec.get("feature_explorer_recipe")
+    if feature_recipe and str(spec.get("kind")) in ("hist", "histogram"):
+        if axes is not None:
+            raise ValueError(_replay_message("Captured feature distributions require their own figure"))
+        renderer = globals().get("_render_feature_histograms")
+        presentation = not bool(spec.get("appearance"))
+        if renderer is None:
+            from ..qt.widgets.feature_explorer import _render_feature_histograms as renderer
+        elif presentation:
+            raise ValueError(_replay_message("Standalone feature recreation requires captured appearance"))
+        levels_of = globals().get("_class_levels")
+        if levels_of is None:
+            from ..qt.widgets.feature_rank import _class_levels as levels_of
+
+        result = _feature_explorer_view(feature_recipe, frame, levels_of)
+        panels = renderer(figure, frame, result, feature_recipe["bins"],
+            colours=feature_recipe["colours"], alpha=feature_recipe["alpha"],
+            font_points=feature_recipe["font_points"], presentation=presentation)
+        figure._spacr_drawn_data = None
+        _restore_appearance(figure, spec.get("appearance"))
+        return panels[0] if len(panels) == 1 else panels
     kind = str(spec.get("kind") or "box")
     x = spec.get("x") or None
     y = spec.get("y") or None
@@ -1422,6 +1467,27 @@ def _control_chart_script() -> str:
     return "\n\n".join(pieces)
 
 
+
+def _feature_explorer_script() -> str:
+    """Copy original class-bin calculations and the normal painter into feature archives.
+
+    :returns: package-independent source using the same distribution engine and captured appearance.
+    """
+    from ..qt.widgets import feature_explorer, feature_rank
+    from . import style
+
+    constants = dict(MAX_DRAWN=feature_explorer.MAX_DRAWN, MAX_CLASSES=feature_rank.MAX_CLASSES,
+                     TYPE_SCALE=style.TYPE_SCALE)
+    pieces = ["import numpy as np\nimport pandas as pd",
+              "_UNLABELLED = object()",
+              *(str(name)+" = "+repr(value) for name,value in constants.items()),
+              'def tr(message):\n    """Retain the shared standalone translation binding."""\n    return _replay_message(message)']
+    pieces.extend(_portable_renderer_source((feature_rank.ExplorerError, feature_rank._class_levels,
+        feature_rank.distributions, style.panel_letter, _feature_explorer_view,
+        feature_explorer._render_feature_histograms)))
+    return "\n\n".join(pieces)
+
+
 def _appearance_script() -> str:
     """Copy the shared appearance replay into new scripts without a spaCR dependency."""
     import inspect
@@ -1461,7 +1527,8 @@ def _recreate_script(spec=None) -> str:
         appearance_helpers=_appearance_script(),
         annotate=textwrap.dedent(inspect.getsource(_annotate)),
         recipe_frame=textwrap.dedent(inspect.getsource(_recipe_frame)),
-        regression_helpers=(_control_chart_script() if (spec or {}).get("control_chart_recipe")
+        regression_helpers=(_feature_explorer_script() if (spec or {}).get("feature_explorer_recipe")
+                            else _control_chart_script() if (spec or {}).get("control_chart_recipe")
                             else _volcano_style_script() if (spec or {}).get("volcano_style_recipe")
                             else _regression_script() if (spec or {}).get("kind") == "regression_panel"
                             else _lorenz_script() if (spec or {}).get("kind") == "lorenz"

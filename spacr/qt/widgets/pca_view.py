@@ -663,9 +663,9 @@ class PCAScoresCanvas(GraphCanvas):
             circle_label = tr("Pearson correlation magnitude 1")
             ax.add_patch(Circle(
                 (0.0, 0.0), scale, fill=False, linestyle=(0, (3, 3)),
-                edgecolor=Palette.CONTROL, linewidth=WEIGHTS["reference"],
-                alpha=DATA_ALPHA, label=circle_label, zorder=4))
-            _legend_note(ax, circle_label, Palette.CONTROL, "reference")
+                edgecolor="#000000", linewidth=WEIGHTS["reference"],
+                alpha=DATA_ALPHA, label=circle_label, zorder=4, gid="spacr-reference"))
+            _legend_note(ax, circle_label, "#000000", "reference")
             reference_line(ax, y=0.0, label=tr("Centred score origin"))
             reference_line(ax, x=0.0, label=tr("Centred score origin"))
             _legend_note(ax, tr("Correlation vectors and the unit circle share display scale {scale}.").format(

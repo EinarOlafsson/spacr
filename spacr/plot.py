@@ -547,7 +547,8 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
             print(f"Figure integrity: the check could not run ({exc}); "
                   f"writing {destination} without it.")
             report = None
-    from .figures.style import _apply_user_style, _preference_deltas, finalize_figure
+    from .figures.style import (_apply_user_style, _file_axes_geometry,
+                                _preference_deltas, finalize_figure)
     _apply_user_style(fig)
     chosen_style = _preference_deltas()
     vector_text = bool(chosen_style.get("vector_text", True))
@@ -560,7 +561,7 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
         rc["savefig.edgecolor"] = look.ground
     rc["savefig.transparent"] = bool(look.transparent)
     with rc_context(rc), print_ready(fig, mode=look.mode,
-                                     announce=announce_colours):
+                                     announce=announce_colours), _file_axes_geometry(fig):
         finalize_figure(fig)
         targets = [(destination, chosen_fmt)]
         if (extra_fmt in FIGURE_FORMATS and extra_fmt != chosen_fmt
@@ -622,9 +623,9 @@ def _checked_savefig(fig, path, *, dpi=None, integrity=None, **kwargs):
             report = None
     if dpi is not None:
         kwargs["dpi"] = dpi
-    from .figures.style import _vector_numeric_cells
+    from .figures.style import _file_axes_geometry, _vector_numeric_cells
 
-    with _vector_numeric_cells(fig, fmt):
+    with _file_axes_geometry(fig), _vector_numeric_cells(fig, fmt):
         fig.savefig(path, **kwargs)
     if report is not None:
         try:

@@ -28,6 +28,9 @@ def test_native_embedding_observes_actual_paint_and_retains_coordinates_and_came
     assert all(font['family'] == 'Open Sans' and font['size'] >= 8 and font['weight'] == 300 for font in observed['fonts'])
     assert all(abs(colour[3]-.6) < 1e-6 for mark in observed['marks'] for colour in mark['colours'])
     assert all(edge['visible'] for edge in observed['frame'])
+    grid = next(mark for mark in observed['marks'] if mark['role'] == 'grid')
+    assert grid['type'] == 'coordinate_grid'
+    assert all(colour[:3] == pytest.approx([140/255]*3, abs=1/65535) for colour in grid['colours'])
     assert any('fixture' in entry['label'] for entry in view._spacr_legend_entries)
     report = style.finalize_figure(view)
     if dimensions == 3:

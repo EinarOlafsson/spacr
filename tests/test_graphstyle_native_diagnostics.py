@@ -7,7 +7,7 @@ pytestmark=pytest.mark.qt
 
 @pytest.mark.parametrize('name',['p_values','effects','qq','residuals','scale_location','influence'])
 def test_native_diagnostics_register_actual_marks_and_preserve_source_arrays(qtbot,name):
-    """The diagnostic branches previously bypassed shared registration; require square export, actual .6 marks, grey references and unchanged histogram/quantile/residual/influence values."""
+    """The diagnostic branches previously bypassed shared registration; require square export, actual .6 marks, black reference lines and unchanged histogram/quantile/residual/influence values."""
     from spacr.figures import style
     from spacr.qt.widgets import fast_plots as native
 
@@ -49,7 +49,7 @@ def test_native_diagnostics_register_actual_marks_and_preserve_source_arrays(qtb
         assert all(colour[3]*mark['opacity']==pytest.approx(.6,abs=1/65535) for mark in observed['marks'] for colour in mark['colours'])
         references=[mark for mark in observed['marks'] if mark['role']=='reference']
         for mark in references:
-            assert all(colour[:3]==pytest.approx([140/255]*3,abs=1/65535) for colour in mark['colours'])
+            assert all(colour[:3]==pytest.approx([0.]*3,abs=1/65535) for colour in mark['colours'])
     assert [array.tobytes() for array in (values,fitted,residual)]==before
 
 
@@ -66,3 +66,26 @@ def test_native_diagnostic_redraw_keeps_the_caption_and_an_explicit_manual_title
     widget.plot.setTitle('Explicit manual title')
     widget.set_p_values([.3,.4,.5],bins=3)
     assert widget.plot.plotItem.titleLabel.text=='Explicit manual title'
+
+
+def test_manual_native_reference_colour_is_kept_and_diagnosed_without_changing_its_position(qtbot):
+    """The real native zero-reference line defaults to shared black; a later explicit magenta pen remains exact and produces the reference-line diagnostic, with unchanged residual inputs and location."""
+    import pyqtgraph as pg
+    from spacr.figures import style
+    from spacr.qt.widgets.fast_plots import ResidualPlot
+
+    widget = ResidualPlot()
+    qtbot.addWidget(widget)
+    fitted = np.array([1., 2., 3., 4.])
+    residual = np.array([-.2, .1, -.1, .2])
+    widget.set_residuals(fitted, residual)
+    line = next(item for item in widget.plot.plotItem.items if isinstance(item, pg.InfiniteLine))
+    position = line.value()
+    before = fitted.tobytes(), residual.tobytes()
+    pen = pg.mkPen(line.pen)
+    pen.setColor(pg.mkColor('#C878A8'))
+    line.setPen(pen)
+    result = style.finalize_figure(widget, diagnostics=False)
+    assert 'Draw reference lines in black; preserve explicit colours with a diagnostic' in result.problems
+    assert line.pen.color().name() == '#c878a8' and line.value() == position
+    assert before == (fitted.tobytes(), residual.tobytes())

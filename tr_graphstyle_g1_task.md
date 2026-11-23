@@ -1,418 +1,487 @@
 # Graph style G1 English source handoff
 
-OPEN CHECKPOINT for Home G2. This is not FINAL; Home must not treat the API,
-caption admission, final galleries or complete G1 migration as finished.
+OPEN local continuation checkpoint during the maintainer computation HOLD.
+This is not FINAL. G1 still has 283 individually tracked open route entries.
 
 The first isolated commit fixes the multi-field bar error/category association:
 summary values are unchanged and single-field output is byte-identical.
 
-`tr_graphstyle_g1_sources.json` contains every current changed docstring,
-new literal tr()/shared replay-message template, exact canonical API bodies,
-prior/current hashes, translatable blocks and layout. Home owns the nine-language
-records. No catalog, translation pin, generated API catalog, historical arrival
-JSON or protected API consumer has been edited. Current public source delta:
-22 additions, 3 retired nested helpers and 35 revised bodies. Exact signature,
-birth/retirement bindings, three-consumer proposal and runtime scanner admission
-remain open and will be completed before FINAL.
+The JSON records exact current changed docstrings, new literal translation
+templates, canonical API bodies, prior/current hashes, translatable blocks and
+layout. Home owns the nine-language records. No generated catalog, translation
+pin or historical arrival JSON was edited. The exact API delta is 22 additions,
+38 revised documents and three retired nested helpers. The approved mechanical
+hooks in the three protected consumers and their hash-matched source fixtures
+are applied; reports/graphstyle/g1/API_APPROVAL.json records the approval.
+Full consumer gates await explicit RESUME. Their actual current catalog freshness
+checks remain enforced, with Home regeneration still pending.
 
-The shared owner is `spacr.figures.style`; the reference helper is never imported
-by the application. `reports/graphstyle/routes/` retains the complete 1,607-ID
-reviewed inventory, source-only scanner ratchet and separate per-function group
-backlogs. Home removes only its entries from `deferred_g2.json`. The initial plan
-bounds all IDs/reasons so exceptions cannot grow or swap. `deferred_g1.json` is
-checkpoint-only and must be empty before G1 FINAL; it includes source-context
-proof work as well as remaining independent GUI creators. Static reachability
-is paired with real geometry, form/count, identity, opacity, typography, limit,
-manual-style, vector and replay checks; it is not appearance certification.
+The retired nested helpers are spacrGraph.create_plot._generate_tabels
+(the separate +/- symbol-table presentation was replaced by explicit condition
+labels and the external legend), _place_symbols (shared tick/label geometry and
+external legend metadata replace its under-axis text and extra canvas draw),
+and _get_positions (explicit condition positions replace artist-centre inference).
+Original statistical source arrays and exported summary tables are unchanged.
 
-Validation at this checkpoint: function-route ratchet 3 passed; all six mandatory
-structural ratchets 157 passed (14 inherited Windows escape warnings); latest
-control/replay/live/crop cohort 106 passed. The control-chart gallery has all
-16 PNGs reviewed, 112 exact original numerical CSVs and 32 PDF/SVG files without
-raster images. Wider focused checks and before/after galleries are preserved
-locally in the recovery workspace. Final full affected cohorts, GPU-visible/
-hidden gates where required, API hooks, all final galleries/tutorial images and
-remaining manual/native primitive replay remain open. The wider 68-file
-checkpoint cohort passed 1,086 tests and 350 subtests, with four stale grey
-reference-colour expectations; those four fixture assertions were aligned
-with the shared black reference default, preserving all coordinates, stats,
-widths, dashes and the independently drawn explicit-grey normal reference.
-Their full-file recheck is recorded in reports/graphstyle/g1/CHECKPOINT.md.
-Observed Open Sans arrow-glyph and existing Seaborn/log-view warnings remain
-visible for final review. No G2 reserved source file is changed in this branch.
+Shared style and bundle replay enter the normal runtime scan. The appended
+owner inventories contain every current literal template in style.py, bundle.py
+and the Feature Explorer, including existing shared captions used by Home G2.
+The reference helper is never imported by the application. The original
+1,607 reviewed function IDs, bounded initial plan and separate per-function
+backlogs remain intact. Home owns G2 and its reserved producer paths.
 
-Source entries below are the checkpoint inventory. The JSON owns exact bodies.
+Validation before the HOLD: all six mandatory ratchets plus source routes and
+runtime caption registration passed 169 tests (14 inherited Windows escape
+warnings). Feature/export and affected dialogs passed 162 tests and 31 subtests;
+local/portable archive checks passed 55 tests, including an actual archive script
+with spaCR and Qt imports refused. Earlier broad cohorts and numerical/gallery
+proofs remain in the recovery workspace. During the HOLD, only tiny focused
+checks ran within one thread/four GB: two PCA reference checks and the eight-panel
+live-scroll/clear-state check passed. The named API source/captured-record probe
+passes with no production imports and rejects prose, name, default-type,
+default-value and retirement drift. All 2,381 existing assertions in the three
+protected consumers are unchanged.
 
-- `spacr/figure_font.py:365` — api_docstring; spacr.figure_font.use_open_sans_for_qt; canonical public API; exact inventory hooks and Home records pending.
+The Feature Explorer before_v3/after_v3 file gallery has ten inspected theme
+views, 40 exact source CSVs, 20 vector-only PDF/SVG files and 300-dpi PNGs. The
+subsequent live-scroll edit and PCA reference-ink edit have tiny checks only;
+refresh their galleries and run all full affected/consumer gates after RESUME.
+Do not treat the old gallery as final evidence for those later UI edits.
+The remaining G1 producers, exact caller-owned contexts, full final galleries,
+tutorial images and required GPU-visible/hidden gates remain open. No final
+appearance certification or train landing is requested by this checkpoint.
+
+Source entries below are current. The JSON owns the exact English bodies.
+
+- `spacr/figure_font.py:365` — api_docstring; spacr.figure_font.use_open_sans_for_qt; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/figures/__init__.py:10` — internal_docstring; spacr.figures.__getattr__; private/nested/tool/test; no translation records.
 - `spacr/figures/__init__.py:20` — internal_docstring; spacr.figures.__dir__; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:671` — internal_docstring; spacr.figures.bundle._CapturedControlChart; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:674` — internal_docstring; spacr.figures.bundle._CapturedControlChart.__len__; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:679` — internal_docstring; spacr.figures.bundle._control_chart_view; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:700` — internal_docstring; spacr.figures.bundle._draw; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1252` — internal_docstring; spacr.figures.bundle._condition_script; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1301` — internal_docstring; spacr.figures.bundle._portable_renderer_source; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1317` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1320` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_FunctionDef; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1331` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_Name; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1336` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_ImportFrom; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1347` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_Expr; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1353` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_If; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1370` — internal_docstring; spacr.figures.bundle._volcano_style_script; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1407` — internal_docstring; spacr.figures.bundle._control_chart_script; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1425` — internal_docstring; spacr.figures.bundle._appearance_script; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:1437` — internal_docstring; spacr.figures.bundle._write_replay_fonts; private/nested/tool/test; no translation records.
-- `spacr/figures/bundle.py:684` — runtime; Unsupported captured control-chart recipe; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/bundle.py:688` — runtime; Captured control limits require the original plate identities and order; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/bundle.py:694` — runtime; Captured control arrays do not match the source plate count; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/bundle.py:725` — runtime; Captured control charts require their original panel; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/bundle.py:744` — runtime; Unsupported captured explorer volcano recipe or nested panel; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/bundle.py:1343` — runtime; Portable figure replay found an uncaptured application dependency; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/bundle.py:674` — internal_docstring; spacr.figures.bundle._CapturedControlChart; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:677` — internal_docstring; spacr.figures.bundle._CapturedControlChart.__len__; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:682` — internal_docstring; spacr.figures.bundle._control_chart_view; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:704` — internal_docstring; spacr.figures.bundle._feature_explorer_view; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:724` — internal_docstring; spacr.figures.bundle._draw; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1297` — internal_docstring; spacr.figures.bundle._condition_script; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1346` — internal_docstring; spacr.figures.bundle._portable_renderer_source; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1362` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1365` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_FunctionDef; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1376` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_Name; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1381` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_ImportFrom; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1392` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_Expr; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1398` — internal_docstring; spacr.figures.bundle._portable_renderer_source.ReplayBindings.visit_If; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1415` — internal_docstring; spacr.figures.bundle._volcano_style_script; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1452` — internal_docstring; spacr.figures.bundle._control_chart_script; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1471` — internal_docstring; spacr.figures.bundle._feature_explorer_script; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1491` — internal_docstring; spacr.figures.bundle._appearance_script; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:1503` — internal_docstring; spacr.figures.bundle._write_replay_fonts; private/nested/tool/test; no translation records.
+- `spacr/figures/bundle.py:687` — runtime; Unsupported captured control-chart recipe; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/bundle.py:691` — runtime; Captured control limits require the original plate identities and order; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/bundle.py:716` — runtime; Unsupported captured feature-distribution recipe; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/bundle.py:719` — runtime; Captured feature class identities do not match the source table; retain the original class labels; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/bundle.py:697` — runtime; Captured control arrays do not match the source plate count; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/bundle.py:749` — runtime; Captured control charts require their original panel; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/bundle.py:768` — runtime; Unsupported captured explorer volcano recipe or nested panel; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/bundle.py:792` — runtime; Captured feature distributions require their own figure; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/bundle.py:798` — runtime; Standalone feature recreation requires captured appearance; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/bundle.py:1388` — runtime; Portable figure replay found an uncaptured application dependency; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
 - `spacr/figures/distributions.py:273` — internal_docstring; spacr.figures.distributions._present_distribution; private/nested/tool/test; no translation records.
-- `spacr/figures/distributions.py:406` — api_docstring; spacr.figures.distributions.response; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/distributions.py:502` — api_docstring; spacr.figures.distributions.build_panel; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/distributions.py:310` — runtime; Normal distribution with the sample mean and standard deviation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:342` — runtime; Regression coefficient; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:343` — runtime; −log₁₀(p-value); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:465` — runtime; p-value; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:466` — runtime; Coefficients; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:513` — runtime; Expected −log₁₀(p-value); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:514` — runtime; Observed −log₁₀(p-value); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:638` — runtime; Guides per gene; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:639` — runtime; Guide-sign agreement (fraction); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:585` — runtime; Regression coefficients by control class. Up to twenty finite coefficients, bars show means and every coefficient is shown; larger groups use boxes, or violins without points from one thousand coefficients. Black lines show medians. Control classes are grey and screen coefficients are blue.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/panels.py:578` — runtime; {condition}: n = {count}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/plates.py:55` — api_docstring; spacr.figures.plates.plate_ramp; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/plates.py:66` — api_docstring; spacr.figures.plates.score_ramp; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/plates.py:357` — api_docstring; spacr.figures.plates.draw_plate; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/distributions.py:406` — api_docstring; spacr.figures.distributions.response; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/distributions.py:502` — api_docstring; spacr.figures.distributions.build_panel; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/distributions.py:310` — runtime; Normal distribution with the sample mean and standard deviation; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:342` — runtime; Regression coefficient; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:343` — runtime; −log₁₀(p-value); literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:465` — runtime; p-value; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:466` — runtime; Coefficients; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:513` — runtime; Expected −log₁₀(p-value); literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:514` — runtime; Observed −log₁₀(p-value); literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:638` — runtime; Guides per gene; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:639` — runtime; Guide-sign agreement (fraction); literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:585` — runtime; Regression coefficients by control class. Up to twenty finite coefficients, bars show means and every coefficient is shown; larger groups use boxes, or violins without points from one thousand coefficients. Black lines show medians. Control classes are grey and screen coefficients are blue.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/panels.py:578` — runtime; {condition}: n = {count}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/plates.py:55` — api_docstring; spacr.figures.plates.plate_ramp; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/plates.py:66` — api_docstring; spacr.figures.plates.score_ramp; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/plates.py:357` — api_docstring; spacr.figures.plates.draw_plate; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/figures/plates.py:626` — internal_docstring; spacr.figures.plates._colour_bar; private/nested/tool/test; no translation records.
-- `spacr/figures/plates.py:513` — runtime; Objects per well; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/plates.py:581` — runtime; Zero score; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/plates.py:567` — runtime;  The diverging colour scale uses zero as its reference.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/plates.py:569` — runtime;  The zero reference is not inside the displayed colour range; the scale is not centred on zero.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/plates.py:565` — runtime; measured; the {count} missing wells are marked with a thin black × and are excluded from the scale.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/plates.py:513` — runtime; Objects per well; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/plates.py:581` — runtime; Zero score; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/plates.py:567` — runtime;  The diverging colour scale uses zero as its reference.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/plates.py:569` — runtime;  The zero reference is not inside the displayed colour range; the scale is not centred on zero.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/plates.py:565` — runtime; measured; the {count} missing wells are marked with a thin black × and are excluded from the scale.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
 - `spacr/figures/scene.py:230` — internal_docstring; spacr.figures.scene._alpha; private/nested/tool/test; no translation records.
 - `spacr/figures/scene.py:820` — internal_docstring; spacr.figures.scene._set_source_text_font; private/nested/tool/test; no translation records.
 - `spacr/figures/scene.py:885` — internal_docstring; spacr.figures.scene._native_scalar_limits; private/nested/tool/test; no translation records.
 - `spacr/figures/scene.py:944` — internal_docstring; spacr.figures.scene._axis_pen; private/nested/tool/test; no translation records.
-- `spacr/figures/scene.py:1354` — api_docstring; spacr.figures.scene.build_scene; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/scene.py:897` — runtime; Nonlinear scalar colour normalization needs native Matplotlib rendering; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/scene.py:1159` — runtime; Horizontal colour bars need native Matplotlib rendering; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/scene.py:902` — runtime; Opaque missing-cell colours need native Matplotlib rendering; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/scene.py:1010` — runtime; bidirectional tick marks; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/scene.py:1023` — runtime; Qt could not preserve the source tick font; tick text and view limits remain intact.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/scene.py:1025` — runtime; registered source tick font; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/scene.py:1140` — internal_docstring; spacr.figures.scene._translate_colorbar; private/nested/tool/test; no translation records.
+- `spacr/figures/scene.py:1353` — api_docstring; spacr.figures.scene.build_scene; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/scene.py:897` — runtime; Nonlinear scalar colour normalization needs native Matplotlib rendering; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/scene.py:1155` — runtime; Horizontal colour bars need native Matplotlib rendering; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/scene.py:1161` — runtime; Constant scalar colour keys need native Matplotlib rendering; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/scene.py:902` — runtime; Opaque missing-cell colours need native Matplotlib rendering; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/scene.py:1010` — runtime; bidirectional tick marks; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/scene.py:1023` — runtime; Qt could not preserve the source tick font; tick text and view limits remain intact.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/scene.py:1025` — runtime; registered source tick font; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
 - `spacr/figures/sheet.py:169` — internal_docstring; spacr.figures.sheet._style_panel; private/nested/tool/test; no translation records.
-- `spacr/figures/sheet.py:186` — runtime; Declared significance threshold and zero regression coefficient; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/sheet.py:187` — runtime; Zero regression coefficient; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/sheet.py:189` — runtime; The explicitly classified control conditions; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/sheet.py:190` — runtime; Chance guide-sign agreement of 0.5; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/sheet.py:191` — runtime; Uniform null p-values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/sheet.py:192` — runtime; Expected p-values under the uniform null; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/figures/sheet.py:186` — runtime; Declared significance threshold and zero regression coefficient; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/sheet.py:187` — runtime; Zero regression coefficient; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/sheet.py:189` — runtime; The explicitly classified control conditions; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/sheet.py:190` — runtime; Chance guide-sign agreement of 0.5; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/sheet.py:191` — runtime; Uniform null p-values; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/sheet.py:192` — runtime; Expected p-values under the uniform null; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
 - `spacr/figures/style.py:522` — internal_docstring; spacr.figures.style._restyle; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:803` — api_docstring; spacr.figures.style.panel_letter; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:803` — api_docstring; spacr.figures.style.panel_letter; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/figures/style.py:843` — internal_docstring; spacr.figures.style._legend_note; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:851` — api_docstring; spacr.figures.style.reference_line; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:872` — api_docstring; spacr.figures.style.text_legend; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:897` — api_docstring; spacr.figures.style.annotate; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1002` — api_docstring; spacr.figures.style.StyleSpec; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1049` — api_docstring; spacr.figures.style.StyleSpec.__post_init__; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1058` — api_docstring; spacr.figures.style.AxesGeometry; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1078` — api_docstring; spacr.figures.style.FigureDiagnostics; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1091` — api_docstring; spacr.figures.style.FigureDiagnostics.compliant; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:851` — api_docstring; spacr.figures.style.reference_line; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:872` — api_docstring; spacr.figures.style.text_legend; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:897` — api_docstring; spacr.figures.style.annotate; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1002` — api_docstring; spacr.figures.style.StyleSpec; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1049` — api_docstring; spacr.figures.style.StyleSpec.__post_init__; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1058` — api_docstring; spacr.figures.style.AxesGeometry; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1078` — api_docstring; spacr.figures.style.FigureDiagnostics; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1091` — api_docstring; spacr.figures.style.FigureDiagnostics.compliant; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/figures/style.py:1096` — internal_docstring; spacr.figures.style._style_metadata; private/nested/tool/test; no translation records.
 - `spacr/figures/style.py:1109` — internal_docstring; spacr.figures.style._style_metadata_value; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1122` — api_docstring; spacr.figures.style.resolve_style; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1210` — api_docstring; spacr.figures.style.axes_geometry; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1248` — internal_docstring; spacr.figures.style._data_artists; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1259` — internal_docstring; spacr.figures.style._artist_alphas; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1284` — internal_docstring; spacr.figures.style._axis_overlay_parent; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1307` — internal_docstring; spacr.figures.style._axis_overlays; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1317` — internal_docstring; spacr.figures.style._axis_overlay_problems; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1338` — internal_docstring; spacr.figures.style._axes_layout_bbox; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1356` — internal_docstring; spacr.figures.style._tight_export_artists; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1375` — api_docstring; spacr.figures.style.fit_axes_geometry; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1436` — api_docstring; spacr.figures.style.pack_axes_geometry; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1545` — internal_docstring; spacr.figures.style._retain_live_axes_geometry; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1562` — internal_docstring; spacr.figures.style._apply_live_axes_geometry; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1602` — internal_docstring; spacr.figures.style._figure_text_role; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1623` — internal_docstring; spacr.figures.style._line_origin_limits; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1639` — internal_docstring; spacr.figures.style._marker_display_bounds; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1687` — internal_docstring; spacr.figures.style._pad_marker_limits; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1718` — internal_docstring; spacr.figures.style._apply_line_origin; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1735` — api_docstring; spacr.figures.style.apply_axes_style; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:1803` — internal_docstring; spacr.figures.style._status_panel; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1828` — internal_docstring; spacr.figures.style._text_appearance; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1840` — internal_docstring; spacr.figures.style._appearance_value; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1853` — internal_docstring; spacr.figures.style._colour_norm_appearance; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1877` — internal_docstring; spacr.figures.style._restore_colour_norm; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1894` — internal_docstring; spacr.figures.style._artist_appearance; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1939` — internal_docstring; spacr.figures.style._legend_appearance; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1962` — internal_docstring; spacr.figures.style._replay_message; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:1971` — internal_docstring; spacr.figures.style._restore_legend_appearance; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2029` — internal_docstring; spacr.figures.style._capture_appearance; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2079` — internal_docstring; spacr.figures.style._restore_text_appearance; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2097` — internal_docstring; spacr.figures.style._restore_artist_appearance; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2146` — internal_docstring; spacr.figures.style._restore_appearance; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2245` — internal_docstring; spacr.figures.style._register_replay_fonts; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2261` — internal_docstring; spacr.figures.style._colour_contrast; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2273` — internal_docstring; spacr.figures.style._errorbar_colours; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2287` — internal_docstring; spacr.figures.style._heatmap_cell_sizes; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2309` — internal_docstring; spacr.figures.style._visible_artist_colours; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2337` — internal_docstring; spacr.figures.style._condition_record_problems; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2379` — internal_docstring; spacr.figures.style._condition_presentation_problems; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2413` — internal_docstring; spacr.figures.style._scalar_rgba; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2423` — internal_docstring; spacr.figures.style._colourbar_problems; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2510` — internal_docstring; spacr.figures.style._quantity_unit_problems; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2557` — internal_docstring; spacr.figures.style._heatmap_artist_problems; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2628` — internal_docstring; spacr.figures.style._semantic_presentation_problems; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2724` — internal_docstring; spacr.figures.style._apply_native_marks; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2778` — internal_docstring; spacr.figures.style._native_file_strokes; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2828` — internal_docstring; spacr.figures.style._native_file_strokes.adjusted; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2837` — internal_docstring; spacr.figures.style._native_file_strokes.change; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2845` — internal_docstring; spacr.figures.style._native_file_strokes.option; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2849` — internal_docstring; spacr.figures.style._native_file_strokes.scatter_pens; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2895` — internal_docstring; spacr.figures.style._write_native_raster; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:2921` — internal_docstring; spacr.figures.style._finalize_native_figure; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:3060` — api_docstring; spacr.figures.style.finalize_figure; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3225` — internal_docstring; spacr.figures.style._condition_kind_count; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:3230` — api_docstring; spacr.figures.style.condition_kind; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3243` — internal_docstring; spacr.figures.style._distribution_orientation; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:3259` — api_docstring; spacr.figures.style.categorical_artist_defaults; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3317` — api_docstring; spacr.figures.style.line_artist_defaults; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3348` — api_docstring; spacr.figures.style.categorical_slot_defaults; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3416` — api_docstring; spacr.figures.style.condition_plot; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3560` — api_docstring; spacr.figures.style.embedding_colours; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3577` — api_docstring; spacr.figures.style.embedding_reference; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3584` — api_docstring; spacr.figures.style.embedding_axes; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3636` — internal_docstring; spacr.figures.style._axis_colourbars; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:3643` — internal_docstring; spacr.figures.style._position_colourbars; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:3658` — api_docstring; spacr.figures.style.attach_colourbar; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3692` — internal_docstring; spacr.figures.style._detached_colour_norm; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:3703` — internal_docstring; spacr.figures.style._vector_numeric_cells; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:3768` — internal_docstring; spacr.figures.style._numeric_colourbar; private/nested/tool/test; no translation records.
-- `spacr/figures/style.py:3826` — api_docstring; spacr.figures.style.scale_tick_labels; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3840` — api_docstring; spacr.figures.style.heatmap_cmap; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3855` — api_docstring; spacr.figures.style.heatmap_image; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:3956` — api_docstring; spacr.figures.style.figure_problems; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/figures/style.py:2437` — runtime; Match the colour key to the plotted scalar values and opacity; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:3581` — runtime; Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:1329` — runtime; Link the overlay to a declared primary statistical axis; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:1334` — runtime; Align the linked axes on the same physical plotting area; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2575` — runtime; Draw scalar heatmap cells before validating their appearance; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2581` — runtime; Remove the frame from heatmap cells; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2711` — runtime; Move the plot title into the figure legend; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2445` — runtime; Register the scalar source associated with each colour key; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2532` — runtime; State units consistent with the declared mathematical transformation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2579` — runtime; Use the shared heatmap colour map; preserve manual colours with a diagnostic; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2593` — runtime; Declare scalar heatmap values for missing-cell validation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2611` — runtime; Mark every missing cell with a thin black ×; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2646` — runtime; The declared heatmap reference is not inside the displayed colour range; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2716` — runtime; Draw reference lines in black; preserve explicit colours with a diagnostic; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2946` — runtime; Axis overlays require a declared shared Matplotlib axis; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2114` — runtime; Captured appearance does not support this colour normalization; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2453` — runtime; Declare the quantity and unit represented by the colour key; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2495` — runtime; Use bundled Open Sans for every colour-key text element; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2497` — runtime; Use at least eight points for every colour-key text element; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2500` — runtime; Use the declared body font weight for colour-key text; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2503` — runtime; Keep colour-key text fully opaque; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2506` — runtime; Use readable text contrast against the colour-key background; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2624` — runtime; Use a colour from the heatmap scale beneath missing-cell crosses; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2656` — runtime; A status panel must not contain plotted observations; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:3629` — runtime; Cluster {cluster}: {count} points.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:1999` — runtime; Captured appearance does not support this custom legend key; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2458` — runtime; Match the colour-key label to its declared quantity and unit; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2670` — runtime; Match Venn region colours to the declared input and overlap identities; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:2672` — runtime; Draw every data mark at sixty percent opacity; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/figures/style.py:3632` — runtime; Cluster {cluster} outline.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6848` — internal_docstring; spacr.plot._style_standalone_grouped; private/nested/tool/test; no translation records.
-- `spacr/plot.py:6932` — api_docstring; spacr.plot.create_grouped_plot; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/plot.py:7421` — internal_docstring; spacr.plot.spacrGraph._condition_values; private/nested/tool/test; no translation records.
-- `spacr/plot.py:7458` — internal_docstring; spacr.plot.spacrGraph._present_multiple_conditions; private/nested/tool/test; no translation records.
-- `spacr/plot.py:7503` — internal_docstring; spacr.plot.spacrGraph._apply_presentation; private/nested/tool/test; no translation records.
-- `spacr/plot.py:7951` — api_docstring; spacr.plot.spacrGraph.create_plot; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/plot.py:8165` — internal_docstring; spacr.plot.spacrGraph._draw_comparison_lines; private/nested/tool/test; no translation records.
-- `spacr/plot.py:9547` — api_docstring; spacr.plot.create_venn_diagram; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/plot.py:9656` — internal_docstring; spacr.plot._style_legacy_volcano; private/nested/tool/test; no translation records.
-- `spacr/plot.py:9763` — api_docstring; spacr.plot.volcano_plot; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/plot.py (retired)` — retired_api_docstring; spacr.plot.spacrGraph.create_plot._generate_tabels; explicit retirement; exact inventory hooks pending.
-- `spacr/plot.py (retired)` — retired_api_docstring; spacr.plot.spacrGraph.create_plot._place_symbols; explicit retirement; exact inventory hooks pending.
-- `spacr/plot.py (retired)` — retired_api_docstring; spacr.plot.spacrGraph.create_plot._get_positions; explicit retirement; exact inventory hooks pending.
-- `spacr/plot.py:9693` — runtime; Zero reference; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6902` — runtime; the standard error of the mean; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6902` — runtime; one standard deviation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9592` — runtime; Gene overlap between the two supplied inputs. Numbers count distinct non-missing genes after filtering; repeated identifiers count once. Blue identifies genes only in input 1, teal only in input 2, and navy in both inputs.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9679` — runtime; the supplied effect scale; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9679` — runtime; a base-2 logarithm; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9680` — runtime; a base-10 logarithm; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9680` — runtime; a natural logarithm; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9681` — runtime; raw p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9681` — runtime; negative base-10 logarithms of p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9682` — runtime; negative natural logarithms of p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9682` — runtime; base-10 logarithms of p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9683` — runtime; natural logarithms of p values; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6897` — runtime; source row; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6898` — runtime; {measurement} by {condition}; each supplied observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6901` — runtime; supplied summary; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6918` — runtime; Individual observations were hidden by an explicit display preference.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9684` — runtime; Effects use {effect_scale}; significance uses {significance_scale}. Both coordinates are dimensionless. The vertical reference marks zero on the displayed effect scale. {count} finite observations are displayed.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6900` — runtime; not declared; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6904` — runtime; Bars show {summary}; error bars show {spread}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6908` — runtime; Bars show arithmetic means. Boxes show medians and interquartile ranges with fifth-to-ninety-fifth percentile whiskers. Violins show distributions with a median line.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:7537` — runtime; {measurement} by {condition}; each observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9597` — runtime; No coefficient filter is applied.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9617` — runtime; Input 1; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9617` — runtime; Input 2; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9729` — runtime; Selected, effect ≥ 0; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9730` — runtime; Selected, effect < 0; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9731` — runtime; Other observations; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9731` — runtime; Observations; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6906` — runtime; Points show {summary}; error bars show {spread}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6911` — runtime; Boxes show medians and interquartile ranges; whiskers extend to observations within one and a half interquartile ranges.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9688` — runtime; The supplied effect threshold is {threshold}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9690` — runtime; The supplied raw p-value threshold is {threshold}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6913` — runtime; Violin envelopes show distributions; black horizontal lines show medians.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:6915` — runtime; Points show the supplied observations.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:7557` — runtime; {y} versus {x}; the line shows a mean pooled across groups at each x value, and shading shows one standard deviation. Each observation represents one {unit}. The statistical comparison reference is {reference}; it is not a separate plotted series.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:7563` — runtime; {y} versus {x}; lines show means for each {condition}, with the original line-renderer confidence intervals. Each observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:7568` — runtime; {y} by {condition}; points show the {summary} of each condition and error bars show one standard deviation. Each observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9594` — runtime; Coefficients must be greater than {threshold}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/plot.py:9595` — runtime; Coefficients must be less than {threshold}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/preferences.py:1816` — api_docstring; spacr.qt.preferences.auto_figure_colors; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/figures/style.py:1122` — api_docstring; spacr.figures.style.resolve_style; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1210` — api_docstring; spacr.figures.style.axes_geometry; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1248` — internal_docstring; spacr.figures.style._physical_panel_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1268` — internal_docstring; spacr.figures.style._data_artists; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1279` — internal_docstring; spacr.figures.style._artist_alphas; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1304` — internal_docstring; spacr.figures.style._axis_overlay_parent; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1327` — internal_docstring; spacr.figures.style._axis_overlays; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1337` — internal_docstring; spacr.figures.style._axis_overlay_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1358` — internal_docstring; spacr.figures.style._axes_layout_bbox; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1376` — internal_docstring; spacr.figures.style._tight_export_artists; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1395` — api_docstring; spacr.figures.style.fit_axes_geometry; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1456` — api_docstring; spacr.figures.style.pack_axes_geometry; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1565` — internal_docstring; spacr.figures.style._retain_live_axes_geometry; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1582` — internal_docstring; spacr.figures.style._apply_live_axes_geometry; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1624` — internal_docstring; spacr.figures.style._file_axes_geometry; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1673` — internal_docstring; spacr.figures.style._figure_text_role; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1694` — internal_docstring; spacr.figures.style._line_origin_limits; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1710` — internal_docstring; spacr.figures.style._marker_display_bounds; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1758` — internal_docstring; spacr.figures.style._pad_marker_limits; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1789` — internal_docstring; spacr.figures.style._apply_line_origin; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1806` — api_docstring; spacr.figures.style.apply_axes_style; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:1874` — internal_docstring; spacr.figures.style._status_panel; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1899` — internal_docstring; spacr.figures.style._text_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1911` — internal_docstring; spacr.figures.style._appearance_value; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1924` — internal_docstring; spacr.figures.style._colour_norm_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1948` — internal_docstring; spacr.figures.style._restore_colour_norm; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:1965` — internal_docstring; spacr.figures.style._artist_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2010` — internal_docstring; spacr.figures.style._legend_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2033` — internal_docstring; spacr.figures.style._replay_message; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2042` — internal_docstring; spacr.figures.style._restore_legend_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2100` — internal_docstring; spacr.figures.style._capture_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2150` — internal_docstring; spacr.figures.style._restore_text_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2168` — internal_docstring; spacr.figures.style._restore_artist_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2217` — internal_docstring; spacr.figures.style._restore_appearance; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2316` — internal_docstring; spacr.figures.style._register_replay_fonts; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2332` — internal_docstring; spacr.figures.style._colour_contrast; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2344` — internal_docstring; spacr.figures.style._errorbar_colours; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2358` — internal_docstring; spacr.figures.style._heatmap_cell_sizes; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2380` — internal_docstring; spacr.figures.style._visible_artist_colours; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2408` — internal_docstring; spacr.figures.style._condition_record_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2450` — internal_docstring; spacr.figures.style._condition_presentation_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2484` — internal_docstring; spacr.figures.style._scalar_rgba; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2494` — internal_docstring; spacr.figures.style._colourbar_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2581` — internal_docstring; spacr.figures.style._quantity_unit_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2628` — internal_docstring; spacr.figures.style._heatmap_artist_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2699` — internal_docstring; spacr.figures.style._semantic_presentation_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2798` — internal_docstring; spacr.figures.style._native_colour_table; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2806` — internal_docstring; spacr.figures.style._native_scalar_steps; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2813` — internal_docstring; spacr.figures.style._native_scalar_cells; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2823` — internal_docstring; spacr.figures.style._native_scalar_cells.ScalarCells; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2826` — internal_docstring; spacr.figures.style._native_scalar_cells.ScalarCells.paint; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2848` — internal_docstring; spacr.figures.style._paint_native_scalar_key; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2879` — internal_docstring; spacr.figures.style._remove_native_scalar_key; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2896` — internal_docstring; spacr.figures.style._native_scalar_label; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2907` — internal_docstring; spacr.figures.style._bind_native_scalar_column; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2928` — internal_docstring; spacr.figures.style._attach_native_scalar_key; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:2993` — internal_docstring; spacr.figures.style._native_scalar_key_problems; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3070` — internal_docstring; spacr.figures.style._apply_native_marks; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3128` — internal_docstring; spacr.figures.style._native_file_strokes; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3178` — internal_docstring; spacr.figures.style._native_file_strokes.adjusted; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3187` — internal_docstring; spacr.figures.style._native_file_strokes.change; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3195` — internal_docstring; spacr.figures.style._native_file_strokes.option; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3199` — internal_docstring; spacr.figures.style._native_file_strokes.scatter_pens; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3245` — internal_docstring; spacr.figures.style._write_native_raster; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3271` — internal_docstring; spacr.figures.style._queue_native_finalization; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3288` — internal_docstring; spacr.figures.style._queue_native_finalization.validate; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3302` — internal_docstring; spacr.figures.style._finalize_native_figure; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3453` — api_docstring; spacr.figures.style.finalize_figure; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:3619` — internal_docstring; spacr.figures.style._condition_kind_count; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3624` — api_docstring; spacr.figures.style.condition_kind; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:3637` — internal_docstring; spacr.figures.style._distribution_orientation; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:3653` — api_docstring; spacr.figures.style.categorical_artist_defaults; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:3711` — api_docstring; spacr.figures.style.line_artist_defaults; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:3742` — api_docstring; spacr.figures.style.categorical_slot_defaults; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:3810` — api_docstring; spacr.figures.style.condition_plot; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:3954` — api_docstring; spacr.figures.style.embedding_colours; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:3971` — api_docstring; spacr.figures.style.embedding_reference; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:3978` — api_docstring; spacr.figures.style.embedding_axes; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:4030` — internal_docstring; spacr.figures.style._axis_colourbars; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:4037` — internal_docstring; spacr.figures.style._position_colourbars; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:4052` — api_docstring; spacr.figures.style.attach_colourbar; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:4086` — internal_docstring; spacr.figures.style._detached_colour_norm; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:4097` — internal_docstring; spacr.figures.style._vector_numeric_cells; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:4162` — internal_docstring; spacr.figures.style._numeric_colourbar; private/nested/tool/test; no translation records.
+- `spacr/figures/style.py:4220` — api_docstring; spacr.figures.style.scale_tick_labels; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:4234` — api_docstring; spacr.figures.style.heatmap_cmap; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:4249` — api_docstring; spacr.figures.style.heatmap_image; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:4350` — api_docstring; spacr.figures.style.figure_problems; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/figures/style.py:2508` — runtime; Match the colour key to the plotted scalar values and opacity; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:3007` — runtime; Match the native scalar key to its source values, colours, opacity, quantity and unit; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:3975` — runtime; Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:1264` — runtime; Use the shared 40 mm panel dimension; preserve explicit manual sizes with a diagnostic; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:1349` — runtime; Link the overlay to a declared primary statistical axis; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:1354` — runtime; Align the linked axes on the same physical plotting area; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2646` — runtime; Draw scalar heatmap cells before validating their appearance; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2652` — runtime; Remove the frame from heatmap cells; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2782` — runtime; Move the plot title into the figure legend; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2838` — runtime; Numeric colour keys need increasing boundaries aligned with their colours; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:3064` — runtime; Use the shared sequential ramp for a numeric channel; keep explicit manual maps with a diagnostic; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:3298` — runtime; Validate the updated native plot before certifying its appearance; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2516` — runtime; Register the scalar source associated with each colour key; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2603` — runtime; State units consistent with the declared mathematical transformation; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2650` — runtime; Use the shared heatmap colour map; preserve manual colours with a diagnostic; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2664` — runtime; Declare scalar heatmap values for missing-cell validation; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2682` — runtime; Mark every missing cell with a thin black ×; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2717` — runtime; The declared heatmap reference is not inside the displayed colour range; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2790` — runtime; Draw reference lines in black; preserve explicit colours with a diagnostic; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:3330` — runtime; Axis overlays require a declared shared Matplotlib axis; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2185` — runtime; Captured appearance does not support this colour normalization; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2524` — runtime; Declare the quantity and unit represented by the colour key; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2566` — runtime; Use bundled Open Sans for every colour-key text element; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2568` — runtime; Use at least eight points for every colour-key text element; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2571` — runtime; Use the declared body font weight for colour-key text; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2574` — runtime; Keep colour-key text fully opaque; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2577` — runtime; Use readable text contrast against the colour-key background; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2695` — runtime; Use a colour from the heatmap scale beneath missing-cell crosses; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2727` — runtime; A status panel must not contain plotted observations; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:4023` — runtime; Cluster {cluster}: {count} points.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2070` — runtime; Captured appearance does not support this custom legend key; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2529` — runtime; Match the colour-key label to its declared quantity and unit; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2741` — runtime; Match Venn region colours to the declared input and overlap identities; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:2743` — runtime; Draw every data mark at sixty percent opacity; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/figures/style.py:4026` — runtime; Cluster {cluster} outline.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6849` — internal_docstring; spacr.plot._style_standalone_grouped; private/nested/tool/test; no translation records.
+- `spacr/plot.py:6933` — api_docstring; spacr.plot.create_grouped_plot; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/plot.py:7422` — internal_docstring; spacr.plot.spacrGraph._condition_values; private/nested/tool/test; no translation records.
+- `spacr/plot.py:7459` — internal_docstring; spacr.plot.spacrGraph._present_multiple_conditions; private/nested/tool/test; no translation records.
+- `spacr/plot.py:7504` — internal_docstring; spacr.plot.spacrGraph._apply_presentation; private/nested/tool/test; no translation records.
+- `spacr/plot.py:7952` — api_docstring; spacr.plot.spacrGraph.create_plot; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/plot.py:8166` — internal_docstring; spacr.plot.spacrGraph._draw_comparison_lines; private/nested/tool/test; no translation records.
+- `spacr/plot.py:8279` — internal_docstring; spacr.plot.spacrGraph._create_bar_plot; private/nested/tool/test; no translation records.
+- `spacr/plot.py:9548` — api_docstring; spacr.plot.create_venn_diagram; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/plot.py:9657` — internal_docstring; spacr.plot._style_legacy_volcano; private/nested/tool/test; no translation records.
+- `spacr/plot.py:9764` — api_docstring; spacr.plot.volcano_plot; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/plot.py (retired)` — retired_api_docstring; spacr.plot.spacrGraph.create_plot._generate_tabels; explicit retirement; exact approved historical binding applied.
+- `spacr/plot.py (retired)` — retired_api_docstring; spacr.plot.spacrGraph.create_plot._place_symbols; explicit retirement; exact approved historical binding applied.
+- `spacr/plot.py (retired)` — retired_api_docstring; spacr.plot.spacrGraph.create_plot._get_positions; explicit retirement; exact approved historical binding applied.
+- `spacr/plot.py:9694` — runtime; Zero reference; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6903` — runtime; the standard error of the mean; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6903` — runtime; one standard deviation; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9593` — runtime; Gene overlap between the two supplied inputs. Numbers count distinct non-missing genes after filtering; repeated identifiers count once. Blue identifies genes only in input 1, teal only in input 2, and navy in both inputs.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9680` — runtime; the supplied effect scale; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9680` — runtime; a base-2 logarithm; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9681` — runtime; a base-10 logarithm; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9681` — runtime; a natural logarithm; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9682` — runtime; raw p values; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9682` — runtime; negative base-10 logarithms of p values; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9683` — runtime; negative natural logarithms of p values; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9683` — runtime; base-10 logarithms of p values; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9684` — runtime; natural logarithms of p values; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6898` — runtime; source row; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6899` — runtime; {measurement} by {condition}; each supplied observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6902` — runtime; supplied summary; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6919` — runtime; Individual observations were hidden by an explicit display preference.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9685` — runtime; Effects use {effect_scale}; significance uses {significance_scale}. Both coordinates are dimensionless. The vertical reference marks zero on the displayed effect scale. {count} finite observations are displayed.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6901` — runtime; not declared; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6905` — runtime; Bars show {summary}; error bars show {spread}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6909` — runtime; Bars show arithmetic means. Boxes show medians and interquartile ranges with fifth-to-ninety-fifth percentile whiskers. Violins show distributions with a median line.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:7538` — runtime; {measurement} by {condition}; each observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9598` — runtime; No coefficient filter is applied.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9618` — runtime; Input 1; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9618` — runtime; Input 2; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9730` — runtime; Selected, effect ≥ 0; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9731` — runtime; Selected, effect < 0; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9732` — runtime; Other observations; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9732` — runtime; Observations; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6907` — runtime; Points show {summary}; error bars show {spread}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6912` — runtime; Boxes show medians and interquartile ranges; whiskers extend to observations within one and a half interquartile ranges.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9689` — runtime; The supplied effect threshold is {threshold}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9691` — runtime; The supplied raw p-value threshold is {threshold}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6914` — runtime; Violin envelopes show distributions; black horizontal lines show medians.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:6916` — runtime; Points show the supplied observations.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:7558` — runtime; {y} versus {x}; the line shows a mean pooled across groups at each x value, and shading shows one standard deviation. Each observation represents one {unit}. The statistical comparison reference is {reference}; it is not a separate plotted series.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:7564` — runtime; {y} versus {x}; lines show means for each {condition}, with the original line-renderer confidence intervals. Each observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:7569` — runtime; {y} by {condition}; points show the {summary} of each condition and error bars show one standard deviation. Each observation represents one {unit}. The reference condition is {reference}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9595` — runtime; Coefficients must be greater than {threshold}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/plot.py:9596` — runtime; Coefficients must be less than {threshold}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/preferences.py:1816` — api_docstring; spacr.qt.preferences.auto_figure_colors; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/qt/screens/control_chart.py:200` — internal_docstring; spacr.qt.screens.control_chart._draw_control_chart; private/nested/tool/test; no translation records.
 - `spacr/qt/screens/control_chart.py:266` — internal_docstring; spacr.qt.screens.control_chart._present_control_chart; private/nested/tool/test; no translation records.
 - `spacr/qt/screens/control_chart.py:310` — internal_docstring; spacr.qt.screens.control_chart._control_chart_recipe; private/nested/tool/test; no translation records.
-- `spacr/qt/screens/control_chart.py:369` — api_docstring; spacr.qt.screens.control_chart.ControlChartCanvas.set_result; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/qt/screens/control_chart.py:386` — api_docstring; spacr.qt.screens.control_chart.ControlChartCanvas.render_now; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/screens/control_chart.py:369` — api_docstring; spacr.qt.screens.control_chart.ControlChartCanvas.set_result; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/screens/control_chart.py:386` — api_docstring; spacr.qt.screens.control_chart.ControlChartCanvas.render_now; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/qt/screens/control_chart.py:1606` — internal_docstring; spacr.qt.screens.control_chart.ControlChartScreen._on_result; private/nested/tool/test; no translation records.
-- `spacr/qt/screens/control_chart.py:284` — runtime; Control series (reference); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:225` — runtime; Baseline centre; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:255` — runtime; Plate run order; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:255` — runtime; Plate run order — INFERRED; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:277` — runtime; Each point is the supplied plate-level {quantity}, ordered by the recorded run order. Nested blue bands show one, two and three baseline standard deviations. Black reference lines show the baseline centre, outer limits and the end of the baseline; grey marks identify the control series.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:281` — runtime; Run order was inferred from plate identifiers.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:283` — runtime; All control values are equal; no variable limits or rule violations were estimated.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:1613` — runtime; Z-prime assay separation; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:221` — runtime; Three-standard-deviation limits; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:230` — runtime; Baseline ends; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:278` — runtime; The baseline contains {count} plates. The estimator is {estimator}. Coloured rings retain every rule applying to a plate; the key gives the rule numbers and definitions.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/screens/control_chart.py:246` — runtime; rule {number} — {description}; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:1106` — internal_docstring; spacr.qt.widgets.fast_plots._violin_profile; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1137` — internal_docstring; spacr.qt.widgets.fast_plots._recoloured_pen; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1148` — internal_docstring; spacr.qt.widgets.fast_plots._native_pen_appearance; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1156` — internal_docstring; spacr.qt.widgets.fast_plots._native_text_appearance; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1172` — internal_docstring; spacr.qt.widgets.fast_plots._native_mark_bounds; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1197` — internal_docstring; spacr.qt.widgets.fast_plots._native_text_geometry; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1267` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1273` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.__init__; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1281` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.set_categories; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1305` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.clear_categories; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1312` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.generateDrawSpecs; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1344` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.drawPicture; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:1800` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._finish_diagnostic; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:2970` — api_docstring; spacr.qt.widgets.fast_plots.FastPlot.apply_text_style; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/qt/widgets/fast_plots.py:3456` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._held_at_policy_geometry; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:4013` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._wear_the_print_look; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:5404` — api_docstring; spacr.qt.widgets.fast_plots.FastPlot.add_group_mark; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/qt/widgets/fast_plots.py:5479` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._draw_group_mark; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:6089` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._spacr_style_observation; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:7316` — api_docstring; spacr.qt.widgets.fast_plots.EffectRankPlot; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/qt/widgets/fast_plots.py:7352` — api_docstring; spacr.qt.widgets.fast_plots.EffectRankPlot.set_results; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/qt/widgets/fast_plots.py:8460` — api_docstring; spacr.qt.widgets.fast_plots.ControlSeparation; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/qt/widgets/fast_plots.py:8485` — internal_docstring; spacr.qt.widgets.fast_plots.ControlSeparation.__init__; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/fast_plots.py:8603` — runtime; Control group; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8624` — runtime; The supplied positive and negative control groups; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:7083` — runtime; The declared testing procedure and any defined thresholds; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:7857` — runtime; Uniform p-value distribution; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:7959` — runtime; Zero effect and the stated robust spread thresholds; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8020` — runtime; Identity of expected and observed quantiles; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8088` — runtime; Zero residual and the stated diagnostic trends; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8162` — runtime; A flat diagnostic trend indicates constant residual spread; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8251` — runtime; Zero standardised residual and the stated leverage criterion; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8843` — runtime; Single-guide support; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8845` — runtime; Other guide support; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8851` — runtime; Displayed sign-agreement reference: 0.5; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8622` — runtime; Automatic bars show means without error bars; black horizontal marks show medians.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8623` — runtime; Boxes show the interquartile range with 5th to 95th percentile whiskers; violins show the existing binned density.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/fast_plots.py:8850` — runtime; The initial guide-count view uses the existing 99th-percentile cutoff of {bound}; all source genes remain available through Reset view.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1` — api_docstring; spacr.qt.widgets.graph_builder; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/qt/widgets/graph_builder.py:149` — api_docstring; spacr.qt.widgets.graph_builder.categorical_colours; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/qt/widgets/graph_builder.py:158` — api_docstring; spacr.qt.widgets.graph_builder.sequential_colours; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/screens/control_chart.py:284` — runtime; Control series (reference); literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:225` — runtime; Baseline centre; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:255` — runtime; Plate run order; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:255` — runtime; Plate run order — INFERRED; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:277` — runtime; Each point is the supplied plate-level {quantity}, ordered by the recorded run order. Nested blue bands show one, two and three baseline standard deviations. Black reference lines show the baseline centre, outer limits and the end of the baseline; grey marks identify the control series.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:281` — runtime; Run order was inferred from plate identifiers.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:283` — runtime; All control values are equal; no variable limits or rule violations were estimated.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:1613` — runtime; Z-prime assay separation; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:221` — runtime; Three-standard-deviation limits; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:230` — runtime; Baseline ends; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:278` — runtime; The baseline contains {count} plates. The estimator is {estimator}. Coloured rings retain every rule applying to a plate; the key gives the rule numbers and definitions.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/screens/control_chart.py:246` — runtime; rule {number} — {description}; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/annotation_umap_tab.py:145` — internal_docstring; spacr.qt.widgets.annotation_umap_tab.PurityScatter._present_embedding; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/annotation_umap_tab.py:125` — runtime; UMAP 1; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/annotation_umap_tab.py:125` — runtime; UMAP 2; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/annotation_umap_tab.py:126` — runtime; Positive control neighbour fraction; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/annotation_umap_tab.py:114` — runtime; The embedding has no points to draw.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/annotation_umap_tab.py:147` — runtime; Source cells: {count}; visible finite positions: {drawn}. Triangles identify positive controls, diamonds negative controls and circles annotated cells. Grey points denote missing values in the selected colour column. Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/annotation_umap_tab.py:151` — runtime; Supplied positive and negative control labels; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/annotation_umap_tab.py:138` — runtime; Purity is not drawn as a colour: {error}; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:1100` — internal_docstring; spacr.qt.widgets.fast_plots._violin_profile; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1131` — internal_docstring; spacr.qt.widgets.fast_plots._recoloured_pen; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1142` — internal_docstring; spacr.qt.widgets.fast_plots._native_pen_appearance; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1150` — internal_docstring; spacr.qt.widgets.fast_plots._native_text_appearance; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1166` — internal_docstring; spacr.qt.widgets.fast_plots._native_mark_bounds; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1191` — internal_docstring; spacr.qt.widgets.fast_plots._native_text_geometry; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1261` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1267` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.__init__; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1275` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.set_categories; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1299` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.clear_categories; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1306` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.generateDrawSpecs; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1338` — internal_docstring; spacr.qt.widgets.fast_plots._CategoricalAxis.drawPicture; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:1797` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._finish_diagnostic; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:2970` — api_docstring; spacr.qt.widgets.fast_plots.FastPlot.apply_text_style; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/fast_plots.py:3063` — api_docstring; spacr.qt.widgets.fast_plots.FastPlot.axis_items; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/fast_plots.py:3164` — api_docstring; spacr.qt.widgets.fast_plots.FastPlot.colour_by_column; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/fast_plots.py:3470` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._held_at_policy_geometry; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:4032` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._wear_the_print_look; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:5423` — api_docstring; spacr.qt.widgets.fast_plots.FastPlot.add_group_mark; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/fast_plots.py:5498` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._draw_group_mark; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:6108` — internal_docstring; spacr.qt.widgets.fast_plots.FastPlot._spacr_style_observation; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:7344` — api_docstring; spacr.qt.widgets.fast_plots.EffectRankPlot; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/fast_plots.py:7380` — api_docstring; spacr.qt.widgets.fast_plots.EffectRankPlot.set_results; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/fast_plots.py:8513` — api_docstring; spacr.qt.widgets.fast_plots.ControlSeparation; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/fast_plots.py:8538` — internal_docstring; spacr.qt.widgets.fast_plots.ControlSeparation.__init__; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/fast_plots.py:7542` — runtime; Effect rank; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:7559` — runtime; Estimates without a significance call; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:7560` — runtime; Called positive estimates; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:7560` — runtime; Called nonpositive estimates; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8656` — runtime; Control group; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8677` — runtime; The supplied positive and negative control groups; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:3236` — runtime; Coloured by {column} ({colormap}): {low} to {high}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:7111` — runtime; The declared testing procedure and any defined thresholds; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:7910` — runtime; Uniform p-value distribution; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8012` — runtime; Zero effect and the stated robust spread thresholds; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8073` — runtime; Identity of expected and observed quantiles; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8141` — runtime; Zero residual and the stated diagnostic trends; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8215` — runtime; A flat diagnostic trend indicates constant residual spread; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8304` — runtime; Zero standardised residual and the stated leverage criterion; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8896` — runtime; Single-guide support; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8898` — runtime; Other guide support; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8904` — runtime; Displayed sign-agreement reference: 0.5; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:7563` — runtime; Zero regression coefficient; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8675` — runtime; Automatic bars show means without error bars; black horizontal marks show medians.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8676` — runtime; Boxes show the interquartile range with 5th to 95th percentile whiskers; violins show the existing binned density.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:3239` — runtime; Rows without {column}: {count}; their points use the missing-value colour.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/fast_plots.py:8903` — runtime; The initial guide-count view uses the existing 99th-percentile cutoff of {bound}; all source genes remain available through Reset view.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/feature_explorer.py:69` — internal_docstring; spacr.qt.widgets.feature_explorer._present_feature_histogram; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/feature_explorer.py:102` — internal_docstring; spacr.qt.widgets.feature_explorer._render_feature_histograms; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/feature_explorer.py:457` — internal_docstring; spacr.qt.widgets.feature_explorer.FeatureExplorerPanel._draw; private/nested/tool/test; no translation records.
+- `spacr/qt/widgets/feature_explorer.py:90` — runtime; Observed classes use the same feature-bin edges; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/feature_explorer.py:82` — runtime; absolute rank separation |2 × AUC − 1|; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/feature_explorer.py:83` — runtime; absolute standardized mean difference; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/feature_explorer.py:84` — runtime; Kolmogorov–Smirnov distance; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/feature_explorer.py:85` — runtime; mutual information normalized by class entropy; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/feature_explorer.py:86` — runtime;  Shape differs without a location shift.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/feature_explorer.py:87` — runtime; {feature}: {statistic} = {score:.3f}; values higher in {higher}; minimum class size {minimum:,}.{shape}; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/feature_explorer.py:139` — runtime; Observation count; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/feature_explorer.py:97` — runtime; Area under the receiver operating characteristic curve; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1` — api_docstring; spacr.qt.widgets.graph_builder; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/graph_builder.py:149` — api_docstring; spacr.qt.widgets.graph_builder.categorical_colours; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/graph_builder.py:158` — api_docstring; spacr.qt.widgets.graph_builder.sequential_colours; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/qt/widgets/graph_builder.py:166` — internal_docstring; spacr.qt.widgets.graph_builder._colormap; private/nested/tool/test; no translation records.
 - `spacr/qt/widgets/graph_builder.py:176` — internal_docstring; spacr.qt.widgets.graph_builder._orientation; private/nested/tool/test; no translation records.
 - `spacr/qt/widgets/graph_builder.py:515` — internal_docstring; spacr.qt.widgets.graph_builder._draw_with_user_style; private/nested/tool/test; no translation records.
 - `spacr/qt/widgets/graph_builder.py:1008` — internal_docstring; spacr.qt.widgets.graph_builder.GraphCanvas._finish_layout; private/nested/tool/test; no translation records.
 - `spacr/qt/widgets/graph_builder.py:1088` — internal_docstring; spacr.qt.widgets.graph_builder.GraphCanvas._style_axes; private/nested/tool/test; no translation records.
 - `spacr/qt/widgets/graph_builder.py:1101` — internal_docstring; spacr.qt.widgets.graph_builder.GraphCanvas._register_presentation; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/graph_builder.py:1419` — runtime; Crosses mark bins without a finite displayed value.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1643` — runtime; A thin black × marks a category bin with no observations.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1137` — runtime; {y} by {x}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1642` — runtime; Observations per bin; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1708` — runtime; {title}; n={count}; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1708` — runtime; n={count}; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1711` — runtime; Displayed ranges: x={x_low} to {x_high}; y={y_low} to {y_high}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1140` — runtime; Bar whiskers: {spread}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1715` — runtime; Axis range selected: {reason}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/graph_builder.py:1416` — runtime; Mean {quantity}; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/graph_builder.py:1419` — runtime; Crosses mark bins without a finite displayed value.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1643` — runtime; A thin black × marks a category bin with no observations.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1137` — runtime; {y} by {x}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1642` — runtime; Observations per bin; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1708` — runtime; {title}; n={count}; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1708` — runtime; n={count}; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1711` — runtime; Displayed ranges: x={x_low} to {x_high}; y={y_low} to {y_high}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1140` — runtime; Bar whiskers: {spread}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1715` — runtime; Axis range selected: {reason}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/graph_builder.py:1416` — runtime; Mean {quantity}; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
 - `spacr/qt/widgets/grouped_plot.py:176` — internal_docstring; spacr.qt.widgets.grouped_plot.GroupedPlot._draw; private/nested/tool/test; no translation records.
 - `spacr/qt/widgets/grouped_plot.py:259` — internal_docstring; spacr.qt.widgets.grouped_plot.GroupedPlot._draw_xy; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/grouped_plot.py:349` — runtime; Means with every observation through twenty values; boxes with observations above twenty; violins without points from one thousand. Box whiskers show the fifth and ninety-fifth percentiles.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/grouped_plot.py:361` — runtime; A zero-spread violin is a horizontal line at the shared value.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/grouped_plot.py:295` — runtime; {count} point(s).; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/grouped_plot.py:354` — runtime; Bar whiskers: {spread}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:356` — api_docstring; spacr.qt.widgets.pca_view.ScreePlot.render_now; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/grouped_plot.py:349` — runtime; Means with every observation through twenty values; boxes with observations above twenty; violins without points from one thousand. Box whiskers show the fifth and ninety-fifth percentiles.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/grouped_plot.py:361` — runtime; A zero-spread violin is a horizontal line at the shared value.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/grouped_plot.py:295` — runtime; {count} point(s).; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/grouped_plot.py:354` — runtime; Bar whiskers: {spread}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:356` — api_docstring; spacr.qt.widgets.pca_view.ScreePlot.render_now; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/qt/widgets/pca_view.py:579` — internal_docstring; spacr.qt.widgets.pca_view.PCAScoresCanvas._register_presentation; private/nested/tool/test; no translation records.
 - `spacr/qt/widgets/pca_view.py:630` — internal_docstring; spacr.qt.widgets.pca_view.PCAScoresCanvas._draw_arrows; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/pca_view.py:405` — runtime; Total variance (100%); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:406` — runtime; Bars show explained variance per principal component; the line shows cumulative explained variance. The full decomposition accounts for 100% of the variance.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:383` — runtime; no components yet; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:400` — runtime; Principal component; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:401` — runtime; Explained variance (%); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:422` — runtime; Cumulative explained variance (%); literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:435` — runtime; Cumulative explained variance; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:621` — runtime; Centred principal component score origin; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:663` — runtime; Pearson correlation magnitude 1; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:434` — runtime; Other components; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:623` — runtime; Principal component scores are dimensionless after standardisation.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:437` — runtime; Principal component analysis of {observations} observations and {features} features.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:669` — runtime; Centred score origin; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:431` — runtime; Selected components: {components}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:671` — runtime; Correlation vectors and the unit circle share display scale {scale}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/pca_view.py:683` — runtime; {feature}: Pearson r with {x_component} = {x}; with {y_component} = {y}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/trellis_view.py:1` — api_docstring; spacr.qt.widgets.trellis_view; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/pca_view.py:405` — runtime; Total variance (100%); literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:406` — runtime; Bars show explained variance per principal component; the line shows cumulative explained variance. The full decomposition accounts for 100% of the variance.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:383` — runtime; no components yet; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:400` — runtime; Principal component; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:401` — runtime; Explained variance (%); literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:422` — runtime; Cumulative explained variance (%); literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:435` — runtime; Cumulative explained variance; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:621` — runtime; Centred principal component score origin; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:663` — runtime; Pearson correlation magnitude 1; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:434` — runtime; Other components; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:623` — runtime; Principal component scores are dimensionless after standardisation.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:437` — runtime; Principal component analysis of {observations} observations and {features} features.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:669` — runtime; Centred score origin; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:431` — runtime; Selected components: {components}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:671` — runtime; Correlation vectors and the unit circle share display scale {scale}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/pca_view.py:683` — runtime; {feature}: Pearson r with {x_component} = {x}; with {y_component} = {y}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/trellis_view.py:1` — api_docstring; spacr.qt.widgets.trellis_view; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/qt/widgets/trellis_view.py:252` — internal_docstring; spacr.qt.widgets.trellis_view.TrellisCanvas._label_trellis_panel; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/trellis_view.py:281` — runtime; Low sample count: {count} observations.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/qt/widgets/trellis_view.py:281` — runtime; Low sample count: {count} observations.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
 - `spacr/qt/widgets/umap_explorer.py:781` — internal_docstring; spacr.qt.widgets.umap_explorer.ImageUmapExplorer._draw_embedding; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/umap_explorer.py:866` — runtime; Click a point to preview; drag a lasso to select points.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/umap_figure_settings.py:331` — runtime; Embedding of the supplied observations and cluster labels.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/umap_search_viewer.py:309` — api_docstring; spacr.qt.widgets.umap_search_viewer.thumbnail_image; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/qt/widgets/umap_search_viewer.py:340` — api_docstring; spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/umap_explorer.py:866` — runtime; Click a point to preview; drag a lasso to select points.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/umap_figure_settings.py:331` — runtime; Embedding of the supplied observations and cluster labels.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:309` — api_docstring; spacr.qt.widgets.umap_search_viewer.thumbnail_image; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/umap_search_viewer.py:340` — api_docstring; spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/qt/widgets/umap_search_viewer.py:593` — internal_docstring; spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView._refresh_presentation; private/nested/tool/test; no translation records.
 - `spacr/qt/widgets/umap_search_viewer.py:621` — internal_docstring; spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView._spacr_style_observation; private/nested/tool/test; no translation records.
-- `spacr/qt/widgets/umap_search_viewer.py:598` — runtime; drag to spin · wheel to zoom · right-click appearance; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/umap_search_viewer.py:599` — runtime; wheel to zoom · right-click appearance; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/umap_search_viewer.py:737` — runtime; Complete projected three-dimensional axis and occlusion observations before certification.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/umap_search_viewer.py:604` — runtime; UMAP dimension 1; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/umap_search_viewer.py:604` — runtime; UMAP dimension 2; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/qt/widgets/umap_search_viewer.py:612` — runtime; Cluster {cluster}: {count} points.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/style_base.py:32` — api_docstring; spacr.style_base.FigureStyle; canonical public API; exact inventory hooks and Home records pending.
-- `spacr/volcano_style.py:104` — api_docstring; spacr.volcano_style.VolcanoStyle; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/qt/widgets/umap_search_viewer.py:633` — api_docstring; spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView.paintEvent; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/qt/widgets/umap_search_viewer.py:598` — runtime; drag to spin · wheel to zoom · right-click appearance; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:599` — runtime; wheel to zoom · right-click appearance; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:741` — runtime; Complete projected three-dimensional axis and occlusion observations before certification.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:604` — runtime; UMAP dimension 1; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:604` — runtime; UMAP dimension 2; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/qt/widgets/umap_search_viewer.py:612` — runtime; Cluster {cluster}: {count} points.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/style_base.py:32` — api_docstring; spacr.style_base.FigureStyle; canonical public API; exact approved inventory hooks applied, Home records pending.
+- `spacr/volcano_style.py:104` — api_docstring; spacr.volcano_style.VolcanoStyle; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/volcano_style.py:379` — internal_docstring; spacr.volcano_style._present_volcano; private/nested/tool/test; no translation records.
-- `spacr/volcano_style.py:487` — api_docstring; spacr.volcano_style.render_volcano; canonical public API; exact inventory hooks and Home records pending.
+- `spacr/volcano_style.py:487` — api_docstring; spacr.volcano_style.render_volcano; canonical public API; exact approved inventory hooks applied, Home records pending.
 - `spacr/volcano_style.py:578` — internal_docstring; spacr.volcano_style._localization_column; private/nested/tool/test; no translation records.
 - `spacr/volcano_style.py:585` — internal_docstring; spacr.volcano_style._captured_localizations; private/nested/tool/test; no translation records.
 - `spacr/volcano_style.py:687` — internal_docstring; spacr.volcano_style._draw_points; private/nested/tool/test; no translation records.
 - `spacr/volcano_style.py:917` — internal_docstring; spacr.volcano_style._finish_axes; private/nested/tool/test; no translation records.
-- `spacr/volcano_style.py:405` — runtime; Enabled zero-effect, significance and effect-threshold reference lines retain their original numerical positions.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/volcano_style.py:416` — runtime; Zero effect and the enabled thresholds; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/volcano_style.py:401` — runtime; Volcano of {effect} against {significance}. The supplied significance and effect-threshold rules determine selected observations; the plotted coordinates and selection are unchanged.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/volcano_style.py:403` — runtime; Significance uses the negative base-10 logarithm after clipping at the smallest positive floating-point value.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/volcano_style.py:404` — runtime; Significance values are displayed on their supplied scale.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/volcano_style.py:411` — runtime; The supplied broken-axis windows omit the intervening range.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/volcano_style.py:440` — runtime; Declared controls; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/volcano_style.py:593` — runtime; The captured localization identity column is missing from the source table; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/volcano_style.py:409` — runtime; Grey marks identify the explicitly declared control rows.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
-- `spacr/volcano_style.py:407` — runtime; The explicit control column is {column}.; literal tr()/shared _replay_message; shipped scanner admission and Home records pending final audit.
+- `spacr/volcano_style.py:405` — runtime; Enabled zero-effect, significance and effect-threshold reference lines retain their original numerical positions.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/volcano_style.py:416` — runtime; Zero effect and the enabled thresholds; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/volcano_style.py:401` — runtime; Volcano of {effect} against {significance}. The supplied significance and effect-threshold rules determine selected observations; the plotted coordinates and selection are unchanged.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/volcano_style.py:403` — runtime; Significance uses the negative base-10 logarithm after clipping at the smallest positive floating-point value.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/volcano_style.py:404` — runtime; Significance values are displayed on their supplied scale.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/volcano_style.py:411` — runtime; The supplied broken-axis windows omit the intervening range.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/volcano_style.py:440` — runtime; Declared controls; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/volcano_style.py:593` — runtime; The captured localization identity column is missing from the source table; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/volcano_style.py:409` — runtime; Grey marks identify the explicitly declared control rows.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
+- `spacr/volcano_style.py:407` — runtime; The explicit control column is {column}.; literal tr()/shared _replay_message; normal runtime admission and Home records subject to final audit.
 - `tests/qt/test_control_chart_screen.py:227` — internal_docstring; tests.qt.test_control_chart_screen.test_the_zprime_toggle_charts_the_assay_window; private/nested/tool/test; no translation records.
 - `tests/qt/test_cov_wf_qt_widgets_trellis_view.py:60` — internal_docstring; tests.qt.test_cov_wf_qt_widgets_trellis_view.test_the_blank_slot_of_a_wrapped_grid_is_never_given_a_caption; private/nested/tool/test; no translation records.
 - `tests/qt/test_fast_plots_marks_and_axes.py:419` — internal_docstring; tests.qt.test_fast_plots_marks_and_axes.test_the_violin_profile_is_a_closed_outline_or_nothing; private/nested/tool/test; no translation records.
@@ -430,12 +499,34 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/qt/test_graphstyle_control_chart.py:163` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_control_chart_archive_entry_point_requires_neither_spacr_nor_qt; private/nested/tool/test; no translation records.
 - `tests/qt/test_graphstyle_control_chart.py:195` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_every_control_rule_ring_clears_the_physical_frame; private/nested/tool/test; no translation records.
 - `tests/qt/test_graphstyle_control_chart.py:211` — internal_docstring; tests.qt.test_graphstyle_control_chart.test_tight_control_chart_crop_keeps_full_long_label_and_external_key; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_feature_explorer.py:1` — internal_docstring; tests.qt.test_graphstyle_feature_explorer; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_feature_explorer.py:16` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_feature_distributions_keep_original_histogram_counts_and_use_shared_geometry_labels_and_opacity; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_feature_explorer.py:74` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_feature_recipe_replays_original_bins_counts_styles_and_complete_page; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_feature_explorer.py:143` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_feature_archive_entry_point_requires_neither_spacr_nor_qt; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_feature_explorer.py:183` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_feature_replay_refuses_changed_class_identities; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_feature_explorer.py:208` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_explicit_page_dimensions_release_automatic_export_geometry; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_feature_explorer.py:239` — internal_docstring; tests.qt.test_graphstyle_feature_explorer.test_eight_feature_panels_scroll_without_clipping_or_changing_source_values; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_purity.py:1` — internal_docstring; tests.qt.test_graphstyle_purity; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_purity.py:12` — internal_docstring; tests.qt.test_graphstyle_purity.purity_plot; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_purity.py:22` — internal_docstring; tests.qt.test_graphstyle_purity.test_purity_points_use_shared_geometry_opacity_and_keep_exact_rows_values_and_shapes; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_purity.py:47` — internal_docstring; tests.qt.test_graphstyle_purity.test_purity_keeps_constant_value_refusal_and_clears_stale_scalar_metadata; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_purity.py:60` — internal_docstring; tests.qt.test_graphstyle_purity.test_native_purity_scalar_validation_observes_actual_key_and_points_without_repair; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_purity.py:99` — internal_docstring; tests.qt.test_graphstyle_purity.test_purity_manual_colormap_and_font_remain_actual_choices; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_purity.py:118` — internal_docstring; tests.qt.test_graphstyle_purity.test_temporary_native_export_style_restores_the_actual_scalar_key; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_purity.py:137` — internal_docstring; tests.qt.test_graphstyle_purity.test_changing_the_native_colour_column_binds_its_actual_quantity_and_never_borrows_units; private/nested/tool/test; no translation records.
+- `tests/qt/test_graphstyle_purity.py:158` — internal_docstring; tests.qt.test_graphstyle_purity.test_explicit_native_key_label_font_ticks_and_view_survive_a_colormap_change; private/nested/tool/test; no translation records.
 - `tests/qt/test_the_volcano_explorer_defaults_and_its_settings.py:149` — internal_docstring; tests.qt.test_the_volcano_explorer_defaults_and_its_settings.test_the_threshold_lines_are_black; private/nested/tool/test; no translation records.
 - `tests/qt/test_the_volcano_explorer_defaults_and_its_settings.py:189` — internal_docstring; tests.qt.test_the_volcano_explorer_defaults_and_its_settings.test_the_exported_ground_is_still_the_global_transparent_default; private/nested/tool/test; no translation records.
 - `tests/qt/test_trellis.py:393` — internal_docstring; tests.qt.test_trellis.test_external_facet_notes_carry_n; private/nested/tool/test; no translation records.
 - `tests/qt/test_umap_explorer.py:103` — internal_docstring; tests.qt.test_umap_explorer.test_embedding_uses_readable_shared_ground_and_cluster_palette; private/nested/tool/test; no translation records.
 - `tests/qt/test_volcano_explorer_behaviour.py:473` — internal_docstring; tests.qt.test_volcano_explorer_behaviour.test_a_limit_or_label_typed_into_the_menu_reaches_figure_panel_and_file; private/nested/tool/test; no translation records.
 - `tests/test_a_distribution_panel_says_when_it_cannot_be_drawn.py:175` — internal_docstring; tests.test_a_distribution_panel_says_when_it_cannot_be_drawn.test_a_logged_response_reports_the_skew_the_log_removed; private/nested/tool/test; no translation records.
+- `tests/test_core_bar_error_labels.py:1` — internal_docstring; tests.test_core_bar_error_labels; private/nested/tool/test; no translation records.
+- `tests/test_core_bar_error_labels.py:11` — internal_docstring; tests.test_core_bar_error_labels._frame; private/nested/tool/test; no translation records.
+- `tests/test_core_bar_error_labels.py:17` — internal_docstring; tests.test_core_bar_error_labels._draw; private/nested/tool/test; no translation records.
+- `tests/test_core_bar_error_labels.py:41` — internal_docstring; tests.test_core_bar_error_labels.test_multi_field_bar_errors_follow_their_labels_even_with_an_empty_category; private/nested/tool/test; no translation records.
+- `tests/test_core_bar_error_labels.py:51` — internal_docstring; tests.test_core_bar_error_labels.test_duplicate_category_labels_are_rejected_before_bar_pairing; private/nested/tool/test; no translation records.
+- `tests/test_core_bar_error_labels.py:57` — internal_docstring; tests.test_core_bar_error_labels.test_single_field_bar_summary_bytes_and_error_associations_are_unchanged; private/nested/tool/test; no translation records.
 - `tests/test_cov_plot_grouped_graph.py:720` — internal_docstring; tests.test_cov_plot_grouped_graph._case_create_plot_single_data_column_graph_types; private/nested/tool/test; no translation records.
 - `tests/test_cov_plot_grouped_graph.py:797` — internal_docstring; tests.test_cov_plot_grouped_graph._case_create_plot_multi_data_column_builds_symbol_table; private/nested/tool/test; no translation records.
 - `tests/test_cov_plot_grouped_graph.py:821` — internal_docstring; tests.test_cov_plot_grouped_graph._case_create_plot_multi_data_column_jitter_bar_places_symbols_per_position; private/nested/tool/test; no translation records.
@@ -443,6 +534,23 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_cov_w3_8_umap_search_viewer.py:221` — internal_docstring; tests.test_cov_w3_8_umap_search_viewer.test_the_backend_is_named_beside_the_caption; private/nested/tool/test; no translation records.
 - `tests/test_figure_style.py:47` — internal_docstring; tests.test_figure_style.TestResolution.test_a_graph_kind_only_states_what_it_differs_on; private/nested/tool/test; no translation records.
 - `tests/test_figures_result_sheet_panels.py:52` — internal_docstring; tests.test_figures_result_sheet_panels.test_volcano_labels_named_hits_and_outlines_only_a_present_highlight; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_absolute_geometry.py:1` — internal_docstring; tests.test_graphstyle_absolute_geometry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_absolute_geometry.py:15` — internal_docstring; tests.test_graphstyle_absolute_geometry.test_matplotlib_checks_absolute_panel_size_even_when_shape_and_slots_are_correct; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_absolute_geometry.py:43` — internal_docstring; tests.test_graphstyle_absolute_geometry.test_native_checks_the_actual_categorical_panel_height_without_changing_manual_geometry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:1` — internal_docstring; tests.test_graphstyle_api_contract; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:14` — internal_docstring; tests.test_graphstyle_api_contract._graphstyle_api_contracts; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:26` — internal_docstring; tests.test_graphstyle_api_contract._graphstyle_lexical_nodes; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:30` — internal_docstring; tests.test_graphstyle_api_contract._graphstyle_lexical_nodes.visit; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:43` — internal_docstring; tests.test_graphstyle_api_contract._graphstyle_source_signature; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:61` — internal_docstring; tests.test_graphstyle_api_contract._validate_graphstyle_api_source; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:83` — internal_docstring; tests.test_graphstyle_api_contract._current_graphstyle_api; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:96` — internal_docstring; tests.test_graphstyle_api_contract._retired_graphstyle_api; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:109` — internal_docstring; tests.test_graphstyle_api_contract._graphstyle_callable_record; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:114` — internal_docstring; tests.test_graphstyle_api_contract._validated_graphstyle_callables; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:137` — internal_docstring; tests.test_graphstyle_api_contract.test_graphstyle_api_contract_binds_all_named_prose_signatures_and_retirements; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:149` — internal_docstring; tests.test_graphstyle_api_contract.test_graphstyle_source_binding_rejects_parameter_default_type_value_and_prose_drift; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:174` — internal_docstring; tests.test_graphstyle_api_contract.test_graphstyle_callable_projection_preserves_unlisted_records_and_rejects_changed_prose; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_api_contract.py:195` — internal_docstring; tests.test_graphstyle_api_contract.test_graphstyle_retirement_binding_rejects_a_reintroduced_helper; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_bundle_appearance.py:1` — internal_docstring; tests.test_graphstyle_bundle_appearance; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_bundle_appearance.py:20` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_bundle_replays_actual_manual_fonts_colours_and_geometry; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_bundle_appearance.py:55` — internal_docstring; tests.test_graphstyle_bundle_appearance.test_relocated_bundle_resolves_font_from_its_own_files_without_spacr; private/nested/tool/test; no translation records.
@@ -487,7 +595,10 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_graphstyle_function_routes.py:1` — internal_docstring; tests.test_graphstyle_function_routes; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_function_routes.py:5` — internal_docstring; tests.test_graphstyle_function_routes.test_style_routes_resolve_aliases_and_inherited_helpers_without_certifying_nested_or_rebound_calls; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_function_routes.py:64` — internal_docstring; tests.test_graphstyle_function_routes.test_every_conditional_function_variant_needs_a_route_and_cycles_do_not_hang; private/nested/tool/test; no translation records.
-- `tests/test_graphstyle_function_routes.py:72` — internal_docstring; tests.test_graphstyle_function_routes.test_inventory_functions_and_new_creators_use_a_shared_route_or_an_explicit_shrinking_entry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_function_routes.py:72` — internal_docstring; tests.test_graphstyle_function_routes.test_reviewed_support_cannot_gain_even_an_unrecognized_drawing_call; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_function_routes.py:94` — internal_docstring; tests.test_graphstyle_function_routes.test_reviewed_support_rejects_a_changed_import_target_even_with_the_same_function_body; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_function_routes.py:117` — internal_docstring; tests.test_graphstyle_function_routes.test_caller_owned_adapters_do_not_certify_new_unstyled_callers_or_a_changed_host; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_function_routes.py:148` — internal_docstring; tests.test_graphstyle_function_routes.test_inventory_functions_and_new_creators_use_a_shared_route_or_an_explicit_shrinking_entry; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_grouped_xy.py:1` — internal_docstring; tests.test_graphstyle_grouped_xy; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_grouped_xy.py:11` — internal_docstring; tests.test_graphstyle_grouped_xy.test_grouped_xy_exports_square_data_area_without_changing_coordinates_or_manual_choices; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_grouped_xy.py:53` — internal_docstring; tests.test_graphstyle_grouped_xy.test_continuous_numeric_ticks_use_normal_painting_after_a_categorical_view; private/nested/tool/test; no translation records.
@@ -516,6 +627,13 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_graphstyle_linked_axes.py:9` — internal_docstring; tests.test_graphstyle_linked_axes._linked_figure; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_linked_axes.py:36` — internal_docstring; tests.test_graphstyle_linked_axes.test_linked_axes_share_physical_slots_and_fit_both_sets_of_labels_without_changing_values; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_linked_axes.py:51` — internal_docstring; tests.test_graphstyle_linked_axes.test_an_unlinked_axis_cannot_claim_overlay_geometry; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_page_export.py:1` — internal_docstring; tests.test_graphstyle_live_page_export; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_page_export.py:14` — internal_docstring; tests.test_graphstyle_live_page_export._overflowing_figure; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_page_export.py:32` — internal_docstring; tests.test_graphstyle_live_page_export._live_state; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_page_export.py:44` — internal_docstring; tests.test_graphstyle_live_page_export.test_ordinary_writer_uses_a_complete_packed_page_and_restores_live_state; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_page_export.py:52` — internal_docstring; tests.test_graphstyle_live_page_export.test_ordinary_writer_uses_a_complete_packed_page_and_restores_live_state.check_page; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_page_export.py:82` — internal_docstring; tests.test_graphstyle_live_page_export.test_manual_axes_placement_releases_automatic_export_page; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_live_page_export.py:90` — internal_docstring; tests.test_graphstyle_live_page_export.test_manual_axes_placement_releases_automatic_export_page.check_page; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_live_validation.py:1` — internal_docstring; tests.test_graphstyle_live_validation; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_live_validation.py:9` — internal_docstring; tests.test_graphstyle_live_validation._registered_figure; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_live_validation.py:21` — internal_docstring; tests.test_graphstyle_live_validation.test_existing_renderer_is_validated_without_another_draw; private/nested/tool/test; no translation records.
@@ -535,6 +653,7 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_graphstyle_native_diagnostics.py:1` — internal_docstring; tests.test_graphstyle_native_diagnostics; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_diagnostics.py:9` — internal_docstring; tests.test_graphstyle_native_diagnostics.test_native_diagnostics_register_actual_marks_and_preserve_source_arrays; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_diagnostics.py:56` — internal_docstring; tests.test_graphstyle_native_diagnostics.test_native_diagnostic_redraw_keeps_the_caption_and_an_explicit_manual_title; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_diagnostics.py:71` — internal_docstring; tests.test_graphstyle_native_diagnostics.test_manual_native_reference_colour_is_kept_and_diagnosed_without_changing_its_position; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_geometry.py:1` — internal_docstring; tests.test_graphstyle_native_geometry; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_geometry.py:10` — internal_docstring; tests.test_graphstyle_native_geometry.rank; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_geometry.py:22` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_categorical_slots_use_the_shared_physical_geometry; private/nested/tool/test; no translation records.
@@ -563,6 +682,11 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_graphstyle_native_geometry.py:373` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_bundle_captures_successful_file_state_and_exact_numerical_tables; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_geometry.py:401` — internal_docstring; tests.test_graphstyle_native_geometry.test_native_explicit_raster_resolution_is_recorded_and_restored; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_geometry.py:413` — internal_docstring; tests.test_graphstyle_native_geometry.test_constant_dense_native_violins_keep_zero_spread_without_individual_points; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_idle_validation.py:1` — internal_docstring; tests.test_graphstyle_native_idle_validation; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_idle_validation.py:10` — internal_docstring; tests.test_graphstyle_native_idle_validation.test_a_burst_of_native_redraws_invalidates_old_certification_and_observes_only_the_latest_scene; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_idle_validation.py:20` — internal_docstring; tests.test_graphstyle_native_idle_validation.test_a_burst_of_native_redraws_invalidates_old_certification_and_observes_only_the_latest_scene.capture; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_idle_validation.py:41` — internal_docstring; tests.test_graphstyle_native_idle_validation.test_native_export_validates_current_scene_before_the_writer_even_while_idle_validation_is_pending; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_native_idle_validation.py:51` — internal_docstring; tests.test_graphstyle_native_idle_validation.test_native_export_validates_current_scene_before_the_writer_even_while_idle_validation_is_pending.capture; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_strokes.py:1` — internal_docstring; tests.test_graphstyle_native_strokes; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_strokes.py:9` — internal_docstring; tests.test_graphstyle_native_strokes.test_native_exported_frame_ink_keeps_its_point_width_and_restores_the_live_scene; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_native_strokes.py:24` — internal_docstring; tests.test_graphstyle_native_strokes.test_native_exported_frame_ink_keeps_its_point_width_and_restores_the_live_scene.capture; private/nested/tool/test; no translation records.
@@ -581,8 +705,9 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_graphstyle_pca_policy.py:31` — internal_docstring; tests.test_graphstyle_pca_policy.test_scree_uses_shared_slots_and_linked_axes_with_exact_variance_values.palette; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_pca_policy.py:65` — internal_docstring; tests.test_graphstyle_pca_policy.test_empty_scree_status_uses_readable_shared_text_without_inventing_a_decomposition; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_pca_policy.py:76` — internal_docstring; tests.test_graphstyle_pca_policy.test_biplot_preserves_every_correlation_vector_and_moves_feature_labels_to_the_legend; private/nested/tool/test; no translation records.
-- `tests/test_graphstyle_pca_policy.py:113` — internal_docstring; tests.test_graphstyle_pca_policy.test_shared_validation_observes_annotation_arrow_opacity_without_changing_it; private/nested/tool/test; no translation records.
-- `tests/test_graphstyle_pca_policy.py:132` — internal_docstring; tests.test_graphstyle_pca_policy.test_raw_pca_units_use_only_declared_common_feature_units_and_preserve_explicit_choices; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:120` — internal_docstring; tests.test_graphstyle_pca_policy.test_shared_validation_observes_annotation_arrow_opacity_without_changing_it; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:139` — internal_docstring; tests.test_graphstyle_pca_policy.test_raw_pca_units_use_only_declared_common_feature_units_and_preserve_explicit_choices; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_pca_policy.py:173` — internal_docstring; tests.test_graphstyle_pca_policy.test_reference_circle_manual_ink_is_kept_and_diagnosed; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_plate_policy.py:1` — internal_docstring; tests.test_graphstyle_plate_policy; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_plate_policy.py:11` — internal_docstring; tests.test_graphstyle_plate_policy.test_plate_cells_use_shared_defaults_without_changing_values_or_limits; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_plate_policy.py:38` — internal_docstring; tests.test_graphstyle_plate_policy.test_signed_plate_colour_reference_is_zero_with_unchanged_scale_endpoints; private/nested/tool/test; no translation records.
@@ -593,10 +718,21 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_graphstyle_plate_policy.py:118` — internal_docstring; tests.test_graphstyle_plate_policy.test_distinct_colour_limits_have_distinct_accurate_tick_labels; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_plate_policy.py:128` — internal_docstring; tests.test_graphstyle_plate_policy.test_heatmap_validation_observes_missing_marks_and_actual_colours_without_repair; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_plate_policy.py:160` — internal_docstring; tests.test_graphstyle_plate_policy.test_every_declared_numerical_quantity_requires_its_actual_unit; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_rank_presentation.py:1` — internal_docstring; tests.test_graphstyle_rank_presentation; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_rank_presentation.py:13` — internal_docstring; tests.test_graphstyle_rank_presentation.test_native_rank_short_category_axes_keep_slots_and_put_the_default_title_in_the_caption; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_rank_presentation.py:39` — internal_docstring; tests.test_graphstyle_rank_presentation.test_manual_native_rank_title_remains_and_is_reported_by_the_shared_finalizer; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_remaining_gui.py:1` — internal_docstring; tests.test_graphstyle_remaining_gui; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_remaining_gui.py:19` — internal_docstring; tests.test_graphstyle_remaining_gui.test_trellis_uses_shared_physical_slots_and_external_counts_without_changing_rows; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_remaining_gui.py:24` — internal_docstring; tests.test_graphstyle_remaining_gui.test_trellis_uses_shared_physical_slots_and_external_counts_without_changing_rows.automatic; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_remaining_gui.py:65` — internal_docstring; tests.test_graphstyle_remaining_gui.test_late_canvas_labels_and_letters_use_shared_font_and_ink; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_runtime_sources.py:1` — internal_docstring; tests.test_graphstyle_runtime_sources; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_runtime_sources.py:13` — internal_docstring; tests.test_graphstyle_runtime_sources.test_every_literal_shared_style_caption_is_registered_and_has_an_exact_root_handoff; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_runtime_sources.py:31` — internal_docstring; tests.test_graphstyle_runtime_sources.test_shared_style_owner_is_in_the_normal_runtime_scan; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_runtime_sources.py:36` — internal_docstring; tests.test_graphstyle_runtime_sources.test_shared_style_owner_is_in_the_normal_runtime_scan.observe; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_runtime_sources.py:49` — internal_docstring; tests.test_graphstyle_runtime_sources.test_replay_caption_admission_is_limited_to_the_real_shared_owner; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_runtime_sources.py:59` — internal_docstring; tests.test_graphstyle_runtime_sources.test_replay_and_feature_captions_have_exact_normal_runtime_registration_and_handoff; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_runtime_sources.py:74` — internal_docstring; tests.test_graphstyle_runtime_sources.test_bundle_replay_owner_is_visited_by_the_normal_runtime_extractor; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_runtime_sources.py:80` — internal_docstring; tests.test_graphstyle_runtime_sources.test_bundle_replay_owner_is_visited_by_the_normal_runtime_extractor.observe; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_scene_axes.py:1` — internal_docstring; tests.test_graphstyle_scene_axes; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_scene_axes.py:15` — internal_docstring; tests.test_graphstyle_scene_axes.test_translated_frame_uses_actual_source_spine_width_colour_and_alpha; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_scene_axes.py:46` — internal_docstring; tests.test_graphstyle_scene_axes.test_translated_tick_pens_lengths_text_ink_and_visibility_follow_the_source; private/nested/tool/test; no translation records.
@@ -605,6 +741,9 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_graphstyle_scene_colour_fallback.py:14` — internal_docstring; tests.test_graphstyle_scene_colour_fallback.test_scene_declines_colour_semantics_it_cannot_reproduce_without_changing_values; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_scene_colour_fallback.py:27` — internal_docstring; tests.test_graphstyle_scene_colour_fallback.test_scene_declines_colour_semantics_it_cannot_reproduce_without_changing_values.ready; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_scene_colour_fallback.py:31` — internal_docstring; tests.test_graphstyle_scene_colour_fallback.test_scene_declines_colour_semantics_it_cannot_reproduce_without_changing_values.write; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_colour_fallback.py:46` — internal_docstring; tests.test_graphstyle_scene_colour_fallback.test_constant_key_retains_its_single_true_value_through_the_original_renderer; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_colour_fallback.py:59` — internal_docstring; tests.test_graphstyle_scene_colour_fallback.test_constant_key_retains_its_single_true_value_through_the_original_renderer.ready; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_scene_colour_fallback.py:63` — internal_docstring; tests.test_graphstyle_scene_colour_fallback.test_constant_key_retains_its_single_true_value_through_the_original_renderer.write; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_scene_parity.py:1` — internal_docstring; tests.test_graphstyle_scene_parity; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_scene_parity.py:11` — internal_docstring; tests.test_graphstyle_scene_parity.translated; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_scene_parity.py:15` — internal_docstring; tests.test_graphstyle_scene_parity.translated.build; private/nested/tool/test; no translation records.
@@ -670,9 +809,9 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_graphstyle_style_volcano_replay.py:104` — internal_docstring; tests.test_graphstyle_style_volcano_replay.test_exported_volcano_script_runs_without_spacr_and_reads_exact_float_values; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_umap_native.py:1` — internal_docstring; tests.test_graphstyle_umap_native; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_umap_native.py:11` — internal_docstring; tests.test_graphstyle_umap_native.test_native_embedding_observes_actual_paint_and_retains_coordinates_and_camera; private/nested/tool/test; no translation records.
-- `tests/test_graphstyle_umap_native.py:41` — internal_docstring; tests.test_graphstyle_umap_native.test_native_manual_appearance_remains_exact_and_is_diagnosed; private/nested/tool/test; no translation records.
-- `tests/test_graphstyle_umap_native.py:55` — internal_docstring; tests.test_graphstyle_umap_native.test_native_shell_shows_caption_and_camera_help_outside_the_plot; private/nested/tool/test; no translation records.
-- `tests/test_graphstyle_umap_native.py:65` — internal_docstring; tests.test_graphstyle_umap_native.test_clearing_a_native_map_clears_the_external_partition_and_paint_observation; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_native.py:44` — internal_docstring; tests.test_graphstyle_umap_native.test_native_manual_appearance_remains_exact_and_is_diagnosed; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_native.py:58` — internal_docstring; tests.test_graphstyle_umap_native.test_native_shell_shows_caption_and_camera_help_outside_the_plot; private/nested/tool/test; no translation records.
+- `tests/test_graphstyle_umap_native.py:68` — internal_docstring; tests.test_graphstyle_umap_native.test_clearing_a_native_map_clears_the_external_partition_and_paint_observation; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_umap_policy.py:1` — internal_docstring; tests.test_graphstyle_umap_policy; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_umap_policy.py:15` — internal_docstring; tests.test_graphstyle_umap_policy._payload; private/nested/tool/test; no translation records.
 - `tests/test_graphstyle_umap_policy.py:23` — internal_docstring; tests.test_graphstyle_umap_policy.isolated_preferences; private/nested/tool/test; no translation records.
@@ -718,6 +857,8 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tests/test_umap_search_viewer_view.py:245` — internal_docstring; tests.test_umap_search_viewer_view.test_every_marker_paints_its_own_picture; private/nested/tool/test; no translation records.
 - `tests/test_umap_search_viewer_view.py:266` — internal_docstring; tests.test_umap_search_viewer_view.test_every_marker_paints_its_own_picture.footer; private/nested/tool/test; no translation records.
 - `tests/test_venn_figure_recipe.py:20` — internal_docstring; tests.test_venn_figure_recipe.test_venn_export_preserves_full_input_and_recreates_overlap; private/nested/tool/test; no translation records.
+- `tools/build_i18n_catalogs.py:4960` — internal_docstring; tools.build_i18n_catalogs._static_ui_sources_of_file; private/nested/tool/test; no translation records.
+- `tools/build_i18n_catalogs.py:5410` — internal_docstring; tools.build_i18n_catalogs.extract_static_ui_sources; private/nested/tool/test; no translation records.
 - `tools/graphstyle_routes.py:1` — internal_docstring; tools.graphstyle_routes; private/nested/tool/test; no translation records.
 - `tools/graphstyle_routes.py:19` — internal_docstring; tools.graphstyle_routes.owned_nodes; private/nested/tool/test; no translation records.
 - `tools/graphstyle_routes.py:28` — internal_docstring; tools.graphstyle_routes.aliases_in; private/nested/tool/test; no translation records.
@@ -729,3 +870,68 @@ Source entries below are the checkpoint inventory. The JSON owns exact bodies.
 - `tools/graphstyle_routes.py:140` — internal_docstring; tools.graphstyle_routes.resolve_method; private/nested/tool/test; no translation records.
 - `tools/graphstyle_routes.py:158` — internal_docstring; tools.graphstyle_routes.call_graph; private/nested/tool/test; no translation records.
 - `tools/graphstyle_routes.py:165` — internal_docstring; tools.graphstyle_routes.routed_functions; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:182` — internal_docstring; tools.graphstyle_routes.reviewed_support_functions; private/nested/tool/test; no translation records.
+- `tools/graphstyle_routes.py:204` — internal_docstring; tools.graphstyle_routes.reviewed_context_functions; private/nested/tool/test; no translation records.
+
+<!-- SHARED_STYLE_RUNTIME -->
+
+Shared style and bundle replay enter the normal runtime collector. The feature producer uses the normal Qt source scan. The JSON contains every current literal template from these three G1 owners, including existing captions, with exact file, line, English source and SHA-256. No generated catalogues, reviewed records or translation pins were changed. The remaining G1 sources and API inventory will be refreshed before FINAL.
+
+- `spacr/figures/style.py:1264` — Use the shared 40 mm panel dimension; preserve explicit manual sizes with a diagnostic; SHA-256 `8bacb08f2a18290195402953575d0fe9d8ca2b4762942674fb573a49f6728742`.
+- `spacr/figures/style.py:1349` — Link the overlay to a declared primary statistical axis; SHA-256 `e89e055926b5c1ab894c868fe0974280f2b39889f54619ead569af1aa177d6a9`.
+- `spacr/figures/style.py:1354` — Align the linked axes on the same physical plotting area; SHA-256 `da134f631004b5698b69906acd06d1dcfa8bc8c881a02f4c0cedacf890c032f9`.
+- `spacr/figures/style.py:2070` — Captured appearance does not support this custom legend key; SHA-256 `50742b295eff33595680df3286b437d927d321edc752d8f99195f66a2d4d38a3`.
+- `spacr/figures/style.py:2185` — Captured appearance does not support this colour normalization; SHA-256 `ab02eab98c99de746c173101083eafcb5451675c0c2650581d9e8db2fd90c1e1`.
+- `spacr/figures/style.py:2508` — Match the colour key to the plotted scalar values and opacity; SHA-256 `df10c8c5a0d4a5595fa2820555ae2f8a390bfe77f9e6b293315d993b71783993`.
+- `spacr/figures/style.py:2516` — Register the scalar source associated with each colour key; SHA-256 `199eef94a0348f7b2d294204c8fc10968f2af7a30d2e10fb57f727f0dd256332`.
+- `spacr/figures/style.py:2524` — Declare the quantity and unit represented by the colour key; SHA-256 `b9c8df64b270e9947764dba74df6e642a401125ca0427a9b5036cadb8840acb0`.
+- `spacr/figures/style.py:2529` — Match the colour-key label to its declared quantity and unit; SHA-256 `0c0f208fd4a0926d78ab5ea8bc7e69198e0cc5a9417fe267437e4dac21200ca1`.
+- `spacr/figures/style.py:2566` — Use bundled Open Sans for every colour-key text element; SHA-256 `501521f32c496492bd7506a960631236c26789c0580ec664f56cd08d8e0823c6`.
+- `spacr/figures/style.py:2568` — Use at least eight points for every colour-key text element; SHA-256 `25ab47a3a3a18bfc5089f14954e35d596cb38f09c54839bd1e0ba822f4a6e5eb`.
+- `spacr/figures/style.py:2571` — Use the declared body font weight for colour-key text; SHA-256 `408b227d6a36ef45c197273886418fd8fed1d683b779226fd156a4f37b81dc70`.
+- `spacr/figures/style.py:2574` — Keep colour-key text fully opaque; SHA-256 `e25faaaaa6f2d37d66540effbcc6086897ce7eedf3f3e4fb238784e540835868`.
+- `spacr/figures/style.py:2577` — Use readable text contrast against the colour-key background; SHA-256 `f3dee9b7777d87a961d023b7f902fe4f4cfcde56ec3aefba2d450bf0de772dc7`.
+- `spacr/figures/style.py:2603` — State units consistent with the declared mathematical transformation; SHA-256 `74bcb101f570bf949c463ef3525d336a0560a57185905ab39b7b5067dd0b30ca`.
+- `spacr/figures/style.py:2646` — Draw scalar heatmap cells before validating their appearance; SHA-256 `125df7c9398af63cd1b9bcd9f842eb91b379a28428c17243fb6b96c32d6202ad`.
+- `spacr/figures/style.py:2650` — Use the shared heatmap colour map; preserve manual colours with a diagnostic; SHA-256 `3714027b78cdc9d52fd1f4b55a1ee35d2361dd3690796cffb2fe0ddff82ba8bb`.
+- `spacr/figures/style.py:2652` — Remove the frame from heatmap cells; SHA-256 `07cf6d13fc6cfb814e1fd3db36830bbbefa9214195122c70c2889818a74f0d5c`.
+- `spacr/figures/style.py:2664` — Declare scalar heatmap values for missing-cell validation; SHA-256 `ba725e941a9586ccf7e0b2d02ad8fe2749e7e777ad0789c72c0f20c14e980cb7`.
+- `spacr/figures/style.py:2682` — Mark every missing cell with a thin black ×; SHA-256 `e565062603ae371fd8f8a9d7de692b73e5f5bfdd387a2b1258ead75c890d9b84`.
+- `spacr/figures/style.py:2691` — Mark every missing cell with a thin black ×; SHA-256 `e565062603ae371fd8f8a9d7de692b73e5f5bfdd387a2b1258ead75c890d9b84`.
+- `spacr/figures/style.py:2695` — Use a colour from the heatmap scale beneath missing-cell crosses; SHA-256 `d31e353494782d2971e3043f961c86a482e36b8e0caa63e8ebf3bc6f813f4c6a`.
+- `spacr/figures/style.py:2717` — The declared heatmap reference is not inside the displayed colour range; SHA-256 `674ecdccf48ce94dfd302bb8e910e188845376965b7cb8d0c749c91f17019f00`.
+- `spacr/figures/style.py:2727` — A status panel must not contain plotted observations; SHA-256 `beb3a188c9e3cc59a3a93be578e105a42b3ae167df1f350863d2479970c14048`.
+- `spacr/figures/style.py:2741` — Match Venn region colours to the declared input and overlap identities; SHA-256 `d5bf121070e409d9568fba11c1ebae720f752b933bd06f32f638d060d885a259`.
+- `spacr/figures/style.py:2743` — Draw every data mark at sixty percent opacity; SHA-256 `2e82fd1cd10727221c558750397d908ca8101ecff5e20b9ad258188e2120024d`.
+- `spacr/figures/style.py:2782` — Move the plot title into the figure legend; SHA-256 `8fb1cebac5f281c6b09242ecac6d3a153e3b826199de910820985957b671e82c`.
+- `spacr/figures/style.py:2790` — Draw reference lines in black; preserve explicit colours with a diagnostic; SHA-256 `84684c05f33fa652dd781084918ce5b8d2857e1ea77f4035b4428febc60c39fa`.
+- `spacr/figures/style.py:2838` — Numeric colour keys need increasing boundaries aligned with their colours; SHA-256 `5a2e1372a746358f81e8a46fd27854642c01d46e11e8741a9b58e22ccf5e583c`.
+- `spacr/figures/style.py:3007` — Match the native scalar key to its source values, colours, opacity, quantity and unit; SHA-256 `9d3cd811daede180457d6cd0113ba7780c8e071a9a2c4e05838e58a28261ecb6`.
+- `spacr/figures/style.py:3064` — Use the shared sequential ramp for a numeric channel; keep explicit manual maps with a diagnostic; SHA-256 `6603cdd5bacb2f447bec69ab571c1162efdebb39990de676465b101ffabaca6e`.
+- `spacr/figures/style.py:3298` — Validate the updated native plot before certifying its appearance; SHA-256 `921fbf960dae3c255fb75149609a7384990094f1f95e8e7a88bb9beaa2d7a64d`.
+- `spacr/figures/style.py:3330` — Axis overlays require a declared shared Matplotlib axis; SHA-256 `c373218c6185c104ffdb1642379a1457dd6ee70591d6d4b3273a8f5a8d102a50`.
+- `spacr/figures/style.py:3339` — Move the plot title into the figure legend; SHA-256 `8fb1cebac5f281c6b09242ecac6d3a153e3b826199de910820985957b671e82c`.
+- `spacr/figures/style.py:3392` — Draw reference lines in black; preserve explicit colours with a diagnostic; SHA-256 `84684c05f33fa652dd781084918ce5b8d2857e1ea77f4035b4428febc60c39fa`.
+- `spacr/figures/style.py:3975` — Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition.; SHA-256 `55ec8a5a3c2e66f6c6abf2ce56871175497c92b21dde190fdd576bbcf4b8f657`.
+- `spacr/figures/style.py:4023` — Cluster {cluster}: {count} points.; SHA-256 `eadf2f7d4339b613d5100e6006d8f183e1873c1ed0d52ab01fdf882182170b47`.
+- `spacr/figures/style.py:4026` — Cluster {cluster} outline.; SHA-256 `22d20e187a27e0db816a09cf63dbc07e24fc70bc0c78eb05874b2dadb6c4b865`.
+- `spacr/figures/bundle.py:687` — Unsupported captured control-chart recipe; SHA-256 `59abdd44053b98b07f4e7dca4077edcda6ef54ec3c088ce787270a01327c24dc`.
+- `spacr/figures/bundle.py:691` — Captured control limits require the original plate identities and order; SHA-256 `fd8fc6a40a0103cd0b192f1f401b5f1e5f129dd0c71878f0cd6998abd761bbdb`.
+- `spacr/figures/bundle.py:697` — Captured control arrays do not match the source plate count; SHA-256 `0a4f7aa000a488bfeffc1c768340afd7cf88b491b06ca8d0373d2d44414eaab5`.
+- `spacr/figures/bundle.py:716` — Unsupported captured feature-distribution recipe; SHA-256 `b77c19a9063bb9034e9ccbb219b92ce38c9433c12b65563f678c8b2089c31ac0`.
+- `spacr/figures/bundle.py:719` — Captured feature class identities do not match the source table; retain the original class labels; SHA-256 `1530319fc861350a0477e2b7010b7235856d61d0a5c3052b703487bc2ecf180d`.
+- `spacr/figures/bundle.py:749` — Captured control charts require their original panel; SHA-256 `a770174377160e4ceeb5b50e7c19b6c320357e7c0eba7d04c25b02c95c4e959e`.
+- `spacr/figures/bundle.py:768` — Unsupported captured explorer volcano recipe or nested panel; SHA-256 `72bae5bbbc6f93a107967474c79c7eb0996d523c060dc378c46bafaf33989de0`.
+- `spacr/figures/bundle.py:792` — Captured feature distributions require their own figure; SHA-256 `bedd5247bf16dcbd428decb8a0ad6556d86827d5b469b37cdd74f407ec2db9fa`.
+- `spacr/figures/bundle.py:798` — Standalone feature recreation requires captured appearance; SHA-256 `670b617ea9201bc6a16f04a1a7c928a8d9b25160ee3543cb120f5387f2175d1b`.
+- `spacr/figures/bundle.py:1388` — Portable figure replay found an uncaptured application dependency; SHA-256 `e959fa62707421bf150fc482626735ce835b2ca3b3f68e2a095487fcfd773ddd`.
+- `spacr/qt/widgets/feature_explorer.py:82` — absolute rank separation |2 × AUC − 1|; SHA-256 `6f67250229ece6357479c776566698eba0cec70a8f8af7e38432035faf135f95`.
+- `spacr/qt/widgets/feature_explorer.py:83` — absolute standardized mean difference; SHA-256 `0db122d10242cd569844f6e7f94676d49bd569374682e1776ee4ab84c0684345`.
+- `spacr/qt/widgets/feature_explorer.py:84` — Kolmogorov–Smirnov distance; SHA-256 `a57102c98638bfdfcce0a32a5555919a69353ec26651824267fb826a43f305d8`.
+- `spacr/qt/widgets/feature_explorer.py:85` — mutual information normalized by class entropy; SHA-256 `6b1be938fb520845e9bd7aed608204442d2c19b91a844d276370e52e98301932`.
+- `spacr/qt/widgets/feature_explorer.py:86` —  Shape differs without a location shift.; SHA-256 `b862936007f96e5a8ca65ae276cc11f976ab869e96153c7ef3313e1423d0d251`.
+- `spacr/qt/widgets/feature_explorer.py:87` — {feature}: {statistic} = {score:.3f}; values higher in {higher}; minimum class size {minimum:,}.{shape}; SHA-256 `b46388970a102871bccd52b3886f032ba981d390a6b687615793a717240d52e4`.
+- `spacr/qt/widgets/feature_explorer.py:90` — Observed classes use the same feature-bin edges; SHA-256 `08e86f81592313f54549cae8f56201944c682267a94f1d896d30e20796b4764d`.
+- `spacr/qt/widgets/feature_explorer.py:95` — Observation count; SHA-256 `010f99f58498653176a40c7f40b3a3a74e88c63f5358911656f2619f8d5cd4be`.
+- `spacr/qt/widgets/feature_explorer.py:97` — Area under the receiver operating characteristic curve; SHA-256 `584a68080c1da41f0d3fa6b12def57014ef23d1603f30919c7dde68a903660e0`.
+- `spacr/qt/widgets/feature_explorer.py:139` — Observation count; SHA-256 `010f99f58498653176a40c7f40b3a3a74e88c63f5358911656f2619f8d5cd4be`.

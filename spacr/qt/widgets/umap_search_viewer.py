@@ -633,6 +633,10 @@ class UmapEmbeddingView(QWidget):
     def paintEvent(self, _event) -> None:  # noqa: N802
         """Draw the points, or the empty-state message.
 
+        The projected coordinate grid is recorded as grid chrome rather
+        than as an analytical reference line. Its original geometry,
+        grey pen and opacity remain unchanged.
+
         :param _event: the Qt paint event; unused.
         """
         from dataclasses import asdict
@@ -750,7 +754,7 @@ class UmapEmbeddingView(QWidget):
             text_bounds_checked=True, text_geometry=dict(outside=outside, overlaps=overlaps),
             incomplete_checks=incomplete)
         grid_points = np.asarray(frame["grid"]).reshape(-1,2)
-        self._last_paint["marks"].append(dict(role="reference", opacity=1.,
+        self._last_paint["marks"].append(dict(type="coordinate_grid", role="grid", opacity=1.,
             colours=[list(grid_pen.color().getRgbF())], pens=[dict(width=grid_pen.widthF(),
                 colour=list(grid_pen.color().getRgbF()))], point_count=0,
             bounds=dict(checked=True, x=[float(grid_points[:,0].min()),float(grid_points[:,0].max())],

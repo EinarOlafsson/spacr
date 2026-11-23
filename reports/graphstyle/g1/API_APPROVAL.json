@@ -1,0 +1,59 @@
+{
+  "state": "Approved exact API hooks applied; full consumer gates deferred until explicit computation RESUME.",
+  "approval_inbox_sha256": "c55b156d8dde58b667ba17e8f81527e30a08e2dd6fe2487b21418500a02243d0",
+  "patch_sha256": "699685ea28543e357342bd912dc45061748f89a2070606b7e556faae34a67d93",
+  "protected_consumers": [
+    {
+      "file": "tests/test_docstring_correctness.py",
+      "base_sha256": "3172815d1eac98807d8c694d030d88c9d2385e2b70be49e831301f610e32918e",
+      "proposed_sha256": "81a7b689e2afe999bbccbf38207ab404fa03dfa549a9b8d27100b31e61bc08d1",
+      "all_existing_assertions_preserved": true,
+      "existing_assertion_count": 1107,
+      "changed_functions": [
+        "test_callable_boundary_is_cross_checked_with_i18n_extractor",
+        "test_public_callable_inventory_is_source_derived_not_docstring_derived"
+      ]
+    },
+    {
+      "file": "tests/test_documentation_i18n.py",
+      "base_sha256": "8f2c2cf34b57be72a3763e923a06355826fb90a5766236817dab3349505f40a4",
+      "proposed_sha256": "ba1887fb688d5ed5328934805c494548c18bdd7d0ed9b8c3eaadaba87f956bab",
+      "all_existing_assertions_preserved": true,
+      "existing_assertion_count": 775,
+      "changed_functions": [
+        "test_documentation_api_catalog_inventory_and_hashes_are_current"
+      ]
+    },
+    {
+      "file": "tests/test_api_i18n_extractor.py",
+      "base_sha256": "8ac7b1b54e22f0916ea801865dcbcdfbe32b0048ce1fe57017dc8ff1a9bb70f8",
+      "proposed_sha256": "51dff2c09836a439dcabce18f21a4351107fb8937b9f6877f9cd89a77ba892f1",
+      "all_existing_assertions_preserved": true,
+      "existing_assertion_count": 499,
+      "changed_functions": [
+        "test_public_docstrings_matches_reviewed_visible_coverage"
+      ]
+    }
+  ],
+  "new_files": [
+    {
+      "path": "tests/data/release_contracts/graphstyle_g1_api_arrivals_2026-11-23.json",
+      "sha256": "9a221f8d140da8b407692fca354c354f5bc63d8d89e7c14367c5e34b29ac8943"
+    },
+    {
+      "path": "tests/data/release_contracts/graphstyle_g1_api_sources_2026-11-23.json",
+      "sha256": "fec22abc25c7a6801a6b37fdccf39ea3d63af059ac8f1d79a16f0e29f2e7c4ce"
+    },
+    {
+      "path": "tests/test_graphstyle_api_contract.py",
+      "sha256": "5a2ae544a98dca27d53e86cd497b2628a5cf9e0496b44cc1482b0fa7df1d3bdd"
+    }
+  ],
+  "unchanged_assertions": 2381,
+  "catalogs_pins_historical_arrivals_or_translations_changed": false,
+  "retired": {
+    "spacr.plot.spacrGraph.create_plot._generate_tabels": "Its separate multi-level +/- symbol-table path was replaced by explicit shared condition labels and the external figure legend; original observation and summary tables remain unchanged.",
+    "spacr.plot.spacrGraph.create_plot._place_symbols": "Its under-axis symbol/text placement and extra canvas draw were replaced by shared tick/label geometry and external legend metadata.",
+    "spacr.plot.spacrGraph.create_plot._get_positions": "Its graph-type-specific artist-centre inference was no longer needed after categorical presentation used explicit condition positions and labels."
+  }
+}

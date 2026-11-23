@@ -100,7 +100,7 @@ from PySide6.QtWidgets import (
 
 #: Colour-blind-safe qualitative order. A screen's categories are nominal, so a
 #: sequential map would imply a ranking that is not there.
-from ...figures.style import SERIES as PALETTE
+from ...figures.style import SERIES as PALETTE, Palette
 
 #: The two colours a "one thing against grey" plot needs. THE SAME OBJECTS
 #: the saved figure uses, not a second pair chosen to look similar: a run
@@ -198,13 +198,7 @@ MARK_TYPES = (
 MIN_N_FOR_DISTRIBUTION = 8
 
 #: The colour scales offered for "colour the points by a numeric column".
-#:
-#: PERCEPTUALLY UNIFORM ONLY, and pyqtgraph ships all five itself -- no
-#: matplotlib import, which this module is careful never to make. A jet or a
-#: rainbow puts bright bands where the data has none and reads as structure;
-#: these five do not, which is the whole reason a cmap is allowed on a
-#: continuous quantity while the categorical palette stays nominal.
-COLORMAPS = ("viridis", "plasma", "inferno", "magma", "cividis")
+COLORMAPS = ("viridis", "plasma", "inferno", "magma", "cividis", Palette.SEQUENTIAL)
 
 #: How many steps a colour scale is quantised to before brushes are built.
 #:
@@ -1648,6 +1642,9 @@ class FastPlot(QWidget):
         table must keep its identifiers -- but every ``set_*`` below re-sets
         them, so a NEW table cannot inherit the old ones either.
         """
+        from ...figures.style import _remove_native_scalar_key
+
+        _remove_native_scalar_key(self)
         self.plot.clear()
         self._row_xy = {}
         self._spacr_style_spec = None
@@ -1803,6 +1800,9 @@ class FastPlot(QWidget):
         Quantities come from the existing displayed axis labels. Only units
         known from a mathematical definition are supplied by the producer;
         unspecified model-response units remain explicit diagnostics.
+        Full observation is coalesced after a redraw burst; pending scenes
+        cannot inherit a previous compliance result. Exports still validate
+        the actual current scene synchronously.
 
         :param reference: explicitly named analytical reference described by this diagnostic.
         :param units: known axis-unit pairs, with missing measurement units left unspecified.
@@ -1812,7 +1812,7 @@ class FastPlot(QWidget):
         """
         if not self.plots_available:
             return
-        from ...figures.style import resolve_style, finalize_figure, _apply_native_marks, Palette
+        from ...figures.style import resolve_style, _queue_native_finalization, _apply_native_marks, Palette
 
         quantities = {"x": str(self.plot.getAxis("bottom").labelText),
                       "y": str(self.plot.getAxis("left").labelText)}
@@ -1831,12 +1831,12 @@ class FastPlot(QWidget):
                     "quantities": quantities, "units": dict(units)})
         artists = []
         entries = [dict(label=caption.strip(), colour="#000000", kind="caption"),
-                   dict(label=reference, colour=Palette.CONTROL, kind="reference")]
+                   dict(label=reference, colour="#000000", kind="reference")]
         for artist in self.plot.plotItem.items:
             if artist is self._highlight:
                 continue
             if isinstance(artist, pg.InfiniteLine):
-                role, colour = "reference", Palette.CONTROL
+                role, colour = "reference", "#000000"
                 label = getattr(artist, "label", None)
                 if label is not None:
                     entries.append(dict(label=label.toPlainText(), colour=colour, kind="reference"))
@@ -1855,7 +1855,7 @@ class FastPlot(QWidget):
                 elif role == "violin":
                     colour = None
                 else:
-                    role, colour = ("reference", Palette.CONTROL) if diagonal else ("trend", Palette.TEAL)
+                    role, colour = ("reference", "#000000") if diagonal else ("trend", Palette.TEAL)
             else:
                 continue
             artists.append((artist, role, colour))
@@ -1867,7 +1867,7 @@ class FastPlot(QWidget):
         self._spacr_legend_entries = tuple(entries)
         if title == self._spacr_diagnostic_default_title:
             self.plot.setTitle("")
-        finalize_figure(self)
+        _queue_native_finalization(self)
 
     def add_smoother(self, x, y, *, method: str = "lowess",
                      colour: str = "#55A868") -> str:
@@ -2989,11 +2989,11 @@ class FastPlot(QWidget):
         pen = pg.mkPen(QColor(colour))
         from PySide6.QtGui import QFont
 
-        for name in ("bottom", "left"):
-            try:
-                axis = self.plot.getAxis(name)
-            except Exception:
-                continue
+        axes = [self.plot.getAxis(name) for name in ("bottom", "left")]
+        scalar_key = getattr(self, "_spacr_scalar_key", None)
+        if scalar_key is not None:
+            axes.append(scalar_key.getAxis("right"))
+        for axis in axes:
             axis.setTextPen(pen)
             existing = axis.style.get("tickFont")
             if existing is None or resize:
@@ -3061,12 +3061,10 @@ class FastPlot(QWidget):
                 and not isinstance(item, ScatterPlotItem)]
 
     def axis_items(self) -> list:
-        """The four axes, for the line control to reach.
+        """Return the data axes and external scalar key axes for shared styling and restoration.
 
-        The spines and the tick marks are lines too. The axis takes
-        ``foreground`` at construction, and :meth:`line_items` excludes
-        anything that is not a plot item, so this method is how the line
-        control reaches them.
+        Spines, tick marks and numeric-key axes participate in the same line,
+        font and temporary-export controls. Source data remains unchanged.
         """
         if not HAVE_PYQTGRAPH:
             return []
@@ -3078,6 +3076,9 @@ class FastPlot(QWidget):
                 continue
             if axis is not None:
                 found.append(axis)
+        scalar_key = getattr(self, "_spacr_scalar_key", None)
+        if scalar_key is not None:
+            found.append(scalar_key.getAxis("right"))
         return found
 
     def line_colour(self) -> Optional[str]:
@@ -3160,7 +3161,7 @@ class FastPlot(QWidget):
         return None
 
 
-    def colour_by_column(self, column: str, colormap: str = "viridis") -> int:
+    def colour_by_column(self, column: str, colormap: str = "viridis", *, missing_colour=None) -> int:
         """Colour every point by ``column`` through ``colormap``. Returns n.
 
         This maps a continuous data column to a visual channel rather than
@@ -3169,6 +3170,7 @@ class FastPlot(QWidget):
         instead of being placed at the bottom of the scale.
 
         :param column: a continuous (numeric) column of the plotted table.
+        :param missing_colour: explicit missing-value display colour, or the existing neutral default.
         :raises ValueError: for a column that is not there or not continuous,
             and for a colormap this build does not provide.
         """
@@ -3187,14 +3189,18 @@ class FastPlot(QWidget):
             raise ValueError(
                 f"unknown colormap {colormap!r}; this build offers "
                 f"{', '.join(COLORMAPS)}")
-        table = pg.colormap.get(colormap)
+        from ...figures.style import _native_colour_table, _native_scalar_steps, _attach_native_scalar_key
 
         values = _finite(frame[column].to_numpy())
         usable = values[~np.isnan(values)]
         low, high = float(usable.min()), float(usable.max())
-        lookup = table.getLookupTable(nPts=COLORMAP_STEPS, alpha=True)
+        lookup = _native_colour_table(colormap, COLORMAP_STEPS)
         cache: dict = {}
-        missing_brush = pg.mkBrush(QColor(MISSING_COLOUR))
+        missing_ink = QColor(MISSING_COLOUR if missing_colour is None else missing_colour)
+        specification = getattr(self, "_spacr_style_spec", None)
+        if specification is not None:
+            missing_ink.setAlphaF(specification.alpha)
+        missing_brush = pg.mkBrush(missing_ink)
 
         painted, blank = 0, 0
         for item in self._scatter_items():
@@ -3203,9 +3209,7 @@ class FastPlot(QWidget):
                 continue
             self._remember_point_style(item)
             picked = values[rows]
-            steps = np.clip(
-                np.round((picked - low) / (high - low) * (COLORMAP_STEPS - 1)),
-                0, COLORMAP_STEPS - 1)
+            steps = _native_scalar_steps(picked, low, high, COLORMAP_STEPS)
             brushes = []
             for value, step in zip(picked, steps):
                 if np.isnan(value):
@@ -3216,18 +3220,28 @@ class FastPlot(QWidget):
                 brush = cache.get(index)
                 if brush is None:
                     r, g, b, a = (int(c) for c in lookup[index])
-                    brush = cache[index] = pg.mkBrush(QColor(r, g, b, a))
+                    ink = QColor(r, g, b, a)
+                    if specification is not None:
+                        ink.setAlphaF(specification.alpha)
+                    brush = cache[index] = pg.mkBrush(ink)
                 brushes.append(brush)
             item.setBrush(brushes)
             painted += len(brushes)
 
         self._colour_column = (column, colormap)
-        note = (f"Coloured by {column} ({colormap}): {low:.3g} at the dark "
-                f"end to {high:.3g} at the bright end.")
+        self._spacr_scalar_channel = dict(column=column, colormap=colormap, low=low, high=high,
+            lookup=lookup.copy(), missing_colour=missing_ink.name())
+        if specification is not None:
+            _attach_native_scalar_key(self)
+        note = tr("Coloured by {column} ({colormap}): {low} to {high}.").format(
+            column=column, colormap=colormap, low=f"{low:.3g}", high=f"{high:.3g}")
         if blank:
-            note += (f" {blank} point{'s' if blank != 1 else ''} have no "
-                     f"{column} and are grey.")
+            note += " " + tr("Rows without {column}: {count}; their points use the missing-value colour.").format(column=column, count=blank)
         self.set_style_note(note)
+        if specification is not None:
+            from ...figures.style import finalize_figure
+
+            finalize_figure(self)
         return painted
 
     def shape_by_column(self, column: str) -> int:
@@ -3497,6 +3511,11 @@ class FastPlot(QWidget):
             layout.setColumnFixedWidth(1, geometry.width_inches * dpi)
             layout.setRowFixedHeight(2, geometry.height_inches * dpi)
             width = geometry.width_inches * dpi + sum(self.plot.getAxis(edge).width() for edge in ("left", "right")) + 2 * padding + extra_left
+            scalar_key = getattr(self, "_spacr_scalar_key", None)
+            if scalar_key is not None:
+                from PySide6.QtCore import Qt
+
+                width += scalar_key.effectiveSizeHint(Qt.PreferredSize).width()
             title = getattr(item, "titleLabel", None)
             title_height = float(title.height()) if title is not None and title.isVisible() else 0.0
             height = geometry.height_inches * dpi + sum(self.plot.getAxis(edge).height() for edge in ("bottom", "top")) + title_height + 2 * padding
@@ -6168,6 +6187,15 @@ class FastPlot(QWidget):
                 elif options.get("fillLevel") == "enclosed" and getattr(artist, "xData", None) is not None:
                     mark["width"] = float(np.ptp(artist.xData))
             snapshot["marks"].append(mark)
+        scalar_key = getattr(self, "_spacr_scalar_key", None)
+        if scalar_key is not None:
+            axis = scalar_key.getAxis("right")
+            font = QFontInfo(axis.style.get("tickFont") or QFont())
+            snapshot["fonts"].append(dict(family=font.family(), size=font.pointSizeF(),
+                weight=int(font.weight()), italic=font.italic(), role="colour_key_tick",
+                colour=list(axis.textPen().color().getRgbF())))
+            if axis.labelText:
+                snapshot["fonts"].append(_native_text_appearance(axis.label, "colour_key_label"))
         snapshot["text_geometry"] = _native_text_geometry(item)
         snapshot["text_bounds_checked"] = snapshot["text_geometry"]["checked"]
         return snapshot
@@ -7358,6 +7386,11 @@ class EffectRankPlot(FastPlot):
                     drop_untested: bool = True) -> int:
         """Draw vertical coefficient bars with intervals; return the finite estimate count.
 
+        The constructor title belongs to the external caption so its text
+        cannot stretch short condition axes. Explicit titles remain visible
+        and diagnosed. The shared owner applies physical mark defaults;
+        coefficient selection, ordering and interval arithmetic are retained.
+
         :param frame: the coefficient table.
         :param effect: the fitted-effect column.
         :param error_column: the standard error, so an interval can be drawn.
@@ -7480,7 +7513,10 @@ class EffectRankPlot(FastPlot):
             interval._spacr_condition_role = "error"
             self.plot.addItem(interval)
 
-        points = self.add_scatter(ranks, x, size=4.0, rows=order,
+        from ...figures.style import GENERAL_DEFAULTS
+
+        point_size = np.sqrt(GENERAL_DEFAULTS["marker_size"]) * self.logicalDpiX() / 72.
+        points = self.add_scatter(ranks, x, size=float(point_size), rows=order,
                                   colours=[inks[int(c)] for c in code])
         points._spacr_condition_role = "estimate_point"
         reference = self.add_line(y=0.0, colour="#8C8C8C", width=1.0)
@@ -7501,15 +7537,32 @@ class EffectRankPlot(FastPlot):
                                        significance,
                                        int(np.sum(called & np.isfinite(x))),
                                        alpha, untested))
-        from ...figures.style import resolve_style
+        from ...figures.style import resolve_style, _apply_native_marks
 
+        default_title = tr("Effect rank")
+        title = str(self.plot.plotItem.titleLabel.text or "")
+        if title in ("", default_title, "Effect rank"):
+            self.plot.setTitle("")
+        caption = default_title + ". " + self._headline
         self._spacr_style_spec = resolve_style("screen", "effect_rank",
             conditions=[names[int(row)] for row in order[:shown]],
             comparison={"reference": "zero regression coefficient", "visible_conditions": shown,
                         "total_estimates": len(order), "representation": "estimates"},
-            legend={"caption": self._headline, "reference": "zero regression coefficient",
+            legend={"caption": caption, "reference": "zero regression coefficient",
                     "quantities": {"x": "gene", "y": "regression coefficient"},
                     "units": dict(getattr(frame, "attrs", {}).get("units") or {})})
+        artists = [(artist, getattr(artist, "_spacr_condition_role", "data"),
+                    "#000000" if artist is reference else None)
+                   for artist in self.plot.plotItem.items if artist is not self._highlight]
+        if HAVE_PYQTGRAPH:
+            _apply_native_marks(self, self._spacr_style_spec, artists)
+        descriptions = (tr("Estimates without a significance call"),
+                        tr("Called positive estimates"), tr("Called nonpositive estimates"))
+        self._spacr_legend_entries = (
+            dict(label=caption, colour="#000000", kind="caption"),
+            dict(label=tr("Zero regression coefficient"), colour="#000000", kind="reference"),
+            *(dict(label=descriptions[value], colour=ink.name(), kind="identity")
+              for value, ink in enumerate(inks) if np.any(np.isfinite(x) & (code == value))))
         if self._selected_key is not None:
             self.highlight_key(self._selected_key)
         return plotted

@@ -36,7 +36,7 @@ import numpy as np
 import pandas as pd
 from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
-    QComboBox, QHBoxLayout, QHeaderView, QLabel, QSpinBox,
+    QComboBox, QFrame, QHBoxLayout, QHeaderView, QLabel, QScrollArea, QSpinBox,
     QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
@@ -63,6 +63,91 @@ MAX_DRAWN = 8
 
 #: Re-ranking is coalesced this long.
 DEBOUNCE_MS = 150
+
+
+
+def _present_feature_histogram(ax, frame, score, target):
+    """Declare the existing class-count histogram without changing its bins or ranking.
+
+    :param ax: axes containing the original per-class bars.
+    :param frame: unchanged source measurement table and explicit unit metadata.
+    :param score: original ranking result for the displayed feature.
+    :param target: existing figure output target.
+    :returns: the complete external caption.
+    """
+    from ...figures.style import apply_axes_style, resolve_style
+    from ..i18n import tr
+    from .feature_rank import COHEN_D, KS, MUTUAL_INFO
+
+    names = {AUC: tr("absolute rank separation |2 × AUC − 1|"),
+             COHEN_D: tr("absolute standardized mean difference"),
+             KS: tr("Kolmogorov–Smirnov distance"),
+             MUTUAL_INFO: tr("mutual information normalized by class entropy")}
+    shape = tr(" Shape differs without a location shift.") if score.is_shape_not_shift else ""
+    caption = tr("{feature}: {statistic} = {score:.3f}; values higher in {higher}; minimum class size {minimum:,}.{shape}").format(
+        feature=score.feature, statistic=names.get(score.statistic, score.statistic),
+        score=score.score, higher=score.higher_in, minimum=score.smallest_class, shape=shape)
+    reference = tr("Observed classes use the same feature-bin edges")
+    specification = resolve_style(target, "histogram",
+        comparison={"reference":reference, "graph_type":"histogram",
+                    "experimental_unit":frame.attrs.get("experimental_unit")},
+        legend={"caption":caption, "reference":reference,
+                "quantities":{"x":score.feature,"y":tr("Observation count")},
+                "units":{"x":(frame.attrs.get("units") or {}).get(score.feature),"y":"observations"},
+                "abbreviations":{"AUC":tr("Area under the receiver operating characteristic curve")}})
+    apply_axes_style(ax, specification, layout=False)
+    return caption
+
+
+def _render_feature_histograms(figure, frame, result, bins, *, colours, alpha, font_points, presentation=True, target="screen"):
+    """Draw original class histograms from the existing distribution engine.
+
+    :param figure: destination figure, cleared before drawing.
+    :param frame: unchanged source measurement table.
+    :param result: original ranking and its ordered feature records.
+    :param bins: existing requested histogram bin count.
+    :param colours: explicit shared or captured class colours.
+    :param alpha: explicit shared or captured data opacity.
+    :param font_points: shared or captured legend text size.
+    :param presentation: declare current application policy when true;
+        captured recreation restores its recorded appearance when false.
+    :param target: application presentation target.
+    :returns: axes in the original feature order.
+    """
+    from ...figures.style import panel_letter
+    from ...qt.i18n import tr
+
+    figure.clear()
+    drawn = result.scores[:MAX_DRAWN]
+    if not drawn:
+        return []
+    axes = list(figure.subplots(len(drawn), 1, squeeze=False, sharex=False).ravel())
+    first = None
+    captions = []
+    for row, score in enumerate(drawn):
+        ax = axes[row]
+        edges, counts = distributions(frame, score.feature, result.label, bins=bins)
+        if not len(edges):
+            continue
+        centres = (edges[:-1] + edges[1:]) / 2.0
+        width = float(np.diff(edges).mean()) * 0.9
+        for i, (level, values) in enumerate(counts.items()):
+            ax.bar(centres, values, width=width, alpha=alpha,
+                   color=colours[i % len(colours)], label=level if first is None else None,
+                   linewidth=0.0)
+        ax.set_xlabel(score.feature)
+        ax.set_ylabel(tr("Observation count"))
+        if len(drawn) > 1:
+            panel_letter(ax, row)
+        if presentation:
+            captions.append(_present_feature_histogram(ax, frame, score, target))
+        if first is None:
+            first = ax
+    if first is not None:
+        first.legend(loc="upper left", bbox_to_anchor=(1.02,1.), frameon=False, fontsize=font_points)
+    if presentation:
+        figure._spacr_caption = "\n\n".join(captions)
+    return axes
 
 
 class FeatureExplorerPanel(QWidget):
@@ -166,7 +251,11 @@ class FeatureExplorerPanel(QWidget):
         from matplotlib.figure import Figure
         self._figure = Figure(figsize=(5.0, 6.0))
         self._canvas = _canvas_class()(self._figure)
-        holder.addWidget(self._canvas, 1)
+        self._plot_scroll = QScrollArea(self._figure_holder)
+        self._plot_scroll.setWidgetResizable(True)
+        self._plot_scroll.setFrameShape(QFrame.NoFrame)
+        self._plot_scroll.setWidget(self._canvas)
+        holder.addWidget(self._plot_scroll, 1)
         body.add_section(self._figure_holder, "Distributions",
                          persist_key="feature_explorer/Distributions")
         outer.addWidget(body, 1)
@@ -366,50 +455,43 @@ class FeatureExplorerPanel(QWidget):
             self.feature_selected.emit(selected_feature)
 
     def _draw(self, result: ExplorerResult) -> None:
-        """A strip per feature, the classes overlaid on shared bin edges."""
+        """Present the original per-class counts and ranking through the shared figure owner.
+
+        The ranking engine, feature order, shared-bin calculation, count
+        arrays, bar centres and widths are unchanged. Captions retain each
+        original score, higher class, minimum count and shape warning.
+        A retained physical page scrolls when its complete panels exceed the
+        viewport; clearing the plot releases that automatic minimum size.
+        """
+        from ...figures.style import DATA_ALPHA, SERIES, TYPE_SCALE, figure_style, pack_axes_geometry, _retain_live_axes_geometry
+        from ...figures.bundle import _register_figure_data
+
         self._figure.clear()
-        self._figure.patch.set_alpha(0.0)
-        palette = active_palette()
+        self._figure._spacr_live_geometry = None
+        self._canvas.setMinimumSize(0, 0)
         drawn = result.scores[:MAX_DRAWN]
         if not drawn or self._frame is None:
             self._canvas.draw_idle()
             return
-        axes = self._figure.subplots(len(drawn), 1, squeeze=False,
-                                     sharex=False)
-        colours = categorical_colours()
-        for row, score in enumerate(drawn):
-            ax = axes[row][0]
-            _page_surface_axes(ax, palette)
-            for side in ("top", "right"):
-                ax.spines[side].set_visible(False)
-            for side in ("left", "bottom"):
-                ax.spines[side].set_color(palette["border"])
-            ax.tick_params(colors=palette["fg_muted"], labelsize=7, length=2)
-            edges, counts = distributions(self._frame, score.feature,
-                                          result.label, bins=self._spec.bins)
-            if not len(edges):
-                continue
-            centres = (edges[:-1] + edges[1:]) / 2.0
-            width = float(np.diff(edges).mean()) * 0.9
-            for i, (level, values) in enumerate(counts.items()):
-                ax.bar(centres, values, width=width, alpha=0.55,
-                       color=colours[i % len(colours)],
-                       label=level if row == 0 else None, linewidth=0.0)
-            flag = "  ·  shape, not shift" if score.is_shape_not_shift else ""
-            ax.set_title(
-                f"{score.feature}  ·  {result.spec.statistic} "
-                f"{score.score:.3f}  ·  higher in {score.higher_in}"
-                f"  ·  min n {score.smallest_class:,}{flag}",
-                color=(palette["warning"] if score.is_shape_not_shift
-                       else palette["fg_dim"]),
-                fontsize=8, pad=2, loc="left")
-            ax.set_yticks([])
-        if len(counts) > 1:
-            self._figure.legend(loc="upper right", frameon=False, fontsize=7)
-        from ...figures.bundle import _register_figure_data
+        viewport = tuple(self._figure.get_size_inches())
+        with figure_style("screen", kind="histogram"):
+            axes = _render_feature_histograms(self._figure, self._frame, result, self._spec.bins,
+                colours=SERIES, alpha=DATA_ALPHA, font_points=TYPE_SCALE["legend"])
+            self._figure.patch.set_alpha(1.0)
+            if axes:
+                pack_axes_geometry(axes, legend_space=True)
+                required = tuple(self._figure.get_size_inches())
+                _retain_live_axes_geometry(self._figure, viewport)
+                logical_dpi = self._figure.dpi / self._canvas.device_pixel_ratio
+                self._canvas.setMinimumSize(int(np.ceil(required[0] * logical_dpi)),
+                                            int(np.ceil(required[1] * logical_dpi)))
+        captured = [dict(feature=score.feature, statistic=score.statistic, score=float(score.score),
+                        higher_in=score.higher_in, smallest_class=int(score.smallest_class),
+                        is_shape_not_shift=bool(score.is_shape_not_shift)) for score in drawn]
+        recipe = dict(schema=1, label=result.label, classes=list(result.classes), features=captured, bins=int(self._spec.bins),
+                      colours=list(SERIES), alpha=DATA_ALPHA, font_points=TYPE_SCALE["legend"])
         _register_figure_data(self._figure, self._frame, x=result.label,
-                              y=drawn[0].feature, kind="hist")
-        self._figure.tight_layout(pad=0.6)
+            y=drawn[0].feature, kind="hist", feature_explorer_recipe=recipe)
         self._canvas.draw_idle()
 
     def _on_row_changed(self, row: int, *_args) -> None:

@@ -653,6 +653,7 @@ class FigureSettingsDialog(QDialog):
         def resize(*_):
             """Resize the figure to the width and height on screen."""
             figure.set_size_inches(width.value(), height.value())
+            figure._spacr_live_geometry = None
             self._changed()
         width.valueChanged.connect(resize)
         height.valueChanged.connect(resize)

@@ -4970,6 +4970,10 @@ def _static_ui_sources_of_file(
     :param text: its contents.
     :param source_root: the ``spacr`` package directory.
     :param preferences_path: ``spacr/qt/preferences.py``.
+    The shared figure-style owner also contributes literals passed through
+    its local replay-message translator. That helper name is not admitted
+    in unrelated source modules.
+
     :returns: the stripped presentation strings found in the file.
     """
     found: set[str] = set()
@@ -5367,6 +5371,12 @@ def _static_ui_sources_of_file(
         if not isinstance(node, ast.Call):
             continue
         name = _call_name(node)
+        if helper_module in ("figures/style.py", "figures/bundle.py") and name == "_replay_message":
+            arguments = [*node.args[:1], *(keyword.value for keyword in node.keywords if keyword.arg == "message")]
+            for argument in arguments:
+                for value in _literal_strings(argument, constants):
+                    if _looks_translatable(value):
+                        found.add(value.strip())
         for argument in _helper_caption_arguments(
             node, helper_module, name,
         ):
@@ -5398,7 +5408,11 @@ def _static_ui_sources_of_file(
 
 
 def extract_static_ui_sources() -> tuple[str, ...]:
-    """Return literal spaCR-owned Qt presentation strings from the AST."""
+    """Return literal spaCR-owned presentation strings from registered source ASTs.
+
+    The shared figure-style owner is scanned with the normal Qt and explicit
+    producer paths, including its source-bound standalone replay adapter.
+    """
     # Compact-catalog ownership is registered lazily by the screens that own
     # those captions.  Make this standalone extractor establish the same
     # state as ``canonical_sources`` before subtracting ``i18n._ROWS``;
@@ -5440,6 +5454,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "_lineage_trees.py")
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
+    paths.add(ROOT / "spacr" / "figures" / "style.py")
+    paths.add(ROOT / "spacr" / "figures" / "bundle.py")
     paths.add(ROOT / "spacr" / "run_journal.py")
     paths.add(ROOT / "spacr" / "regression_layout.py")
     paths.add(ROOT / "spacr" / "regression_failure.py")

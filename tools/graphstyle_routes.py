@@ -177,3 +177,72 @@ def routed_functions(graph, owners):
         if not added:
             return reached
         reached.update(added)
+
+
+def reviewed_support_functions(functions, contracts):
+    """Accept only individually reviewed support bodies whose exact source stays unchanged.
+
+    These functions create no charts: they return metadata, resolve explicit
+    preferences or announce already written files. Exact AST hashes cover
+    unrecognized painter calls as well as the known plotting primitives.
+    Exact resolved call records also reject a module-level import rebinding
+    that leaves the function body unchanged. Any changed body or binding
+    requires a new review; no module wildcard is accepted.
+    """
+    reviewed = set()
+    for identity, contract in contracts.items():
+        records = functions.get(identity, ())
+        if (not records or not contract.get("reason", "").strip()
+                or any(record["file"] != contract["file"] or record["primitives"] for record in records)
+                or [record["syntax_sha256"] for record in records] != contract["syntax_sha256"]
+                or [record["calls"] for record in records] != contract["calls"]):
+            raise ValueError("Review the changed support function before accepting its graph route: " + identity)
+        reviewed.add(identity)
+    return reviewed
+
+
+def reviewed_context_functions(functions, graph, contracts):
+    """Accept exact artist-adapter paths inside an explicitly declared or finalized host.
+
+    Adapters are not added to the style roots: calling one from a new
+    unstyled creator cannot establish a route. Every known immediate caller,
+    witness edge, source variant and resolved call binding is frozen. A new
+    caller or changed host requires review, including calls outside the
+    plotting-primitive vocabulary. Host owners are limited to the real
+    shared specification, application and finalization entry points. Exact
+    witness bodies retain the actual use of the specification, not merely
+    a helper name. Runtime parity tests cover actual paint and semantics.
+    """
+    host_routes = {}
+    allowed = {"spacr.figures.style.finalize_figure", "spacr.figures.style.resolve_style",
+               "spacr.figures.style.apply_axes_style"}
+    reviewed = set()
+    for identity, contract in contracts.items():
+        problem = "Review the changed caller-owned graph adapter: " + identity
+        host = contract["host"]
+        owner = contract.get("host_owner", "spacr.figures.style.finalize_figure")
+        if owner not in allowed:
+            raise ValueError(problem)
+        if owner not in host_routes:
+            host_routes[owner] = routed_functions(graph, {owner})
+        callers = sorted(caller for caller, variants in graph.items()
+                         if any(identity in calls for calls in variants))
+        paths = contract["paths"]
+        names = {name for path in paths for name in path}
+        if (not contract.get("reason", "").strip() or host not in host_routes[owner]
+                or not callers or callers != contract["callers"]
+                or names != set(contract["records"])
+                or {path[-2] for path in paths if len(path) >= 2} != set(callers)):
+            raise ValueError(problem)
+        for path in paths:
+            if (len(path) < 2 or path[0] != host or path[-1] != identity
+                    or any(not any(target in variant for variant in graph.get(caller, ()))
+                           for caller, target in zip(path, path[1:]))):
+                raise ValueError(problem)
+        for name, expected in contract["records"].items():
+            actual = [{key: record[key] for key in ("file", "syntax_sha256", "calls", "primitives")}
+                      for record in functions.get(name, ())]
+            if actual != expected:
+                raise ValueError(problem)
+        reviewed.add(identity)
+    return reviewed

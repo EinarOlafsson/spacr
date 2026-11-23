@@ -95,6 +95,13 @@ def test_biplot_preserves_every_correlation_vector_and_moves_feature_labels_to_t
     picked = result.plane_features(0, 1, widget._arrow_count)
     scale = pca_view.arrow_scale(result, 0, 1, ax.get_xlim(), ax.get_ylim(), count=widget._arrow_count)
     assert widget.arrow_scale == scale
+    circles = [patch for patch in ax.patches if type(patch).__name__=='Circle']
+    assert len(circles) == 1
+    assert circles[0].get_edgecolor() == to_rgba('#000000',.6)
+    assert circles[0].radius == scale and circles[0].center == (0.,0.)
+    assert circles[0].get_gid() == 'spacr-reference'
+    circle_key = next(entry for entry in ax._spacr_legend_entries if entry['label']=='Pearson correlation magnitude 1')
+    assert circle_key['colour'] == '#000000' and circle_key['kind'] == 'reference'
     arrows = [text for text in ax.texts if getattr(text, 'arrow_patch', None) is not None]
     expected = [(float(result.correlations[index,0])*scale, float(result.correlations[index,1])*scale) for index in picked]
     np.testing.assert_array_equal([arrow.xy for arrow in arrows], expected)
@@ -160,3 +167,23 @@ def test_raw_pca_units_use_only_declared_common_feature_units_and_preserve_expli
         assert not declared.get('PC1') and not declared.get('PC2')
     assert any('mathematical transformation' in problem for problem in style._quantity_unit_problems(spec))==(declaration=='explicit')
     assert (frame.to_csv(index=False),dict(frame.attrs['units']))==before
+
+
+
+def test_reference_circle_manual_ink_is_kept_and_diagnosed():
+    """Analytical reference patches obey the same exact black-ink rule as reference lines; a later manual magenta circle must remain visible with a diagnostic, without changing its radius or centre."""
+    from matplotlib.figure import Figure
+    from matplotlib.patches import Circle
+
+    figure = Figure()
+    ax = figure.add_subplot()
+    circle = Circle((0.,0.),1.,fill=False,edgecolor='#000000',alpha=.6,gid='spacr-reference',label='Unit reference')
+    ax.add_patch(circle)
+    spec = style.resolve_style('print','continuous',legend={'caption':'Synthetic unit reference.',
+        'reference':'Unit circle','quantities':{'x':'coordinate','y':'coordinate'},'unit':'dimensionless'})
+    style.apply_axes_style(ax,spec)
+    circle.set_edgecolor('#C878A8')
+    record = style.finalize_figure(figure,diagnostics=False)
+    assert any('Draw reference lines in black' in problem for problem in record.problems)
+    assert circle.get_edgecolor() == to_rgba('#C878A8',.6)
+    assert circle.radius == 1. and circle.center == (0.,0.)
