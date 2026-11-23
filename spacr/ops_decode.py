@@ -702,6 +702,9 @@ def threshold_settings(settings: Mapping[str, Any],
                        rule: Mapping[str, Any]) -> Dict[str, Any]:
     """The decode threshold mode and, in auto mode, its grid and target.
 
+    Manual never-barcode calibration uses a single setting, preserving the
+    entered thresholds. Without decoys it requests the reported fallback.
+
     :param settings: the run's settings, read for
         ``ops_decode_threshold_mode``, ``ops_decode_fdr_max``,
         ``ops_decode_auto_grid``, ``ops_decode_auto_spot_grid``,
@@ -713,9 +716,6 @@ def threshold_settings(settings: Mapping[str, Any],
         ``ops_never_barcode_sets``.
     :param rule: from :func:`decode_rule`; a grid without the pixel quality,
         or a rule without the pixel fallback, keeps ``pixel_quality``.
-    Manual never-barcode calibration uses a single setting, preserving the
-    entered thresholds. Without decoys it requests the reported fallback.
-
     :returns: ``mode``; in auto mode or manual never calibration also ``floors`` and ``pixel_qualities``
         (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``,
         ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and
@@ -2307,6 +2307,10 @@ def plate_fdr_summary(folder: str, *, plate: str, k: int, scale: float,
                       reps: int = 1000, seed: int = 0) -> Dict[str, Any]:
     """Assigned percentages and FDR across all field statistics for the plate.
 
+    Per-well never reports provide their applied scales; the plate FDR
+    and its existing field bootstrap use those same scales. Fixed and
+    shuffle-only plates retain their previous summary calculation.
+
     :param folder: the ``results/ops_decode`` folder holding
         ``field_stats_<well>.csv`` files.
     :param plate: the plate.
@@ -2314,10 +2318,6 @@ def plate_fdr_summary(folder: str, *, plate: str, k: int, scale: float,
     :param scale: the FDR calibration.
     :param reps: field-bootstrap replicates for the 95 % FDR interval.
     :param seed: the bootstrap seed.
-    Per-well never reports provide their applied scales; the plate FDR
-    and its existing field bootstrap use those same scales. Fixed and
-    shuffle-only plates retain their previous summary calculation.
-
     :returns: the summary, with per-well rows; empty wells when no stats
         were written.
     """
@@ -2389,6 +2389,10 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
                        ) -> Dict[str, Any]:
     """Write field statistics, FDR report and plate summary for one well.
 
+    Never calibration writes its JSON and CSV through the same report
+    writer used by the prefix path, with point and interval fields folded
+    into this report and the per-well plate summary.
+
     :param db: the measurements database.
     :param plate: the plate.
     :param well: the well.
@@ -2398,10 +2402,6 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
         shuffle calibration (item 949) its ``fdr_scale`` is the calibrated
         scale and its ``threshold_choice`` holds the calibration.
     :param skipped_sites: the unplaced sites.
-    Never calibration writes its JSON and CSV through the same report
-    writer used by the prefix path, with point and interval fields folded
-    into this report and the per-well plate summary.
-
     :returns: the FDR report for one well, with the paths written under ``paths``;
         with a shuffle calibration it adds ``fdr_calibration``,
         ``fdr_scale_entered``, ``shuffle_called`` for the whole well,

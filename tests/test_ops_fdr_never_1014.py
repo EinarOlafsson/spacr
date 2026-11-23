@@ -480,8 +480,9 @@ def _never_api_contracts():
 
     path = Path(__file__).resolve().parent / 'data/release_contracts/1014_never_api_sources_2026-11-22.json'
     from tests.test_ops_never_s2j_parity_1014 import _current_s2j_records
+    from tests.test_docfix_never_docstrings_1014 import _current_docfix_records
 
-    return _current_s2j_records(json.loads(path.read_text())['symbols'])
+    return _current_docfix_records(_current_s2j_records(json.loads(path.read_text())['symbols']))
 
 
 def _validate_never_api_source(symbol, record, source=None):

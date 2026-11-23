@@ -1,0 +1,365 @@
+{
+  "base": "4eaa2008bb972e613040e74d5f738d07ab54b622",
+  "symbols": {
+    "spacr.ops_decode.threshold_settings": {
+      "file": "spacr/ops_decode.py",
+      "line": 701,
+      "signature": "settings: Mapping[str, Any], rule: Mapping[str, Any]",
+      "return_annotation": "Dict[str, Any]",
+      "before": "The decode threshold mode and, in auto mode, its grid and target.\n\n:param settings: the run's settings, read for\n    ``ops_decode_threshold_mode``, ``ops_decode_fdr_max``,\n    ``ops_decode_auto_grid``, ``ops_decode_auto_spot_grid``,\n    ``ops_decode_auto_tune_fraction``, ``ops_decode_auto_seed`` and the\n    shared tuner's ``ops_decode_auto_ci``, ``ops_decode_auto_objective``,\n    ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``, and\n    ``ops_decode_fdr_calibration`` and the shared controls\n    ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and\n    ``ops_never_barcode_sets``.\n:param rule: from :func:`decode_rule`; a grid without the pixel quality,\n    or a rule without the pixel fallback, keeps ``pixel_quality``.\nManual never-barcode calibration uses a single setting, preserving the\nentered thresholds. Without decoys it requests the reported fallback.\n\n:returns: ``mode``; in auto mode or manual never calibration also ``floors`` and ``pixel_qualities``\n    (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``,\n    ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and\n    ``spot_thresholds`` (the read thresholds tried jointly, sorted; empty\n    when the read threshold stays as entered); with\n    a calibration method also ``fdr_calibration``.\n:raises ValueError: for an unknown mode or FDR calibration, an FDR target that is not\n    above 0, a tuning fraction outside (0, 1), a grid that is not a\n    mapping of the two thresholds to lists of numbers 0 or above, or\n    auto mode without decoys (``ops_decoy_library_k`` 0).",
+      "before_sha256": "172cba2e797e4a0bfe195f58f5e1c5aeb8eacb113d2bdedf9f0a5c517ef6c6b4",
+      "source": "The decode threshold mode and, in auto mode, its grid and target.\n\nManual never-barcode calibration uses a single setting, preserving the\nentered thresholds. Without decoys it requests the reported fallback.\n\n:param settings: the run's settings, read for\n    ``ops_decode_threshold_mode``, ``ops_decode_fdr_max``,\n    ``ops_decode_auto_grid``, ``ops_decode_auto_spot_grid``,\n    ``ops_decode_auto_tune_fraction``, ``ops_decode_auto_seed`` and the\n    shared tuner's ``ops_decode_auto_ci``, ``ops_decode_auto_objective``,\n    ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``, and\n    ``ops_decode_fdr_calibration`` and the shared controls\n    ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and\n    ``ops_never_barcode_sets``.\n:param rule: from :func:`decode_rule`; a grid without the pixel quality,\n    or a rule without the pixel fallback, keeps ``pixel_quality``.\n:returns: ``mode``; in auto mode or manual never calibration also ``floors`` and ``pixel_qualities``\n    (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``,\n    ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and\n    ``spot_thresholds`` (the read thresholds tried jointly, sorted; empty\n    when the read threshold stays as entered); with\n    a calibration method also ``fdr_calibration``.\n:raises ValueError: for an unknown mode or FDR calibration, an FDR target that is not\n    above 0, a tuning fraction outside (0, 1), a grid that is not a\n    mapping of the two thresholds to lists of numbers 0 or above, or\n    auto mode without decoys (``ops_decoy_library_k`` 0).",
+      "source_sha256": "cc947d1628e9e8f41cedae8b0ac81c92c5ff389c2c38de8e5a874e2ad47d348a",
+      "blocks": [
+        {
+          "source": "The decode threshold mode and, in auto mode, its grid and target.",
+          "source_sha256": "984c9d4c5b121db70f8d35db3275cedf9e811bf1898ca228b8b2770033fce008"
+        },
+        {
+          "source": "Manual never-barcode calibration uses a single setting, preserving the entered thresholds. Without decoys it requests the reported fallback.",
+          "source_sha256": "a95a1c78470f09669b2ad50ddb3b87933aabf8f2c07a307497a7c52b7a7c030e"
+        },
+        {
+          "source": "the run's settings, read for ``ops_decode_threshold_mode``, ``ops_decode_fdr_max``, ``ops_decode_auto_grid``, ``ops_decode_auto_spot_grid``, ``ops_decode_auto_tune_fraction``, ``ops_decode_auto_seed`` and the shared tuner's ``ops_decode_auto_ci``, ``ops_decode_auto_objective``, ``ops_decode_auto_f_beta`` and ``ops_decode_auto_unreachable``, and ``ops_decode_fdr_calibration`` and the shared controls ``ops_never_barcode_k``, ``ops_never_barcode_seed`` and ``ops_never_barcode_sets``.",
+          "source_sha256": "a9a2ae0993010552ae91e35be4aa080ad2f980ec29404569ff5aee49e691774c"
+        },
+        {
+          "source": "from :func:`decode_rule`; a grid without the pixel quality, or a rule without the pixel fallback, keeps ``pixel_quality``.",
+          "source_sha256": "af6ace933feaca9f8fef54179076ee991d5cb43cab3cdfd54599c3600c19cba9"
+        },
+        {
+          "source": "``mode``; in auto mode or manual never calibration also ``floors`` and ``pixel_qualities`` (sorted), ``fdr_max`` (per 100 calls), ``ci``, ``objective``, ``f_beta``, ``unreachable``, ``tune_fraction``, ``seed`` and ``spot_thresholds`` (the read thresholds tried jointly, sorted; empty when the read threshold stays as entered); with a calibration method also ``fdr_calibration``.",
+          "source_sha256": "280b60b8bbc72a0c6ffe3a70812fcbedda7eaa53d426a6913e6e61d617ebe9ae"
+        },
+        {
+          "source": "for an unknown mode or FDR calibration, an FDR target that is not above 0, a tuning fraction outside (0, 1), a grid that is not a mapping of the two thresholds to lists of numbers 0 or above, or auto mode without decoys (``ops_decoy_library_k`` 0).",
+          "source_sha256": "1ebd216b5b52143175e0ef94f47337f1c27e190cdccc2b6863e322b269636275"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param settings:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param rule:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              5
+            ]
+          ]
+        ]
+      ]
+    },
+    "spacr.ops_decode.plate_fdr_summary": {
+      "file": "spacr/ops_decode.py",
+      "line": 2306,
+      "signature": "folder: str, *, plate: str, k: int, scale: float, reps: int=1000, seed: int=0",
+      "return_annotation": "Dict[str, Any]",
+      "before": "Assigned percentages and FDR across all field statistics for the plate.\n\n:param folder: the ``results/ops_decode`` folder holding\n    ``field_stats_<well>.csv`` files.\n:param plate: the plate.\n:param k: decoys per guide.\n:param scale: the FDR calibration.\n:param reps: field-bootstrap replicates for the 95 % FDR interval.\n:param seed: the bootstrap seed.\nPer-well never reports provide their applied scales; the plate FDR\nand its existing field bootstrap use those same scales. Fixed and\nshuffle-only plates retain their previous summary calculation.\n\n:returns: the summary, with per-well rows; empty wells when no stats\n    were written.",
+      "before_sha256": "d3e4bc6058eb0e30d4704dcc036f296d7e52998eb77d96d9eaca1172185ab752",
+      "source": "Assigned percentages and FDR across all field statistics for the plate.\n\nPer-well never reports provide their applied scales; the plate FDR\nand its existing field bootstrap use those same scales. Fixed and\nshuffle-only plates retain their previous summary calculation.\n\n:param folder: the ``results/ops_decode`` folder holding\n    ``field_stats_<well>.csv`` files.\n:param plate: the plate.\n:param k: decoys per guide.\n:param scale: the FDR calibration.\n:param reps: field-bootstrap replicates for the 95 % FDR interval.\n:param seed: the bootstrap seed.\n:returns: the summary, with per-well rows; empty wells when no stats\n    were written.",
+      "source_sha256": "3135404d7298e05b9d97353aa05b6bdcb44e850a525619a116e8f995b129b0e5",
+      "blocks": [
+        {
+          "source": "Assigned percentages and FDR across all field statistics for the plate.",
+          "source_sha256": "a675ea6bfa8a361f6e22296e7a93def3d5499a0ea4b54ea7a0454a640e4ce6c8"
+        },
+        {
+          "source": "Per-well never reports provide their applied scales; the plate FDR and its existing field bootstrap use those same scales. Fixed and shuffle-only plates retain their previous summary calculation.",
+          "source_sha256": "240429d352a4074eb73d0e9b3067bbb385cb264bcbf6ce542de663270848dc69"
+        },
+        {
+          "source": "the ``results/ops_decode`` folder holding ``field_stats_<well>.csv`` files.",
+          "source_sha256": "17ead682c09c57ed256c178b5249e69a6670f35d378942c64dffdb9f432528bd"
+        },
+        {
+          "source": "the plate.",
+          "source_sha256": "10b08477093ac78797467e1c884ab297720b4df285c5cb6baa5821839eae3ccc"
+        },
+        {
+          "source": "decoys per guide.",
+          "source_sha256": "1f566694515e66762bd2a646d1e0c25b1dec1c13992e8c8145e7c5869616f3ba"
+        },
+        {
+          "source": "the FDR calibration.",
+          "source_sha256": "997c54b83d46d31625f46379cc0137bfad2b45ddb90e722fb64d6f7b3f2abe0a"
+        },
+        {
+          "source": "field-bootstrap replicates for the 95 % FDR interval.",
+          "source_sha256": "56e02ac2ef19a534f319b2c62b8e397242af505e5125483fa5c272eebe11a648"
+        },
+        {
+          "source": "the bootstrap seed.",
+          "source_sha256": "e2e12c3d24e365a7e1705df9e657c5b65803a6eb31a04878bd39326630785b3e"
+        },
+        {
+          "source": "the summary, with per-well rows; empty wells when no stats were written.",
+          "source_sha256": "97fb77544769ae21f4faada899069348af9767ab3297e3a73dab31a814509ced"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param folder:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param plate:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param k:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param scale:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param reps:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param seed:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              8
+            ]
+          ]
+        ]
+      ]
+    },
+    "spacr.ops_decode.write_well_reports": {
+      "file": "spacr/ops_decode.py",
+      "line": 2387,
+      "signature": "db: str, plate: str, well: str, decoded: Sequence[Mapping[str, Any]], rule: Mapping[str, Any], skipped_sites: Sequence[int]",
+      "return_annotation": "Dict[str, Any]",
+      "before": "Write field statistics, FDR report and plate summary for one well.\n\n:param db: the measurements database.\n:param plate: the plate.\n:param well: the well.\n:param decoded: the decoded fields, each with ``site`` and ``rule_a``\n    from :func:`field_calls`.\n:param rule: from :func:`decode_rule`; after auto thresholds with a\n    shuffle calibration (item 949) its ``fdr_scale`` is the calibrated\n    scale and its ``threshold_choice`` holds the calibration.\n:param skipped_sites: the unplaced sites.\nNever calibration writes its JSON and CSV through the same report\nwriter used by the prefix path, with point and interval fields folded\ninto this report and the per-well plate summary.\n\n:returns: the FDR report for one well, with the paths written under ``paths``;\n    with a shuffle calibration it adds ``fdr_calibration``,\n    ``fdr_scale_entered``, ``shuffle_called`` for the whole well,\n    ``shuffle_call_rate_pct``, ``shuffle_ci95``, ``shuffle_limit_pct``\n    (1.5 times the calibrated FDR) and ``shuffle_le_limit``.",
+      "before_sha256": "b60a898d64c8391a419dfc1b06918647c658d4946bf75b80f17d9619c7d62280",
+      "source": "Write field statistics, FDR report and plate summary for one well.\n\nNever calibration writes its JSON and CSV through the same report\nwriter used by the prefix path, with point and interval fields folded\ninto this report and the per-well plate summary.\n\n:param db: the measurements database.\n:param plate: the plate.\n:param well: the well.\n:param decoded: the decoded fields, each with ``site`` and ``rule_a``\n    from :func:`field_calls`.\n:param rule: from :func:`decode_rule`; after auto thresholds with a\n    shuffle calibration (item 949) its ``fdr_scale`` is the calibrated\n    scale and its ``threshold_choice`` holds the calibration.\n:param skipped_sites: the unplaced sites.\n:returns: the FDR report for one well, with the paths written under ``paths``;\n    with a shuffle calibration it adds ``fdr_calibration``,\n    ``fdr_scale_entered``, ``shuffle_called`` for the whole well,\n    ``shuffle_call_rate_pct``, ``shuffle_ci95``, ``shuffle_limit_pct``\n    (1.5 times the calibrated FDR) and ``shuffle_le_limit``.",
+      "source_sha256": "40355e9b0e51ad9dcd6a17c2d8bc0a50768a5bed57f05ccd670c71422ff56da2",
+      "blocks": [
+        {
+          "source": "Write field statistics, FDR report and plate summary for one well.",
+          "source_sha256": "b09425bb60d2aab536902a743677ab3a3e1fbfc67cf271223c85db7465079206"
+        },
+        {
+          "source": "Never calibration writes its JSON and CSV through the same report writer used by the prefix path, with point and interval fields folded into this report and the per-well plate summary.",
+          "source_sha256": "c52a6d2c7e51b2b48effb08c3e4b20c1e04fd2806f4fe4515d0e19ed1d81ed31"
+        },
+        {
+          "source": "the measurements database.",
+          "source_sha256": "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864"
+        },
+        {
+          "source": "the plate.",
+          "source_sha256": "10b08477093ac78797467e1c884ab297720b4df285c5cb6baa5821839eae3ccc"
+        },
+        {
+          "source": "the well.",
+          "source_sha256": "310380911e1ad14f2b6c265d14537c513b8f07e2e6ac940d8e3bf9acd0ec8e88"
+        },
+        {
+          "source": "the decoded fields, each with ``site`` and ``rule_a`` from :func:`field_calls`.",
+          "source_sha256": "77ad194fb29803422c91b1c2308695ad10b58bb9ef397e12a37e13bd97cd84f2"
+        },
+        {
+          "source": "from :func:`decode_rule`; after auto thresholds with a shuffle calibration (item 949) its ``fdr_scale`` is the calibrated scale and its ``threshold_choice`` holds the calibration.",
+          "source_sha256": "6ee07a004523626dca706d20f701e21d8b3fb92e271b5c2aabd8b510bf4d74ba"
+        },
+        {
+          "source": "the unplaced sites.",
+          "source_sha256": "f5f571ed29f9b3aba50b2ec73dcf73cffdb73a67c07a63b61b6d3261a6f5d593"
+        },
+        {
+          "source": "the FDR report for one well, with the paths written under ``paths``; with a shuffle calibration it adds ``fdr_calibration``, ``fdr_scale_entered``, ``shuffle_called`` for the whole well, ``shuffle_call_rate_pct``, ``shuffle_ci95``, ``shuffle_limit_pct`` (1.5 times the calibrated FDR) and ``shuffle_le_limit``.",
+          "source_sha256": "e4599b66a54173b192f11ebf698b9c5de4e361859053d647b08ee2a2d5dd376a"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated",
+          [
+            1
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param db:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param plate:",
+            [
+              3
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param well:",
+            [
+              4
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param decoded:",
+            [
+              5
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param rule:",
+            [
+              6
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param skipped_sites:",
+            [
+              7
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              8
+            ]
+          ]
+        ]
+      ]
+    }
+  }
+}
