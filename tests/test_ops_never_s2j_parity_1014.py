@@ -85,7 +85,10 @@ def test_s2j_doc_revision_composes_without_altering_unrelated_api_snapshots():
                           .read_text(encoding='utf-8'))['symbols']
     current = _never_api_contracts()
     assert original.keys() == current.keys()
-    assert all(current[key] == original[key] for key in original if key != SYMBOL)
+    from tests.test_docfix_never_docstrings_1014 import _current_docfix_records
+
+    expected_records = _current_docfix_records(original)
+    assert all(current[key] == expected_records[key] for key in original if key != SYMBOL)
     assert original[SYMBOL]['source'] == change['before']
     assert current[SYMBOL]['source'] == change['source']
     assert current[SYMBOL]['before'] is original[SYMBOL]['before'] is None
