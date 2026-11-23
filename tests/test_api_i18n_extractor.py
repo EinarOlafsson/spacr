@@ -2305,6 +2305,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **paper_item_arrivals}
     paper_item_2_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json").read_text(encoding="utf-8"))
+    from tests.test_ops_phfields_sources import _current_phfields_api
+    paper_item_2_arrivals = _current_phfields_api(paper_item_2_arrivals)
     assert len(paper_item_2_arrivals) == 376
     assert {key: docs[key] for key in paper_item_2_arrivals} == paper_item_2_arrivals
     assert not paper_item_2_arrivals.keys() & (

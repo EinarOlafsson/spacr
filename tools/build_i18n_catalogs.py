@@ -4744,9 +4744,9 @@ def _metadata_type_status_sources(
 
 
 def _ngff06_runtime_sources(tree: ast.Module, owners: set[str]) -> set[str]:
-    """Return direct literal captions from the declared NGFF 0.6 owners.
+    """Return direct literal captions from the declared runtime owners.
 
-    :param tree: parsed source module, without importing storage code.
+    :param tree: parsed source module, without importing backend code.
     :param owners: top-level function names or class-qualified method names.
     :returns: stripped captions, excluding unrelated and nested definitions.
     """
@@ -4998,6 +4998,9 @@ def _static_ui_sources_of_file(
             "_check_extra_ngff06", "_dataset_to_ngff06", "multiscale_to_ngff05",
             "_transform_values", "_transform_stored", "_matrix",
         }))
+        return frozenset(found)
+    if path == source_root / "ops_run_infra.py":
+        found.update(_ngff06_runtime_sources(tree, {"FieldStager.path"}))
         return frozenset(found)
     if path == source_root / "image_store.py":
         found.update(_ngff06_runtime_sources(tree, {"PlateWriter.__init__", "PlateWriter.write_field"}))
@@ -5459,6 +5462,7 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "crop_store.py")
     paths.add(ROOT / "spacr" / "crops.py")
     paths.add(ROOT / "spacr" / "ops_engine.py")
+    paths.add(ROOT / "spacr" / "ops_run_infra.py")
     paths.add(ROOT / "spacr" / "ops_flatfield.py")
     # Item 990: the OPS cell-cycle option's refusals, report text and Home job go through tr().
     paths.add(ROOT / "spacr" / "ops_cell_cycle.py")

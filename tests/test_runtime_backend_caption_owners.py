@@ -30,7 +30,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "crops.py", "ops_engine.py", "ome_zarr.py", "image_store.py",
         "ome_zarr_registration.py",
         "ops_cell_cycle.py", "ops_mitotic.py", "ops_flatfield.py", "cpg_measure.py", "cli.py",
-        "ops_sbs.py",
+        "ops_sbs.py", "ops_run_infra.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -996,3 +996,33 @@ class Other:
         return tr('Unrelated method caption')
 """
     assert extract_backend_sources(filename, source) == {caption}
+
+
+
+def test_phenotype_stager_queue_error_has_an_exact_method_owner(extract_backend_sources):
+    """Collect the queue error while excluding other classes, functions, nested scopes and metadata."""
+    caption = 'Phenotype field {site} is not in the staging queue; request a field scheduled for this run.'
+    source = f"""raise RuntimeError('Backend caption extraction must not import the source')
+tr('Unrelated module metadata')
+def path():
+    return tr('An unrelated top-level function')
+class Other:
+    def path(self):
+        return tr('An unrelated same-named method')
+class FieldStager:
+    def path(self, site):
+        def nested():
+            return tr('An unrelated nested caption')
+        raise ValueError(tr({caption!r}, site=site))
+    def load(self, site):
+        return tr('An unrelated staging method')
+"""
+    assert extract_backend_sources('ops_run_infra.py', source) == {caption}
+    assert extract_backend_sources('ops_run_infra.py', source.replace('class FieldStager:', 'class Renamed:')) == set()
+
+
+def test_actual_phenotype_stager_queue_template_enters_the_runtime_inventory(extract_backend_sources):
+    """The real adjacent-literal template must reach the declared caption route without importing OPS."""
+    source = (Path(__file__).resolve().parents[1] / 'spacr/ops_run_infra.py').read_text(encoding='utf-8')
+    assert extract_backend_sources('ops_run_infra.py', source) == {
+        'Phenotype field {site} is not in the staging queue; request a field scheduled for this run.'}

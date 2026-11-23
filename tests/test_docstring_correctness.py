@@ -3232,6 +3232,8 @@ def _validated_bmc_paper_items_2_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json").read_text(encoding="utf-8"))
+    from tests.test_ops_phfields_sources import _current_phfields_api
+    entries = _current_phfields_api(entries)
     assert len(entries) == 376
     assert {"spacr.gene_graph", "spacr.ops_run_infra", "spacr.channel_models"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -7222,6 +7224,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         additions = _current_never_api(additions)
         from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
         additions = _current_neighbour_api(additions)
+        from tests.test_ops_phfields_sources import _current_phfields_api
+        additions = _current_phfields_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":

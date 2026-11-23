@@ -6001,8 +6001,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     fields ahead (:class:`spacr.ops_run_infra.FieldStager`): each raw file
     is then read once, not once to segment and once to measure, and the
     local copy is deleted when the field is done. Staging without the
-    pipeline measures each field right after segmenting it. Masks and
-    tables are the same either way.
+    pipeline submits each field after segmenting it. Staged measure-only
+    runs use the same staging order and configured measurement workers.
+    Masks and tables are the same either way.
 
     With ``ops_ph_measure_gpu`` and ``ops_ph_measure_gpu_check`` (the
     default), the first field to measure is measured on the card and on
@@ -6169,9 +6170,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     if streamed and measure:
         workers = _ph_measure_workers(settings, len(to_measure),
                                       options["measure_gpu"])
-        if pipelined:
-            pool = (_OneThread(1) if workers == 1 else ProcessPoolExecutor(
-                workers, mp_context=multiprocessing.get_context("spawn")))
+        pool = (_OneThread(1) if workers == 1 else ProcessPoolExecutor(
+            workers, mp_context=multiprocessing.get_context("spawn")))
 
     def measure_now(site: int) -> None:
         """Measure one field in the stream: in the pool, or here."""
@@ -6285,7 +6285,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                                            if fresh else None),
             }
         elif streamed and measure:
-            for site in [s for s in sites if s in to_measure]:
+            for site in [s for s in processing_order if s in to_measure]:
                 measure_now(site)
         for future in futures:
             results.append(future.result())

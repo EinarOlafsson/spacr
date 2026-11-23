@@ -124,12 +124,12 @@ def test_ops_eval_uses_the_shared_tile_policy_and_mask_wait_site(monkeypatch, gi
 
 
 def test_the_retired_ops_tile_key_moves_only_through_the_shared_schema():
-    """Saved OPS settings migrate once, to the phenotype override, and an explicit new key wins."""
+    """Saved OPS settings retain automatic VRAM tiles, migrate once and let an explicit phenotype override win."""
     assert settings.RENAMED_SETTINGS['ops_ph_batch_size'] == 'ops_ph_tile_batch'
     assert validate.RETIRED_SETTINGS['ops_ph_batch_size'] == 'ops_ph_tile_batch'
     result = ops_settings.ops_defaults({'ops_ph_batch_size': 8})
     assert 'ops_ph_batch_size' not in result and result['ops_ph_tile_batch'] == 8
-    assert result['ops_sbs_tile_batch'] == 0 and result['mask_eval_batch_size'] == 0
+    assert result['ops_sbs_tile_batch'] == 0 and result['mask_eval_batch_size'] == 'auto_vram'
     assert ops_settings.ops_defaults({})['mask_inference_precision'] == 'auto'
     assert ops_settings.ops_defaults({'ops_ph_batch_size': 8,
                                       'ops_ph_tile_batch': 16})['ops_ph_tile_batch'] == 16

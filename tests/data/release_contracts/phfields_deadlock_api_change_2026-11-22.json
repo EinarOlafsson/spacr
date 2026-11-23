@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "task": "phfields-deadlock",
+  "symbols": {
+    "spacr.ops_run_infra.FieldStager.path": {
+      "file": "spacr/ops_run_infra.py",
+      "line": 167,
+      "before": "Wait for one field to be staged.\n\n:param site: the site.\n:returns: ``(local path or None, unreadable)``; None when the field\n    could not be read, in which case its slot is already free.",
+      "source": "Wait for one field to be staged.\n\n:param site: the site.\n:returns: ``(local path or None, unreadable)``; None when the field\n    could not be read, in which case its slot is already free.\n:raises ValueError: if the field is not in this staging queue.",
+      "before_sha256": "051bae481604e16d511eef324e606c19f1fa4d5047055980b6ca7c7b55b962d6",
+      "source_sha256": "4bd8ec18e347ffe5e4a814c8c6d1e61d26358f7eb59e34b1e303c9e430b8a8aa",
+      "signature": "self, site: int",
+      "return_annotation": "Tuple[Optional[str], list]",
+      "blocks": [
+        {
+          "source": "Wait for one field to be staged.",
+          "source_sha256": "a8066c15ca0cf8963aac096deeba61c3d03d2a2d13b85007fbd0a0fab562bce1"
+        },
+        {
+          "source": "the site.",
+          "source_sha256": "2cf7c99ef095d3c61e6998c222c81c64ec986f46866179978cb0cff47cd69b28"
+        },
+        {
+          "source": "``(local path or None, unreadable)``; None when the field could not be read, in which case its slot is already free.",
+          "source_sha256": "ebb6575dd3cb1775f99a8320be90d5e6cc9274340c3e06e2847c01b1c88769f8"
+        },
+        {
+          "source": "if the field is not in this staging queue.",
+          "source_sha256": "2af391dac3a3acca6e333d7604e707652fd87f4ef485a9a04f9a7ab0491c8920"
+        }
+      ],
+      "layout": [
+        [
+          "translated",
+          [
+            0
+          ]
+        ],
+        [
+          "raw",
+          ""
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":param site:",
+            [
+              1
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":returns:",
+            [
+              2
+            ]
+          ]
+        ],
+        [
+          "translated_prefixed",
+          [
+            ":raises ValueError:",
+            [
+              3
+            ]
+          ]
+        ]
+      ]
+    }
+  }
+}
