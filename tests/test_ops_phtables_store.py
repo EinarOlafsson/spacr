@@ -522,3 +522,88 @@ def test_the_shipped_map_is_the_per_column_a1_map_the_writer_applies():
     assert not promoted
     assert {n: np.dtype(t.to_pandas_dtype()).name for n, t in types.items()} \
         == {n: e["dtype"] for n, e in columns.items()}
+
+
+#: The arrival contract of the shared measurement-table writer (2026-11-23):
+#: spacr.store.writer, write_table and WellWriter with its methods, the
+#: public writer Measure uses next.
+STORE_BIRTH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data",
+                           "release_contracts",
+                           "phtables_store_api_arrivals_2026-11-23.json")
+STORE_ARRIVALS = frozenset({
+    "spacr.store.writer", "spacr.store.write_table", "spacr.store.WellWriter",
+    "spacr.store.WellWriter.__enter__", "spacr.store.WellWriter.__exit__",
+    "spacr.store.WellWriter.append", "spacr.store.WellWriter.finish",
+    "spacr.store.WellWriter.abort"})
+
+
+def _store_source_docstring(symbol):
+    """The live docstring of one ``spacr.store`` arrival, as the extractor reads it."""
+    import inspect
+
+    target = store
+    for part in symbol.split(".")[2:]:
+        target = getattr(target, part)
+    body = inspect.cleandoc(target.__doc__)
+    if inspect.isclass(target) and "__init__" in vars(target):
+        # The extractor gives a class its docstring and its constructor's.
+        body += "\n" + inspect.cleandoc(target.__init__.__doc__)
+    return body
+
+
+def _phtables_store_birth_arrivals(existing=None):
+    """The writer's new public symbols, bound to their source docstrings.
+
+    :param existing: earlier arrivals; none of them may be one of these.
+    """
+    import json
+
+    with open(STORE_BIRTH, encoding="utf-8") as handle:
+        entries = json.load(handle)
+    assert set(entries) == STORE_ARRIVALS
+    for symbol, body in entries.items():
+        assert body == _store_source_docstring(symbol), symbol
+    if existing is not None:
+        assert not entries.keys() & existing.keys()
+    return entries
+
+
+def _validated_phtables_store_arrivals(callables):
+    """Remove only the writer's exact new callables from the frozen boundary."""
+    entries = _phtables_store_birth_arrivals()
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert set(found) == {"spacr.store.writer", "spacr.store.write_table",
+                          "spacr.store.WellWriter",
+                          "spacr.store.WellWriter.append",
+                          "spacr.store.WellWriter.finish",
+                          "spacr.store.WellWriter.abort"}
+    for symbol, item in found.items():
+        assert item.docstring == entries[symbol], symbol
+    return [item for item in callables if item.symbol not in entries]
+
+
+def test_the_writer_arrivals_are_exactly_the_new_public_store_api():
+    entries = _phtables_store_birth_arrivals()
+    assert len(entries) == 8
+    assert {"writer", "write_table", "WellWriter"} <= set(store.__all__)
+
+
+def test_an_integer_column_measured_as_floats_takes_its_narrowest_integer(
+        tmp_path):
+    """A column the map measured as floats but that arrives as integers.
+
+    On A1, cytoplasm_euler_number was a float column (a field with NaN);
+    on fields without NaN it is int64. It then takes the narrowest integer
+    its range fits, exactly, rather than staying int64; a float column the
+    map measured as integers keeps its type.
+    """
+    import json
+
+    path = tmp_path / "map.json"
+    path.write_text(json.dumps({"version": 2, "columns": {
+        "a": {"dtype": "float16", "kind": "float"},
+        "b": {"dtype": "uint8", "kind": "int"}}}))
+    types, _promoted = store._stored_types(
+        pa.schema([("a", pa.int64()), ("b", pa.float64())]),
+        {"a": (-1.0, 3.0), "b": (0.0, 2.0)}, path=str(path))
+    assert str(types["a"]) == "int8" and str(types["b"]) == "double"

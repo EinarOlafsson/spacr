@@ -1942,9 +1942,10 @@ def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
     column measured on its own (``tools/measure_store_dtypes.py``), never
     wider than the column already is, moved up its ladder when the
     table's own range does not fit (:func:`_fitted_dtype`). A column the
-    map does not hold, or holds for the other kind (float or integer),
-    keeps its type. Readers get float16 columns back as float32
-    (:meth:`Store.query`).
+    map does not hold keeps its type; an integer column the map measured
+    as floats takes the narrowest integer type its range fits, and a float
+    column it measured as integers keeps its type. Readers get float16
+    columns back as float32 (:meth:`Store.query`).
 
     :param schema: the source table's Arrow schema.
     :param ranges: :func:`_column_ranges` of the source.
@@ -1969,6 +1970,11 @@ def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
         chosen = source
         if entry and entry.get("kind") == kind:
             chosen = entry["dtype"]
+        elif entry and kind == "int":
+            # Measured as floats elsewhere (a field with NaN made the column
+            # float there), integers here: the narrowest integer type the
+            # table's range fits, which loses nothing.
+            chosen = _INT_LADDER[0]
         if np.dtype(chosen).itemsize > np.dtype(source).itemsize:
             chosen = source
         low, high = ranges.get(field.name, (None, None))
