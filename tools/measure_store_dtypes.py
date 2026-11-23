@@ -1,8 +1,8 @@
-"""Measure the smallest storage dtype of every measurement column family.
+"""Measure the smallest storage dtype of every measurement column, each on its own.
 
 Reads one well's per-field phenotype tables (``<well>/phenotype_cells/
 site-<n>.parquet``) one field at a time, read-only, and writes the dtype map
-that the spaCR store applies when a table is written through
+that the spaCR store applies, per column, when a table is written through
 :func:`spacr.store._stored_types` (``spacr/resources/data/store_dtypes.json``;
 the OPS ``ph_tables`` phase first), plus a per-column evidence table.
 
@@ -17,13 +17,10 @@ A dtype passes for a column when, over every cell of the well:
 * NaN and inf stay NaN and inf (IEEE casts keep them; counted to be sure).
 
 Floats climb float16 -> float32 -> float64, integers take the narrowest of
-int8/uint8, int16/uint16, int32, int64 that holds the range. A family's
-dtype is the widest any of its columns needs (floats) or the narrowest
-holding every column's range (integers), so the map is conservative and
-deterministic: the same data give the same map. Where a family's float
-columns need different dtypes, the finer families (whole numbers kept, as
-``{compartment}_zernike_0``) are recorded too and win on lookup, so one
-near-constant column does not widen its whole family.
+int8/uint8, int16/uint16, int32, int64 that holds the range. The map is
+PER COLUMN (maintainer, 2026-11-23): each column gets the smallest dtype
+it passes on its own, with its evidence, and the store writer looks the
+column up by name. The same data give the same map.
 
 ``--from-csv`` rebuilds the map from an earlier run's evidence table.
 
@@ -227,71 +224,146 @@ def measure(well_table: str, cells_dir: str, channels, stride: int = 4,
                                    "stride": int(stride)}
 
 
-def _float_entry(label):
-    """The map entry of a group of float columns: the widest dtype they need."""
-    dtype = max(label["dtype"], key=lambda d: WIDTH[d])
-    item = {"dtype": dtype, "columns": int(len(label))}
-    column = f"{dtype}_error_over_scale"
-    if dtype != "float64" and column in label:
-        item["max_error_over_scale"] = float(label[column].max())
-        item["min_spearman"] = float(label[f"{dtype}_spearman"].min())
-    narrower = [d for d in FLOAT_LADDER if WIDTH[d] < WIDTH[dtype]]
-    if narrower:
-        below = narrower[-1]
-        failing = label[label["dtype"] == dtype]
-        reasons = []
-        if f"{below}_overflow" in failing and failing[
-                f"{below}_overflow"].eq(True).any():
-            reasons.append(f"{below} overflows")
-        if f"{below}_error_over_scale" in failing:
-            worst = float(failing[f"{below}_error_over_scale"].max())
-            if worst >= TOLERANCE_OF_SPREAD:
-                reasons.append(f"{below} error {worst:.3g} of spread")
-        if f"{below}_spearman" in failing:
-            rho = float(failing[f"{below}_spearman"].min())
-            if rho < MIN_SPEARMAN:
-                reasons.append(f"{below} Spearman {rho:.6f}")
-        item["why_not_" + below] = "; ".join(reasons) or "source"
-    item["max_abs"] = float(np.nanmax(np.abs(label[["min", "max"]]
-                                             .to_numpy(float))))
+def _number(value):
+    """A CSV or NumPy value as a JSON number, None when it is missing."""
+    try:
+        value = float(value)
+    except (TypeError, ValueError):
+        return None
+    return None if np.isnan(value) else value
+
+
+def _significant(value, digits: int = 4):
+    """``value`` to ``digits`` significant digits, None when missing."""
+    value = _number(value)
+    return None if value is None else float(f"{value:.{digits - 1}e}")
+
+
+def _column_entry(record) -> dict:
+    """The map entry of one column: its own dtype, and for a narrowed float
+    the error over its SD and the Spearman that let it narrow (4 digits).
+    The full evidence stays in the evidence table the map names."""
+    dtype = str(record["dtype"])
+    kind = "int" if record["source"] == "int" else "float"
+    item = {"dtype": dtype, "kind": kind}
+    if kind == "float" and dtype != record["source"]:
+        item["err_sd"] = _significant(record.get(f"{dtype}_error_over_scale"))
+        item["rho"] = _significant(record.get(f"{dtype}_spearman"), 6)
     return item
 
 
-def build_map(evidence, info, channels, source: str):
-    """The recorded map: one entry per family and source kind."""
-    from spacr.store import _dtype_family
+def columns_sha256(columns) -> str:
+    """The sha256 of a map's ``columns`` block, canonical JSON."""
+    import hashlib
 
-    evidence = evidence.copy()
-    evidence["family"] = [_dtype_family(c, channels) for c in evidence["column"]]
-    evidence["fine"] = [_dtype_family(c, channels, literal_numbers=True)
-                        for c in evidence["column"]]
-    families = {}
-    for family, rows in evidence.groupby("family", sort=True):
-        floats = rows[rows["source"] != "int"]
-        ints = rows[rows["source"] == "int"]
-        entry = {}
-        if not floats.empty:
-            entry["float"] = _float_entry(floats)
-            if floats["dtype"].nunique() > 1:
-                for fine, members in floats.groupby("fine", sort=True):
-                    if fine != family:
-                        families.setdefault(fine, {})["float"] = _float_entry(
-                            members)
-        if not ints.empty:
-            low, high = float(ints["min"].min()), float(ints["max"].max())
-            entry["int"] = {"dtype": _integer_dtype(low, high),
-                            "columns": int(len(ints)), "min": low, "max": high}
-        families.setdefault(family, {}).update(entry)
-    return {"version": 1,
-            "measured": datetime.date.today().isoformat(),
-            "source": source, "cells": info["cells"], "fields": info["fields"],
+    text = json.dumps(columns, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def write_map(recorded, path: str) -> None:
+    """Write the map: the header, then one column per line, sorted."""
+    head = {k: v for k, v in recorded.items() if k != "columns"}
+    lines = [json.dumps(name) + ": " + json.dumps(entry, sort_keys=True)
+             for name, entry in sorted(recorded["columns"].items())]
+    text = json.dumps(head, indent=1, sort_keys=True)[:-2]
+    text += ',\n "columns": {\n  ' + ",\n  ".join(lines) + "\n }\n}\n"
+    with open(path, "w", encoding="utf-8") as handle:
+        handle.write(text)
+
+
+def _passes(row, step: str) -> bool:
+    """Whether one cast (``64to32`` or ``32to16``) of a loss-table row passes."""
+    rho = row[f"{step}_spearman"]
+    return bool(row[f"{step}_overflow_fraction"] == 0
+                and str(row[f"{step}_nan_preserved"]) == "True"
+                and str(row[f"{step}_inf_preserved"]) == "True"
+                and row[f"{step}_max_abs_error_over_sd"] < TOLERANCE_OF_SPREAD
+                and rho == rho and rho >= MIN_SPEARMAN)
+
+
+def from_loss_table(table):
+    """This tool's evidence from a per-column loss table (``per_column_loss``).
+
+    The loss table (Home, A1) holds, per column, the 64 -> 32 and 32 -> 16
+    casts' largest error over the between-cell SD, Spearman, overflow
+    fraction and NaN/inf preservation. Nothing is recomputed: each stored
+    column is judged on its own with the same four criteria as
+    :func:`measure` (float16 when the 32 -> 16 cast passes, and for a
+    float64 source the 64 -> 32 cast too; float32 when only the latter
+    passes; float64 otherwise), integers take the narrowest type holding
+    their range, and the rows the table marks as not stored (source keys
+    and centroids) are left out. Its ``n_inf`` is carried as ``posinf``
+    (the table does not split the signs).
+    """
+    import pandas as pd
+
+    source_of = {"double": "float64", "float": "float32",
+                 "halffloat": "float16", "int64": "int"}
+    records = []
+    for row in table.to_dict("records"):
+        if str(row.get("stored")) != "True":
+            continue
+        source = source_of[str(row["source_dtype"])]
+        record = {"column": row["column"], "source": source,
+                  "min": row["min"], "max": row["max"],
+                  "nan": int(row["n_nan"]), "posinf": int(row["n_inf"]),
+                  "neginf": 0, "sd": row["sd"]}
+        for step, name in (("64to32", "float32"), ("32to16", "float16")):
+            record[f"{name}_error_over_scale"] = row[
+                f"{step}_max_abs_error_over_sd"]
+            record[f"{name}_spearman"] = row[f"{step}_spearman"]
+            record[f"{name}_overflow"] = bool(
+                row[f"{step}_overflow_fraction"] > 0)
+        if source == "int":
+            record["dtype"] = _integer_dtype(row["min"], row["max"])
+        elif _passes(row, "32to16") and (source == "float32"
+                                         or _passes(row, "64to32")):
+            record["dtype"] = "float16"
+        elif source == "float32" or _passes(row, "64to32"):
+            record["dtype"] = "float32"
+        else:
+            record["dtype"] = "float64"
+        records.append(record)
+    return pd.DataFrame(records)
+
+
+RULE = ("per column, each column on its own (maintainer, 2026-11-23): the "
+        "smallest of float16 < float32 < float64 whose cast keeps every "
+        "finite value finite (no overflow), keeps NaN and inf exactly, has "
+        "a largest absolute rounding error below 1 % of the column's "
+        "between-cell SD and a Spearman correlation with the original of "
+        "at least 0.9999; integers take the narrowest type holding their "
+        "range; readers upcast float16 to float32")
+
+
+def build_map(evidence, info, channels, source: str, *,
+              evidence_sha256: str = None, measured: str = None):
+    """The recorded map: one entry per column, each column judged on its own.
+
+    Deterministic: the same evidence (and ``measured`` date) gives the same
+    map, columns sorted by name; the header names the source, its sha256,
+    the rule and the sha256 of the columns block.
+    """
+    columns = {str(record["column"]): _column_entry(record)
+               for record in evidence.to_dict("records")}
+    counts = {}
+    for entry in columns.values():
+        counts[entry["dtype"]] = counts.get(entry["dtype"], 0) + 1
+    columns = dict(sorted(columns.items()))
+    return {"version": 2,
+            "measured": measured or datetime.date.today().isoformat(),
+            "source": source, "evidence_sha256": evidence_sha256,
+            "rule": RULE, "columns_sha256": columns_sha256(columns),
+            "cells": info["cells"], "fields": info["fields"],
             "spearman_stride": info["stride"],
             "channels": [c.lower() for c in channels],
-            "criteria": {"tolerance_of_spread": TOLERANCE_OF_SPREAD,
+            "criteria": {"tolerance_of_sd": TOLERANCE_OF_SPREAD,
                          "min_spearman": MIN_SPEARMAN,
                          "float_ladder": list(FLOAT_LADDER),
-                         "int_ladder": list(INT_LADDER)},
-            "families": dict(sorted(families.items()))}
+                         "int_ladder": list(INT_LADDER),
+                         "nan_inf": "kept exactly"},
+            "dtype_counts": dict(sorted(counts.items())),
+            "columns": columns}
 
 
 def main(argv=None) -> int:
@@ -309,12 +381,21 @@ def main(argv=None) -> int:
     parser.add_argument("--out-csv", required=True)
     parser.add_argument("--source", default="")
     parser.add_argument("--max-fields", type=int, default=0)
+    parser.add_argument("--measured", default="",
+                        help="the date the evidence was measured")
     args = parser.parse_args(argv)
     channels = [c.strip() for c in args.channels.split(",") if c.strip()]
+    evidence_sha256 = None
     if args.from_csv:
+        import hashlib
+
         import pandas as pd
 
+        with open(args.from_csv, "rb") as handle:
+            evidence_sha256 = hashlib.sha256(handle.read()).hexdigest()
         evidence = pd.read_csv(args.from_csv)
+        if "32to16_max_abs_error_over_sd" in evidence.columns:
+            evidence = from_loss_table(evidence)
         info = {"cells": args.cells, "fields": args.fields,
                 "stride": args.stride}
     else:
@@ -322,13 +403,13 @@ def main(argv=None) -> int:
                                  args.stride, args.max_fields)
         evidence.to_csv(args.out_csv, index=False)
     recorded = build_map(evidence, info, channels,
-                         args.source or os.path.basename(args.well_table))
-    with open(args.out_map, "w", encoding="utf-8") as handle:
-        json.dump(recorded, handle, indent=1, sort_keys=True)
-        handle.write("\n")
+                         args.source or os.path.basename(args.well_table),
+                         evidence_sha256=evidence_sha256,
+                         measured=args.measured or None)
+    write_map(recorded, args.out_map)
     counts = evidence["dtype"].value_counts().to_dict()
-    print(json.dumps({"columns": int(len(evidence)), "dtypes": counts,
-                      "families": len(recorded["families"])}, indent=1))
+    print(json.dumps({"columns": int(len(evidence)), "dtypes": counts},
+                     indent=1))
     return 0
 
 

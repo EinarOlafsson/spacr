@@ -3,8 +3,8 @@
 A small run folder is built by hand: four per-field phenotype tables (the
 ``ph_measure`` output) and their well table, a mask pass marking two edge
 cells, and ``ops_merge`` links for most cells. The columns are named as
-OPS measures them, so the recorded dtype map (``store_dtypes.json``) picks
-float16, float32, float64 and integer types for them.
+OPS measures them, and a per-column test map (as ``store_dtypes.json`` is
+laid out) gives them float16, float32, float64 and integer types.
 
 Checked: the streamed tables hold the rows, keys and values the whole-well
 frames give (each feature equal to the old value cast to its stored dtype);
@@ -131,6 +131,34 @@ def _hashes(folder):
     return out
 
 
+#: The per-column dtypes of the test map: what each column of _field is
+#: stored in. The map is per column (maintainer, 2026-11-23), so it names
+#: every column; one with no entry keeps its source type.
+TEST_DTYPES = {"area": ("float", "float32"), "euler_number": ("int", "uint8"),
+               "zernike_0": ("float", "float64"),
+               "eccentricity": ("float", "float16"),
+               "{ch}_mean_intensity": ("float", "float32"),
+               "{ch}_skew_intensity": ("float", "float16"),
+               "{ch}_pftas_0": ("float", "float16")}
+
+
+@pytest.fixture(autouse=True)
+def test_map(tmp_path_factory, monkeypatch):
+    """A per-column dtype map for _field's columns, used as the shipped map."""
+    import json
+
+    columns = {}
+    for compartment in ("cell", "nucleus", "cytoplasm"):
+        for name, (kind, dtype) in TEST_DTYPES.items():
+            for channel in (("dapi", "gfp") if "{ch}" in name else ("",)):
+                column = f"{compartment}_{name.replace('{ch}', channel)}"
+                columns[column] = {"dtype": dtype, "kind": kind}
+    path = tmp_path_factory.mktemp("map") / "store_dtypes.json"
+    path.write_text(json.dumps({"version": 2, "columns": columns}))
+    monkeypatch.setattr(store, "_DTYPE_MAP_PATH", str(path))
+    return path
+
+
 @pytest.fixture
 def built(tmp_path):
     """The run folder and its whole-well cell table."""
@@ -224,6 +252,28 @@ def test_the_well_table_source_gives_the_same_bytes(built, tmp_path):
     report = _tables(run)
     assert report["wells"]["A1"]["source"] == "well_table"
     assert _hashes(str(run / "measurements")) == streamed
+
+
+def test_ph_crops_takes_the_owned_cells_from_the_store_ph_tables_wrote(built):
+    """ph_crops reads ownership from the store's cell table (store.open).
+
+    The store's rows are exactly the cells _ph_owned_cells keeps, in
+    object_key order; without this run's ph_tables report there is nothing
+    to read and ph_crops works ownership out from the well table itself.
+    """
+    run, cells = built
+    report = _tables(run)
+    stored = ops_engine._ph_store_owned_cells(report, PLATE, "A1")
+    owned = ops_engine._ph_owned_cells(str(run), "A1", cells, SETTINGS)
+    expected = cells.loc[owned, ["site", "label"]]
+    assert len(stored) == len(expected) == len(cells) - 2
+    assert (sorted(zip(stored["site"], stored["label"]))
+            == sorted(zip(expected["site"].astype(int),
+                          expected["label"].astype(int))))
+    assert list(zip(stored["site"], stored["label"])) == sorted(
+        zip(stored["site"], stored["label"]))
+    assert ops_engine._ph_store_owned_cells(None, PLATE, "A1") is None
+    assert ops_engine._ph_store_owned_cells(report, PLATE, "B2") is None
 
 
 def test_a_value_beyond_the_recorded_dtype_widens_its_column(tmp_path):
@@ -365,3 +415,110 @@ def test_the_dtype_family_is_named_without_compartment_channel_or_number():
     assert store._fitted_dtype("float16", "float", -1.0, 70000.0) == "float32"
     assert store._fitted_dtype("uint8", "int", -1, 5) == "int8"
     assert store._fitted_dtype("float16", "float", None, None) == "float32"
+
+
+def test_the_map_tool_judges_every_column_on_its_own(tmp_path):
+    """Two columns of one family get different dtypes when their data differ.
+
+    The per-column rule (maintainer, 2026-11-23): each column takes the
+    smallest dtype it passes ON ITS OWN -- error < 1 % of its SD,
+    Spearman >= 0.9999, no overflow, NaN and inf kept -- whatever its
+    family's other columns need.
+    """
+    import importlib.util
+    import json
+
+    spec = importlib.util.spec_from_file_location(
+        "measure_store_dtypes", os.path.join(os.path.dirname(__file__), "..",
+                                             "tools", "measure_store_dtypes.py"))
+    tool = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tool)
+    rng = np.random.default_rng(3)
+    folder = tmp_path / "phenotype_cells"
+    folder.mkdir()
+    frames = []
+    for site in (1, 2):
+        frame = pd.DataFrame({
+            "site": np.int64(site), "label": np.arange(1, 401, dtype=np.int64),
+            "cell_dapi_mean_intensity": rng.normal(1000, 200, 400),
+            "cell_gfp_mean_intensity": 1000 + rng.normal(0, 1e-3, 400),
+            "cell_euler_number": rng.integers(0, 3, 400)})
+        frame.loc[0, "cell_dapi_mean_intensity"] = np.nan
+        frame.loc[1, "cell_dapi_mean_intensity"] = np.inf
+        frame.to_parquet(folder / f"site-{site}.parquet", index=False)
+        frames.append(frame)
+    well = tmp_path / "well.parquet"
+    pd.concat(frames).to_parquet(well, index=False)
+    evidence, info = tool.measure(str(well), str(folder), ["DAPI", "GFP"],
+                                  stride=1)
+    recorded = tool.build_map(evidence, info, ["DAPI", "GFP"], "test")
+    columns = recorded["columns"]
+    assert columns["cell_dapi_mean_intensity"]["dtype"] == "float16"
+    assert columns["cell_dapi_mean_intensity"]["err_sd"] < 0.01
+    assert columns["cell_dapi_mean_intensity"]["rho"] >= 0.9999
+    assert columns["cell_gfp_mean_intensity"] == {"dtype": "float64",
+                                                  "kind": "float"}
+    assert recorded["columns_sha256"] == tool.columns_sha256(columns)
+    assert columns["cell_euler_number"] == {**columns["cell_euler_number"],
+                                            "dtype": "uint8", "kind": "int"}
+    assert recorded["dtype_counts"] == {"float16": 1, "float64": 1,
+                                        "uint16": 1, "uint8": 2}
+    again = tool.build_map(evidence, info, ["DAPI", "GFP"], "test")
+    assert json.dumps(again, sort_keys=True) == json.dumps(recorded,
+                                                           sort_keys=True)
+    path = tmp_path / "map.json"
+    path.write_text(json.dumps(recorded))
+    types, _promoted = store._stored_types(pa.schema([
+        ("cell_dapi_mean_intensity", pa.float64()),
+        ("cell_gfp_mean_intensity", pa.float64()),
+        ("cell_area", pa.float64())]),
+        {"cell_dapi_mean_intensity": (300.0, 1800.0)}, path=str(path))
+    assert [str(types[n]) for n in ("cell_dapi_mean_intensity",
+                                    "cell_gfp_mean_intensity", "cell_area")] \
+        == ["halffloat", "double", "double"]
+
+
+def test_the_shipped_map_is_the_per_column_a1_map_the_writer_applies():
+    """THE recorded dtype map: A1's per-column map, applied by the writer.
+
+    spacr/resources/data/store_dtypes.json was built by
+    tools/measure_store_dtypes.py --from-csv from Home's
+    per_column_loss_A1.csv (plate A well A1, 1,587,434 cells), each column
+    judged on its own (its chosen_dtype column, the old family map, is not
+    read). Its 2,798 stored columns: exactly 1,965 float16, 823 float32,
+    8 uint8 and 2 float64 (cell_zernike_0 and nucleus_zernike_0).
+    """
+    import importlib.util
+    import json
+
+    path = os.path.join(os.path.dirname(store.__file__), "resources", "data",
+                        "store_dtypes.json")
+    with open(path, encoding="utf-8") as handle:
+        recorded = json.load(handle)
+    spec = importlib.util.spec_from_file_location(
+        "measure_store_dtypes", os.path.join(os.path.dirname(__file__), "..",
+                                             "tools", "measure_store_dtypes.py"))
+    tool = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tool)
+    columns = recorded["columns"]
+    assert recorded["version"] == 2 and recorded["cells"] == 1587434
+    assert "per_column_loss_A1.csv" in recorded["source"]
+    assert recorded["evidence_sha256"] == (
+        "8090fe8f1bdfcc7296f1f6bfc49f65363ef63b7ee99c6421824e68f393aa5d09")
+    assert recorded["columns_sha256"] == tool.columns_sha256(columns)
+    counts = {}
+    for entry in columns.values():
+        counts[entry["dtype"]] = counts.get(entry["dtype"], 0) + 1
+    assert counts == {"float16": 1965, "float32": 823, "uint8": 8,
+                      "float64": 2} == recorded["dtype_counts"]
+    assert sorted(c for c, e in columns.items() if e["dtype"] == "float64") \
+        == ["cell_zernike_0", "nucleus_zernike_0"]
+    assert not any("chosen" in json.dumps(e) for e in columns.values())
+    schema = pa.schema([(name, pa.int64() if entry["kind"] == "int"
+                         else pa.float64())
+                        for name, entry in columns.items()])
+    ranges = {name: (0.0, 1.0) for name in columns}
+    types, promoted = store._stored_types(schema, ranges, path=path)
+    assert not promoted
+    assert {n: np.dtype(t.to_pandas_dtype()).name for n, t in types.items()} \
+        == {n: e["dtype"] for n, e in columns.items()}
