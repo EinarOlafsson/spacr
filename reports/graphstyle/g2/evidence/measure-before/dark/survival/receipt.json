@@ -1,0 +1,35 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "_time_to_event_figure",
+  "data_sha256": "6d153b99e7ad0a28cee7b2fb5f637df5ef378bb24cf81a022a51918aac5c85ff",
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/survival/survival.pdf",
+      "sha256": "62273abd50b9cf6ce1f5d05429dc1e0fcd89de118b0847f2e8ebbe80c8cd11aa"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/survival/survival.png",
+      "sha256": "00995ae011065d60d766eded64287cea1212acf8c4e94f1c7a45358760f2de51"
+    }
+  },
+  "inputs_sha256": "8a3ae5503d93a3436b8673a57f55378bab7fc45824c237374ae6b9771ab419be",
+  "payload_sha256": "485661c10d36216eebe9e1f91c4cf397d98f7763ef8505856ab0098e13d3f065",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

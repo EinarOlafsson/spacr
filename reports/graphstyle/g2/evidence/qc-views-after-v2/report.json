@@ -1,0 +1,2060 @@
+{
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation",
+  "source_head": "9510143823dcc1b984ecc522058a1e3f15e985d8",
+  "source_inputs": {
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/align.py": "537d50e0f6a7eb18273594b6b1115854020d8f90b4dfa60f8b01ba5aae183dc8",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/plot.py": "cc48d6ffa3e9c7abf0d6c916db3549d16850f988df59100f51cfa674e4e7e972",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figures/style.py": "34ec8c078b86515419542277bc680b299d4ff4832e72dbff6d89f99283960048",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/qt/preferences.py": "031b785dfe5bfb4945f0a6ae956a703b4eb2fdd21d878333ddc35974c5211ece",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/qt/theme.py": "40d7db4d02ebcd75c2c53fa188287bf2ed5365b8ec673518608fbc73342bb1f0",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/qt/screens/align.py": "06660e91c9f734b3d3a3d2f6979f3d5ba1f987fc541b05743200ed6f4cda0b11",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/qt/widgets/measure_preview.py": "3412f73d1e623b62f66d34458239c1ca2d48cb180a427b6f63c8834cd6c39404",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/qt/widgets/qc_field_browser.py": "6bbec6d1369a85de59e3b7968b3b69c670cfdfebb1ff38033d5ab6904be6ef69",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/.codex-audit/g2_qc_views_render.py": "56fc9c96e91ad1a6cbacef19a3085d36ec62fa3de558ced755be2220cf217f8a"
+  },
+  "synthetic_only": true,
+  "requested_cases": [
+    "dark/align-180",
+    "dark/align-400",
+    "dark/overview-export",
+    "light/align-180",
+    "light/align-400",
+    "light/overview-export"
+  ],
+  "cases": {
+    "light/align-180": {
+      "file": "light/align-180.png",
+      "file_sha256": "23263deb67256d9e9e0e292318ade0d2c83527178b6a07446fe22341dc2641e5",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          180,
+          4
+        ],
+        "data_sha256": "ecd9226649d7d8536959f300a84f1deb8b34af804f5bcd5b652da7f5d8ff1bd5",
+        "mask_sha256": "dd2860e5e42300a259bef1aa9f5b80f1d10ccb45ba555dc0a7686cd124027766"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        180,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "tile_rects": [
+        [
+          0,
+          [
+            10.0,
+            124.43092105263158,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          1,
+          [
+            52.10526315789473,
+            124.43092105263158,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          2,
+          [
+            94.21052631578947,
+            124.43092105263158,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          3,
+          [
+            136.31578947368422,
+            124.43092105263158,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ]
+      ],
+      "key": [
+        {
+          "label": "Registration confidence: 0.3",
+          "colour": "#e6e9ee",
+          "hatched": false,
+          "rect": [
+            10.0,
+            274.125,
+            160.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            277.125,
+            12.0,
+            12.96875
+          ],
+          "outline": "#0d0e10",
+          "text_bounds": [
+            30.0,
+            276.125,
+            136.359375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#0d0e10",
+          "background": "#ffffff"
+        },
+        {
+          "label": "Registration confidence: 1.0",
+          "colour": "#0a63c4",
+          "hatched": false,
+          "rect": [
+            10.0,
+            293.09375,
+            160.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            296.09375,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            295.09375,
+            136.359375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#0d0e10",
+          "background": "#ffffff"
+        },
+        {
+          "label": "Stage-position placement",
+          "colour": "#8f4e00",
+          "hatched": true,
+          "rect": [
+            10.0,
+            312.0625,
+            160.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            315.0625,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            314.0625,
+            125.21875,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#0d0e10",
+          "background": "#ffffff"
+        },
+        {
+          "label": "Unreadable tile",
+          "colour": "#b81d1a",
+          "hatched": false,
+          "rect": [
+            10.0,
+            331.03125,
+            160.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            334.03125,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            333.03125,
+            75.4375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#0d0e10",
+          "background": "#ffffff"
+        }
+      ]
+    },
+    "light/align-400": {
+      "file": "light/align-400.png",
+      "file_sha256": "88171bd32ece9930080abf08cda09b2c6878a4d06d6fbcaab954deb48dcf273d",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          400,
+          4
+        ],
+        "data_sha256": "0de4a6db9a920d936ac2e9c3dd7ac5450ae454dbe1eed53b2f2bbb72d58c3525",
+        "mask_sha256": "30fafbdc0facf210a26498db982f7ff8ad1e0b9a805816731c72e356a768c162"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "tile_rects": [
+        [
+          0,
+          [
+            10.0,
+            107.0625,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          1,
+          [
+            110.0,
+            107.0625,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          2,
+          [
+            210.0,
+            107.0625,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          3,
+          [
+            310.0,
+            107.0625,
+            80.0,
+            60.0
+          ]
+        ]
+      ],
+      "key": [
+        {
+          "label": "Registration confidence: 0.3",
+          "colour": "#e6e9ee",
+          "hatched": false,
+          "rect": [
+            10.0,
+            274.125,
+            380.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            277.125,
+            12.0,
+            12.96875
+          ],
+          "outline": "#0d0e10",
+          "text_bounds": [
+            30.0,
+            276.125,
+            136.359375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#0d0e10",
+          "background": "#ffffff"
+        },
+        {
+          "label": "Registration confidence: 1.0",
+          "colour": "#0a63c4",
+          "hatched": false,
+          "rect": [
+            10.0,
+            293.09375,
+            380.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            296.09375,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            295.09375,
+            136.359375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#0d0e10",
+          "background": "#ffffff"
+        },
+        {
+          "label": "Stage-position placement",
+          "colour": "#8f4e00",
+          "hatched": true,
+          "rect": [
+            10.0,
+            312.0625,
+            380.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            315.0625,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            314.0625,
+            125.21875,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#0d0e10",
+          "background": "#ffffff"
+        },
+        {
+          "label": "Unreadable tile",
+          "colour": "#b81d1a",
+          "hatched": false,
+          "rect": [
+            10.0,
+            331.03125,
+            380.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            334.03125,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            333.03125,
+            75.4375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#0d0e10",
+          "background": "#ffffff"
+        }
+      ]
+    },
+    "light/overview-export": {
+      "figures": [
+        {
+          "images": [
+            {
+              "dtype": "|u1",
+              "shape": [
+                36,
+                48,
+                3
+              ],
+              "data_sha256": "1b0084b9ebe2eb28c595e65118271ff346d1c8cf75a844221c3f9e51c26b9412",
+              "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+            }
+          ],
+          "diagnostics": {
+            "policy_version": "2026-11-20",
+            "problems": [],
+            "checks": [
+              "registered semantics",
+              "text size",
+              "text bounds",
+              "text overlap",
+              "declared reference and quantities",
+              "actual palette and legend identities",
+              "applicable representation and semantic requirements",
+              "font family and size",
+              "composited text contrast",
+              "completed presentation checks"
+            ]
+          }
+        }
+      ],
+      "requested_dpi": 96,
+      "limitation": "Bounded native-view evidence, not publication resolution or tutorial acceptance."
+    },
+    "dark/align-180": {
+      "file": "dark/align-180.png",
+      "file_sha256": "b714acfdd8702d1bcc08e4c80814223f1232a488f611eddeb047251a12c4efdb",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          180,
+          4
+        ],
+        "data_sha256": "d06a9719f12bf1e541d916617fecac0375ea8a5860dcc90319e0d86c391fcce4",
+        "mask_sha256": "dd2860e5e42300a259bef1aa9f5b80f1d10ccb45ba555dc0a7686cd124027766"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        180,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "tile_rects": [
+        [
+          0,
+          [
+            10.0,
+            124.43092105263158,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          1,
+          [
+            52.10526315789473,
+            124.43092105263158,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          2,
+          [
+            94.21052631578947,
+            124.43092105263158,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          3,
+          [
+            136.31578947368422,
+            124.43092105263158,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ]
+      ],
+      "key": [
+        {
+          "label": "Registration confidence: 0.3",
+          "colour": "#1f2124",
+          "hatched": false,
+          "rect": [
+            10.0,
+            274.125,
+            160.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            277.125,
+            12.0,
+            12.96875
+          ],
+          "outline": "#ffffff",
+          "text_bounds": [
+            30.0,
+            276.125,
+            136.359375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#ffffff",
+          "background": "#0d0e10"
+        },
+        {
+          "label": "Registration confidence: 1.0",
+          "colour": "#4a9eff",
+          "hatched": false,
+          "rect": [
+            10.0,
+            293.09375,
+            160.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            296.09375,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            295.09375,
+            136.359375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#ffffff",
+          "background": "#0d0e10"
+        },
+        {
+          "label": "Stage-position placement",
+          "colour": "#d29922",
+          "hatched": true,
+          "rect": [
+            10.0,
+            312.0625,
+            160.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            315.0625,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            314.0625,
+            125.21875,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#ffffff",
+          "background": "#0d0e10"
+        },
+        {
+          "label": "Unreadable tile",
+          "colour": "#f85149",
+          "hatched": false,
+          "rect": [
+            10.0,
+            331.03125,
+            160.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            334.03125,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            333.03125,
+            75.4375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#ffffff",
+          "background": "#0d0e10"
+        }
+      ]
+    },
+    "dark/align-400": {
+      "file": "dark/align-400.png",
+      "file_sha256": "806cce769a0883db07bdd3c860547f47283f714f2b728eb3763a0e3a7f12fee1",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          400,
+          4
+        ],
+        "data_sha256": "bb6fb1d999caf43eede8fe0b42b74b329d0c10ce7d4a1f01061f33cbbead0ab9",
+        "mask_sha256": "30fafbdc0facf210a26498db982f7ff8ad1e0b9a805816731c72e356a768c162"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "tile_rects": [
+        [
+          0,
+          [
+            10.0,
+            107.0625,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          1,
+          [
+            110.0,
+            107.0625,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          2,
+          [
+            210.0,
+            107.0625,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          3,
+          [
+            310.0,
+            107.0625,
+            80.0,
+            60.0
+          ]
+        ]
+      ],
+      "key": [
+        {
+          "label": "Registration confidence: 0.3",
+          "colour": "#1f2124",
+          "hatched": false,
+          "rect": [
+            10.0,
+            274.125,
+            380.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            277.125,
+            12.0,
+            12.96875
+          ],
+          "outline": "#ffffff",
+          "text_bounds": [
+            30.0,
+            276.125,
+            136.359375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#ffffff",
+          "background": "#0d0e10"
+        },
+        {
+          "label": "Registration confidence: 1.0",
+          "colour": "#4a9eff",
+          "hatched": false,
+          "rect": [
+            10.0,
+            293.09375,
+            380.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            296.09375,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            295.09375,
+            136.359375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#ffffff",
+          "background": "#0d0e10"
+        },
+        {
+          "label": "Stage-position placement",
+          "colour": "#d29922",
+          "hatched": true,
+          "rect": [
+            10.0,
+            312.0625,
+            380.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            315.0625,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            314.0625,
+            125.21875,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#ffffff",
+          "background": "#0d0e10"
+        },
+        {
+          "label": "Unreadable tile",
+          "colour": "#f85149",
+          "hatched": false,
+          "rect": [
+            10.0,
+            331.03125,
+            380.0,
+            18.96875
+          ],
+          "swatch_rect": [
+            10.0,
+            334.03125,
+            12.0,
+            12.96875
+          ],
+          "outline": null,
+          "text_bounds": [
+            30.0,
+            333.03125,
+            75.4375,
+            14.96875
+          ],
+          "font_points": 8.0,
+          "inside_canvas": true,
+          "outside_tiles": true,
+          "foreground": "#ffffff",
+          "background": "#0d0e10"
+        }
+      ]
+    },
+    "dark/overview-export": {
+      "figures": [
+        {
+          "images": [
+            {
+              "dtype": "|u1",
+              "shape": [
+                36,
+                48,
+                3
+              ],
+              "data_sha256": "1b0084b9ebe2eb28c595e65118271ff346d1c8cf75a844221c3f9e51c26b9412",
+              "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+            }
+          ],
+          "diagnostics": {
+            "policy_version": "2026-11-20",
+            "problems": [
+              "Use readable text contrast against the actual plot background"
+            ],
+            "checks": [
+              "registered semantics",
+              "text size",
+              "text bounds",
+              "text overlap",
+              "declared reference and quantities",
+              "actual palette and legend identities",
+              "applicable representation and semantic requirements",
+              "font family and size",
+              "composited text contrast",
+              "completed presentation checks"
+            ]
+          }
+        }
+      ],
+      "requested_dpi": 96,
+      "limitation": "Bounded native-view evidence, not publication resolution or tutorial acceptance."
+    }
+  },
+  "limitations": [
+    "Native widget evidence is not a tutorial recording or full GUI acceptance.",
+    "Missing baseline style observations remain unavailable, never a presentation PASS.",
+    "Display coordinates, fonts and themes may change; raw pixels, counts and source identities must not.",
+    "Overview reads one tiny generated NPY; no model, cropper, segmentation or plate computation runs."
+  ],
+  "themes": {
+    "light": {
+      "name": "light",
+      "palette": {
+        "bg": "#fafafa",
+        "page": "#e1e4e6",
+        "surface": "#ffffff",
+        "surface_alt": "#f2f4f7",
+        "surface_hi": "#e6e9ee",
+        "border": "#7c7e81",
+        "border_soft": "#e5e8ec",
+        "fg": "#0d0e10",
+        "fg_muted": "#4b5460",
+        "fg_dim": "#596170",
+        "accent": "#0a63c4",
+        "accent_hi": "#0851a3",
+        "accent_lo": "#063d7a",
+        "accent_soft": "#dbe8fb",
+        "success": "#0f7030",
+        "chip_class": "#0a6f6a",
+        "chip_value": "#0f7030",
+        "warning": "#8f4e00",
+        "error": "#b81d1a",
+        "info": "#0a63c4",
+        "button_accent": "#4A9EFF",
+        "button_accent_hi": "#66B2FF",
+        "button_accent_lo": "#2F80D9",
+        "button_accent_ink": "#04101c",
+        "splash_bg": "#fafafa",
+        "splash_ink": "#0d0e10",
+        "splash_ink_dim": "#555658",
+        "splash_track": "#d0d0d1",
+        "splash_fill": "#404142"
+      },
+      "settings_file": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/qc-views-after-v2/config/spacr/qt.conf"
+    },
+    "dark": {
+      "name": "dark",
+      "palette": {
+        "bg": "#000000",
+        "page": "#23252a",
+        "surface": "#0d0e10",
+        "surface_alt": "#161719",
+        "surface_hi": "#1f2124",
+        "border": "#707276",
+        "border_soft": "#1c1e22",
+        "fg": "#ffffff",
+        "fg_muted": "#a1a6ad",
+        "fg_dim": "#858a92",
+        "accent": "#4A9EFF",
+        "accent_hi": "#66B2FF",
+        "accent_lo": "#2F80D9",
+        "accent_soft": "#1e3550",
+        "success": "#3fb950",
+        "chip_class": "#1fb6ad",
+        "chip_value": "#3fb950",
+        "warning": "#d29922",
+        "error": "#f85149",
+        "info": "#4A9EFF",
+        "button_accent": "#4A9EFF",
+        "button_accent_hi": "#66B2FF",
+        "button_accent_lo": "#2F80D9",
+        "button_accent_ink": "#04101c",
+        "splash_bg": "#000000",
+        "splash_ink": "#ffffff",
+        "splash_ink_dim": "#959595",
+        "splash_track": "#2d2d2d",
+        "splash_fill": "#c8c8c8"
+      },
+      "settings_file": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/qc-views-after-v2/config/spacr/qt.conf"
+    }
+  },
+  "input_arrays_unchanged": true,
+  "source_inputs_unchanged": true,
+  "scientific": {
+    "inputs": {
+      "rgb": {
+        "dtype": "|u1",
+        "shape": [
+          36,
+          48,
+          3
+        ],
+        "data_sha256": "684bcb26887cd35428062573f721de1632e29a77ad82e8418528ffae4482dce1",
+        "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+      },
+      "intensities": {
+        "dtype": "<u2",
+        "shape": [
+          36,
+          48,
+          2
+        ],
+        "data_sha256": "96b4e50b44efe7ac07d28e2f414bef41d7a05c9fc06c153908befaddb84f25bc",
+        "mask_sha256": "0ee0c7ac0933cd2c9de481994bf578c44ac305c8b99c0baf4b95701bb50c9476"
+      },
+      "nucleus": {
+        "dtype": "<u2",
+        "shape": [
+          36,
+          48
+        ],
+        "data_sha256": "c10a437ab106268ab544905817e6da1d72beeba9326a77dd4817d25e00f439b4",
+        "mask_sha256": "7636c9f8da9a82f9a9fcd804a25795a9c900e1c7e19f7442a7b113c8ccd64eb2"
+      },
+      "cells": {
+        "dtype": "<u2",
+        "shape": [
+          36,
+          48
+        ],
+        "data_sha256": "6003efc791d396724491fdb2b9e913168d0a9f62c0523aaf2d700bcd2626ef8d",
+        "mask_sha256": "7636c9f8da9a82f9a9fcd804a25795a9c900e1c7e19f7442a7b113c8ccd64eb2"
+      }
+    },
+    "light/align-180": {
+      "plan": {
+        "tiles": [
+          {
+            "path": "synthetic-0.npy",
+            "index": 0,
+            "plate": "",
+            "well": "",
+            "field": 1,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-1.npy",
+            "index": 1,
+            "plate": "",
+            "well": "",
+            "field": 2,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-2.npy",
+            "index": 2,
+            "plate": "",
+            "well": "",
+            "field": 3,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-3.npy",
+            "index": 3,
+            "plate": "",
+            "well": "",
+            "field": 4,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          }
+        ],
+        "placements": [
+          {
+            "tile": {
+              "path": "synthetic-0.npy",
+              "index": 0,
+              "plate": "",
+              "well": "",
+              "field": 1,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 0.0,
+            "confidence": 0.3,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-1.npy",
+              "index": 1,
+              "plate": "",
+              "well": "",
+              "field": 2,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 60.0,
+            "confidence": 1.0,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-2.npy",
+              "index": 2,
+              "plate": "",
+              "well": "",
+              "field": 3,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 120.0,
+            "confidence": 0.0,
+            "method": "nominal",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-3.npy",
+              "index": 3,
+              "plate": "",
+              "well": "",
+              "field": 4,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 180.0,
+            "confidence": 0.0,
+            "method": "unreadable",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          }
+        ],
+        "canvas_shape": [
+          36,
+          228,
+          1
+        ],
+        "overlaps": [],
+        "warnings": [],
+        "unplaced": [],
+        "origin": [
+          0.0,
+          0.0
+        ],
+        "feather": 1,
+        "dtype": "uint16",
+        "reference_channel": 0
+      },
+      "clicked_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "light/align-400": {
+      "plan": {
+        "tiles": [
+          {
+            "path": "synthetic-0.npy",
+            "index": 0,
+            "plate": "",
+            "well": "",
+            "field": 1,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-1.npy",
+            "index": 1,
+            "plate": "",
+            "well": "",
+            "field": 2,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-2.npy",
+            "index": 2,
+            "plate": "",
+            "well": "",
+            "field": 3,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-3.npy",
+            "index": 3,
+            "plate": "",
+            "well": "",
+            "field": 4,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          }
+        ],
+        "placements": [
+          {
+            "tile": {
+              "path": "synthetic-0.npy",
+              "index": 0,
+              "plate": "",
+              "well": "",
+              "field": 1,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 0.0,
+            "confidence": 0.3,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-1.npy",
+              "index": 1,
+              "plate": "",
+              "well": "",
+              "field": 2,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 60.0,
+            "confidence": 1.0,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-2.npy",
+              "index": 2,
+              "plate": "",
+              "well": "",
+              "field": 3,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 120.0,
+            "confidence": 0.0,
+            "method": "nominal",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-3.npy",
+              "index": 3,
+              "plate": "",
+              "well": "",
+              "field": 4,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 180.0,
+            "confidence": 0.0,
+            "method": "unreadable",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          }
+        ],
+        "canvas_shape": [
+          36,
+          228,
+          1
+        ],
+        "overlaps": [],
+        "warnings": [],
+        "unplaced": [],
+        "origin": [
+          0.0,
+          0.0
+        ],
+        "feather": 1,
+        "dtype": "uint16",
+        "reference_channel": 0
+      },
+      "clicked_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "light/overview-export": {
+      "images": [
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "1b0084b9ebe2eb28c595e65118271ff346d1c8cf75a844221c3f9e51c26b9412",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        }
+      ],
+      "channels": [
+        0,
+        1
+      ],
+      "percentiles": [
+        1,
+        99
+      ],
+      "seed": 17,
+      "fields": [
+        [
+          "synthetic",
+          "A01",
+          "4"
+        ]
+      ],
+      "recorded_selection": {
+        "channels": [
+          0,
+          1
+        ],
+        "percentiles": [
+          1,
+          99
+        ],
+        "seed": 17,
+        "field_options": null,
+        "color_mode": "additive",
+        "load_limits": {
+          "max_wells_per_plate": null,
+          "max_fields_per_well": null
+        },
+        "channel_display": {
+          "0": {
+            "percentiles": [
+              1.0,
+              99.0
+            ],
+            "ink_intensity": 1.0
+          },
+          "1": {
+            "percentiles": [
+              1.0,
+              99.0
+            ],
+            "ink_intensity": 1.0
+          }
+        },
+        "fields": [
+          {
+            "plate": "synthetic",
+            "well": "A01",
+            "field": "4",
+            "files": [
+              [
+                "",
+                "<OUTPUT>/light/overview-field.npy"
+              ]
+            ],
+            "field_id": "4",
+            "time_id": "",
+            "z_id": "",
+            "condition": "",
+            "time_index": null,
+            "z_mode": "plane",
+            "z_index": null,
+            "annotations": {}
+          }
+        ],
+        "errors": [],
+        "cancelled": false,
+        "requested_field_count": 1,
+        "written_field_count": 1,
+        "quality_edge": null,
+        "dpi": 96,
+        "advanced_normalization": null,
+        "normalization": null,
+        "time_index": null,
+        "z_mode": "plane",
+        "z_index": null
+      }
+    },
+    "dark/align-180": {
+      "plan": {
+        "tiles": [
+          {
+            "path": "synthetic-0.npy",
+            "index": 0,
+            "plate": "",
+            "well": "",
+            "field": 1,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-1.npy",
+            "index": 1,
+            "plate": "",
+            "well": "",
+            "field": 2,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-2.npy",
+            "index": 2,
+            "plate": "",
+            "well": "",
+            "field": 3,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-3.npy",
+            "index": 3,
+            "plate": "",
+            "well": "",
+            "field": 4,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          }
+        ],
+        "placements": [
+          {
+            "tile": {
+              "path": "synthetic-0.npy",
+              "index": 0,
+              "plate": "",
+              "well": "",
+              "field": 1,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 0.0,
+            "confidence": 0.3,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-1.npy",
+              "index": 1,
+              "plate": "",
+              "well": "",
+              "field": 2,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 60.0,
+            "confidence": 1.0,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-2.npy",
+              "index": 2,
+              "plate": "",
+              "well": "",
+              "field": 3,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 120.0,
+            "confidence": 0.0,
+            "method": "nominal",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-3.npy",
+              "index": 3,
+              "plate": "",
+              "well": "",
+              "field": 4,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 180.0,
+            "confidence": 0.0,
+            "method": "unreadable",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          }
+        ],
+        "canvas_shape": [
+          36,
+          228,
+          1
+        ],
+        "overlaps": [],
+        "warnings": [],
+        "unplaced": [],
+        "origin": [
+          0.0,
+          0.0
+        ],
+        "feather": 1,
+        "dtype": "uint16",
+        "reference_channel": 0
+      },
+      "clicked_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dark/align-400": {
+      "plan": {
+        "tiles": [
+          {
+            "path": "synthetic-0.npy",
+            "index": 0,
+            "plate": "",
+            "well": "",
+            "field": 1,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-1.npy",
+            "index": 1,
+            "plate": "",
+            "well": "",
+            "field": 2,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-2.npy",
+            "index": 2,
+            "plate": "",
+            "well": "",
+            "field": 3,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-3.npy",
+            "index": 3,
+            "plate": "",
+            "well": "",
+            "field": 4,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          }
+        ],
+        "placements": [
+          {
+            "tile": {
+              "path": "synthetic-0.npy",
+              "index": 0,
+              "plate": "",
+              "well": "",
+              "field": 1,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 0.0,
+            "confidence": 0.3,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-1.npy",
+              "index": 1,
+              "plate": "",
+              "well": "",
+              "field": 2,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 60.0,
+            "confidence": 1.0,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-2.npy",
+              "index": 2,
+              "plate": "",
+              "well": "",
+              "field": 3,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 120.0,
+            "confidence": 0.0,
+            "method": "nominal",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-3.npy",
+              "index": 3,
+              "plate": "",
+              "well": "",
+              "field": 4,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 180.0,
+            "confidence": 0.0,
+            "method": "unreadable",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          }
+        ],
+        "canvas_shape": [
+          36,
+          228,
+          1
+        ],
+        "overlaps": [],
+        "warnings": [],
+        "unplaced": [],
+        "origin": [
+          0.0,
+          0.0
+        ],
+        "feather": 1,
+        "dtype": "uint16",
+        "reference_channel": 0
+      },
+      "clicked_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dark/overview-export": {
+      "images": [
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "1b0084b9ebe2eb28c595e65118271ff346d1c8cf75a844221c3f9e51c26b9412",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        }
+      ],
+      "channels": [
+        0,
+        1
+      ],
+      "percentiles": [
+        1,
+        99
+      ],
+      "seed": 17,
+      "fields": [
+        [
+          "synthetic",
+          "A01",
+          "4"
+        ]
+      ],
+      "recorded_selection": {
+        "channels": [
+          0,
+          1
+        ],
+        "percentiles": [
+          1,
+          99
+        ],
+        "seed": 17,
+        "field_options": null,
+        "color_mode": "additive",
+        "load_limits": {
+          "max_wells_per_plate": null,
+          "max_fields_per_well": null
+        },
+        "channel_display": {
+          "0": {
+            "percentiles": [
+              1.0,
+              99.0
+            ],
+            "ink_intensity": 1.0
+          },
+          "1": {
+            "percentiles": [
+              1.0,
+              99.0
+            ],
+            "ink_intensity": 1.0
+          }
+        },
+        "fields": [
+          {
+            "plate": "synthetic",
+            "well": "A01",
+            "field": "4",
+            "files": [
+              [
+                "",
+                "<OUTPUT>/dark/overview-field.npy"
+              ]
+            ],
+            "field_id": "4",
+            "time_id": "",
+            "z_id": "",
+            "condition": "",
+            "time_index": null,
+            "z_mode": "plane",
+            "z_index": null,
+            "annotations": {}
+          }
+        ],
+        "errors": [],
+        "cancelled": false,
+        "requested_field_count": 1,
+        "written_field_count": 1,
+        "quality_edge": null,
+        "dpi": 96,
+        "advanced_normalization": null,
+        "normalization": null,
+        "time_index": null,
+        "z_mode": "plane",
+        "z_index": null
+      }
+    }
+  },
+  "baseline_comparison": {
+    "report_sha256": "f36fc11b313cd71a6e49c44f87585934e582a18176ca75864feab8ecf13a1b9a",
+    "compared_cases": [
+      "dark/align-180",
+      "dark/align-400",
+      "dark/overview-export",
+      "light/align-180",
+      "light/align-400",
+      "light/overview-export"
+    ],
+    "scientific_inputs_compared": true,
+    "scientific_identity": true,
+    "different_cases": []
+  },
+  "output_hashes": {
+    "dark/align-180.png": "b714acfdd8702d1bcc08e4c80814223f1232a488f611eddeb047251a12c4efdb",
+    "dark/align-400.png": "806cce769a0883db07bdd3c860547f47283f714f2b728eb3763a0e3a7f12fee1",
+    "dark/overview/overview_0001.pdf": "6669423c841417eb6e65e77d8667cf752759f2c120c360c9a854d4cda19e40e0",
+    "dark/overview/overview_0001.png": "ac418d0500d4e8a4fa0119df9d2955c40672055ab9d3e280ffdfe2d6acbf0537",
+    "light/align-180.png": "23263deb67256d9e9e0e292318ade0d2c83527178b6a07446fe22341dc2641e5",
+    "light/align-400.png": "88171bd32ece9930080abf08cda09b2c6878a4d06d6fbcaab954deb48dcf273d",
+    "light/overview/overview_0001.pdf": "6fb7ee3cb5daf5f0733ab1f60c4acf66157dff68400a4a710ebae8edc7729a81",
+    "light/overview/overview_0001.png": "ac418d0500d4e8a4fa0119df9d2955c40672055ab9d3e280ffdfe2d6acbf0537"
+  }
+}

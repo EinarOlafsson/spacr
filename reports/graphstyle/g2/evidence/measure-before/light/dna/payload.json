@@ -1,0 +1,25 @@
+{
+  "images": null,
+  "table": {
+    "arrays": [
+      {
+        "data_base64": "mpmZmZmZ6T8zMzMzMzP7P2ZmZmZmZv4/AAAAAAAAAEDNzMzMzMwAQDMzMzMzMwNAMzMzMzMzB0AzMzMzMzMLQDMzMzMzMw9AZmZmZmZmEEAAAAAAAAAcQA==",
+        "dtype": "float64",
+        "missing": "71b6c1d53832f789a7f2435a7c629245fa3761ad8487775ebf4957330213a706",
+        "missing_base64": "AAAAAAAAAAAAAAA=",
+        "sha256": "8ba7a6cf85bf28a81f8651f0c41f6102dfc90f9efd8df41269855d7d4582ba73",
+        "shape": [
+          11
+        ]
+      }
+    ],
+    "columns": [
+      "dna_content"
+    ],
+    "csv": ",dna_content\n0,0.8\n1,1.7\n2,1.9\n3,2.0\n4,2.1\n5,2.4\n6,2.9\n7,3.4\n8,3.9\n9,4.1\n10,7.0\n",
+    "dtypes": [
+      "float64"
+    ],
+    "kind": "dataframe"
+  }
+}

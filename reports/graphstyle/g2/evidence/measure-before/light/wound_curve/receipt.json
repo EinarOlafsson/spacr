@@ -1,0 +1,35 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff"
+    ]
+  },
+  "creator": "_wound_curve_figure",
+  "data_sha256": "a99685d804ee4d4d48e2610b8bcccbf44707cddaf8887e06b242f8acd4fd9309",
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_curve/wound_curve.pdf",
+      "sha256": "ffa66ca9cbc2ec1f5afa0a2f5dce65fe264d0d5d2e04cfdf9dc53e9e4fa424eb"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_curve/wound_curve.png",
+      "sha256": "ca8e81d8cadd617070a76ea7c7e378589e7b381ad6edf6964c912f480cd722f6"
+    }
+  },
+  "inputs_sha256": "f32b252d2e015efbc4421b17c720b1d88d62c84d014a0c92ec2cfad980084813",
+  "payload_sha256": "12513f86c0bbe4910d1ac7721e9cce5df8c50e4e51e6205f9c69dc4f79c28e55",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff",
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff",
+      "#000000ff"
+    ]
+  },
+  "creator": "img_list_to_grid",
+  "data_sha256": null,
+  "diagnostics": {
+    "checks": [
+      "registered semantics",
+      "text size",
+      "text bounds",
+      "text overlap",
+      "declared reference and quantities",
+      "actual palette and legend identities",
+      "applicable representation and semantic requirements",
+      "font family and size",
+      "composited text contrast",
+      "completed presentation checks"
+    ],
+    "problems": []
+  },
+  "files": {
+    "pdf": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/light/montage/montage.pdf",
+      "sha256": "fa0fb2af4bf9e7f83a4c3f782482a6c25532838159355a24152f5883abc25f16"
+    },
+    "png": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/light/montage/montage.png",
+      "sha256": "5c7b1bf72b18bfd01b661167c118d17db2238c3c11677499c86392f95b04784f"
+    }
+  },
+  "inputs_sha256": "6454f594118e1faec6ebd0231d93d0c956f62e8bad3b201009b5e438674416b7",
+  "payload_sha256": "5ded18fbb29822c105c6294cee4f7f682535a10158db22578ed5b95e19ed1aef",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

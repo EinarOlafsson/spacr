@@ -1,0 +1,61 @@
+{
+  "images": null,
+  "table": {
+    "arrays": [
+      {
+        "data_base64": "WyJzaXplIiwgInRyZWF0ZWQiXQ==",
+        "dtype": "object",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "067c730778b6554c00800fb29fa56502307e5926b6f2bc50b2bbd5920b966e3a",
+        "shape": [
+          2
+        ]
+      },
+      {
+        "data_base64": "ZmZmZmZm5j/NzMzMzMz8Pw==",
+        "dtype": "float64",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "1237076dcafc24480c2fcf819a250a181c15d9f3f66c14d6947326f2d517349a",
+        "shape": [
+          2
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA4D8zMzMzMzPzPw==",
+        "dtype": "float64",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "f96fbdab7cbf97e7c0817152b5df3744ef7bed87456ecdf477b09c6f5fe811ea",
+        "shape": [
+          2
+        ]
+      },
+      {
+        "data_base64": "zczMzMzM7D8zMzMzMzMDQA==",
+        "dtype": "float64",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "4ad6948eb0bb21062341e98d3d5165ca10582eb41ffb4e87b49b974a0e43c298",
+        "shape": [
+          2
+        ]
+      }
+    ],
+    "columns": [
+      "covariate",
+      "hazard_ratio",
+      "hr_lower",
+      "hr_upper"
+    ],
+    "csv": ",covariate,hazard_ratio,hr_lower,hr_upper\n1,size,0.7,0.5,0.9\n0,treated,1.8,1.2,2.4\n",
+    "dtypes": [
+      "object",
+      "float64",
+      "float64",
+      "float64"
+    ],
+    "kind": "dataframe"
+  }
+}

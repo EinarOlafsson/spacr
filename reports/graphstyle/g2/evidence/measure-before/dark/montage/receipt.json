@@ -1,0 +1,37 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff",
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff",
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "img_list_to_grid",
+  "data_sha256": null,
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/montage/montage.pdf",
+      "sha256": "f1770e655a122a1c08dcb70c0070a4508c653e5f301f1799161f0bf6b3cb8a87"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/montage/montage.png",
+      "sha256": "f814d19ffda5361ea8362fdac558db11f57833f58d38fd3e2f68c061dd4b17d0"
+    }
+  },
+  "inputs_sha256": "6454f594118e1faec6ebd0231d93d0c956f62e8bad3b201009b5e438674416b7",
+  "payload_sha256": "5ded18fbb29822c105c6294cee4f7f682535a10158db22578ed5b95e19ed1aef",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

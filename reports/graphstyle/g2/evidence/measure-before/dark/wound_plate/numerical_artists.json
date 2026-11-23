@@ -1,0 +1,24 @@
+[
+  {
+    "bands": [],
+    "bars": [],
+    "images": [
+      {
+        "bytes": "783da2545dd1f84d1dceadd4adc3e74323119d539479a40adefbca751e089e6d",
+        "clim": [
+          2.0,
+          5.0
+        ],
+        "dtype": "float64",
+        "mask": "940aa8eba2277087950dad9f155da03f825519855267f9e194b51124e2dfda7e",
+        "shape": [
+          3,
+          4
+        ]
+      }
+    ],
+    "lines": [],
+    "points": [],
+    "segments": []
+  }
+]

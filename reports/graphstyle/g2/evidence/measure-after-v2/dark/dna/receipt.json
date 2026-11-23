@@ -1,0 +1,48 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "_dna_histogram_figure",
+  "data_sha256": "129d98a705bf5692652599dd864028e0ed9d24501b6358eba8a9af31a0b9f78a",
+  "diagnostics": {
+    "checks": [
+      "registered semantics",
+      "text size",
+      "text bounds",
+      "text overlap",
+      "declared reference and quantities",
+      "actual palette and legend identities",
+      "applicable representation and semantic requirements",
+      "continuous aspect",
+      "effective data opacity",
+      "black error bars",
+      "statistical frame",
+      "font family and size",
+      "composited text contrast",
+      "completed presentation checks"
+    ],
+    "problems": []
+  },
+  "files": {
+    "pdf": {
+      "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/dna/dna.pdf",
+      "sha256": "a69a0e79b7a68e9ea58bc09bd6edcba50eb62314bfb75535f363bc7d1bc3ae9c"
+    },
+    "png": {
+      "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/dna/dna.png",
+      "sha256": "ae7723ef8af3c3eac043b53b94874f8b225f7f982fdf1457f6c0bab9d0620945"
+    }
+  },
+  "inputs_sha256": "37d570ca42b5c574ec8421ecd13b837391131b9aa54e075b5b615c0012cb6cee",
+  "payload_sha256": "c5abca9a733154201cb5b82e29d7a63dc44f3cf43f9b957aadceac533965ff31",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

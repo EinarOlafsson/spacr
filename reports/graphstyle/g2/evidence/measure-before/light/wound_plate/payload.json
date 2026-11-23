@@ -1,0 +1,61 @@
+{
+  "images": null,
+  "table": {
+    "arrays": [
+      {
+        "data_base64": "AAAAAAAAFEAAAAAAAAD4fwAAAAAAAPh/",
+        "dtype": "float64",
+        "missing": "fbb59ed10e9cd4ff45a12c5bb92cbd80df984ba1fe60f26a30febf218e2f0f5e",
+        "missing_base64": "AAEB",
+        "sha256": "b1d744c9c272c89ed6894c7e7f751df791405bb1fedb0296c167cfe0aa9e5c51",
+        "shape": [
+          3
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA+H8AAAAAAAD4fwAAAAAAAPh/",
+        "dtype": "float64",
+        "missing": "75c8fd04ad916aec3e3d5cb76a452b116b3d4d0912a0a485e9fb8e3d240e210c",
+        "missing_base64": "AQEB",
+        "sha256": "38942dc703543c2a5d23412f7713dab1eb9a3fecdd6f11a5ba15240df007de5c",
+        "shape": [
+          3
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAAEAAAAAAAAD4fwAAAAAAAPh/",
+        "dtype": "float64",
+        "missing": "fbb59ed10e9cd4ff45a12c5bb92cbd80df984ba1fe60f26a30febf218e2f0f5e",
+        "missing_base64": "AAEB",
+        "sha256": "adeb6fba62aa7acb76ee0434a81b9e29bbbf30d838cd906eadfb51bdb1d82335",
+        "shape": [
+          3
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA+H8AAAAAAAD4fwAAAAAAAPh/",
+        "dtype": "float64",
+        "missing": "75c8fd04ad916aec3e3d5cb76a452b116b3d4d0912a0a485e9fb8e3d240e210c",
+        "missing_base64": "AQEB",
+        "sha256": "38942dc703543c2a5d23412f7713dab1eb9a3fecdd6f11a5ba15240df007de5c",
+        "shape": [
+          3
+        ]
+      }
+    ],
+    "columns": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "csv": ",1,2,3,4\nA,5.0,,2.0,\nB,,,,\nC,,,,\n",
+    "dtypes": [
+      "float64",
+      "float64",
+      "float64",
+      "float64"
+    ],
+    "kind": "dataframe"
+  }
+}

@@ -1,0 +1,1960 @@
+{
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation",
+  "source_head": "9510143823dcc1b984ecc522058a1e3f15e985d8",
+  "source_inputs": {
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/sequencing_qc.py": "c49915f6d14100ef08d38d1158eb0f4f098fd756de7ebb0e496b32a50ad9acab",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/illumination.py": "ecd1725a188ed6ee0aa8b02f8559437419247b6eefc60ff8957865803ff7fa27",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figures/style.py": "34ec8c078b86515419542277bc680b299d4ff4832e72dbff6d89f99283960048",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figures/bundle.py": "36b6bbb2c0cdafbb87bfd14ae0188db6f82305311ce405e11174acdc95f66cae",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figure_sink.py": "8d0ee98963995bcb2705747089303e62f6804c0c3877e44d8de015b1a0885ff0",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figure_font.py": "b2413fac203e5f48d11507f73980c5e88b857fbc095ecf40e5eb3b2e23eeef88",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/plot.py": "cc48d6ffa3e9c7abf0d6c916db3549d16850f988df59100f51cfa674e4e7e972"
+  },
+  "synthetic_only": true,
+  "numerical_fit_performed": false,
+  "requested_cases": [
+    "dark-barcode",
+    "dark-sweep",
+    "light-barcode",
+    "light-sweep"
+  ],
+  "cases": {
+    "light-sweep": {
+      "numerical": [
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "90be0c17c1048d5714b0b497cb7e1e3b121b10a2451ecc0ef20b9e69b7ce67f3",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "6e2d890f37937b4211c61bbb972c4fca797e03f4bb5221b66bc8ec35edf8086d",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "50f862ecafeed1139e872ba840f6746c8741694dff1e3f6478bef009a1a4e350",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "c5e1f4c71c3d389d29391287c19eaf39177d2480d44005da232ffacac7b6b001",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        },
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "a98671080812a7465387559205effee8da0b0470066d95c255fc1b454ab896dd",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "b569e29baf906515deb9f0e025f0d070e637ba74f0e8a33c8cf4ddfc3ffb057a",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "c5e1f4c71c3d389d29391287c19eaf39177d2480d44005da232ffacac7b6b001",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        }
+      ],
+      "appearance": [
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "print",
+            "comparison": {
+              "graph_type": "sweep",
+              "manual_limits": [
+                0.0,
+                33.55
+              ]
+            },
+            "legend": {
+              "caption": "Threshold sweep; gRNA means guide RNA.",
+              "reference": "Target guide count and derived threshold",
+              "quantities": [
+                [
+                  "x",
+                  "Abundance threshold"
+                ],
+                [
+                  "y",
+                  "gRNAs per well"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "fraction"
+                ],
+                [
+                  "y",
+                  "gRNAs per well"
+                ]
+              ]
+            }
+          },
+          "xlabel": "",
+          "ylabel": "gRNAs per well",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "gRNAs per well (median, all wells)",
+              "gRNAs per well (retained wells only)",
+              "Target: 5 gRNAs per well",
+              "Derived threshold: 0.0100"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "print",
+            "comparison": {
+              "graph_type": "sweep",
+              "manual_limits": [
+                -2.0,
+                102.0
+              ]
+            },
+            "legend": {
+              "caption": "Threshold sweep; gRNA means guide RNA.",
+              "reference": "Target guide count and derived threshold",
+              "quantities": [
+                [
+                  "x",
+                  "Abundance threshold"
+                ],
+                [
+                  "y",
+                  "Wells (%)"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "fraction"
+                ],
+                [
+                  "y",
+                  "%"
+                ]
+              ]
+            }
+          },
+          "xlabel": "Abundance threshold\n(gRNA share of a well's reads)",
+          "ylabel": "Wells (%)",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "Wells retained (%)",
+              "Wells over 5 gRNAs (%)",
+              "Derived threshold: 0.0100"
+            ]
+          },
+          "display_normalization": []
+        }
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "csv": ",threshold,grnas_per_well,grnas_per_well_retained,well_retention,collision_rate\n0,0.001,30.0,32.0,1.0,0.9\n1,0.003,10.0,11.0,0.95,0.6\n2,0.01,5.0,6.0,0.8,0.2\n3,0.03,3.0,4.0,0.7,0.1\n4,0.1,1.0,2.0,0.5,0.0\n",
+        "dtypes": [
+          "float64",
+          "float64",
+          "float64",
+          "float64",
+          "float64"
+        ],
+        "attrs": {
+          "units": "fractions before percent conversion"
+        }
+      },
+      "saved_png": {
+        "file": "light/threshold_sweep.png",
+        "file_sha256": "cbcd7366e2c504545aefa46ae6f5053f8276b1be786b055e975316468cbdb22d",
+        "size": [
+          310,
+          724
+        ],
+        "sample_size": [
+          3,
+          3
+        ],
+        "requested_ground_rgba": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "figure_ground_after_writer": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "savefig_facecolor_before_writer": "auto",
+        "corners": {
+          "top_left": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "top_right": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_left": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_right": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          }
+        }
+      },
+      "baseline_appearance": [
+        {
+          "kind": null,
+          "axes_inches": [
+            6.9750000000000005,
+            3.0509433962264154
+          ],
+          "spec": null,
+          "xlabel": "",
+          "ylabel": "gRNAs per well",
+          "title": "Threshold sweep around the target of 5 gRNAs/well",
+          "legend": {
+            "title": "",
+            "entries": [
+              "gRNAs per well (median, all wells)",
+              "gRNAs per well (retained wells only)",
+              "target (5)"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            6.9750000000000005,
+            2.033962264150943
+          ],
+          "spec": null,
+          "xlabel": "abundance threshold (gRNA share of a well's reads)",
+          "ylabel": "% of wells",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "wells retained (%)",
+              "wells over 5 gRNAs (%)"
+            ]
+          },
+          "display_normalization": []
+        }
+      ]
+    },
+    "light-barcode": {
+      "numerical": [
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "18440d7629b7f2ae0688b38143a2081cfcc8db2d5b05f79d48174fe845689a31",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": [
+            {
+              "centre": 2.9,
+              "height": 4.0,
+              "bottom": 0.0
+            },
+            {
+              "centre": 6.699999999999999,
+              "height": 1.0,
+              "bottom": 0.0
+            },
+            {
+              "centre": 10.5,
+              "height": 0.0,
+              "bottom": 0.0
+            },
+            {
+              "centre": 14.299999999999999,
+              "height": 0.0,
+              "bottom": 0.0
+            },
+            {
+              "centre": 18.1,
+              "height": 1.0,
+              "bottom": 0.0
+            }
+          ],
+          "histogram_edges": [
+            1.0000000000000002,
+            4.8,
+            8.6,
+            12.399999999999999,
+            16.2
+          ],
+          "histogram_widths": [
+            3.7999999999999994,
+            3.7999999999999994,
+            3.7999999999999994,
+            3.800000000000001,
+            3.800000000000001
+          ]
+        },
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "5f07eef034c5a21fedede8ef2f970fefbcc8ea44c02fd970117dacbee5483005",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": [
+            {
+              "centre": 0.0,
+              "height": 1.0,
+              "bottom": 0
+            },
+            {
+              "centre": 1.0,
+              "height": 0.8,
+              "bottom": 0
+            },
+            {
+              "centre": 2.0,
+              "height": 1.4,
+              "bottom": 0
+            }
+          ]
+        },
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "b775cb658293f2d9056d63a2bb64185bb77284c3a55650287f38ab52c8758828",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "e6c2d2bafa2c36dacacf678e9033e90d23baf4ec833509a2a203a2eb78ba3c6b",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        },
+        {
+          "lines": [],
+          "images": [],
+          "bars": [
+            {
+              "centre": 0.0,
+              "height": 20.0,
+              "bottom": 0
+            },
+            {
+              "centre": 1.0,
+              "height": 30.0,
+              "bottom": 0
+            },
+            {
+              "centre": 2.0,
+              "height": 10.0,
+              "bottom": 0
+            },
+            {
+              "centre": 3.0,
+              "height": 40.0,
+              "bottom": 0
+            }
+          ]
+        }
+      ],
+      "appearance": [
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062993,
+            1.5748031496062995
+          ],
+          "spec": {
+            "target": "print",
+            "comparison": {},
+            "legend": {
+              "caption": "Distribution of mapped reads across wells",
+              "reference": "Starvation cutoff",
+              "quantities": [
+                [
+                  "x",
+                  "Reads per well"
+                ],
+                [
+                  "y",
+                  "Wells"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "reads per well"
+                ],
+                [
+                  "y",
+                  "wells"
+                ]
+              ],
+              "well_count": 6,
+              "mapped_reads": 38.0
+            }
+          },
+          "xlabel": "Reads per well",
+          "ylabel": "Wells",
+          "title": "",
+          "legend": {
+            "title": "Read depth: 6 wells\n38 mapped reads",
+            "entries": [
+              "starved below 2 reads (1 well(s))"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "categorical",
+          "axes_inches": [
+            0.6599999999999997,
+            1.5748031496062995
+          ],
+          "spec": {
+            "target": "print",
+            "comparison": {
+              "representation": "estimates"
+            },
+            "legend": {
+              "caption": "Row and column median read counts relative to their plate median",
+              "reference": "Plate median = 1",
+              "quantities": [
+                [
+                  "x",
+                  "Plate position"
+                ],
+                [
+                  "y",
+                  "Relative read depth"
+                ]
+              ],
+              "unit": "dimensionless"
+            }
+          },
+          "xlabel": "",
+          "ylabel": "Median reads / plate median",
+          "title": "",
+          "legend": {
+            "title": "Row and column positions",
+            "entries": [
+              "Plate median = 1",
+              "Not flagged",
+              "Flagged: 1"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062993,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "print",
+            "comparison": {},
+            "legend": {
+              "caption": "Library coverage; gRNA means guide RNA.",
+              "reference": "Equal read share",
+              "quantities": [
+                [
+                  "x",
+                  "gRNA fraction"
+                ],
+                [
+                  "y",
+                  "Read fraction"
+                ]
+              ],
+              "unit": "fraction"
+            }
+          },
+          "xlabel": "gRNA fraction, least abundant first",
+          "ylabel": "Cumulative share of reads",
+          "title": "",
+          "legend": {
+            "title": "Library coverage\nGini 0.45; skew 4.0x\n25.0% never seen",
+            "entries": [
+              "Observed read share",
+              "Equal read share"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "categorical",
+          "axes_inches": [
+            0.8800000000000002,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "print",
+            "comparison": {
+              "representation": "estimates"
+            },
+            "legend": {
+              "caption": "Per-field failures overlap; any field is the measured joint failure.",
+              "reference": "All regex-matched reads",
+              "quantities": [
+                [
+                  "x",
+                  "Barcode field"
+                ],
+                [
+                  "y",
+                  "Unmapped read fraction"
+                ]
+              ],
+              "unit": "%"
+            }
+          },
+          "xlabel": "",
+          "ylabel": "Regex-matched reads unmapped (%)",
+          "title": "",
+          "legend": {
+            "title": "Read fate\n100 regex-matched reads",
+            "entries": [
+              "Overlapping losses; not additive"
+            ]
+          },
+          "display_normalization": []
+        }
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "condition slots",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "tables": [
+          {
+            "csv": ",count\n0,1\n1,2\n2,3\n3,4\n4,8\n5,20\n",
+            "dtypes": [
+              "int64"
+            ],
+            "attrs": {}
+          },
+          {
+            "csv": ",reads\n0,1.0\n1,2.0\n2,3.0\n3,4.0\n4,8.0\n5,20.0\n",
+            "dtypes": [
+              "float64"
+            ],
+            "attrs": {
+              "plate": "synthetic plate"
+            }
+          },
+          {
+            "csv": ",reads\n0,1.0\n",
+            "dtypes": [
+              "float64"
+            ],
+            "attrs": {
+              "plate": "synthetic plate",
+              "cutoff": 1.5
+            }
+          },
+          {
+            "csv": ",axis,label,ratio_to_plate,flagged\n0,column,c10,1.4,True\n1,column,c2,0.8,False\n2,column,c1,1.0,False\n",
+            "dtypes": [
+              "object",
+              "object",
+              "float64",
+              "bool"
+            ],
+            "attrs": {}
+          }
+        ],
+        "depth_values": {
+          "dtype": "<f8",
+          "shape": [
+            4
+          ],
+          "data_sha256": "7d57d092614c945ca021cf5e765822440d0a451214b546f914a07bd35c82840e",
+          "mask_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119"
+        },
+        "depth_statistics": {
+          "gini": 0.45,
+          "skew_ratio": 4.0,
+          "dropout_fraction": 0.25
+        },
+        "unmapped": {
+          "per_field": {
+            "columnID": 0.2,
+            "rowID": 0.3,
+            "grna_name": 0.1
+          },
+          "unmapped_fraction": 0.4,
+          "total_reads": 100
+        }
+      },
+      "saved_png": {
+        "file": "light/barcode_qc.png",
+        "file_sha256": "cbba943358686d007a535719ef71bc4213d483778d8a045136e1a4284d93cb0c",
+        "size": [
+          579,
+          806
+        ],
+        "sample_size": [
+          3,
+          3
+        ],
+        "requested_ground_rgba": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "figure_ground_after_writer": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "savefig_facecolor_before_writer": "auto",
+        "corners": {
+          "top_left": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "top_right": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_left": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_right": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          }
+        }
+      },
+      "baseline_appearance": [
+        {
+          "kind": null,
+          "axes_inches": [
+            5.9159092881944435,
+            3.7360359700520838
+          ],
+          "spec": null,
+          "xlabel": "reads per well",
+          "ylabel": "wells",
+          "title": "Read depth across 6 wells (38 mapped reads)",
+          "legend": {
+            "title": "",
+            "entries": [
+              "starved below 2 reads (1 well(s))"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            5.9159092881944435,
+            3.7360359700520838
+          ],
+          "spec": null,
+          "xlabel": "",
+          "ylabel": "median reads / plate median",
+          "title": "Row and column position effects (1 flagged)",
+          "legend": null,
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            5.9159092881944435,
+            3.7360359700520838
+          ],
+          "spec": null,
+          "xlabel": "gRNAs, least abundant first",
+          "ylabel": "cumulative share of reads",
+          "title": "Library coverage \u2014 Gini 0.45, skew 4.0x, 25.0% never seen",
+          "legend": null,
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            5.9159092881944435,
+            3.7360359700520838
+          ],
+          "spec": null,
+          "xlabel": "",
+          "ylabel": "% of regex-matched reads unmapped",
+          "title": "Unmapped reads (of 100 matched)",
+          "legend": null,
+          "display_normalization": []
+        }
+      ]
+    },
+    "dark-sweep": {
+      "numerical": [
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "90be0c17c1048d5714b0b497cb7e1e3b121b10a2451ecc0ef20b9e69b7ce67f3",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "6e2d890f37937b4211c61bbb972c4fca797e03f4bb5221b66bc8ec35edf8086d",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "50f862ecafeed1139e872ba840f6746c8741694dff1e3f6478bef009a1a4e350",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "c5e1f4c71c3d389d29391287c19eaf39177d2480d44005da232ffacac7b6b001",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        },
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "a98671080812a7465387559205effee8da0b0470066d95c255fc1b454ab896dd",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "b569e29baf906515deb9f0e025f0d070e637ba74f0e8a33c8cf4ddfc3ffb057a",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "c5e1f4c71c3d389d29391287c19eaf39177d2480d44005da232ffacac7b6b001",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        }
+      ],
+      "appearance": [
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "screen",
+            "comparison": {
+              "graph_type": "sweep",
+              "manual_limits": [
+                0.0,
+                33.55
+              ]
+            },
+            "legend": {
+              "caption": "Threshold sweep; gRNA means guide RNA.",
+              "reference": "Target guide count and derived threshold",
+              "quantities": [
+                [
+                  "x",
+                  "Abundance threshold"
+                ],
+                [
+                  "y",
+                  "gRNAs per well"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "fraction"
+                ],
+                [
+                  "y",
+                  "gRNAs per well"
+                ]
+              ]
+            }
+          },
+          "xlabel": "",
+          "ylabel": "gRNAs per well",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "gRNAs per well (median, all wells)",
+              "gRNAs per well (retained wells only)",
+              "Target: 5 gRNAs per well",
+              "Derived threshold: 0.0100"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "screen",
+            "comparison": {
+              "graph_type": "sweep",
+              "manual_limits": [
+                -2.0,
+                102.0
+              ]
+            },
+            "legend": {
+              "caption": "Threshold sweep; gRNA means guide RNA.",
+              "reference": "Target guide count and derived threshold",
+              "quantities": [
+                [
+                  "x",
+                  "Abundance threshold"
+                ],
+                [
+                  "y",
+                  "Wells (%)"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "fraction"
+                ],
+                [
+                  "y",
+                  "%"
+                ]
+              ]
+            }
+          },
+          "xlabel": "Abundance threshold\n(gRNA share of a well's reads)",
+          "ylabel": "Wells (%)",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "Wells retained (%)",
+              "Wells over 5 gRNAs (%)",
+              "Derived threshold: 0.0100"
+            ]
+          },
+          "display_normalization": []
+        }
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "csv": ",threshold,grnas_per_well,grnas_per_well_retained,well_retention,collision_rate\n0,0.001,30.0,32.0,1.0,0.9\n1,0.003,10.0,11.0,0.95,0.6\n2,0.01,5.0,6.0,0.8,0.2\n3,0.03,3.0,4.0,0.7,0.1\n4,0.1,1.0,2.0,0.5,0.0\n",
+        "dtypes": [
+          "float64",
+          "float64",
+          "float64",
+          "float64",
+          "float64"
+        ],
+        "attrs": {
+          "units": "fractions before percent conversion"
+        }
+      },
+      "saved_png": {
+        "file": "dark/threshold_sweep.png",
+        "file_sha256": "c2276d4d405bf88585ce847efa395c0a3489c2e1dec737e9cf71106dfed83c2b",
+        "size": [
+          310,
+          724
+        ],
+        "sample_size": [
+          3,
+          3
+        ],
+        "requested_ground_rgba": [
+          24,
+          24,
+          24,
+          255
+        ],
+        "figure_ground_after_writer": [
+          0.09411764705882353,
+          0.09411764705882353,
+          0.09411764705882353,
+          1.0
+        ],
+        "savefig_facecolor_before_writer": "auto",
+        "corners": {
+          "top_left": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "top_right": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_left": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_right": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          }
+        }
+      },
+      "baseline_appearance": [
+        {
+          "kind": null,
+          "axes_inches": [
+            6.9750000000000005,
+            3.0509433962264154
+          ],
+          "spec": null,
+          "xlabel": "",
+          "ylabel": "gRNAs per well",
+          "title": "Threshold sweep around the target of 5 gRNAs/well",
+          "legend": {
+            "title": "",
+            "entries": [
+              "gRNAs per well (median, all wells)",
+              "gRNAs per well (retained wells only)",
+              "target (5)"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            6.9750000000000005,
+            2.033962264150943
+          ],
+          "spec": null,
+          "xlabel": "abundance threshold (gRNA share of a well's reads)",
+          "ylabel": "% of wells",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "wells retained (%)",
+              "wells over 5 gRNAs (%)"
+            ]
+          },
+          "display_normalization": []
+        }
+      ]
+    },
+    "dark-barcode": {
+      "numerical": [
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "18440d7629b7f2ae0688b38143a2081cfcc8db2d5b05f79d48174fe845689a31",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": [
+            {
+              "centre": 2.9,
+              "height": 4.0,
+              "bottom": 0.0
+            },
+            {
+              "centre": 6.699999999999999,
+              "height": 1.0,
+              "bottom": 0.0
+            },
+            {
+              "centre": 10.5,
+              "height": 0.0,
+              "bottom": 0.0
+            },
+            {
+              "centre": 14.299999999999999,
+              "height": 0.0,
+              "bottom": 0.0
+            },
+            {
+              "centre": 18.1,
+              "height": 1.0,
+              "bottom": 0.0
+            }
+          ],
+          "histogram_edges": [
+            1.0000000000000002,
+            4.8,
+            8.6,
+            12.399999999999999,
+            16.2
+          ],
+          "histogram_widths": [
+            3.7999999999999994,
+            3.7999999999999994,
+            3.7999999999999994,
+            3.800000000000001,
+            3.800000000000001
+          ]
+        },
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "5f07eef034c5a21fedede8ef2f970fefbcc8ea44c02fd970117dacbee5483005",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": [
+            {
+              "centre": 0.0,
+              "height": 1.0,
+              "bottom": 0
+            },
+            {
+              "centre": 1.0,
+              "height": 0.8,
+              "bottom": 0
+            },
+            {
+              "centre": 2.0,
+              "height": 1.4,
+              "bottom": 0
+            }
+          ]
+        },
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "b775cb658293f2d9056d63a2bb64185bb77284c3a55650287f38ab52c8758828",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "e6c2d2bafa2c36dacacf678e9033e90d23baf4ec833509a2a203a2eb78ba3c6b",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        },
+        {
+          "lines": [],
+          "images": [],
+          "bars": [
+            {
+              "centre": 0.0,
+              "height": 20.0,
+              "bottom": 0
+            },
+            {
+              "centre": 1.0,
+              "height": 30.0,
+              "bottom": 0
+            },
+            {
+              "centre": 2.0,
+              "height": 10.0,
+              "bottom": 0
+            },
+            {
+              "centre": 3.0,
+              "height": 40.0,
+              "bottom": 0
+            }
+          ]
+        }
+      ],
+      "appearance": [
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062993,
+            1.5748031496062995
+          ],
+          "spec": {
+            "target": "screen",
+            "comparison": {},
+            "legend": {
+              "caption": "Distribution of mapped reads across wells",
+              "reference": "Starvation cutoff",
+              "quantities": [
+                [
+                  "x",
+                  "Reads per well"
+                ],
+                [
+                  "y",
+                  "Wells"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "reads per well"
+                ],
+                [
+                  "y",
+                  "wells"
+                ]
+              ],
+              "well_count": 6,
+              "mapped_reads": 38.0
+            }
+          },
+          "xlabel": "Reads per well",
+          "ylabel": "Wells",
+          "title": "",
+          "legend": {
+            "title": "Read depth: 6 wells\n38 mapped reads",
+            "entries": [
+              "starved below 2 reads (1 well(s))"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "categorical",
+          "axes_inches": [
+            0.6599999999999997,
+            1.5748031496062995
+          ],
+          "spec": {
+            "target": "screen",
+            "comparison": {
+              "representation": "estimates"
+            },
+            "legend": {
+              "caption": "Row and column median read counts relative to their plate median",
+              "reference": "Plate median = 1",
+              "quantities": [
+                [
+                  "x",
+                  "Plate position"
+                ],
+                [
+                  "y",
+                  "Relative read depth"
+                ]
+              ],
+              "unit": "dimensionless"
+            }
+          },
+          "xlabel": "",
+          "ylabel": "Median reads / plate median",
+          "title": "",
+          "legend": {
+            "title": "Row and column positions",
+            "entries": [
+              "Plate median = 1",
+              "Not flagged",
+              "Flagged: 1"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062993,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "screen",
+            "comparison": {},
+            "legend": {
+              "caption": "Library coverage; gRNA means guide RNA.",
+              "reference": "Equal read share",
+              "quantities": [
+                [
+                  "x",
+                  "gRNA fraction"
+                ],
+                [
+                  "y",
+                  "Read fraction"
+                ]
+              ],
+              "unit": "fraction"
+            }
+          },
+          "xlabel": "gRNA fraction, least abundant first",
+          "ylabel": "Cumulative share of reads",
+          "title": "",
+          "legend": {
+            "title": "Library coverage\nGini 0.45; skew 4.0x\n25.0% never seen",
+            "entries": [
+              "Observed read share",
+              "Equal read share"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "categorical",
+          "axes_inches": [
+            0.8800000000000002,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "screen",
+            "comparison": {
+              "representation": "estimates"
+            },
+            "legend": {
+              "caption": "Per-field failures overlap; any field is the measured joint failure.",
+              "reference": "All regex-matched reads",
+              "quantities": [
+                [
+                  "x",
+                  "Barcode field"
+                ],
+                [
+                  "y",
+                  "Unmapped read fraction"
+                ]
+              ],
+              "unit": "%"
+            }
+          },
+          "xlabel": "",
+          "ylabel": "Regex-matched reads unmapped (%)",
+          "title": "",
+          "legend": {
+            "title": "Read fate\n100 regex-matched reads",
+            "entries": [
+              "Overlapping losses; not additive"
+            ]
+          },
+          "display_normalization": []
+        }
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "condition slots",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "tables": [
+          {
+            "csv": ",count\n0,1\n1,2\n2,3\n3,4\n4,8\n5,20\n",
+            "dtypes": [
+              "int64"
+            ],
+            "attrs": {}
+          },
+          {
+            "csv": ",reads\n0,1.0\n1,2.0\n2,3.0\n3,4.0\n4,8.0\n5,20.0\n",
+            "dtypes": [
+              "float64"
+            ],
+            "attrs": {
+              "plate": "synthetic plate"
+            }
+          },
+          {
+            "csv": ",reads\n0,1.0\n",
+            "dtypes": [
+              "float64"
+            ],
+            "attrs": {
+              "plate": "synthetic plate",
+              "cutoff": 1.5
+            }
+          },
+          {
+            "csv": ",axis,label,ratio_to_plate,flagged\n0,column,c10,1.4,True\n1,column,c2,0.8,False\n2,column,c1,1.0,False\n",
+            "dtypes": [
+              "object",
+              "object",
+              "float64",
+              "bool"
+            ],
+            "attrs": {}
+          }
+        ],
+        "depth_values": {
+          "dtype": "<f8",
+          "shape": [
+            4
+          ],
+          "data_sha256": "7d57d092614c945ca021cf5e765822440d0a451214b546f914a07bd35c82840e",
+          "mask_sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119"
+        },
+        "depth_statistics": {
+          "gini": 0.45,
+          "skew_ratio": 4.0,
+          "dropout_fraction": 0.25
+        },
+        "unmapped": {
+          "per_field": {
+            "columnID": 0.2,
+            "rowID": 0.3,
+            "grna_name": 0.1
+          },
+          "unmapped_fraction": 0.4,
+          "total_reads": 100
+        }
+      },
+      "saved_png": {
+        "file": "dark/barcode_qc.png",
+        "file_sha256": "57247e63399c0b894c1684ad31d43a02f002525dd86cc6bd83a9a99f89f138cb",
+        "size": [
+          579,
+          806
+        ],
+        "sample_size": [
+          3,
+          3
+        ],
+        "requested_ground_rgba": [
+          24,
+          24,
+          24,
+          255
+        ],
+        "figure_ground_after_writer": [
+          0.09411764705882353,
+          0.09411764705882353,
+          0.09411764705882353,
+          1.0
+        ],
+        "savefig_facecolor_before_writer": "auto",
+        "corners": {
+          "top_left": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "top_right": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_left": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_right": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          }
+        }
+      },
+      "baseline_appearance": [
+        {
+          "kind": null,
+          "axes_inches": [
+            5.9159092881944435,
+            3.7360359700520838
+          ],
+          "spec": null,
+          "xlabel": "reads per well",
+          "ylabel": "wells",
+          "title": "Read depth across 6 wells (38 mapped reads)",
+          "legend": {
+            "title": "",
+            "entries": [
+              "starved below 2 reads (1 well(s))"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            5.9159092881944435,
+            3.7360359700520838
+          ],
+          "spec": null,
+          "xlabel": "",
+          "ylabel": "median reads / plate median",
+          "title": "Row and column position effects (1 flagged)",
+          "legend": null,
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            5.9159092881944435,
+            3.7360359700520838
+          ],
+          "spec": null,
+          "xlabel": "gRNAs, least abundant first",
+          "ylabel": "cumulative share of reads",
+          "title": "Library coverage \u2014 Gini 0.45, skew 4.0x, 25.0% never seen",
+          "legend": null,
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            5.9159092881944435,
+            3.7360359700520838
+          ],
+          "spec": null,
+          "xlabel": "",
+          "ylabel": "% of regex-matched reads unmapped",
+          "title": "Unmapped reads (of 100 matched)",
+          "legend": null,
+          "display_normalization": []
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Synthetic presentation evidence; no plate, fit, segmentation or GPU execution.",
+    "Saved PNG corner checks are separate from plot metadata and do not replace visual inspection."
+  ],
+  "baseline_comparison": {
+    "report_sha256": "626a5cc7fe52147afa97aa1725f757c1979ac228d9eef70a326187a4d0c9ea86",
+    "compared_cases": [
+      "dark-barcode",
+      "dark-sweep",
+      "light-barcode",
+      "light-sweep"
+    ],
+    "numerical_and_input_identity": true,
+    "differences": [],
+    "display_changes": "Shared palette, alpha, labels, legends and geometry may differ; raw data, masks, histogram bins and colour limits must agree exactly."
+  },
+  "outputs": {
+    "dark/barcode_qc.pdf": "cbe63e8c961d554cdd995fcb90a8ef0091b3fd2801922c531e6eb00dbfd4da62",
+    "dark/barcode_qc.png": "57247e63399c0b894c1684ad31d43a02f002525dd86cc6bd83a9a99f89f138cb",
+    "dark/threshold_sweep.pdf": "e2287f79f6873882783f3f214719acb9d585aad1a6b0222afb50c306ff2827e8",
+    "dark/threshold_sweep.png": "c2276d4d405bf88585ce847efa395c0a3489c2e1dec737e9cf71106dfed83c2b",
+    "light/barcode_qc.pdf": "9f374725030c9b24fe7aa738b88b0ba3815207fdece9735f8658453d07250c86",
+    "light/barcode_qc.png": "cbba943358686d007a535719ef71bc4213d483778d8a045136e1a4284d93cb0c",
+    "light/threshold_sweep.pdf": "186d22d552f07cf1c65cb5e001b55a899d5dc0b3246abfb14cbc32e5c7a2563c",
+    "light/threshold_sweep.png": "cbcd7366e2c504545aefa46ae6f5053f8276b1be786b055e975316468cbdb22d"
+  },
+  "saved_canvas_mismatches": []
+}

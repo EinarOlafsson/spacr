@@ -1,0 +1,37 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff",
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff",
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "_wound_plate_figure",
+  "data_sha256": "2e01223714741557a35d72d0160b3b158c695c057f5abbf508a73478692ff641",
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_plate/wound_plate.pdf",
+      "sha256": "3093ee6ae95678a4f59489656afcd1b1b1cd49df8d6f6a0c0ac9131374db2aea"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_plate/wound_plate.png",
+      "sha256": "079e60563a8b14c67e69e60048f8cdc3db430b5ee58a63e5ba0952a8396d9bd7"
+    }
+  },
+  "inputs_sha256": "eb2dc88540cf2ce96930abd9b9b785a3148b285893df88d7275fc432aa05030a",
+  "payload_sha256": "85d9da7f7d5d03d081371a10094e65641a115a18407af2b8884a4a18dd10e5a2",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

@@ -1,0 +1,397 @@
+{
+  "candidate": "reports/graphstyle/g2/evidence/utils-after-v2",
+  "previous_candidate": "reports/graphstyle/g2/evidence/utils-after",
+  "baseline": "reports/graphstyle/g2/evidence/utils-before",
+  "scientific_json_sha256": "20747f1f11bf373a7e3f8c5744fd9754315625fb10a63648912e6981dd30d495",
+  "scientific_json_diff_exit": 0,
+  "scientific_tree_diff_exit": 0,
+  "scientific_array_files": 238,
+  "render_pngs": [
+    {
+      "path": "renders/dark/GradCAMGenerator1/figure0.png",
+      "sha256": "e2658e3bae5d7f3b09cd80b8634491e26fb83ad62e9dae02d3babf1dd4233769",
+      "previous_sha256": "c475a94223155e3d620cd9c106b3df09fc068f88842cf938d712f83676d143a4",
+      "reviewed": "Individually opened final candidate PNG"
+    },
+    {
+      "path": "renders/dark/SaliencyMapGenerator1/figure0.png",
+      "sha256": "c66c9d319f8965a7c05823f4120d1afbd014f9f4add4173370d66ba8f4cc3d9a",
+      "previous_sha256": "fa374dc99403cd9513cd2b86baf49aca5f630622a2f08fbfac780f44680f2d0b",
+      "reviewed": "Individually opened final candidate PNG"
+    },
+    {
+      "path": "renders/dark/SaliencyMapGenerator3/figure0.png",
+      "sha256": "2dec61ecca248bcc04dee9f7aade2cb474d215d3c07633e9a02ed15699e81983",
+      "previous_sha256": "6f294f47c9d5517bc3e6cb1385dd9f6c5359c588fc7e1c3dddc43ac7addeb2fb",
+      "reviewed": "Individually opened final candidate PNG"
+    },
+    {
+      "path": "renders/dark/class_exemplar/figure0.png",
+      "sha256": "5694726828e5913af5dc4284d29bb3fd7781a1378a0a53264601f14a45c2c138",
+      "previous_sha256": "5694726828e5913af5dc4284d29bb3fd7781a1378a0a53264601f14a45c2c138",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/dark/embedding/figure0.png",
+      "sha256": "495347cdb10c526bf4238a8c5dfc090abb6ce7aa1cc0027cbe42b26cb18b0802",
+      "previous_sha256": "fd01ef45c544b450c3e7e79a4083f90442a1fb1499f582b52db5d4fb4bb56752",
+      "reviewed": "Individually opened final candidate PNG"
+    },
+    {
+      "path": "renders/dark/gallery/figure0.png",
+      "sha256": "8224b8bf211f58a446b729ace0416bae5f62f5c486474a41a3070670fbdfe312",
+      "previous_sha256": "8224b8bf211f58a446b729ace0416bae5f62f5c486474a41a3070670fbdfe312",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/dark/metrics/figure0.png",
+      "sha256": "1ddfc9cd37e958d80fbad40da4444ef4708caace6ddcd621611db11ea3c5605d",
+      "previous_sha256": "1ddfc9cd37e958d80fbad40da4444ef4708caace6ddcd621611db11ea3c5605d",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/dark/mlr/figure0.png",
+      "sha256": "19f785a17783c55b44dd45b65b369d298096ecdbef117fcc58574def08cb8d86",
+      "previous_sha256": "19f785a17783c55b44dd45b65b369d298096ecdbef117fcc58574def08cb8d86",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/dark/mlr/figure1.png",
+      "sha256": "714956e31df01a06980a2868d60ad8091c360a88ae3a38dcd330baf2b99ce6ce",
+      "previous_sha256": "714956e31df01a06980a2868d60ad8091c360a88ae3a38dcd330baf2b99ce6ce",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/dark/process_masks/figure0.png",
+      "sha256": "4f8fb40b719fe1d2b8c51d5e68f2f40cad20244b439bca4a03741688be625a53",
+      "previous_sha256": "b3b5093134c7f961bee6e9ab0f7690c704a54a5f826a95ca6747775543907b12",
+      "reviewed": "Individually opened final candidate PNG"
+    },
+    {
+      "path": "renders/light/GradCAMGenerator1/figure0.png",
+      "sha256": "0c758461a8c1cd278dcd9699cb408104fadc73687dd8184d2ca3a23efa941763",
+      "previous_sha256": "d7f5c83a2529b79a7a1c6d6a6f1f6734b7c790f7c2208cf672ca9ae856fe187c",
+      "reviewed": "Individually opened final candidate PNG"
+    },
+    {
+      "path": "renders/light/SaliencyMapGenerator1/figure0.png",
+      "sha256": "92404b206b0abd939c8f4b504323d472c94a471a7c84bf8a5a696e2fa78b0a83",
+      "previous_sha256": "b95afe8fb5b9f56c1852366f4d36b084b0d1ba67c60cb3fd9e726c32fe4c111d",
+      "reviewed": "Individually opened final candidate PNG"
+    },
+    {
+      "path": "renders/light/SaliencyMapGenerator3/figure0.png",
+      "sha256": "65b1cf8b98a5cb5b65594811fbf7677cd720ca48ba6cf9a8ef44fa481860d19d",
+      "previous_sha256": "347aa0a10d87233c77824538e2fd4c8f2a9a35a9449251a9af94aad821b42a50",
+      "reviewed": "Individually opened final candidate PNG"
+    },
+    {
+      "path": "renders/light/class_exemplar/figure0.png",
+      "sha256": "24568b2999061c04e4469b054fbaf562c69aa7e1b06a5cc815dc6e5ddd73f34d",
+      "previous_sha256": "24568b2999061c04e4469b054fbaf562c69aa7e1b06a5cc815dc6e5ddd73f34d",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/light/embedding/figure0.png",
+      "sha256": "02627c4c1a50bfe63bbbf49f6bdc2761ed1b2da146032fdb5dee5f43977695fd",
+      "previous_sha256": "73ea9a63a6e9fb2d00af37e04c3d1d21d34c131d71bb877b2fa4ae926193be9d",
+      "reviewed": "Individually opened final candidate PNG"
+    },
+    {
+      "path": "renders/light/gallery/figure0.png",
+      "sha256": "e6b4500fa1daf815b94603e72ba58ba0abeac193625cadc35ad2aea2a47664f2",
+      "previous_sha256": "e6b4500fa1daf815b94603e72ba58ba0abeac193625cadc35ad2aea2a47664f2",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/light/metrics/figure0.png",
+      "sha256": "bca559ba9ce5aa3cef1e4837110118fc4fd320214d747ed58c7d3cba5bcc4458",
+      "previous_sha256": "bca559ba9ce5aa3cef1e4837110118fc4fd320214d747ed58c7d3cba5bcc4458",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/light/mlr/figure0.png",
+      "sha256": "12c18f300399c369ec740ff782e91df76282ea69778a7ca45c2f3c81f8dec3b8",
+      "previous_sha256": "12c18f300399c369ec740ff782e91df76282ea69778a7ca45c2f3c81f8dec3b8",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/light/mlr/figure1.png",
+      "sha256": "b5ef3d0dae5f6da38e5cb35260ef87523fd6a864098c2a40175675aba5e65df8",
+      "previous_sha256": "b5ef3d0dae5f6da38e5cb35260ef87523fd6a864098c2a40175675aba5e65df8",
+      "reviewed": "Retained prior individual review after exact SHA256 match"
+    },
+    {
+      "path": "renders/light/process_masks/figure0.png",
+      "sha256": "732d75522c2d636ff8886ba955f85360eb74b32413fd4c4da38c80e3d9fd561e",
+      "previous_sha256": "e22efd474087cc14a00dc0c88ce660e399dcd632c42b80844b8257b6e152a8aa",
+      "reviewed": "Individually opened final candidate PNG"
+    }
+  ],
+  "fixtures": [
+    {
+      "path": "fixtures/dark/crop0.png",
+      "sha256": "0971595550a0a70e7798d7c4aec49494fb6cc9b46f8ffc67d68302eeddc58370",
+      "baseline_sha256": "0971595550a0a70e7798d7c4aec49494fb6cc9b46f8ffc67d68302eeddc58370",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/dark/crop1.png",
+      "sha256": "b201e7c876fc0b1e5fc868e8da318f749bac7eb6c709af5f32563071cf57ef01",
+      "baseline_sha256": "b201e7c876fc0b1e5fc868e8da318f749bac7eb6c709af5f32563071cf57ef01",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/dark/crop2.png",
+      "sha256": "4251ee8ea4f5615ec00a224afcffe04127ff99f61131237793552e81931e7615",
+      "baseline_sha256": "4251ee8ea4f5615ec00a224afcffe04127ff99f61131237793552e81931e7615",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/dark/crop3.png",
+      "sha256": "911d495a2e9c6fff55bfe461212743ac26d412e3d37570d4b9a488cd85f9d9ea",
+      "baseline_sha256": "911d495a2e9c6fff55bfe461212743ac26d412e3d37570d4b9a488cd85f9d9ea",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/dark/crop4.png",
+      "sha256": "38d7d625e3bbfe518502d7bd3c1161174049f2d7862eeece193c3e7ed1c261e0",
+      "baseline_sha256": "38d7d625e3bbfe518502d7bd3c1161174049f2d7862eeece193c3e7ed1c261e0",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/dark/crop5.png",
+      "sha256": "fd5f445d505260c921d7a9e8a626845eea1478eacd3ce540941f10c663da2b48",
+      "baseline_sha256": "fd5f445d505260c921d7a9e8a626845eea1478eacd3ce540941f10c663da2b48",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/dark/crop6.png",
+      "sha256": "130717a82aaced3941d8c7e7f57e820063d9ce2752eb7f54229b65a08e058733",
+      "baseline_sha256": "130717a82aaced3941d8c7e7f57e820063d9ce2752eb7f54229b65a08e058733",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/light/crop0.png",
+      "sha256": "0971595550a0a70e7798d7c4aec49494fb6cc9b46f8ffc67d68302eeddc58370",
+      "baseline_sha256": "0971595550a0a70e7798d7c4aec49494fb6cc9b46f8ffc67d68302eeddc58370",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/light/crop1.png",
+      "sha256": "b201e7c876fc0b1e5fc868e8da318f749bac7eb6c709af5f32563071cf57ef01",
+      "baseline_sha256": "b201e7c876fc0b1e5fc868e8da318f749bac7eb6c709af5f32563071cf57ef01",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/light/crop2.png",
+      "sha256": "4251ee8ea4f5615ec00a224afcffe04127ff99f61131237793552e81931e7615",
+      "baseline_sha256": "4251ee8ea4f5615ec00a224afcffe04127ff99f61131237793552e81931e7615",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/light/crop3.png",
+      "sha256": "911d495a2e9c6fff55bfe461212743ac26d412e3d37570d4b9a488cd85f9d9ea",
+      "baseline_sha256": "911d495a2e9c6fff55bfe461212743ac26d412e3d37570d4b9a488cd85f9d9ea",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/light/crop4.png",
+      "sha256": "38d7d625e3bbfe518502d7bd3c1161174049f2d7862eeece193c3e7ed1c261e0",
+      "baseline_sha256": "38d7d625e3bbfe518502d7bd3c1161174049f2d7862eeece193c3e7ed1c261e0",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/light/crop5.png",
+      "sha256": "fd5f445d505260c921d7a9e8a626845eea1478eacd3ce540941f10c663da2b48",
+      "baseline_sha256": "fd5f445d505260c921d7a9e8a626845eea1478eacd3ce540941f10c663da2b48",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    },
+    {
+      "path": "fixtures/light/crop6.png",
+      "sha256": "130717a82aaced3941d8c7e7f57e820063d9ce2752eb7f54229b65a08e058733",
+      "baseline_sha256": "130717a82aaced3941d8c7e7f57e820063d9ce2752eb7f54229b65a08e058733",
+      "review": "Retained individual baseline/prior-candidate review after exact SHA256 match"
+    }
+  ],
+  "exported_figures": [
+    {
+      "case": "dark/GradCAMGenerator1",
+      "png": "renders/dark/GradCAMGenerator1/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "dark/SaliencyMapGenerator1",
+      "png": "renders/dark/SaliencyMapGenerator1/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "dark/SaliencyMapGenerator3",
+      "png": "renders/dark/SaliencyMapGenerator3/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "dark/class_exemplar",
+      "png": "renders/dark/class_exemplar/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "dark/embedding",
+      "png": "renders/dark/embedding/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "dark/gallery",
+      "png": "renders/dark/gallery/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": [
+        "text '−5' is cut off",
+        "texts overlap: '10' and '−5'",
+        "texts overlap: '10' and 'Image examples are s'"
+      ]
+    },
+    {
+      "case": "dark/metrics",
+      "png": "renders/dark/metrics/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "dark/mlr",
+      "png": "renders/dark/mlr/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "dark/mlr",
+      "png": "renders/dark/mlr/figure1.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": [
+        "Register the chart kind, reference, quantities, and legend before validation"
+      ]
+    },
+    {
+      "case": "dark/process_masks",
+      "png": "renders/dark/process_masks/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": [
+        "Declare the plotted quantities and units, including dimensionless quantities",
+        "Declare units for every numerical quantity on the displayed axes or heatmap scale"
+      ]
+    },
+    {
+      "case": "light/GradCAMGenerator1",
+      "png": "renders/light/GradCAMGenerator1/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "light/SaliencyMapGenerator1",
+      "png": "renders/light/SaliencyMapGenerator1/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "light/SaliencyMapGenerator3",
+      "png": "renders/light/SaliencyMapGenerator3/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "light/class_exemplar",
+      "png": "renders/light/class_exemplar/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "light/embedding",
+      "png": "renders/light/embedding/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "light/gallery",
+      "png": "renders/light/gallery/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": [
+        "text '−5' is cut off",
+        "texts overlap: '10' and '−5'",
+        "texts overlap: '10' and 'Image examples are s'"
+      ]
+    },
+    {
+      "case": "light/metrics",
+      "png": "renders/light/metrics/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "light/mlr",
+      "png": "renders/light/mlr/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": []
+    },
+    {
+      "case": "light/mlr",
+      "png": "renders/light/mlr/figure1.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": [
+        "Register the chart kind, reference, quantities, and legend before validation"
+      ]
+    },
+    {
+      "case": "light/process_masks",
+      "png": "renders/light/process_masks/figure0.png",
+      "png_background_corners_match": true,
+      "figure_background_preserved": true,
+      "axes_backgrounds_preserved": true,
+      "diagnostics": [
+        "Declare the plotted quantities and units, including dimensionless quantities",
+        "Declare units for every numerical quantity on the displayed axes or heatmap scale"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+[
+  {
+    "bands": [],
+    "bars": [],
+    "images": [
+      {
+        "bytes": "a4578206877e565175fccf5d14735d811d2e87fd5170c4067bae43a883859f88",
+        "clim": [
+          0,
+          255
+        ],
+        "dtype": "uint8",
+        "mask": "ef115a0e0c15cdc41958ca46b5b14b456115f4baec5e3ca68599d2a8f435e3b8",
+        "shape": [
+          16,
+          16,
+          3
+        ]
+      }
+    ],
+    "lines": [],
+    "points": [],
+    "segments": []
+  },
+  {
+    "bands": [],
+    "bars": [],
+    "images": [
+      {
+        "bytes": "a4578206877e565175fccf5d14735d811d2e87fd5170c4067bae43a883859f88",
+        "clim": [
+          0,
+          255
+        ],
+        "dtype": "uint8",
+        "mask": "ef115a0e0c15cdc41958ca46b5b14b456115f4baec5e3ca68599d2a8f435e3b8",
+        "shape": [
+          16,
+          16,
+          3
+        ]
+      }
+    ],
+    "lines": [],
+    "points": [],
+    "segments": []
+  }
+]

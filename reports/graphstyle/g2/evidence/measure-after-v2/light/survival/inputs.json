@@ -1,0 +1,189 @@
+[
+  {
+    "arrays": [
+      {
+        "data_base64": "WyJyZWZlcmVuY2UiLCAicmVmZXJlbmNlIiwgInJlZmVyZW5jZSIsICJ0cmVhdGVkIiwgInRyZWF0ZWQiLCAidHJlYXRlZCJd",
+        "dtype": "object",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "2077365868eda73aca4be4cb5abbc84a0869740582919574688905faa9a58c19",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAAAAAAAAAAADwPwAAAAAAAABAAAAAAAAAAAAAAAAAAADwPwAAAAAAAABA",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "418da7bcf0d50336fb3012a9f9f28c045addaf625c3f10e667739be24077aadd",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA8D+amZmZmZnpPzMzMzMzM+M/AAAAAAAA8D9mZmZmZmbmP5qZmZmZmdk/",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "2bd27af2b8ab795d15e00913a189624e214e990967642fe9de38cfd5381eb39e",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA8D9mZmZmZmbmP5qZmZmZmdk/AAAAAAAA8D8AAAAAAADgP5qZmZmZmck/",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "d4ae517b1f277aade3bab093290a16df002b48c4e287bfa697c60d4406be3cac",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA8D/NzMzMzMzsP5qZmZmZmek/AAAAAAAA8D/NzMzMzMzsPzMzMzMzM+M/",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "71e997606f2ea1d321c605912c694ad217dd9d2f3ae0e58fc85ef30b0e92a4b8",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAA",
+        "dtype": "int64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "49f8e4cf13b7efa2dded3da53f794e654a717096b1feb98707731bb42cce831d",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "WyJoIiwgImgiLCAiaCIsICJoIiwgImgiLCAiaCJd",
+        "dtype": "object",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "bdd148e0daf21a06125e5bb9f72ece034b682ac07d3627992d28ef78a9852b4a",
+        "shape": [
+          6
+        ]
+      }
+    ],
+    "columns": [
+      "condition",
+      "time",
+      "survival",
+      "ci_lower",
+      "ci_upper",
+      "censored",
+      "time_unit"
+    ],
+    "csv": ",condition,time,survival,ci_lower,ci_upper,censored,time_unit\n0,reference,0.0,1.0,1.0,1.0,0,h\n1,reference,1.0,0.8,0.7,0.9,0,h\n2,reference,2.0,0.6,0.4,0.8,1,h\n3,treated,0.0,1.0,1.0,1.0,0,h\n4,treated,1.0,0.7,0.5,0.9,1,h\n5,treated,2.0,0.4,0.2,0.6,0,h\n",
+    "dtypes": [
+      "object",
+      "float64",
+      "float64",
+      "float64",
+      "float64",
+      "int64",
+      "object"
+    ],
+    "kind": "dataframe"
+  },
+  {
+    "arrays": [
+      {
+        "data_base64": "WyJjb25kaXRpb24iLCAiY29uZGl0aW9uIl0=",
+        "dtype": "object",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "05dd97c68e49fcf6d8ccbcd6fa876b85245e63e9f598b268f18220f1bd2bedc9",
+        "shape": [
+          2
+        ]
+      },
+      {
+        "data_base64": "WyJyZWZlcmVuY2UiLCAidHJlYXRlZCJd",
+        "dtype": "object",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "0ceae97661e9a179d10d50ce7808d28025a79cee87c722bd0aea6fc515732173",
+        "shape": [
+          2
+        ]
+      },
+      {
+        "data_base64": "CgAAAAAAAAAKAAAAAAAAAA==",
+        "dtype": "int64",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "bb64a83d997a85d7fd0e680d63c2c35366d5962068701c2d0780c1cd8b4171f1",
+        "shape": [
+          2
+        ]
+      },
+      {
+        "data_base64": "BAAAAAAAAAAGAAAAAAAAAA==",
+        "dtype": "int64",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "8525507d3b3dbad0602204154227b284048679c49673e0c0fd3e9833bdb4a9e0",
+        "shape": [
+          2
+        ]
+      }
+    ],
+    "columns": [
+      "level",
+      "group",
+      "n",
+      "events"
+    ],
+    "csv": ",level,group,n,events\n0,condition,reference,10,4\n1,condition,treated,10,6\n",
+    "dtypes": [
+      "object",
+      "object",
+      "int64",
+      "int64"
+    ],
+    "kind": "dataframe"
+  },
+  {
+    "arrays": [
+      {
+        "data_base64": "WDm0yHa+nz8=",
+        "dtype": "float64",
+        "missing": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
+        "missing_base64": "AA==",
+        "sha256": "df5ba9ab60bad54f409fe9b937ee6f4cded2fe61644a214f4ef766f9d600d60e",
+        "shape": [
+          1
+        ]
+      },
+      {
+        "data_base64": "WyJhbGwgY29uZGl0aW9ucyJd",
+        "dtype": "object",
+        "missing": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
+        "missing_base64": "AA==",
+        "sha256": "b6e9783b69b7dfd6701e460fab9a3d6ae7d3cff4a3d37043bb5c678df4fbb5c1",
+        "shape": [
+          1
+        ]
+      }
+    ],
+    "columns": [
+      "p_value",
+      "comparison"
+    ],
+    "csv": ",p_value,comparison\n0,0.031,all conditions\n",
+    "dtypes": [
+      "float64",
+      "object"
+    ],
+    "kind": "dataframe"
+  },
+  "event"
+]

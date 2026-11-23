@@ -1,0 +1,96 @@
+[
+  {
+    "arrays": [
+      {
+        "data_base64": "WyJzbG93IiwgInNsb3ciLCAiZmFzdCIsICJmYXN0Il0=",
+        "dtype": "object",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "8757b377db6df37c49341aefbe1e65b57daa18cdf1b311fe5c6b9b6e13937455",
+        "shape": [
+          4
+        ]
+      },
+      {
+        "data_base64": "AQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=",
+        "dtype": "int64",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "1f6e031dd33eed75757df11b845fddc49b3e2f1604f9d7b19c9ae32be8d838c2",
+        "shape": [
+          4
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAFEAAAAAAAAD4fwAAAAAAAABAAAAAAAAACEA=",
+        "dtype": "float64",
+        "missing": "bf5e8ffa51a9e748985800c1d3d7f1a2a6ae7435136593ca8d9637e3f87c699c",
+        "missing_base64": "AAEAAA==",
+        "sha256": "c347fd826494d6d6e4e61fa2ff29d5c5b9f563505fa2a30a95732b78645e71d2",
+        "shape": [
+          4
+        ]
+      },
+      {
+        "data_base64": "WyJoIiwgImgiLCAiaCIsICJoIl0=",
+        "dtype": "object",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "374123a06422ead4662bf95261a3d1944f61276f363a783822644a9fede4cf74",
+        "shape": [
+          4
+        ]
+      },
+      {
+        "data_base64": "WyJwIiwgInAiLCAicCIsICJwIl0=",
+        "dtype": "object",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "072891e6797ffb27ee23f8fd19e0990c6e167c217daa73dd82dff85ba4ab879b",
+        "shape": [
+          4
+        ]
+      },
+      {
+        "data_base64": "WyJyMSIsICJyMSIsICJyMSIsICJyMSJd",
+        "dtype": "object",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "24f0bed404b64a166c1246f5121f944f1967023def4a9f72635e27a02a4dc03e",
+        "shape": [
+          4
+        ]
+      },
+      {
+        "data_base64": "WyJjMSIsICJjMiIsICJjMyIsICJjNCJd",
+        "dtype": "object",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "2717fcdc5b9fd76c072ed16e58f7538cf38351a683cd48f31b2f7f0a1daf7d99",
+        "shape": [
+          4
+        ]
+      }
+    ],
+    "columns": [
+      "condition",
+      "wound_ok",
+      "half_closure_time",
+      "time_unit",
+      "plateID",
+      "rowID",
+      "columnID"
+    ],
+    "csv": ",condition,wound_ok,half_closure_time,time_unit,plateID,rowID,columnID\n0,slow,1,5.0,h,p,r1,c1\n1,slow,1,,h,p,r1,c2\n2,fast,1,2.0,h,p,r1,c3\n3,fast,0,3.0,h,p,r1,c4\n",
+    "dtypes": [
+      "object",
+      "int64",
+      "float64",
+      "object",
+      "object",
+      "object",
+      "object"
+    ],
+    "kind": "dataframe"
+  }
+]

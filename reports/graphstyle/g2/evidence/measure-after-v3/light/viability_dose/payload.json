@@ -1,0 +1,61 @@
+{
+  "images": null,
+  "table": {
+    "arrays": [
+      {
+        "data_base64": "mpmZmZmZuT8AAAAAAADwPwAAAAAAACRAAAAAAAAAWUA=",
+        "dtype": "float64",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "fe35964e4054565449bb69819d9c565ce6934265d49d531aa7294353a49c3217",
+        "shape": [
+          4
+        ]
+      },
+      {
+        "data_base64": "AAAAAACAWEAAAAAAAIBUQAAAAAAAAEhAAAAAAAAAMUA=",
+        "dtype": "float64",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "4c2f59edc7a08fe9ab89e636d52a5db781914b2d130b2dfab426a999b6808978",
+        "shape": [
+          4
+        ]
+      },
+      {
+        "data_base64": "WyJBIiwgIkEiLCAiQSIsICJBIl0=",
+        "dtype": "object",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "a62c1de89b9f15b8c13b54afa5067057630623148dfffafb325fd4ad5a7b8ef9",
+        "shape": [
+          4
+        ]
+      },
+      {
+        "data_base64": "WyJ2aWFiaWxpdHkiLCAidmlhYmlsaXR5IiwgInZpYWJpbGl0eSIsICJ2aWFiaWxpdHkiXQ==",
+        "dtype": "object",
+        "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+        "missing_base64": "AAAAAA==",
+        "sha256": "9f94de37de12e7c8519af00e5d3316bf46128244976f029274dc3a0935fe684a",
+        "shape": [
+          4
+        ]
+      }
+    ],
+    "columns": [
+      "dose",
+      "response",
+      "compound",
+      "readout"
+    ],
+    "csv": ",dose,response,compound,readout\n0,0.1,98.0,A,viability\n1,1.0,82.0,A,viability\n2,10.0,48.0,A,viability\n3,100.0,17.0,A,viability\n",
+    "dtypes": [
+      "float64",
+      "float64",
+      "object",
+      "object"
+    ],
+    "kind": "dataframe"
+  }
+}

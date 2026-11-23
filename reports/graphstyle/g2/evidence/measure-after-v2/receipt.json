@@ -1,0 +1,697 @@
+{
+  "loaded_measure": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/measure.py",
+  "measure_sha256": "24853063ee1ee4b46305ad46c651aaa7741f176afefef9f6b653fd6d7c0351e9",
+  "scientific_reruns": false,
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation",
+  "targets": {
+    "dark": {
+      "dna": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_dna_histogram_figure",
+        "data_sha256": "129d98a705bf5692652599dd864028e0ed9d24501b6358eba8a9af31a0b9f78a",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/dna/dna.pdf",
+            "sha256": "a69a0e79b7a68e9ea58bc09bd6edcba50eb62314bfb75535f363bc7d1bc3ae9c"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/dna/dna.png",
+            "sha256": "ae7723ef8af3c3eac043b53b94874f8b225f7f982fdf1457f6c0bab9d0620945"
+          }
+        },
+        "inputs_sha256": "37d570ca42b5c574ec8421ecd13b837391131b9aa54e075b5b615c0012cb6cee",
+        "payload_sha256": "c5abca9a733154201cb5b82e29d7a63dc44f3cf43f9b957aadceac533965ff31",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "hazard": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_hazard_ratio_figure",
+        "data_sha256": "0196b9c7052768b983f8bf4c691747ec8cf2770390137b8429e6243e8bf6d704",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "condition slots",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/hazard/hazard.pdf",
+            "sha256": "0bfb0dd803e7baf744e0e30236c3bd82102b5f8f481000624f7c7e79367134c7"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/hazard/hazard.png",
+            "sha256": "a0c5c3b995f11c16d5137e38cd0adf6866fce75436613d5199434426bfa0ee23"
+          }
+        },
+        "inputs_sha256": "65174991391138b9250422d21cd61a15366191a2ae3dea90582a64e48fd6df51",
+        "payload_sha256": "526484e50ffa7a1164d88157286cd4e877dbb9234e1ccf8285c472c429623d5d",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "survival": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_time_to_event_figure",
+        "data_sha256": "6d153b99e7ad0a28cee7b2fb5f637df5ef378bb24cf81a022a51918aac5c85ff",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/survival/survival.pdf",
+            "sha256": "9b7530edd8e5e8d212baf84fd29403e878ece3becae1bec489c5868f589fcc57"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/survival/survival.png",
+            "sha256": "1dbda0777d264d87b78c85a043e4471c791acfbb0eb4bc2f4b6ddaf0013b35e1"
+          }
+        },
+        "inputs_sha256": "8a3ae5503d93a3436b8673a57f55378bab7fc45824c237374ae6b9771ab419be",
+        "payload_sha256": "485661c10d36216eebe9e1f91c4cf397d98f7763ef8505856ab0098e13d3f065",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "viability_controls": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff",
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff",
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_viability_controls_figure",
+        "data_sha256": "6fcf7406818862c118ab59083876e0b4193ab3237635e98a0637fa19db1b066b",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "condition slots",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/viability_controls/viability_controls.pdf",
+            "sha256": "5a89df98bc9077d9fd81863483b2103326e059df273da255a63efc0981474cd8"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/viability_controls/viability_controls.png",
+            "sha256": "d607cc8b81e99431be4d5b0a5330dd05239c14b1ccb43ca3cfb654d49ac42d40"
+          }
+        },
+        "inputs_sha256": "93ca3bb290b138895c8f787755ee9c56ef5a77e49bad4dcf4f5b63772090b61d",
+        "payload_sha256": "9f4385c0f539ca6b6fbee78498b2703530e45bc7121c62f6f6705b912a08a538",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "viability_dose": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff",
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff",
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_viability_dose_figure",
+        "data_sha256": "7d3a4458647dbb8136c3d2c94e37618808e579340364cbf897fc7ced225a2a39",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/viability_dose/viability_dose.pdf",
+            "sha256": "be3f4b6cdc288c5ad0e91ff1498100c133aa476642ec4737f3d6f78526e2b374"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/viability_dose/viability_dose.png",
+            "sha256": "d21dc89937f53bb7a77b1cfe979921a24826b2aee0a5c8627ff3876ccca56117"
+          }
+        },
+        "inputs_sha256": "32cff66689792b378942ae86fd131a8a93b15770393ffaac0b2a24f04a3abd8b",
+        "payload_sha256": "6ed4f31531850e8ccf27379e7b5aac79a31fa503e0356509bb23b1130918c9f9",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "wound_half": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_wound_half_closure_figure",
+        "data_sha256": "1d8c0cbf0ae3e52a2d13619b165fbf7dde3369a5acb0d791ba790d718add04b3",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "condition slots",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/wound_half/wound_half.pdf",
+            "sha256": "b0b762b202cb4bd662922ce34c95092ff6fb827546d0f6759f6f77d662ee0a5f"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/wound_half/wound_half.png",
+            "sha256": "5a4a77e21ebf2fc043e3488d9d61afd8eb63ae66c3da44ed3c2809178d9fc8d6"
+          }
+        },
+        "inputs_sha256": "3c41d6546d7d3838c7f134c5b10726bbed2ba2438996346cd9d4f3a881ba8f23",
+        "payload_sha256": "3465ea368ca984eacbf52dde491d0aeffca8e1636965168ba9118d3e2baf09c8",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "wound_plate": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff",
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff",
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_wound_plate_figure",
+        "data_sha256": "2e01223714741557a35d72d0160b3b158c695c057f5abbf508a73478692ff641",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "heatmap cell aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/wound_plate/wound_plate.pdf",
+            "sha256": "40e912ef1d0710785584485bcd2a11b40c8deee04fe1ad78028f9cfa538c6206"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/wound_plate/wound_plate.png",
+            "sha256": "80da381124305ea1b43c955de8e908c4240d2ecf5a6888e572bc225941ce1488"
+          }
+        },
+        "inputs_sha256": "eb2dc88540cf2ce96930abd9b9b785a3148b285893df88d7275fc432aa05030a",
+        "payload_sha256": "85d9da7f7d5d03d081371a10094e65641a115a18407af2b8884a4a18dd10e5a2",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      }
+    },
+    "light": {
+      "dna": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_dna_histogram_figure",
+        "data_sha256": "129d98a705bf5692652599dd864028e0ed9d24501b6358eba8a9af31a0b9f78a",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/dna/dna.pdf",
+            "sha256": "f93bce549907b3b7a3a5373031ee625016389abae7b9454b36df8c4c5e0b153b"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/dna/dna.png",
+            "sha256": "af123e1fecb50fe0c79fbdb7df74a5d9984f30e67dd2dac98bde3be1ec65d188"
+          }
+        },
+        "inputs_sha256": "37d570ca42b5c574ec8421ecd13b837391131b9aa54e075b5b615c0012cb6cee",
+        "payload_sha256": "c5abca9a733154201cb5b82e29d7a63dc44f3cf43f9b957aadceac533965ff31",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "hazard": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_hazard_ratio_figure",
+        "data_sha256": "0196b9c7052768b983f8bf4c691747ec8cf2770390137b8429e6243e8bf6d704",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "condition slots",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/hazard/hazard.pdf",
+            "sha256": "70494ce75c247fa2459e0259b00ffcb87ab40b5e61d5da02b0abe2e52c56365a"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/hazard/hazard.png",
+            "sha256": "36715817eb6f60060696909cd677ebf97fd5e0a86238c0d72a71aa9521147aeb"
+          }
+        },
+        "inputs_sha256": "65174991391138b9250422d21cd61a15366191a2ae3dea90582a64e48fd6df51",
+        "payload_sha256": "526484e50ffa7a1164d88157286cd4e877dbb9234e1ccf8285c472c429623d5d",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "survival": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_time_to_event_figure",
+        "data_sha256": "6d153b99e7ad0a28cee7b2fb5f637df5ef378bb24cf81a022a51918aac5c85ff",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/survival/survival.pdf",
+            "sha256": "70fe83468de2442521c76c25f5f8f600605b65d469c9d37d918b1b5c25bf86ea"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/survival/survival.png",
+            "sha256": "766f5c10dbcb66a878631a57ca0e94eab466369762a93480b0b556c713ff1605"
+          }
+        },
+        "inputs_sha256": "8a3ae5503d93a3436b8673a57f55378bab7fc45824c237374ae6b9771ab419be",
+        "payload_sha256": "485661c10d36216eebe9e1f91c4cf397d98f7763ef8505856ab0098e13d3f065",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "viability_controls": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff",
+            "#000000ff"
+          ]
+        },
+        "creator": "_viability_controls_figure",
+        "data_sha256": "6fcf7406818862c118ab59083876e0b4193ab3237635e98a0637fa19db1b066b",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "condition slots",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/viability_controls/viability_controls.pdf",
+            "sha256": "9f0844734fdcfe35c45a73999a3b4e3e5a805eafd3e1e9bab3f8b7816d9c84be"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/viability_controls/viability_controls.png",
+            "sha256": "d6b703adfd0856aff43d64e0e8570d282d0138cbcf4c9c715605f2ecd9011fbf"
+          }
+        },
+        "inputs_sha256": "93ca3bb290b138895c8f787755ee9c56ef5a77e49bad4dcf4f5b63772090b61d",
+        "payload_sha256": "9f4385c0f539ca6b6fbee78498b2703530e45bc7121c62f6f6705b912a08a538",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "viability_dose": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff",
+            "#000000ff"
+          ]
+        },
+        "creator": "_viability_dose_figure",
+        "data_sha256": "7d3a4458647dbb8136c3d2c94e37618808e579340364cbf897fc7ced225a2a39",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/viability_dose/viability_dose.pdf",
+            "sha256": "da647dbe8dca236f035acbb3d2ebd4f07f32753e3f8c4bf947385a4b28bc149e"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/viability_dose/viability_dose.png",
+            "sha256": "f6d5c633c11504d169484a7f38790e030007d8660112255890684ad4957e6521"
+          }
+        },
+        "inputs_sha256": "32cff66689792b378942ae86fd131a8a93b15770393ffaac0b2a24f04a3abd8b",
+        "payload_sha256": "6ed4f31531850e8ccf27379e7b5aac79a31fa503e0356509bb23b1130918c9f9",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "wound_half": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_wound_half_closure_figure",
+        "data_sha256": "1d8c0cbf0ae3e52a2d13619b165fbf7dde3369a5acb0d791ba790d718add04b3",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "condition slots",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/wound_half/wound_half.pdf",
+            "sha256": "3c8a4e3b47b5a147f4b5512c91207ff8cd51b0312e57e020d1358568b0d4ff3f"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/wound_half/wound_half.png",
+            "sha256": "f75edf5c0cf318bc362e20dd74d0adc2941c0eabbe5815cf6f22c5dc771d5cfc"
+          }
+        },
+        "inputs_sha256": "3c41d6546d7d3838c7f134c5b10726bbed2ba2438996346cd9d4f3a881ba8f23",
+        "payload_sha256": "3465ea368ca984eacbf52dde491d0aeffca8e1636965168ba9118d3e2baf09c8",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "wound_plate": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff",
+            "#000000ff"
+          ]
+        },
+        "creator": "_wound_plate_figure",
+        "data_sha256": "2e01223714741557a35d72d0160b3b158c695c057f5abbf508a73478692ff641",
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "heatmap cell aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "problems": []
+        },
+        "files": {
+          "pdf": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/wound_plate/wound_plate.pdf",
+            "sha256": "924a93e743ae7c7ed7a55235bf881581bb612b79ebc3c17941f52e9d51835817"
+          },
+          "png": {
+            "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/wound_plate/wound_plate.png",
+            "sha256": "dd12a2324671ba75215fd6ed7e5a42be3289b1def9202804e25feab1594c1040"
+          }
+        },
+        "inputs_sha256": "eb2dc88540cf2ce96930abd9b9b785a3148b285893df88d7275fc432aa05030a",
+        "payload_sha256": "85d9da7f7d5d03d081371a10094e65641a115a18407af2b8884a4a18dd10e5a2",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      }
+    }
+  },
+  "theme_scope": "public saved figure preferences, normal creator and screen-mode writer"
+}
