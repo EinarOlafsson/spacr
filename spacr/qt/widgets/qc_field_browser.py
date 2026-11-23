@@ -1075,6 +1075,8 @@ class QCFieldBrowser(QDialog):
 
     def _render(self, *_args) -> None:
         """Composite the loaded planes into the displayed image."""
+        from ...figures.style import resolve_style
+
         payload = self._payload
         if payload is None or payload.intensities is None:
             return
@@ -1082,6 +1084,11 @@ class QCFieldBrowser(QDialog):
         channel = -1 if channel is None else int(channel)
         visible = [name for name, checkbox in self._layer_checks.items()
                    if checkbox.isChecked()]
+        self._spacr_style_spec = resolve_style("screen", "image",
+            comparison={"display_range": (0, 255), "gamma": 1.,
+                "processing": tr("Existing per-channel display normalization and selected object outlines; stored image intensities and masks are unchanged."),
+                "channel": channel, "visible_masks": tuple(visible)},
+            legend={"caption": tr("Phenotype field preview")})
         self._render_jobs.cancel()
         self._render_jobs.submit(
             lambda data=payload, selected=channel, layers=tuple(visible):
@@ -4189,7 +4196,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
     import json
     from matplotlib.figure import Figure
     from ...plot import save_figure
-    from ...figures.style import _apply_user_style
+    from ...figures.style import _apply_user_style, apply_axes_style, resolve_style
     from ...figures.bundle import _register_figure_data
     from ... import tabular
     from concurrent.futures import CancelledError
@@ -4203,6 +4210,9 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
     written, errors, provenance = [], [], []
     measurement_rows = []
     axis_options = dict(time_index=time_index, z_mode=z_mode, z_index=z_index)
+    text_style = resolve_style("print", "image")
+    text_options = dict(fontfamily=text_style.font_family,
+                        fontweight=dict(text_style.font_weights)["body"])
     for start in range(0, len(fields), 12):
         if cancelled is not None and cancelled.is_set():
             break
@@ -4271,7 +4281,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
             top=1. - (header_height + .12) / figure_height,
             hspace=.08, wspace=.12)
         figure.text(.5, 1. - .14 / figure_height, "\n".join(header),
-                    ha="center", va="top", fontsize=9, linespacing=1.3)
+                    ha="center", va="top", fontsize=9, linespacing=1.3, **text_options)
         page_records, page_errors, page_images, image_panels, image_channels = [], [], [], [], []
         interrupted = False
         for index, field in enumerate(page_fields):
@@ -4293,7 +4303,7 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
             bounds = grid[(index // columns) * 2, index % columns].get_position(figure)
             figure.text((bounds.x0 + bounds.x1) / 2, bounds.y1 - .05 / figure_height,
                         captions[index], ha="center", va="top", fontsize=10,
-                        linespacing=1.25)
+                        linespacing=1.25, **text_options)
             try:
                 if len(channels) > 3:
                     views = _overview_pixels(field, channels, percentiles, edge=quality_edge,
@@ -4352,6 +4362,20 @@ def _overview_export(fields, folder, channels, percentiles, seed=0, cancelled=No
                               advanced_normalization=advanced_normalization,
                               normalization=(normalization_context.provenance()
                                   if normalization_context is not None else normalization), **axis_options)
+        for axis in figure.axes:
+            if axis.images:
+                spec = resolve_style("print", "image",
+                    comparison={"display_range": (0, 255), "gamma": 1.,
+                        "processing": tr("Existing Overview channel processing; supplied RGB pixels are displayed without further normalization.")},
+                    legend={"caption": "\n".join(header),
+                            "selection": tr("Fields retain the explicit export selection and recorded display settings.")})
+                apply_axes_style(axis, spec, layout=False)
+            else:
+                spec = resolve_style("print", "schematic", comparison={"status": True},
+                    legend={"caption": tr("Field preview could not be rendered")})
+                for text in axis.texts:
+                    text.set_gid("spacr-status")
+                apply_axes_style(axis, spec, layout=False)
         _apply_user_style(figure)
         path = destination / f"overview_{start // 12 + 1:04d}.pdf"
         save_figure(figure, str(path), fmt="pdf", close=True, dpi=dpi)
@@ -5320,20 +5344,58 @@ class _OverviewLevelsHistogram(QWidget):
         self.counts = None
         self.black, self.white, self.gamma = 0., 1., 1.
         self._dragging = None
+        self._fit_histogram_height()
 
     def set_counts(self, counts):
         """Draw ``counts`` (256 bins over 0-1), or nothing for ``None``."""
         self.counts = None if counts is None else np.asarray(counts, dtype=np.float64)
+        self._fit_histogram_height()
         self.update()
 
     def set_levels(self, black, white, gamma):
         """Move the handles without emitting a change."""
         self.black, self.white, self.gamma = float(black), float(white), float(gamma)
+        self._fit_histogram_height()
         self.update()
 
     def _plot(self):
         """The rectangle the histogram fills, inside the handle margins."""
-        return QRect(8, 4, max(1, self.width() - 16), max(1, self.height() - 16))
+        from ...figures.style import native_histogram_geometry
+
+        return native_histogram_geometry(self, **self._histogram_arguments())["plot_rect"]
+
+    def _histogram_arguments(self):
+        """Declare the existing display histogram and three explicit level handles."""
+        available = self.counts is not None and bool(self.counts.size)
+        series = ({"label": tr("Pixels"), "values": self.counts},) if available else ()
+        return dict(series=series,
+                    thresholds=({"label": tr("Black point"), "value": self.black},
+                                {"label": tr("Mid-grey"), "value": self._handles()[1][1]},
+                                {"label": tr("White point"), "value": self.white}),
+                    xlabel=tr("Display level"), ylabel=tr("Pixel count"),
+                    caption=(tr("Channel display histogram") if available else
+                             tr("Channel display histogram unavailable")),
+                    reference=tr("Height is sqrt(count / maximum count). Triangles from left to right: black point, mid-grey and white point."))
+
+    def _fit_histogram_height(self):
+        """Reserve the measured outside key without shrinking the figure font."""
+        from math import ceil
+        from ...figures.style import native_histogram_geometry
+
+        geometry = native_histogram_geometry(self, **self._histogram_arguments())
+        self.setMinimumHeight(ceil(geometry["minimum_height"]))
+
+    def resizeEvent(self, event):
+        """Reflow the outside key at the actual width without changing levels."""
+        self._fit_histogram_height()
+        super().resizeEvent(event)
+
+    def _spacr_style_observation(self):
+        """Return a detached observation of the actual current native paint."""
+        from copy import deepcopy
+
+        self.grab()
+        return deepcopy(self._histogram_observation)
 
     def _x(self, level):
         """The widget x of a 0-1 level."""
@@ -5354,25 +5416,22 @@ class _OverviewLevelsHistogram(QWidget):
         """Draw the bars, the shaded clipped ranges and the three handles."""
         from PySide6.QtGui import QPainter, QPen, QPolygonF
         from PySide6.QtCore import QPointF, QRectF
+        from ...figures.style import paint_native_histogram
         from ..theme import _painting_palette
 
         palette = _painting_palette()
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
+        arguments = self._histogram_arguments()
+        available = bool(arguments["series"])
+        bins = len(self.counts) if available else 256
+        self._histogram_observation = paint_native_histogram(
+            self, painter, **arguments,
+            edges=np.linspace(0., 1., bins + 1),
+            display_transform="sqrt", xunit=tr("normalized intensity"),
+            theme_colors={"background": palette["surface_alt"],
+                          "foreground": palette["fg"], "border": palette["border"]})
         plot = self._plot()
-        painter.fillRect(plot, QColor(palette["surface_alt"]))
-        painter.setPen(QPen(QColor(palette["border"]), 1))
-        painter.drawRect(plot)
-        if self.counts is not None and self.counts.size and self.counts.max() > 0:
-            heights = np.sqrt(self.counts / self.counts.max())
-            bar = QColor(palette["accent"])
-            bar.setAlpha(170)
-            width = plot.width() / heights.size
-            for index, height in enumerate(heights):
-                if height <= 0:
-                    continue
-                top = plot.bottom() - height * plot.height()
-                painter.fillRect(QRectF(plot.left() + index * width, top, max(width, 1.), plot.bottom() - top), bar)
         shade = QColor(palette["fg"])
         shade.setAlpha(40)
         painter.fillRect(QRectF(plot.left(), plot.top(), self._x(self.black) - plot.left(), plot.height()), shade)
@@ -5380,12 +5439,20 @@ class _OverviewLevelsHistogram(QWidget):
         fills = {"black": QColor("#000000"), "white": QColor("#ffffff"), "gamma": QColor(palette["accent"])}
         for name, level in self._handles():
             x = self._x(level)
-            painter.setPen(QPen(QColor(palette["fg"] if name != "gamma" else palette["accent"]), 1))
-            painter.drawLine(QPointF(x, plot.top()), QPointF(x, plot.bottom()))
             painter.setBrush(fills[name])
             painter.setPen(QPen(QColor(palette["fg"]), 1))
-            painter.drawPolygon(QPolygonF([QPointF(x, plot.bottom() + 1), QPointF(x - 6, self.height() - 2),
-                                           QPointF(x + 6, self.height() - 2)]))
+            painter.drawPolygon(QPolygonF([QPointF(x, plot.top() - 1), QPointF(x - 6, plot.top() - 9),
+                                           QPointF(x + 6, plot.top() - 9)]))
+        self._histogram_observation["display_handles"] = [
+            {"name": name, "value": level, "x": self._x(level), "colour": fills[name].name()}
+            for name, level in self._handles()]
+        self._histogram_observation["histogram_data_available"] = available
+        self._histogram_observation["input_bin_count"] = bins if available else 0
+        self._histogram_observation["incomplete_checks"] = [
+            "Display-clipping shade and draggable triangle overlays require visual review."]
+        if not available:
+            self._histogram_observation["incomplete_checks"].append(
+                "Histogram data are unavailable; count-axis bounds are layout placeholders.")
         painter.end()
 
     def mousePressEvent(self, event):
@@ -16942,10 +17009,12 @@ class _OverviewCellPicker(QWidget):
         from PySide6.QtGui import QColor, QPainter, QPen
         from ..iconset import active_theme
         from ..theme import palette_for
+        from ...figures.style import native_plot_font
 
         palette = palette_for(active_theme())
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
+        painter.setFont(native_plot_font())
         paper = self._paper()
         painter.fillRect(paper.translated(2, 2), QColor(0, 0, 0, 50))
         painter.fillRect(paper, QColor("#ffffff"))

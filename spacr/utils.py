@@ -106,7 +106,13 @@ from statsmodels.stats.multitest import multipletests
 from itertools import combinations
 from functools import reduce
 
-from .figures.style import figure_style, theme_target
+from .figures.style import (
+    DATA_ALPHA, Palette, ROLES, WEIGHTS, annotate, apply_axes_style,
+    apply_embedding_style, condition_colours, ensure_reference_contrast,
+    external_legend, figure_style,
+    resolve_plot_theme, resolve_style, square_axes, text_legend, theme_target,
+)
+from .qt.i18n import tr
 try:
     from IPython.display import display
 except Exception:
@@ -2236,6 +2242,20 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
         df = _filter_closest_to_stat(df, column='new_measurement', n_rows=nr_imgs, use_median=False)
         png_paths_by_condition = df['png_path'].tolist()
         fig = _plot_images_on_grid(png_paths_by_condition, channel_indices, um_per_pixel, scale_bar_length_um, fontsize, show_filename, channel_names, plot)
+        selection_columns = ([f'{part}_channel_{channel_of_interest}_{measurement}'
+                              for part in compartments[:2]]
+                             if isinstance(compartments, list) and compartments else ['cell_area'])
+        caption = tr('Condition {condition}: {count} image crops nearest the condition mean of {quantity}; the same crops are used in the channel panels.').format(
+            condition=condition, count=len(png_paths_by_condition),
+            quantity=' / '.join(selection_columns))
+        fig._spacr_representative_images = {
+            'paths': tuple(png_paths_by_condition), 'selection': 'nearest_mean',
+            'compartments': compartments, 'channel_of_interest': channel_of_interest,
+            'measurement': measurement, 'um_per_pixel': um_per_pixel,
+            'scale_bar_length_um': scale_bar_length_um,
+        }
+        if fig.axes:
+            annotate(fig.axes[0], caption)
         src = os.path.dirname(db_path)
         os.makedirs(src, exist_ok=True)
         figures_saved += 1
@@ -2243,6 +2263,14 @@ def _generate_representative_images(db_path, cells=None, cell_loc=None, pathogen
                      all_folders=figures_per_condition * len(conditions))
         for channel in channel_indices:
             fig = _plot_images_on_grid(png_paths_by_condition, [channel], um_per_pixel, scale_bar_length_um, fontsize, show_filename, channel_names, plot)
+            fig._spacr_representative_images = {
+                'paths': tuple(png_paths_by_condition), 'selection': 'nearest_mean',
+                'compartments': compartments, 'channel_of_interest': channel_of_interest,
+                'measurement': measurement, 'um_per_pixel': um_per_pixel,
+                'scale_bar_length_um': scale_bar_length_um,
+            }
+            if fig.axes:
+                annotate(fig.axes[0], caption)
             figures_saved += 1
             _save_figure(fig, src, text=f'channel_{channel}_{condition}', i=figures_saved,
                          all_folders=figures_per_condition * len(conditions))
@@ -5625,6 +5653,37 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
     
     return filtered_results_df
 
+def _utility_panel_style(ax, *, kind, caption, reference=None, units=None,
+                         comparison=None, layout=False):
+    """Declare a utility panel through the shared style owner without changing its data.
+
+    :param ax: axes containing the original numerical artists.
+    :param kind: shared chart kind, or ``image`` for microscopy pixels.
+    :param caption: translated explanation retained in the external legend.
+    :param reference: explicit scientific reference description, when supplied.
+    :param units: quantity units supplied by the producer, without inference.
+    :param comparison: display-only provenance and presentation metadata.
+    :param layout: whether the shared owner may fit a single-panel canvas.
+    :returns: the attached immutable style specification.
+    """
+    details = dict(comparison or {})
+    details.setdefault('graph_type', kind)
+    details.setdefault('forbid_inside_title', True)
+    legend = {'caption': caption,
+              'quantities': {'x': ax.get_xlabel(), 'y': ax.get_ylabel()}}
+    if reference is not None:
+        legend['reference'] = reference
+    if units is not None:
+        legend['units'] = units
+    specification = resolve_style(theme_target(), kind, comparison=details,
+                                  legend=legend)
+    apply_axes_style(ax, specification, layout=layout)
+    annotate(ax, caption)
+    if reference is not None:
+        annotate(ax, reference)
+    return specification
+
+
 def model_metrics(model):
     """Print RMSE/MAE/Durbin-Watson and show residual/QQ/scale-location diagnostic plots.
 
@@ -5641,29 +5700,63 @@ def model_metrics(model):
     print(f"Durbin-Watson: {durbin_w_value}")
 
     with figure_style(theme_target()):
-        fig, ax = plt.subplots(2, 2, figsize=(15, 12))
+        fig, ax = plt.subplots(2, 2, figsize=(7, 7))
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, lambda: pd.DataFrame({"fitted": np.asarray(model.fittedvalues), "residual": np.asarray(model.resid)}), x="fitted", y="residual", kind="scatter")
 
-        ax[0, 0].scatter(model.fittedvalues, model.resid, edgecolors = 'k', facecolors = 'none')
-        ax[0, 0].set_title('Residuals vs Fitted')
-        ax[0, 0].set_xlabel('Fitted values')
-        ax[0, 0].set_ylabel('Residuals')
+        ax[0, 0].scatter(model.fittedvalues, model.resid,
+                         color=ROLES['primary'], edgecolors='none', alpha=DATA_ALPHA)
+        ax[0, 0].set_xlabel(tr('Fitted value'))
+        ax[0, 0].set_ylabel(tr('Residual'))
 
-        sns.histplot(model.resid, kde=True, ax=ax[0, 1])
-        ax[0, 1].set_title('Histogram of Residuals')
-        ax[0, 1].set_xlabel('Residuals')
+        sns.histplot(model.resid, kde=True, ax=ax[0, 1], color=ROLES['primary'])
+        ax[0, 1].set_xlabel(tr('Residual'))
+        ax[0, 1].set_ylabel(tr('Count'))
 
         sm.qqplot(model.resid, fit=True, line='45', ax=ax[1, 0])
-        ax[1, 0].set_title('QQ Plot')
+        ax[1, 0].set_xlabel(tr('Theoretical normal quantile'))
+        ax[1, 0].set_ylabel(tr('Standardized residual'))
+        for line in ax[1, 0].lines:
+            if line.get_linestyle() in ('None', 'none', ''):
+                line.set_color(ROLES['primary'])
+                line.set_markerfacecolor(ROLES['primary'])
+                line.set_markeredgecolor('none')
+            else:
+                line.set_color('#000000')
+                line.set_linewidth(WEIGHTS['reference'])
+                line.set_linestyle((0, (4, 3)))
+                line.set_gid('spacr-reference')
+                line.set_label(tr('Normal quantile identity reference'))
 
         standardized_resid = model.get_influence().resid_studentized_internal
-        ax[1, 1].scatter(model.fittedvalues, np.sqrt(np.abs(standardized_resid)), edgecolors = 'k', facecolors = 'none')
-        ax[1, 1].set_title('Scale-Location')
-        ax[1, 1].set_xlabel('Fitted values')
-        ax[1, 1].set_ylabel(r'$\sqrt{|Standardized Residuals|}$')
+        ax[1, 1].scatter(model.fittedvalues, np.sqrt(np.abs(standardized_resid)),
+                         color=ROLES['primary'], edgecolors='none', alpha=DATA_ALPHA)
+        ax[1, 1].set_xlabel(tr('Fitted value'))
+        ax[1, 1].set_ylabel(tr('Square root of absolute studentized residual'))
+
+        descriptions = (
+            (ax[0, 0], 'scatter', tr('Residuals against fitted model values.'),
+             tr('Residuals are differences from the fitted model response.'),
+             {'x': tr('model response units'), 'y': tr('model response units')}),
+            (ax[0, 1], 'histogram', tr('Residual distribution with the original histogram bins and kernel density estimate.'),
+             tr('The fitted model defines the residual reference.'),
+             {'x': tr('model response units'), 'y': tr('observations')}),
+            (ax[1, 0], 'qq', tr('Quantile–quantile comparison of standardized residuals with a fitted normal distribution.'),
+             tr('The dotted black line is the normal quantile identity reference.'),
+             {'x': 'dimensionless', 'y': 'dimensionless'}),
+            (ax[1, 1], 'scatter', tr('Scale–location diagnostic from internally studentized residuals.'),
+             tr('Residual magnitudes are standardized against the fitted model.'),
+             {'x': tr('model response units'), 'y': 'dimensionless'}),
+        )
+        for panel, kind, caption, reference, units in descriptions:
+            _utility_panel_style(panel, kind=kind, caption=caption,
+                                 reference=reference, units=units)
+        fig._spacr_utils_metrics = {'rmse': rmse, 'mae': mae,
+                                   'durbin_watson': durbin_w_value}
 
         plt.tight_layout()
+        external_legend(fig, axes=list(ax.flat), pack=False)
+        ensure_reference_contrast(ax[1, 0])
         _show_if_interactive()
 
 def check_multicollinearity(x):
@@ -6947,6 +7040,101 @@ def _activation_map_to_2d(activation_map):
     return activation_map
 
 
+def _utility_image_style(ax, *, caption, processing, metadata=None):
+    """Declare the actual image layers and their display transforms without rewriting pixels.
+
+    :param ax: image axes, including any scalar attribution overlay.
+    :param caption: translated image-panel explanation.
+    :param processing: truthful description of the existing preprocessing.
+    :param metadata: additional scalar image provenance supplied by the caller.
+    :returns: the shared image specification.
+    """
+    layers = []
+    for artist in ax.images:
+        values = artist.get_array()
+        rgb = values.ndim == 3 and values.shape[-1] in (3, 4)
+        limits = ((0., 1.) if np.issubdtype(values.dtype, np.floating)
+                  else (0., 255.)) if rgb else artist.get_clim()
+        layers.append({
+            'display_range': tuple(None if value is None else float(value)
+                                   for value in limits),
+            'gamma': float(getattr(artist.norm, 'gamma', 1.)),
+            'encoding': 'RGB' if rgb else artist.get_cmap().name,
+            'shape': tuple(int(size) for size in values.shape),
+            'dtype': str(values.dtype),
+            'alpha': 1. if artist.get_alpha() is None else float(artist.get_alpha()),
+        })
+    comparison = {'display_range': tuple(layer['display_range'] for layer in layers),
+                  'gamma': tuple(layer['gamma'] for layer in layers),
+                  'processing': processing, 'layers': layers,
+                  'calibration': tr('Physical scale was not supplied.')}
+    comparison.update(metadata or {})
+    specification = _utility_panel_style(ax, kind='image', caption=caption,
+                                         comparison=comparison)
+    annotate(ax, processing)
+    annotate(ax, tr('Display range: {ranges}; gamma: {gamma}.').format(
+        ranges=comparison['display_range'], gamma=comparison['gamma']))
+    annotate(ax, comparison['calibration'])
+    return specification
+
+
+def _activation_grid(X, maps, predictions, *, overlay, normalize, normalizer, caption):
+    """Render frozen attribution tensors with shared scalar colors and explicit image provenance.
+
+    Scalar maps share one raw-value display range across the batch. RGB maps
+    retain their supplied channel values; no channel reduction is performed.
+    The public percentile-normalization routine is called unchanged when
+    explicitly requested for input images. This function performs no inference.
+    """
+    count = X.shape[0]
+    rows = (count + 7) // 8
+    arrays = [_activation_map_to_2d(maps[index].cpu().numpy())
+              for index in range(count)]
+    scalar_ranges = []
+    for values in arrays:
+        if values.ndim == 2:
+            finite = values[np.isfinite(values)]
+            if finite.size:
+                scalar_ranges.append((float(finite.min()), float(finite.max())))
+    limits = ((min(item[0] for item in scalar_ranges),
+               max(item[1] for item in scalar_ranges)) if scalar_ranges else (None, None))
+    with figure_style(theme_target()):
+        fig, axes = plt.subplots(rows, 8, figsize=(12, rows * 1.5), squeeze=False)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind='image', title=caption)
+        for ax in axes.flat:
+            ax.axis('off')
+        for index, values in enumerate(arrays):
+            ax = axes[index // 8, index % 8]
+            if overlay:
+                image = X[index].permute(1, 2, 0).detach().cpu().numpy()
+                if normalize:
+                    image = normalizer(image)
+                ax.imshow(image)
+            if values.ndim == 2:
+                ax.imshow(values, cmap=Palette.SEQUENTIAL, alpha=DATA_ALPHA,
+                          vmin=limits[0], vmax=limits[1])
+            else:
+                ax.imshow(values, alpha=DATA_ALPHA)
+            prediction = predictions[index].item()
+            detail = tr('Image {image}: predicted class {prediction}.').format(
+                image=index + 1, prediction=prediction)
+            processing = (tr('Input image: independent per-channel second-to-ninety-eighth percentile display stretch; attribution values are unchanged.')
+                          if overlay and normalize else
+                          tr('Supplied input and attribution values are unchanged; scalar attribution layers share the batch display range.'))
+            if values.ndim == 3:
+                processing += ' ' + tr('The attribution layer preserves the supplied RGB channels; no scalar color map is applied.')
+            _utility_image_style(ax, caption=caption + ' ' + detail,
+                                 processing=processing,
+                                 metadata={'prediction': prediction,
+                                           'sample_index': index,
+                                           'scalar_batch_range': limits})
+        fig._spacr_caption = caption
+        fig.tight_layout(pad=0.3)
+        external_legend(fig, axes=list(axes.flat)[:count], pack=False)
+        return fig
+
+
 class SaliencyMapGenerator:
     """Generate saliency maps and predictions for a binary classifier.
 
@@ -7020,7 +7208,7 @@ class SaliencyMapGenerator:
             channels-last. Other three-dimensional shapes reach ``imshow`` and
             raise ``TypeError``.
         :param predictions: sequence supporting ``predictions[i].item()``,
-            whose scalar is stamped in each panel's corner. A plain Python list
+            whose scalar is recorded in the external panel key. A plain Python list
             of ints raises ``AttributeError``.
         :param overlay: true draws the input beneath a translucent map; false
             draws the map alone. Default ``True``.
@@ -7030,35 +7218,10 @@ class SaliencyMapGenerator:
             divides by zero and comes out ``NaN``. Default ``False``.
         :returns: the Matplotlib ``Figure``.
         """
-        N = X.shape[0]
-        rows = (N + 7) // 8
-        with figure_style(theme_target()):
-            fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
-            from .figures.bundle import _register_figure_data
-            _register_figure_data(fig, None, kind="image", title="Saliency")
-
-            for ax in axs.flat:
-                ax.axis('off')
-
-            for i in range(N):
-                ax = axs[i // 8, i % 8]
-                saliency_map = _activation_map_to_2d(saliency[i].cpu().numpy())
-
-                if overlay:
-                    img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
-                    if normalize:
-                        img_np = self.percentile_normalize(img_np)
-                    ax.imshow(img_np)
-                    ax.imshow(saliency_map, cmap='jet', alpha=0.5)
-                else:
-                    ax.imshow(saliency_map, cmap='jet')
-
-                ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
-                        bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
-                ax.axis('off')
-
-            plt.tight_layout(pad=0)
-            return fig
+        return _activation_grid(
+            X, saliency, predictions, overlay=overlay, normalize=normalize,
+            normalizer=self.percentile_normalize,
+            caption=tr('Saliency maps from the supplied classifier predictions.'))
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
         """Per-channel percentile-normalize ``img`` into ``[0, 1]``.
@@ -7187,7 +7350,7 @@ class GradCAMGenerator:
             normalization used by the saliency twin. It is indexed and moved
             to the CPU on every iteration, so it must be a tensor either way.
         :param predictions: sequence supporting ``predictions[i].item()``,
-            whose scalar is stamped in each panel's corner. A plain Python list
+            whose scalar is recorded in the external panel key. A plain Python list
             of ints raises ``AttributeError``.
         :param overlay: true draws the input beneath a translucent map; false
             draws the map alone. Default ``True``.
@@ -7197,36 +7360,10 @@ class GradCAMGenerator:
             divides by zero and comes out ``NaN``. Default ``False``.
         :returns: the Matplotlib ``Figure``.
         """
-        N = X.shape[0]
-        rows = (N + 7) // 8
-        with figure_style(theme_target()):
-            fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
-            from .figures.bundle import _register_figure_data
-            _register_figure_data(fig, None, kind="image", title="Grad-CAM")
-
-            for ax in axs.flat:
-                ax.axis('off')
-
-            for i in range(N):
-                ax = axs[i // 8, i % 8]
-                gradcam_map = _activation_map_to_2d(gradcam[i].cpu().numpy())
-
-                if overlay:
-                    img_np = X[i].permute(1, 2, 0).detach().cpu().numpy()
-                    if normalize:
-                        img_np = self.percentile_normalize(img_np)
-                    ax.imshow(img_np)
-                    ax.imshow(gradcam_map, cmap='jet', alpha=0.5)
-                else:
-                    ax.imshow(gradcam_map, cmap='jet')
-
-
-                ax.text(5, 25, str(predictions[i].item()), fontsize=12, color='white', weight='bold',
-                        bbox=dict(facecolor='black', alpha=0.7, boxstyle='round,pad=0.2'))
-                ax.axis('off')
-
-            plt.tight_layout(pad=0)
-            return fig
+        return _activation_grid(
+            X, gradcam, predictions, overlay=overlay, normalize=normalize,
+            normalizer=self.percentile_normalize,
+            caption=tr('Gradient-weighted class activation maps (Grad-CAM) from the supplied classifier predictions.'))
     
     def percentile_normalize(self, img, lower_percentile=2, upper_percentile=98):
         """Per-channel percentile-normalize ``img`` into ``[0, 1]``.
@@ -7265,6 +7402,26 @@ def preprocess_image(image_path, normalize=True, image_size=224, channels=None):
     input_tensor = input_tensor.unsqueeze(0)
     
     return image, input_tensor
+
+def _class_visualization_preview(image, class_name, iteration, total):
+    """Display an unchanged synthetic class exemplar with explicit nonbiological provenance."""
+    with figure_style(theme_target()):
+        figure, ax = plt.subplots(figsize=(4, 4))
+        ax.imshow(image)
+        ax.axis('off')
+        caption = tr('Synthetic class exemplar for {class_name}; optimization iteration {iteration} of {total}.').format(
+            class_name=class_name, iteration=iteration, total=total)
+        _utility_image_style(
+            ax, caption=caption,
+            processing=tr('ImageNet channel normalization is reversed and values are clipped to the display range; this is an optimized input, not an observed specimen.'),
+            metadata={'synthetic': True})
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, image, kind='image', title=caption)
+        figure._spacr_caption = caption
+        external_legend(figure, axes=[ax], pack=False)
+        _show_if_interactive()
+        return figure
+
 
 def class_visualization(target_y, model_path, dtype, img_size=224, channels=None, l2_reg=1e-3, learning_rate=25, num_iterations=100, blur_every=10, max_jitter=16, show_every=25, class_names = None):
     """Synthesize an input image that maximizes the classifier score for ``target_y``.
@@ -7348,12 +7505,9 @@ def class_visualization(target_y, model_path, dtype, img_size=224, channels=None
             blur_image(img.data, sigma=0.5)
         
         if t == 0 or (t + 1) % show_every == 0 or t == num_iterations - 1:
-            plt.imshow(deprocess(img.data.clone().cpu()))
             class_name = class_names[target_y]
-            plt.title('%s\nIteration %d / %d' % (class_name, t + 1, num_iterations))
-            plt.gcf().set_size_inches(4, 4)
-            plt.axis('off')
-            _show_if_interactive()
+            _class_visualization_preview(
+                deprocess(img.data.clone().cpu()), class_name, t + 1, num_iterations)
 
     return deprocess(img.data.cpu())
 
@@ -7456,7 +7610,11 @@ class GradCAM:
         return cam
 
 def show_cam_on_image(img, mask):
-    """Return ``img`` overlaid with a jet colormap of ``mask`` as an 8-bit RGB image.
+    """Return the legacy OpenCV JET overlay as an 8-bit BGR image.
+
+    The pixel-returning API retains its historical channel, blending and
+    normalization contract. Figure renderers use the shared scalar palette;
+    this compatibility transform is not a scalar figure renderer.
 
     The sum of heatmap and image is renormalized by its own peak, so the output
     brightness is relative to the single hottest pixel -- two images overlaid
@@ -7860,7 +8018,7 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
                    smooth_lines, black_background, figuresize, dot_size,
                    remove_image_canvas, verbose, interactive_payload=None,
                    theme_colors=None, point_color='cluster',
-                   point_alpha=0.65, outline_width=1.0):
+                   point_alpha=DATA_ALPHA, outline_width=1.0):
     """Plot a 2-D embedding with cluster outlines, points, and optional image overlays.
 
     :param embedding: ``(N, 2)`` array of 2-D points (e.g. UMAP output).
@@ -7876,7 +8034,7 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
     :param smooth_lines: use a smoothed hull polyline instead of the convex hull edges.
     :param black_background: use the white-on-black default theme instead of
         black-on-white; entries in ``theme_colors`` override it per role.
-    :param figuresize: figure side length in inches; also scales label and tick fonts.
+    :param figuresize: base canvas side length in inches; external legend space is added without shrinking the plot.
     :param dot_size: scatter marker size in points.
     :param remove_image_canvas: mask out zero-valued pixels of each overlaid image.
     :param verbose: forwarded to the cluster and image helpers, which ignore it.
@@ -7887,7 +8045,7 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
         Default ``None``.
     :param point_color: ``'cluster'``/``'viridis'`` colors points per cluster; any other
         Matplotlib color is applied to every point. Default ``'cluster'``.
-    :param point_alpha: scatter opacity, clamped to ``[0, 1]``. Default ``0.65``.
+    :param point_alpha: explicit scatter opacity, clamped to ``[0, 1]``. Default ``0.6``.
     :param outline_width: hull line width in points, floored at ``0.1``. Default ``1.0``.
     :returns: matplotlib ``Figure``.
     """
@@ -7897,6 +8055,8 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
         cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
         fig, ax = setup_plot(
             figuresize, black_background, theme_colors=theme_colors)
+        if interactive_payload is not None:
+            fig._spacr_umap_payload = interactive_payload
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, lambda: pd.DataFrame({"embedding_1": np.asarray(embedding)[:, 0], "embedding_2": np.asarray(embedding)[:, 1], "cluster": np.asarray(labels).astype(str)}), x="embedding_1", y="embedding_2", hue="cluster", kind="scatter")
         plot_clusters(
@@ -7907,29 +8067,24 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
         )
         if not image_paths is None and plot_images:
             plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose)
-        if interactive_payload is not None:
-            fig._spacr_umap_payload = interactive_payload
+        external_legend(fig, axes=[ax], theme_colors=_plot_theme_colors(
+            black_background, theme_colors), pack=False)
         _show_if_interactive()
         return fig
 
 def generate_colors(num_clusters, black_background):
-    """Return a deterministic Viridis RGBA palette for cluster points.
+    """Return the shared categorical RGBA palette without consuming random state.
 
-    :param num_clusters: how many colors to sample, evenly spaced across the
-        Viridis range ``0.08``-``0.92`` (the extremes are trimmed so the darkest
-        cluster stays visible on black and the lightest on white). Coerced with
-        ``int()`` and floored at ``1``, so ``0`` or a negative still yields a
-        one-entry palette rather than an empty one. Count the clusters you will
-        actually plot: DBSCAN's ``-1`` noise label is not drawn, so including it
-        shifts every real cluster's color.
+    :param num_clusters: color count, coerced with ``int`` and floored at one.
+        Colors follow the supplied identity order; no label is inferred to be
+        a biological control or omitted from the plot.
     :param black_background: accepted for call compatibility with the plotting
-        helpers but **not used** -- the palette is Viridis either way. Set the
+        helpers but **not used** -- identities retain their colors in both themes. Set the
         background through ``setup_plot``/``theme_colors`` instead; changing this
         flag will not change the colors you get back.
     """
     count = max(int(num_clusters), 1)
-    positions = np.linspace(0.08, 0.92, count)
-    return mpl.colormaps['viridis'](positions)
+    return np.asarray([mpl.colors.to_rgba(color) for color in condition_colours(count)])
 
 def assign_colors(unique_labels, random_colors):
     """Return colors and their positional mapping for the unique labels.
@@ -7942,24 +8097,8 @@ def assign_colors(unique_labels, random_colors):
     return colors, label_to_color_index
 
 def _plot_theme_colors(black_background, theme_colors=None):
-    """Resolve serializable GUI colors or the historical CLI fallback."""
-    fallback = {
-        'background': 'black' if black_background else 'white',
-        'foreground': 'white' if black_background else 'black',
-        'border': 'white' if black_background else 'black',
-    }
-    if not isinstance(theme_colors, dict):
-        return fallback
-    resolved = fallback.copy()
-    for role in resolved:
-        value = theme_colors.get(role)
-        if value:
-            try:
-                mpl.colors.to_rgba(value)
-            except (TypeError, ValueError):
-                continue
-            resolved[role] = value
-    return resolved
+    """Delegate validated explicit GUI colors and legacy fallback to the shared owner."""
+    return resolve_plot_theme(black_background, theme_colors)
 
 
 def _style_plot_axes(fig, ax, colors):
@@ -7975,6 +8114,7 @@ def _style_plot_axes(fig, ax, colors):
     ax.title.set_color(foreground)
     for spine in ax.spines.values():
         spine.set_color(border)
+    square_axes(ax)
 
 
 def setup_plot(figuresize, black_background, theme_colors=None):
@@ -8004,7 +8144,7 @@ def setup_plot(figuresize, black_background, theme_colors=None):
     import matplotlib as mpl
 
     colors = _plot_theme_colors(black_background, theme_colors)
-    with mpl.rc_context({
+    with figure_style(theme_target()), mpl.rc_context({
         'figure.facecolor': colors['background'],
         'axes.facecolor': colors['background'],
         'axes.edgecolor': colors['border'],
@@ -8020,8 +8160,8 @@ def setup_plot(figuresize, black_background, theme_colors=None):
 def plot_clusters(ax, embedding, labels, colors, cluster_centers,
                   plot_outlines, plot_points, smooth_lines, figuresize=10,
                   dot_size=50, verbose=False, point_color='cluster',
-                  point_alpha=0.65, outline_width=1.0):
-    """Draw cluster outlines, points, and centroid labels onto ``ax`` for a 2-D embedding.
+                  point_alpha=DATA_ALPHA, outline_width=1.0):
+    """Draw unchanged cluster coordinates and hulls with identities in the external legend.
 
     :param ax: Matplotlib axes to draw into.
     :param embedding: ``(N, 2)`` array of 2-D points (e.g. UMAP output).
@@ -8031,13 +8171,13 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
     :param plot_outlines: draw a hull/smoothed outline around each cluster.
     :param plot_points: render the scatter points (otherwise plotted invisibly).
     :param smooth_lines: use a smoothed hull polyline instead of the convex hull edges.
-    :param figuresize: base size in inches used to scale axis label and tick fonts. Default ``10``.
+    :param figuresize: historical canvas-size argument; text follows the shared minimum size.
     :param dot_size: scatter marker size in points. Default ``50``.
     :param verbose: unused placeholder kept for API compatibility. Default ``False``.
     :param point_color: ``'cluster'``/``'viridis'`` (or empty) colors points per cluster;
         any other Matplotlib color is applied to every point. Default ``'cluster'``.
     :param point_alpha: scatter opacity, clamped to ``[0, 1]``; ignored when
-        ``plot_points`` is ``False``. Default ``0.65``.
+        ``plot_points`` is ``False``. Default ``0.6``.
     :param outline_width: hull line width in points, floored at ``0.1``. Default ``1.0``.
     :returns: None.
     """
@@ -8045,6 +8185,8 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
     alpha = max(0.0, min(1.0, float(point_alpha)))
     width = max(0.1, float(outline_width))
     fixed_color = None
+    bindings = {}
+    outlines = {}
     if str(point_color).strip().lower() not in {"", "cluster", "viridis"}:
         try:
             fixed_color = mpl.colors.to_rgba(point_color)
@@ -8053,13 +8195,16 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
     for cluster_label, color, center in zip(unique_labels, colors, cluster_centers):
         cluster_data = embedding[labels == cluster_label]
         marker_color = fixed_color or color
+        bindings[cluster_label] = marker_color
         if smooth_lines:
             if cluster_data.shape[0] > 2:
                 try:
                     x_smooth, y_smooth = smooth_hull_lines(cluster_data)
                     if plot_outlines:
                         ax.plot(
-                            x_smooth, y_smooth, color=color, linewidth=width)
+                            x_smooth, y_smooth, color=color, linewidth=width,
+                            alpha=DATA_ALPHA)
+                        outlines[cluster_label] = color
                 except Exception:
                     LOG.debug(
                         "Could not draw a smoothed hull for cluster %r",
@@ -8075,39 +8220,34 @@ def plot_clusters(ax, embedding, labels, colors, cluster_centers,
                             ax.plot(
                                 hull.points[simplex, 0],
                                 hull.points[simplex, 1],
-                                color=color, linewidth=width,
+                                color=color, linewidth=width, alpha=DATA_ALPHA,
                             )
+                            outlines[cluster_label] = color
                 except Exception:
                     LOG.debug(
                         "Could not draw a convex hull for cluster %r",
                         cluster_label,
                         exc_info=True,
                     )
-        if plot_points:
-            ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=alpha, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
-        else:
-            ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size, c=[marker_color], alpha=0, label=f'Cluster {cluster_label if cluster_label != -1 else "Noise"}')
-        ax.text(
-            center[0], center[1], str(cluster_label), fontsize=12,
-            ha='center', va='center',
-            color=ax.xaxis.label.get_color(),
-            bbox={
-                'facecolor': ax.get_facecolor(),
-                'edgecolor': 'none',
-                'alpha': 0.8,
-                'pad': 1.5,
-            },
-        )
-    legend = ax.legend(loc='best', fontsize=int(figuresize * 0.75))
-    if legend is not None:
-        legend.get_frame().set_facecolor(ax.get_facecolor())
-        legend.get_frame().set_edgecolor(ax.spines['left'].get_edgecolor())
-        for text in legend.get_texts():
-            text.set_color(ax.xaxis.label.get_color())
-    ax.set_xlabel('UMAP Dimension 1', fontsize=int(figuresize * 0.75))
-    ax.set_ylabel('UMAP Dimension 2', fontsize=int(figuresize * 0.75))
-    ax.tick_params(
-        axis='both', which='major', labelsize=int(figuresize * 0.75))
+        ax.scatter(cluster_data[:, 0], cluster_data[:, 1], s=dot_size,
+                   c=[marker_color], alpha=alpha if plot_points else 0,
+                   label=tr('Cluster {cluster}').format(cluster=cluster_label))
+    payload = getattr(ax.figure, '_spacr_umap_payload', None)
+    method = str(payload.get('reduction_method') or 'embedding') if isinstance(payload, dict) else 'embedding'
+    if method.lower() == 'pca':
+        axis_labels = (tr('Principal component 1'), tr('Principal component 2'))
+    else:
+        axis_labels = (tr('Embedding coordinate 1'), tr('Embedding coordinate 2'))
+    theme = {'background': mpl.colors.to_hex(ax.get_facecolor()),
+             'foreground': mpl.colors.to_hex(ax.xaxis.label.get_color()),
+             'border': mpl.colors.to_hex(ax.spines['left'].get_edgecolor())}
+    apply_embedding_style(
+        ax, labels, caption=tr('Supplied embedding coordinates grouped by their existing cluster identities.'),
+        colours=bindings, method=method, axis_labels=axis_labels,
+        theme_colors=theme, outline_colours=outlines, preserve_opacity=True,
+        unit=payload.get('coordinate_units') if isinstance(payload, dict) else None,
+        layout=False)
+    external_legend(ax.figure, axes=[ax], theme_colors=theme, pack=False)
 
 def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, plot_by_cluster, remove_image_canvas, verbose):
     """Overlay sample images from ``image_paths`` on the UMAP embedding in ``ax``.
@@ -8150,6 +8290,8 @@ def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, col
             x, y = embedding[index]
             img = Image.open(image_paths[index])
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
+        if hasattr(ax, 'figure'):
+            annotate(ax, tr('Thumbnail images are a random sample of {count} source rows; their positions are the original embedding coordinates.').format(count=image_nr))
 
 def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoom, colors, cluster_indices, remove_image_canvas, verbose):
     """Overlay up to ``image_nr`` images per cluster on the embedding in ``ax``.
@@ -8184,6 +8326,8 @@ def plot_images_by_cluster(ax, image_paths, embedding, labels, image_nr, img_zoo
             x, y = embedding[index]
             img = Image.open(image_paths[index])
             plot_image(ax, x, y, img, img_zoom, remove_image_canvas)
+    if hasattr(ax, 'figure'):
+        annotate(ax, tr('Thumbnail images include every member up to {count} per non-noise cluster, with random sampling above that limit.').format(count=image_nr))
 
 def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
     """Place a zoomed thumbnail of ``img`` at ``(x, y)`` on ``ax``.
@@ -8211,6 +8355,16 @@ def plot_image(ax, x, y, img, img_zoom, remove_image_canvas=True):
         img = np.array(img)
     imagebox = OffsetImage(img, zoom=img_zoom)
     ab = AnnotationBbox(imagebox, (x, y), frameon=False)
+    ab._spacr_image_display = {
+        'processing': (tr('Black pixels are transparent; grayscale is divided by its own maximum and RGB values by 255.')
+                       if remove_image_canvas else tr('Source image values are displayed without preprocessing.')),
+        'gamma': 1., 'shape': tuple(int(size) for size in img.shape),
+        'display_range': ((0., 1.) if np.issubdtype(img.dtype, np.floating)
+                          and img.ndim == 3 else (0., 255.) if img.ndim == 3
+                          else (float(np.nanmin(img)), float(np.nanmax(img)))),
+        'dtype': str(img.dtype), 'zoom': img_zoom,
+        'calibration': tr('Physical scale was not supplied.'),
+    }
     ax.add_artist(ab)
 
 def remove_canvas(img):
@@ -8245,10 +8399,8 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
         larger than this contributes all of its members.
     :param image_paths: paths addressed positionally by the label array; a list
         shorter than ``labels`` raises ``IndexError``.
-    :param colors: palette indexed downstream by the cluster LABEL itself rather
-        than by its rank, so the palette has to be long enough to reach the
-        largest label -- labels ``0`` and ``5`` against a two-color palette
-        raise ``IndexError``. Entries need at least three components.
+    :param colors: palette aligned with the sorted unique labels, as in the
+        embedding scatter. Non-contiguous labels retain the same identity color.
     :param figuresize: per-cluster panel size in inches, shrunk downstream so
         the whole row never exceeds 200 inches.
     :param black_background: picks the white-on-black fallback theme instead of
@@ -8267,6 +8419,7 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
         return
     cluster_images = {label: [] for label in unique_labels if label != -1}
     cluster_indices = {label: np.where(labels == label)[0] for label in unique_labels if label != -1}
+    selection = []
     for cluster_label, indices in cluster_indices.items():
         if len(indices) > image_nr:
             indices = random.sample(list(indices), image_nr)
@@ -8275,26 +8428,31 @@ def plot_clusters_grid(embedding, labels, image_nr, image_paths, colors, figures
             img_array = Image.open(img_path)
             img = np.array(img_array)
             cluster_images[cluster_label].append(img)
+            selection.append({'cluster': cluster_label, 'row': int(index), 'path': img_path})
+    bindings = dict(zip(unique_labels, colors))
     fig = plot_grid(
-        cluster_images, colors, figuresize, black_background, verbose,
+        cluster_images, bindings, figuresize, black_background, verbose,
         theme_colors=theme_colors)
+    fig._spacr_cluster_selection = tuple(selection)
+    if fig.axes:
+        annotate(fig.axes[0], tr('Image examples are sampled randomly within each cluster up to the requested cap; smaller clusters show every source row.'))
+        external_legend(fig, axes=[ax for ax in fig.axes if ax.get_visible()],
+                        theme_colors=_plot_theme_colors(black_background, theme_colors),
+                        pack=False)
     return fig
 
 def plot_grid(cluster_images, colors, figuresize, black_background, verbose, theme_colors=None):
-    """Render one column per cluster of representative images with colored borders and labels.
+    """Render cluster image columns, wrapped after four columns, with an external identity key.
 
     :param cluster_images: ordered mapping of cluster label to that cluster's
-        list of image arrays; one column per key, and an empty mapping raises
+        list of image arrays; one panel per key, and an empty mapping raises
         ``ValueError`` from ``subplots``.
-    :param colors: palette used consistently for both panel borders and legend
-        swatches. Integer labels index it by label (wrapping when necessary),
-        while string labels use their position in ``cluster_images``. An empty
-        palette falls back to neutral grey, and entries need at least three
-        components.
-    :param figuresize: figure height in inches and the label font size; the
-        width is this times the cluster count. It is shrunk to
-        ``200 / n_clusters`` when that product would exceed 200 inches, which
-        silently caps the font size too.
+    :param colors: explicit label-to-color mapping, or a legacy palette. Legacy
+        integer labels index by label modulo palette length; string labels use
+        their ordered position. An empty palette falls back to shared grey.
+    :param figuresize: per-cluster panel size in inches, retaining the historical
+        200-inch total cap. Rows wrap after four clusters. Text size is independent
+        of panel size and external legend space is added around the image panels.
     :param black_background: picks the white-on-black fallback theme instead of
         black-on-white.
     :param verbose: prints the label and its index for STRING cluster labels
@@ -8310,23 +8468,40 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
         figuresize = max_figsize / num_clusters
 
     plot_colors = _plot_theme_colors(black_background, theme_colors)
+    scalar_ranges = []
+    for images in cluster_images.values():
+        for img in images:
+            values = np.asarray(img)
+            if values.ndim == 2:
+                finite = values[np.isfinite(values)]
+                if finite.size:
+                    scalar_ranges.append((float(finite.min()), float(finite.max())))
+    scalar_limits = ((min(item[0] for item in scalar_ranges),
+                      max(item[1] for item in scalar_ranges)) if scalar_ranges else (None, None))
     with figure_style(theme_target()):
-        grid_fig, grid_axes = plt.subplots(1, num_clusters, figsize=(figuresize * num_clusters, figuresize), gridspec_kw={'wspace': 0.2, 'hspace': 0})
+        columns = min(4, num_clusters)
+        rows = int(np.ceil(num_clusters / columns)) if columns else 1
+        grid_fig, grid_axes = plt.subplots(rows, columns,
+            figsize=(figuresize * columns, figuresize * rows), squeeze=False,
+            gridspec_kw={'wspace': 0.08, 'hspace': 0.08})
+        grid_axes = list(grid_axes.flat)
         from .figures.bundle import _register_figure_data
         _register_figure_data(grid_fig, None, kind="montage", title="Cluster images")
         grid_fig.patch.set_facecolor(plot_colors['background'])
-        if num_clusters == 1:
-            grid_axes = [grid_axes]
+        for unused in grid_axes[num_clusters:]:
+            unused.set_visible(False)
         cluster_labels = list(cluster_images.keys())
 
         def cluster_color(cluster_label):
             """Resolve one cluster's color once for panels and legend."""
+            if isinstance(colors, dict):
+                return mpl.colors.to_rgba(colors.get(cluster_label, ROLES['background']))
             if isinstance(cluster_label, str):
                 idx = cluster_labels.index(cluster_label)
             else:
                 idx = int(cluster_label)
-            return (colors[idx % len(colors)] if len(colors)
-                    else (0.5, 0.5, 0.5))
+            return mpl.colors.to_rgba(colors[idx % len(colors)] if len(colors)
+                                      else ROLES['background'])
 
         for cluster_label, axes in zip(cluster_labels, grid_axes):
             axes.set_facecolor(plot_colors['background'])
@@ -8350,20 +8525,26 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
                 x_pos = (col + 1) * whitespace + col * image_size
                 y_pos = 1 - ((row + 1) * whitespace + (row + 1) * image_size)
                 ax_img = axes.inset_axes([x_pos, y_pos, image_size, image_size], transform=axes.transAxes)
-                ax_img.imshow(img, cmap='gray', aspect='auto')
+                options = ({'vmin': scalar_limits[0], 'vmax': scalar_limits[1]}
+                           if np.asarray(img).ndim == 2 else {})
+                ax_img.imshow(img, cmap='gray', aspect='auto', **options)
                 ax_img.axis('off')
                 ax_img.set_aspect('equal')
                 ax_img.set_facecolor(color[:3])
-    
-        spacing_factor = 0.5
-        for i, cluster_label in enumerate(cluster_labels):
-            color = cluster_color(cluster_label)
-            label_y = 1 - (i + 1) * (spacing_factor / num_clusters)
-            grid_fig.text(
-                1.05, label_y, f'Cluster {cluster_label}',
-                verticalalignment='center', fontsize=figuresize,
-                color=plot_colors['foreground'])
-            grid_fig.patches.append(plt.Rectangle((1, label_y - 0.02), 0.03, 0.03, transform=grid_fig.transFigure, color=color[:3], clip_on=False))
+                _utility_image_style(
+                    ax_img, caption=tr('Source crop {image} in cluster {cluster}.').format(image=i + 1, cluster=cluster_label),
+                    processing=tr('Source pixels are unchanged; grayscale crops share a gallery display range and RGB channels retain their input mapping.'))
+            caption = tr('Cluster {cluster}: {count} selected source images.').format(
+                cluster=cluster_label, count=num_images)
+            _utility_image_style(
+                axes, caption=caption,
+                processing=tr('Selected image crops retain their source pixels and order.'),
+                metadata={'display_range': scalar_limits,
+                          'gamma': 1., 'cluster': str(cluster_label)})
+            text_legend(axes, [(tr('Cluster {cluster}').format(cluster=cluster_label),
+                                mpl.colors.to_hex(color))])
+        external_legend(grid_fig, axes=grid_axes[:num_clusters],
+                        theme_colors=plot_colors, pack=False)
 
         _show_if_interactive()
         return grid_fig
@@ -9763,15 +9944,31 @@ def process_masks(mask_folder, image_folder, channel, batch_size=50, n_clusters=
         return cleaned_mask
 
     def plot_clusters(properties, labels):
-        """Show a 2-D PCA scatter of the property vectors colored by cluster label."""
+        """Show unchanged principal-component coordinates with the supplied cluster identities."""
         data = np.array([[p['area'], p['mean_intensity'], p['perimeter'], p['eccentricity']] for p in properties])
         pca = PCA(n_components=2)
         data_2d = pca.fit_transform(data)
-        plt.scatter(data_2d[:, 0], data_2d[:, 1], c=labels, cmap='viridis')
-        plt.xlabel('PCA Component 1')
-        plt.ylabel('PCA Component 2')
-        plt.title('Object Clustering')
-        _show_if_interactive()
+        with figure_style(theme_target()):
+            figure, ax = plt.subplots(figsize=(4, 4))
+            unique_labels = np.unique(labels)
+            bindings = dict(zip(unique_labels, condition_colours(len(unique_labels))))
+            ax.scatter(data_2d[:, 0], data_2d[:, 1],
+                       c=[bindings[label] for label in labels], alpha=DATA_ALPHA)
+            apply_embedding_style(
+                ax, labels, caption=tr('Principal component analysis (PCA) of object area, intensity, perimeter and eccentricity; cluster assignments are unchanged.'),
+                colours=bindings, method='pca',
+                axis_labels=(tr('Principal component 1'), tr('Principal component 2')),
+                theme_colors={'background': mpl.colors.to_hex(ax.get_facecolor()),
+                              'foreground': ax.xaxis.label.get_color(),
+                              'border': ax.spines['left'].get_edgecolor()},
+                layout=False)
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(figure, lambda: pd.DataFrame({
+                'component_1': data_2d[:, 0], 'component_2': data_2d[:, 1],
+                'cluster': labels}), x='component_1', y='component_2',
+                hue='cluster', kind='scatter')
+            external_legend(figure, axes=[ax], pack=False)
+            _show_if_interactive()
     
     all_properties = []
 

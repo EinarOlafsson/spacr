@@ -42,8 +42,9 @@ def test_a_flat_histogram_puts_every_marker_at_the_left_edge(qtbot):
     plot = mm._OtsuHistogramPlot(np.array([4.0]), np.array([7.0, 7.0]), [])
     qtbot.addWidget(plot)
     plot.resize(420, 220)
-    assert plot.level_x(7.0) == 0.0
-    assert plot.level_x(1000.0) == 0.0
+    left = plot._plot_geometry()["plot_rect"].left()
+    assert plot.level_x(7.0) == left
+    assert plot.level_x(1000.0) == left
 
 
 def test_the_levels_plot_moves_a_cutoff_only_while_one_is_held(qtbot):
@@ -64,7 +65,9 @@ def test_the_levels_plot_moves_a_cutoff_only_while_one_is_held(qtbot):
     plot.mouseReleaseEvent(_mouse(QEvent.MouseButtonRelease, 120,
                                   Qt.LeftButton, Qt.NoButton))
     assert [i for i, _v in moved] == [0, 0]
-    assert moved[-1][1] == pytest.approx(4.0 * 120 / (plot.width() - 1))
+    rect = plot._plot_geometry()["plot_rect"]
+    fraction = max(0.0, min(1.0, (120 - rect.left()) / rect.width()))
+    assert moved[-1][1] == pytest.approx(4.0 * fraction)
 
 
 # ---------------------------------------------------------------------------

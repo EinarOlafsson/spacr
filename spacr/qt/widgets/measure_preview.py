@@ -2777,12 +2777,15 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         :param text: the heading.
         :returns: the header widget.
         """
+        from ...figures.style import native_plot_font
+
         included = sum(bool(entry.get("included", True)) for _, entry in entries)
         excluded = len(entries) - included
         suffix = f"  ·  {included} kept"
         if excluded:
             suffix += f"  ·  {excluded} excluded by filters"
         label = QLabel(text + suffix)
+        label.setFont(native_plot_font(role="title"))
         label.setObjectName("CropCategoryHeader")
         label.setContentsMargins(8, 5, 8, 5)
         try:
@@ -2793,7 +2796,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 f"background: {palette['surface_hi']};"
                 f"color: {palette['fg']};"
                 f"border-left: 3px solid {palette['accent']};"
-                "font-weight: 600; border-radius: 4px;"
+                "border-radius: 4px;"
                 "}"
             )
         except Exception:
@@ -2832,7 +2835,16 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         so a hundred thumbnails no longer hold the event loop in one turn. A
         newer render, or a re-crop, abandons the rest of an older one.
         """
+        from ...figures.style import native_plot_font, resolve_style
+
         primaries = self.display_primaries()
+        self._grid_scroll.setFont(native_plot_font())
+        self._spacr_style_spec = resolve_style("screen", "image",
+            comparison={"display_range": (0, 255), "gamma": 1.,
+                "processing": tr("Supplied RGB crops retain their existing normalization; display primaries, thumbnail scaling and rounded corners are applied for viewing."),
+                "display_primaries": str(primaries), "thumbnail_pixels": int(self._thumb_px)},
+            legend={"caption": tr("Measure crop preview"),
+                "selection": tr("The displayed crops follow the current preview filters and selection.")})
         if primaries != self._crop_display_primaries:
             self._cancel_crop_export()
         self._crop_display_primaries = primaries

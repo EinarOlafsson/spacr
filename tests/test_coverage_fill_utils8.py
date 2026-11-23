@@ -101,9 +101,9 @@ def test_model_metrics(capsys):
 
     # The four diagnostic panels carry real data, not empty axes.
     fig = plt.gcf()
-    assert [ax.get_title() for ax in fig.axes] == [
-        "Residuals vs Fitted", "Histogram of Residuals",
-        "QQ Plot", "Scale-Location"]
+    assert [ax.get_title() for ax in fig.axes] == [""] * 4
+    assert fig._spacr_external_legend_layout['outside_panels']
+    assert all(ax._spacr_style_spec.legend for ax in fig.axes)
     resid_vs_fitted, hist, qq, scale_loc = fig.axes
     assert len(resid_vs_fitted.collections) == 1
     assert len(scale_loc.collections) == 1

@@ -114,10 +114,13 @@ from natsort import natsorted
 from torch.utils.data import Dataset
 
 from . import schema
-from .figures.style import (ROLES, TYPE_SCALE, Palette, figure_style,
-                            reference_line, resolve_ink, rotate_ticks,
-                            theme_target)
+from .figures.style import (ROLES, TYPE_SCALE, SERIES, BAR_FRAC, Palette, annotate,
+                            apply_axes_style, apply_colourbar_theme, attach_colourbar, categorical_slot_defaults,
+                            condition_plot, ensure_reference_contrast, external_legend, figure_style, heatmap_cmap, heatmap_image,
+                            pack_axes_geometry, reference_line, resolve_ink, resolve_style,
+                            rotate_ticks, styled_reference_line, theme_target)
 from .plot import save_figure
+from .qt.i18n import tr
 
 #: The categorical vocabulary for a plot whose categories genuinely ARE the
 #: data -- one line per measured column, one bar per class. Taken from the
@@ -125,9 +128,152 @@ from .plot import save_figure
 #: a series cannot change colour between two panels of the same run. Anything
 #: that is not a category in its own right stays grey; this is not a licence
 #: to colour by group.
-SERIES_COLOURS = (Palette.BLUE, Palette.RUST, Palette.GREEN, Palette.GOLD,
-                  Palette.PURPLE, Palette.NAVY, Palette.OCHRE,
-                  Palette.BLUE_LIGHT, Palette.CORAL, Palette.GREY_DARK)
+SERIES_COLOURS = tuple(SERIES)
+
+
+def _cellpose_image_style(ax, *, processing):
+    """Declare the original Cellpose preview plane without changing its pixels or normalization.
+
+    :param ax: image axes after the producer has chosen its original display settings.
+    :param processing: description of the existing image, instance-label or flow plane.
+    """
+    image = ax.images[0]
+    limits = tuple(None if value is None else float(value) for value in image.get_clim())
+    specification = resolve_style(theme_target(), 'image',
+        comparison={'display_range': limits, 'gamma': float(getattr(image.norm, 'gamma', 1.0)),
+                    'processing': processing, 'spatial_unit': 'pixel',
+                    'calibration': tr('No physical scale supplied')},
+        legend={'caption': processing, 'quantities': {'image': ax.get_title()}, 'unit': 'pixel'})
+    apply_axes_style(ax, specification, layout=False)
+    ax.figure.set_facecolor(ax.get_facecolor())
+    annotate(ax, processing)
+
+
+def _feature_importance_figure(table, *, caption, quantity):
+    """Draw already computed scalar feature importances in their unchanged input order.
+
+    :param table: feature and importance columns containing the existing estimates.
+    :param caption: description of the estimator retained in the figure legend.
+    :param quantity: objective numerical quantity, without an invented confidence interval.
+    :returns: the styled figure; no estimator or random generator is invoked.
+    """
+    from .figures.bundle import _register_figure_data
+
+    with figure_style(theme_target()):
+        fig, ax = plt.subplots()
+        _register_figure_data(fig, table, x='feature', y='importance', kind='bar')
+        ax.bar(np.arange(len(table)), table['importance'], color=Palette.ACCENT)
+        ax.set_xticks(np.arange(len(table)), table['feature'])
+        ax.set_xlabel(tr('Measured feature'))
+        ax.set_ylabel(quantity)
+        rotate_ticks(ax, 45)
+        categorical_slot_defaults(ax, 'bar', conditions=len(table))
+        if len(table):
+            ax.set_xlim(-0.5, len(table) - 0.5)
+        specification = resolve_style(theme_target(), 'bar', conditions=table['feature'].tolist(),
+            comparison={'representation': 'estimates'},
+            legend={'caption': caption, 'reference': tr('Zero importance'),
+                    'quantities': {'x': tr('Measured feature'), 'y': quantity},
+                    'unit': 'dimensionless'})
+        annotate(ax, caption)
+        fig._spacr_caption = caption
+        apply_axes_style(ax, specification)
+        fig.set_facecolor(ax.get_facecolor())
+        external_legend(fig, axes=[ax], pack=False)
+    return fig
+
+
+def _shap_distribution_figure(values, features, *, figure=None):
+    """Display the existing signed SHAP contributions as vertical feature distributions.
+
+    :param values: unchanged sample-by-feature contribution matrix.
+    :param features: original feature-column order, retained in the exported source table.
+    :param figure: the third-party summary canvas to reuse after its existing RNG consumption.
+    :returns: the styled figure; displayed summaries never replace exported SHAP values.
+    """
+    from .figures.bundle import _register_figure_data
+
+    features = list(features)
+    order = np.argsort(np.sum(np.abs(np.asarray(values)), axis=0)).tolist()
+    if figure is not None and figure.axes:
+        shown = [tick.get_text() for tick in figure.axes[0].get_yticklabels()]
+        if len(shown) == len(features) and set(shown) == set(features):
+            order = [features.index(name) for name in shown]
+    displayed_features = [features[index] for index in order]
+    with figure_style(theme_target()):
+        fig = plt.figure() if figure is None else figure
+        fig.clear()
+        ax = fig.add_subplot(111)
+        arrays = [np.asarray(values)[:, index] for index in order]
+        condition_plot(ax, arrays, labels=displayed_features, colours=[Palette.ACCENT])
+        _register_figure_data(fig, pd.DataFrame(values, columns=features),
+            x='feature', y='contribution', kind='box', order=displayed_features,
+            melt={'columns': features, 'var_name': 'feature', 'value_name': 'contribution'})
+        ax.set_xticks(np.arange(len(features)), displayed_features)
+        ax.set_xlabel(tr('Measured feature'))
+        ax.set_ylabel(tr('Signed SHAP contribution'))
+        rotate_ticks(ax, 45)
+        reference_line(ax, y=0, label=tr('Zero contribution'))
+        caption = tr('Signed SHAP contributions for the unchanged selected samples. Display summaries do not replace individual exported contributions.')
+        specification = resolve_style(theme_target(), 'categorical', conditions=displayed_features,
+            sample_counts=[int(np.isfinite(array).sum()) for array in arrays],
+            legend={'caption': caption, 'reference': tr('Zero contribution'),
+                    'quantities': {'x': tr('Measured feature'), 'y': tr('Signed SHAP contribution')},
+                    'unit': 'model prediction units'})
+        annotate(ax, caption)
+        fig._spacr_caption = caption
+        apply_axes_style(ax, specification)
+        fig.set_facecolor(ax.get_facecolor())
+        external_legend(fig, axes=[ax], pack=False)
+        summaries = [artist for artist in (*ax.lines, *ax.collections)
+                     if str(artist.get_gid() or '').endswith(':summary')]
+        ensure_reference_contrast(ax, artists=summaries)
+    return fig
+
+
+def _assay_composition_style(ax, *, caption, legend_title, cmap='viridis', denominators=None):
+    """Style existing composition bars without recomputing proportions, errors or tests.
+
+    :param ax: axes holding the already computed stacked bars and their original errors.
+    :param caption: complete unchanged assay question, retained outside the data area.
+    :param legend_title: category represented by the stack colours.
+    :param cmap: original caller palette, retaining explicit non-default choices.
+    :param denominators: existing group-to-count mapping, moved into legend notes.
+    """
+    labels = [tick.get_text() for tick in ax.get_xticklabels()]
+    for category, container in enumerate(item for item in ax.containers if hasattr(item, 'patches')):
+        for patch in container.patches:
+            centre = patch.get_x() + patch.get_width() / 2.
+            patch.set_width(BAR_FRAC)
+            patch.set_x(centre - BAR_FRAC / 2.)
+            patch.set_gid(f'spacr-condition:{int(round(centre))}:bar')
+            if cmap in (None, 'viridis', 'Blues'):
+                patch.set_facecolor(SERIES_COLOURS[category % len(SERIES_COLOURS)])
+    if labels:
+        ax.set_xlim(-0.5, len(labels) - 0.5)
+    ax.set_ylim(0, max(1.15, ax.get_ylim()[1]))
+    ax.set_title('')
+    ax.legend(title=legend_title, bbox_to_anchor=(1.05, 1), loc='upper left')
+    for text in list(ax.texts):
+        if text.get_gid() not in ('spacr-panel-letter', 'spacr-status'):
+            annotate(ax, text.get_text())
+            text.remove()
+    for label in labels:
+        if denominators is not None and label in denominators:
+            annotate(ax, tr('{group}: n={count}').format(group=label, count=int(denominators[label])))
+    specification = resolve_style(theme_target(), 'categorical', conditions=labels,
+        comparison={'representation': 'estimates', 'composition': True},
+        legend={'caption': str(caption), 'reference': tr('Complete classified population in each group'),
+                'quantities': {'x': ax.get_xlabel(), 'y': tr('Proportion')}, 'unit': 'dimensionless'})
+    annotate(ax, str(caption))
+    ax.figure._spacr_caption = str(caption)
+    apply_axes_style(ax, specification)
+    ax.figure.set_facecolor(ax.get_facecolor())
+    external_legend(ax.figure, axes=[ax], pack=False)
+    from matplotlib.container import ErrorbarContainer
+    errors = [artist for container in ax.containers if isinstance(container, ErrorbarContainer)
+              for artist in (*container.lines[1], *container.lines[2])]
+    ensure_reference_contrast(ax, artists=errors)
 
 
 def _style_colour_bar(fig):
@@ -524,37 +670,46 @@ def test_cellpose_model(settings):
         """
         from . plot import generate_mask_random_cmap
         with figure_style(theme_target()):
-            fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+            fig, axs = plt.subplots(1, 5, figsize=(170 / 25.4, 40 / 25.4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
             from .figures.bundle import _register_figure_data
             _register_figure_data(fig, [img, lbl, pred], kind="mask")
             cmap_lbl = generate_mask_random_cmap(lbl)
             cmap_pred = generate_mask_random_cmap(pred)
 
             axs[0].imshow(img, cmap='gray')
-            axs[0].set_title('Image')
+            axs[0].set_title(tr('Image'))
             axs[0].axis('off')
 
             axs[1].imshow(lbl, cmap=cmap_lbl, interpolation='nearest')
-            axs[1].set_title('True Mask')
+            axs[1].set_title(tr('True Mask'))
             axs[1].axis('off')
 
             axs[2].imshow(pred, cmap=cmap_pred, interpolation='nearest')
-            axs[2].set_title('Predicted Mask')
+            axs[2].set_title(tr('Predicted Mask'))
             axs[2].axis('off')
 
             axs[3].imshow(flow[2], cmap='gray')
-            axs[3].set_title('Cell Probability')
+            axs[3].set_title(tr('Cell Probability'))
             axs[3].axis('off')
 
             axs[4].imshow(flow[0], cmap='gray')
-            axs[4].set_title('Flows')
+            axs[4].set_title(tr('Flows'))
             axs[4].axis('off')
+            for axis, processing in zip(axs, (
+                    tr('Original input image; existing grayscale normalization retained'),
+                    tr('Ground-truth instance labels; nearest-neighbour categorical display'),
+                    tr('Predicted instance labels; nearest-neighbour categorical display'),
+                    tr('Original Cellpose cell-probability plane'),
+                    tr('Original Cellpose flow representation'))):
+                _cellpose_image_style(axis, processing=processing)
+            external_legend(fig, axes=list(axs), placement='below', pack=False,
+                            maximum_width=170 / 25.4)
 
-            save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
-            save_path = save_figure(fig, save_path,
-                                    bbox_inches='tight')
-            _show_if_interactive()
-            plt.close(fig)
+        save_path = os.path.join(results_dir, f"cellpose_result_{i+j:03d}.png")
+        save_path = save_figure(fig, save_path,
+                                bbox_inches='tight')
+        _show_if_interactive()
+        plt.close(fig)
         
         
     settings = get_default_test_cellpose_model_settings(settings)
@@ -735,32 +890,40 @@ def apply_cellpose_model(settings):
         from .plot import generate_mask_random_cmap
         
         with figure_style(theme_target()):
-            fig, axs = plt.subplots(1, 4, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+            fig, axs = plt.subplots(1, 4, figsize=(170 / 25.4, 40 / 25.4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
             from .figures.bundle import _register_figure_data
             _register_figure_data(fig, [img, pred], kind="mask")
             cmap_pred = generate_mask_random_cmap(pred)
 
             axs[0].imshow(img, cmap='gray')
-            axs[0].set_title('Image')
+            axs[0].set_title(tr('Image'))
             axs[0].axis('off')
 
             axs[1].imshow(pred, cmap=cmap_pred, interpolation='nearest')
-            axs[1].set_title('Predicted Mask')
+            axs[1].set_title(tr('Predicted Mask'))
             axs[1].axis('off')
 
             axs[2].imshow(flow[2], cmap='gray')
-            axs[2].set_title('Cell Probability')
+            axs[2].set_title(tr('Cell Probability'))
             axs[2].axis('off')
 
             axs[3].imshow(flow[0], cmap='gray')
-            axs[3].set_title('Flows')
+            axs[3].set_title(tr('Flows'))
             axs[3].axis('off')
+            for axis, processing in zip(axs, (
+                    tr('Original input image; existing grayscale normalization retained'),
+                    tr('Predicted instance labels; nearest-neighbour categorical display'),
+                    tr('Original Cellpose cell-probability plane'),
+                    tr('Original Cellpose flow representation'))):
+                _cellpose_image_style(axis, processing=processing)
+            external_legend(fig, axes=list(axs), placement='below', pack=False,
+                            maximum_width=170 / 25.4)
 
-            save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
-            save_path = save_figure(fig, save_path,
-                                    bbox_inches='tight')
-            _show_if_interactive()
-            plt.close(fig)
+        save_path = os.path.join(results_dir, f"cellpose_result_{i + j:03d}.png")
+        save_path = save_figure(fig, save_path,
+                                bbox_inches='tight')
+        _show_if_interactive()
+        plt.close(fig)
         
         
     settings = get_default_apply_cellpose_model_settings(settings)
@@ -867,16 +1030,20 @@ def plot_cellpose_batch(images, labels):
     cmap_lbl = generate_mask_random_cmap(labels)
     batch_size = len(images)
     with figure_style(theme_target()):
-        fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8), squeeze=False)
+        fig, axs = plt.subplots(2, batch_size, figsize=(170 / 25.4, 80 / 25.4), squeeze=False)
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, list(images) + list(labels), kind="mask")
         for i in range(batch_size):
             axs[0, i].imshow(images[i], cmap='gray')
-            axs[0, i].set_title(f'Image {i+1}')
+            axs[0, i].set_title(tr('Image {index}').format(index=i + 1))
             axs[0, i].axis('off')
+            _cellpose_image_style(axs[0, i], processing=tr('Original training image; existing grayscale normalization retained'))
             axs[1, i].imshow(labels[i], cmap=cmap_lbl, interpolation='nearest')
-            axs[1, i].set_title(f'Label {i+1}')
+            axs[1, i].set_title(tr('Label {index}').format(index=i + 1))
             axs[1, i].axis('off')
+            _cellpose_image_style(axs[1, i], processing=tr('Original training instance labels; nearest-neighbour categorical display'))
+        external_legend(fig, axes=list(axs.flat), placement='below', pack=False,
+                        maximum_width=170 / 25.4)
         _show_if_interactive()
 
 def analyze_percent_positive(settings):
@@ -1492,10 +1659,9 @@ def _control_palette(df, group, order, color_by):
     """Colour each condition by one metadata column (``control_color_by``), or None."""
     if not color_by or color_by not in df.columns:
         return None
-    from .assay_panels import _DEFAULT_COLORS
     first = df.dropna(subset=[group]).groupby(group, observed=True)[color_by].first()
     levels = list(dict.fromkeys(first.reindex(order).tolist()))
-    colors = {lv: _DEFAULT_COLORS[i % len(_DEFAULT_COLORS)] for i, lv in enumerate(levels)}
+    colors = {lv: SERIES_COLOURS[i % len(SERIES_COLOURS)] for i, lv in enumerate(levels)}
     return {g: colors[first.get(g)] for g in order}
 
 
@@ -1610,7 +1776,7 @@ def _recruitment_panels_impl(df, settings, results_dir):
     if control_specs:
         out['controls'] = _write_panels_and_figures(
             control_specs, control_names, os.path.join(results_dir, 'panels', 'controls'),
-            figures_dir, control_figs, dpi=200)
+            figures_dir, control_figs, dpi=300)
     return out
 
 
@@ -3712,22 +3878,27 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
 
             ax.set_xlabel(xlabel if xlabel else x_column)
             ax.set_ylabel(ylabel if ylabel else 'Value')
-            ax.set_title(title if title else 'Line Plot')
-
-            sns.despine(ax=ax)
-
             if group_column or isinstance(y_columns, list):
-                ax.legend(title='Legend', loc='center left',
+                ax.legend(title=tr('Measured series'), loc='center left',
                           bbox_to_anchor=(1, 0.5), frameon=False)
+            caption = str(title) if title else tr('Read and classifier fractions across the existing empirical mixture. Lines and confidence bands retain the original estimator and samples.')
+            specification = resolve_style(theme_target(), 'line',
+                comparison={'graph_type': 'line'},
+                legend={'caption': caption, 'reference': tr('Existing empirical mixture fractions'),
+                        'quantities': {'x': ax.get_xlabel(), 'y': ax.get_ylabel()},
+                        'unit': 'dimensionless'})
+            annotate(ax, caption)
+            fig._spacr_caption = caption
+            apply_axes_style(ax, specification)
+            fig.set_facecolor(ax.get_facecolor())
+            external_legend(fig, axes=[ax], pack=False)
 
-            plt.tight_layout()
+        if save_path:
+            save_path = save_figure(fig, save_path,
+                                    bbox_inches='tight')
+            print(f"Plot saved to {save_path}")
 
-            if save_path:
-                save_path = save_figure(fig, save_path,
-                                        bbox_inches='tight')
-                print(f"Plot saved to {save_path}")
-
-            _show_if_interactive()
+        _show_if_interactive()
         return fig
     
     def calculate_grna_fraction_ratio(df, grna1='TGGT1_220950_1', grna2='TGGT1_233460_4'):
@@ -3986,29 +4157,19 @@ def interpret_vision_model(settings=None):
         return importance_sum
 
     def create_extended_radar_plot(values, labels, title):
-        """Render a polar radar plot of ``values`` against ``labels``.
+        """Render the legacy radial values as categorical scalar estimates.
 
         :param values: numeric values per axis (one per label).
         :param labels: axis labels.
         :param title: plot title.
         """
-        values = list(values) + [values[0]]
-        angles = [n / float(len(labels)) * 2 * pi for n in range(len(labels))]
-        angles += angles[:1]
-
-        with figure_style(theme_target()):
-            fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
-            from .figures.bundle import _register_figure_data
-            _register_figure_data(fig, lambda: pd.DataFrame({"feature": [str(v) for v in labels], "value": np.asarray(values, dtype=float)[:len(labels)]}), x="feature", y="value", kind="bar", title=str(title))
-            ax.plot(angles, values, linewidth=1.2, linestyle='solid',
-                    color=ROLES['highlight'])
-            ax.fill(angles, values, alpha=0.25, color=ROLES['highlight'])
-
-            ax.set_xticks(angles[:-1])
-            ax.set_xticklabels(labels, fontsize=TYPE_SCALE['tick'],
-                               rotation=45, ha='right')
-            plt.title(title, pad=20)
-            _show_if_interactive()
+        table = pd.DataFrame({'feature': list(labels), 'importance': list(values)})
+        fig = _feature_importance_figure(table, caption=str(title), quantity=tr('Importance'))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, pd.DataFrame({'feature': [str(value) for value in labels],
+            'value': np.asarray(values, dtype=float)[:len(labels)]}),
+            x='feature', y='value', kind='bar', title=str(title))
+        _show_if_interactive()
 
     def extract_compartment_channel(feature_name):
         """Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.
@@ -4134,18 +4295,10 @@ def interpret_vision_model(settings=None):
             print(f"Feature Importance ...")
             top_feature_importance_df = feature_importance_df.head(settings['top_features'])
 
-            with figure_style(theme_target()):
-                plt.figure(figsize=(10, 6))
-                from .figures.bundle import _register_figure_data
-                _register_figure_data(plt.gcf(), top_feature_importance_df, x="feature", y="importance", kind="bar")
-                plt.barh(top_feature_importance_df['feature'],
-                         top_feature_importance_df['importance'],
-                         color=Palette.GREY_DARK)
-                plt.xlabel('Importance')
-                plt.title(f"Top {settings['top_features']} Features - Feature Importance")
-                plt.gca().invert_yaxis()
-                plt.tight_layout()
-                _show_if_interactive()
+            _feature_importance_figure(top_feature_importance_df,
+                caption=tr('Top {count} measured features by the existing random-forest importance.').format(count=settings['top_features']),
+                quantity=tr('Random-forest importance'))
+            _show_if_interactive()
 
             output['feature_importance'] = feature_importance_df
             fi_compartment_df = group_feature_class(feature_importance_df, feature_groups=settings['tables'], name='compartment', include_all=settings['include_all'])
@@ -4161,18 +4314,10 @@ def interpret_vision_model(settings=None):
         perm_importance_df = perm_importance_df.sort_values(by='importance', ascending=False)
         top_perm_importance_df = perm_importance_df.head(settings['top_features'])
 
-        with figure_style(theme_target()):
-            plt.figure(figsize=(10, 6))
-            from .figures.bundle import _register_figure_data
-            _register_figure_data(plt.gcf(), top_perm_importance_df, x="feature", y="importance", kind="bar")
-            plt.barh(top_perm_importance_df['feature'],
-                     top_perm_importance_df['importance'],
-                     color=Palette.GREY_DARK)
-            plt.xlabel('Importance')
-            plt.title(f"Top {settings['top_features']} Features - Permutation Importance")
-            plt.gca().invert_yaxis()
-            plt.tight_layout()
-            _show_if_interactive()
+        _feature_importance_figure(top_perm_importance_df,
+            caption=tr('Top {count} measured features by the existing mean permutation importance. No confidence interval is estimated by this panel.').format(count=settings['top_features']),
+            quantity=tr('Mean permutation importance'))
+        _show_if_interactive()
             
         output['permutation_importance'] = perm_importance_df
     
@@ -4196,7 +4341,11 @@ def interpret_vision_model(settings=None):
         explainer = shap.Explainer(model.predict, X_sample)
         shap_values = explainer(X_sample, max_evals=1500)
 
-        shap.summary_plot(shap_values, X_sample, max_display=settings['top_features'])
+        with figure_style(theme_target()):
+            summary_figure = plt.figure()
+        shap.summary_plot(shap_values, X_sample, max_display=settings['top_features'], show=False)
+        _shap_distribution_figure(shap_values.values, list(X_sample.columns), figure=summary_figure)
+        _show_if_interactive()
 
         shap_df = pd.DataFrame(shap_values.values, columns=X_sample.columns)
         
@@ -4449,6 +4598,15 @@ def analyze_endodyogeny(settings):
         loc='upper left'
     )
     plt.ylim(0, 1)
+    _assay_composition_style(fig.axes[0],
+        caption=tr('Distribution of the existing area-derived volume-proxy bins by group; the original statistical tests and unit aggregation are unchanged.'),
+        legend_title=tr('Volume Range ({unit})').format(unit=volume_unit), cmap=settings['cmap'])
+    handles, unused = fig.axes[0].get_legend_handles_labels()
+    fig.axes[0].legend(handles, legend_labels,
+        title=tr('Volume Range ({unit})').format(unit=volume_unit),
+        bbox_to_anchor=(1.05, 1), loc='upper left')
+    apply_axes_style(fig.axes[0], fig.axes[0]._spacr_style_spec)
+    external_legend(fig, axes=[fig.axes[0]], pack=False)
 
     output['chi_squared'] = results_df
 
@@ -5209,10 +5367,10 @@ def _replication_stacked_bars(settings, vacuoles, group_column, prc_column,
         )
     else:
         proportions = counts.div(counts.sum(axis=1), axis=0)
-        axes = proportions.plot(kind='bar', stacked=True, colormap=cmap,
-                                figsize=(12, 8))
-        axes.set_xlabel('Group')
-        axes.set_ylabel('Proportion')
+        with figure_style(theme_target()):
+            axes = proportions.plot(kind='bar', stacked=True, colormap=cmap)
+        axes.set_xlabel(tr('Group'))
+        axes.set_ylabel(tr('Proportion'))
         fig = plt.gcf()
         results_df = pd.DataFrame({'chi_squared_stat': [np.nan],
                                    'p_value': [np.nan],
@@ -5221,10 +5379,8 @@ def _replication_stacked_bars(settings, vacuoles, group_column, prc_column,
                                             'p-value', 'p-value_adj', 'adj'])
 
     axes = fig.axes[0]
-    axes.set_title(title)
-    axes.set_ylim(0, 1)
-    axes.legend(title='Parasites per vacuole', bbox_to_anchor=(1.05, 1),
-                loc='upper left')
+    _assay_composition_style(axes, caption=title,
+        legend_title=tr('Parasites per vacuole'), cmap=cmap)
     return results_df, pairwise_df, fig
 
 
@@ -6679,19 +6835,13 @@ def _invasion_stacked_bars(settings, parasites, group_column, prc_column,
                              observed=True).size().unstack(fill_value=0)
 
     if counts.size == 0:
+        from .figures.style import _status_panel
         with figure_style(theme_target()):
-            fig, axes = plt.subplots(figsize=(12, 8))
+            fig, axes = plt.subplots(figsize=(170 / 25.4, 40 / 25.4))
             from .figures.bundle import _register_figure_data
             _register_figure_data(fig, pd.DataFrame({"group": [], "proportion": []}), x="group", y="proportion", kind="bar", title=str(title))
-            axes.text(0.5, 0.5, 'No parasite could be classified:\nno usable '
-                                'outside-stain threshold', ha='center',
-                      va='center', transform=axes.transAxes,
-                      fontsize=TYPE_SCALE['label'],
-                      color=resolve_ink(theme_target()))
-            axes.set_xlabel('Group')
-            axes.set_ylabel('Proportion')
-            axes.set_title(title)
-            axes.set_ylim(0, 1.15)
+            _status_panel(axes, tr('No parasite could be classified: no usable outside-stain threshold'),
+                          target=theme_target())
         results_df = pd.DataFrame({'chi_squared_stat': [np.nan],
                                    'p_value': [np.nan],
                                    'degrees_of_freedom': [np.nan]})
@@ -6706,10 +6856,10 @@ def _invasion_stacked_bars(settings, parasites, group_column, prc_column,
         )
     else:
         proportions = counts.div(counts.sum(axis=1), axis=0)
-        axes = proportions.plot(kind='bar', stacked=True, colormap=cmap,
-                                figsize=(12, 8))
-        axes.set_xlabel('Group')
-        axes.set_ylabel('Proportion')
+        with figure_style(theme_target()):
+            axes = proportions.plot(kind='bar', stacked=True, colormap=cmap)
+        axes.set_xlabel(tr('Group'))
+        axes.set_ylabel(tr('Proportion'))
         fig = plt.gcf()
         results_df = pd.DataFrame({'chi_squared_stat': [np.nan],
                                    'p_value': [np.nan],
@@ -6718,18 +6868,8 @@ def _invasion_stacked_bars(settings, parasites, group_column, prc_column,
                                             'p-value', 'p-value_adj', 'adj'])
 
     axes = fig.axes[0]
-    axes.set_title(title)
-    axes.set_ylim(0, 1.15)
-    axes.legend(title='Parasite class', bbox_to_anchor=(1.05, 1),
-                loc='upper left')
-
-    if denominators:
-        for position, tick_label in enumerate(axes.get_xticklabels()):
-            total = denominators.get(tick_label.get_text())
-            if total is None:
-                continue
-            axes.text(position, 1.02, f'n={int(total)}', ha='center',
-                      va='bottom', fontsize=8, rotation=90)
+    _assay_composition_style(axes, caption=title,
+        legend_title=tr('Parasite class'), cmap=cmap, denominators=denominators)
     return results_df, pairwise_df, fig
 
 
@@ -6738,8 +6878,8 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
 
     This is the figure that lets a reader disagree with the classification.
     Each panel is one well: the distribution the threshold was taken from, a
-    solid line at the threshold applied, a dashed line at the reference it was
-    judged against, and the well's bimodality coefficient in the title so a
+    dashed line at the threshold applied, a dotted line at the reference it was
+    judged against, and the bimodality coefficient for that well in the external key so a
     single smear of signal is visible as a single smear rather than as a
     confident efficiency.
 
@@ -6751,12 +6891,12 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
     :returns: matplotlib Figure.
     """
     if cmap in (None, 'viridis'):
-        face = ROLES['fill']
+        face = Palette.ACCENT
     else:
         try:
             face = plt.get_cmap(cmap)(0.5)
         except ValueError:
-            face = ROLES['fill']
+            face = Palette.ACCENT
     order = sorted(str(value) for value in wells['prc'].unique())
     truncated = len(order) > int(max_panels)
     order = order[:int(max_panels)]
@@ -6765,9 +6905,7 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
     n_columns = min(4, n_panels)
     n_rows = int(np.ceil(n_panels / n_columns))
     with figure_style(theme_target()):
-        fig, axes = plt.subplots(n_rows, n_columns,
-                                 figsize=(4.0 * n_columns, 3.0 * n_rows),
-                                 squeeze=False)
+        fig, axes = plt.subplots(n_rows, n_columns, squeeze=False)
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, parasites, x="prc", y="outside_intensity", kind="hist")
         flat = axes.ravel()
@@ -6787,34 +6925,47 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
             threshold = float(row['threshold_median'])
             reference = float(row['reference_threshold_median'])
             if np.isfinite(threshold):
-                axis.axvline(threshold, color=ROLES['highlight'], linewidth=1.2,
-                             label=f"threshold ({row['threshold_source']})")
+                styled_reference_line(axis, x=threshold, role='used', linestyle='--',
+                    label=tr('Used threshold ({source})').format(source=row['threshold_source']))
             if np.isfinite(reference) and reference != threshold:
-                reference_line(axis, x=reference)
-                axis.plot([], [], color=ROLES['reference'], linestyle=(0, (4, 3)),
-                          linewidth=0.6, label='reference')
+                styled_reference_line(axis, x=reference, role='reference', linestyle=':',
+                                      label=tr('Reference threshold'))
             coefficient = float(row['bimodality_coefficient'])
-            axis.set_title(
-                f"{prc}\nn={int(row['n_total'])}  BC="
-                + ('n/a' if not np.isfinite(coefficient) else f'{coefficient:.2f}'),
-                fontsize=TYPE_SCALE['annotation'])
-            axis.set_xlabel('Outside-channel signal')
-            axis.set_ylabel('Parasites')
-            handles, labels = axis.get_legend_handles_labels()
-            if handles:
-                axis.legend(handles, labels, fontsize=TYPE_SCALE['legend'],
-                            frameon=False)
+            axis.set_title(prc, fontsize=TYPE_SCALE['annotation'])
+            axis.set_xlabel(tr('Outside-channel signal'))
+            axis.set_ylabel(tr('Parasites'))
+            caption_template = (tr('{well}: n={count}; BC={coefficient}.') if len(order) > 4
+                                else tr('{well}: n={count}; bimodality coefficient={coefficient}.'))
+            caption = caption_template.format(
+                well=prc, count=int(row['n_total']),
+                coefficient=tr('not available') if not np.isfinite(coefficient) else f'{coefficient:.2f}')
+            annotate(axis, caption)
+            specification = resolve_style(theme_target(), 'histogram',
+                comparison={'selected_well': prc},
+                legend={'caption': caption, 'reference': tr('Used and reference thresholds'),
+                        'quantities': {'x': tr('Outside-channel signal'), 'y': tr('Parasites')},
+                        'units': {'x': tr('recorded intensity units'), 'y': tr('parasites')}})
+            apply_axes_style(axis, specification, layout=False)
+            fig.set_facecolor(axis.get_facecolor())
 
         for index in range(len(order), len(flat)):
             flat[index].axis('off')
-        ink = resolve_ink(theme_target())
-        if truncated:
-            fig.suptitle(f'Outside-stain thresholds (first {len(order)} wells)',
-                         fontsize=TYPE_SCALE['label'], color=ink)
-        else:
-            fig.suptitle('Outside-stain thresholds',
-                         fontsize=TYPE_SCALE['label'], color=ink)
-        fig.tight_layout()
+        caption = (tr('Outside-stain thresholds (first {count} wells)').format(count=len(order))
+                   if truncated else tr('Outside-stain thresholds'))
+        caption = caption + '. ' + tr('The histogram retains the original finite signals, bins and thresholds.')
+        if len(order) > 4:
+            caption = caption + ' ' + tr('BC means bimodality coefficient.')
+        fig._spacr_caption = caption
+        if order:
+            annotate(flat[0], caption)
+            pack_axes_geometry(flat[:len(order)], maximum_width=170 / 25.4,
+                               gap=.05 if len(order) > 4 else .10, padding=.05)
+            external_legend(fig, axes=list(flat[:len(order)]), placement='below',
+                            pack=False, maximum_width=170 / 25.4, gap=.10, padding=.05,
+                            columns=3 if len(order) > 4 else 1,
+                            column_width=1.8 if len(order) > 4 else 2.5)
+            for axis in flat[:len(order)]:
+                ensure_reference_contrast(axis)
         return fig
 
 
@@ -7305,6 +7456,9 @@ def analyze_class_proportion(settings):
     output['data'] = df
 
     results_df, pairwise_results, fig = plot_proportion_stacked_bars(settings, df, settings['group_column'], bin_column=settings['class_column'], level=settings['level'])
+    _assay_composition_style(fig.axes[0],
+        caption=tr('Class composition by the existing groups and aggregation units. Original class assignments, denominators and tests are retained.'),
+        legend_title=tr('Class'))
     
     output['chi_squared'] = results_df
     
@@ -7461,24 +7615,30 @@ def generate_score_heatmap(settings):
 
         heatmap_data = df.select_dtypes(include=[float, int])
 
-        with figure_style(theme_target(), frame='box'):
-            fig = plt.figure(figsize=(12, 8))
+        with figure_style(theme_target(), frame='none'):
+            fig, axis = plt.subplots()
             from .figures.bundle import _register_figure_data
             _register_figure_data(fig, heatmap_data, kind="heatmap", matrix=True)
-            axis = sns.heatmap(
-                heatmap_data,
-                cmap=cmap,
-                cbar=True,
-                square=True,
-                annot=False
-            )
-
-            plt.title("Heatmap of Prediction Scores for All Channels")
-            plt.xlabel("Channels")
-            plt.ylabel("Plate-Row-Column")
+            ramp = heatmap_cmap() if cmap in (None, 'coolwarm', 'viridis', 'Blues') else cmap
+            cells = heatmap_image(axis, heatmap_data.to_numpy(), cmap=ramp, vmin=None, vmax=None)
+            axis.set_xticks(np.arange(len(heatmap_data.columns)), heatmap_data.columns)
+            axis.set_yticks(np.arange(len(heatmap_data)), heatmap_data.index)
+            axis.set_xlabel(tr('Recorded measure'))
+            axis.set_ylabel(tr('Plate-row-column'))
             rotate_ticks(axis, 45)
+            attach_colourbar(axis, cells, label=tr('Recorded value'), unit=tr('original input units'))
             _style_colour_bar(fig)
-            plt.tight_layout()
+            caption = tr('Unchanged numeric measures for the selected wells, including the supplied classifier, cross-validation and read-fraction columns. Values retain their original input units and scale.')
+            specification = resolve_style(theme_target(), 'heatmap',
+                legend={'caption': caption, 'reference': tr('Original recorded values; no normalization between measures'),
+                        'quantities': {'x': tr('Recorded measure'), 'y': tr('Plate-row-column'),
+                                       'value': tr('Recorded value')}, 'unit': tr('original input units')})
+            annotate(axis, caption)
+            fig._spacr_caption = caption
+            apply_axes_style(axis, specification)
+            fig.set_facecolor(axis.get_facecolor())
+            apply_colourbar_theme(axis)
+            external_legend(fig, axes=[axis], pack=False)
 
             _show_if_interactive()
 
@@ -7603,25 +7763,37 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
         if save:
             correlation_matrix.to_csv(os.path.join(save_folder, 'correlation_matrix.csv'))
         
-        with figure_style(theme_target(), frame='box'):
-            fig = plt.figure(figsize=(10, 8))
+        with figure_style(theme_target(), frame='none'):
+            fig, axis = plt.subplots()
             from .figures.bundle import _register_figure_data
             _register_figure_data(fig, correlation_matrix, kind="heatmap", matrix=True)
-            axis = sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm',
-                               cbar=True, vmin=-1.0, vmax=1.0, center=0.0)
-            plt.title('gRNA Correlation Matrix')
-            plt.xlabel('gRNAs')
-            plt.ylabel('gRNAs')
+            cells = heatmap_image(axis, correlation_matrix.to_numpy(), cmap=heatmap_cmap(signed=True),
+                                  vmin=-1.0, vmax=1.0, centre=0.0)
+            axis.set_xticks(np.arange(len(correlation_matrix.columns)), correlation_matrix.columns)
+            axis.set_yticks(np.arange(len(correlation_matrix)), correlation_matrix.index)
+            axis.set_xlabel(tr('Guide RNA'))
+            axis.set_ylabel(tr('Guide RNA'))
             rotate_ticks(axis, 45)
+            attach_colourbar(axis, cells, label=tr('Pearson correlation'), unit=tr('dimensionless'))
             _style_colour_bar(fig)
-            plt.tight_layout()
+            caption = tr('Pearson correlations between the unchanged per-well guide-fraction columns. Zero correlation is the centre of the fixed minus-one to plus-one scale.')
+            specification = resolve_style(theme_target(), 'heatmap', comparison={'centre': 0.0},
+                legend={'caption': caption, 'reference': tr('Zero Pearson correlation'),
+                        'quantities': {'x': tr('Guide RNA'), 'y': tr('Guide RNA'),
+                                       'value': tr('Pearson correlation')}, 'unit': 'dimensionless'})
+            annotate(axis, caption)
+            fig._spacr_caption = caption
+            apply_axes_style(axis, specification)
+            fig.set_facecolor(axis.get_facecolor())
+            apply_colourbar_theme(axis)
+            external_legend(fig, axes=[axis], pack=False)
 
-            if save:
-                correlation_fig_path = os.path.join(save_folder, 'correlation_matrix_heatmap.pdf')
-                correlation_fig_path = save_figure(fig,
-                                                   correlation_fig_path)
+        if save:
+            correlation_fig_path = os.path.join(save_folder, 'correlation_matrix_heatmap.pdf')
+            correlation_fig_path = save_figure(fig,
+                                               correlation_fig_path)
 
-            _show_if_interactive()
+        _show_if_interactive()
 
         return correlation_matrix
 
@@ -7643,7 +7815,7 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
             effect_sizes.to_csv(os.path.join(save_folder, 'effect_sizes.csv'))
 
         with figure_style(theme_target()):
-            fig = plt.figure(figsize=(10, 6))
+            fig = plt.figure()
             from .figures.bundle import _register_figure_data
             _register_figure_data(fig, lambda: pd.DataFrame({"grna": [str(v) for v in effect_sizes.index], "effect_size": np.asarray(effect_sizes.values, dtype=float)}), x="grna", y="effect_size", kind="bar")
             anchors = set(grna_dict)
@@ -7651,24 +7823,40 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
                 x=effect_sizes.index,
                 y=effect_sizes.values,
                 hue=effect_sizes.index,
-                palette=[ROLES['highlight'] if name in anchors
-                         else ROLES['data'] for name in effect_sizes.index],
+                palette=[Palette.TEAL if name in anchors
+                         else Palette.ACCENT for name in effect_sizes.index],
                 saturation=1,
                 legend=False,
             )
 
-            plt.title("Effect Sizes of gRNAs")
-            plt.xlabel("gRNAs")
-            plt.ylabel("Effect Size")
+            axis.set_xlabel(tr('Guide RNA'))
+            axis.set_ylabel(tr('Propagated score (anchor units)'))
             rotate_ticks(axis, 45)
-            plt.tight_layout()
+            categorical_slot_defaults(axis, 'bar', conditions=len(effect_sizes))
+            if len(effect_sizes):
+                axis.set_xlim(-0.5, len(effect_sizes) - 0.5)
+            caption = tr('Scores propagated sequentially from the supplied anchor values in the existing guide order. Teal identifies supplied anchors and blue identifies propagated scores; no confidence interval is estimated.')
+            specification = resolve_style(theme_target(), 'bar', conditions=list(effect_sizes.index),
+                identities={str(name): 'secondary' if name in anchors else 'primary' for name in effect_sizes.index},
+                comparison={'representation': 'estimates'},
+                legend={'caption': caption, 'reference': tr('Supplied anchor values'),
+                        'quantities': {'x': tr('Guide RNA'), 'y': tr('Propagated score')},
+                        'unit': tr('anchor units')})
+            from .figures.style import text_legend
+            text_legend(axis, [(tr('Supplied anchor'), Palette.TEAL),
+                               (tr('Propagated score'), Palette.ACCENT)])
+            annotate(axis, caption)
+            fig._spacr_caption = caption
+            apply_axes_style(axis, specification)
+            fig.set_facecolor(axis.get_facecolor())
+            external_legend(fig, axes=[axis], pack=False)
 
-            if save:
-                effect_sizes_fig_path = os.path.join(save_folder, 'effect_sizes_barplot.pdf')
-                effect_sizes_fig_path = save_figure(fig,
-                                                    effect_sizes_fig_path)
+        if save:
+            effect_sizes_fig_path = os.path.join(save_folder, 'effect_sizes_barplot.pdf')
+            effect_sizes_fig_path = save_figure(fig,
+                                                effect_sizes_fig_path)
 
-            _show_if_interactive()
+        _show_if_interactive()
 
         return effect_sizes
     

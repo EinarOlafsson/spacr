@@ -286,10 +286,14 @@ def test_compare_reads_to_scores_plots_read_and_class_fractions_per_well(
                                                  save_paths=[str(pc_pdf), str(nc_pdf)])
         ax = fig_pc.axes[0]
         assert (ax.get_xlabel(), ax.get_ylabel(), ax.get_title()) == (
-            "pc_fraction", "Fraction", "Line Plot")
+            "pc_fraction", "Fraction", "")
         assert fig_nc.axes[0].get_xlabel() == "nc_fraction"
-        assert ax.get_legend().get_title().get_text() == "Legend"
-        assert not ax.spines["top"].get_visible() and not ax.spines["right"].get_visible()
+        assert ax.get_legend().get_title().get_text() == "Measured series"
+        assert all(spine.get_visible() for spine in ax.spines.values())
+        key = fig_pc._spacr_external_legend
+        assert key is not None and key.get_visible()
+        visible_legend = ' '.join(' '.join(text.get_text().split()) for text in key.get_texts())
+        assert ' '.join(fig_pc._spacr_caption.split()) in visible_legend
         assert set(_lines(fig_pc)) == {"class_1_fraction", f"{PC}_fraction", "nc_fraction"}
         for pdf in (pc_pdf, nc_pdf):
             assert pdf.read_bytes()[:4] == b"%PDF"
@@ -515,23 +519,28 @@ def test_post_regression_analysis_propagates_anchor_effects_through_correlation(
             _write_regression_csv(csv)
             calls = {}
             with pytest.MonkeyPatch.context() as mp:
-                real_heatmap, real_barplot = sns.heatmap, sns.barplot
+                real_heatmap, real_barplot = spacr.submodules.heatmap_image, sns.barplot
 
-                def heatmap(data, *a, **kw):
-                    calls["heatmap"] = (data.copy(), kw)
-                    return real_heatmap(data, *a, **kw)
+                def heatmap(axis, data, *a, **kw):
+                    """Capture the registered source matrix and the real shared heatmap image."""
+                    image = real_heatmap(axis, data, *a, **kw)
+                    calls["heatmap"] = (axis.figure._spacr_data.copy(), image, kw)
+                    return image
 
                 def barplot(*a, **kw):
                     calls["barplot"] = (list(kw["x"]), list(kw["y"]))
                     return real_barplot(*a, **kw)
 
-                mp.setattr(sns, "heatmap", heatmap)
+                mp.setattr(spacr.submodules, "heatmap_image", heatmap)
                 mp.setattr(sns, "barplot", barplot)
                 assert post_regression_analysis(str(csv), anchors, GRNA_LIST, save=save) is None
-            corr, kw = calls["heatmap"]
+            corr, image, kw = calls["heatmap"]
             assert list(corr.index) == GRNA_LIST and list(corr.columns) == GRNA_LIST
             np.testing.assert_allclose(corr.to_numpy(), CORR)
-            assert kw["cmap"] == "coolwarm"
+            np.testing.assert_array_equal(image.get_array(), corr.to_numpy())
+            assert image.get_clim() == (-1.0, 1.0)
+            assert image.norm.vcenter == 0.0
+            assert kw["cmap"].name == "spacr_diverging"
             names, values = calls["barplot"]
             assert names == GRNA_LIST
             assert dict(zip(names, values)) == pytest.approx(effects)

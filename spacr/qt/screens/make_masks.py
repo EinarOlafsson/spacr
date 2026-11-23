@@ -3641,13 +3641,17 @@ class _MaskCanvas(QLabel):
 
     def _paint_boxes(self) -> None:
         """Overlay class-labelled boxes in whole-image coordinates."""
+        from ...figures.style import native_plot_font
+
         if self.image is None or not self.pixmap():
             return
         painter = QPainter(self)
+        painter.setFont(native_plot_font())
         shown = logical_size(self.pixmap())
-        painter.setClipRect(QRectF((self.width() - shown.width()) // 2,
-                                  (self.height() - shown.height()) // 2,
-                                  shown.width(), shown.height()))
+        visible = QRectF((self.width() - shown.width()) // 2,
+                         (self.height() - shown.height()) // 2,
+                         shown.width(), shown.height()).intersected(QRectF(self.rect()))
+        painter.setClipRect(visible)
         palette = active_palette()
         for index, box in enumerate(self.boxes + ([self._box_preview]
                                                  if self._box_preview else [])):
@@ -3658,10 +3662,25 @@ class _MaskCanvas(QLabel):
                 continue
             painter.setPen(QPen(QColor(palette['accent']),
                                 3 if index == self.selected_box else 2))
-            painter.drawRect(QRectF(QPointF(start), QPointF(end)).normalized())
+            rectangle = QRectF(QPointF(start), QPointF(end)).normalized()
+            painter.drawRect(rectangle)
+            if not rectangle.intersects(visible):
+                continue
             name = (self.box_classes[int(class_id)]
                     if 0 <= int(class_id) < len(self.box_classes) else str(class_id))
-            painter.drawText(QPointF(start) + QPointF(3, 14), name)
+            metrics = painter.fontMetrics()
+            text = metrics.elidedText(name, Qt.ElideRight, max(1, int(visible.width()) - 12))
+            label = QRectF(start.x() + 3, start.y() + 3,
+                           metrics.horizontalAdvance(text) + 8, metrics.height() + 4)
+            if label.right() > visible.right():
+                label.moveRight(visible.right())
+            if label.bottom() > visible.bottom():
+                label.moveBottom(visible.bottom())
+            label.moveLeft(max(visible.left(), label.left()))
+            label.moveTop(max(visible.top(), label.top()))
+            painter.fillRect(label, QColor(palette['bg']))
+            painter.setPen(QColor(palette['fg']))
+            painter.drawText(label, Qt.AlignCenter, text)
         painter.end()
 
     def _box_hit(self, point):
@@ -4137,12 +4156,19 @@ class _MaskCanvas(QLabel):
         three times as three near-identical crops, because the user could
         only tell a box had worked by drawing it again.
         """
+        from ...figures.style import native_plot_font
+
         rendered = self.pixmap()
         if not self.recrop_boxes or self.mask is None \
                 or rendered is None or rendered.isNull():
             return
         painter = QPainter(self)
         try:
+            painter.setFont(native_plot_font())
+            shown = logical_size(rendered)
+            visible = QRectF((self.width() - shown.width()) // 2,
+                             (self.height() - shown.height()) // 2,
+                             shown.width(), shown.height()).intersected(QRectF(self.rect()))
             accent = QColor(active_palette()["accent"])
             fill = QColor(accent)
             fill.setAlpha(55)
@@ -4156,10 +4182,16 @@ class _MaskCanvas(QLabel):
                 painter.setPen(pen)
                 painter.drawRect(rect)
                 name = str(box[4]) if len(box) > 4 else ""
-                if name:
+                if name and QRectF(rect).intersects(visible):
+                    metrics = painter.fontMetrics()
+                    text = metrics.elidedText(name, Qt.ElideRight, max(1, int(visible.width()) - 16))
+                    label = QRectF(rect.left() + 6, rect.top() + 4,
+                                   metrics.horizontalAdvance(text) + 8, metrics.height() + 4)
+                    label.moveLeft(max(visible.left(), min(label.left(), visible.right() - label.width())))
+                    label.moveTop(max(visible.top(), min(label.top(), visible.bottom() - label.height())))
+                    painter.fillRect(label, QColor(active_palette()["bg"]))
                     painter.setPen(QPen(QColor(active_palette()["fg"])))
-                    painter.drawText(rect.adjusted(6, 4, 0, 0),
-                                     Qt.AlignLeft | Qt.AlignTop, name)
+                    painter.drawText(label, Qt.AlignCenter, text)
         finally:
             painter.end()
 
@@ -9696,7 +9728,9 @@ class _LiveMagnifier(QObject):
         painter.drawRect(lens)
         if updating or self.locked:
             from ..i18n import tr
+            from ...figures.style import native_plot_font
 
+            painter.setFont(native_plot_font())
             caption = _updating_caption(self.running_name()) if updating else ""
             if self.locked:
                 caption = tr("Locked") + (" · " + caption if caption else "")
@@ -10038,7 +10072,41 @@ class _OtsuHistogramPlot(QWidget):
         self.counts = np.asarray(counts, dtype=np.float64)
         self.edges = np.asarray(edges, dtype=np.float64)
         self.levels = [float(level) for level in levels]
-        self.setMinimumSize(420, 220)
+        self.setMinimumSize(420, 420)
+        self._fit_histogram()
+
+    def _histogram_arguments(self):
+        """Describe the existing intensities, counts and supplied cut levels."""
+        from ..i18n import tr
+
+        return dict(series=[dict(label=tr("Image pixels"), values=self.counts)],
+            thresholds=[dict(label=tr("Threshold {n}", n=index + 1), value=value)
+                        for index, value in enumerate(self.levels)],
+            xlabel=tr("Intensity"), ylabel=tr("Pixels"),
+            caption=tr("Intensity distribution of the input to thresholding."),
+            reference=tr("Dashed lines mark the supplied cut levels; no reference image is assigned."))
+
+    def _plot_geometry(self):
+        """Return the shared rectangle used for painting and pointer mapping."""
+        from ...figures.style import native_histogram_geometry
+
+        return native_histogram_geometry(self, **self._histogram_arguments())
+
+    def _fit_histogram(self):
+        """Reserve the shared measured text space and a usable square plot."""
+        minimum = max(420, int(np.ceil(self._plot_geometry()["minimum_height"])))
+        if self.minimumHeight() != minimum:
+            self.setMinimumHeight(minimum)
+
+    def resizeEvent(self, event):
+        """Fit wrapped legend text when the available width changes."""
+        super().resizeEvent(event)
+        self._fit_histogram()
+
+    def _histogram_range(self):
+        """Include supplied levels outside the original bin edges in the view."""
+        return (min([float(self.edges[0]), *self.levels]),
+                max([float(self.edges[-1]), *self.levels]))
 
     def level_x(self, level: float) -> float:
         """Where ``level`` falls across the plot, in widget pixels.
@@ -10051,48 +10119,49 @@ class _OtsuHistogramPlot(QWidget):
         :param level: an intensity.
         :returns: the x coordinate, clamped to the plot's own width.
         """
-        low = min(float(self.edges[0]), *self.levels) if self.levels else float(self.edges[0])
-        high = max(float(self.edges[-1]), *self.levels) if self.levels else float(self.edges[-1])
-        width = max(1, self.width() - 1)
+        low, high = self._histogram_range()
+        plot = self._plot_geometry()["plot_rect"]
         if high <= low:
-            return 0.0
+            return plot.left()
         fraction = (float(level) - low) / (high - low)
-        return max(0.0, min(1.0, fraction)) * width
+        return plot.left() + max(0.0, min(1.0, fraction)) * plot.width()
+
+    def _spacr_style_observation(self):
+        """Return observations of the current actual widget paint."""
+        from copy import deepcopy
+
+        self.grab()
+        return deepcopy(self._histogram_paint)
 
     def paintEvent(self, event):
-        """Draw bars and threshold lines on the same intensity axis."""
+        """Draw unchanged counts and levels through the shared native style."""
+        from ...figures.style import paint_native_histogram
+
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, False)
-        palette = active_palette()
-        painter.fillRect(self.rect(), QColor(palette["bg"]))
-        height = max(1, self.height())
-        tallest = float(self.counts.max()) if self.counts.size else 0.0
-        if tallest > 0.0:
-            bar_colour = QColor(palette.get("fg", "#c8c8c8"))
-            bar_colour.setAlpha(160)
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(QBrush(bar_colour))
-            for index, value in enumerate(self.counts):
-                tall = int(round(height * float(value) / tallest))
-                if tall <= 0:
-                    continue
-                left = int(self.level_x(self.edges[index]))
-                right = int(self.level_x(self.edges[index + 1]))
-                painter.drawRect(QRect(left, height - tall,
-                                       max(1, right - left), tall))
-        pen = QPen(QColor(palette["accent"]))
-        pen.setWidth(2)
-        painter.setPen(pen)
-        for level in self.levels:
-            x = int(round(self.level_x(level)))
-            painter.drawLine(x, 0, x, height)
-        painter.end()
+        try:
+            self._histogram_paint = paint_native_histogram(
+                self, painter, edges=self.edges, theme_colors=active_palette(),
+                **self._histogram_arguments())
+        finally:
+            painter.end()
 
 
 class _LevelsPlot(_OtsuHistogramPlot):
     """Drag the nearest black/white marker along the intensity histogram."""
 
     cutoff_changed = Signal(int, float)
+
+    def _histogram_arguments(self):
+        """Name normalization handles separately from detection thresholds."""
+        from ..i18n import tr
+
+        arguments = super()._histogram_arguments()
+        labels = (tr("Black cutoff"), tr("White cutoff"))
+        arguments["thresholds"] = [dict(label=labels[index], value=value)
+                                   for index, value in enumerate(self.levels[:2])]
+        arguments["caption"] = tr("Intensity distribution for display normalization.")
+        arguments["reference"] = tr("Dashed lines mark the selected display cutoffs; source pixels stay unchanged.")
+        return arguments
 
     def mousePressEvent(self, event):
         """Choose the nearest cutoff; right and middle clicks do nothing."""
@@ -10115,8 +10184,11 @@ class _LevelsPlot(_OtsuHistogramPlot):
 
     def _move_cutoff(self, x):
         """Convert widget x into an intensity on the histogram's axis."""
-        fraction = max(0.0, min(1.0, x / max(1, self.width() - 1)))
-        value = float(self.edges[0] + fraction * (self.edges[-1] - self.edges[0]))
+        plot = self._plot_geometry()["plot_rect"]
+        fraction = max(0.0, min(1.0, (x - plot.left()) / plot.width()))
+        low, high = self._histogram_range()
+        value = max(float(self.edges[0]), min(float(self.edges[-1]),
+                    low + fraction * (high - low)))
         self.cutoff_changed.emit(self._drag_cutoff, value)
 
 
@@ -10163,7 +10235,6 @@ class _LevelsDialog(QDialog):
         self.caption.setWordWrap(True)
         layout.addWidget(self.caption)
         self.plot = _LevelsPlot(np.zeros(2), np.arange(3), [], self)
-        self.plot.setMinimumHeight(100)
         self.plot.setEnabled(False)
         layout.addWidget(self.plot, 1)
         form = QFormLayout()
@@ -10242,6 +10313,7 @@ class _LevelsDialog(QDialog):
         levels = (self.values[left].astype(float) * (1 - positions + left)
                   + self.values[right].astype(float) * (positions - left))
         self.plot.levels = list(levels)
+        self.plot._fit_histogram()
         self.plot.update()
         for control, value in zip((self.black, self.white), levels):
             blocked = control.blockSignals(True)
@@ -10358,6 +10430,7 @@ class _OtsuHistogramDialog(QDialog):
         self.plot.counts = np.asarray(counts, dtype=np.float64)
         self.plot.edges = np.asarray(edges, dtype=np.float64)
         self.plot.levels = [float(level) for level in levels]
+        self.plot._fit_histogram()
         self.plot.show()
         self.plot.update()
         if local:
@@ -13585,7 +13658,9 @@ class _VolumeStage(QWidget):
         if ax is not None and len(stroke.path) > 1:
             z = (self._cursor[2] + 0.5) * spacing[2]
             xs, ys = zip(*stroke.path[-2:])
-            ax.plot(xs, ys, [z, z], color=active_palette()['accent'], linewidth=2.0)
+            for artist in ax.plot(xs, ys, [z, z], color=active_palette()['accent'], linewidth=2.0):
+                artist.set_gid("spacr-interaction:volume-stroke")
+                artist._spacr_overlay_role = "interactive paint or erase preview"
             self._panel.canvas._canvas.draw_idle()
 
     def _finish_stroke(self):

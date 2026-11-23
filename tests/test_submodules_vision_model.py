@@ -361,13 +361,12 @@ def test_interperate_vision_model_ranks_groups_and_saves_importances(
                 assert "Feature Importance ..." in r["printed"]
                 _check_groups(out, include_all=over.get("include_all", False))
                 ax = [a for a in _bar_axes()
-                      if a.get_title() == f"Top {top} Features - Feature Importance"]
+                      if a.get_ylabel() == 'Random-forest importance']
                 assert len(ax) == 1 and len(ax[0].patches) == min(top, len(fi))
-                # the SHAP summary redraws its own x label onto the current axes
-                assert ax[0].get_xlabel() == ("SHAP value (impact on model output)"
-                                              if "shap" in keys else "Importance")
-                if "shap" not in keys:
-                    assert ax[0].get_ylim()[0] > ax[0].get_ylim()[1], "best feature on top"
+                assert ax[0].get_xlabel() == 'Measured feature'
+                assert [tick.get_text() for tick in ax[0].get_xticklabels()] == fi.head(top)['feature'].tolist()
+                np.testing.assert_array_equal([bar.get_height() for bar in ax[0].patches],
+                                              fi.head(top)['importance'].to_numpy())
             if "permutation_importance" in keys:
                 perm = out["permutation_importance"]
                 assert list(perm.columns) == ["feature", "importance"] and len(perm) == 4
@@ -377,9 +376,11 @@ def test_interperate_vision_model_ranks_groups_and_saves_importances(
                 assert perm.iloc[-1]["importance"] == pytest.approx(0.0, abs=0.05)
                 assert "Permutation Importance ..." in r["printed"]
                 ax = [a for a in _bar_axes()
-                      if a.get_title() == f"Top {top} Features - Permutation Importance"]
+                      if a.get_ylabel() == 'Mean permutation importance']
                 assert len(ax) == 1 and len(ax[0].patches) == top
-                assert ax[0].get_ylim()[0] > ax[0].get_ylim()[1]
+                assert [tick.get_text() for tick in ax[0].get_xticklabels()] == perm.head(top)['feature'].tolist()
+                np.testing.assert_array_equal([bar.get_height() for bar in ax[0].patches],
+                                              perm.head(top)['importance'].to_numpy())
             if "shap" in keys:
                 shap_df = out["shap"]
                 assert list(shap_df.columns.names) == ["compartment", "channel"]

@@ -4056,3 +4056,940 @@ __all__ = [
     "resolve_line_ink", "rotate_ticks", "text_legend", "theme_target",
     "user_overrides",
 ]
+
+
+def resolve_plot_theme(black_background=False, theme_colors=None) -> dict:
+    """Resolve explicit saved plot colours through the shared theme boundary.
+
+    Missing or invalid roles use the historical light or dark fallback selected
+    by the caller. Valid saved values are retained without consulting live GUI
+    preferences, so replay does not substitute the current workstation theme.
+
+    :param black_background: select the black-ground fallback when true.
+    :param theme_colors: optional mapping of background, foreground and border.
+    :returns: independent mapping containing exactly those three colour roles.
+    """
+    from collections.abc import Mapping
+    from copy import deepcopy
+    from matplotlib.colors import to_rgba
+
+    ink = "white" if black_background else "black"
+    result = {"background": "black" if black_background else "white",
+              "foreground": ink, "border": ink}
+    if isinstance(theme_colors, Mapping):
+        for role in result:
+            value = theme_colors.get(role)
+            if value is None:
+                continue
+            try:
+                to_rgba(value)
+            except (TypeError, ValueError):
+                continue
+            result[role] = deepcopy(value)
+    return result
+
+
+def apply_embedding_style(ax, labels, *, caption, colours, method,
+                          axis_labels=None, reference=None, unit=None,
+                          theme_colors=None, black_background=False,
+                          centroid_labels=(), outline_colours=None,
+                          preserve_opacity=False, layout=False) -> StyleSpec:
+    """Style an existing embedding using its actual method and supplied identities.
+
+    Coordinates, hull paths, source limits, colours, marker sizes and explicit
+    outline widths are retained. Producer opacity becomes sixty percent unless
+    saved opacity is explicitly requested; zero-alpha marks remain hidden.
+    Only the supplied centroid text artists and old axes legend are removed.
+    The complete key is retained for :func:`external_legend` to draw later.
+
+    :param ax: axes containing already calculated embedding artists, not images.
+    :param labels: original one-dimensional sequence of cluster identities.
+    :param caption: already translated explanation of the displayed embedding.
+    :param colours: explicit identity-to-colour bindings used by the producer.
+    :param method: actual reduction method; generic callers can say embedding.
+    :param axis_labels: optional exact x and y labels; otherwise retain both.
+    :param reference: explicit reference explanation, or the supplied partition.
+    :param unit: coordinate unit; only UMAP and t-SNE default to dimensionless.
+    :param theme_colors: saved background, foreground and border overrides.
+    :param black_background: fallback theme when saved roles are absent.
+    :param centroid_labels: explicit text artists to remove from the data area.
+    :param outline_colours: actual outline colours where different from points.
+    :param preserve_opacity: retain saved/manual opacity, including alpha arrays.
+    :param layout: fit physical geometry; false retains the supplied canvas size.
+    :returns: attached immutable style specification, without a compliance claim.
+    :raises ValueError: for missing methods, labels, colours or image axes.
+    """
+    from copy import copy
+    import numpy as np
+    from matplotlib.colors import to_hex, to_rgba
+    from ..qt.i18n import tr
+
+    method = str(method).strip()
+    values = np.asarray(labels)
+    if not method or values.ndim != 1 or ax.images:
+        raise ValueError(tr("Declare the embedding method and one-dimensional labels on non-image axes"))
+    quantities = tuple(axis_labels) if axis_labels is not None else (ax.get_xlabel(), ax.get_ylabel())
+    if len(quantities) != 2 or any(not str(value).strip() for value in quantities):
+        raise ValueError(tr("Declare both embedding coordinate labels"))
+    unique = np.unique(values)
+    for label in unique:
+        to_rgba(colours[label])
+        if outline_colours is not None and label in outline_colours:
+            to_rgba(outline_colours[label])
+    centroid_labels = tuple(centroid_labels)
+    if any(text.axes is not ax for text in centroid_labels):
+        raise ValueError(tr("Centroid labels must belong to the embedding axes"))
+    normalized = method.casefold().replace("-", "").replace("_", "")
+    if unit is None and normalized in ("umap", "tsne"):
+        unit = "dimensionless"
+    if reference is None:
+        reference = (embedding_reference() if normalized == "umap" else
+                     tr("t-distributed stochastic neighbor embedding (t-SNE) uses dimensionless embedding coordinates; cluster identities follow the supplied partition.")
+                     if normalized == "tsne" else tr("Cluster identities follow the supplied partition."))
+    method_label = tr("Principal component analysis (PCA)") if normalized == "pca" else method
+    method_note = tr("Embedding method: {method}.").format(method=method_label)
+    legend_metadata = {"caption": caption, "reference": reference,
+                       "quantities": {"x": quantities[0], "y": quantities[1]}}
+    if unit is not None:
+        legend_metadata["unit"] = unit
+    spec = resolve_style("screen", "scatter",
+                         comparison={"graph_type": "scatter", "colour_kind": "categorical",
+                                     "embedding_method": method}, legend=legend_metadata)
+    saved = []
+    for mark in _data_artists(ax):
+        properties = {}
+        for name in ("alpha", "color", "facecolor", "edgecolor", "hatchcolor", "markerfacecolor",
+                     "markeredgecolor", "linewidth", "linewidths", "markersize", "sizes", "cmap"):
+            getter = getattr(mark, "get_" + name, None)
+            if getter is not None:
+                properties[name] = copy(getter())
+        saved.append((mark, properties, _artist_alphas(mark)))
+    limits = (ax.get_xlim(), ax.get_ylim(), ax.get_autoscalex_on(), ax.get_autoscaley_on())
+    for text in centroid_labels:
+        text.remove()
+    old_legend = ax.get_legend()
+    if old_legend is not None:
+        old_legend.remove()
+    ax.set_title("")
+    ax.set_xlabel(quantities[0])
+    ax.set_ylabel(quantities[1])
+    styled = False
+    try:
+        for mark, properties, alphas in saved:
+            alpha = properties.get("alpha")
+            if np.ndim(alpha) and np.size(alpha) > 1:
+                for role in ("facecolor", "edgecolor", "hatchcolor"):
+                    if role in properties:
+                        getattr(mark, "set_" + role)("none")
+                mark.set_alpha(np.asarray([float(np.ravel(alpha)[0])]))
+                mark.set_alpha(None)
+                for role in ("facecolor", "edgecolor", "hatchcolor"):
+                    if role in properties:
+                        getattr(mark, "set_" + role)(properties[role])
+        apply_axes_style(ax, spec, layout=layout)
+        styled = True
+    finally:
+        for mark, properties, alphas in saved:
+            for name, value in properties.items():
+                getattr(mark, "set_" + name)(value)
+            if styled and not preserve_opacity:
+                opacity = np.where(np.asarray(alphas) == 0., 0., spec.alpha)
+                mark.set_alpha(float(opacity[0]) if opacity.size == 1 else opacity)
+    ax.set_xlim(limits[0])
+    ax.set_ylim(limits[1])
+    ax.set_autoscalex_on(limits[2])
+    ax.set_autoscaley_on(limits[3])
+    theme = resolve_plot_theme(black_background, theme_colors)
+    ax.figure.set_facecolor(theme["background"])
+    ax.set_facecolor(theme["background"])
+    ax.tick_params(axis="both", color=theme["border"], labelcolor=theme["foreground"])
+    ax.xaxis.label.set_color(theme["foreground"])
+    ax.yaxis.label.set_color(theme["foreground"])
+    for spine in ax.spines.values():
+        spine.set_color(theme["border"])
+    previous_entries = getattr(ax, "_spacr_embedding_legend_entries", ())
+    ax._spacr_legend_entries = tuple(entry for entry in getattr(ax, "_spacr_legend_entries", ())
+                                     if entry not in previous_entries)
+    retained_entries = ax._spacr_legend_entries
+    note_ink = to_hex(theme["foreground"])
+    _legend_note(ax, caption, note_ink, "caption")
+    _legend_note(ax, method_note, note_ink, "note")
+    _legend_note(ax, reference, note_ink, "reference_tick")
+    for label in unique:
+        count = int(np.count_nonzero(values == label))
+        _legend_note(ax, tr("Cluster {cluster}: {count} points.").format(cluster=label, count=count),
+                     to_hex(colours[label]), "identity")
+        if outline_colours is not None and label in outline_colours:
+            _legend_note(ax, tr("Cluster {cluster} outline.").format(cluster=label),
+                         to_hex(outline_colours[label]), "identity")
+    ax._spacr_embedding_legend_entries = tuple(entry for entry in ax._spacr_legend_entries
+                                              if entry not in retained_entries)
+    identities = list(colours.values())
+    if outline_colours is not None:
+        identities.extend(outline_colours.values())
+    ensure_identity_contrast(ax, artists=[mark for mark, _, _ in saved], colours=identities)
+    return spec
+
+
+def _external_legend_label(text, renderer, font, width):
+    """Wrap complete legend text to a measured pixel width without losing words.
+
+    :param text: complete original entry, including any intentional line breaks.
+    :param renderer: current renderer used only to measure text.
+    :param font: exact legend font properties.
+    :param width: preferred column text width in pixels.
+    :returns: wrapped text; indivisible long words remain intact.
+    """
+    lines = []
+    for paragraph in str(text).split("\n"):
+        current = ""
+        for word in paragraph.split():
+            candidate = current + " " + word if current else word
+            measured = renderer.get_text_width_height_descent(candidate, font, ismath=False)[0]
+            if current and measured > width:
+                lines.append(current)
+                current = word
+            else:
+                current = candidate
+        lines.append(current)
+    return "\n".join(lines)
+
+
+def external_legend(figure, *, axes=None, columns=1, theme_colors=None,
+                    fontsize=8., column_width=2.5, maximum_width=7.,
+                    padding=.10, gap=.25, pack=True, placement="right"):
+    """Materialize retained captions and colour keys outside measured panel bounds.
+
+    Text-only notes have no invented colour swatch. Identity and reference
+    keys use their declared colours at full opacity, with a contrasting backing
+    stroke when the key would disappear on the saved ground. The helper replaces only
+    its own prior legend, preserves other figure content and does not alter
+    source data or numerical limits. Call after all panel metadata is ready.
+    A later layout operation requires calling this helper again.
+
+    :param figure: Matplotlib figure receiving one visible external legend.
+    :param axes: contributing axes; defaults to visible non-colourbar axes.
+    :param columns: positive number of legend columns.
+    :param theme_colors: explicit saved background, foreground and border roles.
+    :param fontsize: legend size in points, clamped to the eight-point minimum.
+    :param column_width: preferred text width per column in inches.
+    :param maximum_width: packing target, or strict final canvas width for below keys.
+    :param padding: positive outer margin in inches.
+    :param gap: nonnegative gap between panels and legend in inches.
+    :param pack: pack declared axes with legend space; false retains panel inches
+        and adds outer canvas padding where existing labels extend beyond it.
+    :param placement: right, or below with pack=False to preserve panel inches
+        within the explicit width bound, trimming only exterior whitespace.
+    :returns: visible figure Legend, or None when no metadata entries exist.
+    :raises ValueError: for invalid layout arguments or axes from another figure.
+    """
+    from math import isfinite
+    from operator import index
+    from matplotlib.backends.backend_agg import RendererAgg
+    from matplotlib.colors import to_rgba
+    from matplotlib.font_manager import FontProperties
+    from matplotlib.lines import Line2D
+    from matplotlib.patheffects import withStroke
+    from matplotlib.transforms import Bbox
+    from ..figure_font import use_open_sans_for_figures
+    from ..qt.i18n import tr
+
+    columns = index(columns)
+    numeric = tuple(float(value) for value in (fontsize, column_width, maximum_width, padding, gap))
+    fontsize, column_width, maximum_width, padding, gap = numeric
+    if (columns < 1 or not all(isfinite(value) for value in numeric) or
+            column_width <= 0 or maximum_width <= 0 or padding <= 0 or gap < 0):
+        raise ValueError(tr("Legend layout requires positive widths, columns and padding"))
+    if placement not in ("right", "below") or (placement == "below" and pack):
+        raise ValueError(tr("Below-panel legends require pack=False; placement must be right or below"))
+    fontsize = max(8., fontsize)
+    selected = list(axes) if axes is not None else [ax for ax in figure.axes
+                        if ax.get_visible() and getattr(ax, "_colorbar", None) is None]
+    if any(ax.figure is not figure for ax in selected):
+        raise ValueError(tr("Legend axes must belong to the supplied figure"))
+    if pack and any(not isinstance(getattr(ax, "_spacr_style_spec", None), StyleSpec) for ax in selected):
+        raise ValueError(tr("Declare each panel before packing its physical geometry"))
+    entries = []
+    for ax in selected:
+        for entry in getattr(ax, "_spacr_legend_entries", ()):
+            kind = str(entry.get("kind", "note"))
+            row = (str(entry["label"]), to_rgba(entry["colour"], alpha=1.), kind,
+                   entry.get("linestyle", (0, (4, 3))) if kind == "reference" else None,
+                   entry.get("reference_role") if kind == "reference" else None)
+            if row[0].strip() and row not in entries:
+                entries.append(row)
+    previous = getattr(figure, "_spacr_external_legend", None)
+    if previous is not None and previous in figure.legends:
+        previous.remove()
+    figure._spacr_external_legend = None
+    figure._spacr_external_legend_layout = None
+    if not entries:
+        return None
+    fallback = {"background": figure.get_facecolor()}
+    if selected:
+        fallback.update(foreground=selected[0].xaxis.label.get_color(),
+                        border=selected[0].spines["left"].get_edgecolor())
+    if theme_colors is not None:
+        fallback.update(theme_colors)
+    theme = resolve_plot_theme(False, fallback)
+    use_open_sans_for_figures()
+    font = FontProperties(family="Open Sans", weight="light", size=fontsize)
+    handles = []
+    for label, colour, kind, linestyle, role in entries:
+        if kind == "identity":
+            handle = Line2D([], [], linestyle="none", marker="s", markersize=5.,
+                            markerfacecolor=colour, markeredgecolor=colour, alpha=1.)
+        elif kind == "reference":
+            handle = Line2D([], [], color=colour, linewidth=WEIGHTS["reference"],
+                            linestyle=linestyle, alpha=1.)
+        else:
+            handle = Line2D([], [], linestyle="none", marker="none", alpha=1.)
+        if kind in ("identity", "reference") and _colour_contrast(colour, theme["background"]) < 3.:
+            backing = ("white" if _colour_contrast("white", theme["background"]) >=
+                       _colour_contrast("black", theme["background"]) else "black")
+            handle.set_path_effects([withStroke(linewidth=3., foreground=backing)])
+        handles.append(handle)
+    original_canvas = figure.canvas
+    renderer = RendererAgg(8, 8, figure.dpi)
+    try:
+        labels = [_external_legend_label(label, renderer, font, column_width * figure.dpi)
+                  for label, colour, kind, linestyle, role in entries]
+        legend = figure.legend(handles, labels, loc="upper left", bbox_to_anchor=(0., 1.),
+                               bbox_transform=figure.transFigure, borderaxespad=0.,
+                               ncol=columns, prop=font, frameon=True, framealpha=1.,
+                               facecolor=theme["background"], edgecolor=theme["border"])
+        legend.set_gid("spacr-external-legend")
+        for text in legend.get_texts():
+            text.set_color(theme["foreground"])
+            text.set_alpha(1.)
+        legend.get_frame().set_alpha(1.)
+        if placement == "below":
+            available_width = maximum_width - 2. * padding
+            wrap_width = min(column_width, available_width / columns)
+            for attempt in range(8):
+                if wrap_width <= fontsize / 72.:
+                    raise ValueError(tr("Legend text cannot fit the declared canvas width at its required font size"))
+                for text, entry in zip(legend.get_texts(), entries):
+                    text.set_text(_external_legend_label(entry[0], renderer, font, wrap_width * figure.dpi))
+                excess = legend.get_window_extent(renderer).width / figure.dpi - available_width
+                if excess <= 1e-8:
+                    break
+                wrap_width -= excess / columns + .02
+            else:
+                raise ValueError(tr("Legend text cannot fit the declared canvas width at its required font size"))
+        if pack and selected:
+            pack_axes_geometry(selected, maximum_width=maximum_width, gap=gap,
+                               padding=padding, legend_space=True)
+        envelopes = [ax.get_tightbbox(renderer) for ax in figure.axes if ax.get_visible()]
+        envelopes = [box for box in envelopes if box is not None]
+        if not pack:
+            envelopes.extend(text.get_window_extent(renderer) for text in figure.texts
+                             if text.get_visible() and text.get_text().strip()
+                             and text.get_transform() is figure.transFigure)
+        shift_x = (max(0., padding - min(box.x0 / figure.dpi for box in envelopes))
+                   if not pack and envelopes else 0.)
+        shift_y = (max(0., padding - min(box.y0 / figure.dpi for box in envelopes))
+                   if not pack and envelopes else 0.)
+        panel_right = max((box.x1 / figure.dpi for box in envelopes), default=padding)
+        panel_right += shift_x
+        box = legend.get_window_extent(renderer)
+        old_width, old_height = figure.get_size_inches()
+        if placement == "below":
+            content_bottom = min((item.y0 / figure.dpi for item in envelopes), default=padding)
+            shift_y = max(shift_y, padding + box.height / figure.dpi + gap - content_bottom)
+            width = max(min(old_width + shift_x, maximum_width), panel_right + padding,
+                        box.width / figure.dpi + 2. * padding)
+            if width > maximum_width + 1e-8:
+                raise ValueError(tr("Panel content cannot fit the declared canvas width without changing its physical size"))
+        else:
+            width = max(old_width + shift_x, panel_right + gap + box.width / figure.dpi + padding)
+        height = max(old_height + shift_y, box.height / figure.dpi + 2 * padding)
+        if not pack and envelopes:
+            height = max(height, max(box.y1 / figure.dpi for box in envelopes) + shift_y + padding)
+        positions = [(ax, ax.get_position(original=True).frozen()) for ax in figure.axes]
+        outer_text = [(text, text.get_position()) for text in figure.texts
+                      if text.get_transform() is figure.transFigure]
+        figure.set_size_inches(width, height)
+        for ax, position in positions:
+            ax.set_position([(position.x0 * old_width + shift_x) / width,
+                             (position.y0 * old_height + shift_y) / height,
+                             position.width * old_width / width, position.height * old_height / height])
+        for text, position in outer_text:
+            text.set_position(((position[0] * old_width + shift_x) / width,
+                               (position[1] * old_height + shift_y) / height))
+        anchor = ((padding / width, (padding + box.height / figure.dpi) / height)
+                  if placement == "below" else ((panel_right + gap) / width, (height - padding) / height))
+        legend.set_bbox_to_anchor(anchor, transform=figure.transFigure)
+        for ax in figure.axes:
+            locator = ax.get_axes_locator()
+            ax.apply_aspect(locator(ax, renderer) if locator is not None else None)
+        bounds = legend.get_window_extent(renderer)
+        figure._spacr_external_legend = legend
+        figure._spacr_external_legend_layout = {
+            "legend_bounds_inches": tuple(value / figure.dpi for value in bounds.bounds),
+            "panel_bounds_inches": tuple(tuple(value / figure.dpi for value in ax.get_window_extent(renderer).bounds)
+                                         for ax in selected),
+            "canvas_inches": tuple(float(value) for value in figure.get_size_inches()),
+            "content_shift_inches": (shift_x, shift_y),
+            "placement": placement,
+            "maximum_width_inches": maximum_width if placement == "below" else None,
+            "entries": tuple({"label": label, "colour": colour, "kind": kind,
+                              "linestyle": linestyle, "reference_role": role}
+                             for label, colour, kind, linestyle, role in entries),
+            "outside_panels": all(not bounds.overlaps(ax.get_window_extent(renderer)) for ax in selected),
+            "inside_canvas": Bbox.from_bounds(0., 0., figure.bbox.width, figure.bbox.height).fully_contains(bounds.x0, bounds.y0)
+                             and Bbox.from_bounds(0., 0., figure.bbox.width, figure.bbox.height).fully_contains(bounds.x1, bounds.y1),
+        }
+        return legend
+    finally:
+        figure.set_canvas(original_canvas)
+
+
+def ensure_reference_contrast(ax, *, theme_colors=None, legends=True, artists=()) -> tuple:
+    """Back declared reference strokes when their core ink disappears on the ground.
+
+    Existing ``spacr-reference`` lines, matching reference legend keys and
+    explicitly supplied summary/error artists are considered. Colour, opacity,
+    coordinates, dashes and widths remain
+    unchanged. A contrasting backing is a display effect, not a new data line.
+
+    :param ax: axes carrying explicitly registered reference lines.
+    :param theme_colors: optional saved background role; otherwise use actual ground.
+    :param legends: also back matching keys in existing axes and figure legends.
+    :param artists: explicit additional summary ticks, CI caps or line collections.
+    :returns: artists that currently require a contrasting backing.
+    """
+    import numpy as np
+    from matplotlib.colors import to_rgba
+    from matplotlib.patheffects import Normal, Stroke
+
+    page = np.asarray(to_rgba(ax.figure.get_facecolor()))
+    page_rgb = page[:3] * page[3] + (1. - page[3])
+    ground = np.asarray(to_rgba(ax.get_facecolor()))
+    ground_rgb = ground[:3] * ground[3] + page_rgb * (1. - ground[3])
+    if theme_colors is not None:
+        ground = np.asarray(to_rgba(resolve_plot_theme(False, theme_colors)["background"]))
+        ground_rgb = ground[:3] * ground[3] + page_rgb * (1. - ground[3])
+    references = [line for line in ax.lines if line.get_gid() == "spacr-reference"]
+    candidates = [(line, ground_rgb) for line in references]
+    candidates.extend((artist, ground_rgb) for artist in artists if artist not in references)
+    if legends:
+        keys = ([ax.get_legend()] if ax.get_legend() is not None else []) + list(ax.figure.legends)
+        for key in keys:
+            key_ground = ground_rgb if key is ax.get_legend() else page_rgb
+            if key.get_frame_on():
+                face = np.asarray(to_rgba(key.get_frame().get_facecolor()))
+                key_ground = face[:3] * face[3] + key_ground * (1. - face[3])
+            handles = getattr(key, "legend_handles", None)
+            if handles is None:
+                handles = getattr(key, "legendHandles", ())
+            for handle, label in zip(handles, key.get_texts()):
+                if not callable(getattr(handle, "get_color", None)):
+                    continue
+                if any(label.get_text() == line.get_label() and
+                       to_rgba(handle.get_color())[:3] == to_rgba(line.get_color())[:3]
+                       for line in references):
+                    candidates.append((handle, key_ground))
+    backed = []
+    for artist, background in candidates:
+        if not hasattr(artist, "_spacr_reference_original_effects"):
+            artist._spacr_reference_original_effects = tuple(artist.get_path_effects() or ())
+        original = artist._spacr_reference_original_effects
+        colours = _visible_artist_colours(artist)
+        if colours and any(_colour_contrast(colour, background) < 3. for colour in colours):
+            backing = ("white" if _colour_contrast("white", background) >=
+                       _colour_contrast("black", background) else "black")
+            widths = (artist.get_linewidths() if hasattr(artist, "get_linewidths") else
+                      (artist.get_linewidth(),))
+            artist.set_path_effects([Stroke(linewidth=float(np.max(widths)) + 2., foreground=backing),
+                                     *(original or (Normal(),))])
+            backed.append(artist)
+        else:
+            artist.set_path_effects(list(original))
+    return tuple(backed)
+
+
+def image_report_css(target="screen", theme_colors=None) -> str:
+    """Return shared typography and page chrome for an existing image report.
+
+    The rules do not change image opacity, colours, normalization or pixels.
+    Existing responsive cards and bounded image layout are retained. The
+    browser must have Open Sans available; CSS alone does not certify its font.
+
+    :param target: normal shared screen, print or transparent style target.
+    :param theme_colors: explicit saved background, foreground and border roles.
+    :returns: CSS for body, header, main, article and image elements.
+    """
+    from matplotlib.colors import to_hex
+
+    spec = resolve_style(target, "image")
+    theme = resolve_plot_theme(target == "screen", theme_colors)
+    colours = {key: to_hex(value, keep_alpha=True) for key, value in theme.items()}
+    size = max(spec.minimum_font_points, 12.)
+    weight = {"light": 300, "regular": 400, "semibold": 600, "bold": 700}[dict(spec.font_weights)["body"]]
+    return (f"body{{background:{colours['background']};color:{colours['foreground']};"
+            f"font:{weight} {size:g}pt '{spec.font_family}',sans-serif;margin:24px}}"
+            "main{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}"
+            f"article{{border:1px solid {colours['border']};border-radius:12px;padding:12px;"
+            f"background:{colours['background']}}}"
+            "img{max-width:100%;display:block;margin:0 auto 8px;border-radius:8px}"
+            "header{margin-bottom:18px;line-height:1.5}")
+
+
+def native_plot_font(spec=None, *, role="body"):
+    """Return the bundled native figure font with the shared size and weight.
+
+    Qt is imported only when a native creator requests its font. This helper
+    changes no application-wide font or user interface scaling preference.
+    """
+    from PySide6.QtGui import QFont
+    from ..figure_font import use_open_sans_for_qt
+
+    use_open_sans_for_qt()
+    item = spec or resolve_style("screen", "image")
+    font = QFont(item.font_family)
+    font.setPointSizeF(item.minimum_font_points)
+    weights = {"light": QFont.Light, "regular": QFont.Normal,
+               "semibold": QFont.DemiBold, "bold": QFont.Bold}
+    font.setWeight(weights[dict(item.font_weights).get(role, "light")])
+    return font
+
+
+def native_histogram_geometry(widget, *, series=(), thresholds=(), xlabel="",
+                              ylabel="", caption="", reference=""):
+    """Lay out a square histogram and measured external explanatory text.
+
+    ``series`` contains label/value mappings; ``thresholds`` contains explicit
+    label/value mappings. Labels never determine reference identity. The
+    returned rectangle also defines the inverse mapping for draggable levels.
+    Scientific values and widget size are never changed by this calculation.
+    """
+    from PySide6.QtCore import QRectF, Qt
+    from PySide6.QtGui import QFontMetricsF
+
+    spec = resolve_style("screen", "histogram")
+    font = native_plot_font(spec)
+    metrics = QFontMetricsF(font, widget)
+    line = metrics.height() + 4.0
+    width = max(1.0, float(widget.width()) - 16.0)
+    texts = [str(caption)] if caption else []
+    entries = []
+    for index, item in enumerate(series):
+        entries.append((str(item["label"]), "data", index))
+    for item in thresholds:
+        entries.append((f'{item["label"]}: {float(item["value"]):.4g}', "reference", None))
+    texts.extend(item[0] for item in entries)
+    if reference:
+        texts.append(str(reference))
+    heights = [max(line, metrics.boundingRect(
+        QRectF(0.0, 0.0, width - 20.0, 10000.0),
+        Qt.AlignLeft | Qt.AlignTop | Qt.TextWordWrap, value).height() + 4.0)
+        for value in texts]
+    left = 54.0 + (line if ylabel else 0.0)
+    bottom = 2.0 * line + sum(heights) + 12.0
+    top = line / 2.0 + 6.0
+    available = min(max(1.0, widget.width() - left - 12.0),
+                    max(1.0, widget.height() - bottom - top))
+    geometry = axes_geometry(spec, panel_height=available / widget.logicalDpiY())
+    side = geometry.height_inches * widget.logicalDpiY()
+    plot = QRectF(left + max(0.0, (widget.width() - left - 12.0 - side) / 2.0),
+                  top, side, side)
+    y = plot.bottom() + 2.0 * line + 8.0
+    rects = []
+    for height in heights:
+        rects.append(QRectF(8.0, y, width, height))
+        y += height
+    return dict(plot_rect=plot, font=font, line_height=line,
+                legend_rects=rects, legend_texts=texts, entries=entries,
+                minimum_height=160.0 + bottom)
+
+
+def paint_native_histogram(widget, painter, *, series, edges, xlabel, ylabel,
+                           caption, reference, thresholds=(),
+                           display_transform="linear", theme_colors=None,
+                           xunit="intensity"):
+    """Paint supplied histogram values and observe its actual native artists.
+
+    This adapter never bins observations or computes threshold values.
+    ``sqrt`` retains the existing QC display of sqrt(count / maximum).
+    Returned observations describe the actual paint geometry, font, colours,
+    opacity and text bounds; callers retain them for ``finalize_figure``.
+    """
+    from dataclasses import asdict, replace
+    import math
+    import numpy as np
+    from matplotlib.colors import to_rgba
+    from PySide6.QtCore import QPointF, QRectF, Qt
+    from PySide6.QtGui import QBrush, QColor, QFontInfo, QFontMetricsF, QPainter, QPen, QTransform
+    from ..qt.i18n import tr
+
+    if display_transform not in ("linear", "sqrt"):
+        raise ValueError(tr("Native histogram transform must be linear or sqrt"))
+    edges = np.asarray(edges, dtype=float)
+    values = [np.asarray(item["values"], dtype=float) for item in series]
+    if (edges.ndim != 1 or len(edges) < 2 or not np.isfinite(edges).all()
+            or not (np.all(np.diff(edges) > 0) or np.all(np.diff(edges) == 0))
+            or any(value.shape != (len(edges) - 1,) or not np.isfinite(value).all()
+                   or np.any(value < 0) for value in values)):
+        raise ValueError(tr("Native histogram requires finite ordered edges and nonnegative bin counts"))
+    levels = [float(item["value"]) for item in thresholds]
+    if not all(math.isfinite(level) for level in levels):
+        raise ValueError(tr("Native histogram thresholds must be finite"))
+    spec = resolve_style("screen", "histogram",
+        conditions=[str(item["label"]) for item in series],
+        comparison={"graph_type": "histogram", "display_transform": display_transform},
+        legend={"caption": caption, "reference": reference,
+                "quantities": {"x": xlabel, "y": ylabel},
+                "units": {"x": str(xunit), "y": "count"}})
+    spec = replace(spec, colours=tuple(condition_colours(len(series))))
+    widget._spacr_style_spec = spec
+    geometry = native_histogram_geometry(widget, series=series, thresholds=thresholds,
+        xlabel=xlabel, ylabel=ylabel, caption=caption, reference=reference)
+    plot, font = geometry["plot_rect"], geometry["font"]
+    supplied = dict(theme_colors or {})
+    requested = {name: supplied.get(name, supplied.get(short))
+                 for name, short in (("background", "bg"), ("foreground", "fg"), ("border", "fg"))}
+    validated = resolve_plot_theme(False, requested)
+    dark = QColor.fromRgbF(*to_rgba(validated["background"])).lightnessF() < 0.5
+    theme = resolve_plot_theme(dark, requested)
+    background = QColor.fromRgbF(*to_rgba(theme["background"]))
+    ink = QColor.fromRgbF(*to_rgba(theme["foreground"]))
+    frame_colour = QColor.fromRgbF(*to_rgba(theme["border"]))
+    background.setAlphaF(1.0)
+    ink.setAlphaF(1.0)
+    frame_colour.setAlphaF(1.0)
+    painter.save()
+    try:
+        painter.setOpacity(1.0)
+        painter.fillRect(widget.rect(), background)
+        painter.setFont(font)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
+        low, high = min([float(edges[0]), *levels]), max([float(edges[-1]), *levels])
+        if high <= low:
+            high = low + 1.0
+        peak = max((float(value.max()) for value in values), default=0.0)
+        ceiling = peak or 1.0
+        marks, rectangles = [], []
+        patterns = (Qt.SolidPattern, Qt.BDiagPattern, Qt.FDiagPattern,
+                    Qt.CrossPattern, Qt.DiagCrossPattern)
+        brush_styles = [patterns[(index // len(SERIES)) % len(patterns)]
+                        for index in range(len(values))]
+        for index, counts in enumerate(values):
+            colour = QColor(spec.colours[index])
+            colour.setAlphaF(spec.alpha)
+            bars = []
+            heights = []
+            for position, count in enumerate(counts):
+                fraction = float(count) / ceiling
+                height = math.sqrt(fraction) if display_transform == "sqrt" else fraction
+                heights.append(height)
+                if count <= 0:
+                    continue
+                start = plot.left() + (edges[position] - low) / (high - low) * plot.width()
+                end = plot.left() + (edges[position + 1] - low) / (high - low) * plot.width()
+                slot = max(1.0 if edges[position] == edges[position + 1] else 0.0,
+                           (end - start) / max(1, len(values)))
+                rect = QRectF(start + index * slot, plot.bottom() - height * plot.height(),
+                              slot, height * plot.height())
+                painter.fillRect(rect, QBrush(colour, brush_styles[index]))
+                bars.append(list(rect.getRect()))
+            rectangles.append(bars)
+            marks.append(dict(role="data", opacity=1.0, colours=[list(colour.getRgbF())],
+                pens=[], condition=index, point_count=int(np.count_nonzero(counts)),
+                bounds=dict(checked=True,
+                            x=([min(bar[0] for bar in bars), max(bar[0] + bar[2] for bar in bars)] if bars else None),
+                            y=([min(bar[1] for bar in bars), max(bar[1] + bar[3] for bar in bars)] if bars else None)),
+                bin_counts=counts.tolist(), displayed_heights=heights, rectangles=bars,
+                brush_style=int(brush_styles[index].value)))
+        threshold_colour = QColor("#000000")
+        threshold_colour.setAlphaF(spec.alpha)
+        threshold_pen = QPen(threshold_colour, 1.5, Qt.DashLine)
+        painter.setPen(threshold_pen)
+        threshold_positions = []
+        for level in levels:
+            x = plot.left() + (level - low) / (high - low) * plot.width()
+            if _colour_contrast((0.0, 0.0, 0.0), background.getRgbF()[:3]) < 4.5:
+                painter.setPen(QPen(QColor("#FFFFFF"), 3.5, Qt.DashLine))
+                painter.drawLine(QPointF(x, plot.top()), QPointF(x, plot.bottom()))
+            painter.setPen(threshold_pen)
+            painter.drawLine(QPointF(x, plot.top()), QPointF(x, plot.bottom()))
+            threshold_positions.append(x)
+            marks.append(dict(role="reference", opacity=1.0,
+                colours=[list(threshold_colour.getRgbF())],
+                pens=[dict(width=threshold_pen.widthF(), colour=list(threshold_colour.getRgbF()))],
+                condition=None, point_count=1,
+                bounds=dict(checked=True, x=[x, x], y=[plot.top(), plot.bottom()])))
+        frame_pen = QPen(frame_colour, 1.0)
+        painter.setPen(frame_pen)
+        painter.setBrush(Qt.NoBrush)
+        painter.drawRect(plot)
+        metrics = QFontMetricsF(painter.font(), widget)
+        text_bounds = []
+
+        def text(rect, flags, value):
+            """Draw text and retain the actual bounds from the font engine."""
+            previous = painter.pen()
+            painter.setPen(ink)
+            painter.drawText(rect, flags, str(value))
+            painter.setPen(previous)
+            text_bounds.append(metrics.boundingRect(rect, flags, str(value)))
+
+        line = geometry["line_height"]
+        for fraction in (0.0, 0.5, 1.0):
+            x = plot.left() + fraction * plot.width()
+            painter.drawLine(QPointF(x, plot.bottom()), QPointF(x, plot.bottom() + 4.0))
+            label = f"{low + fraction * (high - low):.3g}"
+            width = metrics.horizontalAdvance(label) + 4.0
+            text(QRectF(x - width / 2, plot.bottom() + 5.0, width, line),
+                 Qt.AlignHCenter | Qt.AlignTop, label)
+            y = plot.bottom() - fraction * plot.height()
+            painter.drawLine(QPointF(plot.left() - 4.0, y), QPointF(plot.left(), y))
+            count = ceiling * (fraction ** 2 if display_transform == "sqrt" else fraction)
+            label_top = y - (line if fraction == 0.0 else line / 2.0)
+            text(QRectF(plot.left() - 48.0, label_top, 40.0, line),
+                 Qt.AlignRight | Qt.AlignVCenter, f"{count:.3g}")
+        text(QRectF(plot.left(), plot.bottom() + line + 5.0, plot.width(), line),
+             Qt.AlignHCenter | Qt.AlignTop, xlabel)
+        if ylabel:
+            painter.save()
+            try:
+                transform = QTransform().translate(6.0, plot.bottom()).rotate(-90.0)
+                painter.setTransform(transform, True)
+                painter.setPen(ink)
+                rect = QRectF(0.0, 0.0, plot.height(), line)
+                painter.drawText(rect, Qt.AlignHCenter | Qt.AlignTop, ylabel)
+                text_bounds.append(transform.mapRect(metrics.boundingRect(
+                    rect, Qt.AlignHCenter | Qt.AlignTop, ylabel)))
+            finally:
+                painter.restore()
+        offset = 1 if caption else 0
+        legend_swatches = []
+        for index, (rect, value) in enumerate(zip(geometry["legend_rects"], geometry["legend_texts"])):
+            entry = index - offset
+            content = QRectF(rect)
+            if 0 <= entry < len(geometry["entries"]):
+                _, role, condition = geometry["entries"][entry]
+                colour = QColor(spec.colours[condition]) if role == "data" else QColor(threshold_colour)
+                colour.setAlphaF(1.0)
+                swatch = QRectF(rect.left(), rect.top() + 3.0, 12.0, metrics.height() - 2.0)
+                if role == "reference":
+                    painter.fillRect(swatch.adjusted(-1.0, -1.0, 1.0, 1.0), QColor("#FFFFFF"))
+                pattern = brush_styles[condition] if role == "data" else Qt.SolidPattern
+                painter.fillRect(swatch, QBrush(colour, pattern))
+                legend_swatches.append(dict(role=role, colour=list(colour.getRgbF()),
+                    rectangle=list(swatch.getRect()), brush_style=int(pattern.value)))
+                content.adjust(20.0, 0.0, 0.0, 0.0)
+            painter.setPen(ink)
+            text(content, Qt.AlignLeft | Qt.AlignTop | Qt.TextWordWrap, value)
+        actual = QFontInfo(painter.font())
+        font_record = dict(family=actual.family(), size=actual.pointSizeF(),
+            weight=int(actual.weight()), role="label", colour=list(ink.getRgbF()))
+        canvas = QRectF(widget.rect())
+        outside = [list(rect.getRect()) for rect in text_bounds if not canvas.contains(rect)]
+        overlaps = [(a, b) for a, first in enumerate(text_bounds)
+                    for b, second in enumerate(text_bounds) if a < b and first.intersects(second)]
+        dpi = float(widget.logicalDpiY())
+        observation = dict(backend="QPainter", specification=asdict(spec), logical_dpi=dpi,
+            width_inches=plot.width() / dpi, height_inches=plot.height() / dpi,
+            plot_rect=list(plot.getRect()), ranges=[[plot.left(), plot.right()], [plot.top(), plot.bottom()]],
+            data_ranges=[[low, high], [0.0, ceiling]], bin_edges=edges.tolist(),
+            threshold_values=levels, threshold_positions=threshold_positions,
+            background=list(background.getRgbF()), fonts=[dict(font_record) for _ in text_bounds],
+            frame=[dict(edge=edge, visible=True, pen=dict(width=frame_pen.widthF(), colour=list(frame_colour.getRgbF())))
+                   for edge in ("left", "right", "top", "bottom")], marks=marks,
+            legend_swatches=legend_swatches,
+            text_bounds_checked=True,
+            text_geometry=dict(outside=outside, overlaps=overlaps,
+                               rectangles=[list(rect.getRect()) for rect in text_bounds]),
+            incomplete_checks=[])
+    finally:
+        painter.restore()
+    return observation
+
+
+def apply_colourbar_theme(ax, *, theme_colors=None) -> tuple:
+    """Match attached scalar-key chrome to the actual styled parent axes.
+
+    Call after creating the key and applying the parent panel style, before
+    final layout or writing. Only key backgrounds, text, ticks and outlines
+    change. Source arrays, mapped colours, normalization, limits, scalar-key
+    cells and their opacity remain untouched. Explicit saved role overrides
+    use the same validation as other G2 presentation adapters.
+
+    :param ax: styled source axes with explicitly attached shared scalar keys.
+    :param theme_colors: optional saved background, foreground and border roles.
+    :returns: the existing colorbar objects whose chrome was updated.
+    """
+    from collections.abc import Mapping
+    from matplotlib.text import Text
+
+    requested = {"background": ax.get_facecolor(),
+                 "foreground": ax.xaxis.label.get_color(),
+                 "border": ax.spines["left"].get_edgecolor()}
+    if isinstance(theme_colors, Mapping):
+        requested.update(theme_colors)
+    theme = resolve_plot_theme(False, requested)
+    bars = []
+    for cax in _axis_colourbars(ax):
+        bar = cax._colorbar
+        cax.set_facecolor(theme["background"])
+        cax.patch.set_alpha(1.)
+        cax.tick_params(which="both", color=theme["border"],
+                        labelcolor=theme["foreground"])
+        for text in cax.findobj(Text):
+            text.set_color(theme["foreground"])
+            text.set_alpha(1.)
+        for spine in cax.spines.values():
+            spine.set_edgecolor(theme["border"])
+        if bar.outline is not None:
+            bar.outline.set_edgecolor(theme["border"])
+        bars.append(bar)
+    return tuple(bars)
+
+
+def _identity_contrast_effect(ax, colours, width):
+    """Build a hollow identity backing that respects the alpha of each rendered path."""
+    import numpy as np
+    from matplotlib.colors import to_rgba
+    from matplotlib.patheffects import AbstractPathEffect
+
+    class IdentityBacking(AbstractPathEffect):
+        """Draw only a thin border behind visible, declared low-contrast identities."""
+
+        def __reduce__(self):
+            """Reconstruct through the module factory with the transported axes graph."""
+            return (_identity_contrast_effect, (ax, colours, width))
+
+        def draw_path(self, renderer, gc, tpath, affine, rgbFace=None):
+            """Inspect actual per-path colors without repainting the marker face."""
+            page = np.asarray(to_rgba(ax.figure.get_facecolor()))
+            ground = np.asarray(to_rgba(ax.get_facecolor()))
+            background = ground[:3] * ground[3] + (
+                page[:3] * page[3] + 1. - page[3]) * (1. - ground[3])
+            present = [rgbFace] if rgbFace is not None else []
+            if gc.get_linewidth() > 0:
+                present.append(gc.get_rgb())
+            opacity = []
+            for value in present:
+                rgba = np.asarray(to_rgba(value))
+                alpha = gc.get_alpha() if gc.get_forced_alpha() else rgba[3]
+                if alpha <= 0 or not any(np.allclose(rgba[:3], colour[:3], rtol=0., atol=np.finfo(np.float32).eps)
+                                         for colour in colours):
+                    continue
+                visible = rgba[:3] * alpha + background * (1. - alpha)
+                if _colour_contrast(visible, background) < 3.:
+                    opacity.append(alpha)
+            if not opacity:
+                return
+            backing = ("white" if _colour_contrast("white", background) >=
+                       _colour_contrast("black", background) else "black")
+            border = renderer.new_gc()
+            border.copy_properties(gc)
+            try:
+                border.set_alpha(max(opacity))
+                border.set_foreground(backing)
+                border.set_linewidth(gc.get_linewidth() + width)
+                renderer.draw_path(border, tpath, affine, None)
+            finally:
+                border.restore()
+
+    return IdentityBacking()
+
+
+def ensure_identity_contrast(ax, *, artists, colours, width=.8) -> tuple:
+    """Back explicit embedding identities without changing their core appearance.
+
+    Only supplied Line2D hulls and PathCollection points are eligible, and only
+    colors in the supplied identity bindings can receive a border. Each draw
+    checks its actual composited contrast and alpha, including mixed arrays;
+    invisible paths stay invisible. The hollow backing never fills a marker
+    face twice. Artist colors, alpha, sizes, widths, paths and offsets remain
+    exact. Existing manual path effects are left untouched. The thin additional
+    border can affect boundary antialiasing and requires actual visual review.
+
+    :param ax: embedding axes owning the explicitly supplied artists.
+    :param artists: existing point collections and hull lines, never images.
+    :param colours: explicit point and outline color bindings, without role inference.
+    :param width: extra total border width in points, preserving core line width.
+    :returns: artists with this additive drawing effect installed, not a validation result.
+    """
+    from math import isfinite
+    import numpy as np
+    from matplotlib.collections import PathCollection
+    from matplotlib.colors import to_rgba
+    from matplotlib.lines import Line2D
+    from matplotlib.patheffects import Normal
+    from ..qt.i18n import tr
+
+    width = float(width)
+    if not isfinite(width) or width <= 0:
+        raise ValueError(tr("Identity contrast border width must be positive and finite"))
+    bindings = tuple(to_rgba(colour) for colour in colours)
+    page = np.asarray(to_rgba(ax.figure.get_facecolor()))
+    ground = np.asarray(to_rgba(ax.get_facecolor()))
+    background = ground[:3] * ground[3] + (
+        page[:3] * page[3] + 1. - page[3]) * (1. - ground[3])
+    installed = []
+    for artist in artists:
+        if (artist.axes is not ax or not isinstance(artist, (Line2D, PathCollection))
+                or artist.get_gid() == "spacr-reference"):
+            continue
+        current = tuple(artist.get_path_effects() or ())
+        previous = getattr(artist, "_spacr_identity_contrast_effects", None)
+        if current and current != previous:
+            continue
+        if previous is not None and current != previous:
+            continue
+        actual = (list(artist.get_facecolors()) + list(artist.get_edgecolors())
+                  if isinstance(artist, PathCollection)
+                  else [to_rgba(artist.get_color(), artist.get_alpha())])
+        eligible = artist.get_visible() and any(
+            rgba[3] > 0 and any(np.allclose(rgba[:3], colour[:3], rtol=0.,
+                                          atol=np.finfo(np.float32).eps) for colour in bindings)
+            and _colour_contrast(np.asarray(rgba[:3]) * rgba[3] + background * (1. - rgba[3]), background) < 3.
+            for rgba in actual)
+        if not eligible:
+            if previous is not None and current == previous:
+                artist.set_path_effects([])
+                artist._spacr_identity_contrast_effects = None
+            continue
+        effects = (_identity_contrast_effect(ax, bindings, width), Normal())
+        artist.set_path_effects(list(effects))
+        artist._spacr_identity_contrast_effects = effects
+        installed.append(artist)
+    return tuple(installed)
+
+
+def styled_reference_line(ax, *, x=None, y=None, label="", linestyle="--", role="reference"):
+    """Draw an explicit black reference with the same dash pattern in its visible key.
+
+    The existing numerical reference-line owner supplies coordinate, opacity,
+    width and black core. Only the explicit dash and role from the caller are added;
+    coincident-reference suppression remains with the scientific caller.
+    Actual line/key artists use the ordinary appearance capture and replay.
+
+    :param ax: receiving axes.
+    :param x: vertical coordinate, mutually exclusive with y.
+    :param y: horizontal coordinate, mutually exclusive with x.
+    :param label: complete translated key label.
+    :param linestyle: explicit Matplotlib line style, shared by line and key.
+    :param role: caller-declared identity such as used or reference.
+    :returns: the original reference-line artist.
+    """
+    from matplotlib.lines import Line2D
+    from ..qt.i18n import tr
+
+    if (x is None) == (y is None) or not str(role).strip():
+        raise ValueError(tr("Declare one reference coordinate and its explicit role"))
+    Line2D([], [], linestyle=linestyle)
+    drawn = reference_line(ax, x=x, y=y, label=label)
+    drawn.set_linestyle(linestyle)
+    if label:
+        entries = list(ax._spacr_legend_entries)
+        for index in range(len(entries) - 1, -1, -1):
+            entry = entries[index]
+            if entry["label"] == str(label) and entry["kind"] == "reference":
+                entries[index] = dict(entry, linestyle=linestyle, reference_role=str(role))
+                break
+        ax._spacr_legend_entries = tuple(entries)
+    return drawn

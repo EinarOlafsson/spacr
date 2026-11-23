@@ -821,7 +821,8 @@ def test_plot_clusters_grid_draws_one_panel_per_cluster_without_noise(tmp_path, 
                                    image_paths=paths, colors=colors, **kwargs)
         assert isinstance(fig, plt.Figure)
         assert [len(a.child_axes) for a in fig.axes] == [2, 2]
-        assert sorted(t.get_text() for t in fig.texts) == ["Cluster 0", "Cluster 1"]
+        assert {entry['label'] for entry in fig._spacr_external_legend_layout['entries']
+                if entry['kind'] == 'identity'} == {"Cluster 0", "Cluster 1"}
 
     with subtests.test(case="grid_receives_clusters_only"), monkeypatch.context() as mp:
         captured = {}

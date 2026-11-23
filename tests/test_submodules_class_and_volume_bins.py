@@ -199,7 +199,7 @@ def test_analyze_endodyogeny_bins_every_parasite_by_volume_doubling(subtests, tm
             assert legend.get_title().get_text() == f"Volume Range ({unit})"
             assert [t.get_text().split(":")[0] for t in legend.get_texts()] == [
                 str(i) for i in range(1, len(labels) + 1)]
-            assert plt.gca().get_ylim() == (0.0, 1.0)
+            assert plt.gca().get_ylim() == (0.0, 1.15)
             assert settings["tables"].count("png_list") == 1
             if case_id == "a list of sources":
                 out_dir = os.path.join(src, "results", "analyze_endodyogeny")
@@ -386,7 +386,7 @@ def test_analyze_class_proportion_tests_classes_against_conditions(subtests, tmp
                 fignums = plt.get_fignums()
                 assert len(fignums) == 2
                 ax = plt.figure(fignums[0]).axes[0]
-                assert ax.get_ylim() == (0.0, 1.0)
+                assert ax.get_ylim() == (0.0, 1.15)
                 assert [t.get_text() for t in ax.get_xticklabels()] == sorted(CONDITIONS)
                 assert [len(c) for c in ax.containers] == [3, 3, 3]
             if expect.get("saved"):

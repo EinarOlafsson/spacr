@@ -60,7 +60,8 @@ def test_histogram_drag_and_reset_follow_actual_intensity_axis(screen, qtbot):
     dialog = open_levels(screen, qtbot)
     plot = dialog.plot
     start = QPoint(round(plot.level_x(plot.levels[0])), 80)
-    end = QPoint(round(plot.width()*0.25), 80)
+    quarter = float(plot.edges[0] + 0.25 * (plot.edges[-1] - plot.edges[0]))
+    end = QPoint(round(plot.level_x(quarter)), 80)
     QTest.mousePress(plot, Qt.LeftButton, pos=start)
     QTest.mouseMove(plot, end)
     QTest.mouseRelease(plot, Qt.LeftButton, pos=end)

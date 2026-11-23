@@ -47,6 +47,7 @@ from ..widgets.toggle import Toggle
 
 from ... import align as align_mod
 from ..bridge import make_thread
+from ..i18n import tr
 from ..theme import SPACING, active_palette, make_transparent, paint_panel
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
@@ -116,6 +117,7 @@ class TileLayoutWidget(QWidget):
         self.setMinimumHeight(240)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         make_transparent(self)
+        self._fit_layout_key()
 
     def set_plan(self, plan) -> None:
         """Show ``plan`` (an :class:`spacr.align.AlignPlan`), or ``None``.
@@ -142,7 +144,7 @@ class TileLayoutWidget(QWidget):
         if height <= 0 or width <= 0:
             return []
         avail_w = max(1.0, self.width() - 2 * _PAD)
-        avail_h = max(1.0, self.height() - 2 * _PAD)
+        avail_h = max(1.0, self._key_rect().top() - 2 * _PAD)
         scale = min(avail_w / width, avail_h / height)
         off_x = _PAD + (avail_w - width * scale) / 2.0
         off_y = _PAD + (avail_h - height * scale) / 2.0
@@ -158,13 +160,56 @@ class TileLayoutWidget(QWidget):
             out.append((tile.index, rect))
         return out
 
+    def _key_layout(self):
+        """Measure complete wrapped key text at the actual widget width."""
+        from PySide6.QtGui import QFontMetricsF
+        from ...figures.style import native_plot_font
+
+        font = native_plot_font()
+        metrics = QFontMetricsF(font, self)
+        width = max(1., self.width() - 2 * _PAD)
+        entries = ((tr("Registration confidence: 0.3"), confidence_colour(.3, align_mod.METHOD_REGISTRATION), False),
+                   (tr("Registration confidence: 1.0"), confidence_colour(1., align_mod.METHOD_REGISTRATION), False),
+                   (tr("Stage-position placement"), confidence_colour(0., align_mod.METHOD_NOMINAL), True),
+                   (tr("Unreadable tile"), confidence_colour(0., align_mod.METHOD_UNREADABLE), False))
+        flags = Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap
+        heights = [max(metrics.height() + 4., metrics.boundingRect(
+            QRectF(0., 0., max(1., width - 20.), 10000.), flags, label).height() + 4.)
+            for label, colour, hatched in entries]
+        height = sum(heights)
+        y = max(float(_PAD), self.height() - _PAD - height)
+        outer = QRectF(_PAD, y, width, height)
+        rows = []
+        for entry, row_height in zip(entries, heights):
+            rows.append((entry, QRectF(_PAD, y, width, row_height)))
+            y += row_height
+        return font, flags, outer, rows
+
+    def _key_rect(self) -> QRectF:
+        """Return the measured outside-key area shared by paint and hit testing."""
+        return self._key_layout()[2]
+
+    def _fit_layout_key(self):
+        """Reserve readable key height while retaining a visible tile-layout area."""
+        from math import ceil
+
+        self.setMinimumHeight(max(240, ceil(self._key_rect().height() + 120. + 2 * _PAD)))
+
+    def resizeEvent(self, event):
+        """Reflow translated key text without altering the solved tile plan."""
+        self._fit_layout_key()
+        super().resizeEvent(event)
+
     def paintEvent(self, event) -> None:  # noqa: N802  (Qt naming)
         """Draw the tile rectangles, or the empty-state hint.
 
         :param event: the paint event; not read, the whole widget is redrawn.
         """
+        from ...figures.style import _colour_contrast, native_plot_font
+
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setFont(native_plot_font())
         palette = active_palette()
         paint_panel(painter, self, role="surface", inset=0.5)
 
@@ -172,15 +217,11 @@ class TileLayoutWidget(QWidget):
         if not rects:
             painter.setPen(QPen(QColor(palette["fg_dim"])))
             painter.drawText(self.rect(), Qt.AlignCenter,
-                             "Choose a folder of tiles and press Plan.")
+                             tr("Choose a folder of tiles and press Plan."))
             painter.end()
             return
 
         by_index = {p.tile.index: p for p in self._plan.placements}
-        font = QFont(painter.font())
-        font.setPointSizeF(max(6.0, font.pointSizeF() - 2))
-        painter.setFont(font)
-
         for index, rect in rects:
             placement = by_index[index]
             colour = confidence_colour(placement.confidence, placement.method)
@@ -190,9 +231,43 @@ class TileLayoutWidget(QWidget):
                                               Qt.BDiagPattern))
             painter.setPen(QPen(QColor(palette["border"]), 1))
             painter.drawRect(rect)
-            if rect.width() > 26 and rect.height() > 14:
+            label = str(placement.tile.field)
+            metrics = painter.fontMetrics()
+            if rect.width() > max(26, metrics.horizontalAdvance(label) + 4) and rect.height() > max(14, metrics.height() + 2):
                 painter.setPen(QPen(QColor(palette["fg"])))
-                painter.drawText(rect, Qt.AlignCenter, str(placement.tile.field))
+                painter.drawText(rect, Qt.AlignCenter, label)
+        from PySide6.QtGui import QFontMetricsF
+
+        font, flags, key, rows = self._key_layout()
+        painter.setFont(font)
+        painter.fillRect(key, QColor(palette["surface"]))
+        metrics = QFontMetricsF(font, self)
+        self._spacr_layout_key = []
+        for (label, colour, hatched), row in rows:
+            swatch = QRectF(row.left(), row.top() + 3., 12., max(1., metrics.height() - 2.))
+            painter.fillRect(swatch, colour)
+            if hatched:
+                painter.fillRect(swatch, QBrush(QColor(palette["surface"]), Qt.BDiagPattern))
+            outline = None
+            if _colour_contrast(colour.getRgbF(), QColor(palette["surface"]).getRgbF()) < 3.:
+                outline = QColor(palette["fg"])
+                outline.setAlphaF(1.)
+                painter.setPen(QPen(outline, 1.))
+                painter.setBrush(Qt.NoBrush)
+                painter.drawRect(swatch)
+            painter.setPen(QColor(palette["fg"]))
+            text = row.adjusted(20., 0., 0., 0.)
+            painter.drawText(text, flags, label)
+            bounds = metrics.boundingRect(text, flags, label)
+            self._spacr_layout_key.append({"label": label, "colour": colour.name(),
+                "hatched": hatched, "rect": tuple(row.getRect()),
+                "swatch_rect": tuple(swatch.getRect()),
+                "outline": outline.name() if outline is not None else None,
+                "text_bounds": tuple(bounds.getRect()), "font_points": font.pointSizeF(),
+                "inside_canvas": QRectF(self.rect()).contains(bounds),
+                "outside_tiles": all(not bounds.intersects(rect) for _, rect in rects),
+                "foreground": QColor(palette["fg"]).name(),
+                "background": QColor(palette["surface"]).name()})
         painter.end()
 
     def mousePressEvent(self, event) -> None:  # noqa: N802  (Qt naming)
