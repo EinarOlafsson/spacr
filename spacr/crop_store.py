@@ -832,14 +832,35 @@ class _StoreFieldWindows:
         self.mask_dims = {str(k): int(v) for k, v in (layout.get("mask_dims") or {}).items()}
         self.dtype = np.dtype(entry["dtype"])
         self.measured = _measured_record(path, _measured_masks_stamp(path))
+        self._region: Optional[Tuple[int, int, int, int]] = None
+        self._cache: Dict[str, np.ndarray] = {}
+
+    def prefetch(self, y0: int, y1: int, x0: int, x1: int) -> None:
+        """Read one region once for many crops inside it (a batch of crops of one field)."""
+        self._region = (int(y0), int(y1), int(x0), int(x1))
+        self._cache = {}
+
+    def release(self) -> None:
+        """Forget the prefetched region."""
+        self._region, self._cache = None, {}
+
+    def _read(self, name: str, array_path: Path, y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
+        """``array[..., y0:y1, x0:x1]``, from the prefetched region when it holds the box."""
+        region = self._region
+        if region is not None and region[0] <= y0 and y1 <= region[1] and region[2] <= x0 and x1 <= region[3]:
+            block = self._cache.get(name)
+            if block is None:
+                block = self._cache[name] = np.asarray(
+                    _open_pool(array_path)[..., region[0]:region[1], region[2]:region[3]])
+            return block[..., y0 - region[0]:y1 - region[0], x0 - region[2]:x1 - region[2]]
+        return np.asarray(_open_pool(array_path)[..., y0:y1, x0:x1])
 
     def channels(self, channels: Sequence[int], y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
         """``(C, h, w)`` of the given merged planes (intensity planes only)."""
-        image = _open_pool(self.group / "0")
         if any(c >= self.n_intensity for c in channels):
             raise ValueError(f"{self.group}: crop channels {list(channels)} include a mask plane")
-        block = np.asarray(image[:, y0:y1, x0:x1])
-        return block[list(channels)]
+        block = self._read("0", self.group / "0", y0, y1, x0, x1)
+        return np.array(block[list(channels)])
 
     def labels(self, cls: str, y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
         """One class's labels over the box: measured where Measure changed them."""
@@ -855,8 +876,8 @@ class _StoreFieldWindows:
         dim = self.mask_dims.get(cls)
         if dim is not None and dim in self.measured:
             return np.asarray(self.measured[dim][y0:y1, x0:x1]).astype(self.dtype, copy=False)
-        return np.asarray(_open_pool(self.group / "labels" / cls / "0")[y0:y1, x0:x1]
-                          ).astype(self.dtype, copy=False)
+        return np.array(self._read(f"labels/{cls}", self.group / "labels" / cls / "0",
+                                   y0, y1, x0, x1), dtype=self.dtype)
 
 
 def _stream_crop(project: Any, row: Mapping[str, Any], *, labels: bool = False
@@ -968,11 +989,33 @@ def read_crops(project: Any, rows: Iterable[Mapping[str, Any]], *, context: bool
     rows = list(rows)
     groups: Dict[Tuple[str, str], List[int]] = collections.defaultdict(list)
     out: List[Any] = [None] * len(rows)
+    streamed: Dict[str, List[int]] = collections.defaultdict(list)
     for index, row in enumerate(rows):
         if _has_pool(row):
             groups[(str(row["crop_store"]), str(row["crop_array"]))].append(index)
         else:
-            out[index] = read_crop(project, row, context=context, size=size)
+            streamed[str(_row_field(row, "source_field"))].append(index)
+    for _name, members in streamed.items():
+        # Crops of one field are cut from one read of their union box
+        # (item 0aj: a page of Annotate crops reads each field once).
+        windows = None
+        if len(members) > 1:
+            from .image_store import _store_field
+
+            path = _source_field_path(project, rows[members[0]])
+            found = _store_field(path)
+            if found is not None:
+                windows = _field_windows(path, *found)
+                boxes = np.array([[int(_row_field(rows[i], k)) for k in
+                                   ("bbox_y0", "bbox_y1", "bbox_x0", "bbox_x1")] for i in members])
+                windows.prefetch(boxes[:, 0].min(), boxes[:, 1].max(),
+                                 boxes[:, 2].min(), boxes[:, 3].max())
+        try:
+            for index in members:
+                out[index] = read_crop(project, rows[index], context=context, size=size)
+        finally:
+            if windows is not None:
+                windows.release()
     for (store, array), indices in groups.items():
         base = Path(project) / store
         sizes = [int(rows[i]["height"]) * int(rows[i]["width"]) for i in indices]

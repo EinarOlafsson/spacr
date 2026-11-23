@@ -162,8 +162,8 @@
       "source_sha256": "73a1ab63abcd1998224267cb12f77a066eba50f866e4a6b1d737fdf6c87ddc18"
     },
     "save_png": {
-      "source": "(bool) - Save crops. With crop_image_format 'ome-zarr' (the default): on, Measure cuts every object's crop while the field is in memory and saves it in crop.ome.zarr in the project folder; off, nothing is saved and Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, giving the same crops (the crop index in the spacr store lists every object either way). Saving costs disk and makes crop browsing faster; streaming saves the disk. With crop_image_format 'png': write one PNG crop per object into <crop_mode>_png/ and list it in the png_list table. Default True.",
-      "source_sha256": "f8cbb6ba8326d632eedec9c5bf3e14caf946bc73440edbbb9c7e1dca57f1a874"
+      "source": "(bool) - Save crops. Off (the default): no crop pixels are saved; Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, with no duplicated pixels, and training uses datasets/<name>.ome.zarr. On: Measure also saves every object's crop in crop.ome.zarr while the field is in memory, which makes repeated reads of many crops faster and lets the crops stand alone without fov.ome.zarr. Either way the crops are the same, and the crop index in the spacr store lists every object. With crop_image_format 'png', on writes one PNG crop per object into <crop_mode>_png/ and lists it in the png_list table. Older settings files that saved crops keep saving them. Default False.",
+      "source_sha256": "dcf19a0504a4b00bc0b9610eb3ae7610fc542b4a61355492fef1070c460e0650"
     }
   },
   "api": {
