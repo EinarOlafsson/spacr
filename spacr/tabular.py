@@ -635,8 +635,8 @@ def _connect(db: Any, *, migrate: bool, read_only: bool = False):
     if migrate:
         from .database_schema import ensure_database_schema
         ensure_database_schema(path)
-    from ._store_legacy import sqlite_connection
-    return sqlite_connection(path, read_only=read_only)
+    from .store import _legacy_sqlite_connection
+    return _legacy_sqlite_connection(path, read_only=read_only)
 
 
 def _is_project_folder(source: Any) -> bool:

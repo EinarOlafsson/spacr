@@ -99,11 +99,11 @@ EXPECTED_HOMES = {
     # THE FUNNEL ITSELF. `read_table` and `write_table` are where the raw
     # calls are SUPPOSED to be -- that is what makes them a funnel.
     "tabular.py",
-    # THE STORE'S LEGACY READER (unified-store step S3, 2026-11-23). The
-    # funnel's SQLite reads moved here, behind spacr.store.open, so that
+    # THE STORE'S READER (unified-store step S3, 2026-11-23). The
+    # funnel's SQLite reads moved into spacr.store (_legacy_sqlite_frames), so
     # tabular and the store share one reader of measurements.db. Moved, not
     # added: the calls left tabular.py in the same commit.
-    "_store_legacy.py",
+    "store.py",
 }
 
 
