@@ -87,6 +87,22 @@ FIELD_CODEC = "lz4"
 FIELD_CODEC_LEVEL = 5
 
 
+#: The OME-Zarr version of every new store spaCR writes (item 0aj,
+#: maintainer 2026-11-23: "0.6 is stable and more optimized"). Stores of
+#: 0.4 to 0.6 are still read; an existing 0.5 store keeps its version.
+DEFAULT_NGFF_VERSION = "0.6"
+
+
+def _stored_ngff_version(path: Any) -> Optional[str]:
+    """The ``ome`` version a store's root ``zarr.json`` declares, or None."""
+    try:
+        attrs = json.loads((Path(path) / "zarr.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    version = ((attrs.get("attributes") or {}).get("ome") or {}).get("version")
+    return str(version) if version else None
+
+
 class PlateWriter:
     """The only writer of one plate's OME-Zarr store (item 983).
 
@@ -95,9 +111,12 @@ class PlateWriter:
     :param channel_names: the image channels' names, written to ``omero``.
     :param spacing: a :class:`spacr.layers.Spacing` for the pixel size, or
         None to record pixels with no physical unit.
-    :param ngff_version: ``'0.5'`` (the default) or ``'0.6'`` (item 1007):
-        the OME-Zarr version of every group in the store. One store holds
-        one version, so a store started in the other one is refused.
+    :param ngff_version: ``'0.6'`` or ``'0.5'`` (item 1007): the OME-Zarr
+        version of every group in the store. None (the default) takes the
+        version of a store that already exists, so an older 0.5 store
+        resumes as 0.5, and writes a new store as 0.6 (item 0aj: 0.6 is
+        the default of every new store). One store holds one version, so a
+        store started in the other one is refused when a version is given.
     :param registration: optional field-number to OPS registration-row mapping.
         Requires version 0.6 and pixel coordinates (spacing=None). Existing
         stores must use the same registration mode.
@@ -122,7 +141,7 @@ class PlateWriter:
 
     def __init__(self, root: Any, plate: str, *,
                  channel_names: Optional[Sequence[str]] = None,
-                 spacing=None, ngff_version: str = "0.5",
+                 spacing=None, ngff_version: Optional[str] = None,
                  registration: Optional[Mapping[Any, Mapping[str, Any]]] = None,
                  store_path: Any = None, shards: bool = False,
                  attributes: Optional[Mapping[str, Any]] = None):
@@ -137,6 +156,8 @@ class PlateWriter:
         self.shards = bool(shards)
         self.channel_names = list(channel_names) if channel_names else None
         self.spacing = spacing
+        if ngff_version is None:
+            ngff_version = _stored_ngff_version(self.path) or DEFAULT_NGFF_VERSION
         self.ngff_version = str(ngff_version)
         if self.ngff_version not in ("0.5", "0.6"):
             raise ValueError(tr(
@@ -779,9 +800,148 @@ def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarra
     return report
 
 
-@functools.lru_cache(maxsize=64)
+def _mask_settings_of(project: Path) -> Dict[str, Any]:
+    """The Mask settings a project recorded (``settings/gen_mask_settings``), or ``{}``."""
+    folder = project / "settings"
+    for name in ("gen_mask_settings.csv", "gen_mask_settings.json"):
+        path = folder / name
+        if not path.is_file():
+            continue
+        try:
+            if path.suffix == ".json":
+                return dict(json.loads(path.read_text(encoding="utf-8")))
+            from .utils import load_settings
+
+            return dict(load_settings(str(path)))
+        except Exception as exc:  # an unreadable file cannot name the originals
+            _LOG.info("could not read %s: %s", path, exc)
+    return {}
+
+
+def original_planes(project: Any, settings: Optional[Mapping[str, Any]] = None
+                    ) -> Tuple[Dict[str, List[Callable[[], np.ndarray]]], List[str]]:
+    """The acquired images of a project's fields, plane by plane as fov.ome.zarr keeps them (item 0aj).
+
+    The raw images in the project folder and in ``orig/`` are grouped with
+    the filename pattern of the recorded Mask settings, by the same
+    function Mask stacking uses, and ordered as the store keeps its
+    channels (the sorted channel names, then the run's ``channels``).
+
+    :param project: the project folder.
+    :param settings: Mask settings naming ``metadata_type`` and
+        ``custom_regex``; by default the ones the project recorded.
+    :returns: ``({field file name: [loader of each plane]}, notes)``. A
+        loader reads its file only when called. A field whose channel was
+        projected from several z slices or files has no single original
+        plane, so it is left out with a note.
+    """
+    import re
+
+    from .io import _RAW_IMAGE_SUFFIXES, _escaped_field_stem, _raw_image_names, _raw_images_by_key
+    from .utils import _get_regex
+
+    project = Path(project)
+    settings = dict(settings if settings is not None else _mask_settings_of(project))
+    names = (_raw_image_names(project, _RAW_IMAGE_SUFFIXES)
+             + _raw_image_names(project / "orig", _RAW_IMAGE_SUFFIXES))
+    if not names:
+        return {}, []
+    if not settings.get("metadata_type"):
+        return {}, [f"{project}: no recorded Mask settings name the file pattern; "
+                    f"the originals were not compared"]
+    ext = collections.Counter(n.rsplit(".", 1)[-1].lower() for n in names).most_common(1)[0][0]
+    regex = re.compile(_get_regex(settings["metadata_type"], ext, settings.get("custom_regex")))
+    by_key = _raw_images_by_key(str(project), regex, settings["metadata_type"],
+                                list(_RAW_IMAGE_SUFFIXES),
+                                metadata_well_map=settings.get("metadata_well_map"))
+    layout = _store_layout(_merged_store_path(project)) or {}
+    channels = layout.get("intensity_channels")
+    sorted_channels = sorted({key[3] for key in by_key})
+    fields: Dict[str, Dict[Any, List[str]]] = collections.defaultdict(dict)
+    for key, paths in by_key.items():
+        stem = _escaped_field_stem(key[0], key[1], key[2], key[4])
+        fields[stem].setdefault(key[3], []).extend(paths)
+    planes: Dict[str, List[Callable[[], np.ndarray]]] = {}
+    notes: List[str] = []
+    for stem, by_channel in sorted(fields.items()):
+        if any(len(paths) != 1 for paths in by_channel.values()):
+            notes.append(f"{stem}: a channel is projected from several files; "
+                         f"no single original plane to compare")
+            continue
+        order = [c for c in sorted_channels if c in by_channel]
+        if channels is not None:
+            order = [order[int(i)] for i in channels if int(i) < len(order)]
+        planes[f"{stem}.npy"] = [functools.partial(read_image, by_channel[c][0])
+                                 for c in order]
+    return planes, notes
+
+
+class _LazyPlanes:
+    """Planes read one at a time from their loaders, each time it is iterated."""
+
+    def __init__(self, loaders: Sequence[Callable[[], np.ndarray]]):
+        self._loaders = list(loaders)
+
+    def __len__(self) -> int:
+        return len(self._loaders)
+
+    def __iter__(self) -> Iterator[np.ndarray]:
+        return (load() for load in self._loaders)
+
+
+def verify_project(project: Any, *, originals: bool = True) -> Dict[str, Any]:
+    """``spacr store verify``: the recorded checksums and, when present, the originals (item 0aj).
+
+    :param project: the project folder or its ``fov.ome.zarr``.
+    :param originals: also compare every stored plane with its original
+        image, when the originals are in the project folder or ``orig/``.
+    :returns: :func:`verify_store`'s report plus ``originals_compared``
+        (planes compared with an original) and ``notes``.
+    """
+    target = Path(project)
+    if _is_merged_store(target):
+        target = target.parent
+    store = _merged_store_path(target)
+    if not _is_merged_store(store):
+        raise FileNotFoundError(f"{store} is not a spaCR fov.ome.zarr with committed fields")
+    loaders, notes = original_planes(target) if originals else ({}, [])
+    entries = _store_entries(store)
+    # Each field's originals are read only when verify_store reaches it, so
+    # one field's planes are in memory at a time.
+    compared = {name: _LazyPlanes(planes) for name, planes in loaders.items()
+                if name in entries}
+    for name in sorted(set(loaders) - set(compared)):
+        notes.append(f"{name}: an original with no field in the store")
+    report = verify_store(store, compared)
+    report["originals_compared"] = sum(len(v) for v in compared.values())
+    report["notes"] = notes
+    return report
+
+
+#: ``{ledger path: (mtime_ns, size, entries)}``: ONE parsed copy per ledger.
+#: An lru_cache keyed by the modification time kept a copy per commit, so a
+#: Mask run held memory that grew with the plate (test 622).
+_LEDGER_CACHE: "collections.OrderedDict[str, Tuple[int, int, Dict[str, Dict[str, Any]]]]" = (
+    collections.OrderedDict())
+_LEDGER_CACHE_SIZE = 16
+
+
 def _ledger_entries(ledger: str, modified: int, size: int) -> Dict[str, Dict[str, Any]]:
     """The last ledger entry of every named field, cached while the ledger is unchanged."""
+    cached = _LEDGER_CACHE.get(ledger)
+    if cached is not None and cached[:2] == (modified, size):
+        _LEDGER_CACHE.move_to_end(ledger)
+        return cached[2]
+    entries = _parse_ledger(ledger)
+    _LEDGER_CACHE[ledger] = (modified, size, entries)
+    _LEDGER_CACHE.move_to_end(ledger)
+    while len(_LEDGER_CACHE) > _LEDGER_CACHE_SIZE:
+        _LEDGER_CACHE.popitem(last=False)
+    return entries
+
+
+def _parse_ledger(ledger: str) -> Dict[str, Dict[str, Any]]:
+    """``{field file name: last ledger entry}`` read from a commit ledger."""
     entries: Dict[str, Dict[str, Any]] = {}
     with open(ledger, encoding="utf-8") as handle:
         by_key = {}

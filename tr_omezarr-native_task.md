@@ -26,3 +26,14 @@ Changed public docstrings: `spacr.image_store.export_merged`, `PlateWriter`
 `spacr.utils.cleanup_pipeline_folders`, `spacr.utils.measure_test_mode`. Added: `spacr.image_store.verify_store`,
 `spacr.crop_store.read_crop_labels` (module-level, not in `__all__`). The exact
 texts and sha256 are in the JSON.
+
+P1a finish (second 0aj run):
+
+- `spacr/cli_store.py` (new, `spacr store verify` and `spacr-store verify`):
+  the argparse description and help lines and the plain report lines.
+- Changed settings help: `ome_zarr_ngff_version` (default now 0.6 for every
+  new store, maintainer 2026-11-23 16:50).
+- Changed public docstrings: `PlateWriter` (`ngff_version` default None:
+  the stored version, else 0.6). Added: `spacr.image_store.original_planes`,
+  `spacr.image_store.verify_project`, `spacr.io._raw_images_by_key`
+  (private), `spacr.cli_store.build_parser`, `spacr.cli_store.main`.

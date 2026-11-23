@@ -276,7 +276,10 @@ def test_changed_axis_metadata_fails_verification(tmp_path):
     ome_zarr_convert.convert_project(src, dst, what=("merged", "masks"))
     metadata_path = dst / "merged" / "p.ome.zarr" / "A" / "1" / "1" / "zarr.json"
     metadata = json.loads(metadata_path.read_text())
-    axes = metadata["attributes"]["ome"]["multiscales"][0]["axes"]
+    entry = metadata["attributes"]["ome"]["multiscales"][0]
+    # 0.5 keeps the axes on the multiscales entry, 0.6 (the default since
+    # item 0aj) in its intrinsic coordinate system.
+    axes = entry["axes"] if "axes" in entry else entry["coordinateSystems"][0]["axes"]
     axes[1]["name"], axes[2]["name"] = axes[2]["name"], axes[1]["name"]
     metadata_path.write_text(json.dumps(metadata))
     with pytest.raises(ValueError, match="metadata verification"):

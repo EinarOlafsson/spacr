@@ -66,6 +66,16 @@ def _stack_names(folder):
                   if not p.name.startswith("."))
 
 
+def _merged_names(src):
+    """The merged fields of a Mask run: fov.ome.zarr's (item 0aj), else merged/*.npy."""
+    from spacr.image_store import _is_merged_store, _list_fields
+
+    store = Path(src) / "fov.ome.zarr"
+    if _is_merged_store(store):
+        return sorted(_list_fields(store))
+    return _stack_names(Path(src) / "merged")
+
+
 def _archive_fields(masks):
     """Load every archive the way the segmenter does and list its fields."""
     fields = []
@@ -434,7 +444,7 @@ def test_issue_124_the_mask_run_finishes_after_a_kill(plate, fake_cellpose):
         cell_diameter=40, nucleus_diameter=20, magnification=20))
 
     fields = _stack_names(plate / "stack")
-    assert _stack_names(plate / "merged") == fields
+    assert _merged_names(plate) == fields
     for object_type in ("cell", "nucleus"):
         assert _stack_names(plate / "masks" / f"{object_type}_mask_stack") == fields
 
@@ -457,7 +467,7 @@ def test_issue_118_the_mask_run_in_test_mode_finishes(plate, fake_cellpose,
     test = plate / "test"
     fields = _stack_names(test / "stack")
     assert len(fields) == 1
-    assert _stack_names(test / "merged") == fields
+    assert _merged_names(test) == fields
     assert len(_stack_names(plate / "stack")) == 4
 
 
@@ -495,7 +505,7 @@ def test_issue_124_with_preprocess_off_stops_on_the_damaged_archive(
     preprocess_generate_masks(_settings(plate, preprocess=True, **_RUN))
 
     fields = _stack_names(plate / "stack")
-    assert _stack_names(plate / "merged") == fields
+    assert _merged_names(plate) == fields
 
 
 def _channel_folder_plate(root):

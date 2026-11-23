@@ -1216,6 +1216,57 @@ def _stack_field_stems(stack_path):
             if name.endswith('.npy')}
 
 
+def _raw_images_by_key(src, regular_expression, metadata_type, img_format, *,
+                       metadata_well_map=None, source_plate=None):
+    """The raw images of a plate folder and its ``orig/``, grouped by field and channel.
+
+    The one grouping Mask's stacking and ``spacr store verify`` share
+    (item 0aj): the images in ``src`` and those already set aside in
+    ``src/orig`` (a name in both is read from ``src``) are parsed with the
+    plate's filename pattern.
+
+    :param src: the plate folder.
+    :param regular_expression: the compiled filename pattern.
+    :param metadata_type: the microscope convention.
+    :param img_format: the image extensions to take.
+    :param metadata_well_map: indexed ScanR well map, when there is one.
+    :param source_plate: the plate name; the folder name by default.
+    :returns: ``{(plate, well, field, channel, time, slice): [paths]}``.
+    """
+    from .utils import _extract_filename_metadata
+
+    if isinstance(img_format, str):
+        img_format = [img_format]
+    orig_path = os.path.join(src, 'orig')
+    src_filenames = _raw_image_names(src, img_format)
+    in_src = set(src_filenames)
+    orig_filenames = [name for name in _raw_image_names(orig_path, img_format)
+                      if name not in in_src]
+    source_plate = source_plate or os.path.basename(os.path.normpath(src))
+    if metadata_type == 'scanr_indexed':
+        from .convert import _indexed_well_map
+        matches = [regular_expression.fullmatch(name)
+                   for name in src_filenames + orig_filenames]
+        metadata_well_map = _indexed_well_map(
+            metadata_well_map, {(source_plate, match.group('wellID') if match else None) for match in matches})
+    image_paths_by_key = defaultdict(list)
+    for folder, names in ((src, src_filenames),
+                          (orig_path, orig_filenames)):
+        if folder != src and not names:
+            continue
+        print(f'All files: {len(names)} in {folder}')
+        parsed = _extract_filename_metadata(
+            names, folder, regular_expression, metadata_type,
+            metadata_well_map=metadata_well_map,
+            source_plate=source_plate)
+        for key, paths in parsed.items():
+            if (folder != src and metadata_type != 'scanr_indexed'
+                    and 'plateID' not in regular_expression.groupindex):
+                key = (os.path.basename(src),) + tuple(key[1:])
+            image_paths_by_key[key].extend(paths)
+    return image_paths_by_key
+
+
 def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True, metadata_well_map=None, source_plate=None):
     """
     Convert z-stack images to maximum intensity projection (MIP) images and
@@ -1274,7 +1325,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     if isinstance(img_format, str):
         img_format = [img_format]
 
-    from .utils import _extract_filename_metadata, print_progress
+    from .utils import print_progress
 
     regular_expression = re.compile(regex)
     stack_path = os.path.join(src, 'stack')
@@ -1282,32 +1333,9 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     files_processed = 0
     channels_seen = set()
 
-    src_filenames = _raw_image_names(src, img_format)
-    in_src = set(src_filenames)
-    orig_filenames = [name for name in _raw_image_names(orig_path, img_format)
-                      if name not in in_src]
-    source_plate = source_plate or os.path.basename(os.path.normpath(src))
-    if metadata_type == 'scanr_indexed':
-        from .convert import _indexed_well_map
-        matches = [regular_expression.fullmatch(name)
-                   for name in src_filenames + orig_filenames]
-        metadata_well_map = _indexed_well_map(
-            metadata_well_map, {(source_plate, match.group('wellID') if match else None) for match in matches})
-    image_paths_by_key = defaultdict(list)
-    for folder, names in ((src, src_filenames),
-                          (orig_path, orig_filenames)):
-        if folder != src and not names:
-            continue
-        print(f'All files: {len(names)} in {folder}')
-        parsed = _extract_filename_metadata(
-            names, folder, regular_expression, metadata_type,
-            metadata_well_map=metadata_well_map,
-            source_plate=source_plate)
-        for key, paths in parsed.items():
-            if (folder != src and metadata_type != 'scanr_indexed'
-                    and 'plateID' not in regular_expression.groupindex):
-                key = (os.path.basename(src),) + tuple(key[1:])
-            image_paths_by_key[key].extend(paths)
+    image_paths_by_key = _raw_images_by_key(
+        src, regular_expression, metadata_type, img_format,
+        metadata_well_map=metadata_well_map, source_plate=source_plate)
     print(f'All unique FOV: {len(image_paths_by_key)} in {src}')
     if not image_paths_by_key:
         return 0

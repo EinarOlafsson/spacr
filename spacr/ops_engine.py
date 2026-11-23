@@ -5054,11 +5054,12 @@ def _ph_ngff_version(settings: Mapping[str, Any]) -> str:
     """The OME-Zarr version the phenotype images and masks are written in (item 1007).
 
     :param settings: read for ``ome_zarr_ngff_version``.
-    :returns: ``'0.5'`` (the default) or ``'0.6'``.
+    :returns: ``'0.6'`` (the default, item 0aj) or ``'0.5'``.
     """
+    from .image_store import DEFAULT_NGFF_VERSION
     from .qt.i18n import tr
 
-    value = str(settings.get("ome_zarr_ngff_version") or "0.5").strip()
+    value = str(settings.get("ome_zarr_ngff_version") or DEFAULT_NGFF_VERSION).strip()
     if value not in ("0.5", "0.6"):
         raise ValueError(tr("ome_zarr_ngff_version must be 0.5 or 0.6; got {value}",
                             value=value))

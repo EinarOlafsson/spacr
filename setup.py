@@ -441,6 +441,7 @@ setup(
             'spacr-plugins=spacr.cli_plugins:main',
             'spacr-leakage=spacr.cli_leakage:main',
             'spacr-db-audit=spacr.cli_database:main',
+            'spacr-store=spacr.cli_store:main',
             'spacr-doctor=spacr.doctor:main',
         ],
     },

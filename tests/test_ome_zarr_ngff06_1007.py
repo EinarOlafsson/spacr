@@ -371,31 +371,38 @@ def test_plate_store_writes_06_everywhere(tmp_path):
     assert np.array_equal(image_store.read_image(store, key=key), image)
     assert np.array_equal(image_store.read_labels(store, "cell", key=key), mask)
     assert read_ome_zarr(store / key).ngff_version == "0.6"
+    # Item 0aj: no version given resumes the stored one; another is refused.
+    assert image_store.PlateWriter(tmp_path, "P1").ngff_version == "0.6"
     with pytest.raises(ValueError, match="0.6"):
-        image_store.PlateWriter(tmp_path, "P1")
+        image_store.PlateWriter(tmp_path, "P1", ngff_version="0.5")
     with pytest.raises(ValueError, match="0.7"):
         image_store.PlateWriter(tmp_path, "P2", ngff_version="0.7")
 
 
-def test_plate_store_default_stays_05(tmp_path):
-    """The plate store default is unchanged: 0.5, with image-label version."""
+def test_plate_store_default_is_06_and_05_stays_writable(tmp_path):
+    """Item 0aj: a new plate store is 0.6; 0.5 is written when asked, with image-label version."""
     from spacr import image_store
 
-    writer = image_store.PlateWriter(tmp_path, "P1")
+    writer = image_store.PlateWriter(tmp_path / "new", "P1")
+    writer.write_field("A01", 0, np.zeros((8, 8), np.uint16))
+    assert _attrs(tmp_path / "new" / "P1.ome.zarr")["ome"]["version"] == "0.6"
+    writer = image_store.PlateWriter(tmp_path, "P1", ngff_version="0.5")
     key = writer.write_field("A01", 0, np.zeros((8, 8), np.uint16),
                              {"nucleus": np.ones((8, 8), np.uint16)})
     store = tmp_path / "P1.ome.zarr"
     assert _attrs(store)["ome"]["version"] == "0.5"
     assert _attrs(store / key / "labels" / "nucleus")["ome"]["image-label"] == {"version": "0.5"}
+    # An existing 0.5 store resumes as 0.5 when no version is given.
+    assert image_store.PlateWriter(tmp_path, "P1").ngff_version == "0.5"
 
 
 def test_ops_setting_resolves_and_is_alpha():
-    """ome_zarr_ngff_version: OPS default 0.5, 0.6 accepted, others refused, alpha."""
+    """ome_zarr_ngff_version: OPS default 0.6 (item 0aj), 0.5 accepted, others refused, alpha."""
     from spacr import ops_engine, ops_settings, settings
 
-    assert ops_settings.OPS_DEFAULTS["ome_zarr_ngff_version"] == "0.5"
-    assert ops_engine._ph_ngff_version({}) == "0.5"
-    assert ops_engine._ph_ngff_version({"ome_zarr_ngff_version": "0.6"}) == "0.6"
+    assert ops_settings.OPS_DEFAULTS["ome_zarr_ngff_version"] == "0.6"
+    assert ops_engine._ph_ngff_version({}) == "0.6"
+    assert ops_engine._ph_ngff_version({"ome_zarr_ngff_version": "0.5"}) == "0.5"
     with pytest.raises(ValueError, match="0.5 or 0.6"):
         ops_engine._ph_ngff_version({"ome_zarr_ngff_version": "0.4"})
     assert "ome_zarr_ngff_version" in settings.ALPHA_FEATURES[1007]["settings"]
