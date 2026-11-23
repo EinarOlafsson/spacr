@@ -9763,8 +9763,46 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
     return int(committed["n_rows"]), len(committed["pools"]), unreadable
 
 
+def _ph_store_owned_cells(tables: Optional[Mapping[str, Any]], plate: str,
+                          well: str):
+    """``site`` and ``label`` of a well's owned, whole cells, read from the store.
+
+    The ``cell`` table ``ph_tables`` wrote in this run (its report
+    ``tables``) holds exactly the owned, whole cells (:func:`_ph_owned_cells`
+    with the same settings); it is read through :func:`spacr.store.open`,
+    in ``object_key`` order (field, then label). :func:`_ph_crops` keeps
+    the well table's own order and takes only which cells are owned from
+    it. None when ``tables`` is None or the store has no ``cell`` rows for
+    the well, so the caller works ownership out itself.
+    """
+    import pandas as pd
+
+    if not tables or not tables.get("store"):
+        return None
+    from . import store
+
+    try:
+        opened = store.open(tables["store"], verify="none")
+    except store.StoreError:
+        return None
+    try:
+        if "cell" not in opened.tables():
+            return None
+        keys = opened.sql("SELECT fieldID, object_label FROM cell WHERE "
+                          "plate = ? AND well = ? ORDER BY object_key",
+                          [str(plate), str(well)])
+    finally:
+        opened.close()
+    if not len(keys):
+        return None
+    return pd.DataFrame({
+        "site": [int(str(f)[1:]) for f in keys["fieldID"]],
+        "label": keys["object_label"].to_numpy(np.int64)})
+
+
 def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
-              settings: Mapping[str, Any], destination: str) -> Dict[str, Any]:
+              settings: Mapping[str, Any], destination: str,
+              tables: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
     """Cut raw crops of owned cells into a sharded store; the ``ph_crops`` phase.
 
     :param db: the measurements database.
@@ -9779,6 +9817,9 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
         ``ops_merged_root``, ``ops_design``, ``ops_genotype_table`` and the
         ``ops_ph_secondary_*`` options.
     :param destination: the run folder.
+    :param tables: this run's ``ph_tables`` report; its store's ``cell``
+        table gives the owned cells (:func:`_ph_store_owned_cells`). None
+        reads them from the well table.
     :returns: the report.
 
     Which cells: owned, whole cells (:func:`_ph_owned_cells`) whose link
@@ -9895,7 +9936,12 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             report["wells"][well] = {"skipped": "no cell table or no tiles"}
             continue
         cells = pd.read_parquet(cell_path, columns=["site", "label"])
-        owned = _ph_owned_cells(destination, well, cells, settings)
+        stored = _ph_store_owned_cells(tables, plate, well)
+        if stored is None:
+            owned = _ph_owned_cells(destination, well, cells, settings)
+        else:
+            owned = pd.MultiIndex.from_frame(cells[["site", "label"]]).isin(
+                pd.MultiIndex.from_frame(stored[["site", "label"]]))
         cells = cells[owned]
         link = (links[links["well"].astype(str) == str(well)]
                 if links is not None else pd.DataFrame(
@@ -11854,8 +11900,8 @@ def run_ops(settings: Mapping[str, Any], *,
         writes ``ops_guides_<plate>`` and ``ops_genes_<plate>``.
         ``"ph_merged"`` (per well, after ``merge``) writes each field to
         ``merged/`` (:func:`_ph_merged`); ``"ph_tables"`` (after
-        ``aggregate``) writes the standard ``measurements/measurements.db``
-        tables (:func:`_ph_tables`); ``"ph_crops"`` cuts raw crops of owned
+        ``aggregate``) writes the standard measurement tables to the spaCR
+        store in ``measurements/`` (:func:`_ph_tables`); ``"ph_crops"`` cuts raw crops of owned
         cells into a sharded store (:func:`_ph_crops`). ``"ph_ownership"`` (per
         well, after ``ph_masks``) finds the copies of each cell across
         overlapping fields (:func:`_ph_cross_field_ownership`).
@@ -12292,7 +12338,8 @@ def run_ops(settings: Mapping[str, Any], *,
                 "cells_parquet"))
     if "ph_crops" in phases:
         out["ph_crops"] = _ph_crops(db, plate, chosen, phenotype_index,
-                                    settings, destination)
+                                    settings, destination,
+                                    tables=out.get("ph_tables"))
     if (_ops_storage(settings) == "spacr_store" and not only_qc
             and "stopped_before" not in out
             and any(p in phases for p in ("decode", "ph_tables", "ph_crops"))):

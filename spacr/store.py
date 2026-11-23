@@ -79,9 +79,9 @@ _LOCATE_MAX = 2_000_000
 _LEGACY_NAMES = ("measurements.db", os.path.join("measurements",
                                                  "measurements.db"))
 
-#: The recorded storage dtype of each measurement column family, measured
-#: by ``tools/measure_store_dtypes.py`` (plate A, well A1 of the Funk OPS
-#: screen for the first map).
+#: The recorded storage dtype of each measurement column, each measured on
+#: its own by ``tools/measure_store_dtypes.py`` (the map names the plate,
+#: well and cells it was measured on).
 _DTYPE_MAP_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                "resources", "data", "store_dtypes.json")
 
@@ -528,7 +528,8 @@ class WellWriter:
         them a float16 family is stored as float32.
     :param narrow: apply the recorded dtype map to ``schema``.
     :param channels: the run's channel names, for the dtype families.
-    :param dtype_map: the recorded dtype map.
+    :param dtype_map: the recorded dtype map; None is the shipped one
+        (``spacr/resources/data/store_dtypes.json``).
     :param sort_by: the order the caller appends the rows in. Nothing is
         sorted here: the catalog records it only when the rows did arrive
         non-decreasing in its first column, and records no order otherwise.
@@ -551,7 +552,7 @@ class WellWriter:
     def __init__(self, project, table: str, *, plate, well, schema=None,
                  ranges=None, narrow: bool = False,
                  channels: Sequence[str] = (),
-                 dtype_map: str = _DTYPE_MAP_PATH,
+                 dtype_map: Optional[str] = None,
                  sort_by: Sequence[str] = (),
                  key_columns: Sequence[str] = (), crops=None,
                  crop_rows=None, masks=None, run_id: Optional[str] = None,
@@ -1825,15 +1826,15 @@ def _drop_tables(project, tables: Sequence[str]) -> List[str]:
 
 def _dtype_family(column: str, channels: Sequence[str] = (), *,
                   literal_numbers: bool = False) -> str:
-    """The column family a measurement column's storage dtype is chosen for.
+    """The column family of a measurement column, for reporting dtype evidence.
 
-    The name is split at ``_``; a leading object class (``cell``,
-    ``nucleus``, ``cytoplasm``, ``pathogen``) becomes ``{compartment}``, a
-    channel of ``channels`` becomes ``{channel}`` and, unless
-    ``literal_numbers``, a whole number becomes ``{n}``: so
-    ``nucleus_gfp_percentile_95`` is
-    ``{compartment}_{channel}_percentile_{n}``. The finer family keeps the
-    numbers and is recorded where a family's columns need different dtypes.
+    The dtype map is per column (:func:`_stored_types`); the family only
+    groups the evidence and the equivalence report. The name is split at
+    ``_``; a leading object class (``cell``, ``nucleus``, ``cytoplasm``,
+    ``pathogen``) becomes ``{compartment}``, a channel of ``channels``
+    becomes ``{channel}`` and, unless ``literal_numbers``, a whole number
+    becomes ``{n}``: so ``nucleus_gfp_percentile_95`` is
+    ``{compartment}_{channel}_percentile_{n}``.
 
     :param column: the column name.
     :param channels: the run's channel names, any case.
@@ -1854,13 +1855,20 @@ def _dtype_family(column: str, channels: Sequence[str] = (), *,
     return "_".join(tokens)
 
 
-@functools.lru_cache(maxsize=4)
-def _dtype_map(path: str = _DTYPE_MAP_PATH) -> Dict[str, Any]:
-    """A recorded dtype map, read once: ``{"families": {family: {kind: entry}}}``.
+def _dtype_map(path: Optional[str] = None) -> Dict[str, Any]:
+    """A recorded dtype map, read once: ``{"columns": {column: entry}}``.
 
-    Each entry names the dtype a family's float (``"float"``) or integer
-    (``"int"``) columns are stored in and the error measured for it.
+    Each entry names the dtype that column is stored in, the source dtype
+    it was measured from and the evidence of the four criteria for it
+    (``tools/measure_store_dtypes.py``). None reads the shipped map
+    (:data:`_DTYPE_MAP_PATH`, looked up at the call).
     """
+    return _read_dtype_map(os.path.abspath(path or _DTYPE_MAP_PATH))
+
+
+@functools.lru_cache(maxsize=8)
+def _read_dtype_map(path: str) -> Dict[str, Any]:
+    """The dtype map at ``path``, parsed once."""
     with builtins.open(path, encoding="utf-8") as handle:
         return json.load(handle)
 
@@ -1927,24 +1935,26 @@ def _column_ranges(meta) -> Dict[str, tuple]:
 
 
 def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
-                  path: str = _DTYPE_MAP_PATH):
+                  path: Optional[str] = None):
     """The Arrow type each numeric column of a table is stored in.
 
-    The column's recorded dtype (the finer family first, then the family;
-    :func:`_dtype_family`), never wider than the column already is, moved
-    up its ladder when the table's range does not fit
-    (:func:`_fitted_dtype`). A column no family holds keeps its type.
-    Readers get float16 columns back as float32 (:meth:`Store.query`).
+    PER COLUMN: the dtype the recorded map holds for that column name, each
+    column measured on its own (``tools/measure_store_dtypes.py``), never
+    wider than the column already is, moved up its ladder when the
+    table's own range does not fit (:func:`_fitted_dtype`). A column the
+    map does not hold, or holds for the other kind (float or integer),
+    keeps its type. Readers get float16 columns back as float32
+    (:meth:`Store.query`).
 
     :param schema: the source table's Arrow schema.
     :param ranges: :func:`_column_ranges` of the source.
-    :param channels: the run's channel names.
-    :param path: the dtype map.
+    :param channels: the run's channel names (unused; kept for callers).
+    :param path: the dtype map; None is the shipped one.
     :returns: ``({column: pyarrow type}, promotions)``; each promotion
         names the column, the recorded dtype and the one used.
     """
     pa = _require("pyarrow")
-    families = _dtype_map(path)["families"]
+    recorded = _dtype_map(path).get("columns") or {}
     types: Dict[str, Any] = {}
     promoted: List[Dict[str, Any]] = []
     for field in schema:
@@ -1955,13 +1965,10 @@ def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
         else:
             continue
         source = np.dtype(field.type.to_pandas_dtype()).name
-        entry = None
-        for literal in (True, False):
-            entry = families.get(_dtype_family(
-                field.name, channels, literal_numbers=literal), {}).get(kind)
-            if entry:
-                break
-        chosen = entry["dtype"] if entry else source
+        entry = recorded.get(field.name)
+        chosen = source
+        if entry and entry.get("kind") == kind:
+            chosen = entry["dtype"]
         if np.dtype(chosen).itemsize > np.dtype(source).itemsize:
             chosen = source
         low, high = ranges.get(field.name, (None, None))

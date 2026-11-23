@@ -43129,7 +43129,7 @@ Read by ``_stitch``, ``ops_defaults``.
 ops_storage
 -----------
 
-'current' writes the usual OPS outputs. 'spacr_store' also writes the spaCR store in the run folder: one Parquet table per object class per well (cells with all features, reads, barcodes), each cell's raw crop in a Zarr store per well, and the catalog spacr.duckdb, which spacr.store.open reads. Default 'current'. Alpha.
+'current' writes the usual OPS outputs; ph_tables always writes the cell, nucleus and cytoplasm tables to the run's spaCR store in measurements/. 'spacr_store' also adds the reads and barcodes tables there and each cell's raw crop in a Zarr store per well, with the crop pointer on the cell table. spacr.store.open reads the store through its catalog spacr.duckdb. Default 'current'. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -43252,7 +43252,7 @@ Read by ``run_ops``, ``_preview_settings``, ``ops_defaults``.
 ops_tables_integer_keys
 -----------------------
 
-Give every row of the ph_tables cell, nucleus and cytoplasm tables an integer cell_key, indexed, that joins as prcfo does but faster. Default False. Alpha.
+Give every row of the ph_tables cell, nucleus and cytoplasm tables an integer cell_key that joins as prcfo does but faster. Default False. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
