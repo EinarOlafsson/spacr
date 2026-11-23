@@ -1,0 +1,60 @@
+{
+ "task": "phtables-store",
+ "branch": "ws-offload-claude-home-phtables-store",
+ "api_owners": {
+  "spacr.store.PartWriter": {
+   "status": "added",
+   "docstring": "Write one well's part of a table in batches, then leave its manifest.\n\n:func:`write_part` writes a frame it holds whole; this writes one that\narrives in pieces -- a well's cells one field at a time -- so a well\nneeds the memory of one row group, not of the well. The rows stay in\nthe order they are written and are held in row groups of the size\n:func:`write_part` uses; :meth:`close` then writes the key table, the\ncrops and the row-major copy from the finished part, and the manifest\nlast, as :func:`write_part` leaves them.\n\n:param project: the project folder.\n:param table: the object class.\n:param plate: the plate name.\n:param well: the well name.\n:param schema: the part's Arrow schema without ``plate``, ``well`` and\n    the crop pointer. Every batch is cast to it and a column a batch\n    lacks is null. None takes the first batch's schema.\n:param sort_by: the order the caller writes the rows in. Nothing is\n    sorted here: the catalog records it only when the rows did arrive\n    non-decreasing in its first column, and records no order otherwise.\n:param key_columns: the columns every feature query returns.\n:param crops: an array ``(k, C, H, W)`` indexable by an integer array.\n:param crop_rows: the part row of each crop, counted over every batch;\n    every row when None.\n:param masks: an array ``(k, H, W)`` beside the crops, or None.\n:param run_id: the run this write belongs to.\n:param row_group_rows: rows per row group, under the byte cap.\n:param row_copy: also write the row-major copy of the float columns.\n:raises StoreError: from :meth:`write` when a batch's plate or well\n    disagree with the partition, a value does not fit its column's type\n    (an integer out of range, or a finite float that would become\n    infinite) or a column is not in the schema; from :meth:`close` when\n    the crops do not match the rows written."
+  },
+  "spacr.store.PartWriter.write": {
+   "status": "added",
+   "docstring": "Append the rows of ``frame``, a DataFrame or Arrow table.\n\n:returns: the rows written so far."
+  },
+  "spacr.store.PartWriter.close": {
+   "status": "added",
+   "docstring": "Finish the part, write its key table, crops and copy, then the manifest.\n\n:returns: the manifest."
+  },
+  "spacr.store.PartWriter.abort": {
+   "status": "added",
+   "docstring": "Drop the unfinished part; nothing of it reaches the catalog."
+  },
+  "spacr.store.MeasurementWriter": {
+   "status": "added",
+   "docstring": "The one writer every spaCR module saves its measurement tables with.\n\nOne run's tables go to one store (``project``, the run's measurements\nfolder holding ``spacr.duckdb``), one Parquet part per table per well,\nkeyed as Measure's tables are (``prcfo``, ``object_key``, ``rowID``,\n``columnID``, ``fieldID``; the plate and well as partition columns) and\nregistered in one catalog transaction with the run's settings by\n:meth:`close`. A table held whole is written with :meth:`write`; one\ntoo large for memory is streamed through :meth:`open_part`. Numeric\ncolumns are stored in the dtypes of the recorded map\n(:meth:`stored_types`) unless ``narrow`` is False.\n\n:param project: the store's folder.\n:param run_id: the run; a new id when None.\n:param settings: the run's settings, recorded in the catalog.\n:param rebuild: tables rebuilt by this run: they, and an older\n    ``measurements.db`` in ``project``, are removed first, so a well\n    this run does not write cannot survive from an older run.\n:param channels: the run's channel names, for the dtype families.\n:param narrow: store columns in the recorded dtypes.\n:param dtype_map: the recorded dtype map."
+  },
+  "spacr.store.MeasurementWriter.stored_types": {
+   "status": "added",
+   "docstring": "The stored Arrow type of each numeric column (:func:`_stored_types`).\n\n:param schema: the source's Arrow schema.\n:param ranges: :func:`_column_ranges` of the source.\n:returns: ``({column: type}, promotions)``; the source's own types\n    when ``narrow`` is False."
+  },
+  "spacr.store.MeasurementWriter.open_part": {
+   "status": "added",
+   "docstring": "A :class:`PartWriter` for one well's part of ``table``, closed by :meth:`close`."
+  },
+  "spacr.store.MeasurementWriter.finish_part": {
+   "status": "added",
+   "docstring": "Close one streamed part now; returns its manifest."
+  },
+  "spacr.store.MeasurementWriter.write": {
+   "status": "added",
+   "docstring": "Write one well's whole part of ``table`` (:func:`write_part`)."
+  },
+  "spacr.store.MeasurementWriter.close": {
+   "status": "added",
+   "docstring": "Close every streamed part still open and register the run's parts.\n\n:returns: :func:`register`'s report."
+  },
+  "spacr.store.MeasurementWriter.abort": {
+   "status": "added",
+   "docstring": "Drop every streamed part still open; nothing reaches the catalog."
+  },
+  "spacr.store.write_part": {
+   "status": "revised",
+   "docstring": "Write one well's rows of ``table`` (and its crops) and leave a manifest.\n\nThe rows are sorted by ``sort_by`` and written under a temporary name,\nflushed and renamed into ``tables/<table>/plate=<P>/well=<W>/``. The\ncrops go to ``crops/plate=<P>/well=<W>.zarr`` in the same row order and\neach row gets ``crop_store`` and ``crop_index``. The manifest in\n``_pending/`` is written last; nothing is visible to readers until\n:func:`register` adds it to the catalog. The sorted rows are handed to\none :class:`PartWriter`, which a caller whose rows do not fit in memory\nat once uses directly.\n\n:param project: the project folder.\n:param table: the object class, for example ``cells``.\n:param frame: a DataFrame or Arrow table, one row per object.\n:param plate: the plate name.\n:param well: the well name.\n:param sort_by: the columns the rows are sorted by, those present.\n:param key_columns: the columns every feature query returns.\n:param crops: an array ``(k, C, H, W)`` indexable by an integer array.\n:param crop_rows: the frame row of each crop; every row when None.\n:param masks: an array ``(k, H, W)`` beside the crops, or None.\n:param run_id: the run this write belongs to.\n:param row_group_rows: rows per row group, under the byte cap.\n:param row_copy: also write the float columns as a row-major Zarr copy,\n    which point lookups of every column read instead of the Parquet part.\n:returns: the manifest.\n:raises StoreError: when the frame's plate or well disagree with the\n    partition, or the crops do not match ``crop_rows``."
+  }
+ },
+ "runtime_sources": [
+  "{path} does not hold the cells the well table {table} holds for its field; run ph_measure again"
+ ],
+ "retired_catalog_keys": [
+  "ops_tables_parquet_threshold (SETTING_LABELS 'ops_tables_parquet_threshold' and 'ops.ops_tables_parquet_threshold', SETTING_TOOLTIPS 'ops_tables_parquet_threshold'): removed from all nine locale catalogs and en"
+ ]
+}

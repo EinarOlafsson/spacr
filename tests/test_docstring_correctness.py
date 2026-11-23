@@ -3211,7 +3211,9 @@ def _validated_bmc_paper_items_callables(callables):
         / "871_911_bmc_paper_items_api_arrivals_2026-11-09.json").read_text(encoding="utf-8"))
     from tests.test_ops_fdr_never_1014 import _current_never_api
     entries = _current_never_api(entries)
-    assert len(entries) == 171
+    from tests.test_ops_phtables_store import _current_phtables_api
+    entries = _current_phtables_api(entries)
+    assert len(entries) == 170
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert len(found) == 135
@@ -7149,7 +7151,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("751_published_reference_api_arrivals_2026-11-09.json", 8),
         ("865_866_budding_prediction_api_arrivals_2026-11-09.json", 10),
         ("795_moa_benchmark_api_arrivals_2026-11-09.json", 10),
-        ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 171),
+        ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 170),
         ("884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json", 376),
         ("912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json", 54),
         ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 112),
@@ -7213,6 +7215,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         from tests.test_ops_fdr_never_1014 import _current_never_api
         additions = _current_never_api(additions)
+        from tests.test_ops_phtables_store import _current_phtables_api
+        additions = _current_phtables_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":

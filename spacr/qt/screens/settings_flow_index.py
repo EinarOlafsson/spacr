@@ -1721,7 +1721,6 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_stress_report',
     'ops_tables_integer_keys',
     'ops_tables_layout',
-    'ops_tables_parquet_threshold',
     'ops_test_features',
     'ops_tie',
     'ops_tvn_components',
