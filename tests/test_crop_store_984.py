@@ -52,7 +52,7 @@ def test_ragged_crops_read_back_exactly_the_box_plus_margin(tmp_path):
     assert by_label[1]["clipped_at_edge"] and by_label[3]["clipped_at_edge"]
     assert not by_label[2]["clipped_at_edge"]
     assert (by_label[2]["bbox_y0"], by_label[2]["bbox_y1"]) == (46, 94)
-    assert by_label[2]["crop_store"] == "crops/plate=plate1/well=B03.zarr"
+    assert by_label[2]["crop_store"] == "crops.ome.zarr/plate=plate1/well=B03"
 
 
 def test_object_only_views_and_deterministic_resize(tmp_path):
@@ -86,7 +86,7 @@ def test_exports_round_trip_pixel_exact(tmp_path):
 
 def test_shards_are_written_whole_and_never_rewritten(tmp_path):
     _image, _labels, rows = _write(tmp_path, per_shard=3)
-    pool = tmp_path / "crops" / "plate=plate1" / "well=B03.zarr" / "cell" / "pool"
+    pool = tmp_path / "crops.ome.zarr" / "plate=plate1" / "well=B03" / "cell" / "pool"
     first = (pool / "0" / "c").stat().st_mtime_ns if (pool / "0" / "c").exists() else None
     image, labels = _field(1)
     writer = CropPoolWriter(tmp_path, "plate1", "B03", "cell", 3, crops_per_shard=3)
@@ -121,7 +121,7 @@ def test_commit_records_pools_and_rows_and_a_stopped_run_is_discarded(tmp_path):
                              attributes=attrs)
     stopped.add(cut_crops(image, labels), field=2)
     stopped.close()
-    pool = tmp_path / "crops" / "plate=plate1" / "well=B03.zarr" / "cell" / "pool"
+    pool = tmp_path / "crops.ome.zarr" / "plate=plate1" / "well=B03" / "cell" / "pool"
     (pool / ".9.tmp").mkdir()
     assert discard_uncommitted(tmp_path, "plate1", "B03", "cell") == ["2", "3"]
     assert sorted(p.name for p in pool.iterdir() if p.name != "zarr.json") == ["0", "1"]

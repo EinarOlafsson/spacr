@@ -127,7 +127,8 @@ def build_plate_plan(src: os.PathLike | str, filenames: Iterable[str],
             plate = _plate_id(filename, settings)
             top, has_intensity = signal_max(data, settings)
             kind = _kind(data.dtype, top, has_intensity)
-            stat = os.stat(path)
+            from .image_store import _field_stat
+            stat = _field_stat(path)
             return filename, {
                 "plateID": plate,
                 "original_dtype": str(data.dtype),

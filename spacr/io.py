@@ -66,7 +66,7 @@ from .object_roles import (CHILD_ROLES, ORGANELLE_ROLES,
                            enabled_organelle_roles, join_how)
 from .png_list import (PNG_LIST_ID_COLUMNS, _merged_field_paths,
                        _object_id_int, crop_rows_from_png_list)
-from .crops import MERGED_LAYOUT_SIDECAR, read_merged_plane_layout
+from .crops import MERGED_LAYOUT_SIDECAR
 from .merge_tables import reconcile_duplicates
 
 from .figures.style import figure_style, theme_target
@@ -5941,6 +5941,14 @@ def _load_and_concatenate_arrays(
     reference_files = [name for name in reference_files if name not in rejected_quality]
     to_store = (str(image_format or 'npy').strip().lower() == 'ome-zarr'
                 and _merged_store_plan(reference_files))
+    first_npy = next((n for n in reference_files if n.endswith('.npy')), None)
+    if to_store and first_npy is not None and np.load(
+            os.path.join(reference_folder, first_npy), mmap_mode='r').ndim != 3:
+        from .qt.i18n import tr
+        print(tr('merged.ome.zarr not written: the fields have time or depth axes, '
+                 'which the plate store has no place for yet; the fields are '
+                 'merged to merged/*.npy instead.'))
+        to_store = None
     if not to_store:
         os.makedirs(output_folder, exist_ok=True)
     all_imgs = len(reference_files)
@@ -6220,13 +6228,19 @@ def _export_vvvv_merged(src, *, pixel_size=None):
     :param pixel_size: ``(x, y)`` pixel size in µm, or None.
     :returns: the folders written.
     """
-    from .image_store import _is_merged_store, _merged_store_path, _read_field, _list_fields
+    from .image_store import (_is_merged_store, _merged_store_path, _read_field,
+                              _list_fields, _store_layout)
     merged = os.path.join(src, 'merged')
     layout_path = os.path.join(merged, MERGED_LAYOUT_SIDECAR)
     store = os.fspath(_merged_store_path(src))
     if not os.path.isfile(layout_path) and _is_merged_store(store):
         merged = store
-    layout = read_merged_plane_layout(merged)
+        layout = _store_layout(store)
+    elif os.path.isfile(layout_path):
+        with open(layout_path, 'r', encoding='utf-8') as handle:
+            layout = json.load(handle)
+    else:
+        layout = None
     if layout is None:
         print('vvvv export skipped: merged/ has no plane layout')
         return []

@@ -95,7 +95,7 @@ def test_crop_choices_include_legacy_metadata_beside_native_records(native_proje
     write_database(legacy, database, "png_list", if_exists="fail", canonicalise=False)
     write_database(legacy, database, "legacy_only", if_exists="fail", canonicalise=False)
     if native_state == "missing_store":
-        shutil.rmtree(root / "crops")
+        shutil.rmtree(root / "crops.ome.zarr")
     elif native_state == "empty_table":
         with sqlite3.connect(database) as connection:
             connection.execute('DELETE FROM "ssCell_Crops"')

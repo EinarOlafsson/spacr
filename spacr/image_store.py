@@ -832,3 +832,24 @@ def _read_field(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
                 raise ValueError(f"{store}: field {entry['name']} has no {role} labels")
             data[..., int(dim)] = read_labels(group, role)
     return data
+
+
+def _field_stat(path: Any) -> os.stat_result:
+    """``os.stat`` of one field: the ``.npy`` file, or a merged-store field's image shard.
+
+    For a store field the size is the bytes of its image and label shard
+    files and the time the newest of them, so a rewritten field reads as
+    changed, as a rewritten ``.npy`` does.
+    """
+    found = _store_field(path)
+    if found is None:
+        return os.stat(os.fspath(path))
+    store, entry = found
+    group = store / entry["key"]
+    stats = [os.stat(os.path.join(base, name))
+             for base, _dirs, names in os.walk(group) for name in names]
+    newest = max(stats, key=lambda item: item.st_mtime_ns)
+    values = list(newest)
+    values[6] = sum(item.st_size for item in stats)
+    result = os.stat_result(values, {"st_mtime_ns": newest.st_mtime_ns})
+    return result

@@ -439,6 +439,29 @@ def _crop_from_row(project: Any, row: Mapping[str, Any]
     return crop, {"field": row.get("field"), "timepoint": row.get("timepoint")}
 
 
+def _crop_wells(project: Any, plate: str) -> List[str]:
+    """The wells of one plate that hold a crop store (item 0aj), sorted.
+
+    The one listing every reader uses: ``crops.ome.zarr/plate=<P>/well=<W>``
+    and, for older projects, ``crops/plate=<P>/well=<W>.zarr``.
+
+    :param project: the project folder.
+    :param plate: the plate name.
+    """
+    from urllib.parse import unquote
+
+    from .store import _encoded
+
+    wells = set()
+    for root, suffix in ((CROP_STORE_NAME, ""), (_LEGACY_CROP_ROOT, ".zarr")):
+        folder = Path(project) / root / f"plate={_encoded(plate)}"
+        for path in folder.glob(f"well=*{suffix}"):
+            if path.is_dir() and path.name.endswith(suffix):
+                name = path.name[len("well="):]
+                wells.add(unquote(name[:-len(suffix)] if suffix else name))
+    return sorted(wells)
+
+
 def committed_rows(project: Any) -> List[Dict[str, Any]]:
     """Every committed crop row of the project, by plate, well and class.
 
@@ -947,26 +970,36 @@ def _write_crop_index(db_path: Any, frame: Any) -> None:
 def _read_crop_index(project: Any) -> Optional[Any]:
     """The crop-index adapter's reader (item 0aj): the project's crop rows.
 
-    Reads ``measurements.db:ssCell_Crops`` today; the unified measurement
-    store will answer here instead (see :func:`_write_crop_index`).
+    Reads through the shared spaCR data reader, :func:`spacr.store.open`,
+    which answers an older project's ``measurements.db`` tables, here
+    ``ssCell_Crops``. A project whose store catalog does not list the table
+    is read from ``measurements.db`` directly. The unified measurement store
+    will answer here instead (see :func:`_write_crop_index`).
 
     :param project: the project folder (holding ``measurements/``).
     :returns: a DataFrame of crop rows, or None when the project has none.
     """
+    from . import store
     from .tabular import read_database
 
-    measurements = Path(project) / "measurements"
-    db = measurements / "measurements.db"
-    if db.is_file():
-        import sqlite3
+    db = Path(project) / "measurements" / "measurements.db"
+    if not db.is_file():
+        return None
+    try:
+        with store.open(str(project)) as opened:
+            if "ssCell_Crops" in opened.tables():
+                return opened.query(table="ssCell_Crops")
+    except store.StoreError:
+        pass
+    import sqlite3
 
-        with sqlite3.connect(str(db), timeout=30) as conn:
-            present = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
-                                   "AND name='ssCell_Crops'").fetchone()
-        if present:
-            return read_database(str(db), "ssCell_Crops", canonicalise=False,
-                                 report=None, migrate=False, read_only=True)[0]
-    return None
+    with sqlite3.connect(str(db), timeout=30) as conn:
+        present = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
+                               "AND name='ssCell_Crops'").fetchone()
+    if not present:
+        return None
+    return read_database(str(db), "ssCell_Crops", canonicalise=False,
+                         report=None, migrate=False, read_only=True)[0]
 
 
 def record_measure_crops(settings: Mapping[str, Any], file_name: str,

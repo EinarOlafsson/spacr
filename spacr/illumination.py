@@ -781,10 +781,10 @@ def _merged_files(src) -> Dict[str, list]:
                 f"illumination correction was asked to estimate from "
                 f"{folder!r}, which is not a folder. Point it at the merged "
                 f"field folder measure_crop reads (settings['src']).")
-        for name in sorted(os.listdir(folder)):
-            if name.endswith('.npy') and not name.startswith('.'):
-                grouped.setdefault(plate_of_field(name), []).append(
-                    os.path.join(folder, name))
+        from .image_store import _list_fields
+        for name in sorted(_list_fields(folder)):
+            grouped.setdefault(plate_of_field(name), []).append(
+                os.path.join(folder, name))
     return grouped
 
 

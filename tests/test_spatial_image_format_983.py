@@ -24,20 +24,26 @@ def test_the_default_writes_only_merged_npy(tmp_path):
 
 
 def test_ome_zarr_fields_and_masks_equal_the_merged_stacks(tmp_path):
+    """Item 0aj: spatial OME-Zarr writes merged.ome.zarr through the shared writer, equal to the npy run."""
+    from spacr.image_store import _list_fields, _read_field
+
     source = xenium_slide(tmp_path / "bundle")
-    dst = tmp_path / "out"
+    dst, ref = tmp_path / "out", tmp_path / "ref"
     report = oe.run_spatial_masks(_mask_settings(source, dst,
                                                  mask_image_format="ome-zarr"))
-    merged = sorted((dst / "merged").glob("*.npy"))
+    oe.run_spatial_masks(_mask_settings(xenium_slide(tmp_path / "bundle2"), ref))
+    merged = sorted((ref / "merged").glob("*.npy"))
     assert merged and report["image_format"] == "ome-zarr"
-    layout = json.loads((dst / "merged" / ".spacr_plane_layout.json").read_text())
-    channels = layout["intensity_channels"]
+    assert not list((dst / "merged").glob("*.npy")) if (dst / "merged").exists() else True
+    layout = json.loads((ref / "merged" / ".spacr_plane_layout.json").read_text())
+    store = dst / "merged.ome.zarr"
+    assert _list_fields(store) == sorted(p.name for p in merged)
     for path in merged:
         plate, well, field = split_field_name(path.name)
         stack = np.load(path)
-        store = dst / "images" / f"{plate}.ome.zarr"
+        assert np.array_equal(_read_field(store / path.name), stack)
         image = read_image(store, key=(well, field))
-        assert np.array_equal(image, np.moveaxis(stack[..., channels], -1, 0))
+        assert np.array_equal(image, np.moveaxis(stack[..., layout["intensity_channels"]], -1, 0))
         for role, dim in layout["mask_dims"].items():
             assert np.array_equal(read_labels(store, role, key=(well, field)), stack[..., dim])
     assert sum(report["image_store"].values()) == len(merged)

@@ -1349,9 +1349,11 @@ def _convert_crops(src, dst, ledger, verify):
     records = plan["crops"]
     if not records:
         return
+    from .crop_store import CROP_STORE_NAME
+
     committed = ledger.get("crops")
     if committed is not None:
-        if _inventory(dst / "crops") != committed["files"]:
+        if _inventory(dst / CROP_STORE_NAME) != committed["files"]:
             raise ValueError(tr("Committed crop files changed; keep originals and inspect the destination."))
         if _file_digest(dst / "measurements" / "measurements.db") != committed["database"]:
             raise ValueError(tr("Committed crop metadata changed; keep originals and inspect the destination."))
@@ -1372,11 +1374,11 @@ def _convert_crops(src, dst, ledger, verify):
         if phase == "publishing":
             shutil.rmtree(stage)
     if phase == "publishing":
-        if (dst / "crops").exists():
-            shutil.rmtree(dst / "crops")
+        if (dst / CROP_STORE_NAME).exists():
+            shutil.rmtree(dst / CROP_STORE_NAME)
         (dst / "measurements" / "measurements.db").unlink(missing_ok=True)
         (dst / "crop_verification.json").unlink(missing_ok=True)
-    elif (dst / "crops").exists() or (dst / "measurements" / "measurements.db").exists():
+    elif (dst / CROP_STORE_NAME).exists() or (dst / "measurements" / "measurements.db").exists():
         raise ValueError(tr("Uncommitted crop output already exists outside staging; choose a clean destination."))
     ledger["crop_phase"] = "building"
     _atomic_json(dst / _LEDGER, ledger)
@@ -1447,11 +1449,11 @@ def _convert_crops(src, dst, ledger, verify):
     proof = _verify_crop_outputs(stage, records, rows, round_trip=verify)
     _check_sources(src, ledger)
     _sync_tree(stage)
-    crop_files = _inventory(stage / "crops")
+    crop_files = _inventory(stage / CROP_STORE_NAME)
     database = _file_digest(copied_db)
     ledger["crop_phase"] = "publishing"
     _atomic_json(dst / _LEDGER, ledger)
-    os.replace(stage / "crops", dst / "crops")
+    os.replace(stage / CROP_STORE_NAME, dst / CROP_STORE_NAME)
     (dst / "measurements").mkdir(exist_ok=True)
     os.replace(copied_db, dst / "measurements" / "measurements.db")
     if (stage / "crop_verification.json").exists():

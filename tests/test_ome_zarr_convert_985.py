@@ -588,7 +588,8 @@ def test_crop_only_selection_writes_no_field_store_and_retains_raw_sources(tmp_p
 
     assert report["status"] == "raw_verified"
     assert report["counts"]["crops"] == 3
-    assert not list(destination.rglob("*.ome.zarr"))
+    # Item 0aj: crops.ome.zarr is the crop store; no field (image) store is written.
+    assert [p.name for p in destination.rglob("*.ome.zarr")] == ["crops.ome.zarr"]
     assert len(_read_crop_table(destination / "measurements" / "measurements.db")) == 3
     assert _tree_contents(source) == before
 
@@ -644,7 +645,7 @@ def test_crop_phase_resumes_after_tree_publication_before_index_publication(tmp_
     def stop_after_crop_tree(old, new):
         """Interrupt only the completed crop-tree rename, after it has happened."""
         result = replace(old, new)
-        if Path(old).name == "crops" and Path(new) == destination / "crops":
+        if Path(old).name == "crops.ome.zarr" and Path(new) == destination / "crops.ome.zarr":
             stopped.append(str(new))
             raise RuntimeError("synthetic stop after crop tree publication")
         return result
