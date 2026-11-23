@@ -30570,11 +30570,12 @@ Find every copy of a cell that two or more overlapping phenotype fields segmente
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ops_store_write``
-|             ``_ph_owned_cells``
-|                 ``_ph_owned_flags`` **-- reads it**
-|             ``_ph_stream_well``
+|             ``_ops_store_wells``
 |                 ``_ph_owned_cells``
 |                     ``_ph_owned_flags`` **-- reads it**
+|                 ``_ph_stream_well``
+|                     ``_ph_owned_cells``
+|                         ``_ph_owned_flags`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_ph_aggregate`` **-- reads it**
 |         ``_ph_crops``
@@ -30591,11 +30592,12 @@ Find every copy of a cell that two or more overlapping phenotype fields segmente
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ops_store_write``
-|             ``_ph_owned_cells``
-|                 ``_ph_owned_flags`` **-- reads it**
-|             ``_ph_stream_well``
+|             ``_ops_store_wells``
 |                 ``_ph_owned_cells``
 |                     ``_ph_owned_flags`` **-- reads it**
+|                 ``_ph_stream_well``
+|                     ``_ph_owned_cells``
+|                         ``_ph_owned_flags`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_ph_aggregate`` **-- reads it**
 |         ``_ph_crops``
@@ -30613,11 +30615,12 @@ Find every copy of a cell that two or more overlapping phenotype fields segmente
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ops_store_write``
-|             ``_ph_owned_cells``
-|                 ``_ph_owned_flags`` **-- reads it**
-|             ``_ph_stream_well``
+|             ``_ops_store_wells``
 |                 ``_ph_owned_cells``
 |                     ``_ph_owned_flags`` **-- reads it**
+|                 ``_ph_stream_well``
+|                     ``_ph_owned_cells``
+|                         ``_ph_owned_flags`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_ph_aggregate`` **-- reads it**
 |         ``_ph_crops``
@@ -30644,10 +30647,7 @@ What the aggregate does with the copies: 'one_per_cell' keeps one genotyped row 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ops_store_write``
-|             ``_ph_owned_cells``
-|                 ``_ph_owned_flags``
-|                     ``_ph_cross_field_policy`` **-- reads it**
-|             ``_ph_stream_well``
+|             ``_ops_store_wells``
 |                 ``_ph_owned_cells``
 |                     ``_ph_owned_flags``
 |                         ``_ph_cross_field_policy`` **-- reads it**
@@ -30674,10 +30674,7 @@ What the aggregate does with the copies: 'one_per_cell' keeps one genotyped row 
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ops_store_write``
-|             ``_ph_owned_cells``
-|                 ``_ph_owned_flags``
-|                     ``_ph_cross_field_policy`` **-- reads it**
-|             ``_ph_stream_well``
+|             ``_ops_store_wells``
 |                 ``_ph_owned_cells``
 |                     ``_ph_owned_flags``
 |                         ``_ph_cross_field_policy`` **-- reads it**
@@ -30705,10 +30702,7 @@ What the aggregate does with the copies: 'one_per_cell' keeps one genotyped row 
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ops_store_write``
-|             ``_ph_owned_cells``
-|                 ``_ph_owned_flags``
-|                     ``_ph_cross_field_policy`` **-- reads it**
-|             ``_ph_stream_well``
+|             ``_ops_store_wells``
 |                 ``_ph_owned_cells``
 |                     ``_ph_owned_flags``
 |                         ``_ph_cross_field_policy`` **-- reads it**
@@ -36475,8 +36469,9 @@ The phenotype channels in the order the cell table names them, separated by comm
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ops_store_write``
-|             ``_ph_stream_well``
-|                 ``_ph_channels`` **-- reads it**
+|             ``_ops_store_wells``
+|                 ``_ph_stream_well``
+|                     ``_ph_channels`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_ph_aggregate``
 |             ``_ph_channels`` **-- reads it**
@@ -36499,8 +36494,9 @@ The phenotype channels in the order the cell table names them, separated by comm
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ops_store_write``
-|             ``_ph_stream_well``
-|                 ``_ph_channels`` **-- reads it**
+|             ``_ops_store_wells``
+|                 ``_ph_stream_well``
+|                     ``_ph_channels`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_ph_aggregate``
 |             ``_ph_channels`` **-- reads it**
@@ -36524,8 +36520,9 @@ The phenotype channels in the order the cell table names them, separated by comm
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         ``_ops_store_write``
-|             ``_ph_stream_well``
-|                 ``_ph_channels`` **-- reads it**
+|             ``_ops_store_wells``
+|                 ``_ph_stream_well``
+|                     ``_ph_channels`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_ph_aggregate``
 |             ``_ph_channels`` **-- reads it**
@@ -43208,22 +43205,24 @@ ops_store_row_copy
 
 With ops_storage 'spacr_store', also keep each well's measurements a second time, one cell after another, so that looking up single cells with all their columns is fast. Costs about as much disk again as the cell tables. Default False. Alpha.
 
-| :py:func:`~spacr.ops_engine.cells_writer` **-- reads it**
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
-|         ``_ops_store_write`` **-- reads it**
+|         ``_ops_store_write``
+|             ``_ops_store_wells`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
-|         ``_ops_store_write`` **-- reads it**
+|         ``_ops_store_write``
+|             ``_ops_store_wells`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
-|         ``_ops_store_write`` **-- reads it**
+|         ``_ops_store_write``
+|             ``_ops_store_wells`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_ops_store_write``, ``cells_writer``, ``ops_defaults``.
+Read by ``_ops_store_wells``, ``ops_defaults``.
 
 .. _setting-flow-ops_stress_report:
 
