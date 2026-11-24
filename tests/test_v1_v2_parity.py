@@ -59,13 +59,18 @@ def _require_gpu_cellpose():
 # ---------------------------------------------------------------------------
 
 def _collect_v1_cell_masks(root: Path) -> List[np.ndarray]:
-    """Return the cell-mask channel from each retained V1 merged stack."""
-    stack_dir = root / "merged"
+    """Return the cell-mask channel from each retained V1 merged stack.
+
+    Item 0aj: a V1 Mask run keeps its merged fields in ``fov.ome.zarr``.
+    """
+    from spacr.image_store import _list_fields, _read_field
+
+    store = root / "fov.ome.zarr"
     out: List[np.ndarray] = []
-    if not stack_dir.is_dir():
+    if not store.is_dir():
         return out
-    for p in sorted(stack_dir.glob("*.npy")):
-        arr = np.load(p)
+    for name in _list_fields(store):
+        arr = _read_field(store / name)
         if arr.ndim != 3 or arr.shape[-1] <= 4:
             continue
         out.append(arr[..., 4].astype(np.int32))
@@ -202,7 +207,7 @@ def test_v1_v2_mask_parity(_synthetic_pair):
     # --- compare --------------------------------------------------------
     v1_masks = _collect_v1_cell_masks(v1_dir)
     v2_masks = _collect_v2_cell_masks(v2_dir)
-    assert v1_masks, "v1 produced no cell-mask channels under merged/"
+    assert v1_masks, "v1 produced no cell-mask channels in fov.ome.zarr"
     assert v2_masks, "v2 produced no merged/stack_*.npy with a mask channel"
     assert len(v1_masks) == len(v2_masks), (
         f"different number of fields — v1={len(v1_masks)}, "

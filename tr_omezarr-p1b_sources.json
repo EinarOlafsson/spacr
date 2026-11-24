@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "task": "omezarr-p1b",
+  "state": "P1b + P1c: originals, wells, plate split, no stack/",
+  "templates": [
+    {
+      "file": "spacr/core.py",
+      "source": "Original images were left where they are, because these fields do not match them in fov.ome.zarr: {problems}.",
+      "source_sha256": "e1a1f49241796b83df669b20abdcbb1423950d5f352cad04c0adc443c0e431c7"
+    },
+    {
+      "file": "spacr/image_store.py",
+      "source": "Original images: {moved} moved to orig/, {deleted} deleted, after each field was verified in fov.ome.zarr; {kept} field(s) kept because a plane could not be compared.",
+      "source_sha256": "d30973eac39220cf4700eecd56af49535b2cbc2f3b3675a2df2b5cbbf1c7b10b"
+    },
+    {
+      "file": "spacr/image_store.py",
+      "source": "channel {channel} is not stored",
+      "source_sha256": "e40314efe8a9f50687c3db1e72090209a90faf92332e1293a3c0c787c3c5eb86"
+    },
+    {
+      "file": "spacr/image_store.py",
+      "source": "channel {channel} was projected from {count} files",
+      "source_sha256": "e023bc792a1d4481022b56d6f9f92c09aefaa99d45754ce24c1749ba1d6dc704"
+    },
+    {
+      "file": "spacr/image_store.py",
+      "source": "kept in orig/: {line}",
+      "source_sha256": "557648c4a5168b9169b7c9c3f364df16f1d7ccad243675e9dceb21d0811e90ec"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "  ... and {count} more files",
+      "source_sha256": "d78ef3903983fb37bfd648ad43ea8cd79233bcec3b7e45fe38820f90a195644a"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": " and {count} more",
+      "source_sha256": "189cabd39ead1ff0e57de4a71ac17c6cd38814eacec7bb60842eda96b5cc152d"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "Dry run, nothing moved yet. Each plate's images go into its own folder inside {src}:",
+      "source_sha256": "d75f8281df0f8b5827176683c28b338fd7849bcb23a8e47c0c362bf31b34f29d"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "Original images were left where they are, because these fields do not match them in fov.ome.zarr: {problems}.",
+      "source_sha256": "e1a1f49241796b83df669b20abdcbb1423950d5f352cad04c0adc443c0e431c7"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "Plate name {plate!r} cannot be a folder name inside {src}; nothing was moved. Rename the files or move the plates by hand.",
+      "source_sha256": "a596c924d26b65eadf8e2489a4b34ed03200e6c972d4c9c015b72c88c04469a0"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "Split {files} files into {count} plate folders, each checked for its file count and sizes: {plates}. Each plate is analysed as its own project; run them one by one or together with the Batch Runner.",
+      "source_sha256": "e6ddbb6971de775b6e739fdc48a6d86fc88e9a4c530a54a5a79e7cf6f287d1d9"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "The full list is in {path}.",
+      "source_sha256": "f5a3e9e747204f0cd34a49b60031889ad039411ea84ba1e2850818526b64a597"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "The images in {src} name their wells {wells}, not a row letter and a column number (such as B03). spaCR stores a plate by row and column, so it stopped before changing anything. Convert the file names first: use the Convert module, or set metadata_type to your microscope (for example 'cq1' for CQ1 'W0017' names), then run Mask again.",
+      "source_sha256": "2e56cfd9a87985a68a243caae374f3a874b6bc4d0880f5bbf89af47d0694b492"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "The plate split could not be confirmed: {problems}. No file was deleted; check the folders before running again.",
+      "source_sha256": "08f3a231c86dbc73095c6657a8e5ef45ab3751f51d99654fbf5c4c05423672e1"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{count} image file(s) the filename pattern cannot read stay where they are.",
+      "source_sha256": "83b4f9c03bd87b671ab36ae008299d2d692907e078466d5f412f5f3e12a6a03b"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{name} is still in the source folder",
+      "source_sha256": "91f9364589ce34d40263ff606cc1e9c3c382eb9db0c467fd3b73c03508e127dd"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{plate} holds {held} of its {count} files",
+      "source_sha256": "84d25bb4e0ca8b36aa783a84e455abda7295c418504a8f6d9ef0a36487ef1fd0"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{src} holds images of {count} plates, and one project holds one plate. Nothing was moved. To split them into one folder per plate inside {src}, confirm the split in the GUI or set split_plates to True; each plate is then analysed on its own or together with the Batch Runner.",
+      "source_sha256": "fdc2de74a3a79ecab511c07884441338018b5313e4f3256c366661e811a7fe0d"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{src} holds images of {count} plates: {plates}.",
+      "source_sha256": "ffa432e0a24772575f00fdc8a63added90cf22dc76e31a7cf53e5aa4fff4d3bc"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{src} was split into plate folders earlier; running {count} plate folder(s).",
+      "source_sha256": "af57f7f8db18a00e5697624866ef3b8e3e8a09aa2cedf54f7467f0912c8551d5"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{target} already exists, so the plates were not split and nothing was moved. Move that file away and run again.",
+      "source_sha256": "d130b1f1602ecd5a3a3c9faaece7824213acef4e5a4d8bdd8826906bb891bc91"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{target} has another size",
+      "source_sha256": "f2599b3a51bf4a238326975bddb9263e780c396c1b21b7590e88a2597476bd45"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{target} is missing",
+      "source_sha256": "8330861dded861b5ed9698987d1fd2cea839e8f0e281c8d901a35467c1b25d38"
+    },
+    {
+      "file": "spacr/qt/screens/app_screen.py",
+      "source": "Images of several plates were found in the source folder. spaCR will move them into one folder per plate inside the source folder, never overwriting a file, and check every file after the move. Each plate is then analysed on its own, or all of them together with the Batch Runner. Split the plates and run?",
+      "source_sha256": "1d3acd320f1188210b80a231959d6769ea25ddc6c140d1c25f55a6fdb6b8d8c0"
+    },
+    {
+      "file": "spacr/qt/screens/app_screen.py",
+      "source": "Several plates in one folder",
+      "source_sha256": "afb7df8135027a089fc7decbf9b62dcd0b5005a91f778fd2d446879bbf337f89"
+    }
+  ],
+  "settings_help": [
+    {
+      "key": "keep_original_images",
+      "source": "(bool) - What happens to the original image files once their pixels are in fov.ome.zarr. On (the default): after a field is committed and every channel plane is verified byte for byte against its original, its originals are moved into orig/ in the project folder. Off: they are deleted after that same check, which saves disk space and cannot be undone; a channel projected from several files (z slices) cannot be compared, so its originals go to orig/ anyway. A run cut short never loses an image. With 'npy', 'tiff' or timelapse runs, orig/ is deleted at the end only when off. Default True.",
+      "source_sha256": "a784d6a7b4ec98700c664886f867d7057370a9f85b7598a8fcd8604ccde2b8b8"
+    },
+    {
+      "key": "save_original_images",
+      "source": "(bool) - The older switch for the original images. Off acts as keep_original_images off: with fov.ome.zarr each original is deleted only after its field is committed and verified there; with 'npy', 'tiff' or timelapse runs the raw images are deleted once they are in stack/, as before, which is not reversible. Use keep_original_images instead. Default True.",
+      "source_sha256": "e834d80e9a0aa0f0cf41eb42d4905a51aa5b2fb0f24f9c01e17c14fd173c4b22"
+    },
+    {
+      "key": "split_plates",
+      "source": "(bool) - When the source folder holds images of several plates (read from the file names by the Mask filename pattern), move each plate's images into its own folder inside it and analyse each as its own project with its own fov.ome.zarr. The run first prints a dry-run list (all of it in spacr_plate_split_plan.tsv), never overwrites a file, and checks every file's size and each folder's file count after the moves. Off (the default): a folder of several plates stops the run with that list and nothing is moved. The GUI asks before it splits. Default False.",
+      "source_sha256": "d5856e8dfc6991c70bea078bb88105a74224d2d24123a30a11f44458b8f3cf87"
+    },
+    {
+      "key": "keep_intermediate",
+      "source": "(bool) - Keep the run's working masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' and timelapse runs), which holds the channels and every mask. With fov.ome.zarr no stack/ folder is written at all: preprocessing stores each field's channels straight into fov.ome.zarr. Older projects' stack/ folders are still read, and kept or removed by this setting as before.",
+      "source_sha256": "b8b851185273526536ce6ae13fca1d570ed90678cbaac9bb084dcf03b867f819"
+    },
+    {
+      "key": "mask_image_format",
+      "source": "(str) - Where Mask Generation keeps the fields Measure reads. 'ome-zarr' stores each field straight into fov.ome.zarr in the project folder: the acquired channels in their own dtype (no stack/ folder) and the masks as label images, one shard file per image; no merged/*.npy is written. 'npy' writes stack/*.npy and merged/*.npy as before; 'tiff' adds merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse runs always write stack/ and merged/*.npy (the plate store has no time axis yet). Older layouts (stack/, merged/*.npy, images/<plate>.ome.zarr) still read. Default 'ome-zarr'. Alpha.",
+      "source_sha256": "337f83934dd10698f1e192f0e57c56f81e33c7d9ce43750587411a2026b3ed00"
+    }
+  ]
+}

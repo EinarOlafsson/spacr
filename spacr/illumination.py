@@ -140,6 +140,7 @@ from dataclasses import field as _dataclass_field
 from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
+from .image_store import _read_stack
 
 from .errors import ConfigurationError
 from .measure_hooks import (
@@ -781,10 +782,10 @@ def _merged_files(src) -> Dict[str, list]:
                 f"illumination correction was asked to estimate from "
                 f"{folder!r}, which is not a folder. Point it at the merged "
                 f"field folder measure_crop reads (settings['src']).")
-        for name in sorted(os.listdir(folder)):
-            if name.endswith('.npy') and not name.startswith('.'):
-                grouped.setdefault(plate_of_field(name), []).append(
-                    os.path.join(folder, name))
+        from .image_store import _list_fields
+        for name in sorted(_list_fields(folder)):
+            grouped.setdefault(plate_of_field(name), []).append(
+                os.path.join(folder, name))
     return grouped
 
 
@@ -922,7 +923,7 @@ def _read_binned_field(path: str, channels: Sequence[int],
 
     :returns: ``(binned (C, y, x), factor, full (Y, X) shape)``.
     """
-    data = load_field(path) if load_field is not None else np.load(path, mmap_mode='r')
+    data = load_field(path) if load_field is not None else _read_stack(path, mmap_mode='r')
     if data.ndim not in (3, 4):
         raise IlluminationError(
             f"{path!r} is a {data.ndim}-D array; a merged field is (Y, X, C) "
@@ -1182,7 +1183,7 @@ def _nuclei_from_merged(paths: Sequence[str], channel: int,
     index = _field_index(os.path.splitext(os.path.basename(p))[0] for p in paths)
     parts, shape = [], None
     for path in sorted(paths):
-        data = load_field(path) if load_field is not None else np.load(path, mmap_mode='r')
+        data = load_field(path) if load_field is not None else _read_stack(path, mmap_mode='r')
         if data.ndim != 3:
             raise IlluminationError(
                 f"{path!r} is a {data.ndim}-D array; the nuclear-median map "
@@ -1464,7 +1465,7 @@ def estimate_nuclear_illumination(src, channels: Sequence[int], *,
     options = dict(options or {})
     fields, offsets = {}, {}
     for plate in sorted(grouped):
-        first = np.load(grouped[plate][0], mmap_mode='r')
+        first = _read_stack(grouped[plate][0], mmap_mode='r')
         shape = (int(first.shape[-3]), int(first.shape[-2]))
         part = table
         if plate != ALL_PLATES and 'plate' in table.columns:
@@ -1667,7 +1668,7 @@ validate_nuclear_flat`): ``(I - b) / F + b`` per pixel, then the nuclear
         images = {}
         for well, site in held:
             path = os.path.join(folder, files[(well, site)] + '.npy')
-            data = load_field(path) if load_field is not None else np.load(path, mmap_mode='r')
+            data = load_field(path) if load_field is not None else _read_stack(path, mmap_mode='r')
             images[(well, site)] = (np.asarray(data[..., channel], dtype=np.float64),
                                     np.asarray(data[..., int(mask_dim)]))
         maps = {'nuclear_median': flat,

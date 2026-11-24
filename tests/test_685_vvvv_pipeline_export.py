@@ -282,8 +282,12 @@ def test_mask_generation_exports_exactly_when_on(tmp_path, no_segmentation,
     from spacr.core import preprocess_generate_masks
 
     src, image, cells = _mask_plate(tmp_path)
+    from spacr.image_store import _list_fields
+
     preprocess_generate_masks(_mask_settings(src, export_vvvv=enabled))
-    assert (src / "merged" / "plate1_A01_1.npy").is_file()
+    # Item 0aj: the merged fields live in fov.ome.zarr, not merged/*.npy.
+    assert "plate1_A01_1.npy" in _list_fields(src / "fov.ome.zarr")
+    assert not (src / "merged").exists()
     root = src / "vvvv" / "mask"
     if not enabled:
         assert not (src / "vvvv").exists()
@@ -327,11 +331,18 @@ def test_new_mask_defaults_write_ome_zarr_and_old_settings_keep_exact_npy(
     assert old_settings['mask_image_format'] == 'npy'
     preprocess_generate_masks(_mask_settings(fresh))
     preprocess_generate_masks(old_settings)
-    store = fresh / 'images' / 'plate1.ome.zarr'
-    assert store.is_dir() and not (old / 'images').exists()
+    from spacr.image_store import _read_field
+
+    # Item 0aj: fresh defaults write fov.ome.zarr and no merged/*.npy.
+    store = fresh / 'fov.ome.zarr'
+    assert store.is_dir() and not (old / 'fov.ome.zarr').exists()
+    assert not (fresh / 'merged').exists() and not (fresh / 'images').exists()
     for well in ('A01', 'B02'):
         name = f'plate1_{well}_1.npy'
-        assert (fresh / 'merged' / name).read_bytes() == (old / 'merged' / name).read_bytes()
+        legacy = np.load(old / 'merged' / name)
+        native = _read_field(store / name)
+        assert native.dtype == legacy.dtype
+        np.testing.assert_array_equal(native, legacy)
         np.testing.assert_array_equal(read_image(store, key=(well, 1)),
                                       np.moveaxis(image, -1, 0))
         np.testing.assert_array_equal(read_labels(store, 'cell', key=(well, 1)), cells)

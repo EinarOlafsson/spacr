@@ -1169,16 +1169,17 @@ def _plan_crops(src, plan, fields):
 def _crop_index_frame(rows):
     """Build native Measure index columns with explicit nullable scalar dtypes."""
     import pandas as pd
-    from .crop_store import CROP_COLUMNS
+    from .crop_store import CROP_COLUMNS, INDEX_EXTRA_COLUMNS
     from .schema import ORGANELLE_ROLES
 
     relationships = ["parent_cell_id", "nucleus_id", "has_nucleus", "n_nuclei",
                      "n_pathogens", "infected", *(f"n_{name}" for name in ORGANELLE_ROLES),
                      "annotation", "class", "class_score"]
     present = {name for row in rows for name in row}
-    if present - set(CROP_COLUMNS) - set(relationships):
+    if present - set(CROP_COLUMNS) - set(relationships) - set(INDEX_EXTRA_COLUMNS):
         raise ValueError(tr("Crop index columns differ from the native Measure schema; retain originals."))
-    columns = [*CROP_COLUMNS, *(name for name in relationships if name in present)]
+    columns = [*CROP_COLUMNS, *(name for name in relationships if name in present),
+               *(name for name in INDEX_EXTRA_COLUMNS if name in present)]
     frame = pd.DataFrame(rows, dtype=object).reindex(columns=columns)
     integers = {"column", "field", "timepoint", "object_label", "crop_index", "offset",
                 "height", "width", "mask_offset", "bbox_y0", "bbox_x0", "bbox_y1",
@@ -1349,9 +1350,11 @@ def _convert_crops(src, dst, ledger, verify):
     records = plan["crops"]
     if not records:
         return
+    from .crop_store import CROP_STORE_NAME
+
     committed = ledger.get("crops")
     if committed is not None:
-        if _inventory(dst / "crops") != committed["files"]:
+        if _inventory(dst / CROP_STORE_NAME) != committed["files"]:
             raise ValueError(tr("Committed crop files changed; keep originals and inspect the destination."))
         if _file_digest(dst / "measurements" / "measurements.db") != committed["database"]:
             raise ValueError(tr("Committed crop metadata changed; keep originals and inspect the destination."))
@@ -1372,11 +1375,11 @@ def _convert_crops(src, dst, ledger, verify):
         if phase == "publishing":
             shutil.rmtree(stage)
     if phase == "publishing":
-        if (dst / "crops").exists():
-            shutil.rmtree(dst / "crops")
+        if (dst / CROP_STORE_NAME).exists():
+            shutil.rmtree(dst / CROP_STORE_NAME)
         (dst / "measurements" / "measurements.db").unlink(missing_ok=True)
         (dst / "crop_verification.json").unlink(missing_ok=True)
-    elif (dst / "crops").exists() or (dst / "measurements" / "measurements.db").exists():
+    elif (dst / CROP_STORE_NAME).exists() or (dst / "measurements" / "measurements.db").exists():
         raise ValueError(tr("Uncommitted crop output already exists outside staging; choose a clean destination."))
     ledger["crop_phase"] = "building"
     _atomic_json(dst / _LEDGER, ledger)
@@ -1447,11 +1450,11 @@ def _convert_crops(src, dst, ledger, verify):
     proof = _verify_crop_outputs(stage, records, rows, round_trip=verify)
     _check_sources(src, ledger)
     _sync_tree(stage)
-    crop_files = _inventory(stage / "crops")
+    crop_files = _inventory(stage / CROP_STORE_NAME)
     database = _file_digest(copied_db)
     ledger["crop_phase"] = "publishing"
     _atomic_json(dst / _LEDGER, ledger)
-    os.replace(stage / "crops", dst / "crops")
+    os.replace(stage / CROP_STORE_NAME, dst / CROP_STORE_NAME)
     (dst / "measurements").mkdir(exist_ok=True)
     os.replace(copied_db, dst / "measurements" / "measurements.db")
     if (stage / "crop_verification.json").exists():

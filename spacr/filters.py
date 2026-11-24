@@ -749,19 +749,24 @@ def _object_relationships_frame(merged_dir: str, *,
     from . import schema
     from .crops import MERGED_LAYOUT_SIDECAR
 
+    from .image_store import _is_merged_store, _list_fields, _read_field, _store_layout
+
     empty = pd.DataFrame(columns=list(_OBJECT_RELATIONSHIPS_COLUMNS))
-    layout_path = os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR)
-    if not os.path.isfile(layout_path):
-        return empty
-    with open(layout_path, "r", encoding="utf-8") as handle:
-        mask_dims = dict(json.load(handle).get("mask_dims") or {})
+    from_store = _is_merged_store(merged_dir)
+    if from_store:
+        mask_dims = dict((_store_layout(merged_dir) or {}).get("mask_dims") or {})
+    else:
+        layout_path = os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR)
+        if not os.path.isfile(layout_path):
+            return empty
+        with open(layout_path, "r", encoding="utf-8") as handle:
+            mask_dims = dict(json.load(handle).get("mask_dims") or {})
     pairs = _object_relationship_pairs(list(mask_dims))
     if not pairs:
         return empty
 
     records: List[Dict[str, object]] = []
-    names = sorted(n for n in os.listdir(merged_dir)
-                   if n.endswith(".npy") and not n.startswith("."))
+    names = sorted(_list_fields(merged_dir))
     roles = sorted({role for pair in pairs for role in pair})
     for name in names:
         stem = os.path.splitext(name)[0]
@@ -770,7 +775,7 @@ def _object_relationships_frame(merged_dir: str, *,
                 stem, timelapse=timelapse).to_dict(include_prcf=True))
         except Exception:
             identity = {}
-        array = np.load(os.path.join(merged_dir, name), mmap_mode="r")
+        array = _read_field(os.path.join(merged_dir, name), mmap_mode="r")
         planes = {role: _label_plane(array, int(mask_dims[role]))
                   for role in roles
                   if int(mask_dims[role]) < array.shape[-1]}
@@ -822,8 +827,13 @@ def _write_object_relationships(src: str, *,
     from .crops import MERGED_LAYOUT_SIDECAR
     from .database_concurrency import connect, transaction
 
+    from .image_store import _is_merged_store, _merged_store_path
+
     merged_dir = os.path.join(src, "merged")
-    if not os.path.isfile(os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR)):
+    if (not os.path.isfile(os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR))
+            and _is_merged_store(_merged_store_path(src))):
+        merged_dir = os.fspath(_merged_store_path(src))
+    elif not os.path.isfile(os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR)):
         return None
     frame = _object_relationships_frame(merged_dir, timelapse=timelapse)
     db_dir = os.path.join(src, "measurements")

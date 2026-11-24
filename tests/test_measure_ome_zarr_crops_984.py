@@ -75,7 +75,7 @@ def test_measure_writes_ome_zarr_crops_pixel_exact(tmp_path):
     assert list(table["object_label"]) == [1, 2]
     assert list(table["nucleus_id"]) == [1, 2]
     assert table["has_nucleus"].astype(bool).all() and list(table["n_nuclei"]) == [1, 1]
-    assert set(table["crop_store"]) == {"crops/plate=plate1/well=A01.zarr"}
+    assert set(table["crop_store"]) == {"crop.ome.zarr/plate=plate1/well=A01"}
     for row in table.to_dict("records"):
         y0, x0, y1, x1 = (int(row[k]) for k in ("bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1"))
         pixels, mask = read_crop(tmp_path, row)
@@ -98,6 +98,7 @@ def test_explicit_legacy_png_writes_no_crop_store(tmp_path):
     merged, _image, _cells = _plate(tmp_path)
     measure_crop(_settings(merged, crop_image_format="png", png_size=[16, 16]))
     assert not (tmp_path / "crops").exists()
+    assert not (tmp_path / "crop.ome.zarr").exists()
     with sqlite3.connect(str(tmp_path / "measurements" / "measurements.db")) as conn:
         names = {r[0] for r in conn.execute("SELECT name FROM sqlite_master")}
     assert "ssCell_Crops" not in names
@@ -159,7 +160,7 @@ def test_two_measure_workers_write_the_same_crops_as_one(tmp_path):
 
 
 def _store_bytes(root):
-    store = root / "crops"
+    store = root / "crop.ome.zarr"
     return {str(p.relative_to(store)): p.read_bytes()
             for p in sorted(store.rglob("*")) if p.is_file()}
 
@@ -220,7 +221,7 @@ def test_crops_of_mask_generation_names_with_a_timepoint_get_the_right_well(tmp_
     measure_crop(_settings(merged, crop_image_format="ome-zarr"))
     table = _crop_table(tmp_path)
     assert set(table["well"]) == {"E01"} and set(table["field"]) == {10}
-    assert set(table["crop_store"]) == {"crops/plate=plate1/well=E01.zarr"}
+    assert set(table["crop_store"]) == {"crop.ome.zarr/plate=plate1/well=E01"}
     assert set(table["object_id"]) == {"plate1_E01_10_cell_1", "plate1_E01_10_cell_2"}
 
 
