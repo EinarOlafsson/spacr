@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-779 Lifecycle: new, 185 Lifecycle: future in features/feature_list/.
+779 Lifecycle: new, 186 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -600,6 +600,9 @@ FUTURE FEATURES
 
   995  MEASURE CELL CYCLE: FIELD-CENTRED DNA-CONTENT FIT AND AN EXTERNAL MITOTIC CALL
        995_measure_dna_field_centring.txt
+
+  1021  THE CELL-CYCLE MODEL GRID COMPARES MODELS AT EACH LEVEL OF DETAIL
+       1021_cell_cycle_model_grid_by_level_of_detail.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
