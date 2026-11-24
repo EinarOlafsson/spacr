@@ -68,4 +68,32 @@ Read `spacr/resources/AI/HANDOFF.md`, section "CURRENT HANDOFF FOR CODEX AND OTH
     - **Enforcement.** Each job runs in its own systemd scope with a RAM limit, a CPU quota matching its granted threads and matching thread-count environment variables. Declarations must be honest: measure a job once and declare that.
     - **Installation.** Never edit a running shell script in place, because running copies re-read it by byte offset. Install a new version by moving a new file over the old name. Until the master announces the scheduler as installed, the existing `heavy_slot.sh` and `tools/gpu_turn.sh` gates still apply.
 
-43. Same operation, same code (maintainer, 2026-11-21). When two modules perform the same operation (OPS vs Measure or Mask Generation, or any other pair), they call one shared implementation. If implementations differ, merge them into one shared module so both modules get the same behaviour and logic; keep old settings files byte-identical through DEFAULT_CHANGES. Check for an existing implementation before writing a new one.
+43. Same operation, same code (maintainer, 2026-11-21; extended 2026-11-23). Modules that do the
+same thing must not use their own code to do it; they call the same code. This holds for OPS
+against Measure or Mask Generation, and for any other pair.
+
+- One file structure. Every project path (`measurements/`, the measurement store, `masks/`,
+  `merged/`, `crops/`, settings) is built by the one layout helper. No module joins those names
+  by hand.
+- One reader for spaCR data. Images, masks, crops and tables that spaCR wrote are read
+  through the shared readers (`image_store`/`tiff_io` for arrays, `spacr.store` for tables). A
+  module may not decode spaCR's own files with its own code.
+- One writer for saving it. spaCR data is saved only through the shared writers
+  (`store.writer`/`write_table`/`write_array`, `tiff_io.write_tiff`, the crop store). File
+  publication is atomic through the shared primitive.
+- One implementation per operation. Measurement families, cytoplasm derivation,
+  child-to-parent ownership, size and border filters, relabelling, flat-field fitting with one
+  map convention recorded in metadata, model construction and evaluation, normalisation, FDR,
+  embedding, clustering, progress, failure recording, resume, worker pools and thread caps each
+  have one owner. The owners are listed in `tests/one_implementation_registry.json`.
+- Before writing a helper, look up the operation in the registry and in the code. If it
+  exists, call it. If two implementations differ, merge them into the owner so both modules get
+  the same behaviour and logic. Pass each caller's current policy as explicit arguments to keep
+  results unchanged, or choose one behaviour deliberately. A deliberate change needs a
+  `DEFAULT_CHANGES` row (old settings files stay byte-identical), a release note and a resume
+  guard. A bug found while merging is fixed outright (rule 41).
+- Run the ratchet. `tests/test_one_implementation_per_operation.py` must pass before handing
+  over or landing. A new site outside an owner fails it. Converting a site means lowering its
+  count in the same commit (`--write-baseline`, which refuses to raise a count). A new shared
+  operation is added to the registry together with its owner.
+- Overlapping nuclei. When a nucleus overlaps two cells, the shared ownership code MERGES the cells (maintainer decision, 2026-11-23).
