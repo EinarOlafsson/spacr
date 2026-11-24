@@ -3683,3 +3683,23 @@ def mask_archives_on_disk(monkeypatch):
     import spacr.io as _io
 
     monkeypatch.setattr(_io, "_mask_batches_stay_in_memory", lambda *a, **k: False)
+
+
+def merged_field_arrays(src):
+    """``{field file name: merged array}`` of a Mask run: fov.ome.zarr (item 0aj), else merged/*.npy.
+
+    Tests that check what Mask Generation merged read it through the shared
+    reader, so they hold for the store and for older merged/ folders alike.
+    """
+    from pathlib import Path
+
+    import numpy as np
+
+    from spacr.image_store import _is_merged_store, _list_fields, _read_field
+
+    store = Path(src) / "fov.ome.zarr"
+    if _is_merged_store(store):
+        return {name: _read_field(store / name) for name in sorted(_list_fields(store))}
+    folder = Path(src) / "merged"
+    return {p.name: np.load(p) for p in sorted(folder.glob("*.npy"))
+            if not p.name.startswith(".")}

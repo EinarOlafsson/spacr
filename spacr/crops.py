@@ -224,6 +224,23 @@ class PlaneLayoutConflict(CropError):
 _MEASURED_MASKS_DIR = ".spacr_measured_masks"
 
 
+def _image_store():
+    """:mod:`spacr.image_store`, or None when this file runs outside the package."""
+    try:
+        from . import image_store
+    except ImportError:
+        return None
+    return image_store
+
+
+def _field_reader():
+    """The shared field reader (fov.ome.zarr or ``.npy``, item 0aj); ``np.load`` standalone."""
+    store = _image_store()
+    if store is not None:
+        return store._read_field
+    return lambda path, mmap_mode=None: np.load(path, mmap_mode=mmap_mode, allow_pickle=False)
+
+
 def measured_masks_path(merged_path: str) -> str:
     """The measured-mask record for the field at ``merged_path``.
 
@@ -262,7 +279,10 @@ def _write_measured_masks(merged_path: str, planes: Mapping[int, np.ndarray],
         field's own; any earlier record is then removed.
     """
     path = _measured_masks_path(merged_path)
-    on_disk = np.load(merged_path, mmap_mode="r", allow_pickle=False)
+    _read_field = _field_reader()
+    # A field of fov.ome.zarr (item 0aj) is read through the shared reader;
+    # its record goes to fov.ome.zarr/.spacr_measured_masks/<field>.npz.
+    on_disk = _read_field(merged_path, mmap_mode="r")
     if on_disk.ndim == 4 and on_disk.shape[0] == 1:
         on_disk = on_disk[0]
     dims = sorted(int(dim) for dim in planes)
@@ -327,9 +347,10 @@ def measured_masks_state(merged_path: str) -> str:
     :raises CorruptMergedFile: the record exists but cannot be read.
     """
     path = _measured_masks_path(merged_path)
+    _read_field = _field_reader()
     if not os.path.isfile(path):
         return "none"
-    array = np.load(merged_path, mmap_mode="r", allow_pickle=False)
+    array = _read_field(merged_path, mmap_mode="r")
     if array.ndim == 4 and array.shape[0] == 1:
         array = array[0]
     try:
@@ -387,18 +408,28 @@ def read_merged_plane_layout(path: str) -> Optional[Dict[str, Any]]:
 
     :param path: a merged folder, or a ``.npy`` file inside one (its parent
         folder is used); the ``.spacr_plane_layout.json`` sidecar is read
-        from that folder.
+        from that folder. A merged store (``fov.ome.zarr``, item 0aj) or a
+        field name inside one gives the layout kept in the store's
+        attributes.
     """
+    from .image_store import _is_merged_store, _store_layout
+
     folder = os.path.dirname(path) if str(path).endswith('.npy') else path
-    manifest = os.path.join(os.fspath(folder), MERGED_LAYOUT_SIDECAR)
-    if not os.path.exists(manifest):
-        return None
-    try:
-        with open(manifest, 'r', encoding='utf-8') as handle:
-            layout = json.load(handle)
-    except (OSError, json.JSONDecodeError) as exc:
-        raise CorruptMergedFile(
-            f"cannot read merged plane layout {manifest}: {exc}") from exc
+    if _is_merged_store(folder):
+        manifest = os.path.join(os.fspath(folder), 'zarr.json')
+        layout = _store_layout(folder)
+        if layout is None:
+            return None
+    else:
+        manifest = os.path.join(os.fspath(folder), MERGED_LAYOUT_SIDECAR)
+        if not os.path.exists(manifest):
+            return None
+        try:
+            with open(manifest, 'r', encoding='utf-8') as handle:
+                layout = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise CorruptMergedFile(
+                f"cannot read merged plane layout {manifest}: {exc}") from exc
     if not isinstance(layout, dict) or layout.get('version') != 1:
         raise CorruptMergedFile(
             f"unsupported merged plane layout in {manifest}: expected "
@@ -1078,11 +1109,20 @@ class MergedField:
 
 
 def _load_mmap(path: str):
-    """``np.load(path, mmap_mode='r')`` with spaCR-shaped error messages."""
-    if not os.path.isfile(path):
+    """``np.load(path, mmap_mode='r')`` with spaCR-shaped error messages.
+
+    A field of ``fov.ome.zarr`` (item 0aj) is read whole through the shared
+    reader, :func:`spacr.image_store._read_field`.
+    """
+    store = _image_store()
+    store_field = (store is not None and not os.path.isfile(path)
+                   and store._store_field(path) is not None)
+    _read_field = _field_reader()
+    if not os.path.isfile(path) and not store_field:
         raise MergedFileMissing(f"merged array not found: {path}")
     try:
-        arr = np.load(path, mmap_mode="r", allow_pickle=False)
+        arr = (_read_field(path) if store_field
+               else np.load(path, mmap_mode="r", allow_pickle=False))
     except Exception as exc:
         raise CorruptMergedFile(f"{path}: cannot read as .npy ({exc})") from exc
     if not hasattr(arr, "shape") or getattr(arr, "ndim", 0) != 3:
@@ -1242,13 +1282,18 @@ def _cache_key(path: str) -> Tuple[str, int, int, str]:
 
     :raises MergedFileMissing: If the path cannot be inspected.
     """
+    store = _image_store()
+    _field_stat = store._field_stat if store is not None else os.stat
     try:
-        st = os.stat(path)
-    except OSError as exc:
+        st = _field_stat(path)
+    except (OSError, ValueError) as exc:
         raise MergedFileMissing(f"merged array not found: {path}") from exc
     size = int(st.st_size)
-    return (os.path.abspath(path), int(st.st_mtime_ns), size,
-            _content_fingerprint(path, size))
+    # A fov.ome.zarr field (item 0aj) is not one file; its shards' size and
+    # newest time (see _field_stat) stand for its content.
+    fingerprint = (None if store is not None and store._store_field(path) is not None
+                   else _content_fingerprint(path, size))
+    return (os.path.abspath(path), int(st.st_mtime_ns), size, fingerprint)
 
 
 def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,

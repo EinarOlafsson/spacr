@@ -414,19 +414,33 @@ def _resolve_measure_src(src: str) -> Tuple[str, Optional[str]]:
     ``src`` names one of spaCR's own output subfolders of a plate
     (``measurements``, ``measure``, ``masks``, ...) and that plate's
     ``merged`` folder holds ``.npy`` arrays, measure reads that folder
-    instead, whether or not the subfolder itself exists.
+    instead, whether or not the subfolder itself exists. A plate whose
+    ``fov.ome.zarr`` store holds fields (item 0aj) is read from the
+    store, which wins over a ``merged/`` folder left by an older run.
 
     :param src: the ``src`` setting, one path.
     :returns: ``(merged_folder, note)``. ``note`` is None when nothing was
         moved, otherwise one sentence saying what was used instead.
     """
     path = os.path.normpath(src)
+    from .image_store import _is_merged_store, MERGED_STORE_NAME
+
+    if _is_merged_store(path):
+        return path, None
     direct = _resolve_merged_dir(path)
+    store = os.path.join(os.path.dirname(direct), MERGED_STORE_NAME)
+    if _is_merged_store(store):
+        return store, None
     if _holds_npy(direct):
         return direct, None
     name = os.path.basename(path)
     if name.lower() in _PLATE_OUTPUT_FOLDERS:
         candidate = os.path.join(os.path.dirname(path), "merged")
+        store = os.path.join(os.path.dirname(path), MERGED_STORE_NAME)
+        if _is_merged_store(store):
+            return store, (
+                f"src points at {path}, the plate's '{name}' output folder; "
+                f"measure reads the merged fields in {store} instead.")
         if os.path.normpath(candidate) != os.path.normpath(direct) and _holds_npy(candidate):
             return candidate, (
                 f"src points at {path}, the plate's '{name}' output folder; "
@@ -441,17 +455,28 @@ def _peek_planes(directory: str) -> Tuple[Optional[int], str, int]:
         length of the last axis (1 for a 2-D array), or None when nothing
         could be read.
     """
-    npys = sorted(f for f in _listdir(directory) if f.endswith(".npy"))
+    from .image_store import _field_header, _is_merged_store, _list_fields
+
+    from .image_store import _stack_header, _stack_names
+
+    stack = os.path.basename(os.path.normpath(directory)) == "stack"
+    if _is_merged_store(directory):
+        npys = sorted(_list_fields(directory))
+    elif stack:
+        # stack/*.npy, or the field stacks in fov.ome.zarr (item 0aj P1c).
+        npys = _stack_names(directory)
+    else:
+        npys = sorted(f for f in _listdir(directory) if f.endswith(".npy"))
     if not npys:
         return None, "", 0
-    import numpy as np
 
     for name in npys[:3]:
         try:
-            arr = np.load(os.path.join(directory, name), mmap_mode="r")
-        except (OSError, ValueError, EOFError):
+            header = _stack_header if stack else _field_header
+            shape, _dtype = header(os.path.join(directory, name))
+        except (OSError, ValueError, EOFError, KeyError):
             continue
-        shape = tuple(getattr(arr, "shape", ()))
+        shape = tuple(shape)
         if not shape:
             continue
         planes = int(shape[-1]) if len(shape) >= 3 else 1
@@ -556,6 +581,10 @@ def _inventory(src: Any, settings: Dict[str, Any], app: str) -> _Inventory:
         return inv
 
     inv.merged_dir = _resolve_merged_dir(src)
+    from .image_store import MERGED_STORE_NAME, _is_merged_store
+    store = os.path.join(os.path.dirname(inv.merged_dir), MERGED_STORE_NAME)
+    if app in MERGED_APPS and _is_merged_store(store):
+        inv.merged_dir = store
     inv.merged_exists = os.path.isdir(inv.merged_dir)
     if inv.merged_exists:
         planes, example, count = _peek_planes(inv.merged_dir)
@@ -565,7 +594,8 @@ def _inventory(src: Any, settings: Dict[str, Any], app: str) -> _Inventory:
             inv.array_source = os.path.join(os.path.basename(inv.merged_dir), example)
 
     inv.stack_dir = os.path.join(src, "stack")
-    if os.path.isdir(inv.stack_dir):
+    from .image_store import _stack_exists
+    if _stack_exists(inv.stack_dir):
         planes, example, count = _peek_planes(inv.stack_dir)
         inv.stack_files = count
         if planes is not None:

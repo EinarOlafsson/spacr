@@ -3776,7 +3776,8 @@ def plot_image_mask_overlay(
         mask_filtered = mask_filtered.astype(original_dtype)
         return mask_filtered
 
-    stack = np.load(file)
+    from .image_store import _read_field
+    stack = _read_field(file)
 
     if export_tiffs:
         save_dir = os.path.join(
@@ -4752,13 +4753,16 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
     """
     from .utils import normalize_to_dtype
     from .io import _listdir_visible
+    from .image_store import _read_stack, _stack_names
 
     paths = []
 
     if src.endswith('.npz') or src.endswith('.npy'):
         paths = [src]
     else:
-        paths = [os.path.join(src, f) for f in _listdir_visible(src) if f.endswith(('.npy', '.npz'))]
+        names = (_stack_names(src) if os.path.basename(os.path.normpath(src)) == 'stack'
+                 else [f for f in _listdir_visible(src) if f.endswith(('.npy', '.npz'))])
+        paths = [os.path.join(src, f) for f in names]
         paths = random.sample(paths, min(nr, len(paths)))
 
     for path in paths:
@@ -4768,7 +4772,8 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
                 key = list(data.keys())[0]
                 img = data[key][0]
         else:
-            img = np.load(path)
+            # The shared field-stack reader: stack/*.npy or fov.ome.zarr (item 0aj).
+            img = _read_stack(path)
 
         if normalize:
             if img.ndim == 2:

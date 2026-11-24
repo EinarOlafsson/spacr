@@ -407,6 +407,13 @@ def test_native_z_preflight_refuses_unsafe_layouts(tmp_path, change):
         settings['metadata_type'] = 'auto'
     else:
         settings['anisotropy'] = None
+    if change == 'measure_default_crops':
+        # Item 0aj: Measure no longer saves crops by default (they stream from
+        # fov.ome.zarr), so a recipe that leaves save_png unset asks for no
+        # 2-D crops of the volume and is not refused for them.
+        from spacr.settings import get_measure_crop_settings
+        assert get_measure_crop_settings({})['save_png'] is False
+        return
     with pytest.raises((ValueError, ZStackError)):
         core._watch_folder_and_analyse(settings, lambda *_: None)
     assert not (watched / 'spacr_watch').exists()

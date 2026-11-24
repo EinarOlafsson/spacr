@@ -28,7 +28,7 @@ def _isolated_illumination(monkeypatch):
 def _project(root, *, dtype=np.uint16, calibration=False):
     """Write retained merged metadata and a committed native field with two objects."""
     from spacr.crops import MERGED_LAYOUT_SIDECAR
-    from spacr.image_store import export_merged
+    from spacr.image_store import PlateWriter, _merged_field
 
     merged = root / "merged"
     merged.mkdir(parents=True)
@@ -48,7 +48,10 @@ def _project(root, *, dtype=np.uint16, calibration=False):
         original[..., 1] = 50000
     path = merged / "plate1_A01_1.npy"
     np.save(path, original)
-    export_merged(root, "ome-zarr", workers=1)
+    # The older (983) project layout, images/<plate>.ome.zarr beside the
+    # retained merged/*.npy, which item 0aj keeps readable.
+    image, labels = _merged_field((str(path), [0, 1], {"cell": 2, "nucleus": 3}))
+    PlateWriter(root / "images", "plate1").write_field("A01", 1, image, labels)
     return path, original
 
 
