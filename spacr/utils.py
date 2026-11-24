@@ -3095,6 +3095,13 @@ def _append_to_measurements_db(db_path, table, frame, required=True,
                                store=None):
     """Append ``frame`` to ``table``, surviving a lock and a widened schema.
 
+    A store project (every project Measure or Make Masks writes since the
+    unified store, step S4) gets the rows through
+    :func:`spacr.measurement_store.append`: inside a Measure field packet
+    they wait for the field's spool, otherwise each well is rewritten
+    through :func:`spacr.store.write_table`. measurements.db is written only
+    for a legacy project that still has one.
+
     This used to be a bare ``except sqlite3.OperationalError: print(...)``,
     which hid two different data-loss bugs behind one printed line.
 

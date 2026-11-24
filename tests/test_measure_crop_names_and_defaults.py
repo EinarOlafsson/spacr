@@ -1,5 +1,6 @@
 """measure_crop with ArrayScan-style names, minimal settings and a merged src."""
 import os
+from tests import store_sql
 import re
 
 import numpy as np
@@ -91,7 +92,7 @@ def test_measure_crop_measures_a_stack_with_or_without_the_none_name(
         tmp_path, stack):
     root = _plate(tmp_path, stack)
     _run(_docstring_settings(root))
-    assert (root / 'measurements' / 'measurements.db').is_file()
+    assert store_sql.measured(root / 'measurements' / 'measurements.db')
 
 
 @pytest.mark.parametrize('suffix', ['/merged', '/merged/'])
@@ -99,7 +100,7 @@ def test_merged_src_is_read_as_its_plate_folder(tmp_path, capsys, suffix):
     root = _plate(tmp_path, 'plate01_A01_1.npy')
     _run(_docstring_settings(str(root) + suffix))
     assert 'using the plate folder' in capsys.readouterr().out
-    assert (root / 'measurements' / 'measurements.db').is_file()
+    assert store_sql.measured(root / 'measurements' / 'measurements.db')
     assert not (root / 'merged' / 'measurements').exists()
 
 

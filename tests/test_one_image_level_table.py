@@ -17,6 +17,7 @@ fields have known background, object and saturated pixels.
 from __future__ import annotations
 
 import contextlib
+from tests import store_sql
 import sqlite3
 
 import numpy as np
@@ -32,12 +33,12 @@ BACKGROUND, CELL, NUCLEUS = 100, 1000, 2000
 
 
 def _table(db, name):
-    with contextlib.closing(sqlite3.connect(db, timeout=30.0)) as conn:
+    with contextlib.closing(store_sql.connect(db, timeout=30.0)) as conn:
         return pd.read_sql_query(f'SELECT * FROM "{name}"', conn)
 
 
 def _tables(db):
-    with contextlib.closing(sqlite3.connect(db, timeout=30.0)) as conn:
+    with contextlib.closing(store_sql.connect(db, timeout=30.0)) as conn:
         return {row[0] for row in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
 
@@ -187,7 +188,10 @@ def test_a_second_run_keeps_the_shared_table_in_place(measured, tmp_path):
     shutil.copytree(measured['root'], root)
     measure.measure_crop(_settings(root / 'merged'))
     tables = _tables(root / 'measurements' / 'measurements.db')
-    assert 'image' in tables and 'image_1' not in tables and 'cell_1' in tables
+    # Unified store, step S4: the earlier run's Measure tables are kept under
+    # measurements/archive/ (no longer renamed to cell_1 inside the database).
+    assert 'image' in tables and 'image_1' not in tables and 'cell' in tables
+    assert list((root / 'measurements' / 'archive').glob('*/tables/cell'))
     image = _table(root / 'measurements' / 'measurements.db', 'image')
     assert len(image) == 4 and (image['mask_cell_count'] == 2).all()
 

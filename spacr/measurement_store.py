@@ -1160,10 +1160,11 @@ class _Session:
         written = 0
         with self.lock:
             for name in list(self._created()):
-                if name not in self.tables:
-                    continue
                 quoted = '"' + name.replace('"', '""') + '"'
                 shadow = '"__shadow_' + name.replace('"', '""') + '"'
+                if name not in self.tables:
+                    written += self._persist_new(name, quoted, shadow)
+                    continue
                 columns = [r[1] for r in self.db.execute(
                     f'PRAGMA table_info({quoted})').fetchall()]
                 have = {r[1] for r in self.db.execute(
@@ -1173,6 +1174,15 @@ class _Session:
                 old = ', '.join(('"' + c.replace('"', '""') + '"') if c in have
                                 else f'NULL AS "{c}"' for c in columns)
                 if 'plate' not in columns or 'well' not in columns:
+                    changed = self.db.execute(
+                        f'SELECT COUNT(*) FROM (SELECT {listed} FROM {quoted} '
+                        f'EXCEPT ALL SELECT {old} FROM {shadow})').fetchone()[0]
+                    changed += self.db.execute(
+                        f'SELECT COUNT(*) FROM (SELECT {old} FROM {shadow} '
+                        f'EXCEPT ALL SELECT {listed} FROM {quoted})').fetchone()[0]
+                    if changed:
+                        written += self._persist_new(name, quoted, shadow,
+                                                     new=False)
                     continue
                 dirty = self.db.execute(
                     f'SELECT DISTINCT plate, well FROM (SELECT {listed} FROM '
@@ -1209,6 +1219,33 @@ class _Session:
                 _SESSIONS.pop(self.key, None)
                 _SESSIONS[self._key()] = self
         return written
+
+    def _persist_new(self, name: str, quoted: str, shadow: str, *,
+                     new: bool = True) -> int:
+        """Store a table a connection created (a generated crop set, say).
+
+        Its wells are its ``plate``/``well`` columns, or derived from its
+        keys as for :func:`write_rows`; it becomes editable from then on.
+        """
+        frame = self.store.sql(f'SELECT * FROM {quoted}')
+        if frame.empty:
+            return 0
+        if {'plate', 'well'} <= set(frame.columns):
+            groups = {(str(p), str(w)): g for (p, w), g in frame.groupby(
+                [frame['plate'].astype(str), frame['well'].astype(str)])}
+        else:
+            groups = {(p, w): frame.iloc[r] for p, w, r in _partitions(frame)}
+        parts = {k: _stored_names(name, _with_keys(name, g))
+                 for k, g in groups.items()}
+        if not new:
+            drop_tables(self.project, [name])
+        rewrite_table(self.project, name, parts, register=False)
+        if new:
+            self.tables.append(name)
+            self.editable.append(name)
+        self.db.execute(f'CREATE OR REPLACE TABLE {shadow} AS SELECT * FROM '
+                        f'{quoted}')
+        return len(parts)
 
     def _part(self, name: str, quoted: str, plate, well):
         """One well of an in-memory table as the Arrow table the store keeps."""

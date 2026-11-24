@@ -6580,7 +6580,7 @@ def _read_confluency(db_path):
     :returns: one row per field.
     """
     from .database_concurrency import connect
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return pd.DataFrame()
     conn = connect(db_path, readonly=True)
     try:
@@ -6890,7 +6890,7 @@ def _read_image_table(db_path, columns=None):
     from .database_concurrency import connect
     from .tabular import _read_query
 
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return pd.DataFrame()
     with closing(connect(db_path, readonly=True, timeout=30.0)) as conn:
         present = {row[1] for row in conn.execute(f'PRAGMA table_info({_IMAGE_TABLE})')}
@@ -7013,7 +7013,7 @@ def _read_confluency_wells(source):
     if isinstance(source, pd.DataFrame):
         return source
     from .database_concurrency import connect
-    if not source or not os.path.isfile(source):
+    if not source or not _measurements_exist(source):
         return pd.DataFrame()
     conn = connect(source, readonly=True)
     try:
@@ -14508,6 +14508,13 @@ def _report_steps_not_on_the_store(settings, db_path):
     return [key for key, _what in named]
 
 
+def _measurements_exist(db_path):
+    """Whether ``db_path`` names measurements: a database file or a store project."""
+    from .measurement_store import exists
+
+    return bool(db_path) and exists(db_path)
+
+
 def _measure_artifact(db_path):
     """The file a Measure run's ledger stamps: the store catalog or the legacy db.
 
@@ -16482,7 +16489,7 @@ def generate_object_dataset(
         root = os.path.dirname(root.rstrip(os.sep))
     if db_path is None:
         db_path = os.path.join(root, 'measurements', 'measurements.db')
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         raise FileNotFoundError(f"measurements database not found: {db_path}")
 
     if mask_dims is None:

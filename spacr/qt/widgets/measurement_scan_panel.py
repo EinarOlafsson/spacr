@@ -361,7 +361,13 @@ class AttachedDatabase:
         own bounded worker; `DatabaseMergePanel._follow_path_probes` is the
         half that corrects the row when the real answer lands.
         """
-        return self.attached and path_probe.exists(str(self.path))
+        path = str(self.path)
+        if os.path.basename(path) == "measurements.db":
+            # Unified store, step S4: a store project's measurements.db is
+            # its catalog beside it.
+            return self.attached and (path_probe.exists(path) or path_probe.exists(
+                os.path.join(os.path.dirname(path), "spacr.duckdb")))
+        return self.attached and path_probe.exists(path)
 
     @property
     def label(self) -> str:
