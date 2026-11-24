@@ -2126,7 +2126,7 @@ def test_measure_sources_keep_requested_scalars_and_save_their_own_models(
             assert restored['psf_fwhm_um'] is None
             assert restored['n2v_model'] == (None if suffix == 'csv' else '')
         database = plate / 'measurements' / 'measurements.db'
-        assert database.is_file()
+        assert store_sql.measured(database)
         connection = store_sql.connect(str(database))
         try:
             status = connection.execute(

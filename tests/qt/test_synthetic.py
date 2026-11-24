@@ -372,7 +372,7 @@ def test_crop_demo_runs_end_to_end_through_measure_crop(tmp_path: Path):
     measure_crop(settings)
 
     db = layout.src / "measurements" / "measurements.db"
-    assert db.is_file(), "measure_crop wrote no measurements.db"
+    assert store_sql.measured(db), "measure_crop wrote no measurements.db"
     with store_sql.connect(db) as conn:
         tables = {name for (name,) in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}

@@ -209,7 +209,7 @@ def test_measure_crop_completes_in_a_spawn_pool(merged_project, monkeypatch):
     assert mp.get_start_method() == before
 
     db = merged_project / 'measurements' / 'measurements.db'
-    assert db.is_file(), 'the spawn pool wrote no measurements database'
+    assert store_sql.measured(db), 'the spawn pool wrote no measurements database'
     con = store_sql.connect(db)
     try:
         tables = {r[0] for r in con.execute(

@@ -296,8 +296,8 @@ def test_a_table_run_and_a_measure_run_agree(tmp_path, drawn):
 
     a_db = by_table['db_path']
     b_db = str(b_root / "measurements" / "measurements.db")
-    assert os.path.isfile(a_db)
-    assert os.path.isfile(b_db)
+    assert store_sql.measured(a_db)
+    assert store_sql.measured(b_db)
 
     a_tables = _tables(a_db)
     b_tables = _tables(b_db)
@@ -524,7 +524,7 @@ def test_a_progress_callback_that_raises_does_not_fail_the_run(tmp_path):
 
     out = measure_from_field_table(table, dict(LEAN),
                                    dst=str(tmp_path / "out"), progress=angry)
-    assert os.path.isfile(out['db_path'])
+    assert store_sql.measured(out['db_path'])
 
 
 def test_cells_drawn_on_one_image_join_nuclei_drawn_on_another(tmp_path):

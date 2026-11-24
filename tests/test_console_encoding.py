@@ -203,7 +203,7 @@ def test_measure_crop_completes_with_a_windows_console(tmp_path, monkeypatch):
         monkeypatch.undo()
 
     db = tmp_path / 'measurements' / 'measurements.db'
-    assert db.is_file(), 'the run died before it wrote anything'
+    assert store_sql.measured(db), 'the run died before it wrote anything'
     con = store_sql.connect(db)
     try:
         assert con.execute('SELECT COUNT(*) FROM cell').fetchone()[0] == 3

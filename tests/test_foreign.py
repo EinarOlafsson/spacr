@@ -176,7 +176,7 @@ def test_a_full_import_produces_a_working_spacr_project(theirs, tmp_path):
     assert cv.MAP_FILENAME in names
 
     # -- the database ---------------------------------------------------
-    assert os.path.isfile(result.db_path)
+    assert store_sql.measured(result.db_path)
     tables = _tables(result.db_path)
     for name in ("cell", "foreign_cell", cv.CONVERSION_TABLE,
                  fg.FOREIGN_COLUMNS_TABLE, fg.IMPORT_TABLE):
@@ -1079,7 +1079,7 @@ def test_import_project_previews_before_it_writes(theirs, tmp_path, capsys):
 
     result = fg.import_project(settings, preview_only=False)
     assert result.n_fields == 2
-    assert os.path.isfile(result.db_path)
+    assert store_sql.measured(result.db_path)
 
 
 def test_import_project_prints_progress_that_ends_at_the_total(theirs, tmp_path, capsys):

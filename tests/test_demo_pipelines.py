@@ -297,7 +297,7 @@ def test_measure_demo_writes_every_expected_measurement_table(tmp_path):
     measure_crop(_load_demo_settings(layout))
 
     db = Path(layout.src) / "measurements" / "measurements.db"
-    assert db.is_file(), "measure_crop wrote no measurements database"
+    assert store_sql.measured(db), "measure_crop wrote no measurements database"
     counts = _tables(db)
     for table in ("cell", "nucleus", "cytoplasm", "pathogen"):
         assert table in counts, sorted(counts)

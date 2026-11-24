@@ -463,7 +463,7 @@ def test_stamps_accumulate_one_row_per_stage(tmp_path):
 def test_stamping_a_db_that_does_not_exist_yet_creates_it(tmp_path):
     db = tmp_path / 'fresh.db'
     RunLedger('new').stamp(db)
-    assert db.is_file()
+    assert store_sql.measured(db)
     assert read_run_status(db)[0]['status'] == STATUS_EMPTY
 
 

@@ -143,7 +143,7 @@ def _tables(project):
     measurement.
     """
     db = os.path.join(str(project), "measurements", "measurements.db")
-    if not os.path.isfile(db):
+    if not store_sql.measured(db):
         return {}
     frames = {}
     con = store_sql.connect(db)

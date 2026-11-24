@@ -313,7 +313,7 @@ class TestTheConversionMapIsAlwaysIndexedOnTarget:
 
 
 def _indexes(db_path):
-    if not os.path.isfile(db_path):
+    if not store_sql.measured(db_path):
         return []
     connection = store_sql.connect(str(db_path))
     try:

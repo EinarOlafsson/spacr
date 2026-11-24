@@ -103,7 +103,7 @@ def test_run_builds_merged_stacks_then_delegates_to_measure(
     monkeypatch.setattr("spacr.measure.measure_crop", fake_measure_crop)
     result = em.run_external_masks(plan, settings)
 
-    assert os.path.isfile(result.db_path)
+    assert store_sql.measured(result.db_path)
     assert {"cell", "nucleus", "cytoplasm", "png_list"} <= set(
         result.tables)
     assert received["src"] == os.path.join(result.destination, "merged")
