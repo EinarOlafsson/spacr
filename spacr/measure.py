@@ -2419,14 +2419,6 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
         either way.
     """
 
-    def _gini(array):
-        """NaN-safe Gini coefficient of an intensity array."""
-        array = np.abs(array[~np.isnan(array)])
-        n = array.size
-        array = np.sort(array)
-        index = np.arange(1, n + 1)
-        return (np.sum((2 * index - n - 1) * array)) / (n * np.sum(array)) if np.sum(array) else np.nan
-    
     props = regionprops_table(labels, image, properties=intensity_props, spacing=spacing)
     df = pd.DataFrame(props)
     if _ndim_of(labels) == 3:
@@ -2436,92 +2428,270 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
         field_percentiles = _field_reference_percentiles(image)
     field_p90, field_p10 = field_percentiles
 
-    regions = regionprops(labels, intensity_image=image, spacing=spacing)
-    integrated_intensity = []
-    std_intensity = []
-    median_intensity = []
-    skew_intensity = []
-    kurtosis_intensity = []
-    mode_intensity = []
-    range_intensity = []
-    iqr_intensity = []
-    cv_intensity = []
-    gini_intensity = []
-    frac_high90 = []
-    frac_low10 = []
-    entropy_intensity = []
-
-    def _masked_intensity(region):
-        """Pixels inside a region across old and new scikit-image names."""
-        try:
-            intensity = region.image_intensity
-        except AttributeError:
-            intensity = region.intensity_image
-        return intensity[region.image]
-
-    for region in regions:
-        intens = _masked_intensity(region)
-        intens = intens[~np.isnan(intens)]
-        if intens.size == 0:
-            integrated_intensity.append(np.nan)
-            std_intensity.append(np.nan)
-            median_intensity.append(np.nan)
-            skew_intensity.append(np.nan)
-            kurtosis_intensity.append(np.nan)
-            mode_intensity.append(np.nan)
-            range_intensity.append(np.nan)
-            iqr_intensity.append(np.nan)
-            cv_intensity.append(np.nan)
-            gini_intensity.append(np.nan)
-            frac_high90.append(np.nan)
-            frac_low10.append(np.nan)
-            entropy_intensity.append(np.nan)
-        else:
-            has_variation = not np.all(intens == intens[0])
-            integrated_intensity.append(np.sum(intens))
-            spread = np.std(intens)
-            level = np.mean(intens)
-            std_intensity.append(spread)
-            median_intensity.append(np.median(intens))
-            wide = intens.astype(np.float64, copy=False)
-            skew_intensity.append(
-                _SCIPY_SKEW(wide) if intens.size > 2 and has_variation
-                else np.nan)
-            kurtosis_intensity.append(
-                _SCIPY_KURTOSIS(wide) if intens.size > 3 and has_variation
-                else np.nan)
-            values, counts = np.unique(intens, return_counts=True)
-            mode_intensity.append(float(values[np.argmax(counts)]))
-            range_intensity.append(np.ptp(intens))
-            upper_quartile, lower_quartile = _percentiles_of(intens, [75, 25])
-            iqr_intensity.append(upper_quartile - lower_quartile)
-            cv_intensity.append(spread / level if level != 0 else np.nan)
-            gini_intensity.append(_gini(intens))
-            frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
-            frac_low10.append(np.mean(intens < field_p10) if np.isfinite(field_p10) else np.nan)
-            entropy_intensity.append(
-                _SCIPY_ENTROPY(counts, base=2) if intens.size > 1 else 0.0)
-
-    df['integrated_intensity'] = integrated_intensity
-    df['std_intensity'] = std_intensity
-    df['median_intensity'] = median_intensity
-    df['skew_intensity'] = skew_intensity
-    df['kurtosis_intensity'] = kurtosis_intensity
-    df['mode_intensity'] = mode_intensity
-    df['range_intensity'] = range_intensity
-    df['iqr_intensity'] = iqr_intensity
-    df['cv_intensity'] = cv_intensity
-    df['gini_intensity'] = gini_intensity
-    df['frac_high90'] = frac_high90
-    df['frac_low10'] = frac_low10
-    df['entropy_intensity'] = entropy_intensity
-
-    percentiles = [5, 10, 25, 75, 85, 95]
-    per_region = [_percentiles_of(_masked_intensity(region), percentiles)
-                  for region in regions]
-    for position, p in enumerate(percentiles):
-        df[f'percentile_{p}'] = [values[position] for values in per_region]
+    rows = np.unique(np.asarray(labels)[np.asarray(labels) > 0])
+    for column, values in _label_intensity_statistics(
+            labels, image, rows, field_p90, field_p10).items():
+        df[column] = values
     return df
+
+
+def _percentile_dtypes(dtype):
+    """The dtypes the per-object NumPy calls of :func:`_extended_regionprops_table` return for ``dtype`` pixels.
+
+    ``(sum, std, median, range, percentile, cv)``, read off the calls on a
+    three-pixel probe, so a column keeps the dtype it had when each object
+    was measured by its own call.
+    """
+    probe = np.array([1, 2, 4], dtype=dtype)
+    spread = np.std(probe)
+    return (np.sum(probe).dtype, spread.dtype, np.median(probe).dtype,
+            np.ptp(probe).dtype, _percentiles_of(probe, [75, 25]).dtype,
+            (spread / np.mean(probe)).dtype)
+
+
+def _intensity_statistics_kernel(labels, image, boxes, rows, references,
+                                 out, raster, raster_starts):
+    """Every object's distributional intensity statistics, one object at a time, into ``out``.
+
+    For row ``k`` the pixels of label ``rows[k]`` inside its box
+    ``boxes[k]`` (``z, row, col`` start and stop) are gathered in float64,
+    NaN left out, and sorted. Columns of ``out[k]``: 0 sum, 1 population
+    SD, 2 median, 3 skewness and 4 excess kurtosis (NaN when flat or too
+    small, as ``scipy.stats``), 5 the smallest most frequent value, 6
+    range, 7-12 the 5th, 10th, 25th, 75th, 85th and 95th linear
+    percentiles (NumPy's interpolation), 13 the Gini coefficient of the
+    absolute values, 14 and 15 the shares above ``references[0]`` and
+    below ``references[1]``, 16 the Shannon entropy of the value counts in
+    bits, 19 the number of NaN pixels and 20 the number of other pixels. A
+    row without pixels keeps the NaN it was given. Each row's non-NaN
+    pixels are also copied, unsorted and in the image's dtype, to
+    ``raster`` from ``raster_starts[k]`` in raster order, for
+    :func:`_label_sums_as_numpy`. Compile with :func:`_compiled`.
+
+    :param out: ``(rows, 21)`` float64, filled with NaN by the caller.
+    :param raster: one slot per labelled pixel, in the image's dtype.
+    """
+    points = (5.0, 10.0, 25.0, 75.0, 85.0, 95.0)
+    cursor = 0
+    for index in range(rows.size):
+        label = rows[index]
+        z0, z1 = boxes[index, 0], boxes[index, 1]
+        r0, r1 = boxes[index, 2], boxes[index, 3]
+        c0, c1 = boxes[index, 4], boxes[index, 5]
+        n = 0
+        missing = 0
+        for z in range(z0, z1):
+            for r in range(r0, r1):
+                for c in range(c0, c1):
+                    if labels[z, r, c] == label:
+                        if np.isnan(np.float64(image[z, r, c])):
+                            missing += 1
+                        else:
+                            n += 1
+        out[index, 19] = missing
+        out[index, 20] = n
+        raster_starts[index] = cursor
+        if n == 0:
+            continue
+        values = np.empty(n)
+        k = 0
+        for z in range(z0, z1):
+            for r in range(r0, r1):
+                for c in range(c0, c1):
+                    if labels[z, r, c] == label:
+                        v = np.float64(image[z, r, c])
+                        if not np.isnan(v):
+                            values[k] = v
+                            raster[cursor + k] = image[z, r, c]
+                            k += 1
+        cursor += n
+        values.sort()
+        total = 0.0
+        for k in range(n):
+            total += values[k]
+        mean = total / n
+        m2 = 0.0
+        m3 = 0.0
+        m4 = 0.0
+        for k in range(n):
+            d = values[k] - mean
+            d2 = d * d
+            m2 += d2
+            m3 += d2 * d
+            m4 += d2 * d2
+        m2 /= n
+        m3 /= n
+        m4 /= n
+        out[index, 0] = total
+        out[index, 1] = np.sqrt(m2)
+        out[index, 2] = (values[(n - 1) // 2] + values[n // 2]) / 2
+        varying = values[0] != values[n - 1]
+        flat_moment = m2 <= (2.220446049250313e-16 * mean) ** 2
+        if varying and n > 2 and not flat_moment:
+            out[index, 3] = m3 / m2 ** 1.5
+        if varying and n > 3 and not flat_moment:
+            out[index, 4] = m4 / m2 ** 2.0 - 3
+        best = 0
+        mode = values[0]
+        entropy = 0.0
+        start = 0
+        for k in range(1, n + 1):
+            if k == n or values[k] != values[start]:
+                length = k - start
+                if length > best:
+                    best = length
+                    mode = values[start]
+                share = length / n
+                entropy -= share * np.log(share)
+                start = k
+        out[index, 5] = mode
+        out[index, 6] = values[n - 1] - values[0]
+        for j in range(6):
+            position = (n - 1) * (points[j] / 100.0)
+            below = np.floor(position)
+            gamma = position - below
+            low_index = int(below)
+            high_index = min(low_index + 1, n - 1)
+            low = values[low_index]
+            high = values[high_index]
+            difference = high - low
+            if gamma >= 0.5:
+                out[index, 7 + j] = high - difference * (1 - gamma)
+            else:
+                out[index, 7 + j] = low + difference * gamma
+        magnitude = np.abs(values)
+        if values[0] < 0:
+            magnitude.sort()
+        weighted = 0.0
+        magnitude_sum = 0.0
+        for k in range(n):
+            weighted += (2 * (k + 1) - n - 1) * magnitude[k]
+            magnitude_sum += magnitude[k]
+        if magnitude_sum != 0:
+            out[index, 13] = weighted / (n * magnitude_sum)
+        high_count = 0
+        low_count = 0
+        for k in range(n):
+            if values[k] > references[0]:
+                high_count += 1
+            if values[k] < references[1]:
+                low_count += 1
+        out[index, 14] = high_count / n
+        out[index, 15] = low_count / n
+        out[index, 16] = entropy / np.log(2.0) if n > 1 else 0.0
+
+
+def _cast_rows(values, dtype, measured):
+    """A :func:`_label_intensity_statistics` column in ``dtype``; an integer dtype (no NaN pixels) keeps 0 for unmeasured rows."""
+    if np.issubdtype(dtype, np.integer):
+        return np.where(measured, values, 0).astype(dtype)
+    return values.astype(dtype)
+
+
+def _label_sums_as_numpy(raster, starts, counts, measured, sum_type,
+                         std_type, cv_type):
+    """Each row's ``np.sum``, ``np.std`` and ``std / mean`` of its pixels, by NumPy on the object's own pixels.
+
+    These three keep NumPy's own pairwise summation in the image's
+    precision (a float32 image sums in float32), so they stay the values
+    one ``np.sum`` / ``np.std`` / ``np.mean`` per object gave: each
+    object's non-NaN pixels in raster order, the order its crop held them
+    in, as :func:`_intensity_statistics_kernel` copied them.
+
+    :param raster: the copied pixels; row ``k`` holds ``counts[k]`` from
+        ``starts[k]``.
+    :returns: ``(integrated, spread, cv)`` columns; NaN (0 for an integer
+        dtype) for a row without pixels.
+    """
+    size = len(starts)
+    integrated = _cast_rows(np.full(size, np.nan), sum_type, measured)
+    spread = _cast_rows(np.full(size, np.nan), std_type, measured)
+    cv = _cast_rows(np.full(size, np.nan), cv_type, measured)
+    for index, (start, count) in enumerate(zip(np.asarray(starts).tolist(),
+                                               np.asarray(counts).tolist())):
+        if not count:
+            continue
+        run = raster[start:start + int(count)]
+        level = np.mean(run)
+        deviation = np.std(run)
+        integrated[index] = np.sum(run)
+        spread[index] = deviation
+        cv[index] = deviation / level if level != 0 else np.nan
+    return integrated, spread, cv
+
+
+def _label_intensity_statistics(labels, image, rows, field_p90, field_p10):
+    """The distributional intensity columns of :func:`_extended_regionprops_table`, for every label.
+
+    One compiled pass per object over its bounding box
+    (:func:`_intensity_statistics_kernel`) replaces a dozen NumPy and SciPy
+    calls per object; the sum, SD and CV stay NumPy's own per-object calls
+    (:func:`_label_sums_as_numpy`). The definitions are those calls'
+    (``np.sum``, ``np.std``, ``np.median``, ``np.percentile`` linear, ``scipy.stats``
+    skew and kurtosis with their flat-object NaN, the smallest most
+    frequent value, entropy in bits), summed in float64; each column keeps
+    the dtype its per-object call returned (:func:`_percentile_dtypes`).
+    The field references are compared in the image's own precision, as the
+    per-object comparison did. NaN pixels are left out of every statistic
+    but the percentiles, which are NaN for an object holding one.
+
+    :param rows: the labels of the table's rows, ascending.
+    :returns: ``{column: values}`` in the table's column order.
+    """
+    labels = np.asarray(labels)
+    image = np.asarray(image)
+    if labels.ndim == 2:
+        labels = labels[None]
+        image = image[None]
+    rows = np.asarray(rows, dtype=np.int64)
+    sum_type, std_type, median_type, range_type, pct_type, cv_type = (
+        _percentile_dtypes(image.dtype))
+    precision = np.result_type(image.dtype, 1.0)
+    references = np.array([
+        float(np.asarray(r).astype(precision)) if np.isfinite(r) else np.nan
+        for r in (field_p90, field_p10)])
+    slices = find_objects(labels)
+    boxes = np.zeros((rows.size, 6), dtype=np.int64)
+    for index, label in enumerate(rows.tolist()):
+        box = slices[label - 1]
+        boxes[index] = (box[0].start, box[0].stop, box[1].start, box[1].stop,
+                        box[2].start, box[2].stop)
+    stats = np.full((rows.size, 21), np.nan)
+    raster = np.empty(np.count_nonzero(labels), dtype=image.dtype)
+    raster_starts = np.zeros(rows.size, dtype=np.int64)
+    _compiled(_intensity_statistics_kernel)(
+        np.ascontiguousarray(labels), np.ascontiguousarray(image), boxes,
+        rows, references, stats, raster, raster_starts)
+    measured = stats[:, 20] > 0
+    percentiles = {p: _cast_rows(stats[:, 7 + j], pct_type, measured)
+                   for j, p in enumerate((5, 10, 25, 75, 85, 95))}
+    integrated, spread, cv = _label_sums_as_numpy(
+        raster, raster_starts, stats[:, 20], measured, sum_type, std_type,
+        cv_type)
+    columns = {
+        'integrated_intensity': integrated,
+        'std_intensity': spread,
+        'median_intensity': _cast_rows(stats[:, 2], median_type, measured),
+        'skew_intensity': stats[:, 3],
+        'kurtosis_intensity': stats[:, 4],
+        'mode_intensity': stats[:, 5],
+        'range_intensity': _cast_rows(stats[:, 6], range_type, measured),
+        'iqr_intensity': percentiles[75] - percentiles[25],
+        'cv_intensity': cv,
+        'gini_intensity': stats[:, 13],
+    }
+    for name, column, reference in (('frac_high90', 14, references[0]),
+                                    ('frac_low10', 15, references[1])):
+        columns[name] = (stats[:, column] if np.isfinite(reference)
+                         else np.full(rows.size, np.nan))
+    columns['entropy_intensity'] = stats[:, 16]
+    has_missing = stats[:, 19] > 0
+    for p, values in percentiles.items():
+        if np.issubdtype(values.dtype, np.floating):
+            values = np.where(has_missing, np.nan, values).astype(values.dtype)
+        columns[f'percentile_{p}'] = values
+    return columns
+
 
 def _homogeneity_offset(distance, width):
     """The GLCM offset actually used for ``distance`` on a box ``width`` wide.
