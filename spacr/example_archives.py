@@ -331,6 +331,7 @@ EXAMPLE_ARCHIVE_REVISIONS: Dict[str, str] = {
     OPS_E2E_FULL_ARCHIVE: OPS_E2E_REVISION,
     "ops_testdata_funk2022_A1_rev2_core.tar": OPS_E2E_REVISION,
     "ops_testdata_funk2022_A1_rev2_full.tar": OPS_E2E_REVISION,
+    "ops_testdata_funk2022_A1_rev3_core.tar": "d05cae1344b7ca237867b9a010e834f5d4358bcb",
     "ops_testdata_funk2022_A1_profiles.tar": "8cbaab5c7a68f14ee46a7996d054246541c88705",
 }
 
