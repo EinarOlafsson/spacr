@@ -7668,6 +7668,28 @@ def _cell_cycle_fit_rows(fits, fit_group):
     return pd.DataFrame(rows)
 
 
+def mitotic_holdout(*calls):
+    """The one mitotic flag held out of the DNA-phase fit: a cell is held out when ANY call says so.
+
+    Measure and the OPS cell-cycle phase both build the external M call for
+    :func:`dna_phases` through this, so the stage model's non-interphase call
+    and the DNA-rule ``mitotic`` column of the cell table leave the fit together.
+
+    :param calls: boolean arrays or Series of one length, one per source of a
+        mitotic call; a source that is None is skipped, missing values count as False.
+    :returns: the union as a boolean array, or None when every source is None.
+    """
+    arrays = [np.asarray(pd.Series(np.asarray(c, dtype=object)).where(
+        pd.notna(np.asarray(c, dtype=object)), False).astype(bool))
+        for c in calls if c is not None]
+    if not arrays:
+        return None
+    out = arrays[0].copy()
+    for a in arrays[1:]:
+        out |= a
+    return out
+
+
 def dna_phases(cells, *, dna='_dna_integrated', group='well', field='site',
                mitotic=None, centre=True, min_cells=_CELL_CYCLE_FIELD_MIN_CELLS,
                gates=None, capture_diagnostics=False, groups=None, fields=None):
@@ -7895,7 +7917,7 @@ def _phases_by_centred_measurements(nuclei, *, column, gates, mitotic_ratio,
     positions = [(name, nuclei.index.get_indexer(index))
                  for name, index in groups]
     dna = _nucleus_dna(nuclei, column)
-    external = None if mitotic is None else np.asarray(mitotic, dtype=bool)
+    external = mitotic_holdout(mitotic)
     called, details = dna_phases(
         dna[['dna_content']], dna='dna_content', groups=positions,
         fields=_field_labels(nuclei, groups) if field_centre else None,

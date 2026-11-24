@@ -691,14 +691,17 @@ def _dna_phases(cells: pd.DataFrame, settings: Mapping[str, Any], mitotic: np.nd
     :param cells: ``_dna_integrated``, ``well`` and ``site`` per cell.
     :param settings: read for ``cell_cycle_field_min_cells`` (default 50).
     :param mitotic: True for the cells the model calls mitotic, g2_prophase or artefact;
-        they stay out of the field modes and the fit.
+        they stay out of the field modes and the fit, as do the cells the cell table's
+        DNA-rule ``mitotic`` column flags (when present), through
+        :func:`spacr.measure.mitotic_holdout`.
     :returns: the frame and fits of :func:`spacr.measure._cell_table_phases_measure_fc`,
         retaining exact fit populations for a separate fixed-fit diagnostic report.
     """
-    from .measure import dna_phases
+    from .measure import dna_phases, mitotic_holdout
 
     table = cells[["_dna_integrated", "well", "site"]].copy()
-    table["mitotic"] = np.asarray(mitotic, bool)
+    table["mitotic"] = mitotic_holdout(
+        mitotic, cells["mitotic"] if "mitotic" in cells.columns else None)
     min_cells = int(settings.get("cell_cycle_field_min_cells") or 50)
     return dna_phases(table, dna="_dna_integrated", group="well", field="site",
                       mitotic="mitotic", min_cells=min_cells, capture_diagnostics=True)
@@ -1437,7 +1440,7 @@ def _needed_columns(path: str, options: Mapping[str, Any], base: Optional[Mappin
 
     The keys, the model features (the checkpoint's, else those the tables offer for the DNA
     and tubulin channels), the integrated DNA content, the nuclear area and the centroids
-    that :func:`self_checks` uses.
+    that :func:`self_checks` uses, and the DNA-rule ``mitotic`` column when the table has one.
     """
     from .tabular import table_columns
 
@@ -1448,7 +1451,7 @@ def _needed_columns(path: str, options: Mapping[str, Any], base: Optional[Mappin
     pairs = [c for pair in (("nucleus_cy", "nucleus_cx"), ("nucleus_centroid_y",
                                                          "nucleus_centroid_x"),
                             ("centroid_row", "centroid_col")) for c in pair]
-    wanted = [c for c in ("site", "label") if c in columns]
+    wanted = [c for c in ("site", "label", "mitotic") if c in columns]
     return wanted + features + [f"nucleus_{dna}_integrated_intensity", "nucleus_area"] + pairs
 
 
