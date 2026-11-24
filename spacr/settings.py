@@ -2619,7 +2619,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 959
+SETTINGS_SCHEMA_VERSION = 962
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2657,6 +2657,7 @@ DEFAULT_CHANGES = {
     957: {'ops_decode_fdr_calibration': 'none', 'ops_prefix_fdr_calibration': 'none'},
     958: {'cytoskeleton_object_support': False},
     959: {'ops_read_neighbour_discount': 1.0},
+    962: {'ops_well_statistics': 'legacy'},
 }
 
 
@@ -2796,6 +2797,13 @@ def _fold_older_defaults(settings, version, known=None):
 
     Version 959 changes the item-1013 neighbour-bleed discount to 0.25;
     files stamped before retain 1.0 (off), including schemas 957 and 958.
+
+    Version 962 is merge 9b, one per-well centre-scale routine:
+    ``ops_well_statistics`` is now ``'two_pass'`` (float64 two-pass mean and
+    standard deviation, a zero spread set to 1). Files stamped before keep
+    ``'legacy'``: StandardScaler in the in-memory TVN and single-pass float32
+    sums in the embedding profiles. Versions 960 and 961 belong to other
+    merges.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9153,7 +9161,7 @@ ALPHA_FEATURES = {
                      'ops_drop_failed_fields', 'ops_drop_nonfinite_rows',
                      'ops_profile_normalisation', 'ops_tvn_mode',
                      'ops_tvn_pca_sample', 'ops_tvn_seed', 'ops_tvn_components',
-                     'ops_tvn_whiten_epsilon',
+                     'ops_tvn_whiten_epsilon', 'ops_well_statistics',
                      'ops_cluster_benchmark', 'ops_benchmark_corum',
                      'ops_benchmark_kegg', 'ops_benchmark_string',
                      'ops_reference_clusters', 'ops_cluster_target',

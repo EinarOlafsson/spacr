@@ -339,7 +339,8 @@ def test_profiles_are_medians_of_cells_then_of_guides():
 def test_settings_map_onto_the_options():
     opts = ops_tvn.tvn_options({"ops_tvn_pca_sample": "5000", "ops_tvn_seed": 3,
                                 "ops_tvn_components": 0.9, "ops_tvn_whiten_epsilon": ""})
-    assert opts == {"pca_sample": 5000, "seed": 3, "components": 0.9, "whiten_epsilon": 3.0}
+    assert opts == {"pca_sample": 5000, "seed": 3, "components": 0.9, "whiten_epsilon": 3.0,
+                    "well_statistics": "two_pass"}
     assert ops_tvn.tvn_options({"ops_tvn_whiten_epsilon": 0})["whiten_epsilon"] == 0.0
     assert ops_tvn.tvn_options({"ops_tvn_components": 40.0})["components"] == 40
 

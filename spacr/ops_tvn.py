@@ -111,27 +111,130 @@ def _matrix_power(matrix: np.ndarray, power: float) -> np.ndarray:
     return np.real(linalg.fractional_matrix_power(matrix, power))
 
 
-def _centerscale_by_batch(values: np.ndarray, batches: np.ndarray) -> np.ndarray:
-    """Centre and scale every batch on all of its cells, in place."""
-    from sklearn.preprocessing import StandardScaler
+#: How per-batch centre-scale statistics are computed. ``two_pass`` is the
+#: one routine (:func:`batch_mean_sd`); ``legacy`` reproduces settings saved
+#: before schema 962 (single-precision sums, variance as E[x^2] - mean^2).
+WELL_STATISTICS = ("two_pass", "legacy")
 
+#: A standard deviation at or below this share of the batch mean's size is
+#: rounding noise, not spread, and is replaced by 1 (the zero-SD policy).
+ZERO_SD_RELATIVE = 1e-12
+
+
+def _check_well_statistics(method: Any) -> str:
+    """The well-statistics method, validated."""
+    method = str(method or "two_pass").strip().lower()
+    if method not in WELL_STATISTICS:
+        raise ValueError(f"well statistics must be one of {list(WELL_STATISTICS)}; got {method!r}")
+    return method
+
+
+def batch_mean_sd(embedding, rows: np.ndarray, batches: np.ndarray, chunk: int = 262144, *,
+                  visit: Optional[Callable[[int, np.ndarray], None]] = None
+                  ) -> Tuple[Dict[Any, np.ndarray], Dict[Any, np.ndarray]]:
+    """Per-batch mean and population standard deviation, in two float64 passes.
+
+    The one routine behind every per-well centre-scale: the OPS TVN
+    (:func:`_centerscale_by_batch`) and the embedding robust-z/TVN
+    profiles (:func:`spacr.gene_measurement_compare._well_statistics`).
+    The first pass sums each batch's values, the second sums the squared
+    deviations from the batch mean, both in float64, so the variance does
+    not lose precision to ``E[x^2] - mean^2`` cancellation. Rows are read
+    ``chunk`` at a time, so an embedding on disk never sits in memory whole;
+    the result differs from an in-memory call only by float64 summation
+    order. Non-finite values are ignored, as ``StandardScaler`` ignores NaN.
+
+    Zero-SD policy: a column with no spread (SD zero, or at most
+    :data:`ZERO_SD_RELATIVE` of the size of its mean, which is rounding
+    noise) or with no finite value gets SD 1, so it is centred to 0 and
+    never divided by a vanishing number.
+
+    :param embedding: the rows (an array or a memory map).
+    :param rows: the rows used, in order.
+    :param batches: the batch of each used row.
+    :param chunk: rows read at a time.
+    :param visit: called as ``visit(start, block)`` for every block of the
+        first pass, so a caller can collect rows without a further read.
+    :returns: ``(mean, sd)`` float64 arrays keyed by batch.
+    """
+    names = sorted(pd.unique(batches))
+    width = np.asarray(embedding[rows[:1]]).shape[1]
+    total = {w: np.zeros(width) for w in names}
+    count = {w: np.zeros(width) for w in names}
+    step = max(int(chunk), 1)
+    for start in range(0, len(rows), step):
+        block = np.asarray(embedding[rows[start:start + step]])
+        if visit is not None:
+            visit(start, block)
+        x = block.astype(np.float64)
+        here = batches[start:start + step]
+        for w in names:
+            k = here == w
+            if k.any():
+                finite = np.isfinite(x[k])
+                total[w] += np.where(finite, x[k], 0.0).sum(0)
+                count[w] += finite.sum(0)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        mean = {w: np.where(count[w] > 0, total[w] / count[w], 0.0) for w in names}
+    squares = {w: np.zeros(width) for w in names}
+    for start in range(0, len(rows), step):
+        x = np.asarray(embedding[rows[start:start + step]]).astype(np.float64)
+        here = batches[start:start + step]
+        for w in names:
+            k = here == w
+            if k.any():
+                deviation = x[k] - mean[w]
+                deviation[~np.isfinite(deviation)] = 0.0
+                squares[w] += (deviation ** 2).sum(0)
+    sd = {}
+    for w in names:
+        with np.errstate(invalid="ignore", divide="ignore"):
+            spread = np.sqrt(squares[w] / count[w])
+        flat = ~np.isfinite(spread) | (spread <= ZERO_SD_RELATIVE * np.abs(mean[w]))
+        spread[flat | (spread == 0)] = 1.0
+        sd[w] = spread
+    return mean, sd
+
+
+def _centerscale_by_batch(values: np.ndarray, batches: np.ndarray, *,
+                          method: str = "two_pass", block: int = 65536) -> np.ndarray:
+    """Centre and scale every batch on all of its cells, in place.
+
+    :param values: one row per cell; overwritten, in its own dtype.
+    :param batches: the batch of every row.
+    :param method: ``'two_pass'`` (:func:`batch_mean_sd`) or ``'legacy'``,
+        scikit-learn's ``StandardScaler`` as settings before schema 962 used.
+    :param block: rows converted to float64 at a time when applying.
+    :returns: ``values``.
+    """
+    if _check_well_statistics(method) == "legacy":
+        from sklearn.preprocessing import StandardScaler
+
+        for batch in pd.unique(batches):
+            rows = batches == batch
+            values[rows, :] = StandardScaler(copy=False).fit_transform(values[rows, :])
+        return values
+    mean, sd = batch_mean_sd(values, np.arange(len(values)), batches)
     for batch in pd.unique(batches):
-        rows = batches == batch
-        values[rows, :] = StandardScaler(copy=False).fit_transform(values[rows, :])
+        index = np.flatnonzero(batches == batch)
+        for start in range(0, len(index), int(block)):
+            take = index[start:start + int(block)]
+            values[take, :] = ((values[take, :].astype(np.float64) - mean[batch])
+                               / sd[batch]).astype(values.dtype, copy=False)
     return values
 
 
 def _streamed_batch_statistics(embedding, rows: np.ndarray, batches: np.ndarray,
                                control: np.ndarray, chunk: int, *,
-                               constant: float) -> Tuple[Dict[Any, np.ndarray], ...]:
+                               constant: float, method: str = "two_pass"
+                               ) -> Tuple[Dict[Any, np.ndarray], ...]:
     """Per-batch centre-scale statistics of embedding rows read a chunk at a time.
 
     The streamed counterpart of :func:`_centerscale_by_batch` for an
     embedding that stays on disk: the mean and population standard
-    deviation of every batch (float32 chunk sums, float64 squares, the
-    variance floored at 1e-12), and the median and ``constant`` times the
-    MAD of its control rows (:func:`spacr.batch_correction._scale`, a zero
-    MAD set to 1).
+    deviation of every batch (:func:`batch_mean_sd`), and the median and
+    ``constant`` times the MAD of its control rows
+    (:func:`spacr.batch_correction._scale`, a zero MAD set to 1).
 
     :param embedding: the embedding rows (an array or a memory map).
     :param rows: the rows used, in order.
@@ -139,31 +242,46 @@ def _streamed_batch_statistics(embedding, rows: np.ndarray, batches: np.ndarray,
     :param control: True for a control row.
     :param chunk: rows read at a time.
     :param constant: the MAD factor.
+    :param method: ``'two_pass'`` or ``'legacy'`` (float32 chunk sums and a
+        variance floor of 1e-12, as settings before schema 962 used).
     :returns: ``(mean, sd, median, mad)`` keyed by batch.
     """
     from .batch_correction import _center, _scale
 
+    legacy = _check_well_statistics(method) == "legacy"
     names = sorted(pd.unique(batches))
-    width = np.asarray(embedding[rows[:1]]).shape[1]
-    first = {w: np.zeros(width) for w in names}
-    second = {w: np.zeros(width) for w in names}
-    count = {w: 0 for w in names}
     controls: Dict[Any, List[np.ndarray]] = {w: [] for w in names}
-    for start in range(0, len(rows), int(chunk)):
-        x = np.asarray(embedding[rows[start:start + int(chunk)]], dtype=np.float32)
-        here = batches[start:start + int(chunk)]
+
+    def gather(start: int, block: np.ndarray) -> None:
+        """Keep the control rows of one block, by batch."""
+        x = np.asarray(block, dtype=np.float32)
+        here = batches[start:start + len(x)]
+        flag = control[start:start + len(x)]
         for w in names:
-            k = here == w
-            if k.any():
-                first[w] += x[k].sum(0)
-                second[w] += (x[k].astype(np.float64) ** 2).sum(0)
-                count[w] += int(k.sum())
-                kc = k & control[start:start + int(chunk)]
-                if kc.any():
-                    controls[w].append(x[kc])
-    mean = {w: first[w] / count[w] for w in names}
-    sd = {w: np.sqrt(np.clip(second[w] / count[w] - mean[w] ** 2, 1e-12, None))
-          for w in names}
+            kc = (here == w) & flag
+            if kc.any():
+                controls[w].append(x[kc])
+
+    if legacy:
+        width = np.asarray(embedding[rows[:1]]).shape[1]
+        first = {w: np.zeros(width) for w in names}
+        second = {w: np.zeros(width) for w in names}
+        count = {w: 0 for w in names}
+        for start in range(0, len(rows), int(chunk)):
+            x = np.asarray(embedding[rows[start:start + int(chunk)]], dtype=np.float32)
+            here = batches[start:start + int(chunk)]
+            gather(start, x)
+            for w in names:
+                k = here == w
+                if k.any():
+                    first[w] += x[k].sum(0)
+                    second[w] += (x[k].astype(np.float64) ** 2).sum(0)
+                    count[w] += int(k.sum())
+        mean = {w: first[w] / count[w] for w in names}
+        sd = {w: np.sqrt(np.clip(second[w] / count[w] - mean[w] ** 2, 1e-12, None))
+              for w in names}
+    else:
+        mean, sd = batch_mean_sd(embedding, rows, batches, chunk, visit=gather)
     median, mad = {}, {}
     for w in names:
         values = np.vstack(controls[w])
@@ -358,7 +476,8 @@ def tvn_in_memory(values: np.ndarray, batches: Sequence, control: Sequence, *,
                   pca_variance: float = 0.99, pca_sample: int = 100000,
                   seed: int = 0, components: Components = None,
                   whiten_epsilon: float = 3.0, coral_ridge: float = 0.5,
-                  max_nonfinite: float = 0.05, copy: bool = True
+                  max_nonfinite: float = 0.05, copy: bool = True,
+                  well_statistics: str = "two_pass"
                   ) -> Tuple[np.ndarray, Dict[str, Any]]:
     """TVN with every cell in memory, as Brieflow's ``align.py`` computes it.
 
@@ -378,6 +497,8 @@ def tvn_in_memory(values: np.ndarray, batches: Sequence, control: Sequence, *,
         median.
     :param copy: False lets a float32 ``values`` be overwritten instead of
         copied, which halves the memory a whole plate needs.
+    :param well_statistics: ``'two_pass'`` (:func:`batch_mean_sd`) or
+        ``'legacy'`` for the per-batch centre-scale of the PCA input.
     :returns: ``(embedding, info)``: float32 TVN components, one row per
         cell, and ``info`` with the columns kept, the PCA size and the
         :func:`tvn_on_controls` notes.
@@ -397,7 +518,8 @@ def tvn_in_memory(values: np.ndarray, batches: Sequence, control: Sequence, *,
         raise ValueError("values, batches and control must have one entry per cell")
     embedding, info = _in_memory_embedding(values, batches, pca_variance=pca_variance,
                                            pca_sample=pca_sample, seed=seed,
-                                           max_nonfinite=max_nonfinite, copy=copy)
+                                           max_nonfinite=max_nonfinite, copy=copy,
+                                           well_statistics=well_statistics)
     embedding, notes = tvn_on_controls(
         embedding, control, batches, components=components,
         whiten_epsilon=whiten_epsilon, coral_ridge=coral_ridge)
@@ -406,7 +528,8 @@ def tvn_in_memory(values: np.ndarray, batches: Sequence, control: Sequence, *,
 
 def _in_memory_embedding(values, batches: np.ndarray, *, pca_variance: float,
                          pca_sample: int, seed: int, max_nonfinite: float,
-                         copy: bool = True) -> Tuple[np.ndarray, Dict[str, Any]]:
+                         copy: bool = True, well_statistics: str = "two_pass"
+                         ) -> Tuple[np.ndarray, Dict[str, Any]]:
     """Steps 1 to 3 of :func:`tvn_in_memory`: screen, fill, centre, PCA."""
     from sklearn.decomposition import PCA
 
@@ -430,8 +553,8 @@ def _in_memory_embedding(values, batches: np.ndarray, *, pca_variance: float,
     sample = np.sort(rng.choice(len(x), size=min(int(pca_sample), len(x)),
                                 replace=False))
     pca = PCA(n_components=float(pca_variance)).fit(
-        _centerscale_by_batch(x[sample].copy(), batches[sample]))
-    x = _centerscale_by_batch(x, batches)
+        _centerscale_by_batch(x[sample].copy(), batches[sample], method=well_statistics))
+    x = _centerscale_by_batch(x, batches, method=well_statistics)
     embedding = _project(pca, x)
     del x
     info = {"mode": "in_memory", "columns_kept": kept.tolist(),
@@ -758,9 +881,11 @@ def tvn_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """TVN keyword arguments from ``ops_tvn_*`` settings.
 
     :param settings: read for ``ops_tvn_pca_sample``, ``ops_tvn_seed``,
-        ``ops_tvn_components`` and ``ops_tvn_whiten_epsilon``.
-    :returns: keyword arguments for :func:`tvn_in_memory` and
-        :func:`fit_tvn_streamed`; a missing or empty setting takes its
+        ``ops_tvn_components``, ``ops_tvn_whiten_epsilon`` and
+        ``ops_well_statistics``.
+    :returns: keyword arguments for :func:`tvn_in_memory`
+        (``well_statistics`` is its alone; the streamed fit standardises
+        each well itself); a missing or empty setting takes its
         default from :data:`TVN_DEFAULTS`.
     """
     return {"pca_sample": _tvn_setting(settings, "ops_tvn_pca_sample", "pca_sample", int),
@@ -768,7 +893,9 @@ def tvn_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
             "components": _tvn_setting(settings, "ops_tvn_components", "components",
                                        _tvn_components),
             "whiten_epsilon": _tvn_setting(settings, "ops_tvn_whiten_epsilon",
-                                           "whiten_epsilon", float)}
+                                           "whiten_epsilon", float),
+            "well_statistics": _check_well_statistics(
+                settings.get("ops_well_statistics") or "two_pass")}
 
 
 
@@ -842,7 +969,9 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
         read = partial(_read_well, table_of=table_of, cache=cache, sources=sources,
                        read_columns=read_columns, features=features, rows=rows,
                        offsets=offsets, control=control, use=use)
-        model = fit_tvn_streamed(names, partial(read, use=fitted), **options)
+        model = fit_tvn_streamed(
+            names, partial(read, use=fitted),
+            **{k: v for k, v in options.items() if k != "well_statistics"})
         parts = []
         for well in names:
             values, _c, keep = read(well)
@@ -1041,8 +1170,8 @@ def _profile_well(path: str, plate: str, well: str, features: Sequence[str], rec
     return meta, x.to_numpy(), list(x.columns)
 
 
-def _profile_embedding(values: List[np.ndarray], metas: List[pd.DataFrame], recipe: Mapping[str, Any]
-                       ) -> Tuple[np.ndarray, int]:
+def _profile_embedding(values: List[np.ndarray], metas: List[pd.DataFrame], recipe: Mapping[str, Any],
+                       well_statistics: str = "two_pass") -> Tuple[np.ndarray, int]:
     """The per-cell PCA of every well, fitted on a 100,000-cell sample.
 
     ``'c0'`` standardises each well on its own cells and samples each well
@@ -1066,8 +1195,10 @@ def _profile_embedding(values: List[np.ndarray], metas: List[pd.DataFrame], reci
             sample.append(x[k])
             sample_meta.append(metas[i].iloc[k].reset_index(drop=True))
         batches = pd.concat(sample_meta, ignore_index=True)["batch_values"].to_numpy()
-        pca = PCA(n_components=0.99).fit(_centerscale_by_batch(np.vstack(sample).copy(), batches))
-        parts = [pca.transform(_centerscale_by_batch(x.copy(), m["batch_values"].to_numpy())).astype(np.float32)
+        pca = PCA(n_components=0.99).fit(_centerscale_by_batch(
+            np.vstack(sample).copy(), batches, method=well_statistics))
+        parts = [pca.transform(_centerscale_by_batch(
+            x.copy(), m["batch_values"].to_numpy(), method=well_statistics)).astype(np.float32)
                  for x, m in zip(values, metas)]
     else:
         rng = np.random.default_rng(0)
@@ -1130,7 +1261,8 @@ def _cell_tables(value: Any, plate: str, wells: Optional[Sequence[str]]) -> List
 def cells_to_profiles(values: List[np.ndarray], metas: List[pd.DataFrame], recipe: Mapping[str, Any], *,
                       whiten_epsilon: float, control_prefix: str = "nontargeting",
                       control_guides: Sequence[str] = (), min_cells: int = 10, universe: Any = None,
-                      keep_cells: bool = False) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+                      keep_cells: bool = False, well_statistics: str = "two_pass"
+                      ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
     """Gene and guide profiles from filtered per-cell features, one array per well.
 
     The middle of :func:`profile_cell_tables`, open to cells filtered
@@ -1160,6 +1292,8 @@ def cells_to_profiles(values: List[np.ndarray], metas: List[pd.DataFrame], recip
         control rows; guide rows of other genes are dropped. None keeps
         every gene in sorted order.
     :param keep_cells: also return the per-cell TVN components.
+    :param well_statistics: ``'two_pass'`` or ``'legacy'`` per-well
+        centre-scale (:func:`batch_mean_sd`).
     :returns: ``(genes, guides, info)``: ``genes`` has ``gene``,
         ``n_cells`` and ``PC_*``; ``guides`` has ``guide``, ``gene``,
         ``n_cells`` and ``PC_*``; ``info`` has ``cells``, ``pcs``,
@@ -1173,7 +1307,7 @@ def cells_to_profiles(values: List[np.ndarray], metas: List[pd.DataFrame], recip
     prefix, epsilon = str(control_prefix), float(whiten_epsilon)
     timing: Dict[str, Any] = {}
     started = time.time()
-    embedding, n_components = _profile_embedding(values, metas, recipe)
+    embedding, n_components = _profile_embedding(values, metas, recipe, well_statistics)
     values.clear()
     meta = pd.concat(metas, ignore_index=True)
     control = meta.gene_symbol_0.str.startswith(prefix).to_numpy()
@@ -1311,7 +1445,8 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
     genes, guides, made = cells_to_profiles(
         values, metas, recipe, whiten_epsilon=epsilon, control_prefix=prefix, control_guides=control_guides,
         min_cells=min_cells, universe=settings.get("ops_profile_gene_universe"),
-        keep_cells=bool(settings.get("ops_etest", False)))
+        keep_cells=bool(settings.get("ops_etest", False)),
+        well_statistics=_check_well_statistics(settings.get("ops_well_statistics")))
     timing.update(made.pop("runtime"))
     started = time.time()
     pcs = [c for c in genes.columns if str(c).startswith("PC_")]
@@ -1653,7 +1788,7 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
         ("ops_voyager3_",) if "voyager3" in info else ()) + (
         ("ops_maxproj_",) if "cluster_maxproj" in info else ())
     keys = sorted(k for k in settings if k.startswith(recorded)
-                  or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas",
+                  or k in ("ops_tvn_whiten_epsilon", "ops_well_statistics", "plate", "ops_control_prefix", "ops_deterministic_blas",
                            "ops_blas_threads"))
     record = {"settings": {k: settings[k] for k in keys}, "phases": list(phases), "outputs": outputs, **info}
     with open(os.path.join(folder, "runtime.json"), "w", encoding="utf-8") as handle:

@@ -180,6 +180,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_tvn_seed": 0,
     "ops_tvn_components": None,
     "ops_tvn_whiten_epsilon": 3.0,
+    "ops_well_statistics": "two_pass",
     "ops_cluster_benchmark": False,
     "ops_benchmark_corum": None,
     "ops_benchmark_kegg": None,
@@ -783,6 +784,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_tvn_seed": int,
     "ops_tvn_components": (float, int, type(None)),
     "ops_tvn_whiten_epsilon": (float, int),
+    "ops_well_statistics": str,
     "ops_cluster_benchmark": bool,
     "ops_benchmark_corum": (str, type(None)),
     "ops_benchmark_kegg": (str, type(None)),
@@ -1437,7 +1439,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_feature_qc", "ops_profile_normalisation", "ops_aggregate_level",
         "ops_nt_rows", "ops_tvn_mode", "ops_tvn_fit_cells",
         "ops_tvn_pca_sample", "ops_tvn_seed", "ops_tvn_components",
-        "ops_tvn_whiten_epsilon",
+        "ops_tvn_whiten_epsilon", "ops_well_statistics",
     ],
     "Gene tests & hits": [
         "ops_bootstrap", "ops_pvalue_null", "ops_test_features",
@@ -2497,6 +2499,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "weight, so a different sample changes those directions and the "
         "gene similarities they carry. A larger sample makes them steadier "
         "and costs memory. Default 100000. Alpha.",
+    "ops_well_statistics":
+        "(str) - How the per-well mean and standard deviation of every "
+        "normalisation are computed: 'two_pass' (float64, the mean first and "
+        "then the squared deviations from it, a feature with no spread "
+        "scaled by 1) or 'legacy' (single-precision sums and a floored "
+        "variance, as settings saved before schema 962 used). Settings saved "
+        "before schema 962 retain 'legacy'. Default two_pass. Alpha.",
     "ops_tvn_seed":
         "(int) - The seed of the TVN PCA sample. Change it to see how much "
         "the profiles depend on the sample. Default 0. Alpha.",
