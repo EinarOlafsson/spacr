@@ -1,0 +1,41 @@
+================================================================================
+THE DATABASE BROWSER MERGES TABLES, ALSO ACROSS PLATES AND DATABASES
+================================================================================
+
+Lifecycle: new
+Status:    not started
+Requested: 2026-11-24 — "the database browser should be able to merge tables, and merge tables from multiple plates. even when 2 databases have the same plate name their  tables should be able to be merged in the database browser."
+Owner:     WS "spacr work"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The Database Browser (S6, StoreDb on spacr-store) opens one project at a time and has no merge. spacr.merge_tables merges tables in code; two databases that carry the same plate name collide on the plate key.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Comparing or pooling plates means leaving the app for a script, and two runs of a plate that kept its name cannot be put side by side at all.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A Merge action in the Database Browser: pick tables from one or more open projects (old .db or spacr-store), choose the join (stack rows, or join on object keys), preview, then save the result as a new table in a project store.
+2. Reuse spacr.merge_tables and the shared Store reader (store.read_frame); no second merge implementation.
+3. When two sources share a plate name, the merge keeps them apart with a source column (project path or a label the user gives) and shows the user that it did so; keys stay unique.
+4. Large tables stream (keyset paging, column pruning) as the browser already does.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Two example projects, including two with the same plate name, merge in the browser into one table whose rows count and keys check out; the same merge in code gives the same table; tests cover stack, join and the same-name case.
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+2026-11-24: opened by WS spacr work from the maintainer request above.

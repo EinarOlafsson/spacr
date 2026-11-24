@@ -1,0 +1,38 @@
+================================================================================
+THE ANNOTATE BUTTONS ARE GROUPED INTO NAMED CATEGORIES, STILL ALONG THE TOP
+================================================================================
+
+Lifecycle: new
+Status:    not started
+Requested: 2026-11-24 — "the annotate app has allot of buttons now. these need to be organized into named categories similar to how the butons in make masks are organized. all buttons should be at the top still (unlike make masks) but they should be in categories and they should be placed logically."
+Owner:     WS "spacr work"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The Annotate screen shows many buttons in one row along the top with no grouping. Make Masks groups its buttons into named categories (in a side layout).
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+With this many buttons the user has to search for each one, and related actions sit apart.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Group the Annotate buttons into named categories, as Make Masks does, but keep every group along the top. Order the groups and the buttons in them by the order of work (for example: open data, view, label, classify, export). Reuse the Make Masks grouping code if it can lay out horizontally; no second grouping system.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Screenshots of the real window, light and dark, show the grouped buttons along the top; every button is still there and still works; tests cover the groups.
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+2026-11-24: opened by WS spacr work from the maintainer request above.

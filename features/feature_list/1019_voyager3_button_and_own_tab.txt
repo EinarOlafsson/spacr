@@ -1,0 +1,41 @@
+================================================================================
+VOYAGER3 HAS ITS OWN BUTTON AND TAB: RUN IT AND BROWSE THE KNOWLEDGE MAP
+================================================================================
+
+Lifecycle: new
+Status:    not started
+Requested: 2026-11-24 — "voyager3 should also have its own button to the left of AI as Voyager3. pressing Voyager3 should open a new tab beside OPS and allow the user to run Voyager3 (LLM version and non LLM version) and interactively browse the knowledge map produced."
+Owner:     WS "spacr work"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Voyager3 (item 973) has no button of its own; it runs inside OPS.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The knowledge map Voyager3 produces cannot be explored, and the LLM and non-LLM versions cannot be run or compared from the app.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A Voyager3 button to the left of the AI button.
+2. It opens a Voyager3 tab beside OPS where the user picks an OPS run, chooses the LLM or the non-LLM version, and runs it.
+3. The tab shows the knowledge map interactively: search, zoom, click a node or edge for an information tile (as in the regression results), filter.
+4. One Voyager3 implementation shared with the OPS step and the OPS live tab (item 1018).
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+From the button, both versions run on the example OPS run and the map can be browsed and clicked; screenshots of the real window; tests cover the button, both runs and the click tile.
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+2026-11-24: opened by WS spacr work from the maintainer request above.

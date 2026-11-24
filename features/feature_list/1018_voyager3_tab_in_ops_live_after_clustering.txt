@@ -1,0 +1,38 @@
+================================================================================
+VOYAGER3 GETS ITS OWN OPS LIVE TAB, AFTER CLUSTERING
+================================================================================
+
+Lifecycle: new
+Status:    not started
+Requested: 2026-11-24 — "the voyager3 spacr OPS item should have its own live tab after clustering."
+Owner:     WS "spacr work"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Voyager3 (item 973, OPS cluster annotation) runs from the OPS settings; OPS live (item 1015) has no Voyager3 tab.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The annotation of clusters cannot be tried and judged live on the preview, like every other OPS step.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Add a Voyager3 tab to OPS live, after Clustering, built like the other tabs (item 1015): figure queue, Sample, Settings (only the Voyager3 settings), Run preview, and carrying settings over to the OPS module. It runs on the preview clusters.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The tab shows the Voyager3 output for the preview clusters one figure or table at a time; its Settings hold only Voyager3 settings; tests cover the tab and the carry-over.
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+2026-11-24: opened by WS spacr work from the maintainer request above.
