@@ -4036,6 +4036,7 @@ def label_contingency(first: np.ndarray, second: np.ndarray):
     :raises ValueError: when the shapes differ.
     """
     import pandas as pd
+    from .measure import _label_overlaps
 
     if first.shape != second.shape:
         raise ValueError(f"label images differ in shape: {first.shape} vs {second.shape}")
@@ -4045,11 +4046,9 @@ def label_contingency(first: np.ndarray, second: np.ndarray):
     ids_b, n_b = np.unique(b[b > 0], return_counts=True)
     area_a = pd.Series(n_a, index=ids_a, dtype=np.int64)
     area_b = pd.Series(n_b, index=ids_b, dtype=np.int64)
-    both = (a > 0) & (b > 0)
-    width = int(b.max()) + 1 if b.size else 1
-    keys, overlap = np.unique(a[both] * width + b[both], return_counts=True)
-    pairs = pd.DataFrame({"label_a": keys // width, "label_b": keys % width,
-                          "overlap": overlap.astype(np.int64)})
+    label_a, label_b, overlap = _label_overlaps(a, b)
+    pairs = pd.DataFrame({"label_a": label_a, "label_b": label_b,
+                          "overlap": overlap})
     union = (area_a.reindex(pairs["label_a"]).to_numpy()
              + area_b.reindex(pairs["label_b"]).to_numpy() - pairs["overlap"].to_numpy())
     pairs["iou"] = pairs["overlap"].to_numpy() / np.maximum(union, 1)

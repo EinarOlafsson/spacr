@@ -344,6 +344,7 @@ def mask_pass(nuclei: np.ndarray, cells: np.ndarray,
     """
     import pandas as pd
     from scipy import ndimage
+    from .measure import _derive_cytoplasm
 
     cells = np.asarray(cells).astype(np.int64)
     nuclei = np.asarray(nuclei).astype(np.int64)
@@ -356,7 +357,7 @@ def mask_pass(nuclei: np.ndarray, cells: np.ndarray,
     cell_boxes = ndimage.find_objects(cells.astype(np.int32))
     nucleus_boxes = ndimage.find_objects(nuclei.astype(np.int32))
     rows, cols = np.indices(cells.shape, dtype=np.float64)
-    cytoplasm = np.where(nuclei > 0, 0, cells)
+    cytoplasm = _derive_cytoplasm(cells, [nuclei])
     record = {"label": labels.astype(np.int64)}
     for name, mask in (("cell", cells), ("nucleus", nuclei),
                        ("cytoplasm", cytoplasm)):
@@ -1084,7 +1085,9 @@ def field_object_means(image: np.ndarray, nuclei: np.ndarray, cells: np.ndarray,
         labels = nuclei
     else:
         keep = ["label", "cell_cy", "cell_cx", "touches_field_edge"]
-        labels = np.where(np.asarray(nuclei) > 0, 0, cells)
+        from .measure import _derive_cytoplasm
+
+        labels = _derive_cytoplasm(np.asarray(cells), [nuclei])
     means = field_nucleus_means(image, labels, {}, 0.0)
     column = f"{compartment}_{str(channel).lower()}_mean_intensity"
     table = geometry[[c for c in keep if c in geometry.columns]].merge(

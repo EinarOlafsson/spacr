@@ -4966,38 +4966,38 @@ def _compute_parent_child_overlaps(
     child_label_col,
 ):
     """
-    For each frame, find which child labels overlap which parent labels.
+    For each frame, the parent label of every child label.
 
-    Returns columns: 'frame', parent_label_col, child_label_col
+    A child belongs to the one parent holding most of its pixels, ties to
+    the lowest label, as Measure links a nucleus, pathogen or organelle to
+    its cell (:func:`spacr.measure._map_child_to_parent`); the overlaps are
+    :func:`spacr.measure._label_overlaps`. A child over no parent is left
+    out.
+
+    Returns columns: 'frame', parent_label_col, child_label_col, sorted by
+    frame, then parent, then child.
     """
+    from .measure import _best_parent, _label_overlaps
+
     T = parent_masks.shape[0]
-    records = []
+    frames = []
 
     for frame in range(T):
-        p = parent_masks[frame]
-        c = child_masks[frame]
-        m = (p > 0) & (c > 0)
-        if not np.any(m):
+        children, parents, _ = _best_parent(
+            *_label_overlaps(child_masks[frame], parent_masks[frame]))
+        if not children.size:
             continue
+        order = np.lexsort((children, parents))
+        frames.append(pd.DataFrame({
+            "frame": frame,
+            parent_label_col: parents[order].astype(int),
+            child_label_col: children[order].astype(int),
+        }))
 
-        p_flat = p[m].ravel()
-        c_flat = c[m].ravel()
-        pairs = np.stack([p_flat, c_flat], axis=1)
-        unique_pairs = np.unique(pairs, axis=0)
-
-        for parent_label, child_label in unique_pairs:
-            records.append(
-                {
-                    "frame": frame,
-                    parent_label_col: int(parent_label),
-                    child_label_col: int(child_label),
-                }
-            )
-
-    if not records:
+    if not frames:
         return pd.DataFrame(columns=["frame", parent_label_col, child_label_col])
 
-    return pd.DataFrame.from_records(records)
+    return pd.concat(frames, ignore_index=True)
 
 
 def _summarise_child_features_per_parent(
@@ -5496,15 +5496,25 @@ def _process_merged_group(args):
         f"any_nucleus={np.any(nucleus_masks)}, any_pathogen={np.any(pathogen_masks)}"
     )
 
+    from .measure import _assign_nuclei_to_cells, _derive_cytoplasm
+
     has_nucleus = np.any(nucleus_masks)
     has_pathogen = np.any(pathogen_masks)
+    if has_nucleus:
+        merged_cells = sum(
+            _assign_nuclei_to_cells(nucleus_masks[frame], cell_masks[frame])[4]
+            for frame in range(T))
+        if merged_cells:
+            print(
+                f"[_process_merged_group] Group {key}: {merged_cells} cell "
+                "label(s) merged into another over all frames, because a "
+                "nucleus lay under 90 % in each of them (Measure's rule)."
+            )
     cytoplasm_masks = None
     if has_nucleus or has_pathogen:
-        cytoplasm_masks = cell_masks.copy()
-        if has_nucleus:
-            cytoplasm_masks[nucleus_masks > 0] = 0
-        if has_pathogen:
-            cytoplasm_masks[pathogen_masks > 0] = 0
+        cytoplasm_masks = _derive_cytoplasm(cell_masks, [
+            nucleus_masks if has_nucleus else None,
+            pathogen_masks if has_pathogen else None])
 
     cell_props_df = _compute_regionprops_stack(
         mask_stack=cell_masks,

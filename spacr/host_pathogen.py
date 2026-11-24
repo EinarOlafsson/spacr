@@ -49,16 +49,19 @@ def vacuole_links(child_mask, vacuole_mask):
     """
     import numpy as np
     import pandas as pd
+    from .measure import _best_parent, _label_overlaps
     if child_mask.shape != vacuole_mask.shape:
         raise ValueError('Child and vacuole masks must have matching dimensions')
+    labels, areas = np.unique(child_mask, return_counts=True)
+    keep = labels > 0
+    labels, areas = labels[keep], areas[keep]
+    children, parents, overlap = _best_parent(*_label_overlaps(child_mask, vacuole_mask))
     rows = []
-    for label in np.unique(child_mask):
-        if label <= 0:
-            continue
-        covered = vacuole_mask[child_mask == label]
-        parents, counts = np.unique(covered[covered > 0], return_counts=True)
-        fraction = float(counts.max() / len(covered)) if counts.size else 0.
-        parent = int(parents[counts.argmax()]) if fraction > .5 else np.nan
+    for label, area in zip(labels, areas):
+        index = np.searchsorted(children, int(label))
+        found = index < children.size and children[index] == int(label)
+        fraction = float(overlap[index] / area) if found else 0.
+        parent = int(parents[index]) if fraction > .5 else np.nan
         rows.append((label, parent, fraction))
     return pd.DataFrame(rows, columns=['label', 'pathogen_id', 'pathogen_overlap_fraction'])
 
@@ -923,18 +926,18 @@ def measure_vacuoles(cell_mask, parasite_mask, signal=None, settings=None, file_
 
 
 def _majority_parent(labels_a, labels_b, n_a):
-    """For each label 1..n_a of ``labels_a``, the ``labels_b`` label holding most of its pixels."""
-    import numpy as np
-    import pandas as pd
+    """For each label 1..n_a of ``labels_a``, the ``labels_b`` label holding most of its pixels.
 
-    both = (labels_a > 0) & (labels_b > 0)
+    The overlaps are :func:`spacr.measure._label_overlaps` and the choice
+    :func:`spacr.measure._best_parent`: an exact tie goes to the lowest
+    ``labels_b`` label (it used to depend on the sort order).
+    """
+    import numpy as np
+    from .measure import _best_parent, _label_overlaps
+
     out = np.zeros(n_a + 1, dtype=np.int64)
-    if not both.any():
-        return out
-    pairs = pd.DataFrame({'a': labels_a[both], 'b': labels_b[both]})
-    best = (pairs.groupby(['a', 'b']).size().reset_index(name='n').sort_values('n')
-            .drop_duplicates('a', keep='last'))
-    out[best['a'].to_numpy()] = best['b'].to_numpy()
+    children, parents, _ = _best_parent(*_label_overlaps(labels_a, labels_b))
+    out[children] = parents
     return out
 
 
@@ -966,6 +969,8 @@ def translocation_cells(stack, settings=None, well='', field=0):
     import numpy as np
     import pandas as pd
     from scipy import ndimage as ndi
+
+    from .measure import _derive_cytoplasm
 
     config = {**TITRATION_DEFAULTS, **TRANSLOCATION_DEFAULTS, **(settings or {})}
     stack = np.asarray(stack)
@@ -999,7 +1004,7 @@ def translocation_cells(stack, settings=None, well='', field=0):
     nuc_kept = np.where(near, 0, nuc)
     area_kept = ndi.sum(ones, nuc_kept, idx)
     ha_kept = ndi.sum(ha, nuc_kept, idx)
-    cyto = np.where((nuc > 0) | near, 0, cell)
+    cyto = _derive_cytoplasm(cell, [nuc, near])
     area_cyto = ndi.sum(ones, cyto, idx)
     ha_cyto = ndi.sum(ha, cyto, idx)
     if config['translocation_background'] == 'none':

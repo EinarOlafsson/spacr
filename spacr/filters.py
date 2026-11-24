@@ -709,19 +709,16 @@ def _object_overlap_rows(child: np.ndarray, parent: np.ndarray
         row with ``parent_label`` None and 0 overlapping pixels, so "sits in
         no nucleus" is stated rather than left to an absent row.
     """
+    from .measure import _label_overlaps
+
     inside = child > 0
     labels, areas = np.unique(child[inside], return_counts=True)
     area_of = {int(k): int(v) for k, v in zip(labels, areas)}
-    both = inside & (parent > 0)
     rows: List[Tuple[int, Optional[int], int, int]] = []
     placed = set()
-    if both.any():
-        pairs, counts = np.unique(
-            np.stack([child[both], parent[both]], axis=1),
-            axis=0, return_counts=True)
-        for (c, p), n in zip(pairs, counts):
-            rows.append((int(c), int(p), int(n), area_of[int(c)]))
-            placed.add(int(c))
+    for c, p, n in zip(*_label_overlaps(child, parent)):
+        rows.append((int(c), int(p), int(n), area_of[int(c)]))
+        placed.add(int(c))
     for c in area_of:
         if c not in placed:
             rows.append((c, None, 0, area_of[c]))
