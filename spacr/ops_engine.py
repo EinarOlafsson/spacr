@@ -5762,7 +5762,9 @@ def _ph_measure_table(task: Mapping[str, Any]):
     through :func:`spacr.ops_sample.measure_phenotype_field` and
     :func:`spacr.ops_sample._cell_object_features`); this function only
     reads the field and its masks, corrects the field's flat field and
-    names columns. The nucleus centroid the core measures
+    names columns. With further objects, the cytoplasm excludes them, as
+    Measure's does (:func:`spacr.ops_sample._measure_phenotype_field`).
+    The nucleus centroid the core measures
     (``centroid_row``/``centroid_col``) is also written as
     nucleus_centroid_y and nucleus_centroid_x for S2, while existing
     measurements retain their values and order.
@@ -5771,7 +5773,7 @@ def _ph_measure_table(task: Mapping[str, Any]):
         set, is the field's stack staged by :class:`spacr.ops_run_infra.FieldStager`,
         read in place of the raw files.
     """
-    from .ops_sample import measure_phenotype_field
+    from . import ops_sample
 
     unreadable: list = []
     if task.get("staged"):
@@ -5795,7 +5797,11 @@ def _ph_measure_table(task: Mapping[str, Any]):
     if task.get("measure_gpu"):
         os.environ.setdefault("CUPY_CACHE_DIR", os.path.join(
             os.path.expanduser("~"), ".spacr", "cupy_cache"))
-    table = measure_phenotype_field(
+    measure = ops_sample.measure_phenotype_field
+    if objects:
+        measure = functools.partial(ops_sample._measure_phenotype_field,
+                                    objects=objects)
+    table = measure(
         nuclei, cells, stack, task["channels"],
         texture=bool(task["texture"]),
         funk_features=bool(task.get("funk_features", False)),
@@ -8537,7 +8543,10 @@ def _ph_merged_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         stored = np.clip(np.rint(stack), 0, 65535).astype(np.uint16)
     else:
         stored = stack.astype(np.float32)
-    cytoplasm = np.where(nuclei > 0, 0, cells).astype(np.int32)
+    from .measure import _derive_cytoplasm
+
+    cytoplasm = _derive_cytoplasm(cells, [nuclei, *(
+        saved[role] for role in ("pathogen", "organelle") if role in saved)])
     size = int(cells.max()) + 1 if cells.size else 1
     owned = np.zeros(size, np.uint8)
     present = np.unique(cells[cells > 0])

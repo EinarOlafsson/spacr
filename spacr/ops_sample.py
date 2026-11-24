@@ -282,14 +282,7 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     that cell; a cell keeps its largest such nucleus; cells without a
     nucleus and nuclei without a cell are dropped and counted.
     """
-    # Measure's own nucleus-cell ownership rule runs first, through the one
-    # shared implementation (maintainer decision 2026-11-23): a nucleus that
-    # spans several cells with under 90 % in any one MERGES those cells; with
-    # 90 % or more in one, its pixels in the others are removed
-    # (spacr.utils._merge_overlapping_objects). counts['merged_cells'] says
-    # how many cells were folded into others. The docstring above is pinned
-    # by a release contract, so the rule is documented here.
-    from .utils import _merge_overlapping_objects
+    from .measure import _assign_nuclei_to_cells, _best_parent, _label_overlaps
 
     nuclei = np.asarray(nuclei)
     cells = np.asarray(cells)
@@ -298,35 +291,23 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
             f"nucleus and cell masks differ in shape: {nuclei.shape} and "
             f"{cells.shape}")
     before = int(np.unique(cells[cells > 0]).size)
-    nuclei, cells = _merge_overlapping_objects(nuclei.copy(), cells.copy())
-    merged = before - int(np.unique(cells[cells > 0]).size)
-    n_flat = nuclei.ravel().astype(np.int64)
-    c_flat = cells.ravel().astype(np.int64)
-    both = (n_flat > 0) & (c_flat > 0)
-    n_total = int(np.unique(n_flat[n_flat > 0]).size)
-    c_total = int(np.unique(c_flat[c_flat > 0]).size)
-    if not both.any():
+    nuclei, cells, _shared_n, _shared_c, merged = _assign_nuclei_to_cells(
+        nuclei.copy(), cells.copy())
+    n_total = int(np.unique(nuclei[nuclei > 0]).size)
+    c_total = int(np.unique(cells[cells > 0]).size)
+    pair_n, pair_c, overlap = _label_overlaps(nuclei, cells)
+    if not pair_n.size:
         return (np.zeros(nuclei.shape, np.int32),
                 np.zeros(cells.shape, np.int32),
                 {"nuclei": n_total, "cells": before, "paired": 0,
                  "nuclei_without_cell": n_total,
                  "cells_without_nucleus": c_total,
                  "extra_nuclei_in_cell": 0, "merged_cells": merged})
-    width = int(c_flat.max()) + 1
-    pair, overlap = np.unique(n_flat[both] * width + c_flat[both],
-                              return_counts=True)
-    pair_n, pair_c = pair // width, pair % width
-    order = np.lexsort((-overlap, pair_n))
-    pair_n, pair_c, overlap = pair_n[order], pair_c[order], overlap[order]
-    first = np.r_[True, pair_n[1:] != pair_n[:-1]]
-    best_n, best_c, best_o = pair_n[first], pair_c[first], overlap[first]
-    order = np.lexsort((-best_o, best_c))
-    best_n, best_c = best_n[order], best_c[order]
-    first = np.r_[True, best_c[1:] != best_c[:-1]]
-    keep_n, keep_c = best_n[first], best_c[first]
+    best_n, best_c, best_o = _best_parent(pair_n, pair_c, overlap)
+    keep_c, keep_n, _ = _best_parent(best_c, best_n, best_o)
     labels = np.arange(1, keep_n.size + 1, dtype=np.int32)
-    n_lut = np.zeros(int(n_flat.max()) + 1, np.int32)
-    c_lut = np.zeros(width, np.int32)
+    n_lut = np.zeros(int(nuclei.max()) + 1, np.int32)
+    c_lut = np.zeros(int(cells.max()) + 1, np.int32)
     n_lut[keep_n] = labels
     c_lut[keep_c] = labels
     new_cells = c_lut[cells.astype(np.int64)]
@@ -512,9 +493,42 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     (``*_label_correlation``) are left out, as spaCR's database write
     leaves them out, so no column repeats the label.
     """
+    return _measure_phenotype_field(
+        nuclei, cells, image, channel_names, texture=texture,
+        funk_features=funk_features, zernike=zernike, gpu=gpu,
+        profile_features=profile_features,
+        granularity_subsample=granularity_subsample,
+        cytoskeleton_channels=cytoskeleton_channels)
+
+
+def _measure_phenotype_field(nuclei, cells, image, channel_names, *,
+                             texture=True, funk_features=False,
+                             zernike=False, gpu=False, profile_features=None,
+                             granularity_subsample=1.0,
+                             cytoskeleton_channels=None, objects=None):
+    """:func:`measure_phenotype_field` with the field's further objects.
+
+    :param nuclei: nucleus labels, nucleus ``k`` in cell ``k``.
+    :param cells: cell labels.
+    :param image: ``(H, W, C)`` intensities.
+    :param channel_names: one short name per channel.
+    :param texture: as :func:`measure_phenotype_field`.
+    :param funk_features: as :func:`measure_phenotype_field`.
+    :param zernike: as :func:`measure_phenotype_field`.
+    :param gpu: as :func:`measure_phenotype_field`.
+    :param profile_features: as :func:`measure_phenotype_field`.
+    :param granularity_subsample: as :func:`measure_phenotype_field`.
+    :param cytoskeleton_channels: as :func:`measure_phenotype_field`.
+    :param objects: ``{class: labels}`` of the field's further objects
+        (``pathogen``, ``organelle``), or None. Their pixels are not
+        cytoplasm: the cytoplasm is Measure's
+        (:func:`spacr.measure._derive_cytoplasm`), the cell minus its
+        nucleus and every further object, under the cell's label.
+    :returns: as :func:`measure_phenotype_field`.
+    """
     import pandas as pd
 
-    from .measure import _field_role_tables, _label_centroids
+    from .measure import _derive_cytoplasm, _field_role_tables, _label_centroids
 
     image = np.asarray(image, np.float32)
     nuclei = np.asarray(nuclei, np.int32)
@@ -526,7 +540,7 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     if len(channel_names) != image.shape[2]:
         raise SampleError(
             f"{len(channel_names)} channel names for {image.shape[2]} channels")
-    cytoplasm = np.where(nuclei > 0, 0, cells).astype(np.int32)
+    cytoplasm = _derive_cytoplasm(cells, [nuclei, *(objects or {}).values()])
     masks = {"cell": cells, "nucleus": nuclei, "cytoplasm": cytoplasm}
     if not nuclei.any():
         return pd.DataFrame(columns=["label", "centroid_row", "centroid_col"])

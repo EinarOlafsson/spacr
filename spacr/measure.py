@@ -1741,27 +1741,222 @@ def _morphological_measurements(
  
     return tuple(df_ls)
 
+def _label_overlaps(child, parent):
+    """Pixel overlap of every child and parent object pair, in one pass.
+
+    THE ONE overlap count of spaCR's ownership and pairing (duplicate audit
+    B14): Measure's nucleus and cell ownership, OPS pairing, the organelle,
+    pathogen and vacuole parents, the time-lapse child summaries, the Mask
+    step's object relationships and OPS mask agreement all count overlaps
+    here, so every module reads the same numbers.
+
+    :param child: a label image; 0 is background.
+    :param parent: a label image of the same shape.
+    :returns: ``(child_ids, parent_ids, overlap)``, three int64 arrays, one
+        entry per pair that shares at least one pixel, sorted by child label
+        and then parent label.
+    :raises ValueError: when the shapes differ.
+
+    The pairs are encoded as ``child * (max parent + 1) + parent`` and
+    counted with one ``np.bincount`` when the codes are dense (at most four
+    per overlapping pixel) and one ``np.unique`` otherwise, so memory grows
+    with the overlapping pixels, never with the square of the largest label.
+    """
+    child = np.asarray(child)
+    parent = np.asarray(parent)
+    if child.shape != parent.shape:
+        raise ValueError(
+            f"label images differ in shape: {child.shape} vs {parent.shape}")
+    c = child.ravel()
+    p = parent.ravel()
+    both = (c > 0) & (p > 0)
+    if not both.any():
+        empty = np.zeros(0, np.int64)
+        return empty, empty.copy(), empty.copy()
+    c = c[both].astype(np.int64)
+    p = p[both].astype(np.int64)
+    width = int(p.max()) + 1
+    keys = c * width + p
+    span = int(c.max()) * width + width
+    if span <= max(4 * keys.size, 1 << 20):
+        counts = np.bincount(keys, minlength=span)
+        keys = np.flatnonzero(counts)
+        overlap = counts[keys]
+    else:
+        keys, overlap = np.unique(keys, return_counts=True)
+    return keys // width, keys % width, overlap.astype(np.int64)
+
+
+def _best_parent(child_ids, parent_ids, overlap):
+    """Each child's parent of largest overlap, from :func:`_label_overlaps`.
+
+    :param child_ids: the child label of each pair.
+    :param parent_ids: the parent label of each pair.
+    :param overlap: the pixels the pair shares.
+    :returns: ``(children, parents, overlap)``: one entry per child, sorted
+        by child label, with its parent and their overlap. Ties go to the
+        lowest parent label, so the result does not depend on pixel order.
+    """
+    child_ids = np.asarray(child_ids, np.int64)
+    parent_ids = np.asarray(parent_ids, np.int64)
+    overlap = np.asarray(overlap, np.int64)
+    if not child_ids.size:
+        return child_ids, parent_ids, overlap
+    order = np.lexsort((parent_ids, -overlap, child_ids))
+    child_ids = child_ids[order]
+    first = np.r_[True, child_ids[1:] != child_ids[:-1]]
+    return child_ids[first], parent_ids[order][first], overlap[order][first]
+
+
+def _merged_into(root, value):
+    """The label ``value`` has been merged into, following ``root`` to its end.
+
+    :param root: ``{label: label it was merged into}``.
+    :param value: a label.
+    :returns: the label that now stands for ``value``.
+    """
+    while root.get(value, value) != value:
+        value = root[value]
+    return value
+
+
+def _merge_spanning_children(mask1, mask2):
+    """THE nucleus and cell ownership rule: a nucleus split between cells merges them.
+
+    For each connected object of ``mask1`` (a nucleus) that touches several
+    objects of ``mask2`` (cells), in label order: when one of them holds at
+    least 90 % of it, its pixels in the others are removed from ``mask1``;
+    otherwise those ``mask2`` objects are merged into the lowest of their
+    labels. A merge is seen by the objects examined after it, exactly as
+    when the merged labels are written into ``mask2`` at once.
+
+    :param mask1: child labels (nuclei), changed in place.
+    :param mask2: parent labels (cells), changed in place.
+    :returns: ``(mask1, mask2, folded)``: ``folded`` is how many ``mask2``
+        labels were merged into another.
+
+    The overlaps come from one :func:`_label_overlaps` pass; only objects
+    over several cells are examined one by one.
+    """
+    from skimage.measure import label
+
+    labeled_1 = label(mask1)
+    comps, parents, overlap = _label_overlaps(labeled_1, mask2)
+    if not comps.size:
+        return mask1, mask2, 0
+    starts = np.flatnonzero(np.r_[True, comps[1:] != comps[:-1]])
+    ends = np.r_[starts[1:], comps.size]
+    spanning = (ends - starts) > 1
+    if not spanning.any():
+        return mask1, mask2, 0
+    size = np.bincount(labeled_1.ravel())
+    root = {}
+
+    trims = []
+    for start, end in zip(starts[spanning], ends[spanning]):
+        comp = int(comps[start])
+        current = np.array([_merged_into(root, int(v)) for v in parents[start:end]], np.int64)
+        labels_now, inverse = np.unique(current, return_inverse=True)
+        if labels_now.size < 2:
+            continue
+        shared = np.bincount(inverse, weights=overlap[start:end]).astype(np.int64)
+        percentages = [int(n) / int(size[comp]) * 100 for n in shared]
+        winner = int(labels_now[int(np.argmax(percentages))])
+        if max(percentages) >= 90:
+            kept = parents[start:end][current == winner]
+            trims.append((comp, kept))
+        else:
+            first = int(labels_now[0])
+            for other in labels_now[1:]:
+                root[int(other)] = first
+    if trims:
+        comp_ids = np.array([comp for comp, _ in trims], np.int64)
+        trimmed = np.zeros(size.size, dtype=bool)
+        trimmed[comp_ids] = True
+        in_trim = trimmed[labeled_1] & (mask2 != 0)
+        width = int(np.max(mask2)) + 1
+        kept_keys = np.concatenate([
+            comp * width + kept.astype(np.int64) for comp, kept in trims])
+        keys = labeled_1[in_trim].astype(np.int64) * width + mask2[in_trim].astype(np.int64)
+        drop = np.zeros(mask1.shape, dtype=bool)
+        drop[in_trim] = ~np.isin(keys, kept_keys)
+        mask1[drop] = 0
+    if root:
+        merged = np.array(sorted(root), np.int64)
+        targets = np.array([_merged_into(root, int(v)) for v in merged], np.int64)
+        lut = np.arange(int(merged.max()) + 1, dtype=np.int64)
+        lut[merged] = targets
+        where = (mask2 > 0) & (mask2 <= merged.max())
+        mask2[where] = lut[mask2[where]]
+    return mask1, mask2, len(root)
+
+
+def _assign_nuclei_to_cells(nucleus_mask, cell_mask):
+    """THE nucleus and cell ownership of every spaCR module, in one call.
+
+    Measure, External Masks (through Measure), OPS
+    (:func:`spacr.ops_sample.pair_nuclei_with_cells`) and the time-lapse
+    tables all give nuclei to cells here (maintainer decision 2026-11-23):
+
+    1. :func:`_merge_spanning_children`: a nucleus split between several
+       cells with under 90 % in each merges those cells into one; with 90 %
+       or more in one cell, its pixels in the others are removed.
+    2. :func:`_assign_shared_nuclei`: a nucleus label made of disconnected
+       pieces in different cells keeps only the pieces in the cell it
+       overlaps most.
+
+    :param nucleus_mask: nucleus labels, changed in place.
+    :param cell_mask: cell labels, changed in place.
+    :returns: ``(nucleus_mask, cell_mask, shared_nuclei, shared_cells,
+        merged)``: the two label sets of step 2 and how many cell labels
+        step 1 merged into another.
+    """
+    nucleus_mask, cell_mask, merged = _merge_spanning_children(
+        nucleus_mask, cell_mask)
+    nucleus_mask, shared_nuclei, shared_cells = _assign_shared_nuclei(
+        nucleus_mask, cell_mask)
+    return nucleus_mask, cell_mask, shared_nuclei, shared_cells, merged
+
+
+def _derive_cytoplasm(cell, exclude=()):
+    """THE cytoplasm of every spaCR module: the cell labels outside the owned objects.
+
+    Measure, the crop export, the settings check, External Masks, the
+    time-lapse tables, OPS measurement and the OPS field store all derive
+    the cytoplasm here (duplicate audit B16). Each caller passes the
+    objects it has: Measure the nucleus, pathogen and every enabled
+    organelle role; OPS the nucleus and its segmented object classes.
+
+    :param cell: cell labels, any shape.
+    :param exclude: label or boolean masks of the same shape; a pixel that
+        is nonzero in any of them is not cytoplasm. ``None`` entries are
+        skipped.
+    :returns: an array of ``cell``'s dtype holding the cell label on every
+        cytoplasm pixel and 0 elsewhere.
+    """
+    cell = np.asarray(cell)
+    interior = np.zeros(cell.shape, dtype=bool)
+    for mask in exclude:
+        if mask is not None:
+            interior |= np.asarray(mask) != 0
+    return np.where(interior, 0, cell).astype(cell.dtype, copy=False)
+
+
 def _map_child_to_parent(child_mask, parent_mask, child_name='organelle', parent_name='cell'):
-    """Map each child label to its maximum-overlap parent label."""
+    """Map each child label to its maximum-overlap parent label.
+
+    The overlaps are :func:`_label_overlaps`, the choice :func:`_best_parent`
+    (ties to the lowest parent label); a child over no parent gets 0.
+    """
     child_labels = np.unique(child_mask)
     child_labels = child_labels[child_labels != 0]
-    
-    mapping = []
-    boxes = _label_bounding_boxes(child_mask)
-    for child_id in child_labels:
-        box = _box_for(boxes, child_id)
-        if box is None:
-            box = tuple(slice(None) for _ in np.shape(child_mask))
-        region = child_mask[box] == child_id
-        parent_ids = parent_mask[box][region]
-        parent_ids = parent_ids[parent_ids != 0]
-        if len(parent_ids) > 0:
-            parent_id = np.bincount(parent_ids).argmax()
-        else:
-            parent_id = 0
-        mapping.append({child_name: child_id, parent_name: parent_id})
-    
-    return pd.DataFrame(mapping)
+    if not child_labels.size:
+        return pd.DataFrame([])
+    kids, parents, _ = _best_parent(*_label_overlaps(child_mask, parent_mask))
+    parent_ids = np.zeros(child_labels.size, np.int64)
+    found = np.isin(child_labels, kids)
+    parent_ids[found] = parents[np.searchsorted(kids, child_labels[found])]
+    return pd.DataFrame({child_name: child_labels, parent_name: parent_ids})
 
 
 def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays, parent_name='cell', spacing=None):
@@ -2803,7 +2998,9 @@ def _field_tables_for_check(field, settings):
 
     The field is measured as it is stored: the size filters, the
     preprocessing hooks and the PSF step of a full run are not applied,
-    because the check compares the two devices, not the run's inputs.
+    because the check compares the two devices, not the run's inputs. The
+    cytoplasm is the run's (:func:`_derive_cytoplasm`): the cell outside the
+    nucleus, the pathogen and every organelle role with a mask plane.
     """
     data = np.load(field) if isinstance(field, (str, os.PathLike)) else field
     data = np.asarray(data)
@@ -2816,8 +3013,10 @@ def _field_tables_for_check(field, settings):
         for key in ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim'))
     cytoplasm = blank
     if settings.get('cytoplasm') and settings.get('cell_mask_dim') is not None:
-        cytoplasm = np.where((nucleus > 0) | (pathogen > 0), 0, cell)
-        cytoplasm = cytoplasm.astype(np.int32)
+        organelles = [data[..., settings[f'{role}_mask_dim']]
+                      for role in ORGANELLE_ROLES
+                      if settings.get(f'{role}_mask_dim') is not None]
+        cytoplasm = _derive_cytoplasm(cell, [nucleus, pathogen, *organelles])
     channel_arrays = data[..., list(settings['channels'])]
     measured = _measure_field_objects(
         {'cell': cell, 'nucleus': nucleus, 'pathogen': pathogen,
@@ -12860,9 +13059,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         if settings['nucleus_mask_dim'] is not None:
             nucleus_mask = data[..., settings['nucleus_mask_dim']].astype(data_type)
             if settings['cell_mask_dim'] is not None:
-                nucleus_mask, cell_mask = _merge_overlapping_objects(mask1=nucleus_mask, mask2=cell_mask)
-                nucleus_mask, shared_nuclei, shared_cells = _assign_shared_nuclei(
-                    nucleus_mask, cell_mask)
+                (nucleus_mask, cell_mask, shared_nuclei, shared_cells,
+                 _merged) = _assign_nuclei_to_cells(nucleus_mask, cell_mask)
                 shared_labels = {'nucleus': shared_nuclei, 'cell': shared_cells}
                 if shared_nuclei:
                     print(f'{file}: {len(shared_nuclei)} nucleus label(s) shared '
@@ -12931,15 +13129,11 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
 
         if settings['cytoplasm']:
             if settings['cell_mask_dim'] is not None:
-                interior = np.zeros_like(cell_mask, dtype=bool)
-                if settings['nucleus_mask_dim'] is not None:
-                    interior |= (nucleus_mask != 0)
-                if settings['pathogen_mask_dim'] is not None:
-                    interior |= (pathogen_mask != 0)
-                for organelle_role, current_mask in organelle_masks.items():
-                    if settings.get(f'{organelle_role}_mask_dim') is not None:
-                        interior |= (current_mask != 0)
-                cytoplasm_mask = np.where(interior, 0, cell_mask)
+                cytoplasm_mask = _derive_cytoplasm(cell_mask, [
+                    nucleus_mask if settings['nucleus_mask_dim'] is not None else None,
+                    pathogen_mask if settings['pathogen_mask_dim'] is not None else None,
+                    *(current_mask for organelle_role, current_mask in organelle_masks.items()
+                      if settings.get(f'{organelle_role}_mask_dim') is not None)])
         else:
             cytoplasm_mask = np.zeros_like(cell_mask)
 
@@ -13853,26 +14047,24 @@ def _assign_shared_nuclei(nucleus_mask, cell_mask):
         the labels of every nucleus that spanned several cells and of the cells
         it touched.
     """
-    from scipy import ndimage
-
-    nuclei, cells = set(), set()
-    for label_value, window in enumerate(ndimage.find_objects(nucleus_mask), start=1):
-        if window is None:
-            continue
-        region = nucleus_mask[window] == label_value
-        found, counts = np.unique(cell_mask[window][region], return_counts=True)
-        keep = found != 0
-        found, counts = found[keep], counts[keep]
-        if len(found) < 2:
-            continue
-        owner = found[int(np.argmax(counts))]
-        others = found[found != owner]
-        trim = region & np.isin(cell_mask[window], others)
-        view = nucleus_mask[window]
-        view[trim] = 0
-        nuclei.add(label_value)
-        cells.update(int(c) for c in found)
-    return nucleus_mask, nuclei, cells
+    kids, parents, overlap = _label_overlaps(nucleus_mask, cell_mask)
+    if not kids.size:
+        return nucleus_mask, set(), set()
+    labels, counts = np.unique(kids, return_counts=True)
+    shared = labels[counts > 1]
+    if not shared.size:
+        return nucleus_mask, set(), set()
+    owners_of, owners, _ = _best_parent(kids, parents, overlap)
+    owner = owners[np.searchsorted(owners_of, shared)]
+    lut = np.zeros(int(shared.max()) + 1, np.int64)
+    lut[shared] = owner
+    inside = (nucleus_mask > 0) & (nucleus_mask <= shared.max()) & (cell_mask != 0)
+    values = np.asarray(nucleus_mask[inside], np.int64)
+    trim = np.zeros(nucleus_mask.shape, dtype=bool)
+    trim[inside] = (lut[values] != 0) & (lut[values] != cell_mask[inside])
+    nucleus_mask[trim] = 0
+    cells = set(int(c) for c in parents[np.isin(kids, shared)])
+    return nucleus_mask, set(int(n) for n in shared), cells
 
 
 def _flag_shared_nuclei(morphology, shared):

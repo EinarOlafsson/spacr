@@ -959,8 +959,10 @@ class MergedField:
         if measured is not None:
             self._derived["cytoplasm"] = measured
             return measured
+        from .measure import _derive_cytoplasm
+
         cell = self.mask_plane("cell")
-        interior = np.zeros(cell.shape, dtype=bool)
+        others = []
         for other in ("nucleus", "pathogen", *ORGANELLE_ROLES):
             if self.mask_dims.get(other) is None:
                 continue
@@ -968,8 +970,8 @@ class MergedField:
                 self.mask_dim(other)
             except MaskPlaneMissing:
                 continue
-            interior |= self.mask_plane(other) != 0
-        cyto = np.where(interior, 0, cell)
+            others.append(self.mask_plane(other))
+        cyto = _derive_cytoplasm(cell, others)
         self._derived["cytoplasm"] = cyto
         return cyto
 

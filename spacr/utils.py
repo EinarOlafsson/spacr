@@ -6358,34 +6358,43 @@ def _find_similar_sized_images(file_list):
     return largest_group
     
 def _relabel_parent_with_child_labels(parent_mask, child_mask):
-    """Relabel parent objects to match their overlapping child labels."""
+    """Relabel parent objects to match their overlapping child labels.
+
+    Each connected parent object takes the highest child label that
+    overlaps it; children that then share one parent object are merged
+    into the lowest of their labels, transitively. The overlaps are
+    :func:`spacr.measure._label_overlaps`.
+
+    :param parent_mask: parent labels (cells).
+    :param child_mask: child labels (nuclei), changed in place.
+    :returns: ``(parent_mask_new, child_mask)``.
+    """
+    from .measure import _label_overlaps, _merged_into
+
     parent_labels = label(parent_mask, background=0)
-    child_labels = child_mask
-
     parent_mask_new = np.zeros_like(parent_mask)
+    children, comps, _ = _label_overlaps(child_mask, parent_labels)
+    if not children.size:
+        return parent_mask_new, child_mask
+    lut = np.zeros(int(parent_labels.max()) + 1, dtype=np.int64)
+    np.maximum.at(lut, comps, children)
+    parent_mask_new[...] = lut[parent_labels].astype(parent_mask_new.dtype)
 
-    unique_child_labels = np.unique(child_labels)
-    unique_child_labels = unique_child_labels[unique_child_labels != 0]
-    for child_label in unique_child_labels:
-        child_area_mask = (child_labels == child_label)
-        overlapping_parent_label = np.unique(parent_labels[child_area_mask])
+    kids, owners, _ = _label_overlaps(child_mask, parent_mask_new)
+    root = {}
 
-        for parent_label in overlapping_parent_label:
-            if parent_label != 0:
-                parent_mask_new[parent_labels == parent_label] = child_label
-
-    _labels_4 = np.unique(parent_mask_new)
-    _labels_4 = _labels_4[_labels_4 != 0]
-    for parent_label in _labels_4:
-        parent_area_mask = (parent_mask_new == parent_label)
-        child_labels_in_parent = np.unique(child_mask[parent_area_mask])
-        child_labels_in_parent = child_labels_in_parent[child_labels_in_parent != 0]
-
-        if len(child_labels_in_parent) > 1:
-            first_child_label = child_labels_in_parent[0]
-            for child_label in child_labels_in_parent:
-                child_mask[child_mask == child_label] = first_child_label
-
+    order = np.argsort(owners, kind="stable")
+    kids, owners = kids[order], owners[order]
+    starts = np.flatnonzero(np.r_[True, owners[1:] != owners[:-1]]) if owners.size else []
+    for start, end in zip(starts, np.r_[starts[1:], owners.size] if owners.size else []):
+        group = sorted({_merged_into(root, int(k)) for k in kids[start:end]})
+        for other in group[1:]:
+            root[other] = group[0]
+    if root:
+        merged = np.array(sorted(root), np.int64)
+        targets = np.array([_merged_into(root, int(v)) for v in merged], np.int64)
+        where = np.isin(child_mask, merged)
+        child_mask[where] = targets[np.searchsorted(merged, child_mask[where])]
     return parent_mask_new, child_mask
     
 def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=True):
@@ -6424,35 +6433,12 @@ def _merge_overlapping_objects(mask1, mask2):
     :param mask2: parent labels (cells), changed in place.
     :returns: ``(mask1, mask2)``.
 
-    Each object is examined inside its bounding box (``find_objects``), so
-    the cost grows with the objects' area, not objects times field; the
-    result is the same as examining the whole field per object, because
-    an object's pixels all lie in its box and only a merge, which is
-    applied to the whole of ``mask2``, reaches outside it.
+    A thin call of :func:`spacr.measure._merge_spanning_children`, the one
+    implementation, which counts every overlap in one pass.
     """
-    from scipy import ndimage
+    from .measure import _merge_spanning_children
 
-    labeled_1 = label(mask1)
-    for m1_id, window in enumerate(ndimage.find_objects(labeled_1), start=1):
-        if window is None:
-            continue
-        current_1_mask = labeled_1[window] == m1_id
-        region_2 = mask2[window]
-        overlapping_2_labels = np.unique(region_2[current_1_mask])
-        overlapping_2_labels = overlapping_2_labels[overlapping_2_labels != 0]
-        if len(overlapping_2_labels) > 1:
-            size = np.sum(current_1_mask)
-            overlap_percentages = [np.sum(current_1_mask & (region_2 == m2_label)) / size * 100 for m2_label in overlapping_2_labels]
-            max_overlap_label = overlapping_2_labels[np.argmax(overlap_percentages)]
-            max_overlap_percentage = max(overlap_percentages)
-            if max_overlap_percentage >= 90:
-                view_1 = mask1[window]
-                for m2_label in overlapping_2_labels:
-                    if m2_label != max_overlap_label:
-                        view_1[current_1_mask & (region_2 == m2_label)] = 0
-            else:
-                for m2_label in overlapping_2_labels[1:]:
-                    mask2[mask2 == m2_label] = overlapping_2_labels[0]
+    mask1, mask2, _folded = _merge_spanning_children(mask1, mask2)
     return mask1, mask2
 
 def _filter_object(mask, min_value, max_value=None):
@@ -10315,12 +10301,9 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     :param cell_mask: labeled cell mask copied into the cytoplasm result.
     """
     
-    nucleus_mask = np.array(nucleus_mask)
-    cell_mask = np.array(cell_mask)
-    
-    cytoplasm_mask = np.where(nucleus_mask != 0, 0, cell_mask)
+    from .measure import _derive_cytoplasm
 
-    return cytoplasm_mask
+    return _derive_cytoplasm(np.array(cell_mask), [np.array(nucleus_mask)])
 
 def add_column_to_database(settings):
     """Add a column from a CSV file to an SQLite table, matching rows on a shared column.
