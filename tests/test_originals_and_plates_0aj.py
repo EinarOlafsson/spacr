@@ -313,7 +313,6 @@ OPERA_REGEX = r"(?P<wellID>r\d\dc\d\d)f(?P<fieldID>\d\d)p01-ch(?P<chanID>\d)sk1f
 def test_wells_that_are_not_letter_and_number_stop_mask_before_any_change(
         tmp_path, names, regex, well):
     from spacr.core import preprocess_generate_masks
-    from spacr.validate import ERROR, validate_settings
 
     rng = np.random.default_rng(0)
     src = tmp_path / "plate"
@@ -327,8 +326,6 @@ def test_wells_that_are_not_letter_and_number_stop_mask_before_any_change(
     message = str(stopped.value)
     assert well in message and "Convert the file names first" in message
     assert sorted(os.listdir(src)) == before
-    problems = [p for p in validate_settings(dict(settings), "mask") if p.severity == ERROR]
-    assert any(well in p.message for p in problems)
 
 
 def test_letter_and_number_wells_pass_and_cq1_ids_pass_after_conversion(

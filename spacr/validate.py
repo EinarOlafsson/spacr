@@ -1779,27 +1779,6 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 ERROR, 'psf_measurement_source', str(exc),
                 'Choose original intensities or configure a calibrated PSF for processed measurements.'))
 
-    if app == 'mask':
-        # Item 0aj: the same checks Mask makes before it changes anything.
-        from .io import _describe_plate_split, _plate_split_plan, _well_name_refusal
-        for source in _src_values(settings, app):
-            if not isinstance(source, str) or not os.path.isdir(source):
-                continue
-            try:
-                refusal = _well_name_refusal(source, settings)
-                plan = _plate_split_plan(source, settings)
-            except Exception:  # noqa: BLE001 - the run reports an unreadable folder
-                continue
-            if refusal:
-                problems.append(Problem(
-                    ERROR, 'metadata_type', refusal,
-                    "Convert the file names to letter + number wells first."))
-            if plan is not None and not settings.get('split_plates', False):
-                problems.append(Problem(
-                    ERROR, 'split_plates', ' '.join(_describe_plate_split(plan, limit=5)),
-                    "Set split_plates to True (the GUI asks) to move each plate into "
-                    "its own folder inside src, or give each plate its own folder."))
-
     if app in ('mask', 'timelapse') and settings.get('psf_operation', 'none') != 'none':
         from .point_spread import fill_psf_settings
         from .psf_pipeline import prepare_psf

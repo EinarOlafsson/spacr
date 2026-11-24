@@ -1390,7 +1390,14 @@ def _read_field(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
     if n_intensity:
         image = read_image(group)
         image = image if image.ndim == 3 else image[None]
-        data[..., :n_intensity] = np.moveaxis(image[_image_planes(entry, layout)], 0, -1)
+        planes = np.moveaxis(image[_image_planes(entry, layout)], 0, -1)
+        height, width = planes.shape[:2]
+        if (height, width) != shape[:2]:
+            # The masks of a batch of uneven fields were padded with zeros at
+            # the bottom and right (as the merge pads the stack); the stored
+            # channels stay as acquired (item 0aj).
+            data[..., :n_intensity] = 0
+        data[:height, :width, :n_intensity] = planes
     stored = set(entry.get("labels") or ())
     for role, dim in (layout.get("mask_dims") or {}).items():
         if int(dim) < shape[-1]:

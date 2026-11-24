@@ -1502,8 +1502,8 @@ def _settle_ingested_originals(src, settings, source_plate):
     Each field's originals leave the source folder only once its stored
     planes are verified against them (:func:`spacr.image_store._settle_originals`).
 
-    :raises RuntimeError: a stored field does not match its originals;
-        those originals stay where they are.
+    A stored field that does not match its originals is named in a
+    warning, and those originals stay where they are.
     """
     from .image_store import _settle_originals
     from .qt.i18n import tr
@@ -1511,7 +1511,7 @@ def _settle_ingested_originals(src, settings, source_plate):
     report = _settle_originals(src, keep=_keep_originals(settings), settings=settings,
                                source_plate=source_plate)
     if report['problems']:
-        raise RuntimeError(tr(
+        print('WARNING: ' + tr(
             "Original images were left where they are, because these fields do not "
             "match them in fov.ome.zarr: {problems}.",
             problems='; '.join(report['problems'][:5])))

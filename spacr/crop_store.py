@@ -862,7 +862,13 @@ class _StoreFieldWindows:
         if any(c >= self.n_intensity for c in channels):
             raise ValueError(f"{self.group}: crop channels {list(channels)} include a mask plane")
         block = self._read("0", self.group / "0", y0, y1, x0, x1)
-        return np.array(block[[self.planes[c] for c in channels]])
+        block = np.array(block[[self.planes[c] for c in channels]])
+        if block.shape[-2:] != (y1 - y0, x1 - x0):
+            # A padded field (uneven fields in one batch): zeros beyond the image.
+            padded = np.zeros(block.shape[:-2] + (y1 - y0, x1 - x0), block.dtype)
+            padded[..., :block.shape[-2], :block.shape[-1]] = block
+            block = padded
+        return block
 
     def labels(self, cls: str, y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
         """One class's labels over the box: measured where Measure changed them."""

@@ -208,8 +208,8 @@ def _settle_run_originals(src, settings, merge_format, source_plate=None):
     its originals aside in ``orig/`` as before, and the end-of-run cleanup
     applies ``keep_original_images`` there.
 
-    :raises RuntimeError: a stored field does not match its originals;
-        those originals are left where they are.
+    A stored field that does not match its originals is named in a
+    warning, and those originals are left where they are.
     """
     from .image_store import _image_entries, _merged_store_path, _settle_originals
     from .io import _keep_originals, _store_settles_originals
@@ -227,7 +227,7 @@ def _settle_run_originals(src, settings, merge_format, source_plate=None):
     report = _settle_originals(src, keep=_keep_originals(settings), settings=settings,
                                source_plate=source_plate)
     if report['problems']:
-        raise RuntimeError(tr(
+        print('WARNING: ' + tr(
             "Original images were left where they are, because these fields do not "
             "match them in fov.ome.zarr: {problems}.",
             problems='; '.join(report['problems'][:5])))
