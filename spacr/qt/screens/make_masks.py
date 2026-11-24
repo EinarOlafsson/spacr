@@ -5396,8 +5396,6 @@ def load_cellpose_model(model_name: str):
         :func:`spacr.utils._resolve_cellpose_pretrained`, or
         ``cellpose3:<name or path>``.
     """
-    import inspect
-
     from ..._segmentation_backends import (_cellpose3_choice,
                                            _cellpose_dino_choice,
                                            _prefixed_backend)
@@ -5407,24 +5405,11 @@ def load_cellpose_model(model_name: str):
             or _prefixed_backend(model_name) is not None):
         return _backend_model(str(model_name).strip())
 
-    import torch
     from cellpose import models as cp_models
 
-    from ...utils import _resolve_cellpose_pretrained
+    from ...utils import build_cellpose_model
 
-    pretrained = _resolve_cellpose_pretrained(model_name)
-    from ...accelerator import cellpose_kwargs
-
-    kwargs = cellpose_kwargs()
-    if not kwargs.get("gpu"):
-        try:
-            accepts = "use_bfloat16" in inspect.signature(
-                cp_models.CellposeModel).parameters
-        except (TypeError, ValueError):
-            accepts = False
-        if accepts:
-            kwargs["use_bfloat16"] = False
-    return cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
+    return build_cellpose_model(model_name, factory=cp_models.CellposeModel)
 
 
 def cellpose_detect(image: np.ndarray, model, *,

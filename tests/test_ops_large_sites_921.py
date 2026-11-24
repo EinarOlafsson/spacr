@@ -359,17 +359,19 @@ def test_the_run_reads_stacked_npy_sites_and_needs_its_folders(tmp_path):
 
 
 def test_preset_models_resolve_legacy_names(monkeypatch):
-    import spacr.ops_engine as engine
     import spacr.utils as utils
 
     seen = []
     monkeypatch.setattr(utils, "_resolve_cellpose_pretrained",
-                        lambda name, kind, setting=None: f"{name}->{kind}")
-    monkeypatch.setattr(engine, "_cellpose_model",
-                        lambda settings, gpu, key: seen.append((key, settings[key], gpu)) or key)
+                        lambda name, object_type=None, restore_type=None, setting=None:
+                        f"{name}->{object_type}")
+    import cellpose.models as cp_models
+
+    monkeypatch.setattr(cp_models, "CellposeModel",
+                        lambda **kwargs: seen.append(kwargs["pretrained_model"]) or kwargs)
     out = ols.preset_models({"seg_nucleus_model": "nuclei", "cell_model": "cyto3"})
-    assert out == ("seg_nucleus_model", "cell_model")
-    assert seen == [("seg_nucleus_model", "nuclei->nucleus", False), ("cell_model", "cyto3->cell", False)]
+    assert len(out) == 2
+    assert seen == ["nuclei->nucleus", "cyto3->cell"]
 
 
 def test_the_tiling_control_finds_tiled_and_untiled_runs_identical():

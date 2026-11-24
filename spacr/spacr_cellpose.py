@@ -189,22 +189,19 @@ def identify_masks_finetune(settings):
     dst = os.path.join(settings['src'], 'masks')
     os.makedirs(dst, exist_ok=True)
 
-    from .accelerator import cellpose_gpu, cellpose_kwargs, describe
+    from .accelerator import cellpose_gpu, describe
 
     if not cellpose_gpu():
         print('No GPU available to spaCR, using CPU')
     else:
         print(f'Segmenting on {describe()}')
 
-    from .model_zoo import _resolve_pinned_model_file
+    from .utils import _resolve_cellpose_source, build_cellpose_model
 
     key = 'model_name' if settings['custom_model'] is None else 'custom_model'
-    pinned = _resolve_pinned_model_file(settings, key, kinds=('cellpose',))
-    pretrained = (str(pinned) if pinned is not None
-                  else _resolve_cellpose_pretrained(settings[key]))
-
-    model = cp_models.CellposeModel(pretrained_model=pretrained,
-                                    **cellpose_kwargs())
+    pretrained = _resolve_cellpose_source(settings[key], settings=settings, key=key)
+    model = build_cellpose_model(pretrained, settings=settings,
+                                 factory=cp_models.CellposeModel)
     print(f"Loaded model: {getattr(model, 'pretrained_model', pretrained)}")
 
     if settings['grayscale']:

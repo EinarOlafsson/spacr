@@ -6887,15 +6887,93 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
     :raises ModelUnreadable: if automatic downloads are disabled and a stock
         model has no existing local file or regular native cache entry.
     """
-    if object_settings is None:
-        object_settings = {}
+    return build_cellpose_model(model_name, device=device, object_type=object_type,
+                                restore_type=restore_type)
 
-    pretrained = _resolve_cellpose_pretrained(
-        model_name, object_type=object_type, restore_type=restore_type)
 
-    from .accelerator import cellpose_kwargs
+def _resolve_cellpose_source(model_name, *, settings=None, key=None, object_type=None,
+                             restore_type=None, setting=None):
+    """The ``pretrained_model`` a Cellpose model is loaded from.
 
-    kwargs = cellpose_kwargs()
+    A model file pinned for ``key`` in ``settings`` replaces ``model_name``;
+    the result goes through :func:`_resolve_cellpose_pretrained`.
+
+    :returns: the stock name or checkpoint path.
+    """
+    name = model_name
+    if key is not None and settings is not None:
+        from .model_zoo import _resolve_pinned_model_file
+
+        pinned = _resolve_pinned_model_file(settings, key, kinds=("cellpose",))
+        if pinned is not None:
+            name = str(pinned)
+    named = {"object_type": object_type, "restore_type": restore_type,
+             "setting": setting if setting is not None else key}
+    return _resolve_cellpose_pretrained(
+        name, **{field: value for field, value in named.items() if value is not None})
+
+
+def build_cellpose_model(model_name, *, settings=None, key=None, object_type=None,
+                         restore_type=None, setting=None, device=None, gpu=None,
+                         drop_device=False, float32_on_cpu=False, tolerant=False, cache=None,
+                         factory=None, library_default=False):
+    """Build a Cellpose model the one way every caller builds it.
+
+    The steps, in order: a pinned model file recorded for ``key`` replaces
+    the name, the name is resolved by :func:`_resolve_cellpose_pretrained`,
+    the device and weight format come from
+    :func:`spacr.accelerator.cellpose_kwargs`, an explicit ``gpu`` or
+    ``device`` overrides them, weights are float32 off the GPU, and
+    ``mask_inference_precision`` in ``settings`` has the last word.
+
+    :param model_name: a stock or legacy name, a checkpoint path or a
+        model-zoo name; blank is ``cpsam``.
+    :param settings: read for ``mask_inference_precision`` (``auto``,
+        ``bf16`` or ``fp32``) and, with ``key``, for the pinned model file.
+    :param key: the setting that names the model; when ``settings`` pins a
+        file for it, the file is loaded instead of ``model_name``.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle' for
+        the messages.
+    :param restore_type: unsupported under Cellpose 4; reported and ignored.
+    :param setting: the field name the messages use, ``key`` when absent.
+    :param device: an explicit torch device overriding the accelerator's.
+    :param gpu: ``False`` builds on the CPU without asking the accelerator,
+        ``True`` forces the card, ``None`` takes the accelerator's choice.
+    :param drop_device: leave the device to Cellpose, which follows ``gpu``.
+    :param float32_on_cpu: load float32 weights whenever the model runs off
+        the card, whatever the accelerator reported.
+    :param tolerant: when the accelerator cannot be read, build on the CPU.
+    :param cache: ``cache(identity, factory)``, which returns a model kept
+        for the session; ``identity`` names the resolved model and kwargs.
+    :param library_default: for the stock ``cpsam`` name, leave
+        ``pretrained_model`` out so the installed Cellpose picks its own
+        default weights, which is how the OPS wells were validated.
+    :param factory: the model class to construct, ``CellposeModel`` of the
+        library when absent; a module passes its own import of it.
+    :returns: a ``cellpose.models.CellposeModel``.
+    :raises ModelZooError: if the name cannot be resolved exactly.
+    :raises ModelUnreadable: if downloads are disabled and the stock model
+        is not cached.
+    """
+    pretrained = _resolve_cellpose_source(
+        model_name, settings=settings, key=key, object_type=object_type,
+        restore_type=restore_type, setting=setting)
+
+    if gpu is False:
+        kwargs = {"gpu": False}
+    elif tolerant:
+        try:
+            from .accelerator import cellpose_kwargs
+
+            kwargs = cellpose_kwargs()
+        except Exception:
+            kwargs = {"gpu": False}
+    else:
+        from .accelerator import cellpose_kwargs
+
+        kwargs = cellpose_kwargs()
+    if gpu is True:
+        kwargs["gpu"] = True
     if device is not None:
         resolved_cpu = str(kwargs.get("device")).split(":", 1)[0] == "cpu"
         kwargs["device"] = device
@@ -6904,7 +6982,24 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
         elif resolved_cpu:
             kwargs["gpu"] = True
             kwargs.pop("use_bfloat16", None)
-    return cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
+    if drop_device:
+        kwargs["device"] = None
+    if (gpu is False or float32_on_cpu) and not kwargs["gpu"]:
+        kwargs["use_bfloat16"] = False
+    from .object import _with_inference_precision
+
+    kwargs = _with_inference_precision(kwargs, settings)
+
+    def construct():
+        """Load the model once the kwargs are settled."""
+        load = factory or cp_models.CellposeModel
+        if library_default and pretrained == CPSAM_MODEL:
+            return load(**kwargs)
+        return load(pretrained_model=pretrained, **kwargs)
+
+    if cache is not None:
+        return cache(("cellpose", pretrained, kwargs), construct)
+    return construct()
 
 class SelectChannels:
     """Callable transform that zeroes out image channels not present in ``channels``.
