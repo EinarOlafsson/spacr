@@ -36,9 +36,16 @@
     "cytoplasm_derivation": {
       "description": "Cytoplasm = cell labels with nucleus (and other) pixels zeroed.",
       "owners": ["spacr/measure.py"],
-      "owner_function": "spacr.measure.derive_cytoplasm(cell, exclude=[...]) (to be extracted from _measure_crop_core)",
+      "owner_function": "spacr.measure._derive_cytoplasm",
       "detector": "cytoplasm_where",
-      "covered_by": "ops_sample site: ws-offload-ws-ops-measure-shared"
+      "covered_by": "ops_sample site: ws-offload-ws-ops-measure-shared; OPS engine, flat-field, host-pathogen and utils: ws-offload-ws-merge23 (one cytoplasm); qt/mask_engine keeps 1 (the Make Masks preview, a different operation)"
+    },
+    "nucleus_cell_ownership": {
+      "description": "Which cell owns each nucleus or child object: label overlaps, the best parent per child, cells merged when one child spans them, and the nucleus-to-cell assignment.",
+      "owners": ["spacr/measure.py"],
+      "owner_function": "spacr.measure._label_overlaps / _best_parent / _merge_spanning_children / _assign_nuclei_to_cells",
+      "covered_by": "Measure, External Masks, OPS (ops_sample.pair_nuclei_with_cells), time-lapse and utils._merge_overlapping_objects: ws-offload-ws-merge23 (one ownership)",
+      "no_signature": "the overlap count is generic numpy, so no AST signature; callers call the owner functions"
     },
     "cellpose_model_construction": {
       "description": "Constructing a Cellpose model from a resolved checkpoint.",
