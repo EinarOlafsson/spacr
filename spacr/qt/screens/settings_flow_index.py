@@ -1652,6 +1652,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_profile_normalisation',
     'ops_profile_nuisance',
     'ops_profile_nuisance_fit',
+    'ops_profile_phase_filter',
     'ops_profile_recipe',
     'ops_profile_responder_alpha',
     'ops_profile_run',
