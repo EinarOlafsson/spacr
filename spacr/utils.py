@@ -6461,13 +6461,29 @@ def _merge_overlapping_objects(mask1, mask2):
                     mask2[mask2 == m2_label] = overlapping_2_labels[0]
     return mask1, mask2
 
-def _filter_object(mask, min_value, max_value=None):
+def _filter_object(mask, min_value=None, max_value=None, *, bounds=None,
+                   inclusive=True):
     """Zero out label values outside the allowed pixel-count range.
+
+    THE ONE SIZE FILTER. Measure, Make Masks' legacy filter, the plot filter,
+    the segmentation backends and the nucleus territories all call this, so
+    an object of exactly the minimum or the maximum size is treated the same
+    everywhere: it is KEPT (``min <= size <= max``). Small objects go
+    through :func:`spacr.qt.mask_engine._drop_small_labels`, the label-
+    preserving kernel the Make Masks window uses. Labels keep their ids;
+    nothing is renumbered, and touching objects are never merged.
 
     :param min_value: drop objects smaller than this. 0 or None disables it.
     :param max_value: drop objects LARGER than this. None -- the default,
         and what every existing run does -- disables it.
-    :returns: ``mask``, filtered in place.
+    :param bounds: ``(min, max)`` in place of the two arguments above.
+    :param inclusive: True (the default) keeps an object whose size equals a
+        bound. False restores the earlier Make Masks rule, which dropped it
+        (``min < size < max``); only settings written before schema 961 ask
+        for it, through ``size_filter_inclusive``.
+    :returns: ``mask``, filtered in place. A strict bound is the inclusive
+        one moved by one, because an object's size is a whole number of
+        pixels.
 
     THE UPPER BOUND EXISTS BECAUSE THE LOWER ONE IS NOT ENOUGH. A
     segmentation blow-up -- one "cell" covering a quarter of the field, two
@@ -6479,18 +6495,26 @@ def _filter_object(mask, min_value, max_value=None):
         counts them, because it is the caller that knows which object type
         this is and can say so.
     """
-    count = np.bincount(mask.ravel())
-    too_small = count < (min_value or 0)
-    if max_value:
-        too_big = count > max_value
-    else:
-        too_big = np.zeros_like(too_small)
-    remove = np.where(too_small | too_big)[0]
-    remove = remove[remove != 0]
-    mask[np.isin(mask, remove)] = 0
+    from .qt.mask_engine import _drop_small_labels
+
+    if bounds is not None:
+        min_value, max_value = bounds
+    labels = np.asarray(mask)
+    if not labels.size:
+        return mask
+    low = float(min_value or 0)
+    high = float(max_value) if max_value else None
+    smallest = int(np.floor(low)) + 1 if (low > 0 and not inclusive) else int(np.ceil(low))
+    result = _drop_small_labels(labels, smallest, relabel=False) if smallest > 0 else labels
+    if high is not None:
+        largest = high if inclusive else np.ceil(high) - 1
+        too_big = np.bincount(result.ravel()) > largest
+        too_big[0] = False
+        result = np.where(too_big[result], 0, result)
+    mask[...] = result
     return mask
 
-def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize):
+def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize, size_filter_inclusive=True):
     """Post-process Cellpose masks: optional merge, size filter, intensity filter, border removal."""
     
     from .plot import plot_masks
@@ -6511,12 +6535,11 @@ def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, 
                 plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
 
         if filter_size:
-            props = measure.regionprops_table(mask, properties=['label', 'area'])
-            valid_labels = props['label'][np.logical_and(props['area'] > minimum_size, props['area'] < maximum_size)] 
-            mask = np.isin(mask, valid_labels) * mask
+            mask = _filter_object(mask, bounds=(minimum_size, maximum_size),
+                                  inclusive=size_filter_inclusive)
             if plot and idx == 0:
                 num_objects = mask_object_count(mask)
-                print(f'Number of objects after size filtration >{minimum_size} and <{maximum_size} : {num_objects}')
+                print(f'Number of objects after size filtration >={minimum_size} and <={maximum_size} : {num_objects}')
                 plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
 
         if filter_intensity:

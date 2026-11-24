@@ -4658,7 +4658,7 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
     plot_from_file_dict(file_dict, threshold, lower_percentile, upper_percentile, overlay)
     return
 
-def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, mask_dims, filter_min_max, nuclei_limit, pathogen_limit):
+def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim, mask_dims, filter_min_max, nuclei_limit, pathogen_limit, size_filter_inclusive=True):
     """
     Filters objects in a plot based on various criteria.
 
@@ -4671,11 +4671,13 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
         filter_min_max (list): A list of minimum and maximum area values for each mask.
         nuclei_limit (bool): Whether to include multinucleated cells.
         pathogen_limit (bool): Whether to include multiinfected cells.
+        size_filter_inclusive (bool): Keep an object whose area equals a bound
+            (the default); False drops it, as settings before schema 961 did.
 
     Returns:
         numpy.ndarray: The filtered stack of masks.
     """
-    from .utils import _remove_outside_objects, _remove_multiobject_cells
+    from .utils import _filter_object, _remove_outside_objects, _remove_multiobject_cells
     
     stack = _remove_outside_objects(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mask_dim)
 
@@ -4701,8 +4703,8 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
         total_count_before = len(props['label'])
 
         if not filter_min_max is None:
-            valid_labels = props['label'][np.logical_and(props['area'] > min_max[0], props['area'] < min_max[1])]  
-            stack[:, :, mask_dim] = np.isin(mask, valid_labels) * mask  
+            stack[:, :, mask_dim] = _filter_object(
+                mask, bounds=tuple(min_max), inclusive=size_filter_inclusive)
 
         props_after = measure.regionprops_table(stack[:, :, mask_dim], properties=['label', 'area']) 
         avg_size_after = np.mean(props_after['area'])
@@ -4967,7 +4969,7 @@ def plot_merged(src, settings):
                 stack = _remove_noninfected(stack, settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim'])
 
         if settings['pathogen_limit'] is not True or settings['nuclei_limit'] is not True or settings['filter_min_max'] is not None:
-            stack = _filter_objects_in_plot(stack, settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], mask_dims, settings['filter_min_max'], settings['nuclei_limit'], settings['pathogen_limit'])
+            stack = _filter_objects_in_plot(stack, settings['cell_mask_dim'], settings['nucleus_mask_dim'], settings['pathogen_mask_dim'], mask_dims, settings['filter_min_max'], settings['nuclei_limit'], settings['pathogen_limit'], settings.get('size_filter_inclusive', True))
 
         overlayed_image, image, outlines = _normalize_and_outline(image=stack, 
                                                                   remove_background=settings['remove_background'],
