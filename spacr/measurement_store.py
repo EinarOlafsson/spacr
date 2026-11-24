@@ -166,6 +166,27 @@ def store_native(db_path: Any) -> bool:
         os.path.join(project_of(db_path), store.CATALOG)))
 
 
+def store_folder(db_path: Any) -> Optional[str]:
+    """The store a ``measurements.db`` locator names, or None.
+
+    A ``measurements.db`` path (it need not exist) whose folder is a store
+    project (:func:`store_native`) names that store, so its readers and
+    writers go to the store and never to a stray SQLite file beside it.
+    Any other path, an existing SQLite file of another name included, gives
+    None.
+
+    :param db_path: a path; anything that is not one gives None.
+    :returns: the measurements folder, or None.
+    """
+    try:
+        path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
+    except TypeError:
+        return None
+    if os.path.basename(path) != LEGACY_NAME:
+        return None
+    return project_of(path) if store_native(path) else None
+
+
 def ensure_store(db_path: Any, *, retire: bool = True) -> str:
     """Make a project a store project: the catalog, and no legacy file.
 

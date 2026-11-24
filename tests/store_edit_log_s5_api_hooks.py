@@ -22,7 +22,16 @@ S5_ARRIVALS = frozenset({
     "spacr.store.activate",
     "spacr.store.Store.edits",
     "spacr.store.Store.active_outputs", "spacr.store.Store.training",
-    "spacr.agreement.annotations_by_author"})
+    "spacr.agreement.annotations_by_author",
+    # S5, second part (2026-11-24): the all-or-nothing transaction that
+    # hit attribution, Graph Builder, active learning and the prediction
+    # merges write through, and the on-request import of legacy labels.
+    "spacr.store.transaction", "spacr.store.Transaction",
+    "spacr.store.Transaction.tables", "spacr.store.Transaction.columns",
+    "spacr.store.Transaction.rows", "spacr.store.Transaction.edit",
+    "spacr.store.Transaction.ensure_columns",
+    "spacr.store.Transaction.append_rows",
+    "spacr.store.Transaction.update_rows", "spacr.store.migrate_legacy"})
 
 
 def _s5_source_docstring(symbol):

@@ -1812,34 +1812,31 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def _write_connection(db_path: str) -> sqlite3.Connection:
-    """A writable connection to ``db_path``, for the round tables only.
+def _write_target(db_path: str) -> str:
+    """The project the round tables are written to, checked first.
 
     Separate from :func:`_connect`, which is read-only on purpose: building a
-    queue must never be able to write, and the two connections being visibly
-    different is what keeps that true.
+    queue must never be able to write. The round tables are written through
+    :func:`spacr.store.transaction`, to an existing ``measurements.db`` or a
+    store project folder, never to a file this would create.
+
+    :raises ValueError: when no path is given.
+    :raises FileNotFoundError: when the path is neither.
     """
+    from . import store
+
     if not db_path or not str(db_path).strip():
         raise ValueError("No database path given.")
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
-    if not os.path.isfile(path):
+    if not (os.path.isfile(path)
+            or os.path.isfile(os.path.join(path, store.CATALOG))):
         raise FileNotFoundError(f"No such database: {path}")
-    return sqlite3.connect(path, timeout=30)
+    return path
 
 
-def ensure_round_tables(db_path: str) -> None:
-    """Create :data:`ROUND_TABLE` and :data:`ROUND_LOG_TABLE` if absent.
-
-    :param db_path: existing ``measurements.db`` in which to create the tables.
-
-    Two tables, not one. Per-label provenance and per-round metrics have
-    different cardinalities and different lifetimes: a label keeps its round
-    forever, a round's held-out accuracy is rewritten if the round is re-fit.
-    """
-    con = _write_connection(db_path)
-    try:
-        con.execute(f"""
-            CREATE TABLE IF NOT EXISTS {_quote_ident(ROUND_TABLE)} (
+#: The SQLite ``CREATE`` of :data:`ROUND_TABLE` (kept to the byte: SQLite
+#: stores the text).
+_ROUND_DDL = f"""CREATE TABLE IF NOT EXISTS {_quote_ident(ROUND_TABLE)} (
                 png_path TEXT NOT NULL,
                 annotation_column TEXT NOT NULL,
                 round INTEGER NOT NULL,
@@ -1848,9 +1845,12 @@ def ensure_round_tables(db_path: str) -> None:
                 source TEXT NOT NULL DEFAULT 'manual',
                 labelled_utc TEXT NOT NULL,
                 PRIMARY KEY (png_path, annotation_column)
-            )""")
-        con.execute(f"""
-            CREATE TABLE IF NOT EXISTS {_quote_ident(ROUND_LOG_TABLE)} (
+            )"""
+_ROUND_COLUMNS = ("png_path", "annotation_column", "round", "first_round",
+                  "label", "source", "labelled_utc")
+
+#: The SQLite ``CREATE`` of :data:`ROUND_LOG_TABLE`.
+_ROUND_LOG_DDL = f"""CREATE TABLE IF NOT EXISTS {_quote_ident(ROUND_LOG_TABLE)} (
                 annotation_column TEXT NOT NULL,
                 round INTEGER NOT NULL,
                 finished_utc TEXT NOT NULL,
@@ -1868,10 +1868,36 @@ def ensure_round_tables(db_path: str) -> None:
                 diversity TEXT,
                 notes_json TEXT,
                 PRIMARY KEY (annotation_column, round)
-            )""")
-        con.commit()
-    finally:
-        con.close()
+            )"""
+_ROUND_LOG_COLUMNS = (
+    "annotation_column", "round", "finished_utc", "n_labels", "n_new_labels",
+    "n_holdout", "holdout_accuracy", "holdout_f1_macro", "per_class_json",
+    "split_rule", "model_type", "model_path", "card_path", "measure",
+    "diversity", "notes_json")
+
+
+def _ensure_round_tables(tx) -> None:
+    """Create both round tables inside the transaction ``tx``."""
+    tx.append_rows(ROUND_TABLE, [], columns=_ROUND_COLUMNS, ddl=_ROUND_DDL)
+    tx.append_rows(ROUND_LOG_TABLE, [], columns=_ROUND_LOG_COLUMNS,
+                   ddl=_ROUND_LOG_DDL)
+
+
+def ensure_round_tables(db_path: str) -> None:
+    """Create :data:`ROUND_TABLE` and :data:`ROUND_LOG_TABLE` if absent.
+
+    :param db_path: existing ``measurements.db`` in which to create the tables.
+
+    Two tables, not one. Per-label provenance and per-round metrics have
+    different cardinalities and different lifetimes: a label keeps its round
+    forever, a round's held-out accuracy is rewritten if the round is re-fit.
+    A store project keeps them as bookkeeping journals, made by their first
+    row.
+    """
+    from . import store
+
+    with store.transaction(_write_target(db_path)) as tx:
+        _ensure_round_tables(tx)
 
 
 def _read_rounds(con: sqlite3.Connection,
@@ -1916,28 +1942,24 @@ def record_labels(db_path: str, annotation_column: str,
         ``'queue'``, or a caller's own tag.
     :returns: number of rows written.
     """
+    from . import store
+
     if not labels:
         return 0
-    ensure_round_tables(db_path)
+    path = _write_target(db_path)
     stamp = _utc_now()
     payload = [
-        (str(path), str(annotation_column), int(round_index),
-         int(round_index),
-         (None if value is None else int(value)), str(source), stamp)
-        for path, value in labels.items()]
-    con = _write_connection(db_path)
-    try:
-        con.executemany(
-            f"INSERT INTO {_quote_ident(ROUND_TABLE)} "
-            f"(png_path, annotation_column, round, first_round, label, "
-            f"source, labelled_utc) VALUES (?, ?, ?, ?, ?, ?, ?) "
-            f"ON CONFLICT(png_path, annotation_column) DO UPDATE SET "
-            f"round=excluded.round, label=excluded.label, "
-            f"source=excluded.source, labelled_utc=excluded.labelled_utc",
-            payload)
-        con.commit()
-    finally:
-        con.close()
+        dict(zip(_ROUND_COLUMNS, (
+            str(png), str(annotation_column), int(round_index),
+            int(round_index),
+            (None if value is None else int(value)), str(source), stamp)))
+        for png, value in labels.items()]
+    with store.transaction(path) as tx:
+        _ensure_round_tables(tx)
+        tx.append_rows(ROUND_TABLE, payload, columns=_ROUND_COLUMNS,
+                       ddl=_ROUND_DDL,
+                       replace=("png_path", "annotation_column"),
+                       update=("round", "label", "source", "labelled_utc"))
     return len(payload)
 
 
@@ -1993,7 +2015,10 @@ def record_round(db_path: str, annotation_column: str, round_index: int,
         ``measure``, ``diversity``, ``notes`` (list).
     """
     import json
-    ensure_round_tables(db_path)
+
+    from . import store
+
+    path = _write_target(db_path)
     values = {
         "annotation_column": str(annotation_column),
         "round": int(round_index),
@@ -2012,16 +2037,11 @@ def record_round(db_path: str, annotation_column: str, round_index: int,
         "diversity": str(fields.get("diversity") or ""),
         "notes_json": json.dumps(list(fields.get("notes") or [])),
     }
-    con = _write_connection(db_path)
-    try:
-        con.execute(
-            f"INSERT OR REPLACE INTO {_quote_ident(ROUND_LOG_TABLE)} "
-            f"({', '.join(_quote_ident(c) for c in values)}) "
-            f"VALUES ({', '.join('?' * len(values))})",
-            tuple(values.values()))
-        con.commit()
-    finally:
-        con.close()
+    with store.transaction(path) as tx:
+        _ensure_round_tables(tx)
+        tx.append_rows(ROUND_LOG_TABLE, [values], columns=_ROUND_LOG_COLUMNS,
+                       ddl=_ROUND_LOG_DDL,
+                       replace=("annotation_column", "round"))
 
 
 def _as_float_or_none(value: Any) -> Optional[float]:
@@ -3126,9 +3146,52 @@ def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
         existing = existing[~existing["prcfo"].isin(frame["prcfo"])]
         if not existing.empty:
             frame = pd.concat([existing, frame], ignore_index=True)
-    tabular.write_database(frame, db_path, _EMBEDDING_TABLE,
-                           if_exists="replace", canonicalise=False)
+    if _is_store_project(db_path):
+        _write_store_embeddings(str(db_path), frame)
+    else:
+        tabular.write_database(frame, db_path, _EMBEDDING_TABLE,
+                               if_exists="replace", canonicalise=False)
     return len(frame)
+
+
+#: The output kind crop embeddings are registered under in a store project.
+_EMBEDDING_KIND = "embedding"
+
+
+def _is_store_project(db_path) -> bool:
+    """Whether ``db_path`` is a store project folder."""
+    from . import store
+
+    return os.path.isfile(os.path.join(str(db_path), store.CATALOG))
+
+
+def _write_store_embeddings(project: str, frame: pd.DataFrame) -> str:
+    """Write crop embeddings to a store project as a derived table.
+
+    The vectors are dense model outputs, so they go to their own
+    ``score__crop_embedding__<digest>`` table keyed like ``png_list``
+    (through :func:`spacr.store.write_scores`) and become its active
+    ``embedding`` output; ``png_list`` itself is never rewritten. Objects
+    without a crop are left out, since nothing could join them. The run id
+    is a digest of the vectors, so the same embeddings write the same table.
+
+    :returns: the table name.
+    """
+    import hashlib
+
+    from . import store
+
+    with store.open(project, verify="none") as reader:
+        crops = reader.query(table=PNG_TABLE, features=[PNG_KEY, "prcfo"])
+    crops = crops.dropna(subset=["prcfo"])
+    crops = crops.assign(prcfo=crops["prcfo"].astype(str)).drop_duplicates(
+        "prcfo")
+    out = crops[[PNG_KEY, "prcfo"]].merge(frame, on="prcfo", how="inner")
+    digest = hashlib.sha256(pd.util.hash_pandas_object(
+        out, index=False).values.tobytes()).hexdigest()[:12]
+    return store.write_scores(project, out, model="crop_embedding",
+                              run_id=digest, target=PNG_TABLE,
+                              kind=_EMBEDDING_KIND)
 
 
 def _stored_embedding_frame(db_path: str) -> Optional[pd.DataFrame]:
@@ -3137,6 +3200,18 @@ def _stored_embedding_frame(db_path: str) -> Optional[pd.DataFrame]:
     from .measurement_store import exists as _measurements_exist
     if not (os.path.exists(str(db_path)) or _measurements_exist(str(db_path))):
         return None
+    if _is_store_project(db_path):
+        from . import store
+
+        with store.open(str(db_path), verify="none") as reader:
+            active = reader.active_outputs()
+            active = active[(active["kind"] == _EMBEDDING_KIND)
+                            & (active["target"] == PNG_TABLE)]
+            if active.empty:
+                return None
+            stored = reader.query(table=str(active["table"].iloc[0]))
+        return stored.drop(columns=[c for c in (PNG_KEY, "plate", "well")
+                                    if c in stored.columns])
     if _EMBEDDING_TABLE not in tabular.database_tables(db_path):
         return None
     return tabular.read_table(db_path, table=_EMBEDDING_TABLE,
