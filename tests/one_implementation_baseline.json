@@ -5,20 +5,14 @@
    "spacr/utils.py": 1
   },
   "cellpose_governed_eval": {
-   "spacr/ops_large_sites.py": 2,
    "spacr/spacr_cellpose.py": 2
   },
   "cellpose_model_construction": {
    "spacr/deep_spacr.py": 1,
    "spacr/model_compare.py": 1,
-   "spacr/ops_engine.py": 2,
-   "spacr/pipeline_v2.py": 1,
    "spacr/plaque_papers.py": 1,
    "spacr/qt/annotate_engine.py": 1,
-   "spacr/qt/screens/make_masks.py": 1,
-   "spacr/qt/widgets/preview_contract.py": 1,
-   "spacr/segmentation_uncertainty.py": 1,
-   "spacr/spacr_cellpose.py": 2,
+   "spacr/spacr_cellpose.py": 1,
    "spacr/submodules.py": 4,
    "spacr/timeflows_model.py": 1
   },
@@ -40,17 +34,7 @@
    "spacr/utils.py": 1
   },
   "duckdb_connect": {},
-  "fdr_adjust": {
-   "spacr/assay_panels.py": 1,
-   "spacr/gene_classes.py": 1,
-   "spacr/gene_measurement_compare.py": 2,
-   "spacr/ml.py": 1,
-   "spacr/ops_clusters.py": 2,
-   "spacr/ops_engine.py": 2,
-   "spacr/ops_modules.py": 1,
-   "spacr/ops_scoring.py": 2,
-   "spacr/utils.py": 1
-  },
+  "fdr_adjust": {},
   "feature_standardise": {
    "spacr/active_learning.py": 1,
    "spacr/cpa_classifiers.py": 1,
@@ -148,7 +132,7 @@
    "spacr/qt/widgets/qc_field_browser.py": 1,
    "spacr/submodules.py": 4,
    "spacr/timelapse.py": 6,
-   "spacr/utils.py": 9
+   "spacr/utils.py": 8
   },
   "parquet_write": {
    "spacr/embedding_profiles.py": 1,
@@ -228,19 +212,14 @@
   },
   "robust_scale_constant": {
    "spacr/assay_panels.py": 1,
-   "spacr/assay_report.py": 1,
    "spacr/batch_correction.py": 1,
    "spacr/cell_montage.py": 1,
    "spacr/diameter.py": 1,
-   "spacr/embeddings.py": 1,
    "spacr/figures/panels.py": 3,
    "spacr/figures/summary.py": 1,
-   "spacr/gene_measurement_compare.py": 1,
    "spacr/illumination.py": 1,
    "spacr/image_quality.py": 1,
    "spacr/measure.py": 4,
-   "spacr/ops_clusters.py": 1,
-   "spacr/ops_mitotic.py": 2,
    "spacr/outlier_filter.py": 1,
    "spacr/plaque.py": 1,
    "spacr/plot.py": 1,
@@ -344,23 +323,23 @@
  },
  "totals": {
   "border_clearing": 1,
-  "cellpose_governed_eval": 4,
-  "cellpose_model_construction": 17,
+  "cellpose_governed_eval": 2,
+  "cellpose_model_construction": 10,
   "classical_threshold": 13,
   "cytoplasm_derivation": 7,
   "duckdb_connect": 0,
-  "fdr_adjust": 13,
+  "fdr_adjust": 0,
   "feature_standardise": 22,
   "gpu_memory_cap": 2,
   "label_relabel_sequential": 1,
   "measurements_db_path": 163,
-  "object_regionprops_table": 45,
+  "object_regionprops_table": 44,
   "parquet_write": 11,
   "pca": 14,
   "phate_leiden": 0,
   "process_pool": 4,
   "raster_decode": 117,
-  "robust_scale_constant": 31,
+  "robust_scale_constant": 25,
   "small_object_removal": 0,
   "sqlite_connect": 99,
   "texture_haralick": 0,
