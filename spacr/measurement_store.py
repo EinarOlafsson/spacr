@@ -118,9 +118,12 @@ def legacy_database(db_path: Any) -> Optional[str]:
     path = os.path.join(project_of(db_path), LEGACY_NAME)
     if not os.path.isfile(path):
         return None
-    if os.path.isfile(os.path.join(os.path.dirname(path), 'spacr.duckdb')) and (
-            os.path.getsize(path) == 0 or _empty_sqlite(path)):
-        return None
+    try:
+        if os.path.isfile(os.path.join(os.path.dirname(path), 'spacr.duckdb')) and (
+                os.path.getsize(path) == 0 or _empty_sqlite(path)):
+            return None
+    except OSError:
+        pass
     return path
 
 
@@ -1664,14 +1667,20 @@ class _RowCursor:
 
 
 def connect(db_path: Any, *, readonly: bool = False):
-    """A connection to a project's measurements: SQLite for a legacy file,
-    :class:`_StoreConnection` for a store project.
+    """A connection to a project's measurements: SQLite for a legacy file
+    (or a path that is neither, as before), :class:`_StoreConnection` for a
+    store project.
 
     :param db_path: the project's ``measurements.db`` path or folder.
     :param readonly: open read-only.
     :returns: the connection.
     """
+    from . import store
+
     legacy = _file(db_path) or legacy_database(db_path)
+    if legacy is None and not os.path.isfile(os.path.join(
+            project_of(db_path), store.CATALOG)):
+        legacy = os.fspath(db_path)
     if legacy is not None:
         from .database_concurrency import connect as _sqlite
 

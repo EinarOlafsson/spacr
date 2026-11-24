@@ -13451,8 +13451,7 @@ def _add_original_filename_columns_store(db_path, src, *, report=print):
     :returns: {table: number of matched rows}.
     """
     from . import store
-    from .measurement_store import (_clean, _key_columns, _partitions, _sort_by,
-                                    exists, project_of, tables)
+    from .measurement_store import exists, project_of, rewrite_table, tables
     from .original_filenames import _identity_columns, _original_columns
 
     if not exists(db_path):
@@ -13486,19 +13485,17 @@ def _add_original_filename_columns_store(db_path, src, *, report=print):
                             sort=False)
         for column in added:
             merged[column] = merged[column].map(
-                lambda v: None if v is None or (isinstance(v, float) and v != v)
-                else str(v))
+                lambda v: None if v is None or bool(pd.isna(v)) else str(v))
         merged = merged.drop(columns=[c for c in ('crop_store', 'crop_index')
                                       if c in merged.columns
                                       and merged[c].isna().all()])
+        wells = {}
         for plate, well in sorted(set(zip(merged['plate'].astype(str),
                                           merged['well'].astype(str)))):
-            part = merged[(merged['plate'].astype(str) == plate)
-                          & (merged['well'].astype(str) == well)]
-            part = _clean(part)
-            store.write_table(project, table, part, plate=plate, well=well,
-                              sort_by=_sort_by(part),
-                              key_columns=_key_columns(part), narrow=True)
+            wells[(plate, well)] = merged[
+                (merged['plate'].astype(str) == plate)
+                & (merged['well'].astype(str) == well)]
+        rewrite_table(project, table, wells, narrow=True, register=False)
         done[table] = int(enriched['original_filename'].notna().sum())
         report(f"Original filenames from {map_path.name}: {table} "
                f"({done[table]} of {len(enriched)} field(s) matched).")

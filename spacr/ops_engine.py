@@ -13347,7 +13347,7 @@ def _st_replace_image_rows(db: str, table: str, frame, prcf) -> None:
 
     keys = {prcf} if isinstance(prcf, str) else {str(k) for k in prcf}
     parts = [frame]
-    if os.path.exists(db) and table in database_tables(db):
+    if _measurements_exist(db) and table in database_tables(db):
         old = read_table(db, table=table, canonicalise=False, report=None)
         if frame.empty and not len(frame.columns):
             if "prcfo" not in old.columns:
@@ -13902,7 +13902,7 @@ def _st_measured(db: str, table: str):
     """
     from .tabular import database_tables, read_table
 
-    if not os.path.exists(db) or table not in database_tables(db):
+    if not _measurements_exist(db) or table not in database_tables(db):
         return None
     measured = read_table(db, table=table, report=None)
     if "prcfo" not in measured.columns:
@@ -14373,7 +14373,7 @@ def _st_replace_plate_rows(db: str, table: str, frame, plate: str) -> None:
     from .tabular import database_tables, read_table, write_database
 
     parts = [frame]
-    if os.path.exists(db) and table in database_tables(db):
+    if _measurements_exist(db) and table in database_tables(db):
         old = read_table(db, table=table, canonicalise=False, report=None)
         if frame.empty:
             if "plateID" not in old.columns or not (
@@ -14799,7 +14799,7 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
             f"wrote; got {masks_dir!r}")
     masks_dir = os.path.expanduser(str(masks_dir))
     db = os.path.join(masks_dir, "measurements", "measurements.db")
-    if not os.path.exists(db) or "spatial_fields" not in database_tables(db):
+    if not _measurements_exist(db) or "spatial_fields" not in database_tables(db):
         raise ValueError(
             f"{masks_dir} has no spatial_fields table; run Spatial Mask "
             "Generation into it first.")
@@ -15106,3 +15106,13 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
          f"counted from {summary['points_in_fields']} of {total} points")
     summary["obs"] = obs
     return summary
+
+
+def _measurements_exist(db):
+    """Whether ``db`` names measurements: a database file or a spaCR store.
+
+    :param db: a ``measurements.db`` path.
+    """
+    from .measurement_store import exists
+
+    return exists(db)

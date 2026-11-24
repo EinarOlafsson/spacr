@@ -379,9 +379,10 @@ def test_the_measurement_writer_feeds_the_chosen_store(tmp_path, backend):
     _append_to_measurements_db(db, "cell", frame, store=store)
     with sqlite3.connect(db) as conn:
         assert conn.execute("SELECT COUNT(*) FROM cell").fetchone()[0] == 4
-    got = tabular.read_database(store, ["cell"], canonicalise=False)[0]
-    assert len(got) == 4
-    assert sorted(got["cell_area"].tolist()) == [10.0, 10.0, 20.0, 20.0]
+    # Unified store, step S4: measurement_backend is spacr_store only; a
+    # retired duckdb/parquet value is an export of the finished run
+    # (_copy_to_measurement_backend), never a store each append feeds.
+    assert store is None
 
 
 @pytest.mark.parametrize("table", ['cell "one"', "a:b", "x?", "pct%41", "trailing.",

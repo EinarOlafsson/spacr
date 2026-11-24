@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from tests import store_sql
 import json
+import glob
 import os
 
 import numpy as np
@@ -312,8 +313,13 @@ def test_a_measure_rerun_after_the_map_keeps_the_mask_stage_tables(tmp_path):
                         "spatial_anndata": False})
     db = _measure(report)
     tables = set(database_tables(db))
-    assert {"spatial_fields", "spatial_objects", "cell_1"} <= tables
+    # Unified store, step S4: the rerun keeps its earlier population under
+    # measurements/archive/ instead of renaming it to cell_1 in place.
+    assert {"spatial_fields", "spatial_objects", "cell"} <= tables
     assert not {"spatial_fields_1", "spatial_objects_1"} & tables
+    archive = os.path.join(os.path.dirname(db), "archive")
+    assert glob.glob(os.path.join(archive, "*", "tables", "cell"))
+    assert not glob.glob(os.path.join(archive, "*", "tables", "spatial_*"))
     objects = read_table(db, table="spatial_objects", canonicalise=False,
                          report=None)
     assert set(oe._st_measured(db, "cell").index) == set(objects["prcfo"])

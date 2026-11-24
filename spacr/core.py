@@ -3034,9 +3034,10 @@ def _watch_analyse_field(field_dir, settings):
                else _watch_measure_settings(settings))
     measure['src'] = merged
     measure_crop(measure)
-    if not os.path.exists(os.path.join(field_dir, 'measurements',
-                                       'measurements.db')):
-        raise RuntimeError('Measure wrote no measurements.db for this field; '
+    from .measurement_store import exists as _measurements_exist
+    if not _measurements_exist(os.path.join(field_dir, 'measurements',
+                                            'measurements.db')):
+        raise RuntimeError('Measure wrote no measurements for this field; '
                            'the log above says why.')
     if pipeline == 'mask_measure_classify':
         from .classify import classify
@@ -3209,9 +3210,15 @@ def _watch_merge_database(field_db, combined_db, key):
     :param combined_db: the combined ``measurements.db``.
     :param key: the field key recorded with the rows.
     :returns: True when rows were appended, False when the field was there.
+
+    A field that Measure wrote as a spaCR store (``field_db`` its
+    measurements folder or snapshot) is appended to the watch folder's store
+    by :func:`_watch_merge_store`.
     """
     import sqlite3
 
+    if os.path.isdir(field_db):
+        return _watch_merge_store(field_db, os.path.dirname(combined_db), key)
     quote = _watch_quote
     os.makedirs(os.path.dirname(combined_db), exist_ok=True)
     connection = sqlite3.connect(combined_db, timeout=30, isolation_level=None)
@@ -3259,6 +3266,45 @@ def _watch_merge_database(field_db, combined_db, key):
     return True
 
 
+def _watch_merge_store(field_project, combined, key):
+    """Append one field's store tables to the watch folder's store once.
+
+    The store form of :func:`_watch_merge_database`: every table of the
+    field's store (or its snapshot) is added to the combined store through
+    :func:`spacr.measurement_store.write_rows`, and the field is recorded in
+    ``spacr_watch_fields``; a recorded field is not appended again.
+
+    :param field_project: the field's measurements folder, or its snapshot.
+    :param combined: the watch folder's measurements folder.
+    :param key: the field key recorded with the rows.
+    :returns: True when rows were appended, False when the field was there.
+    """
+    import pandas as pd
+
+    from . import store
+    from .measurement_store import (ensure_store, read, tables, write_rows)
+
+    combined_db = os.path.join(combined, 'measurements.db')
+    ensure_store(combined_db)
+    done = read(combined_db, 'spacr_watch_fields')
+    if len(done) and key in set(done['field'].astype(str)):
+        return False
+    with store.open(field_project, verify='none') as opened:
+        names = [t for t in tables(os.path.join(field_project, 'measurements.db'))
+                 if t != 'spacr_watch_fields']
+        frames = {name: opened.query(table=name) for name in names}
+    for name, frame in frames.items():
+        frame = frame.drop(columns=[c for c in ('crop_store', 'crop_index')
+                                    if c in frame.columns
+                                    and frame[c].isna().all()])
+        if len(frame):
+            write_rows(combined, name, frame, register=False)
+    write_rows(combined, 'spacr_watch_fields', pd.DataFrame(
+        [{'field': str(key), 'merged_at': time.time()}]), register=False)
+    store.register(combined)
+    return True
+
+
 def _watch_collect(field_dir, work, key, database_snapshot=None):
     """Gather one analysed field into the watch folder's combined outputs.
 
@@ -3292,9 +3338,18 @@ def _watch_collect(field_dir, work, key, database_snapshot=None):
             if os.path.isfile(source) and not os.path.exists(destination):
                 _watch_link(source, destination)
     field_db = database_snapshot or os.path.join(field_dir, 'measurements', 'measurements.db')
-    if database_snapshot is not None and not os.path.isfile(field_db):
+    if database_snapshot is not None and not os.path.exists(field_db):
         raise ValueError('Collection database snapshot disappeared before append.')
-    if os.path.exists(field_db):
+    from .measurement_store import legacy_database as _legacy_database
+    store_source = (field_db if os.path.isdir(field_db) else
+                    os.path.dirname(field_db)
+                    if _legacy_database(field_db) is None else None)
+    if store_source is not None and os.path.isfile(os.path.join(store_source,
+                                                                'spacr.duckdb')):
+        _watch_merge_database(
+            store_source, os.path.join(work, 'measurements', 'measurements.db'),
+            key)
+    elif os.path.exists(field_db):
         _watch_merge_database(
             field_db, os.path.join(work, 'measurements', 'measurements.db'),
             key)
@@ -3465,6 +3520,13 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
             if name.endswith('.csv'):
                 relative = f'tracks/{name}'
                 artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
+    snapshot = os.path.join(field_dir, '.watch_collection', 'measurements')
+    if os.path.isdir(snapshot):
+        for folder, _dirs, files in os.walk(snapshot):
+            for name in sorted(files):
+                path = os.path.join(folder, name)
+                relative = os.path.relpath(path, field_dir).replace(os.sep, '/')
+                artifacts[relative] = _watch_artifact_sha256(path)
     relative = '.watch_collection/measurements.db'
     if os.path.lexists(os.path.join(field_dir, relative)):
         for suffix in ('-wal', '-journal', '-shm'):
@@ -3503,6 +3565,21 @@ def _watch_snapshot_database(field_dir):
 
     source = Path(field_dir) / 'measurements' / 'measurements.db'
     if not source.exists():
+        catalog = source.parent / 'spacr.duckdb'
+        if catalog.is_file():
+            import shutil
+
+            folder = Path(field_dir) / '.watch_collection'
+            folder.mkdir()
+            partial = folder / 'measurements.partial'
+            partial.mkdir()
+            for name in ('spacr.duckdb', 'STORE_VERSION', 'tables', 'rows'):
+                item = source.parent / name
+                if item.is_dir():
+                    shutil.copytree(item, partial / name)
+                elif item.is_file():
+                    shutil.copy2(item, partial / name)
+            os.replace(partial, folder / 'measurements')
         return
     if _watch_file_identity(source) is None:
         raise ValueError('Collection producer database is not a regular file.')
@@ -3962,9 +4039,14 @@ def _watch_run_field(key, members, signature, context):
             vendor=entry.get('vendor_sha256'))
         _watch_check_map(context)
         database_relative = '.watch_collection/measurements.db'
+        checkpointed = entry['collection_checkpoint']['artifacts']
         database_snapshot = (os.path.join(field_dir, database_relative)
-                             if database_relative in entry['collection_checkpoint']['artifacts']
-                             else None)
+                             if database_relative in checkpointed else None)
+        if database_snapshot is None and any(
+                name.startswith('.watch_collection/measurements/')
+                for name in checkpointed):
+            database_snapshot = os.path.join(field_dir, '.watch_collection',
+                                             'measurements')
         _watch_collect(field_dir, context['work'], key, database_snapshot=database_snapshot)
     except PipelineCancelled:
         entry.update(status='interrupted', finished=time.time())

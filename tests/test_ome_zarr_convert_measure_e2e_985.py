@@ -12,6 +12,8 @@ Generation writes. The converter must handle these defaults without changing the
 from __future__ import annotations
 
 import hashlib
+
+from tests import store_sql
 import shutil
 import sqlite3
 from pathlib import Path
@@ -43,7 +45,7 @@ def _crops(root: Path, table: pd.DataFrame):
 
 
 def _table(root: Path) -> pd.DataFrame:
-    with sqlite3.connect(str(root / "measurements" / "measurements.db")) as conn:
+    with store_sql.connect(str(root / "measurements" / "measurements.db")) as conn:
         return pd.read_sql("SELECT * FROM ssCell_Crops", conn)
 
 
@@ -53,6 +55,9 @@ def converted(tmp_path_factory):
 
     base = tmp_path_factory.mktemp("e2e985")
     png = _measure(base / "png", "png")
+    # Unified store, step S4: the converter takes an older PNG project, whose
+    # measurements are a measurements.db.
+    store_sql.to_legacy(png / "measurements" / "measurements.db")
     native = _measure(base / "native", "ome-zarr")
     import json
 

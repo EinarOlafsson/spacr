@@ -315,7 +315,8 @@ def test_a_table_run_and_a_measure_run_agree(tmp_path, drawn):
         {path for path in a_tree if path.startswith("data" + os.sep)}
     assert {path for path in b_tree if path.startswith("merged" + os.sep)} <= \
         {path for path in a_tree if path.startswith("merged" + os.sep)}
-    assert "measurements" + os.sep + "measurements.db" in a_tree
+    # Unified store, step S4: the measurements are the spaCR store.
+    assert "measurements" + os.sep + "spacr.duckdb" in a_tree
 
     with store_sql.connect(a_db) as first, store_sql.connect(b_db) as second:
         query = ('select prcf, object_label, cell_area, '
