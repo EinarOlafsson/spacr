@@ -48,16 +48,16 @@ def test_an_object_wide_enough_for_every_offset_is_unchanged():
     labels, image = _field()
     table = M._calculate_homogeneity(labels, image, [8, 16, 32])
     for column, d in zip(table.columns, (8, 16, 32)):
-        assert table.loc[0, column] == _reference(labels, image, 1, d)
+        assert table.loc[0, column] == pytest.approx(_reference(labels, image, 1, d), rel=1e-12)
 
 
 def test_a_small_object_is_read_at_its_widest_horizontal_offset():
     labels, image = _field()
     table = M._calculate_homogeneity(labels, image, [8, 32])
     # The 11-px disc keeps d=8 and reads d=32 at offset 10.
-    assert table.loc[1, 'homogeneity_distance_8'] == _reference(labels, image, 2, 8)
-    assert table.loc[1, 'homogeneity_distance_32'] == _reference(labels, image, 2, 10)
-    assert table.loc[2, 'homogeneity_distance_32'] == _reference(labels, image, 3, 2)
+    assert table.loc[1, 'homogeneity_distance_8'] == pytest.approx(_reference(labels, image, 2, 8), rel=1e-12)
+    assert table.loc[1, 'homogeneity_distance_32'] == pytest.approx(_reference(labels, image, 2, 10), rel=1e-12)
+    assert table.loc[2, 'homogeneity_distance_32'] == pytest.approx(_reference(labels, image, 3, 2), rel=1e-12)
     # A one-pixel-wide object has no horizontal pair: homogeneity 1 by rule.
     assert table.loc[3, 'homogeneity_distance_8'] == 1.0
 

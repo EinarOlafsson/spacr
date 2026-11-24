@@ -6658,8 +6658,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     docs = _documentation_public_docstrings()
     from tests.test_documentation_i18n import _navigator_input_identity_arrival
     _navigator_input_identity_arrival(docs)
-    from tests.test_documentation_i18n import _retired_732_remote_api, _retired_801_mask_worker_api
-    historical_docs = docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
+    from tests.test_documentation_i18n import (
+        _retired_0ab2_measure_api, _retired_732_remote_api, _retired_801_mask_worker_api)
+    historical_docs = (docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
+                       | _retired_0ab2_measure_api(docs))
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")

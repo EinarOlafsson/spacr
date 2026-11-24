@@ -239,8 +239,10 @@ def test_documented_parameter_names_match_the_source_signatures():
 def test_public_docstrings_matches_reviewed_visible_coverage():
     """Bind exact source arrivals before comparing the historical API surface."""
     docs = builder.public_docstrings()
-    from tests.test_documentation_i18n import _retired_732_remote_api, _retired_801_mask_worker_api
-    historical_docs = docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
+    from tests.test_documentation_i18n import (
+        _retired_0ab2_measure_api, _retired_732_remote_api, _retired_801_mask_worker_api)
+    historical_docs = (docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
+                       | _retired_0ab2_measure_api(docs))
     dunders = _visible_special_members()
     metal_iterator_arrival = json.loads((ROOT / "tests/data/release_contracts"
         / "718_metal_loader_iterator_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))

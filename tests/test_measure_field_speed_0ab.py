@@ -1,7 +1,10 @@
 """Item 0ab: the faster per-field measurement core gives the values it gave before.
 
 Every speed-up in :mod:`spacr.measure` for item 0ab replaces a computation by
-one that must return the same floats, bit for bit. Each test below pits a
+one that returns the same floats, or (by the maintainer's rule for
+development changes, from the second part of the item on) floats equal
+within float32 rounding with each column's ranks and NaN unchanged. Each
+test below pits a
 new path against the code it replaced (kept here as the reference, or
 called from the library it bypasses) on data built to hit ties, empty
 objects and edge cases. The last test measures the four Funk et al. 2022
@@ -100,23 +103,23 @@ def test_the_compiled_reconstruction_is_skimages_to_the_bit(seed):
         reconstruction(seed_plane, mask, method='dilation'))
 
 
-def test_the_glcm_homogeneity_is_skimages_to_the_bit():
+def test_the_glcm_homogeneity_is_skimages():
     from skimage.feature import graycomatrix, graycoprops
 
     rng = np.random.default_rng(3)
+    kernel = M._compiled(M._homogeneity_kernel)
     for _ in range(400):
         h, w = rng.integers(1, 40, 2)
         image = (rng.random((h, w)) ** rng.uniform(0.2, 3) * 256).astype(np.uint8)
         if rng.random() < 0.3:
             image[rng.random((h, w)) < 0.5] = 0
-        for offset in (1, 2, 4, 8):
-            if offset >= w:
-                continue
-            glcm = graycomatrix(image, [offset], [0], symmetric=True, normed=True)
-            expected = (np.nan if not np.any(glcm)
-                        else graycoprops(glcm, 'homogeneity')[0, 0])
-            got = M._glcm_homogeneity(image, offset)
-            assert got == expected or (np.isnan(got) and np.isnan(expected))
+        offsets = np.array([o for o in (1, 2, 4, 8) if o < w], dtype=np.int64)
+        got = np.empty(offsets.size)
+        kernel(image, offsets, got)
+        for offset, value in zip(offsets, got):
+            glcm = graycomatrix(image, [int(offset)], [0], symmetric=True, normed=True)
+            expected = graycoprops(glcm, 'homogeneity')[0, 0]
+            assert value == pytest.approx(expected, rel=1e-12, abs=0)
 
 
 def test_the_unwrapped_scipy_statistics_match_the_wrapped_ones():
@@ -277,6 +280,34 @@ _STAGE = Path("/mnt/firecuda2/codex/scratch-docs/claude-0ab")
 _SITES = (357, 575, 713, 1078)
 
 
+def assert_tables_equivalent(table, expected):
+    """Every column as before within float32 rounding, ranks kept, NaN in place.
+
+    The maintainer's rule for development changes: per column the same
+    dtype, NaN in the same places, every finite difference within ``1e-6 *
+    |value| + 1e-7 * SD`` of the column, and a Spearman correlation with
+    the reference of at least 0.99999 for a column that is not identical.
+    """
+    from scipy.stats import spearmanr
+
+    assert list(table.columns) == list(expected.columns)
+    for column in expected.columns:
+        got = table[column].to_numpy()
+        want = expected[column].to_numpy()
+        assert got.dtype == want.dtype, column
+        got = got.astype(float)
+        want = want.astype(float)
+        missing = np.isnan(want)
+        assert np.array_equal(np.isnan(got), missing), column
+        got, want = got[~missing], want[~missing]
+        if not want.size or np.array_equal(got, want):
+            continue
+        tolerance = 1e-6 * np.abs(want) + 1e-7 * np.std(want)
+        assert np.all(np.abs(got - want) <= tolerance), column
+        if np.ptp(want) > 0:
+            assert spearmanr(got, want)[0] >= 0.99999, column
+
+
 @pytest.mark.parametrize("site", _SITES)
 def test_the_a1_check_fields_measure_to_the_same_table(site):
     field = _STAGE / "fields" / f"site-{site}.npz"
@@ -298,8 +329,6 @@ def test_the_a1_check_fields_measure_to_the_same_table(site):
             ops_engine._ph_granularity_subsample(settings) or 1.0),
         cytoskeleton_channels=settings.get("ops_ph_cytoskeleton_channels"))
     expected = pd.read_parquet(reference)
-    assert list(table.columns) == list(expected.columns)
     assert len(table.columns) >= 2799
-    pd.testing.assert_frame_equal(table.reset_index(drop=True),
-                                  expected.reset_index(drop=True),
-                                  check_exact=True)
+    assert_tables_equivalent(table.reset_index(drop=True),
+                             expected.reset_index(drop=True))
