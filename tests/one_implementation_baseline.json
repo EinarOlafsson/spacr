@@ -25,6 +25,27 @@
    "spacr/qt/annotate_engine.py": 1,
    "spacr/qt/mask_engine.py": 2
   },
+  "column_standardise": {
+   "spacr/active_learning.py": 1,
+   "spacr/attribution.py": 1,
+   "spacr/batch_correction.py": 5,
+   "spacr/embeddings.py": 3,
+   "spacr/gene_measurement_compare.py": 2,
+   "spacr/gene_measurement_sweep.py": 2,
+   "spacr/guide_attribution.py": 2,
+   "spacr/merge_tables.py": 2,
+   "spacr/ops_feature_info.py": 1,
+   "spacr/ops_sbs.py": 2,
+   "spacr/ops_tvn.py": 4,
+   "spacr/power_model.py": 1,
+   "spacr/qt/widgets/gate_spec.py": 1,
+   "spacr/qt/widgets/pca_model.py": 4,
+   "spacr/regression_diagnostics.py": 2,
+   "spacr/sp_stats.py": 2,
+   "spacr/sudoku.py": 1,
+   "spacr/suggest.py": 1,
+   "spacr/well_set_training.py": 1
+  },
   "cytoplasm_derivation": {
    "spacr/qt/mask_engine.py": 1
   },
@@ -50,6 +71,10 @@
   "gpu_memory_cap": {
    "spacr/gene_graph.py": 1,
    "spacr/gene_knowledge.py": 1
+  },
+  "label_pair_contingency": {
+   "spacr/seg_qc.py": 1,
+   "spacr/zstack.py": 1
   },
   "label_relabel_sequential": {
    "spacr/measure.py": 1
@@ -144,10 +169,9 @@
   "pca": {
    "spacr/gene_graph.py": 1,
    "spacr/gene_knowledge.py": 2,
-   "spacr/gene_measurement_compare.py": 3,
+   "spacr/gene_measurement_compare.py": 2,
    "spacr/hit_investigation.py": 1,
    "spacr/merge_tables.py": 1,
-   "spacr/ops_clusters.py": 1,
    "spacr/sp_stats.py": 2,
    "spacr/timelapse.py": 2,
    "spacr/utils.py": 1
@@ -298,17 +322,19 @@
   "cellpose_governed_eval": 2,
   "cellpose_model_construction": 10,
   "classical_threshold": 13,
+  "column_standardise": 38,
   "cytoplasm_derivation": 1,
   "duckdb_connect": 0,
   "fdr_adjust": 0,
   "feature_standardise": 22,
   "gpu_memory_cap": 2,
+  "label_pair_contingency": 2,
   "label_relabel_sequential": 1,
   "measurements_db_path": 170,
   "nucleus_cell_ownership": 0,
   "object_regionprops_table": 44,
   "parquet_write": 10,
-  "pca": 14,
+  "pca": 12,
   "phate_leiden": 0,
   "process_pool": 5,
   "raster_decode": 116,

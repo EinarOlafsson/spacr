@@ -234,9 +234,16 @@ def test_streamed_tvn_is_the_pilots_streamed_tvn(sample):
     reference = _pilot_streamed([(r[0], r[1], r[2], r[3]) for r in rows], sample=sample)
     model = ops_tvn.fit_tvn_streamed([r[0] for r in rows], _reader(rows), pca_sample=sample,
                                      whiten_epsilon=0.0)
+    # The pilot standardises each well with float32 sums; spaCR takes the
+    # same statistics from ops_tvn.batch_mean_sd in float64 (merge 6), so the
+    # components agree to rounding, not bit for bit.
     for r, ref in zip(rows, reference):
         got = model.transform(r[1][~r[3]], r[0])
-        np.testing.assert_array_equal(got, ref)
+        assert got.shape == ref.shape
+        for j in range(ref.shape[1]):
+            assert abs(np.corrcoef(got[:, j], ref[:, j])[0, 1]) >= 0.999999
+        scale = float(ref.astype(np.float64).std(0).max())
+        assert float(np.abs(got.astype(np.float64) - ref).max()) < 2e-3 * scale
     assert model.info["axes"] == reference[0].shape[1]
 
 

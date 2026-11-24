@@ -1904,11 +1904,9 @@ def _control_rows(names: Sequence, control_prefix: str = "nontargeting"
 class _RowEmbedder:
     """Standardise the gene rows and keep the PCs holding ``variance``.
 
-    The transform is fitted on the gene rows and kept, so guide rows of the
-    same feature space land in the same embedding. It is the embedding of
-    Brieflow's ``funk_benchmark.py``: columns with 5 % or more non-finite
-    values are dropped, the rest median-imputed, standardised (columns with
-    no spread dropped) and reduced by PCA to ``variance``.
+    :class:`spacr.ops_reference._GeneEmbedding` under the name this module
+    calls: the transform is fitted on the gene rows and kept, and calling
+    the object embeds guide rows of the same feature space with it.
     """
 
     def __init__(self, values, variance: float = 0.99, seed: int = 0):
@@ -1918,19 +1916,10 @@ class _RowEmbedder:
         :param variance: the share of variance the PCA keeps.
         :param seed: the PCA seed.
         """
-        from sklearn.decomposition import PCA
+        from .ops_reference import _GeneEmbedding
 
-        x = np.asarray(values, float)
-        x = np.where(np.isfinite(x), x, np.nan)
-        self.keep = np.isnan(x).mean(axis=0) < 0.05
-        x = x[:, self.keep]
-        self.median = np.nanmedian(x, axis=0)
-        x = np.where(np.isnan(x), self.median, x)
-        spread = x.std(axis=0)
-        self.ok = spread > 0
-        self.mean, self.sd = x[:, self.ok].mean(axis=0), spread[self.ok]
-        self.pca = PCA(n_components=variance, random_state=seed)
-        self.rows = self.pca.fit_transform((x[:, self.ok] - self.mean) / self.sd)
+        self._fitted = _GeneEmbedding(values, variance, seed)
+        self.rows = self._fitted.rows
 
     def __call__(self, values) -> np.ndarray:
         """Embed other rows with the fitted transform.
@@ -1938,9 +1927,7 @@ class _RowEmbedder:
         :param values: rows of the same feature columns.
         :returns: the embedded rows.
         """
-        x = np.asarray(values, float)[:, self.keep]
-        x = np.where(np.isfinite(x), x, self.median)
-        return self.pca.transform((x[:, self.ok] - self.mean) / self.sd)
+        return self._fitted.transform(values)
 
 
 def contrastive_weighting(genes: pd.DataFrame, guides: pd.DataFrame,

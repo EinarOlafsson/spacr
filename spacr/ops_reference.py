@@ -601,21 +601,38 @@ class _GeneEmbedding:
     PCA, as the plate A Hybrid profile's harness does.
     """
 
-    def __init__(self, values, variance: float = 0.99, seed: int = 0):
-        """Fit the embedding on ``values`` (rows by features) and keep the fitted rows as ``rows``."""
+    def __init__(self, values, variance: float = 0.99, seed: int = 0, *,
+                 rows_from: str = "fit_transform"):
+        """Fit the embedding on ``values`` (rows by features) and keep the fitted rows as ``rows``.
+
+        :param rows_from: how ``rows`` is computed from the fitted PCA:
+            ``'fit_transform'`` (one call, as Brieflow does) or
+            ``'transform'`` (``fit`` and then ``transform`` of the same
+            rows, as :func:`spacr.ops_clusters.embed_profiles` does); the
+            two agree to floating-point rounding.
+        :raises ValueError: for an unknown ``rows_from``.
+        """
         from sklearn.decomposition import PCA
 
+        from .ops_tvn import _column_mean_sd
+
+        if rows_from not in ("fit_transform", "transform"):
+            raise ValueError(f"rows_from must be 'fit_transform' or 'transform'; got {rows_from!r}")
         x = np.asarray(values, dtype=float)
         x = np.where(np.isfinite(x), x, np.nan)
         self.keep = np.isnan(x).mean(axis=0) < 0.05
         x = x[:, self.keep]
         self.fill = np.nanmedian(x, axis=0)
         x = np.where(np.isnan(x), self.fill, x)
-        spread = x.std(axis=0)
+        mean, spread = _column_mean_sd(x, zero_sd="keep")
         self.varying = spread > 0
-        self.mean, self.spread = x[:, self.varying].mean(axis=0), spread[self.varying]
+        self.mean, self.spread = mean[self.varying], spread[self.varying]
         self.pca = PCA(n_components=variance, random_state=seed)
-        self.rows = self.pca.fit_transform((x[:, self.varying] - self.mean) / self.spread)
+        scaled = (x[:, self.varying] - self.mean) / self.spread
+        if rows_from == "fit_transform":
+            self.rows = self.pca.fit_transform(scaled)
+        else:
+            self.rows = self.pca.fit(scaled).transform(scaled)
 
     def transform(self, values) -> np.ndarray:
         """Rows of the fitted columns in the fitted components, double precision."""

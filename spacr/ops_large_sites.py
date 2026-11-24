@@ -677,6 +677,27 @@ def segment_tiled(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray]
     return labels if padded == shape else relabel_raster(labels[:shape[0], :shape[1]])
 
 
+def _pair_overlaps(first: np.ndarray, second: np.ndarray
+                   ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Object areas and pair overlaps of two label images of one field.
+
+    The pairs come from :func:`spacr.measure._label_overlaps`, the one
+    overlap count of spaCR, sorted by the first label and then the second.
+
+    :param first: a label image.
+    :param second: a label image of the same shape.
+    :returns: ``(first_flat, area_first, area_second, pairs, overlap)``:
+        the first image flattened to int64, the pixel count of every label
+        value (``np.bincount``), a ``2 x n`` array of the label pairs that
+        share pixels, and their shared pixel counts.
+    """
+    from .measure import _label_overlaps
+
+    a, b = np.asarray(first).ravel().astype(np.int64), np.asarray(second).ravel().astype(np.int64)
+    label_a, label_b, overlap = _label_overlaps(a, b)
+    return a, np.bincount(a), np.bincount(b), np.stack([label_a, label_b]), overlap
+
+
 def tiling_control(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray], *,
                    tile_px: int, overlap_px: int, iou: float = 0.5,
                    align: bool = False,
@@ -716,12 +737,9 @@ def tiling_control(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray
     for y0, y1, x0, x1 in layout["boxes"]:
         cover[y0:y1, x0:x1] += 1
     seam = cover[:shape[0], :shape[1]] > 1
-    a, b = untiled.ravel().astype(np.int64), tiled.ravel().astype(np.int64)
-    area_a, area_b = np.bincount(a), np.bincount(b)
+    a, area_a, area_b, pairs, counts = _pair_overlaps(untiled, tiled)
     on_seam = np.zeros(area_a.size, bool)
     on_seam[np.unique(a[seam.ravel()])] = True
-    both = (a > 0) & (b > 0)
-    pairs, counts = np.unique(np.stack([a[both], b[both]]), axis=1, return_counts=True)
     best = np.zeros(area_a.size)
     identical = np.zeros(area_a.size, bool)
     for (i, j), n in zip(pairs.T, counts):
@@ -1714,11 +1732,8 @@ def mask_agreement(labels: np.ndarray, reference: np.ndarray, *, iou: float = 0.
     if drop_edge:
         labels, _ = apply_edge_policy(labels, "exclude")
         reference, _ = apply_edge_policy(reference, "exclude")
-    a, b = labels.ravel().astype(np.int64), reference.ravel().astype(np.int64)
-    ids_a, ids_b = np.unique(a[a > 0]), np.unique(b[b > 0])
-    area_a, area_b = np.bincount(a), np.bincount(b)
-    both = (a > 0) & (b > 0)
-    pairs, counts = np.unique(np.stack([a[both], b[both]]), axis=1, return_counts=True)
+    a, area_a, area_b, pairs, counts = _pair_overlaps(labels, reference)
+    ids_a, ids_b = np.flatnonzero(area_a[1:]) + 1, np.flatnonzero(area_b[1:]) + 1
     scores = (counts / (area_a[pairs[0]] + area_b[pairs[1]] - counts)) if counts.size else np.array([])
     hit = scores >= iou
     matched = int(hit.sum())
@@ -1779,10 +1794,7 @@ def _split_merge(labels: np.ndarray, reference: np.ndarray) -> Dict[str, int]:
     """
     labels, _ = apply_edge_policy(labels, "exclude")
     reference, _ = apply_edge_policy(reference, "exclude")
-    a, b = labels.ravel().astype(np.int64), reference.ravel().astype(np.int64)
-    area_a, area_b = np.bincount(a), np.bincount(b)
-    both = (a > 0) & (b > 0)
-    pairs, counts = np.unique(np.stack([a[both], b[both]]), axis=1, return_counts=True)
+    _, area_a, area_b, pairs, counts = _pair_overlaps(labels, reference)
     a_major = counts > 0.5 * area_a[pairs[0]]
     b_major = counts > 0.5 * area_b[pairs[1]]
     per_ref = np.bincount(pairs[1][a_major], minlength=area_b.size)
