@@ -74,10 +74,12 @@ from .merge_tables import (
 from .multi_database import (
     SCREEN_COLUMN,
     SOURCE_COLUMN,
+    MergeCancelled,
     MergePlan,
     MergeRefused,
     describe_merge,
     read_merged,
+    source_labels,
 )
 from .object_roles import ONE_ROW_PER_CELL, anchor_column, is_one_row_per_cell
 
@@ -114,7 +116,7 @@ class PlateDatabase:
         that a database that has been moved is named up front, not four
         minutes into a regression.
         """
-        return bool(self.path) and os.path.isfile(self.path)
+        return bool(self.path) and os.path.exists(self.path)
 
 
 @dataclass(frozen=True)
@@ -822,3 +824,660 @@ def merge_plate_databases(attachments: Any, tables: Sequence[str] = (), *,
         records[0].plan.screens) if records else ()
     merged.attrs["refused_identifiers"] = dict(refused_identifiers)
     return result
+
+
+_MERGE_ROW = "merge_row"
+
+_ALWAYS_KEPT: Tuple[str, ...] = _UNPREFIXED + (
+    "object_key", "plate", "well", "wellID", "prcfo", "prcf", "prc", "file_name",
+    "png_path", "cell_id", "nucleus_id", "pathogen_id", "parent_id")
+
+_CHUNK_ROWS = 50_000
+
+_PART_ROWS = 4096
+
+_TABLE_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9_]*$")
+
+
+def _merge_sources(paths: Sequence[str], labels: Any) -> Tuple[List[str], List[str], List[str]]:
+    """The projects of a merge, located, and one label for each.
+
+    :param paths: project folders, run folders or ``measurements.db`` files.
+    :param labels: None, a sequence parallel to ``paths``, or a mapping from
+        path to label; a blank label takes the default.
+    :returns: the located paths, the default labels and the chosen labels.
+    :raises MergeRefused: no project, one project given twice, a label list
+        of the wrong length, or one label for two projects.
+    """
+    from . import store
+
+    if isinstance(paths, (str, os.PathLike)):
+        paths = [paths]
+    given = [str(path) for path in paths]
+    if not given:
+        raise MergeRefused("choose at least one project to merge")
+    located = [store.locate(path) for path in given]
+    seen: Dict[str, str] = {}
+    for path, where in zip(given, located):
+        real = os.path.realpath(where)
+        if real in seen:
+            raise MergeRefused(
+                f"{seen[real]} and {path} are the same project. Each project "
+                "can be merged once, or its rows would be counted twice.")
+        seen[real] = path
+    automatic = list(source_labels(located))
+    if labels is None:
+        chosen = list(automatic)
+    elif isinstance(labels, Mapping):
+        chosen = [str(labels.get(path) or labels.get(where) or "").strip()
+                  or label for path, where, label
+                  in zip(given, located, automatic)]
+    else:
+        listed = list(labels)
+        if len(listed) != len(given):
+            raise MergeRefused(
+                f"{len(listed)} label(s) for {len(given)} project(s); give "
+                "one label per project, in the same order.")
+        chosen = [str(text or "").strip() or label
+                  for text, label in zip(listed, automatic)]
+    repeated = sorted({label for label in chosen if chosen.count(label) > 1})
+    if repeated:
+        raise MergeRefused(
+            f"more than one project has the label {', '.join(repeated)}; "
+            "give each project its own label.")
+    return located, automatic, chosen
+
+
+def _kept_apart(located: Sequence[str], table: str, automatic: Sequence[str],
+                chosen: Sequence[str]) -> Tuple[Optional[List[str]], Dict[str, Tuple[str, ...]]]:
+    """Whether two projects share a plate name, and the labels that part them.
+
+    :param located: the located project paths.
+    :param table: the table whose plate names are compared.
+    :param automatic: the default label of each project.
+    :param chosen: the label of each project.
+    :returns: the screen label per project (None when no plate name repeats)
+        and ``{plate: (labels of the projects that hold it)}``.
+    """
+    plan = describe_merge(list(located), table)
+    names = dict(zip(automatic, chosen))
+    clashes = {plate: tuple(names.get(label, label) for label in labels)
+               for plate, labels in plan.colliding_plates.items()}
+    return (list(chosen) if clashes else None), clashes
+
+
+def _refuse_absent(located: Sequence[str], chosen: Sequence[str],
+                   table: str) -> None:
+    """Refuse a table that one of the projects does not hold.
+
+    :param located: the located project paths.
+    :param chosen: the label of each project.
+    :param table: the table to read from every project.
+    :raises MergeRefused: naming the projects without it.
+    """
+    from . import store
+
+    missing = []
+    for path, label in zip(located, chosen):
+        with store.open(path, verify="none") as opened:
+            if table not in opened.tables():
+                missing.append(label)
+    if missing:
+        raise MergeRefused(
+            f"{', '.join(missing)} has no table {table!r}; every project in "
+            "a merge must hold the table.")
+
+
+def _pruned(frame: pd.DataFrame, keep: Optional[Sequence[str]]) -> pd.DataFrame:
+    """``frame`` with only the ``keep`` columns and the identity columns.
+
+    :param frame: the merged rows.
+    :param keep: the columns to keep, or None for every column.
+    :returns: the narrowed frame, in its own column order.
+    """
+    if keep is None:
+        return frame
+    wanted = set(keep) | set(_ALWAYS_KEPT)
+    return frame[[column for column in frame.columns if column in wanted]]
+
+
+def _merge_keys(columns: Sequence[str]) -> List[str]:
+    """The columns that together name one row of a merged object table.
+
+    :param columns: the merged columns.
+    :returns: the key columns present, in key order.
+    """
+    present = set(columns)
+    return [column for column in (SOURCE_COLUMN, SCREEN_COLUMN, *IDENTITY,
+                                  "timeID", "time_id", OBJECT_COLUMN)
+            if column in present]
+
+
+def _merge_summary(counts: Mapping[str, int], how: str, tables: Sequence[str],
+                   chosen: Sequence[str],
+                   clashes: Mapping[str, Tuple[str, ...]],
+                   dropped: Sequence[str] = (), repeated: int = 0) -> List[str]:
+    """What a merge did, in plain sentences for the person who asked for it.
+
+    :param counts: the rows of each project label.
+    :param how: ``'stack'`` or ``'join'``.
+    :param tables: the merged tables.
+    :param chosen: the project labels.
+    :param clashes: ``{plate: labels}`` of plate names held by more than one
+        project.
+    :param dropped: columns left out because only some projects have them.
+    :param repeated: rows whose key another row shares.
+    :returns: the sentences.
+    """
+    total = sum(int(counts.get(label, 0)) for label in chosen)
+    per = ", ".join(f"{label} {int(counts.get(label, 0)):,}" for label in chosen)
+    way = ("rows of " + tables[0] + " stacked" if how == "stack" else
+           ", ".join(tables) + " joined on object keys")
+    lines = [f"{total:,} rows from {len(chosen)} project(s), {way}: {per}."]
+    for plate, labels in sorted(clashes.items()):
+        lines.append(
+            f"Plate {plate} is in {' and '.join(labels)}. Their rows stay "
+            f"apart: {SOURCE_COLUMN} names the project and {SCREEN_COLUMN} "
+            "carries the same label, so no two rows share a key.")
+    if dropped:
+        lines.append(
+            f"{len(dropped)} column(s) are in only some projects and were left "
+            "out: " + ", ".join(dropped[:6]) + (" ..." if len(dropped) > 6 else ""))
+    if repeated:
+        lines.append(f"{int(repeated):,} rows repeat a key; the projects hold "
+                     "repeated objects.")
+    return lines
+
+
+def _repeated_keys(frame: pd.DataFrame) -> int:
+    """How many rows of a merged object table share their key with another.
+
+    :param frame: merged rows.
+    :returns: the count; 0 when the rows are not objects.
+    """
+    keys = _merge_keys(frame.columns)
+    if OBJECT_COLUMN not in keys:
+        return 0
+    return int(frame.duplicated(keys, keep=False).sum())
+
+
+def merge_projects(paths: Sequence[str], tables: Any, *, how: str = "stack",
+                   anchor: Optional[str] = None, labels: Any = None,
+                   columns: str = "union",
+                   keep: Optional[Sequence[str]] = None,
+                   policy: Optional[MergePolicy] = None,
+                   limit_per_source: Optional[int] = None,
+                   report: Optional[Callable[[str], None]] = None) -> pd.DataFrame:
+    """Merge tables from one or more projects into one frame.
+
+    Each project is a spaCR store project or an older ``measurements.db``.
+    ``how='stack'`` puts the rows of one table from every project together
+    (:func:`spacr.multi_database.read_merged`); ``how='join'`` joins the
+    object tables of each project on their object keys, one row per anchor
+    object, and stacks the projects (:func:`merge_plate_databases`).
+
+    Every row carries its project label in
+    :data:`spacr.multi_database.SOURCE_COLUMN`. When two projects hold a
+    plate of the same name, the label is also written to
+    :data:`spacr.multi_database.SCREEN_COLUMN`, so the two plates stay apart
+    and every row key stays unique; ``frame.attrs['kept_apart']`` names
+    those plates.
+
+    :param paths: the projects: store project folders, run folders or
+        ``measurements.db`` files.
+    :param tables: for ``'stack'``, the one table to stack; for ``'join'``,
+        the object tables to join.
+    :param how: ``'stack'`` or ``'join'``.
+    :param anchor: for ``'join'``, the table one row stands for; the first
+        one-row-per-cell table chosen, or ``cell``, when None.
+    :param labels: a label per project (a sequence parallel to ``paths`` or
+        a mapping from path); None or a blank label uses
+        :func:`spacr.multi_database.source_labels`.
+    :param columns: ``'union'`` keeps a column any project has, with blanks
+        where a project lacks it; ``'common'`` keeps only the columns every
+        project has.
+    :param keep: the columns to keep, or None for every column; the identity
+        columns are always kept.
+    :param policy: for ``'join'``, how child tables are rolled up.
+    :param limit_per_source: for ``'stack'``, read at most this many rows of
+        each project, for a preview.
+    :param report: called with one line per thing the merge cost.
+    :returns: the merged rows. ``attrs`` holds ``summary`` (plain sentences),
+        ``kept_apart``, ``labels``, ``key_columns``, ``how`` and ``tables``.
+    :raises MergeRefused: when the merge cannot be done as asked; the
+        message says why.
+    """
+    located, automatic, chosen = _merge_sources(paths, labels)
+    names = [tables] if isinstance(tables, str) else list(dict.fromkeys(tables or ()))
+    if not names:
+        raise MergeRefused("choose the table(s) to merge")
+    if how == "stack":
+        if len(names) != 1:
+            raise MergeRefused(
+                "stacking puts the rows of one table from each project "
+                "together; choose one table, or join them instead.")
+        table = names[0]
+        _refuse_absent(located, chosen, table)
+        screens, clashes = _kept_apart(located, table, automatic, chosen)
+        plan = describe_merge(located, table, screens=screens)
+        frame = read_merged(located, table, plan=plan, columns=columns,
+                            screens=screens, report=report,
+                            limit_per_source=limit_per_source)
+        merged_tables = [table]
+    elif how == "join":
+        if anchor is None:
+            anchor = next((t for t in names if is_one_row_per_cell(t)),
+                          (policy or MergePolicy()).primary)
+        screens, clashes = _kept_apart(located, anchor, automatic, chosen)
+        result = merge_plate_databases(
+            dict(zip(chosen, located)), [t for t in names if t != anchor],
+            anchor=anchor, policy=policy,
+            screens=dict(zip(chosen, chosen)) if screens else None,
+            columns=columns, report=report)
+        frame = result.frame
+        merged_tables = [entry.table for entry in result.tables]
+    else:
+        raise MergeRefused(f"how must be 'stack' or 'join', got {how!r}")
+    attrs = dict(frame.attrs)
+    if SOURCE_COLUMN in frame.columns:
+        frame[SOURCE_COLUMN] = frame[SOURCE_COLUMN].map(
+            dict(zip(automatic, chosen))).fillna(frame[SOURCE_COLUMN])
+    frame = _pruned(frame, keep)
+    frame.attrs.update(attrs)
+    frame.attrs.update({
+        "how": how, "tables": tuple(merged_tables), "labels": tuple(chosen),
+        "kept_apart": dict(clashes),
+        "key_columns": tuple(_merge_keys(frame.columns)),
+        "summary": tuple(_merge_summary(
+            frame[SOURCE_COLUMN].value_counts().to_dict()
+            if SOURCE_COLUMN in frame.columns else {}, how, merged_tables,
+            chosen, clashes, tuple(attrs.get("dropped_columns", ())),
+            _repeated_keys(frame)))})
+    return frame
+
+
+def _merge_target(project: Any, name: str) -> str:
+    """The store project a merged table is saved in, checked.
+
+    :param project: a store project folder, its ``spacr.duckdb``, or a new or
+        empty folder.
+    :param name: the new table name.
+    :returns: the project folder.
+    :raises MergeRefused: for a bad name, a table that exists, or a project
+        that holds only an older ``measurements.db``.
+    """
+    from . import store
+
+    if not _TABLE_NAME.match(str(name or "")):
+        raise MergeRefused(
+            f"{name!r} cannot be a table name; use letters, digits and _, "
+            "starting with a letter.")
+    folder = os.path.abspath(os.fspath(project))
+    if os.path.basename(folder) == store.CATALOG:
+        folder = os.path.dirname(folder)
+    if os.path.isfile(os.path.join(folder, store.CATALOG)):
+        with store.open(folder, verify="none") as opened:
+            if name in opened.tables():
+                raise MergeRefused(
+                    f"{folder} already has a table named {name}; choose "
+                    "another name.")
+        return folder
+    try:
+        found = store.locate(folder)
+    except FileNotFoundError:
+        found = None
+    if found is not None and not os.path.isdir(found):
+        raise MergeRefused(
+            f"{folder} holds an older measurements.db, which cannot take a "
+            "new table. Save into a store project or an empty folder.")
+    if found is not None and os.path.isfile(os.path.join(found, store.CATALOG)):
+        return _merge_target(found, name)
+    return folder
+
+
+def _stacked_chunks(plan: MergePlan, table: str, columns: str,
+                    keep: Optional[Sequence[str]], chunk_rows: int,
+                    cancelled: Optional[Callable[[], bool]]):
+    """The rows of a stack merge, a chunk at a time, as :func:`merge_projects` gives them.
+
+    A store project is paged by key (:meth:`spacr.store.Store.page`); an
+    older file by ``rowid``, through :func:`spacr.store.read_frame`. Only
+    the columns the merge keeps are read.
+
+    :param plan: the merge plan, its screens applied.
+    :param table: the table.
+    :param columns: ``'union'`` or ``'common'``.
+    :param keep: the columns to keep, or None.
+    :param chunk_rows: rows per chunk.
+    :param cancelled: called before each chunk; True stops the merge.
+    :yields: stamped chunks with canonical column names.
+    :raises MergeCancelled: when ``cancelled()`` answered true.
+    """
+    from . import schema
+    from .multi_database import _ALWAYS_KEPT as _PLAN_KEPT
+    from .multi_database import _canonical_columns, _stamped
+    from .store_browse import StoreDb
+
+    held = (set(plan.common_columns) | set(_PLAN_KEPT)
+            if columns == "common" else None)
+    for source in plan.sources:
+        db = StoreDb(source.path)
+        names = _canonical_columns(source.columns)
+        wanted = set(keep) | set(_ALWAYS_KEPT) if keep is not None else None
+        read = [stored for stored, canonical in names.items()
+                if (wanted is None or canonical in wanted)
+                and (held is None or canonical in held)]
+        for raw in _source_chunks(db, table, read, chunk_rows, cancelled):
+            raw = raw[[c for c in source.columns if c in raw.columns]]
+            frame = schema.canonicalise_frame(raw, report=None, warn=None,
+                                              repair_plate_ids=True)
+            yield _pruned(_stamped(frame, source, plan, held, "refuse"), keep)
+
+
+def _source_chunks(db: Any, table: str, columns: List[str], chunk_rows: int,
+                   cancelled: Optional[Callable[[], bool]]):
+    """One table of one project, ``chunk_rows`` rows at a time, keyset paged.
+
+    :param db: a :class:`spacr.store_browse.StoreDb` on the project.
+    :param table: the table.
+    :param columns: the stored columns to read.
+    :param chunk_rows: rows per chunk.
+    :param cancelled: called before each chunk; True stops the merge.
+    :yields: DataFrames of at most ``chunk_rows`` rows.
+    :raises MergeCancelled: when ``cancelled()`` answered true.
+    """
+    from . import store
+
+    columns = list(columns) or db.columns(table)
+
+    def _check():
+        """Stop when the caller asked to."""
+        if cancelled is not None and cancelled():
+            raise MergeCancelled(f"stopped while reading {table}; nothing was saved.")
+
+    if db.kind == "store":
+        if not db.key_columns(table)[2:]:
+            for frame in db.store._frames(table, chunksize=chunk_rows):
+                _check()
+                if len(frame):
+                    yield frame[[c for c in frame.columns if c in set(columns)]]
+            return
+        cursor, first = None, True
+        while first or cursor is not None:
+            _check()
+            frame, cursor = db.store.page(table, columns=columns, after=cursor,
+                                          limit=chunk_rows)
+            first = False
+            if len(frame):
+                yield frame
+        return
+    kind, keys = db.row_key(table)
+    keyset = db.kind == "sqlite" and kind == "rowid" and len(keys) == 1
+    after, offset = None, 0
+    while True:
+        _check()
+        if keyset:
+            sql = db.chunk_sql(table, columns, keys, after=after is not None)
+            params = ([after] if after is not None else []) + [chunk_rows]
+        else:
+            sql = db.chunk_sql(table, columns, [], use_offset=True)
+            params = [chunk_rows, offset]
+        frame = store.read_frame(db.store, sql, params=params)
+        if not len(frame):
+            return
+        if keyset:
+            after = int(frame.iloc[-1, 0])
+            frame = frame.iloc[:, 1:]
+        offset += len(frame)
+        yield frame
+        if len(frame) < chunk_rows:
+            return
+
+
+def _partitions_of(frame: pd.DataFrame) -> Tuple[pd.Series, pd.Series]:
+    """The store plate and well of each merged row.
+
+    A row read from a store project keeps the plate and well it was stored
+    under (``plate`` and ``wellID`` once the column names are canonical); a
+    row from an older file takes ``plateID`` and ``rowID`` + ``columnID``.
+    Rows with neither go to ``_``.
+
+    :param frame: merged rows.
+    :returns: the plate and the well of each row, as text.
+    """
+    blank = pd.Series([None] * len(frame), index=frame.index, dtype=object)
+    plates = frame["plate"].astype(object) if "plate" in frame.columns else blank
+    wells = frame["well"].astype(object) if "well" in frame.columns else blank
+    if "wellID" in frame.columns:
+        wells = wells.where(wells.notna(), frame["wellID"])
+    if "plateID" in frame.columns:
+        plates = plates.where(plates.notna(), frame["plateID"])
+    if {"rowID", "columnID"} <= set(frame.columns):
+        derived = frame["rowID"].astype(str) + frame["columnID"].astype(str)
+        derived = derived.where(frame["rowID"].notna() & frame["columnID"].notna())
+        wells = wells.where(wells.notna(), derived)
+    from .measurement_store import _text
+
+    return plates.map(_text).astype(str), wells.map(_text).astype(str)
+
+
+def _prepared(frame: pd.DataFrame, start: int):
+    """A merged chunk as the store writes it, and the partition of each row.
+
+    :param frame: merged rows.
+    :param start: the :data:`_MERGE_ROW` number of the first row.
+    :returns: ``(Arrow table, plates, wells)``.
+    """
+    from .measurement_store import _arrow, _clean
+
+    plates, wells = _partitions_of(frame)
+    data = frame.drop(columns=[c for c in ("plate", "well", "crop_store",
+                                           "crop_index") if c in frame.columns])
+    data = data.reset_index(drop=True)
+    data.attrs = {}
+    data[_MERGE_ROW] = range(start, start + len(data))
+    return _arrow(_clean(data)), plates.to_numpy(), wells.to_numpy()
+
+
+def _merged_schema(schemas: Sequence[Any]):
+    """One schema for every chunk: promoted where types differ, text where they clash.
+
+    :param schemas: the Arrow schema of each chunk.
+    :returns: the schema.
+    """
+    import pyarrow as pa
+
+    order: Dict[str, List[Any]] = {}
+    for found in schemas:
+        for field_ in found:
+            order.setdefault(field_.name, []).append(field_.type)
+    fields = []
+    for name, types in order.items():
+        try:
+            kind = pa.unify_schemas([pa.schema([pa.field(name, t)]) for t in types],
+                                    promote_options="permissive").field(name).type
+        except (pa.ArrowInvalid, pa.ArrowTypeError, pa.ArrowNotImplementedError):
+            kind = pa.string()
+        fields.append(pa.field(name, pa.string() if pa.types.is_null(kind) else kind))
+    return pa.schema(fields)
+
+
+def _write_merged(project: str, name: str, chunks: Callable[[], Any], *,
+                  run_id: str, progress: Optional[Callable[[str, int, int], None]],
+                  total: int) -> int:
+    """Write merged chunks as one new store table, a part per plate and well.
+
+    The chunks are read twice: once for the one schema every part shares,
+    then to write. Each part is written by :func:`spacr.store.writer`;
+    nothing is visible until every part is finished and registered.
+
+    :param project: the store project folder.
+    :param name: the new table.
+    :param chunks: called with no argument, returns an iterator of chunks.
+    :param run_id: the run the parts belong to.
+    :param progress: called ``progress(stage, done, total)``.
+    :param total: the expected rows, for ``progress``.
+    :returns: the rows written.
+    """
+    import numpy as np
+
+    from . import store
+    from .measurement_store import _conform
+
+    seen, start = [], 0
+    for frame in chunks():
+        seen.append(_prepared(frame, start)[0].schema)
+        start += len(frame)
+        if progress is not None:
+            progress(f"checking the columns of {name}", start, total)
+    if not seen:
+        raise MergeRefused("the merge has no rows to save")
+    layout = _merged_schema(seen)
+    keys = tuple(c for c in (*_merge_keys(layout.names), "object_key", _MERGE_ROW)
+                 if c in layout.names)
+    writers: Dict[Tuple[str, str], Any] = {}
+    written = 0
+    try:
+        for frame in chunks():
+            data, plates, wells = _prepared(frame, written)
+            data = _conform(data, layout)
+            groups = pd.DataFrame({"plate": plates, "well": wells}).groupby(
+                ["plate", "well"], sort=False).indices
+            for (plate, well), rows in groups.items():
+                part = writers.get((plate, well))
+                if part is None:
+                    part = store.writer(project, name, plate=plate, well=well,
+                                        run_id=run_id, sort_by=(_MERGE_ROW,),
+                                        key_columns=keys, schema=layout,
+                                        row_group_rows=_PART_ROWS)
+                    writers[(plate, well)] = part
+                part.append(data.take(np.asarray(rows, dtype=np.int64)))
+            written += len(frame)
+            if progress is not None:
+                progress(f"writing {name}", written, total)
+        for part in writers.values():
+            part.finish()
+    except BaseException:
+        for part in writers.values():
+            if part.manifest is None:
+                part.abort()
+        raise
+    return written
+
+
+def save_merge(project: Any, name: str, paths: Sequence[str], tables: Any, *,
+               how: str = "stack", anchor: Optional[str] = None,
+               labels: Any = None, columns: str = "union",
+               keep: Optional[Sequence[str]] = None,
+               policy: Optional[MergePolicy] = None,
+               chunk_rows: int = _CHUNK_ROWS,
+               progress: Optional[Callable[[str, int, int], None]] = None,
+               cancelled: Optional[Callable[[], bool]] = None) -> Dict[str, Any]:
+    """Merge tables from one or more projects and save them as a new table.
+
+    The merged table is the one :func:`merge_projects` returns for the same
+    arguments, with two more columns: ``merge_row`` numbers the rows in the
+    order they were written, and ``plate`` and ``well`` say which store
+    part a row is in. A stack merge streams: each project is read
+    ``chunk_rows`` rows at a time, keyset paged, reading only the kept
+    columns, so a table larger than memory can be stacked. A join merge
+    rolls each child table up onto its anchor and holds the tables while it
+    does.
+
+    :param project: the store project the new table goes in: a store
+        project folder, its ``spacr.duckdb``, or a new or empty folder.
+    :param name: the new table name: letters, digits and ``_``.
+    :param paths: the projects to merge; see :func:`merge_projects`.
+    :param tables: the table(s) to merge; see :func:`merge_projects`.
+    :param how: ``'stack'`` or ``'join'``.
+    :param anchor: for ``'join'``, the table one row stands for.
+    :param labels: a label per project; see :func:`merge_projects`.
+    :param columns: ``'union'`` or ``'common'``.
+    :param keep: the columns to keep, or None for every column.
+    :param policy: for ``'join'``, how child tables are rolled up.
+    :param chunk_rows: rows read from a project at a time.
+    :param progress: called ``progress(stage, done, total)`` from the
+        thread this runs on.
+    :param cancelled: called between chunks; True stops the merge and
+        nothing is saved.
+    :returns: ``{"project", "table", "rows", "rows_per_source",
+        "kept_apart", "key_columns", "summary"}``.
+    :raises MergeRefused: when the merge cannot be done or saved as asked.
+    :raises MergeCancelled: when ``cancelled()`` answered true.
+    """
+    import json
+    import uuid
+
+    from . import store
+
+    target = _merge_target(project, name)
+    located, automatic, chosen = _merge_sources(paths, labels)
+    names = [tables] if isinstance(tables, str) else list(dict.fromkeys(tables or ()))
+    if how == "stack":
+        if len(names) != 1:
+            raise MergeRefused(
+                "stacking puts the rows of one table from each project "
+                "together; choose one table, or join them instead.")
+        table = names[0]
+        _refuse_absent(located, chosen, table)
+        screens, clashes = _kept_apart(located, table, automatic, chosen)
+        plan = describe_merge(located, table, screens=screens)
+        relabel = dict(zip(automatic, chosen))
+        total = plan.total_rows
+        dropped = plan.dropped_columns if columns == "common" else ()
+
+        def _chunks():
+            """The stacked rows, relabelled, a chunk at a time."""
+            for frame in _stacked_chunks(plan, table, columns, keep,
+                                         int(chunk_rows), cancelled):
+                frame[SOURCE_COLUMN] = frame[SOURCE_COLUMN].map(relabel)
+                yield frame
+        merged_tables = [table]
+    else:
+        merged = merge_projects(located, names, how=how, anchor=anchor,
+                                labels=chosen, columns=columns, keep=keep,
+                                policy=policy)
+        clashes = dict(merged.attrs.get("kept_apart", {}))
+        merged_tables = list(merged.attrs.get("tables", names))
+        dropped = tuple(merged.attrs.get("dropped_columns", ()))
+        total = len(merged)
+        step = max(1, int(chunk_rows))
+
+        def _chunks():
+            """The joined rows, a slice at a time."""
+            for begin in range(0, len(merged), step):
+                if cancelled is not None and cancelled():
+                    raise MergeCancelled("stopped while saving; nothing was saved.")
+                yield merged.iloc[begin:begin + step]
+    run_id = f"merge-{uuid.uuid4().hex[:12]}"
+    rows = _write_merged(target, name, _chunks, run_id=run_id,
+                         progress=progress, total=total)
+    settings = {"merge": how, "tables": merged_tables, "labels": chosen,
+                "projects": located, "columns": columns,
+                "keep": list(keep) if keep is not None else None}
+    store.register(target, run={"run_id": run_id,
+                                "settings": json.loads(json.dumps(settings))})
+    with store._SHARED_LOCK:
+        held = store._SHARED.get(target)
+        if held is not None:
+            held["checked"] = float("-inf")
+    with store.open(target, verify="none") as opened:
+        columns_saved = list(opened.columns(name)["name"])
+        found = opened.sql(f'SELECT {SOURCE_COLUMN} AS label, COUNT(*) AS n '
+                           f'FROM "{name}" GROUP BY {SOURCE_COLUMN}')
+        keys = _merge_keys(columns_saved)
+        repeated = 0
+        if OBJECT_COLUMN in keys:
+            listed = ", ".join(f'"{key}"' for key in keys)
+            repeated = int(opened.sql(
+                f'SELECT COALESCE(SUM(n), 0) AS n FROM (SELECT COUNT(*) AS n '
+                f'FROM "{name}" GROUP BY {listed} HAVING COUNT(*) > 1)')["n"].iloc[0])
+    counts = {str(row.label): int(row.n) for row in found.itertuples()}
+    summary = _merge_summary(counts, how, merged_tables, chosen, clashes,
+                             tuple(dropped), repeated)
+    summary.append(f"Saved as {name} in {target}.")
+    return {"project": target, "table": name, "rows": int(rows),
+            "rows_per_source": {label: counts.get(label, 0) for label in chosen},
+            "kept_apart": dict(clashes),
+            "key_columns": tuple(keys),
+            "summary": tuple(summary)}
