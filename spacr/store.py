@@ -2884,7 +2884,7 @@ def _edit_stamp(writer: int = 0) -> tuple:
 
 
 def _where_clause(where) -> tuple:
-    """`` WHERE ...`` and its parameters for a mapping or SQL ``where``."""
+    """The SQL ``WHERE`` clause and its parameters, from a mapping or an SQL ``where`` string."""
     params: List[Any] = []
     if isinstance(where, Mapping):
         clauses = []
