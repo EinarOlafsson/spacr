@@ -220,6 +220,23 @@ def _retired_801_mask_worker_api(docs):
     return retired
 
 
+def _retired_0ab2_measure_api(docs):
+    """Replay the two nested statistics helpers retired when item 0ab's compiled pass replaced them."""
+    retirement = json.loads((ROOT / "tests/data/release_contracts"
+        / "0ab2_measure_statistics_api_retirement_2026-11-24.json").read_text(encoding="utf-8"))
+    assert retirement["source_commit"] == "aa0b4d048fc1ed2a31112bcf30e699cd33c2ad36"
+    assert retirement["source_blob"] == "cc496577f31968f9f95a72e93ecb1c6d9d08024a"
+    assert retirement["source_path"] == "spacr/measure.py"
+    retired = retirement["retired"]
+    assert set(retired) == {"spacr.measure._extended_regionprops_table." + name
+                            for name in ("_gini", "_masked_intensity")}
+    assert hashlib.sha256(json.dumps(
+        retired, sort_keys=True, ensure_ascii=False,
+    ).encode()).hexdigest() == "77aa0293796416292cc1bd0a4e07b5d8e1545f90e2ae31c51fdf11c8e2129d12"
+    assert not retired.keys() & docs.keys()
+    return retired
+
+
 def _retired_732_remote_api(docs):
     """Replay the seven exact callback bodies after their source-owned retirement."""
     import ast
@@ -3597,7 +3614,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     import build_documentation_i18n as builder
 
     docs, source_contracts = current_documentation_api_contracts
-    historical_docs = docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
+    historical_docs = (docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
+                       | _retired_0ab2_measure_api(docs))
     assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
