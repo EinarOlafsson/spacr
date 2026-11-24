@@ -12,7 +12,7 @@ import hashlib
 import os
 import random
 import shutil
-import sqlite3
+from tests.ops_store_sql import ops_connect, read_sql
 
 import pytest
 
@@ -63,7 +63,7 @@ def stitched(tmp_path_factory):
     """The synthetic well, stitched once.
 
     :returns: ``(root, settings, library)``; ``root / 'stitched'`` holds the
-        stitched ``measurements.db``.
+        stitched run's store (``measurements/``, item 0an).
     """
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", OVERLAP)
@@ -87,9 +87,10 @@ def _run(stitched, folder, monkeypatch, model=None, **extra):
     :returns: ``(result, model)``.
     """
     root, settings, library = stitched
-    if not os.path.exists(folder / "measurements.db"):
+    if not os.path.exists(folder / "measurements"):
         folder.mkdir(parents=True, exist_ok=True)
-        shutil.copy(root / "stitched" / "measurements.db", folder)
+        shutil.copytree(root / "stitched" / "measurements",
+                        folder / "measurements")
     model = model or _CountingModel()
     monkeypatch.setattr(ops_engine, "_cellpose_model", lambda s, gpu: model)
     result = ops_engine.run_ops({**settings, "dst_root": str(folder), **extra},
@@ -100,9 +101,9 @@ def _run(stitched, folder, monkeypatch, model=None, **extra):
 def _tables(folder):
     """md5 of ``ops_objects`` and ``ops_barcodes`` as stored, row by row."""
     out = {}
-    with sqlite3.connect(folder / "measurements.db") as conn:
+    with ops_connect(folder / "measurements.db") as conn:
         for table in ("ops_objects", "ops_barcodes"):
-            frame = pd.read_sql_query(f"SELECT * FROM {table}", conn)
+            frame = read_sql(f"SELECT * FROM {table}", conn)
             out[table] = hashlib.md5(
                 frame.to_csv(index=False).encode("utf-8")).hexdigest()
     return out

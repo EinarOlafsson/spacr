@@ -10,7 +10,7 @@ and N1 on such a cache is refused with a message that says why.
 from __future__ import annotations
 
 import os
-import sqlite3
+from tests.ops_store_sql import ops_connect
 
 import numpy as np
 import pytest
@@ -165,7 +165,7 @@ def synthetic_runs(tmp_path_factory):
         preset = {**settings, "ops_decode_preset": "rule_a_s2",
                   "ops_read_neighbour_discount": 0.5, "ops_store_field_cache": cache}
         result = ops_engine.run_ops(preset, phases=("decode",), library=library)
-        with sqlite3.connect(result["db"]) as conn:
+        with ops_connect(result["db"]) as conn:
             rows = conn.execute("SELECT * FROM ops_barcodes ORDER BY object_id").fetchall()
         runs[name] = {"result": result, "rows": rows, "fields": list(captured)}
     yield runs, ops_engine

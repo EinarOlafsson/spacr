@@ -563,8 +563,9 @@ def _ph_index(ctx: _Context) -> Dict[int, Dict[str, str]]:
 def _rows(db: str, table: str, plate: str, well: str):
     """One well's rows of an OPS table, or None."""
     from .ops_engine import _well_rows
+    from .ops_store import _exists
 
-    if not os.path.isfile(db):
+    if not _exists(db):
         return None
     return _well_rows(db, table, plate, well)
 
@@ -1424,10 +1425,12 @@ def _aggregation_inputs(ctx: _Context, db: str, plate: str
     run = str(ctx.settings.get("dst_root") or "")
     run_db = os.path.join(run, "measurements.db")
     cells = _ph_cells_path(run, ctx.well)
-    if not (os.path.isfile(run_db) and os.path.isfile(cells)):
+    from .ops_store import _exists
+
+    if not (_exists(run_db) and os.path.isfile(cells)):
         raise _NotReady("run", path=run or "dst_root",
                         missing=", ".join(name for name, there in (
-                            ("measurements.db", os.path.isfile(run_db)),
+                            ("measurements", _exists(run_db)),
                             (os.path.basename(cells), os.path.isfile(cells)))
                             if not there))
     for table in ("ops_objects", "ops_barcodes"):

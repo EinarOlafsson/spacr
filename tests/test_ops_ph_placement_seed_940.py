@@ -156,7 +156,7 @@ def test_the_core_tier_without_a_seed_still_needs_anchors(ops_e2e_core, tmp_path
 def test_a_seeded_core_tier_gives_the_production_field_transforms(ops_e2e_core,
                                                                    tmp_path):
     """1255 and 1264 land on production's field_transform within 1e-6 px."""
-    import sqlite3
+    from tests.ops_store_sql import ops_connect, read_sql
 
     import pandas as pd
 
@@ -172,8 +172,8 @@ def test_a_seeded_core_tier_gives_the_production_field_transforms(ops_e2e_core,
     report = result["wells"]["A1"]["phenotype"]
     assert report["placement"] == "seeded" and report["anchors_used"] == 0
     assert report["seed_reference_tiles"] == [321, 322, 331, 332]
-    with sqlite3.connect(result["db"]) as con:
-        rows = pd.read_sql("select * from ops_phenotype", con).set_index("site")
+    with ops_connect(result["db"]) as con:
+        rows = read_sql("select * from ops_phenotype", con).set_index("site")
     assert len(rows) == 1281
     dy, dx = report["seed_offset_px"]
     for field in seed["fields"]:

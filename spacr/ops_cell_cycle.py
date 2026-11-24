@@ -1655,8 +1655,10 @@ def _attach_genes(cells: pd.DataFrame, db: str, plate: str, wells: Sequence[str]
     from .ops_engine import _ph_design
 
     design_path = settings.get("ops_design")
-    merged = rows_for_wells(db, "ops_merge", plate, list(wells)) if os.path.isfile(db) else None
-    barcodes = rows_for_wells(db, "ops_barcodes", plate, list(wells)) if os.path.isfile(db) else None
+    from .ops_store import _exists
+
+    merged = rows_for_wells(db, "ops_merge", plate, list(wells)) if _exists(db) else None
+    barcodes = rows_for_wells(db, "ops_barcodes", plate, list(wells)) if _exists(db) else None
     if not design_path or merged is None or barcodes is None or not len(barcodes):
         return
     called = barcodes.loc[barcodes["mapped_guide"].fillna("").astype(str) != "",
@@ -1690,9 +1692,9 @@ def _replace_plate_rows(db: str, table: str, frame: pd.DataFrame, plate: str) ->
 
 def _collapses_in(db: str) -> Dict[str, List[str]]:
     """The failed stages of every plate already in ``ops_cell_cycle_checks``."""
-    from .ops_store import read_table, row_count
+    from .ops_store import _exists, read_table, row_count
 
-    if not os.path.isfile(db) or row_count(db, "ops_cell_cycle_checks") is None:
+    if not _exists(db) or row_count(db, "ops_cell_cycle_checks") is None:
         return {}
     rows = read_table(db, "ops_cell_cycle_checks")[["plate", "collapsed"]].drop_duplicates()
     return {str(p): [s for s in str(c or "").split(",") if s and c == c]

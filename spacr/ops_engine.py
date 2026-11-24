@@ -1,7 +1,8 @@
 """Run an optical pooled screen's sequencing acquisition from tiles to tables.
 
-One call takes each well from its tile files to the tables of
-``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the
+One call takes each well from its tile files to the OPS tables of the run's
+spaCR store, ``<dst_root>/measurements`` (:mod:`spacr.ops_store`, item
+0an): ``ops_geometry``, where each nuclear tile sits in the
 well frame; ``ops_phenotype``, where each field of the high-magnification
 phenotype acquisition lands on that frame and which tile covers it;
 ``ops_objects``, one row per nucleus, segmented on the composed nuclear map
@@ -742,77 +743,44 @@ def _components(edges: Mapping[Tuple[int, int], object],
 def _replace_well_rows(db: str, table: str, frame, plate: str, well: str) -> int:
     """Write one well's rows into ``table``, replacing that well's old rows.
 
-    :param db: the measurements database.
+    :param db: the run's OPS database path (the store beside it).
     :param table: an OPS table.
     :param frame: this well's rows, with ``plate`` and ``well`` columns.
     :param plate: the plate name.
     :param well: the well name.
     :returns: the rows the table holds afterwards.
 
-    The other wells' rows are read back and written with this one's, because
-    :func:`spacr.ops_store.write_table` asserts the parquet cache and the
-    database hold the same rows -- an append of one well would leave a cache
-    that describes a different table.
+    Item 0an: the well is its own part in the run's spaCR store
+    (:func:`spacr.ops_store._write_well`, through :func:`spacr.store.writer`),
+    so only this well is written; the other wells are not read back and
+    rewritten as they were in SQLite.
     """
-    import pandas as pd
+    from .ops_store import _write_well
 
-    from .ops_store import read_table, row_count, write_table
-
-    parts = []
-    if row_count(db, table) is not None:
-        existing = read_table(db, table)
-        if {"plate", "well"} <= set(existing.columns):
-            other = ~((existing["plate"].astype(str) == str(plate))
-                      & (existing["well"].astype(str) == str(well)))
-            if other.any():
-                parts.append(existing[other])
-    parts.append(frame)
-    combined = pd.concat(parts, ignore_index=True) if len(parts) > 1 else frame
-    return write_table(db, table, combined, if_exists="replace")
+    return _write_well(db, table, frame, plate, well)
 
 
 def _well_rows(db: str, table: str, plate: str, well: str):
     """One well's rows of one table.
 
-    :param db: the measurements database.
+    :param db: the run's OPS database path.
     :param table: an OPS table.
     :param plate: the plate name.
     :param well: the well name.
     :returns: the rows, or None when the table is absent.
 
-    A TABLE WITHOUT A PARQUET CACHE IS QUERIED FOR THE ONE WELL (item 872,
-    B8): reading Funk plate A's 8 M-row ``ops_objects`` whole for each well
-    took about 5 minutes and 6.6 GB, and the ``(plate, well, object_id)``
-    index answers the well's query in seconds. The rows come back in the
-    table's order, as the whole-table read filtered gave them. A well the
-    query does not find -- a plate or well stored as a number -- is looked
-    for in the whole table as before.
+    Read through the store's reader for the one well (item 0an); an older
+    run's SQLite file is queried for the well the same way (item 872, B8:
+    reading Funk plate A's 8 M-row ``ops_objects`` whole for each well took
+    about 5 minutes and 6.6 GB). The rows come back in the order the well's
+    rows were written.
     """
-    import sqlite3
+    from .ops_store import _read_rows
 
-    from .ops_store import CACHED_TABLES, _resolved, read_table, row_count
-    from .tabular import _read_query
-
-    if row_count(db, table) is None:
+    frame = _read_rows(db, table, plate, [well])
+    if frame is None or not {"plate", "well"} <= set(frame.columns):
         return None
-    if table not in CACHED_TABLES:
-        with sqlite3.connect(_resolved(db), timeout=30) as conn:
-            names = {r[1] for r in conn.execute(
-                f"PRAGMA table_info({table})")}
-            if not {"plate", "well"} <= names:
-                return None
-            frame = _read_query(
-                conn, f"SELECT * FROM {table} WHERE plate = ? AND well = ? "
-                      "ORDER BY rowid", params=(str(plate), str(well)),
-                canonicalise=False, report=None)
-        if len(frame):
-            return frame.reset_index(drop=True)
-    frame = read_table(db, table)
-    if not {"plate", "well"} <= set(frame.columns):
-        return None
-    keep = (frame["plate"].astype(str) == str(plate)) & (
-        frame["well"].astype(str) == str(well))
-    return frame[keep].reset_index(drop=True)
+    return frame
 
 
 def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
@@ -10064,14 +10032,20 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
 
 
 #: The values ``ops_storage`` may take, the first the default (item 974).
-_OPS_STORAGES = ("current", "spacr_store")
+#: Item 0an made the spaCR store the only target: every OPS table is
+#: written there (:mod:`spacr.ops_store`), so ``spacr_store`` is the one
+#: value left.
+_OPS_STORAGES = ("spacr_store",)
+
 
 
 def _ops_storage(settings: Mapping[str, Any]) -> str:
-    """``ops_storage``, checked: ``current`` or ``spacr_store``."""
+    """``ops_storage``, checked: ``spacr_store``, or a retired value's alias."""
+    from .ops_settings import _OPS_STORAGE_ALIASES
     from .qt.i18n import tr
 
-    value = str(settings.get("ops_storage") or "current").strip().lower()
+    value = str(settings.get("ops_storage") or _OPS_STORAGES[0]).strip().lower()
+    value = _OPS_STORAGE_ALIASES.get(value, value)
     if value not in _OPS_STORAGES:
         raise ValueError(tr("ops_storage must be one of {values}; got {value}",
                             values=list(_OPS_STORAGES), value=value))
@@ -10116,7 +10090,11 @@ def _ops_store_crops(root: str, plate: str, well: str, prcfo):
     """The well's ph_crops shards matched to ``prcfo``: ``(crops, rows, masks)``.
 
     :returns: lazy crop and mask arrays and each crop's row in ``prcfo``;
-        ``(None, None, None)`` when the well has no shard.
+        ``(None, None, None)`` when the well has no shard, or when its crops
+        are not all one size: crops cut with ``crop_margin_px`` are each
+        their cell's box, which one ``(k, C, H, W)`` store array cannot hold,
+        so they stay in the crop pool (``crops/.../cell``) and are not
+        copied (item 0an; the copy raised a broadcast error before).
     """
     import glob as globbing
 
@@ -10128,7 +10106,8 @@ def _ops_store_crops(root: str, plate: str, well: str, prcfo):
 
         row_of = {str(p): i for i, p in enumerate(prcfo)}
         members = [row for row in native["rows"] if str(row["prcfo"]) in row_of]
-        if not members:
+        if not members or len({(int(row["height"]), int(row["width"]))
+                                for row in members}) > 1:
             return None, None, None
         rows = np.asarray([row_of[str(row["prcfo"])] for row in members], dtype=np.int64)
         image, mask = read_crop(root, members[0])
@@ -10175,10 +10154,11 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
     the ``cell`` table again, the rows and dtypes ``ph_tables`` writes, now
     with each cut cell's crop pointer (``crop_store``, ``crop_index``) and
     the crop copied pixel for pixel from the shard into the well's Zarr
-    store; ``reads`` and ``barcodes``, the well's rows of ``ops_reads`` and
-    ``ops_barcodes``; and ``cell_cycle``, its rows of ``ops_cell_cycle`` when
-    the cell-cycle option ran. The parts are registered in one catalog
-    transaction with the run's settings. The ``cell`` part is streamed a
+    store. The OPS tables (``reads``, ``barcodes``, ``cell_cycle``, ``merge``,
+    ``geometry`` and the rest) are already in this store, written there by
+    their phases (:mod:`spacr.ops_store`, item 0an); the report counts their
+    rows. The parts are registered in one catalog transaction with the run's
+    settings. The ``cell`` part is streamed a
     field at a time (:func:`_ph_stream_well`), so a well never has to fit
     in memory.
 
@@ -10253,28 +10233,30 @@ def _ops_store_wells(db: str, plate: str, wells: Sequence[str],
                               dtype=object)
             crops, crop_rows, masks = _ops_store_crops(root, plate, well, prcfo)
             del prcfo
+            from .ops_store import _stored as _stored_parts
 
-            streamed = _ph_stream_well(
-                plate, well, destination, settings, links, genotype, rule,
-                integer_keys, project, run_id, {"cell": ("cell",)},
-                {"cell": {"crops": crops, "crop_rows": crop_rows,
-                          "masks": masks,
-                          "row_copy": bool(settings.get("ops_store_row_copy",
-                                                        False))}})
-            counts["cell"] = int(streamed["rows"])
+            written = (_stored_parts(project, "cell") or {}).get(
+                (str(plate), str(well)))
+            row_copy = bool(settings.get("ops_store_row_copy", False))
+            if crops is None and written is not None and not row_copy:
+                # Nothing to add to the cell table ph_tables wrote: it is
+                # not streamed a second time (item 0an).
+                counts["cell"] = int(written)
+            else:
+                streamed = _ph_stream_well(
+                    plate, well, destination, settings, links, genotype,
+                    rule, integer_keys, project, run_id, {"cell": ("cell",)},
+                    {"cell": {"crops": crops, "crop_rows": crop_rows,
+                              "masks": masks, "row_copy": row_copy}})
+                counts["cell"] = int(streamed["rows"])
             counts["crops"] = 0 if crop_rows is None else int(len(crop_rows))
-        for table, name, order, key in (
-                ("ops_reads", "reads", ("object_id",), ("object_id",)),
-                ("ops_barcodes", "barcodes", ("mapped_guide", "object_id"),
-                 ("object_id",)),
-                ("ops_cell_cycle", "cell_cycle", ("site", "label"),
-                 ("site", "label"))):
-            rows = _well_rows(db, table, plate, well)
-            if rows is None or rows.empty:
-                continue
-            store.write_table(project, name, rows, plate=plate, well=well,
-                              run_id=run_id, sort_by=order, key_columns=key)
-            counts[name] = int(len(rows))
+        from .ops_store import _store_project, _stored
+
+        for name in ("reads", "barcodes", "cell_cycle"):
+            rows = (_stored(_store_project(db), name) or {}).get(
+                (str(plate), str(well)), 0)
+            if rows:
+                counts[name] = int(rows)
         out[well] = counts
     return out
 
@@ -11849,15 +11831,13 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
 
 
 def _rows_for_wells(db: str, table: str, plate: str, wells: Sequence[str]):
-    """Rows of ``table`` for ``plate`` and any of ``wells``, or None."""
-    from .ops_store import read_table, row_count
+    """Rows of ``table`` for ``plate`` and any of ``wells``, or None.
 
-    if row_count(db, table) is None:
-        return None
-    frame = read_table(db, table)
-    keep = (frame["plate"].astype(str) == str(plate)) & frame["well"].astype(
-        str).isin([str(w) for w in wells])
-    return frame[keep].reset_index(drop=True)
+    Only those wells are read, through the store's reader (item 0an).
+    """
+    from .ops_store import _read_rows
+
+    return _read_rows(db, table, plate, [str(w) for w in wells])
 
 
 def _in_pipeline_figures(function):
@@ -11882,8 +11862,8 @@ def run_ops(settings: Mapping[str, Any], *,
         folder of sequencing tiles, searched recursively; ``phenotype_source``,
         the folder of the high-magnification phenotype acquisition, which the
         ``phenotype`` phase places on the stitched well and which an empty
-        value skips; ``dst_root``, where ``measurements.db`` and the per-well
-        reports go, the source folder when empty; ``plate``, the source
+        value skips; ``dst_root``, where the run's spaCR store
+        (``measurements/``) and the per-well reports go, the source folder when empty; ``plate``, the source
         folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields
         decode at once; ``cellpose_model`` and ``cellpose_diameter``;
         ``ops_library``, a guide library CSV the ``library`` keyword
@@ -12087,8 +12067,8 @@ def run_ops(settings: Mapping[str, Any], *,
         from .qt.i18n import tr
 
         raise ValueError(tr(
-            "the phenotype phases need dst_root, the folder holding "
-            "measurements.db"))
+            "the phenotype phases need dst_root, the folder holding the "
+            "run's spaCR store (measurements/)"))
     os.makedirs(destination, exist_ok=True)
     db = os.path.join(destination, "measurements.db")
     plate = str(settings.get("plate")

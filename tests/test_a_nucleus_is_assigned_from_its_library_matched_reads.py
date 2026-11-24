@@ -98,12 +98,12 @@ def well(tmp_path):
 
 def _decode(settings, db, **extra):
     """Decode the well with ``extra`` settings; the report and the table."""
-    import sqlite3
+    from tests.ops_store_sql import ops_connect, read_sql
 
     report = ops_engine.run_ops({**settings, **extra}, phases=("decode",),
                                 library=LIBRARY)["wells"]["A1"]["decode"]
-    with sqlite3.connect(db) as conn:
-        table = pd.read_sql_query("SELECT * FROM ops_barcodes ORDER BY object_id",
+    with ops_connect(db) as conn:
+        table = read_sql("SELECT * FROM ops_barcodes ORDER BY object_id",
                                   conn)
     return report, table.set_index("object_id")
 

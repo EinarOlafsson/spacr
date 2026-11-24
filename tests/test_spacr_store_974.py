@@ -272,11 +272,21 @@ def test_an_older_sqlite_project_opens_through_the_same_api(tmp_path):
 
 
 def test_ops_storage_is_checked():
-    assert ops_engine._ops_storage({}) == "current"
+    """Item 0an: the store is the only target; 'current' is a retired value."""
+    assert ops_engine._ops_storage({}) == "spacr_store"
     assert ops_engine._ops_storage({"ops_storage": "spacr_store"}) == \
         "spacr_store"
+    assert ops_engine._ops_storage({"ops_storage": "current"}) == "spacr_store"
     with pytest.raises(ValueError, match="ops_storage"):
         ops_engine._ops_storage({"ops_storage": "hdf5"})
+
+
+def test_an_older_settings_file_naming_current_loads_as_the_store():
+    from spacr.ops_settings import ops_defaults
+
+    assert ops_defaults({"ops_storage": "current"})["ops_storage"] == \
+        "spacr_store"
+    assert ops_defaults({})["ops_storage"] == "spacr_store"
 
 
 def test_the_ops_run_writes_the_same_rows_and_crops_to_the_store(measured):
@@ -333,9 +343,30 @@ def test_the_ops_run_writes_the_same_rows_and_crops_to_the_store(measured):
         assert np.array_equal(stack[position[record.prcfo]], image)
 
 
-def test_the_default_ops_run_writes_no_store(measured):
+def test_the_default_ops_run_writes_the_store_and_no_sqlite(measured):
+    """Item 0an: the default run keeps every table in measurements/ only."""
     out = _run(measured, FULL, ops_merged_root=str(measured / "nas"))
     run = measured / "run"
-    assert "store" not in out
+    assert out["store"]["project"] == str(run / "measurements")
+    assert not (run / "measurements.db").exists()
     assert not (run / store.CATALOG).exists()
     assert not (run / "tables").exists() and not (run / "crops").exists()
+    with store.open(run / "measurements") as opened:
+        assert {"cell", "merge", "barcodes"} <= set(opened.tables())
+
+
+def test_box_sized_crops_stay_in_the_crop_pool(monkeypatch):
+    """Item 0an: crops cut with crop_margin_px are each their cell's box.
+
+    One store crop array cannot hold crops of different sizes; the store
+    step raised a broadcast error on the A1 check fields (crop_margin_px 16).
+    Such crops stay in the OPS crop pool and are not copied; crops of one
+    size still are.
+    """
+    rows = [{"prcfo": "P_r1_c1_f1_o1", "height": 10, "width": 12},
+            {"prcfo": "P_r1_c1_f1_o2", "height": 14, "width": 12}]
+    monkeypatch.setattr(ops_engine, "_ph_crop_commit",
+                        lambda root, plate, well: {"rows": rows})
+    prcfo = pd.Series([r["prcfo"] for r in rows])
+    assert ops_engine._ops_store_crops("root", "P", "A1", prcfo) == (
+        None, None, None)

@@ -15,7 +15,7 @@ make this a test of the model. Everything else is the shipped code.
 from __future__ import annotations
 
 import math
-import sqlite3
+from tests.ops_store_sql import ops_connect, read_sql
 
 import numpy as np
 import pytest
@@ -191,7 +191,7 @@ def test_the_well_is_stitched_from_its_nuclear_plane(engine_run):
     stitch = result["wells"]["A1"]["stitch"]
     assert stitch["placed"] == 5 and stitch["edges_accepted"] == 4
     assert stitch["canvas_agrees"]
-    with sqlite3.connect(result["db"]) as conn:
+    with ops_connect(result["db"]) as conn:
         placed = {site: (y, x) for site, y, x in
                   conn.execute("SELECT site, y, x FROM ops_geometry")}
     for site, (top, left) in tops.items():
@@ -206,7 +206,7 @@ def test_every_planted_nucleus_is_one_object(engine_run):
     objects = result["wells"]["A1"]["objects"]
     assert objects["objects"] == len(nuclei)
     assert objects["objects_ready"][0] is True
-    with sqlite3.connect(result["db"]) as conn:
+    with ops_connect(result["db"]) as conn:
         rows = conn.execute("SELECT centroid_y, centroid_x FROM ops_objects").fetchall()
     found = np.array(rows)
     for y, x in nuclei:
@@ -226,7 +226,7 @@ def test_every_nucleus_gets_its_barcode_and_the_lost_cycle_is_an_N(engine_run):
     assert any(reason.startswith("ValueError") for _path, reason in decode["unreadable"])
     assert decode["containment"] > 0.95 and not decode["containment_below_gate"]
 
-    with sqlite3.connect(result["db"]) as conn:
+    with ops_connect(result["db"]) as conn:
         barcodes = conn.execute(
             "SELECT o.centroid_y, o.centroid_x, b.barcode, b.n_cycles, b.mapped_guide "
             "FROM ops_barcodes b JOIN ops_objects o ON b.object_id = o.object_id "
@@ -268,12 +268,12 @@ def test_decoding_again_in_worker_processes_gives_the_same_table(engine_run):
     import pandas as pd
 
     result, settings, library = engine_run[0], engine_run[5], engine_run[6]
-    with sqlite3.connect(result["db"]) as conn:
-        before = pd.read_sql_query("SELECT * FROM ops_barcodes ORDER BY object_id", conn)
+    with ops_connect(result["db"]) as conn:
+        before = read_sql("SELECT * FROM ops_barcodes ORDER BY object_id", conn)
     again = ops_engine.run_ops({**settings, "n_workers": 2}, wells=["a1"],
                                phases=("decode",), library=library)
-    with sqlite3.connect(again["db"]) as conn:
-        after = pd.read_sql_query("SELECT * FROM ops_barcodes ORDER BY object_id", conn)
+    with ops_connect(again["db"]) as conn:
+        after = read_sql("SELECT * FROM ops_barcodes ORDER BY object_id", conn)
     assert again["wells"]["A1"]["decode"]["workers"] == 2
     pd.testing.assert_frame_equal(before, after)
 
@@ -315,8 +315,8 @@ def test_every_read_behind_the_barcodes_is_stored_when_asked(engine_run,
     decode = result["wells"]["A1"]["decode"]
 
     assert decode["ops_reads_rows"] == decode["reads_owned"] * CYCLES
-    with sqlite3.connect(result["db"]) as conn:
-        reads = pd.read_sql_query("SELECT * FROM ops_reads", conn)
+    with ops_connect(result["db"]) as conn:
+        reads = read_sql("SELECT * FROM ops_reads", conn)
         barcodes = dict(conn.execute(
             "SELECT object_id, barcode FROM ops_barcodes").fetchall())
 
@@ -416,11 +416,11 @@ def test_spotnet_positions_feed_the_same_assignment(engine_run, tmp_path,
     assert decode["spot_detector"] == "spotnet"
     assert decode["workers"] == 1
     assert calls and decode["spots"] > 0
-    with sqlite3.connect(result["db"]) as conn:
-        native = pd.read_sql_query("SELECT object_id, barcode FROM ops_barcodes",
+    with ops_connect(result["db"]) as conn:
+        native = read_sql("SELECT object_id, barcode FROM ops_barcodes",
                                    conn).set_index("object_id")["barcode"]
-    with sqlite3.connect(again["db"]) as conn:
-        spotnet = pd.read_sql_query("SELECT object_id, barcode FROM ops_barcodes",
+    with ops_connect(again["db"]) as conn:
+        spotnet = read_sql("SELECT object_id, barcode FROM ops_barcodes",
                                     conn).set_index("object_id")["barcode"]
     shared = native.index.intersection(spotnet.index)
     assert len(shared) >= 0.9 * len(native)
@@ -484,7 +484,7 @@ def test_two_wells_with_stored_reads_resume_without_rerunning(engine_run,
 
     results = out / "results"
     results.mkdir()
-    with sqlite3.connect(result["db"]) as conn:
+    with ops_connect(result["db"]) as conn:
         stored = dict(conn.execute(
             "SELECT well, COUNT(*) FROM ops_reads WHERE plate = ? GROUP BY well",
             (settings["plate"],)).fetchall())
