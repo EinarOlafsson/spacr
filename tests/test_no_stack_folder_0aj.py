@@ -162,3 +162,33 @@ def test_streamed_crops_read_the_selected_channels_of_a_stack_field(
     windows = _field_windows(path, *_store_field(path))
     box = windows.channels([0], 5, 40, 7, 30)
     assert np.array_equal(box[0], merged[5:40, 7:30, 0])
+
+
+def test_a_field_the_merge_padded_reads_back_exactly_and_keeps_its_channels(tmp_path):
+    """Uneven fields in one batch: the masks (and the merged array) are padded
+    at the bottom and right; the stored channels stay as acquired."""
+    from spacr.crop_store import _StoreFieldWindows
+    from spacr.image_store import (_read_field, _stack_writer, _store_field,
+                                   _write_merged_field, _write_stack_field,
+                                   read_image, verify_store)
+
+    rng = np.random.default_rng(3)
+    stack = rng.integers(0, 60000, (20, 30, 2)).astype(np.uint16)
+    name = "plate1_A01_1_1.npy"
+    writer = _stack_writer(tmp_path, "plate1")
+    _write_stack_field(writer, name, stack, ["1", "2"])
+    labels = np.zeros((24, 33), np.uint16)
+    labels[2:9, 3:12] = 1
+    merged = np.concatenate([np.pad(stack, ((0, 4), (0, 3), (0, 0))), labels[..., None]], -1)
+    layout = {"version": 1, "intensity_channels": [0, 1], "mask_plane_order": ["cell"],
+              "mask_dims": {"cell": 2}}
+    from spacr.image_store import _merged_writer
+    writer = _merged_writer(tmp_path, "plate1", layout)
+    _write_merged_field(writer, name, merged, layout, image_dtype=stack.dtype)
+    store = tmp_path / "fov.ome.zarr"
+    assert np.array_equal(read_image(store / "A/1/1"), np.moveaxis(stack, -1, 0))
+    back = _read_field(store / name)
+    assert back.dtype == merged.dtype and np.array_equal(back, merged)
+    window = _StoreFieldWindows(str(store / name), *_store_field(store / name))
+    assert np.array_equal(window.channels([1], 15, 24, 25, 33)[0], merged[15:24, 25:33, 1])
+    assert verify_store(store)["mismatches"] == []
