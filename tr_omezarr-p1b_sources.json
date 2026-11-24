@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "task": "omezarr-p1b",
-  "state": "P1b: originals, wells, plate split",
+  "state": "P1b + P1c: originals, wells, plate split, no stack/",
   "templates": [
     {
       "file": "spacr/core.py",
@@ -42,6 +42,11 @@
       "file": "spacr/io.py",
       "source": "Dry run, nothing moved yet. Each plate's images go into its own folder inside {src}:",
       "source_sha256": "d75f8281df0f8b5827176683c28b338fd7849bcb23a8e47c0c362bf31b34f29d"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "Original images were left where they are, because these fields do not match them in fov.ome.zarr: {problems}.",
+      "source_sha256": "e1a1f49241796b83df669b20abdcbb1423950d5f352cad04c0adc443c0e431c7"
     },
     {
       "file": "spacr/io.py",
@@ -139,6 +144,16 @@
       "key": "split_plates",
       "source": "(bool) - When the source folder holds images of several plates (read from the file names by the Mask filename pattern), move each plate's images into its own folder inside the source folder, then analyse each plate folder as its own project with its own fov.ome.zarr; run them together with the Batch Runner if you like. The run first prints a dry-run list (and writes all of it to spacr_plate_split_plan.tsv), never overwrites a file, and checks every file's size and each folder's file count after the moves. Off (the default): a folder of several plates stops the run with that list and nothing is moved. The GUI asks before it splits. Default False.",
       "source_sha256": "f37ec6eed69a3a23805da65576382ad3a48fb1884702fbc12119b2503054ae6a"
+    },
+    {
+      "key": "keep_intermediate",
+      "source": "(bool) - Keep the run's working masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' and timelapse runs), which holds the channels and every mask. With fov.ome.zarr no stack/ folder is written at all: preprocessing stores each field's channels straight into fov.ome.zarr. Older projects' stack/ folders are still read, and kept or removed by this setting as before.",
+      "source_sha256": "b8b851185273526536ce6ae13fca1d570ed90678cbaac9bb084dcf03b867f819"
+    },
+    {
+      "key": "mask_image_format",
+      "source": "(str) - Where Mask Generation keeps the fields Measure reads. 'ome-zarr' writes each field straight into fov.ome.zarr in the project folder: preprocessing stores the acquired channels there (no stack/ folder), and the masks are added as label images; one OME-Zarr plate store (row/column/field), the channels in their acquired dtype, one shard file per field image and per label image; no merged/*.npy is written. 'npy' writes stack/*.npy and merged/*.npy as before. 'tiff' writes merged/*.npy plus merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse runs always write stack/ and merged/*.npy, because the plate store has no time axis yet. Older projects with stack/, merged/*.npy or images/<plate>.ome.zarr still read. Default 'ome-zarr'. Alpha.",
+      "source_sha256": "c5b6da752b64d107bba1979c634b048e3a670e7bc00aa7d8b69c85f985472d5b"
     }
   ]
 }

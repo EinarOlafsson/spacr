@@ -17,8 +17,13 @@ P1b:
 - `spacr/qt/screens/app_screen.py`: the "Several plates in one folder" popup
   (title and text).
 
-Settings help: changed `keep_original_images`, `save_original_images`; new
-`split_plates` (label and tooltip, new key).
+P1c: no new runtime templates (the stack reader adds none); the plate-split
+and originals lines above are reused when preprocessing settles the
+originals.
+
+Settings help: changed `keep_original_images`, `save_original_images`,
+`keep_intermediate`, `mask_image_format`; new `split_plates` (label and
+tooltip, new key).
 
 The exact texts and sha256 are in the JSON (regenerated with
 `0aj_scratch/tools/tr_new.py` against 1b31681377).
