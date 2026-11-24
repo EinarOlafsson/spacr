@@ -70,7 +70,7 @@ __all__ = [
     'TabularFormatError',
     'CSV_SUFFIXES', 'COMPRESSED_SUFFIXES', 'DATABASE_SUFFIXES', 'TABLE_SUFFIXES',
     'resolve_path', 'table_format',
-    'read_table', 'write_table',
+    'read_table', 'read_table_columns', 'write_table',
     'read_database', 'write_database',
     'database_tables', 'table_columns',
 ]
@@ -377,6 +377,36 @@ def _settings_from_table(frame: pd.DataFrame, setting_key: str = 'setting_key',
         frame, setting_key, setting_value, source=source)
     return {key: _parse_setting_value(value)
             for key, value in zip(frame[setting_key], frame[setting_value])}
+
+
+def read_table_columns(source: Any, columns: List[str], *, chunk_rows: int = 262144,
+                       table: Optional[str] = None) -> pd.DataFrame:
+    """Read only some columns of one table, a chunk of rows at a time.
+
+    A Parquet file is decoded row group by row group, so the columns left out are never
+    brought into memory: a whole-well cell table of 2,800 columns costs only the few
+    columns asked for. Another format is read with its ``usecols`` or ``columns`` argument
+    through :func:`read_table`. Column names are kept as written, not canonicalised.
+
+    :param source: the table path.
+    :param columns: the column names wanted; a name the table lacks is skipped.
+    :param chunk_rows: rows decoded per chunk of a Parquet file.
+    :param table: the table name, for a database.
+    :returns: the frame with the wanted columns, in the order given.
+    """
+    kind = 'sqlite' if _backend_of(source) != 'sqlite' else table_format(source)
+    present = set(table_columns(source, table=table, canonicalise=False))
+    wanted = [c for c in dict.fromkeys(columns) if c in present]
+    if kind != 'parquet':
+        frame = read_table(source, table=table, canonicalise=False, report=None)
+        return frame[wanted]
+    parquet = _require_optional('pyarrow.parquet', _PYARROW_MISSING_MESSAGE)
+    pyarrow = _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
+    reader = parquet.ParquetFile(resolve_path(_fetched(source)))
+    batches = list(reader.iter_batches(batch_size=int(chunk_rows), columns=wanted))
+    if not batches:
+        return reader.schema_arrow.empty_table().select(wanted).to_pandas()
+    return pyarrow.Table.from_batches(batches).to_pandas()
 
 
 def write_table(frame: pd.DataFrame, path: Any, *,

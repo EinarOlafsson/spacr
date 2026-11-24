@@ -7291,7 +7291,7 @@ def _ph_design(path: str, prefix_length: int):
 
 def _ph_feature_columns(columns) -> List[str]:
     """The per-cell feature columns: compartment-prefixed, not positions."""
-    skip = ("centroid", "bbox", "coords", "orientation", "label")
+    skip = ("centroid", "bbox", "coords", "orientation", "label", "cell_cycle_")
     return [c for c in columns
             if str(c).startswith(("nucleus_", "cell_", "cytoplasm_"))
             and not any(s in str(c) for s in skip)]

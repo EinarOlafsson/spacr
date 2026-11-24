@@ -342,6 +342,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_run": "",
     "ops_profile_recipe": None,
     "ops_profile_min_cells": 10,
+    "ops_profile_nuisance": [],
+    "ops_profile_nuisance_fit": "controls",
+    "ops_profile_phase_filter": None,
     "ops_profile_active_filter": None,
     "ops_profile_cell_state": None,
     "ops_profile_gene_universe": None,
@@ -943,6 +946,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_run": str,
     "ops_profile_recipe": (dict, type(None)),
     "ops_profile_min_cells": int,
+    "ops_profile_nuisance": (list, str, type(None)),
+    "ops_profile_nuisance_fit": str,
+    "ops_profile_phase_filter": (str, type(None)),
     "ops_profile_active_filter": (dict, type(None)),
     "ops_profile_cell_state": (str, list, type(None)),
     "ops_profile_gene_universe": (str, list, type(None)),
@@ -1484,6 +1490,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Profile run": [
         "ops_profile_cells", "ops_profile_wells", "ops_profile_run",
         "ops_profile_recipe", "ops_profile_min_cells",
+        "ops_profile_nuisance", "ops_profile_nuisance_fit", "ops_profile_phase_filter",
         "ops_profile_active_filter", "ops_profile_cell_state",
         "ops_profile_gene_universe", "ops_profile_space", "ops_fusion_blocks",
         "ops_reference_dir",
@@ -2594,6 +2601,26 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - Genes and pseudo-genes with this many cells or fewer are left "
         "out of the profile table and the metrics; raising it drops weakly "
         "sampled genes whose profiles are noisy. Default 10. Alpha.",
+    "ops_profile_nuisance":
+        "(list) - Per-cell nuisance sources regressed out of every feature "
+        "before the profile PCA and TVN: any of cell_cycle (stage "
+        "probabilities, posterior_S/G2, log2 DNA content; or its parts "
+        "stage_probs and dna_content), mitotic_binary (interphase vs mitotic, "
+        "mitotic cells kept), phase_onehot (S, G2, M against G1), size (log cell and "
+        "nucleus area), density (neighbour count, log nearest-neighbour "
+        "distance), position (squared distance from the field centre) and "
+        "field (each field's mean removed). Empty leaves the profiles "
+        "unchanged. Default []. Alpha.",
+    "ops_profile_phase_filter":
+        "(str or None) - Build the profiles only from the cells of one "
+        "cell_cycle_stage (for example G1), taken after the cell-cycle phase "
+        "has joined its stages to the cell table; a stratified profile, not a "
+        "regression. Default None (all cells). Alpha.",
+    "ops_profile_nuisance_fit":
+        "(str) - Which cells the nuisance slopes are fitted on: 'controls' "
+        "(the non-targeting cells, so a gene effect is never removed) or "
+        "'all'. Only used when ops_profile_nuisance is not empty. Default "
+        "'controls'. Alpha.",
     "ops_profile_active_filter":
         "(dict or None) - Keep only active genes: {'hits_table': path, 'fdr': "
         "0.05} keeps the genes with any *_fdr column of the hits table below "

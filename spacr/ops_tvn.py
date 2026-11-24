@@ -53,7 +53,7 @@ import os
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import partial
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -130,6 +130,249 @@ def _scale_rows(values: np.ndarray, reference: np.ndarray, epsilon: float) -> np
         return scaler.transform(values)
     scale = np.sqrt(scaler.var_ + epsilon)
     return ((values - scaler.mean_) / scale).astype(values.dtype, copy=False)
+
+
+#: The nuisance sources ``ops_profile_nuisance`` accepts.
+NUISANCE_KINDS: Tuple[str, ...] = ("cell_cycle", "stage_probs", "dna_content", "mitotic_binary",
+                                   "phase_onehot", "size", "density", "position", "field")
+
+#: The columns of a per-well cell table each nuisance source reads.
+NUISANCE_COLUMNS: Dict[str, Tuple[str, ...]] = {
+    "size": ("cell_area", "nucleus_area"),
+    "density": ("cell_neighbors_within_50", "cell_nearest_neighbor_distance"),
+    "position": ("nucleus_centroid_y", "nucleus_centroid_x"),
+}
+_NUISANCE_PREFIX = "nz_"
+_NUISANCE_BLOCK = 50000
+
+
+def _mitotic_stages() -> Tuple[str, ...]:
+    """The stage names of the cell-cycle phase that are mitotic."""
+    from .ops_cell_cycle import MITOTIC_STAGES
+
+    return tuple(MITOTIC_STAGES) + ("mitotic",)
+
+
+def _stage_source_columns(have: Sequence[str], kind: str) -> List[str]:
+    """The column that gives the mitotic call (or the phase) of a cell, if the table has one.
+
+    ``phase_onehot`` needs ``cell_cycle_stage``; ``mitotic_binary`` takes ``cell_cycle_stage``,
+    else the stage probabilities ``p_<class>``, else the ``mitotic`` column.
+    """
+    if "cell_cycle_stage" in have:
+        return ["cell_cycle_stage"]
+    if kind == "mitotic_binary":
+        probs = [c for c in have if str(c).startswith("p_")]
+        if any(c[2:] in _mitotic_stages() for c in probs):
+            return probs
+        return [c for c in ("mitotic",) if c in have]
+    return []
+
+
+def _mitotic_indicator(cells: pd.DataFrame) -> np.ndarray:
+    """1.0 for a mitotic cell and 0.0 for the others, from the stage call, the stage
+    probabilities or the ``mitotic`` column, in that order of preference."""
+    if "cell_cycle_stage" in cells:
+        return np.isin(cells["cell_cycle_stage"].astype(str).to_numpy(), _mitotic_stages()).astype(float)
+    mitotic = [c for c in cells.columns if str(c).startswith("p_") and str(c)[2:] in _mitotic_stages()]
+    if mitotic:
+        probs = cells[[c for c in cells.columns if str(c).startswith("p_")]].to_numpy(np.float64)
+        names = [str(c)[2:] for c in cells.columns if str(c).startswith("p_")]
+        return np.isin(np.array(names)[np.argmax(probs, axis=1)], _mitotic_stages()).astype(float)
+    return pd.to_numeric(cells["mitotic"], errors="coerce").to_numpy(np.float64)
+
+
+def nuisance_kinds(value: Any) -> Tuple[str, ...]:
+    """The checked nuisance sources of ``ops_profile_nuisance``, in canonical order.
+
+    :param value: None or empty (off), one name, or a list of names from
+        :data:`NUISANCE_KINDS`.
+    :returns: the chosen names, each once.
+    :raises ValueError: for a name that is not a nuisance source.
+    """
+    if value is None or (not isinstance(value, str) and len(value) == 0) or value == "":
+        return ()
+    names = [value] if isinstance(value, str) else list(value)
+    unknown = sorted({str(n) for n in names} - set(NUISANCE_KINDS))
+    if unknown:
+        raise ValueError(f"ops_profile_nuisance has unknown sources {unknown}; use {list(NUISANCE_KINDS)}")
+    return tuple(k for k in NUISANCE_KINDS if k in {str(n) for n in names})
+
+
+def nuisance_source_columns(cells_columns: Sequence[str], kinds: Sequence[str]) -> List[str]:
+    """The cell-table columns the nuisance sources need, checked against the table.
+
+    :param cells_columns: the columns of the cell table.
+    :param kinds: the sources, from :func:`nuisance_kinds`.
+    :returns: the columns to read, in a stable order.
+    :raises ValueError: when a source finds none of its columns.
+    """
+    have = list(cells_columns)
+    wanted: List[str] = []
+    for kind in kinds:
+        if kind in ("cell_cycle", "stage_probs", "dna_content"):
+            found = ([c for c in have if str(c).startswith("p_")]
+                     + [c for c in ("posterior_S", "posterior_G2") if c in have]
+                     if kind != "dna_content" else []) + (
+                [c for c in ("dna_log2_fc",) if c in have] if kind != "stage_probs" else [])
+        elif kind in ("mitotic_binary", "phase_onehot"):
+            found = _stage_source_columns(have, kind)
+        elif kind == "field":
+            found = [c for c in ("site",) if c in have]
+        else:
+            found = [c for c in NUISANCE_COLUMNS[kind] if c in have]
+        if not found:
+            raise ValueError(
+                f"ops_profile_nuisance asks for '{kind}', but the cell table has none of its columns; "
+                + ("join the stage probabilities (p_<class>), posterior_S/posterior_G2 or dna_log2_fc "
+                   "of the cell-cycle phase to the cell table" if kind in (
+                       "cell_cycle", "stage_probs", "dna_content") else
+                   "join cell_cycle_stage of the cell-cycle phase (or, for mitotic_binary, the p_<class> "
+                   "or a mitotic column) to the cell table" if kind in (
+                       "mitotic_binary", "phase_onehot") else
+                   "the table needs a 'site' column" if kind == "field" else
+                   f"it reads {list(NUISANCE_COLUMNS[kind])}"))
+        wanted += [c for c in found if c not in wanted]
+    if "position" in kinds or "field" in kinds:
+        wanted += [c for c in ("site",) if c in have and c not in wanted]
+    return wanted
+
+
+def nuisance_covariates(cells: pd.DataFrame, kinds: Sequence[str]) -> pd.DataFrame:
+    """The per-cell covariates of the nuisance sources, one ``nz_*`` column each.
+
+    ``cell_cycle`` is ``stage_probs`` (``p_<class>``, the first class
+    dropped, since the set sums to 1, with ``posterior_S`` and ``posterior_G2``)
+    plus ``dna_content`` (``dna_log2_fc`` and its square). ``mitotic_binary`` is one
+    interphase-versus-mitotic indicator, the mitotic cells kept, and ``phase_onehot`` the
+    S, G2 and M indicators of ``cell_cycle_stage`` against G1. ``size`` is the log cell and nucleus
+    areas; ``density`` the neighbour count and the log nearest-neighbour
+    distance; ``position`` the squared distance of the nucleus from the centre
+    of its field (the middle of the field's centroid range). ``field`` adds
+    ``nz_field`` (well and site), which :func:`regress_nuisance` centres on.
+
+    :param cells: the cell table.
+    :param kinds: the sources, from :func:`nuisance_kinds`.
+    :returns: a frame row for row with ``cells``, float64 with gaps as NaN.
+    """
+    out: Dict[str, Any] = {}
+    num = lambda name: pd.to_numeric(cells[name], errors="coerce").to_numpy(np.float64)  # noqa: E731
+    logs = lambda a: np.log(np.where(a > 0, a, np.nan))  # noqa: E731
+    for kind in kinds:
+        if kind in ("cell_cycle", "stage_probs"):
+            for c in [c for c in cells.columns if str(c).startswith("p_")][1:]:
+                out[f"cc_{c}"] = num(c)
+            for c in ("posterior_S", "posterior_G2"):
+                if c in cells:
+                    out[f"cc_{c}"] = num(c)
+        if kind in ("cell_cycle", "dna_content") and "dna_log2_fc" in cells:
+            out["cc_dna"], out["cc_dna_sq"] = num("dna_log2_fc"), num("dna_log2_fc") ** 2
+        if kind == "mitotic_binary":
+            out["mitotic"] = _mitotic_indicator(cells)
+        elif kind == "phase_onehot":
+            stage = cells["cell_cycle_stage"].astype(str).to_numpy()
+            known = np.isin(stage, ("G1", "S", "G2") + _mitotic_stages())
+            for phase in ("S", "G2", "M"):
+                hit = np.isin(stage, _mitotic_stages()) if phase == "M" else stage == phase
+                out[f"phase_{phase}"] = np.where(known, hit.astype(np.float64), np.nan)
+        elif kind == "size":
+            for c in NUISANCE_COLUMNS["size"]:
+                if c in cells:
+                    out[f"size_{c}"] = logs(num(c))
+        elif kind == "density":
+            if "cell_neighbors_within_50" in cells:
+                out["density_n"] = num("cell_neighbors_within_50")
+            if "cell_nearest_neighbor_distance" in cells:
+                out["density_nn"] = logs(num("cell_nearest_neighbor_distance"))
+        elif kind == "position":
+            y, x = num("nucleus_centroid_y"), num("nucleus_centroid_x")
+            field = (cells["well"].astype(str) + "_" + cells["site"].astype(str)
+                     if "site" in cells and "well" in cells else pd.Series("all", index=cells.index))
+            frame = pd.DataFrame({"y": y, "x": x, "f": field.to_numpy()})
+            for axis in ("y", "x"):
+                grouped = frame.groupby("f")[axis]
+                frame[axis] = frame[axis] - (grouped.transform("min") + grouped.transform("max")) / 2
+            out["position_r2"] = (frame["y"] ** 2 + frame["x"] ** 2).to_numpy()
+    frame = pd.DataFrame({f"{_NUISANCE_PREFIX}{k}": v for k, v in out.items()}, index=cells.index)
+    if "field" in kinds:
+        frame[f"{_NUISANCE_PREFIX}field"] = (cells["well"].astype(str) + "_" + cells["site"].astype(str)).to_numpy()
+    return frame
+
+
+def regress_nuisance(values: List[np.ndarray], covariates: List[np.ndarray], control: List[np.ndarray],
+                     fields: Optional[List[np.ndarray]] = None) -> Dict[str, Any]:
+    """Remove the linear part of per-cell nuisance covariates from the features, in place.
+
+    Per feature, ordinary least squares with an intercept on the fit cells
+    (``control``), then ``x - [1 z] B`` for every cell. With ``fields`` each
+    field's mean of the features and of the covariates, taken over all of its
+    cells, is removed first (the field fixed effect), through the
+    centre of :func:`spacr.batch_correction._center`. Columns are processed in
+    blocks, float32 in place, with the normal equations accumulated in float64.
+
+    Gaps are safe: a gap in a feature leaves that cell's value a gap and drops
+    it from that feature's fit; a cell with a gap in any covariate is not
+    adjusted by the slopes (its covariates stand at the fit mean) and drops
+    out of the fit.
+
+    :param values: one float array per well, cells by features; changed in place.
+    :param covariates: one array per well, cells by covariates; may be empty.
+    :param control: one boolean array per well, the cells the slopes are fitted on.
+    :param fields: one label array per well, or None for no field effect.
+    :returns: ``{"covariates", "n_fit", "coefficients"}``: ``coefficients``
+        is the ``(1 + covariates) x features`` matrix ``B`` of standardised
+        covariates, with ``mean`` and ``scale`` of each covariate.
+    """
+    from .batch_correction import _center
+
+    k = covariates[0].shape[1] if covariates else 0
+    cov = [np.asarray(c, dtype=np.float64).copy() for c in covariates]
+    if fields is not None:
+        for i, labels in enumerate(fields):
+            for label in pd.unique(labels):
+                rows = np.flatnonzero(labels == label)
+                values[i][rows] -= _center(pd.DataFrame(values[i][rows]), False).to_numpy(np.float32)
+                if k:
+                    cov[i][rows] -= _center(pd.DataFrame(cov[i][rows]), False).to_numpy()
+    p = values[0].shape[1]
+    stacked = np.vstack(cov) if k else np.empty((0, 0))
+    fit_all = np.concatenate(control)
+    ok_all = np.isfinite(stacked).all(axis=1) if k else np.ones(len(fit_all), bool)
+    mean = np.nanmean(stacked[fit_all & ok_all], axis=0) if k and (fit_all & ok_all).any() else np.zeros(k)
+    scale = np.nanstd(stacked[fit_all & ok_all], axis=0) if k and (fit_all & ok_all).any() else np.ones(k)
+    scale[~np.isfinite(scale) | (scale == 0)] = 1.0
+    design = []
+    for c in cov:
+        z = (c - mean) / scale
+        bad = ~np.isfinite(z)
+        z[bad] = 0.0
+        design.append(np.hstack([np.ones((len(z), 1)), z]))
+    ok = [np.isfinite(c).all(axis=1) for c in cov]
+    xtx, xty = np.zeros((k + 1, k + 1)), np.zeros((k + 1, p))
+    gap_cols: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
+    for x, z, use, fit in zip(values, design, ok, control):
+        rows = np.flatnonzero(fit & use)
+        for start in range(0, len(rows), _NUISANCE_BLOCK):
+            r = rows[start:start + _NUISANCE_BLOCK]
+            y, zr = x[r].astype(np.float64), z[r]
+            finite = np.isfinite(y)
+            for j in np.flatnonzero(~finite.all(axis=0)):
+                a, b = gap_cols.setdefault(int(j), (np.zeros((k + 1, k + 1)), np.zeros(k + 1)))
+                a += zr[finite[:, j]].T @ zr[finite[:, j]]
+                b += zr[finite[:, j]].T @ y[finite[:, j], j]
+                y[~finite[:, j], j] = 0.0
+            ok_cols = np.ones(p, bool)
+            ok_cols[list(gap_cols)] = False
+            xtx += zr.T @ zr
+            xty[:, ok_cols] += zr.T @ y[:, ok_cols]
+    solved = np.linalg.lstsq(xtx, xty, rcond=None)[0]
+    for j, (a, b) in gap_cols.items():
+        solved[:, j] = np.linalg.lstsq(a, b, rcond=None)[0]
+    for x, z in zip(values, design):
+        for start in range(0, len(x), _NUISANCE_BLOCK):
+            x[start:start + _NUISANCE_BLOCK] -= (z[start:start + _NUISANCE_BLOCK] @ solved).astype(np.float32)
+    return {"covariates": k, "n_fit": int((fit_all & ok_all).sum()), "coefficients": solved,
+            "mean": mean, "scale": scale}
 
 
 def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
@@ -934,8 +1177,8 @@ def _state_keep(cells: pd.DataFrame, state: str, classifier: Optional[Mapping[st
 
 def _profile_well(path: str, plate: str, well: str, features: Sequence[str], recipe: Mapping[str, Any],
                   columns: Optional[List[str]], control_prefix: str, state: str = "interphase_rule",
-                  classifier: Optional[Mapping[str, Any]] = None
-                  ) -> Tuple[pd.DataFrame, np.ndarray, List[str]]:
+                  classifier: Optional[Mapping[str, Any]] = None, nuisance: Sequence[str] = (),
+                  phase: Optional[str] = None) -> Tuple[pd.DataFrame, np.ndarray, List[str]]:
     """One well's cells of one state, filtered and imputed, ready for the PCA.
 
     Cells outside ``state`` are dropped (by default the mitotic cells of
@@ -944,14 +1187,24 @@ def _profile_well(path: str, plate: str, well: str, features: Sequence[str], rec
     5 % or more gaps and cells with 1 % or more are dropped (Brieflow's
     ``missing_values_filter``); remaining gaps are imputed; with ``lof``
     the outlier filter runs; the columns are aligned to the first well's.
+    With ``phase`` only the cells whose ``cell_cycle_stage`` (the cell-cycle phase joined to
+    the cell table) is that phase stay, after the state filter and before the covariates and
+    the aggregation.
 
     :returns: ``(meta, values, columns)``: ``meta`` has ``plate``, ``well``,
         ``gene_symbol_0`` (control genes suffixed with their guide),
-        ``cell_barcode_0`` and ``batch_values`` (plate_well).
+        ``cell_barcode_0`` and ``batch_values`` (plate_well); with
+        ``nuisance`` also the ``nz_*`` covariate columns of
+        :func:`nuisance_covariates`, which follow every row filter.
     """
-    from .tabular import read_table
+    from .tabular import read_table, table_columns
 
     wanted = ["well", "sgRNA", "gene", "mitotic"] + list(features)
+    if nuisance:
+        wanted += [c for c in nuisance_source_columns(table_columns(path, canonicalise=False), nuisance)
+                   if c not in wanted]
+    if phase and "cell_cycle_stage" not in wanted:
+        wanted.append("cell_cycle_stage")
     if classifier is not None and state not in ("interphase_rule", "all"):
         wanted += [c for c in classifier["features"] if c not in wanted]
         group = classifier.get("normalise_by")
@@ -959,9 +1212,14 @@ def _profile_well(path: str, plate: str, well: str, features: Sequence[str], rec
             wanted.append(group)
     cells = read_table(path, canonicalise=False, report=None, columns=wanted)
     keep = _state_keep(cells, state, classifier)
+    if phase:
+        keep = keep & (cells["cell_cycle_stage"].astype(str).to_numpy() == phase)
+    covariates = nuisance_covariates(cells, nuisance)[keep].reset_index(drop=True) if nuisance else None
     cells = cells[keep][["well", "sgRNA", "gene"] + list(features)].reset_index(drop=True)
     meta = pd.DataFrame({"plate": plate, "well": well, "gene_symbol_0": cells.gene.astype(str),
                          "cell_barcode_0": cells.sgRNA.astype(str)})
+    if covariates is not None:
+        meta = pd.concat([meta, covariates], axis=1)
     x = cells[list(features)].astype(np.float32).replace([np.inf, -np.inf], np.nan)
     del cells
     if x.isna().any().any():
@@ -1176,6 +1434,34 @@ def cells_to_profiles(values: List[np.ndarray], metas: List[pd.DataFrame], recip
                            "runtime": timing, "kept_cells": kept_cells}
 
 
+def _regress_profile_cells(values: List[np.ndarray], metas: List[pd.DataFrame], kinds: Sequence[str],
+                           fit: str, control_prefix: str) -> Dict[str, Any]:
+    """Run :func:`regress_nuisance` on the per-well cell arrays of a profile run, in place.
+
+    :param values: one feature array per well.
+    :param metas: the matching tables, with the ``nz_*`` covariates of :func:`_profile_well`.
+    :param kinds: the sources from :func:`nuisance_kinds`.
+    :param fit: ``'controls'`` or ``'all'``.
+    :param control_prefix: the control gene prefix.
+    :returns: the record kept in the run's ``info["nuisance"]``.
+    """
+    if fit not in ("controls", "all"):
+        raise ValueError(f"ops_profile_nuisance_fit must be 'controls' or 'all'; got {fit!r}")
+    names = [c for c in metas[0].columns if str(c).startswith(_NUISANCE_PREFIX)
+             and c != f"{_NUISANCE_PREFIX}field"]
+    if not names and "field" not in kinds:
+        raise ValueError("ops_profile_nuisance needs the nz_* covariate columns in the cell metadata; "
+                         "build the metadata with _profile_well(..., nuisance=...)")
+    controls = [m.gene_symbol_0.str.startswith(control_prefix).to_numpy() for m in metas]
+    used = controls if fit == "controls" else [np.ones(len(m), bool) for m in metas]
+    made = regress_nuisance(
+        values, [m[names].to_numpy(np.float64) for m in metas], used,
+        [m[f"{_NUISANCE_PREFIX}field"].to_numpy() for m in metas] if "field" in kinds else None)
+    return {"sources": list(kinds), "fit": fit, "covariate_names": names, "n_fit": made["n_fit"],
+            "coefficients": made["coefficients"].tolist(), "covariate_mean": made["mean"].tolist(),
+            "covariate_scale": made["scale"].tolist()}
+
+
 def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[str], None]] = None,
                         state: str = "interphase_rule", classifier: Optional[Mapping[str, Any]] = None
                         ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
@@ -1198,7 +1484,8 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         ``mitotic`` and feature columns, or ``{plate: folder}``),
         ``ops_profile_wells``, ``plate``, ``ops_profile_recipe``
         (:func:`profile_recipe`), ``ops_tvn_whiten_epsilon``,
-        ``ops_profile_min_cells``, ``ops_profile_active_filter``
+        ``ops_profile_min_cells``, ``ops_profile_phase_filter`` (keep only the cells
+        of one ``cell_cycle_stage``, for example ``"G1"``), ``ops_profile_active_filter``
         (``{"hits_table": path, "fdr": 0.05}``: genes with any ``*_fdr``
         column below ``fdr``), ``ops_profile_shrinkage`` (``'eb_nt'``:
         :func:`spacr.gene_measurement_compare.shrink_gene_profiles`, with
@@ -1240,6 +1527,8 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
     prefix = str(settings.get("ops_control_prefix") or "nontargeting")
     epsilon = float(settings["ops_tvn_whiten_epsilon"])
     min_cells = int(settings.get("ops_profile_min_cells", 10))
+    kinds = nuisance_kinds(settings.get("ops_profile_nuisance"))
+    phase = str(settings.get("ops_profile_phase_filter") or "").strip() or None
     tables = _cell_tables(settings.get("ops_profile_cells"), str(settings.get("plate") or ""),
                           settings.get("ops_profile_wells"))
     features = _ph_feature_columns(table_columns(tables[0][2], canonicalise=False))
@@ -1249,18 +1538,28 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
     for plate, well, path in tables:
         listed = read_table(path, canonicalise=False, report=None, columns=["sgRNA", "gene"])
         control_guides |= set(listed.sgRNA[listed.gene.astype(str).str.startswith(prefix)].astype(str))
-        meta, x, cols = _profile_well(path, plate, well, features, recipe, columns, prefix, state, classifier)
+        meta, x, cols = _profile_well(path, plate, well, features, recipe, columns, prefix, state, classifier,
+                                      nuisance=kinds, phase=phase)
         columns = columns or cols
         metas.append(meta)
         values.append(x)
-        say(f"profile: {plate} {well}: {len(meta)} {state} cells")
+        say(f"profile: {plate} {well}: {len(meta)} {state}{' ' + phase if phase else ''} cells")
     timing["load_and_filter_s"] = round(time.time() - started, 1)
+    removed = removed_timing = None
+    if kinds:
+        started = time.time()
+        removed = _regress_profile_cells(values, metas, kinds, str(settings.get("ops_profile_nuisance_fit")
+                                                                  or "controls"), prefix)
+        removed_timing = {"nuisance_s": round(time.time() - started, 1)}
     started = time.time()
     genes, guides, made = cells_to_profiles(
         values, metas, recipe, whiten_epsilon=epsilon, control_prefix=prefix, control_guides=control_guides,
         min_cells=min_cells, universe=settings.get("ops_profile_gene_universe"),
         keep_cells=bool(settings.get("ops_etest", False)))
     timing.update(made.pop("runtime"))
+    if removed is not None:
+        made["nuisance"] = removed
+        timing.update(removed_timing)
     started = time.time()
     pcs = [c for c in genes.columns if str(c).startswith("PC_")]
     adjusted: Dict[str, Any] = {}
@@ -1282,6 +1581,9 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
     info = {"kept_cells": kept_cells} if kept_cells is not None else {}
     info.update({**made, "features": len(columns), "recipe": recipe, "tvn_whiten_epsilon": epsilon,
                  "runtime": timing, **adjusted})
+    if phase:
+        info["phase_filter"] = {"phase": phase, "cells": int(sum(len(m) for m in metas)),
+                                "cells_per_gene": genes.set_index("gene")["n_cells"].to_dict()}
     return genes, guides, info
 
 
