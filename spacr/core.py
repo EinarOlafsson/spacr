@@ -5259,7 +5259,8 @@ def _validate_umap_source_db(db_path, tables, require_png_list=True):
     :returns: None.
     :raises ValueError: naming ``db_path`` and exactly what is missing.
     """
-    if not os.path.isfile(db_path):
+    from .measurement_store import exists as _measurements_exist
+    if not _measurements_exist(db_path):
         raise ValueError(
             f"generate_image_umap: no measurements database at {db_path}. "
             "Run the Measure module on this source folder (with save_png "
@@ -5270,8 +5271,9 @@ def _validate_umap_source_db(db_path, tables, require_png_list=True):
     conn = _connect_database(db_path)
     try:
         present = {row[0] for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'")}
-        png_cols = {row[1] for row in conn.execute("PRAGMA table_info('png_list')")}
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+        png_cols = {row[1] for row in conn.execute(
+            "PRAGMA table_info('png_list')").fetchall()}
     finally:
         conn.close()
 
