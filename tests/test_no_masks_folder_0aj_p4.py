@@ -151,6 +151,15 @@ def test_a_default_run_creates_no_masks_folder_and_writes_no_archive(
     records = plate / "fov.ome.zarr" / RECORDS
     # The run's records are kept with the intermediates, otherwise removed.
     assert (records / "batch_plan.json").is_file() is keep
+    if keep:
+        import json
+
+        plan = json.loads((records / "batch_plan.json").read_text())
+        # A plotting run keeps the batches its archives had (batch_size 2,
+        # nothing resized or calibrated), so its masks are those of earlier versions.
+        assert bool(plan.get("archive_equivalent")) is plot
+        if plot:
+            assert plan["sizes"] == [2, 2] and not plan.get("calibration")
     assert len(_merged(plate)) == 4
     assert {role for _n, role in _labels(plate)} == {"cell", "nucleus"}
     assert verify_project(plate)["mismatches"] == []

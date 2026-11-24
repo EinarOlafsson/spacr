@@ -355,8 +355,10 @@ def _prepare_mask_batch_plan(mask_src, settings):
 
     batches._legacy_batch_size(settings)
     plan = batches._read_plan(mask_src)
-    if plan is None:
-        return None
+    if plan is None or plan.get('archive_equivalent'):
+        # Item 0aj P4: a plotting run's plan keeps its archive route's batches
+        # and tile batch: nothing is calibrated or resized.
+        return plan
     active = (settings['_batch_size_request'] == batches._AUTO_VRAM
               or batches._wants_auto_tiles(settings))
     if active:

@@ -3136,8 +3136,22 @@ def _concatenate_and_normalize_impl(
             if moved:
                 print(f'Set {len(moved)} earlier normalised archive(s) aside as '
                       f'<name>.superseded: the batches are now built in memory.')
-            mask_batches._write_plan(output_fldr, src, batches, channels, settings,
-                                    save_dtype, request=request, resolved=False)
+            if settings.get('plot'):
+                # Item 0aj P4: a plotting run wrote masks/*.npz before; its
+                # in-memory batches keep exactly what that archive route did
+                # (the batch_size cut, no VRAM resize, no tile calibration),
+                # so its masks are those of earlier versions.
+                legacy = int(settings['batch_size'])
+                batches = [names[i:i + legacy] for i in range(0, len(names), legacy)]
+                mask_batches._write_plan(
+                    output_fldr, src, batches, channels, settings, save_dtype,
+                    request=request, resolved=True,
+                    extra={'archive_equivalent': True, 'batch_size_used': legacy,
+                           'sizes': [len(batch) for batch in batches],
+                           'borrowed': [], 'normalisation': {}})
+            else:
+                mask_batches._write_plan(output_fldr, src, batches, channels, settings,
+                                        save_dtype, request=request, resolved=False)
             print(f'Planned {len(names)} field(s) for in-memory normalised batches '
                   f'({"automatic" if not request else "requested " + str(request)} batch size, '
                   f'fixed when the masks start from the free GPU and RAM); no archive is '
