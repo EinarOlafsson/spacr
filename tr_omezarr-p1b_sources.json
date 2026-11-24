@@ -132,8 +132,8 @@
   "settings_help": [
     {
       "key": "keep_original_images",
-      "source": "(bool) - What happens to the original image files once their pixels are in fov.ome.zarr. On (the default): after each field is committed to fov.ome.zarr and every channel plane is verified byte for byte against its original, that field's originals are moved into orig/ in the project folder. Off: each original is deleted, but only after that same check passed for its field; this saves the disk space of a second copy and cannot be undone. A field whose channel was projected from several files (z slices) has no single plane to compare, so its originals are moved to orig/ even when this is off. A run cut short never loses an image: the next run checks again and finishes the moves or deletions. With mask_image_format 'npy' or 'tiff', or a timelapse run, the originals go to orig/ and are deleted at the end only when this is off, as before. save_original_images off or delete_intermediate on also turn keeping off. Default True.",
-      "source_sha256": "dd96c57000282ad24accc4858fbaef63c758af5885dd6cc7333d0b50c087003a"
+      "source": "(bool) - What happens to the original image files once their pixels are in fov.ome.zarr. On (the default): after a field is committed and every channel plane is verified byte for byte against its original, its originals are moved into orig/ in the project folder. Off: they are deleted after that same check, which saves disk space and cannot be undone; a channel projected from several files (z slices) cannot be compared, so its originals go to orig/ anyway. A run cut short never loses an image. With 'npy', 'tiff' or timelapse runs, orig/ is deleted at the end only when off. Default True.",
+      "source_sha256": "a784d6a7b4ec98700c664886f867d7057370a9f85b7598a8fcd8604ccde2b8b8"
     },
     {
       "key": "save_original_images",
@@ -142,8 +142,8 @@
     },
     {
       "key": "split_plates",
-      "source": "(bool) - When the source folder holds images of several plates (read from the file names by the Mask filename pattern), move each plate's images into its own folder inside the source folder, then analyse each plate folder as its own project with its own fov.ome.zarr; run them together with the Batch Runner if you like. The run first prints a dry-run list (and writes all of it to spacr_plate_split_plan.tsv), never overwrites a file, and checks every file's size and each folder's file count after the moves. Off (the default): a folder of several plates stops the run with that list and nothing is moved. The GUI asks before it splits. Default False.",
-      "source_sha256": "f37ec6eed69a3a23805da65576382ad3a48fb1884702fbc12119b2503054ae6a"
+      "source": "(bool) - When the source folder holds images of several plates (read from the file names by the Mask filename pattern), move each plate's images into its own folder inside it and analyse each as its own project with its own fov.ome.zarr. The run first prints a dry-run list (all of it in spacr_plate_split_plan.tsv), never overwrites a file, and checks every file's size and each folder's file count after the moves. Off (the default): a folder of several plates stops the run with that list and nothing is moved. The GUI asks before it splits. Default False.",
+      "source_sha256": "d5856e8dfc6991c70bea078bb88105a74224d2d24123a30a11f44458b8f3cf87"
     },
     {
       "key": "keep_intermediate",
@@ -152,8 +152,8 @@
     },
     {
       "key": "mask_image_format",
-      "source": "(str) - Where Mask Generation keeps the fields Measure reads. 'ome-zarr' writes each field straight into fov.ome.zarr in the project folder: preprocessing stores the acquired channels there (no stack/ folder), and the masks are added as label images; one OME-Zarr plate store (row/column/field), the channels in their acquired dtype, one shard file per field image and per label image; no merged/*.npy is written. 'npy' writes stack/*.npy and merged/*.npy as before. 'tiff' writes merged/*.npy plus merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse runs always write stack/ and merged/*.npy, because the plate store has no time axis yet. Older projects with stack/, merged/*.npy or images/<plate>.ome.zarr still read. Default 'ome-zarr'. Alpha.",
-      "source_sha256": "c5b6da752b64d107bba1979c634b048e3a670e7bc00aa7d8b69c85f985472d5b"
+      "source": "(str) - Where Mask Generation keeps the fields Measure reads. 'ome-zarr' stores each field straight into fov.ome.zarr in the project folder: the acquired channels in their own dtype (no stack/ folder) and the masks as label images, one shard file per image; no merged/*.npy is written. 'npy' writes stack/*.npy and merged/*.npy as before; 'tiff' adds merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse runs always write stack/ and merged/*.npy (the plate store has no time axis yet). Older layouts (stack/, merged/*.npy, images/<plate>.ome.zarr) still read. Default 'ome-zarr'. Alpha.",
+      "source_sha256": "337f83934dd10698f1e192f0e57c56f81e33c7d9ce43750587411a2026b3ed00"
     }
   ]
 }

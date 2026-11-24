@@ -206,7 +206,9 @@ def _settle_run_originals(src, settings, merge_format, source_plate=None):
     (:func:`spacr.image_store._settle_originals`). A run that wrote no store
     (``npy``/``tiff``, timelapse, or a folder the store cannot hold) sets
     its originals aside in ``orig/`` as before, and the end-of-run cleanup
-    applies ``keep_original_images`` there.
+    applies ``keep_original_images`` there. A run that ingested raw
+    volumes (``stack/.spacr_volume_ingest.json``, native z-stacks) never set
+    its originals aside, so they stay where they are, as before.
 
     A stored field that does not match its originals is named in a
     warning, and those originals are left where they are.
@@ -218,6 +220,8 @@ def _settle_run_originals(src, settings, merge_format, source_plate=None):
     if not _store_settles_originals(settings):
         return None
     if not _image_entries(_merged_store_path(src)) or merge_format != 'ome-zarr':
+        if os.path.exists(os.path.join(src, 'stack', '.spacr_volume_ingest.json')):
+            return None
         from .io import _RAW_IMAGE_SUFFIXES, _raw_image_names
         from .image_store import _move_without_overwrite
         orig = os.path.join(src, 'orig')
@@ -698,10 +702,6 @@ def preprocess_generate_masks(settings):
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
-    # Item 0aj: one project holds one plate with letter + number wells. A
-    # source of several plates is split into plate folders (split_plates, or
-    # the GUI popup) or stopped; wells fov.ome.zarr cannot name stop the run
-    # before anything is changed.
     from .io import _plate_sources, _well_name_refusal
     checked = set_default_settings_preprocess_generate_masks(deepcopy(settings))
     settings['src'] = _plate_sources(settings['src'], checked)
@@ -814,8 +814,6 @@ def preprocess_generate_masks(settings):
 
                     if settings['preprocess']:
                         from .io import _ORIGINALS_WAIT
-                        # Item 0aj: the originals stay put until each field is
-                        # committed and verified in fov.ome.zarr (below).
                         wait = _ORIGINALS_WAIT.set(bool(settings['masks']))
                         try:
                             settings, src = preprocess_img_data(settings)
@@ -3016,8 +3014,6 @@ def _watch_analyse_field(field_dir, settings):
     run = {key: value for key, value in settings.items()
            if not str(key).startswith('watch_')}
     run.update(src=field_dir, consolidate=False, dry_run=False, test_mode=False)
-    # Item 0aj: a watch run assembles each field's merged/*.npy into the
-    # plate, so its per-field Mask runs keep the npy merge.
     run.update(mask_image_format='npy')
     if _watch_truthy(run.get('t_stack', False)):
         run.update(keep_intermediate=True, delete_intermediate=False)

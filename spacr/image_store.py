@@ -717,9 +717,6 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
     return report
 
 
-# ---------------------------------------------------------------------------
-# The project's merged store (item 0aj): <project>/fov.ome.zarr
-# ---------------------------------------------------------------------------
 
 #: The merged plate store of a project folder: the field channels with every
 #: object mask embedded as labels, one shard file per field image and label
@@ -820,7 +817,6 @@ def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
     stored = writer._committed.get(field_key(well, field)) or {}
     if (stored.get("image_planes") == STACK_PLANES
             and stored.get("name") == os.path.basename(str(name))):
-        # Item 0aj P1c: preprocessing stored the channels; add the masks only.
         return writer.write_labels(well, field, labels, record={
             "dtype": stack.dtype.str, "shape": [int(v) for v in stack.shape]},
             unchanged=stored_labels)
@@ -899,7 +895,7 @@ def _mask_settings_of(project: Path) -> Dict[str, Any]:
             from .utils import load_settings
 
             return dict(load_settings(str(path)))
-        except Exception as exc:  # an unreadable file cannot name the originals
+        except Exception as exc:
             _LOG.info("could not read %s: %s", path, exc)
     return {}
 
@@ -1030,9 +1026,6 @@ def _update_store_spacr_attrs(store: Any, values: Mapping[str, Any]) -> None:
     group.attrs.update({"spacr": stored})
 
 
-# ---------------------------------------------------------------------------
-# The originals (item 0aj P1b): keep_original_images
-# ---------------------------------------------------------------------------
 
 def _same_bytes(first: Path, second: Path, chunk: int = 1 << 20) -> bool:
     """Whether two files hold the same bytes (read now, never from a cache)."""
@@ -1078,7 +1071,6 @@ def _move_without_overwrite(source: Any, target: Any) -> str:
         if exc.errno == errno.EEXIST:
             raise FileExistsError(f"{target} appeared while {source} was moved; "
                                   f"nothing was replaced") from exc
-        # A file system without hard links: rename onto the free name.
         os.rename(source, target)
         return "moved"
     os.remove(source)
@@ -1164,7 +1156,6 @@ def _settle_originals(project: Any, *, keep: bool = True,
     if not entries:
         return report
     wanted = None if names is None else {os.path.basename(str(n)) for n in names}
-    # Notes (no recorded pattern) leave every original where it is.
     files, found_channels, _notes = _original_files(project, settings, source_plate)
     layout = _store_layout(store) or {}
     orig = project / "orig"
@@ -1225,12 +1216,18 @@ class _LazyPlanes:
     """Planes read one at a time from their loaders, each time it is iterated."""
 
     def __init__(self, loaders: Sequence[Callable[[], np.ndarray]]):
+        """Keep the loaders; nothing is read until the planes are iterated.
+
+        :param loaders: one callable per plane, each returning that plane.
+        """
         self._loaders = list(loaders)
 
     def __len__(self) -> int:
+        """The number of planes."""
         return len(self._loaders)
 
     def __iter__(self) -> Iterator[np.ndarray]:
+        """Each plane in order, read from its loader as it is reached."""
         return (load() for load in self._loaders)
 
 
@@ -1251,8 +1248,6 @@ def verify_project(project: Any, *, originals: bool = True) -> Dict[str, Any]:
         raise FileNotFoundError(f"{store} is not a spaCR fov.ome.zarr with committed fields")
     loaders, notes = original_planes(target) if originals else ({}, [])
     entries = _image_entries(store)
-    # Each field's originals are read only when verify_store reaches it, so
-    # one field's planes are in memory at a time.
     compared = {name: _LazyPlanes(planes) for name, planes in loaders.items()
                 if name in entries}
     for name in sorted(set(loaders) - set(compared)):
@@ -1377,7 +1372,6 @@ def _list_fields(folder: Any) -> List[str]:
     except OSError:
         names = []
     if not names and Path(os.fspath(folder)).name == "stack":
-        # A project whose field stacks live in fov.ome.zarr (item 0aj P1c).
         return _stack_names(folder)
     return names
 
@@ -1428,9 +1422,6 @@ def _read_field(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
         planes = np.moveaxis(image[_image_planes(entry, layout)], 0, -1)
         height, width = planes.shape[:2]
         if (height, width) != shape[:2]:
-            # The masks of a batch of uneven fields were padded with zeros at
-            # the bottom and right (as the merge pads the stack); the stored
-            # channels stay as acquired (item 0aj).
             data[..., :n_intensity] = 0
         data[:height, :width, :n_intensity] = planes
     stored = set(entry.get("labels") or ())
@@ -1476,9 +1467,6 @@ def _field_stat(path: Any) -> os.stat_result:
     return result
 
 
-# ---------------------------------------------------------------------------
-# The field stacks (item 0aj P1c): no stack/*.npy, the channels live in fov.ome.zarr
-# ---------------------------------------------------------------------------
 
 #: The ledger value of ``image_planes`` for a field whose stored image is
 #: the whole acquired stack (every channel, in sorted channel order), as

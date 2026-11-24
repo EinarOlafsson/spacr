@@ -463,7 +463,6 @@ def _peek_planes(directory: str) -> Tuple[Optional[int], str, int]:
     if _is_merged_store(directory):
         npys = sorted(_list_fields(directory))
     elif stack:
-        # stack/*.npy, or the field stacks in fov.ome.zarr (item 0aj P1c).
         npys = _stack_names(directory)
     else:
         npys = sorted(f for f in _listdir(directory) if f.endswith(".npy"))

@@ -187,7 +187,9 @@ def _load_batch(plan, index, settings=None):
 
     The fields are loaded, padded to the largest field of the batch when
     their shapes differ, stacked, normalised with the run's own settings and
-    cut to the kept channels.
+    cut to the kept channels. Fields of one shape and dtype are read one at
+    a time straight into the stack, so the batch is held once, not as its
+    fields and their stack.
 
     :param plan: from :func:`_read_plan`.
     :param index: the batch number.
@@ -202,10 +204,23 @@ def _load_batch(plan, index, settings=None):
     stack_dir = os.path.normpath(os.path.join(masks_dir, plan['stack_dir']))
     names = _batch_fields(plan, index)
     channels = [int(channel) for channel in plan['channels']]
-    from .image_store import _read_stack
-    arrays = [_read_stack(os.path.join(stack_dir, name)) for name in names]
-    shapes = {array.shape[:-1] for array in arrays}
-    if len(shapes) > 1:
+    from .image_store import _read_stack, _stack_header
+    paths = [os.path.join(stack_dir, name) for name in names]
+    headers = {_stack_header(path) for path in paths}
+    arrays = shapes = None
+    if len(headers) == 1:
+        shape, dtype = next(iter(headers))
+        stack = np.empty((len(paths), *shape), dtype=dtype)
+        for slot, path in enumerate(paths):
+            stack[slot] = _read_stack(path)
+        field_shapes = [tuple(shape[:-1])] * len(paths)
+    else:
+        arrays = [_read_stack(path) for path in paths]
+        shapes = {array.shape[:-1] for array in arrays}
+        field_shapes = [array.shape[:-1] for array in arrays]
+    if arrays is None:
+        pass
+    elif len(shapes) > 1:
         largest = np.max(np.array(list(shapes)), axis=0)
         print(f'Warning: arrays with multiple shapes found in batch {index + 1}. '
               f'Padding arrays to max X,Y dimensions {largest}')
@@ -234,7 +249,7 @@ def _load_batch(plan, index, settings=None):
         stack=stack, channels=channels, save_dtype=np.dtype(plan['save_dtype']),
         settings=settings,
         field_ids=[os.path.splitext(name)[0] for name in names],
-        field_shapes=[array.shape[:-1] for array in arrays],
+        field_shapes=field_shapes,
         progress=_normalizing_reporter(int(index), len(plan['batches'])))
     _record_normalisation(
         masks_dir, int(index), record if not borrowed and not context.replay else None,

@@ -4771,7 +4771,6 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
                 key = list(data.keys())[0]
                 img = data[key][0]
         else:
-            # The shared field-stack reader: stack/*.npy or fov.ome.zarr (item 0aj).
             img = _read_stack(path)
 
         _plot_array_channels(img, figuresize=figuresize, cmap=cmap, normalize=normalize,

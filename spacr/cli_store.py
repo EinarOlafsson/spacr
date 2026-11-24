@@ -48,7 +48,6 @@ def main(argv=None) -> int:
 
     args = build_parser().parse_args(argv)
     try:
-        # The library's progress lines go to stderr, so stdout is the report.
         with contextlib.redirect_stdout(sys.stderr):
             report = verify_project(args.project, originals=not args.no_originals)
     except Exception as exc:

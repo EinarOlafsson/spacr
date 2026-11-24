@@ -140,7 +140,7 @@ from dataclasses import field as _dataclass_field
 from typing import Any, Dict, Iterable, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
-from .image_store import _read_stack  # the one field-stack reader (item 0aj)
+from .image_store import _read_stack
 
 from .errors import ConfigurationError
 from .measure_hooks import (

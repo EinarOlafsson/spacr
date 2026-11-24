@@ -2531,6 +2531,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert not never_arrivals.keys() & (zoo_arrivals.keys() | hidden_close.keys()
         | worker_arrivals.keys() | home_ui_arrivals.keys() | volume_arrivals.keys())
     zoo_arrivals = {**zoo_arrivals, **never_arrivals}
+    from tests.omezarr_native_api_hooks import _omezarr_native_birth_arrivals
+    zoo_arrivals = {**zoo_arrivals, **_omezarr_native_birth_arrivals(zoo_arrivals)}
     from tests.test_ops_neighbour_sources_1013 import _neighbour_birth_arrivals
     zoo_arrivals = {**zoo_arrivals, **_neighbour_birth_arrivals(zoo_arrivals)}
     sweep_arrivals = json.loads((Path(__file__).resolve().parent

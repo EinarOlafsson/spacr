@@ -828,7 +828,6 @@ def run(argv: list[str] | None = None) -> int:
         argv = sys.argv[1:]
 
     if argv and argv[0] == "store":
-        # `spacr store verify <project>` (item 0aj): a command line, no GUI.
         from ..cli_store import main as store_main
 
         return store_main(list(argv[1:]))

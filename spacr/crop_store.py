@@ -257,8 +257,6 @@ class CropPoolWriter:
                 "write this class to a new store."))
         attributes.pop("mask_dtype", None)
         wanted = {"dtype": self.dtype.str, "channels": self.channels,
-                  # Item 0aj: each row's coordinate_transformations map its
-                  # crop grid into its source field (crop_transformations).
                   "coordinate_systems": {"crop": ["y", "x"], "fov": ["y", "x"],
                                          "ngff_version": "0.6"},
                   "compression": "zstd-3", "crops_per_shard": self.crops_per_shard,
@@ -823,13 +821,18 @@ class _StoreFieldWindows:
     """
 
     def __init__(self, path: str, store: Path, entry: Mapping[str, Any]):
+        """Open the field's image and label arrays and its measured-mask record.
+
+        :param path: the field's name inside the store, as Measure lists it.
+        :param store: the ``fov.ome.zarr`` folder.
+        :param entry: the field's ledger entry in that store.
+        """
         from .crops import _measured_masks_stamp
         from .image_store import _image_planes, _store_layout
 
         layout = _store_layout(store) or {}
         self.group = store / entry["key"]
         self.n_intensity = len(layout.get("intensity_channels") or ())
-        # The stored plane of each merged intensity plane (item 0aj P1c).
         self.planes = _image_planes(entry, layout)
         self.mask_dims = {str(k): int(v) for k, v in (layout.get("mask_dims") or {}).items()}
         self.dtype = np.dtype(entry["dtype"])
@@ -864,7 +867,6 @@ class _StoreFieldWindows:
         block = self._read("0", self.group / "0", y0, y1, x0, x1)
         block = np.array(block[[self.planes[c] for c in channels]])
         if block.shape[-2:] != (y1 - y0, x1 - x0):
-            # A padded field (uneven fields in one batch): zeros beyond the image.
             padded = np.zeros(block.shape[:-2] + (y1 - y0, x1 - x0), block.dtype)
             padded[..., :block.shape[-2], :block.shape[-1]] = block
             block = padded
@@ -915,7 +917,6 @@ def _stream_crop(project: Any, row: Mapping[str, Any], *, labels: bool = False
     object_type = str(_row_field(row, "object_type"))
     found = _store_field(path)
     if found is not None:
-        # fov.ome.zarr: read only the box's chunks of the channels and labels.
         window_of = _field_windows(path, found[0], found[1])
         dtype = np.dtype(_row_field(row, "crop_dtype") or window_of.dtype)
         window = window_of.channels(channels, y0, y1, x0, x1).astype(dtype, copy=False)
@@ -1004,8 +1005,6 @@ def read_crops(project: Any, rows: Iterable[Mapping[str, Any]], *, context: bool
         else:
             streamed[str(_row_field(row, "source_field"))].append(index)
     for _name, members in streamed.items():
-        # Crops of one field are cut from one read of their union box
-        # (item 0aj: a page of Annotate crops reads each field once).
         windows = None
         if len(members) > 1:
             from .image_store import _store_field
@@ -1280,8 +1279,6 @@ def receive_measure_crops(project: Any, file: str,
     sink = _SINKS.get(os.path.abspath(os.fspath(project)))
     if sink is None:
         if all(payload.get("index_only") for payload in payloads):
-            # Streamed crops of a field measured outside a Measure run (no
-            # sink): there is no run index to add their boxes to.
             return
         raise RuntimeError(f"no crop sink is open for {project}")
     sink.receive(file, payloads)
@@ -1306,8 +1303,6 @@ def close_measure_sink(project: Any, db_path: Any) -> int:
         return 0
     written = len(sink.close()) + len(sink.index_rows)
     rows = committed_rows(project)
-    # Streamed crops (saving off, item 0aj): this run's rows, plus the rows
-    # an earlier run streamed for fields this run did not measure.
     prior = _read_crop_index(project)
     if prior is not None and len(prior):
         redo = sink.plan_fields
@@ -1427,7 +1422,7 @@ def read_training_dataset(project: Any, name: str) -> List[Dict[str, Any]]:
 def _write_crop_index(db_path: Any, frame: Any, *, project: Any = None) -> None:
     """The crop-index adapter's writer (item 0aj): one place that stores the crop rows.
 
-    The index goes through spacr.store (maintainer decision): one
+    The index goes through spacr.store: one
     ``crop_index`` part per plate and well, keyed like every table
     (``plate``, ``well``, ``field``, ``object_type``, ``object_label``,
     ``object_id``), registered in the project's catalog. The same rows are
