@@ -1616,8 +1616,10 @@ class _StepPage(QWidget):
         self.render_images()
         for spec in payload.get("graphs", ()):
             if spec.get("kind") == "scatter" and spec.get("tile") is not None:
-                self.point_graph = _PointGraph(spec, self._colours)
-                graph, holder = self.point_graph.graph, self.point_graph
+                pointed = _PointGraph(spec, self._colours)
+                if self.point_graph is None:
+                    self.point_graph = pointed
+                graph, holder = pointed.graph, pointed
             else:
                 graph = _QtGraph()
                 graph.show_spec(spec, self._colours)

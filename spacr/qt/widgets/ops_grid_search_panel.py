@@ -229,6 +229,8 @@ class _OpsGridSearchPanel(QWidget):
         from .sortable_table import table_item
 
         self._result = result
+        self.table.show()
+        self.plot.show()
         table = result["table"]
         sorting = self.table.isSortingEnabled()
         self.table.setSortingEnabled(False)
@@ -298,9 +300,16 @@ def _attach_grid_search(live_panel, host) -> _OpsGridSearchPanel:
         model = getattr(host, "_settings_model", None)
         return model.collect() if model is not None else {}
 
+    from PySide6.QtWidgets import QSizePolicy
+
     page = live_panel.page("spots")
     panel = _OpsGridSearchPanel(collect, host.apply_settings_dict, page)
-    page.layout().addWidget(panel)
+    panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+    panel.table.setMaximumHeight(160)
+    panel.plot.setMaximumHeight(200)
+    panel.table.hide()
+    panel.plot.hide()
+    page.layout().addWidget(panel, 0)
     lend = getattr(live_panel, "add_step_settings", None)
     if callable(lend):
         panel.inputs.hide()
