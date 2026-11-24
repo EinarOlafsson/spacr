@@ -500,36 +500,11 @@ def _process_tree_snapshot(
 
 def _atomic_json(path: Path, payload: Mapping[str, Any]) -> None:
     """Replace one JSON document atomically and durably on local filesystems."""
-    target = Path(path)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary_name = tempfile.mkstemp(
-        prefix=f".{target.name}.", suffix=".tmp", dir=str(target.parent)
-    )
-    temporary = Path(temporary_name)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
-            json.dump(payload, handle, ensure_ascii=False, sort_keys=True,
-                      separators=(",", ":"))
-            handle.write("\n")
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, target)
-        try:
-            directory_descriptor = os.open(str(target.parent), os.O_RDONLY)
-        except OSError:
-            directory_descriptor = None
-        if directory_descriptor is not None:
-            try:
-                os.fsync(directory_descriptor)
-            except OSError:
-                pass
-            finally:
-                os.close(directory_descriptor)
-    finally:
-        try:
-            temporary.unlink()
-        except FileNotFoundError:
-            pass
+    from .checkpoint import _atomic_json as _shared_atomic_json
+
+    _shared_atomic_json(path, payload, indent=None, separators=(",", ":"),
+                        normalize=False, sync_directory=True,
+                        newline_style="\n")
 
 
 class _ResourceSampler:

@@ -882,11 +882,10 @@ class WellWriter:
         pending = os.path.join(self.project, _PENDING)
         os.makedirs(pending, exist_ok=True)
         path = os.path.join(pending, f"{self.uid}.json")
-        with builtins.open(f"{path}.tmp", "w", encoding="utf-8") as handle:
-            json.dump(manifest, handle, indent=1)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(f"{path}.tmp", path)
+        from .checkpoint import _atomic_json
+
+        _atomic_json(path, manifest, indent=1, sort_keys=False,
+                     normalize=False, ensure_ascii=True, newline=False)
         self.manifest = manifest
         return manifest
 

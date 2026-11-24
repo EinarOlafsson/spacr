@@ -1419,14 +1419,14 @@ def test_a_secondary_temp_cleanup_failure_keeps_the_original_record(
         raise OSError('secondary cleanup failure')
 
     monkeypatch.setattr(ill.os, 'replace', replace_fails)
-    monkeypatch.setattr(ill.os, 'remove', cleanup_fails)
+    monkeypatch.setattr(ill.os, 'unlink', cleanup_fails)
     with pytest.raises(OSError, match='original replace failure'):
         session.mark_completed('field-1')
 
     assert session.completed_fields == ()
     assert record_path.read_bytes() == before
     assert len(list(record_path.parent.glob(
-        '.segmentation_application_*.json'))) == 1
+        '.application.json.*.tmp'))) == 1
 
 
 def test_preprocess_false_resume_is_read_only_and_requires_a_complete_record(

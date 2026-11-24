@@ -28,6 +28,8 @@ from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
+from .checkpoint import _atomic_json
+
 #: The settings that reproduce "rule (a) + S2", the final decode rule of the
 #: decode-yield study (2026-11-07): 74.43 % of plate A's nuclei assigned at a
 #: decoy FDR of 0.065 per 100. ``ops_decode_preset: rule_a_s2`` applies them
@@ -2522,13 +2524,13 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
                         or str(calibration.get('requested_method', '')).startswith('never')):
         calibration_paths = _write_calibration_report(folder, plate, well, calibration)
     report_path = os.path.join(folder, f"decode_fdr_{well}.json")
-    with open(report_path, "w", encoding="utf-8") as handle:
-        json.dump(report, handle, indent=1)
+    _atomic_json(report_path, report, indent=1, sort_keys=False,
+                 normalize=False, ensure_ascii=True, newline=False)
     summary = plate_fdr_summary(folder, plate=plate, k=int(rule["decoy_k"]),
                                 scale=float(rule["fdr_scale"]))
     summary_path = os.path.join(folder, f"decode_fdr_{plate}.json")
-    with open(summary_path, "w", encoding="utf-8") as handle:
-        json.dump(summary, handle, indent=1)
+    _atomic_json(summary_path, summary, indent=1, sort_keys=False,
+                 normalize=False, ensure_ascii=True, newline=False)
     report["paths"] = {"field_stats": stats_path, "fdr": report_path,
                        "plate_summary": summary_path, **calibration_paths}
     return report

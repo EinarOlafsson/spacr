@@ -2883,24 +2883,11 @@ class SegmentationIlluminationSession:
         :param completed_fields: the fields corrected so far.
         :param application_state: where the session has got to.
         """
-        parent = os.path.dirname(self.provenance_path)
-        os.makedirs(parent, exist_ok=True)
-        descriptor, temporary = tempfile.mkstemp(
-            prefix='.segmentation_application_', suffix='.json', dir=parent)
-        try:
-            with os.fdopen(descriptor, 'w', encoding='utf-8') as handle:
-                json.dump(self._record(completed_fields, application_state), handle,
-                          indent=2, sort_keys=True)
-                handle.write('\n')
-                handle.flush()
-                os.fsync(handle.fileno())
-            os.replace(temporary, self.provenance_path)
-        except BaseException:
-            try:
-                os.remove(temporary)
-            except OSError:
-                pass
-            raise
+        from .checkpoint import _atomic_json
+
+        _atomic_json(self.provenance_path,
+                     self._record(completed_fields, application_state),
+                     normalize=False, ensure_ascii=True)
 
     def _record_stage(self, state: str) -> None:
         """Report this stage to the run journal, if a run is open.
