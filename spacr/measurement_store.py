@@ -664,7 +664,8 @@ def spool_field(db_path: Any, field: str, packet: Mapping[str, List[Any]], *,
     :param db_path: the project's ``measurements.db`` path or folder.
     :param field: the field's file name.
     :param packet: ``{table: [frames]}`` from :func:`field_packet`.
-    :param ticket: the packet's deterministic ticket.
+    :param ticket: the packet's ticket (the field partition makes a retried
+        packet replace its earlier parts, so it is not stored).
     :param run_id: the run.
     :param timelapse: parse a timepoint from the field name.
     :returns: rows written per table.
@@ -702,9 +703,10 @@ def spool_field(db_path: Any, field: str, packet: Mapping[str, List[Any]], *,
                               sort_by=_sort_by(part),
                               key_columns=_key_columns(part))
         written[table] = int(len(frame))
-    mark = pd.DataFrame([{'ticket': str(ticket), 'field_file': str(field),
-                          'stem': stem, 'tables': ','.join(sorted(written)),
-                          'run_id': str(run_id)}])
+    # The mark holds nothing run-specific, so a rerun with the same
+    # settings writes the same bytes (the run is recorded in the catalog).
+    mark = pd.DataFrame([{'field_file': str(field), 'stem': stem,
+                          'tables': ','.join(sorted(written))}])
     store.write_table(spool, FIELDS_TABLE, mark, plate=plate,
                       well=f'{well}@{stem}', run_id=run_id, sort_by=())
     return written
