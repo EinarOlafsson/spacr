@@ -10077,7 +10077,11 @@ def _ops_store_crops(root: str, plate: str, well: str, prcfo):
     """The well's ph_crops shards matched to ``prcfo``: ``(crops, rows, masks)``.
 
     :returns: lazy crop and mask arrays and each crop's row in ``prcfo``;
-        ``(None, None, None)`` when the well has no shard.
+        ``(None, None, None)`` when the well has no shard, or when its crops
+        are not all one size: crops cut with ``crop_margin_px`` are each
+        their cell's box, which one ``(k, C, H, W)`` store array cannot hold,
+        so they stay in the crop pool (``crops/.../cell``) and are not
+        copied (item 0an; the copy raised a broadcast error before).
     """
     import glob as globbing
 
@@ -10089,7 +10093,8 @@ def _ops_store_crops(root: str, plate: str, well: str, prcfo):
 
         row_of = {str(p): i for i, p in enumerate(prcfo)}
         members = [row for row in native["rows"] if str(row["prcfo"]) in row_of]
-        if not members:
+        if not members or len({(int(row["height"]), int(row["width"]))
+                                for row in members}) > 1:
             return None, None, None
         rows = np.asarray([row_of[str(row["prcfo"])] for row in members], dtype=np.int64)
         image, mask = read_crop(root, members[0])
@@ -10215,15 +10220,22 @@ def _ops_store_wells(db: str, plate: str, wells: Sequence[str],
                               dtype=object)
             crops, crop_rows, masks = _ops_store_crops(root, plate, well, prcfo)
             del prcfo
+            from .ops_store import _stored as _stored_parts
 
-            streamed = _ph_stream_well(
-                plate, well, destination, settings, links, genotype, rule,
-                integer_keys, project, run_id, {"cell": ("cell",)},
-                {"cell": {"crops": crops, "crop_rows": crop_rows,
-                          "masks": masks,
-                          "row_copy": bool(settings.get("ops_store_row_copy",
-                                                        False))}})
-            counts["cell"] = int(streamed["rows"])
+            written = (_stored_parts(project, "cell") or {}).get(
+                (str(plate), str(well)))
+            row_copy = bool(settings.get("ops_store_row_copy", False))
+            if crops is None and written is not None and not row_copy:
+                # Nothing to add to the cell table ph_tables wrote: it is
+                # not streamed a second time (item 0an).
+                counts["cell"] = int(written)
+            else:
+                streamed = _ph_stream_well(
+                    plate, well, destination, settings, links, genotype,
+                    rule, integer_keys, project, run_id, {"cell": ("cell",)},
+                    {"cell": {"crops": crops, "crop_rows": crop_rows,
+                              "masks": masks, "row_copy": row_copy}})
+                counts["cell"] = int(streamed["rows"])
             counts["crops"] = 0 if crop_rows is None else int(len(crop_rows))
         from .ops_store import _store_project, _stored
 

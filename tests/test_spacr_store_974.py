@@ -353,3 +353,22 @@ def test_the_default_ops_run_writes_the_store_and_no_sqlite(measured):
     assert not (run / "tables").exists() and not (run / "crops").exists()
     with store.open(run / "measurements") as opened:
         assert {"cell", "merge", "barcodes"} <= set(opened.tables())
+
+
+def test_box_sized_crops_stay_in_the_crop_pool_and_the_run_finishes(measured):
+    """Item 0an: crops cut with crop_margin_px are each their cell's box.
+
+    One store crop array cannot hold crops of different sizes; the store
+    step used to raise a broadcast error on them. They stay in the OPS crop
+    pool, the cell table is the one ph_tables wrote, and the run finishes.
+    """
+    out = _run(measured, FULL, ops_merged_root=str(measured / "nas"),
+               ops_crop_image_format="ome-zarr", crop_margin_px=4)
+    run = measured / "run"
+    assert out["ph_crops"]["wells"]["A1"]["crops"] > 1
+    assert out["store"]["wells"]["A1"]["crops"] == 0
+    assert out["store"]["wells"]["A1"]["cell"] == \
+        out["ph_tables"]["rows"]["cell"]
+    with store.open(run / "measurements") as opened:
+        cell = opened.query(table="cell")
+    assert "crop_store" not in cell.columns
