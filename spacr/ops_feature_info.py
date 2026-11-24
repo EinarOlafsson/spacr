@@ -13,6 +13,7 @@ import math
 import os
 import time
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from .ops_settings import ops_setting
 
 import numpy as np
 
@@ -727,10 +728,10 @@ def _run_feature_screen(settings: Mapping[str, Any], report=None) -> Dict[str, A
         control=str(settings.get("ops_control_prefix") or "nontargeting"),
         id_columns=ids,
         families=_families(settings.get("ops_feature_screen_families")),
-        permutations=int(settings.get("ops_feature_screen_permutations") or 0),
+        permutations=int(ops_setting(settings, "ops_feature_screen_permutations")),
         perm_unit=str(settings.get("ops_feature_screen_perm_unit") or "guide"),
         seed=int(settings.get("ops_feature_screen_seed") or 0),
-        ridge=float(settings.get("ops_feature_screen_ridge") or 0.0),
+        ridge=float(ops_setting(settings, "ops_feature_screen_ridge")),
         greedy_threshold=float(settings.get("ops_feature_screen_greedy_threshold") or 0.0),
         mlp=bool(settings.get("ops_feature_screen_mlp", False)),
         device=str(settings.get("ops_feature_screen_device") or "auto"))

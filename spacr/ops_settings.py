@@ -4498,6 +4498,22 @@ def ops_defaults(settings=None):
     return settings
 
 
+def ops_setting(settings, key):
+    """One setting's value, ``OPS_DEFAULTS[key]`` when it is unset.
+
+    The one place a reader that may run without :func:`ops_defaults` having
+    filled the dict (an internal helper called on its own) takes the default
+    from, so no module carries a second default table. ``None`` and ``""``
+    count as unset.
+
+    :param settings: the settings mapping.
+    :param key: a key of ``OPS_DEFAULTS``.
+    :returns: the set value, or the declared default.
+    """
+    value = settings.get(key)
+    return OPS_DEFAULTS[key] if value is None or value == "" else value
+
+
 def register(replace: bool = False) -> bool:
     """Register the OPS defaults, types, categories and help.
 

@@ -2619,7 +2619,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 959
+SETTINGS_SCHEMA_VERSION = 960
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2657,6 +2657,8 @@ DEFAULT_CHANGES = {
     957: {'ops_decode_fdr_calibration': 'none', 'ops_prefix_fdr_calibration': 'none'},
     958: {'cytoskeleton_object_support': False},
     959: {'ops_read_neighbour_discount': 1.0},
+    960: {'ops_feature_screen_permutations': 0,
+          'ops_feature_screen_ridge': 0.0},
 }
 
 
@@ -2796,6 +2798,13 @@ def _fold_older_defaults(settings, version, known=None):
 
     Version 959 changes the item-1013 neighbour-bleed discount to 0.25;
     files stamped before retain 1.0 (off), including schemas 957 and 958.
+
+    Version 960 is the merge of the OPS second default table: ``run_ops``
+    now fills ``OPS_DEFAULTS`` itself, so a direct call gets the defaults
+    the CLI and GUI always gave. Two keys whose inline fallback was 0 and
+    had no row before keep it for files stamped before:
+    ``ops_feature_screen_permutations`` (0, now 500) and
+    ``ops_feature_screen_ridge`` (0.0, now 1e-06).
 
     :param settings: the file's settings under today's names, edited in
         place.

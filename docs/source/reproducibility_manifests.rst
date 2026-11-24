@@ -219,6 +219,12 @@ default after a higher-numbered item takes the next free number:
   Files stamped before 959 retain ``1.0`` (off), including files from
   schemas 957 and 958. The recipe-specific prefix bleed switch stays
   off by default until its separate acceptance is complete.
+- 960 (OPS default table): ``run_ops`` now fills every OPS default itself, so
+  a direct call of the Python function resolves the same values as the
+  command line and the GUI (for example ``ops_decode_threshold_mode``
+  ``'auto'``, ``randomize`` True). Files stamped before 960 keep
+  ``ops_feature_screen_permutations`` 0 and ``ops_feature_screen_ridge`` 0.0;
+  the other keys that differed already have rows (940, 944, 947, 955, 957).
 
 Public API
 ----------
