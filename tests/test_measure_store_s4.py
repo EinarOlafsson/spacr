@@ -140,3 +140,50 @@ def test_retired_measurement_backend_values_still_load():
     settings = {'measurement_backend': 'postgres'}
     _retire_measurement_backend(settings)
     assert settings['_measurement_backend_requested'] == 'postgres'
+
+
+def _crop_project(project):
+    folder = os.path.dirname(project)
+    ms.write_rows(folder, 'cell', pd.concat([_field(1, 2), _field(2, 2, 'c2')]))
+    ms.write_rows(folder, 'png_list', pd.concat([_field(1, 2), _field(2, 2, 'c2')])
+                  .assign(png_path=[f'/x/{c}_png/{i}.png' for c, i in
+                                    zip('aabb', range(4))]))
+    ms.forget_sessions()
+    return folder
+
+
+def test_the_database_browser_reads_a_store_project(project):
+    _crop_project(project)
+    from spacr.qt.screens.db_browser import ReadOnlyDb, resolve_db_path
+    assert resolve_db_path(os.path.dirname(os.path.dirname(project))) == project
+    db = ReadOnlyDb(project)
+    assert {'cell', 'png_list'} <= set(db.tables())
+    assert 'cell_area' in db.columns('cell')
+    assert db.count('cell') == 4
+    chunk = db.chunk('cell')
+    assert len(chunk[0] if isinstance(chunk, tuple) else chunk) >= 1
+
+
+def test_graph_builder_reads_a_store_table(project):
+    _crop_project(project)
+    from spacr.qt.screens.graph_builder import read_table, table_names
+    assert table_names(project)[0] == 'cell'
+    frame = read_table(project, 'cell')
+    assert len(frame) == 4 and 'object_key' not in frame.columns
+
+
+def test_the_annotator_counts_pages_and_saves_into_the_store(project):
+    _crop_project(project)
+    from spacr.qt import annotate_engine as ae
+    ae.ensure_annotation_column(project, 'label')
+    assert ae.count_rows(project) == 4
+    page = ae.fetch_page(project, 'label', 0, 10)
+    assert len(page) == 4
+    writer = ae.SaveWorker(project, 'label')
+    writer.start()
+    writer.submit({page[0][0]: 1, page[2][0]: 2})
+    writer.stop()
+    assert writer.last_error is None
+    ms.forget_sessions()
+    assert ae.class_counts(project, 'label') == [(1, 1), (2, 1)]
+    assert not os.path.exists(project)
