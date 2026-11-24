@@ -355,18 +355,23 @@ def test_the_default_ops_run_writes_the_store_and_no_sqlite(measured):
         assert {"cell", "merge", "barcodes"} <= set(opened.tables())
 
 
-def test_box_sized_crops_stay_in_the_crop_pool(monkeypatch):
-    """Item 0an: crops cut with crop_margin_px are each their cell's box.
+@pytest.mark.parametrize("heights", [(10, 14), (12, 12)])
+def test_box_sized_crops_stay_in_the_crop_pool(monkeypatch, heights):
+    """Items 0an and 0ap: committed crops stay in the crop pool, uncopied.
 
     One store crop array cannot hold crops of different sizes; the store
-    step raised a broadcast error on the A1 check fields (crop_margin_px 16).
-    Such crops stay in the OPS crop pool and are not copied; crops of one
-    size still are.
+    step raised a broadcast error on the A1 check fields (crop_margin_px 16),
+    so item 0an kept such crops in the OPS crop pool. Item 0ap keeps crops
+    of one size there too: the crop index already points at them, so the
+    store step neither copies them nor reads the rows.
     """
-    rows = [{"prcfo": "P_r1_c1_f1_o1", "height": 10, "width": 12},
-            {"prcfo": "P_r1_c1_f1_o2", "height": 14, "width": 12}]
+    rows = [{"prcfo": "P_r1_c1_f1_o1", "height": heights[0], "width": 12},
+            {"prcfo": "P_r1_c1_f1_o2", "height": heights[1], "width": 12}]
+    asked = []
     monkeypatch.setattr(ops_engine, "_ph_crop_commit",
-                        lambda root, plate, well: {"rows": rows})
+                        lambda root, plate, well, rows=True:
+                        asked.append(rows) or {"rows": rows, "pools": []})
     prcfo = pd.Series([r["prcfo"] for r in rows])
     assert ops_engine._ops_store_crops("root", "P", "A1", prcfo) == (
         None, None, None)
+    assert asked == [False]

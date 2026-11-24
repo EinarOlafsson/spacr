@@ -206,6 +206,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_crop_masks": False,
     "crop_margin_px": None,
     "crop_zero_outside": False,
+    # spaCR's one "save crops" switch (item 0aj), shared with Measure: off,
+    # ph_crops records which crops it chose and the crop reader cuts them
+    # from the tiles on demand (item 0ap).
+    "save_png": False,
     "ops_max_files_per_folder": 10000,
     "ops_ph_secondary_channels": None,
     "ops_ph_secondary_registration": 'none',

@@ -93,7 +93,12 @@ def test_new_ops_defaults_match_old_saved_outputs_and_resume(tmp_path, models, m
             old = opened.query(table=table).sort_values(key).reset_index(drop=True)
         with store.open(new_report["ph_tables"]["store"]) as opened:
             new = opened.query(table=table).sort_values(key).reset_index(drop=True)
-        pd.testing.assert_frame_equal(old, new, check_exact=True)
+        # The legacy tar crops are copied into the store, which adds its
+        # crop pointer to the cell table; native crops stay where the crop
+        # index points (item 0ap), so the new cell table has no copy.
+        extra = [c for c in old.columns if c not in new.columns]
+        assert set(extra) <= ({"crop_store", "crop_index"} if table == "cell" else set())
+        pd.testing.assert_frame_equal(old.drop(columns=extra), new, check_exact=True)
         if table == "image" and not masks:
             assert old[key].tolist() == ["P_1_r1_c1_f1", "P_1_r1_c1_f10", "P_1_r1_c1_f2"]
     old_crops = list(stream_crops(str(old_root / "nas"), fixture.PLATE, shuffle=False))
@@ -114,14 +119,21 @@ def test_new_ops_defaults_match_old_saved_outputs_and_resume(tmp_path, models, m
     assert not list((new_root / "nas").rglob("*.tar"))
     index = crop_index(str(new_root / "nas"), fixture.PLATE)
     assert index["prcfo"].is_unique and len(index) == count
-    images, rows, stored_masks = ops_engine._ops_store_crops(
-        str(new_root / "nas"), fixture.PLATE, "A1", index["prcfo"].iloc[::-1])
-    np.testing.assert_array_equal(rows, np.arange(count - 1, -1, -1))
-    np.testing.assert_array_equal(images[[7, 0, 7]], np.stack([new_crops[i][1] for i in (7, 0, 7)]))
-    if masks:
-        np.testing.assert_array_equal(stored_masks[[7, 0, 7]], np.stack([new_crops[i][2] for i in (7, 0, 7)]))
-    else:
-        assert stored_masks is None
+    # The store step copies no committed crop (item 0ap); the crop index
+    # gives them back through the one crop reader. With save_png off (the
+    # default) they are cut from the tiles on read, equal to the stored
+    # legacy crops checked above.
+    assert ops_engine._ops_store_crops(
+        str(new_root / "nas"), fixture.PLATE, "A1", index["prcfo"].iloc[::-1]) == (None, None, None)
+    from spacr.crop_store import read_crops
+
+    picked = [index.iloc[i].to_dict() for i in (7, 0, 7)]
+    assert all(row["crop_array"] is None and str(row["source_field"]).startswith("ops:")
+               for row in picked)
+    for (image, mask), i in zip(read_crops(str(new_root / "nas"), picked), (7, 0, 7)):
+        np.testing.assert_array_equal(image, new_crops[i][1])
+        if masks:
+            np.testing.assert_array_equal(mask, new_crops[i][2])
     before = _files(new_root / "nas")
     again = ops_engine.run_ops(new_settings, phases=("ph_segment", "ph_merged", "ph_crops"))
     assert again["wells"]["A1"]["ph_fields"]["ph_segment"]["resumed"] == len(sites)

@@ -240,7 +240,19 @@ class CropPoolWriter:
         self._buffer: List[Dict[str, Any]] = []
         self.rows: List[Dict[str, Any]] = []
         self.pools: List[str] = []
+        self.keep_rows = True
+        self.workers = 1
+        self._procs = None
+        self._inflight: "collections.deque" = collections.deque()
+        self._groups: set = set()
         self._set_attributes(dict(attributes or {}))
+        base = self.path / self.object_type
+        self._previous = _read_commit_at(base, rows=False)
+        # The rows stream to a temporary file as shards are written (item
+        # 0ap): an earlier commit's rows first, unparsed, then each shard's.
+        self._stream_path = base / ".rows.jsonl.tmp"
+        self._stream = None
+        self._streamed = 0
 
     def _set_attributes(self, attributes: Dict[str, Any]) -> None:
         """Store the class's pool attributes; refuse a conflicting value."""
@@ -288,22 +300,61 @@ class CropPoolWriter:
         :returns: the commit record, with its ``rows``.
         """
         rows = self.close()
-        previous = _read_commit_at(self.path / self.object_type)
-        pools = list(previous["pools"]) if previous else []
-        all_rows = list(previous["rows"]) if previous else []
-        pools += [p for p in self.pools if p not in pools]
-        all_rows += rows
         base = self.path / self.object_type
-        _atomic_write(base / "rows.jsonl", "".join(
-            json.dumps(r, default=_json_default, sort_keys=True) + "\n" for r in all_rows))
+        previous = self._previous
+        pools = list(previous["pools"]) if previous else []
+        pools += [p for p in self.pools if p not in pools]
+        if self.keep_rows:
+            stream = self._open_stream()
+            for row in rows:
+                stream.write(json.dumps(row, default=_json_default, sort_keys=True) + "\n")
+            self._streamed += len(rows)
+        n_rows = (int(previous["n_rows"]) if previous else 0) + self._streamed
+        self._open_stream().close()
+        os.replace(self._stream_path, base / "rows.jsonl")
         record = {"version": 1, "plate": self.plate, "well": self.well,
                   "object_type": self.object_type, "pools": pools,
-                  "n_rows": len(all_rows), "attributes": self.attributes}
+                  "n_rows": n_rows, "attributes": self.attributes}
         _atomic_write(base / "spacr_commit.json",
                       json.dumps(record, indent=1, default=_json_default) + "\n")
         self.rows = []
         self.pools = []
-        return {**record, "rows": all_rows}
+        self._stream, self._streamed, self._previous = None, 0, record
+        if not self.keep_rows:
+            return record
+        prior = (_read_commit_at(base)["rows"][:int(previous["n_rows"])]
+                 if previous else [])
+        return {**record, "rows": prior + rows}
+
+    def _streaming(self, *, workers: int = 1) -> "CropPoolWriter":
+        """Keep only counts, not rows, and stream each shard's rows to the row file (item 0ap).
+
+        A well of a million crops then needs no rows in memory, and
+        :meth:`commit` only renames the row file it streamed; it returns
+        the record without ``rows`` (:func:`_read_commit_record` reads it
+        back). ``workers`` above 1 hands each full shard, put together in
+        shared memory, to one of that many writer processes, which compress
+        and write it while this process fills the next; the shards, pools
+        and rows are the same for every value.
+
+        :param workers: shards written at once.
+        :returns: the writer.
+        """
+        if self._buffer or self.rows or self._streamed:
+            raise RuntimeError("choose streaming before adding crops")
+        self.keep_rows = False
+        self.workers = max(1, int(workers))
+        return self
+
+    def _add_prepared(self, crops: Iterable[Mapping[str, Any]]) -> None:
+        """Queue crops :func:`_prepare_crops` checked and indexed where they were cut (item 0ap).
+
+        :param crops: the prepared crops, in the order they are stored.
+        """
+        for crop in crops:
+            self._buffer.append(crop)
+            if len(self._buffer) >= self.crops_per_shard:
+                self._flush()
 
     def add(self, crops: Iterable[Mapping[str, Any]], **identity: Any) -> None:
         """Queue crops from :func:`cut_crops`, with their identity columns.
@@ -315,80 +366,331 @@ class CropPoolWriter:
             With ``mask_dtype=uint8``, masks must contain integers from 0 to 255.
         """
         for crop in crops:
-            pixels = np.asarray(crop["pixels"])
-            if pixels.shape[0] != self.channels:
-                raise ValueError(f"crop has {pixels.shape[0]} channels, the pool {self.channels}")
-            if self.mask_dtype == np.dtype(np.uint8):
-                mask = np.asarray(crop["mask"])
-                if mask.dtype.kind not in "biu" or np.any(mask < 0) or np.any(mask > 255):
-                    from .qt.i18n import tr
-                    raise ValueError(tr("Crop uint8 masks must contain integers from 0 to 255."))
+            _check_crop(crop, self.channels, self.mask_dtype)
             self._buffer.append({**identity, **crop})
             if len(self._buffer) >= self.crops_per_shard:
                 self._flush()
+
+    def _add_index_lines(self, lines: Iterable[str]) -> None:
+        """Commit rows of crops that are not stored (saving crops off, item 0ap).
+
+        :param lines: finished crop-index rows as JSON lines (from
+            :func:`_index_lines`), in order; they name no pool, so the crop
+            reader cuts each crop from its source field.
+        """
+        if self._buffer:
+            self._flush()
+        self._drain(0)
+        if self.keep_rows:
+            self.rows.extend(json.loads(line) for line in lines)
+            return
+        stream = self._open_stream()
+        for line in lines:
+            stream.write(line)
+            self._streamed += 1
 
     def close(self) -> List[Dict[str, Any]]:
         """Write the last, partly filled shard; return every crop's table row."""
         if self._buffer:
             self._flush()
+        self._drain(0)
         return self.rows
 
     def _flush(self) -> None:
-        """Write the buffered crops as one pool shard and one mask shard."""
-        from zarr.codecs import ZstdCodec
+        """Write the buffered crops as one pool shard and one mask shard.
 
+        With ``workers`` above 1 (:meth:`_streaming`) the shard is put
+        together here in shared memory and compressed and written by a
+        writer process while this process fills the next one; at most
+        ``workers`` shards are in flight, and their rows reach the row file
+        in shard order.
+        """
         crops, self._buffer = self._buffer, []
-        sizes = [int(c["pixels"].shape[1] * c["pixels"].shape[2]) for c in crops]
-        total = int(sum(sizes))
-        pool = np.empty((self.channels, total), self.dtype)
-        mask = np.empty(total, self.mask_dtype)
-        offset = 0
-        offsets = []
-        for crop, size in zip(crops, sizes):
-            pool[:, offset:offset + size] = crop["pixels"].reshape(self.channels, size)
-            mask[offset:offset + size] = np.asarray(crop["mask"]).reshape(size)
-            offsets.append(offset)
-            offset += size
         name = str(self._shard)
         self._shard += 1
         self.pools.append(name)
-        chunk = max(1, -(-total // 16)) if total else 1
-        arrays = [("pool", pool, (self.channels, chunk), (self.channels, chunk * 16)),
-                  ("mask", mask, (chunk,), (chunk * 16,))]
         classes = sorted({c for crop in crops for c in (crop.get("labels") or {})})
-        for cls in classes:
-            planes = [np.asarray((crop.get("labels") or {}).get(
-                cls, np.zeros(crop["pixels"].shape[1:], np.uint16))).reshape(size)
-                for crop, size in zip(crops, sizes)]
-            from .image_store import _compact_labels
-            joined = (_compact_labels(np.concatenate(planes)) if planes
-                      else np.zeros(0, np.uint16))
-            arrays.append((f"labels/{cls}", joined, (chunk,), (chunk * 16,)))
-        for kind, array, chunks, shards in arrays:
+        self._ensure_groups(["pool", "mask"] + [f"labels/{c}" for c in classes])
+        if self.workers <= 1:
+            arrays, offsets = _shard_arrays(self.channels, self.dtype, self.mask_dtype,
+                                            crops, classes, np.empty)
+            for kind, array, chunks, shards in arrays:
+                _write_pool_array(self.zarr, self.path / self.object_type / kind, name,
+                                  array, chunks, shards)
+            del arrays
+            self._take(self._shard_rows(name, crops, offsets))
+            return
+        if self._procs is None:
+            import multiprocessing
+            from concurrent.futures import ProcessPoolExecutor
+
+            self._procs = ProcessPoolExecutor(
+                self.workers, mp_context=multiprocessing.get_context("spawn"))
+        held: List[Any] = []
+
+        def shared(shape, dtype):
+            """An array in a new shared-memory block, which the writer process attaches."""
+            from multiprocessing import shared_memory
+
+            block = shared_memory.SharedMemory(
+                create=True, size=max(1, int(np.prod(shape)) * np.dtype(dtype).itemsize))
+            held.append(block)
+            return np.ndarray(shape, dtype, buffer=block.buf)
+
+        arrays, offsets = _shard_arrays(self.channels, self.dtype, self.mask_dtype,
+                                        crops, classes, shared)
+        specs = [(kind, held[index].name, array.shape, array.dtype.str, chunks, shards)
+                 for index, (kind, array, chunks, shards) in enumerate(arrays)]
+        del arrays
+        try:
+            future = self._procs.submit(_write_shared_shard,
+                                        str(self.path / self.object_type), name, specs)
+        except BaseException:
+            for block in held:
+                block.close()
+                block.unlink()
+            raise
+        self._inflight.append((future, held, name, crops, offsets))
+        self._drain(self.workers)
+
+    def _drain(self, keep: int) -> None:
+        """Take finished shards in order until at most ``keep`` are in flight."""
+        while len(self._inflight) > keep:
+            future, held, name, crops, offsets = self._inflight.popleft()
+            try:
+                future.result()
+            finally:
+                for block in held:
+                    block.close()
+                    block.unlink()
+            self._take(self._shard_rows(name, crops, offsets))
+        if not self._inflight and self._procs is not None and keep == 0:
+            self._procs.shutdown()
+            self._procs = None
+
+    def _take(self, written: Tuple[str, int, Optional[List[Dict[str, Any]]]]) -> None:
+        """Append one written shard's rows to the row file (and the kept rows)."""
+        text, count, rows = written
+        if self.keep_rows:
+            # Kept rows are written at commit, as they are then: a caller
+            # may still add columns to the rows close() returned.
+            self.rows.extend(rows)
+            return
+        self._open_stream().write(text)
+        self._streamed += count
+
+    def _open_stream(self):
+        """The temporary row file, opened on first use after the earlier commit's rows."""
+        if self._stream is None:
+            self._stream = open(self._stream_path, "w", encoding="utf-8")
+            if self._previous:
+                with open(self.path / self.object_type / "rows.jsonl",
+                          encoding="utf-8") as earlier:
+                    shutil.copyfileobj(earlier, self._stream, 1 << 22)
+        return self._stream
+
+    def _ensure_groups(self, kinds: Sequence[str]) -> None:
+        """Create each kind's parent group once, before any writer uses it."""
+        for kind in kinds:
+            if kind in self._groups:
+                continue
             parent = self.path / self.object_type / kind
             parent.mkdir(parents=True, exist_ok=True)
-            tmp = parent / f".{name}.tmp"
-            if tmp.exists():
-                shutil.rmtree(tmp)
-            group = self.zarr.open_group(str(tmp.parent), mode="a", zarr_format=3)
-            out = group.create_array(
-                tmp.name, shape=array.shape, dtype=array.dtype,
-                chunks=chunks, shards=shards,
-                compressors=[ZstdCodec(level=3)], fill_value=0,
-                overwrite=True)
-            if total:
-                out[...] = array
-            if (parent / name).exists():
-                shutil.rmtree(parent / name)
-            os.replace(tmp, parent / name)
+            self.zarr.open_group(str(parent), mode="a", zarr_format=3)
+            self._groups.add(kind)
+
+    def _shard_rows(self, name: str, crops: List[Mapping[str, Any]], offsets: Sequence[int]
+                    ) -> Tuple[str, int, Optional[List[Dict[str, Any]]]]:
+        """One written shard's rows as JSON lines, and as dicts when the writer keeps rows.
+
+        :returns: ``(lines, count, rows)``.
+        """
+        store = self.relative.as_posix()
+        array_name = f"{self.object_type}/pool/{name}"
+        lines, rows = [], ([] if self.keep_rows else None)
         for index, (crop, off) in enumerate(zip(crops, offsets)):
-            self.rows.append(_index_row(
-                self.plate, self.well, self.object_type, crop,
-                {"crop_store": self.relative.as_posix(),
-                 "crop_array": f"{self.object_type}/pool/{name}",
-                 "crop_index": index, "offset": off, "mask_offset": off}))
+            location = {"crop_store": store, "crop_array": array_name,
+                        "crop_index": index, "offset": off, "mask_offset": off}
+            template = crop.get("_line")
+            if template is not None:
+                line = _fill_line(template, location)
+                if rows is not None:
+                    rows.append(json.loads(line))
+            else:
+                row = _index_row(self.plate, self.well, self.object_type, crop, location)
+                line = json.dumps(row, default=_json_default, sort_keys=True) + "\n"
+                if rows is not None:
+                    rows.append(row)
+            lines.append(line)
+        return "".join(lines), len(lines), rows
 
 
+def _shard_arrays(channels: int, dtype: Any, mask_dtype: Any, crops: List[Dict[str, Any]],
+                  classes: Sequence[str], allocate) -> Tuple[List[Tuple[str, np.ndarray, Any, Any]],
+                                                             List[int]]:
+    """One shard's pool, mask and label arrays with their chunking, and each crop's offset.
+
+    The crops give up their pixels once they are in the arrays, so a shard is
+    held once while it is written (item 0ap).
+
+    :param allocate: ``(shape, dtype) -> array`` for the pool and mask
+        (``np.empty``, or shared memory for a writer process).
+    :returns: ``([(kind, array, chunks, shards)], offsets)``.
+    """
+    sizes = [int(c["pixels"].shape[1] * c["pixels"].shape[2]) for c in crops]
+    total = int(sum(sizes))
+    pool = allocate((channels, total), np.dtype(dtype))
+    mask = allocate((total,), np.dtype(mask_dtype))
+    offset = 0
+    offsets = []
+    for crop, size in zip(crops, sizes):
+        pool[:, offset:offset + size] = crop["pixels"].reshape(channels, size)
+        mask[offset:offset + size] = np.asarray(crop["mask"]).reshape(size)
+        offsets.append(offset)
+        offset += size
+    chunk = max(1, -(-total // 16)) if total else 1
+    arrays = [("pool", pool, (channels, chunk), (channels, chunk * 16)),
+              ("mask", mask, (chunk,), (chunk * 16,))]
+    for cls in classes:
+        planes = [np.asarray((crop.get("labels") or {}).get(
+            cls, np.zeros(crop["pixels"].shape[1:], np.uint16))).reshape(size)
+            for crop, size in zip(crops, sizes)]
+        from .image_store import _compact_labels
+        joined = (_compact_labels(np.concatenate(planes)) if planes
+                  else np.zeros(0, np.uint16))
+        placed = allocate(joined.shape, joined.dtype)
+        placed[...] = joined
+        arrays.append((f"labels/{cls}", placed, (chunk,), (chunk * 16,)))
+    for crop in crops:
+        crop.pop("pixels", None)
+        crop.pop("mask", None)
+        if crop.get("labels"):
+            crop["labels"] = dict.fromkeys(crop["labels"], True)
+    return arrays, offsets
+
+
+def _write_pool_array(zarr: Any, parent: Path, name: str, array: np.ndarray,
+                      chunks: Any, shards: Any) -> None:
+    """Write one pool array whole under a temporary name, then rename it into place."""
+    from zarr.codecs import ZstdCodec
+
+    tmp = parent / f".{name}.tmp"
+    if tmp.exists():
+        shutil.rmtree(tmp)
+    group = zarr.open_group(str(tmp.parent), mode="a", zarr_format=3)
+    out = group.create_array(
+        tmp.name, shape=array.shape, dtype=array.dtype,
+        chunks=chunks, shards=shards,
+        compressors=[ZstdCodec(level=3)], fill_value=0,
+        overwrite=True)
+    if array.size:
+        out[...] = array
+    if (parent / name).exists():
+        shutil.rmtree(parent / name)
+    os.replace(tmp, parent / name)
+
+
+def _write_shared_shard(class_path: str, name: str, specs) -> None:
+    """A writer process: compress and write one shard's arrays from shared memory (item 0ap).
+
+    :param class_path: the class folder (``.../<class>``).
+    :param name: the shard's name.
+    :param specs: ``(kind, block, shape, dtype, chunks, shards)`` per array.
+    """
+    from multiprocessing import shared_memory
+
+    from .ome_zarr import require_zarr
+
+    zarr = require_zarr()
+    for kind, block_name, shape, dtype, chunks, shards in specs:
+        block = shared_memory.SharedMemory(name=block_name, track=False)
+        try:
+            array = np.ndarray(tuple(shape), np.dtype(dtype), buffer=block.buf)
+            _write_pool_array(zarr, Path(class_path) / kind, name, array,
+                              tuple(chunks), tuple(shards))
+            del array
+        finally:
+            block.close()
+#: Where a crop's pixels are: the row columns only the writer knows (item 0ap).
+_LOCATION_KEYS: Tuple[str, ...] = ("crop_store", "crop_array", "crop_index", "offset",
+                                   "mask_offset")
+
+#: Stand-ins for the location columns in a row built before its shard is
+#: known; each is unique in a row's JSON and replaced by :func:`_fill_line`.
+_LOCATION_TOKENS: Dict[str, str] = {
+    key: json.dumps(f"\x00spacr-crop-location:{key}") for key in _LOCATION_KEYS}
+
+
+def _fill_line(template: str, location: Mapping[str, Any]) -> str:
+    """A prepared row's JSON line with its pool location filled in.
+
+    The result is byte for byte the line the writer would dump from the
+    finished row (``sort_keys``), because only the stand-in values change.
+    """
+    for key, token in _LOCATION_TOKENS.items():
+        template = template.replace(token, json.dumps(location[key], default=_json_default), 1)
+    return template
+
+
+def _check_crop(crop: Mapping[str, Any], channels: int, mask_dtype: Any) -> None:
+    """Refuse a crop the pool cannot hold: the writer's checks (item 984)."""
+    pixels = np.asarray(crop["pixels"])
+    if pixels.shape[0] != channels:
+        raise ValueError(f"crop has {pixels.shape[0]} channels, the pool {channels}")
+    if np.dtype(mask_dtype) == np.dtype(np.uint8):
+        mask = np.asarray(crop["mask"])
+        if mask.dtype.kind not in "biu" or np.any(mask < 0) or np.any(mask > 255):
+            from .qt.i18n import tr
+            raise ValueError(tr("Crop uint8 masks must contain integers from 0 to 255."))
+
+
+def _prepare_crops(plate: str, well: str, object_type: str, crops: Iterable[Mapping[str, Any]],
+                  *, channels: int, mask_dtype: Any = np.bool_,
+                  **identity: Any) -> List[Dict[str, Any]]:
+    """Check crops and build their rows where they are cut, for :meth:`CropPoolWriter.add`.
+
+    The per-crop work of :meth:`CropPoolWriter.add` and of its row builder,
+    done in the process that cut the crops (a worker, item 0ap), so the
+    writing process only routes finished crops into shards. Pass the result
+    to :meth:`CropPoolWriter._add_prepared`; the rows are the same as
+    :meth:`CropPoolWriter.add` gives the same crops.
+
+    :param plate: the plate name.
+    :param well: the well name.
+    :param object_type: the object class.
+    :param crops: crops from :func:`cut_crops` (or the same keys).
+    :param channels: the pool's channel count.
+    :param mask_dtype: the pool's mask dtype.
+    :param identity: columns every crop shares (``field``, ``timepoint``).
+    :returns: one entry per crop: its ``pixels``, ``mask`` and ``labels``
+        and its row as a JSON line with the pool location left open.
+    """
+    placeholder = {key: json.loads(token) for key, token in _LOCATION_TOKENS.items()}
+    out = []
+    for crop in crops:
+        _check_crop(crop, channels, mask_dtype)
+        merged = {**identity, **crop}
+        row = _index_row(str(plate), str(well), str(object_type), merged, placeholder)
+        entry = {"pixels": merged["pixels"], "mask": merged["mask"],
+                 "_line": json.dumps(row, default=_json_default, sort_keys=True) + "\n"}
+        if merged.get("labels"):
+            entry["labels"] = merged["labels"]
+        out.append(entry)
+    return out
+
+
+def _index_lines(plate: str, well: str, object_type: str,
+                crops: Iterable[Mapping[str, Any]], **identity: Any) -> List[str]:
+    """Crop-index rows of crops that are not stored, as JSON lines (item 0ap).
+
+    :param crops: crop records with their box (no pixels) and the columns
+        the reader needs to cut them again (``source_field`` and the rest).
+    :returns: the rows as :meth:`CropPoolWriter._add_index_lines` takes them.
+    """
+    return [json.dumps(_index_row(str(plate), str(well), str(object_type),
+                                  {**identity, **crop}, {}),
+                       default=_json_default, sort_keys=True) + "\n"
+            for crop in crops]
 def _index_row(plate: str, well: str, object_type: str, crop: Mapping[str, Any],
                location: Mapping[str, Any]) -> Dict[str, Any]:
     """One crop-index row: the object's keys, its box and where its pixels are (item 0aj).
@@ -532,18 +834,49 @@ def read_commit(project: Any, plate: str, well: str,
     return _read_commit_at(_class_dir(project, plate, well, object_type))
 
 
-def _read_commit_at(base: Path) -> Optional[Dict[str, Any]]:
-    """The commit record and rows of one class folder, or None (this writer's own store)."""
+def _read_commit_record(project: Any, plate: str, well: str,
+                        object_type: str) -> Optional[Dict[str, Any]]:
+    """:func:`read_commit` without the rows: the record only (item 0ap).
+
+    Pools, ``n_rows`` and attributes, with the row file checked to hold
+    ``n_rows`` lines without parsing them: what a resume or a count needs,
+    in constant memory.
+    """
+    return _read_commit_at(_class_dir(project, plate, well, object_type), rows=False)
+
+
+def _count_lines(path: Path) -> int:
+    """The lines of a row file, counted in blocks without parsing (item 0ap).
+
+    The writer puts one row per line, each ending in a newline, and never
+    an empty line.
+    """
+    count, last = 0, b""
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 22), b""):
+            count += block.count(b"\n")
+            last = block[-1:]
+    return count + (1 if last not in (b"\n", b"") else 0)
+
+
+def _read_commit_at(base: Path, *, rows: bool = True) -> Optional[Dict[str, Any]]:
+    """The commit record (and rows) of one class folder, or None (this writer's own store)."""
     record_path = base / "spacr_commit.json"
     if not record_path.is_file():
         return None
     record = json.loads(record_path.read_text(encoding="utf-8"))
+    if not rows:
+        held = _count_lines(base / "rows.jsonl")
+        if held != int(record["n_rows"]):
+            raise ValueError(f"{base}: the commit lists {record['n_rows']} rows, "
+                             f"rows.jsonl holds {held}")
+        return record
     lines = (base / "rows.jsonl").read_text(encoding="utf-8").splitlines()
-    rows = [json.loads(line) for line in lines if line.strip()]
-    if len(rows) != int(record["n_rows"]):
+    found = [json.loads(line) for line in lines if line.strip()]
+    if len(found) != int(record["n_rows"]):
         raise ValueError(f"{base}: the commit lists {record['n_rows']} rows, "
-                         f"rows.jsonl holds {len(rows)}")
-    return {**record, "rows": rows}
+                         f"rows.jsonl holds {len(found)}")
+    return {**record, "rows": found}
 
 
 #: Row columns that say where a crop is stored, rebuilt by every write.
@@ -625,9 +958,12 @@ def discard_uncommitted(project: Any, plate: str, well: str,
     :returns: the pool names removed.
     """
     base = _class_dir(project, plate, well, object_type)
-    record = read_commit(project, plate, well, object_type)
+    record = _read_commit_record(project, plate, well, object_type)
     keep = set(record["pools"]) if record else set()
     removed = []
+    stale_rows = base / ".rows.jsonl.tmp"
+    if stale_rows.is_file():
+        stale_rows.unlink()
     kinds = ["pool", "mask"] + [f"labels/{entry.name}" for entry in sorted(
         (base / "labels").iterdir()) if entry.is_dir()] if (base / "labels").is_dir() else ["pool", "mask"]
     for kind in kinds:
@@ -921,6 +1257,13 @@ def _stream_crop(project: Any, row: Mapping[str, Any], *, labels: bool = False
     :returns: ``pixels`` ``(C, h, w)``, ``mask`` ``(h, w)`` and, with
         ``labels``, ``labels``.
     """
+    if _is_ops_source(row):
+        # The field source of an OPS crop (item 0ap): the site's tiles,
+        # read as ph_crops reads them, cut by the OPS cut (_cut_box).
+        from .ops_engine import _ph_stream_crop
+
+        pixels, mask = _ph_stream_crop(project, row)
+        return {"pixels": pixels, "mask": mask, **({"labels": {}} if labels else {})}
     from .crops import open_merged_field
     from .image_store import _compact_labels, _store_field
 
@@ -948,6 +1291,18 @@ def _stream_crop(project: Any, row: Mapping[str, Any], *, labels: bool = False
     return _cut_box(window, own, int(_row_field(row, "object_label")), local,
                     zero_outside=bool(zero) and str(zero) not in ("0", "False", "nan"),
                     all_labels=planes)
+
+
+#: ``source_field`` of a streamed OPS crop: ``ops:<site>`` (item 0ap). The
+#: reader cuts it from that site's phenotype tiles
+#: (:func:`spacr.ops_engine._ph_stream_crop`), not from ``fov.ome.zarr``.
+OPS_SOURCE_PREFIX = "ops:"
+
+
+def _is_ops_source(row: Mapping[str, Any]) -> bool:
+    """Whether a streamed crop is cut from OPS phenotype tiles (:data:`OPS_SOURCE_PREFIX`, item 0ap)."""
+    value = _row_field(row, "source_field")
+    return isinstance(value, str) and value.startswith(OPS_SOURCE_PREFIX)
 
 
 def _mask_is_absent(row: Mapping[str, Any]) -> bool:
@@ -1020,7 +1375,7 @@ def read_crops(project: Any, rows: Iterable[Mapping[str, Any]], *, context: bool
             streamed[str(_row_field(row, "source_field"))].append(index)
     for _name, members in streamed.items():
         windows = None
-        if len(members) > 1:
+        if len(members) > 1 and not _is_ops_source(rows[members[0]]):
             from .image_store import _store_field
 
             path = _source_field_path(project, rows[members[0]])
