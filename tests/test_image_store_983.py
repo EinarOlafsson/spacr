@@ -217,17 +217,25 @@ def test_field_names_follow_the_schema_with_the_appended_timepoint():
         split_field_name("plate1_B03.npy")
 
 
-def test_two_timepoints_of_one_field_are_refused_not_overwritten(tmp_path):
-    from spacr.image_store import export_merged
+def test_two_timepoints_of_one_field_become_one_field_with_a_time_axis(tmp_path):
+    """Item 0aj P3: the timepoints are a t axis, never overwritten or refused."""
+    from spacr.image_store import _list_fields, _read_field, export_merged
 
     stacks = _merged_run(tmp_path)
     merged = tmp_path / "merged"
-    np.save(merged / "plate1_A01_1_2.npy", stacks["plate1_A01_1"])
+    second = stacks["plate1_A01_1"].copy()
+    second[..., 0] = second[..., 0][::-1]
+    np.save(merged / "plate1_A01_1_2.npy", second)
     (merged / "plate1_A01_1.npy").rename(merged / "plate1_A01_1_1.npy")
-    with pytest.raises(ValueError, match="no time axis"):
-        export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
+    (merged / "plate2_C04_1.npy").unlink()  # one store holds one plate
+    export_merged(tmp_path, "ome-zarr", channel_names=CHANNELS)
+    store = tmp_path / "fov.ome.zarr"
     assert not (tmp_path / "images").exists()
-    assert not (tmp_path / "fov.ome.zarr").exists()
+    assert {"plate1_A01_1_1.npy", "plate1_A01_1_2.npy"} <= set(_list_fields(store))
+    for name in ("plate1_A01_1_1.npy", "plate1_A01_1_2.npy"):
+        want = np.load(merged / name)
+        got = _read_field(store / name)
+        assert got.dtype == want.dtype and np.array_equal(got, want)
 
 
 @pytest.mark.parametrize("image_mode", ["channels", "plane", "labels-only"])

@@ -1522,13 +1522,13 @@ def _store_settles_originals(settings):
     """Whether this Mask run's originals wait for fov.ome.zarr before they move (item 0aj).
 
     True for a run that writes the project store (``mask_image_format``
-    'ome-zarr', the default, and not timelapse): each original is moved to
-    ``orig/`` (``keep_original_images``, the default) or deleted only once
-    its field is committed and verified in fov.ome.zarr. Other runs keep
-    their earlier behaviour (``save_original_images``).
+    'ome-zarr', the default; a time-lapse run too since item 0aj P3 stores
+    its frames on a t axis): each original is moved to ``orig/``
+    (``keep_original_images``, the default) or deleted only once its field
+    is committed and verified in fov.ome.zarr. Other runs keep their
+    earlier behaviour (``save_original_images``).
     """
-    return (str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() == 'ome-zarr'
-            and not settings.get('timelapse', False))
+    return str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() == 'ome-zarr'
 
 
 def _keep_originals(settings):
@@ -1589,6 +1589,135 @@ def _plate_sources(sources, settings, printer=print):
         split = _split_plates(src, plan, printer=printer)
         folders.extend(sorted(set(split) | set(recorded)))
     return folders
+
+
+def _fold_max(planes):
+    """The maximum projection of one channel's planes, folded as Mask always folded them.
+
+    The same arithmetic preprocessing used to store (one plane at a time,
+    ``np.maximum`` in place while the dtypes agree), so a field stored as
+    its maximum projection is byte for byte what it was (item 0aj P3).
+    """
+    folded = None
+    for plane in planes:
+        if folded is None:
+            folded = plane
+        elif folded.dtype == plane.dtype:
+            np.maximum(folded, plane, out=folded)
+        else:
+            folded = np.maximum(folded, plane)
+    return folded
+
+
+def _time_order(token):
+    """Sort key of a time-point token: numeric when it is a number (item 0aj P3)."""
+    try:
+        return (0, int(str(token)))
+    except (TypeError, ValueError):
+        return (1, str(token))
+
+
+def _store_field_series(writer, field_keys, image_paths_by_key, sorted_channels,
+                        channels_seen, *, timelapse=False, files_to_process=0):
+    """Write each field into fov.ome.zarr with its raw z planes and its time axis (item 0aj P3).
+
+    The one ingest path of Mask preprocessing into the project store:
+
+    - z: a channel read from several slices is stored with every slice as
+      acquired, a ``z`` axis in the field image ``(C, Z, Y, X)``, and the
+      maximum projection Mask segments is computed on read. Only when the
+      channels have different numbers of slices, or the slices differ in
+      shape or dtype, is the maximum projection stored instead (as before),
+      and that is said.
+    - t: with ``timelapse``, every frame of a field goes into ONE field
+      ``(T, C[, Z], Y, X)``, committed once its last frame is written; each
+      frame keeps its field file name as a view of the field.
+    - A 2-D, single-time field is written exactly as before.
+
+    :param writer: the project store's writer (:func:`spacr.image_store._stack_writer`).
+    :param field_keys: ``{field stem: [raw-image keys]}`` still to build.
+    :param image_paths_by_key: ``{raw-image key: [paths]}``.
+    :param sorted_channels: the plate's channel ids, in stack order.
+    :param channels_seen: set updated with every channel read.
+    :param timelapse: group frames of one field into a t axis.
+    :param files_to_process: for the progress line.
+    :returns: the number of files read.
+    """
+    from .cancellation import checkpoint
+    from .image_store import (_write_stack_field, _write_stack_series, z_order)
+    from .qt.i18n import tr
+    from .utils import print_progress
+
+    groups = defaultdict(list)
+    for stem, keys in field_keys.items():
+        identity = tuple(keys[0][:3]) if timelapse else stem
+        groups[identity].append(stem)
+    files_processed = 0
+    time_ls = []
+    for _identity, stems in groups.items():
+        start = time.time()
+        stems.sort(key=lambda st: _time_order(field_keys[st][0][4]))
+        frames = []
+        for stem in stems:
+            checkpoint()
+            by_channel = {}
+            for key in sorted(field_keys[stem], key=z_order):
+                for path in image_paths_by_key[key]:
+                    checkpoint()
+                    loaded = load_images_from_paths({key: [path]})[key]
+                    if loaded:
+                        by_channel.setdefault(key[3], []).extend(loaded)
+                        channels_seen.add(key[3])
+                    files_processed += 1
+            present = []
+            for channel in sorted_channels:
+                if by_channel.get(channel):
+                    present.append(channel)
+                else:
+                    print(f"Warning: FOV {stem}.tif is missing channel {channel}")
+            if not present:
+                print(f"No valid channels to merge for file {stem}.tif")
+                continue
+            frames.append((stem, present, [by_channel[c] for c in present]))
+        if not frames:
+            continue
+        depths = {len(planes) for _s, _p, chans in frames for planes in chans}
+        kinds = {(plane.shape, plane.dtype.str) for _s, _p, chans in frames
+                 for planes in chans for plane in planes}
+        raw_z = max(depths) > 1 and len(depths) == 1 and len(kinds) == 1
+        if max(depths) > 1 and not raw_z:
+            print(tr("{field}: the channels have different z slices (counts, sizes or "
+                     "types), so their maximum projection is stored, not the slices.",
+                     field=frames[0][0]))
+        if len(frames) > 1 and len({tuple(p) for _s, p, _c in frames}) > 1:
+            raise ValueError(tr(
+                "{field}: the time points do not all have the same channels; a "
+                "time-lapse field is stored as one array with a time axis.",
+                field=frames[0][0]))
+        if raw_z:
+            arrays = [np.stack([np.stack(planes) for planes in chans])
+                      for _s, _p, chans in frames]
+        else:
+            arrays = [np.stack([_fold_max(planes) for planes in chans])
+                      for _s, _p, chans in frames]
+        checkpoint()
+        if len(frames) == 1 and not raw_z:
+            stem, present, _chans = frames[0]
+            _write_stack_field(writer, stem + '.npy', np.moveaxis(arrays[0], 0, -1), present)
+        else:
+            if len({a.shape for a in arrays}) > 1 or len({a.dtype for a in arrays}) > 1:
+                raise ValueError(tr(
+                    "{field}: the time points differ in size or type; a time-lapse "
+                    "field is stored as one array with a time axis.", field=frames[0][0]))
+            _write_stack_series(writer, [s + '.npy' for s, _p, _c in frames], arrays,
+                                frames[0][1], z_planes=raw_z)
+        frames = arrays = None
+        time_ls.append(time.time() - start)
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls,
+                       batch_size=sum(len(image_paths_by_key[k]) for st in stems
+                                      for k in field_keys[st]),
+                       operation_type='Preprocessing filenames')
+    return files_processed
 
 
 def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True, metadata_well_map=None, source_plate=None, defer_originals=False, store_fields=False):
@@ -1702,11 +1831,19 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     sorted_channels = sorted({key[3] for key in image_paths_by_key})
     writer = None
     if (store_fields and not _listdir_npy(stack_path)
-            and (plate := _merged_store_plan([stem + '.npy' for stem in sorted(wanted)]))):
+            and (plate := _merged_store_plan([stem + '.npy' for stem in sorted(wanted)],
+                                             series=bool(timelapse)))):
         from .image_store import _stack_writer
         writer = _stack_writer(src, plate)
     files_to_process = sum(len(image_paths_by_key[key]) for key in pending_keys)
     time_ls = []
+    if writer is not None:
+        # Item 0aj P3: raw z planes and time-lapse frames go into fov.ome.zarr
+        # as their own axes; the 2-D view is computed on read.
+        files_processed = _store_field_series(
+            writer, field_keys, image_paths_by_key, sorted_channels, channels_seen,
+            timelapse=bool(timelapse), files_to_process=files_to_process)
+        field_keys = {}
     for stem, keys in field_keys.items():
         checkpoint()
         start = time.time()
@@ -3004,8 +3141,9 @@ def _concatenate_and_normalize_impl(
 
     if settings['timelapse']:
         try:
-            source_npy_names = sorted(
-                name for name in _listdir_visible(src) if name.endswith('.npy'))
+            # Item 0aj P3: the frames may live in fov.ome.zarr (one t axis per field).
+            from .image_store import _read_stack, _stack_names
+            source_npy_names = _stack_names(src)
             time_stack_path_lists = _generate_time_lists(source_npy_names)
             grouped_names = sorted(
                 filename for group in time_stack_path_lists
@@ -3029,9 +3167,9 @@ def _concatenate_and_normalize_impl(
                     if idx == 0:
                         parts = file.split('_')
                         name = parts[0] + '_' + parts[1] + '_' + parts[2]
-                    array = np.load(path)
+                    array = _read_stack(path)
                     stack_region.append(array)
-                    filenames_region.append(os.path.basename(path))                    
+                    filenames_region.append(os.path.basename(path))
                 stop = time.time()
                 duration = stop - start
                 time_ls.append(duration)
@@ -3440,7 +3578,8 @@ def _create_movies_from_npy_per_channel(src, fps=10):
     master_path = os.path.dirname(src)
     save_path = os.path.join(master_path,'movies')
     os.makedirs(save_path, exist_ok=True)
-    files = [f for f in _listdir_visible(src) if f.endswith('.npy')]
+    from .image_store import _read_stack, _stack_names
+    files = _stack_names(src)
     organized_files = {}
     for f in files:
         match = re.match(r'(\w+)_(\w+)_(\w+)_(\d+)\.npy', f)
@@ -3454,7 +3593,7 @@ def _create_movies_from_npy_per_channel(src, fps=10):
         plate, well, field = key
         file_list.sort(key=lambda x: x[0])
         _times, paths = zip(*file_list)
-        arrays = np.stack(tuple(map(np.load, paths)), axis=0)
+        arrays = np.stack(tuple(map(_read_stack, paths)), axis=0)
         filenames = list(map(os.path.basename, paths))
         for channel in range(arrays.shape[-1]):
             channel_arrays = arrays[..., channel]
@@ -6340,7 +6479,7 @@ def _load_and_concatenate_arrays(
     rejected_quality = excluded_fields(src)
     reference_files = [name for name in reference_files if name not in rejected_quality]
     to_store = (str(image_format or 'npy').strip().lower() == 'ome-zarr'
-                and _merged_store_plan(reference_files))
+                and _merged_store_plan(reference_files, series=stacks_in_store))
     first_npy = next((n for n in reference_files if n.endswith('.npy')), None)
     if to_store and first_npy is not None and len(_stack_header(
             os.path.join(reference_folder, first_npy))[0]) != 3:
@@ -6534,15 +6673,18 @@ def _load_and_concatenate_arrays(
 
     return
         
-def _merged_store_plan(names):
+def _merged_store_plan(names, series=False):
     """The plate a merged store can hold these fields as, or None (item 0aj).
 
     One store holds one plate with one entry per well and field. Fields of
     several plates, a name that is not a field name, or two names for one
-    field (time-lapse timepoints) cannot be one store; that is said once and
-    None is returned, so the caller merges to ``merged/*.npy`` instead.
+    field (time-lapse timepoints, unless ``series``) cannot be one store;
+    that is said once and None is returned, so the caller merges to
+    ``merged/*.npy`` instead.
 
     :param names: the field file names to merge.
+    :param series: the names are frames of time-lapse fields, stored as one
+        field with a t axis each (item 0aj P3).
     :returns: the plate name, or None.
     """
     from .image_store import split_field_name
@@ -6557,7 +6699,7 @@ def _merged_store_plan(names):
             print(tr('fov.ome.zarr not written: {name} is not a field name; '
                      'the fields are merged to merged/*.npy instead.', name=name))
             return None
-        if (plate, well, field) in seen:
+        if (plate, well, field) in seen and not series:
             print(tr('fov.ome.zarr not written: two files name the same field '
                      '({plate} {well} {field}), which one plate store cannot hold; '
                      'the fields are merged to merged/*.npy instead.',

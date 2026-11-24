@@ -1136,6 +1136,11 @@ def _array_file_nbytes(path: Any) -> int:
     try:
         if lower.endswith('.npy'):
             import numpy as np
+            if not os.path.isfile(path):
+                # A field inside fov.ome.zarr (item 0aj): its size from the ledger.
+                from .image_store import _field_header
+                shape, dtype = _field_header(path)
+                return int(np.prod(shape)) * int(np.dtype(dtype).itemsize)
             return int(np.load(path, mmap_mode='r').nbytes)
         if lower.endswith('.npz'):
             import numpy as np
