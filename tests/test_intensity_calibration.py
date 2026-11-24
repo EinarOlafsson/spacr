@@ -214,6 +214,9 @@ def measured_calibration_projects(tmp_path_factory):
 def _copy_measured_project(projects, destination, enabled=True):
     """Copy a closed measurement project without sharing mutable SQLite state."""
     shutil.copytree(projects[enabled], destination)
+    # Unified store, step S4: Measure wrote the store; these histories are
+    # built by editing rows, which an older (SQLite) project allows.
+    store_sql.to_legacy(destination / "measurements" / "measurements.db")
     return destination / "merged", destination / "measurements" / "measurements.db"
 
 
@@ -247,7 +250,7 @@ def _assert_fresh_run_archives_calibration_history(settings, database):
     measure.measure_crop(settings)
     with store_sql.connect(database) as conn:
         for table, rows in previous.items():
-            assert conn.execute(f'SELECT * FROM "{table}_1"').fetchall() == rows
+            assert store_sql.archived_rows(database, table) == rows
         assert conn.execute("SELECT COUNT(*) FROM cell").fetchone()[0] == len(previous["cell"])
         records = [row[0] for row in conn.execute(
             "SELECT intensity_calibration FROM intensity_rescale")]

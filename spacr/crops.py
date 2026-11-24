@@ -2259,11 +2259,12 @@ def read_db_crop_format(db_path: str, png_path: Optional[str] = None,
     :returns: the format integer, or ``None`` when the column, the table or
         the database is absent, or the answer is ambiguous.
     """
-    if not db_path or not os.path.isfile(db_path):
+    from .measurement_store import connect as _connect_measurements, exists
+    if not db_path or not exists(db_path):
         return None
     try:
-        conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=5)
-    except sqlite3.Error:
+        conn = _connect_measurements(db_path, readonly=True)
+    except (sqlite3.Error, ValueError):
         return None
     try:
         cols = {row[1] for row in conn.execute(
@@ -2324,9 +2325,10 @@ def stamp_crop_format_in_db(db_path: str, png_paths: Optional[Iterable[str]] = N
     """
     if _coerce_format(fmt) is None:
         raise CropError(f"unknown crop format {fmt!r}")
-    if not db_path or not os.path.isfile(db_path):
+    from .measurement_store import connect as _connect_measurements, exists
+    if not db_path or not exists(db_path):
         return 0
-    conn = sqlite3.connect(db_path, timeout=30)
+    conn = _connect_measurements(db_path)
     try:
         cols = {row[1] for row in conn.execute(
             f'PRAGMA table_info("{table}")').fetchall()}
@@ -2988,7 +2990,8 @@ def crop_settings_from_db(db_path: str) -> Dict[str, Any]:
     :param db_path: path to ``measurements.db``.
     :returns: the settings dict, or ``{}`` if the table is absent.
     """
-    if not os.path.isfile(db_path):
+    from .measurement_store import exists as _measurements_exist
+    if not _measurements_exist(db_path):
         raise MergedFileMissing(f"measurements database not found: {db_path}")
     from .database_concurrency import connect as _connect_database
 
@@ -3560,7 +3563,8 @@ class PngCropSource(CropSource):
         self.reason = reason
         if db_path is None and root:
             candidate = os.path.join(root, "measurements", "measurements.db")
-            db_path = candidate if os.path.isfile(candidate) else None
+            from .measurement_store import exists as _measurements_exist
+            db_path = candidate if _measurements_exist(candidate) else None
         self.db_path = db_path
 
     def resolve(self, row: Any) -> str:
@@ -3954,10 +3958,10 @@ class _StoreCropSource(CropSource):
 
 def _png_paths_to_prcfo(db_path: str) -> Dict[str, str]:
     """``{normalised png_path: prcfo}`` from a run's ``png_list``."""
-    if not os.path.isfile(db_path):
+    from .measurement_store import connect as _connect_measurements, exists
+    if not exists(db_path):
         return {}
-    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True,
-                         timeout=30) as conn:
+    with _connect_measurements(db_path, readonly=True) as conn:
         try:
             rows = conn.execute(
                 "SELECT png_path, prcfo FROM png_list").fetchall()
@@ -4172,7 +4176,8 @@ def resolve_crop_source(
             f"'data/' and no 'merged/' folder")
 
     saved: Dict[str, Any] = {}
-    if os.path.isfile(db_path):
+    from .measurement_store import exists as _measurements_exist
+    if _measurements_exist(db_path):
         try:
             saved = crop_settings_from_db(db_path)
         except CropError:

@@ -98,7 +98,8 @@ def validate_measurement_psf_history(settings, db_path, plan):
     :raises ValueError: when existing measurement rows use another PSF identity
         or cannot be proved to use the requested processed intensities.
     """
-    if not Path(db_path).is_file():
+    from .measurement_store import exists as _measurements_exist
+    if not _measurements_exist(db_path):
         return
     from .database_concurrency import connect
     from .resume import MEASURE_OWNED_TABLES, read_recorded_settings

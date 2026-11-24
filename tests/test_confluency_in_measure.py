@@ -1,7 +1,6 @@
 """Item 541: confluency in Measure, for any channel.
 
 Confluency is the fraction of a field covered by cells. Measure computes it
-from tests import store_sql
 from one of three sources -- texture (brightfield, phase), intensity
 (fluorescent cytoplasm or membrane stains) or the cell masks -- writes it per
 field and per well into measurements.db with a monolayer QC flag, and the
@@ -15,6 +14,7 @@ plate1 field compared with its cell masks; both skip when the example data
 has not been downloaded.
 """
 from __future__ import annotations
+from tests import store_sql
 
 import glob
 import os

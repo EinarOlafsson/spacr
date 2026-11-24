@@ -5669,7 +5669,7 @@ def _validate_measurement_calibration_history(settings, db_path):
     :raises ValueError: Existing measurements have incompatible or unverified
         calibration or lack the required per-field provenance.
     """
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return
     from .database_concurrency import connect
     from .resume import MEASURE_OWNED_TABLES, measure_rows_clause, read_recorded_settings
@@ -5685,7 +5685,7 @@ def _validate_measurement_calibration_history(settings, db_path):
             "SELECT name FROM sqlite_master WHERE type='table'")}
         occupied = {}
         for table in tables & (MEASURE_OWNED_TABLES - {'png_list', 'intensity_rescale'}):
-            clause = measure_rows_clause(connection, table) or '1'
+            clause = measure_rows_clause(connection, table) or 'TRUE'
             if connection.execute(f'SELECT 1 FROM "{table}" WHERE {clause} LIMIT 1').fetchone():
                 occupied[table] = clause
         if not occupied:
@@ -14262,6 +14262,8 @@ def measure_crop(settings):
                     return _on_error
 
                 ctx = _measure_pool_context(settings)
+                from .measurement_store import forget_sessions
+                forget_sessions()
                 start_method = ctx.get_start_method()
                 warn_if_hooks_will_not_reach_workers(start_method)
                 pool_jobs = resolve_pool_size(n_jobs, len(files),
@@ -14415,7 +14417,7 @@ def measure_crop(settings):
                 if str(settings.get('plate_barcode_source') or '').strip():
                     _run_plate_barcode_step(settings)
 
-                if settings.get('confluency') and os.path.isfile(db_path):
+                if settings.get('confluency') and _measurements_exist(db_path):
                     wells = _aggregate_confluency_by_well(
                         db_path, settings.get('confluency_qc_threshold'))
                     if not wells.empty:
@@ -14473,7 +14475,6 @@ def measure_crop(settings):
 #: Optional post-run steps that still read and write SQLite tables, so they
 #: do not run on a store project yet (unified store, step S4 follow-up).
 _STEPS_NOT_ON_THE_STORE = (
-    ('confluency', 'the per-well confluency table (confluency_well)'),
     ('cell_cycle', 'the cell-cycle calls'),
     ('time_to_event', 'time to event'),
     ('viability', 'viability'),

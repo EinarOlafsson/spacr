@@ -1347,8 +1347,17 @@ def _session(project: str) -> _Session:
 
 
 def forget_sessions() -> None:
-    """Drop every cached SQL session (tests, or after a project moved)."""
+    """Close and drop every cached SQL session.
+
+    Measure calls this before it forks its workers: a forked child must not
+    inherit an open DuckDB database (its threads do not survive the fork).
+    """
     with _SESSION_LOCK:
+        for session in list(_SESSIONS.values()):
+            try:
+                session.store.close()
+            except Exception:
+                pass
         _SESSIONS.clear()
 
 

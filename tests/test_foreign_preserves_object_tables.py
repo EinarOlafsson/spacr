@@ -10,7 +10,6 @@ object.
 A second way into the same loss survived that fix and is covered lower
 down: ``run_import``'s mask loop rebound ``object_type``, the name
 holding ``plan.join.object_type``, to the last declared mask class. An
-from tests import store_sql
 import with cell *and* nucleus masks therefore wrote their cell
 measurements into ``foreign_nucleus`` and into the canonical ``nucleus``
 table — a child table with no ``cell_id`` — while ``foreign_import`` went
@@ -48,6 +47,7 @@ hand-built ``cell`` table is exactly the fixture that would have hidden
 this.
 """
 from __future__ import annotations
+from tests import store_sql
 
 import contextlib
 import os
