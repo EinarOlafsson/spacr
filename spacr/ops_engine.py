@@ -13553,7 +13553,7 @@ def _st_compare_groups(matrix, genes, in_group, *, labels=("infected",
     """
     import pandas as pd
     from scipy.stats import mannwhitneyu
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     in_group = np.asarray(in_group, dtype=bool)
     if in_group.all() or not in_group.any():
@@ -13566,7 +13566,7 @@ def _st_compare_groups(matrix, genes, in_group, *, labels=("infected",
     a, b = normal[in_group], normal[~in_group]
     _u, p = mannwhitneyu(a, b, axis=0, alternative="two-sided")
     p = np.nan_to_num(np.asarray(p, dtype=float), nan=1.0)
-    q = multipletests(p, method="fdr_bh")[1] if len(p) else p
+    q = adjust_p_values(p, "fdr_bh")[0]
     mean_a = counts[in_group].mean(axis=0)
     mean_b = counts[~in_group].mean(axis=0)
     first, second = labels
@@ -13601,7 +13601,7 @@ def _st_distance_trend(matrix, genes, distance, *, min_objects: int = 5):
     """
     import pandas as pd
     from scipy.stats import rankdata, t as student
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     distance = np.asarray(distance, dtype=float)
     finite = np.isfinite(distance)
@@ -13620,7 +13620,7 @@ def _st_distance_trend(matrix, genes, distance, *, min_objects: int = 5):
     n = int(finite.sum())
     stat = rho * np.sqrt((n - 2) / np.clip(1 - rho ** 2, 1e-12, None))
     p = 2 * student.sf(np.abs(stat), n - 2)
-    q = multipletests(p, method="fdr_bh")[1] if len(p) else p
+    q = adjust_p_values(p, "fdr_bh")[0]
     frame = pd.DataFrame({"gene": np.asarray(genes, dtype=object)[columns],
                           "spearman_rho": rho, "p_value": p, "q_value": q,
                           "objects": n})

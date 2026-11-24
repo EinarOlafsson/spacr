@@ -1006,15 +1006,9 @@ def _bh(pvalues: Sequence[float]) -> List[float]:
 
     :param pvalues: the raw p values.
     """
-    n = len(pvalues)
-    order = sorted(range(n), key=lambda i: pvalues[i])
-    adjusted = [1.0] * n
-    running = 1.0
-    for rank in range(n, 0, -1):
-        i = order[rank - 1]
-        running = min(running, pvalues[i] * n / rank)
-        adjusted[i] = running
-    return adjusted
+    from .multiple_testing import adjust_p_values
+
+    return adjust_p_values(pvalues, "fdr_bh")[0].tolist()
 
 
 def _enrich_cluster(genes: Sequence[str], gene_terms: Mapping[str, set], term_size: Mapping[str, int],

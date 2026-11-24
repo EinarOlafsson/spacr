@@ -359,21 +359,9 @@ def benjamini_hochberg(p_values: Sequence[Any]) -> np.ndarray:
     :param p_values: p-values; anything non-finite is treated as untested.
     :returns: q-values aligned with the input.
     """
-    values = np.asarray(p_values, dtype=float)
-    q = np.full(values.shape, np.nan, dtype=float)
-    testable = np.isfinite(values)
-    m = int(testable.sum())
-    if m == 0:
-        return q
-    order = np.argsort(values[testable], kind="mergesort")
-    ranked = values[testable][order]
-    scaled = ranked * m / np.arange(1, m + 1)
-    adjusted = np.minimum.accumulate(scaled[::-1])[::-1]
-    adjusted = np.clip(adjusted, 0.0, 1.0)
-    out = np.empty(m, dtype=float)
-    out[order] = adjusted
-    q[testable] = out
-    return q
+    from .multiple_testing import adjust_p_values
+
+    return adjust_p_values(p_values, "fdr_bh")[0]
 
 
 def grna_agreement(gene_effects: Mapping[str, float],
