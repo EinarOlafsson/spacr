@@ -473,12 +473,72 @@ def _clash_names(root: str, first: str, second: str) -> Tuple[str, str]:
     return os.path.basename(first), os.path.basename(second)
 
 
+#: The folder of a run's cached tile indexes, inside ``dst_root`` (item 0ap).
+_TILE_INDEX_CACHE = ".ops_tile_index"
+
+
+def _cached_tile_index(destination: Optional[str], root: str, scheme: str,
+                       acquisition: Optional[str] = None
+                       ) -> Dict[str, Dict[int, Dict[int, Dict[str, str]]]]:
+    """:func:`_index_tiles`, walked once per run folder and reused while the tiles stay put.
+
+    Walking a plate's phenotype folder on a network share takes about a
+    minute (item 0ap: 52 s on plate A), and every phase process of a run
+    walked it again. The index is saved in ``<destination>/.ops_tile_index/``
+    with the modification time of every folder the walk visited; a later
+    process reuses it when each of those folders is unchanged, which holds
+    as long as no tile is added, removed or renamed. Anything else (a
+    changed folder, a missing or unreadable cache) walks again.
+
+    :param destination: the run folder; None walks without a cache.
+    :param root: the acquisition folder.
+    :param scheme: ``"cycled"`` or ``"uncycled"``.
+    :param acquisition: ``ops_ph_use_acquisition``.
+    :returns: :func:`_index_tiles`' answer.
+    """
+    import hashlib
+
+    if not destination:
+        return _index_tiles(root, scheme, acquisition)
+    root = os.path.abspath(str(root))
+    key = json.dumps([root, scheme, acquisition])
+    path = os.path.join(str(destination), _TILE_INDEX_CACHE,
+                        hashlib.sha1(key.encode("utf-8")).hexdigest()[:16] + ".json")
+    try:
+        with open(path, encoding="utf-8") as handle:
+            saved = json.load(handle)
+        if saved["key"] == key and all(
+                os.stat(folder).st_mtime_ns == stamp
+                for folder, stamp in saved["folders"]):
+            return {well: {int(cycle): {int(site): dict(files)
+                                        for site, files in sites.items()}
+                           for cycle, sites in cycles.items()}
+                    for well, cycles in saved["index"].items()}
+    except (OSError, ValueError, KeyError, TypeError):
+        pass
+    visited: List[str] = []
+    index = _index_tiles(root, scheme, acquisition, folders=visited)
+    try:
+        stamps = [[folder, os.stat(folder).st_mtime_ns] for folder in visited]
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        part = f"{path}.{os.getpid()}.part"
+        with open(part, "w", encoding="utf-8") as handle:
+            json.dump({"key": key, "folders": stamps, "index": index}, handle)
+        os.replace(part, path)
+    except OSError:
+        pass
+    return index
+
+
 def _index_tiles(root: str, scheme: Optional[str] = None,
-                 acquisition: Optional[str] = None
+                 acquisition: Optional[str] = None, *,
+                 folders: Optional[List[str]] = None
                  ) -> Dict[str, Dict[int, Dict[int, Dict[str, str]]]]:
     """Every tile under ``root``, as ``well -> cycle -> site -> channel -> path``.
 
     :param root: the acquisition folder, searched recursively.
+    :param folders: when given, every folder the walk visits is appended
+        (:func:`_cached_tile_index` checks them to reuse the index).
     :param scheme: which naming scheme counts -- ``"cycled"`` for a
         sequencing acquisition, ``"uncycled"`` for a phenotype one, None to
         take whichever the folder turns out to use.
@@ -528,6 +588,8 @@ def _index_tiles(root: str, scheme: Optional[str] = None,
     found: Dict[str, Dict[str, Dict[int, Dict[int, Dict[str, str]]]]] = {
         name: {} for name in wanted}
     for folder, _folders, files in os.walk(root, followlinks=True):
+        if folders is not None:
+            folders.append(folder)
         for name in sorted(files):
             for which in wanted:
                 parsed = _match_tile(name, which)
@@ -9583,29 +9645,25 @@ def _ph_write_shard(path: str, members) -> "Any":
     return index
 
 
-def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
-    """Cut one field's chosen cells; the ``ph_crops`` worker.
+def _ph_crop_stack(task: Mapping[str, Any], unreadable: list) -> Optional[np.ndarray]:
+    """One field's crop channels as ``(H, W, C)`` uint16, as ``ph_crops`` cuts from them.
 
-    :param task: ``site``, ``files``, ``channels``, ``crop_channels``,
-        ``mask_path``, ``labels`` (``{label: (reason, object_id)}``),
-        ``size``, ``flat_folder``, ``masks``, ``secondary``, ``plate``,
-        ``well``; optionally ``flat_mean_one``, which scales each flat to
-        mean 1 over the field before it divides, and ``margin`` with
-        ``zero_outside``: a margin that is not None cuts each cell's
-        bounding box plus that margin (:func:`_ph_crop_box`) instead of the
-        fixed ``size`` square.
-    :returns: ``site``, ``members`` (``(name, bytes, record)``) and
-        ``unreadable``.
+    The one field read of the stored crops (:func:`_ph_crop_field`) and of
+    the crops streamed when saving crops is off (:func:`_ph_source_field`,
+    item 0ap): the phenotype tiles through :func:`_ph_read_field`, the
+    flat-field correction when ``flat_folder`` is set (scaled to mean 1
+    with ``flat_mean_one``), then the crop channels, rounded and clipped
+    to uint16.
+
+    :param task: ``files``, ``channels``, ``crop_channels``, ``secondary``,
+        ``flat_folder`` and ``flat_mean_one``.
+    :param unreadable: ``(path, reason)`` is appended for a file that fails.
+    :returns: the stack, or None when a channel is missing or unreadable.
     """
-    from scipy import ndimage
-
-    from . import schema
-
-    unreadable: list = []
     stack = _ph_read_field(task["files"], task["channels"], unreadable,
                            task.get("secondary"))
     if stack is None:
-        return {"site": task["site"], "members": [], "unreadable": unreadable}
+        return None
     if task.get("flat_folder"):
         from .ops_flatfield import correct_field
 
@@ -9616,15 +9674,150 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
                           ).astype(np.float32) for c, p in planes.items()}
             offsets = {c: float(np.float32(v)) for c, v in offsets.items()}
         stack = correct_field(stack, planes, offsets, task["channels"])
-    keep = [task["channels"].index(c) for c in task["crop_channels"]]
-    stack = np.clip(np.rint(stack[..., keep]), 0, 65535).astype(np.uint16)
+    keep = [list(task["channels"]).index(c) for c in task["crop_channels"]]
+    return np.clip(np.rint(stack[..., keep]), 0, 65535).astype(np.uint16)
+
+
+def _ph_fixed_window(cells: np.ndarray, box, label: int, size: int):
+    """Where :func:`_ph_crop_cell` puts a cell's fixed ``size`` square.
+
+    :returns: ``((top, left), (cy, cx), edge)``: the square's top-left
+        corner in field pixels (it may lie outside the field), the cell
+        mask's centroid and 1 when the square crosses the field edge.
+    """
+    from scipy import ndimage
+
+    height, width = cells.shape
+    y0, y1 = max(0, box[0].start - size), min(height, box[0].stop + size)
+    x0, x1 = max(0, box[1].start - size), min(width, box[1].stop + size)
+    local = (cells[y0:y1, x0:x1] == label).astype(np.int32)
+    centre = np.round(ndimage.center_of_mass(local)).astype(int)
+    top, left = y0 + centre[0] - size // 2, x0 + centre[1] - size // 2
+    edge = int(top < 0 or left < 0 or top + size > height
+               or left + size > width)
+    return ((int(top), int(left)), (int(y0 + centre[0]), int(x0 + centre[1])),
+            edge)
+
+
+def _ph_cut(stack: np.ndarray, cells: np.ndarray, nuclei: np.ndarray,
+            label: int, box: Tuple[int, int, int, int], zero_outside: bool,
+            with_mask: bool):
+    """One OPS crop: THE cut of the stored and the streamed OPS crops (item 0ap).
+
+    :param stack: the field ``(C, H, W)`` uint16 (:func:`_ph_crop_stack`,
+        channels first).
+    :param cells: the cell labels.
+    :param nuclei: the nucleus labels.
+    :param label: the cell's label.
+    :param box: ``(y0, x0, y1, x1)`` in field pixels, end-exclusive; a
+        fixed square may reach past the field edge, where the crop is 0.
+    :param zero_outside: set the pixels outside the cell to 0 (always for
+        the fixed square, ``crop_zero_outside`` for the bounding box).
+    :param with_mask: also give the uint8 mask, 1 the cell and 2 its
+        nucleus; None otherwise.
+    :returns: ``(crop (C, h, w), mask or None)``.
+
+    :func:`spacr.crop_store._cut_box` does the cut, so OPS, Measure and the
+    crop reader cut a box the same way. The bounding box plus
+    ``crop_margin_px`` gives :func:`_ph_crop_box`'s pixels; the fixed square
+    gives :func:`_ph_crop_cell`'s, whose cut zeroes the pixels off the cell
+    and pads the field with 0.
+    """
+    from .crop_store import _cut_box
+
+    y0, x0, y1, x1 = (int(v) for v in box)
+    height, width = cells.shape
+    local = (y0, x0, y1, x1)
+    if y0 < 0 or x0 < 0 or y1 > height or x1 > width:
+        iy0, ix0 = max(y0, 0), max(x0, 0)
+        iy1, ix1 = min(y1, height), min(x1, width)
+        inner = (slice(iy0 - y0, max(iy1 - y0, iy0 - y0)),
+                 slice(ix0 - x0, max(ix1 - x0, ix0 - x0)))
+        image = np.zeros((stack.shape[0], y1 - y0, x1 - x0), stack.dtype)
+        own = np.zeros((y1 - y0, x1 - x0), cells.dtype)
+        core = np.zeros((y1 - y0, x1 - x0), nuclei.dtype)
+        if iy1 > iy0 and ix1 > ix0:
+            image[(slice(None),) + inner] = stack[:, iy0:iy1, ix0:ix1]
+            own[inner] = cells[iy0:iy1, ix0:ix1]
+            core[inner] = nuclei[iy0:iy1, ix0:ix1]
+        stack, cells, nuclei = image, own, core
+        local = (0, 0, y1 - y0, x1 - x0)
+    cut = _cut_box(stack, cells, int(label), local, zero_outside=zero_outside)
+    mask = None
+    if with_mask:
+        ly0, lx0, ly1, lx1 = local
+        mask = cut["mask"].astype(np.uint8)
+        mask[(nuclei[ly0:ly1, lx0:lx1] == label) & cut["mask"]] = 2
+    return cut["pixels"], mask
+
+
+def _ph_pool_crop(record: Mapping[str, Any], box: Tuple[int, int, int, int],
+                  has_mask: bool) -> Dict[str, Any]:
+    """One OPS crop's columns in the crop index, without its pixels.
+
+    :param record: the crop's OPS record (:func:`_ph_crop_field`).
+    :param box: ``(y0, x0, y1, x1)`` of the cut.
+    :param has_mask: whether the crop has the cell and nucleus mask.
+    """
+    top, left, bottom, right = (int(v) for v in box)
+    return {**record, "object_id": record["prcfo"],
+            "ops_object_id": record["object_id"], "ops_crop": True,
+            "object_label": record["label"], "field": record["site"],
+            "has_mask": bool(has_mask),
+            "bbox_y0": top, "bbox_x0": left, "bbox_y1": bottom, "bbox_x1": right,
+            "margin_px": int(record.get("margin_px", 0)),
+            "clipped_at_edge": bool(record["window_edge"])}
+
+
+#: The file beside a streamed well's crop index naming each site's tiles,
+#: masks and the read options (item 0ap).
+OPS_CROP_SOURCE = "ops_crop_source.json"
+
+
+def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """Cut one field's chosen cells; the ``ph_crops`` worker.
+
+    :param task: ``site``, ``files``, ``channels``, ``crop_channels``,
+        ``mask_path``, ``labels`` (``{label: (reason, object_id)}``),
+        ``size``, ``flat_folder``, ``masks``, ``secondary``, ``plate``,
+        ``well``; optionally ``flat_mean_one``, which scales each flat to
+        mean 1 over the field before it divides, and ``margin`` with
+        ``zero_outside``: a margin that is not None cuts each cell's
+        bounding box plus that margin (:func:`_ph_crop_box`) instead of the
+        fixed ``size`` square. ``save`` False (saving crops off, item 0ap)
+        reads only the masks and cuts nothing.
+    :returns: ``site``, ``members`` (``(name, payload, record)``) and
+        ``unreadable``. In the native format also ``prepared``: the crops
+        checked and their crop-index rows built here
+        (:func:`spacr.crop_store._prepare_crops`), so the writing process
+        only routes them into shards; with ``save`` False, ``lines``: the
+        crop-index rows of the crops the reader will cut on demand, and no
+        members.
+    """
+    from scipy import ndimage
+
+    from . import schema
+    from .crop_store import OPS_SOURCE_PREFIX
+
+    unreadable: list = []
+    save = bool(task.get("save", True))
+    native = task.get("crop_format") == "ome-zarr"
+    stack = None
+    if save or not native:
+        stack = _ph_crop_stack(task, unreadable)
+        if stack is None:
+            return {"site": task["site"], "members": [], "unreadable": unreadable}
+        stack = np.moveaxis(stack, -1, 0)
     saved = _ph_read_masks(task["mask_path"])
     nuclei = saved["nuclei"].astype(np.int32)
     cells = saved["cells"].astype(np.int32)
+    del saved
     boxes = ndimage.find_objects(cells)
     row, column = schema.parse_well(task["well"])
-    members = []
+    members, crops = [], []
     margin = task.get("margin")
+    zero_outside = bool(task.get("zero_outside"))
+    with_mask = bool(task["masks"])
     cuts = {}
     if margin is not None:
         from .crop_store import cut_crops
@@ -9632,48 +9825,80 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         wanted = [label for label in sorted(task["labels"])
                   if label - 1 < len(boxes) and boxes[label - 1] is not None]
         cuts = {cut["object_label"]: cut for cut in cut_crops(
-            np.moveaxis(stack, -1, 0), cells, margin=int(margin),
-            zero_outside=bool(task.get("zero_outside")), objects=wanted)}
+            None, cells, margin=int(margin), objects=wanted)}
+    size = int(task["size"])
     for label in sorted(task["labels"]):
         if label - 1 >= len(boxes) or boxes[label - 1] is None:
             continue
         reason, object_id = task["labels"][label]
-        box = None
+        cut_box = None
         if margin is None:
-            crop, mask, (cy, cx), edge = _ph_crop_cell(
-                stack, cells, nuclei, boxes[label - 1], label, task["size"],
-                task["masks"])
+            (top, left), (cy, cx), edge = _ph_fixed_window(
+                cells, boxes[label - 1], label, size)
+            box, zero = (top, left, top + size, left + size), True
         else:
-            crop, mask, (cy, cx), edge, box = _ph_crop_box(
-                cuts[label], nuclei, label, task["masks"])
+            cut = cuts[label]
+            box = (cut["bbox_y0"], cut["bbox_x0"], cut["bbox_y1"], cut["bbox_x1"])
+            own = cells[box[0]:box[2], box[1]:box[3]] == label
+            cy, cx = (np.round(ndimage.center_of_mass(own)).astype(int)
+                      + (box[0], box[1]))
+            cy, cx, edge, zero = int(cy), int(cx), int(cut["clipped_at_edge"]), zero_outside
+            cut_box = {key: cut[key] for key in ("bbox_y0", "bbox_x0", "bbox_y1",
+                                                 "bbox_x1", "margin_px")}
         prcfo = _ph_prcfo(task["plate"], row, column, task["site"], label)
         name = (f"site-{task['site']}/"
                 f"{schema.escape_filename_component(task['plate'])}"
                 f"{prcfo[len(str(task['plate'])):]}.tif")
-        payload = ((crop, mask) if task.get("crop_format") == "ome-zarr"
-                   else _ph_crop_bytes(crop, mask, task["crop_channels"]))
         record = {"prcfo": prcfo, "plate": task["plate"],
                   "well": task["well"], "site": int(task["site"]),
                   "label": int(label), "object_id": object_id,
                   "cy": cy, "cx": cx, "window_edge": edge,
                   "reason": reason}
-        if box is not None:
-            record.update(box)
+        if cut_box is not None:
+            record.update(cut_box)
+        if not save and native:
+            crops.append({**_ph_pool_crop(record, box, with_mask),
+                          "source_field": f"{OPS_SOURCE_PREFIX}{int(task['site'])}",
+                          "zero_outside": bool(zero)})
+            continue
+        crop, mask = _ph_cut(stack, cells, nuclei, label, box, zero, with_mask)
+        payload = ((crop, mask) if native
+                   else _ph_crop_bytes(crop, mask, task["crop_channels"]))
         members.append((name, payload, record))
-    return {"site": task["site"], "members": members, "unreadable": unreadable}
+        if native:
+            height, width = crop.shape[1:]
+            crops.append({**_ph_pool_crop(record, box, mask is not None),
+                          "pixels": crop,
+                          "mask": mask if mask is not None
+                          else np.zeros((height, width), np.uint8)})
+    out = {"site": task["site"], "members": members, "unreadable": unreadable}
+    if native:
+        from .crop_store import _index_lines, _prepare_crops
+
+        if save:
+            out["prepared"] = _prepare_crops(
+                task["plate"], task["well"], "cell", crops,
+                channels=len(task["crop_channels"]), mask_dtype=np.uint8)
+        else:
+            out["lines"] = _index_lines(task["plate"], task["well"], "cell", crops)
+    return out
 
 
-def _ph_crop_commit(root: str, plate: str, well: str):
+def _ph_crop_commit(root: str, plate: str, well: str, *, rows: bool = True):
     """The OPS crop commit when every listed image and mask pool is present.
 
     :param root: the crop project root.
     :param plate: the plate name.
     :param well: the well name.
+    :param rows: also read every crop's row; False reads the commit record
+        only (pools, ``n_rows``, attributes), which is all a resume needs
+        (item 0ap).
     :returns: the existing commit, or None for incomplete/non-OPS output.
+        A streamed well (saving crops off) lists no pools.
     """
     from .crop_store import class_dir, read_commit
 
-    record = read_commit(root, plate, well, "cell")
+    record = read_commit(root, plate, well, "cell", rows=rows)
     if not record or record.get("attributes", {}).get("source") != "ops_ph_crops":
         return None
     base = class_dir(root, plate, well, "cell")
@@ -9684,7 +9909,9 @@ def _ph_crop_commit(root: str, plate: str, well: str):
 
 
 def _ph_write_crop_pool(root: str, plate: str, well: str, results,
-                        channels: Sequence[str], cap: int, options):
+                        channels: Sequence[str], cap: int, options, *,
+                        workers: int = 1,
+                        source: Optional[Mapping[str, Any]] = None):
     """Commit native OPS crops in plan order without appending a previous run.
 
     :param root: the crop project root.
@@ -9694,11 +9921,20 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
     :param channels: the channel names.
     :param cap: maximum crops in a pool.
     :param options: the options recorded with this run.
+    :param workers: shards the writer compresses at once (item 0ap).
+    :param source: for a well whose crops are streamed (saving crops off),
+        each site's tiles and masks and the read options, written beside
+        the crop index as :data:`OPS_CROP_SOURCE` for the crop reader.
     :returns: crop count, pool count and unreadable inputs.
+
+    The workers checked each crop and built its row (``prepared``), or
+    built the rows of streamed crops (``lines``); here they are only routed
+    into shards, and the rows stream to the row file, so neither the crops
+    nor the rows of a well are held in memory (item 0ap).
     """
     import shutil
 
-    from .crop_store import CropPoolWriter, class_dir, pool_attributes
+    from .crop_store import CropPoolWriter, _atomic_write, class_dir, pool_attributes
     from .qt.i18n import tr
 
     base = class_dir(root, plate, well, "cell")
@@ -9712,26 +9948,117 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
         root, plate, well, "cell", len(channels), np.uint16,
         mask_dtype=np.uint8, crops_per_shard=cap,
         attributes={"source": "ops_ph_crops", "channel_names": list(channels),
-                    "options": options})
+                    "options": options},
+        keep_rows=False, workers=workers)
+    if source is not None:
+        _atomic_write(writer.path / "cell" / OPS_CROP_SOURCE,
+                      json.dumps(source, indent=1, sort_keys=True, default=str) + "\n")
     unreadable = []
     for result in results:
         unreadable.extend(result["unreadable"])
+        if "lines" in result:
+            writer._add_index_lines(result["lines"])
+            continue
+        if "prepared" in result:
+            writer.add(result["prepared"], prepared=True)
+            continue
         for _name, (pixels, mask), record in result["members"]:
             height, width = pixels.shape[1:]
             top, left = record["cy"] - height // 2, record["cx"] - width // 2
             top, left = record.get("bbox_y0", top), record.get("bbox_x0", left)
-            crop = {**record, "object_id": record["prcfo"],
-                    "ops_object_id": record["object_id"], "ops_crop": True,
-                    "object_label": record["label"], "field": record["site"],
-                    "pixels": pixels, "has_mask": mask is not None,
-                    "mask": mask if mask is not None else np.zeros((height, width), np.uint8),
-                    "bbox_y0": top, "bbox_x0": left,
-                    "bbox_y1": top + height, "bbox_x1": left + width,
-                    "margin_px": int(record.get("margin_px", 0)),
-                    "clipped_at_edge": bool(record["window_edge"])}
+            crop = {**_ph_pool_crop(record, (top, left, top + height, left + width),
+                                    mask is not None),
+                    "pixels": pixels,
+                    "mask": mask if mask is not None else np.zeros((height, width), np.uint8)}
             writer.add([crop])
     committed = writer.commit()
     return int(committed["n_rows"]), len(committed["pools"]), unreadable
+
+
+#: Fields the streamed-crop reader keeps read, by source file, site and stamp.
+_PH_SOURCE_FIELDS: "Dict[Any, Any]" = {}
+
+
+def _ph_source_field(project: Any, row: Mapping[str, Any]):
+    """The field a streamed OPS crop is cut from: ``(stack (C, H, W), cells, nuclei)``.
+
+    The crop reader's OPS field source (item 0ap): the site's phenotype
+    tiles read as ``ph_crops`` reads them (:func:`_ph_crop_stack`, with
+    the same flat-field correction) and its saved masks, named by the
+    well's :data:`OPS_CROP_SOURCE` file. The last two fields are kept, so a
+    batch of one field's crops reads its tiles once.
+
+    :param project: the crop project root.
+    :param row: the crop's index row (``plate``, ``well``, ``object_type``,
+        ``source_field``).
+    :raises ValueError: when the tiles cannot be read.
+    """
+    from .crop_store import OPS_SOURCE_PREFIX, _row_field, class_dir
+    from .qt.i18n import tr
+
+    base = class_dir(project, str(_row_field(row, "plate")), str(_row_field(row, "well")),
+                     str(_row_field(row, "object_type")))
+    path = base / OPS_CROP_SOURCE
+    site = str(_row_field(row, "source_field"))[len(OPS_SOURCE_PREFIX):]
+    key = (os.fspath(path), os.stat(path).st_mtime_ns, site)
+    found = _PH_SOURCE_FIELDS.get(key)
+    if found is not None:
+        return found
+    with open(path, encoding="utf-8") as handle:
+        source = json.load(handle)
+    spec = source["sites"][site]
+    mask_path = spec["mask_path"]
+    if not os.path.isabs(mask_path):
+        mask_path = os.path.join(os.fspath(project), mask_path)
+    unreadable: list = []
+    stack = _ph_crop_stack({**source["read"], "files": spec["files"],
+                            "secondary": spec.get("secondary")}, unreadable)
+    if stack is None:
+        raise ValueError(tr("OPS crop {object_id} cannot be cut: {reasons}",
+                            object_id=_row_field(row, "object_id"),
+                            reasons=unreadable))
+    saved = _ph_read_masks(mask_path)
+    found = (np.moveaxis(stack, -1, 0), saved["cells"].astype(np.int32),
+             saved["nuclei"].astype(np.int32))
+    while len(_PH_SOURCE_FIELDS) >= 2:
+        _PH_SOURCE_FIELDS.pop(next(iter(_PH_SOURCE_FIELDS)))
+    _PH_SOURCE_FIELDS[key] = found
+    return found
+
+
+def _ph_stream_crop(project: Any, row: Mapping[str, Any]):
+    """One streamed OPS crop, ``(crop (C, h, w), mask (h, w) uint8)``, as it would be stored.
+
+    The crop reader calls this for a row whose ``source_field`` starts with
+    :data:`spacr.crop_store.OPS_SOURCE_PREFIX`; :func:`_ph_cut` cuts it, the cut the stored
+    crops get. A crop without the cell mask gets the stored zero mask.
+    """
+    from .crop_store import _row_field
+
+    stack, cells, nuclei = _ph_source_field(project, row)
+    box = tuple(int(_row_field(row, k)) for k in ("bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1"))
+    has_mask = _row_field(row, "has_mask")
+    with_mask = bool(has_mask) and str(has_mask) not in ("0", "False")
+    zero = _row_field(row, "zero_outside")
+    crop, mask = _ph_cut(stack, cells, nuclei, int(_row_field(row, "object_label")), box,
+                         bool(zero) and str(zero) not in ("0", "False", "nan"), with_mask)
+    if mask is None:
+        mask = np.zeros(crop.shape[1:], np.uint8)
+    return crop, mask
+
+
+def _ph_relative(path: str, root: str) -> str:
+    """``path`` relative to ``root`` when it lies inside it, else unchanged."""
+    try:
+        relative = os.path.relpath(path, root)
+    except ValueError:
+        return path
+    return path if relative.startswith(os.pardir) else relative
+
+
+def _ph_crop_writers(settings: Mapping[str, Any]) -> int:
+    """Shards the crop writer compresses at once: half of ``n_workers``, 1 to 4 (item 0ap)."""
+    return max(1, min(4, int(settings.get("n_workers") or 1) // 2))
 
 
 def _ph_store_owned_cells(tables: Optional[Mapping[str, Any]], plate: str,
@@ -9809,7 +10136,13 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
 
     New runs commit crops to per-well OME-Zarr pools through
     :class:`spacr.crop_store.CropPoolWriter`, preserving uint16 images and
-    optional uint8 masks (0 background, 1 cell, 2 nucleus). A crop commit
+    optional uint8 masks (0 background, 1 cell, 2 nucleus), when
+    ``save_png`` (spaCR's "save crops" switch) is on. With it off, the
+    default, nothing is cut: the well's crop index lists the chosen crops
+    with their boxes, and :func:`spacr.crop_store.read_crop` cuts each from
+    its tiles when it is read, the same pixels a saved crop holds (item
+    0ap). The workers cut, check and index the crops; this process only
+    routes them into shards, which writer threads compress. A crop commit
     and matching options are required for resume. The explicit legacy
     ``ops_crop_image_format='tiff-tar'`` keeps each crop as a TIFF member
     (``site-<n>/<prcfo>.tif``; page 0 the
@@ -9823,6 +10156,8 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     files (item 809). A well with ``CROPS_DONE.json`` for the same options
     is not cut again.
     """
+    import collections
+    import itertools
     import multiprocessing
 
     import pandas as pd
@@ -9875,6 +10210,13 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     if margin is not None:
         options.update({"size": None, "margin_px": margin,
                         "zero_outside": zero_outside})
+    # save_png is spaCR's one "save crops" switch, off by default (item
+    # 0aj): OPS then records only which crops it chose, and the crop
+    # reader cuts each from its tiles on demand (item 0ap). The legacy
+    # tiff-tar format always stores.
+    save = crop_format != "ome-zarr" or bool(settings.get("save_png", False))
+    if not save:
+        options["streamed"] = True
     design_path = settings.get("ops_design")
     sampled = (settings.get("ops_crop_per_guide") not in (None, "")
                and bool(design_path) and os.path.isfile(str(design_path)))
@@ -9888,7 +10230,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             from .crop_store import class_dir
 
             done_path = str(class_dir(root, plate, well, "cell") / "CROPS_DONE.json")
-            native_commit = _ph_crop_commit(root, plate, well)
+            native_commit = _ph_crop_commit(root, plate, well, rows=False)
         if os.path.isfile(done_path):
             with open(done_path, encoding="utf-8") as handle:
                 done = json.load(handle)
@@ -9958,9 +10300,19 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                   "masks": with_masks, "secondary": secondary.get(site),
                   "flat_mean_one": options["flat_mean_one"],
                   "margin": margin, "zero_outside": zero_outside,
-                  "plate": plate, "well": well}
+                  "plate": plate, "well": well, "save": save}
                  for site, labels in sorted(chosen.items())
                  if site in files and site in mask_paths]
+        source = None
+        if not save:
+            source = {"read": {"channels": list(channels),
+                               "crop_channels": list(crop_channels),
+                               "flat_folder": flat_folder,
+                               "flat_mean_one": options["flat_mean_one"]},
+                      "sites": {str(task["site"]): {
+                          "files": task["files"], "secondary": task["secondary"],
+                          "mask_path": _ph_relative(task["mask_path"], root)}
+                          for task in tasks}}
         workers = max(1, min(int(settings.get("n_workers") or 1),
                              len(tasks) or 1))
         if workers == 1:
@@ -9970,16 +10322,31 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             pool = ProcessPoolExecutor(
                 workers, mp_context=multiprocessing.get_context("spawn"))
             def ordered_results():
-                """Bound native result arrays to two fields per worker."""
-                for start in range(0, len(tasks), 2 * workers):
-                    yield from pool.map(_ph_crop_field, tasks[start:start + 2 * workers])
+                """Fields in plan order, at most two per worker cut ahead.
+
+                A field is handed out as soon as an earlier one is taken,
+                so the workers never wait for the slowest field of a batch
+                (item 0ap), and at most ``2 * workers`` fields' crops are
+                held at once.
+                """
+                ahead = collections.deque()
+                queue = iter(tasks)
+                for task in itertools.islice(queue, 2 * workers):
+                    ahead.append(pool.submit(_ph_crop_field, task))
+                while ahead:
+                    result = ahead.popleft().result()
+                    task = next(queue, None)
+                    if task is not None:
+                        ahead.append(pool.submit(_ph_crop_field, task))
+                    yield result
 
             results = ordered_results() if crop_format == "ome-zarr" else pool.map(_ph_crop_field, tasks)
         shard, pending, crops, unreadable, indexes = 0, [], 0, [], []
         try:
             if crop_format == "ome-zarr":
                 crops, shard, unreadable = _ph_write_crop_pool(
-                    root, plate, well, results, crop_channels, cap, options)
+                    root, plate, well, results, crop_channels, cap, options,
+                    workers=_ph_crop_writers(settings), source=source)
                 results = ()
             for result in results:
                 unreadable.extend(result["unreadable"])
@@ -10078,31 +10445,21 @@ def _ops_store_crops(root: str, plate: str, well: str, prcfo):
     """The well's ph_crops shards matched to ``prcfo``: ``(crops, rows, masks)``.
 
     :returns: lazy crop and mask arrays and each crop's row in ``prcfo``;
-        ``(None, None, None)`` when the well has no shard, or when its crops
-        are not all one size: crops cut with ``crop_margin_px`` are each
-        their cell's box, which one ``(k, C, H, W)`` store array cannot hold,
-        so they stay in the crop pool (``crops/.../cell``) and are not
-        copied (item 0an; the copy raised a broadcast error before).
+        ``(None, None, None)`` when the well has no legacy shard. A well
+        committed to the crop store (pools, or streamed crops) is never
+        copied: its crop index already says where each crop is (item 0ap;
+        item 0an stopped the copy of box-sized crops, which one
+        ``(k, C, H, W)`` store array cannot hold).
     """
     import glob as globbing
 
     from .tabular import read_table
 
-    native = _ph_crop_commit(root, plate, well)
-    if native is not None:
-        from .crop_store import read_crop
-
-        row_of = {str(p): i for i, p in enumerate(prcfo)}
-        members = [row for row in native["rows"] if str(row["prcfo"]) in row_of]
-        if not members or len({(int(row["height"]), int(row["width"]))
-                                for row in members}) > 1:
-            return None, None, None
-        rows = np.asarray([row_of[str(row["prcfo"])] for row in members], dtype=np.int64)
-        image, mask = read_crop(root, members[0])
-        crops = _ShardCrops(members, image.shape, image.dtype, project=root)
-        masks = (_ShardCrops(members, mask.shape, mask.dtype, masks=True, project=root)
-                 if members[0].get("has_mask") else None)
-        return crops, rows, masks
+    if _ph_crop_commit(root, plate, well, rows=False) is not None:
+        # The crop index already points at the crops (a pool, or the tiles
+        # they are cut from on read), so they are not copied into the
+        # store a second time, and its rows are not read (item 0ap).
+        return None, None, None
     base = os.path.join(root, "data", "cell", str(plate), str(well))
     indexes = sorted(globbing.glob(os.path.join(globbing.escape(base), "**",
                                                 "shard-*.index.parquet"),
@@ -12119,8 +12476,10 @@ def run_ops(settings: Mapping[str, Any], *,
                     for c in names)
         else:
             phenotype_index = (
-                _index_tiles(str(phenotype_root), "uncycled", chosen_acquisition)
-                or _index_tiles(str(phenotype_root), "cycled", chosen_acquisition))
+                _cached_tile_index(destination, str(phenotype_root), "uncycled",
+                                   chosen_acquisition)
+                or _cached_tile_index(destination, str(phenotype_root), "cycled",
+                                      chosen_acquisition))
             if chosen_acquisition and not phenotype_index:
                 _no_such_acquisition(str(phenotype_root), chosen_acquisition)
         if not phenotype_index:

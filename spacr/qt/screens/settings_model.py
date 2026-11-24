@@ -2804,7 +2804,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                     reordered["GPU Memory α"] = gpu
             result = reordered
     if app_key == "ops" and "Single-cell crops" in result:
-        shared_crop_keys = ("crop_margin_px", "crop_zero_outside")
+        shared_crop_keys = ("save_png", "crop_margin_px", "crop_zero_outside")
         for keys in result.values():
             for key in shared_crop_keys:
                 while key in keys:
