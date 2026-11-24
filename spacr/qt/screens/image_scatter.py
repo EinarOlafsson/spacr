@@ -90,7 +90,8 @@ def load_scatter_frame(db_path: str, table: str,
     Deliberately a module-level function taking strings: it must never touch a
     widget, and the surest way to guarantee that is for it not to have one.
 
-    :param db_path: path to the SQLite measurements database.
+    :param db_path: path to the measurements database or store project
+        (anything :func:`spacr.store.locate` accepts).
     :param table: measurement table to read from the database.
     :param limit: a hard row cap. A million-row table plotted at three pixels
         a point is a solid rectangle, so the cap costs no information and

@@ -2286,8 +2286,11 @@ class DatabaseDropHandler(DropHandler):
     """Open a dropped measurements database in the Database Browser."""
 
     def can_accept(self, path: Path) -> bool:
-        """Delegated, so the Browser and the measurement screens cannot disagree
-        about what counts as a database.
+        """Accept what the measurement screens accept, and a spaCR store project.
+
+        The measurement check is delegated, so the Browser and the measurement
+        screens cannot disagree about what counts as a database; a store
+        project folder (or its ``spacr.duckdb``) is accepted as well.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
@@ -3455,17 +3458,16 @@ def _is_store_project(path) -> bool:
 
 
 def table_names(path: Path) -> List[str]:
-    """Return the tables in a SQLite file, or ``[]`` for anything else.
+    """Return the tables of a measurement database or store project, or ``[]``.
 
-    One ``sqlite_master`` query; the table screens make the same one when they
-    load. Kept here so the drop can *ask* which table rather than let
-    ``load_path`` take the first one silently.
+    The tables come from the shared store of ``path``
+    (:func:`spacr.store.shared`), which reads an older SQLite file read-only
+    and a spaCR store project through its catalog; the table screens read
+    the same list when they load. Kept here so the drop can *ask* which
+    table rather than let ``load_path`` take the first one silently.
+    Anything that is neither, or that cannot be read, gives ``[]``.
 
-    Opened read-only, and through a *quoted* URI: a folder with a ``?`` or a
-    ``#`` in its name would otherwise have everything after it read as query
-    parameters, and the open would fail on a database that is perfectly fine.
-
-    :param path: candidate SQLite database path to inspect read-only.
+    :param path: candidate database file or store project to inspect.
     """
     from .. import store
     from ..store_browse import READ_ERRORS

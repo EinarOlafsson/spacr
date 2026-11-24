@@ -194,16 +194,18 @@ AUTOSIZE_MAX_COLUMNS = 60
 
 
 def resolve_db_path(path: str) -> str:
-    """Return the absolute path of the sqlite file ``path`` refers to.
+    """Return the absolute path of the project ``path`` refers to.
 
-    Accepts either the database file itself or a run ``src`` folder, in
-    which case ``<src>/measurements/measurements.db`` is used — the same
-    layout every other spaCR module assumes (see ``spacr.measure`` and
-    ``spacr.ml``). ``<src>/measurements.db`` is accepted as a fallback so
-    pointing at the ``measurements`` folder itself also works.
+    Resolved by :func:`spacr.store.locate`: a spaCR store project (its
+    folder, its ``spacr.duckdb``, or a run folder whose ``measurements``
+    folder is one) gives the project folder, and wins over an older
+    ``measurements.db`` beside it; otherwise the database file itself, or
+    ``<src>/measurements/measurements.db`` (``<src>/measurements.db`` as a
+    fallback) of a run ``src`` folder. A ``measurements.db`` path in a
+    store project names that store even when the file does not exist.
 
     :param path: file or folder chosen by the user.
-    :returns: absolute path to an existing file.
+    :returns: absolute path to the store project folder or the database file.
     :raises ValueError: when ``path`` is empty.
     :raises FileNotFoundError: when nothing resolvable exists there.
     """
@@ -908,7 +910,10 @@ def _job_lane(kind: str) -> str:
 
 
 class DbBrowserScreen(LinkedView, QWidget):
-    """Browser for a spaCR measurements database — read-only by default.
+    """Browser for a spaCR measurement project — read-only by default.
+
+    The project is a spaCR store project or an older ``measurements.db``;
+    both open through :class:`spacr.store_browse.StoreDb`.
 
     Joined to the shared selection as ``"db_browser"``, in both directions:
 
@@ -917,9 +922,10 @@ class DbBrowserScreen(LinkedView, QWidget):
     * a selection published elsewhere selects and scrolls to the same rows;
     * a filter published elsewhere hides rows, which a selection never does.
 
-    All three act on the rows already fetched. Nothing here re-queries: the
-    shared filter applies to the rows in memory, and the row-count label
-    states how much of the table those rows are.
+    All three act on the rows already fetched and none of them re-queries:
+    the shared filter applies to the rows in memory, and the row-count label
+    states how much of the table those rows are. (The column search can
+    re-query a store project, see :meth:`set_column_filter`.)
 
     :param parent: optional Qt owner responsible for the screen's lifetime.
     :param threaded: run queries on a worker thread (the default). Tests
@@ -931,9 +937,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         returning a bool. Replace it to arm edit mode without a dialog
         (every test does). The default opens the one QMessageBox this
         screen owns.
-    :ivar auto_count: when True (the default) the exact ``COUNT(*)``
-        follows the first chunk on its own job. Set False to browse a
-        very large table on the ``max(rowid)`` estimate alone.
+    :ivar auto_count: when True (the default) the exact row count follows
+        the first chunk on its own job. Set False to browse a very large
+        table on the estimate alone (``max(rowid)`` of an older file; a
+        store project's count comes from its registry).
     """
 
     #: emitted with the resolved path whenever a database opens
@@ -1298,15 +1305,17 @@ class DbBrowserScreen(LinkedView, QWidget):
     def set_database(self, path: str, explicit: bool = True) -> bool:
         """Open ``path`` read-only and list its tables.
 
-        Accepts the database file or a run ``src`` folder. Any problem
-        (missing file, not a sqlite database, unreadable) is reported in
-        the status label and returns ``False`` — this never raises.
+        Accepts an older database file, a spaCR store project, or a run
+        ``src`` folder holding either. Any problem (missing file, not a
+        database, unreadable) is reported in the status label and returns
+        ``False`` — this never raises.
 
         Always resets edit mode to off: a database the user armed for
         editing is *that* database, never the next one.
 
-        :param path: SQLite database file or run ``src`` directory containing
-            one; paths are expanded and resolved by :class:`ReadOnlyDb`.
+        :param path: database file, store project, or run ``src`` directory
+            holding one; resolved by :func:`resolve_db_path` and opened
+            through :class:`spacr.store_browse.StoreDb`.
         :param explicit: True when the user chose this database
             themselves. Pass False when spaCR opens one on their behalf
             (a remembered path, a folder handed over by another screen);
@@ -1447,9 +1456,11 @@ class DbBrowserScreen(LinkedView, QWidget):
     def set_column_filter(self, text: str) -> None:
         """Narrow the displayed columns to those containing ``text``.
 
-        Purely a view operation — the database is not queried again, even
-        on a table with hundreds of feature columns. An empty string restores
-        every column.
+        On an older database this is purely a view operation — it is not
+        queried again, even on a table with hundreds of feature columns. A
+        store project reads only the columns it shows, so when the search
+        asks for columns not yet read the visible rows are read again with
+        them. An empty string restores every column.
 
         :param text: case-insensitive substring required in visible names.
         """

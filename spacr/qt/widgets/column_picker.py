@@ -208,16 +208,16 @@ def _is_database_error(exc: BaseException) -> bool:
 class SchemaReader:
     """Read-only access to a database's *schema* — names and types only.
 
-    Every method opens and closes its own connection, which keeps the
-    object cheap to hold and impossible to leave a transaction open on.
-    ``mode=ro`` makes SQLite refuse writes; ``PRAGMA query_only`` refuses
-    them a second time, including schema changes smuggled in through a
-    temp attachment.
+    A spaCR store project is read through its shared
+    :class:`spacr.store.Store`. An older SQLite file is read through
+    :func:`spacr.store.legacy_connection`: every read opens and closes its
+    own read-only connection, which keeps the object cheap to hold and
+    impossible to leave a transaction open on; ``mode=ro`` makes SQLite
+    refuse writes and ``PRAGMA query_only`` refuses them a second time.
 
     Every method may be called from a worker thread — the dialog reads
-    its schema off the GUI thread — and each one opens its own
-    connection, so nothing is shared across threads except
-    :attr:`executed`, which is guarded.
+    its schema off the GUI thread — and no SQLite connection is shared
+    across threads; :attr:`executed` is guarded.
 
     :param path: database file or run folder (see :func:`resolve_db_path`).
     :ivar executed: every statement this reader has run, in order — the
@@ -305,10 +305,12 @@ class SchemaReader:
 
 
     def probe(self) -> None:
-        """Open the file once so "that isn't a database" surfaces early.
+        """Open the project once so "that isn't a database" surfaces early.
 
-        :raises sqlite3.Error: when the file is not a SQLite database or
-            cannot be opened.
+        :raises sqlite3.Error: when an older file is not a SQLite database
+            or cannot be opened.
+        :raises spacr.store.StoreError: when a store project cannot be
+            opened.
         """
         if self._is_sqlite():
             self._fetch("SELECT name FROM sqlite_master LIMIT 1")
@@ -328,8 +330,10 @@ class SchemaReader:
     def column_info(self, table: str) -> List[Tuple[str, str]]:
         """Return ``[(column name, declared type), …]`` for ``table``.
 
-        ``PRAGMA table_info`` reads the stored schema text; it never
-        touches a data page, so this stays free on a huge table.
+        A store project answers from its catalog (stored types); an older
+        file from ``PRAGMA table_info``, which reads the stored schema
+        text. Neither touches a data page, so this stays free on a huge
+        table.
 
         :param table: name of the table or view; it is quoted as an identifier.
         :raises sqlite3.Error: for a view whose base table has been
@@ -346,7 +350,8 @@ class SchemaReader:
     def estimate_rows(self, table: str) -> Optional[int]:
         """Return an O(1) *estimate* of the row count, or ``None``.
 
-        ``max(_rowid_)`` is answered from the right-hand edge of the
+        A store project answers with the row count its registry keeps
+        (``None`` when it is 0). On an older file ``max(_rowid_)`` is answered from the right-hand edge of the
         b-tree without a scan. Deleted rows leave gaps, so it is an
         estimate and every caller must label it one. ``None`` for a view,
         a WITHOUT ROWID table, or an empty table.
@@ -592,9 +597,9 @@ def read_schema(db_path: Any, reader: Optional[SchemaReader] = None,
                 preferred: str = "") -> Dict[str, Any]:
     """Everything opening the picker needs, in one worker-thread call.
 
-    Opens the database, lists its tables, picks the one to show and reads
-    that table — the four synchronous sqlite round trips that used to sit
-    between the click on ``SQL`` and the dialog appearing.
+    Opens the database or store project, lists its tables, picks the one to
+    show and reads that table — the four synchronous schema reads that used
+    to sit between the click on ``SQL`` and the dialog appearing.
 
     :param db_path: file, run folder, or measurements folder.
     :param reader: use this reader instead of opening ``db_path``.
@@ -659,7 +664,7 @@ class ColumnPickerDialog(QDialog):
     user-facing path. The window appears immediately saying it is reading
     the schema, and the tables, columns and row estimate arrive from a
     :class:`~spacr.qt.job_runner.JobRunner`. That matters because opening
-    the picker is four sequential sqlite round trips against a file that
+    the picker is four sequential schema reads against a project that
     is usually cold and often on a network mount — measured at 45 ms on a
     383 MB measurements.db with nothing cached and 87 ms on a
     1 500-table schema, all of it dead time between the click and the

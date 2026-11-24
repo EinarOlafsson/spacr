@@ -128,11 +128,11 @@ _PREFERRED_TABLES = ("object", "cell", "nucleus", "pathogen", "cytoplasm",
 
 
 def table_names(path: str) -> List[str]:
-    """Every user table in the SQLite file at ``path``, in a useful order.
+    """Every user table of the measurement project at ``path``, in a useful order.
 
-    :param path: path to a SQLite measurement database, opened read-only;
-        the preferred tables (``object``, ``cell``, ``nucleus``, …) come
-        first, then the rest alphabetically. SQLite internals and the private
+    :param path: an older SQLite measurement database or a spaCR store
+        project, read through the shared store; the preferred tables (``object``, ``cell``, ``nucleus``, …) come
+        first, then the rest alphabetically. Database internals and the private
         condition-annotation and database-write receipt tables are left out; ordinary user tables
         and named derived results remain available.
     """
@@ -196,13 +196,13 @@ def _store_frame(path: str, table: str, limit: Optional[int] = None) -> pd.DataF
 
 def read_table(path: str, table: Optional[str] = None,
                limit: Optional[int] = None) -> pd.DataFrame:
-    """Read a CSV or one table of a SQLite measurement database.
+    """Read a CSV or one table of a measurement database or store project.
 
-    :param path: CSV, TSV, text, or SQLite database path. Delimited files are
-        read directly; every other suffix is opened as SQLite in read-only
-        mode.
+    :param path: CSV, TSV, text, an older SQLite database, or a spaCR store
+        project. Delimited files are read directly; anything else is read
+        read-only through the shared store (:func:`spacr.store.shared`).
     :param limit: optional row cap. Delimited-file readers apply it while reading;
-        ordinary SQLite tables use SQL LIMIT. Named derived tables are
+        ordinary tables use SQL LIMIT. Named derived tables are
         evaluated first and then truncated in memory, so this cap does not
         bound their evaluation cost. The chart's separate large-data policy
         applies after loading.
