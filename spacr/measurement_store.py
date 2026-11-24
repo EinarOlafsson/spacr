@@ -485,32 +485,10 @@ def _arrow(frame):
 
 
 def _ranges(parts) -> Dict[str, tuple]:
-    """``column -> (min, max)`` over several Arrow tables of one schema."""
-    import pyarrow as pa
-    import pyarrow.compute as pc
+    """``column -> (min, max, evidence)`` over several Arrow tables of one schema."""
+    from . import store
 
-    ranges: Dict[str, tuple] = {}
-    if not parts:
-        return ranges
-    schema = parts[0].schema
-    for field in schema:
-        kind = field.type
-        if not (pa.types.is_floating(kind) or pa.types.is_integer(kind)):
-            continue
-        low = high = None
-        for part in parts:
-            column = part.column(field.name)
-            if pa.types.is_floating(kind):
-                column = pc.if_else(pc.is_nan(column), pa.scalar(None, kind),
-                                    column)
-            stats = pc.min_max(column).as_py()
-            if stats['min'] is None:
-                continue
-            low = stats['min'] if low is None else min(low, stats['min'])
-            high = stats['max'] if high is None else max(high, stats['max'])
-        ranges[field.name] = ((float('nan'), float('nan')) if low is None
-                              else (low, high))
-    return ranges
+    return store._parts_ranges(parts)
 
 
 def _unified(parts):

@@ -462,22 +462,72 @@ def writer(project, table: str, *, plate, well, run_id: Optional[str] = None,
 
 
 def _table_ranges(data) -> Dict[str, tuple]:
-    """``column -> (min, max)`` of an Arrow table's numeric columns, NaN skipped."""
+    """``column -> (min, max, evidence)`` of an Arrow table's numeric columns.
+
+    See :func:`_parts_ranges`.
+    """
+    return _parts_ranges([data])
+
+
+def _float_evidence(values) -> Optional[Dict[str, Any]]:
+    """What a float column's own values say about the 16- and 32-bit stores.
+
+    :param values: the column as a float64 array, NaN included.
+    :returns: ``{"sd", "integral", "error": {dtype: max abs rounding error}}``
+        over the finite values, or None when there are none. A value too big
+        for the dtype rounds to inf and counts as an infinite error.
+    """
+    finite = values[np.isfinite(values)]
+    if not finite.size:
+        return None
+    error = {}
+    with np.errstate(over="ignore", invalid="ignore"):
+        for name in ("float16", "float32"):
+            error[name] = float(np.max(np.abs(
+                finite - finite.astype(name).astype("float64"))))
+    return {"sd": float(np.std(finite)),
+            "integral": bool(np.all(finite == np.round(finite))),
+            "error": error}
+
+
+def _parts_ranges(parts) -> Dict[str, tuple]:
+    """``column -> (min, max, evidence)`` over Arrow tables of one schema.
+
+    NaN is not counted; a column whose every value is NaN gives
+    ``(nan, nan, None)``. ``evidence`` (floats only, :func:`_float_evidence`)
+    is what :func:`_stored_types` checks a narrowed float against: the values
+    themselves, not the dtype map's measurement on another dataset.
+    """
     pa = _require("pyarrow")
     pc = _require("pyarrow.compute")
     ranges: Dict[str, tuple] = {}
-    for field in data.schema:
-        if not (pa.types.is_floating(field.type)
-                or pa.types.is_integer(field.type)):
+    if not parts:
+        return ranges
+    for field in parts[0].schema:
+        kind = field.type
+        floating = pa.types.is_floating(kind)
+        if not (floating or pa.types.is_integer(kind)):
             continue
-        column = data.column(field.name)
-        if pa.types.is_floating(field.type):
-            column = pc.if_else(pc.is_nan(column), pa.scalar(None, field.type),
-                                column)
-        found = pc.min_max(column)
-        low, high = found["min"].as_py(), found["max"].as_py()
-        ranges[field.name] = ((np.nan, np.nan) if low is None
-                              else (float(low), float(high)))
+        low = high = None
+        for part in parts:
+            column = part.column(field.name)
+            if floating:
+                column = pc.if_else(pc.is_nan(column), pa.scalar(None, kind),
+                                    column)
+            found = pc.min_max(column).as_py()
+            if found["min"] is None:
+                continue
+            low = found["min"] if low is None else min(low, found["min"])
+            high = found["max"] if high is None else max(high, found["max"])
+        if low is None:
+            ranges[field.name] = (np.nan, np.nan, None)
+            continue
+        evidence = None
+        if floating:
+            evidence = _float_evidence(np.concatenate([
+                part.column(field.name).to_numpy().astype("float64")
+                for part in parts]))
+        ranges[field.name] = (low, high, evidence)
     return ranges
 
 
@@ -1080,7 +1130,7 @@ _FILE_COLUMNS = (
     ("bytes", "BIGINT"), ("mtime_ns", "BIGINT"), ("written_at", "VARCHAR"),
     ("run_id", "VARCHAR"), ("schema_digest", "VARCHAR"),
     ("key_digest", "VARCHAR"), ("content_digest", "VARCHAR"),
-    ("dtype_map_version", "INTEGER"))
+    ("dtype_map_version", "INTEGER"), ("promoted", "VARCHAR"))
 
 _REGISTRY_DDL = (
     "CREATE TABLE IF NOT EXISTS spacr_schema (version INTEGER)",
@@ -1493,7 +1543,12 @@ def _register_locked(project: str, run, accept_changes: bool) -> Dict[str, Any]:
                     "schema_digest": entry.get("schema_digest"),
                     "key_digest": entry.get("key_digest"),
                     "content_digest": entry["sha256"],
-                    "dtype_map_version": manifest.get("dtype_map_version")})
+                    "dtype_map_version": manifest.get("dtype_map_version"),
+                    "promoted": (json.dumps(manifest["promoted"])
+                                 if manifest.get("promoted")
+                                 and entry["kind"] == "parquet"
+                                 and entry.get("table", manifest["table"])
+                                 == manifest["table"] else None)})
         if rows:
             types = {"VARCHAR": pa.string(), "BIGINT": pa.int64(),
                      "INTEGER": pa.int32()}
@@ -2605,14 +2660,46 @@ def _column_ranges(meta) -> Dict[str, tuple]:
     return ranges
 
 
+_FLOAT_LADDER = ("float16", "float32", "float64")
+
+
+def _float_fits(name: str, low, high, evidence) -> Optional[str]:
+    """Why the column's own values do not fit ``name``, or None when they do.
+
+    The 16-bit criteria, on the values of THIS part: they fit the range, the
+    largest rounding error is under 1 % of the column's standard deviation,
+    integer-valued columns stay exact. NaN and inf are kept by the float
+    types themselves.
+
+    :param name: ``float16``, ``float32`` or ``float64``.
+    :param low: the column's smallest value.
+    :param high: its largest.
+    :param evidence: :func:`_float_evidence`.
+    """
+    if name == "float64":
+        return None
+    if max(abs(float(low)), abs(float(high))) > float(np.finfo(name).max):
+        return "range"
+    error = evidence["error"][name]
+    if evidence["integral"] and error > 0:
+        return "integers not exact"
+    if error > 0.01 * evidence["sd"]:
+        return "rounding error over 1 % of SD"
+    return None
+
+
 def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
                   path: Optional[str] = None):
     """The Arrow type each numeric column of a table is stored in.
 
-    PER COLUMN: the dtype the recorded map holds for that column name, each
-    column measured on its own (``tools/measure_store_dtypes.py``), never
-    wider than the column already is, moved up its ladder when the
-    table's own range does not fit (:func:`_fitted_dtype`). A column the
+    PER COLUMN: the dtype the recorded map holds for that column name is only
+    the STARTING choice (measured on one dataset, ``tools/measure_store_dtypes.py``),
+    never wider than the column already is. A float is then checked against
+    the part's own values (:func:`_float_fits`: range, rounding error under
+    1 % of its SD, integers exact) and moved up float16, float32, float64
+    until they fit; an integer moves up its ladder when the table's own
+    range does not fit (:func:`_fitted_dtype`). Each move is reported with
+    its reason in the part's ``promoted`` list. A column the
     map does not hold keeps its type; an integer column the map measured
     as floats takes the narrowest integer type its range fits, and a float
     column it measured as integers keeps its type. Readers get float16
@@ -2645,11 +2732,26 @@ def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
             chosen = _INT_LADDER[0]
         if np.dtype(chosen).itemsize > np.dtype(source).itemsize:
             chosen = source
-        low, high = ranges.get(field.name, (None, None))
-        fitted = _fitted_dtype(chosen, kind, low, high)
+        found = tuple(ranges.get(field.name, (None, None)))
+        low, high = found[0], found[1]
+        evidence = found[2] if len(found) > 2 else None
+        reason = None
+        if (kind == "float" and chosen in _FLOAT_LADDER
+                and evidence is not None and low is not None):
+            fitted = chosen
+            reason = _float_fits(fitted, low, high, evidence)
+            first = reason
+            while reason is not None and fitted != "float64":
+                fitted = _FLOAT_LADDER[_FLOAT_LADDER.index(fitted) + 1]
+                reason = _float_fits(fitted, low, high, evidence)
+            reason = first
+        else:
+            fitted = _fitted_dtype(chosen, kind, low, high)
+            if fitted != chosen:
+                reason = "range"
         if fitted != chosen:
             promoted.append({"column": field.name, "recorded": chosen,
-                             "stored": fitted})
+                             "stored": fitted, "reason": reason})
         types[field.name] = pa.from_numpy_dtype(np.dtype(fitted))
     return types, promoted
 
