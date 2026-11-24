@@ -10059,13 +10059,15 @@ def _ph_relative(path: str, root: str) -> str:
 
 
 def _ph_crop_writers(settings: Mapping[str, Any]) -> int:
-    """Writer processes of the saved crops (item 0ap): a third of ``n_workers``, 1 to 4.
+    """Writer processes of the saved crops (item 0ap): a quarter of ``n_workers``, 1 or 2.
 
-    Compressing the crops was the serial part of ``ph_crops``: on the A1
-    check fields one process wrote 0.2 to 4 ms per crop, depending on the
-    machine's load, while the field workers waited on it.
+    Compressing the crops was the serial part of ``ph_crops``: one process
+    wrote 0.2 to 4 ms per crop of the A1 check fields' size, depending on
+    the machine's load, while the field workers waited on it. Each shard in
+    flight holds its pixels in shared memory (about 1.2 GB for 10,000 such
+    crops), so two writers bound that to about 2.4 GB.
     """
-    return max(1, min(4, int(settings.get("n_workers") or 1) // 3))
+    return max(1, min(2, int(settings.get("n_workers") or 1) // 4))
 
 
 def _ph_store_owned_cells(tables: Optional[Mapping[str, Any]], plate: str,
