@@ -206,7 +206,9 @@ def _settle_run_originals(src, settings, merge_format, source_plate=None):
     (:func:`spacr.image_store._settle_originals`). A run that wrote no store
     (``npy``/``tiff``, timelapse, or a folder the store cannot hold) sets
     its originals aside in ``orig/`` as before, and the end-of-run cleanup
-    applies ``keep_original_images`` there.
+    applies ``keep_original_images`` there. A run that ingested raw
+    volumes (``stack/.spacr_volume_ingest.json``, native z-stacks) never set
+    its originals aside, so they stay where they are, as before.
 
     A stored field that does not match its originals is named in a
     warning, and those originals are left where they are.
@@ -218,6 +220,8 @@ def _settle_run_originals(src, settings, merge_format, source_plate=None):
     if not _store_settles_originals(settings):
         return None
     if not _image_entries(_merged_store_path(src)) or merge_format != 'ome-zarr':
+        if os.path.exists(os.path.join(src, 'stack', '.spacr_volume_ingest.json')):
+            return None
         from .io import _RAW_IMAGE_SUFFIXES, _raw_image_names
         from .image_store import _move_without_overwrite
         orig = os.path.join(src, 'orig')
