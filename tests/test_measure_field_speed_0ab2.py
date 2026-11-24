@@ -181,11 +181,14 @@ def test_the_fused_pair_sums_are_the_bincounts_to_the_bit(seed):
     with np.errstate(invalid='ignore', divide='ignore'):
         dx = x - (np.bincount(flat, x, size) / count)[flat]
         dy = y - (np.bincount(flat, y, size) / count)[flat]
-    got = M._pair_sums(flat, x, y, size)
-    assert np.array_equal(got[0], count)
-    for value, want in zip(got[1:4], (dx * dy, dx * dx, dy * dy)):
+    mx, sxx = M._label_centring(flat, x, size)
+    my, syy = M._label_centring(flat, y, size)
+    sxy = M._cross_sums(flat, x, y, mx, my, size)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        assert np.array_equal(mx, np.bincount(flat, x, size) / count,
+                              equal_nan=True)
+    for value, want in zip((sxy, sxx, syy), (dx * dy, dx * dx, dy * dy)):
         assert np.array_equal(value, np.bincount(flat, want, size))
-    assert np.array_equal(got[4], dx) and np.array_equal(got[5], dy)
 
 
 @pytest.mark.parametrize("seed", range(3))
@@ -193,10 +196,11 @@ def test_the_overlap_and_otsu_pair_sums_are_the_bincounts_to_the_bit(seed):
     flat, _rows, _cols, size, x, y = _foreground_values(seed)
     tx, ty = M._robust_threshold(flat, x), M._robust_threshold(flat, y)
     rx, ry = M._within_label_ranks(flat, x), M._within_label_ranks(flat, y)
-    _c, _sxy, _sxx, _syy, dx, dy = M._pair_sums(flat, x, y, size)
+    mx, my = M._label_centring(flat, x, size)[0], M._label_centring(flat, y, size)[0]
+    dx, dy = x - mx[flat], y - my[flat]
     top = np.maximum(rx[2], ry[2])
     sums = np.zeros((8, size))
-    M._compiled(M._overlap_sums_kernel)(flat, x, y, tx, ty, dx, dy, rx[1],
+    M._compiled(M._overlap_sums_kernel)(flat, x, y, tx, ty, mx, my, rx[1],
                                         ry[1], top, sums)
     a, b = np.clip(x - tx, 0, None), np.clip(y - ty, 0, None)
     both = (x > tx) & (y > ty)
@@ -315,3 +319,54 @@ def test_the_foreground_coordinates_are_the_index_grids():
     assert np.array_equal(cols, grid_c.ravel()[inside])
     assert rows.dtype == cols.dtype == np.float64
     assert size == labels.max() + 1 and np.array_equal(flat, labels.ravel()[inside])
+
+
+def test_one_mask_makes_each_pair_of_pearson_sums_once_for_both_colocalisation_families(monkeypatch):
+    import pandas as pd
+
+    labels, image = _blobs(11)
+    wide = image.astype(np.float64)
+    labels = labels.astype(np.int64)
+    families = (M.measure_colocalisation, M.measure_colocalisation_otsu)
+    alone = [family(labels, wide) for family in families]
+    calls = []
+    cross = M._cross_sums
+    monkeypatch.setattr(M, "_cross_sums",
+                        lambda *args: calls.append(1) or cross(*args))
+    with M._shared_foregrounds():
+        shared = [family(labels, wide) for family in families]
+    assert len(calls) == 2 * 3
+    for a, b in zip(alone, shared):
+        pd.testing.assert_frame_equal(a, b, check_exact=True)
+
+
+def test_the_channel_pair_pearson_is_the_bincount_definition_to_the_bit():
+    labels, image = _blobs(12)
+    labels = labels.astype(np.int64)
+    flat, _rows, _cols, inside, size = M._foreground(labels)
+    values = M._channel_values(image.astype(np.float64), inside)
+    present = np.unique(flat)
+    got = M._pearson_pair_columns(flat, size, present, values, ["a", "b", "c"])
+    count = np.bincount(flat, None, size)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        centred = [v - (np.bincount(flat, v, size) / count)[flat] for v in values]
+        for (i, j), name in zip(((0, 1), (0, 2), (1, 2)), ("a_b", "a_c", "b_c")):
+            sxy = np.bincount(flat, centred[i] * centred[j], size)
+            sxx = np.bincount(flat, centred[i] ** 2, size)
+            syy = np.bincount(flat, centred[j] ** 2, size)
+            want = np.where((sxx > 0) & (syy > 0),
+                            np.clip(sxy / np.sqrt(sxx * syy), -1, 1), np.nan)
+            assert np.array_equal(got[f"correlation_{name}"], want[present],
+                                  equal_nan=True)
+
+
+def test_texture_reads_each_channel_in_place_with_the_values_of_a_contiguous_copy():
+    labels, image = _blobs(13)
+    wide = image.astype(np.float64)
+    together = M.measure_texture(labels, wide)
+    apart = [M.measure_texture(labels, np.ascontiguousarray(wide[..., c]))
+             for c in range(wide.shape[-1])]
+    for c, frame in enumerate(apart):
+        for column in frame.columns.drop("label"):
+            assert np.array_equal(together[column.replace("channel_0", f"channel_{c}")],
+                                  frame[column], equal_nan=True)
