@@ -235,7 +235,14 @@ def test_a_write_stopped_before_its_manifest_is_never_read(tmp_path,
     assert store.register(tmp_path)["registered"] == 0
     with store.open(tmp_path, verify="full") as opened:
         assert set(opened.query()["well"]) == {"A1"}
-    assert store.cleanup(tmp_path, older_than=-1)
+    # The manifest goes through the one atomic JSON writer
+    # (spacr.checkpoint._atomic_json, merge 7), which removes its own
+    # temporary when the write is interrupted, so nothing is left for
+    # cleanup to find.
+    leftovers = [name for _folder, _dirs, files in os.walk(tmp_path)
+                 for name in files if name.endswith(".tmp")]
+    assert leftovers == []
+    assert store.cleanup(tmp_path, older_than=-1) == []
 
 
 def test_a_file_changed_outside_spacr_is_caught(tmp_path):

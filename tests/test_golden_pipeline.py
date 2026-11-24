@@ -1339,7 +1339,15 @@ def test_summary_setting_is_not_split_into_characters_by_the_importer():
     assert 'list(measure_settings.get("summarize_organelles_by")' not in importer
 
     # ...and Measure really does read it with `in`, which is what makes
-    # the difference between the two spellings observable.
-    measured = inspect.getsource(measure._measure_crop_core)
-    assert "requested = settings.get('summarize_organelles_by')" in measured
-    assert "parent_name not in requested" in measured
+    # the difference between the two spellings observable. The per-field
+    # core (_measure_field_objects, shared by Measure and OPS) reads the
+    # setting through _requested_summary_parents, which turns a bare name
+    # into a one-element set, and then tests exact membership.
+    requested = inspect.getsource(measure._requested_summary_parents)
+    assert "requested = settings.get('summarize_organelles_by')" in requested
+    assert "return {requested}" in requested
+    measured = inspect.getsource(measure._measure_field_objects)
+    assert "_requested_summary_parents(settings)" in measured
+    assert "parent not in requested" in measured
+    assert measure._requested_summary_parents(
+        {"summarize_organelles_by": "cell"}) == {"cell"}

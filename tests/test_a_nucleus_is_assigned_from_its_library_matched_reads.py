@@ -92,7 +92,8 @@ def well(tmp_path):
         "centroid_x": [float(x) for _, x in CENTRES],
         "area": np.full(3, AREA)}))
     settings = {"genotype_source": str(tmp_path / "raw"), "dst_root": str(out),
-                "plate": "plate", "ops_gpu": False, "n_workers": 1}
+                "plate": "plate", "ops_gpu": False, "n_workers": 1,
+                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none"}
     return settings, db
 
 

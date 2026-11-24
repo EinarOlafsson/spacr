@@ -27,6 +27,7 @@ pytest.importorskip("pyarrow")
 from scipy import ndimage
 
 from spacr import ops_engine
+from spacr import ops_settings  # noqa: E402
 from spacr.ops_layout import round_well_layout
 from spacr.ops_sbs import BASES
 
@@ -164,6 +165,7 @@ def engine_run(tmp_path_factory):
     """
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", OVERLAP)
     monkeypatch.setattr(ops_engine, "_WINDOW", 256)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 48)
     monkeypatch.setattr(ops_engine, "_cellpose_model",
@@ -173,7 +175,8 @@ def engine_run(tmp_path_factory):
     raw.mkdir()
     nuclei, codes, centre, tops = _plate(raw)
     settings = {"genotype_source": str(raw), "dst_root": str(root / "out"),
-                "plate": "synthetic", "ops_gpu": False, "n_workers": 1}
+                "plate": "synthetic", "ops_gpu": False, "n_workers": 1,
+                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none"}
     library = sorted(set(codes)) + ["TTTT", "GGGG"]
     result = ops_engine.run_ops(settings, library=library)
     yield result, nuclei, codes, centre, tops, settings, library, monkeypatch

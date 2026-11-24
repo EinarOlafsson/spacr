@@ -539,7 +539,9 @@ def _annotated_real_crops(databases: Sequence[str], column: str = "real"):
     :returns: a frame with ``png_path``, ``real`` (True or False) and
         ``group``, the plate and well each crop came from, so a split by
         group never puts one well on both sides.
-    :raises ValueError: a database without the column.
+    :raises ValueError: a database without the column, or one that does not
+        exist or has no ``png_list`` (the shared reader's "Table not found";
+        nothing is created).
     """
     import hashlib
     from pathlib import Path

@@ -292,7 +292,7 @@ def test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint(tmp_
 
 def test_annotation_reader_does_not_create_missing_databases(tmp_path):
     database = tmp_path / 'missing.db'
-    with pytest.raises(sqlite3.OperationalError):
+    with pytest.raises(ValueError, match="Table not found"):
         oc._annotated_real_crops([str(database)])
     assert not database.exists()
 

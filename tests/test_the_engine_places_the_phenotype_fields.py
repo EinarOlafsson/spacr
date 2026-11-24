@@ -33,6 +33,7 @@ pytest.importorskip("pyarrow")
 from scipy import ndimage
 
 from spacr import ops_engine
+from spacr import ops_settings  # noqa: E402
 from spacr.ops_layout import round_well_layout
 
 #: The sequencing tile, and an overlap of 30 % of it -- the fraction the real
@@ -147,6 +148,7 @@ def placed(tmp_path_factory):
     """
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", OVERLAP)
     root = tmp_path_factory.mktemp("ops_a4")
     dapi, tops, centres = _canvas()
     _write(root, dapi, tops, centres)
@@ -539,6 +541,7 @@ def test_the_engine_runs_a_plate_root_pointed_at_by_both_settings(tmp_path):
     """
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", OVERLAP)
     try:
         plate = tmp_path / "20200202_6W-LaC024A"
         _write_as_the_plate_is(plate, *_canvas())

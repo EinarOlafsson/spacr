@@ -78,14 +78,19 @@ def test_the_cytoplasm_summary_no_longer_reads_a_key_that_does_not_exist():
 
 
 def test_it_gates_on_the_boolean_instead():
-    source = measure_source()
-    marker = "for parent_name, parent_mask in parent_masks.items():"
+    from spacr import measure
+
+    # The organelle summary lives in the per-field core shared by Measure
+    # and OPS (_measure_field_objects): the cytoplasm parent is enabled by
+    # the `cytoplasm` boolean, never by a cytoplasm_mask_dim key.
+    source = inspect.getsource(measure._measure_field_objects)
+    assert "'cytoplasm': bool(settings.get('cytoplasm'))" in source
+    marker = "for parent, enabled in parents.items():"
     assert marker in source
-    # Comments strip first: the fix's own comment explains at length why
-    # there is no dim, which pushes the code line well past any fixed window.
     after = source[source.index(marker):source.index(marker) + 2000]
     code = "\n".join(line.split("#", 1)[0] for line in after.splitlines())
-    assert "parent_enabled[parent_name]" in code
+    assert "not enabled" in code
+    assert "cytoplasm_mask_dim" not in source
 
 
 # ---------------------------------------------------------------------------
