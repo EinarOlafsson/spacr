@@ -1573,33 +1573,34 @@ def _collect_statistics(src: Path, artifacts: Dict[str, Any],
 
 
 def _sqlite_table_counts(path: Path, max_tables: int = 40) -> List[Tuple[str, int]]:
-    """Return ``(table, n_rows)`` for a SQLite file, read-only, best effort."""
+    """Return ``(table, n_rows)`` for a project's tables, read-only, best effort.
+
+    An older SQLite file lists its tables and counts them with SQLite
+    (views are left out); a spaCR store project lists and counts its own.
+    """
     import sqlite3
-    from urllib.parse import quote as _quote
-    uri = "file:" + _quote(str(path).replace("\\", "/"), safe="/:") + "?mode=ro"
+
+    from . import store
+
     out: List[Tuple[str, int]] = []
     try:
-        from . import store
-
-        conn = store._legacy_open(store.shared(path))
+        opened = store.shared(path)
+        sqlite = store._legacy_is_sqlite(opened)
+        if sqlite:
+            with store.legacy_connection(opened) as conn:
+                names = [r[0] for r in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' "
+                    "AND name NOT LIKE 'sqlite_%' ORDER BY name")]
+        else:
+            names = opened.tables()
     except (sqlite3.Error, store.StoreError, FileNotFoundError):
         return out
-    try:
-        names = [r[0] for r in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "AND name NOT LIKE 'sqlite_%' ORDER BY name")]
-        for name in names[:max_tables]:
-            try:
-                count = conn.execute(
-                    f'SELECT COUNT(*) FROM "{name.replace(chr(34), chr(34) * 2)}"'
-                ).fetchone()[0]
-            except sqlite3.Error:
-                count = -1
-            out.append((name, int(count)))
-    except sqlite3.Error:
-        pass
-    finally:
-        conn.close()
+    for name in names[:max_tables]:
+        try:
+            count = store._count_rows(opened, name)
+        except Exception:
+            count = -1
+        out.append((name, int(count)))
     return out
 
 

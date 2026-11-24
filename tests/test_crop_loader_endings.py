@@ -84,7 +84,13 @@ def test_legacy_database_without_plate_metadata_has_no_plate_choices(tmp_path):
     assert loader.object_classes(str(database)) == ()
 
 
-def test_unavailable_sqlite_column_metadata_is_not_reported_as_a_valid_table():
-    connection=sqlite3.connect(':memory:')
-    connection.close()
-    assert loader._table_columns(connection, 'png_list') == ()
+def test_unavailable_sqlite_column_metadata_is_not_reported_as_a_valid_table(tmp_path):
+    from spacr import store
+
+    database=tmp_path/'measurements.db'
+    with sqlite3.connect(database) as connection:
+        connection.execute('CREATE TABLE png_list (cell_id INTEGER)')
+    opened=store.open(database)
+    assert loader._table_columns(opened, 'png_list') == ('cell_id',)
+    database.unlink()
+    assert loader._table_columns(opened, 'png_list') == ()
