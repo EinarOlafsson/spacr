@@ -5779,9 +5779,11 @@ def _reconstruct_by_dilation(seed, mask):
 
 
 def _granularity_channel(c, *, image, index, footprint, cross, scale, full,
-                         spectrum_length):
+                         spectrum_length, weights=None):
     """One channel's granularity spectrum for every mask of :func:`_granularity_frames`.
 
+    :param weights: per mask, the :func:`_granularity_weights` that take a
+        subsampled plane's object means; None at full size.
     :returns: per mask, ``[(column, values)]`` in step order.
     """
     from scipy import ndimage
@@ -5793,23 +5795,154 @@ def _granularity_channel(c, *, image, index, footprint, cross, scale, full,
     background = ndimage.grey_opening(plane, footprint=footprint)
     pixels = np.clip(plane - background, 0, None)
     with np.errstate(invalid='ignore', divide='ignore'):
-        seen = _granularity_full(pixels, full)
-        starts = [np.bincount(flat, seen.ravel()[inside], size) / count
-                  for flat, inside, size, _p, count in index]
+        starts = _granularity_means(pixels, index, weights)
         previous = list(starts)
         eroded = pixels
         for k in range(1, int(spectrum_length) + 1):
             eroded = ndimage.grey_erosion(eroded, footprint=cross)
-            rebuilt = _granularity_full(
-                _reconstruct_by_dilation(eroded, pixels), full)
-            for m, (flat, inside, size, present, count) in enumerate(index):
-                current = np.bincount(flat, rebuilt.ravel()[inside],
-                                      size) / count
+            means = _granularity_means(
+                _reconstruct_by_dilation(eroded, pixels), index, weights)
+            for m, (_flat, _inside, _size, present, _count) in enumerate(index):
+                current = means[m]
                 step = (previous[m] - current) * 100 / starts[m]
                 columns[m].append((f'channel_{c}_granularity_{k}', np.where(
                     starts[m][present] > 0, step[present], np.nan)))
                 previous[m] = current
     return columns
+
+
+def _granularity_means(plane, index, weights):
+    """Each mask's per-label mean of ``plane``, scaled back to the field first when it was subsampled.
+
+    At full size (``weights`` None) the mean of the plane's own pixels. A
+    subsampled plane is scaled back bilinearly (``skimage.transform.resize``,
+    ``order=1``, ``mode='edge'``, no anti-aliasing); that is linear in the
+    plane, so each label's sum over the scaled plane is one sparse product
+    with the label's summed interpolation weights, without making the
+    full-size plane.
+    """
+    if weights is None:
+        return [np.bincount(flat, plane.ravel()[inside], size) / count
+                for flat, inside, size, _p, count in index]
+    flat_plane = np.ascontiguousarray(plane).ravel()
+    return [(w @ flat_plane) / count
+            for w, (_f, _i, _s, _p, count) in zip(weights, index)]
+
+
+def _resize_weights(n_in, n_out):
+    """The two source pixels and weights of every output pixel of a 1-D bilinear resize from ``n_in`` to ``n_out``.
+
+    Read off ``skimage.transform.resize`` (``order=1``, ``mode='edge'``, no
+    anti-aliasing) of the identity, so the weights are the ones it uses.
+    An output pixel read from one source pixel repeats it with weight 0,
+    so both source columns rise with the output pixel.
+    :returns: ``(sources, weights)``, each ``(n_out, 2)``.
+    """
+    from skimage.transform import resize
+
+    table = resize(np.eye(n_in), (n_out, n_in), order=1, mode='edge',
+                   anti_aliasing=False, preserve_range=True)
+    sources = np.zeros((n_out, 2), dtype=np.int64)
+    weights = np.zeros((n_out, 2))
+    for row in range(n_out):
+        nonzero = np.flatnonzero(table[row])[:2]
+        sources[row] = nonzero[0]
+        sources[row, :nonzero.size] = nonzero
+        weights[row, :nonzero.size] = table[row, nonzero]
+    return sources, weights
+
+
+def _granularity_weights_kernel(labels, boxes, present, row_sources,
+                                row_weights, col_sources, col_weights,
+                                small_cols, indptr, indices, data):
+    """Each label's summed bilinear weights on the subsampled plane, as CSR rows.
+
+    For label ``present[k]`` the pixels of its full-size box ``boxes[k]``
+    add ``row_weight * col_weight`` to the two by two subsampled pixels
+    they are read from, in a dense scratch over the box's subsampled
+    footprint; its nonzero sums become row ``present[k]`` of the matrix,
+    columns ascending. ``indices`` and ``data`` must hold every footprint
+    pixel; ``indptr`` (one longer than the label count) is filled. Compile
+    with :func:`_compiled`.
+    :returns: the number of stored entries.
+    """
+    stored = 0
+    previous = 0
+    for k in range(present.size):
+        label = present[k]
+        for row in range(previous, label + 1):
+            indptr[row] = stored
+        previous = label + 1
+        r0, r1, c0, c1 = boxes[k, 0], boxes[k, 1], boxes[k, 2], boxes[k, 3]
+        a0 = row_sources[r0, 0]
+        a1 = a0
+        for r in range(r0, r1):
+            a0 = min(a0, row_sources[r, 0])
+            a1 = max(a1, row_sources[r, 1])
+        b0 = col_sources[c0, 0]
+        b1 = b0
+        for c in range(c0, c1):
+            b0 = min(b0, col_sources[c, 0])
+            b1 = max(b1, col_sources[c, 1])
+        scratch = np.zeros((a1 - a0 + 1, b1 - b0 + 1))
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                if labels[r, c] != label:
+                    continue
+                for i in range(2):
+                    wr = row_weights[r, i]
+                    if wr == 0:
+                        continue
+                    for j in range(2):
+                        wc = col_weights[c, j]
+                        if wc == 0:
+                            continue
+                        scratch[row_sources[r, i] - a0,
+                                col_sources[c, j] - b0] += wr * wc
+        for i in range(a1 - a0 + 1):
+            for j in range(b1 - b0 + 1):
+                if scratch[i, j] != 0:
+                    indices[stored] = (a0 + i) * small_cols + b0 + j
+                    data[stored] = scratch[i, j]
+                    stored += 1
+    for row in range(previous, indptr.size):
+        indptr[row] = stored
+    return stored
+
+
+def _granularity_weights(masks, index, small, full):
+    """Per mask, the sparse ``(labels, small pixels)`` sums of bilinear weights from ``small`` back to ``full``.
+
+    Row ``l`` of a mask's matrix holds, for every pixel of the subsampled
+    plane, the sum over label ``l``'s full-size pixels of that pixel's
+    bilinear weight (:func:`_resize_weights`), so the matrix times the plane is
+    each label's sum over the scaled-back plane
+    (:func:`_granularity_weights_kernel`).
+    """
+    from scipy import sparse
+
+    row_sources, row_weights = _resize_weights(small[0], full[0])
+    col_sources, col_weights = _resize_weights(small[1], full[1])
+    kernel = _compiled(_granularity_weights_kernel)
+    out = []
+    for labels, (_flat, _inside, size, present, _count) in zip(masks, index):
+        labels = np.ascontiguousarray(labels, dtype=np.int64)
+        present = np.asarray(present, dtype=np.int64)
+        boxes = _object_boxes(labels, present)
+        capacity = 0
+        for r0, r1, c0, c1 in boxes.tolist():
+            capacity += ((int(row_sources[r1 - 1, 1]) - int(row_sources[r0, 0]) + 1)
+                         * (int(col_sources[c1 - 1, 1]) - int(col_sources[c0, 0]) + 1))
+        indptr = np.zeros(size + 1, dtype=np.int64)
+        indices = np.zeros(capacity, dtype=np.int64)
+        data = np.zeros(capacity)
+        stored = kernel(labels, boxes, present, row_sources, row_weights,
+                        col_sources, col_weights, int(small[1]), indptr,
+                        indices, data)
+        out.append(sparse.csr_matrix(
+            (data[:stored], indices[:stored], indptr),
+            shape=(size, small[0] * small[1])))
+    return out
 
 
 def _granularity_frames(masks, image, spectrum_length=16,
@@ -5836,25 +5969,18 @@ def _granularity_frames(masks, image, spectrum_length=16,
             "profile_granularity_subsample to a number greater than 0 and "
             "at most 1, then rerun Measure.", subsample=subsample))
     full = image.shape[:2]
-
-
+    weights = None
+    if scale < 1 and image.shape[-1]:
+        small = tuple(int(round(n * scale)) for n in full)
+        weights = _granularity_weights(masks, index, small, full)
     sieve = partial(
         _granularity_channel, image=image, index=index, footprint=footprint,
-        cross=cross, scale=scale, full=full, spectrum_length=spectrum_length)
+        cross=cross, scale=scale, full=full, spectrum_length=spectrum_length,
+        weights=weights)
     for columns in _field_map(sieve, range(image.shape[-1])):
         for m, pairs in enumerate(columns):
             outs[m].update(pairs)
     return [pd.DataFrame(out) for out in outs]
-
-
-def _granularity_full(plane, shape):
-    """A subsampled granularity plane scaled back to the field (bilinear); unchanged at full size."""
-    if plane.shape == tuple(shape):
-        return plane
-    from skimage.transform import resize
-
-    return resize(plane, shape, order=1, mode='edge', anti_aliasing=False,
-                  preserve_range=True)
 
 
 #: LBP radii of :func:`measure_lbp`; each uses ``8 * radius`` sampling points.

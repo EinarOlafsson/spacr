@@ -146,6 +146,25 @@ def test_the_compiled_intensity_statistics_measure_3d_objects():
         _close(values, want[column].to_numpy())
 
 
+@pytest.mark.parametrize("scale", [0.25, 0.5, 0.37])
+def test_the_granularity_weights_give_the_resized_planes_means(scale):
+    from scipy import ndimage
+    from skimage.transform import resize
+
+    labels, image = _blobs(2, shape=(83, 97))
+    index = M._mask_index([labels.astype(np.int64)])
+    small = ndimage.zoom(image[..., 0].astype(np.float64), scale, order=1)
+    weights = M._granularity_weights(
+        [labels.astype(np.int64)], index, tuple(int(round(n * scale)) for n in labels.shape), labels.shape)
+    full = resize(small, labels.shape, order=1, mode='edge',
+                  anti_aliasing=False, preserve_range=True)
+    flat, inside, size, _present, count = index[0]
+    with np.errstate(invalid='ignore', divide='ignore'):
+        want = np.bincount(flat, full.ravel()[inside], size) / count
+        got = M._granularity_means(small, index, weights)[0]
+    _close(got, want, rel=1e-12, sd=0)
+
+
 def test_the_texture_kernels_give_the_same_table_twice_and_on_any_thread_count(monkeypatch):
     labels, image = _blobs(7)
     monkeypatch.setenv("OMP_NUM_THREADS", "1")
