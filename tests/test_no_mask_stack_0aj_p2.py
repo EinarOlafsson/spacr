@@ -241,3 +241,35 @@ def test_the_mask_reader_and_writer_round_trip_and_keep_the_channels(tmp_path):
     assert IS.verify_store(project)["mismatches"] == []
     assert IS._remove_mask_folder(project / "masks" / "nucleus_mask_stack")
     assert set(IS._mask_folders(project / "masks")) == {"cell_mask_stack"}
+
+
+def test_a_time_lapse_frame_keeps_its_own_mask_file_not_a_label_of_its_field(tmp_path):
+    """Each frame of a t-axis field (0aj P3) keeps its own ``.npy`` mask; none overwrites another.
+
+    A 2-D frame mask cannot be a label of the field's t axis, so the Mask
+    writer keeps it as the working file the merge turns into ``(T, Y, X)``
+    labels, and the end-of-run steps leave the field's ledger entry alone.
+    """
+    import spacr.image_store as IS
+
+    project = tmp_path / "proj"
+    names = ["plate1_E01_1_1.npy", "plate1_E01_1_2.npy"]
+    writer = IS._stack_writer(project, "plate1")
+    IS._write_stack_series(writer, names, [np.full((2, 8, 8), t + 1, np.uint16) for t in range(2)],
+                           [1, 2], z_planes=False)
+    folder = project / "masks" / "cell_mask_stack"
+    assert not IS._masks_in_store(folder)
+    assert not IS._project_keeps_masks_in_store(project)
+    masks = {}
+    for t, name in enumerate(names):
+        masks[name] = np.zeros((8, 8), np.uint16)
+        masks[name][t, t] = 10 + t
+        IS._write_mask(folder / name, masks[name])
+    for name in names:
+        assert (folder / name).is_file()
+        assert np.array_equal(IS._read_mask(folder / name), masks[name])
+    assert not (project / "fov.ome.zarr" / IS._image_entries(project / "fov.ome.zarr")[names[0]]["key"]
+                / "labels" / "cell").exists()
+    before = (project / "fov.ome.zarr" / IS._LEDGER).read_text(encoding="utf-8")
+    assert IS._consume_working_masks(project) == 0
+    assert (project / "fov.ome.zarr" / IS._LEDGER).read_text(encoding="utf-8") == before

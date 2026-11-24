@@ -1738,14 +1738,29 @@ def _mask_store_entries(folder: Any) -> Dict[str, Dict[str, Any]]:
 
     Empty unless ``folder`` is a project mask folder whose project stores its
     fields' channels in fov.ome.zarr and the folder itself holds no mask
-    files (an older project's files always win).
+    files (an older project's files always win). The frames of a time-lapse
+    field are not listed (:func:`_field_mask_entries`).
     """
     if _mask_label_name(folder) is None or _mask_folder_files(folder):
         return {}
     store = _mask_project_store(folder)
     if not (store / _LEDGER).is_file():
         return {}
-    return _image_entries(store)
+    return _field_mask_entries(_image_entries(store))
+
+
+def _field_mask_entries(entries: Mapping[str, Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+    """The entries whose Mask-stage masks are labels of their own field (item 0aj P2 with P3).
+
+    Every field except the frames of a time-lapse field: one frame's 2-D
+    mask cannot be a label of the field's t axis, so a time-lapse run keeps
+    its masks as ``masks/<class>_mask_stack/*.npy`` working files, and the
+    merge writes them as the field's ``(T, Y, X)`` labels.
+
+    :param entries: ``{field file name: ledger entry}``, such as
+        :func:`_image_entries` gives.
+    """
+    return {name: entry for name, entry in entries.items() if "t" not in entry}
 
 
 def _masks_in_store(folder: Any) -> bool:
@@ -1992,7 +2007,8 @@ def _consume_working_masks(project: Any) -> int:
     ledger = store / _LEDGER
     if not ledger.is_file():
         return 0
-    entries = [dict(entry, masks=MASKS_CONSUMED) for entry in _store_entries(store).values()
+    entries = [dict(entry, masks=MASKS_CONSUMED)
+               for entry in _field_mask_entries(_store_entries(store)).values()
                if entry.get("masks") != MASKS_CONSUMED]
     if not entries:
         return 0
@@ -2017,10 +2033,11 @@ def _project_keeps_masks_in_store(project: Any) -> bool:
     """Whether a project's fields, and so its masks, live in fov.ome.zarr (item 0aj P2/P4).
 
     True once the store has committed field channels and the project has no
-    ``stack/*.npy`` (a run whose stacks are files keeps file masks).
+    ``stack/*.npy`` (a run whose stacks are files keeps file masks); the
+    frames of a time-lapse field do not count (:func:`_field_mask_entries`).
     """
     store = _merged_store_path(project)
-    return bool((store / _LEDGER).is_file() and _image_entries(store)
+    return bool((store / _LEDGER).is_file() and _field_mask_entries(_image_entries(store))
                 and not _stack_folder_names(Path(project) / "stack"))
 
 
@@ -2103,7 +2120,7 @@ def _remove_mask_folder(folder: Any) -> bool:
     store = _mask_project_store(folder)
     if not (store / _LEDGER).is_file():
         return removed
-    for entry in _image_entries(store).values():
+    for entry in _field_mask_entries(_image_entries(store)).values():
         group = _mask_label_dir(store, entry, label)
         if group.is_dir():
             shutil.rmtree(group)
@@ -2128,7 +2145,7 @@ def _mask_folders(masks_dir: Any) -> Dict[str, str]:
         pass
     store = _merged_store_path(Path(masks_dir).parent)
     if Path(masks_dir).name == "masks" and (store / _LEDGER).is_file():
-        for entry in _image_entries(store).values():
+        for entry in _field_mask_entries(_image_entries(store)).values():
             labels = Path(store) / entry["key"] / "labels"
             if entry.get("masks") == MASKS_CONSUMED or not labels.is_dir():
                 continue
