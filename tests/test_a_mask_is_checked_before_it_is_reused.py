@@ -158,13 +158,15 @@ def test_a_mask_run_without_resume_segments_a_truncated_mask_again(
     from spacr.core import preprocess_generate_masks
     from spacr.resume import validate_merged_field
 
-    preprocess_generate_masks(_settings(plate, preprocess=True, **_RUN))
+    # Item 0aj P2: only .npy masks can be cut short (an fov.ome.zarr label is
+    # renamed into place whole), so this runs the 'npy' layout.
+    preprocess_generate_masks(_settings(plate, preprocess=True,
+                                        mask_image_format="npy", **_RUN))
     from spacr.image_store import _list_fields, _read_field, _stack_names as stack_fields
 
-    # Item 0aj P1c: the field stacks live in fov.ome.zarr; the shared lister reads them.
     fields = stack_fields(plate / "stack")
 
-    store = plate / "fov.ome.zarr"   # item 0aj: the merged fields' store
+    store = plate / "merged"
     assert sorted(_list_fields(store)) == sorted(fields)
     cell_masks = plate / "masks" / "cell_mask_stack"
     damaged = _cut_short(cell_masks / fields[1])
@@ -172,7 +174,8 @@ def test_a_mask_run_without_resume_segments_a_truncated_mask_again(
 
     try:
         preprocess_generate_masks(_settings(plate, preprocess=False,
-                                            resume=False, **_RUN))
+                                            resume=False, mask_image_format="npy",
+                                            **_RUN))
     except Exception as exc:                                 # noqa: BLE001
         pytest.fail(f"the re-run died on the truncated mask: "
                     f"{type(exc).__name__}: {exc}")

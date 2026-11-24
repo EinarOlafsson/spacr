@@ -5079,7 +5079,9 @@ def _load_intensity_stack_from_merged(
     import os
     import numpy as np
 
-    merged_dir = os.path.join(src, "merged")
+    from .image_store import _read_field, merged_field_path, merged_source
+
+    merged_dir = merged_source(src)
     T = len(filenames)
 
     if not os.path.isdir(merged_dir) or n_channels is None or n_channels <= 0:
@@ -5088,17 +5090,8 @@ def _load_intensity_stack_from_merged(
     stack = np.zeros((T, height, width, n_channels), dtype=dtype)
 
     for t, fn in enumerate(filenames):
-        base = os.path.splitext(os.path.basename(fn))[0]
-        candidates = [
-            os.path.join(merged_dir, base + ".npy"),
-            os.path.join(merged_dir, fn),
-            os.path.join(merged_dir, fn + ".npy"),
-        ]
-        arr = None
-        for path in candidates:
-            if os.path.exists(path):
-                arr = np.load(path)
-                break
+        path = merged_field_path(merged_dir, fn)
+        arr = None if path is None else _read_field(path)
 
         if arr is None or arr.ndim != 3:
             continue
@@ -5160,7 +5153,9 @@ def _load_masks_from_merged(
     if dtype is None:
         dtype = np.int32
 
-    merged_dir = os.path.join(src, "merged")
+    from .image_store import _read_field, merged_field_path, merged_source
+
+    merged_dir = merged_source(src)
     T = len(filenames)
 
     cell_masks = np.zeros((T, height, width), dtype=dtype)
@@ -5171,17 +5166,8 @@ def _load_masks_from_merged(
         return cell_masks, nucleus_masks, pathogen_masks
 
     for t, fn in enumerate(filenames):
-        base = os.path.splitext(os.path.basename(fn))[0]
-        candidates = [
-            os.path.join(merged_dir, base + ".npy"),
-            os.path.join(merged_dir, fn),
-            os.path.join(merged_dir, fn + ".npy"),
-        ]
-        arr = None
-        for path in candidates:
-            if os.path.exists(path):
-                arr = np.load(path)
-                break
+        path = merged_field_path(merged_dir, fn)
+        arr = None if path is None else _read_field(path)
 
         if arr is None or arr.ndim != 3:
             continue
@@ -5435,7 +5421,9 @@ def _process_merged_group(args):
         print("[_process_merged_group] Empty file_basenames list.")
         return pd.DataFrame()
 
-    merged_dir = os.path.join(src, "merged")
+    from .image_store import _read_field, merged_source
+
+    merged_dir = merged_source(src)
 
     metas = []
     for bn in file_basenames:
@@ -5452,7 +5440,7 @@ def _process_merged_group(args):
     print(f"[_process_merged_group] Start group {key}, files={len(sorted_basenames)}")
 
     first_path = os.path.join(merged_dir, sorted_basenames[0])
-    first_arr_raw = np.load(first_path)
+    first_arr_raw = _read_field(first_path)
     if first_arr_raw.ndim != 3:
         print(
             f"[_process_merged_group] First array for group {key} is not 3D, "
@@ -9305,11 +9293,13 @@ def automated_motility_assay(settings):
             )
             all_df = None
 
-    merged_dir = os.path.join(src, "merged")
+    from .image_store import _list_fields, merged_source
+
+    merged_dir = merged_source(src)
     if not os.path.isdir(merged_dir):
         raise FileNotFoundError(f"No merged directory at: {merged_dir}")
 
-    all_files = [f for f in os.listdir(merged_dir) if f.endswith(".npy")]
+    all_files = _list_fields(merged_dir)
     if not all_files:
         raise FileNotFoundError(f"No .npy files found in {merged_dir}")
 

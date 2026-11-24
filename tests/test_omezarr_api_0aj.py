@@ -36,7 +36,7 @@ def test_the_arrivals_are_exactly_the_new_public_api():
     docs = _live_docs()
     entries = _omezarr_native_birth_arrivals()
     changes = _omezarr_native_changes()
-    assert len(entries) == 14 and len(changes) == 14
+    assert len(entries) == 22 and len(changes) == 15
     assert not ARRIVALS & REVISIONS
     for symbol in ARRIVALS | REVISIONS:
         assert _source_docstring(symbol) == docs[symbol], symbol

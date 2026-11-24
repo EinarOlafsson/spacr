@@ -833,27 +833,26 @@ def write_nucleus_territories(mask_src, expand_px, min_nucleus_size=250):
     """
     import os
 
-    from .io import _listdir_visible, _load_array_any, _save_array_atomic
+    from .image_store import (_mask_folder_exists, _mask_names, _prepare_mask_folder,
+                              _read_mask, _write_mask)
 
     if int(expand_px) <= 0:
         raise ValueError('cell_from_nucleus_expand_px must be above 0')
     nucleus_folder = os.path.join(mask_src, 'nucleus_mask_stack')
-    if not os.path.isdir(nucleus_folder):
+    if not _mask_folder_exists(nucleus_folder):
         raise FileNotFoundError(f'No nucleus masks to grow cells from: {nucleus_folder}')
     cell_folder = os.path.join(mask_src, 'cell_mask_stack')
     seed_folder = os.path.join(mask_src, TERRITORY_NUCLEUS_FOLDER)
-    os.makedirs(cell_folder, exist_ok=True)
-    os.makedirs(seed_folder, exist_ok=True)
+    _prepare_mask_folder(cell_folder)
+    _prepare_mask_folder(seed_folder)
     n_fields = 0
-    for name in sorted(_listdir_visible(nucleus_folder)):
-        if not name.lower().endswith(('.npy', '.tif', '.tiff')):
-            continue
-        nuclei = _load_array_any(os.path.join(nucleus_folder, name))
+    for name in _mask_names(nucleus_folder):
+        nuclei = _read_mask(os.path.join(nucleus_folder, name))
         territory, kept = nucleus_territories(nuclei, expand_px, min_nucleus_size)
         stem = os.path.splitext(name)[0]
-        _save_array_atomic(os.path.join(cell_folder, stem + '.npy'),
-                           territory.astype(nuclei.dtype))
-        _save_array_atomic(os.path.join(seed_folder, stem + '.npy'), kept.astype(nuclei.dtype))
+        _write_mask(os.path.join(cell_folder, stem + '.npy'),
+                   territory.astype(nuclei.dtype))
+        _write_mask(os.path.join(seed_folder, stem + '.npy'), kept.astype(nuclei.dtype))
         n_fields += 1
     return cell_folder, seed_folder, n_fields
 

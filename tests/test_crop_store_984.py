@@ -143,7 +143,7 @@ def test_fields_with_time_or_depth_are_refused_not_flattened(tmp_path):
     from spacr.image_store import PlateWriter
 
     writer = PlateWriter(tmp_path, "P1")
-    with pytest.raises(ValueError, match="only \\(C, Y, X\\) or \\(Y, X\\)"):
+    with pytest.raises(ValueError, match="never flattened into channels"):
         writer.write_field("A01", 0, np.zeros((2, 3, 8, 8), np.uint16))
     with pytest.raises(ValueError, match="label image 'cell'"):
         writer.write_field("A01", 0, np.zeros((3, 8, 8), np.uint16),

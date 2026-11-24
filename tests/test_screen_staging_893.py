@@ -87,6 +87,16 @@ def _arrays(folder: Path):
             for path in sorted(folder.rglob("*.npy")) if not path.name.startswith(".")}
 
 
+def _mask_arrays(masks: Path):
+    """Every object mask of a run, through the one mask reader (item 0aj P2):
+    fov.ome.zarr labels or ``masks/<class>_mask_stack/*.npy``, whichever the run wrote."""
+    from spacr.image_store import _mask_folders, _mask_names, _read_mask
+
+    return {f"{name}/{field}": _read_mask(Path(folder) / field)
+            for name, folder in _mask_folders(masks).items()
+            for field in _mask_names(folder)}
+
+
 def test_one_mask_run_equals_the_two_pass_run(tmp_path, threshold_cellpose):
     from spacr.core import preprocess_generate_masks
 
@@ -105,7 +115,7 @@ def test_one_mask_run_equals_the_two_pass_run(tmp_path, threshold_cellpose):
     assert len(merged_one) == 4 and merged_one.keys() == merged_two.keys()
     for name in merged_one:
         np.testing.assert_array_equal(merged_one[name], merged_two[name])
-    masks_one, masks_two = _arrays(one / "masks"), _arrays(two / "masks")
+    masks_one, masks_two = _mask_arrays(one / "masks"), _mask_arrays(two / "masks")
     assert masks_one.keys() == masks_two.keys() and len(masks_one) == 8
     for name in masks_one:
         np.testing.assert_array_equal(masks_one[name], masks_two[name])

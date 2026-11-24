@@ -502,11 +502,14 @@ def test_a_test_mode_mask_run_on_a_macos_volume_completes(
     assert len(merged) == 1 and merged[0].startswith("test_N06_")
     array = fields[merged[0]]
     assert array.shape[-1] == 4 + 3
+    # Item 0aj P2: each object's mask is a label of the field in fov.ome.zarr.
+    from spacr.image_store import _store_entries
+    entries = _store_entries(test_dir / "fov.ome.zarr")
     for role in ("cell", "nucleus", "pathogen"):
-        masks = [p.name for p in
-                 (test_dir / "masks" / f"{role}_mask_stack").iterdir()
-                 if not p.name.startswith(".")]
+        masks = sorted(name for name, entry in entries.items()
+                       if role in entry["labels"])
         assert masks == merged, role
+    assert not list((test_dir / "masks").glob("*_mask_stack"))
 
 
 SEPARATE_FILES_REGEX = (

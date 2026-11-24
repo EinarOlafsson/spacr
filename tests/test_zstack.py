@@ -672,7 +672,11 @@ def test_every_new_setting_is_categorised_typed_and_documented(key):
 
 def test_the_3d_tooltips_are_honest_about_the_ingest_limitation():
     """A user must not read these and believe spaCR measures volumes today."""
-    assert "collapses" in S.tooltips["z_stack"]
+    tooltip = S.tooltips["z_stack"]
+    # 0aj P3 stores every z slice and projects on read; the honest part is that
+    # standard ingestion still segments the projection in 2-D.
+    assert "segments in 2-D" in tooltip
+    assert "maximum-intensity projection" in tooltip
     assert "Measure" in S.tooltips["z_segmentation_mode"]
 
 

@@ -192,7 +192,9 @@ def test_the_mask_run_applies_the_classifier_when_set(yokogawa_cellvoyager_dir,
     def record(src, settings):
         seen.append((Path(src), settings["real_object_classifier"],
                      settings["real_object_threshold"]))
-        assert (Path(src) / "masks" / "cell_mask_stack").is_dir()
+        # Item 0aj P2: the cell masks are there (fov.ome.zarr labels), the merge not yet.
+        from spacr.image_store import _mask_folder_exists
+        assert _mask_folder_exists(Path(src) / "masks" / "cell_mask_stack")
         assert not (Path(src) / "merged").exists() or not any(
             (Path(src) / "merged").glob("*.npy"))
         return {}

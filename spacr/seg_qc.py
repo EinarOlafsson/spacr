@@ -800,6 +800,12 @@ def _iter_masks(source: Any):
                 full = os.path.join(path, name)
                 yield name[:-4], (lambda p=full: np.load(p, allow_pickle=False))
             return
+        from .image_store import _mask_names, _read_mask
+        if not os.path.exists(path) and _mask_names(path):
+            for name in _mask_names(path):
+                full = os.path.join(path, name)
+                yield os.path.splitext(name)[0], (lambda p=full: _read_mask(p))
+            return
         if os.path.isfile(path):
             base = os.path.basename(path)
             stem = base[:-4] if base.lower().endswith(".npy") else base
@@ -2173,17 +2179,10 @@ def find_mask_stacks(root: str) -> Dict[str, str]:
         ]
     except OSError:
         return found
+    from .image_store import _mask_folders
     for level in levels:
-        try:
-            names = sorted(os.listdir(level))
-        except OSError:
-            continue
-        for name in names:
-            if not name.endswith(MASK_STACK_SUFFIX):
-                continue
-            path = os.path.join(level, name)
-            if os.path.isdir(path):
-                found.setdefault(name[:-len(MASK_STACK_SUFFIX)], path)
+        for name, path in _mask_folders(level).items():
+            found.setdefault(name[:-len(MASK_STACK_SUFFIX)], path)
     return found
 
 
@@ -2200,7 +2199,13 @@ def mask_stack_mtime(folder: str) -> float:
     try:
         newest = float(os.stat(folder).st_mtime)
     except OSError:
-        return 0.0
+        from .image_store import _mask_names, _mask_stat
+        for name in _mask_names(folder)[:_MAX_MTIME_STATS]:
+            try:
+                newest = max(newest, float(_mask_stat(os.path.join(folder, name)).st_mtime))
+            except OSError:
+                continue
+        return newest
     try:
         with os.scandir(folder) as entries:
             for index, entry in enumerate(entries):

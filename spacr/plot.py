@@ -4753,7 +4753,6 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
     :param q2: Upper percentile for normalisation. Default ``99``.
     :returns: None
     """
-    from .utils import normalize_to_dtype
     from .io import _listdir_visible
     from .image_store import _read_stack, _stack_names
 
@@ -4776,36 +4775,50 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
         else:
             img = _read_stack(path)
 
-        if normalize:
-            if img.ndim == 2:
-                img = normalize_to_dtype(array=img[:, :, np.newaxis], p1=q1, p2=q2)[:, :, 0]
-            else:
-                img = normalize_to_dtype(array=img, p1=q1, p2=q2)
+        _plot_array_channels(img, figuresize=figuresize, cmap=cmap, normalize=normalize,
+                             q1=q1, q2=q2)
 
-        with figure_style(theme_target()):
-            if img.ndim == 3:
-                array_nr = img.shape[2]
-                fig, axs = plt.subplots(1, array_nr, figsize=(figuresize, figuresize))
-                from .figures.bundle import _register_figure_data
-                _register_figure_data(fig, img, kind="image")
-                if array_nr == 1:
-                    axs = [axs]
-                for channel in range(array_nr):
-                    i = img[:, :, channel]
-                    axs[channel].imshow(i, cmap=plt.get_cmap(cmap))
-                    axs[channel].set_title(f'Channel {channel}',
-                                           size=_montage_type_size(figuresize))
-                    axs[channel].axis('off')
-            else:
-                fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
-                from .figures.bundle import _register_figure_data
-                _register_figure_data(fig, img, kind="image")
-                ax.imshow(img, cmap=plt.get_cmap(cmap))
-                ax.set_title('Channel 0', size=_montage_type_size(figuresize))
-                ax.axis('off')
 
-            fig.tight_layout()
-            _show_if_interactive()
+def _plot_array_channels(img, figuresize=10, cmap='inferno', normalize=True, q1=1, q2=99):
+    """Plot one ``(Y, X)`` or ``(Y, X, C)`` array, one channel per subplot.
+
+    The one drawing of :func:`plot_arrays`; Mask also calls it on the first
+    normalised batch it builds in memory (item 0aj P4), where it used to
+    plot the first ``.npz`` archive.
+    """
+    from .utils import normalize_to_dtype
+
+    if normalize:
+        if img.ndim == 2:
+            img = normalize_to_dtype(array=img[:, :, np.newaxis], p1=q1, p2=q2)[:, :, 0]
+        else:
+            img = normalize_to_dtype(array=img, p1=q1, p2=q2)
+
+    with figure_style(theme_target()):
+        if img.ndim == 3:
+            array_nr = img.shape[2]
+            fig, axs = plt.subplots(1, array_nr, figsize=(figuresize, figuresize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, img, kind="image")
+            if array_nr == 1:
+                axs = [axs]
+            for channel in range(array_nr):
+                i = img[:, :, channel]
+                axs[channel].imshow(i, cmap=plt.get_cmap(cmap))
+                axs[channel].set_title(f'Channel {channel}',
+                                       size=_montage_type_size(figuresize))
+                axs[channel].axis('off')
+        else:
+            fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, img, kind="image")
+            ax.imshow(img, cmap=plt.get_cmap(cmap))
+            ax.set_title('Channel 0', size=_montage_type_size(figuresize))
+            ax.axis('off')
+
+        fig.tight_layout()
+        _show_if_interactive()
+
 
 def _normalize_and_outline(image, remove_background, normalize, normalization_percentiles, overlay, overlay_chans, mask_dims, outline_colors, outline_thickness):
     """

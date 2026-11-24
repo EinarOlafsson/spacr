@@ -44,7 +44,7 @@ This linked reference contains the full generated setting descriptions. Return t
 
 #### Input & Channels
 
-- **`masks`** *(optional)* — (bool) - Run Cellpose segmentation for every configured object channel (cell, nucleus, pathogen, organelle) and write label stacks to masks/&lt;object&gt;_mask_stack. False performs preprocessing only, producing normalized arrays without label masks; downstream measurement therefore requires a subsequent segmentation step. Default True. Default: `True`.
+- **`masks`** *(optional)* — (bool) - Run Cellpose segmentation for every configured object channel (cell, nucleus, pathogen, organelle) and write each object's labels into fov.ome.zarr (labels/&lt;object&gt; of each field; masks/&lt;object&gt;_mask_stack/*.npy for 'npy', 'tiff' and timelapse runs). False performs preprocessing only, producing normalized arrays without label masks; downstream measurement therefore requires a subsequent segmentation step. Default True. Default: `True`.
 
 </details>
 

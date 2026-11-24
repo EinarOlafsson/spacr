@@ -298,6 +298,12 @@ def _mask_output_digest(path):
     """Validate a saved array and fingerprint its complete bytes in bounded memory."""
     from .resume import validate_merged_field
 
+    if not Path(path).is_file():
+        from .image_store import _mask_digest, _mask_valid
+        valid, reason = _mask_valid(path)
+        if not valid:
+            raise ValueError(f'Incomplete mask output {path}: {reason}')
+        return _mask_digest(path)
     before = path.stat()
     valid, reason = validate_merged_field(str(path))
     if not valid:
@@ -348,7 +354,8 @@ class _MaskBatchLedger:
         self.expected = {path: [name for name in record['fields'] if name not in excluded]
                          for path, record in self.records.items()}
         path = root / f'.mask-workers-{object_type}.json'
-        if not path.exists() and any(self.output_root.glob('*.npy')):
+        from .image_store import _mask_names
+        if not path.exists() and any(n.endswith('.npy') for n in _mask_names(self.output_root)):
             raise ValueError('Existing masks have no parallel-run provenance; use a separate output folder')
         self.store = CheckpointStore(
             path, workflow='parallel_mask_batches', boundary='archive', resume=True,
@@ -392,7 +399,7 @@ class _MaskBatchLedger:
         Active settings additionally verify exact per-field normalization and
         role diameter records before saved replay can reuse completed outputs.
         """
-        from .resume import validate_merged_field
+        from .image_store import _mask_valid
         from .qt.i18n import tr
         from .run_journal import (
             _merge_resolved_parameters, _resolved_field_id, _resolved_parameters,
@@ -425,7 +432,7 @@ class _MaskBatchLedger:
                 if name == reserved:
                     continue
                 output = self.output_root / name
-                if not validate_merged_field(str(output))[0]:
+                if not _mask_valid(str(output))[0]:
                     intact = False
                     continue
                 actual = _mask_output_digest(output)
@@ -2411,12 +2418,12 @@ def _finalize_role(entries, segmented, settings, mask_src, index, state):
 
 def _mask_digests(folder):
     """SHA256 of every visible mask array in ``folder``, keyed by filename."""
-    from .io import _listdir_visible
+    from .image_store import _mask_names
 
-    if folder is None or not os.path.isdir(folder):
+    if folder is None:
         return {}
     return {name: _mask_output_digest(Path(folder) / name)
-            for name in sorted(_listdir_visible(folder)) if name.endswith('.npy')}
+            for name in _mask_names(folder) if name.endswith('.npy')}
 
 
 def _finalize_adjusted_cells(mask_src, organelle_folder=None, n_jobs=None):

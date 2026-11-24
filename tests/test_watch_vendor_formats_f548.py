@@ -42,6 +42,18 @@ _PUBLIC = {
 _MM14 = _OME + 'Micro-Manager/1.4.22/thomas/test/test_sep/Pos0/'
 
 
+
+def _batch_fields(batch):
+    """The batch run's merged field names: merged/*.npy or fov.ome.zarr (item 0aj P3)."""
+    from spacr.image_store import _list_fields, merged_source
+    return [type('F', (), {'name': n})() for n in _list_fields(merged_source(batch))]
+
+
+def _batch_field(batch, name):
+    """One merged field of the batch run through the shared reader (item 0aj P3)."""
+    from spacr.image_store import _read_field, merged_source
+    return _read_field(os.path.join(merged_source(batch), name))
+
 def _public(name, url=None):
     """Download one public CC BY 4.0 sample into a cache, or skip when offline."""
     cache = Path(os.environ.get('SPACR_TEST_DOWNLOADS',
@@ -101,12 +113,12 @@ def _batch(root, stacks, mode):
 
 
 def _same_merged(batch, watched, count):
-    names = sorted(path.name for path in (batch / 'merged').glob('*.npy'))
+    names = sorted(path.name for path in _batch_fields(batch))
     assert len(names) == count
     assert names == sorted(path.name for path in
                            (watched / 'spacr_watch/merged').glob('*.npy'))
     for name in names:
-        np.testing.assert_array_equal(np.load(batch / 'merged' / name),
+        np.testing.assert_array_equal(_batch_field(batch, name),
                                       np.load(watched / 'spacr_watch/merged' / name))
 
 

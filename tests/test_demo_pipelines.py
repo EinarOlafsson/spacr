@@ -421,10 +421,18 @@ def test_timelapse_demo_tracks_the_same_cells_through_every_frame(tmp_path):
     layout = syn.generate_timelapse_demo(tmp_path / "timelapse")
     preprocess_generate_masks_timelapse(_load_demo_settings(layout))
 
-    merged = sorted((Path(layout.src) / "merged").glob("*.npy"))
+    from spacr.image_store import _list_fields, _read_field
+
+    # Item 0aj P3: the frames are one t-axis field in fov.ome.zarr, each
+    # frame still listed and read by its own field name.
+    store = Path(layout.src) / "fov.ome.zarr"
+    merged = _list_fields(store)
     assert len(merged) == 8, (
-        f"expected one merged stack per timepoint, got "
-        f"{[p.name for p in merged]}")
+        f"expected one merged stack per timepoint, got {merged}")
+    frames = [_read_field(store / name) for name in merged]
+    assert len({frame.shape for frame in frames}) == 1, [f.shape for f in frames]
+    assert not any(np.array_equal(frames[0], frame) for frame in frames[1:]), (
+        "every frame read back as the first one")
 
     tracks_files = sorted((Path(layout.src) / "tracks").glob("*.csv"))
     assert len(tracks_files) == 1, [p.name for p in tracks_files]

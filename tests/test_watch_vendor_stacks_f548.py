@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import os
 import shutil
 
 import numpy as np
@@ -18,6 +19,18 @@ from tests.test_watch_timelapse_series_f548 import _converted_series
 
 pytest_plugins = ['tests.test_cov_object_masks_sam']
 
+
+
+def _batch_fields(batch):
+    """The batch run's merged field names: merged/*.npy or fov.ome.zarr (item 0aj P3)."""
+    from spacr.image_store import _list_fields, merged_source
+    return [type('F', (), {'name': n})() for n in _list_fields(merged_source(batch))]
+
+
+def _batch_field(batch, name):
+    """One merged field of the batch run through the shared reader (item 0aj P3)."""
+    from spacr.image_store import _read_field, merged_source
+    return _read_field(os.path.join(merged_source(batch), name))
 
 def _digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -131,11 +144,11 @@ def test_vendor_series_waits_for_declared_planes_then_matches_batch(
     for row in rows:
         np.testing.assert_array_equal(tifffile.imread(field / row['target']),
                                       tifffile.imread(source / row['target']))
-    names = sorted(path.name for path in (batch / 'merged').glob('*.npy'))
+    names = sorted(path.name for path in _batch_fields(batch))
     assert names == sorted(path.name for path in
                            (watched / 'spacr_watch/merged').glob('*.npy'))
     for name in names:
-        np.testing.assert_array_equal(np.load(batch / 'merged' / name),
+        np.testing.assert_array_equal(_batch_field(batch, name),
                                       np.load(watched / 'spacr_watch/merged' / name))
     ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text(encoding="utf-8"))
     entry = ledger['fields']['plate1']
@@ -180,10 +193,10 @@ def test_vendor_volume_matches_raw_volume_batch_and_measure(tmp_path, fake_model
     for channel in (0, 1):
         name = convert.target_name('plate1', 'A01', 1, channel + 1)
         np.testing.assert_array_equal(tifffile.imread(field / name), volume[:, channel])
-    names = sorted(path.name for path in (batch / 'merged').glob('*.npy'))
+    names = sorted(path.name for path in _batch_fields(batch))
     assert len(names) == 1
     for name in names:
-        np.testing.assert_array_equal(np.load(batch / 'merged' / name),
+        np.testing.assert_array_equal(_batch_field(batch, name),
                                       np.load(watched / 'spacr_watch/merged' / name))
     for table in ('cell', 'nucleus'):
         assert _rows(batch / 'measurements/measurements.db', table) == _rows(
@@ -205,12 +218,12 @@ def test_vendor_timelapse_matches_projected_batch(tmp_path, real_pipeline):
                      metadata={'axes': 'TZCYX'})
     result = core._watch_folder_and_analyse(dict(mask, **_fast(watched)))
     assert result['done'] == ['plate1'] and not result['failed']
-    names = sorted(path.name for path in (batch / 'merged').glob('*.npy'))
+    names = sorted(path.name for path in _batch_fields(batch))
     assert len(names) == 2
     assert sorted(path.name for path in
                   (watched / 'spacr_watch/merged').glob('*.npy')) == names
     for name in names:
-        np.testing.assert_array_equal(np.load(batch / 'merged' / name),
+        np.testing.assert_array_equal(_batch_field(batch, name),
                                       np.load(watched / 'spacr_watch/merged' / name))
 
 
