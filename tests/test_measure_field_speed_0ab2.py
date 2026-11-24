@@ -39,6 +39,34 @@ def _close(got, want, *, rel=1e-6, sd=1e-7):
                       <= rel * np.abs(want[keep]) + sd * spread + 1e-300)
 
 
+def _brute_otsu(values):
+    """First observed value maximising between-class variance, equal values in the lower class."""
+    values = np.sort(values)
+    best, winner = -np.inf, 0.0
+    for t in np.unique(values)[:-1]:
+        low, high = values[values <= t], values[values > t]
+        score = low.size * high.size * (low.mean() - high.mean()) ** 2
+        if score > best * (1 + 1e-12):
+            best, winner = score, t
+    return winner
+
+
+@pytest.mark.parametrize("seed", range(4))
+def test_the_compiled_otsu_picks_the_brute_force_threshold(seed):
+    rng = np.random.default_rng(seed)
+    labels = rng.integers(0, 12, (40, 50)).astype(np.int64)
+    values = np.round(rng.gamma(2.0, 30.0, labels.shape), 1)
+    labels[0, :5] = 11
+    values[0, :5] = 7.0
+    flat = labels.ravel()[labels.ravel() > 0]
+    v = values.ravel()[labels.ravel() > 0]
+    got = M._otsu_by_label(flat, v)
+    for label in np.unique(flat):
+        run = v[flat == label]
+        want = 0.0 if run.min() == run.max() else _brute_otsu(run)
+        assert got[label] == want
+
+
 def _reference_statistics(labels, image, field_p90, field_p10):
     """The per-object loop :func:`_label_intensity_statistics` replaced."""
     from skimage.measure import regionprops

@@ -4843,24 +4843,49 @@ def _sorted_by_label(flat, values):
     """``values`` sorted within each label: ``(order, sorted values, starts, counts)``.
 
     The order is :func:`numpy.lexsort` of ``(values, flat)``, value for
-    value, found by two stable sorts: by value, then by label. A stable sort
-    keeps equal labels in value order and equal values in pixel order, which
-    is exactly lexsort's tie rule, so the permutation is the same; labels
-    that fit 16 bits are sorted by NumPy's radix sort, and the pair takes
-    well under half of lexsort's time on a field.
+    value: the pixels are put in label order by a stable counting sort,
+    and each label's run is then sorted by value with a stable merge sort
+    (:func:`_label_sort_kernel`), which keeps equal values in pixel order,
+    exactly lexsort's tie rule (NaN last). Sorting each object's few
+    thousand pixels on its own costs a fraction of sorting the field's
+    millions at once.
     """
-    by_value = np.argsort(values, kind='stable')
-    keys = flat[by_value]
-    if keys.size and 0 <= int(keys.min()) and int(keys.max()) < 2 ** 16:
-        keys = keys.astype(np.uint16)
-    order = by_value[np.argsort(keys, kind='stable')]
-    del keys
-    labels_sorted = flat[order]
-    counts = np.bincount(labels_sorted)
+    counts = np.bincount(flat) if flat.size else np.zeros(1, dtype=np.int64)
     present = np.nonzero(counts)[0]
+    offsets = np.concatenate(([0], np.cumsum(counts)[:-1])).astype(np.int64)
+    order = np.empty(flat.size, dtype=np.int64)
+    _compiled(_label_sort_kernel)(
+        np.ascontiguousarray(flat), np.ascontiguousarray(values), offsets,
+        counts.astype(np.int64), order)
     counts = counts[present]
     starts = np.concatenate(([0], np.cumsum(counts)[:-1]))
     return order, values[order], starts, counts, present
+
+
+def _label_sort_kernel(flat, values, offsets, counts, order):
+    """Fill ``order`` with lexsort's permutation of ``(values, flat)``.
+
+    A stable counting sort by label (``offsets`` and ``counts`` of every
+    label), then a stable merge sort of each label's run by value. Compile
+    with :func:`_compiled`.
+    """
+    fill = offsets.copy()
+    for k in range(flat.size):
+        label = flat[k]
+        order[fill[label]] = k
+        fill[label] += 1
+    for label in range(counts.size):
+        count = counts[label]
+        if count < 2:
+            continue
+        start = offsets[label]
+        run = order[start:start + count].copy()
+        keys = np.empty(count, dtype=values.dtype)
+        for k in range(count):
+            keys[k] = values[run[k]]
+        ranked = np.argsort(keys, kind='mergesort')
+        for k in range(count):
+            order[start + k] = run[ranked[k]]
 
 
 def _robust_threshold(flat, values, presorted=None):
@@ -5344,58 +5369,82 @@ def measure_costes(labels, image, steps=PROFILE_COSTES_STEPS):
     return pd.DataFrame(out)
 
 
+def _otsu_kernel(ordered, starts, counts, present, low, high, thresholds):
+    """Each label's first observed value maximising Otsu's between-class variance, into ``thresholds``.
+
+    One pass along each label's run of ``ordered`` (its values sorted
+    ascending): a split after a value that differs from the next puts that
+    value and everything below it in the lower class, and scores
+    ``(total * lower_count - lower_sum * count) ** 2 / (lower_count *
+    upper_count)``, the between-class variance times a constant of the
+    label. Sums are taken in float64 of the values minus the label's
+    minimum, scaled by the power of two at or above its range, so the
+    score does not depend on the intensity scale. A constant label keeps 0.
+    Compile with :func:`_compiled`.
+    """
+    for index in range(present.size):
+        label = present[index]
+        start = starts[index]
+        count = counts[index]
+        base = low[label]
+        spread = high[label] - base
+        if not spread > 0:
+            continue
+        scale = 1.0
+        while scale < spread:
+            scale *= 2.0
+        while scale / 2.0 >= spread:
+            scale /= 2.0
+        total = 0.0
+        for k in range(count):
+            total += (ordered[start + k] - base) / scale
+        lower_sum = 0.0
+        best = -np.inf
+        winner = -1
+        for k in range(count - 1):
+            value = ordered[start + k]
+            lower_sum += (value - base) / scale
+            if value == ordered[start + k + 1]:
+                continue
+            lower = k + 1.0
+            numerator = total * lower - lower_sum * count
+            score = numerator * numerator / (lower * (count - lower))
+            if score > best:
+                best = score
+                winner = k
+        if winner >= 0:
+            thresholds[label] = ordered[start + winner]
+
+
 def _otsu_by_label(flat, values, presorted=None):
     """Observed-value Otsu thresholds per label, with the first maximum winning.
 
     :param flat: positive integer label index for each foreground pixel.
     :param values: real intensities of those pixels.
     :param presorted: optional :func:`_sorted_by_label` result for ``values``.
-    :returns: one threshold per label index; 0 for a constant object or an
-        absent label. Integer data follow :func:`mahotas.thresholding.otsu`.
+    :returns: one threshold per label index; 0 for a constant object (or
+        one holding NaN) or an absent label. Integer data follow
+        :func:`mahotas.thresholding.otsu`.
 
-    All candidate splits are evaluated together from sorted cumulative sums;
-    a split places values equal to its threshold in the lower class.
-    Centring and power-of-two scaling within each object keep the score
-    stable across intensity scales. A segmented prefix scan keeps sums
-    independent of the intensity and size of earlier labels.
+    Every candidate split of a label is scored in one compiled pass along
+    its sorted values (:func:`_otsu_kernel`); a split places values equal
+    to its threshold in the lower class. Centring and power-of-two scaling
+    within each object keep the score stable across intensity scales.
     """
-    order, ordered, starts, counts, present = (
+    _order, ordered, starts, counts, present = (
         presorted if presorted is not None else _sorted_by_label(flat, values))
     size = int(flat.max()) + 1
     thresholds = np.zeros(size)
-    labels_sorted = flat[order]
-    positions = np.arange(ordered.size)
-    low, high = _label_extremes(flat, values, size)
-    shifted = ordered.astype(np.longdouble) - low[labels_sorted]
-    exponent = np.frexp(high.astype(np.longdouble) - low)[1]
-    shifted = np.ldexp(shifted, -exponent[labels_sorted])
-    lower_sum = shifted.copy()
-    stride = 1
-    while stride < int(counts.max()):
-        same_label = labels_sorted[stride:] == labels_sorted[:-stride]
-        lower_sum[stride:] += np.where(same_label, lower_sum[:-stride], 0.0)
-        stride *= 2
-    total_sum = np.zeros(size, dtype=np.longdouble)
-    total_sum[present] = np.add.reduceat(shifted, starts)
-    total_count = np.bincount(flat, minlength=size)
-    group_starts = np.repeat(starts, counts)
-    lower_count = positions - group_starts + 1
-    upper_count = total_count[labels_sorted] - lower_count
-    candidates = np.zeros(ordered.size, dtype=bool)
-    candidates[:-1] = ((labels_sorted[:-1] == labels_sorted[1:])
-                      & (ordered[:-1] != ordered[1:]))
-    score = np.full(ordered.size, -np.inf, dtype=np.longdouble)
-    numerator = (total_sum[labels_sorted] * lower_count
-                 - lower_sum * total_count[labels_sorted])
-    score[candidates] = numerator[candidates] ** 2 / (
-        lower_count[candidates] * upper_count[candidates])
-    maximum = np.full(size, -np.inf, dtype=np.longdouble)
-    np.maximum.at(maximum, labels_sorted, score)
-    first = np.full(size, ordered.size, dtype=np.int64)
-    winners = candidates & (score == maximum[labels_sorted])
-    np.minimum.at(first, labels_sorted[winners], positions[winners])
-    varying = present[first[present] < ordered.size]
-    thresholds[varying] = ordered[first[varying]]
+    ordered = np.ascontiguousarray(ordered, dtype=np.float64)
+    starts = np.asarray(starts, dtype=np.int64)
+    counts = np.asarray(counts, dtype=np.int64)
+    low = np.zeros(size)
+    high = np.zeros(size)
+    low[present] = ordered[starts]
+    high[present] = ordered[starts + counts - 1]
+    _compiled(_otsu_kernel)(ordered, starts, counts,
+                            np.asarray(present, dtype=np.int64), low, high,
+                            thresholds)
     return thresholds
 
 
