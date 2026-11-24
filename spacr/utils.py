@@ -6411,21 +6411,44 @@ def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uni
     return filtered_cells, nucleus_mask, pathogen_mask, cytoplasm_mask
 
 def _merge_overlapping_objects(mask1, mask2):
-    """Merge overlapping objects across two masks using a 90% overlap heuristic."""
+    """Merge overlapping objects across two masks using a 90% overlap heuristic.
+
+    THE ONE NUCLEUS-CELL OWNERSHIP RULE of Measure and the OPS phenotype path
+    (maintainer decision 2026-11-23; OPS reaches it through
+    :func:`spacr.ops_sample.pair_nuclei_with_cells`). For each connected
+    object of ``mask1`` (a nucleus) that touches several objects of
+    ``mask2`` (cells): when one of them holds at least 90 % of it, its
+    pixels in the others are removed from ``mask1``; otherwise those
+    ``mask2`` objects are MERGED into the lowest of their labels.
+
+    :param mask1: child labels (nuclei), changed in place.
+    :param mask2: parent labels (cells), changed in place.
+    :returns: ``(mask1, mask2)``.
+
+    Each object is examined inside its bounding box (``find_objects``), so
+    the cost grows with the objects' area, not objects times field; the
+    result is the same as examining the whole field per object, because
+    an object's pixels all lie in its box and only a merge, which is
+    applied to the whole of ``mask2``, reaches outside it.
+    """
     labeled_1 = label(mask1)
-    num_1 = np.max(labeled_1)
-    for m1_id in range(1, num_1 + 1):
-        current_1_mask = labeled_1 == m1_id
-        overlapping_2_labels = np.unique(mask2[current_1_mask])
+    for m1_id, window in enumerate(ndimage.find_objects(labeled_1), start=1):
+        if window is None:
+            continue
+        current_1_mask = labeled_1[window] == m1_id
+        region_2 = mask2[window]
+        overlapping_2_labels = np.unique(region_2[current_1_mask])
         overlapping_2_labels = overlapping_2_labels[overlapping_2_labels != 0]
         if len(overlapping_2_labels) > 1:
-            overlap_percentages = [np.sum(current_1_mask & (mask2 == m2_label)) / np.sum(current_1_mask) * 100 for m2_label in overlapping_2_labels]
+            size = np.sum(current_1_mask)
+            overlap_percentages = [np.sum(current_1_mask & (region_2 == m2_label)) / size * 100 for m2_label in overlapping_2_labels]
             max_overlap_label = overlapping_2_labels[np.argmax(overlap_percentages)]
             max_overlap_percentage = max(overlap_percentages)
             if max_overlap_percentage >= 90:
+                view_1 = mask1[window]
                 for m2_label in overlapping_2_labels:
                     if m2_label != max_overlap_label:
-                        mask1[(current_1_mask) & (mask2 == m2_label)] = 0
+                        view_1[current_1_mask & (region_2 == m2_label)] = 0
             else:
                 for m2_label in overlapping_2_labels[1:]:
                     mask2[mask2 == m2_label] = overlapping_2_labels[0]

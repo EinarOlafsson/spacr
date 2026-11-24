@@ -5758,9 +5758,15 @@ _PH_WORKER_FIELDS = {"count": 0}
 def _ph_measure_table(task: Mapping[str, Any]):
     """One segmented phenotype field measured: ``(table or None, unreadable, shape)``.
 
-    Nuclear mask geometry always supplies nucleus_centroid_y,
-    nucleus_centroid_x and nucleus_area for S2, while existing measurements
-    retain their values and order.
+    The field is measured, and its further objects summarised per cell, by
+    Measure's per-field core (:func:`spacr.measure._measure_field_objects`,
+    through :func:`spacr.ops_sample.measure_phenotype_field` and
+    :func:`spacr.ops_sample._cell_object_features`); this function only
+    reads the field and its masks, corrects the field's flat field and
+    names columns. The nucleus centroid the core measures
+    (``centroid_row``/``centroid_col``) is also written as
+    nucleus_centroid_y and nucleus_centroid_x for S2, while existing
+    measurements retain their values and order.
 
     :param task: as :func:`_ph_measure_field` takes it; ``staged``, when
         set, is the field's stack staged by :class:`spacr.ops_run_infra.FieldStager`,
@@ -5799,16 +5805,12 @@ def _ph_measure_table(task: Mapping[str, Any]):
         profile_features=task.get("profile_features"),
         granularity_subsample=float(task.get("granularity_subsample") or 1.0),
         cytoskeleton_channels=task.get("cytoskeleton_channels"))
-    from skimage.measure import regionprops_table
-    import pandas as pd
-
-    geometry = pd.DataFrame(regionprops_table(
-        nuclei, properties=("label", "centroid", "area"))).rename(columns={
-            "centroid-0": "nucleus_centroid_y", "centroid-1": "nucleus_centroid_x",
-            "area": "nucleus_area"}).set_index("label")
-    for column in ("nucleus_centroid_y", "nucleus_centroid_x", "nucleus_area"):
+    for column, source in (("nucleus_centroid_y", "centroid_row"),
+                           ("nucleus_centroid_x", "centroid_col")):
         if column not in table:
-            table[column] = table["label"].map(geometry[column])
+            table[column] = table[source] if source in table else np.nan
+    if "nucleus_area" not in table:
+        table["nucleus_area"] = np.nan
     if task.get("objects") and len(table):
         from .ops_sample import _cell_object_features
 

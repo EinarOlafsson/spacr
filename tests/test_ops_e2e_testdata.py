@@ -276,6 +276,15 @@ def test_the_phenotype_segmentation_and_measurement_match_the_reference(
     ``SPACR_OPS_E2E_SEGMENT=1``. On the references' torch and cellpose lock
     the cell table must match (rtol 1e-5, atol 1e-6, the card's CPU
     phenotype tolerance); on another build the cell count within 0.5 %.
+
+    The reference is revision 3 (``reference/PROVENANCE_rev3_addendum.json``,
+    built by ``tools/build_ops_e2e_reference.py``): 490 cells became 485 on
+    the pinned torch and cellpose (484 on the WS build, torch 2.10 and
+    cellpose 4.0.9) on 2026-11-23, because OPS adopted Measure's
+    nucleus-cell ownership rule (a nucleus split under 90 % between two
+    cells merges them), the maintainer's decision. The 480 cells the rule
+    leaves alone kept their values (largest difference 1e-13). The 0.5 %
+    tolerance is unchanged and is for future drift only.
     """
     if os.environ.get("SPACR_OPS_E2E_SEGMENT") != "1":
         pytest.skip("set SPACR_OPS_E2E_SEGMENT=1 to segment (about 1 h on CPU)")

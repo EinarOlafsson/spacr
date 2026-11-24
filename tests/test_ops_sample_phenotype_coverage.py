@@ -43,7 +43,7 @@ def test_pairing_with_no_overlap_drops_and_counts_everything():
     assert not paired_n.any() and not paired_c.any()
     assert counts == {"nuclei": 2, "cells": 1, "paired": 0,
                       "nuclei_without_cell": 2, "cells_without_nucleus": 1,
-                      "extra_nuclei_in_cell": 0}
+                      "extra_nuclei_in_cell": 0, "merged_cells": 0}
 
 
 def test_measurement_settings_place_the_masks_after_the_channels():
