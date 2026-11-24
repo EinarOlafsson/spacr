@@ -1581,6 +1581,13 @@ if app_key == "mask":
     for app, key in item_0aj:
         assert resolve_default_settings(app)[key] is (key == "keep_original_images")
     recognized_arrivals |= item_0aj
+    # Merge 4 (one size filter, schema 961): size_filter_inclusive
+    # ("Default True."), resolved by Mask; the claim is the resolved default.
+    merge4 = {("mask", "size_filter_inclusive")}
+    assert merge4 <= compared_pairs
+    assert not merge4 & recognized_arrivals
+    assert resolve_default_settings("mask")["size_filter_inclusive"] is True
+    recognized_arrivals |= merge4
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

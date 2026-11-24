@@ -3340,7 +3340,10 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
         key: wgpu_arrivals[key] for key in wgpu_assignments}
     # 50 with batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES
     # and HARMONY_MISSING_MESSAGE (item 770, 2026-11-05).
-    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 50
+    # 51 with batch_correction.MAD_SCALE_ROUNDED (merge 9, one robust z; its
+    # text is bound in tests/l3_api_hooks.py).
+    assert "spacr.batch_correction.MAD_SCALE_ROUNDED" in assignment_keys
+    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 51
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (
