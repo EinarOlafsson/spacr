@@ -62,7 +62,11 @@ def _fake_rename(n_files=4, n_channels=2, shape=(8, 8)):
     rec = _Rec(ret=n_channels)
 
     def _f(src, regex, batch_size, metadata_type, img_format, timelapse=False,
-           save_original_images=True, metadata_well_map=None, source_plate=None):
+           save_original_images=True, metadata_well_map=None, source_plate=None,
+           defer_originals=False, store_fields=False):
+        # Item 0aj: a direct preprocess_img_data call writes stack/ and moves
+        # the originals as before; only a Mask run writes fov.ome.zarr.
+        assert not defer_originals and not store_fields
         rec.calls.append(((src, regex, batch_size, metadata_type, img_format),
                           {"timelapse": timelapse,
                            "metadata_well_map": metadata_well_map,

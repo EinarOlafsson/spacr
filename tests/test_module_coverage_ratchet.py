@@ -612,6 +612,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 723 -> 724 on 2026-11-22, +1/-0, item 1007 lane C (pilot):
         # exact stored registration transformations.
         'spacr/ome_zarr_registration.py',
+        # 724 -> 725 on 2026-11-24, +1/-0, item 0aj: the spacr-store command
+        # that verifies fov.ome.zarr against its checksums and originals
+        # (spacr/cli_store.py).
+        'spacr/cli_store.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -636,11 +640,12 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 721)
+            - len(retired_since_608) == 722)
     # 717 -> 718 on 2026-11-20: spacr/cpg_measure.py (item 998).
     # 718 -> 719 on 2026-11-21: spacr/ops_maxproj.py (item 992).
     # 719 -> 720 on 2026-11-21: spacr/ops_cell_cycle.py (item 990).
     # 720 -> 721 on 2026-11-22: spacr/ome_zarr_registration.py (item 1007 lane C, pilot).
+    # 721 -> 722 on 2026-11-24: spacr/cli_store.py (item 0aj, the spacr-store command).
     # 711 -> 712 on 2026-11-19: spacr/_mask_batches.py (item 987b).
     # 712 -> 715 on 2026-11-20: spacr/image_store.py, spacr/crop_store.py and
     # spacr/ome_zarr_convert.py (items 983-985).
@@ -1215,8 +1220,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # workflow's --expected-file-count moves to 723 with them at landing.
     # 723 -> 724 on 2026-11-22 (pilot): spacr/ome_zarr_registration.py (1007 lane C);
     # the workflow's --expected-file-count moves to 724 at the pilot landing.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 724
-    assert "--expected-file-count 724" in combine_script
+    # 724 -> 725 on 2026-11-24 (item 0aj): spacr/cli_store.py, the spacr-store
+    # command; the workflow's --expected-file-count moves to 725 at landing.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 725
+    assert "--expected-file-count 725" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

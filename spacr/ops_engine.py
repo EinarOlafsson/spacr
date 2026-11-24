@@ -5022,11 +5022,12 @@ def _ph_ngff_version(settings: Mapping[str, Any]) -> str:
     """The OME-Zarr version the phenotype images and masks are written in (item 1007).
 
     :param settings: read for ``ome_zarr_ngff_version``.
-    :returns: ``'0.5'`` (the default) or ``'0.6'``.
+    :returns: ``'0.6'`` (the default, item 0aj) or ``'0.5'``.
     """
+    from .image_store import DEFAULT_NGFF_VERSION
     from .qt.i18n import tr
 
-    value = str(settings.get("ome_zarr_ngff_version") or "0.5").strip()
+    value = str(settings.get("ome_zarr_ngff_version") or DEFAULT_NGFF_VERSION).strip()
     if value not in ("0.5", "0.6"):
         raise ValueError(tr("ome_zarr_ngff_version must be 0.5 or 0.6; got {value}",
                             value=value))
@@ -14558,6 +14559,18 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
     field_rows, object_rows = [], []
     by_offset = {piece.offset(): piece for piece in windows}
     tick = time.perf_counter()
+    image_format = str(settings.get("mask_image_format") or "ome-zarr").strip().lower()
+    layout = {"version": 1, "intensity_channels": list(range(channels)),
+              "mask_plane_order": ["cell", "nucleus"],
+              "mask_dims": {"cell": channels, "nucleus": channels + 1}}
+    store_writer = None
+    if image_format == "ome-zarr":
+        from .image_store import _merged_writer, _write_merged_field
+
+        merged_store = os.path.join(dst, "fov.ome.zarr")
+        if os.path.isdir(merged_store):
+            shutil.rmtree(merged_store)
+        store_writer = _merged_writer(dst, sample, layout)
     for offset, (index, stem) in sorted(stems.items(),
                                         key=lambda item: item[1][0]):
         kept = sorted(owned.get(offset, ()), key=lambda one: one.object_id)
@@ -14581,9 +14594,12 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
                 cell_plane)
         np.save(os.path.join(dst, "masks", "nucleus_mask_stack",
                              f"{stem}.npy"), nucleus_plane)
-        np.save(os.path.join(dst, "merged", f"{stem}.npy"),
-                np.dstack([stack, cell_plane, nucleus_plane]).astype(
-                    np.uint16))
+        merged_field = np.dstack([stack, cell_plane, nucleus_plane]).astype(np.uint16)
+        if store_writer is not None:
+            _write_merged_field(store_writer, f"{stem}.npy", merged_field, layout,
+                                image_dtype=stack.dtype)
+        else:
+            np.save(os.path.join(dst, "merged", f"{stem}.npy"), merged_field)
         piece = by_offset[offset]
         prcf = parse_field_stem(stem).prcf
         field_rows.append({
@@ -14608,16 +14624,18 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
                     one.n_observations)})
     seconds["write"] = time.perf_counter() - tick
     shutil.rmtree(scratch, ignore_errors=True)
-    layout = {"version": 1, "intensity_channels": list(range(channels)),
-              "mask_plane_order": ["cell", "nucleus"],
-              "mask_dims": {"cell": channels, "nucleus": channels + 1}}
-    with open(os.path.join(dst, "merged", MERGED_LAYOUT_SIDECAR), "w",
-              encoding="utf-8") as handle:
-        json.dump(layout, handle, indent=2, sort_keys=True)
-        handle.write("\n")
-    image_format = str(settings.get("mask_image_format") or "ome-zarr").strip().lower()
     image_report = None
-    if image_format != "npy":
+    if store_writer is None:
+        with open(os.path.join(dst, "merged", MERGED_LAYOUT_SIDECAR), "w",
+                  encoding="utf-8") as handle:
+            json.dump(layout, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+    else:
+        image_report = {sample: {"written": len(store_writer._committed)}}
+        merged_dir = os.path.join(dst, "merged")
+        if os.path.isdir(merged_dir) and not os.listdir(merged_dir):
+            os.rmdir(merged_dir)
+    if image_format == "tiff":
         from .image_store import export_merged
 
         tick = time.perf_counter()

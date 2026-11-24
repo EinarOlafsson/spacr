@@ -68,7 +68,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_single_read_quality": 0.03,
     "ops_ph_channels": "DAPI,GFP,A594,AF750",
     "ops_ph_image_format": "ome-zarr",
-    "ome_zarr_ngff_version": "0.5",
+    "ome_zarr_ngff_version": "0.6",
     "ome_zarr_store_registration": False,
     "ome_zarr_upgrade_link": True,
     "ops_ph_cell_channel": "AF750",
@@ -1894,12 +1894,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ome_zarr_ngff_version":
         "(str) - The OME-Zarr version of the phenotype plate stores, the "
         "merged field images and their masks, when ops_ph_image_format is "
-        "ome-zarr. '0.5' writes the current spaCR format; '0.6' writes the "
-        "same pixels with the version 0.6 metadata (named coordinate "
-        "systems), which other OME-Zarr 0.6 tools read. One store holds one "
+        "ome-zarr. '0.6' (the default for new stores, as for every spaCR "
+        "store) writes the version 0.6 metadata (named coordinate systems); "
+        "'0.5' writes the same pixels with the older metadata, for tools that "
+        "do not read 0.6 yet. spaCR reads 0.4 to 0.6. One store holds one "
         "version, so a store started in the other version is refused. The "
         "cell crop pools are not OME-Zarr images and do not change. "
-        "Default 0.5. Alpha.",
+        "Default 0.6. Alpha.",
     "ome_zarr_store_registration":
         "(bool) - Store the applied phenotype-to-SBS placement, secondary "
         "channel shifts and tile affine fits as named coordinate transformations "

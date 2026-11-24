@@ -1836,7 +1836,8 @@ def _mask_fits_its_field(mask_path, stack_path):
 
     try:
         mask = tuple(read_npy_header(mask_path)["shape"])
-        field = tuple(read_npy_header(stack_path)["shape"])
+        from .image_store import _stack_header
+        field = tuple(_stack_header(stack_path)[0])
     except Exception:
         return True
     if len(mask) != 2 or len(field) < 3:
@@ -1866,8 +1867,8 @@ def check_mask_folder(src, mask_fldr, resume=False):
     if not os.path.exists(mask_folder):
         return True
     
-    expected = [file for file in _listdir_visible(stack_folder)
-                if file.endswith('.npy')]
+    from .image_store import _stack_names
+    expected = _stack_names(stack_folder)
     if all(validate_merged_field(os.path.join(mask_folder, file))[0]
            and _mask_fits_its_field(os.path.join(mask_folder, file),
                                     os.path.join(stack_folder, file))
@@ -8529,7 +8530,9 @@ def measure_test_mode(settings):
     measured in place of a field. The folder's ``.spacr_plane_layout.json`` is
     copied across as well when it exists: it is what says which plane is which,
     and a ``test/merged`` without it is read as a legacy folder, against the
-    default plane order.
+    default plane order. From a merged store (``fov.ome.zarr``, item 0aj)
+    the sampled fields are written to ``test/merged`` as ``.npy`` arrays with
+    the store's plane layout: a test run's own scratch copy.
 
     :param settings: settings dict; must contain ``src``, ``test_mode``, ``test_nr``.
     :returns: settings dict with ``src`` optionally redirected to the test folder.
@@ -8540,9 +8543,14 @@ def measure_test_mode(settings):
     """
     if settings['test_mode']:
         if not os.path.basename(settings['src']) == 'test':
-            all_files = [f for f in os.listdir(settings['src'])
-                         if f.endswith('.npy') and not f.startswith('.')
-                         and os.path.isfile(os.path.join(settings['src'], f))]
+            from .image_store import _is_merged_store, _list_fields, _read_field, _store_layout
+            from_store = _is_merged_store(settings['src'])
+            if from_store:
+                all_files = _list_fields(settings['src'])
+            else:
+                all_files = [f for f in os.listdir(settings['src'])
+                             if f.endswith('.npy') and not f.startswith('.')
+                             and os.path.isfile(os.path.join(settings['src'], f))]
             n_test = min(int(settings['test_nr']), len(all_files))
             if n_test < 1:
                 raise ValueError(
@@ -8561,12 +8569,22 @@ def measure_test_mode(settings):
                 delete_folder(src)
             os.makedirs(src, exist_ok=True)
 
-            for file in random_files:
-                shutil.copy(os.path.join(settings['src'], file), os.path.join(src,file))
-
             from .crops import MERGED_LAYOUT_SIDECAR
+            for file in random_files:
+                if from_store:
+                    np.save(os.path.join(src, file),
+                            _read_field(os.path.join(settings['src'], file)))
+                else:
+                    shutil.copy(os.path.join(settings['src'], file), os.path.join(src,file))
+
             layout = os.path.join(settings['src'], MERGED_LAYOUT_SIDECAR)
-            if os.path.isfile(layout):
+            if from_store:
+                with open(os.path.join(src, MERGED_LAYOUT_SIDECAR), 'w',
+                          encoding='utf-8') as handle:
+                    import json
+                    json.dump(_store_layout(settings["src"]), handle, indent=2,
+                              sort_keys=True)
+            elif os.path.isfile(layout):
                 shutil.copy(layout, os.path.join(src, MERGED_LAYOUT_SIDECAR))
 
             settings['src'] = src
@@ -10584,6 +10602,10 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                              verbose=True):
     """Delete the intermediate mask-pipeline folders once ``merged/`` is built.
 
+    A project whose fields were merged into ``fov.ome.zarr`` (item 0aj)
+    is checked against the store's committed fields instead; a field counts
+    as merged only once its store entry is committed.
+
     By default spaCR keeps only ``merged/`` (the concatenated image+mask arrays
     that Measure reads). This removes ``stack/`` + ``masks/`` (their data is
     embedded in ``merged/`` and object labels are recorded in the database) and
@@ -10614,11 +10636,19 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     orig = os.path.join(src, 'orig')
     deleted = []
 
+    from .image_store import _is_merged_store, _merged_store_path, _store_entries
+
+    store = os.fspath(_merged_store_path(src))
+    if not os.path.isdir(merged) and _is_merged_store(store):
+        merged = store
     if not os.path.isdir(merged):
         if verbose:
             print("cleanup skipped: no merged/ folder — nothing removed")
         return deleted
-    merged_files = {f for f in _listdir_visible(merged) if f.endswith('.npy')}
+    if merged == store:
+        merged_files = set(_store_entries(store))
+    else:
+        merged_files = {f for f in _listdir_visible(merged) if f.endswith('.npy')}
     if not merged_files:
         if verbose:
             print("cleanup skipped: merged/ is empty — keeping intermediates")
@@ -10627,6 +10657,8 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     stack_files = set()
     if os.path.isdir(stack):
         stack_files = {f for f in _listdir_visible(stack) if f.endswith('.npy')}
+    if merged == store:
+        keep_original = True
     unmerged = []
     if not keep_original and os.path.isdir(orig) and stack_files:
         unmerged = _unmerged_fields(merged, stack_files, merged_files)
@@ -10689,6 +10721,10 @@ def _unmerged_fields(merged, stack_files, merged_files):
     """
     import os
     bad = []
+    from .image_store import _is_merged_store
+
+    if _is_merged_store(merged):
+        return sorted(name for name in stack_files if name not in merged_files)
     for name in sorted(stack_files):
         if name not in merged_files:
             bad.append(name)

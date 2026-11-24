@@ -170,9 +170,68 @@ def _overlay_candidates(merged_src):
     :returns: the ``.npy`` file names in that folder, in directory order,
         without dot-files such as a macOS ``._`` sidecar.
     """
+    from .image_store import _is_merged_store, _list_fields
     from .io import _listdir_visible
 
+    if _is_merged_store(merged_src):
+        return _list_fields(merged_src)
     return [name for name in _listdir_visible(merged_src) if name.endswith('.npy')]
+
+
+def _merged_source(src, image_format='ome-zarr'):
+    """The merged fields of a plate folder: ``fov.ome.zarr`` or ``merged/`` (item 0aj).
+
+    :param src: the plate folder.
+    :param image_format: the run's merge format; ``'ome-zarr'`` reads the
+        store when it holds fields, any other format ``merged/`` when it
+        exists. Either falls back to the one that is there.
+    :returns: the store or folder path.
+    """
+    from .image_store import _is_merged_store, _merged_store_path
+
+    store = os.fspath(_merged_store_path(src))
+    folder = os.path.join(src, 'merged')
+    has_store = _is_merged_store(store)
+    if has_store and (image_format == 'ome-zarr' or not os.path.isdir(folder)):
+        return store
+    return folder
+
+
+def _settle_run_originals(src, settings, merge_format, source_plate=None):
+    """Move or delete the run's original images once their fields are verified (item 0aj).
+
+    With fov.ome.zarr, each field's originals go to ``orig/``
+    (``keep_original_images``, the default) or are deleted, only after the
+    field is committed and every plane is verified against them
+    (:func:`spacr.image_store._settle_originals`). A run that wrote no store
+    (``npy``/``tiff``, timelapse, or a folder the store cannot hold) sets
+    its originals aside in ``orig/`` as before, and the end-of-run cleanup
+    applies ``keep_original_images`` there.
+
+    A stored field that does not match its originals is named in a
+    warning, and those originals are left where they are.
+    """
+    from .image_store import _image_entries, _merged_store_path, _settle_originals
+    from .io import _keep_originals, _store_settles_originals
+    from .qt.i18n import tr
+
+    if not _store_settles_originals(settings):
+        return None
+    if not _image_entries(_merged_store_path(src)) or merge_format != 'ome-zarr':
+        from .io import _RAW_IMAGE_SUFFIXES, _raw_image_names
+        from .image_store import _move_without_overwrite
+        orig = os.path.join(src, 'orig')
+        for name in _raw_image_names(src, _RAW_IMAGE_SUFFIXES):
+            _move_without_overwrite(os.path.join(src, name), os.path.join(orig, name))
+        return None
+    report = _settle_originals(src, keep=_keep_originals(settings), settings=settings,
+                               source_plate=source_plate)
+    if report['problems']:
+        print('WARNING: ' + tr(
+            "Original images were left where they are, because these fields do not "
+            "match them in fov.ome.zarr: {problems}.",
+            problems='; '.join(report['problems'][:5])))
+    return report
 
 
 def _cells_from_nuclei(mask_src, settings):
@@ -289,7 +348,7 @@ def _prepare_mask_batch_plan(mask_src, settings):
     """Calibrate the loaded real model before fixing any field normalization cohort."""
     from functools import partial
     from . import _mask_batches as batches
-    from .io import _load_array_any, _normalize_img_batch
+    from .io import _normalize_img_batch
     from .object import (_mask_calibration_setup, _mask_probe_eval,
                          _restore_mask_calibration, _validate_mask_batch_draw)
 
@@ -305,7 +364,8 @@ def _prepare_mask_batch_plan(mask_src, settings):
         _validate_mask_batch_draw(settings, names)
         if not restored and batches._needs_calibration(mask_src, settings):
             names = [name for batch in plan['batches'] for name in batch['fields']]
-            first = _load_array_any(os.path.normpath(os.path.join(
+            from .image_store import _read_stack
+            first = _read_stack(os.path.normpath(os.path.join(
                 mask_src, plan['stack_dir'], names[0])))
             normalized = _normalize_img_batch(
                 first[None], plan['channels'], np.dtype(plan['save_dtype']), dict(settings))
@@ -635,6 +695,15 @@ def preprocess_generate_masks(settings):
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
+    from .io import _plate_sources, _well_name_refusal
+    checked = set_default_settings_preprocess_generate_masks(deepcopy(settings))
+    settings['src'] = _plate_sources(settings['src'], checked)
+    for source_folder in settings['src']:
+        refusal = _well_name_refusal(format_path_for_system(source_folder), checked)
+        if refusal:
+            print(f'Error: {refusal}')
+            raise ValueError(refusal)
+
     source_folders = settings['src']
     caller_settings = settings
     requested_settings = deepcopy(settings)
@@ -737,7 +806,12 @@ def preprocess_generate_masks(settings):
                     gpu_plan = _parallel_mask_plan(settings)
 
                     if settings['preprocess']:
-                        settings, src = preprocess_img_data(settings)
+                        from .io import _ORIGINALS_WAIT
+                        wait = _ORIGINALS_WAIT.set(bool(settings['masks']))
+                        try:
+                            settings, src = preprocess_img_data(settings)
+                        finally:
+                            _ORIGINALS_WAIT.reset(wait)
                         _save_resolved_mask_settings(settings, source_folder)
 
                     organelle_roles = enabled_organelle_roles(settings)
@@ -938,6 +1012,13 @@ def preprocess_generate_masks(settings):
                         if os.path.exists(os.path.join(src,'measurements')):
                             _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
 
+                        field_format = str(settings.get('mask_image_format') or 'ome-zarr').strip().lower()
+                        if settings['timelapse'] and field_format == 'ome-zarr':
+                            from .qt.i18n import tr
+
+                            print(tr("Spatial OME-Zarr export cannot represent timepoints. Timelapse processing will use the retained merged NPY files."))
+                        merge_format = ('ome-zarr' if field_format == 'ome-zarr'
+                                        and not settings['timelapse'] else 'npy')
                         _load_and_concatenate_arrays(
                             src,
                             settings.get('channels'),
@@ -955,18 +1036,28 @@ def preprocess_generate_masks(settings):
                                if adjusted_cells is not None else {}),
                             **({'mask_folders': territory_folders,
                                 'cell_source': 'nucleus_territory'}
-                               if territory_folders else {})
+                               if territory_folders else {}),
+                            image_format=merge_format,
                         )
+                        from .image_store import _is_merged_store, _merged_store_path, verify_store
+                        if merge_format == 'ome-zarr' and _is_merged_store(_merged_store_path(src)):
+                            from .qt.i18n import tr
+                            checked = verify_store(src)
+                            if checked['mismatches']:
+                                raise RuntimeError(tr(
+                                    "fov.ome.zarr channel check failed: {problems}. The stored "
+                                    "channels must equal the acquired pixels; nothing was deleted.",
+                                    problems='; '.join(checked['mismatches'][:5])))
+                            print(tr("fov.ome.zarr: {planes} channel planes of {fields} fields "
+                                     "verified against their recorded checksums.",
+                                     planes=checked['planes'], fields=checked['fields']))
+                        _settle_run_originals(src, settings, merge_format,
+                                              os.path.basename(os.path.normpath(source_folder)))
                         if settings.get('export_vvvv', False):
                             cancellation_checkpoint()
                             from .io import _export_vvvv_merged
                             _export_vvvv_merged(src)
-                        field_format = str(settings.get('mask_image_format') or 'ome-zarr').strip().lower()
-                        if settings['timelapse'] and field_format == 'ome-zarr':
-                            from .qt.i18n import tr
-
-                            print(tr("Spatial OME-Zarr export cannot represent timepoints. Timelapse processing will use the retained merged NPY files."))
-                        elif field_format != 'npy':
+                        if field_format == 'tiff':
                             cancellation_checkpoint()
                             from .image_store import export_merged
                             export_merged(src, field_format,
@@ -985,20 +1076,18 @@ def preprocess_generate_masks(settings):
 
                         if settings['plot']:
                             if not settings['timelapse']:
+                                merged_src = _merged_source(src, merge_format)
                                 if settings['test_mode'] == True:
-                                    merged_dir = os.path.join(src, 'merged')
                                     settings['examples_to_plot'] = len(
-                                        [f for f in _listdir_visible(merged_dir)
-                                         if f.endswith('.npy')]
-                                    ) if os.path.isdir(merged_dir) else 0
+                                        _overlay_candidates(merged_src)
+                                    ) if os.path.isdir(merged_src) else 0
 
                                 plot_ledger = RunLedger('preprocess_generate_masks:overlay_plots')
                                 try:
-                                    merged_src = os.path.join(src,'merged')
                                     files = _overlay_candidates(merged_src)
                                 except Exception as e:
                                     print(f'Failed to plot image mask overly. Error: {e}')
-                                    plot_ledger.record_failure(os.path.join(src, 'merged'),
+                                    plot_ledger.record_failure(merged_src,
                                                                stage='list_merged', exc=e)
                                     files = []
                                 else:
@@ -1138,7 +1227,9 @@ _WATCH_SUFFIXES = ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2',
                    '.czi', '.lif')
 _WATCH_KEY_GROUPS = ('plateID', 'wellID', 'timeID', 'fieldID')
 _WATCH_OUTPUT_DIRS = frozenset({_WATCH_DIR, 'orig', 'stack', 'masks', 'merged',
-                               'measurements', 'results', 'test'})
+                               'measurements', 'results', 'test',
+                               'fov.ome.zarr', 'crop.ome.zarr',
+                               'crops.ome.zarr', 'datasets'})
 
 
 def _watch_truthy(value):
@@ -2910,6 +3001,7 @@ def _watch_analyse_field(field_dir, settings):
     run = {key: value for key, value in settings.items()
            if not str(key).startswith('watch_')}
     run.update(src=field_dir, consolidate=False, dry_run=False, test_mode=False)
+    run.update(mask_image_format='npy')
     if _watch_truthy(run.get('t_stack', False)):
         run.update(keep_intermediate=True, delete_intermediate=False)
     preprocess_generate_masks(run)

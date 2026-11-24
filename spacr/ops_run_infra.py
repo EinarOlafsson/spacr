@@ -440,18 +440,12 @@ def mark_plate_done(archive_root: str, plate: str, wells: Sequence[str]
 
 def _native_crop_rows(root: str, plate: str, wells: Optional[Sequence[str]]):
     """Project committed OPS crop-pool rows onto OPS identities, including empty native wells."""
-    if not os.path.isdir(os.path.join(root, "crops")):
-        return [], set()
-    from urllib.parse import unquote
-
-    from .crop_store import class_dir
+    from .crop_store import _crop_wells
     from .ops_engine import _ph_crop_commit
 
     rows, native_wells = [], set()
     wanted = None if wells is None else set(map(str, wells))
-    plate_dir = class_dir(root, plate, "_", "cell").parent.parent
-    for path in sorted(plate_dir.glob("well=*.zarr")):
-        well = unquote(path.name[len("well="):-len(".zarr")])
+    for well in _crop_wells(root, plate):
         if wanted is not None and well not in wanted:
             continue
         commit = _ph_crop_commit(root, plate, well)

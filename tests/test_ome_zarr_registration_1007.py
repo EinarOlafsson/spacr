@@ -279,12 +279,13 @@ def test_plate_registration_and_labels_keep_the_same_chunks(tmp_path):
 
 
 def test_plate_registration_refuses_a_version_mismatch_before_creation(tmp_path):
-    """Registration cannot silently disappear into a default 0.5 plate store."""
+    """Registration cannot silently disappear into a 0.5 plate store."""
     from spacr.image_store import PlateWriter
 
     destination = tmp_path / 'not_created'
     with pytest.raises(ValueError, match='0.6'):
-        PlateWriter(destination, 'plate', registration={1: {'dy': 2., 'dx': 3.}})
+        PlateWriter(destination, 'plate', ngff_version='0.5',
+                    registration={1: {'dy': 2., 'dx': 3.}})
     assert not destination.exists()
 
 

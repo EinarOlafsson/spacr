@@ -470,6 +470,10 @@ def _current_1007_ome_zarr_api(entries, docs=None):
         for key, change in changes.items():
             assert hashlib.sha256(active[key].encode()).hexdigest() == change["before_sha256"]
             active[key] = change["docstring"]
+    # Item 0aj (2026-11-24): OME-Zarr native storage revises PlateWriter and
+    # ten crop/image store bodies of the 983 fixture; bound by hash.
+    from tests.omezarr_native_api_hooks import _current_omezarr_native_api
+    active = _current_omezarr_native_api(active)
     if docs is not None:
         for key in changes:
             assert docs[key] == active[key]
