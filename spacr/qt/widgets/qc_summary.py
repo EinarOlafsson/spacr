@@ -30,6 +30,9 @@ import sqlite3
 import time
 from typing import Any, List, Optional, Sequence, Tuple
 
+from ...measurement_store import connect as _connect_measurements
+from ...measurement_store import exists as _measurements_exist
+
 __all__ = [
     "VERDICTS", "VERDICT_ORDER", "QCCard", "Dashboard",
     "read_dashboard", "format_dashboard", "worst_verdict",
@@ -304,7 +307,7 @@ def _find_measurements_db(root: str) -> Tuple[str, float]:
         os.path.join(root, "measurements", "measurements.db"),
         os.path.join(root, "measurements.db"),
     ):
-        if os.path.isfile(candidate):
+        if _measurements_exist(candidate):
             try:
                 return candidate, float(os.stat(candidate).st_mtime)
             except OSError:
@@ -339,21 +342,21 @@ def _read_units(src: Any) -> QCCard:
         MEASUREMENT_STAMP_COLUMNS = ("measurement_ndim", "measurement_units")
 
     try:
-        connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30)
-    except sqlite3.Error as exc:
+        connection = _connect_measurements(path, readonly=True)
+    except (sqlite3.Error, ValueError) as exc:
         card.verdict = "error"
         card.headline = f"Could not open {os.path.basename(path)}: {exc}"
         return card
     try:
         tables = [row[0] for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'")]
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
         checked, mixed, unstamped = [], [], []
         for table in tables:
             if table in ("settings", "settings_history", "run_status",
                          "object_counts", "png_list"):
                 continue
             columns = {row[1] for row in
-                       connection.execute(f'PRAGMA table_info("{table}")')}
+                       connection.execute(f'PRAGMA table_info("{table}")').fetchall()}
             present = [c for c in MEASUREMENT_STAMP_COLUMNS if c in columns]
             if not present:
                 unstamped.append(table)
@@ -364,7 +367,7 @@ def _read_units(src: Any) -> QCCard:
                 f'SELECT DISTINCT {selected} FROM "{table}"').fetchall()
             if len(distinct) > 1:
                 mixed.append((table, distinct))
-    except sqlite3.Error as exc:
+    except (sqlite3.Error, ValueError) as exc:
         card.verdict = "error"
         card.headline = f"Could not read the units stamp: {exc}"
         return card

@@ -17,6 +17,8 @@ from typing import Any, Dict, Mapping
 import numpy as np
 import pandas as pd
 
+from .measurement_store import connect as _connect_measurements
+from .measurement_store import exists as _measurements_exist
 from .hit_attribution import (
     HitAttributionError, HitAttributionResult, build_hit_cell_frame,
     fit_hit_attribution, write_hit_attribution,
@@ -89,11 +91,11 @@ def _read_crop_keys(db_path: str, path_column: str) -> pd.DataFrame:
         carrying ``prcfo`` and ``png_path``.
     """
     from .schema import normalise_plate_columns
-    connection = sqlite3.connect(db_path, timeout=30)
+    connection = _connect_measurements(db_path, readonly=True)
     try:
         png = pd.read_sql_query(
             'SELECT "prcfo", "png_path" FROM "png_list"', connection)
-    except (sqlite3.Error, pd.errors.DatabaseError) as error:
+    except (sqlite3.Error, pd.errors.DatabaseError, ValueError) as error:
         raise HitAttributionError(
             f"predictions name crops in {path_column!r}, but {db_path} has no "
             f"png_list table with prcfo and png_path to map crops to measured "
@@ -382,7 +384,8 @@ def investigate_hit(settings: Mapping[str, Any]) -> Dict[str, Any]:
     configured = hit_investigation_default_settings(settings)
     for key in ("db_path", "predictions_file", "guide_fractions_file"):
         path = os.path.abspath(os.path.expanduser(str(configured[key])))
-        if not os.path.isfile(path):
+        present = _measurements_exist(path) if key == "db_path" else os.path.isfile(path)
+        if not present:
             raise HitAttributionError(f"{key} does not identify a file: {path}")
         configured[key] = path
     target_guides = list(configured["target_guides"])

@@ -51,6 +51,8 @@ from PySide6.QtCore import QEvent, QObject
 
 from .. import chaining as _ch
 from .. import ports as _kinds
+from ..measurement_store import connect as _connect_measurements
+from ..measurement_store import exists as _measurements_exist
 from .dnd import (
     IMAGE_EXTS,
     DropHandler,
@@ -1407,7 +1409,7 @@ class AnnotateDropHandler(DropHandler):
         if path.is_file() and path.suffix.lower() == ".db":
             return True
         if path.is_dir():
-            return (path / "measurements" / "measurements.db").is_file()
+            return _measurements_exist(path / "measurements" / "measurements.db")
         return False
 
     def error_message(self, path: Path) -> str:
@@ -1458,7 +1460,7 @@ class ClassifyDropHandler(DropHandler):
         """
         if not path.is_dir():
             return False
-        return (path / "measurements" / "measurements.db").is_file() \
+        return _measurements_exist(path / "measurements" / "measurements.db") \
                or (path / "data").is_dir() \
                or (path / "train").is_dir()
 
@@ -2192,8 +2194,8 @@ class MeasurementsDropHandler(DropHandler):
             return path.name == "measurements.db"
         if path.is_dir():
             return (
-                (path / "measurements" / "measurements.db").is_file()
-                or (path / "measurements.db").is_file()
+                _measurements_exist(path / "measurements" / "measurements.db")
+                or _measurements_exist(path / "measurements.db")
             )
         return False
 
@@ -2256,7 +2258,7 @@ class MeasurementsDropHandler(DropHandler):
             return
         if path.is_file():
             path = path.parent
-        if path.name == "measurements" and (path / "measurements.db").is_file():
+        if path.name == "measurements" and _measurements_exist(path / "measurements.db"):
             path = path.parent
         _set_src_on(screen, str(path))
         _log(screen, f"[drop] src = {path}\n")
@@ -2388,7 +2390,7 @@ class SourceDropHandler(DropHandler):
             return
         if path.is_file():
             path = path.parent
-        if path.name == "measurements" and (path / "measurements.db").is_file():
+        if path.name == "measurements" and _measurements_exist(path / "measurements.db"):
             path = path.parent
         if not _set_src_on(screen, str(path)):
             raise TypeError("This module has no source field to receive the drop.")
@@ -2405,7 +2407,7 @@ def _measurement_database(path: Path) -> Optional[Path]:
         path / "measurements.db",
         path / "measurements" / "measurements.db",
     ):
-        if candidate.is_file():
+        if _measurements_exist(candidate):
             return candidate
     return None
 
@@ -3440,20 +3442,18 @@ def table_names(path: Path) -> List[str]:
     :param path: candidate SQLite database path to inspect read-only.
     """
     import sqlite3
-    from urllib.parse import quote
 
     if not str(path).lower().endswith(_ch.DB_SUFFIXES):
         return []
     try:
-        connection = sqlite3.connect(
-            f"file:{quote(str(path))}?mode=ro", uri=True, timeout=30)
-    except sqlite3.Error:
+        connection = _connect_measurements(path, readonly=True)
+    except (sqlite3.Error, ValueError):
         return []
     try:
         return [str(row[0]) for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
-            "ORDER BY name")]
-    except sqlite3.DatabaseError:
+            "ORDER BY name").fetchall()]
+    except (sqlite3.DatabaseError, ValueError):
         return []
     finally:
         connection.close()

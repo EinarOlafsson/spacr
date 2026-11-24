@@ -51,6 +51,8 @@ import numpy as np
 import pandas as pd
 
 from .figures.style import figure_style, theme_target
+from .measurement_store import connect as _connect_measurements
+from .measurement_store import exists as _measurements_exist
 
 __all__ = [
     "SurrogateError",
@@ -294,9 +296,9 @@ def _read_png_list(db_path: str) -> pd.DataFrame:
     :returns: Complete ``png_list`` table as a pandas data frame.
     :raises SurrogateError: ``db_path`` does not name an existing file.
     """
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         raise SurrogateError(f"no measurements database at {db_path}")
-    with sqlite3.connect(db_path, timeout=30) as conn:
+    with _connect_measurements(db_path, readonly=True) as conn:
         return pd.read_sql_query('SELECT * FROM "png_list"', conn)
 
 
@@ -1258,7 +1260,7 @@ def run_explain_cv(settings: Mapping[str, Any]) -> Dict[str, Any]:
     db_path = os.path.abspath(os.path.expanduser(str(configured["db_path"])))
     predictions_path = os.path.abspath(os.path.expanduser(
         str(configured["predictions_file"])))
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         raise SurrogateError(f"no measurements database at {db_path}")
     if not os.path.isfile(predictions_path):
         raise SurrogateError(f"no existing prediction CSV at {predictions_path}")

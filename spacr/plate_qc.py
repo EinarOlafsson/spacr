@@ -83,6 +83,8 @@ import numpy as np
 import pandas as pd
 
 from . import schema
+from .measurement_store import connect as _connect_measurements
+from .measurement_store import exists as _measurements_exist
 
 __all__ = [
     "DEFAULT_ALPHA",
@@ -398,11 +400,11 @@ def _connect(db_path: str) -> sqlite3.Connection:
     if not db_path or not str(db_path).strip():
         raise ValueError("No database path given.")
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
-    if not os.path.isfile(path):
+    if not _measurements_exist(path):
         raise FileNotFoundError(
             f"No such database: {path}. Select an existing measurements.db "
             "file or the project folder containing it, then reopen Plate View.")
-    con = sqlite3.connect(_read_only_uri(path), uri=True, timeout=30)
+    con = _connect_measurements(path, readonly=True)
     con.execute("PRAGMA query_only = ON")
     return con
 

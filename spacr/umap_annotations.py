@@ -55,14 +55,16 @@ def write_umap_annotations(
         except TypeError:
             skipped += 1
             continue
-        if not db_path or not png_path or not os.path.isfile(db_path):
+        from .measurement_store import exists as _measurements_exist
+        if not db_path or not png_path or not _measurements_exist(db_path):
             skipped += 1
             continue
         grouped[db_path].append((int(value), png_path))
 
     updated = 0
     for db_path, pairs in grouped.items():
-        with sqlite3.connect(db_path, timeout=30) as connection:
+        from .measurement_store import connect as _connect_measurements
+        with _connect_measurements(db_path) as connection:
             present = {
                 row[1] for row in
                 connection.execute('PRAGMA table_info("png_list")')}

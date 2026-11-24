@@ -1618,6 +1618,15 @@ def read_recorded_settings(source: str) -> Dict[str, Any]:
         except Exception:
             return {}
     if not os.path.isfile(path):
+        if os.path.basename(path) == 'measurements.db':
+            from .measurement_store import read as _store_read
+            try:
+                frame = _store_read(path, 'settings')
+            except Exception:
+                return {}
+            if {'setting_key', 'setting_value'} <= set(frame.columns):
+                return {str(k): v for k, v in zip(frame['setting_key'],
+                                                  frame['setting_value'])}
         return {}
     if path.lower().endswith(('.db', '.sqlite', '.sqlite3')):
         conn = connect_database(path, readonly=True, timeout=30)
@@ -2050,9 +2059,15 @@ def plan_measure_resume(settings: Any,
                                         reasons=rejected, fields=all_fields)
 
     partial: Dict[str, str] = {}
-    measured = completed_fields_in_db(db_path, tables=None, fields=usable,
-                                      timelapse=timelapse, require_all=True,
-                                      partial=partial)
+    if os.path.isfile(db_path):
+        measured = completed_fields_in_db(db_path, tables=None, fields=usable,
+                                          timelapse=timelapse,
+                                          require_all=True, partial=partial)
+    else:
+        from .measurement_store import measured_fields
+        committed = {os.path.splitext(os.path.basename(name))[0]
+                     for name in measured_fields(db_path)}
+        measured = {name for name in usable if name in committed}
 
     reasons: Dict[str, str] = {}
     reasons.update(rejected)

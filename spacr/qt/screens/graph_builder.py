@@ -137,7 +137,8 @@ def table_names(path: str) -> List[str]:
         condition-annotation and database-write receipt tables are left out; ordinary user tables
         and named derived results remain available.
     """
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
+    from ...measurement_store import connect as connect_measurements
+    with connect_measurements(path, readonly=True) as db:
         rows = db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
             "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
@@ -179,8 +180,17 @@ def read_table(path: str, table: Optional[str] = None,
     query = 'SELECT * FROM "' + name.replace('"', '""') + '"'
     if limit:
         query += f" LIMIT {int(limit)}"
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        frame = pd.read_sql_query(query, db)
+    from ...measurement_store import read as read_measurements, tables
+    if not str(path).lower().endswith(".db") or os.path.isfile(path):
+        from ...measurement_store import connect as connect_measurements
+        with connect_measurements(path, readonly=True) as db:
+            frame = pd.read_sql_query(query, db)
+    else:
+        if name not in tables(path):
+            raise ValueError(f"no table {name!r} in {path}")
+        frame = read_measurements(path, name)
+        if limit:
+            frame = frame.head(int(limit))
     if not limit:
         from ...condition_annotations import saved_table_annotation
         try:

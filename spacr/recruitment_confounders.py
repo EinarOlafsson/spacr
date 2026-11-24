@@ -52,6 +52,8 @@ from urllib.parse import unquote
 import numpy as np
 import pandas as pd
 
+from .measurement_store import connect as _connect_measurements
+
 __all__ = [
     "FIELD_KEYS",
     "field_density",
@@ -95,17 +97,16 @@ def field_density(db_path: str, cell_table: str = "cell",
         ``n_pathogens_in_cells_field`` (pathogens assigned to a host cell) and
         ``pathogens_per_cell_field``.
     """
-    uri = f"file:{db_path}?mode=ro"
-    with closing(sqlite3.connect(uri, uri=True, timeout=30.0)) as con:
+    with closing(_connect_measurements(db_path, readonly=True)) as con:
         tables = {r[0] for r in con.execute(
-            "select name from sqlite_master where type='table'")}
+            "select name from sqlite_master where type='table'").fetchall()}
         keys = ", ".join(FIELD_KEYS)
         from .tabular import _read_query
         cells = _read_query(
             con, f'select {keys}, count(*) as n_cells_field from "{cell_table}" group by {keys}',
             canonicalise=False, report=None)
         if pathogen_table and pathogen_table in tables:
-            cols = {r[1] for r in con.execute(f'pragma table_info("{pathogen_table}")')}
+            cols = {r[1] for r in con.execute(f'pragma table_info("{pathogen_table}")').fetchall()}
             in_cell = ("sum(case when cell_id > 0 then 1 else 0 end)"
                        if "cell_id" in cols else "count(*)")
             path = _read_query(

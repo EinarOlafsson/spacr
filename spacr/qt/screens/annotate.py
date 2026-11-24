@@ -193,6 +193,7 @@ from ..widgets.test_data_chooser import TestDataChooser  # noqa: F401
 #: screen exists -- so this costs nothing at launch.
 from ...suggest import SUGGESTION_OFFSET
 from ...database_concurrency import DatabaseBusy
+from ..annotate_engine import _measurements_exist
 from ...logging_util import _legacy_text_encoding
 
 LOG = logging.getLogger(__name__)
@@ -384,7 +385,7 @@ def _request_source_folder(request) -> str:
     measurements = os.path.dirname(database)
     if (os.path.basename(database) != "measurements.db"
             or os.path.basename(measurements) != "measurements"
-            or not os.path.isfile(database)):
+            or not _measurements_exist(database)):
         return ""
     return os.path.dirname(measurements)
 
@@ -985,11 +986,14 @@ class _SimilarityWorker(QThread):
         excluded = set()
         multi = hasattr(index, "sources")
         for path in self._db_paths if multi else (self._db_path,):
-            uri = f"file:{quote(os.path.abspath(path), safe='/')}?mode=ro"
-            with sqlite3.connect(uri, uri=True, timeout=30) as db:
-                fields = {row[1] for row in db.execute(f'PRAGMA table_info({table})')}
+            from ...measurement_store import connect as _connect_measurements
+            db = _connect_measurements(path, readonly=True)
+            try:
+                fields = {row[1] for row in db.execute(f'PRAGMA table_info({table})').fetchall()}
                 value = column if self._annotation_column in fields else 'NULL'
-                labels = dict(db.execute(f'SELECT png_path, {value} FROM {table}'))
+                labels = dict(db.execute(f'SELECT png_path, {value} FROM {table}').fetchall())
+            finally:
+                db.close()
             if os.path.abspath(path) == os.path.abspath(self._db_path):
                 labels.update(self._pending_labels)
             keys = (key for source, key in index.keys if source == path) if multi else index.keys
@@ -3711,15 +3715,18 @@ def _example_database_lists_its_crops(database, sample: int = 64) -> bool:
 
     database = Path(database)
     try:
-        uri = database.resolve().as_uri() + "?mode=ro"
-        with sqlite3.connect(uri, uri=True, timeout=5) as conn:
+        from ...measurement_store import connect as _connect_measurements
+        conn = _connect_measurements(str(database), readonly=True)
+        try:
             tables = {r[0] for r in conn.execute(
-                "select name from sqlite_master where type='table'")}
+                "select name from sqlite_master where type='table'").fetchall()}
             if "png_list" not in tables:
                 return True
             rows = conn.execute(
                 'select png_path from "png_list" limit ?',
                 (int(sample),)).fetchall()
+        finally:
+            conn.close()
     except (sqlite3.Error, OSError, ValueError):
         LOG.debug("could not check example database %s", database,
                   exc_info=True)
@@ -7062,7 +7069,7 @@ class AnnotateScreen(QWidget):
         self._suggest_status_text = None
         src = os.path.abspath(os.path.expanduser(os.fspath(src)))
         db_path = os.path.join(src, "measurements", "measurements.db")
-        if not os.path.isfile(db_path):
+        if not _measurements_exist(db_path):
             self._blind_warning(
                 tr("Database not found"),
                 _missing_annotation_database_message(db_path))
@@ -7851,7 +7858,7 @@ class AnnotateScreen(QWidget):
     def _refresh_round_state(self) -> None:
         """Re-read the round counter and the curve, and repaint the strip."""
         curve = None
-        if not self._settings.db_path or not os.path.isfile(
+        if not self._settings.db_path or not _measurements_exist(
                 self._settings.db_path):
             self._round_index = 0
             self._stop_verdict = None
@@ -8755,7 +8762,7 @@ class AnnotateScreen(QWidget):
         blocked |= {str(p) for p, v in self._local_verdicts.items()
                     if v is not None and int(v) < 0}
         db_path = self._settings.db_path
-        if not db_path or not os.path.isfile(db_path):
+        if not db_path or not _measurements_exist(db_path):
             return blocked
         from ...suggest import (_connect_read_only, _has_column,
                                 rejected_suggestions)
@@ -10168,7 +10175,7 @@ class AnnotateScreen(QWidget):
         self._local_verdicts.clear()
         self._judge_totals = {"left": 0, "confirmed": 0, "rejected": 0}
         db_path = self._settings.db_path
-        if db_path and os.path.isfile(db_path):
+        if db_path and _measurements_exist(db_path):
             try:
                 from ...suggest import judgement_counts
                 self._judge_totals.update(judgement_counts(
@@ -10183,7 +10190,7 @@ class AnnotateScreen(QWidget):
         """Read the stored judgements of the crops on this page."""
         self._page_verdicts = {}
         db_path = self._settings.db_path
-        if not db_path or not self._page_paths or not os.path.isfile(db_path):
+        if not db_path or not self._page_paths or not _measurements_exist(db_path):
             return
         try:
             from ...suggest import fetch_verdicts
@@ -10206,7 +10213,7 @@ class AnnotateScreen(QWidget):
                str(self._settings.png_table))
         if self._verdict_ready == key:
             return True
-        if not db_path or not os.path.isfile(db_path):
+        if not db_path or not _measurements_exist(db_path):
             return False
         try:
             from ...suggest import ensure_verdict_column

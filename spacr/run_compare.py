@@ -54,6 +54,8 @@ from dataclasses import dataclass, field
 from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
                     Tuple, Union)
 
+from .measurement_store import connect as _connect_measurements
+from .measurement_store import exists as _measurements_exist
 from .object_roles import ORGANELLE_ROLES
 from .qt.settings_diff import SettingsDiff, diff_settings_grouped
 
@@ -727,15 +729,15 @@ def count_database(path: Union[str, os.PathLike, None]) -> RunCounts:
     target = str(path or "")
     if not target:
         return RunCounts(note="no measurements database was registered")
-    if not os.path.isfile(target):
+    if not _measurements_exist(target):
         return RunCounts(path=target,
                          note=f"{os.path.basename(target)} is no longer on disk")
 
     overall: Dict[str, int] = {}
     per_plate: Dict[str, Dict[str, int]] = {}
     try:
-        connection = sqlite3.connect(f"file:{target}?mode=ro", uri=True, timeout=30)
-    except sqlite3.Error as exc:
+        connection = _connect_measurements(target, readonly=True)
+    except (sqlite3.Error, ValueError) as exc:
         return RunCounts(path=target, note=f"could not open the database: {exc}")
     try:
         present = _tables(connection)
@@ -761,7 +763,7 @@ def count_database(path: Union[str, os.PathLike, None]) -> RunCounts:
             for plate in list(per_plate):
                 per_plate[plate].update(_acquisition_counts(
                     connection, richest, columns, plate=plate))
-    except sqlite3.Error as exc:
+    except (sqlite3.Error, ValueError) as exc:
         return RunCounts(path=target, note=f"could not read the database: {exc}")
     finally:
         connection.close()
@@ -811,7 +813,7 @@ def _tables(connection: sqlite3.Connection) -> set:
     skipped, like any other table that will not answer.
     """
     return {str(row[0]) for row in connection.execute(
-        "SELECT name FROM sqlite_master WHERE type IN ('table', 'view')")}
+        "SELECT name FROM sqlite_master WHERE type IN ('table', 'view')").fetchall()}
 
 
 def _columns(connection: sqlite3.Connection, table: str) -> Tuple[str, ...]:
@@ -825,7 +827,7 @@ def _columns(connection: sqlite3.Connection, table: str) -> Tuple[str, ...]:
     try:
         return tuple(
             str(row[1])
-            for row in connection.execute(f'PRAGMA table_info("{table}")'))
+            for row in connection.execute(f'PRAGMA table_info("{table}")').fetchall())
     except sqlite3.Error:
         return ()
 

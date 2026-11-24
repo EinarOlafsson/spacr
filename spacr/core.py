@@ -1166,7 +1166,12 @@ def preprocess_generate_masks(settings):
         for source_folder in source_folders:
             db_path = os.path.join(format_path_for_system(source_folder),
                                    'measurements', 'measurements.db')
-            if os.path.isfile(db_path):
+            from .measurement_store import legacy_database as _legacy_db
+            if not os.path.isfile(db_path) and os.path.isfile(os.path.join(
+                    os.path.dirname(db_path), 'spacr.duckdb')):
+                ledger.stamp(os.path.join(os.path.dirname(db_path),
+                                          'spacr.duckdb'))
+            if _legacy_db(db_path) is not None:
                 ledger.stamp(db_path)
                 try:
                     from .filters import object_tables, write_relationships

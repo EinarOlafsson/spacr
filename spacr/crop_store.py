@@ -1455,6 +1455,12 @@ def _write_crop_index(db_path: Any, frame: Any, *, project: Any = None) -> None:
                          sort_by=("object_type", "field", "object_label"),
                          key_columns=("object_id", "object_type", "field", "object_label"))
     store.register(str(project))
+    from .measurement_store import drop_tables, store_native, write_rows
+    if store_native(db_path):
+        drop_tables(db_path, ["ssCell_Crops"])
+        write_rows(os.path.dirname(os.path.abspath(os.fspath(db_path))),
+                   "ssCell_Crops", frame, narrow=False)
+        return
     write_database(frame, os.fspath(db_path), "ssCell_Crops",
                    if_exists="replace", canonicalise=False)
 

@@ -2131,7 +2131,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     _note_the_diameter(settings, object_type)
     count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
-    _create_database(count_loc)
+    from .measurement_store import ensure_store
+    ensure_store(count_loc)
 
     average_sizes = []
     average_count = []
@@ -2661,7 +2662,8 @@ def generate_cellpose_masks(src, settings, object_type):
     
     count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
-    _create_database(count_loc)
+    from .measurement_store import ensure_store
+    ensure_store(count_loc)
     
     average_sizes = []
     average_count = []
@@ -2964,7 +2966,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
 
     count_loc = os.path.join(os.path.dirname(src), 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(count_loc), exist_ok=True)
-    _create_database(count_loc)
+    from .measurement_store import ensure_store
+    ensure_store(count_loc)
 
     batch_size = settings['batch_size']
     average_sizes = []

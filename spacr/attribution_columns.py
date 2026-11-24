@@ -11,6 +11,9 @@ from __future__ import annotations
 import sqlite3
 from typing import Dict, Iterable, Mapping, Optional, Sequence
 
+from .measurement_store import StoreConnection
+from .measurement_store import connect as _connect_measurements
+
 #: The columns written, and the SQLite type each takes.
 COLUMNS = {
     "grna_attributed": "TEXT",
@@ -47,7 +50,7 @@ def _columns_of(cursor, table: str) -> set:
     :param table: Table whose schema is inspected.
     :returns: Set of names reported by SQLite's ``table_info`` pragma.
     """
-    return {row[1] for row in cursor.execute(f"PRAGMA table_info('{table}')")}
+    return {row[1] for row in cursor.execute(f"PRAGMA table_info('{table}')").fetchall()}
 
 
 def describe(rows: Sequence[Mapping]) -> str:
@@ -103,10 +106,10 @@ def write(db_path: str, rows: Iterable[Mapping], *,
     if not records:
         return {"matched": 0, "added": 0}
 
-    with sqlite3.connect(str(db_path), timeout=30.0) as connection:
+    with _connect_measurements(str(db_path), readonly=False) as connection:
         cursor = connection.cursor()
         tables = {row[0] for row in cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'")}
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
         if "png_list" not in tables:
             raise AttributionWriteError(
                 f"{db_path} has no png_list table, so there is nothing to "
@@ -138,7 +141,7 @@ def write(db_path: str, rows: Iterable[Mapping], *,
                 values + [key])
             matched += cursor.rowcount
 
-        if "settings" in tables:
+        if "settings" in tables and not isinstance(connection, StoreConnection):
             cursor.execute(
                 "INSERT OR REPLACE INTO settings (setting_key, setting_value)"
                 " VALUES (?, ?)", (NOTE_KEY, ATTRIBUTION_NOTE))

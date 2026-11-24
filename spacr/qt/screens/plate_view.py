@@ -76,6 +76,8 @@ from PySide6.QtWidgets import (
 )
 
 from ... import plate_qc as pqc
+from ...measurement_store import connect as _connect_measurements
+from ...measurement_store import exists as _measurements_exist
 from ...selection import DataFilter
 from ..bridge import emit_safely, make_thread
 from ..linked_selection import LinkedView
@@ -225,21 +227,20 @@ class _WatchLivePlate(QWidget):
                 and entry.get("status") == "done"}
         if self._pipeline in ("mask_measure", "mask_measure_classify"):
             database = os.path.join(work, "measurements", "measurements.db")
-            if not os.path.isfile(database):
+            if not _measurements_exist(database):
                 done.clear()
             else:
                 from ... import tabular
 
                 try:
-                    uri = Path(database).resolve().as_uri() + "?mode=ro"
-                    with closing(sqlite3.connect(uri, uri=True,
-                                                 timeout=0.1)) as connection:
+                    with closing(_connect_measurements(
+                            database, readonly=True)) as connection:
                         connection.execute("PRAGMA query_only = ON")
                         committed = tabular._read_query(
                             connection, "SELECT field FROM spacr_watch_fields",
                             canonicalise=False, report=None)
                     done.intersection_update(committed["field"])
-                except (OSError, sqlite3.Error, KeyError):
+                except (OSError, ValueError, sqlite3.Error, KeyError):
                     return
         wells = Counter()
         unplaced = 0

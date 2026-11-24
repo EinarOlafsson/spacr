@@ -875,6 +875,18 @@ class AnnotateSettings:
 
 
 
+def _measurements_exist(db_path: str) -> bool:
+    """Whether ``db_path`` names measurements: a legacy file or a store project.
+
+    A Measure run writes the spaCR store in the measurements folder and no
+    ``measurements.db``; :func:`spacr.database_concurrency.connect` opens it
+    through :class:`spacr.measurement_store.StoreConnection`.
+    """
+    from ..measurement_store import exists
+
+    return bool(db_path) and exists(db_path)
+
+
 def _annotation_identity(table: str) -> str:
     """Return the existing identity column for the selected crop table."""
     return "object_id" if table == "ssCell_Crops" else "png_path"
@@ -917,6 +929,8 @@ def _annotation_database_access_message(db_path: str) -> str:
 def _require_writable_annotation_database(db_path: str) -> None:
     """Refuse annotation startup when the database or its folder lacks access."""
     target = os.path.realpath(os.path.expanduser(os.fspath(db_path)))
+    if not os.path.exists(target) and _measurements_exist(target):
+        target = os.path.join(os.path.dirname(target), "spacr.duckdb")
     if (not os.access(target, os.R_OK | os.W_OK)
             or not os.access(os.path.dirname(target), os.W_OK | os.X_OK)):
         raise PermissionError(_annotation_database_access_message(db_path))
@@ -939,7 +953,7 @@ def ensure_annotation_column(db_path: str, column: str, *,
     :param column: name of the annotation column to create; an empty name
         does nothing.
     """
-    if not column or not os.path.isfile(db_path):
+    if not column or not _measurements_exist(db_path):
         return
     if _annotation_schema_ready(db_path, column, table):
         return
@@ -1144,7 +1158,7 @@ def count_rows(db_path: str, image_type: Optional[str] = None, *,
     :param db_path: path to ``measurements.db``; missing files count as 0.
     :param image_type: optional substring to filter ``png_path`` on.
     """
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return 0
     try:
         with contextlib.closing(
@@ -1177,7 +1191,7 @@ def fetch_page(
     :param offset: number of matching rows to skip (SQL ``OFFSET``).
     :param page_size: maximum number of rows to return (SQL ``LIMIT``).
     """
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return []
     col = (annotation_column or "").replace('"', '""')
     with contextlib.closing(
@@ -1248,7 +1262,7 @@ def fetch_filtered_paths(
         ``"lower"`` keeps rows below it, and any other value applies no cut.
         Mismatched lengths raise ``ValueError``.
     """
-    if not os.path.isfile(db_path) or not measurements or not thresholds:
+    if not _measurements_exist(db_path) or not measurements or not thresholds:
         return []
     where, params = _annotation_filter(image_type, table)
     from spacr.io import _read_and_join_tables, _read_db
@@ -1329,7 +1343,7 @@ def metadata_values(db_path: str, column: str, *,
         raise ValueError(
             f"{column!r} is not a metadata column; expected one of "
             f"{list(METADATA_COLUMNS)}")
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return []
     with contextlib.closing(
         connect_database(db_path, readonly=True, timeout=30)
@@ -1359,7 +1373,7 @@ def paths_by_metadata(db_path: str, column: str,
         raise ValueError(
             f"{column!r} is not a metadata column; expected one of "
             f"{list(METADATA_COLUMNS)}")
-    if not os.path.isfile(db_path) or not values:
+    if not _measurements_exist(db_path) or not values:
         return []
     wanted = [str(v) for v in values]
     placeholders = ",".join("?" for _ in wanted)
@@ -1477,7 +1491,7 @@ def class_counts(db_path: str, annotation_column: str, *,
         at or above ``spacr.suggest.SUGGESTION_OFFSET`` (model suggestions)
         and NULLs are not counted.
     """
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return []
     col = (annotation_column or "").replace('"', '""')
     with contextlib.closing(
@@ -1502,7 +1516,7 @@ def clear_column(db_path: str, annotation_column: str, *,
     :param db_path: path to ``measurements.db``; missing files are ignored.
     :param annotation_column: column to reset.
     """
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return
     from ..suggest import verdict_column
 
@@ -1536,7 +1550,7 @@ def find_last_annotated_offset(
     :param page_size: rows per page; the last annotated row's index is rounded
         down to a multiple of it.
     """
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return None
     col = (annotation_column or "").replace('"', '""')
     with contextlib.closing(
@@ -1777,7 +1791,8 @@ class SaveWorker:
         try:
             try:
                 if self.db_path:
-                    os.stat(self.db_path)
+                    if not _measurements_exist(self.db_path):
+                        os.stat(self.db_path)
                     _require_writable_annotation_database(self.db_path)
             except FileNotFoundError:
                 raise FileNotFoundError(

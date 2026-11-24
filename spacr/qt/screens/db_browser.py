@@ -208,14 +208,19 @@ def resolve_db_path(path: str) -> str:
         raise ValueError(
             "No database selected — choose a measurements.db or a run folder.")
     p = os.path.abspath(os.path.expanduser(str(path).strip()))
+    from spacr.measurement_store import exists as _measurements_exist
     if os.path.isfile(p):
+        return p
+    if os.path.basename(p) == DB_FILENAME and _measurements_exist(p):
         return p
     if os.path.isdir(p):
         for candidate in (
             os.path.join(p, _MEASUREMENTS_SUBDIR, DB_FILENAME),
             os.path.join(p, DB_FILENAME),
         ):
-            if os.path.isfile(candidate):
+            if os.path.isfile(candidate) or (
+                    os.path.isfile(os.path.join(os.path.dirname(candidate),
+                                                "spacr.duckdb"))):
                 return candidate
         raise FileNotFoundError(tr(
             "No {filename} under {folder}; expected {expected}. Choose a "

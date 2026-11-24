@@ -675,8 +675,10 @@ def aggregate_by_feature(frame: pd.DataFrame, by, *,
 
 
 def _connect(db_path: str) -> sqlite3.Connection:
-    """Open a measurement database through SQLite's read-only URI."""
-    return sqlite3.connect(Path(db_path).resolve().as_uri() + "?mode=ro", uri=True, timeout=30)
+    """Open a measurement database read-only: SQLite file or spaCR store."""
+    from .measurement_store import connect as _connect_measurements
+
+    return _connect_measurements(db_path, readonly=True)
 
 
 def table_names(db_path: str) -> Tuple[str, ...]:

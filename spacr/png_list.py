@@ -98,9 +98,9 @@ def _attach_object_crop_paths(db_path, frame, object_type):
     if ('png_path' in frame
             and frame['png_path'].fillna('').astype(str).str.strip().ne('').all()):
         return frame
-    uri = Path(db_path).resolve().as_uri() + '?mode=ro'
-    with sqlite3.connect(uri, uri=True, timeout=30.0) as db:
-        columns = {row[1] for row in db.execute('PRAGMA table_info("png_list")')}
+    from .measurement_store import connect as _connect_measurements
+    with _connect_measurements(str(Path(db_path).resolve()), readonly=True) as db:
+        columns = {row[1] for row in db.execute('PRAGMA table_info("png_list")').fetchall()}
         if not columns:
             return frame
         required = identity + [id_column, 'png_path']
@@ -198,7 +198,8 @@ def _merged_field_paths(db_path, object_type='cell'):
     :returns: field identifiers mapped to merged-array directory and filename.
     """
     out = {}
-    if not os.path.isfile(db_path):
+    from .measurement_store import exists as _measurements_exist
+    if not _measurements_exist(db_path):
         return out
     order = [object_type] + [t for t in ('cell', 'cytoplasm', 'nucleus',
                                          'pathogen', 'organelle')

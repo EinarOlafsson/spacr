@@ -616,6 +616,12 @@ def resolve_port(port: Port, root: str) -> ResolvedPort:
     target = os.path.normpath(os.path.join(root, port.path)) if port.path else root
     if not port.pattern:
         exists = os.path.exists(target)
+        if (not exists and port.kind == MEASUREMENTS_DB
+                and os.path.isfile(os.path.join(os.path.dirname(target),
+                                                "spacr.duckdb"))):
+            # Unified store, step S4: Measure writes the spaCR store in the
+            # measurements folder; measurements.db names it.
+            exists = True
         return ResolvedPort(port=port, root=root, target=target, paths=(),
                             exists=exists, count=1 if exists else 0)
     found: set = set()
@@ -797,7 +803,7 @@ def _table_problems(port: Port, path: str) -> List[Problem]:
     problems: List[Problem] = []
     try:
         connection = connect(path, readonly=True, timeout=5.0)
-    except sqlite3.Error as exc:
+    except (sqlite3.Error, ValueError) as exc:
         return [Problem(
             ERROR, port.role, f"{path} cannot be opened: {exc}",
             "Check the file is readable — on shared storage it is usually "
@@ -805,7 +811,7 @@ def _table_problems(port: Port, path: str) -> List[Problem]:
     try:
         present = {
             str(row[0]) for row in connection.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'")
+                "SELECT name FROM sqlite_master WHERE type='table'").fetchall()
         }
     except sqlite3.DatabaseError as exc:
         connection.close()
@@ -870,7 +876,9 @@ def _port_problems(resolved: ResolvedPort, *, sample: int) -> List[Problem]:
     problems: List[Problem] = []
     if port.shape is not None and resolved.paths:
         problems.extend(_shape_problems(port, resolved.paths, sample))
-    if port.tables and os.path.isfile(resolved.target):
+    if port.tables and resolved.exists and port.kind == MEASUREMENTS_DB:
+        problems.extend(_table_problems(port, resolved.target))
+    elif port.tables and os.path.isfile(resolved.target):
         problems.extend(_table_problems(port, resolved.target))
     return problems
 

@@ -115,13 +115,13 @@ def _output_cell_for(app_key: str, run_dir: Path) -> str:
     if app_key in ("measure", "crop"):
         return (
             "import pandas as pd\n"
-            "import sqlite3\n"
+            "from spacr.measurement_store import connect\n"
             "\n"
-            "# spaCR writes measurements to a SQLite DB under the plate\n"
-            "# root. Substitute your `src` if you re-ran the pipeline\n"
-            "# somewhere else.\n"
+            "# spaCR writes measurements to its store (or, in older projects,\n"
+            "# a SQLite DB) under the plate root. Substitute your `src` if you\n"
+            "# re-ran the pipeline somewhere else.\n"
             f"db_path = SETTINGS['src'] + '/measurements/measurements.db'\n"
-            "with sqlite3.connect(db_path) as _conn:\n"
+            "with connect(db_path, readonly=True) as _conn:\n"
             "    cell_df = pd.read_sql('select * from cell limit 500', _conn)\n"
             "cell_df.head()\n"
         )

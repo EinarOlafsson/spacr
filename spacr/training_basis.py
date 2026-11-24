@@ -196,15 +196,17 @@ def _png_list_columns(database: str):
     import sqlite3
 
     from .database_concurrency import connect
+    from .measurement_store import exists as _measurements_exist
 
-    if not os.path.isfile(str(database)):
+    if not _measurements_exist(str(database)):
         return None
     try:
         connection = connect(database, readonly=True, timeout=5.0)
-    except sqlite3.Error:
+    except (sqlite3.Error, ValueError):
         return None
     try:
-        columns = [row[1] for row in connection.execute('PRAGMA table_info("png_list")')]
+        columns = [row[1] for row in connection.execute(
+            'PRAGMA table_info("png_list")').fetchall()]
     except sqlite3.Error:
         return None
     finally:

@@ -3812,7 +3812,8 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     """
     if bleach_correction not in ('legacy', 'ratio', 'exponential', 'histogram'):
         raise ValueError('bleach_correction must be legacy, ratio, exponential or histogram')
-    conn = sqlite3.connect(db_loc, timeout=30)
+    from .measurement_store import connect as _connect_measurements
+    conn = _connect_measurements(db_loc, readonly=True)
     cell_df = pd.read_sql(f"SELECT * FROM {'cell'}", conn)
     
     merge_keys = _object_group_keys(cell_df, 'object_label')
@@ -9242,9 +9243,10 @@ def automated_motility_assay(settings):
         raise ValueError(f'Unknown motility bleach correction: {bleach_method!r}')
     measurements_dir = os.path.join(src, "measurements")
     db_path = os.path.join(measurements_dir, "measurements.db")
-    if bleach_method != 'none' and reuse_existing and os.path.isfile(db_path):
-        from pathlib import Path
-        with sqlite3.connect(Path(db_path).resolve().as_uri() + '?mode=ro', uri=True, timeout=30.0) as conn:
+    from .measurement_store import connect as _connect_measurements
+    from .measurement_store import exists as _measurements_exist
+    if bleach_method != 'none' and reuse_existing and _measurements_exist(db_path):
+        with _connect_measurements(db_path, readonly=True) as conn:
             exists = conn.execute(
                 'SELECT 1 FROM sqlite_master WHERE type="table" AND name=?',
                 (db_table_name,)).fetchone()
