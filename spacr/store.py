@@ -40,11 +40,37 @@ CATALOG = "spacr.duckdb"
 #: The layout version written into every registry row.
 SCHEMA_VERSION = 1
 
-#: Rows per Parquet row group, before the byte cap.
-_ROW_GROUP_ROWS = 131072
+#: Rows per Parquet row group, before the byte cap. A scattered lookup reads
+#: whole row groups, so 8,192 rows keep a point read of one cell at
+#: 1/16 of the 131,072-row group it replaced; the page index and the column
+#: statistics keep full scans as fast (benchmark, 100M x 300: a single-cell
+#: read touched one 50,000-row group, 0.40 s).
+_ROW_GROUP_ROWS = 8192
 
 #: The most uncompressed bytes one row group may hold.
-_ROW_GROUP_BYTES = 256 * 2 ** 20
+_ROW_GROUP_BYTES = 64 * 2 ** 20
+
+#: Rows per row group of a key table, which holds only narrow columns.
+_KEYS_GROUP_ROWS = 131072
+
+#: The most bytes :meth:`Store.query` holds from its fallback scan before it
+#: stops and names :meth:`Store.batches`.
+_QUERY_BYTES = 8 * 2 ** 30
+
+#: Rows per Arrow batch the fallback scan of :meth:`Store.query` reads.
+_QUERY_BATCH = 8192
+
+#: The file at the project root that holds the store's layout version.
+STORE_VERSION_FILE = "STORE_VERSION"
+
+#: The lock file :func:`register` holds while it writes the catalog.
+_LOCK = ".spacr-register.lock"
+
+#: Seconds :func:`register` waits for another registering process.
+_LOCK_WAIT = 120.0
+
+#: Age in seconds after which a lock file whose process is gone is stale.
+_LOCK_STALE = 600.0
 
 #: Cells per Zarr chunk.
 _CROP_CHUNK = 256
@@ -218,6 +244,23 @@ def _row_group_rows(schema, requested: Optional[int]) -> int:
         except ValueError:
             width += 16
     return max(1024, min(rows, _ROW_GROUP_BYTES // max(1, width)))
+
+
+def _writer_options(schema) -> Dict[str, Any]:
+    """The Parquet encodings of a part: zstd, dictionaries, byte-stream split.
+
+    Dictionaries go to the non-float columns; byte-stream split to float32
+    and float64 only, because DuckDB 2.0 reads byte-stream-split data only
+    for FLOAT, DOUBLE, INT32 and INT64. Statistics are on.
+    """
+    pa = _require("pyarrow")
+    floats = {f.name for f in schema if pa.types.is_floating(f.type)}
+    split = [f.name for f in schema if f.name in floats
+             and not pa.types.is_float16(f.type)]
+    others = [n for n in schema.names if n not in floats]
+    return {"compression": "zstd", "write_statistics": True,
+            "use_dictionary": others or False,
+            "use_byte_stream_split": split or False}
 
 
 def _arrow_table(frame):
@@ -587,6 +630,9 @@ class WellWriter:
                 schema = pa.schema([pa.field(f.name, types.get(f.name, f.type))
                                     for f in schema])
         self._schema = schema
+        self.dtype_map_version = (
+            int(_dtype_map(dtype_map).get("version") or 0) or None
+            if schema is not None and narrow else None)
         self._full = None
         self._writer = None
         self._pending: List[Any] = []
@@ -791,18 +837,11 @@ class WellWriter:
         float32 and float64 only, because DuckDB 2.0 reads byte-stream-split
         data only for FLOAT, DOUBLE, INT32 and INT64.
         """
-        pa = _require("pyarrow")
         pq = _require("pyarrow.parquet")
         self._full = schema
-        floats = [f.name for f in schema if pa.types.is_floating(f.type)]
-        split = [f.name for f in schema if pa.types.is_floating(f.type)
-                 and not pa.types.is_float16(f.type)]
-        others = [n for n in schema.names if n not in set(floats)]
         self._group_rows = _row_group_rows(schema, self._requested)
-        self._writer = pq.ParquetWriter(
-            self._temporary, schema, compression="zstd",
-            write_statistics=True, use_dictionary=others or False,
-            use_byte_stream_split=split or False)
+        self._writer = pq.ParquetWriter(self._temporary, schema,
+                                        **_writer_options(schema))
 
     def _flush(self, *, final: bool) -> None:
         """Write every whole row group held, and the remainder when ``final``."""
@@ -871,6 +910,8 @@ class WellWriter:
                                     part.read(columns=narrow), rel,
                                     self._group_rows, self.key_columns,
                                     self.plate, self.well, self.uid))
+        if files[1].get("key_digest"):
+            files[0]["key_digest"] = files[1]["key_digest"]
         if self.row_copy:
             files.append(_write_row_copy(self.project, self.table, part, rel,
                                          self.key_columns, self.uid))
@@ -879,7 +920,8 @@ class WellWriter:
                     "sort_by": self.sort_by if self._ordered else [],
                     "key_columns": self.key_columns, "files": files,
                     "schema_version": SCHEMA_VERSION, "written_at": _now(),
-                    "run_id": self.run_id, "promoted": self.promoted}
+                    "run_id": self.run_id, "promoted": self.promoted,
+                    "dtype_map_version": self.dtype_map_version}
         pending = os.path.join(self.project, _PENDING)
         os.makedirs(pending, exist_ok=True)
         path = os.path.join(pending, f"{self.uid}.json")
@@ -957,12 +999,16 @@ def _write_keys(project: str, table: str, data, part: str, group_rows: int,
     final = os.path.join(folder, os.path.basename(part))
     temporary = f"{final}.tmp-{uid}"
     pq.write_table(keys, temporary, compression="zstd",
-                   row_group_size=_ROW_GROUP_ROWS, write_statistics=True)
+                   row_group_size=_KEYS_GROUP_ROWS, write_statistics=True)
     _fsync(temporary)
     os.replace(temporary, final)
-    return {"path": os.path.relpath(final, project).replace(os.sep, "/"),
-            "kind": "parquet", "table": _keys_name(table),
-            "rows": int(keys.num_rows), **_fingerprint(final)}
+    entry = {"path": os.path.relpath(final, project).replace(os.sep, "/"),
+             "kind": "parquet", "table": _keys_name(table),
+             "rows": int(keys.num_rows), **_fingerprint(final),
+             "schema_digest": _schema_digest(keys.schema)}
+    if "object_key" in keys.column_names:
+        entry["key_digest"] = _column_digest(keys.column("object_key"))
+    return entry
 
 
 def _rows_name(table: str) -> str:
@@ -1027,6 +1073,15 @@ def _write_row_copy(project: str, table: str, data, part: str,
             "rows": int(total), **_fingerprint(final)}
 
 
+_FILE_COLUMNS = (
+    ("path", "VARCHAR"), ("table_name", "VARCHAR"), ("kind", "VARCHAR"),
+    ("plate", "VARCHAR"), ("well", "VARCHAR"), ("rows", "BIGINT"),
+    ("schema_version", "INTEGER"), ("sha256", "VARCHAR"),
+    ("bytes", "BIGINT"), ("mtime_ns", "BIGINT"), ("written_at", "VARCHAR"),
+    ("run_id", "VARCHAR"), ("schema_digest", "VARCHAR"),
+    ("key_digest", "VARCHAR"), ("content_digest", "VARCHAR"),
+    ("dtype_map_version", "INTEGER"))
+
 _REGISTRY_DDL = (
     "CREATE TABLE IF NOT EXISTS spacr_schema (version INTEGER)",
     "CREATE TABLE IF NOT EXISTS spacr_tables (name VARCHAR PRIMARY KEY, "
@@ -1037,15 +1092,51 @@ _REGISTRY_DDL = (
     "mtime_ns BIGINT, written_at VARCHAR, run_id VARCHAR)",
     "CREATE TABLE IF NOT EXISTS spacr_runs (run_id VARCHAR PRIMARY KEY, "
     "started_at VARCHAR, spacr_version VARCHAR, settings VARCHAR)",
-)
+    "CREATE TABLE IF NOT EXISTS spacr_columns (table_name VARCHAR, "
+    "ordinal INTEGER, column_name VARCHAR, family VARCHAR, "
+    "stored_type VARCHAR, compute_type VARCHAR, nullable BOOLEAN, "
+    "dtype_map_version INTEGER)",
+) + tuple(f"ALTER TABLE spacr_files ADD COLUMN IF NOT EXISTS {name} {kind}"
+          for name, kind in _FILE_COLUMNS[12:])
 
 
-def _source(paths: Sequence[str]) -> str:
-    """The ``read_parquet`` expression over ``paths``."""
+def _message(text: str, **values: Any) -> str:
+    """``text`` in the interface language, its ``{name}`` fields filled."""
+    from .qt.i18n import tr
+
+    return tr(text, **values)
+
+
+def _schema_digest(schema) -> str:
+    """The sha256 of a schema's column names and types, in order."""
+    digest = hashlib.sha256()
+    for field in schema:
+        digest.update(f"{field.name}\0{field.type}\n".encode("utf-8"))
+    return digest.hexdigest()
+
+
+def _column_digest(column) -> str:
+    """The sha256 of one Arrow column's values, independent of chunking."""
+    pa = _require("pyarrow")
+    one = pa.table({"v": pa.chunked_array(column.chunks).combine_chunks()
+                    if hasattr(column, "chunks") else column})
+    sink = pa.BufferOutputStream()
+    with pa.ipc.new_stream(sink, one.schema) as stream:
+        stream.write_table(one)
+    return hashlib.sha256(sink.getvalue().to_pybytes()).hexdigest()
+
+
+def _source(paths: Sequence[str], *, uniform: bool = False) -> str:
+    """The ``read_parquet`` expression over ``paths``.
+
+    :param uniform: every file has one schema (the catalog guarantees it),
+        so DuckDB binds the first footer instead of unifying every file's
+        on each query.
+    """
     listed = ", ".join(_literal(p) for p in paths)
     return (f"read_parquet([{listed}], hive_partitioning = true, "
             f"hive_types = {{'plate': VARCHAR, 'well': VARCHAR}}, "
-            f"union_by_name = true)")
+            f"union_by_name = {'false' if uniform else 'true'})")
 
 
 def _connect(path: Optional[str] = None, *, read_only: bool = False,
@@ -1062,17 +1153,250 @@ def _connect(path: Optional[str] = None, *, read_only: bool = False,
     return conn
 
 
+def _uniform(digests: Sequence[Optional[str]]) -> bool:
+    """Whether every file of a table has the same recorded schema."""
+    return bool(digests) and None not in digests and len(set(digests)) == 1
+
+
 def _rebuild_views(conn, project: str, tables: Sequence[str]) -> None:
-    """Point each table's catalog view at its registered Parquet files."""
+    """Point each table's catalog view at its registered Parquet files.
+
+    The paths are relative to the project, so a copied project opens in
+    the DuckDB CLI started in its folder. A table whose files all record
+    one schema is read without ``union_by_name``.
+    """
+    conn.execute(f"SET file_search_path = {_literal(project)}")
     for name in tables:
-        paths = [os.path.join(project, row[0]) for row in conn.execute(
-            "SELECT path FROM spacr_files WHERE table_name = ? AND kind = "
-            "'parquet' ORDER BY plate, well, path", [name]).fetchall()]
-        if paths:
-            conn.execute(f"CREATE OR REPLACE VIEW {_ident(name)} AS "
-                         f"SELECT * FROM {_source(paths)}")
+        rows = conn.execute(
+            "SELECT path, schema_digest FROM spacr_files WHERE table_name = ? "
+            "AND kind = 'parquet' ORDER BY plate, well, path",
+            [name]).fetchall()
+        if rows:
+            same = _uniform([r[1] for r in rows])
+            conn.execute(
+                f"CREATE OR REPLACE VIEW {_ident(name)} AS SELECT * FROM "
+                f"{_source([r[0] for r in rows], uniform=same)}")
         else:
             conn.execute(f"DROP VIEW IF EXISTS {_ident(name)}")
+
+
+def _alive(pid: int) -> bool:
+    """Whether a process with this id runs."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except OSError:
+        return True
+    return True
+
+
+@contextmanager
+def _register_lock(project: str, wait: float = _LOCK_WAIT):
+    """Hold the project's register lock file; retry while another holds it.
+
+    The file is made with ``O_EXCL`` and names the holder's pid. One whose
+    process has gone and that is older than :data:`_LOCK_STALE` is taken
+    over.
+
+    :raises StoreError: when the lock stays held for ``wait`` seconds.
+    """
+    path = os.path.join(project, _LOCK)
+    deadline = time.monotonic() + wait
+    delay = 0.05
+    while True:
+        try:
+            handle = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.write(handle, str(os.getpid()).encode("ascii"))
+            os.close(handle)
+            break
+        except FileExistsError:
+            try:
+                age = time.time() - os.path.getmtime(path)
+                with builtins.open(path, encoding="ascii") as held:
+                    holder = int(held.read().strip() or 0)
+                if age > _LOCK_STALE and not _alive(holder):
+                    os.remove(path)
+                    continue
+            except (OSError, ValueError):
+                pass
+            if time.monotonic() > deadline:
+                raise StoreError(_message(
+                    "another process is registering {project}; its lock "
+                    "file {lock} stayed for {seconds} s", project=project,
+                    lock=path, seconds=int(wait))) from None
+            time.sleep(delay)
+            delay = min(delay * 2, 1.0)
+    try:
+        yield
+    finally:
+        _remove(path)
+
+
+def _write_version(project: str) -> None:
+    """Write the layout version into ``STORE_VERSION`` when it differs."""
+    path = os.path.join(project, STORE_VERSION_FILE)
+    text = f"{SCHEMA_VERSION}\n"
+    try:
+        with builtins.open(path, encoding="ascii") as handle:
+            if handle.read() == text:
+                return
+    except OSError:
+        pass
+    with builtins.open(f"{path}.tmp", "w", encoding="ascii") as handle:
+        handle.write(text)
+    os.replace(f"{path}.tmp", path)
+
+
+def _check_version(project: str) -> None:
+    """Refuse a store a newer spaCR wrote."""
+    try:
+        with builtins.open(os.path.join(project, STORE_VERSION_FILE),
+                           encoding="ascii") as handle:
+            found = int(handle.read().strip())
+    except (OSError, ValueError):
+        return
+    if found > SCHEMA_VERSION:
+        raise StoreError(_message(
+            "{project} is store version {found}; this spaCR reads up to "
+            "version {known}. Update spaCR to open it.", project=project,
+            found=found, known=SCHEMA_VERSION))
+
+
+def _same_columns(schema, reference) -> bool:
+    """Whether two schemas have the same column names and types in order."""
+    return ([(f.name, f.type) for f in schema]
+            == [(f.name, f.type) for f in reference])
+
+
+def _conformed_part(path: str, reference, table: str) -> None:
+    """Rewrite one part so its columns are ``reference``'s, losslessly.
+
+    A column the part lacks becomes null, a column of another type is cast
+    exactly (a value that does not fit refuses), and the columns are put in
+    the reference's order. Row groups, order and statistics are kept.
+
+    :raises StoreError: when the part holds a column the reference lacks,
+        or a value does not fit.
+    """
+    pa = _require("pyarrow")
+    pc = _require("pyarrow.compute")
+    pq = _require("pyarrow.parquet")
+    part = pq.ParquetFile(path)
+    schema = part.schema_arrow.remove_metadata()
+    extra = [n for n in schema.names if n not in set(reference.names)]
+    if extra:
+        raise StoreError(_message(
+            "{path}: column(s) {names} are not in the other parts of "
+            "{table}; one table has one schema. Write every well with the "
+            "same columns.", path=path, names=", ".join(extra[:5]),
+            table=table))
+    temporary = f"{path}.tmp-{uuid.uuid4().hex}"
+    out = pq.ParquetWriter(temporary, reference, **_writer_options(reference))
+    try:
+        for index in range(part.metadata.num_row_groups):
+            data = part.read_row_group(index)
+            arrays = []
+            for field in reference:
+                if field.name not in data.column_names:
+                    arrays.append(pa.nulls(data.num_rows, field.type))
+                    continue
+                column = data.column(field.name)
+                if column.type != field.type:
+                    try:
+                        column = pc.cast(column, field.type, safe=True)
+                    except (pa.ArrowInvalid,
+                            pa.ArrowNotImplementedError) as error:
+                        raise StoreError(_message(
+                            "{path}: column {column} ({found}) does not fit "
+                            "{expected}, the type of the other parts of "
+                            "{table}", path=path, column=field.name,
+                            found=str(column.type), expected=str(field.type),
+                            table=table)) from error
+                arrays.append(column)
+            out.write_table(pa.Table.from_arrays(arrays, schema=reference),
+                            row_group_size=max(1, data.num_rows))
+        out.close()
+    except BaseException:
+        try:
+            out.close()
+        except Exception:
+            pass
+        _remove(temporary)
+        raise
+    _fsync(temporary)
+    os.replace(temporary, path)
+
+
+def _columns_rows(table: str, schema, version) -> List[tuple]:
+    """The ``spacr_columns`` rows of one table's schema."""
+    pa = _require("pyarrow")
+    rows = []
+    for position, field in enumerate(schema):
+        compute = ("float32" if pa.types.is_float16(field.type)
+                   else str(field.type))
+        rows.append((table, position, field.name, _dtype_family(field.name),
+                     str(field.type), compute, bool(field.nullable),
+                     version))
+    return rows
+
+
+def _reconcile(conn, project: str, manifests: List[tuple]) -> Dict[str, Any]:
+    """Make every new Parquet part of a table have the table's one schema.
+
+    The reference is the first registered part of the table that this
+    batch does not replace, or else the first new part. A new part with
+    another schema is rewritten to it when that is lossless and refused
+    otherwise. Each entry gets its ``schema_digest``; the reference schema
+    of every table touched is returned.
+    """
+    pq = _require("pyarrow.parquet")
+    replaced = set()
+    for _path, manifest in manifests:
+        for name in (manifest["table"], _keys_name(manifest["table"]),
+                     _rows_name(manifest["table"])):
+            replaced.add((name, manifest["plate"], manifest["well"]))
+    reference: Dict[str, Any] = {}
+    for _path, manifest in manifests:
+        for entry in manifest["files"]:
+            if entry["kind"] != "parquet":
+                continue
+            name = entry.get("table", manifest["table"])
+            full = os.path.join(project, entry["path"])
+            schema = pq.read_schema(full).remove_metadata()
+            if name not in reference:
+                other = [r[0] for r in conn.execute(
+                    "SELECT path, plate, well FROM spacr_files WHERE "
+                    "table_name = ? AND kind = 'parquet' ORDER BY plate, "
+                    "well, path", [name]).fetchall()
+                    if (name, r[1], r[2]) not in replaced]
+                reference[name] = (
+                    pq.read_schema(os.path.join(project, other[0]))
+                    .remove_metadata() if other else schema)
+            if not _same_columns(schema, reference[name]):
+                _conformed_part(full, reference[name], name)
+                entry.update(_fingerprint(full))
+                schema = reference[name]
+            entry["schema_digest"] = _schema_digest(schema)
+    return reference
+
+
+def _stage(manifests: List[tuple]) -> tuple:
+    """The manifests that register and the paths of those they replace.
+
+    Of several manifests for one well, the last wins; the earlier ones'
+    files are superseded.
+    """
+    last: Dict[tuple, tuple] = {}
+    dropped: List[str] = []
+    for path, manifest in manifests:
+        key = (manifest["table"], manifest["plate"], manifest["well"])
+        if key in last:
+            dropped.extend(e["path"] for e in last[key][1]["files"])
+        last[key] = (path, manifest)
+    keep = list(last.values())
+    kept = {e["path"] for _p, m in keep for e in m["files"]}
+    return keep, [p for p in dropped if p not in kept]
 
 
 def register(project, *, run: Optional[Mapping[str, Any]] = None,
@@ -1092,6 +1416,14 @@ def register(project, *, run: Optional[Mapping[str, Any]] = None,
     :raises StoreError: when a manifest's file is missing or changed.
     """
     project = os.path.abspath(os.fspath(project))
+    os.makedirs(project, exist_ok=True)
+    with _register_lock(project):
+        return _register_locked(project, run, accept_changes)
+
+
+def _register_locked(project: str, run, accept_changes: bool) -> Dict[str, Any]:
+    """:func:`register` while the lock file is held."""
+    pa = _require("pyarrow")
     pending = sorted(glob.glob(os.path.join(glob.escape(project), _PENDING,
                                             "*.json")),
                      key=os.path.getmtime)
@@ -1114,10 +1446,10 @@ def register(project, *, run: Optional[Mapping[str, Any]] = None,
                 entry.update(_fingerprint(os.path.join(project,
                                                        entry["path"])))
         manifests.append((path, manifest))
-    superseded: List[str] = []
     tables = sorted({e.get("table", m["table"]) for _p, m in manifests
                      for e in m["files"]} | {m["table"] for _p, m in manifests})
     conn = _connect(os.path.join(project, CATALOG))
+    superseded: List[str] = []
     try:
         conn.execute("BEGIN TRANSACTION")
         for ddl in _REGISTRY_DDL:
@@ -1133,35 +1465,69 @@ def register(project, *, run: Optional[Mapping[str, Any]] = None,
                 [str(run.get("run_id")), str(run.get("started_at") or _now()),
                  str(version), json.dumps(run.get("settings") or {},
                                           default=str, sort_keys=True)])
-        for _path, manifest in manifests:
+        reference = _reconcile(conn, project, manifests)
+        keep, dropped = _stage(manifests)
+        superseded.extend(dropped)
+        rows = []
+        wells = []
+        for _path, manifest in keep:
             conn.execute(
                 "INSERT OR IGNORE INTO spacr_tables VALUES (?, ?, ?, ?)",
                 [manifest["table"], json.dumps(manifest["sort_by"]),
                  json.dumps(manifest["key_columns"]), _now()])
-            new = {entry["path"] for entry in manifest["files"]}
-            names = sorted({manifest["table"], _keys_name(manifest["table"]),
-                            _rows_name(manifest["table"])})
-            for name in names:
-                for (old,) in conn.execute(
-                        "SELECT path FROM spacr_files WHERE table_name = ? "
-                        "AND plate = ? AND well = ?",
-                        [name, manifest["plate"],
-                         manifest["well"]]).fetchall():
-                    if old not in new:
-                        superseded.append(old)
-                conn.execute("DELETE FROM spacr_files WHERE table_name = ? "
-                             "AND plate = ? AND well = ?",
-                             [name, manifest["plate"], manifest["well"]])
+            for name in sorted({manifest["table"],
+                                _keys_name(manifest["table"]),
+                                _rows_name(manifest["table"])}):
+                wells.append((name, manifest["plate"], manifest["well"]))
             for entry in manifest["files"]:
-                conn.execute(
-                    "INSERT OR REPLACE INTO spacr_files VALUES "
-                    "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    [entry["path"], entry.get("table", manifest["table"]),
-                     entry["kind"],
-                     manifest["plate"], manifest["well"], entry["rows"],
-                     manifest["schema_version"], entry["sha256"],
-                     entry["bytes"], entry["mtime_ns"],
-                     manifest["written_at"], manifest.get("run_id")])
+                rows.append({
+                    "path": entry["path"],
+                    "table_name": entry.get("table", manifest["table"]),
+                    "kind": entry["kind"], "plate": manifest["plate"],
+                    "well": manifest["well"], "rows": int(entry["rows"]),
+                    "schema_version": int(manifest["schema_version"]),
+                    "sha256": entry["sha256"], "bytes": int(entry["bytes"]),
+                    "mtime_ns": int(entry["mtime_ns"]),
+                    "written_at": manifest["written_at"],
+                    "run_id": manifest.get("run_id"),
+                    "schema_digest": entry.get("schema_digest"),
+                    "key_digest": entry.get("key_digest"),
+                    "content_digest": entry["sha256"],
+                    "dtype_map_version": manifest.get("dtype_map_version")})
+        if rows:
+            types = {"VARCHAR": pa.string(), "BIGINT": pa.int64(),
+                     "INTEGER": pa.int32()}
+            conn.register("spacr_stage_files", pa.table(
+                {name: pa.array([r[name] for r in rows], types[kind])
+                 for name, kind in _FILE_COLUMNS}))
+            conn.register("spacr_stage_wells", pa.table({
+                "table_name": pa.array([w[0] for w in wells], pa.string()),
+                "plate": pa.array([w[1] for w in wells], pa.string()),
+                "well": pa.array([w[2] for w in wells], pa.string())}))
+            superseded.extend(r[0] for r in conn.execute(
+                "SELECT f.path FROM spacr_files f JOIN spacr_stage_wells s "
+                "USING (table_name, plate, well) WHERE f.path NOT IN "
+                "(SELECT path FROM spacr_stage_files)").fetchall())
+            conn.execute(
+                "DELETE FROM spacr_files WHERE EXISTS (SELECT 1 FROM "
+                "spacr_stage_wells s WHERE s.table_name = "
+                "spacr_files.table_name AND s.plate = spacr_files.plate "
+                "AND s.well = spacr_files.well)")
+            names = ", ".join(_ident(n) for n, _k in _FILE_COLUMNS)
+            conn.execute(f"INSERT OR REPLACE INTO spacr_files ({names}) "
+                         f"SELECT {names} FROM spacr_stage_files")
+            conn.unregister("spacr_stage_files")
+            conn.unregister("spacr_stage_wells")
+        for name, schema in reference.items():
+            if name.endswith(_KEYS) or name.endswith(_ROWS):
+                continue
+            version = next((m.get("dtype_map_version") for _p, m in keep
+                            if m["table"] == name), None)
+            conn.execute("DELETE FROM spacr_columns WHERE table_name = ?",
+                         [name])
+            conn.executemany(
+                "INSERT INTO spacr_columns VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                _columns_rows(name, schema, version))
         _rebuild_views(conn, project, tables)
         conn.execute("COMMIT")
     except BaseException:
@@ -1169,6 +1535,7 @@ def register(project, *, run: Optional[Mapping[str, Any]] = None,
         raise
     finally:
         conn.close()
+    _write_version(project)
     still = _registered_paths(project)
     for rel in superseded:
         if rel not in still:
@@ -1239,6 +1606,32 @@ def _arrow_of(conn, sql: str, params=None):
     raise StoreError("this DuckDB has no Arrow output")
 
 
+def _arrow_bounded(conn, sql: str, params=None):
+    """The result of ``sql`` read in bounded batches, as one Arrow table.
+
+    The scan streams :data:`_QUERY_BATCH` rows at a time, so DuckDB never
+    holds the whole result beside the copy kept here; the copy itself is
+    capped at :data:`_QUERY_BYTES`.
+
+    :raises StoreError: when the result outgrows the cap (use
+        :meth:`Store.batches`).
+    """
+    pa = _require("pyarrow")
+    reader = _reader_of(conn, sql, params, _QUERY_BATCH)
+    kept, held = [], 0
+    for batch in reader:
+        kept.append(batch)
+        held += batch.nbytes
+        if held > _QUERY_BYTES:
+            raise StoreError(_message(
+                "the query result is larger than {gigabytes} GB; read it "
+                "with Store.batches() or narrow it with features= or where=",
+                gigabytes=_QUERY_BYTES // 2 ** 30))
+    if not kept:
+        return reader.schema.empty_table()
+    return pa.Table.from_batches(kept)
+
+
 def _reader_of(conn, sql: str, params, rows: int):
     """The result of ``sql`` as an Arrow record batch reader."""
     relation = conn.sql(sql, params=list(params)) if params else conn.sql(sql)
@@ -1270,6 +1663,7 @@ class Store:
         self._views: List[str] = []
         self._described: Dict[str, List[str]] = {}
         self._parts: Dict[str, Any] = {}
+        self._column_rows: List[tuple] = []
         self.legacy: Optional[str] = None
         self.refresh(verify=verify)
 
@@ -1286,6 +1680,7 @@ class Store:
         if os.path.isfile(self.project) or not os.path.isfile(catalog):
             self._attach_legacy()
             return self
+        _check_version(self.project)
         self._conn = _connect(threads=self.threads)
         source = _connect(catalog, read_only=True)
         try:
@@ -1299,6 +1694,14 @@ class Store:
                             for row in source.execute(
                                 "SELECT name, sort_by, key_columns FROM "
                                 "spacr_tables").fetchall()}
+            try:
+                self._column_rows = source.execute(
+                    "SELECT table_name, ordinal, column_name, family, "
+                    "stored_type, compute_type, nullable, dtype_map_version "
+                    "FROM spacr_columns ORDER BY table_name, ordinal"
+                ).fetchall()
+            except Exception:
+                self._column_rows = []
         finally:
             source.close()
         if verify != "none":
@@ -1308,11 +1711,14 @@ class Store:
         self._described = {}
         self._parts = {}
         for name in self._views:
-            paths = [os.path.join(self.project, f["path"]) for f in self._files
-                     if f["table_name"] == name and f["kind"] == "parquet"]
+            held = [f for f in self._files
+                    if f["table_name"] == name and f["kind"] == "parquet"]
+            paths = [os.path.join(self.project, f["path"]) for f in held]
             if paths:
-                self._conn.execute(f"CREATE OR REPLACE VIEW {_ident(name)} AS "
-                                   f"SELECT * FROM {_source(paths)}")
+                same = _uniform([f.get("schema_digest") for f in held])
+                self._conn.execute(
+                    f"CREATE OR REPLACE VIEW {_ident(name)} AS "
+                    f"SELECT * FROM {_source(paths, uniform=same)}")
         return self
 
     def _attach_legacy(self) -> None:
@@ -1360,6 +1766,199 @@ class Store:
     def tables(self) -> List[str]:
         """The tables this store answers queries on."""
         return sorted(self._tables)
+
+    def columns(self, table: str):
+        """The columns of ``table`` as the catalog records them.
+
+        Read from ``spacr_columns``, so no Parquet footer is opened.
+
+        :param table: the table.
+        :returns: a DataFrame with ``name``, ``family``, ``stored_type``,
+            ``compute_type`` (what a reader computes in: float16 is float32),
+            ``nullable`` and ``dtype_map_version``, in stored order; an
+            older project without the record gets ``name`` and
+            ``stored_type`` read from the view.
+        :raises StoreError: when the store has no such table.
+        """
+        import pandas as pd
+
+        self._known(table)
+        rows = [r[2:] for r in self._column_rows if r[0] == table]
+        names = ["name", "family", "stored_type", "compute_type", "nullable",
+                 "dtype_map_version"]
+        if rows:
+            return pd.DataFrame(rows, columns=names)
+        found = self._table_columns(table)
+        frame = pd.DataFrame({"name": found["name"], "family": None,
+                              "stored_type": found["type"],
+                              "compute_type": found["type"], "nullable": True,
+                              "dtype_map_version": None})
+        return frame[names]
+
+    def count(self, table: str, where=None) -> int:
+        """The number of rows of ``table``, optionally matching ``where``.
+
+        Without ``where`` the registry's row counts are added, so nothing
+        is read; with it the narrow key table answers when it holds every
+        column the filter names, and the wide table otherwise.
+
+        :param table: the table.
+        :param where: a SQL ``WHERE`` clause or a mapping, as for
+            :meth:`query`; None counts every row.
+        :returns: the row count.
+        :raises StoreError: when the store has no such table.
+        """
+        self._known(table)
+        if where is None and not self.legacy:
+            held = [f for f in self._files if f["table_name"] == table
+                    and f["kind"] == "parquet"]
+            if held:
+                return int(sum(int(f["rows"]) for f in held))
+        duckdb = _require("duckdb")
+        clause, params = _where_clause(where)
+        keys = _keys_name(table)
+        sources = [table]
+        if (where is not None and not self.legacy and keys in self._views):
+            sources.insert(0, keys)
+        for source in sources:
+            try:
+                return int(self._conn.execute(
+                    f"SELECT COUNT(*) FROM {_ident(source)}{clause}",
+                    params or None).fetchall()[0][0])
+            except duckdb.Error:
+                if source == sources[-1]:
+                    raise
+        return 0
+
+    def page(self, table: str, *, columns=None, where=None, order_by=None,
+             after=None, limit: int = 200):
+        """One page of ``table`` by keyset, not by offset.
+
+        A page is the rows after a cursor, in key order, so page 1,000 costs
+        what page 1 does. Unsorted, the order is plate, well, then the
+        table's sort keys, and a page reads one well's files (a well whose
+        rows run out continues in the next well). With ``order_by`` the
+        order is that column, then plate, well and the sort keys; rows where
+        the column is null are not paged. The sort keys must identify a
+        row within a well.
+
+        :param table: the table.
+        :param columns: the columns to return beside the keys (``plate``,
+            ``well`` and the sort keys always come); None returns every
+            column.
+        :param where: a SQL ``WHERE`` clause or a mapping, as for
+            :meth:`query`.
+        :param order_by: a column name, or ``(column, "asc" or "desc")``;
+            None walks the wells in key order.
+        :param after: the cursor a previous call returned; None starts at
+            the first row.
+        :param limit: the most rows in the page.
+        :returns: ``(DataFrame, cursor)``; the cursor is None when no row
+            follows.
+        :raises StoreError: for an older SQLite project, a column the
+            table lacks or a cursor of another table.
+        """
+        self._known(table)
+        if self.legacy:
+            raise StoreError(_message(
+                "page needs a spaCR store; read an older project with "
+                "query()"))
+        present = self._columns(table)
+        sort = [c for c in (self._tables[table].get("sort_by") or [])
+                if c in present] or [c for c in ("object_key",)
+                                     if c in present] or [
+            c for c in (self._tables[table].get("key_columns") or [])
+            if c in present][:1]
+        if not sort:
+            raise StoreError(_message(
+                "{table} has no sort key to page by", table=table))
+        base = ["plate", "well", *sort]
+        wanted = (list(present) if columns is None
+                  else [c for c in columns])
+        missing = [c for c in wanted if c not in present]
+        if missing:
+            raise StoreError(f"{table} has no column {missing[:5]}")
+        selected = list(dict.fromkeys([*base, *wanted]))
+        text = ", ".join(_ident(c) for c in selected)
+        clause, params = _where_clause(where)
+        clause = clause.replace(" WHERE ", " AND (", 1) + (")" if clause else "")
+        limit = max(int(limit), 0)
+        if order_by is None:
+            wells = sorted({(f["plate"], f["well"]) for f in self._files
+                            if f["table_name"] == table
+                            and f["kind"] == "parquet"})
+            start, resume = 0, None
+            if after is not None:
+                try:
+                    start = wells.index((after["plate"], after["well"]))
+                    resume = list(after["after"])
+                except (KeyError, ValueError, TypeError) as error:
+                    raise StoreError(_message(
+                        "that cursor is not from {table}", table=table)
+                    ) from error
+            tables, need, last = [], limit, None
+            for plate, well in wells[start:]:
+                if need <= 0:
+                    break
+                where_sql, held = "plate = ? AND well = ?", [plate, well]
+                if resume is not None and (plate, well) == wells[start]:
+                    marks = ", ".join("?" for _ in sort)
+                    where_sql += f" AND ({', '.join(_ident(c) for c in sort)}) > ({marks})"
+                    held += [_python(v) for v in resume]
+                sql = (f"SELECT {text} FROM {_ident(table)} WHERE {where_sql}"
+                       f"{clause} ORDER BY "
+                       f"{', '.join(_ident(c) for c in sort)} LIMIT {need}")
+                got = _arrow_of(self._conn, sql, held + params)
+                if got.num_rows:
+                    tables.append(got)
+                    need -= got.num_rows
+                    last = got
+            if need > 0 or last is None:
+                cursor = None
+            else:
+                tail = last.slice(last.num_rows - 1, 1).to_pylist()[0]
+                cursor = {"plate": tail["plate"], "well": tail["well"],
+                          "after": [_python(tail[c]) for c in sort]}
+        else:
+            column, direction = (order_by if isinstance(order_by, (tuple, list))
+                                  else (order_by, "asc"))
+            if column not in present:
+                raise StoreError(f"{table} has no column {column!r}")
+            descending = str(direction).lower() == "desc"
+            order = [column, *base]
+            selected = list(dict.fromkeys([*order, *wanted]))
+            text = ", ".join(_ident(c) for c in selected)
+            sign = "<" if descending else ">"
+            tail_sql = " DESC" if descending else ""
+            where_sql = f"{_ident(column)} IS NOT NULL"
+            held: List[Any] = []
+            if after is not None:
+                try:
+                    values = list(after["after"])
+                    assert len(values) == len(order)
+                except (KeyError, TypeError, AssertionError) as error:
+                    raise StoreError(_message(
+                        "that cursor is not from {table}", table=table)
+                    ) from error
+                marks = ", ".join("?" for _ in order)
+                where_sql += (f" AND ({', '.join(_ident(c) for c in order)}) "
+                              f"{sign} ({marks})")
+                held = [_python(v) for v in values]
+            sql = (f"SELECT {text} FROM {_ident(table)} WHERE {where_sql}"
+                   f"{clause} ORDER BY " + ", ".join(
+                       _ident(c) + tail_sql for c in order) +
+                   f" LIMIT {limit}")
+            got = _arrow_of(self._conn, sql, held + params)
+            tables = [got]
+            cursor = None
+            if got.num_rows >= limit and got.num_rows:
+                tail = got.slice(got.num_rows - 1, 1).to_pylist()[0]
+                cursor = {"after": [_python(tail[c]) for c in order]}
+        pa = _require("pyarrow")
+        whole = (pa.concat_tables(tables) if tables
+                 else _arrow_of(self._conn, f"SELECT {text} FROM "
+                                f"{_ident(table)} LIMIT 0"))
+        return _upcast_half(whole).to_pandas(split_blocks=True), cursor
 
     def verify(self, *, full: bool = False) -> int:
         """Check every registered file against the registry.
@@ -1570,24 +2169,8 @@ class Store:
             columns = ", ".join(_ident(c) for c in self._wanted(
                 table, source, features))
         sql = f"SELECT {columns} FROM {_ident(source)}"
-        params: List[Any] = []
-        if isinstance(where, Mapping):
-            clauses = []
-            for name, value in where.items():
-                if value is None:
-                    clauses.append(f"{_ident(name)} IS NULL")
-                elif isinstance(value, (list, tuple, set, np.ndarray)):
-                    values = list(value)
-                    clauses.append(f"{_ident(name)} IN (" + ", ".join(
-                        "?" for _ in values) + ")")
-                    params.extend(_python(v) for v in values)
-                else:
-                    clauses.append(f"{_ident(name)} = ?")
-                    params.append(_python(value))
-            if clauses:
-                sql += " WHERE " + " AND ".join(clauses)
-        elif where:
-            sql += f" WHERE {where}"
+        clause, params = _where_clause(where)
+        sql += clause
         return sql, params or None
 
     def query(self, where=None, *, table: str = "cells", features=None,
@@ -1608,7 +2191,7 @@ class Store:
         result = self._routed(where, table, features)
         if result is None:
             sql, params = self._select(where, table, features)
-            result = _arrow_of(self._conn, sql, params)
+            result = _arrow_bounded(self._conn, sql, params)
         return self._shaped(result, table, features, crops, as_)
 
     def sql(self, statement: str, params=None, *, as_: str = "pandas"):
@@ -1619,7 +2202,7 @@ class Store:
         :param as_: ``"pandas"`` or ``"arrow"``.
         :returns: the result.
         """
-        result = _arrow_of(self._conn, statement, params)
+        result = _upcast_half(_arrow_of(self._conn, statement, params))
         return result if as_ == "arrow" else result.to_pandas()
 
     def batches(self, where=None, *, table: str = "cells", features=None,
@@ -1844,7 +2427,8 @@ class Store:
         yielded = False
         for batch in reader:
             yielded = True
-            yield _table_of([batch]).to_pandas(split_blocks=True)
+            yield _upcast_half(_table_of([batch])).to_pandas(
+                split_blocks=True)
         if not yielded:
             yield reader.schema.empty_table().to_pandas()
 
@@ -2068,6 +2652,64 @@ def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
                              "stored": fitted})
         types[field.name] = pa.from_numpy_dtype(np.dtype(fitted))
     return types, promoted
+
+
+#: The sequence stamp of the edit log is two columns, ``seq_ns`` (int64
+#: nanoseconds since the epoch, about 1.7e18, under the int64 maximum 9.2e18)
+#: and ``seq_writer`` (int32), ordered lexicographically. A single
+#: ``ns * 1000 + writer`` would be about 1.7e21 and overflow int64.
+_EDIT_COLUMNS = (
+    ("table", "string"), ("object_key", "int64"), ("timeID", "int64"),
+    ("column", "string"), ("value_num", "float64"),
+    ("value_text", "string"), ("op", "string"), ("seq_ns", "int64"),
+    ("seq_writer", "int32"), ("author", "string"), ("source", "string"),
+    ("session", "string"), ("run_id", "string"))
+
+_EDIT_LAST: Dict[int, int] = {}
+
+
+def _edit_schema():
+    """The Arrow schema of one edit-log file (see :data:`_EDIT_COLUMNS`)."""
+    pa = _require("pyarrow")
+    return pa.schema([pa.field(name, getattr(pa, kind)())
+                      for name, kind in _EDIT_COLUMNS])
+
+
+def _edit_stamp(writer: int = 0) -> tuple:
+    """The next ``(seq_ns, seq_writer)`` of ``writer``, strictly increasing.
+
+    Order edits by ``seq_ns`` then ``seq_writer``; a later edit of one
+    writer always sorts after its earlier ones, even when the clock stalls
+    or steps back.
+    """
+    writer = int(writer)
+    now = time.time_ns()
+    last = _EDIT_LAST.get(writer, 0)
+    stamp = now if now > last else last + 1
+    _EDIT_LAST[writer] = stamp
+    return stamp, writer
+
+
+def _where_clause(where) -> tuple:
+    """`` WHERE ...`` and its parameters for a mapping or SQL ``where``."""
+    params: List[Any] = []
+    if isinstance(where, Mapping):
+        clauses = []
+        for name, value in where.items():
+            if value is None:
+                clauses.append(f"{_ident(name)} IS NULL")
+            elif isinstance(value, (list, tuple, set, np.ndarray)):
+                values = list(value)
+                clauses.append(f"{_ident(name)} IN (" + ", ".join(
+                    "?" for _ in values) + ")")
+                params.extend(_python(v) for v in values)
+            else:
+                clauses.append(f"{_ident(name)} = ?")
+                params.append(_python(value))
+        return (" WHERE " + " AND ".join(clauses) if clauses else ""), params
+    if where:
+        return f" WHERE {where}", params
+    return "", params
 
 
 def _python(value):
