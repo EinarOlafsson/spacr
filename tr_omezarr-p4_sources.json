@@ -6,8 +6,8 @@
   "settings_help": [
     {
       "key": "keep_intermediate",
-      "source": "(bool) - Keep the run's working masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' runs), which holds the channels and every mask. With fov.ome.zarr no stack/ or masks/ folder is written: the channels and every stage's masks go straight into the field (the run's small records to fov.ome.zarr/.spacr_mask_run); kept, those labels are reused by a rerun, otherwise a rerun segments again. Older projects' stack/ folders are still read, and kept or removed by this setting as before.",
-      "source_sha256": "a20e0ead331ae5c243dfd18b8c7b7c347367935d8eebb532015752c52c180034"
+      "source": "(bool) - Keep the run's working masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' runs), which holds the channels and every mask. With fov.ome.zarr no stack/ or masks/ folder is written: the channels and the masks of every stage go straight into the field (the small run records to fov.ome.zarr/.spacr_mask_run); kept, those labels are reused by a rerun, otherwise a rerun segments again. Older projects' stack/ folders are still read, and kept or removed by this setting as before.",
+      "source_sha256": "021ae733a8b69c975ce3108f3f518abe4dde50549ba112344c9944671b1ddd29"
     }
   ]
 }

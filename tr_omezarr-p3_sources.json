@@ -22,18 +22,18 @@
   "settings_help": [
     {
       "key": "mask_image_format",
-      "source": "(str) - Where Mask Generation keeps the fields Measure reads. 'ome-zarr' stores each field in fov.ome.zarr in the project folder: the acquired channels in their own dtype (no stack/ folder) and every stage's masks as label images (no masks/ folder); no merged/*.npy is written. 'npy' writes stack/*.npy and merged/*.npy as before; 'tiff' adds merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse frames go on a t axis, z slices on a z axis (projected when read). Older layouts (stack/, masks/, merged/*.npy, images/<plate>.ome.zarr) still read. Default 'ome-zarr'. Alpha.",
-      "source_sha256": "28b01ce8310764e286150db16ce7302db79b68ce170659c77791caef50f31c2d"
+      "source": "(str) - Where Mask Generation keeps the fields Measure reads. 'ome-zarr' stores each field in fov.ome.zarr in the project folder: the acquired channels in their own dtype (no stack/ folder) and the masks of every stage as label images (no masks/ folder); no merged/*.npy is written. 'npy' writes stack/*.npy and merged/*.npy as before; 'tiff' adds merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse frames go on a t axis, z slices on a z axis (projected when read). Older layouts (stack/, masks/, merged/*.npy, images/<plate>.ome.zarr) still read. Default 'ome-zarr'. Alpha.",
+      "source_sha256": "6a8ab61d17463dea2cc7f5d6b1faa452d48eaf29f346bae0b46970f25948559b"
     },
     {
       "key": "keep_intermediate",
-      "source": "(bool) - Keep the run's working masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' runs), which holds the channels and every mask. With fov.ome.zarr no stack/ or masks/ folder is written: the channels and every stage's masks go straight into the field (the run's small records to fov.ome.zarr/.spacr_mask_run); kept, those labels are reused by a rerun, otherwise a rerun segments again. Older projects' stack/ folders are still read, and kept or removed by this setting as before.",
-      "source_sha256": "a20e0ead331ae5c243dfd18b8c7b7c347367935d8eebb532015752c52c180034"
+      "source": "(bool) - Keep the run's working masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' runs), which holds the channels and every mask. With fov.ome.zarr no stack/ or masks/ folder is written: the channels and the masks of every stage go straight into the field (the small run records to fov.ome.zarr/.spacr_mask_run); kept, those labels are reused by a rerun, otherwise a rerun segments again. Older projects' stack/ folders are still read, and kept or removed by this setting as before.",
+      "source_sha256": "021ae733a8b69c975ce3108f3f518abe4dde50549ba112344c9944671b1ddd29"
     },
     {
       "key": "keep_original_images",
-      "source": "(bool) - What happens to the original image files once their pixels are in fov.ome.zarr. On (the default): after a field is committed and every channel plane is verified byte for byte against its original, its originals are moved into orig/ in the project folder. Off: they are deleted after that check, which cannot be undone; each stored z slice is checked against its own file, and a field whose channels had different z slices is stored projected, so its originals go to orig/. A run cut short never loses an image. With 'npy' or 'tiff' runs, orig/ is deleted at the end only when off. Default True.",
-      "source_sha256": "52d0a480ff7ad4c9bca54c2cc4767d95366564aab60e33907e316bf624526f72"
+      "source": "(bool) - What happens to the original images once their pixels are in fov.ome.zarr. On (the default): after a field is committed and every channel plane is verified byte for byte against its original, its originals are moved into orig/ in the project folder. Off: they are deleted after that check, which cannot be undone; each stored z slice is checked against its own file, and a field whose channels had different z slices is stored projected, so its originals go to orig/. A run cut short never loses an image. With 'npy' or 'tiff' runs, orig/ is deleted at the end only when off. Default True.",
+      "source_sha256": "74383a717cf8c2775becfac419e41169d6b104794f771382caabbb2eb65ebc3a"
     },
     {
       "key": "save_original_images",

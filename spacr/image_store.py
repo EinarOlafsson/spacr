@@ -1981,7 +1981,7 @@ def _reopen_merged_field(writer: PlateWriter, store: Path, entry: Mapping[str, A
     present = sorted(g.name for g in labels_dir.iterdir()
                      if (g / "zarr.json").is_file()) if labels_dir.is_dir() else []
     _plate, well, field = split_field_name(entry["name"])
-    with open(Path(store) / f".{_LEDGER}.lock", "a") as lock:
+    with open(Path(store) / f".{_LEDGER}.lock", "a", encoding="utf-8") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         try:
             writer._commit(key, well, field, present, True, kept)
@@ -2012,7 +2012,7 @@ def _consume_working_masks(project: Any) -> int:
                if entry.get("masks") != MASKS_CONSUMED]
     if not entries:
         return 0
-    with open(store / f".{_LEDGER}.lock", "a") as lock:
+    with open(store / f".{_LEDGER}.lock", "a", encoding="utf-8") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         try:
             with open(ledger, "a", encoding="utf-8") as handle:
