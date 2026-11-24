@@ -223,15 +223,17 @@ def test_module_preprocess_generate_masks_writes_cell_masks(
     # Run journal artefact
     assert (run.dir / "manifest.json").exists()
 
-    # v1 writes .npy stacks under masks/cell_mask_stack/
+    # Item 0aj P2: the cell masks are fov.ome.zarr labels (masks/cell_mask_stack
+    # for an 'npy' run), listed and read through the one mask reader.
+    from spacr.image_store import _mask_folder_exists, _mask_names, _read_mask
     stack_dir = plate / "masks" / "cell_mask_stack"
-    assert stack_dir.is_dir(), (
-        f"no cell mask stack folder at {stack_dir}")
-    npy_files = sorted(stack_dir.glob("*.npy"))
-    assert npy_files, "cell mask stack folder contains no .npy files"
+    assert _mask_folder_exists(stack_dir), (
+        f"no cell masks at {stack_dir}")
+    npy_files = [stack_dir / name for name in _mask_names(stack_dir)]
+    assert npy_files, "no cell masks were written"
     # Each mask should have some labelled objects
     for p in npy_files:
-        arr = np.load(p)
+        arr = _read_mask(p)
         assert arr.ndim in (2, 3), (
             f"unexpected mask shape at {p}: {arr.shape}")
         if arr.ndim == 3:
@@ -271,9 +273,10 @@ def test_module_masks_with_organelle_adjust_and_plot(tmp_path):
 
     # Every requested object type produced a mask stack, and merged/ carries
     # the image channels plus one slice per mask.
+    from spacr.image_store import _mask_names
     for obj in ("cell", "nucleus", "pathogen", "organelle"):
         d = plate / "masks" / f"{obj}_mask_stack"
-        assert d.is_dir() and any(d.glob("*.npy")), f"no {obj} masks at {d}"
+        assert _mask_names(d), f"no {obj} masks at {d}"  # item 0aj P2: labels or .npy
 
     merged = sorted((plate / "merged").glob("*.npy"))
     assert merged, "no merged arrays written"

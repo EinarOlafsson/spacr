@@ -90,12 +90,16 @@ def test_the_mask_run_writes_masks_that_load_without_pickle(
         "pipeline_style": "v1",
     })
 
-    masks = sorted((plate / "masks").glob("*_mask_stack/*.npy"))
+    # Item 0aj P2: the masks are fov.ome.zarr labels, read through the one mask reader.
+    from spacr.image_store import _mask_folders, _mask_names, _read_mask
+    masks = sorted(Path(folder) / name
+                   for folder in _mask_folders(plate / "masks").values()
+                   for name in _mask_names(folder))
     assert {p.parent.name for p in masks} == {
         "cell_mask_stack", "nucleus_mask_stack", "pathogen_mask_stack"}
     assert len(masks) == 6
     for path in masks:
-        array = np.load(path, allow_pickle=False)
+        array = _read_mask(path)
         assert array.dtype == np.uint16, path
     from spacr.image_store import _field_header, _list_fields
 

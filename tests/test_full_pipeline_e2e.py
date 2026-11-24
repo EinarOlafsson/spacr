@@ -211,11 +211,13 @@ def test_stage_1_mask_all_four_object_types(_masked_workspace):
     assert masks_root.is_dir()
     expected = ("cell_mask_stack", "nucleus_mask_stack",
                   "pathogen_mask_stack", "organelle_mask_stack")
+    # Item 0aj P2: the masks are fov.ome.zarr labels, through the one mask reader.
+    from spacr.image_store import _mask_folder_exists, _mask_names
     for sub in expected:
         d = masks_root / sub
-        assert d.is_dir(), f"missing {sub} under {masks_root}"
-        npys = sorted(d.glob("*.npy"))
-        assert npys, f"{sub} has no .npy outputs"
+        assert _mask_folder_exists(d), f"missing {sub} under {masks_root}"
+        npys = _mask_names(d)
+        assert npys, f"{sub} has no masks"
 
 
 # ---------------------------------------------------------------------------
