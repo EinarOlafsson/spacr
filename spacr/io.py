@@ -2715,7 +2715,7 @@ def _normalized_npz_field_ids(src):
     """
     archives = sorted(
         os.path.join(src, name) for name in _listdir_visible(src)
-        if name.endswith('.npz'))
+        if name.endswith('.npz')) if os.path.isdir(src) else []
     if not archives:
         from . import _mask_batches as mask_batches
 
@@ -2926,15 +2926,16 @@ def _mask_batches_stay_in_memory(settings, paths):
     """Whether this run builds its normalised batches in memory instead of archiving them.
 
     The batches stay in memory (item 987b) for runs on plain ``(Y, X, C)``
-    fields, single-device or on parallel GPU workers. Plotting the first
-    archive, timelapse and volumetric or native Z/T fields (more than three
+    fields, single-device or on parallel GPU workers. Since item 0aj P4 a
+    plotting run does too: the first batch is plotted when it is built in
+    memory. Timelapse and volumetric or native Z/T fields (more than three
     axes) read real archives, so they keep writing them.
 
     :param settings: the preprocessing settings.
     :param paths: the field ``.npy`` paths that will be batched.
     :returns: True when a batch plan replaces the archives.
     """
-    if settings.get('plot') or settings.get('timelapse') or settings.get('t_stack'):
+    if settings.get('timelapse') or settings.get('t_stack'):
         return False
     from .image_store import _stack_header
     try:
@@ -3015,12 +3016,12 @@ def _concatenate_and_normalize_impl(
     paths = []
     time_ls = []
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
-    os.makedirs(output_fldr, exist_ok=True)
     archive_output_fldr = archive_output_fldr or output_fldr
     ledger = RunLedger('concatenate_and_normalize')
     intended_fields = []
 
     if settings['timelapse']:
+        os.makedirs(archive_output_fldr, exist_ok=True)
         try:
             source_npy_names = sorted(
                 name for name in _listdir_visible(src) if name.endswith('.npy'))
@@ -3144,6 +3145,8 @@ def _concatenate_and_normalize_impl(
             print(f'All files concatenated and normalized. Saved to: {output_fldr}')
             ledger.finalize()
             return output_fldr
+        # Item 0aj P4: only the archive route below writes into masks/.
+        os.makedirs(archive_output_fldr, exist_ok=True)
         batch_index = first_batch_index
         stack_ls = []
         filenames_batch = []
@@ -3266,7 +3269,7 @@ def concatenate_and_normalize(
     :param psf_session: optional PSF session from ``spacr.psf_pipeline``.
         Uses the same complete-set publication; cancellation leaves its
         provenance incomplete and prevents reuse of partially processed data.
-    :returns: the ``masks/`` folder. An ordinary run leaves a small ``batch_plan.json`` there and builds each normalised batch in memory when an object is segmented; a plotting, timelapse, volumetric, illumination or PSF run writes ``stack_<n>_norm.npz`` archives.
+    :returns: the ``masks/`` folder. An ordinary run (plotting included) leaves a small ``batch_plan.json`` (in ``fov.ome.zarr/.spacr_mask_run`` when the fields live in fov.ome.zarr, so no ``masks/`` folder is created) and builds each normalised batch in memory when an object is segmented; a timelapse, volumetric, illumination or PSF run writes ``stack_<n>_norm.npz`` archives.
     """
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
     replacing_archives = (os.path.isdir(output_fldr) and
@@ -3861,10 +3864,15 @@ def _check_normalized_archives(masks_path):
         (the field stems the whole archives list) and ``planes`` (the
         channel counts of the whole archives).
     """
-    _sweep_partial_writes(masks_path)
-    earlier = _set_aside_names(masks_path, '.npz')
-    archives = sorted(name for name in _listdir_visible(masks_path)
-                      if name.endswith('.npz'))
+    if os.path.isdir(masks_path):
+        _sweep_partial_writes(masks_path)
+        earlier = _set_aside_names(masks_path, '.npz')
+        archives = sorted(name for name in _listdir_visible(masks_path)
+                          if name.endswith('.npz'))
+    else:
+        # Item 0aj P4: a project whose fields live in fov.ome.zarr has no
+        # masks/ folder; its batch plan is in fov.ome.zarr/.spacr_mask_run.
+        earlier, archives = [], []
     if not archives:
         from . import _mask_batches as mask_batches
 
@@ -5010,11 +5018,15 @@ def preprocess_img_data(settings):
             print('Found existing stack folder.')
         if os.path.exists(os.path.join(src,'channel_stack')):
             print('Found existing channel_stack folder.')
-        if (os.path.exists(os.path.join(src, 'masks')) and
-                settings.get('test_mode', False)):
+        from ._mask_batches import _plan_file
+        # Item 0aj P4: a store project's normalised batches are its plan in
+        # fov.ome.zarr/.spacr_mask_run; it has no masks/ folder.
+        earlier_masks = (os.path.exists(os.path.join(src, 'masks')) or
+                         os.path.isfile(_plan_file(os.path.join(src, 'masks'))))
+        if earlier_masks and settings.get('test_mode', False):
             print('Found existing masks folder; test mode works on a sample '
                   'in test/ and does not reuse it.')
-        elif (os.path.exists(os.path.join(src, 'masks')) and
+        elif (earlier_masks and
                 _resume_normalized_archives(settings, src, mask_channels,
                                             metadata_well_map=metadata_well_map)):
             print('Found existing masks folder. Skipping preprocessing')

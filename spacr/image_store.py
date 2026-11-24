@@ -1959,6 +1959,58 @@ def _consume_working_masks(project: Any) -> int:
     return len(entries)
 
 
+def _project_keeps_masks_in_store(project: Any) -> bool:
+    """Whether a project's fields, and so its masks, live in fov.ome.zarr (item 0aj P2/P4).
+
+    True once the store has committed field channels and the project has no
+    ``stack/*.npy`` (a run whose stacks are files keeps file masks).
+    """
+    store = _merged_store_path(project)
+    return bool((store / _LEDGER).is_file() and _image_entries(store)
+                and not _stack_folder_names(Path(project) / "stack"))
+
+
+#: The one folder of small Mask run records (the batch plan with its
+#: normalisation percentiles and calibration, the adjusted-cell ledger) of a
+#: project whose fields live in fov.ome.zarr (item 0aj P4). It sits inside the
+#: store beside the commit ledger and is removed with the run's working
+#: records at the end of a run that keeps no intermediates.
+MASK_RUN_RECORDS = ".spacr_mask_run"
+
+
+def _mask_run_dir(masks_dir: Any) -> str:
+    """THE folder of a Mask run's records for a ``masks`` folder (item 0aj P4).
+
+    ``<project>/masks`` itself for an older project (a real ``masks/``
+    folder, which always wins, so its ``*.npz`` archives and plan still
+    read) and for runs whose stacks are files; ``<project>/fov.ome.zarr/
+    .spacr_mask_run`` when the project keeps its fields in fov.ome.zarr, so
+    no ``masks/`` folder is ever created. Nothing is created here.
+
+    :param masks_dir: ``<project>/masks`` (it need not exist).
+    :returns: the folder path, as a string.
+    """
+    masks_dir = os.fspath(masks_dir)
+    target = Path(os.path.normpath(masks_dir))
+    if target.name != "masks" or os.path.isdir(masks_dir):
+        return masks_dir
+    if not _project_keeps_masks_in_store(target.parent):
+        return masks_dir
+    return os.fspath(_merged_store_path(target.parent) / MASK_RUN_RECORDS)
+
+
+def _remove_mask_run_records(project: Any) -> bool:
+    """Remove a project's ``fov.ome.zarr/.spacr_mask_run`` (item 0aj P4).
+
+    :returns: whether it existed.
+    """
+    folder = _merged_store_path(project) / MASK_RUN_RECORDS
+    if not folder.is_dir():
+        return False
+    shutil.rmtree(folder)
+    return True
+
+
 def _prepare_mask_folder(folder: Any) -> None:
     """Create a mask folder only when its masks are files (item 0aj P2).
 
@@ -1966,10 +2018,8 @@ def _prepare_mask_folder(folder: Any) -> None:
     there, so ``masks/<class>_mask_stack`` is never created.
     """
     if _mask_label_name(folder) is not None:
-        store = _mask_project_store(folder)
-        stack = Path(os.path.normpath(os.fspath(folder))).parent.parent / "stack"
-        if ((store / _LEDGER).is_file() and _image_entries(store)
-                and not _stack_folder_names(stack)):
+        project = Path(os.path.normpath(os.fspath(folder))).parent.parent
+        if _project_keeps_masks_in_store(project):
             return
     os.makedirs(os.fspath(folder), exist_ok=True)
 
@@ -2060,10 +2110,11 @@ def _mask_digest(path: Any) -> Optional[str]:
 def _mask_sidecar_folder(folder: Any) -> str:
     """Where a record kept beside a mask folder's masks goes (item 0aj P2).
 
-    The folder itself for ``.npy`` masks; the ``masks`` folder above it when
-    the masks are labels in fov.ome.zarr (the mask folder is never created).
+    The folder itself for ``.npy`` masks; the run's record folder
+    (:func:`_mask_run_dir`) when the masks are labels in fov.ome.zarr (the
+    mask folder, and since P4 the ``masks`` folder, is never created).
     """
     folder = os.fspath(folder)
     if os.path.isdir(folder) or not _masks_in_store(folder):
         return folder
-    return os.path.dirname(os.path.normpath(folder))
+    return _mask_run_dir(os.path.dirname(os.path.normpath(folder)))

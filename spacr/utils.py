@@ -9590,6 +9590,7 @@ def _write_adjusted_cells(cell_folder, record):
 
     from .image_store import _mask_sidecar_folder
     cell_folder = _mask_sidecar_folder(cell_folder)
+    os.makedirs(cell_folder, exist_ok=True)
     path = os.path.join(cell_folder, ADJUSTED_CELLS_LEDGER)
     fd, temporary = tempfile.mkstemp(prefix='.spacr_tmp_', suffix='.json',
                                      dir=cell_folder)
@@ -10658,8 +10659,13 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
             if merged == store:
                 # Item 0aj P2: the masks are the store's labels (the output);
                 # they stop counting as working masks, as masks/ is removed.
-                from .image_store import _consume_working_masks
+                from .image_store import (MASK_RUN_RECORDS, _consume_working_masks,
+                                          _remove_mask_run_records)
                 _consume_working_masks(src)
+                # Item 0aj P4: the run's records (batch plan, ledgers) go
+                # with the working masks; nothing of masks/ was created.
+                if _remove_mask_run_records(src):
+                    deleted.append(os.path.join(store, MASK_RUN_RECORDS))
             for folder in (stack, masks):
                 if os.path.isdir(folder):
                     shutil.rmtree(folder, ignore_errors=True)

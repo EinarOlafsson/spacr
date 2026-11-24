@@ -32,12 +32,19 @@ _RAM_POLL_SECONDS = 1.0
 
 
 def _plan_file(masks_dir):
-    """Path of the batch plan inside a ``masks`` folder.
+    """Path of the batch plan of a ``masks`` folder.
 
-    :param masks_dir: the ``masks`` folder.
-    :returns: ``<masks_dir>/batch_plan.json``.
+    It lives in the run's record folder (:func:`spacr.image_store._mask_run_dir`):
+    ``<masks_dir>`` for an older project or a file-stack run, and
+    ``fov.ome.zarr/.spacr_mask_run`` when the fields live in fov.ome.zarr, so
+    no ``masks`` folder is created (item 0aj P4).
+
+    :param masks_dir: the ``masks`` folder (it need not exist).
+    :returns: ``<record folder>/batch_plan.json``.
     """
-    return os.path.join(os.fspath(masks_dir), _PLAN_NAME)
+    from .image_store import _mask_run_dir
+
+    return os.path.join(_mask_run_dir(masks_dir), _PLAN_NAME)
 
 
 def _virtual_batch_name(index):
@@ -105,6 +112,7 @@ def _write_plan(masks_dir, stack_dir, batches, channels, settings, save_dtype, *
         **(extra or {}),
     }
     path = _plan_file(masks_dir)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     payload = json.dumps(record, indent=1).encode('utf-8')
     _replace_atomically(path, lambda handle: handle.write(payload), prefix='.spacr_plan_')
     record['_masks_dir'] = masks_dir
@@ -232,9 +240,38 @@ def _load_batch(plan, index, settings=None):
         masks_dir, int(index), record if not borrowed and not context.replay else None,
         settings=active_settings)
     normalised = normalised[..., channels]
+    _plot_first_batch(plan, int(index), normalised, active_settings)
     return {'data': normalised, 'filenames': np.asarray(names),
             'spacr_resolved_parameters': settings['spacr_resolved_parameters'],
             'source_channels': np.asarray(channels, dtype=np.int64)}
+
+
+#: Plans whose first batch was plotted in this process (item 0aj P4).
+_PLOTTED = set()
+
+
+def _plot_first_batch(plan, index, normalised, settings):
+    """Plot the first field of the first batch once, as the first archive was plotted (item 0aj P4).
+
+    A plotting run used to write ``stack_0_norm.npz`` only to plot it; the
+    batch is plotted from memory instead, once per plan in a process.
+
+    :param plan: from :func:`_read_plan`.
+    :param index: the batch number just built.
+    :param normalised: the batch, ``(fields, Y, X, kept channels)``.
+    :param settings: the run settings (``plot``, ``figuresize``, ``cmap``).
+    """
+    if index != 0 or not (settings or {}).get('plot') or not len(normalised):
+        return
+    key = _plan_file(plan['_masks_dir'])
+    if key in _PLOTTED:
+        return
+    _PLOTTED.add(key)
+    from .plot import _plot_array_channels
+
+    print(f"plotting: {os.path.join(plan['_masks_dir'], _virtual_batch_name(0))} (in memory)")
+    _plot_array_channels(normalised[0], figuresize=settings.get('figuresize', 10),
+                         cmap=settings.get('cmap', 'inferno'), normalize=False)
 
 
 #: A last batch with fewer fields than this fraction of the median size of the
@@ -972,8 +1009,8 @@ def _batch_paths(masks_dir, listing):
         ``stack_<n>_norm.npz`` path per plan batch (the files do not exist).
     """
     masks_dir = os.fspath(masks_dir)
-    archives = [os.path.join(masks_dir, name) for name in listing(masks_dir)
-                if name.endswith('.npz')]
+    archives = ([os.path.join(masks_dir, name) for name in listing(masks_dir)
+                 if name.endswith('.npz')] if os.path.isdir(masks_dir) else [])
     if archives:
         return archives
     plan = _read_plan(masks_dir)
@@ -991,6 +1028,8 @@ def _supersede_archives(masks_dir, listing):
     :returns: the names set aside, renamed to ``<name>.superseded``.
     """
     moved = []
+    if not os.path.isdir(os.fspath(masks_dir)):
+        return moved
     for name in listing(masks_dir):
         if name.endswith('.npz'):
             os.replace(os.path.join(masks_dir, name),

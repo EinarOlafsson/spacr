@@ -300,7 +300,8 @@ def _run_masks_batch_first(mask_src, src, settings, files_processed, files_to_pr
 
     if _read_plan(mask_src) is None or not _roles_may_overlap(settings):
         return []
-    if any(name.endswith('.npz') for name in _listdir_visible(mask_src)):
+    if os.path.isdir(mask_src) and any(name.endswith('.npz')
+                                       for name in _listdir_visible(mask_src)):
         return []
     roles = []
     for role in ('cell', 'nucleus', 'pathogen'):
@@ -830,7 +831,12 @@ def preprocess_generate_masks(settings):
 
                     if settings['masks']:
                         mask_src = os.path.join(src, 'masks')
-                        os.makedirs(mask_src, exist_ok=True)
+                        from .image_store import _mask_run_dir
+                        if _mask_run_dir(mask_src) == mask_src:
+                            # Item 0aj P4: a project whose fields live in
+                            # fov.ome.zarr never gets a masks/ folder; its
+                            # run records go to fov.ome.zarr/.spacr_mask_run.
+                            os.makedirs(mask_src, exist_ok=True)
 
                         _prepare_mask_batch_plan(mask_src, settings)
                         _check_archives_without_preprocessing(src, settings=settings)
