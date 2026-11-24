@@ -168,7 +168,7 @@ def test_the_phase_builds_every_pending_map_once_and_keeps_its_md5(tmp_path, mon
     folder, _method = _pending_folder(tmp_path, {"DAPI": "nuclear_median", "GFP": "cytoplasm_median"})
     index = _segmented_run(tmp_path, monkeypatch)
     settings = {"ops_flatfield_maps": folder, "ops_flatfield_dark": OFFSET,
-                "ops_flatfield_field_px": SIZE, "ops_flatfield_holdout_n": 2}
+                "ops_flatfield_field_px": SIZE, "ops_flatfield_holdout_n": 2, "n_workers": 1}
     report = ops_engine._ph_flatfield_objects(PLATE, ["A1"], index, settings, str(tmp_path / "run"))
     assert report["fields"] == 12 and set(report["channels"]) == {"DAPI", "GFP"}
     dapi = report["channels"]["DAPI"]
@@ -197,7 +197,7 @@ def test_the_offset_is_set_per_channel_or_measured_and_never_zero(tmp_path, monk
     index = _segmented_run(tmp_path, monkeypatch, sites=4)
     report = ops_engine._ph_flatfield_objects(
         PLATE, ["A1"], index, {"ops_flatfield_maps": folder, "ops_flatfield_field_px": SIZE,
-                               "ops_flatfield_holdout_n": 1}, str(tmp_path / "run"))
+                               "ops_flatfield_holdout_n": 1, "n_workers": 1}, str(tmp_path / "run"))
     dapi = report["channels"]["DAPI"]
     assert dapi["offset_source"] == "ph_flatfield" and dapi["offset"] == method["DAPI"]["offset"]
     measured = {"DAPI": {"offset": 7.0}}
