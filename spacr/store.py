@@ -36,7 +36,7 @@ __all__ = ["StoreError", "Store", "open", "writer", "WellWriter",
            "write_table", "write_part", "register", "cleanup", "CATALOG",
            "SCHEMA_VERSION", "edit", "journal", "EditJournal",
            "ensure_columns", "undo", "compact", "write_scores", "append_rows",
-           "activate",
+           "activate", "transaction", "Transaction", "migrate_legacy",
            "FOLD_EVERY"]
 
 #: The catalog's file name at the project root.
@@ -1762,10 +1762,9 @@ class Store:
         for name, files in _bookkeeping_files(self.project).items():
             if name in self._views:
                 continue
-            listed = ", ".join(_literal(f) for f in files)
             self._conn.execute(
-                f"CREATE OR REPLACE VIEW {_ident(name)} AS SELECT * FROM "
-                f"read_parquet([{listed}], union_by_name = true)")
+                f"CREATE OR REPLACE VIEW {_ident(name)} AS "
+                + _bookkeeping_select(self.project, name, files))
             self._described.pop(name, None)
             self._tables.setdefault(name, {"sort_by": [], "key_columns": []})
         scores: Dict[str, List[tuple]] = {}
@@ -3250,12 +3249,30 @@ _JOURNALS = "_journal"
 _TRAINING = "_training"
 _BOOKKEEPING = "_bookkeeping"
 _DECLARED = "columns.jsonl"
+_TRANSACTIONS = "_tx"
+_TX_FILE = re.compile(r"\.tx([0-9a-f]{32})\.parquet$")
+_TX_SEQ = "_spacr_seq"
+_TX_KEY = "key.json"
 _EDIT_LOCK = ".spacr-edit.lock"
 _KIND = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
 
 #: SQLite column types and the DuckDB types the labelled views cast to.
 _LABEL_TYPES = {"INTEGER": "BIGINT", "REAL": "DOUBLE", "TEXT": "VARCHAR",
                 "NUMERIC": "DOUBLE", "BOOLEAN": "BIGINT", "": None}
+
+#: SQLite's spellings of a table's implicit row id. On an older
+#: ``measurements.db`` a ``key_column`` of one of these addresses rows by row
+#: id (when the table declares no column of that name).
+_ROWIDS = ("_rowid_", "oid", "rowid")
+
+
+def _legacy_ident(name: str, table_columns: Sequence[str] = ()) -> str:
+    """``name`` quoted, or bare when it is a row id the table does not shadow."""
+    taken = {str(c).lower() for c in table_columns}
+    if str(name).lower() in _ROWIDS and str(name).lower() not in taken:
+        return str(name)
+    return _legacy_quoted(name)
+
 
 #: The cell of an edit: which row of which table, and which column.
 _CELL = ("table", "object_key", "timeID", "key", "column")
@@ -3510,7 +3527,8 @@ def _legacy_apply(conn, records, *, guard, every_row: bool,
             else:
                 ident = ["object_key"] + (["timeID"] if "timeID" in identity
                                           else [])
-            conditions.extend(f"{_legacy_quoted(c)} = ?" for c in ident)
+            conditions.extend(f"{_legacy_ident(c, columns)} = ?"
+                              for c in ident)
         conditions.extend(c for c in (_guard_sql(n, guard) for n in names) if c)
         if conditions:
             sql += " WHERE " + " AND ".join(conditions)
@@ -3581,8 +3599,13 @@ def _edit_rows(records, *, kind, author, source, session,
 
 
 def _publish_edit_file(project: str, kind: str, rows, *,
-                       stem: str = "edit") -> Optional[str]:
-    """Write edit rows as one Parquet file of ``kind``, atomically."""
+                       stem: str = "edit",
+                       tx: Optional[str] = None) -> Optional[str]:
+    """Write edit rows as one Parquet file of ``kind``, atomically.
+
+    With ``tx`` the file belongs to that :func:`transaction` and stays
+    invisible until the transaction's commit marker is written.
+    """
     pa = _require("pyarrow")
     pq = _require("pyarrow.parquet")
     if not len(rows):
@@ -3594,7 +3617,7 @@ def _publish_edit_file(project: str, kind: str, rows, *,
     folder = _edit_folder(project, kind)
     first = int(min(r["seq_ns"] for r in rows))
     final = os.path.join(folder, f"{stem}-{first:020d}-{uuid.uuid4().hex}"
-                                 f".parquet")
+                                 f"{_tx_suffix(tx)}.parquet")
     temporary = final + ".tmp"
     pq.write_table(data, temporary, compression="zstd")
     _fsync(temporary)
@@ -3602,16 +3625,45 @@ def _publish_edit_file(project: str, kind: str, rows, *,
     return final
 
 
+def _tx_suffix(tx: Optional[str]) -> str:
+    """The part of a file name that ties it to transaction ``tx``."""
+    return "" if tx is None else f".tx{tx}"
+
+
+def _committed(project: str) -> set:
+    """The ids of the transactions whose commit marker is written."""
+    folder = os.path.join(project, EDITS, _TRANSACTIONS)
+    try:
+        names = os.listdir(folder)
+    except OSError:
+        return set()
+    return {n[:-len(".done")] for n in names if n.endswith(".done")}
+
+
+def _visible(paths: Sequence[str], committed: set) -> List[str]:
+    """``paths`` without the files of transactions that never committed."""
+    out = []
+    for path in paths:
+        found = _TX_FILE.search(path)
+        if found is None or found.group(1) in committed:
+            out.append(path)
+    return out
+
+
 def _edit_sources(project: str) -> tuple:
-    """``(parquet files, journal files)`` of the edit log, sorted."""
+    """``(parquet files, journal files)`` of the edit log, sorted.
+
+    Files of a :func:`transaction` that never committed are left out.
+    """
     root = os.path.join(project, EDITS)
     if not os.path.isdir(root):
         return [], []
     skip = tuple(os.sep + name + os.sep
-                 for name in (_TRAINING, _JOURNALS, _BOOKKEEPING))
-    files = sorted(p for p in glob.glob(os.path.join(
+                 for name in (_TRAINING, _JOURNALS, _BOOKKEEPING,
+                              _TRANSACTIONS))
+    files = _visible(sorted(p for p in glob.glob(os.path.join(
         glob.escape(root), "*", "**", "*.parquet"), recursive=True)
-        if not any(s in p for s in skip))
+        if not any(s in p for s in skip)), _committed(project))
     journals = []
     for path in sorted(glob.glob(os.path.join(glob.escape(root), _JOURNALS,
                                               "*", "*.jsonl"))):
@@ -3628,8 +3680,8 @@ def _edit_signature(project: str) -> tuple:
     files, journals = _edit_sources(project)
     declared = os.path.join(project, EDITS, _DECLARED)
     out = []
-    kept = sorted(glob.glob(os.path.join(glob.escape(os.path.join(
-        project, EDITS, _BOOKKEEPING)), "*", "*.parquet")))
+    kept = [p for found in _bookkeeping_files(project).values()
+            for p in found]
     for path in files + journals + [declared] + kept:
         try:
             found = os.stat(path)
@@ -3712,10 +3764,16 @@ def _declared(project: str) -> Dict[tuple, str]:
     out: Dict[tuple, str] = {}
     if not os.path.isfile(path):
         return out
+    committed = None
     with builtins.open(path, encoding="utf-8") as handle:
         for line in handle:
             try:
                 row = json.loads(line)
+                if row.get("tx") is not None:
+                    if committed is None:
+                        committed = _committed(project)
+                    if row["tx"] not in committed:
+                        continue
                 out[(str(row["table"]), str(row["column"]))] = str(
                     row.get("type") or "")
             except (ValueError, KeyError, TypeError):
@@ -4540,6 +4598,24 @@ def _snapshot(path: str, kind: str, files: List[str]) -> int:
     return data.num_rows
 
 
+def _drop_uncommitted(project: str) -> int:
+    """Remove the files of transactions that never committed; how many.
+
+    Run while the edit lock is held: a transaction commits under that lock,
+    so a transaction file without a marker then belongs to none still open.
+    """
+    committed = _committed(project)
+    dropped = 0
+    root = os.path.join(project, EDITS)
+    for path in glob.glob(os.path.join(glob.escape(root), "**", "*.parquet"),
+                          recursive=True):
+        found = _TX_FILE.search(path)
+        if found is not None and found.group(1) not in committed:
+            _remove(path)
+            dropped += 1
+    return dropped
+
+
 def compact(project) -> Dict[str, Any]:
     """Fold the edit log of a store project into one snapshot per kind.
 
@@ -4559,6 +4635,7 @@ def compact(project) -> Dict[str, Any]:
             "an older measurements.db has no edit log to compact"))
     folded = replaced = total = 0
     with _register_lock(path, name=_EDIT_LOCK):
+        _drop_uncommitted(path)
         for journal_file in _edit_sources(path)[1]:
             if not _owner_alive(journal_file):
                 if _fold_journal(path, journal_file):
@@ -4579,11 +4656,48 @@ def _bookkeeping_files(project: str) -> Dict[str, List[str]]:
     """``{table: its Parquet files}`` of the bookkeeping tables, sorted."""
     root = os.path.join(project, EDITS, _BOOKKEEPING)
     out: Dict[str, List[str]] = {}
-    for path in sorted(glob.glob(os.path.join(glob.escape(root), "*",
-                                              "*.parquet"))):
+    for path in _visible(sorted(glob.glob(os.path.join(
+            glob.escape(root), "*", "*.parquet"))), _committed(project)):
         name = urllib.parse.unquote(os.path.basename(os.path.dirname(path)))
         out.setdefault(name, []).append(path)
     return out
+
+
+def _bookkeeping_key(project: str, table: str) -> Optional[List[str]]:
+    """The key columns that :meth:`Transaction.update_rows` recorded, or None."""
+    path = os.path.join(project, EDITS, _BOOKKEEPING, _encoded(table),
+                        _TX_KEY)
+    try:
+        with builtins.open(path, encoding="utf-8") as handle:
+            return [str(c) for c in json.load(handle)]
+    except (OSError, ValueError, TypeError):
+        return None
+
+
+def _bookkeeping_select(project: str, table: str, files) -> str:
+    """The SQL of one bookkeeping table's view over its ``files``.
+
+    A table whose rows were updated (:meth:`Transaction.update_rows`) keeps
+    each version; the view shows the latest one of each key.
+    """
+    listed = ", ".join(_literal(f) for f in files)
+    source = f"read_parquet([{listed}], union_by_name = true)"
+    key = _bookkeeping_key(project, table)
+    if not key:
+        return f"SELECT * FROM {source}"
+    conn = _connect()
+    try:
+        names = [c[0] for c in conn.execute(
+            f"SELECT * FROM {source} LIMIT 0").description]
+    finally:
+        conn.close()
+    if _TX_SEQ not in names:
+        return f"SELECT * FROM {source}"
+    partition = ", ".join(_ident(c) for c in key)
+    return (f"SELECT * EXCLUDE ({_ident(_TX_SEQ)}, _n) FROM (SELECT *, "
+            f"row_number() OVER (PARTITION BY {partition} ORDER BY "
+            f"{_ident(_TX_SEQ)} DESC NULLS LAST) AS _n FROM {source}) "
+            f"WHERE _n = 1")
 
 
 def append_rows(project, table: str, rows, *, columns: Sequence[str],
@@ -4625,19 +4739,29 @@ def append_rows(project, table: str, rows, *, columns: Sequence[str],
             conn.close()
     if not rows:
         return 0
+    _publish_bookkeeping(path, table, rows, columns)
+    return len(rows)
+
+
+def _publish_bookkeeping(project: str, table: str, rows, columns, *,
+                         tx: Optional[str] = None) -> str:
+    """Write bookkeeping rows of ``table`` as one Parquet file, atomically.
+
+    With ``tx`` the file stays invisible until that transaction commits.
+    """
     pa = _require("pyarrow")
     pq = _require("pyarrow.parquet")
     data = pa.Table.from_pylist([{c: _python(r.get(c)) for c in columns}
                                  for r in rows])
-    folder = _edit_folder(path, _BOOKKEEPING, _encoded(table))
+    folder = _edit_folder(project, _BOOKKEEPING, _encoded(table))
     stamp, _writer = _edit_stamp(_writer_id())
     final = os.path.join(folder, f"rows-{stamp:020d}-{uuid.uuid4().hex}"
-                                 f".parquet")
+                                 f"{_tx_suffix(tx)}.parquet")
     temporary = final + ".tmp"
     pq.write_table(data, temporary, compression="zstd")
     _fsync(temporary)
     os.replace(temporary, final)
-    return len(rows)
+    return final
 
 
 def _safe_name(text: str) -> str:
@@ -4732,3 +4856,565 @@ def _activate(project, kind: str, table: str, target: str) -> None:
                                           _now()])
         finally:
             conn.close()
+
+
+#: Values a legacy ``IN (...)`` carries per statement, under SQLite's limit.
+_IN_CHUNK = 900
+
+
+def _where_sql(where: Optional[Mapping[str, Any]], *, legacy: bool) -> tuple:
+    """``(" WHERE ...", params)`` of a :meth:`Transaction.rows` filter.
+
+    A value of None means ``IS NULL``, a list, tuple or set ``IN``, anything
+    else ``=``.
+    """
+    clauses: List[str] = []
+    params: List[Any] = []
+    for name, value in (where or {}).items():
+        quoted = _legacy_quoted(name) if legacy else _ident(name)
+        if value is None:
+            clauses.append(f"{quoted} IS NULL")
+        elif isinstance(value, (list, tuple, set, frozenset)):
+            listed = [_python(v) for v in dict.fromkeys(value)]
+            if legacy:
+                clauses.append(
+                    f"{quoted} IN ({', '.join('?' for _v in listed)})"
+                    if listed else "0")
+                params.extend(listed)
+            else:
+                clauses.append(f"{quoted} IN (SELECT unnest(?))")
+                params.append(listed)
+        else:
+            clauses.append(f"{quoted} = ?")
+            params.append(_python(value))
+    return ((" WHERE " + " AND ".join(clauses)) if clauses else ""), params
+
+
+def _in_chunks(where: Optional[Mapping[str, Any]]):
+    """``where`` split so no list in it is longer than :data:`_IN_CHUNK`."""
+    where = dict(where or {})
+    long = [n for n, v in where.items()
+            if isinstance(v, (list, tuple, set, frozenset))
+            and len(v) > _IN_CHUNK]
+    if not long:
+        yield where
+        return
+    name = long[0]
+    values = list(dict.fromkeys(where[name]))
+    for start in range(0, len(values), _IN_CHUNK):
+        yield from _in_chunks({**where, name: values[start:start + _IN_CHUNK]})
+
+
+class Transaction:
+    """An all-or-nothing batch of edits and bookkeeping rows.
+
+    Made by :func:`transaction`. Reads, checks and writes inside one
+    transaction see one state of the project and land together or not at
+    all: an older ``measurements.db`` runs them on one SQLite connection
+    inside ``BEGIN IMMEDIATE`` and rolls back on any error; a store project
+    holds the edit lock from the first read to the commit, writes every
+    file under a name that ties it to the transaction, and makes them
+    visible at once by writing one commit marker last. A crash or an error
+    before the marker leaves nothing visible, and :func:`compact` removes
+    the files.
+
+    Reads see the project as it was when the transaction began; in a store
+    project the transaction's own writes are not visible to its reads, so
+    read and check first, then write.
+
+    :param project: a store project or an older ``measurements.db``.
+    :param timeout: seconds a legacy write waits for SQLite's lock.
+    """
+
+    def __init__(self, project, *, timeout: float = 30.0):
+        """Resolve the project; nothing is locked until :func:`transaction`."""
+        self.where, self.path = _edit_target(project)
+        self.timeout = timeout
+        self.id = uuid.uuid4().hex
+        self._conn = None
+        self._reader: Optional[Store] = None
+        self._edits: Dict[str, List[Dict[str, Any]]] = {}
+        self._kept: List[tuple] = []
+        self._declare: List[Dict[str, Any]] = []
+        self._keys: Dict[str, List[str]] = {}
+
+    def _store(self) -> "Store":
+        """The store reader of this transaction, opened once."""
+        if self._reader is None:
+            self._reader = Store(self.path, verify="none")
+        return self._reader
+
+    def tables(self) -> List[str]:
+        """The tables of the project, bookkeeping tables included.
+
+        :returns: the table names, sorted.
+        """
+        if self.where == "legacy":
+            return [row[0] for row in self._conn.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table' "
+                "ORDER BY name").fetchall()]
+        return sorted(t for t in self._store().tables()
+                      if not t.endswith("_labeled"))
+
+    def columns(self, table: str) -> List[str]:
+        """The columns of ``table``, label columns included.
+
+        In a store project these are the table's own columns, the columns
+        declared by :func:`ensure_columns` (and by this transaction) and
+        those its edits name.
+
+        :param table: the table.
+        :returns: the column names; empty when the table does not exist.
+        """
+        if self.where == "legacy":
+            return _legacy_columns(self._conn, table)
+        reader = self._store()
+        if table not in reader.tables():
+            return []
+        source = reader._labels().get(table, table)
+        names = list(reader._columns(source))
+        for row in self._declare:
+            if row["table"] == table and row["column"] not in names:
+                names.append(row["column"])
+        return names
+
+    def rows(self, table: str, columns: Sequence[str], *,
+             where: Optional[Mapping[str, Any]] = None,
+             order_by: Optional[Sequence[str]] = None) -> List[tuple]:
+        """The rows of ``table`` matching ``where``, as tuples of ``columns``.
+
+        :param table: the table; a store project reads its labelled view.
+        :param columns: the columns to return; a column the table lacks
+            reads as None in a store project. On an older
+            ``measurements.db`` ``_rowid_``, ``oid`` or ``rowid`` returns
+            the row id, which :meth:`edit` takes as ``key_column``.
+        :param where: ``{column: value}``; None means empty, a list means
+            any of its values.
+        :param order_by: columns to sort by; stored order otherwise.
+        :returns: the rows; empty when the table does not exist.
+        """
+        out: List[tuple] = []
+        order = ""
+        if self.where == "legacy":
+            if not _legacy_columns(self._conn, table):
+                return out
+            present = _legacy_columns(self._conn, table)
+            select = ", ".join(_legacy_ident(c, present) for c in columns)
+            if order_by:
+                order = " ORDER BY " + ", ".join(_legacy_quoted(c)
+                                                 for c in order_by)
+            for chunk in _in_chunks(where):
+                clause, params = _where_sql(chunk, legacy=True)
+                out.extend(tuple(r) for r in self._conn.execute(
+                    f"SELECT {select} FROM {_legacy_quoted(table)}{clause}"
+                    f"{order}", params).fetchall())
+            return out
+        reader = self._store()
+        if table not in reader.tables():
+            return out
+        source = reader._labels().get(table, table)
+        present = set(reader._columns(source))
+        select = ", ".join(_ident(c) if c in present
+                           else f"NULL AS {_ident(c)}" for c in columns)
+        clause, params = _where_sql(where, legacy=False)
+        if order_by:
+            order = " ORDER BY " + ", ".join(_ident(c) for c in order_by)
+        return [tuple(r) for r in reader._conn.execute(
+            f"SELECT {select} FROM {_ident(source)}{clause}{order}",
+            params).fetchall()]
+
+    def edit(self, rows, *, kind: str, source: str,
+             author: Optional[str] = None, session: Optional[str] = None,
+             run_id: Optional[str] = None, table: Optional[str] = None,
+             column: Optional[str] = None,
+             columns: Optional[Sequence[str]] = None,
+             key_column: Optional[str] = None, guard=None,
+             every_row: bool = False,
+             types: Optional[Mapping[str, str]] = None) -> int:
+        """Record edits as part of the transaction, as :func:`edit` does.
+
+        :param rows: the edits, as for :func:`edit`.
+        :param kind: the edit kind.
+        :param source: who made them.
+        :param author: the person.
+        :param session: the session.
+        :param run_id: the run.
+        :param table: the table of rows that name none.
+        :param column: the column of rows that name none.
+        :param columns: the value columns of wide rows.
+        :param key_column: the column ``key`` matches.
+        :param guard: as for :func:`edit`.
+        :param every_row: as for :func:`edit`.
+        :param types: SQLite types for columns a legacy file lacks.
+        :returns: the rows changed (legacy) or the edits recorded for rows
+            the table holds (store).
+        """
+        kind = _check_kind(kind)
+        records = _records(rows, table=table, columns=columns, column=column)
+        if not records:
+            return 0
+        if self.where == "legacy":
+            return _legacy_apply(self._conn, records, guard=guard,
+                                 every_row=every_row, key_column=key_column,
+                                 types=types or {}, upsert=False, create=True)
+        targets = _store_targets(self.path, records, key_column=key_column,
+                                 every_row=every_row)
+        if guard is not None:
+            targets = _guarded(self.path, targets, guard)
+        self._edits.setdefault(kind, []).extend(_edit_rows(
+            targets, kind=kind, author=author, source=source,
+            session=session, run_id=run_id))
+        return len(targets)
+
+    def ensure_columns(self, table: str, columns: Mapping[str, str], *,
+                       index: Optional[tuple] = None,
+                       quoted: bool = True) -> List[str]:
+        """Declare label columns as part of the transaction, as
+        :func:`ensure_columns` does.
+
+        :param table: the table.
+        :param columns: ``{column: SQLite type}``; ``""`` adds an untyped
+            column.
+        :param index: ``(index name, column)`` to create on a legacy table.
+        :param quoted: write the legacy ``ALTER TABLE`` with quoted names.
+        :returns: the columns added or newly declared, in order.
+        """
+        if self.where == "legacy":
+            present = _legacy_columns(self._conn, table)
+            if not present:
+                return []
+            if not quoted and not all(_KIND.match(str(c)) for c in columns):
+                raise StoreError(_message(
+                    "only plain column names can be added unquoted"))
+            added = _legacy_add_columns(self._conn, table, present, columns,
+                                        list(columns), quoted=quoted)
+            if index is not None:
+                self._conn.execute(
+                    f"CREATE INDEX IF NOT EXISTS {_legacy_quoted(index[0])} "
+                    f"ON {_legacy_quoted(table)} ({_legacy_quoted(index[1])})")
+            return added
+        known = set(_declared(self.path)) | {
+            (r["table"], r["column"]) for r in self._declare}
+        added = [c for c in columns if (table, c) not in known]
+        self._declare.extend({"table": table, "column": c,
+                              "type": columns[c], "tx": self.id}
+                             for c in added)
+        return added
+
+    def append_rows(self, table: str, rows, *, columns: Sequence[str],
+                    ddl: str, replace: Optional[Sequence[str]] = None,
+                    update: Optional[Sequence[str]] = None) -> int:
+        """Append bookkeeping rows as part of the transaction, as
+        :func:`append_rows` does.
+
+        :param table: the bookkeeping table.
+        :param rows: mappings, each holding every one of ``columns``.
+        :param columns: the columns, in the table's order.
+        :param ddl: the SQLite ``CREATE TABLE IF NOT EXISTS`` of ``table``.
+        :param replace: the key columns of a table whose rows replace the
+            row with the same key (``INSERT OR REPLACE`` on an older
+            ``measurements.db``; in a store project the view shows the
+            latest row of each key).
+        :param update: with ``replace``, only these columns change when the
+            key is already there (``ON CONFLICT ... DO UPDATE``); the row
+            keeps its other values.
+        :returns: the rows appended.
+        """
+        rows = [dict(r) for r in rows]
+        if self.where == "legacy":
+            self._conn.execute(ddl)
+            if not rows:
+                return 0
+            marks = ", ".join("?" for _c in columns)
+            names = ", ".join(_legacy_quoted(c) for c in columns)
+            if replace and update:
+                sql = (f"INSERT INTO {_legacy_quoted(table)} ({names}) VALUES "
+                       f"({marks}) ON CONFLICT("
+                       + ", ".join(_legacy_quoted(c) for c in replace)
+                       + ") DO UPDATE SET " + ", ".join(
+                           f"{_legacy_quoted(c)}=excluded.{_legacy_quoted(c)}"
+                           for c in update))
+            else:
+                verb = "INSERT OR REPLACE" if replace else "INSERT"
+                sql = f"{verb} INTO {_legacy_quoted(table)} VALUES ({marks})"
+            return self._conn.executemany(
+                sql, [tuple(_python(r.get(c)) for c in columns)
+                      for r in rows]).rowcount
+        if rows and replace and update:
+            rows = self._merged(table, rows, columns, replace, update)
+        if rows and replace:
+            stamp, _writer = _edit_stamp(_writer_id())
+            rows = [{**r, _TX_SEQ: stamp + n} for n, r in enumerate(rows)]
+            self._kept.append((table, rows, list(columns) + [_TX_SEQ]))
+            self._keys[table] = [str(c) for c in replace]
+        elif rows:
+            self._kept.append((table, rows, list(columns)))
+        return len(rows)
+
+    def _merged(self, table: str, rows, columns, replace, update):
+        """``rows`` with the stored values of their key outside ``update``."""
+        keys = [str(c) for c in replace]
+        found = self.rows(table, list(columns), where={
+            keys[0]: [r.get(keys[0]) for r in rows]}) if (
+                table in self._store().tables()) else []
+        stored = {}
+        for row in found:
+            record = dict(zip(columns, row))
+            stored[tuple(record[k] for k in keys)] = record
+        out = []
+        for row in rows:
+            ident = tuple(_python(row.get(k)) for k in keys)
+            if ident in stored:
+                merged = dict(stored[ident])
+                merged.update({c: row.get(c) for c in update})
+                row = merged
+            stored[ident] = dict(row)
+            out.append(row)
+        return out
+
+    def update_rows(self, table: str, values: Mapping[str, Any], *,
+                    where: Mapping[str, Any], key: Sequence[str]) -> int:
+        """Change bookkeeping rows matching ``where``, for example to stamp
+        an audit row as undone.
+
+        An older ``measurements.db`` runs one ``UPDATE``. A store project
+        changes nothing in place: it appends the matched rows again with
+        ``values`` and a sequence number, and the table's view shows the
+        latest version of each ``key``.
+
+        :param table: the bookkeeping table.
+        :param values: ``{column: new value}``.
+        :param where: the rows to change, as for :meth:`rows`.
+        :param key: the columns that identify one row of ``table``.
+        :returns: the rows changed.
+        """
+        if self.where == "legacy":
+            if not _legacy_columns(self._conn, table):
+                return 0
+            assign = ", ".join(f"{_legacy_quoted(c)} = ?" for c in values)
+            changed = 0
+            for chunk in _in_chunks(where):
+                clause, params = _where_sql(chunk, legacy=True)
+                changed += self._conn.execute(
+                    f"UPDATE {_legacy_quoted(table)} SET {assign}{clause}",
+                    [_python(v) for v in values.values()] + params).rowcount
+            return changed
+        reader = self._store()
+        if table not in reader.tables():
+            return 0
+        names = [c for c in reader._columns(table) if c != _TX_SEQ]
+        found = self.rows(table, names, where=where)
+        if not found:
+            return 0
+        stamp, _writer = _edit_stamp(_writer_id())
+        updated = []
+        for number, row in enumerate(found):
+            record = dict(zip(names, row))
+            record.update({c: _python(v) for c, v in values.items()})
+            record[_TX_SEQ] = stamp + number
+            updated.append(record)
+        self._kept.append((table, updated, names + [_TX_SEQ]))
+        self._keys[table] = [str(c) for c in key]
+        return len(updated)
+
+    def _commit(self) -> None:
+        """Make every write of a store transaction visible at once."""
+        if not (self._edits or self._kept or self._declare):
+            return
+        for kind, rows in sorted(self._edits.items()):
+            _publish_edit_file(self.path, kind, rows, tx=self.id)
+        for table, rows, columns in self._kept:
+            _publish_bookkeeping(self.path, table, rows, columns, tx=self.id)
+        for table, key in self._keys.items():
+            path = os.path.join(self.path, EDITS, _BOOKKEEPING,
+                                _encoded(table), _TX_KEY)
+            temporary = path + ".tmp"
+            with builtins.open(temporary, "w", encoding="utf-8") as handle:
+                json.dump(key, handle)
+            _fsync(temporary)
+            os.replace(temporary, path)
+        if self._declare:
+            _edit_folder(self.path)
+            _append_lines(os.path.join(self.path, EDITS, _DECLARED),
+                          self._declare)
+        _write_commit_marker(self.path, self.id)
+        _refresh_training(self.path, {(r["table"], r["column"])
+                                      for rows in self._edits.values()
+                                      for r in rows})
+
+    def _close(self) -> None:
+        """Release the reader and the legacy connection."""
+        if self._reader is not None:
+            self._reader.close()
+            self._reader = None
+        if self._conn is not None:
+            self._conn.close()
+            self._conn = None
+
+
+def _write_commit_marker(project: str, tx: str) -> None:
+    """Write the marker that makes transaction ``tx`` visible: the commit."""
+    folder = _edit_folder(project, _TRANSACTIONS)
+    final = os.path.join(folder, f"{tx}.done")
+    temporary = final + ".tmp"
+    with builtins.open(temporary, "w", encoding="ascii") as handle:
+        handle.write(_now())
+    _fsync(temporary)
+    os.replace(temporary, final)
+
+
+@contextmanager
+def transaction(project, *, timeout: float = 30.0) -> Iterator[Transaction]:
+    """An all-or-nothing batch of reads, checks, edits and bookkeeping rows.
+
+    Use it where a check and the writes it allows must not be split, for
+    example promoting calls into a label column together with their audit
+    rows::
+
+        with store.transaction(project) as tx:
+            if column in tx.columns("png_list"):
+                raise ...
+            tx.ensure_columns("png_list", {column: ""})
+            tx.edit(rows, kind="promotion", source="rule:hits", ...)
+            tx.append_rows("audit", audit, columns=..., ddl=...)
+
+    Leaving the block commits; an exception rolls everything back and is
+    raised again. See :class:`Transaction` for what each project keeps.
+
+    :param project: a store project or an older ``measurements.db``.
+    :param timeout: seconds a legacy write waits for SQLite's lock.
+    :returns: the open transaction.
+    :raises StoreError: for a project that takes no edits, or when another
+        writer keeps the store's edit lock.
+    """
+    tx = Transaction(project, timeout=timeout)
+    if tx.where == "legacy":
+        from .database_concurrency import transaction as sqlite_transaction
+
+        tx._conn = _legacy_connection(tx.path, timeout=timeout)
+        try:
+            with sqlite_transaction(tx._conn):
+                yield tx
+        finally:
+            tx._close()
+        return
+    with _register_lock(tx.path, name=_EDIT_LOCK):
+        try:
+            yield tx
+            tx._commit()
+        finally:
+            tx._close()
+
+
+def _legacy_file(project: str, db: Optional[str]) -> str:
+    """The older ``measurements.db`` beside a store project, or ``db``."""
+    if db is not None:
+        path = os.path.abspath(os.path.expanduser(os.fspath(db)))
+        if not os.path.isfile(path) or _legacy_kind(path) != "sqlite":
+            raise StoreError(_message(
+                "{path} is not an older measurements.db", path=path))
+        return path
+    for name in _LEGACY_NAMES:
+        found = os.path.join(project, name)
+        if os.path.isfile(found):
+            return found
+    raise StoreError(_message(
+        "{path} holds no older measurements.db to migrate", path=project))
+
+
+def _same_value(held, value) -> bool:
+    """Whether a shown value already equals an imported one."""
+    held, value = _python(held), _python(value)
+    if _missing(held):
+        return False
+    try:
+        return float(held) == float(value)
+    except (TypeError, ValueError):
+        return str(held) == str(value)
+
+
+def migrate_legacy(project, *, db: Optional[str] = None,
+                   table: str = "png_list",
+                   columns: Optional[Sequence[str]] = None,
+                   author: Optional[str] = None) -> Dict[str, Any]:
+    """Bring the label columns of an older ``measurements.db`` into the edit log.
+
+    Run only on request. The label columns of the older file's ``table``
+    (its columns that the store's own ``table`` lacks, or ``columns``) are
+    declared with their SQLite types and every value becomes one edit with
+    ``source="import"``, keyed by the table's identity (``png_path`` for
+    ``png_list``), in one :func:`transaction`. The ``.db`` is only read and
+    stays as it is. Cells the store already shows with the same value are
+    skipped, so a second run records nothing.
+
+    :param project: a store project folder.
+    :param db: the older file; the ``measurements.db`` in ``project`` when
+        None.
+    :param table: the crop table whose label columns to import.
+    :param columns: the columns to import; None imports every column the
+        store's ``table`` lacks.
+    :param author: recorded beside every imported edit.
+    :returns: ``{"source", "columns", "edits"}``: the file read, the columns
+        imported and the edits recorded.
+    :raises StoreError: when ``project`` is not a store project, holds no
+        ``table``, or no older file is found.
+    """
+    where, path = _edit_target(project)
+    if where != "store":
+        raise StoreError(_message(
+            "{path} is not a store project; migrate_legacy brings an older "
+            "file's labels into one", path=path))
+    source = _legacy_file(path, db)
+    identity = _identity(table)
+    if identity is None:
+        raise StoreError(_message(
+            "migrate_legacy imports the labels of crop tables; {table} is "
+            "not one", table=table))
+    conn = _legacy_connection(source, readonly=True)
+    try:
+        found = conn.execute(
+            f"PRAGMA table_info({_legacy_quoted(table)})").fetchall()
+        types = {row[1]: str(row[2] or "") for row in found}
+        if identity not in types:
+            raise StoreError(_message(
+                "{table} in {path} has no {column} to key the labels by",
+                table=table, path=source, column=identity))
+        reader = Store(path, verify="none")
+        try:
+            if table not in reader._views:
+                raise StoreError(_message(
+                    "this store holds no {table} to label", table=table))
+            base = set(reader._columns(table))
+        finally:
+            reader.close()
+        wanted = [c for c in (columns if columns is not None else
+                              [c for c in types if c not in base])
+                  if c in types and c != identity]
+        values: Dict[str, List[tuple]] = {}
+        for name in wanted:
+            values[name] = conn.execute(
+                f"SELECT {_legacy_quoted(identity)}, {_legacy_quoted(name)} "
+                f"FROM {_legacy_quoted(table)} WHERE {_legacy_quoted(name)} "
+                f"IS NOT NULL AND {_legacy_quoted(identity)} IS NOT NULL "
+                f"ORDER BY rowid").fetchall()
+    finally:
+        conn.close()
+    recorded = 0
+    with transaction(path) as tx:
+        tx.ensure_columns(table, {name: types[name] for name in wanted})
+        present = set(tx.columns(table))
+        current: Dict[str, Dict[Any, Any]] = {}
+        shown = [name for name in wanted if name in present]
+        if shown:
+            for row in tx.rows(table, [identity] + shown):
+                for name, value in zip(shown, row[1:]):
+                    current.setdefault(name, {})[row[0]] = value
+        for name in wanted:
+            rows = []
+            for key, value in dict(values[name]).items():
+                if _same_value(current.get(name, {}).get(key), value):
+                    continue
+                rows.append({"key": key, "value": value})
+            recorded += tx.edit(rows, kind="import", source="import",
+                                author=author, table=table, column=name)
+    return {"source": source, "columns": wanted, "edits": recorded}

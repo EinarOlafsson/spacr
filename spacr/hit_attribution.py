@@ -22,7 +22,6 @@ import hashlib
 import json
 import os
 import re
-import sqlite3
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -1063,6 +1062,99 @@ def _object_key(row: pd.Series, columns: Sequence[str]) -> str:
     return json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
 
 
+#: The bookkeeping tables of this module, with the SQLite ``CREATE`` each
+#: older ``measurements.db`` gets (kept to the byte: SQLite stores the text).
+_RUNS_DDL = """CREATE TABLE IF NOT EXISTS hit_attribution_runs (
+                run_id TEXT PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                target_gene TEXT NOT NULL,
+                manifest_json TEXT NOT NULL
+            )"""
+_RUNS_COLUMNS = ("run_id", "created_at", "target_gene", "manifest_json")
+_OBJECTS_DDL = """CREATE TABLE IF NOT EXISTS object_hit_attribution (
+                run_id TEXT NOT NULL,
+                object_key TEXT NOT NULL,
+                probability REAL NOT NULL,
+                uncertainty REAL NOT NULL,
+                threshold REAL NOT NULL,
+                hit_like_call INTEGER NOT NULL,
+                attribution_fold INTEGER NOT NULL,
+                target_guide_fraction REAL NOT NULL,
+                PRIMARY KEY (run_id, object_key),
+                FOREIGN KEY (run_id) REFERENCES hit_attribution_runs(run_id)
+                    ON DELETE CASCADE
+            )"""
+_OBJECTS_COLUMNS = ("run_id", "object_key", "probability", "uncertainty",
+                    "threshold", "hit_like_call", "attribution_fold",
+                    "target_guide_fraction")
+_PROMOTIONS_DDL = """CREATE TABLE IF NOT EXISTS hit_attribution_promotions (
+                promotion_id TEXT NOT NULL,
+                run_id TEXT NOT NULL,
+                annotation_column TEXT NOT NULL,
+                prcfo TEXT NOT NULL,
+                previous_value TEXT,
+                promoted_value TEXT,
+                created_at TEXT NOT NULL,
+                undone_at TEXT,
+                PRIMARY KEY (promotion_id, prcfo)
+            )"""
+_PROMOTIONS_COLUMNS = ("promotion_id", "run_id", "annotation_column", "prcfo",
+                       "previous_value", "promoted_value", "created_at",
+                       "undone_at")
+_INVESTIGATIONS_DDL = """CREATE TABLE IF NOT EXISTS hit_investigation_runs (
+                attribution_run_id TEXT PRIMARY KEY,
+                created_at TEXT NOT NULL,
+                context_json TEXT NOT NULL
+            )"""
+_INVESTIGATIONS_COLUMNS = ("attribution_run_id", "created_at", "context_json")
+_CELLS_DDL = """CREATE TABLE IF NOT EXISTS hit_investigation_cells (
+                attribution_run_id TEXT NOT NULL,
+                prcfo TEXT NOT NULL,
+                candidate_probability REAL NOT NULL,
+                candidate_uncertainty REAL NOT NULL,
+                candidate_call INTEGER NOT NULL,
+                attribution_fold INTEGER NOT NULL,
+                PRIMARY KEY (attribution_run_id, prcfo),
+                FOREIGN KEY (attribution_run_id)
+                    REFERENCES hit_investigation_runs(attribution_run_id)
+                    ON DELETE CASCADE
+            )"""
+_CELLS_COLUMNS = ("attribution_run_id", "prcfo", "candidate_probability",
+                  "candidate_uncertainty", "candidate_call",
+                  "attribution_fold")
+_AUDIT_DDL = """CREATE TABLE IF NOT EXISTS hit_promotion_audit (
+                promotion_id TEXT NOT NULL,
+                attribution_run_id TEXT NOT NULL,
+                annotation_column TEXT NOT NULL,
+                prcfo TEXT NOT NULL,
+                previous_json TEXT,
+                promoted_json TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                undone_at TEXT,
+                PRIMARY KEY (promotion_id, prcfo)
+            )"""
+_AUDIT_COLUMNS = ("promotion_id", "attribution_run_id", "annotation_column",
+                  "prcfo", "previous_json", "promoted_json", "created_at",
+                  "undone_at")
+
+#: The edit kind and source promotions are recorded under in a store project.
+_PROMOTION_KIND = "promotion"
+_PROMOTION_SOURCE = "rule:hit_attribution"
+
+
+def _project_path(db_path: str) -> str:
+    """``db_path`` resolved; a missing path is refused before any write.
+
+    :param db_path: a ``measurements.db`` or a store project folder.
+    :returns: the absolute path.
+    :raises HitAttributionError: when nothing is there.
+    """
+    path = os.path.abspath(os.path.expanduser(db_path))
+    if not os.path.exists(path):
+        raise HitAttributionError(f"no database at {path}")
+    return path
+
+
 def write_hit_attribution(db_path: str, result: HitAttributionResult,
                           *, run_id: Optional[str] = None) -> str:
     """Persist a versioned attribution without touching annotation columns.
@@ -1071,9 +1163,9 @@ def write_hit_attribution(db_path: str, result: HitAttributionResult,
     :param result: attribution result whose run metadata and cell scores will
         be stored.
     """
-    path = os.path.abspath(os.path.expanduser(db_path))
-    if not os.path.isfile(path):
-        raise HitAttributionError(f"no database at {path}")
+    from . import store
+
+    path = _project_path(db_path)
     run = str(run_id or uuid.uuid4())
     created = _now()
     manifest = {
@@ -1091,47 +1183,26 @@ def write_hit_attribution(db_path: str, result: HitAttributionResult,
         "validation": result.validation,
         "warnings": result.warnings,
     }
-    with sqlite3.connect(path, timeout=30) as connection:
-        connection.execute("PRAGMA foreign_keys=ON")
-        connection.execute("""
-            CREATE TABLE IF NOT EXISTS hit_attribution_runs (
-                run_id TEXT PRIMARY KEY,
-                created_at TEXT NOT NULL,
-                target_gene TEXT NOT NULL,
-                manifest_json TEXT NOT NULL
-            )
-        """)
-        connection.execute("""
-            CREATE TABLE IF NOT EXISTS object_hit_attribution (
-                run_id TEXT NOT NULL,
-                object_key TEXT NOT NULL,
-                probability REAL NOT NULL,
-                uncertainty REAL NOT NULL,
-                threshold REAL NOT NULL,
-                hit_like_call INTEGER NOT NULL,
-                attribution_fold INTEGER NOT NULL,
-                target_guide_fraction REAL NOT NULL,
-                PRIMARY KEY (run_id, object_key),
-                FOREIGN KEY (run_id) REFERENCES hit_attribution_runs(run_id)
-                    ON DELETE CASCADE
-            )
-        """)
-        connection.execute(
-            "INSERT INTO hit_attribution_runs VALUES (?, ?, ?, ?)",
-            (run, created, result.target_gene,
-             json.dumps(manifest, sort_keys=True, default=str)))
-        rows = []
-        for _, row in result.cells.iterrows():
-            rows.append((
-                run, _object_key(row, result.object_columns),
-                float(row["hit_like_probability"]),
-                float(row["hit_like_uncertainty"]), result.threshold,
-                int(bool(row["hit_like_call"])), int(row["attribution_fold"]),
-                float(row["target_guide_fraction"]),
-            ))
-        connection.executemany(
-            "INSERT INTO object_hit_attribution VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            rows)
+    rows = []
+    for _, row in result.cells.iterrows():
+        rows.append(dict(zip(_OBJECTS_COLUMNS, (
+            run, _object_key(row, result.object_columns),
+            float(row["hit_like_probability"]),
+            float(row["hit_like_uncertainty"]), result.threshold,
+            int(bool(row["hit_like_call"])), int(row["attribution_fold"]),
+            float(row["target_guide_fraction"]),
+        ))))
+    with store.transaction(path) as tx:
+        tx.append_rows("hit_attribution_runs", [], columns=_RUNS_COLUMNS,
+                       ddl=_RUNS_DDL)
+        tx.append_rows("object_hit_attribution", [],
+                       columns=_OBJECTS_COLUMNS, ddl=_OBJECTS_DDL)
+        tx.append_rows("hit_attribution_runs", [dict(zip(_RUNS_COLUMNS, (
+            run, created, result.target_gene,
+            json.dumps(manifest, sort_keys=True, default=str))))],
+            columns=_RUNS_COLUMNS, ddl=_RUNS_DDL)
+        tx.append_rows("object_hit_attribution", rows,
+                       columns=_OBJECTS_COLUMNS, ddl=_OBJECTS_DDL)
     return run
 
 
@@ -1143,11 +1214,17 @@ def promote_hit_calls(db_path: str, result: HitAttributionResult, *,
                       positive_value: Any = 1) -> str:
     """Explicitly promote positive calls to a fresh, reversible annotation.
 
+    The check that the column is fresh, the new column, its values and the
+    audit rows are one :func:`spacr.store.transaction`: an interrupted
+    promotion leaves none of them.
+
     :param db_path: path to the SQLite measurements database to update.
     :param result: attribution result containing the positive object calls.
     :param run_id: attribution-run identifier to record in the audit.
     :param annotation_column: fresh ``png_list`` column to receive the calls.
     """
+    from . import store
+
     column = str(annotation_column)
     if not _SQL_NAME.fullmatch(column):
         raise HitAttributionError(
@@ -1156,40 +1233,47 @@ def promote_hit_calls(db_path: str, result: HitAttributionResult, *,
         raise HitAttributionError(
             "promotion currently requires prcfo as the exact png_list object key")
     promotion_id = str(uuid.uuid4())
-    with sqlite3.connect(db_path, timeout=30) as connection:
-        columns = {row[1] for row in connection.execute(
-            'PRAGMA table_info("png_list")')}
+    with store.transaction(db_path, timeout=30) as tx:
+        columns = set(tx.columns("png_list"))
         if "prcfo" not in columns:
             raise HitAttributionError("png_list has no prcfo object key")
         if column in columns:
             raise HitAttributionError(
                 f"annotation column {column!r} already exists; choose a fresh "
                 "name so hand annotations cannot be overwritten")
-        connection.execute(f'ALTER TABLE "png_list" ADD COLUMN "{column}"')
-        connection.execute("""
-            CREATE TABLE IF NOT EXISTS hit_attribution_promotions (
-                promotion_id TEXT NOT NULL,
-                run_id TEXT NOT NULL,
-                annotation_column TEXT NOT NULL,
-                prcfo TEXT NOT NULL,
-                previous_value TEXT,
-                promoted_value TEXT,
-                created_at TEXT NOT NULL,
-                undone_at TEXT,
-                PRIMARY KEY (promotion_id, prcfo)
-            )
-        """)
+        tx.ensure_columns("png_list", {column: ""})
+        tx.append_rows("hit_attribution_promotions", [],
+                       columns=_PROMOTIONS_COLUMNS, ddl=_PROMOTIONS_DDL)
         selected = result.cells[result.cells["hit_like_call"]]
-        for value in selected["prcfo"].astype(str):
-            connection.execute(
-                f'UPDATE "png_list" SET "{column}"=? WHERE prcfo=?',
-                (positive_value, value))
-            connection.execute(
-                "INSERT INTO hit_attribution_promotions VALUES "
-                "(?, ?, ?, ?, NULL, ?, ?, NULL)",
-                (promotion_id, run_id, column, value,
-                 json.dumps(positive_value, default=str), _now()))
+        values = [str(v) for v in selected["prcfo"].astype(str)]
+        tx.edit([{"key": value, "value": positive_value} for value in values],
+                kind=_PROMOTION_KIND, source=_PROMOTION_SOURCE,
+                run_id=run_id, table="png_list", column=column,
+                key_column="prcfo")
+        promoted = json.dumps(positive_value, default=str)
+        tx.append_rows("hit_attribution_promotions", [
+            dict(zip(_PROMOTIONS_COLUMNS, (promotion_id, run_id, column,
+                                           value, None, promoted, _now(),
+                                           None)))
+            for value in values],
+            columns=_PROMOTIONS_COLUMNS, ddl=_PROMOTIONS_DDL)
     return promotion_id
+
+
+def _promoted_column(rows) -> str:
+    """The one safe annotation column of a promotion's audit rows.
+
+    :param rows: audit rows whose first field is the column.
+    :returns: the column.
+    :raises HitAttributionError: for several columns or an unsafe name.
+    """
+    columns = {row[0] for row in rows}
+    if len(columns) != 1:
+        raise HitAttributionError("promotion audit contains multiple columns")
+    column = next(iter(columns))
+    if not _SQL_NAME.fullmatch(column):
+        raise HitAttributionError("stored annotation column is unsafe")
+    return column
 
 
 def undo_hit_promotion(db_path: str, promotion_id: str) -> int:
@@ -1198,25 +1282,23 @@ def undo_hit_promotion(db_path: str, promotion_id: str) -> int:
     :param db_path: path to the SQLite measurements database to update.
     :param promotion_id: identifier returned by :func:`promote_hit_calls`.
     """
-    with sqlite3.connect(db_path, timeout=30) as connection:
-        rows = connection.execute(
-            "SELECT annotation_column, prcfo FROM hit_attribution_promotions "
-            "WHERE promotion_id=? AND undone_at IS NULL", (promotion_id,)
-        ).fetchall()
+    from . import store
+
+    with store.transaction(db_path, timeout=30) as tx:
+        rows = tx.rows("hit_attribution_promotions",
+                       ["annotation_column", "prcfo"],
+                       where={"promotion_id": promotion_id,
+                              "undone_at": None})
         if not rows:
             return 0
-        columns = {row[0] for row in rows}
-        if len(columns) != 1:
-            raise HitAttributionError("promotion audit contains multiple columns")
-        column = next(iter(columns))
-        if not _SQL_NAME.fullmatch(column):
-            raise HitAttributionError("stored annotation column is unsafe")
-        connection.executemany(
-            f'UPDATE "png_list" SET "{column}"=NULL WHERE prcfo=?',
-            [(row[1],) for row in rows])
-        connection.execute(
-            "UPDATE hit_attribution_promotions SET undone_at=? "
-            "WHERE promotion_id=? AND undone_at IS NULL", (_now(), promotion_id))
+        column = _promoted_column(rows)
+        tx.edit([{"key": row[1], "value": None} for row in rows],
+                kind=_PROMOTION_KIND, source=_PROMOTION_SOURCE,
+                table="png_list", column=column, key_column="prcfo")
+        tx.update_rows("hit_attribution_promotions", {"undone_at": _now()},
+                       where={"promotion_id": promotion_id,
+                              "undone_at": None},
+                       key=("promotion_id", "prcfo"))
         return len(rows)
 
 
@@ -1226,9 +1308,9 @@ def store_attribution(db_path: str, result: HitInvestigationResult) -> int:
     :param db_path: path to the existing SQLite measurements database.
     :param result: investigation bundle to persist.
     """
-    path = os.path.abspath(os.path.expanduser(db_path))
-    if not os.path.isfile(path):
-        raise HitAttributionError(f"no database at {path}")
+    from . import store
+
+    path = _project_path(db_path)
     _require_columns(result.cells, ["prcfo", "candidate_probability"],
                      "investigation cells")
     if result.cells["prcfo"].duplicated().any():
@@ -1247,44 +1329,29 @@ def store_attribution(db_path: str, result: HitInvestigationResult) -> int:
         "warnings": result.warnings,
         "enrichment": result.enrichment,
     }
-    with sqlite3.connect(path, timeout=30) as connection:
-        connection.execute("""
-            CREATE TABLE IF NOT EXISTS hit_investigation_runs (
-                attribution_run_id TEXT PRIMARY KEY,
-                created_at TEXT NOT NULL,
-                context_json TEXT NOT NULL
-            )
-        """)
-        connection.execute("""
-            CREATE TABLE IF NOT EXISTS hit_investigation_cells (
-                attribution_run_id TEXT NOT NULL,
-                prcfo TEXT NOT NULL,
-                candidate_probability REAL NOT NULL,
-                candidate_uncertainty REAL NOT NULL,
-                candidate_call INTEGER NOT NULL,
-                attribution_fold INTEGER NOT NULL,
-                PRIMARY KEY (attribution_run_id, prcfo),
-                FOREIGN KEY (attribution_run_id)
-                    REFERENCES hit_investigation_runs(attribution_run_id)
-                    ON DELETE CASCADE
-            )
-        """)
-        connection.execute(
-            "INSERT INTO hit_investigation_runs VALUES (?, ?, ?)",
-            (result.attribution_run_id, _now(),
-             json.dumps(context, sort_keys=True, default=str)))
-        rows = []
-        for row in result.cells.itertuples(index=False):
-            probability = float(getattr(row, "candidate_probability"))
-            uncertainty = float(getattr(
-                row, "candidate_uncertainty", 1 - abs(2 * probability - 1)))
-            call = bool(getattr(row, "candidate_call", probability >= 0.5))
-            fold = int(getattr(row, "attribution_fold", -1))
-            rows.append((result.attribution_run_id, str(row.prcfo),
-                         probability, uncertainty, int(call), fold))
-        connection.executemany(
-            "INSERT INTO hit_investigation_cells VALUES (?, ?, ?, ?, ?, ?)",
-            rows)
+    rows = []
+    for row in result.cells.itertuples(index=False):
+        probability = float(getattr(row, "candidate_probability"))
+        uncertainty = float(getattr(
+            row, "candidate_uncertainty", 1 - abs(2 * probability - 1)))
+        call = bool(getattr(row, "candidate_call", probability >= 0.5))
+        fold = int(getattr(row, "attribution_fold", -1))
+        rows.append(dict(zip(_CELLS_COLUMNS, (
+            result.attribution_run_id, str(row.prcfo), probability,
+            uncertainty, int(call), fold))))
+    with store.transaction(path) as tx:
+        tx.append_rows("hit_investigation_runs", [],
+                       columns=_INVESTIGATIONS_COLUMNS,
+                       ddl=_INVESTIGATIONS_DDL)
+        tx.append_rows("hit_investigation_cells", [], columns=_CELLS_COLUMNS,
+                       ddl=_CELLS_DDL)
+        tx.append_rows("hit_investigation_runs", [dict(zip(
+            _INVESTIGATIONS_COLUMNS, (
+                result.attribution_run_id, _now(),
+                json.dumps(context, sort_keys=True, default=str))))],
+            columns=_INVESTIGATIONS_COLUMNS, ddl=_INVESTIGATIONS_DDL)
+        tx.append_rows("hit_investigation_cells", rows,
+                       columns=_CELLS_COLUMNS, ddl=_CELLS_DDL)
     return len(rows)
 
 
@@ -1292,57 +1359,54 @@ def promote_calls(db_path: str, attribution_run_id: str,
                   annotation_column: str) -> str:
     """Promote stored calls while recording every previous annotation value.
 
+    Reading the previous values, writing the calls and their audit rows are
+    one :func:`spacr.store.transaction`, so an interrupted promotion leaves
+    no half state.
+
     :param db_path: path to the SQLite measurements database to update.
     :param attribution_run_id: stored investigation whose calls to promote.
     :param annotation_column: ``png_list`` column to create or update.
     """
+    from . import store
+
     column = str(annotation_column)
     if not _SQL_NAME.fullmatch(column):
         raise HitAttributionError(
             "annotation column must contain only letters, numbers and underscores")
     promotion_id = str(uuid.uuid4())
-    with sqlite3.connect(db_path, timeout=30) as connection:
-        table_columns = {row[1] for row in connection.execute(
-            'PRAGMA table_info("png_list")')}
+    with store.transaction(db_path, timeout=30) as tx:
+        table_columns = set(tx.columns("png_list"))
         if "prcfo" not in table_columns:
             raise HitAttributionError("png_list has no prcfo object key")
-        if column not in table_columns:
-            connection.execute(f'ALTER TABLE "png_list" ADD COLUMN "{column}"')
-        calls = connection.execute(
-            "SELECT prcfo, candidate_call FROM hit_investigation_cells "
-            "WHERE attribution_run_id=?", (attribution_run_id,)).fetchall()
+        existed = column in table_columns
+        tx.ensure_columns("png_list", {column: ""})
+        calls = tx.rows("hit_investigation_cells", ["prcfo", "candidate_call"],
+                        where={"attribution_run_id": attribution_run_id})
         if not calls:
             raise HitAttributionError(
                 f"no stored cells for attribution run {attribution_run_id!r}")
-        connection.execute("""
-            CREATE TABLE IF NOT EXISTS hit_promotion_audit (
-                promotion_id TEXT NOT NULL,
-                attribution_run_id TEXT NOT NULL,
-                annotation_column TEXT NOT NULL,
-                prcfo TEXT NOT NULL,
-                previous_json TEXT,
-                promoted_json TEXT NOT NULL,
-                created_at TEXT NOT NULL,
-                undone_at TEXT,
-                PRIMARY KEY (promotion_id, prcfo)
-            )
-        """)
+        tx.append_rows("hit_promotion_audit", [], columns=_AUDIT_COLUMNS,
+                       ddl=_AUDIT_DDL)
+        wanted = [prcfo for prcfo, _call in calls]
+        current: Dict[Any, Any] = {}
+        for found in tx.rows("png_list", ["prcfo", column] if existed
+                             else ["prcfo"], where={"prcfo": wanted}):
+            current.setdefault(found[0], found[1] if existed else None)
+        audit = []
         for prcfo, call in calls:
-            current = connection.execute(
-                f'SELECT "{column}" FROM "png_list" WHERE prcfo=?',
-                (prcfo,)).fetchone()
-            if current is None:
+            if prcfo not in current:
                 raise HitAttributionError(
                     f"attributed object {prcfo!r} is absent from png_list")
-            previous = current[0]
-            connection.execute(
-                f'UPDATE "png_list" SET "{column}"=? WHERE prcfo=?',
-                (int(call), prcfo))
-            connection.execute(
-                "INSERT INTO hit_promotion_audit VALUES "
-                "(?, ?, ?, ?, ?, ?, ?, NULL)",
-                (promotion_id, attribution_run_id, column, prcfo,
-                 json.dumps(previous, default=str), json.dumps(int(call)), _now()))
+            audit.append(dict(zip(_AUDIT_COLUMNS, (
+                promotion_id, attribution_run_id, column, prcfo,
+                json.dumps(current[prcfo], default=str),
+                json.dumps(int(call)), _now(), None))))
+        tx.edit([{"key": prcfo, "value": int(call)} for prcfo, call in calls],
+                kind=_PROMOTION_KIND, source=_PROMOTION_SOURCE,
+                run_id=attribution_run_id, table="png_list", column=column,
+                key_column="prcfo")
+        tx.append_rows("hit_promotion_audit", audit, columns=_AUDIT_COLUMNS,
+                       ddl=_AUDIT_DDL)
     return promotion_id
 
 
@@ -1358,30 +1422,22 @@ def revert_promotion(db_path: str, promotion_id: str) -> int:
     :param db_path: path to the SQLite measurements database to update.
     :param promotion_id: identifier returned by :func:`promote_calls`.
     """
-    with sqlite3.connect(db_path, timeout=30) as connection:
-        audited = connection.execute(
-            "SELECT 1 FROM sqlite_master WHERE type='table' "
-            "AND name='hit_promotion_audit'").fetchone()
-        if not audited:
-            return 0
-        rows = connection.execute(
-            "SELECT annotation_column, prcfo, previous_json "
-            "FROM hit_promotion_audit WHERE promotion_id=? AND undone_at IS NULL",
-            (promotion_id,)).fetchall()
+    from . import store
+
+    with store.transaction(db_path, timeout=30) as tx:
+        rows = tx.rows("hit_promotion_audit",
+                       ["annotation_column", "prcfo", "previous_json"],
+                       where={"promotion_id": promotion_id,
+                              "undone_at": None})
         if not rows:
             return 0
-        columns = {row[0] for row in rows}
-        if len(columns) != 1:
-            raise HitAttributionError("promotion audit contains multiple columns")
-        column = next(iter(columns))
-        if not _SQL_NAME.fullmatch(column):
-            raise HitAttributionError("stored annotation column is unsafe")
-        for _, prcfo, previous_json in rows:
-            previous = json.loads(previous_json)
-            connection.execute(
-                f'UPDATE "png_list" SET "{column}"=? WHERE prcfo=?',
-                (previous, prcfo))
-        connection.execute(
-            "UPDATE hit_promotion_audit SET undone_at=? "
-            "WHERE promotion_id=? AND undone_at IS NULL", (_now(), promotion_id))
+        column = _promoted_column(rows)
+        tx.edit([{"key": prcfo, "value": json.loads(previous_json)}
+                 for _, prcfo, previous_json in rows],
+                kind=_PROMOTION_KIND, source=_PROMOTION_SOURCE,
+                table="png_list", column=column, key_column="prcfo")
+        tx.update_rows("hit_promotion_audit", {"undone_at": _now()},
+                       where={"promotion_id": promotion_id,
+                              "undone_at": None},
+                       key=("promotion_id", "prcfo"))
         return len(rows)

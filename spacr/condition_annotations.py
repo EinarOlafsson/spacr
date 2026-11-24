@@ -966,21 +966,19 @@ def _same_label(stored, wanted):
     return str(stored) == str(wanted)
 
 
-def _owned_png_list_columns(connection):
-    """Columns of ``png_list`` that earlier Graph Builder saves wrote."""
-    import sqlite3
+def _owned_png_list_columns(rows):
+    """Columns of ``png_list`` that earlier Graph Builder saves wrote.
 
-    try:
-        rows = connection.execute(
-            f"SELECT payload_json FROM {_quote(PROVENANCE_TABLE)} WHERE table_name LIKE ?",
-            (_PNG_LIST_RECEIPT + "%",)).fetchall()
-    except sqlite3.Error:
-        return set()
+    :param rows: ``(table_name, payload_json)`` rows of the provenance table.
+    """
     owned = set()
-    for (payload,) in rows:
+    prefix = _PNG_LIST_RECEIPT.casefold()
+    for name, payload in rows:
+        if not str(name).casefold().startswith(prefix):
+            continue
         try:
             owned.update(json.loads(payload).get("columns", []))
-        except (ValueError, AttributeError):
+        except (ValueError, AttributeError, TypeError):
             continue
     return owned
 
@@ -1000,6 +998,12 @@ def _unmatched_sample(keys, matched):
     return sample
 
 
+#: The provenance table's SQLite ``CREATE``.
+_PROVENANCE_DDL = (f"CREATE TABLE IF NOT EXISTS {_quote(PROVENANCE_TABLE)} "
+                   "(table_name TEXT PRIMARY KEY, payload_json TEXT NOT NULL)")
+_PROVENANCE_COLUMNS = ("table_name", "payload_json")
+
+
 def _write_png_list_labels(path, labels, columns, source, definition, busy_timeout):
     """Write one database's labels into ``png_list`` by ``prcfo``.
 
@@ -1007,10 +1011,9 @@ def _write_png_list_labels(path, labels, columns, source, definition, busy_timeo
     stored as ``pplate1`` meets a table that reads it as ``plate1``. When no
     row matches, nothing is written: no column is added and no receipt is
     stored, and a few unmatched keys of each side are returned so the caller
-    can show why. Otherwise columns are added with
-    :func:`spacr.qt.annotate_engine.ensure_annotation_column`, the call
-    Annotate opens a source with, and only rows whose value changes are
-    written, in one transaction that also records the receipt.
+    can show why. Otherwise the columns Annotate would add are added, and
+    only rows whose value changes are written, by their stored ``prcfo``, in
+    one :func:`spacr.store.transaction` that also records the receipt.
 
     :param path: the plate's measurement database.
     :param labels: one row per comparable key (``__key``) with the table's
@@ -1027,74 +1030,74 @@ def _write_png_list_labels(path, labels, columns, source, definition, busy_timeo
     """
     import sqlite3
 
-    from .database_concurrency import DatabaseBusy, connect, is_busy_error, transaction
-    from .filters import rowid_expression
-    from .qt.annotate_engine import ensure_annotation_column
+    from . import store
+    from .database_concurrency import DatabaseBusy, is_busy_error
 
     wanted = set(labels["__key"])
     unmatched = {"table": [], "png_list": []}
     try:
-        reader = connect(path, readonly=True, timeout=busy_timeout)
-        try:
-            existing = [row[1] for row in reader.execute('PRAGMA table_info("png_list")')]
-            owned = _owned_png_list_columns(reader)
-            stored_keys = [(value, _comparable_prcfo(value)) for (value,) in
-                           reader.execute('SELECT "prcfo" FROM "png_list"').fetchall()]
-        finally:
-            reader.close()
-        present = {comparable for _value, comparable in stored_keys if comparable is not None}
-        if not wanted & present:
-            unmatched = {
-                "table": _unmatched_sample(zip(labels["prcfo"].tolist(), labels["__key"].tolist()),
-                                           present),
-                "png_list": _unmatched_sample(
-                    ((None if value is None else str(value), comparable)
-                     for value, comparable in stored_keys), wanted)}
-            return {"objects": 0, "labelled": 0, "no_png_list_row": len(labels),
-                    "matched": 0, "updated": 0, "unmatched": unmatched}
-        foreign = [column for column in columns if column in existing and column not in owned]
-        if foreign:
-            raise AnnotationError(
-                f"png_list in {path} already has a column named {', '.join(foreign)} that Graph Builder "
-                "did not write. Rename the annotation column so those values are not overwritten.")
-        for column in columns:
-            if column not in existing:
-                ensure_annotation_column(path, column)
-        connection = connect(path, timeout=busy_timeout)
-        try:
-            with transaction(connection, busy_timeout=busy_timeout):
-                names = [row[1] for row in connection.execute('PRAGMA table_info("png_list")')]
-                rowid = rowid_expression(names) or "_rowid_"
-                selected = ", ".join(_quote(column) for column in columns)
-                stored = pd.DataFrame(
-                    connection.execute(f'SELECT {rowid}, "prcfo", {selected} FROM "png_list"').fetchall(),
-                    columns=["__row", "prcfo", *columns])
-                stored["__key"] = [_comparable_prcfo(value) for value in stored["prcfo"].tolist()]
-                stored = stored[stored["__key"].notna()]
-                joined = stored.drop(columns="prcfo").merge(
-                    labels.drop(columns="prcfo"), on="__key", how="inner", suffixes=("", "__new"))
-                updated = set()
-                for column in columns:
-                    changed = [(wanted_value, int(row)) for row, current, wanted_value in zip(
-                        joined["__row"].tolist(), joined[column].tolist(), joined[column + "__new"].tolist())
-                        if not _same_label(current, wanted_value)]
-                    updated.update(row for _value, row in changed)
-                    connection.executemany(
-                        f'UPDATE "png_list" SET {_quote(column)} = ? WHERE {rowid} = ?', changed)
-                found = connection.execute(
-                    "SELECT type FROM sqlite_master WHERE name=?", (PROVENANCE_TABLE,)).fetchone()
-                if found is None:
-                    connection.execute(f"CREATE TABLE {_quote(PROVENANCE_TABLE)} "
-                                       "(table_name TEXT PRIMARY KEY, payload_json TEXT NOT NULL)")
-                elif found[0] != "table" or [row[1] for row in connection.execute(
-                        f"PRAGMA table_info({_quote(PROVENANCE_TABLE)})")] != ["table_name", "payload_json"]:
-                    raise AnnotationError("The annotation provenance table has an incompatible schema.")
-                payload = {"version": 1, "kind": "png_list", "source": source,
-                           "columns": list(columns), "definition": definition}
-                connection.execute(f"INSERT OR REPLACE INTO {_quote(PROVENANCE_TABLE)} VALUES (?, ?)",
-                                   (_receipt_key(source), json.dumps(payload)))
-        finally:
-            connection.close()
+        with store.transaction(path, timeout=busy_timeout) as tx:
+            existing = tx.columns("png_list")
+            provenance = tx.columns(PROVENANCE_TABLE)
+            if provenance and (PROVENANCE_TABLE not in tx.tables()
+                               or provenance != list(_PROVENANCE_COLUMNS)):
+                owned = set()
+            else:
+                owned = _owned_png_list_columns(tx.rows(
+                    PROVENANCE_TABLE, _PROVENANCE_COLUMNS) if provenance else [])
+            present_columns = [column for column in columns if column in existing]
+            stored = pd.DataFrame(
+                tx.rows("png_list", ["prcfo", *present_columns]),
+                columns=["prcfo", *present_columns])
+            for column in columns:
+                if column not in stored.columns:
+                    stored[column] = None
+            stored_keys = [(value, _comparable_prcfo(value)) for value in stored["prcfo"].tolist()]
+            present = {comparable for _value, comparable in stored_keys if comparable is not None}
+            if not wanted & present:
+                unmatched = {
+                    "table": _unmatched_sample(zip(labels["prcfo"].tolist(), labels["__key"].tolist()),
+                                               present),
+                    "png_list": _unmatched_sample(
+                        ((None if value is None else str(value), comparable)
+                         for value, comparable in stored_keys), wanted)}
+                return {"objects": 0, "labelled": 0, "no_png_list_row": len(labels),
+                        "matched": 0, "updated": 0, "unmatched": unmatched}
+            foreign = [column for column in columns if column in existing and column not in owned]
+            if foreign:
+                raise AnnotationError(
+                    f"png_list in {path} already has a column named {', '.join(foreign)} that Graph Builder "
+                    "did not write. Rename the annotation column so those values are not overwritten.")
+            missing = {column: "INTEGER" for column in columns if column not in existing}
+            if missing:
+                tx.ensure_columns("png_list", missing, index=("idx_png_path", "png_path"))
+            stored["__row"] = range(len(stored))
+            stored["__key"] = [comparable for _value, comparable in stored_keys]
+            stored = stored[stored["__key"].notna()]
+            joined = stored.merge(
+                labels.drop(columns="prcfo"), on="__key", how="inner", suffixes=("", "__new"))
+            updated = set()
+            for column in columns:
+                changed = [(row, prcfo, wanted_value) for row, prcfo, current, wanted_value in zip(
+                    joined["__row"].tolist(), joined["prcfo"].tolist(), joined[column].tolist(),
+                    joined[column + "__new"].tolist())
+                    if not _same_label(current, wanted_value)]
+                updated.update(row for row, _prcfo, _value in changed)
+                tx.edit([{"key": prcfo, "value": value}
+                         for _row, prcfo, value in dict(
+                             (prcfo, (row, prcfo, value))
+                             for row, prcfo, value in changed).values()],
+                        kind="condition", source="graph_builder", table="png_list",
+                        column=column, key_column="prcfo", types={column: "INTEGER"})
+            if provenance and (PROVENANCE_TABLE not in tx.tables()
+                               or provenance != list(_PROVENANCE_COLUMNS)):
+                raise AnnotationError("The annotation provenance table has an incompatible schema.")
+            payload = {"version": 1, "kind": "png_list", "source": source,
+                       "columns": list(columns), "definition": definition}
+            tx.append_rows(PROVENANCE_TABLE, [{"table_name": _receipt_key(source),
+                                               "payload_json": json.dumps(payload)}],
+                           columns=_PROVENANCE_COLUMNS, ddl=_PROVENANCE_DDL,
+                           replace=("table_name",))
     except sqlite3.OperationalError as exc:
         if isinstance(exc, DatabaseBusy) or is_busy_error(exc):
             raise DatabaseBusy(

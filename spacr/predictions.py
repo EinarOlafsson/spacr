@@ -69,7 +69,7 @@ import math
 import os
 import sqlite3
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -649,13 +649,78 @@ class MergeReport:
 
 
 
-def _execute(cursor, sql: str) -> None:
-    """Run one write statement.
+def _execute(tx, rows, **edit) -> int:
+    """Write one repair's rows inside the caller's store transaction.
 
     A named seam, like :func:`_execute_updates`, so a test can make the write
     fail after it has taken effect and prove the transaction rolls it back.
+
+    :returns: the rows changed.
     """
-    cursor.execute(sql)
+    return tx.edit(rows, **edit)
+
+
+#: The columns a row of an older SQLite table can be addressed by, in order:
+#: the crop table's identity first, then the object key, then the file name.
+_ROW_IDENTITIES: Tuple[str, ...] = ("png_path", "prcfo", "file_name")
+
+
+def _identity_rows(table: str, table_columns: Sequence[str], rows,
+                   planned: Sequence[Tuple]) -> Optional[str]:
+    """The column that addresses every planned row of an older SQLite table.
+
+    The merge plans its updates per stored row; the store writes them by a
+    key. A column qualifies when every planned row has a value in it and the
+    rows sharing a value are planned the same, so writing by that key gives
+    exactly the rows the plan meant.
+
+    :param table: the table.
+    :param table_columns: its columns.
+    :param rows: the stored rows, as mappings.
+    :param planned: ``(values, row position)`` of each planned update.
+    :returns: the column, or None when none qualifies.
+    """
+    from . import store
+
+    wanted = list(dict.fromkeys(
+        [c for c in [store._identity(table)] if c] + list(_ROW_IDENTITIES)))
+    for column in wanted:
+        if column not in table_columns:
+            continue
+        by_value: Dict[str, Tuple] = {}
+        planned_rows = {position for _values, position in planned}
+        usable = True
+        for values, position in planned:
+            value = rows[position].get(column)
+            if value is None or by_value.get(value, values) != values:
+                usable = False
+                break
+            by_value[value] = values
+        if usable and all(rows[p].get(column) not in by_value
+                          for p in range(len(rows)) if p not in planned_rows):
+            return column
+    return None
+
+
+def _repair_columns(tx, table: str, table_columns: Sequence[str]):
+    """Repair the legacy 1/2 class encoding inside the store transaction.
+
+    The column holds only 1s and 2s when it is repaired, so "above 1" picks
+    exactly the rows that hold 2.
+    """
+    repaired = []
+    for column in ANNOTATE_ENCODED_COLUMNS:
+        if column not in table_columns:
+            continue
+        values = {row[0] for row in tx.rows(table, [column])
+                  if row[0] is not None}
+        if not values or not values.issubset({1, 2}) or 2 not in values:
+            continue
+        count = _execute(tx, [{"value": 0}], kind="prediction",
+                         source="rule:prediction_encoding", table=table,
+                         column=column, every_row=True, guard=("above", 1))
+        repaired.append((table, column, int(count)))
+    return repaired
 
 
 def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
@@ -711,38 +776,13 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
                       f"Annotate app's 1/2 class encoding back to the model's 0/1")
         return repaired
 
-    repaired: List[Tuple[str, str, int]] = []
-    con = sqlite3.connect(str(db_path), timeout=30)
-    con.isolation_level = None
-    try:
-        cur = con.cursor()
-        tables = {row[0] for row in
-                  cur.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        if table not in tables:
-            return []
-        cols = [row[1] for row in cur.execute(f"PRAGMA table_info({_quote(table)})")]
-        pending = [c for c in ANNOTATE_ENCODED_COLUMNS if c in cols]
-        if not pending:
-            return []
+    from . import store
 
-        cur.execute("BEGIN")
-        try:
-            for column in pending:
-                quoted = _quote(column)
-                distinct = {row[0] for row in cur.execute(
-                    f"SELECT DISTINCT {quoted} FROM {_quote(table)} "
-                    f"WHERE {quoted} IS NOT NULL")}
-                if not distinct or not distinct.issubset({1, 2}) or 2 not in distinct:
-                    continue
-                _execute(cur, f"UPDATE {_quote(table)} SET {quoted} = 0 "
-                              f"WHERE {quoted} = 2")
-                repaired.append((table, column, cur.rowcount))
-            cur.execute("COMMIT")
-        except BaseException:
-            cur.execute("ROLLBACK")
-            raise
-    finally:
-        con.close()
+    if os.path.isfile(os.path.join(str(db_path), store.CATALOG)):
+        return []
+    with store.transaction(str(db_path)) as tx:
+        cols = tx.columns(table)
+        repaired = _repair_columns(tx, table, cols) if cols else []
 
     if verbose:
         for _table, column, count in repaired:
@@ -752,13 +792,13 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
 
 
 
-def _execute_updates(cursor, sql: str, updates: Sequence[Tuple]) -> None:
-    """Apply the prepared UPDATE statements.
+def _execute_updates(tx, rows, **edit) -> None:
+    """Apply the planned updates inside the caller's store transaction.
 
-    A named seam rather than an inline ``executemany`` so a test can make the
-    write fail halfway and prove the transaction rolls the whole merge back.
+    A named seam rather than an inline call so a test can make the write
+    fail halfway and prove the transaction rolls the whole merge back.
     """
-    cursor.executemany(sql, updates)
+    tx.edit(rows, **edit)
 
 
 def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
@@ -832,22 +872,7 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
             print(report.summary())
         return report
 
-    repaired = migrate_prediction_columns(db_path, table=table, verbose=False)
-
-    con = sqlite3.connect(db_path, timeout=30)
-    con.isolation_level = None
-    try:
-        cur = con.cursor()
-        cur.execute("BEGIN")
-        try:
-            report = _merge_locked(cur, results, spec, table, key, timelapse,
-                                   repaired)
-            cur.execute("COMMIT")
-        except BaseException:
-            cur.execute("ROLLBACK")
-            raise
-    finally:
-        con.close()
+    report = _merge_legacy(results, db_path, spec, table, key, timelapse)
 
     if verbose:
         print(report.summary())
@@ -1157,34 +1182,57 @@ def _merge_parquet_store(results, db_path, spec, table, key, timelapse,
     return repaired if migration_only else report
 
 
-def _merge_locked(cur, results: pd.DataFrame, spec: Mapping[str, Tuple[str, str]],
-                  table: str, key: str, timelapse: Optional[bool],
-                  repaired: Sequence[Tuple[str, str, int]]) -> MergeReport:
-    """Do the merge inside an already-open transaction."""
-    quoted_table = _quote(table)
-    cur.execute(f"SELECT * FROM {quoted_table} LIMIT 0")
-    table_columns = [d[0] for d in cur.description]
-    key_columns = [c for c in table_columns
-                   if c in ("prcfo", "png_path", "file_name")
-                   or c in _PRCFO_METADATA or c in _OBJECT_ID_COLUMNS
-                   or c in ("timeID", "time_id")]
-    rowid = _rowid_alias(table_columns)
-    select = ", ".join([rowid] + [_quote(c) for c in key_columns])
-    rows = cur.execute(f"SELECT {select} FROM {quoted_table}").fetchall()
-    rowids = [r[0] for r in rows]
-    db_frame = pd.DataFrame([r[1:] for r in rows], columns=key_columns)
+def _merge_legacy(results: pd.DataFrame, db_path: str,
+                  spec: Mapping[str, Tuple[str, str]], table: str, key: str,
+                  timelapse: Optional[bool]) -> MergeReport:
+    """Merge into an older SQLite file in one :func:`spacr.store.transaction`.
 
-    updates, report, order, types = _plan_merge(
-        results, spec, table, key, timelapse, table_columns,
-        db_frame, rowids, repaired)
-    for db_col in report.added_columns:
-        cur.execute(f"ALTER TABLE {quoted_table} ADD COLUMN "
-                    f"{_quote(db_col)} {types[db_col]}")
-    if updates:
-        assignments = ", ".join(f"{_quote(c)} = ?" for c in order)
-        _execute_updates(
-            cur, f"UPDATE {quoted_table} SET {assignments} WHERE {rowid} = ?",
-            updates)
+    The legacy-encoding repair, the added columns and every planned row land
+    together or not at all. The plan is made per stored row; the rows are
+    written by a column that addresses exactly those rows
+    (:func:`_identity_rows`), or by row id when none does.
+
+    :raises sqlite3.OperationalError: when the file has no ``table``.
+    :raises ValueError: for an empty table name, or a table that shadows
+        every spelling of the row id.
+    """
+    from . import store
+
+    _quote(table)
+    with store.transaction(db_path) as tx:
+        table_columns = tx.columns(table)
+        if not table_columns:
+            raise sqlite3.OperationalError(f"no such table: {table}")
+        rowid = _rowid_alias(table_columns)
+        repaired = _repair_columns(tx, table, table_columns)
+        key_columns = [c for c in table_columns
+                       if c in ("prcfo", "png_path", "file_name")
+                       or c in _PRCFO_METADATA or c in _OBJECT_ID_COLUMNS
+                       or c in ("timeID", "time_id")]
+        stored = tx.rows(table, [rowid] + key_columns)
+        rowids = [row[0] for row in stored]
+        db_frame = pd.DataFrame([row[1:] for row in stored],
+                                columns=key_columns)
+        updates, report, order, types = _plan_merge(
+            results, spec, table, key, timelapse, table_columns,
+            db_frame, range(len(db_frame)), repaired)
+        if report.added_columns:
+            tx.ensure_columns(table, {c: types[c]
+                                      for c in report.added_columns})
+        if updates:
+            records = db_frame.to_dict("records")
+            planned = [(tuple(update[:-1]), update[-1]) for update in updates]
+            identity = _identity_rows(table, table_columns, records, planned)
+            rows: Dict[Any, Tuple] = {}
+            for values, position in planned:
+                rows.setdefault(records[position][identity] if identity
+                                else rowids[position], values)
+            identity = identity or rowid
+            _execute_updates(
+                tx, [{"key": value, **dict(zip(order, values))}
+                     for value, values in rows.items()],
+                kind="prediction", source="classifier", table=table,
+                columns=order, key_column=identity, types=types)
     return report
 
 
