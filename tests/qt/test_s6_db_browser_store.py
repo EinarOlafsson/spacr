@@ -356,3 +356,31 @@ def test_a_million_row_store_shows_its_first_page_in_under_a_tenth_of_a_second(
         _cols, rows, keys = db.chunk("cell", columns=columns, limit=100,
                                      after=keys[-1])
     assert (time.perf_counter() - started) / 20 < 0.1
+
+
+def test_store_edits_go_through_the_real_edit_log(screen, tmp_path):
+    """The Browser's edit hook against S5's real ``spacr.store.edit``.
+
+    The stand-in above records what the Browser asks for; here the edit row
+    lands in the project's edit log and the latest value reads back.
+    """
+    _allow_editing()
+    path = str(tmp_path / "measurements")
+    _screen_project(path, plates=1, wells=1, fields=1, cells_per_field=5,
+                    n_features=60)
+    screen.confirm_edit_mode = lambda message: "edit log" in message
+    assert screen.set_database(path) is True, screen.status_text()
+    assert screen._db.can_edit() is True
+    assert screen.enable_edit_mode() is True, screen.status_text()
+    column = screen.visible_columns().index("cell_area")
+    key = dict(zip(KEYS, screen._model.row_key(0)))
+    assert screen.edit_cell(0, "cell_area", "12.5") is True, \
+        screen.status_text()
+    assert screen.preview_rows()[0][column] == 12.5
+    with store.open(path) as opened:
+        log = opened.edits(kind="browser", latest=False)
+    assert len(log) == 1
+    row = log.iloc[0]
+    assert row["table"] == "cell" and row["column"] == "cell_area"
+    assert row["source"] == "browser"
+    assert str(key["object_key"]) in str(row.to_dict())

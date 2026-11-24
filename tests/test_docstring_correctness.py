@@ -4316,7 +4316,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_cropstore_rule43_arrivals(callables)
     from tests.complex_shap_api_hooks import _validated_complex_shap_arrivals
     callables = _validated_complex_shap_arrivals(callables)
-    from tests.test_store_read_side_s6 import _validated_s6_arrivals
+    from tests.store_read_side_s6_api_hooks import _validated_s6_arrivals
     callables = _validated_s6_arrivals(callables)
     from tests.l3_api_hooks import _validated_l3_arrivals
     callables = _validated_l3_arrivals(callables)
@@ -7304,9 +7304,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **_current_cropstore_rule43_api(zoo_additions)}
     from tests.complex_shap_api_hooks import _current_complex_shap_api
     zoo_additions = {**zoo_additions, **_current_complex_shap_api(zoo_additions)}
-    from tests.test_store_read_side_s6 import _s6_birth_arrivals
+    from tests.store_read_side_s6_api_hooks import _s6_birth_arrivals
     zoo_additions = {**zoo_additions, **_s6_birth_arrivals(zoo_additions)}
-    from tests.test_store_read_side_s6 import _s6_docs_arrivals
+    from tests.store_read_side_s6_api_hooks import _s6_docs_arrivals
     zoo_additions = {**zoo_additions, **_s6_docs_arrivals(zoo_additions)}
     from tests.l3_api_hooks import _current_l3_api
     zoo_additions = {**zoo_additions, **_current_l3_api(zoo_additions)}
@@ -7426,7 +7426,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     )
     zoo_additions = {**zoo_additions, **current_help_arrivals}
     from tests.test_documentation_i18n import _retired_707_home_api
-    from tests.test_store_read_side_s6 import _retired_s6_browser_api
+    from tests.store_read_side_s6_api_hooks import _retired_s6_browser_api
     retired_home = _retired_707_home_api(docs)
     # 2026-11-01 items 748/749: 13149 -> 13153 for LabelsLayer.{color,contour},
     # GateEditorPanel.run_cluster_in_background and
@@ -7981,7 +7981,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= _current_cropstore_rule43_api().keys()
     from tests.complex_shap_api_hooks import _current_complex_shap_api
     contract_callables |= _current_complex_shap_api().keys()
-    from tests.test_store_read_side_s6 import _s6_birth_arrivals
+    from tests.store_read_side_s6_api_hooks import _s6_birth_arrivals
     contract_callables |= _s6_birth_arrivals().keys()
     from tests.l3_api_hooks import _current_l3_api
     contract_callables |= _current_l3_api().keys()
@@ -8172,7 +8172,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= _current_cropstore_rule43_api().keys()
     from tests.complex_shap_api_hooks import _current_complex_shap_api
     arrival_callables |= _current_complex_shap_api().keys()
-    from tests.test_store_read_side_s6 import _s6_birth_arrivals
+    from tests.store_read_side_s6_api_hooks import _s6_birth_arrivals
     arrival_callables |= _s6_birth_arrivals().keys()
     from tests.l3_api_hooks import _current_l3_api
     arrival_callables |= _current_l3_api().keys()

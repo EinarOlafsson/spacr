@@ -2574,9 +2574,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **_current_cropstore_rule43_api(zoo_arrivals)}
     from tests.complex_shap_api_hooks import _current_complex_shap_api
     zoo_arrivals = {**zoo_arrivals, **_current_complex_shap_api(zoo_arrivals)}
-    from tests.test_store_read_side_s6 import _s6_birth_arrivals
+    from tests.store_read_side_s6_api_hooks import _s6_birth_arrivals
     zoo_arrivals = {**zoo_arrivals, **_s6_birth_arrivals(zoo_arrivals)}
-    from tests.test_store_read_side_s6 import _s6_docs_arrivals
+    from tests.store_read_side_s6_api_hooks import _s6_docs_arrivals
     zoo_arrivals = {**zoo_arrivals, **_s6_docs_arrivals(zoo_arrivals)}
     from tests.l3_api_hooks import _current_l3_api
     zoo_arrivals = {**zoo_arrivals, **_current_l3_api(zoo_arrivals)}
@@ -2819,7 +2819,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     )
     zoo_arrivals = {**zoo_arrivals, **input_identity_arrival}
     from tests.test_documentation_i18n import _retired_707_home_api
-    from tests.test_store_read_side_s6 import _retired_s6_browser_api
+    from tests.store_read_side_s6_api_hooks import _retired_s6_browser_api
     retired_home = _retired_707_home_api(docs)
     actual = len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys() | _retired_s6_browser_api(docs).keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
