@@ -87,9 +87,9 @@ FIELD_CODEC = "lz4"
 FIELD_CODEC_LEVEL = 5
 
 
-#: The OME-Zarr version of every new store spaCR writes (item 0aj,
-#: maintainer 2026-11-23: "0.6 is stable and more optimized"). Stores of
-#: 0.4 to 0.6 are still read; an existing 0.5 store keeps its version.
+#: The OME-Zarr version of every new store spaCR writes: 0.6, which is
+#: stable and the more efficient layout. Stores of 0.4 to 0.6 are still
+#: read; an existing 0.5 store keeps its version.
 DEFAULT_NGFF_VERSION = "0.6"
 
 

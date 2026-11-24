@@ -89,7 +89,6 @@ def _insitu_options(settings: Mapping[str, Any], chosen: Mapping[str, Any]) -> D
     from .ops_prefix import _CALL_SORTS
 
     call_sort = _choice(settings, "ops_call_sort", _CALL_SORTS, values.get("ops_call_sort"))
-    # OPS_DEFAULTS holds None (unset, so a preset may choose); unset means the whole cell.
     compartment = (_choice(settings, "ops_read_compartment", _COMPARTMENTS,
                            values.get("ops_read_compartment")) or "cell")
     q = settings.get("ops_recomb_min_quality")

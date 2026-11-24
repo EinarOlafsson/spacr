@@ -61,7 +61,7 @@ INDEX_EXTRA_COLUMNS: Tuple[str, ...] = (
 #: Crops per pool shard; each shard is one array written whole (16 chunks of 256).
 DEFAULT_CROPS_PER_SHARD = 4096
 
-#: The project's crop store (item 0aj, maintainer 16:30): ``<project>/crop.ome.zarr``,
+#: The project's crop store: ``<project>/crop.ome.zarr``,
 #: written only when Measure saves crops; otherwise crops are streamed from
 #: ``fov.ome.zarr`` (:func:`read_crop`).
 CROP_STORE_NAME = "crop.ome.zarr"
