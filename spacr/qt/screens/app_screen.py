@@ -3172,7 +3172,7 @@ class AppScreen(QWidget):
             binding = ObjectGridBinding(grid, model, self)
             binding.seed()
             owned = binding.owned_keys()
-            if len(grid.questions()) < self.MIN_GRID_QUESTIONS or not owned:
+            if len(grid._questions_held()) < self.MIN_GRID_QUESTIONS or not owned:
                 section.deleteLater()
                 return
             section.add_prose_row("", grid)
