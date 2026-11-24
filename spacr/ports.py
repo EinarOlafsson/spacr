@@ -98,6 +98,7 @@ __all__ = [
     "port_problems",
     "producers_of",
     "project_root",
+    "measurements_db_path",
     "register_module_ports",
     "resolve_port",
     "upstream_modules",
@@ -528,6 +529,16 @@ def upstream_modules(module: str) -> Tuple[str, ...]:
         key for key, candidate in PORTS.items()
         if key != spec.key and any(p.kind in needed for p in candidate.produces)))
 
+
+
+def measurements_db_path(root: Union[str, "os.PathLike[str]"]) -> str:
+    """The project's ``measurements/measurements.db`` (the one place that spells it).
+
+    :param root: the project folder.
+    :returns: ``<root>/measurements/measurements.db`` as a string; the file
+        need not exist.
+    """
+    return os.path.join(os.fspath(root), "measurements", "measurements.db")
 
 
 def project_root(settings_or_src: Union[str, Mapping[str, Any], None],

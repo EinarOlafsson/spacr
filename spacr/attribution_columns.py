@@ -8,7 +8,6 @@ the caller to confirm every write.
 """
 from __future__ import annotations
 
-import sqlite3
 from typing import Dict, Iterable, Mapping, Optional, Sequence
 
 #: The columns written, and the SQLite type each takes.
@@ -38,16 +37,6 @@ NOTE_KEY = "grna_attribution_note"
 
 class AttributionWriteError(RuntimeError):
     """Raised when an attribution write cannot be completed safely."""
-
-
-def _columns_of(cursor, table: str) -> set:
-    """Return the column names declared by one SQLite table.
-
-    :param cursor: SQLite cursor used to query table metadata.
-    :param table: Table whose schema is inspected.
-    :returns: Set of names reported by SQLite's ``table_info`` pragma.
-    """
-    return {row[1] for row in cursor.execute(f"PRAGMA table_info('{table}')")}
 
 
 def describe(rows: Sequence[Mapping]) -> str:
@@ -103,46 +92,37 @@ def write(db_path: str, rows: Iterable[Mapping], *,
     if not records:
         return {"matched": 0, "added": 0}
 
-    with sqlite3.connect(str(db_path), timeout=30.0) as connection:
-        cursor = connection.cursor()
-        tables = {row[0] for row in cursor.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'")}
+    from . import store
+
+    with store.open(str(db_path), verify="none") as reader:
+        tables = set(reader.tables())
         if "png_list" not in tables:
             raise AttributionWriteError(
                 f"{db_path} has no png_list table, so there is nothing to "
                 f"attribute to. Tables here: {sorted(tables)}.")
-        present = _columns_of(cursor, "png_list")
-        if key_column not in present:
-            raise AttributionWriteError(
-                f"png_list has no {key_column!r} column to match on. It "
-                f"carries {sorted(present)}.")
+        present = set(reader.columns("png_list")["name"])
+    if key_column not in present:
+        raise AttributionWriteError(
+            f"png_list has no {key_column!r} column to match on. It "
+            f"carries {sorted(present)}.")
 
-        added = 0
-        for name, kind in COLUMNS.items():
-            if name not in present:
-                cursor.execute(
-                    f"ALTER TABLE png_list ADD COLUMN {name} {kind}")
-                added += 1
-
-        names = [name for name in COLUMNS
-                 if any(name in record for record in records)]
-        assignments = ", ".join(f"{name} = ?" for name in names)
-        matched = 0
-        for record in records:
-            key = record.get(key_column)
-            if key is None:
-                continue
-            values = [record.get(name) for name in names]
-            cursor.execute(
-                f"UPDATE png_list SET {assignments} WHERE {key_column} = ?",
-                values + [key])
-            matched += cursor.rowcount
-
-        if "settings" in tables:
-            cursor.execute(
-                "INSERT OR REPLACE INTO settings (setting_key, setting_value)"
-                " VALUES (?, ?)", (NOTE_KEY, ATTRIBUTION_NOTE))
-        connection.commit()
+    added = len(store.ensure_columns(str(db_path), "png_list", COLUMNS,
+                                     quoted=False, timeout=30.0))
+    names = [name for name in COLUMNS
+             if any(name in record for record in records)]
+    rows = [{"key": record.get(key_column),
+             **{name: record.get(name) for name in names}}
+            for record in records if record.get(key_column) is not None]
+    matched = store.edit(str(db_path), rows, kind="attribution",
+                         source="attribution", table="png_list",
+                         columns=names, key_column=key_column,
+                         types=COLUMNS, timeout=30.0) if names else 0
+    if "settings" in tables:
+        store.edit(str(db_path), [{"key": NOTE_KEY,
+                                   "value": ATTRIBUTION_NOTE}],
+                   kind="attribution", source="attribution",
+                   table="settings", column="setting_value",
+                   key_column="setting_key", upsert=True, timeout=30.0)
     return {"matched": int(matched), "added": int(added)}
 
 

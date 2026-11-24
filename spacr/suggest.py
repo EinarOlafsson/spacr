@@ -48,20 +48,6 @@ from .selection import _PandasOnFirstUse
 pd = _PandasOnFirstUse(globals())
 
 
-def _connect_writable(db_path):
-    """A WRITE connection that waits for Measure rather than failing.
-
-    Same reason as :func:`_connect_read_only`, from the other side: these
-    two write annotations back, and a Measure run holding the write lock
-    would otherwise turn "accept these suggestions" into "database is
-    locked" after five seconds. Accepting is a user action they will
-    simply repeat, so failing fast buys nothing and waiting costs nothing.
-    """
-    from .database_concurrency import connect
-
-    return connect(db_path)
-
-
 def _connect_read_only(db_path):
     """A read-only connection that WAITS for Measure rather than failing.
 
@@ -294,23 +280,36 @@ def write_suggestions(db_path: str, annotation_column: str,
             f"answers, this column uses class values Suggest cannot mark, "
             f"and the offset would have to move above them.")
 
-    rows = [(int(s), str(p)) for s, p in
+    rows = [{"key": str(p), "value": int(s)} for s, p in
             zip(suggestions["stored"], suggestions["png_path"])
             if pd.notna(s)]
     if not rows:
         return 0
-    from .database_concurrency import transaction
+    return _edit(db_path, rows, png_table, annotation_column, guard="unset")
 
-    written = 0
-    with _connect_writable(db_path) as db:
-        with transaction(db):
-            for value, path in rows:
-                cur = db.execute(
-                    f'UPDATE "{png_table}" SET "{annotation_column}" = ? '
-                    f'WHERE png_path = ? AND "{annotation_column}" IS NULL',
-                    (value, path))
-                written += cur.rowcount
-    return written
+
+def _edit(db_path, rows, png_table: str, column: str, *, guard=None,
+          kind: str = "suggestion") -> int:
+    """Write ``rows`` into ``column`` of ``png_table`` through the store.
+
+    Every suggestion, verdict and restore goes through
+    :func:`spacr.store.edit`, keyed by ``png_path``: in an older
+    ``measurements.db`` that is one transaction in place, in a store project
+    an append to the edit log.
+
+    :param db_path: path to a ``measurements.db`` or a store project.
+    :param rows: ``{"key": png_path, "value": value}`` mappings.
+    :param png_table: the crop table.
+    :param column: the column to write.
+    :param guard: as for :func:`spacr.store.edit`.
+    :param kind: the edit kind.
+    :returns: how many rows were written.
+    """
+    from . import store
+
+    return store.edit(db_path, rows, kind=kind, source="suggest",
+                      table=png_table, column=column, key_column="png_path",
+                      guard=guard, types={column: "INTEGER"}, create=False)
 
 
 def resolve_suggestions(db_path: str, annotation_column: str, *,
@@ -336,31 +335,28 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
     not a judgement -- "I do not want to review these" is not "these are wrong"
     -- so it records nothing.
     """
-    column = f'"{annotation_column}"'
-    where = f"{column} > {SUGGESTION_OFFSET}"
-    params: List = []
-    if paths is not None:
-        if not len(paths):
-            return 0
-        where += f" AND png_path IN ({','.join('?' * len(paths))})"
-        params = list(paths)
-
-    with _connect_writable(db_path) as db:
+    if paths is not None and not len(paths):
+        return 0
+    verdict = verdict_column(annotation_column)
+    with _connect_read_only(db_path) as db:
         if not _has_column(db, png_table, annotation_column):
             return 0
-        if keep:
-            verdict = verdict_column(annotation_column)
-            if _has_column(db, png_table, verdict):
-                db.execute(
-                    f'UPDATE "{png_table}" SET "{verdict}" = {column} - '
-                    f"{SUGGESTION_OFFSET} WHERE {where}", params)
-            sql = (f'UPDATE "{png_table}" SET {column} = {column} - '
-                   f"{SUGGESTION_OFFSET} WHERE {where}")
-        else:
-            sql = f'UPDATE "{png_table}" SET {column} = NULL WHERE {where}'
-        cur = db.execute(sql, params)
-        db.commit()
-        return cur.rowcount
+        has_verdict = _has_column(db, png_table, verdict)
+    waiting = _suggestion_snapshot(db_path, annotation_column,
+                                   png_table=png_table)
+    if paths is not None:
+        wanted = {str(p) for p in paths}
+        waiting = {p: v for p, v in waiting.items() if p in wanted}
+    if not waiting:
+        return 0
+    if keep and has_verdict:
+        _edit(db_path, [{"key": p, "value": v - SUGGESTION_OFFSET}
+                        for p, v in waiting.items()], png_table, verdict,
+              kind="verdict")
+    rows = [{"key": p, "value": v - SUGGESTION_OFFSET if keep else None}
+            for p, v in waiting.items()]
+    return _edit(db_path, rows, png_table, annotation_column,
+                 guard=("above", SUGGESTION_OFFSET))
 
 
 def pending_suggestions(db_path: str, annotation_column: str, *,
@@ -426,18 +422,9 @@ def _restore_suggestions(db_path: str, annotation_column: str,
     """
     if not snapshot:
         return 0
-    from .database_concurrency import transaction
-
-    restored = 0
-    with _connect_writable(db_path) as db:
-        with transaction(db):
-            for path, value in snapshot.items():
-                cur = db.execute(
-                    f'UPDATE "{png_table}" SET "{annotation_column}" = ? '
-                    f'WHERE png_path = ? AND "{annotation_column}" IS NULL',
-                    (int(value), str(path)))
-                restored += cur.rowcount
-    return restored
+    return _edit(db_path, [{"key": str(p), "value": int(v)}
+                           for p, v in snapshot.items()],
+                 png_table, annotation_column, guard="unset")
 
 
 VERDICT_SUFFIX = "_verdict"
@@ -472,23 +459,15 @@ def ensure_verdict_column(db_path: str, annotation_column: str, *,
     """
     if not annotation_column:
         return False
+    from . import store
+
     verdict = verdict_column(annotation_column)
-    with _connect_writable(db_path) as db:
-        try:
-            rows = db.execute(f'PRAGMA table_info("{png_table}")').fetchall()
-        except sqlite3.Error:
-            return False
-        if not rows:
-            return False
-        if any(row[1] == verdict for row in rows):
-            return True
-        safe = verdict.replace('"', '""')
-        try:
-            db.execute(f'ALTER TABLE "{png_table}" ADD COLUMN "{safe}" INTEGER')
-            db.commit()
-        except sqlite3.Error:
-            return False
-    return True
+    try:
+        store.ensure_columns(db_path, png_table, {verdict: "INTEGER"})
+    except (sqlite3.Error, store.StoreError):
+        return False
+    with _connect_read_only(db_path) as db:
+        return _has_column(db, png_table, verdict)
 
 
 def fetch_verdicts(db_path: str, annotation_column: str,
@@ -711,28 +690,21 @@ def _write_rethresholded(db_path: str, annotation_column: str,
     """
     if not changes:
         return 0
-    from .database_concurrency import transaction
-
-    column = f'"{annotation_column}"'
-    cleared = [(str(p),) for p, v in changes.items() if v is None]
-    given = [(int(v) + SUGGESTION_OFFSET, str(p))
-             for p, v in changes.items() if v is not None]
-    with _connect_writable(db_path) as db:
+    with _connect_read_only(db_path) as db:
         if not _has_column(db, png_table, annotation_column):
             return 0
-        before = db.total_changes
-        with transaction(db):
-            if cleared:
-                db.executemany(
-                    f'UPDATE "{png_table}" SET {column} = NULL '
-                    f'WHERE png_path = ? AND {column} > {SUGGESTION_OFFSET}',
-                    cleared)
-            if given:
-                db.executemany(
-                    f'UPDATE "{png_table}" SET {column} = ? WHERE png_path = ? '
-                    f'AND ({column} IS NULL OR {column} > '
-                    f'{SUGGESTION_OFFSET})', given)
-        return int(db.total_changes - before)
+    cleared = [{"key": str(p), "value": None}
+               for p, v in changes.items() if v is None]
+    given = [{"key": str(p), "value": int(v) + SUGGESTION_OFFSET}
+             for p, v in changes.items() if v is not None]
+    changed = 0
+    if cleared:
+        changed += _edit(db_path, cleared, png_table, annotation_column,
+                         guard=("above", SUGGESTION_OFFSET))
+    if given:
+        changed += _edit(db_path, given, png_table, annotation_column,
+                         guard=("unset_or_above", SUGGESTION_OFFSET))
+    return int(changed)
 
 
 def _suggest_training_set(annotation_column: str, crops: pd.DataFrame,

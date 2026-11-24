@@ -1,0 +1,3 @@
+{
+  "spacr.ports.measurements_db_path": "The project's ``measurements/measurements.db`` (the one place that spells it).\n\n:param root: the project folder.\n:returns: ``<root>/measurements/measurements.db`` as a string; the file\n    need not exist."
+}

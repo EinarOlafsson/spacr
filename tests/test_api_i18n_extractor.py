@@ -358,7 +358,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     writer_exits = {"spacr.store.WellWriter.__enter__",
                     "spacr.store.WellWriter.__exit__"}
     assert writer_exits <= dunders
-    assert len(dunders) == 231
+    # 231 -> 233 on 2026-11-23: spacr.store.EditJournal.__enter__ and
+    # __exit__ (unified-store step S5), so a session's journal folds and
+    # closes after a ``with`` block.
+    assert {"spacr.store.EditJournal.__enter__",
+            "spacr.store.EditJournal.__exit__"} <= dunders
+    assert len(dunders) == 233
     # The historical digests below describe the surface without them.
     dunders = dunders - writer_exits
     # The historical digest below is checked on the surface without it.
@@ -417,7 +422,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # assignment count stays 39, so no assignment changed.
     # Moved 2026-11-18 (was 7aff0ed4...) by spacr.store.Store.__enter__ and
     # __exit__ (item 974) counted above; no assignment changed.
-    ) == "adf5b751183cb1e3a99feb96d64d40d66dfb15c4378b485cd3fbc8ad81cd8851"
+    # Moved 2026-11-23 (was adf5b751...) by spacr.store.EditJournal.__enter__
+    # and __exit__ (unified-store step S5) counted above; no assignment
+    # changed.
+    ) == "61e9b5ee75370aaefcdeb2d974f38b28f80e029e4ddc2af8b0472c4c50135545"
     # The item 770 constants (2026-11-05) are named and taken out here, so
     # every older fingerprint below still describes the surface before them.
     tvn_constants = {
@@ -451,6 +459,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
                      "spacr.store.Store.__exit__"}
     assert store_dunders <= dunders
     dunders = dunders - store_dunders
+    # And the edit journal's (2026-11-23, unified-store step S5).
+    journal_dunders = {"spacr.store.EditJournal.__enter__",
+                       "spacr.store.EditJournal.__exit__"}
+    assert journal_dunders <= dunders
+    dunders = dunders - journal_dunders
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
@@ -2547,6 +2560,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **_neighbour_birth_arrivals(zoo_arrivals)}
     from tests.phtables_store_api_hooks import _phtables_store_birth_arrivals
     zoo_arrivals = {**zoo_arrivals, **_phtables_store_birth_arrivals(zoo_arrivals)}
+    from tests.store_hardening_s0_api_hooks import _s0_birth_arrivals
+    zoo_arrivals = {**zoo_arrivals, **_s0_birth_arrivals(zoo_arrivals)}
+    from tests.store_edit_log_s5_api_hooks import _s5_birth_arrivals
+    zoo_arrivals = {**zoo_arrivals, **_s5_birth_arrivals(zoo_arrivals)}
+    from tests.cropstore_rule43_api_hooks import _current_cropstore_rule43_api
+    zoo_arrivals = {**zoo_arrivals, **_current_cropstore_rule43_api(zoo_arrivals)}
     sweep_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "955_ops_fdr_sweep_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
     assert len(sweep_arrivals) == 1

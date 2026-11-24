@@ -2999,8 +2999,7 @@ def _record_gate_export_provenance(path: str, table: str, gates: GateSet,
     :param written: Successfully exported column/count pairs.
     :param verdicts: Applicable gate-specific analysis lock verdicts.
     """
-    import sqlite3
-
+    from ... import store
     from ...derived_tables import load_definitions
     from ...run_journal import _utc_now
     receipt = {"schema": 1, "exported_utc": _utc_now(), "source_table": table,
@@ -3009,13 +3008,18 @@ def _record_gate_export_provenance(path: str, table: str, gates: GateSet,
                "analysis_locks": verdicts,
                "lock_coverage": "checked" if verdicts else "no_applicable_strategy_lock",
                "written": [{"column": column, "marked_objects": count} for column, count in written]}
-    with sqlite3.connect(path, timeout=30.0) as db:
-        db.execute("CREATE TABLE IF NOT EXISTS filter_export_provenance "
-                   "(exported_utc TEXT NOT NULL, source_table TEXT NOT NULL, "
-                   "gate_column TEXT NOT NULL, receipt_json TEXT NOT NULL)")
-        db.executemany("INSERT INTO filter_export_provenance VALUES (?, ?, ?, ?)",
-                       [(receipt["exported_utc"], table, column,
-                         json.dumps(receipt, sort_keys=True)) for column, _count in written])
+    store.append_rows(
+        path, "filter_export_provenance",
+        [{"exported_utc": receipt["exported_utc"], "source_table": table,
+          "gate_column": column,
+          "receipt_json": json.dumps(receipt, sort_keys=True)}
+         for column, _count in written],
+        columns=("exported_utc", "source_table", "gate_column",
+                 "receipt_json"),
+        ddl="CREATE TABLE IF NOT EXISTS filter_export_provenance "
+            "(exported_utc TEXT NOT NULL, source_table TEXT NOT NULL, "
+            "gate_column TEXT NOT NULL, receipt_json TEXT NOT NULL)",
+        timeout=30.0)
 
 
 def _with_lock_notes(text: str, path: str) -> str:

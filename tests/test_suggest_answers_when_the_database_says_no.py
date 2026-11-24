@@ -38,7 +38,7 @@ def _table(tmp_path, columns, rows):
 def _refuse(monkeypatch, opener, *, action, table=None, column=None):
     """Open ``opener``'s connections with one SQLite action denied.
 
-    :param opener: ``"_connect_read_only"`` or ``"_connect_writable"``.
+    :param opener: ``"_connect_read_only"``.
     :param action: the ``sqlite3.SQLITE_*`` action code to deny.
     :param column: for ``SQLITE_READ``, the one column whose read is denied.
     """
@@ -59,6 +59,31 @@ def _refuse(monkeypatch, opener, *, action, table=None, column=None):
         return connection
 
     monkeypatch.setattr(suggest, opener, opened)
+
+
+def _refuse_writes(monkeypatch, *, action):
+    """Open the store's writing connections with one SQLite action denied.
+
+    Suggest writes through :func:`spacr.store.edit` and
+    :func:`spacr.store.ensure_columns` (unified-store step S5), so a refused
+    write is a refusal on the store's connection.
+
+    :param action: the ``sqlite3.SQLITE_*`` action code to deny.
+    """
+    from spacr import store
+
+    real = store._legacy_connection
+
+    def decide(code, _arg1, _arg2, _db, _source):
+        return sqlite3.SQLITE_DENY if code == action else sqlite3.SQLITE_OK
+
+    def opened(path, *, readonly=False, timeout=30.0):
+        connection = real(path, readonly=readonly, timeout=timeout)
+        if not readonly:
+            connection.set_authorizer(decide)
+        return connection
+
+    monkeypatch.setattr(store, "_legacy_connection", opened)
 
 
 def test_a_table_whose_columns_cannot_be_listed_has_no_suggestions(
@@ -109,7 +134,7 @@ def test_a_crop_table_that_cannot_be_listed_gets_no_verdict_column(
         tmp_path, monkeypatch):
     db_path = _table(tmp_path, ["png_path TEXT", "test INTEGER"],
                      [("/a.png", None)])
-    _refuse(monkeypatch, "_connect_writable", action=sqlite3.SQLITE_PRAGMA)
+    _refuse_writes(monkeypatch, action=sqlite3.SQLITE_PRAGMA)
     assert suggest.ensure_verdict_column(db_path, "test") is False
 
 
@@ -117,8 +142,7 @@ def test_a_crop_table_that_cannot_be_altered_gets_no_verdict_column(
         tmp_path, monkeypatch):
     db_path = _table(tmp_path, ["png_path TEXT", "test INTEGER"],
                      [("/a.png", None)])
-    _refuse(monkeypatch, "_connect_writable",
-            action=sqlite3.SQLITE_ALTER_TABLE)
+    _refuse_writes(monkeypatch, action=sqlite3.SQLITE_ALTER_TABLE)
     assert suggest.ensure_verdict_column(db_path, "test") is False
     with sqlite3.connect(db_path) as db:
         names = [row[1] for row in db.execute("PRAGMA table_info(png_list)")]
