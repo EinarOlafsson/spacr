@@ -1432,6 +1432,27 @@ def _report_html(path: str, plate: str, checks: pd.DataFrame, counts: pd.Series,
     return path
 
 
+def _needed_columns(path: str, options: Mapping[str, Any], base: Optional[Mapping[str, Any]]
+                    ) -> List[str]:
+    """The columns of one well's cell table that the phase reads: no others are loaded.
+
+    The keys, the model features (the checkpoint's, else those the tables offer for the DNA
+    and tubulin channels), the integrated DNA content, the nuclear area and the centroids
+    that :func:`self_checks` uses.
+    """
+    from .tabular import table_columns
+
+    columns = list(table_columns(path, canonicalise=False))
+    dna = str(options["dna"] or "dapi").lower()
+    mt = options["mt"] if options["mode"] == "DNA+MT" else None
+    features = list(base["features"]) if base is not None else _features(columns, dna, mt)
+    pairs = [c for pair in (("nucleus_cy", "nucleus_cx"), ("nucleus_centroid_y",
+                                                         "nucleus_centroid_x"),
+                            ("centroid_row", "centroid_col")) for c in pair]
+    wanted = [c for c in ("site", "label") if c in columns]
+    return wanted + features + [f"nucleus_{dna}_integrated_intensity", "nucleus_area"] + pairs
+
+
 def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
                          settings: Mapping[str, Any], destination: str, *,
                          permutations: int = PERMUTATIONS,
@@ -1465,7 +1486,7 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
     """
     from .ops_engine import _ph_cells_path, _replace_well_rows, _rows_for_wells
     from .qt.i18n import tr
-    from .tabular import read_table
+    from .tabular import read_table_columns
 
     options = _options(settings)
     notes: List[str] = []
@@ -1482,7 +1503,7 @@ def run_cell_cycle_phase(db: str, plate: str, wells: Sequence[str],
     for well in wells:
         path = _ph_cells_path(destination, well)
         if os.path.isfile(path):
-            frame = read_table(path, canonicalise=False, report=None)
+            frame = read_table_columns(path, _needed_columns(path, options, base))
             frame["well"] = str(well)
             frames.append(frame)
     if not frames:
