@@ -166,23 +166,12 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     """
     from cellpose import models as cp_models
 
-    from spacr.utils import _resolve_cellpose_pretrained
+    from spacr.utils import build_cellpose_model
 
     try:
-        from spacr.accelerator import cellpose_kwargs
-
-        kwargs = cellpose_kwargs()
-    except Exception:
-        kwargs = {"gpu": False}
-    kwargs.pop("device", None)
-    if gpu is not None:
-        kwargs["gpu"] = bool(gpu)
-    if not kwargs["gpu"]:
-        kwargs["use_bfloat16"] = False
-    try:
-        return cp_models.CellposeModel(
-            pretrained_model=_resolve_cellpose_pretrained(str(model_name)),
-            device=None, **kwargs)
+        return build_cellpose_model(str(model_name), gpu=None if gpu is None else bool(gpu),
+                                    drop_device=True, tolerant=True,
+                                    float32_on_cpu=True, factory=cp_models.CellposeModel)
     except ValueError as exc:
         from spacr.submodules import Cellpose3Checkpoint, explain_cellpose3
 

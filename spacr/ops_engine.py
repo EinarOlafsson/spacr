@@ -2139,8 +2139,9 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
 
     :param settings: read for ``key``. Empty or ``cpsam`` builds
         the default library model, which is how the well was validated;
-        any other name is passed to Cellpose as the model to load.
-        ``mask_inference_precision`` uses the shared auto/bf16/fp32 policy.
+        any other name goes through :func:`spacr.utils.build_cellpose_model`,
+        which resolves it and refuses a name that matches no model.
+        ``mask_inference_precision`` and a pinned model file are honoured.
     :param gpu: put it on the card on this machine through
         :func:`spacr.accelerator.cellpose_kwargs`, or keep it on the CPU.
     :param key: the setting naming the model; the phenotype phases pass
@@ -2148,23 +2149,26 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
     :returns: a ``cellpose.models.CellposeModel``.
     """
     from cellpose import models
+    from .utils import build_cellpose_model
 
-    kwargs: Dict[str, Any] = {"gpu": False, "use_bfloat16": False}
-    if gpu:
-        from .accelerator import cellpose_kwargs
+    return build_cellpose_model(settings.get(key) or "cpsam", settings=settings, key=key,
+                                gpu=None if gpu else False, factory=models.CellposeModel,
+                                library_default=True)
 
-        kwargs = cellpose_kwargs()
-    from .model_zoo import _resolve_pinned_model_file
-    from .object import _with_inference_precision
 
-    kwargs = _with_inference_precision(kwargs, settings)
+def _ops_diameter(value, role, factor=1.0):
+    """The Cellpose ``diameter`` keyword for one OPS object, read by the shared rule.
 
-    pinned = _resolve_pinned_model_file(settings, key, kinds=("cellpose",))
-    name = (str(pinned) if pinned is not None
-            else str(settings.get(key) or "").strip())
-    if name in ("", "cpsam"):
-        return models.CellposeModel(**kwargs)
-    return models.CellposeModel(pretrained_model=name, **kwargs)
+    :param value: the OPS diameter setting: a number, text, 0, ``auto`` or blank.
+    :param role: the object, for the message when the value cannot be read.
+    :param factor: the downscale the image went through before segmentation.
+    :returns: ``{"diameter": pixels}`` for a positive diameter, else ``{}``
+        so Cellpose-SAM segments at native scale.
+    """
+    from .object import _eval_diameter
+
+    diameter = _eval_diameter(value, role)
+    return {"diameter": float(diameter) / factor} if diameter else {}
 
 
 _OPS_MASK_SETTINGS = ("batch_size", "mask_eval_batch_size",
@@ -2175,6 +2179,11 @@ _OPS_MASK_SETTINGS = ("batch_size", "mask_eval_batch_size",
 #: The per-path tile batch override each OPS segmentation site reads.
 _OPS_TILE_BATCH_KEYS = {"ops_phenotype": "ops_ph_tile_batch",
                         "ops_spatial": "spatial_tile_batch"}
+
+
+#: Sites whose tile batch is fixed at the value they always ran at, so their
+#: masks do not move: the large-site presets used 8.
+_OPS_LEGACY_TILE_BATCH = {"ops_large_sites": 8}
 
 
 def _ops_tile_batch(settings, site, field_count):
@@ -2197,6 +2206,8 @@ def _ops_tile_batch(settings, site, field_count):
     from ._mask_array_batches import _tile_override
     from .object import _eval_tile_batch
 
+    if site in _OPS_LEGACY_TILE_BATCH:
+        return _OPS_LEGACY_TILE_BATCH[site]
     key = _OPS_TILE_BATCH_KEYS.get(site, "ops_sbs_tile_batch")
     return _tile_override(settings, key) or _eval_tile_batch(settings, field_count)
 
@@ -2633,8 +2644,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     canvas = seeded[0] if seeded else _compose_canvas(usable, shape)
     blend = _compose_blend(settings)
     model = _cellpose_model(settings, gpu)
-    diameter = settings.get("cellpose_diameter")
-    extra = {"diameter": float(diameter)} if diameter else {}
+    extra = _ops_diameter(settings.get("cellpose_diameter"), "cellpose")
 
     window_overlap = int(_setting_number(settings.get("ops_window_overlap"),
                                          "ops_window_overlap",
@@ -4751,8 +4761,7 @@ def _ph_segmentation_inputs(stack, channels, settings):
     extra = {}
     for key, name in (("ops_ph_nucleus_diameter", "nucleus"),
                       ("ops_ph_cell_diameter", "cell")):
-        value = settings.get(key)
-        extra[name] = {"diameter": float(value) / factor} if value else {}
+        extra[name] = _ops_diameter(settings.get(key), name, factor)
     return dna, np.stack([body, dna], axis=-1), extra, factor
 
 
@@ -4951,8 +4960,7 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
                 channel=given["channel"], channels=list(channels)))
         plane = np.asarray(stack[..., list(channels).index(given["channel"])],
                            np.float32)
-        extra = ({"diameter": float(given["diameter"])}
-                 if given["diameter"] else {})
+        extra = _ops_diameter(given["diameter"], role)
         if role == "pathogen":
             labels = _ph_object_cellpose(
                 _ph_object_model(settings, gpu, role, given["model"], cache),

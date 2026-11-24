@@ -108,15 +108,13 @@ def _make_segmenter(model_name, device, parameters):
         model = backends._load_backend(backend, model_name=model_name, device=device)
     else:
         import torch
-        from cellpose.models import CellposeModel
-        from .utils import _resolve_cellpose_pretrained
+        from .utils import build_cellpose_model
 
-        target = torch.device(device)
-        kwargs = dict(pretrained_model=_resolve_cellpose_pretrained(model_name),
-                      device=target, gpu=target.type != "cpu")
-        if "use_bfloat16" in inspect.signature(CellposeModel).parameters:
-            kwargs["use_bfloat16"] = False
-        model = CellposeModel(**kwargs)
+        from cellpose.models import CellposeModel
+
+        model = build_cellpose_model(model_name, device=torch.device(device),
+                                     settings={"mask_inference_precision": "fp32"},
+                                     factory=CellposeModel)
 
     def segment(image):
         """Infer one transformed field through the shared output parser.

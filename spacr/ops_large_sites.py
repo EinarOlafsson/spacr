@@ -992,14 +992,13 @@ def preset_models(settings: Mapping[str, Any], gpu: bool = False):
     :param gpu: put the models on this machine's card.
     :returns: ``(nucleus_model, cell_model)``.
     """
-    from .ops_engine import _cellpose_model
-    from .utils import _resolve_cellpose_pretrained
+    from cellpose import models
+    from .utils import build_cellpose_model
 
-    out = []
-    for key, kind in (("seg_nucleus_model", "nucleus"), ("cell_model", "cell")):
-        name = _resolve_cellpose_pretrained(settings.get(key) or "cpsam", kind, setting=key)
-        out.append(_cellpose_model({**dict(settings), key: name}, gpu, key=key))
-    return tuple(out)
+    return tuple(build_cellpose_model(settings.get(key) or "cpsam", settings=settings, key=key,
+                                      object_type=kind, gpu=None if gpu else False,
+                                      factory=models.CellposeModel, library_default=True)
+                 for key, kind in (("seg_nucleus_model", "nucleus"), ("cell_model", "cell")))
 
 
 def normalize_site(image: np.ndarray, percentiles: Tuple[float, float] = (1.0, 99.0)
@@ -1035,21 +1034,20 @@ def normalize_site(image: np.ndarray, percentiles: Tuple[float, float] = (1.0, 9
 def _eval_labels(model: Any, image: np.ndarray, settings: Mapping[str, Any],
                  diameter: Optional[float], **kwargs: Any) -> np.ndarray:
     """One Cellpose call on a site-normalised image, returning the labels."""
-    from ._gpu_governor import _governed_eval
+    from .ops_engine import _ops_diameter, _ops_mask_eval
 
-    extra = {"diameter": float(diameter)} if diameter else {}
-    return np.asarray(_governed_eval(model, image, site="ops_large_sites", settings=settings,
-                                     batch_size=8, normalize=False, **extra, **kwargs)[0],
-                      np.int32)
+    return np.asarray(_ops_mask_eval(model, image, settings, site="ops_large_sites",
+                                     normalize=False, **_ops_diameter(diameter, "nucleus"),
+                                     **kwargs)[0], np.int32)
 
 
 def _eval_flows(model: Any, image: np.ndarray, settings: Mapping[str, Any],
                 **kwargs: Any) -> Tuple[np.ndarray, np.ndarray]:
     """Cellpose's network outputs for a site-normalised image, without masks."""
-    from ._gpu_governor import _governed_eval
+    from .ops_engine import _ops_mask_eval
 
-    out = _governed_eval(model, image, site="ops_large_sites", settings=settings, batch_size=8,
-                         normalize=False, compute_masks=False, **kwargs)
+    out = _ops_mask_eval(model, image, settings, site="ops_large_sites", normalize=False,
+                         compute_masks=False, **kwargs)
     return np.asarray(out[1][1], np.float32), np.asarray(out[1][2], np.float32)
 
 
