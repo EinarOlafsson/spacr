@@ -474,7 +474,7 @@ def benchmark_clusters(table: pd.DataFrame, features: Sequence[str], *,
         km = KMeans(k, n_init=4, random_state=0).fit_predict(components)
         rows.append(dict(score_clusters(f"{label} k-means baseline", names, km, **kwargs),
                          resolution=None, method=f"k-means k={k}"))
-        km = KMeans(k, n_init=2, random_state=0).fit_predict(shuffled)
+        km = KMeans(k, n_init=4, random_state=0).fit_predict(shuffled)
         rows.append(dict(score_clusters(f"{label} k-means shuffled PCs (control)", names, km,
                                         **kwargs), resolution=None, method=f"k-means k={k}"))
     summary: Dict[str, Any] = {"rows_clustered": int(len(table)), "genes": int(targeting.sum()),

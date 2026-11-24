@@ -542,15 +542,22 @@ def _compute_label_perimeters(label_img):
 
 
 def _compute_shared_boundaries(label_img):
-    """Return dict {(min_label, max_label): shared_pixel_count}."""
+    """Return dict {(min_label, max_label): shared_pixel_count}.
+
+    Each touching pixel pair is counted once and nothing wraps around the field
+    edges: only the down and right neighbours are compared, on sliced views.
+    """
     shared = {}
-    for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-        shifted = np.roll(np.roll(label_img, dy, axis=0), dx, axis=1)
-        mask = (label_img > 0) & (shifted > 0) & (label_img != shifted)
+    pairs = (
+        (label_img[:-1, :], label_img[1:, :]),
+        (label_img[:, :-1], label_img[:, 1:]),
+    )
+    for here, there in pairs:
+        mask = (here > 0) & (there > 0) & (here != there)
         if not np.any(mask):
             continue
-        a = label_img[mask].astype(int)
-        b = shifted[mask].astype(int)
+        a = here[mask].astype(int)
+        b = there[mask].astype(int)
         for la, lb in zip(a, b):
             pair = (min(la, lb), max(la, lb))
             shared[pair] = shared.get(pair, 0) + 1

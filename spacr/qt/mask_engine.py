@@ -4706,27 +4706,33 @@ def invert_mask(mask: np.ndarray) -> np.ndarray:
 
 
 def remove_small_objects(mask: np.ndarray, min_area: int) -> np.ndarray:
-    """Drop connected components with area < min_area (in pixels).
+    """Drop objects with area < min_area (in pixels), keeping every label.
 
-    :param mask: label or binary mask; every pixel above 0 is foreground. The
-        survivors are relabelled 1..N in the input's dtype.
-    :param min_area: smallest component to keep, in pixels; 0 or less
+    :param mask: label or binary mask; every pixel above 0 is foreground. A
+        mask with several labels is measured per label, so touching cells keep
+        their own ids and are never merged. A mask with a single foreground
+        value has no instances, so its connected components are measured.
+        Survivors keep their original values and dtype.
+    :param min_area: smallest object to keep, in pixels; 0 or less
         returns a copy unchanged.
     """
     if min_area <= 0:
         return mask.copy()
-    labeled, n = _ndimage().label(mask > 0)
-    if n == 0:
+    if not (mask > 0).any():
         return mask.copy()
-    counts = np.bincount(labeled.ravel())
-    keep = np.zeros_like(counts, dtype=bool)
-    for i in range(1, len(counts)):
-        if counts[i] >= min_area:
-            keep[i] = True
-    filtered = keep[labeled]
-    out = np.where(filtered, mask, 0)
-    labeled, _ = _ndimage().label(out > 0)
-    return labeled.astype(mask.dtype)
+    ids = np.unique(mask[mask > 0])
+    if ids.size > 1:
+        foreground = mask > 0
+        index = np.searchsorted(ids, mask[foreground])
+        keep_id = np.bincount(index, minlength=ids.size) >= min_area
+        filtered = np.zeros(mask.shape, dtype=bool)
+        filtered[foreground] = keep_id[index]
+    else:
+        labeled, n = _ndimage().label(mask > 0)
+        keep = np.bincount(labeled.ravel()) >= min_area
+        keep[0] = False
+        filtered = keep[labeled]
+    return np.where(filtered, mask, 0).astype(mask.dtype)
 
 
 def dilate_objects(mask: np.ndarray, distance: int = 1) -> np.ndarray:

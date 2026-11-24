@@ -986,7 +986,9 @@ def preset_models(settings: Mapping[str, Any], gpu: bool = False):
     Names go through spaCR's resolver, so the legacy names (``'nuclei'``,
     ``'cyto3'``) load what Cellpose 4 really has, and say so.
 
-    :param settings: read for ``seg_nucleus_model`` and ``cell_model``.
+    :param settings: read for ``seg_nucleus_model`` and ``cell_model``, for
+        ``mask_inference_precision`` and for the pinned model files recorded
+        in ``model_metadata``, as in every other OPS segmentation.
     :param gpu: put the models on this machine's card.
     :returns: ``(nucleus_model, cell_model)``.
     """
@@ -996,7 +998,7 @@ def preset_models(settings: Mapping[str, Any], gpu: bool = False):
     out = []
     for key, kind in (("seg_nucleus_model", "nucleus"), ("cell_model", "cell")):
         name = _resolve_cellpose_pretrained(settings.get(key) or "cpsam", kind, setting=key)
-        out.append(_cellpose_model({key: name}, gpu, key=key))
+        out.append(_cellpose_model({**dict(settings), key: name}, gpu, key=key))
     return tuple(out)
 
 
@@ -1916,6 +1918,8 @@ def _saved_label_sites(labels_dir: str) -> List[str]:
 
 def _score_saved_labels(settings: Mapping[str, Any], agree: Mapping[str, Any]) -> Dict[str, Any]:
     """The agreement report on saved labels, with no segmentation."""
+    from .settings import _stamp_settings_version
+
     dst = settings.get("seg_dst")
     if not dst:
         raise ValueError("seg_dst is required")
@@ -1924,7 +1928,8 @@ def _score_saved_labels(settings: Mapping[str, Any], agree: Mapping[str, Any]) -
         labels_dir = os.path.join(labels_dir, "labels")
     os.makedirs(dst, exist_ok=True)
     with open(os.path.join(dst, "settings.json"), "w", encoding="utf-8") as handle:
-        json.dump({k: (list(v) if isinstance(v, tuple) else v) for k, v in settings.items()},
+        json.dump({k: (list(v) if isinstance(v, tuple) else v)
+                   for k, v in _stamp_settings_version(settings).items()},
                   handle, indent=2, sort_keys=True, default=str)
     sites = [str(s) for s in (settings.get("seg_sites") or _saved_label_sites(labels_dir))]
     rows = _agreement_rows(labels_dir, settings["seg_report_reference"], sites, agree)
@@ -2047,6 +2052,8 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     agree = _agreement_settings(settings)
     if agree["ops_mask_agreement_labels"]:
         return _score_saved_labels(settings, agree)
+    from .settings import _stamp_settings_version
+
     src, dst = settings.get("seg_sites_src"), settings.get("seg_dst")
     if not src or not dst:
         raise ValueError("seg_sites_src and seg_dst are required")
@@ -2056,7 +2063,8 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     os.makedirs(os.path.join(dst, "tables"), exist_ok=True)
     os.makedirs(os.path.join(dst, "resource_log"), exist_ok=True)
     with open(os.path.join(dst, "settings.json"), "w", encoding="utf-8") as handle:
-        json.dump({k: (list(v) if isinstance(v, tuple) else v) for k, v in settings.items()},
+        json.dump({k: (list(v) if isinstance(v, tuple) else v)
+                   for k, v in _stamp_settings_version(settings).items()},
                   handle, indent=2, sort_keys=True, default=str)
     if models is None:
         models = preset_models(settings, gpu=bool(settings.get("seg_gpu")))
