@@ -165,6 +165,112 @@ def test_the_granularity_weights_give_the_resized_planes_means(scale):
     _close(got, want, rel=1e-12, sd=0)
 
 
+def _foreground_values(seed):
+    labels, image = _blobs(seed, dtype=np.float64)
+    labels64 = labels.astype(np.int64)
+    flat, rows, cols, inside, size = M._foreground(labels64)
+    x = image[..., 0].ravel()[inside]
+    y = np.round(image[..., 1].ravel()[inside] / 5)
+    return flat, rows, cols, size, x, y
+
+
+@pytest.mark.parametrize("seed", range(3))
+def test_the_fused_pair_sums_are_the_bincounts_to_the_bit(seed):
+    flat, _rows, _cols, size, x, y = _foreground_values(seed)
+    count = np.bincount(flat, None, size)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        dx = x - (np.bincount(flat, x, size) / count)[flat]
+        dy = y - (np.bincount(flat, y, size) / count)[flat]
+    got = M._pair_sums(flat, x, y, size)
+    assert np.array_equal(got[0], count)
+    for value, want in zip(got[1:4], (dx * dy, dx * dx, dy * dy)):
+        assert np.array_equal(value, np.bincount(flat, want, size))
+    assert np.array_equal(got[4], dx) and np.array_equal(got[5], dy)
+
+
+@pytest.mark.parametrize("seed", range(3))
+def test_the_overlap_and_otsu_pair_sums_are_the_bincounts_to_the_bit(seed):
+    flat, _rows, _cols, size, x, y = _foreground_values(seed)
+    tx, ty = M._robust_threshold(flat, x), M._robust_threshold(flat, y)
+    rx, ry = M._within_label_ranks(flat, x), M._within_label_ranks(flat, y)
+    _c, _sxy, _sxx, _syy, dx, dy = M._pair_sums(flat, x, y, size)
+    top = np.maximum(rx[2], ry[2])
+    sums = np.zeros((8, size))
+    M._compiled(M._overlap_sums_kernel)(flat, x, y, tx, ty, dx, dy, rx[1],
+                                        ry[1], top, sums)
+    a, b = np.clip(x - tx, 0, None), np.clip(y - ty, 0, None)
+    both = (x > tx) & (y > ty)
+    weight = (top[flat] - np.abs(rx[1] - ry[1])) / top[flat]
+    want = (
+        (dx * dy > 0).astype(float), a * b, a * a, b * b, a, b,
+        np.where(both, a * weight, 0.0), np.where(both, b * weight, 0.0))
+    for row, values in zip(sums, want):
+        assert np.array_equal(row, np.bincount(flat, values, size))
+    above_x, above_y = x > M._otsu_by_label(flat, x)[flat], y > M._otsu_by_label(flat, y)[flat]
+    pair = np.zeros((5, size))
+    M._compiled(M._otsu_pair_sums_kernel)(flat, x, y, above_x, above_y, rx[1],
+                                          ry[1], top, pair)
+    want = (x * y, x * above_y, y * above_x, x * weight * above_y,
+            y * weight * above_x)
+    for row, values in zip(pair, want):
+        assert np.array_equal(row, np.bincount(flat, values, size))
+
+
+def _vectorised_ranks(flat, values):
+    """The array-pass ranks the compiled kernel replaced."""
+    order, ordered, starts, counts, _present = M._sorted_by_label(flat, values)
+    labels_sorted = flat[order]
+    n = ordered.size
+    position = np.arange(n)
+    first = np.zeros(n, dtype=bool)
+    first[starts] = True
+    new_value = first.copy()
+    new_value[1:] |= ordered[1:] != ordered[:-1]
+    run = np.cumsum(new_value) - 1
+    run_first = position[new_value]
+    run_size = np.bincount(run)
+    start_of_label = np.repeat(starts, counts)
+    average = (run_first[run] - start_of_label) + (run_size[run] + 1) / 2
+    dense_all = np.cumsum(new_value)
+    dense = dense_all - dense_all[start_of_label] + 1
+    avg_out, dense_out = np.empty(n), np.empty(n)
+    avg_out[order] = average
+    dense_out[order] = dense
+    max_dense = np.zeros(int(flat.max()) + 1)
+    np.maximum.at(max_dense, labels_sorted, dense)
+    return avg_out, dense_out, max_dense
+
+
+@pytest.mark.parametrize("seed", range(3))
+def test_the_compiled_ranks_and_rank_bins_are_the_array_passes_to_the_bit(seed):
+    flat, _rows, _cols, size, x, y = _foreground_values(seed)
+    for values in (x, y):
+        for got, want in zip(M._within_label_ranks(flat, values),
+                             _vectorised_ranks(flat, values)):
+            assert np.array_equal(got, want)
+    count = np.bincount(flat, None, size).astype(float)
+    rx, ry = M._within_label_ranks(flat, x)[0], M._within_label_ranks(flat, y)[0]
+    qx, qy = M._rank_bins(flat, rx, count, 4), M._rank_bins(flat, ry, count, 4)
+    joint = np.zeros((size, 4, 4), dtype=np.int64)
+    M._compiled(M._joint_bins_kernel)(flat, qx, qy, joint)
+    want = np.bincount(flat * 16 + qx * 4 + qy, minlength=size * 16)
+    assert np.array_equal(joint.ravel(), want)
+
+
+@pytest.mark.parametrize("seed", range(3))
+def test_the_fused_central_moments_match_the_power_arrays(seed):
+    flat, rows, cols, size, x, _y = _foreground_values(seed)
+    centre_r, centre_c, _mu00 = M._weighted_centre(flat, rows, cols, x, size)
+    sums = np.zeros((7, size))
+    M._compiled(M._central_moments_kernel)(flat, rows, cols, x, centre_r,
+                                           centre_c, sums)
+    dr, dc = rows - centre_r[flat], cols - centre_c[flat]
+    present = np.unique(flat)
+    for k, (p, q) in enumerate(M._CENTRAL_MOMENT_ORDERS):
+        want = np.bincount(flat, x * dr ** p * dc ** q, size)
+        _close(sums[k][present], want[present], rel=1e-12, sd=1e-12)
+
+
 def test_the_texture_kernels_give_the_same_table_twice_and_on_any_thread_count(monkeypatch):
     labels, image = _blobs(7)
     monkeypatch.setenv("OMP_NUM_THREADS", "1")
@@ -174,3 +280,38 @@ def test_the_texture_kernels_give_the_same_table_twice_and_on_any_thread_count(m
     three = M.measure_texture(labels, image)
     for other in (again, three):
         assert np.array_equal(one.to_numpy(), other.to_numpy(), equal_nan=True)
+
+
+@pytest.mark.parametrize("seed", range(3))
+@pytest.mark.parametrize("radius", [1, 2])
+def test_the_compiled_lbp_codes_are_skimages(seed, radius):
+    import warnings
+
+    from skimage.feature import local_binary_pattern
+
+    rng = np.random.default_rng(seed)
+    image = rng.random((47, 53)) * 100
+    if seed == 1:
+        image = np.round(image / 10)
+    needed = rng.random(image.shape) < 0.7
+    points = 8 * radius
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        want = local_binary_pattern(image, points, float(radius),
+                                    method="uniform").astype(np.int64)
+    rows, cols = M._lbp_offsets(points, float(radius))
+    got = np.full(image.shape, -1, dtype=np.int64)
+    M._compiled(M._lbp_kernel)(image, needed, rows, cols, got)
+    assert np.array_equal(got[needed], want[needed])
+    assert (got[~needed] == -1).all()
+
+
+def test_the_foreground_coordinates_are_the_index_grids():
+    labels, _image = _blobs(4)
+    labels = labels.astype(np.int64)
+    flat, rows, cols, inside, size = M._foreground(labels)
+    grid_r, grid_c = np.indices(labels.shape, dtype=np.float64)
+    assert np.array_equal(rows, grid_r.ravel()[inside])
+    assert np.array_equal(cols, grid_c.ravel()[inside])
+    assert rows.dtype == cols.dtype == np.float64
+    assert size == labels.max() + 1 and np.array_equal(flat, labels.ravel()[inside])

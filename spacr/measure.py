@@ -2710,52 +2710,31 @@ def _homogeneity_offset(distance, width):
     return max(0, min(int(distance), int(width) - 1))
 
 
-def _homogeneity_weights():
-    """``1 / (1 + (i - j)^2)`` over 256 x 256 grey levels, shaped as ``graycoprops`` shapes it."""
-    rows, cols = np.ogrid[0:256, 0:256]
-    return (1.0 / (1.0 + (rows - cols) ** 2)).reshape((256, 256, 1, 1))
-
-
-_HOMOGENEITY_WEIGHTS = _homogeneity_weights()
-
-
-def _glcm_pair_counts(image, offset):
-    """The symmetric pair counts ``graycomatrix(image, [offset], [0], symmetric=True)`` makes.
-
-    :returns: uint32 counts shaped ``(256, 256, 1, 1)``: each pixel with the
-        one ``offset`` columns to its right, and the transpose added.
-    """
-    left = image[:, :-offset].astype(np.intp).ravel()
-    right = image[:, offset:].ravel()
-    counts = np.bincount(left * 256 + right, minlength=256 * 256)
-    pairs = counts.astype(np.uint32).reshape((256, 256, 1, 1))
-    return pairs + np.transpose(pairs, (1, 0, 2, 3))
-
-
-def _glcm_homogeneity(image, offset):
-    """GLCM homogeneity of a uint8 image at a horizontal ``offset``, NaN with no pair.
+def _homogeneity_kernel(image, offsets, out):
+    """GLCM homogeneity of a 2-D uint8 image at each horizontal offset, into ``out``.
 
     The value of ``graycoprops(graycomatrix(image, [offset], [0],
-    symmetric=True, normed=True), 'homogeneity')[0, 0]``, step for step:
-    the same pair counts (each pixel with the one ``offset`` columns to its
-    right), the same symmetric sum, the two normalisations graycomatrix and
-    graycoprops each make, and the same weighted sum over a matrix of the
-    same shape, so the result is the same float. The counts are taken with
-    one :func:`numpy.bincount` in place of skimage's checks and loop, which
-    cost more than the sum itself on a single object's box.
-
-    :param image: 2-D uint8 grey levels.
-    :param offset: column offset, at least 1 and less than the width.
+    symmetric=True, normed=True), 'homogeneity')``: the mean over every
+    pixel and the one ``offset`` columns to its right of ``1 / (1 + (a -
+    b)^2)`` (the symmetric matrix counts each pair twice, which the
+    normalisation cancels), summed in one pass instead of over a 256 x 256
+    matrix. An offset of 0 gives 1.0; an offset that pairs no pixel gives
+    NaN. Compile with :func:`_compiled`.
     """
-    pairs = _glcm_pair_counts(image, offset)
-    if not pairs.any():
-        return np.nan
-    for _normalisation in range(2):
-        pairs = pairs.astype(np.float64)
-        sums = np.sum(pairs, axis=(0, 1), keepdims=True)
-        sums[sums == 0] = 1
-        pairs /= sums
-    return np.sum(pairs * _HOMOGENEITY_WEIGHTS, axis=(0, 1))[0, 0]
+    rows, cols = image.shape
+    for k in range(offsets.size):
+        offset = offsets[k]
+        if offset == 0:
+            out[k] = 1.0
+            continue
+        total = 0.0
+        pairs = 0
+        for r in range(rows):
+            for c in range(cols - offset):
+                d = np.float64(image[r, c]) - np.float64(image[r, c + offset])
+                total += 1.0 / (1.0 + d * d)
+                pairs += 1
+        out[k] = total / pairs if pairs else np.nan
 
 
 def _calculate_homogeneity(label, channel, distances=None):
@@ -2777,6 +2756,7 @@ def _calculate_homogeneity(label, channel, distances=None):
                 "3-D run writes no homogeneity_distance_* columns.")
         if distances is None:
             distances = [2,4,8,16,32,64]
+        kernel = _compiled(_homogeneity_kernel)
         homogeneity_values = []
         for region in regionprops(label):
             region_image = region.image * channel[region.slice]
@@ -2784,15 +2764,12 @@ def _calculate_homogeneity(label, channel, distances=None):
                 region_image = region_image.astype(int)
             rescaled_image = rescale_intensity(
                 region_image, out_range=(0, 255)).astype('uint8')
-            homogeneity_per_distance = []
-            for d in distances:
-                offset = _homogeneity_offset(d, rescaled_image.shape[1])
-                if offset == 0:
-                    homogeneity_per_distance.append(1.0)
-                    continue
-                homogeneity_per_distance.append(
-                    _glcm_homogeneity(rescaled_image, offset))
-            homogeneity_values.append(homogeneity_per_distance)
+            offsets = np.array([
+                _homogeneity_offset(d, rescaled_image.shape[1])
+                for d in distances], dtype=np.int64)
+            row = np.empty(offsets.size)
+            kernel(np.ascontiguousarray(rescaled_image), offsets, row)
+            homogeneity_values.append(row.tolist())
         columns = [f'homogeneity_distance_{d}' for d in distances]
         homogeneity_df = pd.DataFrame(homogeneity_values, columns=columns)
 
@@ -3956,7 +3933,14 @@ def _profile_inputs(labels, image):
             raise ValueError(
                 f"the image {image.shape} does not cover the mask "
                 f"{labels.shape}")
+    shared = _FOREGROUNDS.get()
+    if shared is not None:
+        known = shared.get(('present', id(labels)))
+        if known is not None and known[0] is labels:
+            return labels, image, known[1].copy()
     present = np.unique(labels[labels > 0])
+    if shared is not None:
+        shared[('present', id(labels))] = (labels, present.copy())
     return labels, image, present
 
 
@@ -4029,6 +4013,34 @@ def _mass_displacement_columns(flat, rows, cols, size, present, values):
     return out
 
 
+#: The ``(p, q)`` orders of :func:`_central_moments_kernel`, in its row order.
+_CENTRAL_MOMENT_ORDERS = ((2, 0), (0, 2), (1, 1), (3, 0), (0, 3), (2, 1), (1, 2))
+
+
+def _central_moments_kernel(flat, rows, cols, weights, centre_r, centre_c,
+                            sums):
+    """Each label's weighted central moments of orders :data:`_CENTRAL_MOMENT_ORDERS`, in one pass.
+
+    Adds ``w * dr**p * dc**q`` with ``dr``, ``dc`` the offsets from the
+    label's weighted centre into ``sums[k, label]`` in pixel order.
+    Compile with :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        w = weights[k]
+        dr = rows[k] - centre_r[label]
+        dc = cols[k] - centre_c[label]
+        dr2 = dr * dr
+        dc2 = dc * dc
+        sums[0, label] += w * dr2
+        sums[1, label] += w * dc2
+        sums[2, label] += w * dr * dc
+        sums[3, label] += w * (dr2 * dr)
+        sums[4, label] += w * (dc2 * dc)
+        sums[5, label] += w * dr2 * dc
+        sums[6, label] += w * dr * dc2
+
+
 def _weighted_moments(flat, rows, cols, weights, size, present):
     """Centre, ``mu00`` and Hu invariants of each label under ``weights``.
 
@@ -4037,16 +4049,16 @@ def _weighted_moments(flat, rows, cols, weights, size, present):
         gets NaN.
     """
     centre_r, centre_c, mu00 = _weighted_centre(flat, rows, cols, weights, size)
+    sums = np.zeros((7, size))
+    _compiled(_central_moments_kernel)(
+        np.ascontiguousarray(flat), np.ascontiguousarray(rows),
+        np.ascontiguousarray(cols),
+        np.ascontiguousarray(weights, dtype=np.float64), centre_r, centre_c,
+        sums)
     with np.errstate(invalid='ignore', divide='ignore'):
-        dr = rows - centre_r[flat]
-        dc = cols - centre_c[flat]
-        row_powers = {p: dr ** p for p in range(4)}
-        col_powers = {q: dc ** q for q in range(4)}
         m = [[None] * 4 for _ in range(4)]
-        for p, q in ((2, 0), (0, 2), (1, 1), (3, 0), (0, 3), (2, 1), (1, 2)):
-            mu = np.bincount(flat, weights * row_powers[p] * col_powers[q],
-                             size)
-            m[p][q] = (mu / mu00 ** ((p + q) / 2 + 1))[present]
+        for k, (p, q) in enumerate(_CENTRAL_MOMENT_ORDERS):
+            m[p][q] = (sums[k] / mu00 ** ((p + q) / 2 + 1))[present]
         hu = _hu_from_moments(m)
     bad = ~(mu00[present] > 0)
     hu = [np.where(bad, np.nan, h) for h in hu]
@@ -4066,8 +4078,10 @@ def _shared_foregrounds():
     labels, coordinates and foreground index; inside the scope (one
     :func:`measure_profile_features` call, one :func:`_add_funk_frames`
     pass) the arrays found for a mask are handed to every later family that
-    asks for the same mask object. Nothing in the scope writes to a mask or
-    to those arrays, so they are the arrays each family would make.
+    asks for the same mask object, and so are its present labels
+    (:func:`_profile_inputs`, a copy each time). Nothing in the scope
+    writes to a mask or to those arrays, so they are the arrays each family
+    would make.
     """
     if _FOREGROUNDS.get() is not None:
         yield
@@ -4088,8 +4102,10 @@ def _foreground(labels):
             return known[1]
     inside = labels.ravel() > 0
     flat = labels.ravel()[inside]
-    rows, cols = np.indices(labels.shape, dtype=np.float64)
-    found = (flat, rows.ravel()[inside], cols.ravel()[inside], inside,
+    where = np.flatnonzero(inside)
+    width = labels.shape[-1] if labels.ndim else 1
+    found = (flat, (where // width).astype(np.float64),
+             (where % width).astype(np.float64), inside,
              int(labels.max()) + 1)
     if shared is not None:
         shared[id(labels)] = (labels, found)
@@ -4929,40 +4945,93 @@ def _within_label_ranks(flat, values, presorted=None):
     """
     order, ordered, starts, counts, present = (
         presorted if presorted is not None else _sorted_by_label(flat, values))
-    labels_sorted = flat[order]
-    n = ordered.size
-    position = np.arange(n)
-    first = np.zeros(n, dtype=bool)
-    first[starts] = True
-    new_value = first.copy()
-    new_value[1:] |= ordered[1:] != ordered[:-1]
-    run = np.cumsum(new_value) - 1
-    run_first = position[new_value]
-    run_size = np.bincount(run)
-    start_of_label = np.repeat(starts, counts)
-    average = (run_first[run] - start_of_label) + (run_size[run] + 1) / 2
-    dense_all = np.cumsum(new_value)
-    dense = dense_all - dense_all[start_of_label] + 1
-    avg_out = np.empty(n)
-    dense_out = np.empty(n)
-    avg_out[order] = average
-    dense_out[order] = dense
+    avg_out = np.empty(ordered.size)
+    dense_out = np.empty(ordered.size)
     max_dense = np.zeros(int(flat.max()) + 1)
-    np.maximum.at(max_dense, labels_sorted, dense)
+    _compiled(_within_label_ranks_kernel)(
+        np.ascontiguousarray(order), np.ascontiguousarray(ordered),
+        np.asarray(starts, dtype=np.int64), np.asarray(counts, dtype=np.int64),
+        np.asarray(present, dtype=np.int64), avg_out, dense_out, max_dense)
     return avg_out, dense_out, max_dense
 
 
-def _pearson_by_label(flat, x, y, size):
-    """Pearson's r of ``x`` and ``y`` within each label (NaN when either is flat)."""
+def _within_label_ranks_kernel(order, ordered, starts, counts, present,
+                               average, dense, max_dense):
+    """Average and dense ranks along each label's sorted run, written back to pixel order.
+
+    A run of equal values from position ``first`` (counted from the
+    label's start) of length ``m`` takes the average rank ``first + (m +
+    1) / 2``; dense ranks count the distinct values from 1, and
+    ``max_dense[label]`` is the last. Compile with :func:`_compiled`.
+    """
+    for index in range(present.size):
+        start = starts[index]
+        stop = start + counts[index]
+        run = start
+        level = 0
+        while run < stop:
+            end = run + 1
+            while end < stop and ordered[end] == ordered[run]:
+                end += 1
+            level += 1
+            rank = (run - start) + (end - run + 1) / 2
+            for k in range(run, end):
+                average[order[k]] = rank
+                dense[order[k]] = level
+            run = end
+        max_dense[present[index]] = level
+
+
+def _pair_sums_kernel(flat, x, y, mx, my, dx, dy, sums):
+    """Deviations from each label's means and their per-label sums of products, in one pass.
+
+    Writes ``dx = x - mx[label]`` and ``dy = y - my[label]`` and adds
+    ``dx * dy``, ``dx * dx`` and ``dy * dy`` into ``sums[0..2, label]`` in
+    pixel order, the order :func:`numpy.bincount` adds them in, so the sums
+    are the same floats. Compile with :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        a = x[k] - mx[label]
+        b = y[k] - my[label]
+        dx[k] = a
+        dy[k] = b
+        sums[0, label] += a * b
+        sums[1, label] += a * a
+        sums[2, label] += b * b
+
+
+def _pair_sums(flat, x, y, size):
+    """Per-label count, ``sum(dx dy)``, ``sum(dx^2)``, ``sum(dy^2)`` and the deviations ``dx``, ``dy`` from the label means.
+
+    The values ``np.bincount`` gives over ``x - mean`` and ``y - mean``,
+    found in one compiled pass instead of five array passes.
+    """
     count = np.bincount(flat, None, size)
     with np.errstate(invalid='ignore', divide='ignore'):
         mx = np.bincount(flat, x, size) / count
         my = np.bincount(flat, y, size) / count
-        dx = x - mx[flat]
-        dy = y - my[flat]
-        sxy = np.bincount(flat, dx * dy, size)
-        sxx = np.bincount(flat, dx * dx, size)
-        syy = np.bincount(flat, dy * dy, size)
+    x = np.ascontiguousarray(x, dtype=np.float64)
+    y = np.ascontiguousarray(y, dtype=np.float64)
+    dx = np.empty_like(x)
+    dy = np.empty_like(y)
+    sums = np.zeros((3, size))
+    _compiled(_pair_sums_kernel)(np.ascontiguousarray(flat), x, y, mx, my,
+                                 dx, dy, sums)
+    return count, sums[0], sums[1], sums[2], dx, dy
+
+
+def _pearson_by_label(flat, x, y, size, sums=None):
+    """Pearson's r of ``x`` and ``y`` within each label (NaN when either is flat).
+
+    :param sums: :func:`_pair_sums` of ``x`` and ``y``, when the caller
+        already has them.
+    :returns: ``(r, dx, dy)``, with ``dx`` and ``dy`` the deviations from
+        each label's means.
+    """
+    _count, sxy, sxx, syy, dx, dy = (
+        sums if sums is not None else _pair_sums(flat, x, y, size))
+    with np.errstate(invalid='ignore', divide='ignore'):
         r = sxy / np.sqrt(sxx * syy)
     return np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan), dx, dy
 
@@ -5052,6 +5121,39 @@ def _label_pixels(labels, image):
     return pixels
 
 
+def _overlap_sums_kernel(flat, x, y, threshold_x, threshold_y, dx, dy,
+                         dense_x, dense_y, top, sums):
+    """The per-label sums of :func:`measure_colocalisation` for one channel pair, in one pass.
+
+    Adds, in pixel order (the order of :func:`numpy.bincount`), into
+    ``sums[0..7, label]``: pixels with ``dx * dy > 0``; ``a b``, ``a a``,
+    ``b b``, ``a`` and ``b`` with ``a``, ``b`` the channels above their
+    per-pixel backgrounds (clipped at 0); and ``a w``, ``b w`` over the
+    pixels where both are above background, with the rank weight ``w = (R
+    - |dense_x - dense_y|) / R`` and ``R = top[label]``. Compile with
+    :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        if dx[k] * dy[k] > 0:
+            sums[0, label] += 1.0
+        a = x[k] - threshold_x[k]
+        if a < 0:
+            a = 0.0
+        b = y[k] - threshold_y[k]
+        if b < 0:
+            b = 0.0
+        sums[1, label] += a * b
+        sums[2, label] += a * a
+        sums[3, label] += b * b
+        sums[4, label] += a
+        sums[5, label] += b
+        if x[k] > threshold_x[k] and y[k] > threshold_y[k]:
+            weight = (top[label] - abs(dense_x[k] - dense_y[k])) / top[label]
+            sums[6, label] += a * weight
+            sums[7, label] += b * weight
+
+
 def measure_colocalisation(labels, image):
     """Colocalisation of every channel pair in each object, beyond Pearson and Manders.
 
@@ -5102,25 +5204,17 @@ def measure_colocalisation(labels, image):
             flat, ranks[i][0], ranks[j][0], size)
         _r, dx, dy = _pearson_by_label(flat, x, y, size)
         count = np.bincount(flat, None, size)
+        sums = np.zeros((8, size))
+        _compiled(_overlap_sums_kernel)(
+            flat, x, y, thresholds[i], thresholds[j], dx, dy, ranks[i][1],
+            ranks[j][1], np.maximum(ranks[i][2], ranks[j][2]), sums)
+        same_side, sab, saa, sbb, sa, sb, weighted_a, weighted_b = sums
         with np.errstate(invalid='ignore', divide='ignore'):
-            icq = np.bincount(flat, (dx * dy > 0).astype(float), size) / count - 0.5
-        a = np.clip(x - thresholds[i], 0, None)
-        b = np.clip(y - thresholds[j], 0, None)
-        sab = np.bincount(flat, a * b, size)
-        saa = np.bincount(flat, a * a, size)
-        sbb = np.bincount(flat, b * b, size)
-        sa = np.bincount(flat, a, size)
-        sb = np.bincount(flat, b, size)
-        both = (x > thresholds[i]) & (y > thresholds[j])
-        top = np.maximum(ranks[i][2], ranks[j][2])[flat]
-        weight = (top - np.abs(ranks[i][1] - ranks[j][1])) / top
-        with np.errstate(invalid='ignore', divide='ignore'):
+            icq = same_side / count - 0.5
             k1 = np.where(saa > 0, sab / saa, 0.0)
             k2 = np.where(sbb > 0, sab / sbb, 0.0)
-            rwc1 = np.where(sa > 0, np.bincount(
-                flat, np.where(both, a * weight, 0.0), size) / sa, 0.0)
-            rwc2 = np.where(sb > 0, np.bincount(
-                flat, np.where(both, b * weight, 0.0), size) / sb, 0.0)
+            rwc1 = np.where(sa > 0, weighted_a / sa, 0.0)
+            rwc2 = np.where(sb > 0, weighted_b / sb, 0.0)
         out[base + 'spearman'] = spearman[present]
         out[base + 'icq'] = icq[present]
         out[base + 'k1'] = k1[present]
@@ -5206,20 +5300,35 @@ def _costes_manders(flat, x, y, size, steps=PROFILE_COSTES_STEPS):
     return m1, m2
 
 
-def _rank_mutual_information(flat, rank_x, rank_y, count, size, bins):
+def _rank_bins(flat, ranks, count, bins):
+    """Each pixel's equal-count quantile bin ``0..bins-1`` of its within-label rank, as int64."""
+    n = count[flat]
+    return np.minimum(((ranks - 0.5) / n * bins).astype(np.int64), bins - 1)
+
+
+def _joint_bins_kernel(flat, qx, qy, joint):
+    """Count each label's pixels in every ``(qx, qy)`` bin pair into ``joint[label]``. Compile with :func:`_compiled`."""
+    for k in range(flat.size):
+        joint[flat[k], qx[k], qy[k]] += 1
+
+
+def _rank_mutual_information(flat, rank_x, rank_y, count, size, bins,
+                             binned=None):
     """Normalised mutual information of two within-label rank vectors.
 
     Ranks become ``bins`` equal-count quantile bins per label, so each
     channel's marginal is near uniform and the measure sees only how the two
     co-vary, linearly or not. ``MI / log(bins)``: 0 for independence, 1 for
     a one-to-one monotone or non-monotone binned relation.
+
+    :param binned: the two channels' :func:`_rank_bins`, when the caller
+        already has them.
     """
-    n = count[flat]
-    qx = np.minimum(((rank_x - 0.5) / n * bins).astype(np.int64), bins - 1)
-    qy = np.minimum(((rank_y - 0.5) / n * bins).astype(np.int64), bins - 1)
-    cells = bins * bins
-    joint = np.bincount(flat * cells + qx * bins + qy,
-                        minlength=size * cells).reshape(size, bins, bins)
+    qx, qy = binned if binned is not None else (
+        _rank_bins(flat, rank_x, count, bins),
+        _rank_bins(flat, rank_y, count, bins))
+    joint = np.zeros((size, bins, bins), dtype=np.int64)
+    _compiled(_joint_bins_kernel)(np.ascontiguousarray(flat), qx, qy, joint)
     with np.errstate(invalid='ignore', divide='ignore'):
         p = joint / count[:, None, None]
         px = p.sum(axis=2, keepdims=True)
@@ -5314,10 +5423,12 @@ def measure_colocalisation_extra(labels, image, bins=PROFILE_MI_BINS,
         out[f'channel_{c}_puncta_count'] = spots[c][3][present].astype(float)
         out[f'channel_{c}_puncta_area_fraction'] = share[present]
     shape = labels.shape
+    binned = [_rank_bins(flat, r, count, int(bins)) for r in ranks]
     for i, j in pairs:
         base = f'channel_{i}_channel_{j}_'
         nmi = _rank_mutual_information(flat, ranks[i], ranks[j], count,
-                                       size, int(bins))
+                                       size, int(bins),
+                                       binned=(binned[i], binned[j]))
         out[base + 'nmi'] = nmi[present]
         if costes:
             m1, m2 = _costes_manders(flat, planes[i], planes[j], size, steps)
@@ -5448,6 +5559,28 @@ def _otsu_by_label(flat, values, presorted=None):
     return thresholds
 
 
+def _otsu_pair_sums_kernel(flat, x, y, above_x, above_y, dense_x, dense_y,
+                           top, sums):
+    """The per-label sums of :func:`measure_colocalisation_otsu` for one channel pair, in one pass.
+
+    Adds, in pixel order (the order of :func:`numpy.bincount`), into
+    ``sums[0..4, label]``: ``x y``; ``x`` where ``y`` is above its Otsu
+    threshold and ``y`` where ``x`` is; and those two weighted by the rank
+    weight ``(R - |dense_x - dense_y|) / R`` with ``R = top[label]``.
+    Compile with :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        sums[0, label] += x[k] * y[k]
+        weight = (top[label] - abs(dense_x[k] - dense_y[k])) / top[label]
+        if above_y[k]:
+            sums[1, label] += x[k]
+            sums[3, label] += x[k] * weight
+        if above_x[k]:
+            sums[2, label] += y[k]
+            sums[4, label] += y[k] * weight
+
+
 def measure_colocalisation_otsu(labels, image):
     """Raw overlap, regression and Otsu colocalisation of each object and channel pair.
 
@@ -5503,13 +5636,13 @@ def measure_colocalisation_otsu(labels, image):
         squares.append(np.bincount(flat, values * values, size))
     for i, j in pairs:
         x, y = planes[i], planes[j]
-        _r, dx, dy = _pearson_by_label(flat, x, y, size)
-        covariance = np.bincount(flat, dx * dy, size)
-        var_x = np.bincount(flat, dx * dx, size)
-        var_y = np.bincount(flat, dy * dy, size)
-        product = np.bincount(flat, x * y, size)
-        maximum = np.maximum(ranks[i][2], ranks[j][2])[flat]
-        weight = (maximum - np.abs(ranks[i][1] - ranks[j][1])) / maximum
+        _count, covariance, var_x, var_y, _dx, _dy = _pair_sums(
+            flat, x, y, size)
+        pair = np.zeros((5, size))
+        _compiled(_otsu_pair_sums_kernel)(
+            flat, x, y, above[i], above[j], ranks[i][1], ranks[j][1],
+            np.maximum(ranks[i][2], ranks[j][2]), pair)
+        product, overlap_x, overlap_y, weighted_x, weighted_y = pair
         valid = (sums[i] != 0) & (sums[j] != 0)
         varying = (ranks[i][2] > 1) & (ranks[j][2] > 1)
         with np.errstate(divide='ignore', invalid='ignore'):
@@ -5518,10 +5651,8 @@ def measure_colocalisation_otsu(labels, image):
                 np.where(varying & (var_y > 0), covariance / var_y, 0.0),
                 product / np.sqrt(squares[i] * squares[j]),
                 product / squares[i], product / squares[j],
-                np.bincount(flat, x * above[j], size) / sums[i],
-                np.bincount(flat, y * above[i], size) / sums[j],
-                np.bincount(flat, x * weight * above[j], size) / sums[i],
-                np.bincount(flat, y * weight * above[i], size) / sums[j])
+                overlap_x / sums[i], overlap_y / sums[j],
+                weighted_x / sums[i], weighted_y / sums[j])
         for index, (stat, result) in enumerate(zip(stats, values)):
             if index >= 2:
                 result = np.where(valid, result, 0.0)
@@ -6015,18 +6146,88 @@ def measure_lbp(labels, image, radii=PROFILE_LBP_RADII):
     return _lbp_frames([labels], image, radii)[0]
 
 
-def _lbp_channel(item, *, image, index):
+def _lbp_kernel(image, needed, row_offsets, col_offsets, codes):
+    """Rotation-invariant uniform LBP codes at the ``needed`` pixels, into ``codes``.
+
+    The arithmetic of :func:`skimage.feature.local_binary_pattern` with
+    ``method='uniform'``: each of the ``P`` circle points is read by
+    bilinear interpolation from its four neighbours (0 outside the image),
+    set when it is at least the centre, and a pattern with at most two
+    changes between consecutive points (the first ``P - 1`` pairs, as
+    skimage counts them) takes its number of set points, any other ``P +
+    1``. Pixels not ``needed`` keep their value. Compile with
+    :func:`_compiled`.
+    """
+    rows, cols = image.shape
+    points = row_offsets.size
+    bits = np.zeros(points, dtype=np.int64)
+    for r in range(rows):
+        for c in range(cols):
+            if not needed[r, c]:
+                continue
+            centre = image[r, c]
+            for i in range(points):
+                pr = r + row_offsets[i]
+                pc = c + col_offsets[i]
+                minr = int(np.floor(pr))
+                minc = int(np.floor(pc))
+                maxr = int(np.ceil(pr))
+                maxc = int(np.ceil(pc))
+                dr = pr - minr
+                dc = pc - minc
+                top_left = 0.0
+                top_right = 0.0
+                bottom_left = 0.0
+                bottom_right = 0.0
+                if 0 <= minr < rows and 0 <= minc < cols:
+                    top_left = image[minr, minc]
+                if 0 <= minr < rows and 0 <= maxc < cols:
+                    top_right = image[minr, maxc]
+                if 0 <= maxr < rows and 0 <= minc < cols:
+                    bottom_left = image[maxr, minc]
+                if 0 <= maxr < rows and 0 <= maxc < cols:
+                    bottom_right = image[maxr, maxc]
+                top = (1 - dc) * top_left + dc * top_right
+                bottom = (1 - dc) * bottom_left + dc * bottom_right
+                value = (1 - dr) * top + dr * bottom
+                bits[i] = 1 if value - centre >= 0 else 0
+            changes = 0
+            for i in range(points - 1):
+                if bits[i] != bits[i + 1]:
+                    changes += 1
+            if changes <= 2:
+                total = 0
+                for i in range(points):
+                    total += bits[i]
+                codes[r, c] = total
+            else:
+                codes[r, c] = points + 1
+
+
+def _lbp_offsets(points, radius):
+    """The circle offsets of :func:`skimage.feature.local_binary_pattern`: ``(rows, cols)`` rounded to 5 decimals."""
+    angles = 2 * np.pi * np.arange(points, dtype=np.float64) / points
+    return (np.round(-radius * np.sin(angles), 5),
+            np.round(radius * np.cos(angles), 5))
+
+
+def _lbp_channel(item, *, image, index, needed):
     """One ``(channel, radius)`` of :func:`_lbp_frames` for every mask.
 
+    The codes are :func:`skimage.feature.local_binary_pattern`'s on the
+    whole field, computed by :func:`_lbp_kernel` at the labelled pixels
+    only, the only ones a histogram reads.
+
+    :param needed: the pixels any mask labels; codes elsewhere are unused.
     :returns: per mask, ``[(column, values)]`` in code order.
     """
-    from skimage.feature import local_binary_pattern
-
     c, radius = item
     columns = [[] for _ in index]
     points = 8 * int(radius)
-    codes = local_binary_pattern(image[..., c], points, float(radius),
-                                 method='uniform').astype(np.int64)
+    row_offsets, col_offsets = _lbp_offsets(points, float(radius))
+    codes = np.zeros(needed.shape, dtype=np.int64)
+    _compiled(_lbp_kernel)(np.ascontiguousarray(image[..., c], dtype=np.float64),
+                           needed, row_offsets, col_offsets, codes)
     for m, (flat, inside, size, present, count) in enumerate(index):
         bins = points + 2
         tally = np.bincount(flat * bins + codes.ravel()[inside],
@@ -6044,7 +6245,10 @@ def _lbp_frames(masks, image, radii=PROFILE_LBP_RADII):
     index = _mask_index(masks)
     outs = [{'label': present} for _f, _i, _s, present, _c in index]
     items = [(c, radius) for c in range(image.shape[-1]) for radius in radii]
-    code = partial(_lbp_channel, image=image, index=index)
+    needed = np.zeros(image.shape[:2], dtype=bool)
+    for labels in masks:
+        needed |= np.asarray(labels) > 0
+    code = partial(_lbp_channel, image=image, index=index, needed=needed)
     for columns in _field_map(code, items):
         for m, pairs in enumerate(columns):
             outs[m].update(pairs)

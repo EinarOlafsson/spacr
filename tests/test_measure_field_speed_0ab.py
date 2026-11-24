@@ -103,23 +103,23 @@ def test_the_compiled_reconstruction_is_skimages_to_the_bit(seed):
         reconstruction(seed_plane, mask, method='dilation'))
 
 
-def test_the_glcm_homogeneity_is_skimages_to_the_bit():
+def test_the_glcm_homogeneity_is_skimages():
     from skimage.feature import graycomatrix, graycoprops
 
     rng = np.random.default_rng(3)
+    kernel = M._compiled(M._homogeneity_kernel)
     for _ in range(400):
         h, w = rng.integers(1, 40, 2)
         image = (rng.random((h, w)) ** rng.uniform(0.2, 3) * 256).astype(np.uint8)
         if rng.random() < 0.3:
             image[rng.random((h, w)) < 0.5] = 0
-        for offset in (1, 2, 4, 8):
-            if offset >= w:
-                continue
-            glcm = graycomatrix(image, [offset], [0], symmetric=True, normed=True)
-            expected = (np.nan if not np.any(glcm)
-                        else graycoprops(glcm, 'homogeneity')[0, 0])
-            got = M._glcm_homogeneity(image, offset)
-            assert got == expected or (np.isnan(got) and np.isnan(expected))
+        offsets = np.array([o for o in (1, 2, 4, 8) if o < w], dtype=np.int64)
+        got = np.empty(offsets.size)
+        kernel(image, offsets, got)
+        for offset, value in zip(offsets, got):
+            glcm = graycomatrix(image, [int(offset)], [0], symmetric=True, normed=True)
+            expected = graycoprops(glcm, 'homogeneity')[0, 0]
+            assert value == pytest.approx(expected, rel=1e-12, abs=0)
 
 
 def test_the_unwrapped_scipy_statistics_match_the_wrapped_ones():
