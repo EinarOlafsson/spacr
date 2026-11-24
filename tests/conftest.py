@@ -3224,7 +3224,8 @@ def _ops_e2e_tier(tier: str) -> Path:
     The core tier is the ``ops_e2e`` example set; the full tier is the opt-in
     :data:`spacr.example_archives.OPS_E2E_FULL_ARCHIVE`. Each tier's
     phenotype and merge references (revision 2,
-    :data:`spacr.example_archives.OPS_E2E_REFERENCE_ARCHIVES`) are unpacked
+    :data:`spacr.example_archives.OPS_E2E_REFERENCE_ARCHIVES`; revision 3 for
+    the core tier) are unpacked
     over it. Everything comes from the pinned revision and is refused when
     its SHA-256 differs. A tier already unpacked in the example cache is used
     without any request, so the tests run offline once it is there. Only an
@@ -3246,7 +3247,13 @@ def _ops_e2e_tier(tier: str) -> Path:
         archive = ea.OPS_E2E_FULL_ARCHIVE
     present = ea.example_set("ops_e2e").is_present
     root = folder / "ops_testdata_funk2022_A1"
-    references = root / "reference" / "PROVENANCE_rev2_addendum.json"
+    # The core tier's phenotype and merge references are revision 3 (the
+    # maintainer's nucleus-cell merge rule, 2026-11-23); the full tier's are
+    # still revision 2's. A cache holding revision 2 gets revision 3 unpacked
+    # over it, because its marker is missing.
+    marker = {"core": "PROVENANCE_rev3_addendum.json",
+              "full": "PROVENANCE_rev2_addendum.json"}[tier]
+    references = root / "reference" / marker
     if present(folder) and references.is_file():
         return root
     from tests.resource_capabilities import endpoint_available
@@ -3269,7 +3276,7 @@ def _ops_e2e_tier(tier: str) -> Path:
     finally:
         lock.close()
     assert present(folder), f"{archive} unpacked without its markers"
-    assert references.is_file(), "the revision-2 references unpacked without their addendum"
+    assert references.is_file(), f"the references unpacked without {marker}"
     return root
 
 
