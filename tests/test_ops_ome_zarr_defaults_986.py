@@ -87,10 +87,12 @@ def test_new_ops_defaults_match_old_saved_outputs_and_resume(tmp_path, models, m
         assert old_field["meta"] == new_field["meta"]
     for table, key in (("cell", "prcfo"), ("nucleus", "prcfo"),
                        ("cytoplasm", "prcfo"), ("image", "prcf")):
-        old = read_database(old_report["ph_tables"]["db"], table, canonicalise=False,
-                            migrate=False, read_only=True, report=None)[0]
-        new = read_database(new_report["ph_tables"]["db"], table, canonicalise=False,
-                            migrate=False, read_only=True, report=None)[0]
+        from spacr import store
+
+        with store.open(old_report["ph_tables"]["store"]) as opened:
+            old = opened.query(table=table).sort_values(key).reset_index(drop=True)
+        with store.open(new_report["ph_tables"]["store"]) as opened:
+            new = opened.query(table=table).sort_values(key).reset_index(drop=True)
         pd.testing.assert_frame_equal(old, new, check_exact=True)
         if table == "image" and not masks:
             assert old[key].tolist() == ["P_1_r1_c1_f1", "P_1_r1_c1_f10", "P_1_r1_c1_f2"]

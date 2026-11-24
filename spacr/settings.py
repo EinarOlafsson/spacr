@@ -9166,7 +9166,7 @@ ALPHA_FEATURES = {
     },
     871: {
         'settings': ('ops_merged_root', 'ops_merged_flatfield', 'ops_merged_dtype',
-                     'ops_merged_save_sbs', 'ops_tables_parquet_threshold',
+                     'ops_merged_save_sbs',
                      'ops_crop_per_guide', 'ops_crop_size', 'ops_crop_channels',
                      'ops_crop_flatfield', 'ops_crop_seed',
                      'ops_max_files_per_folder', 'ops_ph_secondary_channels',
