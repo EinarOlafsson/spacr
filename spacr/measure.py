@@ -4277,39 +4277,342 @@ def measure_radial_distribution(labels, image, bins=PROFILE_RADIAL_BINS):
     return pd.DataFrame(out)
 
 
-def _quantise_object(values, levels):
-    """Object pixels as grey levels ``1..levels`` from their own minimum to maximum."""
-    low, high = values.min(), values.max()
-    if not high > low:
-        return np.ones(values.shape, dtype=np.uint8)
-    scaled = np.floor((values - low) / (high - low) * levels)
-    return (np.minimum(scaled, levels - 1) + 1).astype(np.uint8)
+def _compiled(function):
+    """``function`` compiled by numba (cached on disk, GIL released), or ``function`` itself without numba.
+
+    For the per-object kernels of the profiling families, which are plain
+    Python loops over arrays: compiled they take a small fraction of the
+    time of one library call per object; uncompiled they give the same
+    values slowly. A kernel compiled here may call no other kernel.
+    """
+    kernel = _COMPILED.get(function)
+    if kernel is None:
+        try:
+            import numba
+
+            kernel = numba.njit(cache=True, nogil=True)(function)
+        except Exception:
+            kernel = function
+        _COMPILED[function] = kernel
+    return kernel
 
 
-def _haralick_row(quantised, distance):
-    """Mahotas' 13 Haralick statistics, mean of four directions, NaN when undefined."""
-    import warnings
-
-    from mahotas.features import haralick
-
-    try:
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            return haralick(quantised, ignore_zeros=True, distance=distance,
-                            return_mean=True)
-    except ValueError:
-        return np.full(len(_HARALICK_NAMES), np.nan)
+#: Kernels compiled by :func:`_compiled`, by their Python function.
+_COMPILED = {}
 
 
-def _pftas_row(quantised):
-    """Mahotas' 54 PFTAS statistics, thresholded at the object's own Otsu level."""
-    from mahotas import otsu
-    from mahotas.features import pftas
+def _object_boxes(labels, present):
+    """``(rows start, rows stop, cols start, cols stop)`` of each present label, as an int64 array."""
+    slices = find_objects(labels)
+    boxes = np.zeros((present.size, 4), dtype=np.int64)
+    for index, label in enumerate(np.asarray(present).tolist()):
+        rows, cols = slices[label - 1]
+        boxes[index] = (rows.start, rows.stop, cols.start, cols.stop)
+    return boxes
 
-    inside = quantised[quantised > 0]
-    if inside.size == 0 or inside.min() == inside.max():
-        return np.full(54, np.nan)
-    return pftas(quantised, T=otsu(quantised, ignore_zeros=True))
+
+def _haralick_kernel(labels, image, boxes, present, levels, distance, out):
+    """Mahotas' 13 Haralick statistics of every object, mean of four directions, into ``out``.
+
+    For each object its bounding box of the 2-D float64 ``image``,
+    quantised to grey levels ``1..levels`` from the object's own minimum to
+    maximum (``floor((value - low) / (high - low) * levels)``, capped at
+    ``levels - 1``, plus one; a flat object all 1) with other pixels set to
+    0, the symmetric co-occurrence matrix at ``distance`` in the four
+    directions of :func:`mahotas.features.haralick` (0 ignored), and the
+    statistics as mahotas computes them (``use_x_minus_y_variance`` off,
+    13 features), averaged over the directions. A row stays NaN when any
+    direction pairs no pixels, where mahotas raises. Compile with
+    :func:`_compiled`.
+
+    :param out: ``(objects, 13)`` float64, filled with NaN by the caller.
+    """
+    for index in range(present.size):
+        label = present[index]
+        r0, r1, c0, c1 = boxes[index, 0], boxes[index, 1], boxes[index, 2], boxes[index, 3]
+        h, w = r1 - r0, c1 - c0
+        low = np.inf
+        high = -np.inf
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                if labels[r, c] == label:
+                    low = min(low, image[r, c])
+                    high = max(high, image[r, c])
+        spread = high - low
+        plane = np.zeros((h, w), dtype=np.int64)
+        n = 1
+        for r in range(h):
+            for c in range(w):
+                if labels[r0 + r, c0 + c] == label:
+                    value = 1
+                    if spread > 0:
+                        scaled = np.floor((image[r0 + r, c0 + c] - low)
+                                          / spread * levels)
+                        value = int(min(scaled, levels - 1.0)) + 1
+                    plane[r, c] = value
+                    if value + 1 > n:
+                        n = value + 1
+        feats = np.zeros((4, 13))
+        cmat = np.zeros((n, n), dtype=np.int64)
+        empty = False
+        for d in range(4):
+            dr = (0, 1, 1, 1)[d] * distance
+            dc = (1, 1, 0, -1)[d] * distance
+            cmat[:, :] = 0
+            total = 0
+            for r in range(h - dr):
+                for c in range(w):
+                    cc = c + dc
+                    if cc < 0 or cc >= w:
+                        continue
+                    i = plane[r, c]
+                    j = plane[r + dr, cc]
+                    if i == 0 or j == 0:
+                        continue
+                    cmat[i, j] += 1
+                    cmat[j, i] += 1
+                    total += 2
+            if total == 0:
+                empty = True
+                break
+            px = np.zeros(n)
+            py = np.zeros(n)
+            plus = np.zeros(2 * n)
+            minus = np.zeros(n)
+            energy = 0.0
+            cross = 0.0
+            inverse = 0.0
+            entropy = 0.0
+            for i in range(n):
+                for j in range(n):
+                    v = cmat[i, j] / total
+                    if v == 0:
+                        continue
+                    px[j] += v
+                    py[i] += v
+                    plus[i + j] += v
+                    minus[abs(i - j)] += v
+                    energy += v * v
+                    cross += i * j * v
+                    inverse += v / (1 + (i - j) * (i - j))
+                    entropy += np.log2(v) * v
+            entropy = -entropy
+            ux = 0.0
+            uy = 0.0
+            x2 = 0.0
+            y2 = 0.0
+            for i in range(n):
+                ux += px[i] * i
+                uy += py[i] * i
+                x2 += px[i] * i * i
+                y2 += py[i] * i * i
+            vx = x2 - ux * ux
+            vy = y2 - uy * uy
+            sx = np.sqrt(vx)
+            sy = np.sqrt(vy)
+            contrast = 0.0
+            mean_minus = 0.0
+            minus_entropy = 0.0
+            for i in range(n):
+                contrast += i * i * minus[i]
+                mean_minus += minus[i]
+                if minus[i] != 0:
+                    minus_entropy += np.log2(minus[i]) * minus[i]
+            mean_minus /= n
+            minus_variance = 0.0
+            for i in range(n):
+                minus_variance += (minus[i] - mean_minus) ** 2
+            sum_average = 0.0
+            sum_square = 0.0
+            sum_entropy = 0.0
+            for t in range(2 * n):
+                sum_average += t * plus[t]
+                sum_square += t * t * plus[t]
+                if plus[t] != 0:
+                    sum_entropy += np.log2(plus[t]) * plus[t]
+            hx = 0.0
+            hy = 0.0
+            for i in range(n):
+                if px[i] != 0:
+                    hx += np.log2(px[i]) * px[i]
+                if py[i] != 0:
+                    hy += np.log2(py[i]) * py[i]
+            hx = -hx
+            hy = -hy
+            hxy1 = 0.0
+            hxy2 = 0.0
+            for i in range(n):
+                if px[i] == 0:
+                    continue
+                for j in range(n):
+                    if py[j] == 0:
+                        continue
+                    product = px[i] * py[j]
+                    logged = np.log2(product)
+                    hxy1 += cmat[i, j] / total * logged
+                    hxy2 += logged * product
+            hxy1 = -hxy1
+            hxy2 = -hxy2
+            f = feats[d]
+            f[0] = energy
+            f[1] = contrast
+            if sx == 0.0 or sy == 0.0:
+                f[2] = 1.0
+            else:
+                f[2] = (1.0 / sx / sy) * (cross - ux * uy)
+            f[3] = vx
+            f[4] = inverse
+            f[5] = sum_average
+            f[6] = sum_square - sum_average * sum_average
+            f[7] = -sum_entropy
+            f[8] = entropy
+            f[9] = minus_variance / n
+            f[10] = -minus_entropy
+            largest = max(hx, hy)
+            f[11] = (entropy - hxy1) if largest == 0.0 else (entropy - hxy1) / largest
+            f[12] = np.sqrt(max(0.0, 1 - np.exp(-2.0 * (hxy2 - entropy))))
+        if empty:
+            continue
+        for t in range(13):
+            out[index, t] = (((feats[0, t] + feats[1, t]) + feats[2, t])
+                             + feats[3, t]) / 4
+
+
+def _pftas_kernel(labels, image, boxes, present, out):
+    """Mahotas' 54 PFTAS statistics of every varying object, at its own Otsu level, into ``out``.
+
+    For each object its bounding box of the 2-D float64 ``image``,
+    quantised as :func:`_haralick_kernel` quantises it but to 255 levels,
+    with other pixels set to 0; the threshold is :func:`mahotas.otsu` with
+    ``ignore_zeros``, and the statistics are :func:`mahotas.features.pftas`
+    at it: the share of pixels outside each of three binarisations (and of
+    their complements) with 0 to 8 neighbours inside, with the 3 x 3 window
+    reflected at the box edge. A flat object's row stays NaN. Compile with
+    :func:`_compiled`.
+
+    :param out: ``(objects, 54)`` float64, filled with NaN by the caller.
+    """
+    for index in range(present.size):
+        label = present[index]
+        r0, r1, c0, c1 = boxes[index, 0], boxes[index, 1], boxes[index, 2], boxes[index, 3]
+        h, w = r1 - r0, c1 - c0
+        low = np.inf
+        high = -np.inf
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                if labels[r, c] == label:
+                    low = min(low, image[r, c])
+                    high = max(high, image[r, c])
+        spread = high - low
+        if not spread > 0:
+            continue
+        plane = np.zeros((h, w), dtype=np.int64)
+        for r in range(h):
+            for c in range(w):
+                if labels[r0 + r, c0 + c] == label:
+                    scaled = np.floor((image[r0 + r, c0 + c] - low)
+                                      / spread * 255)
+                    plane[r, c] = int(min(scaled, 254.0)) + 1
+        n = 256
+        hist = np.zeros(n)
+        for r in range(h):
+            for c in range(w):
+                hist[plane[r, c]] += 1
+        hist[0] = 0
+        below = np.empty(n)
+        below[0] = hist[0]
+        for i in range(1, n):
+            below[i] = hist[i] + below[i - 1]
+        weight = 0.0
+        for i in range(1, n):
+            weight += hist[i]
+        upper_mean = 0.0
+        for i in range(1, n):
+            upper_mean += i * hist[i]
+        upper_mean /= weight
+        lower_mean = 0.0
+        above = below[n - 1] - below[0]
+        best = below[0] * above * (lower_mean - upper_mean) ** 2
+        threshold = 0
+        for t in range(1, n):
+            above_previous = below[n - 1] - below[t - 1]
+            above = below[n - 1] - below[t]
+            if below[t] == 0:
+                continue
+            if above == 0:
+                break
+            lower_mean = (lower_mean * below[t - 1] + t * hist[t]) / below[t]
+            upper_mean = (upper_mean * above_previous - t * hist[t]) / above
+            score = below[t] * above * (lower_mean - upper_mean) ** 2
+            if score > best:
+                best = score
+                threshold = t
+        count = 0
+        total = 0
+        for r in range(h):
+            for c in range(w):
+                if plane[r, c] > threshold:
+                    count += 1
+                    total += plane[r, c]
+        spread = 0.0
+        if count:
+            pixels = np.empty(count)
+            k = 0
+            for r in range(h):
+                for c in range(w):
+                    if plane[r, c] > threshold:
+                        pixels[k] = plane[r, c]
+                        k += 1
+            spread = pixels.std()
+        mean = total / (count + 1e-8)
+        binary = np.empty((h, w), dtype=np.int64)
+        for which in range(6):
+            for r in range(h):
+                for c in range(w):
+                    x = plane[r, c]
+                    if which % 3 == 0:
+                        on = (x > mean - spread) and (x < mean + spread)
+                    elif which % 3 == 1:
+                        on = x > mean - spread
+                    else:
+                        on = x > mean
+                    binary[r, c] = 1 if on != (which >= 3) else 0
+            counts = np.zeros(9)
+            for r in range(h):
+                for c in range(w):
+                    if binary[r, c]:
+                        continue
+                    neighbours = 0
+                    for dr in (-1, 0, 1):
+                        rr = r + dr
+                        if rr < 0:
+                            rr = -rr - 1
+                        elif rr >= h:
+                            rr = 2 * h - rr - 1
+                        for dc in (-1, 0, 1):
+                            if dr == 0 and dc == 0:
+                                continue
+                            cc = c + dc
+                            if cc < 0:
+                                cc = -cc - 1
+                            elif cc >= w:
+                                cc = 2 * w - cc - 1
+                            neighbours += binary[rr, cc]
+                    counts[neighbours] += 1
+            share = counts.sum()
+            for k in range(9):
+                out[index, 9 * which + k] = counts[k] / share if share > 0 else 0.0
+
+
+def _texture_channel(c, *, labels, image, boxes, present, levels, distance,
+                     pftas, har, tas):
+    """Fill channel ``c`` of :func:`measure_texture`'s ``har`` (unless ``levels`` is None) and ``tas`` (if ``pftas``)."""
+    plane = np.ascontiguousarray(image[..., c])
+    if levels is not None:
+        _compiled(_haralick_kernel)(labels, plane, boxes, present, levels,
+                                    distance, har[:, c])
+    if pftas:
+        _compiled(_pftas_kernel)(labels, plane, boxes, present, tas[:, c])
 
 
 def measure_texture(labels, image, haralick=True, pftas=True,
@@ -4341,20 +4644,13 @@ def measure_texture(labels, image, haralick=True, pftas=True,
     n_channels = image.shape[-1]
     har = np.full((present.size, n_channels, len(_HARALICK_NAMES)), np.nan)
     tas = np.full((present.size, n_channels, 54), np.nan)
-    for index, (label, window) in enumerate(
-            _object_windows(labels, present, pad=0)):
-        mask = labels[window] == label
-        crop = image[window]
-        for c in range(n_channels):
-            values = crop[..., c][mask]
-            if haralick:
-                plane = np.zeros(mask.shape, dtype=np.uint8)
-                plane[mask] = _quantise_object(values, int(levels))
-                har[index, c] = _haralick_row(plane, int(distance))
-            if pftas:
-                plane = np.zeros(mask.shape, dtype=np.uint8)
-                plane[mask] = _quantise_object(values, 255)
-                tas[index, c] = _pftas_row(plane)
+    if present.size:
+        boxes = _object_boxes(labels, present)
+        _field_map(partial(
+            _texture_channel, labels=labels, image=image, boxes=boxes,
+            present=present, levels=int(levels) if haralick else None,
+            distance=int(distance), pftas=pftas, har=har, tas=tas),
+            range(n_channels))
     out = {'label': present}
     for c in range(n_channels):
         if haralick:
