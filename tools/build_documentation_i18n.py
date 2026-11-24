@@ -15,6 +15,7 @@ import fnmatch
 import hashlib
 import inspect
 import json
+import os
 import re
 import stat
 import subprocess
@@ -92,6 +93,11 @@ if __name__ == "__main__" and not _REVIEW_HELP_ONLY:
 
 _REVIEW_INPUTS_VERIFIED_BY_PARENT = False
 
+
+
+# Set SPACR_I18N_ALLOW_STALE=1 while translations are dropped (maintainer 2026-11-23): stale reviewed API
+# records are skipped (the English source is used) instead of stopping the build. Unset = the strict check.
+_ALLOW_STALE_REVIEWS = os.environ.get("SPACR_I18N_ALLOW_STALE") == "1"
 
 def _ensure_review_inputs(directory):
     if _REVIEW_INPUTS_VERIFIED_BY_PARENT:
@@ -6348,15 +6354,23 @@ def _reviewed_api_block_translations(
                 ) from exc
             blocks, _layout = translatable_blocks(docs[symbol])
             if not 0 <= index < len(blocks):
+                if _ALLOW_STALE_REVIEWS:  # translations dropped: a stale record falls back to English
+                    continue
                 raise ValueError(f"stale reviewed API index {label!r}: {path}")
             source = str(record.get("source", ""))
             context = str(record.get("context", ""))
             target = str(record.get("translation", ""))
             if blocks[index] != source:
+                if _ALLOW_STALE_REVIEWS:  # translations dropped: a stale record falls back to English
+                    continue
                 raise ValueError(f"stale reviewed API source {label!r}: {path}")
             if record.get("source_sha256") != _source_hash(source):
+                if _ALLOW_STALE_REVIEWS:  # translations dropped: a stale record falls back to English
+                    continue
                 raise ValueError(f"stale reviewed API hash {label!r}: {path}")
             if _api_translation_source(source) != context:
+                if _ALLOW_STALE_REVIEWS:  # translations dropped: a stale record falls back to English
+                    continue
                 raise ValueError(f"stale reviewed API context {label!r}: {path}")
             if not (
                 _reviewed_api_block_valid(source, target, language)
