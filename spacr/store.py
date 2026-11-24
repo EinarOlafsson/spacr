@@ -3033,3 +3033,540 @@ def _legacy_attach(store) -> bool:
     store._tables = {name: {"sort_by": [], "key_columns": []}
                      for name in names}
     return True
+
+
+import threading as _threading
+
+#: The read side for the GUI (unified-store step S6) starts here, one block
+#: apart from the edit side: the shared Store per project, a per-thread twin,
+#: the project locator, distinct values for filter lists and the export.
+_SHARED_VERSION = 1
+
+__all__ += ["locate", "shared", "release_shared", "fork", "distinct",
+            "legacy_connection", "export", "interrupt"]
+
+#: The open store of each project this process reads, keyed by its path.
+_SHARED: Dict[str, Dict[str, Any]] = {}
+
+#: Guards :data:`_SHARED`.
+_SHARED_LOCK = _threading.Lock()
+
+#: Seconds between two checks of a shared project's catalog on disk.
+_SHARED_CHECK = 2.0
+
+#: The most columns SQLite takes in one table; an export splits wider ones.
+_SQLITE_COLUMNS = 2000
+
+
+def locate(path) -> str:
+    """The path :func:`open` takes, for a file or folder a user picked.
+
+    Accepted are a store project folder (holding ``spacr.duckdb``), the
+    ``spacr.duckdb`` file itself, a run folder whose ``measurements``
+    folder is a store project, an older ``measurements.db`` (or
+    ``.duckdb``, ``.parquetdb``) file, and a run or ``measurements``
+    folder holding ``measurements.db``. A store wins over an older file
+    in the same folder.
+
+    :param path: the file or folder.
+    :returns: the absolute path of the project folder or the older file.
+    :raises FileNotFoundError: when nothing there opens.
+    """
+    if path is None or not str(path).strip():
+        raise FileNotFoundError("no project given")
+    found = os.path.abspath(os.path.expanduser(str(path).strip()))
+    if os.path.isfile(found):
+        if os.path.basename(found) == CATALOG:
+            return os.path.dirname(found)
+        return found
+    if os.path.isdir(found):
+        if found.rstrip("/\\").lower().endswith(_LEGACY_PARQUET_SUFFIX):
+            return found
+        for candidate in (found, os.path.join(found, "measurements")):
+            if os.path.isfile(os.path.join(candidate, CATALOG)):
+                return candidate
+        for candidate in (os.path.join(found, "measurements",
+                                       "measurements.db"),
+                          os.path.join(found, "measurements.db")):
+            if os.path.isfile(candidate):
+                return candidate
+        raise FileNotFoundError(
+            f"{found} holds neither {CATALOG} nor measurements.db")
+    raise FileNotFoundError(f"no such file or folder: {found}")
+
+
+def _shared_stamp(project: str) -> Optional[tuple]:
+    """Size and mtime of what a shared store was opened from."""
+    target = project
+    if os.path.isdir(project):
+        catalog = os.path.join(project, CATALOG)
+        target = catalog if os.path.isfile(catalog) else project
+    found = _stat(target)
+    return None if found is None else (found["bytes"], found["mtime_ns"])
+
+
+def shared(project, *, verify: str = "quick") -> Store:
+    """The one open :class:`Store` of ``project`` in this process.
+
+    Every screen reading the same project gets the same store, so the
+    registry, the Parquet footers and the views are read once. The catalog
+    (or the older file) is checked at most every two seconds; when it
+    changed, the next call opens the project again. The store replaced
+    then is not closed, so a query still running on it finishes.
+
+    The store's connection belongs to the thread that asked first; a
+    worker thread reads through :func:`fork`.
+
+    :param project: anything :func:`locate` accepts.
+    :param verify: as for :func:`open`, used when the store is opened.
+    :returns: the store.
+    :raises FileNotFoundError: when nothing there opens.
+    :raises StoreError: when the project does not open.
+    """
+    key = locate(project)
+    now = time.monotonic()
+    with _SHARED_LOCK:
+        held = _SHARED.get(key)
+        if held is not None and now - held["checked"] < _SHARED_CHECK:
+            return held["store"]
+        stamp = _shared_stamp(key)
+        if held is not None and held["stamp"] == stamp:
+            held["checked"] = now
+            return held["store"]
+        opened = Store(key, verify=verify)
+        _SHARED[key] = {"store": opened, "stamp": stamp, "checked": now}
+        return opened
+
+
+def release_shared(project=None) -> None:
+    """Close the shared store of ``project``, or of every project.
+
+    :param project: anything :func:`locate` accepts; None closes all.
+    """
+    with _SHARED_LOCK:
+        if project is None:
+            keys = list(_SHARED)
+        else:
+            try:
+                keys = [locate(project)]
+            except FileNotFoundError:
+                keys = [os.path.abspath(os.fspath(project))]
+        for key in keys:
+            held = _SHARED.pop(key, None)
+            if held is not None:
+                held["store"].close()
+
+
+def fork(store: Store) -> Store:
+    """A twin of ``store`` with its own DuckDB cursor, for another thread.
+
+    The twin shares the registry, the views and the cached file handles,
+    so it costs a cursor, not an open. Closing it closes only its cursor;
+    ``twin.interrupt()`` stops the query it is running.
+
+    :param store: an open store.
+    :returns: the twin.
+    """
+    import copy
+
+    twin = copy.copy(store)
+    twin._lazy_legacy = None
+    base = store._conn
+    twin._duck = base.cursor() if base is not None else None
+    return twin
+
+
+def distinct(store: Store, table: str, column: str, *, where=None,
+             limit: int = 1000) -> List[Any]:
+    """The distinct values of one column, for a filter's drop-down list.
+
+    A store reads them from the narrow key table when it holds the
+    column, so a million-row table answers in milliseconds; an older
+    SQLite file answers with SQLite itself. Nulls are left out.
+
+    :param store: an open store.
+    :param table: the table.
+    :param column: the column.
+    :param where: a SQL ``WHERE`` clause or a mapping, as for
+        :meth:`Store.query`.
+    :param limit: the most values returned.
+    :returns: the values, sorted.
+    :raises StoreError: when the table or the column is unknown.
+    """
+    store._known(table)
+    names = list(store._table_columns(table)["name"])
+    if column not in names:
+        raise StoreError(f"{table} has no column {column!r}")
+    limit = max(int(limit), 0)
+    if _legacy_is_sqlite(store):
+        quoted = _legacy_quoted(column)
+        sql = (f"SELECT DISTINCT {quoted} FROM {_legacy_quoted(table)} "
+               f"WHERE {quoted} IS NOT NULL")
+        clause, params = _where_clause(where)
+        if clause:
+            sql += " AND (" + clause[len(" WHERE "):] + ")"
+        sql += f" ORDER BY {quoted} LIMIT {limit}"
+        with _legacy_reading(store.legacy) as conn:
+            return [row[0] for row in conn.execute(sql, params).fetchall()]
+    source = table
+    keys = _keys_name(table)
+    clause, params = _where_clause(where)
+    if not store.legacy and keys in store._views:
+        held = set(store._columns(keys))
+        if column in held and (where is None or (
+                isinstance(where, Mapping) and set(where) <= held)):
+            source = keys
+    sql = (f"SELECT DISTINCT {_ident(column)} FROM {_ident(source)} WHERE "
+           f"{_ident(column)} IS NOT NULL")
+    if clause:
+        sql += " AND (" + clause[len(" WHERE "):] + ")"
+    sql += f" ORDER BY 1 LIMIT {limit}"
+    result = _upcast_half(_arrow_of(store._conn, sql, params or None))
+    return [_python(v) for v in result.column(0).to_pylist()]
+
+
+@contextmanager
+def legacy_connection(store: Store):
+    """A read-only SQLite connection to an older project's ``measurements.db``.
+
+    For readers that need SQLite's own dialect and ``rowid`` (the
+    Database Browser pages an older file by it). The connection is
+    opened ``mode=ro`` and closed on leaving the block.
+
+    :param store: a store opened on an older SQLite file.
+    :returns: a context manager yielding the connection.
+    :raises StoreError: when the store is not an older SQLite file.
+    """
+    if not _legacy_is_sqlite(store):
+        raise StoreError("legacy_connection needs an older SQLite project")
+    with _legacy_reading(store.legacy) as conn:
+        yield conn
+
+
+def _export_select(store: Store, table: str, columns, where, params,
+                   order_by) -> tuple:
+    """The SELECT of one export, in the dialect of the store's reader."""
+    present = list(store._table_columns(table)["name"])
+    wanted = present if not columns else list(columns)
+    missing = [c for c in wanted if c not in present]
+    if missing:
+        raise StoreError(f"{table} has no column {missing[:5]}")
+    sqlite = _legacy_is_sqlite(store)
+    quote = _legacy_quoted if sqlite else _ident
+    sql = (f"SELECT {', '.join(quote(c) for c in wanted)} FROM "
+           f"{quote(table)}")
+    clause, held = _where_clause(where)
+    sql += clause
+    order = []
+    if order_by is not None:
+        column, direction = (order_by if isinstance(order_by, (tuple, list))
+                             else (order_by, "asc"))
+        if column not in present:
+            raise StoreError(f"{table} has no column {column!r}")
+        order.append(quote(column) + (" DESC" if str(direction).lower()
+                                      == "desc" else ""))
+    if not store.legacy:
+        sort = [c for c in (store._tables[table].get("sort_by") or [])
+                if c in present]
+        order += [quote(c) for c in ("plate", "well", *sort) if c in present]
+    if order:
+        sql += " ORDER BY " + ", ".join(order)
+    return wanted, sql, list(held) + list(params or ())
+
+
+def _export_batches(store: Store, table: str, columns, where, params,
+                    order_by, batch_size: int):
+    """The rows of one export as Arrow tables, never the whole result."""
+    pa = _require("pyarrow")
+    wanted, sql, held = _export_select(store, table, columns, where, params,
+                                       order_by)
+    if _legacy_is_sqlite(store):
+        import pandas as pd
+
+        declared = dict(_legacy_sqlite_columns(store.legacy, table))
+        types = {"INTEGER": pa.int64(), "REAL": pa.float64(),
+                 "TEXT": pa.string(), "BLOB": pa.binary()}
+        schema = pa.schema([(c, types.get(_affinity(declared.get(c, "")),
+                                          pa.string())) for c in wanted])
+        with _legacy_reading(store.legacy) as conn:
+            for frame in pd.read_sql_query(sql, conn, params=held or None,
+                                           chunksize=batch_size):
+                yield _conformed(frame, schema)
+        return
+    reader = _reader_of(store._conn, sql, held or None, int(batch_size))
+    for batch in reader:
+        yield _upcast_half(pa.Table.from_batches([batch]))
+
+
+def _affinity(declared: str) -> str:
+    """SQLite's type affinity of a declared column type."""
+    text = str(declared or "").upper()
+    if "INT" in text:
+        return "INTEGER"
+    if "CHAR" in text or "CLOB" in text or "TEXT" in text:
+        return "TEXT"
+    if "BLOB" in text:
+        return "BLOB"
+    if "REAL" in text or "FLOA" in text or "DOUB" in text:
+        return "REAL"
+    return "NUMERIC"
+
+
+def _conformed(frame, schema):
+    """A pandas chunk of an older file as Arrow in one schema.
+
+    A column whose values do not fit its declared type (SQLite stores
+    what it is given) is written as text, never dropped.
+    """
+    pa = _require("pyarrow")
+    arrays = []
+    for field in schema:
+        values = frame[field.name] if field.name in frame else None
+        try:
+            arrays.append(pa.array(values, type=field.type,
+                                   from_pandas=True))
+        except (pa.ArrowInvalid, pa.ArrowTypeError, TypeError, ValueError):
+            arrays.append(pa.array(
+                [None if v is None or v != v else str(v) for v in values],
+                type=pa.string()))
+    return pa.table(arrays, names=[f.name for f in schema])
+
+
+def _csv_header(path: str, names) -> None:
+    """Write a CSV header line the way Python's csv module quotes it."""
+    import csv
+
+    with builtins.open(path, "w", newline="", encoding="utf-8") as handle:
+        csv.writer(handle).writerow(list(names))
+
+
+def _sqlite_type(kind) -> str:
+    """The declared SQLite type an Arrow type is exported as."""
+    pa = _require("pyarrow")
+    if pa.types.is_boolean(kind) or pa.types.is_integer(kind):
+        return "INTEGER"
+    if pa.types.is_floating(kind) or pa.types.is_decimal(kind):
+        return "REAL"
+    if pa.types.is_binary(kind) or pa.types.is_large_binary(kind):
+        return "BLOB"
+    return "TEXT"
+
+
+def _export_group(name: str, family: Optional[str], table: str) -> str:
+    """The family group a column is exported under when a table is split."""
+    text = str(family or name)
+    text = text.replace("{compartment}_", "")
+    if text.startswith(f"{table}_"):
+        text = text[len(table) + 1:]
+    head = text.split("_", 1)[0].strip("{}") or "other"
+    return "".join(ch if ch.isalnum() else "_" for ch in head.lower())
+
+
+def _export_split(store: Store, table: str, wanted: List[str]) -> List[tuple]:
+    """``(sqlite table, columns)`` pairs for one exported table.
+
+    One table when its columns fit SQLite; otherwise one table per feature
+    family (the channel or measurement named first), each repeating the
+    key columns, so every split table joins back on them.
+    """
+    if len(wanted) < _SQLITE_COLUMNS:
+        return [(table, wanted)]
+    keys = [c for c in ["plate", "well",
+                        *(store._tables.get(table, {}).get("key_columns")
+                          or [])] if c in wanted]
+    if not keys and "rowid" not in wanted:
+        keys = wanted[:1]
+    families = {}
+    try:
+        recorded = store.columns(table)
+        families = dict(zip(recorded["name"], recorded["family"]))
+    except StoreError:
+        pass
+    groups: Dict[str, List[str]] = {}
+    for column in wanted:
+        if column in keys:
+            continue
+        groups.setdefault(_export_group(column, families.get(column), table),
+                          []).append(column)
+    room = _SQLITE_COLUMNS - 1 - len(keys)
+    pieces = []
+    for group, members in groups.items():
+        chunks = [members[i:i + room] for i in range(0, len(members), room)]
+        for number, chunk in enumerate(chunks, 1):
+            suffix = group if len(chunks) == 1 else f"{group}_{number}"
+            pieces.append((f"{table}__{suffix}", keys + chunk))
+    return pieces
+
+
+def export(project, target, *, fmt: str, tables=None, where=None,
+           params=None, features=None, order_by=None,
+           batch_size: int = 65536) -> Dict[str, Any]:
+    """Stream tables of a project to a CSV, Parquet or SQLite file.
+
+    Rows are read in batches of ``batch_size`` and written as they come,
+    so memory stays bounded whatever the table's size. CSV and Parquet
+    take one table; Parquet keeps the stored types. SQLite takes any
+    number of tables; a table with 2,000 columns or more is split by
+    feature family into ``<table>__<family>`` tables, each repeating the
+    key columns, and the table ``spacr_export_tables`` lists the split.
+    The file appears complete or not at all (written aside, then
+    renamed).
+
+    :param project: an open :class:`Store`, or anything :func:`locate`
+        accepts.
+    :param target: the file to write.
+    :param fmt: ``"csv"``, ``"parquet"`` or ``"sqlite"``.
+    :param tables: a table name or a list of them; None exports every
+        table (SQLite only).
+    :param where: a SQL ``WHERE`` clause or a mapping, as for
+        :meth:`Store.query`, in the reader's dialect (SQLite's for an
+        older SQLite file).
+    :param params: the ``?`` parameters of ``where``.
+    :param features: the columns to export; None exports every column.
+    :param order_by: a column, or ``(column, "asc" or "desc")``; the
+        rows otherwise come in the store's key order.
+    :param batch_size: rows per batch.
+    :returns: ``{"path", "rows", "tables"}``; ``tables`` maps each written
+        table to its row count.
+    :raises StoreError: for an unknown format, table or column, or more
+        than one table to CSV or Parquet.
+    """
+    fmt = str(fmt).lower()
+    if fmt not in ("csv", "parquet", "sqlite"):
+        raise StoreError(f"fmt must be csv, parquet or sqlite; got {fmt!r}")
+    held = project if isinstance(project, Store) else Store(locate(project))
+    try:
+        names = (held.tables() if tables is None else
+                 [tables] if isinstance(tables, str) else list(tables))
+        for name in names:
+            held._known(name)
+        if fmt != "sqlite" and len(names) != 1:
+            raise StoreError(f"{fmt} takes one table; got {len(names)}")
+        target = os.path.abspath(os.fspath(target))
+        os.makedirs(os.path.dirname(target) or ".", exist_ok=True)
+        pending = target + ".partial"
+        if os.path.exists(pending):
+            os.remove(pending)
+        try:
+            total, counts = _export_into(held, pending, fmt, names, where,
+                                         params, features, order_by,
+                                         int(batch_size))
+            os.replace(pending, target)
+        except BaseException:
+            if os.path.exists(pending):
+                os.remove(pending)
+            raise
+    finally:
+        if held is not project:
+            held.close()
+    return {"path": target, "rows": int(total), "tables": counts}
+
+
+def _export_into(store: Store, path: str, fmt: str, names: List[str], where,
+                 params, features, order_by, batch_size: int) -> tuple:
+    """Write the export to ``path``.
+
+    :returns: ``(rows exported, {written table: its row count})``.
+    """
+    pa = _require("pyarrow")
+    counts: Dict[str, int] = {}
+    if fmt in ("csv", "parquet"):
+        table = names[0]
+        wanted = _export_select(store, table, features, where, params,
+                                order_by)[0]
+        writer, sink, rows = None, None, 0
+        try:
+            for chunk in _export_batches(store, table, wanted, where, params,
+                                         order_by, batch_size):
+                if writer is None:
+                    if fmt == "csv":
+                        from pyarrow import csv as pa_csv
+                        _csv_header(path, chunk.schema.names)
+                        sink = builtins.open(path, "ab")
+                        writer = pa_csv.CSVWriter(
+                            sink, chunk.schema,
+                            write_options=pa_csv.WriteOptions(
+                                include_header=False,
+                                quoting_style="needed"))
+                    else:
+                        import pyarrow.parquet as pq
+                        writer = pq.ParquetWriter(path, chunk.schema)
+                writer.write_table(chunk.cast(writer.schema)
+                                   if fmt == "parquet" else chunk)
+                rows += chunk.num_rows
+            if writer is None:
+                empty = pa.table({c: pa.array([], pa.string())
+                                  for c in wanted})
+                if fmt == "csv":
+                    _csv_header(path, wanted)
+                else:
+                    import pyarrow.parquet as pq
+                    pq.write_table(empty, path)
+        finally:
+            if writer is not None:
+                writer.close()
+            if sink is not None:
+                sink.close()
+        counts[table] = rows
+        return rows, counts
+    import sqlite3
+
+    conn = sqlite3.connect(path)
+    total = 0
+    try:
+        conn.execute("CREATE TABLE spacr_export_tables (table_name TEXT, "
+                     "source_table TEXT, columns INTEGER)")
+        for table in names:
+            wanted = _export_select(store, table, features, where, params,
+                                    order_by)[0]
+            pieces = _export_split(store, table, wanted)
+            created = False
+            rows = 0
+            for chunk in _export_batches(store, table, wanted, where, params,
+                                         order_by, batch_size):
+                if not created:
+                    for name, members in pieces:
+                        kinds = ", ".join(
+                            f"{_legacy_quoted(c)} "
+                            f"{_sqlite_type(chunk.schema.field(c).type)}"
+                            for c in members)
+                        conn.execute(f"CREATE TABLE {_legacy_quoted(name)} "
+                                     f"({kinds})")
+                    created = True
+                for name, members in pieces:
+                    marks = ", ".join("?" for _ in members)
+                    columns = [chunk.column(c).to_pylist() for c in members]
+                    conn.executemany(
+                        f"INSERT INTO {_legacy_quoted(name)} VALUES ({marks})",
+                        zip(*columns))
+                rows += chunk.num_rows
+            if not created:
+                for name, members in pieces:
+                    conn.execute(f"CREATE TABLE {_legacy_quoted(name)} (" +
+                                 ", ".join(_legacy_quoted(c)
+                                           for c in members) + ")")
+            conn.executemany("INSERT INTO spacr_export_tables VALUES (?, ?, ?)",
+                             [(name, table, len(members))
+                              for name, members in pieces])
+            for name, _members in pieces:
+                counts[name] = rows
+            total += rows
+        conn.commit()
+    finally:
+        conn.close()
+    return total, counts
+
+
+def interrupt(store: Store) -> None:
+    """Stop the query a store (or a :func:`fork` of one) is running.
+
+    The query raises in the thread that runs it; nothing else is touched.
+
+    :param store: the store or its twin.
+    """
+    held = store._duck
+    if held is not None:
+        try:
+            held.interrupt()
+        except Exception:
+            pass

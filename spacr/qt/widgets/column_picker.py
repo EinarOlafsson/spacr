@@ -64,8 +64,8 @@ from __future__ import annotations
 import difflib
 import os
 import re
-import sqlite3
 import threading
+from contextlib import contextmanager
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 from urllib.parse import quote as _urlquote
 
@@ -161,6 +161,49 @@ def _read_only_uri(path: str) -> str:
     return "file:" + _urlquote(str(path).replace("\\", "/"), safe="/:") + "?mode=ro"
 
 
+def _project_path(path: Any) -> str:
+    """Where :class:`SchemaReader` reads ``path`` from.
+
+    :func:`resolve_db_path`, except that a spaCR store project (a folder
+    holding ``spacr.duckdb``, the file itself, or a run folder whose
+    ``measurements`` folder is one) resolves to the project folder.
+
+    :param path: file, run folder, or measurements folder.
+    :returns: absolute path of the database file or the store project.
+    :raises ValueError: when ``path`` is empty.
+    """
+    resolved = resolve_db_path(path)
+    from ... import store
+    try:
+        found = store.locate(path)
+    except FileNotFoundError:
+        return resolved
+    if os.path.isfile(os.path.join(found, store.CATALOG)):
+        return found
+    return resolved
+
+
+def _is_operational(exc: BaseException) -> bool:
+    """Whether ``exc`` is an engine's OperationalError (a file that would not open).
+
+    Matched by class name so the picker needs no database engine of its own:
+    SQLite and DuckDB both name it so, and both derive it from DatabaseError.
+
+    :param exc: the error a read raised.
+    :returns: True for an OperationalError of any engine.
+    """
+    return any(k.__name__ == "OperationalError" for k in type(exc).__mro__)
+
+
+def _is_database_error(exc: BaseException) -> bool:
+    """Whether ``exc`` is an engine's DatabaseError, the "not a database" class.
+
+    :param exc: the error a read raised.
+    :returns: True for a DatabaseError of any engine, OperationalError included.
+    """
+    return any(k.__name__ == "DatabaseError" for k in type(exc).__mro__)
+
+
 class SchemaReader:
     """Read-only access to a database's *schema* — names and types only.
 
@@ -187,21 +230,46 @@ class SchemaReader:
         :param path: database or run folder; resolved through spaCR's project
             layout.
         """
-        self.path = resolve_db_path(path)
+        self.path = _project_path(path)
         self.uri = _read_only_uri(self.path)
         self.executed: List[str] = []
         self._log_lock = threading.Lock()
 
+    def _store(self):
+        """The shared :class:`spacr.store.Store` of this reader's project.
 
-    def _connect(self) -> sqlite3.Connection:
-        """Open a fresh read-only connection.
-
-        :returns: a connection with ``query_only`` set, so nothing reached
-            through this reader can write.
+        :returns: the store.
         """
-        con = sqlite3.connect(self.uri, uri=True, timeout=30)
-        con.execute("PRAGMA query_only = ON")
-        return con
+        from ... import store
+        return store.shared(self.path)
+
+    def _is_sqlite(self) -> bool:
+        """Whether this reader's project is an older SQLite file.
+
+        :returns: True for a SQLite measurements.db.
+        """
+        from ... import store
+        return store._legacy_is_sqlite(self._store())
+
+    def _log(self, statement: str) -> None:
+        """Record one statement in :attr:`executed`.
+
+        :param statement: what is about to run.
+        """
+        with self._log_lock:
+            self.executed.append(statement)
+
+    @contextmanager
+    def _connect(self):
+        """A fresh read-only SQLite connection to an older measurements.db.
+
+        :returns: a context manager yielding a connection with
+            ``query_only`` set, so nothing reached through this reader can
+            write; it is closed on leaving the block.
+        """
+        from ... import store
+        with store.legacy_connection(self._store()) as con:
+            yield con
 
     def _fetch(self, sql: str, params: Sequence = ()) -> List[tuple]:
         """Run one statement and return all its rows.
@@ -210,19 +278,24 @@ class SchemaReader:
         handed to :meth:`ColumnPickerDialog.executed_sql` is never taken
         mid-append -- a test asserting "opening cost no ``COUNT(*)``" would
         otherwise be reading a list one element ahead of the statement it is
-        about.
+        about. A SQLite file runs it in SQLite's dialect; a store project in
+        DuckDB's, on a twin of the shared store.
 
         :param sql: the statement to run.
         :param params: its bound parameters.
         :returns: every row, as tuples.
         """
-        with self._log_lock:
-            self.executed.append(sql)
-        con = self._connect()
+        self._log(sql)
+        if self._is_sqlite():
+            with self._connect() as con:
+                return list(con.execute(sql, tuple(params)).fetchall())
+        from ... import store
+        twin = store.fork(self._store())
         try:
-            return list(con.execute(sql, tuple(params)).fetchall())
+            frame = twin.sql(sql, list(params) or None)
         finally:
-            con.close()
+            twin.close()
+        return [tuple(row) for row in frame.itertuples(index=False)]
 
     def executed_sql(self) -> List[str]:
         """Return a consistent snapshot of :attr:`executed`."""
@@ -236,10 +309,16 @@ class SchemaReader:
         :raises sqlite3.Error: when the file is not a SQLite database or
             cannot be opened.
         """
-        self._fetch("SELECT name FROM sqlite_master LIMIT 1")
+        if self._is_sqlite():
+            self._fetch("SELECT name FROM sqlite_master LIMIT 1")
+        else:
+            self._log("Store.open()")
 
     def tables(self) -> List[str]:
         """Return the user tables and views, alphabetically."""
+        if not self._is_sqlite():
+            self._log("Store.tables()")
+            return [str(name) for name in self._store().tables()]
         rows = self._fetch(
             "SELECT name FROM sqlite_master WHERE type IN ('table', 'view') "
             "AND name NOT LIKE 'sqlite_%' ORDER BY name")
@@ -255,6 +334,11 @@ class SchemaReader:
         :raises sqlite3.Error: for a view whose base table has been
             dropped — SQLite resolves the view here and says so.
         """
+        if not self._is_sqlite():
+            self._log(f"Store.columns({table!r})")
+            found = self._store().columns(table)
+            return [(str(name), str(kind or ""))
+                    for name, kind in zip(found["name"], found["stored_type"])]
         rows = self._fetch(f"PRAGMA table_info({quote_ident(table)})")
         return [(str(r[1]), str(r[2] or "")) for r in rows]
 
@@ -285,11 +369,15 @@ class SchemaReader:
 
         :param table: name of the table or view; it is quoted as an identifier.
         """
+        from ...store_browse import READ_ERRORS
+        if not self._is_sqlite():
+            self._log(f"Store.count({table!r})")
+            return int(self._store().count(table)) or None
         for alias in ROWID_ALIASES:
             try:
                 rows = self._fetch(
                     f"SELECT max({alias}) FROM {quote_ident(table)}")
-            except sqlite3.Error:
+            except READ_ERRORS:
                 continue
             if not rows or rows[0][0] is None:
                 return None
@@ -331,21 +419,23 @@ def open_reader(path: Any) -> Tuple[Optional[SchemaReader], str]:
     Turning every failure into a sentence here is what lets the dialog
     render problems inline instead of raising into a modal.
     """
+    from ...store_browse import READ_ERRORS
     try:
-        resolved = resolve_db_path(path)
+        resolved = _project_path(path)
     except ValueError:
         return None, ("No database selected — point this module at a run "
                       "folder (its 'src' setting) or at a measurements.db.")
-    if not os.path.isfile(resolved):
+    if not os.path.isfile(resolved) and not os.path.isdir(resolved):
         return None, (f"No database at {resolved} — run Measure first, or "
                       f"pick a folder that already has one.")
     reader = SchemaReader(resolved)
     try:
         reader.probe()
-    except sqlite3.OperationalError as exc:
+    except READ_ERRORS as exc:
+        if (_is_database_error(exc) and not _is_operational(exc)
+                and not os.path.isdir(resolved)):
+            return None, f"{os.path.basename(resolved)} is not a SQLite database ({exc})."
         return None, f"Cannot open {os.path.basename(resolved)}: {exc}"
-    except sqlite3.DatabaseError as exc:
-        return None, f"{os.path.basename(resolved)} is not a SQLite database ({exc})."
     return reader, ""
 
 
@@ -484,9 +574,10 @@ def read_table(reader: Optional[SchemaReader],
                                "rows": None, "error": ""}
     if reader is None or not payload["table"]:
         return payload
+    from ...store_browse import READ_ERRORS
     try:
         payload["columns"] = reader.column_info(payload["table"])
-    except sqlite3.Error as exc:
+    except READ_ERRORS as exc:
         payload["error"] = (
             f"Cannot list the columns of '{payload['table']}': {exc}. A view "
             f"whose table has been dropped does this — pick another table.")
@@ -519,9 +610,10 @@ def read_schema(db_path: Any, reader: Optional[SchemaReader] = None,
     }
     if reader is None:
         return payload
+    from ...store_browse import READ_ERRORS
     try:
         payload["tables"] = reader.tables()
-    except sqlite3.Error as exc:
+    except READ_ERRORS as exc:
         payload["schema_error"] = f"Cannot read the schema: {exc}"
         return payload
     if not payload["tables"]:
@@ -910,9 +1002,10 @@ class ColumnPickerDialog(QDialog):
         table = self.chosen_table()
         if item is None or self._reader is None or not table:
             return
+        from ...store_browse import READ_ERRORS
         try:
             n = self._reader.count_non_null(table, item.text(0))
-        except sqlite3.Error as exc:
+        except READ_ERRORS as exc:
             self._set_banner(f"Could not count '{item.text(0)}': {exc}")
             return
         item.setText(2, f"{n:,}")

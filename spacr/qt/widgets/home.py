@@ -4024,42 +4024,97 @@ def _easy_analysis_inputs(root, details=None):
         return []
     found = []
     for folder in folders[:17]:
-        for candidate in (folder / 'measurements' / 'measurements.db', folder / 'measurements.db'):
-            if candidate.is_file() and not any(part.is_symlink() for part in (candidate, candidate.parent)):
-                found.append(candidate)
+        for owner in (folder / 'measurements', folder):
+            for candidate in (owner / 'spacr.duckdb', owner / 'measurements.db'):
+                if candidate.is_file() and not any(part.is_symlink() for part in (candidate, candidate.parent)):
+                    found.append(candidate)
+                    break
     if details is not None:
         details.update(sampled_plate_candidates=min(len(folders), 17),
                        truncated=len(folders) > 17 or len(found) > 8)
     return found[:8]
 
 
+def _easy_store_read(path, legacy, project):
+    """Run one bounded metadata read on a measurement project through the store.
+
+    An older SQLite file is read on the store's read-only SQLite connection,
+    given a quarter-second lock wait and a progress budget, so the read never
+    starts DuckDB on the paint path. A store project is read on a twin of its
+    shared store, closed afterwards, because this runs off the GUI thread.
+
+    :param path: a ``measurements.db`` file, a ``spacr.duckdb`` file or a
+        store project folder.
+    :param legacy: called with the SQLite connection of an older file.
+    :param project: called with the store twin of a store project.
+    :returns: what the called reader returns.
+    :raises FileNotFoundError: when nothing at ``path`` opens.
+    """
+    from contextlib import ExitStack
+
+    from ... import store
+
+    opened = store.shared(path)
+    with ExitStack() as stack:
+        try:
+            connection = stack.enter_context(store.legacy_connection(opened))
+        except store.StoreError:
+            connection = None
+        if connection is None:
+            twin = store.fork(opened)
+            stack.callback(twin.close)
+            return project(twin)
+        connection.execute('PRAGMA busy_timeout=250')
+        connection.set_progress_handler(lambda: 1, 100000)
+        stack.callback(connection.set_progress_handler, None, 0)
+        return legacy(connection)
+
+
 def _easy_database_evidence(path):
-    """Read only bounded SQLite schema metadata, never measurement rows."""
-    import sqlite3
+    """Read only bounded schema metadata, never measurement rows."""
     from ...schema import IMAGE_MEASUREMENT_TABLES, OBJECT_TABLES, ORGANELLE_SUMMARY_TABLES
 
-    connection = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True, timeout=.25)
-    try:
-        connection.execute('PRAGMA query_only=ON')
-        connection.set_progress_handler(lambda: 1, 100000)
+    known = OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + IMAGE_MEASUREMENT_TABLES
+    identity = {'plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'object_label', 'label', 'prc', 'prcf', 'prcfo'}
+
+    def sqlite_schema(connection):
+        """List an older file's tables and each known table's declared column types.
+
+        :param connection: the read-only SQLite connection.
+        :returns: the table names and ``{table: [(column, declared type)]}``.
+        """
         tables = [row[0] for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table' LIMIT 32")]
-        numeric = False
-        objects = False
+        columns = {name: [(row[1], row[2]) for row in connection.execute(
+            'PRAGMA table_info("' + name.replace('"', '""') + '")').fetchmany(256)]
+            for name in tables[:16] if name in known}
+        return tables, columns
+
+    def store_schema(opened):
+        """List a store project's tables and each known table's stored column types.
+
+        :param opened: the store twin.
+        :returns: the table names and ``{table: [(column, stored type)]}``.
+        """
+        tables = opened.tables()[:32]
+        columns = {}
         for name in tables[:16]:
-            if name not in OBJECT_TABLES + ORGANELLE_SUMMARY_TABLES + IMAGE_MEASUREMENT_TABLES:
-                continue
-            columns = connection.execute('PRAGMA table_info("' + name.replace('"', '""') + '")').fetchmany(256)
-            names = {row[1] for row in columns}
-            numeric = numeric or any(any(kind in str(row[2]).upper() for kind in ('INT', 'REAL', 'FLOAT', 'DOUBLE', 'NUM'))
-                                     for row in columns if row[1] not in
-                                     {'plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'object_label', 'label', 'prc', 'prcf', 'prcfo'})
-            objects = objects or (name in OBJECT_TABLES and {'plateID', 'rowID', 'columnID'} <= names)
-        annotation_only = bool(tables) and all(name.startswith(('image_annotations', 'sqlite_')) for name in tables)
-        return dict(tables=tables, numeric=numeric, objects=objects, crops='png_list' in tables,
-                    annotation_only=annotation_only)
-    finally:
-        connection.close()
+            if name in known:
+                frame = opened.columns(name).head(256)
+                columns[name] = list(zip(frame['name'], frame['stored_type']))
+        return tables, columns
+
+    tables, schema = _easy_store_read(path, sqlite_schema, store_schema)
+    numeric = False
+    objects = False
+    for name, columns in schema.items():
+        names = {column for column, _kind in columns}
+        numeric = numeric or any(any(kind in str(declared).upper() for kind in ('INT', 'REAL', 'FLOAT', 'DOUBLE', 'NUM'))
+                                 for column, declared in columns if column not in identity)
+        objects = objects or (name in OBJECT_TABLES and {'plateID', 'rowID', 'columnID'} <= names)
+    annotation_only = bool(tables) and all(name.startswith(('image_annotations', 'sqlite_')) for name in tables)
+    return dict(tables=tables, numeric=numeric, objects=objects, crops='png_list' in tables,
+                annotation_only=annotation_only)
 
 
 def _easy_saved_settings(path):
@@ -4249,10 +4304,10 @@ def _easy_merged_evidence(project):
 def _easy_specialized_inputs(root, files, images, schemas):
     """Seed only verified acquisition paths and identity settings for real OPS/Spatial pages."""
     import math
-    import sqlite3
     from itertools import islice
 
     from ...ops_engine import _match_tile, _st_platform
+    from ...store_browse import READ_ERRORS
     from ..i18n import tr
 
     hints = {}
@@ -4375,15 +4430,12 @@ def _easy_specialized_inputs(root, files, images, schemas):
             project = database.parent.parent if database.parent.name == 'measurements' else database.parent
             if not _easy_merged_evidence(project):
                 continue
+            statement = 'SELECT substr(source, 1, 4096) FROM spatial_fields LIMIT 8'
             try:
-                connection = sqlite3.connect(database.as_uri() + '?mode=ro', uri=True, timeout=.25)
-                try:
-                    connection.execute('PRAGMA query_only=ON')
-                    connection.set_progress_handler(lambda: 1, 100000)
-                    sources = connection.execute('SELECT substr(source, 1, 4096) FROM spatial_fields LIMIT 8').fetchall()
-                finally:
-                    connection.close()
-            except (OSError, sqlite3.Error):
+                sources = _easy_store_read(
+                    database, lambda connection: connection.execute(statement).fetchall(),
+                    lambda opened: list(opened.sql(statement).itertuples(index=False, name=None)))
+            except READ_ERRORS:
                 continue
             if not any(isinstance(row[0], str) and os.path.abspath(os.path.expanduser(row[0])) == str(folder)
                        for row in sources):
@@ -4675,10 +4727,10 @@ def _easy_generated_sample(folder, depth=4):
 
 def _easy_generated_outputs(path, files, schemas, run_evidence, calibrated=False):
     """Recognize bounded canonical outputs and enumerate their shared workflow consumers."""
-    import sqlite3
     from pathlib import Path
 
     from ...ports import CROPS, MASKS, MERGED_ARRAYS, MODEL_WEIGHTS, PORTS
+    from ...store_browse import READ_ERRORS
     from ..i18n import tr
 
     empty = dict(project='', artifacts=[], routes={})
@@ -4693,7 +4745,7 @@ def _easy_generated_outputs(path, files, schemas, run_evidence, calibrated=False
                  or path.suffix.lower() == '.pth' and owner.name == 'model'
                  or path.suffix.lower() == '.png' and owner.name == 'data'
                  and path.parent.name.endswith('_png')
-                 or path.name == 'measurements.db' and owner.name == 'measurements'
+                 or path.name in ('measurements.db', 'spacr.duckdb') and owner.name == 'measurements'
                  or any(item['path'] == str(path) for item in run_evidence['results']))):
         return empty
     project = owner.parent if owner is not None else folder
@@ -4766,13 +4818,15 @@ def _easy_generated_outputs(path, files, schemas, run_evidence, calibrated=False
                     break
     scientific = next((item for item in schemas if item['objects'] and item['numeric']
                        and Path(item['path']).parent in (project, project / 'measurements')), None)
-    database = project / 'measurements' / 'measurements.db'
+    database = next((candidate for candidate in (project / 'measurements' / 'spacr.duckdb',
+                                                  project / 'measurements' / 'measurements.db')
+                     if candidate.is_file()), project / 'measurements' / 'measurements.db')
     if scientific is None and artifacts and database.is_file() and not database.is_symlink():
         try:
             evidence = _easy_database_evidence(database)
             if evidence['objects'] and evidence['numeric']:
                 scientific = dict(path=str(database), **evidence)
-        except (OSError, sqlite3.Error):
+        except READ_ERRORS:
             pass
     if scientific:
         artifacts.append(dict(kind='measurements', path=scientific['path'], producer='measure'))
@@ -4880,9 +4934,9 @@ def _easy_inspect_path_impl(value):
     """Infer local next steps from bounded headers, filename conventions and nearby folder structure."""
     from pathlib import Path
     from importlib.util import find_spec
-    import sqlite3
     import stat
 
+    from ...store_browse import READ_ERRORS
     from ..i18n import tr
 
     try:
@@ -5104,7 +5158,7 @@ def _easy_inspect_path_impl(value):
             try:
                 if _easy_database_evidence(own)['annotation_only']:
                     own = None
-            except (OSError, sqlite3.Error):
+            except READ_ERRORS:
                 own = None
         if own is not None:
             actions.append((key, title, description, str(own)))
@@ -5113,13 +5167,13 @@ def _easy_inspect_path_impl(value):
     limited = limited or analysis_discovery.get('truncated', False)
     if path.is_file() and path in kinds.get('table', []):
         analysis_databases = []
-    if path.is_file() and path in kinds.get('database', []):
+    if path.is_file() and (path in kinds.get('database', []) or path.name == 'spacr.duckdb'):
         analysis_databases = [path]
     schemas = []
     for database in analysis_databases:
         try:
             evidence = _easy_database_evidence(database)
-        except (OSError, sqlite3.Error):
+        except READ_ERRORS:
             continue
         schemas.append(dict(path=str(database), **evidence))
     scientific = next((item for item in schemas if item['objects'] and item['numeric']), None)

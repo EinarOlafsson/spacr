@@ -2291,7 +2291,7 @@ class DatabaseDropHandler(DropHandler):
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
-        return MeasurementsDropHandler().can_accept(path)
+        return MeasurementsDropHandler().can_accept(path) or _is_store_project(path)
 
     def error_message(self, path: Path) -> str:
         """Name all three accepted shapes in the Browser's own words.
@@ -3288,6 +3288,14 @@ def _apply_model_zoo_source(source: Path, screen, is_model: bool) -> None:
 class ResultsDatabaseDropHandler(DatabaseDropHandler):
     """Database input for Plate Viewer and Annotator Agreement."""
 
+    def can_accept(self, path: Path) -> bool:
+        """The measurement screens' own rule, which a store project is not yet part of.
+
+        :param path: the dropped file or folder.
+        :returns: True when this handler can use ``path`` as-is.
+        """
+        return MeasurementsDropHandler().can_accept(path)
+
     def apply(self, path: Path, screen) -> None:
         """Open the database through whichever setter this screen offers.
 
@@ -3426,6 +3434,25 @@ def _resolve_for(handler, app_key: str, path: Path):
     return resolution
 
 
+def _is_store_project(path) -> bool:
+    """Whether ``path`` names a spaCR store project rather than an older file.
+
+    A ``spacr.duckdb`` file, its project folder, or a run folder whose
+    ``measurements`` folder is a store project, as :func:`spacr.store.locate`
+    finds them.
+
+    :param path: the dropped file or folder.
+    :returns: True when the store would open a store project there.
+    """
+    from .. import store
+
+    try:
+        found = store.locate(path)
+    except FileNotFoundError:
+        return False
+    return os.path.isfile(os.path.join(found, store.CATALOG))
+
+
 def table_names(path: Path) -> List[str]:
     """Return the tables in a SQLite file, or ``[]`` for anything else.
 
@@ -3439,24 +3466,15 @@ def table_names(path: Path) -> List[str]:
 
     :param path: candidate SQLite database path to inspect read-only.
     """
-    import sqlite3
-    from urllib.parse import quote
+    from .. import store
+    from ..store_browse import READ_ERRORS
 
-    if not str(path).lower().endswith(_ch.DB_SUFFIXES):
+    if not (str(path).lower().endswith(_ch.DB_SUFFIXES) or _is_store_project(path)):
         return []
     try:
-        connection = sqlite3.connect(
-            f"file:{quote(str(path))}?mode=ro", uri=True, timeout=30)
-    except sqlite3.Error:
+        return [str(name) for name in store.shared(path).tables()]
+    except READ_ERRORS:
         return []
-    try:
-        return [str(row[0]) for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "ORDER BY name")]
-    except sqlite3.DatabaseError:
-        return []
-    finally:
-        connection.close()
 
 
 class LayoutDropHandler(DropHandler):

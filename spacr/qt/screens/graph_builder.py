@@ -64,7 +64,6 @@ import functools
 import json
 import logging
 import os
-import sqlite3
 import tempfile
 import traceback
 from pathlib import Path
@@ -137,16 +136,62 @@ def table_names(path: str) -> List[str]:
         condition-annotation and database-write receipt tables are left out; ordinary user tables
         and named derived results remain available.
     """
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        rows = db.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
+    from ... import store
+    opened = store.shared(path)
     from ...database_concurrency import _WRITE_TICKETS_TABLE
     hidden = {PROVENANCE_TABLE.casefold(), _WRITE_TICKETS_TABLE.casefold()}
-    found = [row[0] for row in rows if row[0].casefold() not in hidden]
+    found = [name for name in opened.tables() if name.casefold() not in hidden]
     ranked = [name for name in _PREFERRED_TABLES if name in found]
     from ...derived_tables import load_definitions
-    return ranked + [name for name in found if name not in ranked] + list(load_definitions(path))
+    return ranked + [name for name in found if name not in ranked] + list(load_definitions(_receipt_source(path, opened)))
+
+
+def _receipt_source(path: str, opened) -> str:
+    """The path the derived-table and annotation receipts of ``path`` key on.
+
+    A SQLite file picked directly keeps the path as given, as those
+    receipts always have; a folder that resolved to a measurements.db
+    gives that file, and a store project gives its folder.
+
+    :param path: the path the user picked.
+    :param opened: the store :func:`spacr.store.shared` opened for it.
+    :returns: the path to hand to the receipt readers.
+    """
+    if os.path.isfile(path) and os.path.basename(path) != "spacr.duckdb":
+        return path
+    return opened.legacy or opened.project
+
+
+def _store_frame(path: str, table: str, limit: Optional[int] = None) -> pd.DataFrame:
+    """Every column of one table of a measurement project, rows as stored.
+
+    An older SQLite measurements.db is read by SQLite itself, through
+    :func:`spacr.store.legacy_connection`, so each value keeps SQLite's own
+    type (a column declared without a type, or holding mixed values, reads
+    exactly as it always has); any other project is read through
+    :meth:`spacr.store.Store.sql` on a twin of the shared store, so this is
+    safe on a worker thread.
+
+    :param path: anything :func:`spacr.store.locate` accepts.
+    :param table: the table to read.
+    :param limit: the most rows to read; None reads every row.
+    :returns: the rows, in stored column order.
+    :raises FileNotFoundError: when nothing at ``path`` opens.
+    """
+    from ... import store, tabular
+    opened = store.shared(path)
+    query = 'SELECT * FROM "' + str(table).replace('"', '""') + '"'
+    if limit is not None:
+        query += f" LIMIT {int(limit)}"
+    if store._legacy_is_sqlite(opened):
+        with store.legacy_connection(opened) as connection:
+            return tabular._read_query(connection, query, canonicalise=False,
+                                       report=None)
+    twin = store.fork(opened)
+    try:
+        return twin.sql(query)
+    finally:
+        twin.close()
 
 
 def read_table(path: str, table: Optional[str] = None,
@@ -168,29 +213,28 @@ def read_table(path: str, table: Optional[str] = None,
         if not limit:
             _attach_png_list_annotation(frame, path, None)
         return frame
+    from ... import store
+    opened = store.shared(path)
+    source = _receipt_source(path, opened)
     name = table or (table_names(path) or ["object"])[0]
     from ...derived_tables import execute, load_definitions
-    definitions = load_definitions(path)
+    definitions = load_definitions(source)
     if name in definitions:
-        frame, _report = execute(path, definitions[name])
+        frame, _report = execute(source, definitions[name])
         if not limit:
-            _attach_png_list_annotation(frame, path, name, frame.attrs.get("merge_definition"))
+            _attach_png_list_annotation(frame, source, name, frame.attrs.get("merge_definition"))
         return frame.head(limit) if limit else frame
-    query = 'SELECT * FROM "' + name.replace('"', '""') + '"'
-    if limit:
-        query += f" LIMIT {int(limit)}"
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        frame = pd.read_sql_query(query, db)
-    if not limit:
+    frame = _store_frame(path, name, int(limit) if limit else None)
+    if not limit and store._legacy_is_sqlite(opened):
         from ...condition_annotations import saved_table_annotation
         try:
-            annotation = saved_table_annotation(path, name, frame)
+            annotation = saved_table_annotation(source, name, frame)
             if annotation:
                 frame.attrs["saved_condition_definition"] = annotation
         except ValueError as exc:
             frame.attrs["condition_annotation_problem"] = str(exc)
         if "saved_condition_definition" not in frame.attrs:
-            _attach_png_list_annotation(frame, path, name)
+            _attach_png_list_annotation(frame, source, name)
     return frame
 
 
@@ -202,9 +246,10 @@ def _attach_png_list_annotation(frame, path, name, merge_definition=None):
     receipt that cannot be read leaves the frame as it was read.
     """
     from ...condition_annotations import saved_png_list_annotation
+    from ...store_browse import READ_ERRORS
     try:
         annotation = saved_png_list_annotation(path, name, merge_definition, frame)
-    except (sqlite3.Error, OSError, ValueError):
+    except (*READ_ERRORS, ValueError):
         LOG.debug("png_list annotation receipt not read", exc_info=True)
         return
     if annotation:

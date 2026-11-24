@@ -51,10 +51,7 @@ from __future__ import annotations
 import os
 import json
 import re
-import sqlite3
 from collections import Counter
-from contextlib import closing
-from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -138,6 +135,42 @@ def _watch_plate_well(key: str) -> Optional[Tuple[str, int, int]]:
         if well is not None:
             return "_".join(parts[:index]), *well
     return None
+
+
+def _committed_watch_fields(folder: str):
+    """The field keys the watch has committed to its measurement project.
+
+    The project is the watch's ``measurements`` folder: an older
+    ``measurements.db`` there is read by SQLite through
+    :func:`spacr.store.legacy_connection` with a 0.1 s busy wait, so a
+    write in progress costs the GUI thread a tenth of a second and never
+    a freeze; a spaCR store project there is read through
+    :meth:`spacr.store.Store.sql`.
+
+    :param folder: the watch's ``measurements`` folder.
+    :returns: the committed keys; None when no project exists yet, False
+        when one exists but could not be read right now.
+    """
+    from ... import store, tabular
+    from ...store_browse import READ_ERRORS
+
+    try:
+        store.locate(folder)
+    except FileNotFoundError:
+        return None
+    query = "SELECT field FROM spacr_watch_fields"
+    try:
+        opened = store.shared(folder)
+        if store._legacy_is_sqlite(opened):
+            with store.legacy_connection(opened) as connection:
+                connection.execute("PRAGMA busy_timeout = 100")
+                committed = tabular._read_query(
+                    connection, query, canonicalise=False, report=None)
+        else:
+            committed = opened.sql(query)
+        return committed["field"]
+    except (*READ_ERRORS, KeyError):
+        return False
 
 
 class _WatchLivePlate(QWidget):
@@ -224,23 +257,14 @@ class _WatchLivePlate(QWidget):
                 if isinstance(key, str) and isinstance(entry, dict)
                 and entry.get("status") == "done"}
         if self._pipeline in ("mask_measure", "mask_measure_classify"):
-            database = os.path.join(work, "measurements", "measurements.db")
-            if not os.path.isfile(database):
+            committed = _committed_watch_fields(
+                os.path.join(work, "measurements"))
+            if committed is None:
                 done.clear()
+            elif committed is False:
+                return
             else:
-                from ... import tabular
-
-                try:
-                    uri = Path(database).resolve().as_uri() + "?mode=ro"
-                    with closing(sqlite3.connect(uri, uri=True,
-                                                 timeout=0.1)) as connection:
-                        connection.execute("PRAGMA query_only = ON")
-                        committed = tabular._read_query(
-                            connection, "SELECT field FROM spacr_watch_fields",
-                            canonicalise=False, report=None)
-                    done.intersection_update(committed["field"])
-                except (OSError, sqlite3.Error, KeyError):
-                    return
+                done.intersection_update(committed)
         wells = Counter()
         unplaced = 0
         for key in done:
