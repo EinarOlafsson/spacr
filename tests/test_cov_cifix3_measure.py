@@ -316,8 +316,8 @@ def test_a_repeated_distance_is_computed_once_and_reported_in_each_column():
 def test_a_region_with_no_co_occurring_pairs_has_no_homogeneity(monkeypatch):
     labels, image = _field()
     monkeypatch.setattr(
-        measure, "graycomatrix",
-        lambda image, *args, **kwargs: np.zeros((256, 256, 1, 1)))
+        measure, "_glcm_pair_counts",
+        lambda image, offset: np.zeros((256, 256, 1, 1), np.uint32))
     table = measure._calculate_homogeneity(
         labels, (image % 255).astype(np.uint8), distances=[2])
     assert table["homogeneity_distance_2"].isna().all()
