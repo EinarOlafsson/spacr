@@ -119,7 +119,8 @@ def test_each_tab_draws_its_step_on_a_tiny_fixture(qapp, step):
         assert picture.ndim == 3 and picture.shape[2] == 3
         assert picture.dtype == np.uint8 and picture.std() > 0, "not blank"
     assert bool(drawn["images"]) == (step in ("align", "spots", "objects"))
-    assert drawn["graphs"] and all(g["kind"] in ("bars", "grouped", "scatter", "message")
+    assert drawn["graphs"] and all(g["kind"] in ("bars", "grouped", "scatter", "message",
+                                                 "line", "stacked", "heatmap", "groups")
                                    for g in drawn["graphs"])
     header, rows = drawn["header"], drawn["rows"]
     assert header and all(len(row) <= len(header) for row in rows)

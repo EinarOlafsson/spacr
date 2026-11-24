@@ -526,64 +526,166 @@ def _inside(frame, window, y: str, x: str):
                  & (frame[x] > window[2]) & (frame[x] < window[3])]
 
 
+def _merge_points(result: Mapping[str, Any]):
+    """The phenotype cells of a merge, each marked matched or not, and the matched pairs.
+
+    :returns: ``(cells, joined)``: the cells with a boolean ``matched``
+        column, and the matched cells with their nucleus centroids.
+    """
+    import pandas as pd
+
+    cells, merged, objects = result["cells"], result["merged"], result["objects"]
+    if cells is None or not len(cells):
+        return pd.DataFrame(columns=["site", "label", "y", "x", "matched"]), None
+    keys = set()
+    if merged is not None and len(merged):
+        keys = set(zip(merged["site"].astype(int), merged["label"].astype(int)))
+    cells = cells.assign(matched=[(int(s), int(l)) in keys
+                                  for s, l in zip(cells["site"], cells["label"])])
+    joined = None
+    if merged is not None and len(merged) and objects is not None and len(objects):
+        joined = (cells.merge(merged[["site", "label", "object_id"]], on=["site", "label"])
+                  .merge(objects[["object_id", "centroid_y", "centroid_x"]], on="object_id"))
+    return cells, joined
+
+
+def _group_spec(title: str, y_label: str, groups) -> Dict[str, Any]:
+    """A graph of one value per member in a few groups, each labelled with its n.
+
+    :param groups: ``(name, values, colour)``; a group of fewer than 3 is
+        drawn as its points, 3 to 20 as a bar with every point, and more
+        than 20 as a box.
+    """
+    named = []
+    for name, values, colour in groups:
+        values = np.asarray(values, float)
+        values = values[np.isfinite(values)]
+        named.append((tr("{name} (n = {n})", name=name, n=len(values)), values, colour))
+    return {"kind": "groups", "title": title, "x_label": "", "y_label": y_label,
+            "groups": named}
+
+
 def _draw_merge(result: Mapping[str, Any], colours):
-    """Tab 4: matched cells near the sample, matches per field, cells per gene.
+    """Tab 4: how the phenotype cells matched the called nuclei, and how the genes were covered.
+
+    Nine graphs, in the order the maintainer chose: the share matched per
+    field, the map of matched cells, the genes kept at each cells-per-gene
+    floor, the matched and unmatched cells per field, the matching distance,
+    the cells per gene by rank, the guides per gene, the profiles of the
+    genes with most cells, and one feature for the non-targeting guides
+    against the genes.
 
     :returns: the tab's pictures (none), graphs, table and sample line.
     """
-    align = result["align"]
-    cells, objects, merged = result["cells"], result["objects"], result["merged"]
-    site = align["crop_site"]
-    ty, tx = align["tiles"][site]
-    row, column, crop = align["crop"]
-    window = (ty + row - crop // 4, ty + row + crop + crop // 4,
-              tx + column - crop // 4, tx + column + crop + crop // 4)
-    pairs: Dict[str, Any] = {"kind": "scatter", "title": tr("Matched pairs near the sample"),
-                             "x_label": "x (px)", "y_label": "y (px)",
-                             "invert_y": True, "equal": True, "sets": [],
-                             "segments": None}
-    if objects is not None and len(objects):
-        near = _inside(objects, window, "centroid_y", "centroid_x")
-        pairs["sets"].append((tr("sequencing nuclei"),
-                              near["centroid_x"].to_numpy(float),
-                              near["centroid_y"].to_numpy(float),
-                              colours["blue"], False))
-    if len(cells):
-        near_cells = _inside(cells, window, "y", "x")
-        pairs["sets"].append((tr("phenotype cells"), near_cells["x"].to_numpy(float),
-                              near_cells["y"].to_numpy(float), colours["teal"], True))
-        if merged is not None and len(merged) and objects is not None:
-            joined = (near_cells.merge(merged[["site", "label", "object_id"]],
-                                       on=["site", "label"])
-                      .merge(objects[["object_id", "centroid_y", "centroid_x"]],
-                             on="object_id"))
-            pairs["segments"] = (joined["x"].to_numpy(float),
-                                 joined["y"].to_numpy(float),
-                                 joined["centroid_x"].to_numpy(float),
-                                 joined["centroid_y"].to_numpy(float),
-                                 colours["fg"])
-    fields = result["per_field"]
-    per_field: Dict[str, Any] = {"kind": "message", "title": tr("Cells matched per field"),
-                                 "text": tr("No phenotype field was matched.")}
+    cells, joined = _merge_points(result)
+    objects, genes, fields = result["objects"], result["genes"], result["per_field"]
+    prefix = str(result.get("control_prefix") or "nontargeting").lower()
+    names = genes["gene"].astype(str).str.lower() if "gene" in genes.columns else None
+    control = (names.str.startswith(prefix).to_numpy() if names is not None
+               else np.zeros(len(genes), bool))
+    graphs: List[Dict[str, Any]] = []
+    sites = [str(f["site"]) for f in fields]
+    total = np.array([f["cells"] for f in fields], float)
+    matched = np.array([f["matched"] for f in fields], float)
     if fields:
-        per_field = {"kind": "grouped", "title": tr("Cells matched per field"),
-                     "x_label": tr("Phenotype field"), "y_label": tr("Cells"),
-                     "ticks": [str(f["site"]) for f in fields],
-                     "x": np.arange(len(fields), dtype=float),
-                     "series": [(tr("cells"), [f["cells"] for f in fields],
-                                 _CONTROL_GREY),
-                                (tr("matched"), [f["matched"] for f in fields],
-                                 colours["teal"])]}
-    genes = result["genes"]
-    if len(genes) and "n_cells" in genes.columns:
-        counts = genes["n_cells"].to_numpy(float)
-        per_gene = _histogram(counts, tr("{n} genes", n=len(genes)),
-                              tr("Cells per gene"), tr("Genes"),
-                              tr("The aggregate phase wrote no gene table."),
-                              bins=np.arange(0.5, max(counts.max(), 1) + 1.5))
+        share = 100.0 * matched / np.maximum(total, 1.0)
+        whole = 100.0 * matched.sum() / max(total.sum(), 1.0)
+        graphs.append({"kind": "bars", "title": tr("Cells matched per field"),
+                       "x_label": tr("Phenotype field"), "y_label": tr("Cells matched (%)"),
+                       "x": np.arange(len(sites), dtype=float), "heights": share,
+                       "width": 0.6, "colours": [colours["blue"]] * len(sites),
+                       "ticks": sites, "labels": False, "y_max": 100.0,
+                       "hline": (whole, tr("all fields"))})
     else:
-        per_gene = {"kind": "message", "title": tr("{n} genes", n=len(genes)),
-                    "text": tr("The aggregate phase wrote no gene table.")}
+        graphs.append({"kind": "message", "title": tr("Cells matched per field"),
+                       "text": tr("No phenotype field was matched.")})
+    sets = []
+    if len(cells):
+        top, bottom = cells["y"].min() - 50, cells["y"].max() + 50
+        left, right = cells["x"].min() - 50, cells["x"].max() + 50
+        if objects is not None and len(objects):
+            near = _inside(objects, (top, bottom, left, right), "centroid_y", "centroid_x")
+            sets.append((tr("sequencing nuclei"), near["centroid_x"].to_numpy(float),
+                         near["centroid_y"].to_numpy(float), "#c8c8c8", False))
+        lost = cells[~cells["matched"]]
+        kept = cells[cells["matched"]]
+        sets.append((tr("cells, not matched"), lost["x"].to_numpy(float),
+                     lost["y"].to_numpy(float), _CONTROL_GREY, False))
+        sets.append((tr("cells, matched"), kept["x"].to_numpy(float),
+                     kept["y"].to_numpy(float), colours["blue"], False))
+    graphs.append({"kind": "scatter", "title": tr("Matched and unmatched cells"),
+                   "x_label": tr("x (px)"), "y_label": tr("y (px)"), "invert_y": True,
+                   "equal": True, "sets": sets, "segments": None, "size": 3})
+    counts = (genes["n_cells"].to_numpy(float) if "n_cells" in genes.columns
+              else np.zeros(0))
+    targeting = counts[~control] if len(counts) else counts
+    floors = np.arange(0, 21, dtype=float)
+    kept_share = [100.0 * float(np.mean(targeting >= f)) if len(targeting) else 0.0
+                  for f in floors]
+    graphs.append({"kind": "line", "title": tr("Genes kept at each minimum of cells"),
+                   "x_label": tr("Minimum cells per gene (ops_profile_min_cells)"),
+                   "y_label": tr("Genes kept (%)"),
+                   "series": [("", floors, np.asarray(kept_share), colours["blue"])],
+                   "y_max": 100.0, "markers": True})
+    if fields:
+        graphs.append({"kind": "stacked", "title": tr("Cells per field"),
+                       "x_label": tr("Phenotype field"), "y_label": tr("Cells"),
+                       "x": np.arange(len(sites), dtype=float), "ticks": sites,
+                       "layers": [(tr("matched to a nucleus"), matched, colours["blue"]),
+                                  (tr("not matched"), total - matched, _CONTROL_GREY)]})
+    if joined is not None and len(joined):
+        distance = np.hypot(joined["y"] - joined["centroid_y"],
+                            joined["x"] - joined["centroid_x"]).to_numpy(float)
+        graphs.append(_histogram(distance, tr("Distance from cell to its nucleus"),
+                                 tr("Cell to nucleus distance (px)"), tr("Matched cells"),
+                                 tr("No cell was matched."), bins=30))
+    else:
+        graphs.append({"kind": "message", "title": tr("Distance from cell to its nucleus"),
+                       "text": tr("No cell was matched.")})
+    if len(counts):
+        order = np.argsort(-counts, kind="stable")
+        rank = np.arange(1, len(counts) + 1, dtype=float)
+        ranked_control = control[order]
+        graphs.append({"kind": "line", "title": tr("Cells per gene, genes ranked"),
+                       "x_label": tr("Gene rank"), "y_label": tr("Cells per gene"),
+                       "series": [(tr("all genes"), rank, counts[order], _CONTROL_GREY)],
+                       "points": [(tr("non-targeting"), rank[ranked_control],
+                                   counts[order][ranked_control], colours["navy"])],
+                       "y_min": 0.0})
+    if "n_guides" in genes.columns and (~control).any():
+        guides = genes["n_guides"].to_numpy(float)[~control]
+        values, numbers = np.unique(guides.astype(int), return_counts=True)
+        graphs.append({"kind": "bars", "title": tr("Guides per gene"),
+                       "x_label": tr("Guides per gene"), "y_label": tr("Genes"),
+                       "x": np.arange(len(values), dtype=float),
+                       "heights": numbers.astype(float), "width": 0.6,
+                       "colours": [colours["blue"]] * len(values),
+                       "ticks": [str(v) for v in values], "labels": False})
+    features = [c for c in ("cell_area", "cell_eccentricity", "cell_dapi_mean_intensity",
+                            "cell_solidity", "mitotic_index") if c in genes.columns]
+    if features and (~control).any():
+        top = genes[~control]
+        if "n_cells" in top.columns:
+            top = top.sort_values("n_cells", ascending=False, kind="stable")
+        top = top.head(20)
+        everything = genes[features].to_numpy(float)
+        centre = np.nanmedian(everything, axis=0)
+        spread = np.nanstd(everything, axis=0) + 1e-9
+        graphs.append({"kind": "heatmap",
+                       "title": tr("Profiles of the 20 genes with most cells"),
+                       "x_label": tr("Feature"), "y_label": tr("Gene"),
+                       "values": (top[features].to_numpy(float) - centre) / spread,
+                       "columns": [f.replace("cell_", "").replace("_", " ") for f in features],
+                       "rows": top["gene"].astype(str).tolist(),
+                       "scale": tr("z against all genes")})
+    feature = next((c for c in ("cell_area", "cell_dapi_mean_intensity") if c in genes.columns),
+                   None)
+    if feature is not None:
+        graphs.append(_group_spec(
+            tr("{feature} per gene", feature=feature.replace("_", " ")),
+            feature.replace("_", " "),
+            [(tr("non-targeting"), genes[feature].to_numpy(float)[control], _CONTROL_GREY),
+             (tr("genes"), genes[feature].to_numpy(float)[~control], colours["blue"])]))
     features = [c for c in genes.columns if c not in ("gene", "n_cells", "n_guides")
                 and np.issubdtype(genes[c].dtype, np.number)][:3]
     header = [tr("Gene")] + [c for c in ("n_cells", "n_guides") if c in genes.columns] \
@@ -605,8 +707,8 @@ def _draw_merge(result: Mapping[str, Any], colours):
     sample = tr("{merged} of {cells} cells matched; inputs: {used}",
                 merged=report.get("merged", "?"), cells=report.get("cells", "?"),
                 used=inputs)
-    return {"images": [], "graphs": [pairs, per_field, per_gene],
-            "header": header, "rows": rows, "sample": sample}
+    return {"images": [], "graphs": graphs, "header": header, "rows": rows,
+            "sample": sample}
 
 
 def _draw_cluster(result: Mapping[str, Any], colours):
@@ -963,9 +1065,33 @@ class _QtGraph(QWidget):
             self._grouped(spec, colours, pg)
         elif kind == "scatter":
             self._scatter(spec, colours, pg)
+        elif kind == "line":
+            self._line(spec, colours, pg)
+        elif kind == "stacked":
+            self._stacked(spec, colours, pg)
+        elif kind == "heatmap":
+            self._heatmap(spec, colours, pg)
+        elif kind == "groups":
+            self._groups(spec, colours, pg)
+        hline = spec.get("hline")
+        if hline is not None:
+            level, name = hline
+            line = pg.InfiniteLine(pos=float(level), angle=0, pen=pg.mkPen(
+                colours["fg"], width=1, style=Qt.DotLine))
+            self.plot.addItem(line)
+            self.plot.addLegend(offset=(-4, 4), labelTextColor=colours["fg"]).addItem(
+                pg.PlotDataItem(pen=pg.mkPen(colours["fg"], width=1, style=Qt.DotLine)),
+                str(name))
         view.autoRange()
-        if kind in ("bars", "grouped"):
+        if kind in ("bars", "grouped", "stacked"):
             self._floor_at_zero(spec, view)
+        low, high = spec.get("y_min"), spec.get("y_max")
+        if low is not None or high is not None:
+            current = view.viewRange()[1]
+            view.setYRange(float(low if low is not None else current[0]),
+                           float(high if high is not None else current[1]), padding=0)
+        if kind == "groups":
+            view.setXRange(-0.7, len(spec.get("groups") or ()) - 0.3, padding=0)
 
     def _floor_at_zero(self, spec: Mapping[str, Any], view) -> None:
         """Start a bar graph's y axis at 0, with no room below it.
@@ -975,6 +1101,9 @@ class _QtGraph(QWidget):
         """
         if spec.get("kind") == "grouped":
             values = [float(v) for _name, series, _c in spec["series"] for v in series]
+        elif spec.get("kind") == "stacked":
+            values = list(np.sum([np.asarray(v, float) for _n, v, _c in spec["layers"]],
+                                 axis=0))
         else:
             values = [float(v) for v in np.asarray(spec["heights"], float)]
         top = max([v for v in values if np.isfinite(v)] + [0.0])
@@ -1040,14 +1169,107 @@ class _QtGraph(QWidget):
                 brush = pg.mkBrush(None if hollow else colour)
             pen = pg.mkPen(colour if hollow and not isinstance(colour, (list, tuple))
                            else None)
+            size = spec.get("size") or (7 if hollow else 8)
             item = pg.ScatterPlotItem(x=np.asarray(xs, float), y=np.asarray(ys, float),
-                                      size=7 if hollow else 8, brush=brush, pen=pen,
+                                      size=size, brush=brush, pen=pen,
                                       name=str(name) if name else None)
             item.setOpacity(_ALPHA)
             if spec.get("keys") is not None:
                 item.sigClicked.connect(self._on_points_clicked)
             self.plot.addItem(item)
             self.scatter_items.append(item)
+
+    def _line(self, spec: Mapping[str, Any], colours, pg) -> None:
+        """Lines over a continuous x, with optional marked points on top."""
+        named = any(name for name, *_r in spec.get("series", ())) or spec.get("points")
+        if named:
+            self.plot.addLegend(offset=(-4, 4), labelTextColor=colours["fg"])
+        for name, xs, ys, colour in spec.get("series", ()):
+            item = self.plot.plot(np.asarray(xs, float), np.asarray(ys, float),
+                                  pen=pg.mkPen(colour, width=2),
+                                  symbol="o" if spec.get("markers") else None,
+                                  symbolSize=5, symbolBrush=pg.mkBrush(colour),
+                                  symbolPen=None, name=str(name) if name else None)
+            item.setOpacity(_ALPHA)
+        for name, xs, ys, colour in spec.get("points") or ():
+            item = pg.ScatterPlotItem(x=np.asarray(xs, float), y=np.asarray(ys, float),
+                                      size=8, brush=pg.mkBrush(colour), pen=None,
+                                      name=str(name) if name else None)
+            item.setOpacity(_ALPHA)
+            self.plot.addItem(item)
+
+    def _stacked(self, spec: Mapping[str, Any], colours, pg) -> None:
+        """Bars of several layers stacked on one another, the first at the bottom."""
+        x = np.asarray(spec["x"], float)
+        bottom = np.zeros(len(x))
+        legend = self.plot.addLegend(offset=(-4, 4), labelTextColor=colours["fg"])
+        for name, values, colour in spec["layers"]:
+            values = np.asarray(values, float)
+            bars = pg.BarGraphItem(x=x, y0=bottom, height=values, width=0.6,
+                                   brush=pg.mkBrush(colour), pen=pg.mkPen(None))
+            bars.setOpacity(_ALPHA)
+            self.plot.addItem(bars)
+            legend.addItem(bars, str(name))
+            bottom = bottom + values
+        self._ticks(spec, pg)
+
+    def _heatmap(self, spec: Mapping[str, Any], colours, pg) -> None:
+        """A matrix of values, diverging around 0, its rows and columns named."""
+        values = np.nan_to_num(np.asarray(spec["values"], float))
+        limit = float(np.max(np.abs(values))) if values.size else 1.0
+        limit = limit or 1.0
+        image = pg.ImageItem(values.T)
+        cmap = pg.ColorMap([0.0, 0.5, 1.0], [(200, 120, 168), (255, 255, 255),
+                                             (10, 119, 184)])
+        image.setLookupTable(cmap.getLookupTable(nPts=256))
+        image.setLevels([-limit, limit])
+        image.setOpacity(_ALPHA)
+        self.plot.addItem(image)
+        self.plot.getViewBox().invertY(True)
+        self.plot.getViewBox().setAspectLocked(True)
+        self.plot.getAxis("bottom").setTicks(
+            [[(i + 0.5, str(c)) for i, c in enumerate(spec.get("columns") or ())]])
+        self.plot.getAxis("left").setTicks(
+            [[(i + 0.5, str(r)) for i, r in enumerate(spec.get("rows") or ())]])
+        try:
+            bar = pg.ColorBarItem(values=(-limit, limit), colorMap=cmap,
+                                  label=str(spec.get("scale") or ""), interactive=False)
+            bar.setImageItem(image, insert_in=self.plot.getPlotItem())
+        except Exception:
+            LOG.debug("no colour bar for the heatmap", exc_info=True)
+
+    def _groups(self, spec: Mapping[str, Any], colours, pg) -> None:
+        """One slot per group: points below 3 members, a bar with points to 20, a box above."""
+        rng = np.random.default_rng(0)
+        ticks = []
+        for slot, (name, values, colour) in enumerate(spec.get("groups") or ()):
+            values = np.asarray(values, float)
+            ticks.append((float(slot), str(name)))
+            if not len(values):
+                continue
+            if 3 <= len(values) <= 20:
+                bar = pg.BarGraphItem(x=[float(slot)], height=[float(np.mean(values))],
+                                      width=0.6, brush=pg.mkBrush(colour), pen=pg.mkPen(None))
+                bar.setOpacity(_ALPHA)
+                self.plot.addItem(bar)
+            if len(values) > 20:
+                low, q1, median, q3, high = np.percentile(values, [5, 25, 50, 75, 95])
+                box = pg.BarGraphItem(x=[float(slot)], y0=[float(q1)], height=[float(q3 - q1)],
+                                      width=0.6, brush=pg.mkBrush(colour), pen=pg.mkPen(None))
+                box.setOpacity(_ALPHA)
+                self.plot.addItem(box)
+                ink = pg.mkPen(colours["fg"], width=1)
+                self.plot.plot([slot, slot], [low, q1], pen=ink)
+                self.plot.plot([slot, slot], [q3, high], pen=ink)
+                self.plot.plot([slot - 0.3, slot + 0.3], [median, median],
+                               pen=pg.mkPen(colours["fg"], width=2))
+                continue
+            spread = rng.uniform(-0.15, 0.15, len(values)) if len(values) > 1 else [0.0]
+            dots = pg.ScatterPlotItem(x=slot + np.asarray(spread), y=values, size=8,
+                                      brush=pg.mkBrush(colour), pen=None)
+            dots.setOpacity(_ALPHA)
+            self.plot.addItem(dots)
+        self.plot.getAxis("bottom").setTicks([ticks])
 
     def _on_points_clicked(self, _item, points, *_event) -> None:
         """Report the first clicked point by its position in the spec."""

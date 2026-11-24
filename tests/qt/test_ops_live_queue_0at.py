@@ -402,3 +402,61 @@ def test_the_voyager3_step_names_the_largest_preview_clusters(tmp_path, monkeypa
     assert list(table.columns) == ["gene", "cluster"] and len(table) == 6
     assert out["annotated"] == 1 and out["total_clusters"] == 2
     assert str(tmp_path) in str(seen["dst_root"])
+
+
+def _merge_result(n_control=1):
+    import pandas as pd
+
+    rng = np.random.default_rng(4)
+    genes = pd.DataFrame({
+        "gene": [f"nontargeting_{i}" for i in range(n_control)] + [f"G{i}" for i in range(40)],
+        "n_cells": rng.integers(1, 30, n_control + 40), "n_guides": rng.integers(1, 4, n_control + 40),
+        "cell_area": rng.normal(size=n_control + 40),
+        "cell_eccentricity": rng.normal(size=n_control + 40)})
+    cells = pd.DataFrame({"site": [7] * 6, "label": range(1, 7),
+                          "y": rng.uniform(0, 100, 6), "x": rng.uniform(0, 100, 6)})
+    merged = pd.DataFrame({"site": [7, 7, 7], "label": [1, 2, 3], "object_id": [5, 6, 8]})
+    objects = pd.DataFrame({"object_id": [5, 6, 8], "centroid_y": cells["y"][:3] + 1,
+                            "centroid_x": cells["x"][:3]})
+    return {"report": {"cells": 6, "merged": 3}, "used": {"kind": "test"}, "genes": genes,
+            "merged": merged, "objects": objects, "cells": cells,
+            "per_field": [{"site": 7, "cells": 6, "matched": 3}], "align": {},
+            "control_prefix": "nontargeting"}
+
+
+def test_merge_shows_the_nine_chosen_graphs_in_order(qapp):
+    from spacr.qt.widgets.ops_live_preview import _draw_merge, _theme_colours
+
+    drawn = _draw_merge(_merge_result(), _theme_colours())
+    kinds = [g["kind"] for g in drawn["graphs"]]
+    assert kinds == ["bars", "scatter", "line", "stacked", "bars", "line", "bars",
+                     "heatmap", "groups"]
+    titles = [g["title"] for g in drawn["graphs"]]
+    assert titles[0] == "Cells matched per field" and drawn["graphs"][0]["hline"][0] == 50.0
+    assert titles[1] == "Matched and unmatched cells"
+    assert titles[2] == "Genes kept at each minimum of cells"
+
+
+@pytest.mark.parametrize("n_control, form", [(1, "points"), (2, "points"), (5, "bar")])
+def test_the_non_targeting_group_carries_its_n_and_is_points_when_tiny(qtbot, n_control, form):
+    from spacr.qt.widgets.ops_live_preview import _QtGraph, _draw_merge, _theme_colours
+
+    spec = _draw_merge(_merge_result(n_control), _theme_colours())["graphs"][-1]
+    names = [name for name, _v, _c in spec["groups"]]
+    assert names == [f"non-targeting (n = {n_control})", "genes (n = 40)"]
+    graph = _QtGraph()
+    qtbot.addWidget(graph)
+    graph.show_spec(spec, _theme_colours())
+    kinds = [type(item).__name__ for item in graph.items()]
+    bars = kinds.count("BarGraphItem")
+    assert bars == (1 if form == "points" else 2), "a box for the genes, a bar only for 3-20"
+    assert "ScatterPlotItem" in kinds
+
+
+def test_every_merge_graph_draws_square_in_the_queue(qtbot, live):
+    from spacr.qt.widgets.ops_live_preview import _SquareBox
+
+    panel, runner = live()
+    _run(qtbot, panel, runner, "merge")
+    page = panel.page("merge")
+    assert all(isinstance(g.parentWidget(), _SquareBox) for g in page.graphs)
