@@ -2419,14 +2419,6 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
         either way.
     """
 
-    def _gini(array):
-        """NaN-safe Gini coefficient of an intensity array."""
-        array = np.abs(array[~np.isnan(array)])
-        n = array.size
-        array = np.sort(array)
-        index = np.arange(1, n + 1)
-        return (np.sum((2 * index - n - 1) * array)) / (n * np.sum(array)) if np.sum(array) else np.nan
-    
     props = regionprops_table(labels, image, properties=intensity_props, spacing=spacing)
     df = pd.DataFrame(props)
     if _ndim_of(labels) == 3:
@@ -2436,92 +2428,270 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
         field_percentiles = _field_reference_percentiles(image)
     field_p90, field_p10 = field_percentiles
 
-    regions = regionprops(labels, intensity_image=image, spacing=spacing)
-    integrated_intensity = []
-    std_intensity = []
-    median_intensity = []
-    skew_intensity = []
-    kurtosis_intensity = []
-    mode_intensity = []
-    range_intensity = []
-    iqr_intensity = []
-    cv_intensity = []
-    gini_intensity = []
-    frac_high90 = []
-    frac_low10 = []
-    entropy_intensity = []
-
-    def _masked_intensity(region):
-        """Pixels inside a region across old and new scikit-image names."""
-        try:
-            intensity = region.image_intensity
-        except AttributeError:
-            intensity = region.intensity_image
-        return intensity[region.image]
-
-    for region in regions:
-        intens = _masked_intensity(region)
-        intens = intens[~np.isnan(intens)]
-        if intens.size == 0:
-            integrated_intensity.append(np.nan)
-            std_intensity.append(np.nan)
-            median_intensity.append(np.nan)
-            skew_intensity.append(np.nan)
-            kurtosis_intensity.append(np.nan)
-            mode_intensity.append(np.nan)
-            range_intensity.append(np.nan)
-            iqr_intensity.append(np.nan)
-            cv_intensity.append(np.nan)
-            gini_intensity.append(np.nan)
-            frac_high90.append(np.nan)
-            frac_low10.append(np.nan)
-            entropy_intensity.append(np.nan)
-        else:
-            has_variation = not np.all(intens == intens[0])
-            integrated_intensity.append(np.sum(intens))
-            spread = np.std(intens)
-            level = np.mean(intens)
-            std_intensity.append(spread)
-            median_intensity.append(np.median(intens))
-            wide = intens.astype(np.float64, copy=False)
-            skew_intensity.append(
-                _SCIPY_SKEW(wide) if intens.size > 2 and has_variation
-                else np.nan)
-            kurtosis_intensity.append(
-                _SCIPY_KURTOSIS(wide) if intens.size > 3 and has_variation
-                else np.nan)
-            values, counts = np.unique(intens, return_counts=True)
-            mode_intensity.append(float(values[np.argmax(counts)]))
-            range_intensity.append(np.ptp(intens))
-            upper_quartile, lower_quartile = _percentiles_of(intens, [75, 25])
-            iqr_intensity.append(upper_quartile - lower_quartile)
-            cv_intensity.append(spread / level if level != 0 else np.nan)
-            gini_intensity.append(_gini(intens))
-            frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
-            frac_low10.append(np.mean(intens < field_p10) if np.isfinite(field_p10) else np.nan)
-            entropy_intensity.append(
-                _SCIPY_ENTROPY(counts, base=2) if intens.size > 1 else 0.0)
-
-    df['integrated_intensity'] = integrated_intensity
-    df['std_intensity'] = std_intensity
-    df['median_intensity'] = median_intensity
-    df['skew_intensity'] = skew_intensity
-    df['kurtosis_intensity'] = kurtosis_intensity
-    df['mode_intensity'] = mode_intensity
-    df['range_intensity'] = range_intensity
-    df['iqr_intensity'] = iqr_intensity
-    df['cv_intensity'] = cv_intensity
-    df['gini_intensity'] = gini_intensity
-    df['frac_high90'] = frac_high90
-    df['frac_low10'] = frac_low10
-    df['entropy_intensity'] = entropy_intensity
-
-    percentiles = [5, 10, 25, 75, 85, 95]
-    per_region = [_percentiles_of(_masked_intensity(region), percentiles)
-                  for region in regions]
-    for position, p in enumerate(percentiles):
-        df[f'percentile_{p}'] = [values[position] for values in per_region]
+    rows = np.unique(np.asarray(labels)[np.asarray(labels) > 0])
+    for column, values in _label_intensity_statistics(
+            labels, image, rows, field_p90, field_p10).items():
+        df[column] = values
     return df
+
+
+def _percentile_dtypes(dtype):
+    """The dtypes the per-object NumPy calls of :func:`_extended_regionprops_table` return for ``dtype`` pixels.
+
+    ``(sum, std, median, range, percentile, cv)``, read off the calls on a
+    three-pixel probe, so a column keeps the dtype it had when each object
+    was measured by its own call.
+    """
+    probe = np.array([1, 2, 4], dtype=dtype)
+    spread = np.std(probe)
+    return (np.sum(probe).dtype, spread.dtype, np.median(probe).dtype,
+            np.ptp(probe).dtype, _percentiles_of(probe, [75, 25]).dtype,
+            (spread / np.mean(probe)).dtype)
+
+
+def _intensity_statistics_kernel(labels, image, boxes, rows, references,
+                                 out, raster, raster_starts):
+    """Every object's distributional intensity statistics, one object at a time, into ``out``.
+
+    For row ``k`` the pixels of label ``rows[k]`` inside its box
+    ``boxes[k]`` (``z, row, col`` start and stop) are gathered in float64,
+    NaN left out, and sorted. Columns of ``out[k]``: 0 sum, 1 population
+    SD, 2 median, 3 skewness and 4 excess kurtosis (NaN when flat or too
+    small, as ``scipy.stats``), 5 the smallest most frequent value, 6
+    range, 7-12 the 5th, 10th, 25th, 75th, 85th and 95th linear
+    percentiles (NumPy's interpolation), 13 the Gini coefficient of the
+    absolute values, 14 and 15 the shares above ``references[0]`` and
+    below ``references[1]``, 16 the Shannon entropy of the value counts in
+    bits, 19 the number of NaN pixels and 20 the number of other pixels. A
+    row without pixels keeps the NaN it was given. Each row's non-NaN
+    pixels are also copied, unsorted and in the image's dtype, to
+    ``raster`` from ``raster_starts[k]`` in raster order, for
+    :func:`_label_sums_as_numpy`. Compile with :func:`_compiled`.
+
+    :param out: ``(rows, 21)`` float64, filled with NaN by the caller.
+    :param raster: one slot per labelled pixel, in the image's dtype.
+    """
+    points = (5.0, 10.0, 25.0, 75.0, 85.0, 95.0)
+    cursor = 0
+    for index in range(rows.size):
+        label = rows[index]
+        z0, z1 = boxes[index, 0], boxes[index, 1]
+        r0, r1 = boxes[index, 2], boxes[index, 3]
+        c0, c1 = boxes[index, 4], boxes[index, 5]
+        n = 0
+        missing = 0
+        for z in range(z0, z1):
+            for r in range(r0, r1):
+                for c in range(c0, c1):
+                    if labels[z, r, c] == label:
+                        if np.isnan(np.float64(image[z, r, c])):
+                            missing += 1
+                        else:
+                            n += 1
+        out[index, 19] = missing
+        out[index, 20] = n
+        raster_starts[index] = cursor
+        if n == 0:
+            continue
+        values = np.empty(n)
+        k = 0
+        for z in range(z0, z1):
+            for r in range(r0, r1):
+                for c in range(c0, c1):
+                    if labels[z, r, c] == label:
+                        v = np.float64(image[z, r, c])
+                        if not np.isnan(v):
+                            values[k] = v
+                            raster[cursor + k] = image[z, r, c]
+                            k += 1
+        cursor += n
+        values.sort()
+        total = 0.0
+        for k in range(n):
+            total += values[k]
+        mean = total / n
+        m2 = 0.0
+        m3 = 0.0
+        m4 = 0.0
+        for k in range(n):
+            d = values[k] - mean
+            d2 = d * d
+            m2 += d2
+            m3 += d2 * d
+            m4 += d2 * d2
+        m2 /= n
+        m3 /= n
+        m4 /= n
+        out[index, 0] = total
+        out[index, 1] = np.sqrt(m2)
+        out[index, 2] = (values[(n - 1) // 2] + values[n // 2]) / 2
+        varying = values[0] != values[n - 1]
+        flat_moment = m2 <= (2.220446049250313e-16 * mean) ** 2
+        if varying and n > 2 and not flat_moment:
+            out[index, 3] = m3 / m2 ** 1.5
+        if varying and n > 3 and not flat_moment:
+            out[index, 4] = m4 / m2 ** 2.0 - 3
+        best = 0
+        mode = values[0]
+        entropy = 0.0
+        start = 0
+        for k in range(1, n + 1):
+            if k == n or values[k] != values[start]:
+                length = k - start
+                if length > best:
+                    best = length
+                    mode = values[start]
+                share = length / n
+                entropy -= share * np.log(share)
+                start = k
+        out[index, 5] = mode
+        out[index, 6] = values[n - 1] - values[0]
+        for j in range(6):
+            position = (n - 1) * (points[j] / 100.0)
+            below = np.floor(position)
+            gamma = position - below
+            low_index = int(below)
+            high_index = min(low_index + 1, n - 1)
+            low = values[low_index]
+            high = values[high_index]
+            difference = high - low
+            if gamma >= 0.5:
+                out[index, 7 + j] = high - difference * (1 - gamma)
+            else:
+                out[index, 7 + j] = low + difference * gamma
+        magnitude = np.abs(values)
+        if values[0] < 0:
+            magnitude.sort()
+        weighted = 0.0
+        magnitude_sum = 0.0
+        for k in range(n):
+            weighted += (2 * (k + 1) - n - 1) * magnitude[k]
+            magnitude_sum += magnitude[k]
+        if magnitude_sum != 0:
+            out[index, 13] = weighted / (n * magnitude_sum)
+        high_count = 0
+        low_count = 0
+        for k in range(n):
+            if values[k] > references[0]:
+                high_count += 1
+            if values[k] < references[1]:
+                low_count += 1
+        out[index, 14] = high_count / n
+        out[index, 15] = low_count / n
+        out[index, 16] = entropy / np.log(2.0) if n > 1 else 0.0
+
+
+def _cast_rows(values, dtype, measured):
+    """A :func:`_label_intensity_statistics` column in ``dtype``; an integer dtype (no NaN pixels) keeps 0 for unmeasured rows."""
+    if np.issubdtype(dtype, np.integer):
+        return np.where(measured, values, 0).astype(dtype)
+    return values.astype(dtype)
+
+
+def _label_sums_as_numpy(raster, starts, counts, measured, sum_type,
+                         std_type, cv_type):
+    """Each row's ``np.sum``, ``np.std`` and ``std / mean`` of its pixels, by NumPy on the object's own pixels.
+
+    These three keep NumPy's own pairwise summation in the image's
+    precision (a float32 image sums in float32), so they stay the values
+    one ``np.sum`` / ``np.std`` / ``np.mean`` per object gave: each
+    object's non-NaN pixels in raster order, the order its crop held them
+    in, as :func:`_intensity_statistics_kernel` copied them.
+
+    :param raster: the copied pixels; row ``k`` holds ``counts[k]`` from
+        ``starts[k]``.
+    :returns: ``(integrated, spread, cv)`` columns; NaN (0 for an integer
+        dtype) for a row without pixels.
+    """
+    size = len(starts)
+    integrated = _cast_rows(np.full(size, np.nan), sum_type, measured)
+    spread = _cast_rows(np.full(size, np.nan), std_type, measured)
+    cv = _cast_rows(np.full(size, np.nan), cv_type, measured)
+    for index, (start, count) in enumerate(zip(np.asarray(starts).tolist(),
+                                               np.asarray(counts).tolist())):
+        if not count:
+            continue
+        run = raster[start:start + int(count)]
+        level = np.mean(run)
+        deviation = np.std(run)
+        integrated[index] = np.sum(run)
+        spread[index] = deviation
+        cv[index] = deviation / level if level != 0 else np.nan
+    return integrated, spread, cv
+
+
+def _label_intensity_statistics(labels, image, rows, field_p90, field_p10):
+    """The distributional intensity columns of :func:`_extended_regionprops_table`, for every label.
+
+    One compiled pass per object over its bounding box
+    (:func:`_intensity_statistics_kernel`) replaces a dozen NumPy and SciPy
+    calls per object; the sum, SD and CV stay NumPy's own per-object calls
+    (:func:`_label_sums_as_numpy`). The definitions are those calls'
+    (``np.sum``, ``np.std``, ``np.median``, ``np.percentile`` linear, ``scipy.stats``
+    skew and kurtosis with their flat-object NaN, the smallest most
+    frequent value, entropy in bits), summed in float64; each column keeps
+    the dtype its per-object call returned (:func:`_percentile_dtypes`).
+    The field references are compared in the image's own precision, as the
+    per-object comparison did. NaN pixels are left out of every statistic
+    but the percentiles, which are NaN for an object holding one.
+
+    :param rows: the labels of the table's rows, ascending.
+    :returns: ``{column: values}`` in the table's column order.
+    """
+    labels = np.asarray(labels)
+    image = np.asarray(image)
+    if labels.ndim == 2:
+        labels = labels[None]
+        image = image[None]
+    rows = np.asarray(rows, dtype=np.int64)
+    sum_type, std_type, median_type, range_type, pct_type, cv_type = (
+        _percentile_dtypes(image.dtype))
+    precision = np.result_type(image.dtype, 1.0)
+    references = np.array([
+        float(np.asarray(r).astype(precision)) if np.isfinite(r) else np.nan
+        for r in (field_p90, field_p10)])
+    slices = find_objects(labels)
+    boxes = np.zeros((rows.size, 6), dtype=np.int64)
+    for index, label in enumerate(rows.tolist()):
+        box = slices[label - 1]
+        boxes[index] = (box[0].start, box[0].stop, box[1].start, box[1].stop,
+                        box[2].start, box[2].stop)
+    stats = np.full((rows.size, 21), np.nan)
+    raster = np.empty(np.count_nonzero(labels), dtype=image.dtype)
+    raster_starts = np.zeros(rows.size, dtype=np.int64)
+    _compiled(_intensity_statistics_kernel)(
+        np.ascontiguousarray(labels), np.ascontiguousarray(image), boxes,
+        rows, references, stats, raster, raster_starts)
+    measured = stats[:, 20] > 0
+    percentiles = {p: _cast_rows(stats[:, 7 + j], pct_type, measured)
+                   for j, p in enumerate((5, 10, 25, 75, 85, 95))}
+    integrated, spread, cv = _label_sums_as_numpy(
+        raster, raster_starts, stats[:, 20], measured, sum_type, std_type,
+        cv_type)
+    columns = {
+        'integrated_intensity': integrated,
+        'std_intensity': spread,
+        'median_intensity': _cast_rows(stats[:, 2], median_type, measured),
+        'skew_intensity': stats[:, 3],
+        'kurtosis_intensity': stats[:, 4],
+        'mode_intensity': stats[:, 5],
+        'range_intensity': _cast_rows(stats[:, 6], range_type, measured),
+        'iqr_intensity': percentiles[75] - percentiles[25],
+        'cv_intensity': cv,
+        'gini_intensity': stats[:, 13],
+    }
+    for name, column, reference in (('frac_high90', 14, references[0]),
+                                    ('frac_low10', 15, references[1])):
+        columns[name] = (stats[:, column] if np.isfinite(reference)
+                         else np.full(rows.size, np.nan))
+    columns['entropy_intensity'] = stats[:, 16]
+    has_missing = stats[:, 19] > 0
+    for p, values in percentiles.items():
+        if np.issubdtype(values.dtype, np.floating):
+            values = np.where(has_missing, np.nan, values).astype(values.dtype)
+        columns[f'percentile_{p}'] = values
+    return columns
+
 
 def _homogeneity_offset(distance, width):
     """The GLCM offset actually used for ``distance`` on a box ``width`` wide.
@@ -2540,52 +2710,31 @@ def _homogeneity_offset(distance, width):
     return max(0, min(int(distance), int(width) - 1))
 
 
-def _homogeneity_weights():
-    """``1 / (1 + (i - j)^2)`` over 256 x 256 grey levels, shaped as ``graycoprops`` shapes it."""
-    rows, cols = np.ogrid[0:256, 0:256]
-    return (1.0 / (1.0 + (rows - cols) ** 2)).reshape((256, 256, 1, 1))
-
-
-_HOMOGENEITY_WEIGHTS = _homogeneity_weights()
-
-
-def _glcm_pair_counts(image, offset):
-    """The symmetric pair counts ``graycomatrix(image, [offset], [0], symmetric=True)`` makes.
-
-    :returns: uint32 counts shaped ``(256, 256, 1, 1)``: each pixel with the
-        one ``offset`` columns to its right, and the transpose added.
-    """
-    left = image[:, :-offset].astype(np.intp).ravel()
-    right = image[:, offset:].ravel()
-    counts = np.bincount(left * 256 + right, minlength=256 * 256)
-    pairs = counts.astype(np.uint32).reshape((256, 256, 1, 1))
-    return pairs + np.transpose(pairs, (1, 0, 2, 3))
-
-
-def _glcm_homogeneity(image, offset):
-    """GLCM homogeneity of a uint8 image at a horizontal ``offset``, NaN with no pair.
+def _homogeneity_kernel(image, offsets, out):
+    """GLCM homogeneity of a 2-D uint8 image at each horizontal offset, into ``out``.
 
     The value of ``graycoprops(graycomatrix(image, [offset], [0],
-    symmetric=True, normed=True), 'homogeneity')[0, 0]``, step for step:
-    the same pair counts (each pixel with the one ``offset`` columns to its
-    right), the same symmetric sum, the two normalisations graycomatrix and
-    graycoprops each make, and the same weighted sum over a matrix of the
-    same shape, so the result is the same float. The counts are taken with
-    one :func:`numpy.bincount` in place of skimage's checks and loop, which
-    cost more than the sum itself on a single object's box.
-
-    :param image: 2-D uint8 grey levels.
-    :param offset: column offset, at least 1 and less than the width.
+    symmetric=True, normed=True), 'homogeneity')``: the mean over every
+    pixel and the one ``offset`` columns to its right of ``1 / (1 + (a -
+    b)^2)`` (the symmetric matrix counts each pair twice, which the
+    normalisation cancels), summed in one pass instead of over a 256 x 256
+    matrix. An offset of 0 gives 1.0; an offset that pairs no pixel gives
+    NaN. Compile with :func:`_compiled`.
     """
-    pairs = _glcm_pair_counts(image, offset)
-    if not pairs.any():
-        return np.nan
-    for _normalisation in range(2):
-        pairs = pairs.astype(np.float64)
-        sums = np.sum(pairs, axis=(0, 1), keepdims=True)
-        sums[sums == 0] = 1
-        pairs /= sums
-    return np.sum(pairs * _HOMOGENEITY_WEIGHTS, axis=(0, 1))[0, 0]
+    rows, cols = image.shape
+    for k in range(offsets.size):
+        offset = offsets[k]
+        if offset == 0:
+            out[k] = 1.0
+            continue
+        total = 0.0
+        pairs = 0
+        for r in range(rows):
+            for c in range(cols - offset):
+                d = np.float64(image[r, c]) - np.float64(image[r, c + offset])
+                total += 1.0 / (1.0 + d * d)
+                pairs += 1
+        out[k] = total / pairs if pairs else np.nan
 
 
 def _calculate_homogeneity(label, channel, distances=None):
@@ -2607,6 +2756,7 @@ def _calculate_homogeneity(label, channel, distances=None):
                 "3-D run writes no homogeneity_distance_* columns.")
         if distances is None:
             distances = [2,4,8,16,32,64]
+        kernel = _compiled(_homogeneity_kernel)
         homogeneity_values = []
         for region in regionprops(label):
             region_image = region.image * channel[region.slice]
@@ -2614,15 +2764,12 @@ def _calculate_homogeneity(label, channel, distances=None):
                 region_image = region_image.astype(int)
             rescaled_image = rescale_intensity(
                 region_image, out_range=(0, 255)).astype('uint8')
-            homogeneity_per_distance = []
-            for d in distances:
-                offset = _homogeneity_offset(d, rescaled_image.shape[1])
-                if offset == 0:
-                    homogeneity_per_distance.append(1.0)
-                    continue
-                homogeneity_per_distance.append(
-                    _glcm_homogeneity(rescaled_image, offset))
-            homogeneity_values.append(homogeneity_per_distance)
+            offsets = np.array([
+                _homogeneity_offset(d, rescaled_image.shape[1])
+                for d in distances], dtype=np.int64)
+            row = np.empty(offsets.size)
+            kernel(np.ascontiguousarray(rescaled_image), offsets, row)
+            homogeneity_values.append(row.tolist())
         columns = [f'homogeneity_distance_{d}' for d in distances]
         homogeneity_df = pd.DataFrame(homogeneity_values, columns=columns)
 
@@ -3786,7 +3933,14 @@ def _profile_inputs(labels, image):
             raise ValueError(
                 f"the image {image.shape} does not cover the mask "
                 f"{labels.shape}")
+    shared = _FOREGROUNDS.get()
+    if shared is not None:
+        known = shared.get(('present', id(labels)))
+        if known is not None and known[0] is labels:
+            return labels, image, known[1].copy()
     present = np.unique(labels[labels > 0])
+    if shared is not None:
+        shared[('present', id(labels))] = (labels, present.copy())
     return labels, image, present
 
 
@@ -3859,6 +4013,34 @@ def _mass_displacement_columns(flat, rows, cols, size, present, values):
     return out
 
 
+#: The ``(p, q)`` orders of :func:`_central_moments_kernel`, in its row order.
+_CENTRAL_MOMENT_ORDERS = ((2, 0), (0, 2), (1, 1), (3, 0), (0, 3), (2, 1), (1, 2))
+
+
+def _central_moments_kernel(flat, rows, cols, weights, centre_r, centre_c,
+                            sums):
+    """Each label's weighted central moments of orders :data:`_CENTRAL_MOMENT_ORDERS`, in one pass.
+
+    Adds ``w * dr**p * dc**q`` with ``dr``, ``dc`` the offsets from the
+    label's weighted centre into ``sums[k, label]`` in pixel order.
+    Compile with :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        w = weights[k]
+        dr = rows[k] - centre_r[label]
+        dc = cols[k] - centre_c[label]
+        dr2 = dr * dr
+        dc2 = dc * dc
+        sums[0, label] += w * dr2
+        sums[1, label] += w * dc2
+        sums[2, label] += w * dr * dc
+        sums[3, label] += w * (dr2 * dr)
+        sums[4, label] += w * (dc2 * dc)
+        sums[5, label] += w * dr2 * dc
+        sums[6, label] += w * dr * dc2
+
+
 def _weighted_moments(flat, rows, cols, weights, size, present):
     """Centre, ``mu00`` and Hu invariants of each label under ``weights``.
 
@@ -3867,16 +4049,16 @@ def _weighted_moments(flat, rows, cols, weights, size, present):
         gets NaN.
     """
     centre_r, centre_c, mu00 = _weighted_centre(flat, rows, cols, weights, size)
+    sums = np.zeros((7, size))
+    _compiled(_central_moments_kernel)(
+        np.ascontiguousarray(flat), np.ascontiguousarray(rows),
+        np.ascontiguousarray(cols),
+        np.ascontiguousarray(weights, dtype=np.float64), centre_r, centre_c,
+        sums)
     with np.errstate(invalid='ignore', divide='ignore'):
-        dr = rows - centre_r[flat]
-        dc = cols - centre_c[flat]
-        row_powers = {p: dr ** p for p in range(4)}
-        col_powers = {q: dc ** q for q in range(4)}
         m = [[None] * 4 for _ in range(4)]
-        for p, q in ((2, 0), (0, 2), (1, 1), (3, 0), (0, 3), (2, 1), (1, 2)):
-            mu = np.bincount(flat, weights * row_powers[p] * col_powers[q],
-                             size)
-            m[p][q] = (mu / mu00 ** ((p + q) / 2 + 1))[present]
+        for k, (p, q) in enumerate(_CENTRAL_MOMENT_ORDERS):
+            m[p][q] = (sums[k] / mu00 ** ((p + q) / 2 + 1))[present]
         hu = _hu_from_moments(m)
     bad = ~(mu00[present] > 0)
     hu = [np.where(bad, np.nan, h) for h in hu]
@@ -3896,8 +4078,10 @@ def _shared_foregrounds():
     labels, coordinates and foreground index; inside the scope (one
     :func:`measure_profile_features` call, one :func:`_add_funk_frames`
     pass) the arrays found for a mask are handed to every later family that
-    asks for the same mask object. Nothing in the scope writes to a mask or
-    to those arrays, so they are the arrays each family would make.
+    asks for the same mask object, and so are its present labels
+    (:func:`_profile_inputs`, a copy each time). Nothing in the scope
+    writes to a mask or to those arrays, so they are the arrays each family
+    would make.
     """
     if _FOREGROUNDS.get() is not None:
         yield
@@ -3918,8 +4102,10 @@ def _foreground(labels):
             return known[1]
     inside = labels.ravel() > 0
     flat = labels.ravel()[inside]
-    rows, cols = np.indices(labels.shape, dtype=np.float64)
-    found = (flat, rows.ravel()[inside], cols.ravel()[inside], inside,
+    where = np.flatnonzero(inside)
+    width = labels.shape[-1] if labels.ndim else 1
+    found = (flat, (where // width).astype(np.float64),
+             (where % width).astype(np.float64), inside,
              int(labels.max()) + 1)
     if shared is not None:
         shared[id(labels)] = (labels, found)
@@ -4277,39 +4463,342 @@ def measure_radial_distribution(labels, image, bins=PROFILE_RADIAL_BINS):
     return pd.DataFrame(out)
 
 
-def _quantise_object(values, levels):
-    """Object pixels as grey levels ``1..levels`` from their own minimum to maximum."""
-    low, high = values.min(), values.max()
-    if not high > low:
-        return np.ones(values.shape, dtype=np.uint8)
-    scaled = np.floor((values - low) / (high - low) * levels)
-    return (np.minimum(scaled, levels - 1) + 1).astype(np.uint8)
+def _compiled(function):
+    """``function`` compiled by numba (cached on disk, GIL released), or ``function`` itself without numba.
+
+    For the per-object kernels of the profiling families, which are plain
+    Python loops over arrays: compiled they take a small fraction of the
+    time of one library call per object; uncompiled they give the same
+    values slowly. A kernel compiled here may call no other kernel.
+    """
+    kernel = _COMPILED.get(function)
+    if kernel is None:
+        try:
+            import numba
+
+            kernel = numba.njit(cache=True, nogil=True)(function)
+        except Exception:
+            kernel = function
+        _COMPILED[function] = kernel
+    return kernel
 
 
-def _haralick_row(quantised, distance):
-    """Mahotas' 13 Haralick statistics, mean of four directions, NaN when undefined."""
-    import warnings
-
-    from mahotas.features import haralick
-
-    try:
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            return haralick(quantised, ignore_zeros=True, distance=distance,
-                            return_mean=True)
-    except ValueError:
-        return np.full(len(_HARALICK_NAMES), np.nan)
+#: Kernels compiled by :func:`_compiled`, by their Python function.
+_COMPILED = {}
 
 
-def _pftas_row(quantised):
-    """Mahotas' 54 PFTAS statistics, thresholded at the object's own Otsu level."""
-    from mahotas import otsu
-    from mahotas.features import pftas
+def _object_boxes(labels, present):
+    """``(rows start, rows stop, cols start, cols stop)`` of each present label, as an int64 array."""
+    slices = find_objects(labels)
+    boxes = np.zeros((present.size, 4), dtype=np.int64)
+    for index, label in enumerate(np.asarray(present).tolist()):
+        rows, cols = slices[label - 1]
+        boxes[index] = (rows.start, rows.stop, cols.start, cols.stop)
+    return boxes
 
-    inside = quantised[quantised > 0]
-    if inside.size == 0 or inside.min() == inside.max():
-        return np.full(54, np.nan)
-    return pftas(quantised, T=otsu(quantised, ignore_zeros=True))
+
+def _haralick_kernel(labels, image, boxes, present, levels, distance, out):
+    """Mahotas' 13 Haralick statistics of every object, mean of four directions, into ``out``.
+
+    For each object its bounding box of the 2-D float64 ``image``,
+    quantised to grey levels ``1..levels`` from the object's own minimum to
+    maximum (``floor((value - low) / (high - low) * levels)``, capped at
+    ``levels - 1``, plus one; a flat object all 1) with other pixels set to
+    0, the symmetric co-occurrence matrix at ``distance`` in the four
+    directions of :func:`mahotas.features.haralick` (0 ignored), and the
+    statistics as mahotas computes them (``use_x_minus_y_variance`` off,
+    13 features), averaged over the directions. A row stays NaN when any
+    direction pairs no pixels, where mahotas raises. Compile with
+    :func:`_compiled`.
+
+    :param out: ``(objects, 13)`` float64, filled with NaN by the caller.
+    """
+    for index in range(present.size):
+        label = present[index]
+        r0, r1, c0, c1 = boxes[index, 0], boxes[index, 1], boxes[index, 2], boxes[index, 3]
+        h, w = r1 - r0, c1 - c0
+        low = np.inf
+        high = -np.inf
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                if labels[r, c] == label:
+                    low = min(low, image[r, c])
+                    high = max(high, image[r, c])
+        spread = high - low
+        plane = np.zeros((h, w), dtype=np.int64)
+        n = 1
+        for r in range(h):
+            for c in range(w):
+                if labels[r0 + r, c0 + c] == label:
+                    value = 1
+                    if spread > 0:
+                        scaled = np.floor((image[r0 + r, c0 + c] - low)
+                                          / spread * levels)
+                        value = int(min(scaled, levels - 1.0)) + 1
+                    plane[r, c] = value
+                    if value + 1 > n:
+                        n = value + 1
+        feats = np.zeros((4, 13))
+        cmat = np.zeros((n, n), dtype=np.int64)
+        empty = False
+        for d in range(4):
+            dr = (0, 1, 1, 1)[d] * distance
+            dc = (1, 1, 0, -1)[d] * distance
+            cmat[:, :] = 0
+            total = 0
+            for r in range(h - dr):
+                for c in range(w):
+                    cc = c + dc
+                    if cc < 0 or cc >= w:
+                        continue
+                    i = plane[r, c]
+                    j = plane[r + dr, cc]
+                    if i == 0 or j == 0:
+                        continue
+                    cmat[i, j] += 1
+                    cmat[j, i] += 1
+                    total += 2
+            if total == 0:
+                empty = True
+                break
+            px = np.zeros(n)
+            py = np.zeros(n)
+            plus = np.zeros(2 * n)
+            minus = np.zeros(n)
+            energy = 0.0
+            cross = 0.0
+            inverse = 0.0
+            entropy = 0.0
+            for i in range(n):
+                for j in range(n):
+                    v = cmat[i, j] / total
+                    if v == 0:
+                        continue
+                    px[j] += v
+                    py[i] += v
+                    plus[i + j] += v
+                    minus[abs(i - j)] += v
+                    energy += v * v
+                    cross += i * j * v
+                    inverse += v / (1 + (i - j) * (i - j))
+                    entropy += np.log2(v) * v
+            entropy = -entropy
+            ux = 0.0
+            uy = 0.0
+            x2 = 0.0
+            y2 = 0.0
+            for i in range(n):
+                ux += px[i] * i
+                uy += py[i] * i
+                x2 += px[i] * i * i
+                y2 += py[i] * i * i
+            vx = x2 - ux * ux
+            vy = y2 - uy * uy
+            sx = np.sqrt(vx)
+            sy = np.sqrt(vy)
+            contrast = 0.0
+            mean_minus = 0.0
+            minus_entropy = 0.0
+            for i in range(n):
+                contrast += i * i * minus[i]
+                mean_minus += minus[i]
+                if minus[i] != 0:
+                    minus_entropy += np.log2(minus[i]) * minus[i]
+            mean_minus /= n
+            minus_variance = 0.0
+            for i in range(n):
+                minus_variance += (minus[i] - mean_minus) ** 2
+            sum_average = 0.0
+            sum_square = 0.0
+            sum_entropy = 0.0
+            for t in range(2 * n):
+                sum_average += t * plus[t]
+                sum_square += t * t * plus[t]
+                if plus[t] != 0:
+                    sum_entropy += np.log2(plus[t]) * plus[t]
+            hx = 0.0
+            hy = 0.0
+            for i in range(n):
+                if px[i] != 0:
+                    hx += np.log2(px[i]) * px[i]
+                if py[i] != 0:
+                    hy += np.log2(py[i]) * py[i]
+            hx = -hx
+            hy = -hy
+            hxy1 = 0.0
+            hxy2 = 0.0
+            for i in range(n):
+                if px[i] == 0:
+                    continue
+                for j in range(n):
+                    if py[j] == 0:
+                        continue
+                    product = px[i] * py[j]
+                    logged = np.log2(product)
+                    hxy1 += cmat[i, j] / total * logged
+                    hxy2 += logged * product
+            hxy1 = -hxy1
+            hxy2 = -hxy2
+            f = feats[d]
+            f[0] = energy
+            f[1] = contrast
+            if sx == 0.0 or sy == 0.0:
+                f[2] = 1.0
+            else:
+                f[2] = (1.0 / sx / sy) * (cross - ux * uy)
+            f[3] = vx
+            f[4] = inverse
+            f[5] = sum_average
+            f[6] = sum_square - sum_average * sum_average
+            f[7] = -sum_entropy
+            f[8] = entropy
+            f[9] = minus_variance / n
+            f[10] = -minus_entropy
+            largest = max(hx, hy)
+            f[11] = (entropy - hxy1) if largest == 0.0 else (entropy - hxy1) / largest
+            f[12] = np.sqrt(max(0.0, 1 - np.exp(-2.0 * (hxy2 - entropy))))
+        if empty:
+            continue
+        for t in range(13):
+            out[index, t] = (((feats[0, t] + feats[1, t]) + feats[2, t])
+                             + feats[3, t]) / 4
+
+
+def _pftas_kernel(labels, image, boxes, present, out):
+    """Mahotas' 54 PFTAS statistics of every varying object, at its own Otsu level, into ``out``.
+
+    For each object its bounding box of the 2-D float64 ``image``,
+    quantised as :func:`_haralick_kernel` quantises it but to 255 levels,
+    with other pixels set to 0; the threshold is :func:`mahotas.otsu` with
+    ``ignore_zeros``, and the statistics are :func:`mahotas.features.pftas`
+    at it: the share of pixels outside each of three binarisations (and of
+    their complements) with 0 to 8 neighbours inside, with the 3 x 3 window
+    reflected at the box edge. A flat object's row stays NaN. Compile with
+    :func:`_compiled`.
+
+    :param out: ``(objects, 54)`` float64, filled with NaN by the caller.
+    """
+    for index in range(present.size):
+        label = present[index]
+        r0, r1, c0, c1 = boxes[index, 0], boxes[index, 1], boxes[index, 2], boxes[index, 3]
+        h, w = r1 - r0, c1 - c0
+        low = np.inf
+        high = -np.inf
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                if labels[r, c] == label:
+                    low = min(low, image[r, c])
+                    high = max(high, image[r, c])
+        spread = high - low
+        if not spread > 0:
+            continue
+        plane = np.zeros((h, w), dtype=np.int64)
+        for r in range(h):
+            for c in range(w):
+                if labels[r0 + r, c0 + c] == label:
+                    scaled = np.floor((image[r0 + r, c0 + c] - low)
+                                      / spread * 255)
+                    plane[r, c] = int(min(scaled, 254.0)) + 1
+        n = 256
+        hist = np.zeros(n)
+        for r in range(h):
+            for c in range(w):
+                hist[plane[r, c]] += 1
+        hist[0] = 0
+        below = np.empty(n)
+        below[0] = hist[0]
+        for i in range(1, n):
+            below[i] = hist[i] + below[i - 1]
+        weight = 0.0
+        for i in range(1, n):
+            weight += hist[i]
+        upper_mean = 0.0
+        for i in range(1, n):
+            upper_mean += i * hist[i]
+        upper_mean /= weight
+        lower_mean = 0.0
+        above = below[n - 1] - below[0]
+        best = below[0] * above * (lower_mean - upper_mean) ** 2
+        threshold = 0
+        for t in range(1, n):
+            above_previous = below[n - 1] - below[t - 1]
+            above = below[n - 1] - below[t]
+            if below[t] == 0:
+                continue
+            if above == 0:
+                break
+            lower_mean = (lower_mean * below[t - 1] + t * hist[t]) / below[t]
+            upper_mean = (upper_mean * above_previous - t * hist[t]) / above
+            score = below[t] * above * (lower_mean - upper_mean) ** 2
+            if score > best:
+                best = score
+                threshold = t
+        count = 0
+        total = 0
+        for r in range(h):
+            for c in range(w):
+                if plane[r, c] > threshold:
+                    count += 1
+                    total += plane[r, c]
+        spread = 0.0
+        if count:
+            pixels = np.empty(count)
+            k = 0
+            for r in range(h):
+                for c in range(w):
+                    if plane[r, c] > threshold:
+                        pixels[k] = plane[r, c]
+                        k += 1
+            spread = pixels.std()
+        mean = total / (count + 1e-8)
+        binary = np.empty((h, w), dtype=np.int64)
+        for which in range(6):
+            for r in range(h):
+                for c in range(w):
+                    x = plane[r, c]
+                    if which % 3 == 0:
+                        on = (x > mean - spread) and (x < mean + spread)
+                    elif which % 3 == 1:
+                        on = x > mean - spread
+                    else:
+                        on = x > mean
+                    binary[r, c] = 1 if on != (which >= 3) else 0
+            counts = np.zeros(9)
+            for r in range(h):
+                for c in range(w):
+                    if binary[r, c]:
+                        continue
+                    neighbours = 0
+                    for dr in (-1, 0, 1):
+                        rr = r + dr
+                        if rr < 0:
+                            rr = -rr - 1
+                        elif rr >= h:
+                            rr = 2 * h - rr - 1
+                        for dc in (-1, 0, 1):
+                            if dr == 0 and dc == 0:
+                                continue
+                            cc = c + dc
+                            if cc < 0:
+                                cc = -cc - 1
+                            elif cc >= w:
+                                cc = 2 * w - cc - 1
+                            neighbours += binary[rr, cc]
+                    counts[neighbours] += 1
+            share = counts.sum()
+            for k in range(9):
+                out[index, 9 * which + k] = counts[k] / share if share > 0 else 0.0
+
+
+def _texture_channel(c, *, labels, image, boxes, present, levels, distance,
+                     pftas, har, tas):
+    """Fill channel ``c`` of :func:`measure_texture`'s ``har`` (unless ``levels`` is None) and ``tas`` (if ``pftas``)."""
+    plane = np.ascontiguousarray(image[..., c])
+    if levels is not None:
+        _compiled(_haralick_kernel)(labels, plane, boxes, present, levels,
+                                    distance, har[:, c])
+    if pftas:
+        _compiled(_pftas_kernel)(labels, plane, boxes, present, tas[:, c])
 
 
 def measure_texture(labels, image, haralick=True, pftas=True,
@@ -4341,20 +4830,13 @@ def measure_texture(labels, image, haralick=True, pftas=True,
     n_channels = image.shape[-1]
     har = np.full((present.size, n_channels, len(_HARALICK_NAMES)), np.nan)
     tas = np.full((present.size, n_channels, 54), np.nan)
-    for index, (label, window) in enumerate(
-            _object_windows(labels, present, pad=0)):
-        mask = labels[window] == label
-        crop = image[window]
-        for c in range(n_channels):
-            values = crop[..., c][mask]
-            if haralick:
-                plane = np.zeros(mask.shape, dtype=np.uint8)
-                plane[mask] = _quantise_object(values, int(levels))
-                har[index, c] = _haralick_row(plane, int(distance))
-            if pftas:
-                plane = np.zeros(mask.shape, dtype=np.uint8)
-                plane[mask] = _quantise_object(values, 255)
-                tas[index, c] = _pftas_row(plane)
+    if present.size:
+        boxes = _object_boxes(labels, present)
+        _field_map(partial(
+            _texture_channel, labels=labels, image=image, boxes=boxes,
+            present=present, levels=int(levels) if haralick else None,
+            distance=int(distance), pftas=pftas, har=har, tas=tas),
+            range(n_channels))
     out = {'label': present}
     for c in range(n_channels):
         if haralick:
@@ -4377,24 +4859,49 @@ def _sorted_by_label(flat, values):
     """``values`` sorted within each label: ``(order, sorted values, starts, counts)``.
 
     The order is :func:`numpy.lexsort` of ``(values, flat)``, value for
-    value, found by two stable sorts: by value, then by label. A stable sort
-    keeps equal labels in value order and equal values in pixel order, which
-    is exactly lexsort's tie rule, so the permutation is the same; labels
-    that fit 16 bits are sorted by NumPy's radix sort, and the pair takes
-    well under half of lexsort's time on a field.
+    value: the pixels are put in label order by a stable counting sort,
+    and each label's run is then sorted by value with a stable merge sort
+    (:func:`_label_sort_kernel`), which keeps equal values in pixel order,
+    exactly lexsort's tie rule (NaN last). Sorting each object's few
+    thousand pixels on its own costs a fraction of sorting the field's
+    millions at once.
     """
-    by_value = np.argsort(values, kind='stable')
-    keys = flat[by_value]
-    if keys.size and 0 <= int(keys.min()) and int(keys.max()) < 2 ** 16:
-        keys = keys.astype(np.uint16)
-    order = by_value[np.argsort(keys, kind='stable')]
-    del keys
-    labels_sorted = flat[order]
-    counts = np.bincount(labels_sorted)
+    counts = np.bincount(flat) if flat.size else np.zeros(1, dtype=np.int64)
     present = np.nonzero(counts)[0]
+    offsets = np.concatenate(([0], np.cumsum(counts)[:-1])).astype(np.int64)
+    order = np.empty(flat.size, dtype=np.int64)
+    _compiled(_label_sort_kernel)(
+        np.ascontiguousarray(flat), np.ascontiguousarray(values), offsets,
+        counts.astype(np.int64), order)
     counts = counts[present]
     starts = np.concatenate(([0], np.cumsum(counts)[:-1]))
     return order, values[order], starts, counts, present
+
+
+def _label_sort_kernel(flat, values, offsets, counts, order):
+    """Fill ``order`` with lexsort's permutation of ``(values, flat)``.
+
+    A stable counting sort by label (``offsets`` and ``counts`` of every
+    label), then a stable merge sort of each label's run by value. Compile
+    with :func:`_compiled`.
+    """
+    fill = offsets.copy()
+    for k in range(flat.size):
+        label = flat[k]
+        order[fill[label]] = k
+        fill[label] += 1
+    for label in range(counts.size):
+        count = counts[label]
+        if count < 2:
+            continue
+        start = offsets[label]
+        run = order[start:start + count].copy()
+        keys = np.empty(count, dtype=values.dtype)
+        for k in range(count):
+            keys[k] = values[run[k]]
+        ranked = np.argsort(keys, kind='mergesort')
+        for k in range(count):
+            order[start + k] = run[ranked[k]]
 
 
 def _robust_threshold(flat, values, presorted=None):
@@ -4438,40 +4945,93 @@ def _within_label_ranks(flat, values, presorted=None):
     """
     order, ordered, starts, counts, present = (
         presorted if presorted is not None else _sorted_by_label(flat, values))
-    labels_sorted = flat[order]
-    n = ordered.size
-    position = np.arange(n)
-    first = np.zeros(n, dtype=bool)
-    first[starts] = True
-    new_value = first.copy()
-    new_value[1:] |= ordered[1:] != ordered[:-1]
-    run = np.cumsum(new_value) - 1
-    run_first = position[new_value]
-    run_size = np.bincount(run)
-    start_of_label = np.repeat(starts, counts)
-    average = (run_first[run] - start_of_label) + (run_size[run] + 1) / 2
-    dense_all = np.cumsum(new_value)
-    dense = dense_all - dense_all[start_of_label] + 1
-    avg_out = np.empty(n)
-    dense_out = np.empty(n)
-    avg_out[order] = average
-    dense_out[order] = dense
+    avg_out = np.empty(ordered.size)
+    dense_out = np.empty(ordered.size)
     max_dense = np.zeros(int(flat.max()) + 1)
-    np.maximum.at(max_dense, labels_sorted, dense)
+    _compiled(_within_label_ranks_kernel)(
+        np.ascontiguousarray(order), np.ascontiguousarray(ordered),
+        np.asarray(starts, dtype=np.int64), np.asarray(counts, dtype=np.int64),
+        np.asarray(present, dtype=np.int64), avg_out, dense_out, max_dense)
     return avg_out, dense_out, max_dense
 
 
-def _pearson_by_label(flat, x, y, size):
-    """Pearson's r of ``x`` and ``y`` within each label (NaN when either is flat)."""
+def _within_label_ranks_kernel(order, ordered, starts, counts, present,
+                               average, dense, max_dense):
+    """Average and dense ranks along each label's sorted run, written back to pixel order.
+
+    A run of equal values from position ``first`` (counted from the
+    label's start) of length ``m`` takes the average rank ``first + (m +
+    1) / 2``; dense ranks count the distinct values from 1, and
+    ``max_dense[label]`` is the last. Compile with :func:`_compiled`.
+    """
+    for index in range(present.size):
+        start = starts[index]
+        stop = start + counts[index]
+        run = start
+        level = 0
+        while run < stop:
+            end = run + 1
+            while end < stop and ordered[end] == ordered[run]:
+                end += 1
+            level += 1
+            rank = (run - start) + (end - run + 1) / 2
+            for k in range(run, end):
+                average[order[k]] = rank
+                dense[order[k]] = level
+            run = end
+        max_dense[present[index]] = level
+
+
+def _pair_sums_kernel(flat, x, y, mx, my, dx, dy, sums):
+    """Deviations from each label's means and their per-label sums of products, in one pass.
+
+    Writes ``dx = x - mx[label]`` and ``dy = y - my[label]`` and adds
+    ``dx * dy``, ``dx * dx`` and ``dy * dy`` into ``sums[0..2, label]`` in
+    pixel order, the order :func:`numpy.bincount` adds them in, so the sums
+    are the same floats. Compile with :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        a = x[k] - mx[label]
+        b = y[k] - my[label]
+        dx[k] = a
+        dy[k] = b
+        sums[0, label] += a * b
+        sums[1, label] += a * a
+        sums[2, label] += b * b
+
+
+def _pair_sums(flat, x, y, size):
+    """Per-label count, ``sum(dx dy)``, ``sum(dx^2)``, ``sum(dy^2)`` and the deviations ``dx``, ``dy`` from the label means.
+
+    The values ``np.bincount`` gives over ``x - mean`` and ``y - mean``,
+    found in one compiled pass instead of five array passes.
+    """
     count = np.bincount(flat, None, size)
     with np.errstate(invalid='ignore', divide='ignore'):
         mx = np.bincount(flat, x, size) / count
         my = np.bincount(flat, y, size) / count
-        dx = x - mx[flat]
-        dy = y - my[flat]
-        sxy = np.bincount(flat, dx * dy, size)
-        sxx = np.bincount(flat, dx * dx, size)
-        syy = np.bincount(flat, dy * dy, size)
+    x = np.ascontiguousarray(x, dtype=np.float64)
+    y = np.ascontiguousarray(y, dtype=np.float64)
+    dx = np.empty_like(x)
+    dy = np.empty_like(y)
+    sums = np.zeros((3, size))
+    _compiled(_pair_sums_kernel)(np.ascontiguousarray(flat), x, y, mx, my,
+                                 dx, dy, sums)
+    return count, sums[0], sums[1], sums[2], dx, dy
+
+
+def _pearson_by_label(flat, x, y, size, sums=None):
+    """Pearson's r of ``x`` and ``y`` within each label (NaN when either is flat).
+
+    :param sums: :func:`_pair_sums` of ``x`` and ``y``, when the caller
+        already has them.
+    :returns: ``(r, dx, dy)``, with ``dx`` and ``dy`` the deviations from
+        each label's means.
+    """
+    _count, sxy, sxx, syy, dx, dy = (
+        sums if sums is not None else _pair_sums(flat, x, y, size))
+    with np.errstate(invalid='ignore', divide='ignore'):
         r = sxy / np.sqrt(sxx * syy)
     return np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan), dx, dy
 
@@ -4561,6 +5121,39 @@ def _label_pixels(labels, image):
     return pixels
 
 
+def _overlap_sums_kernel(flat, x, y, threshold_x, threshold_y, dx, dy,
+                         dense_x, dense_y, top, sums):
+    """The per-label sums of :func:`measure_colocalisation` for one channel pair, in one pass.
+
+    Adds, in pixel order (the order of :func:`numpy.bincount`), into
+    ``sums[0..7, label]``: pixels with ``dx * dy > 0``; ``a b``, ``a a``,
+    ``b b``, ``a`` and ``b`` with ``a``, ``b`` the channels above their
+    per-pixel backgrounds (clipped at 0); and ``a w``, ``b w`` over the
+    pixels where both are above background, with the rank weight ``w = (R
+    - |dense_x - dense_y|) / R`` and ``R = top[label]``. Compile with
+    :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        if dx[k] * dy[k] > 0:
+            sums[0, label] += 1.0
+        a = x[k] - threshold_x[k]
+        if a < 0:
+            a = 0.0
+        b = y[k] - threshold_y[k]
+        if b < 0:
+            b = 0.0
+        sums[1, label] += a * b
+        sums[2, label] += a * a
+        sums[3, label] += b * b
+        sums[4, label] += a
+        sums[5, label] += b
+        if x[k] > threshold_x[k] and y[k] > threshold_y[k]:
+            weight = (top[label] - abs(dense_x[k] - dense_y[k])) / top[label]
+            sums[6, label] += a * weight
+            sums[7, label] += b * weight
+
+
 def measure_colocalisation(labels, image):
     """Colocalisation of every channel pair in each object, beyond Pearson and Manders.
 
@@ -4611,25 +5204,17 @@ def measure_colocalisation(labels, image):
             flat, ranks[i][0], ranks[j][0], size)
         _r, dx, dy = _pearson_by_label(flat, x, y, size)
         count = np.bincount(flat, None, size)
+        sums = np.zeros((8, size))
+        _compiled(_overlap_sums_kernel)(
+            flat, x, y, thresholds[i], thresholds[j], dx, dy, ranks[i][1],
+            ranks[j][1], np.maximum(ranks[i][2], ranks[j][2]), sums)
+        same_side, sab, saa, sbb, sa, sb, weighted_a, weighted_b = sums
         with np.errstate(invalid='ignore', divide='ignore'):
-            icq = np.bincount(flat, (dx * dy > 0).astype(float), size) / count - 0.5
-        a = np.clip(x - thresholds[i], 0, None)
-        b = np.clip(y - thresholds[j], 0, None)
-        sab = np.bincount(flat, a * b, size)
-        saa = np.bincount(flat, a * a, size)
-        sbb = np.bincount(flat, b * b, size)
-        sa = np.bincount(flat, a, size)
-        sb = np.bincount(flat, b, size)
-        both = (x > thresholds[i]) & (y > thresholds[j])
-        top = np.maximum(ranks[i][2], ranks[j][2])[flat]
-        weight = (top - np.abs(ranks[i][1] - ranks[j][1])) / top
-        with np.errstate(invalid='ignore', divide='ignore'):
+            icq = same_side / count - 0.5
             k1 = np.where(saa > 0, sab / saa, 0.0)
             k2 = np.where(sbb > 0, sab / sbb, 0.0)
-            rwc1 = np.where(sa > 0, np.bincount(
-                flat, np.where(both, a * weight, 0.0), size) / sa, 0.0)
-            rwc2 = np.where(sb > 0, np.bincount(
-                flat, np.where(both, b * weight, 0.0), size) / sb, 0.0)
+            rwc1 = np.where(sa > 0, weighted_a / sa, 0.0)
+            rwc2 = np.where(sb > 0, weighted_b / sb, 0.0)
         out[base + 'spearman'] = spearman[present]
         out[base + 'icq'] = icq[present]
         out[base + 'k1'] = k1[present]
@@ -4715,20 +5300,35 @@ def _costes_manders(flat, x, y, size, steps=PROFILE_COSTES_STEPS):
     return m1, m2
 
 
-def _rank_mutual_information(flat, rank_x, rank_y, count, size, bins):
+def _rank_bins(flat, ranks, count, bins):
+    """Each pixel's equal-count quantile bin ``0..bins-1`` of its within-label rank, as int64."""
+    n = count[flat]
+    return np.minimum(((ranks - 0.5) / n * bins).astype(np.int64), bins - 1)
+
+
+def _joint_bins_kernel(flat, qx, qy, joint):
+    """Count each label's pixels in every ``(qx, qy)`` bin pair into ``joint[label]``. Compile with :func:`_compiled`."""
+    for k in range(flat.size):
+        joint[flat[k], qx[k], qy[k]] += 1
+
+
+def _rank_mutual_information(flat, rank_x, rank_y, count, size, bins,
+                             binned=None):
     """Normalised mutual information of two within-label rank vectors.
 
     Ranks become ``bins`` equal-count quantile bins per label, so each
     channel's marginal is near uniform and the measure sees only how the two
     co-vary, linearly or not. ``MI / log(bins)``: 0 for independence, 1 for
     a one-to-one monotone or non-monotone binned relation.
+
+    :param binned: the two channels' :func:`_rank_bins`, when the caller
+        already has them.
     """
-    n = count[flat]
-    qx = np.minimum(((rank_x - 0.5) / n * bins).astype(np.int64), bins - 1)
-    qy = np.minimum(((rank_y - 0.5) / n * bins).astype(np.int64), bins - 1)
-    cells = bins * bins
-    joint = np.bincount(flat * cells + qx * bins + qy,
-                        minlength=size * cells).reshape(size, bins, bins)
+    qx, qy = binned if binned is not None else (
+        _rank_bins(flat, rank_x, count, bins),
+        _rank_bins(flat, rank_y, count, bins))
+    joint = np.zeros((size, bins, bins), dtype=np.int64)
+    _compiled(_joint_bins_kernel)(np.ascontiguousarray(flat), qx, qy, joint)
     with np.errstate(invalid='ignore', divide='ignore'):
         p = joint / count[:, None, None]
         px = p.sum(axis=2, keepdims=True)
@@ -4823,10 +5423,12 @@ def measure_colocalisation_extra(labels, image, bins=PROFILE_MI_BINS,
         out[f'channel_{c}_puncta_count'] = spots[c][3][present].astype(float)
         out[f'channel_{c}_puncta_area_fraction'] = share[present]
     shape = labels.shape
+    binned = [_rank_bins(flat, r, count, int(bins)) for r in ranks]
     for i, j in pairs:
         base = f'channel_{i}_channel_{j}_'
         nmi = _rank_mutual_information(flat, ranks[i], ranks[j], count,
-                                       size, int(bins))
+                                       size, int(bins),
+                                       binned=(binned[i], binned[j]))
         out[base + 'nmi'] = nmi[present]
         if costes:
             m1, m2 = _costes_manders(flat, planes[i], planes[j], size, steps)
@@ -4878,59 +5480,105 @@ def measure_costes(labels, image, steps=PROFILE_COSTES_STEPS):
     return pd.DataFrame(out)
 
 
+def _otsu_kernel(ordered, starts, counts, present, low, high, thresholds):
+    """Each label's first observed value maximising Otsu's between-class variance, into ``thresholds``.
+
+    One pass along each label's run of ``ordered`` (its values sorted
+    ascending): a split after a value that differs from the next puts that
+    value and everything below it in the lower class, and scores
+    ``(total * lower_count - lower_sum * count) ** 2 / (lower_count *
+    upper_count)``, the between-class variance times a constant of the
+    label. Sums are taken in float64 of the values minus the label's
+    minimum, scaled by the power of two at or above its range, so the
+    score does not depend on the intensity scale. A constant label keeps 0.
+    Compile with :func:`_compiled`.
+    """
+    for index in range(present.size):
+        label = present[index]
+        start = starts[index]
+        count = counts[index]
+        base = low[label]
+        spread = high[label] - base
+        if not spread > 0:
+            continue
+        scale = 1.0
+        while scale < spread:
+            scale *= 2.0
+        while scale / 2.0 >= spread:
+            scale /= 2.0
+        total = 0.0
+        for k in range(count):
+            total += (ordered[start + k] - base) / scale
+        lower_sum = 0.0
+        best = -np.inf
+        winner = -1
+        for k in range(count - 1):
+            value = ordered[start + k]
+            lower_sum += (value - base) / scale
+            if value == ordered[start + k + 1]:
+                continue
+            lower = k + 1.0
+            numerator = total * lower - lower_sum * count
+            score = numerator * numerator / (lower * (count - lower))
+            if score > best:
+                best = score
+                winner = k
+        if winner >= 0:
+            thresholds[label] = ordered[start + winner]
+
+
 def _otsu_by_label(flat, values, presorted=None):
     """Observed-value Otsu thresholds per label, with the first maximum winning.
 
     :param flat: positive integer label index for each foreground pixel.
     :param values: real intensities of those pixels.
     :param presorted: optional :func:`_sorted_by_label` result for ``values``.
-    :returns: one threshold per label index; 0 for a constant object or an
-        absent label. Integer data follow :func:`mahotas.thresholding.otsu`.
+    :returns: one threshold per label index; 0 for a constant object (or
+        one holding NaN) or an absent label. Integer data follow
+        :func:`mahotas.thresholding.otsu`.
 
-    All candidate splits are evaluated together from sorted cumulative sums;
-    a split places values equal to its threshold in the lower class.
-    Centring and power-of-two scaling within each object keep the score
-    stable across intensity scales. A segmented prefix scan keeps sums
-    independent of the intensity and size of earlier labels.
+    Every candidate split of a label is scored in one compiled pass along
+    its sorted values (:func:`_otsu_kernel`); a split places values equal
+    to its threshold in the lower class. Centring and power-of-two scaling
+    within each object keep the score stable across intensity scales.
     """
-    order, ordered, starts, counts, present = (
+    _order, ordered, starts, counts, present = (
         presorted if presorted is not None else _sorted_by_label(flat, values))
     size = int(flat.max()) + 1
     thresholds = np.zeros(size)
-    labels_sorted = flat[order]
-    positions = np.arange(ordered.size)
-    low, high = _label_extremes(flat, values, size)
-    shifted = ordered.astype(np.longdouble) - low[labels_sorted]
-    exponent = np.frexp(high.astype(np.longdouble) - low)[1]
-    shifted = np.ldexp(shifted, -exponent[labels_sorted])
-    lower_sum = shifted.copy()
-    stride = 1
-    while stride < int(counts.max()):
-        same_label = labels_sorted[stride:] == labels_sorted[:-stride]
-        lower_sum[stride:] += np.where(same_label, lower_sum[:-stride], 0.0)
-        stride *= 2
-    total_sum = np.zeros(size, dtype=np.longdouble)
-    total_sum[present] = np.add.reduceat(shifted, starts)
-    total_count = np.bincount(flat, minlength=size)
-    group_starts = np.repeat(starts, counts)
-    lower_count = positions - group_starts + 1
-    upper_count = total_count[labels_sorted] - lower_count
-    candidates = np.zeros(ordered.size, dtype=bool)
-    candidates[:-1] = ((labels_sorted[:-1] == labels_sorted[1:])
-                      & (ordered[:-1] != ordered[1:]))
-    score = np.full(ordered.size, -np.inf, dtype=np.longdouble)
-    numerator = (total_sum[labels_sorted] * lower_count
-                 - lower_sum * total_count[labels_sorted])
-    score[candidates] = numerator[candidates] ** 2 / (
-        lower_count[candidates] * upper_count[candidates])
-    maximum = np.full(size, -np.inf, dtype=np.longdouble)
-    np.maximum.at(maximum, labels_sorted, score)
-    first = np.full(size, ordered.size, dtype=np.int64)
-    winners = candidates & (score == maximum[labels_sorted])
-    np.minimum.at(first, labels_sorted[winners], positions[winners])
-    varying = present[first[present] < ordered.size]
-    thresholds[varying] = ordered[first[varying]]
+    ordered = np.ascontiguousarray(ordered, dtype=np.float64)
+    starts = np.asarray(starts, dtype=np.int64)
+    counts = np.asarray(counts, dtype=np.int64)
+    low = np.zeros(size)
+    high = np.zeros(size)
+    low[present] = ordered[starts]
+    high[present] = ordered[starts + counts - 1]
+    _compiled(_otsu_kernel)(ordered, starts, counts,
+                            np.asarray(present, dtype=np.int64), low, high,
+                            thresholds)
     return thresholds
+
+
+def _otsu_pair_sums_kernel(flat, x, y, above_x, above_y, dense_x, dense_y,
+                           top, sums):
+    """The per-label sums of :func:`measure_colocalisation_otsu` for one channel pair, in one pass.
+
+    Adds, in pixel order (the order of :func:`numpy.bincount`), into
+    ``sums[0..4, label]``: ``x y``; ``x`` where ``y`` is above its Otsu
+    threshold and ``y`` where ``x`` is; and those two weighted by the rank
+    weight ``(R - |dense_x - dense_y|) / R`` with ``R = top[label]``.
+    Compile with :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        sums[0, label] += x[k] * y[k]
+        weight = (top[label] - abs(dense_x[k] - dense_y[k])) / top[label]
+        if above_y[k]:
+            sums[1, label] += x[k]
+            sums[3, label] += x[k] * weight
+        if above_x[k]:
+            sums[2, label] += y[k]
+            sums[4, label] += y[k] * weight
 
 
 def measure_colocalisation_otsu(labels, image):
@@ -4988,13 +5636,13 @@ def measure_colocalisation_otsu(labels, image):
         squares.append(np.bincount(flat, values * values, size))
     for i, j in pairs:
         x, y = planes[i], planes[j]
-        _r, dx, dy = _pearson_by_label(flat, x, y, size)
-        covariance = np.bincount(flat, dx * dy, size)
-        var_x = np.bincount(flat, dx * dx, size)
-        var_y = np.bincount(flat, dy * dy, size)
-        product = np.bincount(flat, x * y, size)
-        maximum = np.maximum(ranks[i][2], ranks[j][2])[flat]
-        weight = (maximum - np.abs(ranks[i][1] - ranks[j][1])) / maximum
+        _count, covariance, var_x, var_y, _dx, _dy = _pair_sums(
+            flat, x, y, size)
+        pair = np.zeros((5, size))
+        _compiled(_otsu_pair_sums_kernel)(
+            flat, x, y, above[i], above[j], ranks[i][1], ranks[j][1],
+            np.maximum(ranks[i][2], ranks[j][2]), pair)
+        product, overlap_x, overlap_y, weighted_x, weighted_y = pair
         valid = (sums[i] != 0) & (sums[j] != 0)
         varying = (ranks[i][2] > 1) & (ranks[j][2] > 1)
         with np.errstate(divide='ignore', invalid='ignore'):
@@ -5003,10 +5651,8 @@ def measure_colocalisation_otsu(labels, image):
                 np.where(varying & (var_y > 0), covariance / var_y, 0.0),
                 product / np.sqrt(squares[i] * squares[j]),
                 product / squares[i], product / squares[j],
-                np.bincount(flat, x * above[j], size) / sums[i],
-                np.bincount(flat, y * above[i], size) / sums[j],
-                np.bincount(flat, x * weight * above[j], size) / sums[i],
-                np.bincount(flat, y * weight * above[i], size) / sums[j])
+                overlap_x / sums[i], overlap_y / sums[j],
+                weighted_x / sums[i], weighted_y / sums[j])
         for index, (stat, result) in enumerate(zip(stats, values)):
             if index >= 2:
                 result = np.where(valid, result, 0.0)
@@ -5264,9 +5910,11 @@ def _reconstruct_by_dilation(seed, mask):
 
 
 def _granularity_channel(c, *, image, index, footprint, cross, scale, full,
-                         spectrum_length):
+                         spectrum_length, weights=None):
     """One channel's granularity spectrum for every mask of :func:`_granularity_frames`.
 
+    :param weights: per mask, the :func:`_granularity_weights` that take a
+        subsampled plane's object means; None at full size.
     :returns: per mask, ``[(column, values)]`` in step order.
     """
     from scipy import ndimage
@@ -5278,23 +5926,154 @@ def _granularity_channel(c, *, image, index, footprint, cross, scale, full,
     background = ndimage.grey_opening(plane, footprint=footprint)
     pixels = np.clip(plane - background, 0, None)
     with np.errstate(invalid='ignore', divide='ignore'):
-        seen = _granularity_full(pixels, full)
-        starts = [np.bincount(flat, seen.ravel()[inside], size) / count
-                  for flat, inside, size, _p, count in index]
+        starts = _granularity_means(pixels, index, weights)
         previous = list(starts)
         eroded = pixels
         for k in range(1, int(spectrum_length) + 1):
             eroded = ndimage.grey_erosion(eroded, footprint=cross)
-            rebuilt = _granularity_full(
-                _reconstruct_by_dilation(eroded, pixels), full)
-            for m, (flat, inside, size, present, count) in enumerate(index):
-                current = np.bincount(flat, rebuilt.ravel()[inside],
-                                      size) / count
+            means = _granularity_means(
+                _reconstruct_by_dilation(eroded, pixels), index, weights)
+            for m, (_flat, _inside, _size, present, _count) in enumerate(index):
+                current = means[m]
                 step = (previous[m] - current) * 100 / starts[m]
                 columns[m].append((f'channel_{c}_granularity_{k}', np.where(
                     starts[m][present] > 0, step[present], np.nan)))
                 previous[m] = current
     return columns
+
+
+def _granularity_means(plane, index, weights):
+    """Each mask's per-label mean of ``plane``, scaled back to the field first when it was subsampled.
+
+    At full size (``weights`` None) the mean of the plane's own pixels. A
+    subsampled plane is scaled back bilinearly (``skimage.transform.resize``,
+    ``order=1``, ``mode='edge'``, no anti-aliasing); that is linear in the
+    plane, so each label's sum over the scaled plane is one sparse product
+    with the label's summed interpolation weights, without making the
+    full-size plane.
+    """
+    if weights is None:
+        return [np.bincount(flat, plane.ravel()[inside], size) / count
+                for flat, inside, size, _p, count in index]
+    flat_plane = np.ascontiguousarray(plane).ravel()
+    return [(w @ flat_plane) / count
+            for w, (_f, _i, _s, _p, count) in zip(weights, index)]
+
+
+def _resize_weights(n_in, n_out):
+    """The two source pixels and weights of every output pixel of a 1-D bilinear resize from ``n_in`` to ``n_out``.
+
+    Read off ``skimage.transform.resize`` (``order=1``, ``mode='edge'``, no
+    anti-aliasing) of the identity, so the weights are the ones it uses.
+    An output pixel read from one source pixel repeats it with weight 0,
+    so both source columns rise with the output pixel.
+    :returns: ``(sources, weights)``, each ``(n_out, 2)``.
+    """
+    from skimage.transform import resize
+
+    table = resize(np.eye(n_in), (n_out, n_in), order=1, mode='edge',
+                   anti_aliasing=False, preserve_range=True)
+    sources = np.zeros((n_out, 2), dtype=np.int64)
+    weights = np.zeros((n_out, 2))
+    for row in range(n_out):
+        nonzero = np.flatnonzero(table[row])[:2]
+        sources[row] = nonzero[0]
+        sources[row, :nonzero.size] = nonzero
+        weights[row, :nonzero.size] = table[row, nonzero]
+    return sources, weights
+
+
+def _granularity_weights_kernel(labels, boxes, present, row_sources,
+                                row_weights, col_sources, col_weights,
+                                small_cols, indptr, indices, data):
+    """Each label's summed bilinear weights on the subsampled plane, as CSR rows.
+
+    For label ``present[k]`` the pixels of its full-size box ``boxes[k]``
+    add ``row_weight * col_weight`` to the two by two subsampled pixels
+    they are read from, in a dense scratch over the box's subsampled
+    footprint; its nonzero sums become row ``present[k]`` of the matrix,
+    columns ascending. ``indices`` and ``data`` must hold every footprint
+    pixel; ``indptr`` (one longer than the label count) is filled. Compile
+    with :func:`_compiled`.
+    :returns: the number of stored entries.
+    """
+    stored = 0
+    previous = 0
+    for k in range(present.size):
+        label = present[k]
+        for row in range(previous, label + 1):
+            indptr[row] = stored
+        previous = label + 1
+        r0, r1, c0, c1 = boxes[k, 0], boxes[k, 1], boxes[k, 2], boxes[k, 3]
+        a0 = row_sources[r0, 0]
+        a1 = a0
+        for r in range(r0, r1):
+            a0 = min(a0, row_sources[r, 0])
+            a1 = max(a1, row_sources[r, 1])
+        b0 = col_sources[c0, 0]
+        b1 = b0
+        for c in range(c0, c1):
+            b0 = min(b0, col_sources[c, 0])
+            b1 = max(b1, col_sources[c, 1])
+        scratch = np.zeros((a1 - a0 + 1, b1 - b0 + 1))
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                if labels[r, c] != label:
+                    continue
+                for i in range(2):
+                    wr = row_weights[r, i]
+                    if wr == 0:
+                        continue
+                    for j in range(2):
+                        wc = col_weights[c, j]
+                        if wc == 0:
+                            continue
+                        scratch[row_sources[r, i] - a0,
+                                col_sources[c, j] - b0] += wr * wc
+        for i in range(a1 - a0 + 1):
+            for j in range(b1 - b0 + 1):
+                if scratch[i, j] != 0:
+                    indices[stored] = (a0 + i) * small_cols + b0 + j
+                    data[stored] = scratch[i, j]
+                    stored += 1
+    for row in range(previous, indptr.size):
+        indptr[row] = stored
+    return stored
+
+
+def _granularity_weights(masks, index, small, full):
+    """Per mask, the sparse ``(labels, small pixels)`` sums of bilinear weights from ``small`` back to ``full``.
+
+    Row ``l`` of a mask's matrix holds, for every pixel of the subsampled
+    plane, the sum over label ``l``'s full-size pixels of that pixel's
+    bilinear weight (:func:`_resize_weights`), so the matrix times the plane is
+    each label's sum over the scaled-back plane
+    (:func:`_granularity_weights_kernel`).
+    """
+    from scipy import sparse
+
+    row_sources, row_weights = _resize_weights(small[0], full[0])
+    col_sources, col_weights = _resize_weights(small[1], full[1])
+    kernel = _compiled(_granularity_weights_kernel)
+    out = []
+    for labels, (_flat, _inside, size, present, _count) in zip(masks, index):
+        labels = np.ascontiguousarray(labels, dtype=np.int64)
+        present = np.asarray(present, dtype=np.int64)
+        boxes = _object_boxes(labels, present)
+        capacity = 0
+        for r0, r1, c0, c1 in boxes.tolist():
+            capacity += ((int(row_sources[r1 - 1, 1]) - int(row_sources[r0, 0]) + 1)
+                         * (int(col_sources[c1 - 1, 1]) - int(col_sources[c0, 0]) + 1))
+        indptr = np.zeros(size + 1, dtype=np.int64)
+        indices = np.zeros(capacity, dtype=np.int64)
+        data = np.zeros(capacity)
+        stored = kernel(labels, boxes, present, row_sources, row_weights,
+                        col_sources, col_weights, int(small[1]), indptr,
+                        indices, data)
+        out.append(sparse.csr_matrix(
+            (data[:stored], indices[:stored], indptr),
+            shape=(size, small[0] * small[1])))
+    return out
 
 
 def _granularity_frames(masks, image, spectrum_length=16,
@@ -5321,25 +6100,18 @@ def _granularity_frames(masks, image, spectrum_length=16,
             "profile_granularity_subsample to a number greater than 0 and "
             "at most 1, then rerun Measure.", subsample=subsample))
     full = image.shape[:2]
-
-
+    weights = None
+    if scale < 1 and image.shape[-1]:
+        small = tuple(int(round(n * scale)) for n in full)
+        weights = _granularity_weights(masks, index, small, full)
     sieve = partial(
         _granularity_channel, image=image, index=index, footprint=footprint,
-        cross=cross, scale=scale, full=full, spectrum_length=spectrum_length)
+        cross=cross, scale=scale, full=full, spectrum_length=spectrum_length,
+        weights=weights)
     for columns in _field_map(sieve, range(image.shape[-1])):
         for m, pairs in enumerate(columns):
             outs[m].update(pairs)
     return [pd.DataFrame(out) for out in outs]
-
-
-def _granularity_full(plane, shape):
-    """A subsampled granularity plane scaled back to the field (bilinear); unchanged at full size."""
-    if plane.shape == tuple(shape):
-        return plane
-    from skimage.transform import resize
-
-    return resize(plane, shape, order=1, mode='edge', anti_aliasing=False,
-                  preserve_range=True)
 
 
 #: LBP radii of :func:`measure_lbp`; each uses ``8 * radius`` sampling points.
@@ -5374,18 +6146,88 @@ def measure_lbp(labels, image, radii=PROFILE_LBP_RADII):
     return _lbp_frames([labels], image, radii)[0]
 
 
-def _lbp_channel(item, *, image, index):
+def _lbp_kernel(image, needed, row_offsets, col_offsets, codes):
+    """Rotation-invariant uniform LBP codes at the ``needed`` pixels, into ``codes``.
+
+    The arithmetic of :func:`skimage.feature.local_binary_pattern` with
+    ``method='uniform'``: each of the ``P`` circle points is read by
+    bilinear interpolation from its four neighbours (0 outside the image),
+    set when it is at least the centre, and a pattern with at most two
+    changes between consecutive points (the first ``P - 1`` pairs, as
+    skimage counts them) takes its number of set points, any other ``P +
+    1``. Pixels not ``needed`` keep their value. Compile with
+    :func:`_compiled`.
+    """
+    rows, cols = image.shape
+    points = row_offsets.size
+    bits = np.zeros(points, dtype=np.int64)
+    for r in range(rows):
+        for c in range(cols):
+            if not needed[r, c]:
+                continue
+            centre = image[r, c]
+            for i in range(points):
+                pr = r + row_offsets[i]
+                pc = c + col_offsets[i]
+                minr = int(np.floor(pr))
+                minc = int(np.floor(pc))
+                maxr = int(np.ceil(pr))
+                maxc = int(np.ceil(pc))
+                dr = pr - minr
+                dc = pc - minc
+                top_left = 0.0
+                top_right = 0.0
+                bottom_left = 0.0
+                bottom_right = 0.0
+                if 0 <= minr < rows and 0 <= minc < cols:
+                    top_left = image[minr, minc]
+                if 0 <= minr < rows and 0 <= maxc < cols:
+                    top_right = image[minr, maxc]
+                if 0 <= maxr < rows and 0 <= minc < cols:
+                    bottom_left = image[maxr, minc]
+                if 0 <= maxr < rows and 0 <= maxc < cols:
+                    bottom_right = image[maxr, maxc]
+                top = (1 - dc) * top_left + dc * top_right
+                bottom = (1 - dc) * bottom_left + dc * bottom_right
+                value = (1 - dr) * top + dr * bottom
+                bits[i] = 1 if value - centre >= 0 else 0
+            changes = 0
+            for i in range(points - 1):
+                if bits[i] != bits[i + 1]:
+                    changes += 1
+            if changes <= 2:
+                total = 0
+                for i in range(points):
+                    total += bits[i]
+                codes[r, c] = total
+            else:
+                codes[r, c] = points + 1
+
+
+def _lbp_offsets(points, radius):
+    """The circle offsets of :func:`skimage.feature.local_binary_pattern`: ``(rows, cols)`` rounded to 5 decimals."""
+    angles = 2 * np.pi * np.arange(points, dtype=np.float64) / points
+    return (np.round(-radius * np.sin(angles), 5),
+            np.round(radius * np.cos(angles), 5))
+
+
+def _lbp_channel(item, *, image, index, needed):
     """One ``(channel, radius)`` of :func:`_lbp_frames` for every mask.
 
+    The codes are :func:`skimage.feature.local_binary_pattern`'s on the
+    whole field, computed by :func:`_lbp_kernel` at the labelled pixels
+    only, the only ones a histogram reads.
+
+    :param needed: the pixels any mask labels; codes elsewhere are unused.
     :returns: per mask, ``[(column, values)]`` in code order.
     """
-    from skimage.feature import local_binary_pattern
-
     c, radius = item
     columns = [[] for _ in index]
     points = 8 * int(radius)
-    codes = local_binary_pattern(image[..., c], points, float(radius),
-                                 method='uniform').astype(np.int64)
+    row_offsets, col_offsets = _lbp_offsets(points, float(radius))
+    codes = np.zeros(needed.shape, dtype=np.int64)
+    _compiled(_lbp_kernel)(np.ascontiguousarray(image[..., c], dtype=np.float64),
+                           needed, row_offsets, col_offsets, codes)
     for m, (flat, inside, size, present, count) in enumerate(index):
         bins = points + 2
         tally = np.bincount(flat * bins + codes.ravel()[inside],
@@ -5403,7 +6245,10 @@ def _lbp_frames(masks, image, radii=PROFILE_LBP_RADII):
     index = _mask_index(masks)
     outs = [{'label': present} for _f, _i, _s, present, _c in index]
     items = [(c, radius) for c in range(image.shape[-1]) for radius in radii]
-    code = partial(_lbp_channel, image=image, index=index)
+    needed = np.zeros(image.shape[:2], dtype=bool)
+    for labels in masks:
+        needed |= np.asarray(labels) > 0
+    code = partial(_lbp_channel, image=image, index=index, needed=needed)
     for columns in _field_map(code, items):
         for m, pairs in enumerate(columns):
             outs[m].update(pairs)
