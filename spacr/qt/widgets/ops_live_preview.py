@@ -526,6 +526,11 @@ def _inside(frame, window, y: str, x: str):
                  & (frame[x] > window[2]) & (frame[x] < window[3])]
 
 
+_SHORT_FEATURES = {"cell_area": "area", "cell_eccentricity": "eccentr.",
+                   "cell_dapi_mean_intensity": "DAPI", "cell_solidity": "solidity",
+                   "mitotic_index": "mitotic"}
+
+
 def _merge_points(result: Mapping[str, Any]):
     """The phenotype cells of a merge, each marked matched or not, and the matched pairs.
 
@@ -626,13 +631,14 @@ def _draw_merge(result: Mapping[str, Any], colours):
                    "x_label": tr("Minimum cells per gene (ops_profile_min_cells)"),
                    "y_label": tr("Genes kept (%)"),
                    "series": [("", floors, np.asarray(kept_share), colours["blue"])],
-                   "y_max": 100.0, "markers": True})
+                   "y_min": 0.0, "y_max": 100.0, "markers": True})
     if fields:
         graphs.append({"kind": "stacked", "title": tr("Cells per field"),
                        "x_label": tr("Phenotype field"), "y_label": tr("Cells"),
                        "x": np.arange(len(sites), dtype=float), "ticks": sites,
                        "layers": [(tr("matched to a nucleus"), matched, colours["blue"]),
-                                  (tr("not matched"), total - matched, _CONTROL_GREY)]})
+                                  (tr("not matched"), total - matched, _CONTROL_GREY)],
+                       "y_max": float(total.max()) * 1.3 if len(total) else None})
     if joined is not None and len(joined):
         distance = np.hypot(joined["y"] - joined["centroid_y"],
                             joined["x"] - joined["centroid_x"]).to_numpy(float)
@@ -675,7 +681,7 @@ def _draw_merge(result: Mapping[str, Any], colours):
                        "title": tr("Profiles of the 20 genes with most cells"),
                        "x_label": tr("Feature"), "y_label": tr("Gene"),
                        "values": (top[features].to_numpy(float) - centre) / spread,
-                       "columns": [f.replace("cell_", "").replace("_", " ") for f in features],
+                       "columns": [_SHORT_FEATURES.get(f, f) for f in features],
                        "rows": top["gene"].astype(str).tolist(),
                        "scale": tr("z against all genes")})
     feature = next((c for c in ("cell_area", "cell_dapi_mean_intensity") if c in genes.columns),
@@ -1226,7 +1232,6 @@ class _QtGraph(QWidget):
         image.setOpacity(_ALPHA)
         self.plot.addItem(image)
         self.plot.getViewBox().invertY(True)
-        self.plot.getViewBox().setAspectLocked(True)
         self.plot.getAxis("bottom").setTicks(
             [[(i + 0.5, str(c)) for i, c in enumerate(spec.get("columns") or ())]])
         self.plot.getAxis("left").setTicks(

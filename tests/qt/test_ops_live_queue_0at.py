@@ -460,3 +460,55 @@ def test_every_merge_graph_draws_square_in_the_queue(qtbot, live):
     _run(qtbot, panel, runner, "merge")
     page = panel.page("merge")
     assert all(isinstance(g.parentWidget(), _SquareBox) for g in page.graphs)
+
+
+def _fake_tier(folder, provenance):
+    (folder / "settings").mkdir(parents=True)
+    (folder / "settings" / "ops_testdata_settings.json").write_text("{}")
+    (folder / "reference").mkdir()
+    (folder / "reference" / provenance).write_text("{}")
+    return folder
+
+
+def test_the_regions_tier_is_the_test_data_when_present(tmp_path, monkeypatch):
+    from spacr import example_archives
+
+    core = tmp_path / "ops_e2e"
+    monkeypatch.setattr(example_archives, "example_set_folder", lambda key: core)
+    full = _fake_tier(tmp_path / "ops_e2e_full" / "ops_testdata_funk2022_A1",
+                      "PROVENANCE_rev2_addendum.json")
+    assert ops_live._test_data_root() == full
+    regions = _fake_tier(tmp_path / example_archives.OPS_E2E_REGIONS_FOLDER
+                         / "ops_testdata_funk2022_A1_regions", "PROVENANCE_regions.json")
+    assert ops_live._test_data_root() == regions
+    assert ops_live._test_root_of(regions / "20200202_6W-LaC024A" / "sequencing") == regions
+
+
+def test_each_region_reads_its_own_references_and_workspace(tmp_path, monkeypatch):
+    import pandas as pd
+
+    root = tmp_path / "tier"
+    for block in ("block_1-2-3-4", "block_5-6-7-8"):
+        ref = root / "reference" / "regions" / block
+        (ref / "objects").mkdir(parents=True)
+        (ref / "genotype").mkdir()
+        (ref / "phenotype" / "phenotype_masks" / "plate.ome.zarr").mkdir(parents=True)
+        pd.DataFrame({"object_id": [1]}).to_parquet(ref / "objects" / "ops_objects.parquet")
+        pd.DataFrame({"object_id": [1]}).to_parquet(ref / "genotype" / "ops_barcodes.parquet")
+        pd.DataFrame({"site": [1]}).to_parquet(ref / "phenotype" / "ops_phenotype_cells_A1.parquet")
+    replaced = []
+    monkeypatch.setattr("spacr.ops_engine._replace_well_rows",
+                        lambda db, table, rows, plate, well: replaced.append(table))
+    ctx = ops_live._Context(settings={}, test_root=root, folder=tmp_path / "work",
+                            well="A1", steps={})
+    (tmp_path / "work").mkdir()
+    used = ops_live._aggregation_inputs(ctx, "db", "plate", [8, 7, 6, 5])
+    assert used["path"].endswith("block_5-6-7-8")
+    assert (tmp_path / "work" / "A1" / "phenotype_masks" / "plate.ome.zarr").is_dir()
+    monkeypatch.setattr(ops_live.Path, "home", lambda: tmp_path)
+    base = {"genotype_source": "/g", "phenotype_source": "/p", "plate": "x"}
+    first = ops_live._workspace(base)
+    assert ops_live._workspace(dict(base, ops_live_region=0)) == first
+    assert ops_live._workspace(dict(base, ops_live_region=2)) != first
+    assert ops_live._workspace(dict(base, ops_live_region=1)) != ops_live._workspace(
+        dict(base, ops_live_region=2))

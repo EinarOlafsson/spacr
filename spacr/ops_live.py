@@ -265,15 +265,32 @@ def _signature(settings: Mapping[str, Any], step: str,
     return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
 
+_REGIONS_TEST_FOLDER = "ops_testdata_funk2022_A1_regions"
+
+_PROVENANCE_FILES: Tuple[str, ...] = ("PROVENANCE_rev2_addendum.json",
+                                      "PROVENANCE_regions.json")
+
+
+def _is_test_root(folder: Path) -> bool:
+    """Whether ``folder`` is an unpacked tier of the OPS end-to-end test data."""
+    return (folder / "settings" / "ops_testdata_settings.json").is_file() and any(
+        (folder / "reference" / name).is_file() for name in _PROVENANCE_FILES)
+
+
 def _test_data_root() -> Optional[Path]:
-    """The unpacked OPS end-to-end test data, full tier first, or None."""
-    from .example_archives import OPS_E2E_FULL_FOLDER, example_set_folder
+    """The unpacked OPS end-to-end test data, or None.
+
+    The regions tier first (three regions to choose between), then the full
+    tier, then the core tier.
+    """
+    from .example_archives import (OPS_E2E_FULL_FOLDER, OPS_E2E_REGIONS_FOLDER,
+                                   example_set_folder)
 
     core = example_set_folder("ops_e2e")
-    for folder in (core.parent / OPS_E2E_FULL_FOLDER, core):
-        root = folder / _TEST_FOLDER
-        if (root / "settings" / "ops_testdata_settings.json").is_file() and (
-                root / "reference" / "PROVENANCE_rev2_addendum.json").is_file():
+    for root in (core.parent / OPS_E2E_REGIONS_FOLDER / _REGIONS_TEST_FOLDER,
+                 core.parent / OPS_E2E_FULL_FOLDER / _TEST_FOLDER,
+                 core / _TEST_FOLDER):
+        if _is_test_root(root):
             return root
     return None
 
@@ -292,8 +309,7 @@ def _test_root_of(source: Any) -> Optional[Path]:
     except (OSError, RuntimeError, ValueError):
         return None
     for candidate in (folder, *folder.parents):
-        if (candidate / "settings" / "ops_testdata_settings.json").is_file() and (
-                candidate / "reference" / "PROVENANCE_rev2_addendum.json").is_file():
+        if _is_test_root(candidate):
             return candidate
     return None
 
@@ -371,11 +387,19 @@ def _effective_settings(form: Mapping[str, Any]
 def _workspace(settings: Mapping[str, Any]) -> Path:
     """The preview's own folder for these inputs.
 
-    :param settings: read for the two image folders and the plate.
+    Each region of a well gets its own folder, so one region's run tables
+    and masks never stand in for another's.
+
+    :param settings: read for the two image folders, the plate and the
+        region (``ops_live_region``, ``ops_live_block``).
     :returns: ``~/.cache/spacr/ops_live/<digest>``, created.
     """
     text = "|".join(str(settings.get(key) or "") for key in
                     ("genotype_source", "phenotype_source", "plate"))
+    region = _live_int(settings, "ops_live_region", 0)
+    side = _live_int(settings, "ops_live_block", 2)
+    if region != 0 or side != 2:
+        text += f"|region={region}|side={side}"
     digest = hashlib.sha1(text.encode("utf-8")).hexdigest()[:16]
     folder = Path.home() / ".cache" / "spacr" / "ops_live" / digest
     folder.mkdir(parents=True, exist_ok=True)
@@ -1612,14 +1636,16 @@ def _tile_affine_placement(ctx: _Context, plate: str,
             "sbs": np.asarray(sbs, np.float32), "phenotype": sampled}
 
 
-def _aggregation_inputs(ctx: _Context, db: str, plate: str
-                        ) -> Dict[str, Any]:
+def _aggregation_inputs(ctx: _Context, db: str, plate: str,
+                        block: Optional[Sequence[int]] = None) -> Dict[str, Any]:
     """Put the aggregation set's nuclei, calls and cells in the workspace.
 
     For the test data these are its stored step outputs (``reference/``);
     for a user's data, the same tables of the user's finished run
     (``dst_root``), read and copied, never written.
 
+    :param block: the sequencing tiles of the region shown; the regions
+        tier keeps one reference set per block under ``reference/regions``.
     :returns: what was used, for the tab to say.
     :raises _NotReady: when there is no finished run to read.
     """
@@ -1632,6 +1658,11 @@ def _aggregation_inputs(ctx: _Context, db: str, plate: str
     target = _ph_cells_path(str(ctx.folder), ctx.well)
     if ctx.test_root is not None:
         ref = ctx.test_root / "reference"
+        regions = ref / "regions"
+        if regions.is_dir():
+            name = "block_" + "-".join(str(int(t)) for t in sorted(block or ()))
+            blocks = sorted(p for p in regions.iterdir() if p.is_dir())
+            ref = regions / name if (regions / name).is_dir() else blocks[0]
         for table, path in (("ops_objects", "objects/ops_objects.parquet"),
                             ("ops_barcodes", "genotype/ops_barcodes.parquet")):
             _replace_well_rows(db, table, pd.read_parquet(ref / path), plate,
@@ -1640,8 +1671,12 @@ def _aggregation_inputs(ctx: _Context, db: str, plate: str
                     target)
         masks = ctx.folder / ctx.well / "phenotype_masks"
         masks.mkdir(parents=True, exist_ok=True)
-        for path in sorted((ref / "phenotype" / "phenotype_masks").glob("site-*.npz")):
-            if not (masks / path.name).is_file():
+        for path in sorted((ref / "phenotype" / "phenotype_masks").iterdir()):
+            if (masks / path.name).exists():
+                continue
+            if path.is_dir():
+                shutil.copytree(path, masks / path.name)
+            elif path.suffix == ".npz" or path.name.endswith(".json"):
                 shutil.copy(path, masks / path.name)
         return {"kind": "test", "path": str(ref), "masks": True}
     run = str(ctx.settings.get("dst_root") or "")
@@ -1684,7 +1719,7 @@ def _run_merge(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     if not align["fields"]:
         raise _NotReady("fields")
     db, plate = align["db"], align["plate"]
-    used = _aggregation_inputs(ctx, db, plate)
+    used = _aggregation_inputs(ctx, db, plate, align.get("block"))
     settings = _preview_settings(ctx.settings, ctx.folder)
     settings["ops_sites"] = align["sample_block"]
     phases = ["ph_masks", "merge"] if used.get("masks") else ["merge"]
@@ -1726,6 +1761,7 @@ def _run_merge(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     return {"report": merge_report, "used": used, "genes": genes,
             "merged": merged, "objects": objects, "cells": placed,
             "per_field": per_field, "align": align,
+            "control_prefix": str(ctx.settings.get("ops_control_prefix") or "nontargeting"),
             "aggregate": {k: v for k, v in (aggregate.get("aggregate") or {}).items()
                           if not isinstance(v, (dict, list))}}
 
