@@ -2556,7 +2556,7 @@ def _feature_columns(columns: Iterable[Any],
     for column in columns:
         entry = _entry(column)
         family = str(getattr(entry, "family", None) or "unknown")
-        if family == "meta":
+        if family == "meta" or schema.is_provenance_column(column):
             continue
         channel = getattr(entry, "channel", None)
         group = NO_CHANNEL if channel is None else f"channel_{int(channel)}"

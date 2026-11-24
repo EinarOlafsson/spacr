@@ -2102,6 +2102,27 @@ def object_table_schema(table: str) -> ObjectTableSchema:
             f'{list(CANONICAL_OBJECT_TABLES)}.') from exc
 
 
+def _is_identifier_role(text: str) -> bool:
+    """Whether a column name has the ROLE of an object identifier or key.
+
+    A store reads identifiers as integers where SQLite held them as text, so
+    a numeric dtype no longer separates them from measurements. The role is
+    read from the name: the store's key columns
+    (:data:`spacr.measurement_store.KEY_COLUMNS`), ``object_id`` and
+    ``object_key``, anything ending ``_key`` or starting ``parent_``
+    (``parent_cell_key``, ``plate_key``), and the ``<class>_<class>`` label
+    column of every object class.
+    """
+    from .feature_dict import OBJECT_TYPES
+    from .measurement_store import KEY_COLUMNS
+
+    if text in KEY_COLUMNS or text in ('object_id', 'object_key'):
+        return True
+    if text.endswith('_key') or text.startswith('parent_'):
+        return True
+    return any(text == f'{obj}_{obj}' for obj in OBJECT_TYPES)
+
+
 def is_provenance_column(name: Any) -> bool:
     """Return whether ``name`` is identity, annotation, or run provenance.
 
@@ -2118,6 +2139,8 @@ def is_provenance_column(name: Any) -> bool:
             for contract in OBJECT_TABLE_SCHEMAS.values()):
         return True
     if parse_column(text).family == 'meta':
+        return True
+    if _is_identifier_role(text):
         return True
 
     suffixes = tuple(f'_{obj}' for obj in OBJECT_TYPES) + ('_x', '_y')

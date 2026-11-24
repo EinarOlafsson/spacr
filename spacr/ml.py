@@ -10094,7 +10094,8 @@ def run_ml_evaluation(settings, df=None, features=None):
         features = _ml_eval_list(settings.get('ml_eval_features'))
     if not features:
         drop = {label_column, 'label'}
-        features = [c for c in df.select_dtypes(include=[np.number]).columns if c not in drop]
+        features = [c for c in df.select_dtypes(include=[np.number]).columns
+                    if c not in drop and not schema.is_provenance_column(c)]
     missing = [c for c in features if c not in df.columns]
     if missing or not features:
         raise ValueError(f'ml_eval_features not found in the objects: {missing or features}')
