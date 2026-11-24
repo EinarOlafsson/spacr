@@ -175,7 +175,8 @@ def engine_run(tmp_path_factory):
     raw.mkdir()
     nuclei, codes, centre, tops = _plate(raw)
     settings = {"genotype_source": str(raw), "dst_root": str(root / "out"),
-                "plate": "synthetic", "ops_gpu": False, "n_workers": 1}
+                "plate": "synthetic", "ops_gpu": False, "n_workers": 1,
+                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none"}
     library = sorted(set(codes)) + ["TTTT", "GGGG"]
     result = ops_engine.run_ops(settings, library=library)
     yield result, nuclei, codes, centre, tops, settings, library, monkeypatch

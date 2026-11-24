@@ -337,7 +337,8 @@ def auto_run(tmp_path_factory):
     _nuclei, codes, _centre, _tops = base._plate(raw)
     settings = {"genotype_source": str(raw), "dst_root": str(root / "out"),
                 "plate": "synthetic", "ops_gpu": False, "n_workers": 1,
-                "ops_decode_preset": "rule_a_s2"}
+                "ops_decode_preset": "rule_a_s2", "ops_decode_threshold_mode": "manual",
+                "ops_decode_fdr_calibration": "none"}
     library = sorted(set(codes)) + ["TTTT", "GGGG"]
     manual = ops_engine.run_ops(settings, library=library)
     # The item-939 auto mode, as a settings file saved before item 942 reruns it.

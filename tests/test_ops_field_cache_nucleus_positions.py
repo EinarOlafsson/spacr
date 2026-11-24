@@ -150,7 +150,8 @@ def synthetic_runs(tmp_path_factory):
     _nuclei, codes, _centre, _tops = base._plate(raw)
     library = sorted(set(codes)) + ["TTTT", "GGGG"]
     settings = {"genotype_source": str(raw), "dst_root": str(root / "out"),
-                "plate": "synthetic", "ops_gpu": False, "n_workers": 1}
+                "plate": "synthetic", "ops_gpu": False, "n_workers": 1,
+                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none"}
     ops_engine.run_ops(settings, library=library)
     captured = []
     real = ops_engine._decode_field
@@ -165,6 +166,7 @@ def synthetic_runs(tmp_path_factory):
     for name, cache in (("off", False), ("on", True)):
         captured.clear()
         preset = {**settings, "ops_decode_preset": "rule_a_s2",
+                  "ops_decode_fdr_calibration": "none",
                   "ops_read_neighbour_discount": 0.5, "ops_store_field_cache": cache}
         result = ops_engine.run_ops(preset, phases=("decode",), library=library)
         with sqlite3.connect(result["db"]) as conn:

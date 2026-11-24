@@ -45,7 +45,8 @@ def well(tmp_path_factory):
     raw.mkdir()
     _nuclei, codes, _centre, tops = _plate(raw)
     settings = {"genotype_source": str(raw), "dst_root": str(root / "whole"),
-                "plate": "synthetic", "ops_gpu": False, "n_workers": 1}
+                "plate": "synthetic", "ops_gpu": False, "n_workers": 1,
+                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none"}
     library = sorted(set(codes)) + ["TTTT", "GGGG"]
     whole = ops_engine.run_ops(settings, library=library)
     yield raw, root, settings, library, whole, tops
