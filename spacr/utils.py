@@ -6421,7 +6421,7 @@ def _merge_overlapping_objects(mask1, mask2):
     """Merge overlapping objects across two masks using a 90% overlap heuristic.
 
     THE ONE NUCLEUS-CELL OWNERSHIP RULE of Measure and the OPS phenotype path
-    (maintainer decision 2026-11-23; OPS reaches it through
+    (OPS reaches it through
     :func:`spacr.ops_sample.pair_nuclei_with_cells`). For each connected
     object of ``mask1`` (a nucleus) that touches several objects of
     ``mask2`` (cells): when one of them holds at least 90 % of it, its
