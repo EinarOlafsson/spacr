@@ -37,6 +37,18 @@ Behaviour for unattended runs:
 * **Per-job logs go to their own file** — one interleaved log from twelve
   overnight jobs is unreadable — and the path is on the job record.
 
+Template runs: a finished run folder records the settings of every module that
+ran on it in ``<run>/settings/``. :func:`read_template_run` reads them as a
+template; :func:`add_template_jobs` turns a new image folder into one job per
+template module, with the template settings unchanged except the source folder
+and every output path that lay inside the template run, and a later module
+(Measure) chained to the output of the earlier one (Mask) through the port
+bindings of :mod:`spacr.chaining`. A folder becomes jobs only when
+:func:`check_template_folder` finds no difference from the template: file
+names, channels, z planes, image size and pixel type, and every error
+:func:`spacr.validate.validate_settings` reports. These helpers serve the
+Batch Runner and are not part of the public API.
+
 Concurrency: jobs run **strictly one at a time**. They compete for one GPU, and
 two Cellpose jobs on one card can run out of CUDA memory. There is no
 ``max_workers`` option; to use two cards, run two queues in two processes.
@@ -1895,3 +1907,507 @@ def _enable_field_resume(job: Job) -> None:
     ]
     overrides.append('resume=True')
     job.overrides = overrides
+
+
+TEMPLATE_SNAPSHOT_SUFFIXES: Tuple[str, ...] = (".json", ".csv")
+
+_SNAPSHOT_MODULES: Tuple[Tuple[str, str], ...] = (
+    ("measure_crop", "measure"),
+    ("crop_measure", "measure"),
+    ("gen_masks", "mask"),
+    ("gen_mask", "mask"),
+    ("train_test", "classify"),
+    ("ml_analyze", "ml_analyze"),
+    ("map_barcodes", "map_barcodes"),
+    ("regression", "regression"),
+    ("recruitment", "recruitment"),
+    ("annotate", "annotate"),
+    ("classify", "classify"),
+    ("measure", "measure"),
+    ("mask", "mask"),
+)
+
+
+class TemplateError(ValueError):
+    """A folder that cannot be used as a template run."""
+
+
+@dataclass
+class TemplateRun:
+    """The module settings one finished run recorded.
+
+    :param root: the run folder, the project root its outputs lie in.
+    :param settings: ``{module: settings}`` in the order the modules run,
+        without the run bookkeeping keys that start with ``_``.
+    :param files: ``{module: snapshot path}`` the settings were read from.
+    :param skipped: snapshot names that could not be read.
+    """
+
+    root: str
+    settings: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+    files: Dict[str, str] = field(default_factory=dict)
+    skipped: List[str] = field(default_factory=list)
+
+    @property
+    def modules(self) -> Tuple[str, ...]:
+        """The template modules, in the order their jobs run."""
+        return tuple(self.settings)
+
+
+def snapshot_files(path: Any, suffixes: Sequence[str] = TEMPLATE_SNAPSHOT_SUFFIXES) -> List[str]:
+    """The settings snapshots of a run folder, from ``settings/`` and the folder.
+
+    A file counts when its name holds ``setting`` and ends in one of
+    ``suffixes``. When a run wrote the same snapshot as JSON and CSV, only
+    the file whose suffix comes first in ``suffixes`` is listed.
+
+    :param path: the run folder.
+    :param suffixes: the accepted endings, the preferred one first.
+    :returns: absolute paths, the ``settings/`` folder first, sorted by name.
+    """
+    root = str(path)
+    if not os.path.isdir(root):
+        return []
+    wanted = tuple(s.lower() for s in suffixes)
+    found: List[str] = []
+    for folder in (os.path.join(root, "settings"), root):
+        if not os.path.isdir(folder):
+            continue
+        try:
+            names = sorted(os.listdir(folder))
+        except OSError:
+            continue
+        chosen: Dict[str, Tuple[int, str]] = {}
+        for name in names:
+            stem, suffix = os.path.splitext(name)
+            full = os.path.join(folder, name)
+            if (suffix.lower() not in wanted or "setting" not in name.lower()
+                    or not os.path.isfile(full)):
+                continue
+            rank = wanted.index(suffix.lower())
+            if stem not in chosen or rank < chosen[stem][0]:
+                chosen[stem] = (rank, full)
+        found.extend(full for _rank, full in sorted(
+            chosen.values(), key=lambda item: os.path.basename(item[1])))
+    return list(dict.fromkeys(os.path.abspath(p) for p in found))
+
+
+def module_for_snapshot(path: Any, default: str = "mask") -> str:
+    """The module a settings snapshot belongs to, read from its file name.
+
+    :param path: the snapshot path, for example ``gen_mask_settings.json``.
+    :param default: the answer when no module name is in the file name.
+    :returns: a module key such as ``"mask"`` or ``"measure"``.
+    """
+    stem = os.path.splitext(os.path.basename(str(path)))[0].lower()
+    for token, module in _SNAPSHOT_MODULES:
+        if token in stem:
+            return module
+    return default
+
+
+def _ports_of(module: str):
+    """The declared ports of ``module``, or None when it declares none."""
+    from . import ports as _ports
+
+    try:
+        return _ports.module_ports(module)
+    except _ports.UnknownModule:
+        return None
+
+
+def _upstream_port(module: str, earlier: Sequence[str]):
+    """The nearest earlier module whose output ``module`` reads, and the port.
+
+    :param module: the consuming module.
+    :param earlier: the modules that run before it, in run order.
+    :returns: ``(upstream module, consumed port)`` or ``(None, None)``.
+    """
+    spec = _ports_of(module)
+    if spec is None:
+        return None, None
+    for upstream in reversed(list(earlier)):
+        produced = _ports_of(upstream)
+        if produced is None:
+            continue
+        kinds = {port.kind for port in produced.produces}
+        for port in spec.consumes:
+            if port.kind in kinds:
+                return upstream, port
+    return None, None
+
+
+def _run_order(modules: Sequence[str]) -> List[str]:
+    """``modules`` with every producer before the modules that read its output.
+
+    :param modules: module keys in the order their snapshots were found.
+    """
+    remaining = list(modules)
+    ordered: List[str] = []
+    while remaining:
+        for module in remaining:
+            others = [m for m in remaining if m != module]
+            upstream, _port = _upstream_port(module, others)
+            if upstream is None:
+                break
+        else:
+            module = remaining[0]
+        ordered.append(module)
+        remaining.remove(module)
+    return ordered
+
+
+def read_template_run(path: Any) -> TemplateRun:
+    """Read every module settings snapshot a finished run recorded.
+
+    :param path: the run folder, or its ``settings/`` folder.
+    :returns: the template, its modules in run order.
+    :raises TemplateError: when the folder holds no readable module snapshot.
+    """
+    root = os.path.abspath(os.path.expanduser(str(path)))
+    if os.path.basename(os.path.normpath(root)) == "settings":
+        root = os.path.dirname(os.path.normpath(root))
+    if not os.path.isdir(root):
+        raise TemplateError(_tr("{folder} is not a folder.", folder=root))
+    template = TemplateRun(root=root)
+    found: Dict[str, Tuple[str, Dict[str, Any]]] = {}
+    for snapshot in snapshot_files(root):
+        module = module_for_snapshot(snapshot, default="")
+        if not module or resolve_module(module) is None or module in found:
+            continue
+        try:
+            values = load_settings_file(snapshot)
+        except SettingsError:
+            template.skipped.append(os.path.basename(snapshot))
+            continue
+        found[module] = (snapshot, {k: v for k, v in values.items()
+                                    if not str(k).startswith("_")})
+    if not found:
+        raise TemplateError(_tr(
+            "No module settings were found in {path}. A finished run keeps "
+            "them in its settings folder, for example "
+            "settings/gen_mask_settings.json.", path=os.path.join(root, "settings")))
+    for module in _run_order(list(found)):
+        snapshot, values = found[module]
+        template.files[module] = snapshot
+        template.settings[module] = values
+    return template
+
+
+def _rebased(value: Any, old_root: str, new_root: str) -> Any:
+    """``value`` with every path inside ``old_root`` moved under ``new_root``."""
+    if isinstance(value, str) and os.path.isabs(value) and _within(value, old_root):
+        relative = os.path.relpath(os.path.normpath(value), os.path.normpath(old_root))
+        return new_root if relative == "." else os.path.join(new_root, relative)
+    if isinstance(value, list):
+        return [_rebased(item, old_root, new_root) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_rebased(item, old_root, new_root) for item in value)
+    return value
+
+
+def template_job_settings(template: TemplateRun, module: str, folder: Any) -> Dict[str, Any]:
+    """The settings of ``module`` for a new folder, from the template.
+
+    The template settings, with the source folder set to ``folder`` and every
+    path that lay inside the template run moved to the same place in
+    ``folder``. Nothing else changes.
+
+    :param template: the imported template.
+    :param module: one of ``template.modules``.
+    :param folder: the new source folder.
+    :returns: a new settings dict.
+    """
+    from .chaining import source_key
+
+    new_root = os.path.abspath(os.path.expanduser(str(folder)))
+    values = {key: _rebased(deepcopy(value), template.root, new_root)
+              for key, value in template.settings[module].items()}
+    key = source_key(module)
+    values[key] = [new_root] if isinstance(values.get(key), list) else new_root
+    return values
+
+
+def chained_input(template: TemplateRun, module: str,
+                  upstream_settings: Mapping[str, Any]) -> Tuple[str, str, Any]:
+    """The input ``module`` reads from an earlier job of the same folder.
+
+    The binding comes from :func:`spacr.chaining.binding_for`, the same table
+    the module screens chain through: the setting the consumed port fills, and
+    whether it takes the project root or the output path itself.
+
+    :param template: the imported template.
+    :param module: the consuming module.
+    :param upstream_settings: the settings of the earlier job.
+    :returns: ``(upstream module, setting, value)``, or ``("", "", None)``
+        when no earlier template module produces what ``module`` reads.
+    """
+    from . import ports as _ports
+    from .chaining import PATH, binding_for
+
+    earlier = template.modules[:template.modules.index(module)]
+    upstream, port = _upstream_port(module, earlier)
+    if upstream is None:
+        return "", "", None
+    binding = binding_for(module, port)
+    root = _ports.project_root(dict(upstream_settings), upstream)
+    value: Any = root
+    if binding.form == PATH:
+        produced = _ports_of(upstream)
+        match = next(p for p in produced.produces if p.kind == port.kind)
+        value = _ports.resolve_port(match, root).target
+    return upstream, binding.setting, value
+
+
+def _tr(text: str, **values: Any) -> str:
+    """Translate one sentence of this module through the GUI catalog."""
+    from .qt.i18n import tr
+
+    return tr(text, **values)
+
+
+def _image_header(path: str) -> Tuple[Optional[Tuple[int, ...]], str]:
+    """``(shape, dtype)`` of one raw image from its header, no pixels read.
+
+    :returns: the shape with single axes dropped, and the dtype name, which
+        is ``""`` when the format does not say it without reading pixels.
+    """
+    if path.lower().endswith((".tif", ".tiff", ".npy")):
+        try:
+            from .align import _read_header
+
+            shape, dtype = _read_header(path)
+            return tuple(n for n in shape if n != 1) or (1,), str(dtype)
+        except Exception:
+            return None, ""
+    from .channel_sorting import image_shape
+
+    return image_shape(path), ""
+
+
+def _reads_raw_images(module: str) -> bool:
+    """True when ``module`` reads raw microscope images."""
+    from .ports import RAW_IMAGES
+
+    spec = _ports_of(module)
+    return spec is not None and any(p.kind == RAW_IMAGES for p in spec.consumes)
+
+
+def _pattern_for(settings: Mapping[str, Any]) -> Tuple[str, List[str]]:
+    """The template file-name pattern: its name and the regexes it stands for."""
+    from .validate import _candidate_patterns
+
+    candidates = _candidate_patterns(dict(settings))
+    if not candidates:
+        return "", []
+    label = candidates[0][0]
+    if label.startswith("custom_regex"):
+        return "custom_regex", [p for name, p in candidates
+                                if name.startswith("custom_regex")]
+    return label, [candidates[0][1]]
+
+
+def _best_parse(names: Sequence[str], patterns: Sequence[str]):
+    """The parse of ``names`` by whichever of ``patterns`` reads the most."""
+    from .validate import _parse_raw_names
+
+    best = None
+    for pattern in patterns:
+        parsed = _parse_raw_names(names, pattern)
+        if parsed is not None and (best is None or parsed.hits > best.hits):
+            best = parsed
+    return best
+
+
+def _listing(values: Sequence[str]) -> str:
+    """``values`` as one short comma-separated phrase."""
+    return ", ".join(str(v) for v in values) if values else "-"
+
+
+def _raw_mismatches(template: TemplateRun, module: str, folder: str) -> List[str]:
+    """Differences between the raw images of ``folder`` and of the template."""
+    from .validate import _raw_image_names
+
+    settings = template.settings[module]
+    label, patterns = _pattern_for(settings)
+    directory, names = _raw_image_names(folder)
+    if not names:
+        return [_tr("No image files were found in {folder}, its orig folder or "
+                    "its consolidated folder.", folder=folder)]
+    problems: List[str] = []
+    new = _best_parse(names, patterns)
+    unread = [n for n in names if new is None or n not in new.matched]
+    if unread:
+        problems.append(_tr(
+            "{count} of {total} image files do not follow the file-name pattern "
+            "of the template ({pattern}), for example {name}.",
+            count=len(unread), total=len(names), pattern=label or "?",
+            name=sorted(unread)[0]))
+    if new is None or not new.hits:
+        return problems
+    _old_dir, old_names = _raw_image_names(template.root)
+    old = _best_parse(old_names, patterns) if old_names else None
+    if old is None or not old.hits:
+        return problems
+    if old.channels != new.channels:
+        problems.append(_tr(
+            "The channels differ: the template has {template}, this folder has "
+            "{folder}.", template=_listing(old.channels), folder=_listing(new.channels)))
+    if old.planes != new.planes:
+        problems.append(_tr(
+            "The z planes differ: the template has {template}, this folder has "
+            "{folder}.", template=len(old.planes) or 1, folder=len(new.planes) or 1))
+    old_shape, old_dtype = _image_header(
+        os.path.join(_old_dir, sorted(old.matched)[0]))
+    new_shape, new_dtype = _image_header(
+        os.path.join(directory, sorted(new.matched)[0]))
+    if old_shape and new_shape and old_shape != new_shape:
+        problems.append(_tr(
+            "The image size differs: the template images are {template} pixels, "
+            "these are {folder}.", template=" x ".join(map(str, old_shape)),
+            folder=" x ".join(map(str, new_shape))))
+    if old_dtype and new_dtype and old_dtype != new_dtype:
+        problems.append(_tr(
+            "The pixel type differs: the template images are {template}, these "
+            "are {folder}.", template=old_dtype, folder=new_dtype))
+    return problems
+
+
+def check_template_folder(template: TemplateRun, folder: Any) -> List[str]:
+    """Every way a new folder differs from what the template assumes.
+
+    :param template: the imported template.
+    :param folder: the new source folder.
+    :returns: one plain sentence per difference; empty when the folder can
+        become jobs.
+    """
+    path = os.path.abspath(os.path.expanduser(str(folder)))
+    if not os.path.isdir(path):
+        return [_tr("{folder} is not a folder.", folder=path)]
+    if os.path.normpath(path) == os.path.normpath(template.root):
+        return [_tr("{folder} is the template run itself.", folder=path)]
+    first = template.modules[0]
+    problems: List[str] = []
+    if _reads_raw_images(first):
+        problems.extend(_raw_mismatches(template, first, path))
+        if problems:
+            return problems
+    try:
+        settings = resolve_job_settings(Job(
+            module=first, settings=template_job_settings(template, first, path)))
+    except SettingsError as exc:
+        return [str(exc).splitlines()[0]]
+    module = resolve_module(first)
+    key = module.validate_key if module is not None else first
+    for found in validate_settings(dict(settings), key):
+        if found.severity == ERROR:
+            problems.append(str(found.message).splitlines()[0])
+    return problems
+
+
+def _write_template_job_settings(path: str, settings: Mapping[str, Any]) -> None:
+    """Write one job settings file atomically, as indented JSON."""
+    from .batch import _atomic_write
+
+    _atomic_write(path, json.dumps(dict(settings), indent=2, default=str) + "\n")
+
+
+def template_job_folder() -> str:
+    """Where the settings files of template jobs are kept."""
+    from .logging_util import _spacr_home
+
+    return str(_spacr_home() / "batch" / "template_jobs")
+
+
+def add_template_jobs(queue, template: TemplateRun, folder: Any,
+                    directory: Optional[str] = None) -> List[Any]:
+    """Add one job per template module for a new folder, chained in order.
+
+    Nothing is added when the folder does not match the template, and a
+    folder whose jobs cannot all be added leaves the queue as it was.
+
+    :param queue: the :class:`spacr.batch.Queue` to add to.
+    :param template: the imported template.
+    :param folder: the new source folder.
+    :param directory: where the job settings files go; :func:`template_job_folder`
+        when None.
+    :returns: the added :class:`spacr.batch.Job` objects, in run order.
+    :raises TemplateError: listing every mismatch, or why a job could not be
+        added.
+    """
+    problems = check_template_folder(template, folder)
+    if problems:
+        raise TemplateError("\n".join(problems))
+    path = os.path.abspath(os.path.expanduser(str(folder)))
+    target = directory or template_job_folder()
+    name = os.path.basename(os.path.normpath(path)) or "plate"
+    tag = uuid.uuid4().hex[:6]
+    added: List[Any] = []
+    written: Dict[str, Tuple[Any, Dict[str, Any]]] = {}
+    files: List[str] = []
+    try:
+        for index, module in enumerate(template.modules):
+            settings = template_job_settings(template, module, path)
+            depends: List[str] = []
+            upstream, _port = _upstream_port(module, template.modules[:index])
+            if upstream in written:
+                _module, setting, value = chained_input(
+                    template, module, written[upstream][1])
+                settings[setting] = ([value] if isinstance(settings.get(setting), list)
+                                     else value)
+                depends.append(written[upstream][0].id)
+            settings_path = os.path.join(target, f"{name}_{module}_{tag}.json")
+            _write_template_job_settings(settings_path, settings)
+            files.append(settings_path)
+            job = Job(module=module, settings=settings_path,
+                      label=f"{module} {name}", depends_on=depends)
+            queue.add(job)
+            added.append(job)
+            written[module] = (job, settings)
+    except QueueError as exc:
+        for job in added:
+            queue.remove(job.id)
+        for written_file in files:
+            try:
+                os.remove(written_file)
+            except OSError:
+                pass
+        raise TemplateError(str(exc)) from exc
+    return added
+
+
+def save_job_settings(job, values: Mapping[str, Any]) -> bool:
+    """Merge ``values`` into a template job settings file, on disk at once.
+
+    :param job: a :class:`spacr.batch.Job` whose settings is a file.
+    :param values: the settings to write over the stored ones.
+    :returns: True when the file changed.
+    """
+    path = job.settings_path
+    if not path:
+        return False
+    stored = load_settings_file(path)
+    changed = {k: v for k, v in values.items() if stored.get(k, object()) != v}
+    if not changed:
+        return False
+    stored.update(changed)
+    _write_template_job_settings(path, stored)
+    return True
+
+
+def read_job_settings(job) -> Dict[str, Any]:
+    """The settings stored for a template job.
+
+    :param job: a :class:`spacr.batch.Job` whose settings is a file.
+    """
+    return dict(load_settings_file(job.settings_path))
+
+
+def is_template_job(job, directory: Optional[str] = None) -> bool:
+    """True when ``job`` keeps its settings in the template job folder.
+
+    :param job: a :class:`spacr.batch.Job`.
+    :param directory: the template job folder; :func:`template_job_folder` when None.
+    """
+    path = job.settings_path
+    return bool(path) and _within(os.path.abspath(path), directory or template_job_folder())

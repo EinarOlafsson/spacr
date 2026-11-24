@@ -40,12 +40,16 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
     QFileDialog,
+    QFrame,
     QHBoxLayout,
     QHeaderView,
     QLabel,
     QLineEdit,
+    QListWidget,
+    QListWidgetItem,
     QPlainTextEdit,
     QPushButton,
+    QSizePolicy,
     QSpinBox,
     QTableWidget,
     QVBoxLayout,
@@ -55,6 +59,7 @@ from PySide6.QtWidgets import (
 from ... import batch as bt
 from ...cli import MODULES
 from ..bridge import make_thread
+from ..i18n import tr
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
@@ -163,6 +168,8 @@ class BatchScreen(QWidget):
         self._stop_requested = False
         self._result: Optional[bt.QueueResult] = None
         self._problems: List[bt.Problem] = []
+        self._template: Optional[bt.TemplateRun] = None
+        self._template_job_dir: str = ""
         self._jobs: List[tuple] = []
         self._close_drain = _CloseDrain(self)
         self.installEventFilter(self._close_drain)
@@ -179,6 +186,9 @@ class BatchScreen(QWidget):
         from ..dnd import install_dropzone
         from ..dnd_handlers import get_handler
         install_dropzone(self, get_handler("batch"), self)
+        from ..dnd_handlers import _TemplateJobsDropHandler, _TemplateRunDropHandler
+        install_dropzone(self._template_card, _TemplateRunDropHandler(), self)
+        install_dropzone(self._jobs_card, _TemplateJobsDropHandler(), self)
         self._refresh_table()
         self._update_controls()
         self._set_status("Add a job: pick a module and the settings file you "
@@ -216,6 +226,7 @@ class BatchScreen(QWidget):
         outer.addWidget(subtitle)
 
         outer.addWidget(Divider())
+        self._build_template_ui(outer)
 
         edit = QHBoxLayout()
         edit.setSpacing(SPACING["sm"])
@@ -365,6 +376,220 @@ class BatchScreen(QWidget):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
+
+    def _build_template_ui(self, outer) -> None:
+        """Lay out the template run section and the jobs section, side by side."""
+        from ..widgets import Card
+
+        row = QHBoxLayout()
+        row.setSpacing(SPACING["md"])
+
+        self._template_card = Card(
+            tr("Template run"),
+            tr("Import a finished run, or drop its folder here. Its module "
+               "settings become the settings of every new job."), self)
+        self._template_card.setObjectName("BatchTemplateSection")
+        template_row = QHBoxLayout()
+        template_row.setSpacing(SPACING["sm"])
+        self._btn_template = QPushButton(tr("Import template run…"), self)
+        self._btn_template.setToolTip(tr(
+            "Choose a finished run folder. Every module settings file in its "
+            "settings folder is read."))
+        self._btn_template.clicked.connect(self._pick_template_run)
+        template_row.addWidget(self._btn_template, 0, Qt.AlignTop)
+        self._template_label = QLabel(tr("No template run imported."), self)
+        self._template_label.setObjectName("Muted")
+        self._template_label.setWordWrap(True)
+        template_row.addWidget(self._template_label, 1)
+        self._template_card.body_layout.addLayout(template_row)
+        self._template_card.body_layout.addStretch(1)
+        row.addWidget(self._template_card, 1, Qt.AlignTop)
+        self._template_card.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+
+        self._jobs_card = Card(
+            tr("Jobs"),
+            tr("Add new image folders, or drop them here. A folder that matches "
+               "the template becomes one job per module. Click a job to edit it; "
+               "every change is saved to the job."),
+            self)
+        self._jobs_card.setObjectName("BatchJobsSection")
+        jobs_row = QHBoxLayout()
+        jobs_row.setSpacing(SPACING["sm"])
+        self._btn_jobs = QPushButton(tr("Jobs…"), self)
+        self._btn_jobs.setToolTip(tr(
+            "Choose a new image folder. It becomes one job per module of the "
+            "template, once it matches the template."))
+        self._btn_jobs.clicked.connect(self._pick_job_folder)
+        jobs_row.addWidget(self._btn_jobs, 0, Qt.AlignTop)
+        self._template_jobs = QListWidget(self)
+        self._template_jobs.setObjectName("BatchTemplateJobs")
+        self._template_jobs.setMinimumHeight(48)
+        self._template_jobs.setMaximumHeight(96)
+        self._template_jobs.itemClicked.connect(self._on_template_job_clicked)
+        jobs_row.addWidget(self._template_jobs, 1)
+        self._jobs_card.body_layout.addLayout(jobs_row)
+        row.addWidget(self._jobs_card, 1, Qt.AlignTop)
+        self._jobs_card.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        outer.addLayout(row)
+
+    def _pick_template_run(self) -> None:
+        """Ask for a finished run folder and import it as the template."""
+        path = QFileDialog.getExistingDirectory(
+            self, tr("Choose a finished run folder"), "")
+        if path:
+            self._import_template(path)
+
+    def _pick_job_folder(self) -> None:
+        """Ask for a new image folder and add it as jobs."""
+        path = QFileDialog.getExistingDirectory(
+            self, tr("Choose a new image folder"), "")
+        if path:
+            self._add_template_folders([path])
+
+    def _import_template(self, path: str) -> bool:
+        """Read every module settings snapshot of a finished run as the template.
+
+        :param path: the finished run folder, or its settings folder.
+        :returns: True when the template was imported.
+        """
+        try:
+            template = bt.read_template_run(path)
+        except bt.TemplateError as exc:
+            self._set_status(str(exc), error=True)
+            return False
+        self._template = template
+        names = ", ".join(m.capitalize() for m in template.modules)
+        text = tr("{folder}: {modules}.", folder=template.root, modules=names)
+        if template.skipped:
+            text += " " + tr("Not read: {names}.", names=", ".join(template.skipped))
+        self._template_label.setText(text)
+        self._template_label.setToolTip("\n".join(
+            f"{m}: {template.files[m]}" for m in template.modules))
+        self._set_status(tr(
+            "Imported the template run {folder} with {count} module(s). Add new "
+            "image folders as jobs.", folder=os.path.basename(template.root),
+            count=len(template.modules)))
+        self._update_controls()
+        return True
+
+    def _add_template_folders(self, paths: Sequence[str]) -> int:
+        """Add each folder as one job per template module, if it matches.
+
+        :param paths: the new image folders.
+        :returns: how many folders became jobs.
+        """
+        if self._template is None:
+            self._set_status(tr(
+                "Import a template run first; new folders are checked against it."),
+                error=True)
+            return 0
+        if self._busy:
+            self._set_status(tr("The queue is running; add jobs after it stops."),
+                             error=True)
+            return 0
+        added = 0
+        refused: List[str] = []
+        for path in paths:
+            try:
+                jobs = bt.add_template_jobs(self._queue, self._template, path,
+                                           directory=self._template_job_dir or None)
+            except bt.TemplateError as exc:
+                refused.append(tr("{folder} was not added:", folder=path) + "\n"
+                               + "\n".join(f"  - {line}" for line in str(exc).splitlines()))
+                continue
+            added += 1
+            for job in jobs:
+                self.job_status_changed.emit(job.id, job.status)
+        self._refresh_table()
+        self._update_controls()
+        self.queue_changed.emit(len(self._queue))
+        if refused:
+            self._show_problems_text("\n\n".join(refused))
+            self._set_status(tr(
+                "{added} of {total} folder(s) added as jobs; the others do not "
+                "match the template, see the problems above.",
+                added=added, total=len(paths)), error=True)
+        else:
+            self.validate_now(quiet=True)
+            self._set_status(tr("{added} folder(s) added as jobs.", added=added))
+        return added
+
+    def _template_job_list(self) -> List[bt.Job]:
+        """The queued jobs that keep their settings as template jobs."""
+        directory = self._template_job_dir or None
+        return [job for job in self._queue.jobs
+                if bt.is_template_job(job, directory)]
+
+    def _refresh_template_jobs(self) -> None:
+        """Rebuild the jobs list from the queue."""
+        self._template_jobs.clear()
+        for job in self._template_job_list():
+            text = f"{job.id}:  {job.label}"
+            if job.depends_on:
+                text += "  " + tr("(after {jobs})", jobs=", ".join(job.depends_on))
+            item = QListWidgetItem(text)
+            item.setData(Qt.UserRole, job.id)
+            item.setToolTip(job.settings_path)
+            self._template_jobs.addItem(item)
+
+    def _on_template_job_clicked(self, item) -> None:
+        """Open the clicked job on its module screen."""
+        self._open_job_editor(str(item.data(Qt.UserRole) or ""))
+
+    def _open_job_editor(self, job_id: str):
+        """Open a job on its module screen, loaded with the job settings.
+
+        Every change made there is saved to the job settings file as it is
+        made, until another job is opened or editing is stopped.
+
+        :param job_id: the job.
+        :returns: the module screen, or None when it could not be opened.
+        """
+        job = self._queue.find(job_id)
+        if job is None or not job.settings_path:
+            self._set_status(tr("That job has no settings file to edit."), error=True)
+            return None
+        window = self.window()
+        open_module = getattr(window, "open_module", None)
+        screens = getattr(window, "_screens", None)
+        if not callable(open_module) or screens is None:
+            self._set_status(tr(
+                "A job is edited on its module screen, which needs the main "
+                "spaCR window."), error=True)
+            return None
+        try:
+            settings = bt.read_job_settings(job)
+        except Exception as exc:
+            self._set_status(tr("Could not read the job settings: {error}",
+                                error=str(exc).splitlines()[0]), error=True)
+            return None
+        previous = getattr(window, "_batch_job_editor", None)
+        if previous is not None:
+            previous.stop()
+        target = open_module(job.module)
+        screen = screens.get(target)
+        if screen is None or not hasattr(screen, "apply_settings_dict"):
+            self._set_status(tr("The {module} screen could not be opened.",
+                                module=job.module), error=True)
+            return None
+        screen.apply_settings_dict(settings)
+        screen = screens.get(target, screen)
+        editor = _JobEditor(self, job.id, str(getattr(screen, "app_key", target)))
+        window._batch_job_editor = editor
+        editor.show_on(screen)
+        return screen
+
+    def _job_edited(self, job_id: str) -> None:
+        """Refresh after a job settings file changed on its module screen.
+
+        :param job_id: the job that changed.
+        """
+        job = self._queue.find(job_id)
+        if job is None:
+            return
+        self._refresh_table()
+        self.validate_now(quiet=True)
+        self._set_status(tr("Saved a change to {job}.", job=job_id))
 
     def queue(self) -> bt.Queue:
         """The live :class:`spacr.batch.Queue` this screen is editing."""
@@ -880,6 +1105,8 @@ class BatchScreen(QWidget):
         user picked.
         """
         jobs = self._queue.jobs
+        if not self._busy:
+            self._progress.setRange(0, max(1, len(jobs)))
         spare = _spare_items(self._table)
         for row in range(len(jobs), self._table.rowCount()):
             for col in range(self._table.columnCount()):
@@ -926,6 +1153,7 @@ class BatchScreen(QWidget):
                     item.setData(Qt.UserRole, job.id)
                 if fresh:
                     self._table.setItem(row, col, item)
+        self._refresh_template_jobs()
 
     def _refresh_running_row(self) -> None:
         """Tick the elapsed cell of the running job, and only that cell."""
@@ -1061,6 +1289,8 @@ class BatchScreen(QWidget):
         self._btn_save.setEnabled(has_jobs)
         self._btn_run.setEnabled(has_jobs and not self._busy and not self.has_errors())
         self._btn_stop.setEnabled(self._busy)
+        self._btn_template.setEnabled(not self._busy)
+        self._btn_jobs.setEnabled(self._template is not None and not self._busy)
 
 
 def _split_list(text: str) -> List[str]:
@@ -1073,3 +1303,144 @@ def _brush(colour: str):
     from PySide6.QtGui import QBrush, QColor
 
     return QBrush(QColor(colour))
+
+
+class _JobEditor:
+    """Saves the edits made on one module screen to one Batch Runner job.
+
+    Held by the main window as ``_batch_job_editor``; the module screen calls
+    :meth:`setting_committed` for every completed edit, so a change is on
+    disk as soon as it is made.
+
+    :param batch: the Batch Runner that owns the job.
+    :param job_id: the job being edited.
+    :param app_key: the module screen it is edited on.
+    """
+
+    def __init__(self, batch: "BatchScreen", job_id: str, app_key: str):
+        """Remember which job and which screen belong together."""
+        self.batch = batch
+        self.job_id = job_id
+        self.app_key = app_key
+
+    def job(self) -> Optional[bt.Job]:
+        """The job, or None when it has left the queue."""
+        try:
+            return self.batch.queue().find(self.job_id)
+        except RuntimeError:
+            return None
+
+    def setting_committed(self, screen, key: Optional[str]) -> bool:
+        """Save one completed edit on ``screen`` to the job.
+
+        :param screen: the module screen the edit was made on.
+        :param key: the setting that changed, or None for the whole form.
+        :returns: True when the job settings file changed.
+        """
+        if str(getattr(screen, "app_key", "")) != self.app_key:
+            return False
+        job = self.job()
+        model = getattr(screen, "_settings_model", None)
+        if job is None or model is None:
+            return False
+        self.show_on(screen)
+        try:
+            if key:
+                values = {key: model._valid_committed_value(key)}
+            else:
+                values = dict(model.collect())
+        except (TypeError, ValueError, RuntimeError):
+            return False
+        try:
+            changed = bt.save_job_settings(job, values)
+        except Exception as exc:
+            self.batch._set_status(tr("Could not save the change to {job}: {error}",
+                                      job=self.job_id, error=exc), error=True)
+            return False
+        if changed:
+            self.batch._job_edited(self.job_id)
+        return changed
+
+    def show_on(self, screen) -> None:
+        """Put the editing strip under the module heading of ``screen``, once."""
+        if getattr(screen, "_batch_job_bar", None) is not None:
+            screen._batch_job_bar.set_editor(self)
+            return
+        layout = screen.layout()
+        header = getattr(screen, "_header", None)
+        if layout is None:
+            return
+        index = layout.indexOf(header) if header is not None else -1
+        bar = _JobEditingBar(self, screen)
+        layout.insertWidget(index + 1 if index >= 0 else 0, bar)
+        screen._batch_job_bar = bar
+
+    def stop(self) -> None:
+        """Stop saving edits to the job and remove the strip."""
+        window = self.batch.window()
+        if getattr(window, "_batch_job_editor", None) is self:
+            window._batch_job_editor = None
+        screens = getattr(window, "_screens", {}) or {}
+        screen = screens.get(self.app_key)
+        bar = getattr(screen, "_batch_job_bar", None) if screen is not None else None
+        if bar is not None:
+            screen._batch_job_bar = None
+            bar.hide()
+            bar.deleteLater()
+
+
+class _JobEditingBar(QFrame):
+    """The strip on a module screen that says its edits go to a queued job.
+
+    :param editor: the job editor.
+    :param parent: the module screen.
+    """
+
+    def __init__(self, editor: _JobEditor, parent=None):
+        """Build the sentence and the two buttons."""
+        super().__init__(parent)
+        self.setObjectName("BatchJobEditingBar")
+        self._editor = editor
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(SPACING["sm"], SPACING["xs"],
+                                  SPACING["sm"], SPACING["xs"])
+        layout.setSpacing(SPACING["sm"])
+        self._label = QLabel(self)
+        self._label.setWordWrap(True)
+        layout.addWidget(self._label, 1)
+        back = QPushButton(tr("Back to the Batch Runner"), self)
+        back.clicked.connect(self._back)
+        layout.addWidget(back)
+        done = QPushButton(tr("Stop editing the job"), self)
+        done.setToolTip(tr("Changes on this screen are no longer saved to the job."))
+        done.clicked.connect(self._stop)
+        layout.addWidget(done)
+        palette = active_palette()
+        self.setStyleSheet(
+            f"#BatchJobEditingBar {{ border: 1px solid {palette['info']}; "
+            f"border-radius: 6px; }}")
+        self.set_editor(editor)
+
+    def set_editor(self, editor: _JobEditor) -> None:
+        """Show which job the edits on this screen are saved to."""
+        self._editor = editor
+        job = editor.job()
+        label = job.label if job is not None else editor.job_id
+        self._label.setText(tr(
+            "Editing the Batch Runner job {job} ({label}). Every change is saved "
+            "to the job.", job=editor.job_id, label=label))
+
+    def text(self) -> str:
+        """The sentence the strip shows."""
+        return self._label.text()
+
+    def _back(self) -> None:
+        """Go back to the Batch Runner."""
+        window = self.window()
+        opener = getattr(window, "open_module", None)
+        if callable(opener):
+            opener("batch")
+
+    def _stop(self) -> None:
+        """Stop saving edits to the job."""
+        self._editor.stop()
