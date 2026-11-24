@@ -67,7 +67,7 @@ def test_a_failed_transaction_keeps_the_verdict_batch_under_its_column(
     def _locked(_conn):
         raise sqlite3.OperationalError("database is locked")
 
-    monkeypatch.setattr(engine, "transaction", _locked)
+    monkeypatch.setattr("spacr.database_concurrency.transaction", _locked)
     worker = SaveWorker(db, "annotate")
     worker.start()
     try:

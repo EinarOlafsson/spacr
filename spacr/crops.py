@@ -2323,28 +2323,17 @@ def stamp_crop_format_in_db(db_path: str, png_paths: Optional[Iterable[str]] = N
         raise CropError(f"unknown crop format {fmt!r}")
     if not db_path or not os.path.isfile(db_path):
         return 0
-    conn = sqlite3.connect(db_path, timeout=30)
-    try:
-        cols = {row[1] for row in conn.execute(
-            f'PRAGMA table_info("{table}")').fetchall()}
-        if not cols:
-            return 0
-        if CROP_FORMAT_DB_COLUMN not in cols:
-            conn.execute(
-                f'ALTER TABLE "{table}" ADD COLUMN "{CROP_FORMAT_DB_COLUMN}" INTEGER')
-        if png_paths is None:
-            cur = conn.execute(
-                f'UPDATE "{table}" SET "{CROP_FORMAT_DB_COLUMN}" = ?', (int(fmt),))
-            n = cur.rowcount
-        else:
-            paths = [(int(fmt), str(p)) for p in png_paths]
-            cur = conn.executemany(
-                f'UPDATE "{table}" SET "{CROP_FORMAT_DB_COLUMN}" = ? '
-                f'WHERE png_path = ?', paths)
-            n = cur.rowcount
-        conn.commit()
-    finally:
-        conn.close()
+    from . import store
+
+    store.ensure_columns(db_path, table, {CROP_FORMAT_DB_COLUMN: "INTEGER"})
+    if png_paths is None:
+        rows = [{"value": int(fmt)}]
+    else:
+        rows = [{"key": str(p), "value": int(fmt)} for p in png_paths]
+    n = store.edit(db_path, rows, kind="crop_format", source="crops",
+                   table=table, column=CROP_FORMAT_DB_COLUMN,
+                   key_column="png_path", every_row=png_paths is None,
+                   types={CROP_FORMAT_DB_COLUMN: "INTEGER"})
     _DB_FORMAT_CACHE.pop(os.path.abspath(db_path), None)
     return int(n or 0)
 

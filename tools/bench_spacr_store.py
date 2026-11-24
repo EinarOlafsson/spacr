@@ -408,7 +408,8 @@ def write_edits(project, labels, kind="annotation"):
         n = len(rows)
         tab = pa.table({
             "table": pa.array(["cell"] * n), "object_key": pa.array([k for k, _ in rows], pa.int64()),
-            "timeID": pa.array(np.zeros(n, np.int64)), "column": pa.array(["annotation"] * n),
+            "timeID": pa.array(np.zeros(n, np.int64)), "key": pa.nulls(n, pa.string()),
+            "column": pa.array(["annotation"] * n),
             "value_num": pa.array([float(v) for _, v in rows]), "value_text": pa.nulls(n, pa.string()),
             "op": pa.array(["set"] * n), "seq_ns": pa.array(np.arange(seq0, seq0 + n, dtype=np.int64)),
             "seq_writer": pa.array(np.full(n, writer, np.int32)),

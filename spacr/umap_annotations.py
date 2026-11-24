@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import os
-import sqlite3
 from collections import defaultdict
 from typing import Iterable, Mapping, Sequence, Tuple
 
@@ -60,24 +59,15 @@ def write_umap_annotations(
             continue
         grouped[db_path].append((int(value), png_path))
 
+    from . import store
+
+    name = quoted[1:-1].replace('""', '"')
     updated = 0
     for db_path, pairs in grouped.items():
-        with sqlite3.connect(db_path, timeout=30) as connection:
-            present = {
-                row[1] for row in
-                connection.execute('PRAGMA table_info("png_list")')}
-            if not present:
-                skipped += len(pairs)
-                continue
-            if column not in present:
-                connection.execute(
-                    f'ALTER TABLE "png_list" ADD COLUMN {quoted} INTEGER')
-            before = connection.total_changes
-            connection.executemany(
-                f'UPDATE "png_list" SET {quoted} = ? WHERE png_path = ?',
-                pairs,
-            )
-            changed = connection.total_changes - before
-            updated += changed
-            skipped += max(0, len(pairs) - changed)
+        changed = store.edit(
+            db_path, [{"key": path, "value": value} for value, path in pairs],
+            kind="umap_lasso", source="umap", table="png_list", column=name,
+            key_column="png_path", types={name: "INTEGER"}, timeout=30)
+        updated += changed
+        skipped += max(0, len(pairs) - changed)
     return updated, skipped

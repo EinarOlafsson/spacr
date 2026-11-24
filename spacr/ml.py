@@ -10182,7 +10182,7 @@ def export_annotation_sample(settings) -> pd.DataFrame:
     """
     import os
 
-    from .database_concurrency import connect as connect_database
+    from . import store
 
     src = settings['src'][0] if isinstance(settings['src'], (list, tuple)) else settings['src']
     db = os.path.join(src, 'measurements', 'measurements.db')
@@ -10199,19 +10199,14 @@ def export_annotation_sample(settings) -> pd.DataFrame:
                                strata=settings.get('annotate_sample_strata'))
     sample['annotate_sample'] = np.arange(1, len(sample) + 1)
     label_column = settings.get('ml_label_column') or 'annotate'
-    connection = connect_database(db)
-    try:
-        present = {row[1] for row in connection.execute('PRAGMA table_info(png_list)')}
-        for column in ('annotate_sample', label_column):
-            if column not in present:
-                connection.execute(f'ALTER TABLE png_list ADD COLUMN "{column}" INTEGER')
-        connection.execute('UPDATE png_list SET annotate_sample = NULL')
-        connection.executemany('UPDATE png_list SET annotate_sample = ? WHERE png_path = ?',
-                               [(int(o), str(p)) for o, p in
-                                zip(sample['annotate_sample'], sample['png_path'])])
-        connection.commit()
-    finally:
-        connection.close()
+    store.ensure_columns(db, 'png_list', dict.fromkeys(
+        ('annotate_sample', label_column), 'INTEGER'))
+    store.edit(db, [{'value': None}] + [
+        {'key': str(p), 'value': int(o)}
+        for o, p in zip(sample['annotate_sample'], sample['png_path'])],
+        kind='annotation_sample', source='ml', table='png_list',
+        column='annotate_sample', key_column='png_path', every_row=True,
+        types={'annotate_sample': 'INTEGER'})
     print(f'{len(sample)} objects marked in png_list.annotate_sample of {db}')
     return sample
 
