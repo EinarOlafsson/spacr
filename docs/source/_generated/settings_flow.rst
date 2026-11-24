@@ -8781,7 +8781,7 @@ Read by ``run_embedding_profiles``.
 crop_image_format
 -----------------
 
-(str) - The format Measure writes object crops in. 'ome-zarr' keeps each object's bounding box plus crop_margin_px at full bit depth, with every channel, every object class's labels cut to the same box and the object's ID: in crop.ome.zarr when save_png is on, streamed from fov.ome.zarr when it is off. The crop index is the spacr store table crop_index (mirrored to measurements.db table ssCell_Crops for Annotate). Intensities are not stretched. 'png' writes the legacy PNG folders. External Masks starts at 'png', because its import lists its crops in png_list. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.
+(str) - The format Measure writes object crops in. 'ome-zarr' keeps each object's bounding box plus crop_margin_px at full bit depth, with every channel, every object class's labels cut to the same box and the object's ID: in crop.ome.zarr when save_png is on, streamed from fov.ome.zarr when it is off. The crop index is the spacr store table crop_index (mirrored to measurements.db table ssCell_Crops for Annotate). Intensities are not stretched. 'png' writes the legacy PNG folders. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.
 
 | ``_measure_crop_queued``
 |     ``_measure_crop_core``
@@ -53371,7 +53371,7 @@ Read by ``train_cellpose``.
 save_png
 --------
 
-(bool) - Save crops. Off (the default): no crop pixels are saved; Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, and training uses datasets/<name>.ome.zarr. On: Measure also saves every crop in crop.ome.zarr while the field is in memory, so repeated reads are faster and the crops stand alone. The crops are the same either way. With crop_image_format 'png', on writes one PNG per object into <crop_mode>_png/ (png_list table). External Masks still saves crops by default, because its import lists them in png_list. Default False.
+(bool) - Save crops. Off (the default): no crop pixels are saved; Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, and training uses datasets/<name>.ome.zarr. On: Measure also saves every crop in crop.ome.zarr while the field is in memory, so repeated reads are faster and the crops stand alone. The crops are the same either way. With crop_image_format 'png', on writes one PNG per object into <crop_mode>_png/ (png_list table). External Masks still saves crops by default, and its import checks that they were indexed (crop_index, or png_list with 'png'). Default False.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

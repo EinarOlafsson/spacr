@@ -501,7 +501,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Additional settings (45 settings)</summary>
+<summary>Additional settings (46 settings)</summary>
 
 #### Additional settings
 
@@ -541,6 +541,7 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`robustness_flow_thresholds`** *(optional)* — (list) - Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6]. Default: `[0.2, 0.6]`.
 - **`robustness_report`** *(optional)* — (bool) - After the masks are made, re-segment a few sampled fields with the diameter, the flow and cell-probability thresholds and contrast enhancement each moved a little, and report how much the object count, median area, mean object intensity and the objects themselves change. Settings whose results move more than robustness_tolerance are flagged fragile. Writes qc/segmentation_robustness_&lt;object&gt;.csv and a heatmap. Two-dimensional Cellpose-SAM runs only. Default False. Default: `False`.
 - **`robustness_tolerance`** *(optional)* — (float) - Largest median relative change in object count, median area or mean intensity, or share of the run's objects not found again, that still counts as stable. A grid point beyond it is flagged fragile. Default 0.2. Default: `0.2`.
+- **`size_filter_inclusive`** *(optional)* — (bool) - Whether an object whose size equals a size bound is kept. True keeps an object of exactly the minimum or maximum size, the rule Measure and the Make Masks window use; False drops it (min &lt; size &lt; max), the rule the legacy post-Cellpose size filter and the plot filter used before schema 961. Settings saved before schema 961 retain False to reproduce their masks. Default True. Default: `True`.
 - **`timelapse`** *(optional)* — (bool) - Treat each well/field as a time series instead of independent images: files are grouped into time stacks, randomization is switched off, per-channel movies are written, objects in timelapse_objects are tracked across frames, a timeID column is added to the measurement tables, and measure_crop stops writing single-object PNGs. Only enable when filenames carry a time index. Default False. Default: `True`.
 - **`watch_classify_settings`** *(optional)* — (str) - A saved Classify settings file for the mask_measure_classify watch pipeline. It must select CV inference from an existing model_path, with crop_source merged, apply_model_to_dataset on, and train, test and generate_training_dataset off. The model is copied once for the watch, and predicted classes and scores join the combined measurements database. Default blank. Default: `''`.
 - **`watch_folder`** *(optional)* — (bool) - Watch src and analyse each field as its images arrive. A file must stop changing for watch_settle_seconds and read whole. A fixed conversion_map.csv requires every declared companion. Without a map, known numeric filename conventions require every channel from the documented first ID through the highest selected position; custom or named channels need a fixed map. Each field runs alone, like batch_size 1, and results collect in src/spacr_watch; its ledger skips completed fields on restart. Not for timelapse, z_stack or t_stack. Default False. Default: `False`.
