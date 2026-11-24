@@ -280,8 +280,6 @@ def _write_measured_masks(merged_path: str, planes: Mapping[int, np.ndarray],
     """
     path = _measured_masks_path(merged_path)
     _read_field = _field_reader()
-    # A field of fov.ome.zarr (item 0aj) is read through the shared reader;
-    # its record goes to fov.ome.zarr/.spacr_measured_masks/<field>.npz.
     on_disk = _read_field(merged_path, mmap_mode="r")
     if on_disk.ndim == 4 and on_disk.shape[0] == 1:
         on_disk = on_disk[0]
@@ -408,9 +406,10 @@ def read_merged_plane_layout(path: str) -> Optional[Dict[str, Any]]:
 
     :param path: a merged folder, or a ``.npy`` file inside one (its parent
         folder is used); the ``.spacr_plane_layout.json`` sidecar is read
-        from that folder. A merged store (``fov.ome.zarr``, item 0aj) or a
-        field name inside one gives the layout kept in the store's
-        attributes.
+        from that folder.
+    :returns: the validated layout, or ``None``. A merged store
+        (``fov.ome.zarr``, item 0aj), or a field name inside one, gives the
+        layout kept in the store's attributes instead of the sidecar.
     """
     from .image_store import _is_merged_store, _store_layout
 
@@ -1289,8 +1288,6 @@ def _cache_key(path: str) -> Tuple[str, int, int, str]:
     except (OSError, ValueError) as exc:
         raise MergedFileMissing(f"merged array not found: {path}") from exc
     size = int(st.st_size)
-    # A fov.ome.zarr field (item 0aj) is not one file; its shards' size and
-    # newest time (see _field_stat) stand for its content.
     fingerprint = (None if store is not None and store._store_field(path) is not None
                    else _content_fingerprint(path, size))
     return (os.path.abspath(path), int(st.st_mtime_ns), size, fingerprint)

@@ -11951,8 +11951,6 @@ def _record_ragged_crops(settings, file_name, crop_modes, crop_source, masks,
 
     image = np.moveaxis(np.asarray(crop_source)[..., list(settings['channels'])], -1, 0)
     image = image.astype(data_type, copy=False)
-    # Only the classes this run has (a mask plane, or the cytoplasm it
-    # measures), so a stored crop and its streamed cut name the same classes.
     present = {name: np.asarray(mask) for name, mask in masks.items()
                if mask is not None and np.ndim(mask) == 2
                and np.shape(mask) == image.shape[1:]
@@ -12491,8 +12489,6 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         if (not volumetric and not settings['save_png']
                 and _crop_image_format(settings) != 'png'
                 and _streams_crops_from_store(settings)):
-            # Saving crops is off (item 0aj): index each object's box, so
-            # Annotate, Classify and the crop views stream it from fov.ome.zarr.
             stream_modes = settings['crop_mode']
             stream_modes = [stream_modes] if isinstance(stream_modes, str) else list(stream_modes or [])
             _record_ragged_crops(
@@ -12535,9 +12531,6 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
 
             crop_format = _crop_image_format(settings)
             if crop_format != 'png' and settings['save_png']:
-                # Item 0aj: the stored crops are cut from the stored channels
-                # (``data``), never from corrected ones, so they equal the
-                # crops streamed from fov.ome.zarr.
                 _record_ragged_crops(
                     settings, file_name, [m for m in crop_ls if m in CROP_MODES],
                     data,

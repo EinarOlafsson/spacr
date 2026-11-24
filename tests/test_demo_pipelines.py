@@ -385,17 +385,21 @@ def test_mask_demo_segments_every_object_it_drew(tmp_path):
     layout = syn.generate_mask_demo(tmp_path / "mask")
     preprocess_generate_masks(_load_demo_settings(layout))
 
-    merged = sorted((Path(layout.src) / "merged").glob("*.npy"))
-    assert len(merged) == 4, [p.name for p in merged]
-    for path in merged:
-        arr = np.load(path)
+    from spacr.image_store import _list_fields, _read_field
+
+    # Item 0aj: a Mask run keeps its merged fields in fov.ome.zarr.
+    store = Path(layout.src) / "fov.ome.zarr"
+    merged = _list_fields(store)
+    assert len(merged) == 4, merged
+    for name in merged:
+        arr = _read_field(store / name)
         assert arr.shape == (*syn.FIELD_SHAPE, 8), arr.shape
         counts = {role: _label_count(arr[..., 4 + i])
                   for i, role in enumerate(syn.MASK_ROLE_ORDER)}
-        assert counts["cell"] == 16, (path.name, counts)
-        assert counts["nucleus"] == 16, (path.name, counts)
-        assert counts["pathogen"] >= 12, (path.name, counts)
-        assert counts["organelle"] >= 48, (path.name, counts)
+        assert counts["cell"] == 16, (name, counts)
+        assert counts["nucleus"] == 16, (name, counts)
+        assert counts["pathogen"] >= 12, (name, counts)
+        assert counts["organelle"] >= 48, (name, counts)
 
 
 @pytest.mark.gpu

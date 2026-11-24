@@ -1868,7 +1868,6 @@ def check_mask_folder(src, mask_fldr, resume=False):
         return True
     
     from .image_store import _stack_names
-    # stack/*.npy, or the field stacks in fov.ome.zarr (item 0aj P1c).
     expected = _stack_names(stack_folder)
     if all(validate_merged_field(os.path.join(mask_folder, file))[0]
            and _mask_fits_its_field(os.path.join(mask_folder, file),
@@ -10634,9 +10633,6 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     if os.path.isdir(stack):
         stack_files = {f for f in _listdir_visible(stack) if f.endswith('.npy')}
     if merged == store:
-        # Item 0aj: with fov.ome.zarr each original was already moved to
-        # orig/ or deleted after its field was verified (keep_original_images);
-        # orig/ is never removed wholesale here.
         keep_original = True
     unmerged = []
     if not keep_original and os.path.isdir(orig) and stack_files:

@@ -14278,7 +14278,6 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
               "mask_dims": {"cell": channels, "nucleus": channels + 1}}
     store_writer = None
     if image_format == "ome-zarr":
-        # Item 0aj: the same merged-store writer Mask Generation uses.
         from .image_store import _merged_writer, _write_merged_field
 
         merged_store = os.path.join(dst, "fov.ome.zarr")

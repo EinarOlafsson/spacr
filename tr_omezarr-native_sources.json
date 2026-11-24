@@ -146,24 +146,24 @@
   ],
   "settings_help": {
     "mask_image_format": {
-      "source": "(str) - Where Mask Generation keeps the merged fields Measure reads. 'ome-zarr' writes each field straight into fov.ome.zarr in the project folder: one OME-Zarr plate store (row/column/field) with the channels in their acquired dtype and every object mask as a label image, one shard file per field image and per label image; no merged/*.npy is written. 'npy' writes merged/*.npy as before. 'tiff' writes merged/*.npy plus merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse runs always write merged/*.npy, because the plate store has no time axis yet. Older projects with merged/*.npy or images/<plate>.ome.zarr still read. Default 'ome-zarr'. Alpha.",
-      "source_sha256": "bc3929e6dd47d1c032b9a207be865e4a087dfd5d488ffc765698c8e3135ef283"
+      "source": "(str) - Where Mask Generation keeps the fields Measure reads. 'ome-zarr' stores each field straight into fov.ome.zarr in the project folder: the acquired channels in their own dtype (no stack/ folder) and the masks as label images, one shard file per image; no merged/*.npy is written. 'npy' writes stack/*.npy and merged/*.npy as before; 'tiff' adds merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse runs always write stack/ and merged/*.npy (the plate store has no time axis yet). Older layouts (stack/, merged/*.npy, images/<plate>.ome.zarr) still read. Default 'ome-zarr'. Alpha.",
+      "source_sha256": "337f83934dd10698f1e192f0e57c56f81e33c7d9ce43750587411a2026b3ed00"
     },
     "keep_intermediate": {
-      "source": "(bool) - Keep the run's working stack/ and masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' and timelapse runs), which holds the channels and every mask.",
-      "source_sha256": "d3f3010aa7a16761b3125d0ee12c417869c967c539431255bfde0c17b48b5bf5"
+      "source": "(bool) - Keep the run's working masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' and timelapse runs), which holds the channels and every mask. With fov.ome.zarr no stack/ folder is written at all: preprocessing stores each field's channels straight into fov.ome.zarr. Older projects' stack/ folders are still read, and kept or removed by this setting as before.",
+      "source_sha256": "b8b851185273526536ce6ae13fca1d570ed90678cbaac9bb084dcf03b867f819"
     },
     "crop_image_format": {
-      "source": "(str) - The format Measure writes object crops in. 'ome-zarr' stores each object's bounding box plus crop_margin_px at its own size in crop.ome.zarr in the project folder when save_png is on (streamed from fov.ome.zarr when it is off), with every channel at full bit depth as stored in fov.ome.zarr, the object's own mask, every object class's labels cut to the same box, and the object's ID; the crop index is the spacr store table crop_index (mirrored to measurements.db table ssCell_Crops, where Annotate keeps its annotations). Stored intensities are not stretched. 'png' writes the legacy PNG folders. Older projects' crops/ folders still read. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.",
-      "source_sha256": "0e23a13eea10ccfebdd5f4045ea994213482064d6bcff15546e5b4d462844152"
+      "source": "(str) - The format Measure writes object crops in. 'ome-zarr' keeps each object's bounding box plus crop_margin_px at full bit depth, with every channel, every object class's labels cut to the same box and the object's ID: in crop.ome.zarr when save_png is on, streamed from fov.ome.zarr when it is off. The crop index is the spacr store table crop_index (mirrored to measurements.db table ssCell_Crops for Annotate). Intensities are not stretched. 'png' writes the legacy PNG folders. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.",
+      "source_sha256": "e286480bdf7de0e76e5064c3ff2fcbe09a0bb5c57c921a3a02f658492dab566f"
     },
     "ome_zarr_ngff_version": {
       "source": "(str) - The OME-Zarr version of the phenotype plate stores, the merged field images and their masks, when ops_ph_image_format is ome-zarr. '0.6' (the default for new stores, as for every spaCR store) writes the version 0.6 metadata (named coordinate systems); '0.5' writes the same pixels with the older metadata, for tools that do not read 0.6 yet. spaCR reads 0.4 to 0.6. One store holds one version, so a store started in the other version is refused. The cell crop pools are not OME-Zarr images and do not change. Default 0.6. Alpha.",
       "source_sha256": "73a1ab63abcd1998224267cb12f77a066eba50f866e4a6b1d737fdf6c87ddc18"
     },
     "save_png": {
-      "source": "(bool) - Save crops. Off (the default): no crop pixels are saved; Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, with no duplicated pixels, and training uses datasets/<name>.ome.zarr. On: Measure also saves every object's crop in crop.ome.zarr while the field is in memory, which makes repeated reads of many crops faster and lets the crops stand alone without fov.ome.zarr. Either way the crops are the same, and the crop index in the spacr store lists every object. With crop_image_format 'png', on writes one PNG crop per object into <crop_mode>_png/ and lists it in the png_list table. Older settings files that saved crops keep saving them. External Masks still saves crops by default, because its import lists them in png_list. Default False.",
-      "source_sha256": "e6e01e95dbc54b38d07650a0f09a2d3f971fa5c6668764fdfcf7a17611c8a47b"
+      "source": "(bool) - Save crops. Off (the default): no crop pixels are saved; Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, and training uses datasets/<name>.ome.zarr. On: Measure also saves every crop in crop.ome.zarr while the field is in memory, so repeated reads are faster and the crops stand alone. The crops are the same either way. With crop_image_format 'png', on writes one PNG per object into <crop_mode>_png/ (png_list table). External Masks still saves crops by default, because its import lists them in png_list. Default False.",
+      "source_sha256": "d24ed88f7fa73853424d12317a28ffb74d3426228b4d9a2feeb1dc2b8b77c873"
     }
   },
   "api": {

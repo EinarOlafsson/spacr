@@ -695,10 +695,6 @@ def preprocess_generate_masks(settings):
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
 
-    # Item 0aj: one project holds one plate with letter + number wells. A
-    # source of several plates is split into plate folders (split_plates, or
-    # the GUI popup) or stopped; wells fov.ome.zarr cannot name stop the run
-    # before anything is changed.
     from .io import _plate_sources, _well_name_refusal
     checked = set_default_settings_preprocess_generate_masks(deepcopy(settings))
     settings['src'] = _plate_sources(settings['src'], checked)
@@ -811,8 +807,6 @@ def preprocess_generate_masks(settings):
 
                     if settings['preprocess']:
                         from .io import _ORIGINALS_WAIT
-                        # Item 0aj: the originals stay put until each field is
-                        # committed and verified in fov.ome.zarr (below).
                         wait = _ORIGINALS_WAIT.set(bool(settings['masks']))
                         try:
                             settings, src = preprocess_img_data(settings)
@@ -3007,8 +3001,6 @@ def _watch_analyse_field(field_dir, settings):
     run = {key: value for key, value in settings.items()
            if not str(key).startswith('watch_')}
     run.update(src=field_dir, consolidate=False, dry_run=False, test_mode=False)
-    # Item 0aj: a watch run assembles each field's merged/*.npy into the
-    # plate, so its per-field Mask runs keep the npy merge.
     run.update(mask_image_format='npy')
     if _watch_truthy(run.get('t_stack', False)):
         run.update(keep_intermediate=True, delete_intermediate=False)

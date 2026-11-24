@@ -45,7 +45,7 @@ from pathlib import Path
 import tempfile
 
 import numpy as np
-from .image_store import _read_stack  # the one field-stack reader (item 0aj)
+from .image_store import _read_stack
 
 from .point_spread import (PSF, apply_psf, describe_optics, fill_psf_settings,
                            gaussian_psf, load_psf, _spacing)

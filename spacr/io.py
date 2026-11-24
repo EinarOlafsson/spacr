@@ -1292,7 +1292,7 @@ def _mask_filename_pattern(src, settings):
     ext = Counter(name.rsplit('.', 1)[-1].lower() for name in names).most_common(1)[0][0]
     try:
         return re.compile(_get_regex(metadata_type, ext, settings.get('custom_regex')))
-    except Exception:  # an unusable pattern is reported by the run itself
+    except Exception:
         return None
 
 
@@ -1322,7 +1322,7 @@ def _well_name_refusal(src, settings):
         by_key = _raw_images_by_key(src, regex, settings.get('metadata_type'),
                                     list(_RAW_IMAGE_SUFFIXES),
                                     metadata_well_map=settings.get('metadata_well_map'))
-    except Exception:  # the run reports an unreadable folder itself
+    except Exception:
         return None
     bad = sorted({str(key[1]) for key in by_key
                   if not _PLATE_WELL_NAME.match(str(key[1]))})
@@ -5059,8 +5059,6 @@ def preprocess_img_data(settings):
             _merge_channels(src, plot=False)   
    
     resuming = _stack_exists(stack_path)
-    # Item 0aj P1c: a Mask run writes each field stack straight into
-    # fov.ome.zarr (no stack/*.npy), then settles its originals.
     store_fields = bool(_ORIGINALS_WAIT.get() and _store_settles_originals(settings))
     raw_waiting = bool(_raw_image_names(src) or
                        _raw_image_names(os.path.join(src, 'orig')))
@@ -6329,8 +6327,6 @@ def _load_and_concatenate_arrays(
 
     output_folder = src+'/merged'
     reference_folder = folder_paths[0]
-    # The field stacks: stack/*.npy, or (item 0aj P1c) the fields Mask
-    # preprocessing stored in fov.ome.zarr, through the one stack reader.
     from .image_store import _read_stack, _stack_header, _stack_names
 
     count=0
@@ -6390,8 +6386,6 @@ def _load_and_concatenate_arrays(
             if not resume and os.path.isdir(store_path) and not stacks_in_store:
                 shutil.rmtree(store_path)
             elif not resume and stacks_in_store:
-                # The store holds the acquired channels (item 0aj P1c); only
-                # its plane layout and labels are replaced by this merge.
                 from .image_store import _update_store_spacr_attrs
                 _update_store_spacr_attrs(store_path, {'merged_layout': intended_layout})
             store_writer = _merged_writer(src, to_store, intended_layout)
