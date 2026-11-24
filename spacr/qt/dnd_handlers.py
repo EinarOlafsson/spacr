@@ -3293,7 +3293,7 @@ class ResultsDatabaseDropHandler(DatabaseDropHandler):
     """Database input for Plate Viewer and Annotator Agreement."""
 
     def can_accept(self, path: Path) -> bool:
-        """The measurement screens' own rule, which a store project is not yet part of.
+        """The measurement screens' own rule, a store project's folder included.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.

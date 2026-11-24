@@ -27,7 +27,6 @@ from .schema import object_type_summary
 import json
 import os
 import re
-import sqlite3
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
@@ -705,14 +704,20 @@ def _save_npy(path: str, array: np.ndarray) -> str:
 
 
 def _tables(path: str) -> List[str]:
-    """Return sorted SQLite table names, or none for a missing database."""
-    if not os.path.isfile(path):
+    """Return the sorted table names of a run's measurements, or none.
+
+    Measure writes the project's spaCR store, or an older ``measurements.db``
+    for a resumed legacy run; both are read through
+    :func:`spacr.measurement_store.tables`.
+
+    :param path: the run's ``measurements.db`` locator.
+    :returns: the table names; empty when the run holds no measurements.
+    """
+    from .measurement_store import exists, tables
+
+    if not exists(path):
         return []
-    with sqlite3.connect(path, timeout=30) as connection:
-        rows = connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "ORDER BY name").fetchall()
-    return [str(row[0]) for row in rows]
+    return sorted(str(name) for name in tables(path))
 
 
 def _label_plane_as_uint16(array: Any, path: str, object_type: str,

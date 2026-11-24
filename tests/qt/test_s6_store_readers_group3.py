@@ -192,9 +192,20 @@ def test_the_database_browser_takes_a_dropped_store_project(tmp_path):
 
 
 def test_plate_view_drops_keep_their_own_rule(tmp_path):
+    """Plate View takes what the measurement screens take.
+
+    With step S4 the measurement screens' rule (MeasurementsDropHandler)
+    names a store project's measurements folder too, and Plate View reads
+    one through the shared store (S7c), so both drops are accepted; a folder
+    with neither stays refused.
+    """
     project = _project(tmp_path / "run" / "measurements", {"cell": CELLS})
     database = _legacy(tmp_path / "old" / "measurements" / "measurements.db",
                        {"cell": CELLS})
     handler = dh.ResultsDatabaseDropHandler()
     assert handler.can_accept(database)
-    assert not handler.can_accept(project)
+    assert handler.can_accept(project) is dh.MeasurementsDropHandler().can_accept(project)
+    assert handler.can_accept(project)
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    assert not handler.can_accept(empty)
