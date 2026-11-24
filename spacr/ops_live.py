@@ -938,7 +938,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     dapi = np.ascontiguousarray(dapi[y0:y0 + size, x0:x0 + size])
     nuclei_key = json.dumps([site, align["crop"], ctx.settings.get("ops_sbs_nucleus_model"),
                              ctx.settings.get("cellpose_diameter"),
-                             ctx.settings.get("ops_gpu"),
+                             bool(ops_setting(ctx.settings, "ops_gpu")),
                              ctx.settings.get("mask_eval_batch_size"),
                              ctx.settings.get("ops_sbs_tile_batch"),
                              ctx.settings.get("mask_inference_precision")], default=str)
@@ -956,7 +956,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
             return dapi, None
 
         with _array_batches([site], load_dapi, ctx.settings,
-                            gpu=bool(ctx.settings.get("ops_gpu"))) as resident:
+                            gpu=bool(ops_setting(ctx.settings, "ops_gpu"))) as resident:
             for _site, image, _metadata, field_count in resident:
                 nuclei = np.asarray(engine._ops_mask_eval(
                     model, image, ctx.settings, site="ops_stitched",
@@ -1102,7 +1102,7 @@ def _run_objects(ctx: _Context, cancelled=None) -> Dict[str, Any]:
             return crop, None
 
         with _array_batches([field_info['site']], load_crop, ctx.settings,
-                            gpu=bool(ctx.settings.get("ops_gpu"))) as resident:
+                            gpu=bool(ops_setting(ctx.settings, "ops_gpu"))) as resident:
             for _site, image, _metadata, field_count in resident:
                 nuclei, cells, _paired = engine._ph_segment_field(
                     image, channels, models, ctx.settings, field_count=field_count)
