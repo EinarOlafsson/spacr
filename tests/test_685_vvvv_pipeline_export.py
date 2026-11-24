@@ -409,8 +409,10 @@ def test_timelapse_retains_distinct_frames_and_reaches_downstream(
     notice = ("Spatial OME-Zarr export cannot represent timepoints. "
               "Timelapse processing will use the retained merged NPY files.")
     output = capsys.readouterr().out
+    # Item 0aj P3: fov.ome.zarr has a t axis, so the old notice is gone; these
+    # legacy stack/*.npy frames still merge to merged/*.npy, as before.
     if field_format is None:
-        assert notice in output
+        assert notice not in output
         assert not (src / "merged_tiff").exists()
     else:
         assert notice not in output
