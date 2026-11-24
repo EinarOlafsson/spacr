@@ -4453,14 +4453,11 @@ class _CellposeDinoAdapter:
 def _drop_small(labels, min_size):
     """``labels`` without the objects smaller than ``min_size`` pixels,
     relabelled as :func:`_as_label_image` does."""
-    arr = np.asarray(labels)
-    size = int(min_size or 0)
-    if size > 1 and arr.max(initial=0) > 0:
-        counts = np.bincount(arr.ravel().astype(np.int64))
-        small = counts < size
-        small[0] = False
-        if small.any():
-            arr = np.where(small[arr.astype(np.int64)], 0, arr)
+    from .utils import _filter_object
+
+    arr = np.array(labels)
+    if arr.max(initial=0) > 0:
+        _filter_object(arr, bounds=(int(min_size or 0), None))
     return _as_label_image(arr)
 
 

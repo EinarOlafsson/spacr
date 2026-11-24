@@ -1308,6 +1308,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('pathogen_model', None)
     settings.setdefault('merge_pathogens', True)
     settings.setdefault('filter', False)
+    settings.setdefault('size_filter_inclusive', True)
     settings.setdefault('lower_percentile', 2)
 
     settings.setdefault('timelapse', False)
@@ -2619,7 +2620,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 959
+SETTINGS_SCHEMA_VERSION = 960
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2657,6 +2658,7 @@ DEFAULT_CHANGES = {
     957: {'ops_decode_fdr_calibration': 'none', 'ops_prefix_fdr_calibration': 'none'},
     958: {'cytoskeleton_object_support': False},
     959: {'ops_read_neighbour_discount': 1.0},
+    960: {'size_filter_inclusive': False},
 }
 
 
@@ -4447,6 +4449,7 @@ expected_types = {
     "overlay_chans": list,
     "normalization_percentiles": list,
     "filter": bool,
+    "size_filter_inclusive": bool,
     "fill_in":bool,
     "adjust_cells": bool,
     "row_limit": int,
@@ -5741,6 +5744,7 @@ tooltips = {
     "custom_regex": "(str or None) - Python regex with named groups that extracts metadata from raw image filenames. It must supply wellID, fieldID and chanID; plateID is optional (falling back to the source folder name), and timeID or sliceID may be absent. With metadata_type='custom', a filename that does not match or lacks a required group is skipped with a warning, which can reduce the dataset. With 'auto', the regex is tried first for Yokogawa renaming and requires only wellID; automatic detection is used if it fails. Default None.",
     "cytoplasm": "(bool) - Derive a cytoplasm object per cell (cell mask with nucleus, pathogen and organelle pixels removed) and write it to its own cytoplasm table, which recruitment ratios such as pathogen/cytoplasm intensity are computed from. Requires a cell mask; measure_crop switches it on automatically whenever cell_mask_dim is set, so the value you enter is usually overridden. Default True.",
     "diameter": "(float) - Expected object diameter in pixels. Plaque Assay starts at 0, which uses the model's own scale; positive values are measured in original input-image pixels and adjusted when wells are resized. Legacy mask-finetune and check_cellpose_models pass it to model.eval(diameter=...). Prefer per-object diameter settings in other modules. Default 30 for mask-finetune; check_cellpose_models starts at 40.",
+    "size_filter_inclusive": "(bool) - Whether an object whose size equals a size bound is kept. True keeps an object of exactly the minimum or maximum size, the rule Measure and the Make Masks window use; False drops it (min < size < max), the rule the legacy post-Cellpose size filter and the plot filter used before schema 960. Settings saved before schema 960 retain False to reproduce their masks. Default True.",
     "filter": "(bool) - Legacy switch for the old post-Cellpose cleanup pass, which re-ran size/intensity/border filtering and logged '_after_filtration' object counts to the database. The current Cellpose-SAM segmentation path never reads it, so toggling it changes nothing; use the per-object <object>_min_area, <object>_max_area and <object>_perimeter_fraction settings instead. Default False.",
     "magnification": "(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. When pixel_size_um is set, the blank diameters come from the pixel size instead. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
     "pixel_size_um": "(float or None) - Image pixel size in micrometres per pixel, for example 0.325 for a 6.5 um camera pixel behind a 20x objective. When set, a blank cell_diameter, nucleus_diameter or pathogen_diameter is the typical object size over the pixel size (18 um cells, 10 um nuclei, 6.5 um pathogens: 55, 31 and 20 px at 0.325 um/px), with area limits diameter^2/4 to diameter^2*10, and Measure scales the default cell_min_size, nucleus_min_size and pathogen_min_size. A diameter you type is used as it is. None uses the magnification default (120 and 60 px at 20x). Default None.",
@@ -6998,7 +7002,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "mask_workers_per_gpu", "mask_inference_precision", "mask_eval_batch_size", "illumination_for_later_masks", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "mask_workers_per_gpu", "mask_inference_precision", "mask_eval_batch_size", "illumination_for_later_masks", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "diameter_estimate_n_fields", "shuffle", "save", "filter", "size_filter_inclusive", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",

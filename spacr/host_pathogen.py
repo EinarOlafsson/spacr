@@ -793,12 +793,10 @@ def nucleus_territories(nucleus_mask, expand_px=40, min_nucleus_size=250):
     import numpy as np
     from skimage.segmentation import expand_labels
 
+    from .utils import _filter_object
+
     nuclei = np.asarray(nucleus_mask).astype(np.int32)
-    area = np.bincount(nuclei.ravel())
-    small = np.nonzero((area > 0) & (area < int(min_nucleus_size)))[0]
-    small = small[small > 0]
-    if small.size:
-        nuclei[np.isin(nuclei, small)] = 0
+    _filter_object(nuclei, bounds=(int(min_nucleus_size), None))
     return expand_labels(nuclei, distance=int(expand_px)).astype(np.int32), nuclei
 
 

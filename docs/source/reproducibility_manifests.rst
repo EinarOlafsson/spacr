@@ -220,6 +220,12 @@ default after a higher-numbered item takes the next free number:
   schemas 957 and 958. The recipe-specific prefix bleed switch stays
   off by default until its separate acceptance is complete.
 
+- 960 (merge 4, one size filter): ``size_filter_inclusive`` is now ``True``.
+  An object whose size equals the minimum or maximum is kept everywhere, as
+  Measure and the Make Masks window already did. The legacy Make Masks
+  post-Cellpose size filter (``filter=True``) and the plot filter dropped it.
+  Files stamped before 960 retain ``False`` and reproduce their masks.
+
 Public API
 ----------
 

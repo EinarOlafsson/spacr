@@ -2837,7 +2837,8 @@ def generate_cellpose_masks(src, settings, object_type):
                                                 merge=object_settings['merge'],
                                                 batch=batch,
                                                 plot=settings['plot'],
-                                                figuresize=figuresize)
+                                                figuresize=figuresize,
+                                                size_filter_inclusive=settings.get('size_filter_inclusive', True))
                     
                     _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
                 elif not object_settings['merge']:
