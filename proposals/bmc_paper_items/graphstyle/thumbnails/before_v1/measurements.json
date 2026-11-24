@@ -1,0 +1,246 @@
+{
+  "source_head": "299179d9530ac618d82f11cc823f3ad8abd1c001",
+  "passed": true,
+  "synthetic": true,
+  "fitting_run": false,
+  "authority_style_applied": false,
+  "figures": [
+    {
+      "name": "assay_conditions",
+      "theme": "light",
+      "function": "spacr.assay_panels.draw_bar_panel:1067",
+      "folder": "proposals/bmc_paper_items/graphstyle/thumbnails/before_v1/assay_conditions_light",
+      "checker_findings": [],
+      "geometry": [
+        {
+          "width_in": 2.547575954861111,
+          "height_in": 3.5253537326388886,
+          "xlim": [
+            -0.6,
+            2.6
+          ],
+          "ylim": [
+            0.0,
+            2.160399542300601
+          ]
+        }
+      ],
+      "artist_alpha_values": [
+        0.6,
+        1.0
+      ],
+      "png_sha256": "f6143024e5623acbf53f1d28cfaebda63bad92c4a760740155bb6ea537727d7a"
+    },
+    {
+      "name": "colony_distribution",
+      "theme": "light",
+      "function": "spacr.plaque._colony_size_figure:2035",
+      "folder": "proposals/bmc_paper_items/graphstyle/thumbnails/before_v1/colony_distribution_light",
+      "checker_findings": [],
+      "geometry": [
+        {
+          "width_in": 4.439242621527776,
+          "height_in": 2.6760359700520833,
+          "xlim": [
+            0.1026,
+            0.48540000000000005
+          ],
+          "ylim": [
+            0.0,
+            6.3
+          ]
+        }
+      ],
+      "artist_alpha_values": [
+        1.0
+      ],
+      "png_sha256": "702486b8d67e9dddf434e9c4aebf4e0a0e5d41f9293a312b23c1c7d41df2a5cd"
+    },
+    {
+      "name": "division_prediction",
+      "theme": "light",
+      "function": "spacr.division_prediction.division_prediction_figure:711",
+      "folder": "proposals/bmc_paper_items/graphstyle/thumbnails/before_v1/division_prediction_light",
+      "checker_findings": [
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black"
+      ],
+      "geometry": [
+        {
+          "width_in": 2.463333333333333,
+          "height_in": 1.669639190997607,
+          "xlim": [
+            -0.53,
+            4.529999999999999
+          ],
+          "ylim": [
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "width_in": 2.4633333333333334,
+          "height_in": 1.669639190997607,
+          "xlim": [
+            -0.53,
+            4.529999999999999
+          ],
+          "ylim": [
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "artist_alpha_values": [
+        0.3,
+        0.6,
+        1.0
+      ],
+      "png_sha256": "66276de96812b5cfc7cc471a3b094b76f615c21c2f303ad65a3acf6ccf44d921"
+    },
+    {
+      "name": "assay_conditions",
+      "theme": "dark",
+      "function": "spacr.assay_panels.draw_bar_panel:1067",
+      "folder": "proposals/bmc_paper_items/graphstyle/thumbnails/before_v1/assay_conditions_dark",
+      "checker_findings": [],
+      "geometry": [
+        {
+          "width_in": 2.547575954861111,
+          "height_in": 3.5253537326388886,
+          "xlim": [
+            -0.6,
+            2.6
+          ],
+          "ylim": [
+            0.0,
+            2.160399542300601
+          ]
+        }
+      ],
+      "artist_alpha_values": [
+        0.6,
+        1.0
+      ],
+      "png_sha256": "f59d87d76f2578b4c1f86bff3a50aaaf09847cd2b4bce3e0174ce2d38d5f5d25"
+    },
+    {
+      "name": "colony_distribution",
+      "theme": "dark",
+      "function": "spacr.plaque._colony_size_figure:2035",
+      "folder": "proposals/bmc_paper_items/graphstyle/thumbnails/before_v1/colony_distribution_dark",
+      "checker_findings": [],
+      "geometry": [
+        {
+          "width_in": 4.439242621527776,
+          "height_in": 2.6760359700520833,
+          "xlim": [
+            0.1026,
+            0.48540000000000005
+          ],
+          "ylim": [
+            0.0,
+            6.3
+          ]
+        }
+      ],
+      "artist_alpha_values": [
+        1.0
+      ],
+      "png_sha256": "30d9b9a3069bb8bd49bea2aa3fc4682df072cdf4462b0c13fbd87d40634208c8"
+    },
+    {
+      "name": "division_prediction",
+      "theme": "dark",
+      "function": "spacr.division_prediction.division_prediction_figure:711",
+      "folder": "proposals/bmc_paper_items/graphstyle/thumbnails/before_v1/division_prediction_dark",
+      "checker_findings": [
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black",
+        "error bar not black"
+      ],
+      "geometry": [
+        {
+          "width_in": 2.463333333333333,
+          "height_in": 1.669639190997607,
+          "xlim": [
+            -0.53,
+            4.529999999999999
+          ],
+          "ylim": [
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "width_in": 2.4633333333333334,
+          "height_in": 1.669639190997607,
+          "xlim": [
+            -0.53,
+            4.529999999999999
+          ],
+          "ylim": [
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "artist_alpha_values": [
+        0.3,
+        0.6,
+        1.0
+      ],
+      "png_sha256": "0320cd634bf211947067d8b874dc9b843878cfc3e7a01e1f8580c12b822e644e"
+    }
+  ],
+  "errors": [],
+  "settings_file": "/mnt/wd4tb/worktrees/codex-graphstyle-spec/.codex-audit/t/before/config/audit-qsettings/spacr/qt.conf",
+  "imported_sources": {
+    "spacr/_version.py": "e68c79746614a8471327725fd19e10f5866b4454c62985448b7f1dcc3486ae85",
+    "spacr/__init__.py": "f576dfdd42c9ed32090c0412c2a3c12783af0247b4fdd72c0fd99c2303cce0fa",
+    "spacr/schema.py": "7fff651abd6b4926600c838452339a8c241fcb68d5845b758499b6da121cedb3",
+    "spacr/tabular.py": "d5bf8c24bcc25514643d1e9d8f28581623de87c23cee5d5890c23fc1f0c16c34",
+    "spacr/assay_panels.py": "bdfdbfaca98c4e6b7bfd7205563279c79ec55b6c0bc3c2134df1a8f75f652f12",
+    "spacr/plaque.py": "d7dc7327a5695b03e54187889426ae7ec916f958f27d7be53e5d38f8e85bc0b7",
+    "spacr/division_analysis.py": "7d3cf7f1728b66042e826698268363f69b68dcf1b56ec0d2c2785439e56aa660",
+    "spacr/division_prediction.py": "adb133d177fb0efbdf901c96a867356be03a898a12960d9aef0611581c39a5b9",
+    "spacr/figures/style.py": "09980921876c307d708f105c63367ca420aaba70479e4f902fb732bc2e565161",
+    "spacr/figures/panels.py": "17f674bea2b7e1a66b1e464006a0f47b9308d619fca968b5f450d44cda485158",
+    "spacr/figures/fast_render.py": "af69ed8485891acf6fe7bc524e4d2aba69d71b0b59d0e854fe2358b958114597",
+    "spacr/figures/headless.py": "111013ebca4d41a73bf743b84504b946723f353b5135290d8e6e0b76716eaa6e",
+    "spacr/figures/scene.py": "8c41eb4947d08babc0a94c5da307c4e8213f2e4baf4b164000325178bc3f1016",
+    "spacr/figures/sheet.py": "f1aa38b326ed796f7e7c24766005d3ed84ea16dcdd3570dc541cb545f376fca8",
+    "spacr/figures/__init__.py": "cad42d2d150d439fec73e87a6df6e28c0bcd4cec697627f6097db7f40854739a",
+    "spacr/figure_sink.py": "6b92637f2ba76ec11195bdfa25925c2013859818a1e6b5e7edd86af8b52b2a2b",
+    "spacr/errors.py": "6672a2d2617f72407da519a41055fb6672defbf0e6990026523c4107febfdabe",
+    "spacr/image_colors.py": "a0a07e51805859d546748c9b976b89c370114b42783cbc37d40f488359c2746e",
+    "spacr/tiff_io.py": "a40db247a8215130ccd4a1a43245f66a91b85df2b2b4b15c7d881b236959f5e9",
+    "spacr/multiple_testing.py": "f70a23cd04c2297c58e0c02a76def0386c652d51a081ac66183de9efc7d68458",
+    "spacr/plot.py": "ad30ce66f5637d02c546219aad10676dd9c9aaf0dfced4b230bea507689f8132",
+    "spacr/qt/__init__.py": "c31b63c929cc48bace23db8969e2a35f027e1d677cdc35827eefc62966808c29",
+    "spacr/qt/night_themes.py": "c1e8c68e80ca912e7841c011381645667496b242279265ff38c884e84379bf54",
+    "spacr/qt/prefs.py": "76f3f7b6dcf336e619f5acfcdce78d60aa9f708c62f84d0203b87f7f7c5815c8",
+    "spacr/qt/fractal_defaults.py": "12e3393f4b3f123e8265c6ebf2a642e4842009878fd22ebd5ed01f5ac7252a1b",
+    "spacr/qt/preferences.py": "f85e9bf5c1f637cac607d60f0ceba9c90845f53689216773ac0c405aaf84cd12",
+    "spacr/logging_util.py": "de4f1a951a436ce1ce9921a5bd99104cea6c59ea577c228fb97912b787192c30",
+    "spacr/figure_font.py": "1cf8b66eb6e47c7537ff101b6cca089bcf279b578031968138a9a6dee41cee41",
+    "spacr/figure_style.py": "8944db33ef9d561425455486e6bca04b707bea4bfdc9999a3bc2ec1137307cf7",
+    "spacr/figures/bundle.py": "a77ad218064185618faf3ff81b2ffbfe80734d4400d253d0c7f23785d13032a6"
+  },
+  "source_unchanged": true
+}

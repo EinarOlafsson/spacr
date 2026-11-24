@@ -1,0 +1,16 @@
+arm,fold,auroc,auprc
+model,1,0.8099999999999999,0.69
+model,2,0.84,0.72
+model,3,0.87,0.75
+age_only,1,0.62,0.39
+age_only,2,0.65,0.42
+age_only,3,0.68,0.44999999999999996
+shape_motion,1,0.72,0.5599999999999999
+shape_motion,2,0.75,0.59
+shape_motion,3,0.78,0.62
+shuffled,1,0.48,0.22
+shuffled,2,0.51,0.25
+shuffled,3,0.54,0.28
+majority,1,0.47,0.21
+majority,2,0.5,0.24
+majority,3,0.53,0.27
