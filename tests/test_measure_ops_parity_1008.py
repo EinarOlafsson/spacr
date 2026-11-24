@@ -29,16 +29,12 @@ from test_measure_ops_features_934 import (_measured, _object_tables,  # noqa: E
 
 #: The fingerprints of the base outputs on the 934 fixture field: the count and
 #: sha256 of the column names, and the sha256 of the numeric values written
-#: with 9 significant digits, row by row. The OPS tables are written with 6
-#: (:data:`DIGITS`): item 0ab's compiled per-object kernels sum in another
-#: order, which moves some of their values in the last few of 9 digits but
-#: within float32 rounding (the maintainer's rule for development changes);
-#: at 6 digits the base and the new code write the same text.
+#: with 9 significant digits, row by row.
 BASE = {
     "ops_default": (315, "9779178d604d142a71d1086fa6c033717aaacc5e14abfe76add619d2fd507da3",
-                    "14e49928b33dc4f2b8f533ebdf01393d1250e3db1fe2d28eefca4b15ecb3df59"),
+                    "9a3305d84a5abf7d7208feceaea0f2fc4a625f74ab6648fc1e6df372b8cd3f5c"),
     "ops_profiling": (1588, "be63d33d3382b80b5f9f478e71e776a137b0755b2955e38acf620a9d3e5127db",
-                      "8445bd9c1948aaef258685414fb52d9d34482742ee903e5401700718594228f1"),
+                      "f95ea90d119058f309370ae04e07722e802a37d7d22a518ea72b001a687eb499"),
     "measure_cell": (221, "cd9bcd120f81d9c8d3c92bfee676b1d907b412b82dc9664b9540ab4a0c54a0f5",
                      "734d8d732d197c84391fe146c3d86bb8dc85cdc8f17e385ed251aa078cabdcc5"),
     "measure_nucleus": (263, "83952045869541a534b2e902d16e253595b4c490cf3a2a0a27b4c47eb48ec479",
@@ -54,14 +50,10 @@ AVAILABLE = [name for name in FINAL_RUN_FAMILIES_1008 if name in KNOWN]
 PENDING = [name for name in FINAL_RUN_FAMILIES_1008 if name not in KNOWN]
 
 
-#: Significant digits of each fingerprint's values (9 unless listed).
-DIGITS = {"ops_default": 6, "ops_profiling": 6}
-
-
-def _fingerprint(frame, digits=9):
+def _fingerprint(frame):
     columns = list(frame.columns)
     values = frame.select_dtypes("number").to_numpy(np.float64)
-    text = "\n".join(",".join(f"{v:.{digits}g}" for v in row) for row in values)
+    text = "\n".join(",".join(f"{v:.9g}" for v in row) for row in values)
     return (len(columns), hashlib.sha256("\n".join(columns).encode()).hexdigest(),
             hashlib.sha256(text.encode()).hexdigest())
 
@@ -165,7 +157,7 @@ def test_default_outputs_are_those_of_the_base(tmp_path, key):
     else:
         tables = _object_tables(_measured(tmp_path, "default"))
         frame = tables[key.split("_", 1)[1]].drop(columns=["path_name"])
-    assert _fingerprint(frame, DIGITS.get(key, 9)) == BASE[key]
+    assert _fingerprint(frame) == BASE[key]
 
 
 def test_funk_features_in_ops_only_gain_the_cytoplasm_columns():
