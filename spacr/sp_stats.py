@@ -2389,9 +2389,10 @@ def _feature_qc_database(db_path: str, *,
     from .tabular import _read_query
     from pathlib import Path
 
-    uri = Path(db_path).resolve().as_uri() + "?mode=ro"
+    from . import store
+
     frames = []
-    with closing(sqlite3.connect(uri, uri=True, timeout=30.0)) as connection:
+    with store.legacy_connection(store.shared(Path(db_path).resolve())) as connection:
         present = {row[0] for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
         for table in tables:

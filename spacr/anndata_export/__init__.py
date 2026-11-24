@@ -468,14 +468,9 @@ def _available_tables(db_path: Union[str, os.PathLike]) -> Tuple[str, ...]:
     """
     if not os.path.isfile(os.fspath(db_path)):
         return ()
-    connection = sqlite3.connect(os.fspath(db_path), timeout=30)
-    try:
-        return tuple(
-            row[0] for row in connection.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' "
-                "AND name NOT LIKE 'sqlite_%' ORDER BY name"))
-    finally:
-        connection.close()
+    from .. import store
+
+    return tuple(store._legacy_sqlite_tables(os.fspath(db_path)))
 
 
 def _read_frame(db_path: str, tables: Sequence[str],
@@ -502,11 +497,10 @@ def _read_frame(db_path: str, tables: Sequence[str],
             raise ValueError(
                 f"table {single_table!r} is not in {db_path}. Present: "
                 f"{sorted(present & set(schema.OWNED_TABLES))}.")
-        connection = sqlite3.connect(db_path, timeout=30)
-        try:
-            frame = pd.read_sql(f'SELECT * FROM "{single_table}"', connection)
-        finally:
-            connection.close()
+        from .. import store
+
+        frame = store._sql_frame(store.shared(db_path),
+                                 f'SELECT * FROM "{single_table}"')
         return with_object_type(frame, single_table), (single_table,)
 
     wanted = [t for t in tables if t in present]
@@ -567,13 +561,12 @@ def _attach_png_labels(frame: pd.DataFrame, db_path: str, anchor: str,
     id_column = PNG_OBJECT_ID_COLUMNS.get(anchor)
     if not id_column:
         return frame, []
-    connection = sqlite3.connect(db_path, timeout=30)
+    from .. import store
+
     try:
-        png = pd.read_sql('SELECT * FROM "png_list"', connection)
+        png = store._sql_frame(store.shared(db_path), 'SELECT * FROM "png_list"')
     except Exception:
         return frame, []
-    finally:
-        connection.close()
 
     if id_column not in png.columns:
         return frame, []

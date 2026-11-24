@@ -580,29 +580,25 @@ def read_object_tables(db_path: str,
     cells and nuclei but no pathogens is a legitimate experiment, not a
     broken database.
 
-    :param db_path: path to the measurements SQLite database, opened
-        read-only so the loader is safe to run on a worker thread.
+    :param db_path: path to the measurements SQLite database or a spaCR store
+        project, opened read-only so the loader is safe to run on a worker thread.
     :param limit: per-table row cap, so a mis-aimed path cannot turn into a
         two-minute read behind a spinner.
     :raises LineageError: when there is no database at ``db_path``.
     """
-    if not db_path or not os.path.isfile(db_path):
-        raise LineageError(f"no measurements database at {db_path!r}")
+    from . import store
+
+    try:
+        located = store.locate(db_path)
+    except (FileNotFoundError, TypeError, ValueError):
+        raise LineageError(f"no measurements database at {db_path!r}") from None
     wanted = list(tables or LINEAGE_TABLES)
     out: Dict[str, pd.DataFrame] = {}
-    from .database_concurrency import connect as _connect_database
-
-    connection = _connect_database(db_path, readonly=True)
-    try:
-        present = {
-            str(row[0]) for row in connection.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'")
-        }
+    with store.open(located, verify="none") as opened:
+        present = set(opened.tables())
         for table in wanted:
             if table not in present:
                 continue
-            out[table] = pd.read_sql_query(
-                f'SELECT * FROM "{table}" LIMIT {int(limit)}', connection)
-    finally:
-        connection.close()
+            out[table] = store._sql_frame(
+                opened, f'SELECT * FROM "{table}" LIMIT {int(limit)}')
     return out

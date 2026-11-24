@@ -402,9 +402,9 @@ def _connect(db_path: str) -> sqlite3.Connection:
         raise FileNotFoundError(
             f"No such database: {path}. Select an existing measurements.db "
             "file or the project folder containing it, then reopen Plate View.")
-    con = sqlite3.connect(_read_only_uri(path), uri=True, timeout=30)
-    con.execute("PRAGMA query_only = ON")
-    return con
+    from . import store
+
+    return store._legacy_open(store.shared(path))
 
 
 def tables(db_path: str) -> List[str]:

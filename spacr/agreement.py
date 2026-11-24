@@ -616,9 +616,9 @@ def _connect(db_path: str) -> sqlite3.Connection:
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
     if not os.path.isfile(path):
         raise FileNotFoundError(f"No such database: {path}")
-    from .database_concurrency import connect as _connect_database
+    from . import store
 
-    return _connect_database(path, readonly=True)
+    return store._legacy_open(store.shared(path))
 
 
 def table_columns(db_path: str, table: str = PNG_TABLE) -> List[str]:

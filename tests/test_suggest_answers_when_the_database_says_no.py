@@ -15,6 +15,7 @@ annotation.py`` and ``test_a_suggestion_can_be_judged.py``.
 """
 from __future__ import annotations
 
+import contextlib
 import sqlite3
 
 import pytest
@@ -53,7 +54,15 @@ def _refuse(monkeypatch, opener, *, action, table=None, column=None):
             return sqlite3.SQLITE_OK
         return sqlite3.SQLITE_DENY
 
+    @contextlib.contextmanager
+    def reading(db_path):
+        with real(db_path) as connection:
+            connection.set_authorizer(decide)
+            yield connection
+
     def opened(db_path):
+        if opener == "_connect_read_only":
+            return reading(db_path)
         connection = real(db_path)
         connection.set_authorizer(decide)
         return connection

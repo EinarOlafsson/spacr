@@ -160,10 +160,9 @@ def _committed_watch_fields(folder: str):
         return None
     query = "SELECT field FROM spacr_watch_fields"
     try:
-        opened = store.shared(folder)
+        opened = store.shared(folder, timeout=0.1)
         if store._legacy_is_sqlite(opened):
-            with store.legacy_connection(opened) as connection:
-                connection.execute("PRAGMA busy_timeout = 100")
+            with store.legacy_connection(opened, timeout=0.1) as connection:
                 committed = tabular._read_query(
                     connection, query, canonicalise=False, report=None)
         else:

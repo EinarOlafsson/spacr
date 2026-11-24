@@ -1651,10 +1651,11 @@ class Store:
     """
 
     def __init__(self, project: str, *, threads: Optional[int] = None,
-                 verify: str = "quick"):
+                 verify: str = "quick", timeout: Optional[float] = None):
         """Read the registry of ``project``; see :func:`open`."""
         self.project = os.path.abspath(os.fspath(project))
         self.threads = threads
+        self.busy_timeout = timeout
         self._lazy_legacy: Optional[List[str]] = None
         self._conn = None
         self._files: List[Dict[str, Any]] = []
@@ -1737,7 +1738,7 @@ class Store:
             raise StoreError(
                 f"{self.project} has neither {CATALOG} nor measurements.db")
         self.legacy = path
-        names = _sqlite_tables(path)
+        names = _legacy_sqlite_tables(path, self.busy_timeout)
         self._tables = {name: {"sort_by": [], "key_columns": []}
                         for name in names}
         self._lazy_legacy = names
@@ -2825,7 +2826,7 @@ def _sqlite_arrow(path: str, table: str):
 
 
 def open(project, *, threads: Optional[int] = None,
-         verify: str = "quick") -> Store:
+         verify: str = "quick", timeout: Optional[float] = None) -> Store:
     """Open a spaCR store, or an older SQLite project, for reading.
 
     :param project: a project folder with ``spacr.duckdb``, or a folder or
@@ -2833,11 +2834,14 @@ def open(project, *, threads: Optional[int] = None,
     :param threads: DuckDB threads; None leaves DuckDB's default.
     :param verify: ``"quick"`` (sizes and mtimes), ``"full"`` (sha256) or
         ``"none"``.
+    :param timeout: seconds an older SQLite file's readers wait for a lock
+        another program holds (as :func:`spacr.database_concurrency.connect`
+        waits); None keeps thirty.
     :returns: the :class:`Store`.
     :raises StoreError: when there is nothing to open, or a registered file
         changed.
     """
-    return Store(project, threads=threads, verify=verify)
+    return Store(project, threads=threads, verify=verify, timeout=timeout)
 
 
 
@@ -2876,7 +2880,8 @@ def _legacy_is_sqlite(store) -> bool:
     return store.legacy is not None and _legacy_kind(store.legacy) == "sqlite"
 
 
-def _legacy_sqlite_connection(path: Any, *, read_only: bool = True):
+def _legacy_sqlite_connection(path: Any, *, read_only: bool = True,
+                              timeout: Optional[float] = None):
     """Open a SQLite file the way spaCR reads and writes measurements.
 
     Inside an atomic write packet for the same file, the packet's own
@@ -2884,6 +2889,9 @@ def _legacy_sqlite_connection(path: Any, *, read_only: bool = True):
 
     :param path: the SQLite file.
     :param read_only: open through ``file:...?mode=ro``.
+    :param timeout: seconds a reader waits for a lock, as
+        :func:`spacr.database_concurrency.connect` waits; None keeps its
+        default of thirty.
     :returns: a :class:`sqlite3.Connection`.
     """
     import sqlite3
@@ -2891,18 +2899,20 @@ def _legacy_sqlite_connection(path: Any, *, read_only: bool = True):
     from .database_concurrency import _inside_write_packet, connect
 
     if read_only:
-        return connect(path, readonly=True)
+        if timeout is None:
+            return connect(path, readonly=True)
+        return connect(path, readonly=True, timeout=timeout)
     if _inside_write_packet(path):
         return connect(path)
     return sqlite3.connect(path, timeout=30)
 
 
 @contextmanager
-def _legacy_reading(path: str):
+def _legacy_reading(path: str, timeout: Optional[float] = None):
     """A read-only connection, closed afterwards unless a write packet owns it."""
     from .database_concurrency import _inside_write_packet
 
-    conn = _legacy_sqlite_connection(path, read_only=True)
+    conn = _legacy_sqlite_connection(path, read_only=True, timeout=timeout)
     try:
         yield conn
     finally:
@@ -2915,13 +2925,15 @@ def _legacy_quoted(name: str) -> str:
     return '"' + str(name).replace('"', '""') + '"'
 
 
-def _legacy_sqlite_tables(path: str) -> List[str]:
+def _legacy_sqlite_tables(path: str,
+                          timeout: Optional[float] = None) -> List[str]:
     """The table names of a SQLite file, without SQLite's own tables.
 
     :param path: the SQLite file.
+    :param timeout: seconds to wait for a lock; None keeps the default.
     :returns: the names, sorted.
     """
-    with _legacy_reading(path) as conn:
+    with _legacy_reading(path, timeout) as conn:
         return [row[0] for row in conn.execute(
             "SELECT name FROM sqlite_master WHERE type = 'table' AND name "
             "NOT LIKE 'sqlite_%' ORDER BY name").fetchall()]
@@ -3105,7 +3117,8 @@ def _shared_stamp(project: str) -> Optional[tuple]:
     return None if found is None else (found["bytes"], found["mtime_ns"])
 
 
-def shared(project, *, verify: str = "quick") -> Store:
+def shared(project, *, verify: str = "quick",
+           timeout: Optional[float] = None) -> Store:
     """The one open :class:`Store` of ``project`` in this process.
 
     Every screen reading the same project gets the same store, so the
@@ -3119,6 +3132,9 @@ def shared(project, *, verify: str = "quick") -> Store:
 
     :param project: anything :func:`locate` accepts.
     :param verify: as for :func:`open`, used when the store is opened.
+    :param timeout: as for :func:`open`; it applies when the store is
+        opened here, and a reader of an already shared store passes its
+        own to :func:`legacy_connection`.
     :returns: the store.
     :raises FileNotFoundError: when nothing there opens.
     :raises StoreError: when the project does not open.
@@ -3133,7 +3149,7 @@ def shared(project, *, verify: str = "quick") -> Store:
         if held is not None and held["stamp"] == stamp:
             held["checked"] = now
             return held["store"]
-        opened = Store(key, verify=verify)
+        opened = Store(key, verify=verify, timeout=timeout)
         _SHARED[key] = {"store": opened, "stamp": stamp, "checked": now}
         return opened
 
@@ -3206,7 +3222,7 @@ def distinct(store: Store, table: str, column: str, *, where=None,
         if clause:
             sql += " AND (" + clause[len(" WHERE "):] + ")"
         sql += f" ORDER BY {quoted} LIMIT {limit}"
-        with _legacy_reading(store.legacy) as conn:
+        with _legacy_reading(store.legacy, store.busy_timeout) as conn:
             return [row[0] for row in conn.execute(sql, params).fetchall()]
     source = table
     keys = _keys_name(table)
@@ -3226,7 +3242,7 @@ def distinct(store: Store, table: str, column: str, *, where=None,
 
 
 @contextmanager
-def legacy_connection(store: Store):
+def legacy_connection(store: Store, *, timeout: Optional[float] = None):
     """A read-only SQLite connection to an older project's ``measurements.db``.
 
     For readers that need SQLite's own dialect and ``rowid`` (the
@@ -3234,13 +3250,42 @@ def legacy_connection(store: Store):
     opened ``mode=ro`` and closed on leaving the block.
 
     :param store: a store opened on an older SQLite file.
+    :param timeout: seconds the connection waits for a lock another program
+        holds, with the busy-wait of
+        :func:`spacr.database_concurrency.connect` (``busy_timeout`` and the
+        driver timeout both set). None uses the store's own wait, given to
+        :func:`open` or :func:`shared`, else thirty seconds.
     :returns: a context manager yielding the connection.
+    :raises StoreError: when the store is not an older SQLite file.
+    """
+    wait = timeout if timeout is not None else store.busy_timeout
+    with _legacy_reading(_legacy_path(store), wait) as conn:
+        yield conn
+
+
+def _legacy_path(store: Store) -> str:
+    """The SQLite file of a store opened on an older project.
+
+    :param store: an open store.
+    :returns: the file path.
     :raises StoreError: when the store is not an older SQLite file.
     """
     if not _legacy_is_sqlite(store):
         raise StoreError("legacy_connection needs an older SQLite project")
-    with _legacy_reading(store.legacy) as conn:
-        yield conn
+    return store.legacy
+
+
+def _legacy_open(store: Store, timeout: Optional[float] = None):
+    """The read-only connection of :func:`legacy_connection`, for a caller that closes it.
+
+    :param store: a store opened on an older SQLite file.
+    :param timeout: as for :func:`legacy_connection`.
+    :returns: a :class:`sqlite3.Connection`; the caller closes it.
+    :raises StoreError: when the store is not an older SQLite file.
+    """
+    wait = timeout if timeout is not None else store.busy_timeout
+    return _legacy_sqlite_connection(_legacy_path(store), read_only=True,
+                                     timeout=wait)
 
 
 def _export_select(store: Store, table: str, columns, where, params,
@@ -3288,7 +3333,7 @@ def _export_batches(store: Store, table: str, columns, where, params,
                  "TEXT": pa.string(), "BLOB": pa.binary()}
         schema = pa.schema([(c, types.get(_affinity(declared.get(c, "")),
                                           pa.string())) for c in wanted])
-        with _legacy_reading(store.legacy) as conn:
+        with _legacy_reading(store.legacy, store.busy_timeout) as conn:
             for frame in pd.read_sql_query(sql, conn, params=held or None,
                                            chunksize=batch_size):
                 yield _conformed(frame, schema)
@@ -3616,7 +3661,7 @@ def _select_rows(store: Store, table: str, columns, *, distinct: bool = False,
     if limit is not None:
         sql += f" LIMIT {max(int(limit), 0)}"
     if sqlite:
-        with _legacy_reading(store.legacy) as conn:
+        with _legacy_reading(store.legacy, store.busy_timeout) as conn:
             return [tuple(row) for row in conn.execute(sql, params).fetchall()]
     result = _upcast_half(_arrow_of(store._conn, sql, params or None))
     columns_ = [result.column(i).to_pylist() for i in range(len(wanted))]
@@ -3665,7 +3710,7 @@ def _sql_frame(store: Store, sql: str, params=None):
     import pandas as pd
 
     if _legacy_is_sqlite(store):
-        with _legacy_reading(store.legacy) as conn:
+        with _legacy_reading(store.legacy, store.busy_timeout) as conn:
             return pd.read_sql_query(sql, conn, params=params)
     return store.sql(sql, params)
 
@@ -3702,7 +3747,7 @@ def _count_rows(store: Store, table: str, where=None) -> int:
         return store.count(table, where)
     store._known(table)
     clause, params = _where_clause(where)
-    with _legacy_reading(store.legacy) as conn:
+    with _legacy_reading(store.legacy, store.busy_timeout) as conn:
         return int(conn.execute(
             f"SELECT COUNT(*) FROM {_legacy_quoted(table)}{clause}",
             params).fetchone()[0])
