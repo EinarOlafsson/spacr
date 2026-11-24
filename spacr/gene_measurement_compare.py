@@ -15,6 +15,7 @@ import pandas as pd
 from .figures.style import figure_style, theme_target
 from .object_roles import ORGANELLE_ROLES
 from .style_base import SHARED_CHOICES, FigureStyle
+from .batch_correction import MAD_SCALE_ROUNDED, _center, _scale
 
 #: Explanations for the controls in the measurement-comparison panel.
 #: Entries are keyed by control field rather than by the displayed heading.
@@ -1225,7 +1226,7 @@ def render_comparison(comparison: Comparison, style: "ComparisonStyle" = None,
 
 #: The constant that makes a median absolute deviation estimate a normal
 #: standard deviation, so a robust z of 1 means what a z of 1 means.
-MAD_TO_SD: float = 1.4826
+MAD_TO_SD: float = MAD_SCALE_ROUNDED
 
 
 def robust_z_to_controls(cells: pd.DataFrame, features: Sequence[str], *,
@@ -1256,9 +1257,9 @@ def robust_z_to_controls(cells: pd.DataFrame, features: Sequence[str], *,
         reference = values.loc[rows[control.loc[rows].to_numpy()]]
         if reference.empty:
             continue
-        centre = reference.median()
-        spread = (reference - centre).abs().median() * MAD_TO_SD
-        spread = spread.where(spread > 0)
+        centre = _center(reference, True)
+        spread = _scale(reference, True, centre=centre, constant=MAD_TO_SD,
+                        zero_scale="nan")
         out.loc[rows] = ((values.loc[rows] - centre) / spread).to_numpy()
     return out
 
@@ -4023,34 +4024,10 @@ def _well_statistics(embedding, rows: np.ndarray, wells: np.ndarray,
     :param chunk: rows read at a time.
     :returns: ``(mean, sd, median, mad)`` keyed by well; a zero MAD is 1.
     """
-    names = sorted(pd.unique(wells))
-    width = np.asarray(embedding[rows[:1]]).shape[1]
-    first = {w: np.zeros(width) for w in names}
-    second = {w: np.zeros(width) for w in names}
-    count = {w: 0 for w in names}
-    controls: Dict[Any, List[np.ndarray]] = {w: [] for w in names}
-    for start in range(0, len(rows), int(chunk)):
-        x = np.asarray(embedding[rows[start:start + int(chunk)]], dtype=np.float32)
-        here = wells[start:start + int(chunk)]
-        for w in names:
-            k = here == w
-            if k.any():
-                first[w] += x[k].sum(0)
-                second[w] += (x[k].astype(np.float64) ** 2).sum(0)
-                count[w] += int(k.sum())
-                kc = k & control[start:start + int(chunk)]
-                if kc.any():
-                    controls[w].append(x[kc])
-    mean = {w: first[w] / count[w] for w in names}
-    sd = {w: np.sqrt(np.clip(second[w] / count[w] - mean[w] ** 2, 1e-12, None))
-          for w in names}
-    median, mad = {}, {}
-    for w in names:
-        values = np.vstack(controls[w])
-        median[w] = np.median(values, 0)
-        mad[w] = MAD_TO_SD * np.median(np.abs(values - median[w]), 0)
-        mad[w][mad[w] == 0] = 1
-    return mean, sd, median, mad
+    from .ops_tvn import _streamed_batch_statistics
+
+    return _streamed_batch_statistics(embedding, rows, wells, control, chunk,
+                                      constant=MAD_TO_SD)
 
 
 def _scaled_by_well(x: np.ndarray, wells: np.ndarray, centre: Mapping,

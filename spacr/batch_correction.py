@@ -167,19 +167,142 @@ def _match_values(series: pd.Series, values: Sequence[Any]) -> pd.Series:
     return mask
 
 
-def _scale(values: pd.DataFrame, robust: bool) -> pd.Series:
-    """Return per-feature standard or robust scale with safe fallbacks."""
+MAD_SCALE_ROUNDED = 1.4826
+"""R's rounded MAD constant (cellHTS2, Funk et al. 2022).
+
+``sp_stats.MAD_SCALE`` is the full ``1 / Phi^-1(0.75)`` = 1.482602218...;
+the two differ by about 1.5e-6 relative, so each caller of :func:`_scale`
+names the one its output was built with.
+"""
+
+_ZERO_SCALE_POLICIES = ("finite", "nan", "unit", "zero_unit", "sd", "epsilon",
+                        "keep")
+"""What :func:`_scale` does with a scale that cannot divide.
+
+``finite``: NaN unless finite and positive. ``nan``: NaN unless positive
+(an infinite scale is kept). ``unit``: 1 unless positive (NaN becomes 1).
+``zero_unit``: an exact zero becomes 1 (NaN stays NaN). ``sd``: the
+standard deviation unless positive. ``epsilon``: pycytominer's RobustMAD,
+1 where both the scale and the standard deviation are below ``tiny``, else
+the scale plus ``epsilon``. ``keep``: unchanged.
+"""
+
+
+def _is_frame(values: Any) -> bool:
+    """True for a pandas DataFrame or Series."""
+    return isinstance(values, (pd.DataFrame, pd.Series))
+
+
+def _center(values: Any, robust: bool, *, skipna: bool = True,
+            by: Any = None) -> Any:
+    """Return per-feature median or mean.
+
+    :param values: a DataFrame or Series (pandas reductions) or an array
+        (NumPy reductions along axis 0).
+    :param robust: the median when True, else the mean.
+    :param skipna: skip missing values (``nanmedian`` for arrays); False
+        lets a NaN propagate, as ``np.median`` does.
+    :param by: keys aligned to a pandas ``values``; the centre of each row's
+        group, row by row (``groupby(by).transform``).
+    :returns: one centre per column (per row with ``by``), in the type and
+        dtype the matching pandas or NumPy reduction gives.
+    """
+    if by is not None:
+        return values.groupby(by).transform("median" if robust else "mean")
+    if _is_frame(values):
+        if robust:
+            return values.median(axis=0, skipna=skipna)
+        return values.mean(axis=0, skipna=skipna)
     if robust:
-        medians = values.median(axis=0)
-        scale = (values.subtract(medians).abs().median(axis=0) * 1.4826)
+        return (np.nanmedian(values, axis=0) if skipna
+                else np.median(values, axis=0))
+    return np.nanmean(values, axis=0) if skipna else np.mean(values, axis=0)
+
+
+def _spread_sd(values: Any, ddof: int, skipna: bool, by: Any = None) -> Any:
+    """Per-feature standard deviation in the convention of :func:`_center`."""
+    if by is not None:
+        return values.groupby(by).transform("std", ddof=ddof)
+    if _is_frame(values):
+        return values.std(axis=0, ddof=ddof, skipna=skipna)
+    if skipna:
+        return np.nanstd(values, axis=0, ddof=ddof)
+    return values.std(axis=0, ddof=ddof)
+
+
+def _scale(values: Any, robust: bool, *, centre: Any = None,
+           constant: float = MAD_SCALE_ROUNDED, ddof: int = 0,
+           zero_scale: str = "finite", skipna: bool = True, by: Any = None,
+           epsilon: float = 0.0, tiny: float = 0.0,
+           return_flat: bool = False) -> Any:
+    """Return per-feature standard or robust scale under an explicit policy.
+
+    Every robust z and centre-scale step in spaCR divides by this scale.
+    The callers keep their own grouping and pass their own policy, so one
+    kernel reproduces each of them exactly.
+
+    :param values: as for :func:`_center`.
+    :param robust: ``constant * median(|x - centre|)`` when True, else the
+        standard deviation.
+    :param centre: the centre the deviations are taken from; by default
+        the median of ``values`` (:func:`_center`).
+    :param constant: the MAD factor, :data:`MAD_SCALE_ROUNDED` or the full
+        ``sp_stats.MAD_SCALE``; a Python float, so a float32 ``values``
+        keeps a float32 scale.
+    :param ddof: delta degrees of freedom of the standard deviation (the
+        non-robust scale, and the ``sd`` and ``epsilon`` fallbacks).
+    :param zero_scale: one of :data:`_ZERO_SCALE_POLICIES`.
+    :param skipna: as for :func:`_center`.
+    :param by: as for :func:`_center`.
+    :param epsilon: added to the scale by the ``epsilon`` policy.
+    :param tiny: the ``epsilon`` policy's flat threshold.
+    :param return_flat: also return the mask of the scales the policy
+        replaced.
+    :returns: the scale, or ``(scale, flat)`` with ``return_flat``.
+    :raises ValueError: for an unknown ``zero_scale``.
+    """
+    if zero_scale not in _ZERO_SCALE_POLICIES:
+        from .qt.i18n import tr
+
+        raise ValueError(tr("zero_scale must be one of {choices}; got {value!r}").format(
+            choices=", ".join(_ZERO_SCALE_POLICIES), value=zero_scale))
+    if robust:
+        if centre is None:
+            centre = _center(values, True, skipna=skipna, by=by)
+        deviation = values - centre
+        deviation = deviation.abs() if _is_frame(deviation) else np.abs(deviation)
+        raw = _center(deviation, True, skipna=skipna, by=by) * constant
     else:
-        scale = values.std(axis=0, ddof=0)
-    return scale.replace([np.inf, -np.inf, 0], np.nan)
-
-
-def _center(values: pd.DataFrame, robust: bool) -> pd.Series:
-    """Return per-feature mean or median."""
-    return values.median(axis=0) if robust else values.mean(axis=0)
+        raw = _spread_sd(values, ddof, skipna, by)
+    frame = _is_frame(raw)
+    if zero_scale == "keep":
+        flat = raw != raw
+        scale = raw
+    elif zero_scale == "zero_unit":
+        flat = raw == 0
+        if frame:
+            scale = raw.mask(flat, 1.0)
+        else:
+            scale = np.array(raw, copy=True)
+            scale[flat] = 1
+    elif zero_scale == "epsilon":
+        sd = np.nan_to_num(_spread_sd(values, ddof, skipna, by), nan=0.0)
+        flat = (raw < tiny) & (sd < tiny)
+        scale = np.where(flat, 1.0, raw + epsilon)
+    else:
+        flat = ~(raw > 0)
+        if zero_scale == "finite":
+            flat = flat | ~np.isfinite(raw)
+        fill = {"finite": np.nan, "nan": np.nan, "unit": 1.0}.get(zero_scale)
+        if zero_scale == "sd":
+            fill = _spread_sd(values, ddof, skipna, by)
+        if frame:
+            scale = raw.where(~flat, fill)
+        elif zero_scale == "unit":
+            scale = np.where(~flat, raw, 1)
+        else:
+            scale = np.where(~flat, raw, fill)
+    return (scale, flat) if return_flat else scale
 
 
 def _centroid_spread(values: pd.DataFrame, batch: pd.Series) -> Optional[float]:
@@ -1170,7 +1293,8 @@ def correct_batch_effects(
                 raise ValueError(message)
     else:
         global_center = _center(numeric, robust)
-        global_scale = _scale(numeric, robust).fillna(1.0)
+        global_scale = _scale(numeric, robust, constant=MAD_SCALE_ROUNDED,
+                              zero_scale="finite").fillna(1.0)
         for label in batches:
             rows = labels == label
             values = numeric.loc[rows]
@@ -1180,7 +1304,8 @@ def correct_batch_effects(
                     local_center, axis=1,
                 ).add(global_center, axis=1)
                 continue
-            local_scale = _scale(values, robust)
+            local_scale = _scale(values, robust, constant=MAD_SCALE_ROUNDED,
+                                 zero_scale="finite")
             zero_scale = local_scale.isna()
             if zero_scale.any():
                 report.warnings.append(

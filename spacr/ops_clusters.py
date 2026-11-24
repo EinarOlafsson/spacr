@@ -2444,9 +2444,12 @@ def phase_view(names: Sequence[str], mask: np.ndarray, guides: Mapping[str, Sequ
     controls = (~np.asarray(mask, bool)) & has
     if not controls.any():
         return np.where(has[:, None], view, 0)
-    centre = np.median(view[controls], 0)
-    spread = 1.4826 * np.median(np.abs(view[controls] - centre), 0)
-    return np.where(has[:, None], (view - centre) / np.where(spread > 0, spread, 1), 0)
+    from .batch_correction import MAD_SCALE_ROUNDED, _center, _scale
+
+    centre = _center(view[controls], True, skipna=False)
+    spread = _scale(view[controls], True, centre=centre, skipna=False,
+                    constant=MAD_SCALE_ROUNDED, zero_scale="unit")
+    return np.where(has[:, None], (view - centre) / spread, 0)
 
 
 def fused_phate_graph(fused: np.ndarray, seed: int, *, knn: int = 10):
