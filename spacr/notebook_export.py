@@ -116,11 +116,10 @@ def _output_cell_for(app_key: str, run_dir: Path) -> str:
         return (
             "from spacr import store\n"
             "\n"
-            "# spaCR writes measurements to its store (or, in older projects,\n"
-            "# a SQLite DB) under the plate root. Substitute your `src` if you\n"
-            "# re-ran the pipeline somewhere else.\n"
-            f"db_path = SETTINGS['src'] + '/measurements/measurements.db'\n"
-            "cell_df = store._sql_frame(store.shared(db_path),\n"
+            "# spaCR writes measurements under the plate root, as a spaCR store\n"
+            "# or an older SQLite file; read_frame opens either. Substitute\n"
+            "# your `src` if you re-ran the pipeline somewhere else.\n"
+            "cell_df = store.read_frame(SETTINGS['src'],\n"
             "                           'select * from cell limit 500')\n"
             "cell_df.head()\n"
         )

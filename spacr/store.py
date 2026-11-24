@@ -6220,6 +6220,90 @@ def _sql_frame(store: Store, sql: str, params=None):
     return store.sql(sql, params)
 
 
+def _relations(store: Store) -> List[str]:
+    """The names a reader may select from: tables, and views of an older file.
+
+    :param store: an open store.
+    :returns: the names, sorted.
+    """
+    if not _legacy_is_sqlite(store):
+        return store.tables()
+    with _legacy_reading(store.legacy, store.busy_timeout) as conn:
+        return [row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type IN ('table','view') "
+            "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()]
+
+
+def _relation_columns(store: Store, name: str) -> List[tuple]:
+    """``(column, type)`` of a table, or of a view of an older SQLite file.
+
+    :param store: an open store.
+    :param name: the table or view.
+    :returns: the pairs in stored order; the type is SQLite's declared type
+        for an older file.
+    :raises StoreError: when there is no such table or view.
+    """
+    if not _legacy_is_sqlite(store):
+        return [tuple(row) for row in store._table_columns(name).itertuples(
+            index=False, name=None)]
+    with _legacy_reading(store.legacy, store.busy_timeout) as conn:
+        rows = conn.execute(
+            f"PRAGMA table_info({_legacy_quoted(name)})").fetchall()
+    if not rows:
+        raise StoreError(f"no table {name!r}; this store holds "
+                         f"{_relations(store)}")
+    return [(row[1], row[2]) for row in rows]
+
+
+def read_frame(project, sql: Optional[str] = None, *, table: Optional[str] = None,
+               columns=None, where=None, params=None,
+               timeout: Optional[float] = None):
+    """Rows of a project as a DataFrame, whichever kind of project it is.
+
+    Give either ``sql`` (one SELECT) or ``table`` (with optional ``columns``
+    and ``where``). An older SQLite file answers with SQLite itself and
+    ``pandas.read_sql_query`` typing, waiting up to ``timeout`` for a lock;
+    a store project answers in DuckDB, on its views, with its stored types.
+
+    :param project: an open :class:`Store`, or anything :func:`locate`
+        accepts (the project's shared store is used).
+    :param sql: a SELECT, with ``?`` for each value of ``params``.
+    :param table: the table to read when ``sql`` is not given.
+    :param columns: the columns of ``table``; None reads every column.
+    :param where: a SQL ``WHERE`` clause or a mapping, as for
+        :meth:`Store.query`, in the reader's dialect.
+    :param params: the ``?`` values of ``sql``, or of a ``where`` string.
+    :param timeout: seconds to wait for a lock an older file's writer
+        holds; None uses the store's own wait.
+    :returns: a DataFrame.
+    :raises StoreError: when both or neither of ``sql`` and ``table`` are
+        given, or a table or column is unknown.
+    """
+    import pandas as pd
+
+    if (sql is None) == (table is None):
+        raise StoreError("read_frame needs exactly one of sql and table")
+    opened = project if isinstance(project, Store) else shared(project)
+    sqlite = _legacy_is_sqlite(opened)
+    values = list(params) if params is not None else None
+    if table is not None:
+        present = [name for name, _ in _relation_columns(opened, table)]
+        wanted = list(columns) if columns is not None else present
+        missing = [c for c in wanted if c not in present]
+        if missing:
+            raise StoreError(f"{table} has no column {missing[:5]}")
+        quote = _legacy_quoted if sqlite else _ident
+        clause, held = _where_clause(where)
+        sql = (f"SELECT {', '.join(quote(c) for c in wanted)} "
+               f"FROM {quote(table)}{clause}")
+        values = list(params or ()) + held
+    if sqlite:
+        wait = timeout if timeout is not None else opened.busy_timeout
+        with _legacy_reading(opened.legacy, wait) as conn:
+            return pd.read_sql_query(sql, conn, params=values)
+    return opened.sql(sql, values or None)
+
+
 #: A chunk size no table reaches, for reading one table in one frame.
 _ALL_ROWS = 2**31 - 1
 

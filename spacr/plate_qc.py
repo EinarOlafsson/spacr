@@ -83,7 +83,6 @@ import numpy as np
 import pandas as pd
 
 from . import schema
-from .measurement_store import connect as _connect_measurements
 from .measurement_store import exists as _measurements_exist
 
 __all__ = [
@@ -390,62 +389,67 @@ def _read_only_uri(path: str) -> str:
     return "file:" + _urlquote(str(path).replace("\\", "/"), safe="/:") + "?mode=ro"
 
 
-def _connect(db_path: str) -> sqlite3.Connection:
-    """Open ``db_path`` read-only. Never writes, never journals.
+def _project(db_path: str):
+    """The shared store of ``db_path``, a spaCR store project or an older file.
 
     :raises ValueError: when no path was given.
-    :raises FileNotFoundError: when the file is not there — sqlite's own
-        "unable to open database file" never says *which* file.
+    :raises FileNotFoundError: when the file or folder is not there — sqlite's
+        own "unable to open database file" never says *which* file.
     """
     if not db_path or not str(db_path).strip():
         raise ValueError("No database path given.")
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
-    if not _measurements_exist(path):
+    if not (os.path.exists(path) or _measurements_exist(path)):
         raise FileNotFoundError(
             f"No such database: {path}. Select an existing measurements.db "
             "file or the project folder containing it, then reopen Plate View.")
-    con = _connect_measurements(path, readonly=True)
-    con.execute("PRAGMA query_only = ON")
-    return con
+    from . import store
+
+    return store.shared(path)
+
+
+def _connect(db_path: str) -> sqlite3.Connection:
+    """Open an older ``db_path`` read-only. Never writes, never journals.
+
+    :raises ValueError: when no path was given.
+    :raises FileNotFoundError: when the file is not there.
+    :raises spacr.store.StoreError: when the project is not an older SQLite file.
+    """
+    from . import store
+
+    return store._legacy_open(_project(db_path))
 
 
 def tables(db_path: str) -> List[str]:
     """Return the user tables + views of ``db_path``, alphabetically.
 
-    :param db_path: path to the SQLite database to inspect read-only.
+    :param db_path: path to the project to inspect read-only: a spaCR store
+        project or an older SQLite database.
     """
-    con = _connect(db_path)
-    try:
-        rows = con.execute(
-            "SELECT name FROM sqlite_master WHERE type IN ('table','view') "
-            "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
-    finally:
-        con.close()
-    return [r[0] for r in rows]
+    from . import store
+
+    return store._relations(_project(db_path))
 
 
 def table_columns(db_path: str, table: str) -> List[str]:
     """Return the column names of ``table``, in declaration order.
 
-    :param db_path: path to the SQLite database to inspect read-only.
+    :param db_path: path to the project to inspect read-only.
     :param table: table or view whose declared columns are returned.
 
     :raises ValueError: when the database has no such table. The name is
-        checked against ``sqlite_master`` before it is ever interpolated
+        checked against the project's own list before it is ever interpolated
         into SQL — identifiers cannot be bound, so this is the gate.
     """
+    from . import store
+
     known = tables(db_path)
     if table not in known:
         raise ValueError(
             f"{os.path.basename(str(db_path))} has no {table!r} table "
             f"(found: {', '.join(known) or 'nothing'}). Reopen the database "
             "and select one of the listed tables before rendering the plate.")
-    con = _connect(db_path)
-    try:
-        rows = con.execute(f"PRAGMA table_info({_quote_ident(table)})").fetchall()
-    finally:
-        con.close()
-    return [r[1] for r in rows]
+    return [name for name, _ in store._relation_columns(_project(db_path), table)]
 
 
 def numeric_columns(db_path: str, table: str,
@@ -458,35 +462,33 @@ def numeric_columns(db_path: str, table: str,
     index. So a column also has to actually contain numbers in the first
     ``sample`` rows, and the well-identifier columns are excluded by name.
 
-    :param db_path: path to ``measurements.db``.
+    :param db_path: path to ``measurements.db`` or a store project.
     :param table: table to inspect.
     :param sample: rows sampled to confirm the values are numeric.
     :returns: candidate column names, in table order.
     """
+    from . import store
+
     columns = table_columns(db_path, table)
     exclude = {c.lower() for c in WELL_ID_COLUMNS} | {"prcf", "prcfo", "index"}
-    con = _connect(db_path)
+    opened = _project(db_path)
+    declared = {name: (kind or "").upper()
+                for name, kind in store._relation_columns(opened, table)}
+    numeric_types = ("INT", "REAL", "FLOA", "DOUB", "NUM", "DEC", "HUGE")
     out: List[str] = []
-    try:
-        info = con.execute(
-            f"PRAGMA table_info({_quote_ident(table)})").fetchall()
-        declared = {r[1]: (r[2] or "").upper() for r in info}
-        for col in columns:
-            if col.lower() in exclude:
-                continue
-            affinity = declared.get(col, "")
-            if affinity and not any(t in affinity for t in
-                                    ("INT", "REAL", "FLOA", "DOUB", "NUM", "DEC")):
-                continue
-            rows = con.execute(
-                f"SELECT {_quote_ident(col)} FROM {_quote_ident(table)} "
-                f"WHERE {_quote_ident(col)} IS NOT NULL LIMIT ?",
-                (int(sample),)).fetchall()
-            values = pd.to_numeric(pd.Series([r[0] for r in rows]), errors="coerce")
-            if len(values) and values.notna().any():
-                out.append(col)
-    finally:
-        con.close()
+    for col in columns:
+        if col.lower() in exclude:
+            continue
+        affinity = declared.get(col, "")
+        if affinity and not any(t in affinity for t in numeric_types):
+            continue
+        quoted = _quote_ident(col)
+        frame = store.read_frame(
+            opened, f"SELECT {quoted} FROM {_quote_ident(table)} "
+            f"WHERE {quoted} IS NOT NULL LIMIT ?", params=[int(sample)])
+        values = pd.to_numeric(pd.Series(frame[col].tolist()), errors="coerce")
+        if len(values) and values.notna().any():
+            out.append(col)
     return out
 
 
@@ -498,7 +500,8 @@ def load_plate_frame(db_path: str, table: str, value_col: str,
     feature table can be 500 columns wide and half a million rows long, so
     ``SELECT *`` is avoided.
 
-    :param db_path: path to ``measurements.db`` (opened read-only).
+    :param db_path: path to ``measurements.db`` or a store project (opened
+        read-only).
     :param table: table to read.
     :param value_col: the measurement column to plot.
     :param limit: optional ``LIMIT`` for previews.
@@ -506,6 +509,8 @@ def load_plate_frame(db_path: str, table: str, value_col: str,
     :raises ValueError: for an unknown table or column, or when the table
         carries no usable well identifier at all.
     """
+    from . import store
+
     real = table_columns(db_path, table)
     if value_col not in real:
         raise ValueError(
@@ -524,16 +529,11 @@ def load_plate_frame(db_path: str, table: str, value_col: str,
             "measurement export before loading it again.")
     select = ", ".join(_quote_ident(c) for c in ids + [value_col])
     sql = f"SELECT {select} FROM {_quote_ident(table)}"
-    params: Tuple = ()
+    params: Optional[list] = None
     if limit is not None:
         sql += " LIMIT ?"
-        params = (int(limit),)
-    con = _connect(db_path)
-    try:
-        rows = con.execute(sql, params).fetchall()
-    finally:
-        con.close()
-    return pd.DataFrame(rows, columns=ids + [value_col])
+        params = [int(limit)]
+    return store.read_frame(_project(db_path), sql, params=params)
 
 
 
