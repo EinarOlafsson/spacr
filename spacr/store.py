@@ -21,7 +21,9 @@ import functools
 import glob
 import hashlib
 import json
+import math
 import os
+import re
 import time
 import urllib.parse
 import uuid
@@ -32,7 +34,10 @@ import numpy as np
 
 __all__ = ["StoreError", "Store", "open", "writer", "WellWriter",
            "write_table", "write_part", "register", "cleanup", "CATALOG",
-           "SCHEMA_VERSION"]
+           "SCHEMA_VERSION", "edit", "journal", "EditJournal",
+           "ensure_columns", "undo", "compact", "write_scores", "append_rows",
+           "activate",
+           "FOLD_EVERY"]
 
 #: The catalog's file name at the project root.
 CATALOG = "spacr.duckdb"
@@ -1082,6 +1087,11 @@ _FILE_COLUMNS = (
     ("key_digest", "VARCHAR"), ("content_digest", "VARCHAR"),
     ("dtype_map_version", "INTEGER"))
 
+#: The catalog table naming the current score table of each output kind.
+_ACTIVE_DDL = ("CREATE TABLE IF NOT EXISTS spacr_active_outputs (kind "
+               "VARCHAR PRIMARY KEY, table_name VARCHAR, target VARCHAR, "
+               "activated_at VARCHAR)")
+
 _REGISTRY_DDL = (
     "CREATE TABLE IF NOT EXISTS spacr_schema (version INTEGER)",
     "CREATE TABLE IF NOT EXISTS spacr_tables (name VARCHAR PRIMARY KEY, "
@@ -1096,6 +1106,7 @@ _REGISTRY_DDL = (
     "ordinal INTEGER, column_name VARCHAR, family VARCHAR, "
     "stored_type VARCHAR, compute_type VARCHAR, nullable BOOLEAN, "
     "dtype_map_version INTEGER)",
+    _ACTIVE_DDL,
 ) + tuple(f"ALTER TABLE spacr_files ADD COLUMN IF NOT EXISTS {name} {kind}"
           for name, kind in _FILE_COLUMNS[12:])
 
@@ -1192,16 +1203,20 @@ def _alive(pid: int) -> bool:
 
 
 @contextmanager
-def _register_lock(project: str, wait: float = _LOCK_WAIT):
+def _register_lock(project: str, wait: float = _LOCK_WAIT, *,
+                   name: str = _LOCK):
     """Hold the project's register lock file; retry while another holds it.
 
     The file is made with ``O_EXCL`` and names the holder's pid. One whose
     process has gone and that is older than :data:`_LOCK_STALE` is taken
     over.
 
+    :param project: the project folder.
+    :param wait: seconds to retry before giving up.
+    :param name: the lock file's name in the project folder.
     :raises StoreError: when the lock stays held for ``wait`` seconds.
     """
-    path = os.path.join(project, _LOCK)
+    path = os.path.join(project, name)
     deadline = time.monotonic() + wait
     delay = 0.05
     while True:
@@ -1664,6 +1679,9 @@ class Store:
         self._described: Dict[str, List[str]] = {}
         self._parts: Dict[str, Any] = {}
         self._column_rows: List[tuple] = []
+        self._active: List[tuple] = []
+        self._edit_state: Optional[tuple] = None
+        self._labeled: Dict[str, str] = {}
         self.legacy: Optional[str] = None
         self.refresh(verify=verify)
 
@@ -1702,6 +1720,12 @@ class Store:
                 ).fetchall()
             except Exception:
                 self._column_rows = []
+            try:
+                self._active = source.execute(
+                    "SELECT kind, table_name, target FROM "
+                    "spacr_active_outputs ORDER BY kind").fetchall()
+            except Exception:
+                self._active = []
         finally:
             source.close()
         if verify != "none":
@@ -1719,7 +1743,170 @@ class Store:
                 self._conn.execute(
                     f"CREATE OR REPLACE VIEW {_ident(name)} AS "
                     f"SELECT * FROM {_source(paths, uniform=same)}")
+        self._edit_state = None
+        self._labels()
         return self
+
+    def _labels(self) -> Dict[str, str]:
+        """Rebuild the edit views when the edit log changed since last time.
+
+        :returns: ``{table: its labelled view}`` for every table that has
+            label columns or an active output.
+        """
+        if self.legacy is not None:
+            return {}
+        state = _edit_signature(self.project) + tuple(self._active)
+        if state == self._edit_state:
+            return self._labeled
+        _edit_views(self._conn, self.project)
+        for name, files in _bookkeeping_files(self.project).items():
+            if name in self._views:
+                continue
+            listed = ", ".join(_literal(f) for f in files)
+            self._conn.execute(
+                f"CREATE OR REPLACE VIEW {_ident(name)} AS SELECT * FROM "
+                f"read_parquet([{listed}], union_by_name = true)")
+            self._described.pop(name, None)
+            self._tables.setdefault(name, {"sort_by": [], "key_columns": []})
+        scores: Dict[str, List[tuple]] = {}
+        for _kind, name, target in self._active:
+            if name in self._views and target in self._views:
+                columns = self._columns(name)
+                keys = [c for c in ([_identity(target)] if _identity(target)
+                                    else ["object_key", "timeID"])
+                        if c in columns and c in self._columns(target)]
+                if keys:
+                    scores.setdefault(target, []).append((name, columns, keys))
+        labeled = {}
+        named = {row[0] for row in self._conn.execute(
+            "SELECT DISTINCT \"table\" FROM spacr_edits").fetchall()}
+        named |= {t for t, _c in _declared(self.project)}
+        for table in sorted((named | set(scores)) & set(self._views)):
+            sql = _labeled_select(self._conn, self.project, table,
+                                  self._columns(table), scores.get(table, ()))
+            if sql is not None:
+                view = f"{table}_labeled"
+                self._described.pop(view, None)
+                self._conn.execute(
+                    f"CREATE OR REPLACE VIEW {_ident(view)} AS {sql}")
+                labeled[table] = view
+                self._tables[view] = dict(self._tables.get(
+                    table, {"sort_by": [], "key_columns": []}))
+        self._labeled = labeled
+        self._edit_state = state
+        return labeled
+
+    def edits(self, kind: Optional[str] = None, *, latest: bool = True,
+              table: Optional[str] = None, column: Optional[str] = None):
+        """The edit log, including journals still open.
+
+        :param kind: only this kind (``annotation``, ``verdict``, ...).
+        :param latest: True: the latest value of each labelled cell
+            (``labels_latest``); False: every edit ever recorded, oldest
+            first, with its author and source, for history and agreement.
+        :param table: only edits of this table.
+        :param column: only edits of this column.
+        :returns: a DataFrame; empty for an older ``measurements.db``, which
+            keeps no history.
+        """
+        import pandas as pd
+
+        names = [n for n, _k in _EDIT_COLUMNS] + ["kind"]
+        if self.legacy is not None:
+            return pd.DataFrame(columns=names)
+        self._labels()
+        clauses, params = [], []
+        for name, value in (("kind", kind), ("table", table),
+                            ("column", column)):
+            if value is not None:
+                clauses.append(f"{_ident(name)} = ?")
+                params.append(str(value))
+        where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
+        source = "labels_latest" if latest else "spacr_edits"
+        return _arrow_of(
+            self._conn,
+            f"SELECT * FROM {source}{where} ORDER BY seq_ns, seq_writer",
+            params).to_pandas()
+
+    def active_outputs(self):
+        """The score tables that are current, from ``spacr_active_outputs``.
+
+        :returns: a DataFrame with ``kind``, ``table`` and ``target``.
+        """
+        import pandas as pd
+
+        return pd.DataFrame(self._active, columns=["kind", "table", "target"])
+
+    def training(self, table: str, column: str, *, features=None):
+        """The labelled rows of one label column, with their features.
+
+        The labels come from the column's training table (written whenever
+        labels are recorded) or, while a journal is open, from
+        ``labels_latest``; the rows are then fetched by key, so a classifier
+        on a 100-million-row table reads only the rows it was given labels
+        for.
+
+        :param table: the table, for example ``cell`` or ``png_list``.
+        :param column: the label column.
+        :param features: the feature columns; None returns every column.
+        :returns: a DataFrame of the rows with the label in ``column``.
+        :raises StoreError: for an older ``measurements.db`` or an unknown
+            table.
+        """
+        import pandas as pd
+
+        if self.legacy is not None:
+            raise StoreError(_message(
+                "an older measurements.db has no training table; read its "
+                "label column directly"))
+        self._known(table)
+        path = _training_path(self.project, table, column)
+        files, journals = _edit_sources(self.project)
+        fresh = os.path.isfile(path) and not journals and all(
+            os.path.getmtime(f) <= os.path.getmtime(path) for f in files)
+        if fresh:
+            labels = _require("pyarrow.parquet").read_table(path).to_pandas()
+        else:
+            self._labels()
+            labels = _arrow_of(
+                self._conn,
+                "SELECT object_key, \"timeID\", key, value_num, value_text "
+                "FROM labels_latest WHERE \"table\" = ? AND \"column\" = ?",
+                [table, column]).to_pandas()
+        value = labels["value_text"].where(labels["value_text"].notna(),
+                                           labels["value_num"])
+        identity = _identity(table)
+        if identity is not None:
+            keys = labels["key"].astype(str).tolist()
+            found = self.query({identity: keys}, table=table,
+                               features=None if features is None else list(
+                                   dict.fromkeys([identity, *features])))
+            if column in found.columns:
+                found = found.drop(columns=[column])
+            found = found.merge(pd.DataFrame({identity: keys,
+                                              column: value.tolist()}),
+                                on=identity, how="inner")
+        else:
+            keys = labels["object_key"].astype("int64").tolist()
+            present = self._columns(table)
+            found = self.query({"object_key": keys}, table=table,
+                               features=None if features is None else list(
+                                   dict.fromkeys([c for c in (
+                                       "object_key", "timeID")
+                                       if c in present] + list(features))))
+            frame = pd.DataFrame({"object_key": keys, column: value.tolist()})
+            on = ["object_key"]
+            if "timeID" in found.columns and labels["timeID"].notna().any():
+                frame["timeID"] = labels["timeID"].fillna(0).astype("int64")
+                on.append("timeID")
+            if column in found.columns:
+                found = found.drop(columns=[column])
+            found = found.merge(frame, on=on, how="inner")
+        if value.map(lambda v: isinstance(v, float)).all() and len(found):
+            numbers = pd.to_numeric(found[column])
+            if (numbers == numbers.round()).all():
+                found[column] = numbers.astype("int64")
+        return found
 
     def _attach_legacy(self) -> None:
         """Open an older ``measurements.db``, ``.duckdb`` or ``.parquetdb``.
@@ -2188,6 +2375,8 @@ class Store:
             giving ``(metadata DataFrame, float32 feature matrix)``.
         :returns: the result, or ``(result, crops)`` when ``crops``.
         """
+        if table.endswith("_labeled"):
+            self._labels()
         result = self._routed(where, table, features)
         if result is None:
             sql, params = self._select(where, table, features)
@@ -2202,6 +2391,7 @@ class Store:
         :param as_: ``"pandas"`` or ``"arrow"``.
         :returns: the result.
         """
+        self._labels()
         result = _upcast_half(_arrow_of(self._conn, statement, params))
         return result if as_ == "arrow" else result.to_pandas()
 
@@ -2420,7 +2610,10 @@ class Store:
                 self.legacy, table, limit=limit, chunksize=chunksize,
                 **sqlite_kwargs)
             return
-        sql = f"SELECT * FROM {_ident(table)}"
+        source = table
+        if str(table).startswith("png_list"):
+            source = self._labels().get(table, table)
+        sql = f"SELECT * FROM {_ident(source)}"
         if limit is not None:
             sql += f" LIMIT {max(int(limit), 0)}"
         reader = _reader_of(self._conn, sql, None, int(chunksize))
@@ -2660,7 +2853,7 @@ def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
 #: ``ns * 1000 + writer`` would be about 1.7e21 and overflow int64.
 _EDIT_COLUMNS = (
     ("table", "string"), ("object_key", "int64"), ("timeID", "int64"),
-    ("column", "string"), ("value_num", "float64"),
+    ("key", "string"), ("column", "string"), ("value_num", "float64"),
     ("value_text", "string"), ("op", "string"), ("seq_ns", "int64"),
     ("seq_writer", "int32"), ("author", "string"), ("source", "string"),
     ("session", "string"), ("run_id", "string"))
@@ -3033,3 +3226,1509 @@ def _legacy_attach(store) -> bool:
     store._tables = {name: {"sort_by": [], "key_columns": []}
                      for name in names}
     return True
+
+
+
+#: The folder of the edit log in a store project (unified-store step S5).
+#:
+#: Annotations, verdicts, exclusions, condition labels, hit promotions, UMAP
+#: lasso labels and Database Browser cell edits are rows appended to
+#: ``edits/<kind>/edit-<seq_ns>-<uuid>.parquet``; a GUI click is one fsynced
+#: JSON line in ``edits/_journal/<kind>/<session>-<pid>.jsonl`` until its
+#: journal is folded. Nothing is updated in place. The views ``spacr_edits``
+#: (every row), ``labels_latest`` (the latest ``set`` of each cell) and
+#: ``<table>_labeled`` (the table with its resolved label columns and its
+#: active score tables) resolve them. An older ``measurements.db`` keeps its
+#: in-place columns: there the same calls write SQLite, so a legacy project
+#: shows the same labels after the same clicks it always did.
+EDITS = "edits"
+
+#: Edits a journal holds before it is folded into one Parquet edit file.
+FOLD_EVERY = 500
+
+_JOURNALS = "_journal"
+_TRAINING = "_training"
+_BOOKKEEPING = "_bookkeeping"
+_DECLARED = "columns.jsonl"
+_EDIT_LOCK = ".spacr-edit.lock"
+_KIND = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
+
+#: SQLite column types and the DuckDB types the labelled views cast to.
+_LABEL_TYPES = {"INTEGER": "BIGINT", "REAL": "DOUBLE", "TEXT": "VARCHAR",
+                "NUMERIC": "DOUBLE", "BOOLEAN": "BIGINT", "": None}
+
+#: The cell of an edit: which row of which table, and which column.
+_CELL = ("table", "object_key", "timeID", "key", "column")
+
+
+def _identity(table: str) -> Optional[str]:
+    """The text column that identifies a row of ``table``, or None.
+
+    Crop tables (``png_list``, ``png_list_2``, ...) are keyed by
+    ``png_path``, ``ssCell_Crops`` by ``object_id``; object tables by
+    ``object_key`` and ``timeID``, which is what None means.
+    """
+    if table == "ssCell_Crops":
+        return "object_id"
+    if str(table).startswith("png_list"):
+        return "png_path"
+    return None
+
+
+def _writer_id() -> int:
+    """This process's writer number in the edit stamp."""
+    return os.getpid() & 0x7FFFFFFF
+
+
+def _edit_target(project) -> tuple:
+    """``("store", folder)`` or ``("legacy", sqlite file)`` for ``project``.
+
+    :raises StoreError: for a path that is neither, or an older DuckDB or
+        Parquet-folder copy, which takes no edits.
+    """
+    text = os.fspath(project)
+    if not text:
+        raise StoreError(_message("no project was given for these edits"))
+    path = os.path.abspath(os.path.expanduser(text))
+    if os.path.isfile(path):
+        if _legacy_kind(path) != "sqlite" or os.path.basename(path) == CATALOG:
+            raise StoreError(_message(
+                "{path} is not a project that takes edits", path=path))
+        return "legacy", path
+    if os.path.isfile(os.path.join(path, CATALOG)):
+        return "store", path
+    for name in _LEGACY_NAMES:
+        found = os.path.join(path, name)
+        if os.path.isfile(found):
+            return "legacy", found
+    raise StoreError(_message(
+        "{path} has neither {catalog} nor measurements.db", path=path,
+        catalog=CATALOG))
+
+
+def _missing(value) -> bool:
+    """Whether ``value`` is None or a float NaN."""
+    if value is None:
+        return True
+    return isinstance(value, (float, np.floating)) and math.isnan(value)
+
+
+def _edit_value(value) -> tuple:
+    """``(op, value_num, value_text)`` of one edited value."""
+    value = _python(value)
+    if _missing(value):
+        return "clear", None, None
+    if isinstance(value, bool):
+        return "set", float(value), None
+    if isinstance(value, (int, float)):
+        return "set", float(value), None
+    return "set", None, str(value)
+
+
+def _records(rows, *, table, columns, column) -> List[tuple]:
+    """``(table, identity, {column: value})`` of each row.
+
+    :param rows: a DataFrame or an iterable of mappings. Each carries its
+        identity (``key``, or ``object_key`` and optionally ``timeID``),
+        optionally ``table``, and either ``column`` and ``value`` or the
+        ``columns`` named.
+    :param table: the table of rows that name none.
+    :param columns: the value columns of wide rows; None for long rows.
+    :param column: the column of long rows that name none.
+    """
+    import pandas as pd
+
+    if isinstance(rows, pd.DataFrame):
+        items = rows.to_dict("records")
+    elif isinstance(rows, Mapping):
+        items = [rows]
+    else:
+        items = list(rows)
+    out = []
+    for item in items:
+        name = item.get("table", table)
+        if not name:
+            raise StoreError(_message("an edit names no table"))
+        identity = {}
+        for field in ("key", "object_key", "timeID"):
+            if field in item and not _missing(item[field]):
+                identity[field] = _python(item[field])
+        if columns is None:
+            target = item.get("column", column)
+            if not target:
+                raise StoreError(_message("an edit names no column"))
+            values = {str(target): _python(item.get("value"))}
+        else:
+            values = {str(c): _python(item[c]) for c in columns if c in item}
+        if values:
+            out.append((str(name), identity, values))
+    return out
+
+
+def _guard_sql(column: str, guard) -> str:
+    """The SQL condition of ``guard`` on ``column``, or ``""``."""
+    quoted = _legacy_quoted(column)
+    if guard is None:
+        return ""
+    if guard == "unset":
+        return f"{quoted} IS NULL"
+    kind, bound = guard
+    bound = float(bound)
+    bound = int(bound) if bound.is_integer() else bound
+    if kind == "above":
+        return f"{quoted} > {bound}"
+    if kind == "unset_or_above":
+        return f"({quoted} IS NULL OR {quoted} > {bound})"
+    raise StoreError(_message("unknown edit guard {guard}", guard=guard))
+
+
+def _guard_passes(current, guard) -> bool:
+    """Whether a cell holding ``current`` may be written under ``guard``."""
+    if guard is None:
+        return True
+    if guard == "unset":
+        return _missing(current)
+    kind, bound = guard
+    if kind == "above":
+        return not _missing(current) and float(current) > float(bound)
+    if kind == "unset_or_above":
+        return _missing(current) or float(current) > float(bound)
+    raise StoreError(_message("unknown edit guard {guard}", guard=guard))
+
+
+def _sql_type(values) -> str:
+    """The SQLite type a new column takes for ``values``."""
+    present = [v for v in values if not _missing(v)]
+    if present and all(isinstance(v, (bool, int)) for v in present):
+        return "INTEGER"
+    if present and all(isinstance(v, (bool, int, float)) for v in present):
+        return "REAL"
+    if present:
+        return "TEXT"
+    return "INTEGER"
+
+
+def _legacy_connection(path: str, *, readonly: bool = False,
+                       timeout: float = 30.0):
+    """A configured connection to a legacy file, for the edit log's writes."""
+    from .database_concurrency import connect
+
+    return connect(path, readonly=readonly, timeout=timeout)
+
+
+def _legacy_columns(conn, table: str) -> List[str]:
+    """The column names of one SQLite table, empty when it is absent."""
+    return [row[1] for row in conn.execute(
+        f"PRAGMA table_info({_legacy_quoted(table)})").fetchall()]
+
+
+def _legacy_add_columns(conn, table: str, present: List[str],
+                        types: Mapping[str, str], names, *,
+                        quoted: bool = True) -> List[str]:
+    """``ALTER TABLE ... ADD COLUMN`` for each of ``names`` not present.
+
+    SQLite keeps the statement's text in the schema, so ``quoted`` says
+    whether the names are written in double quotes (or bare, as some
+    writers always added them).
+    """
+    added = []
+    for name in names:
+        if name in present:
+            continue
+        kind = types.get(name, "INTEGER")
+        suffix = f" {kind}" if kind else ""
+        spelled = _legacy_quoted(name) if quoted else str(name)
+        conn.execute(f"ALTER TABLE {_legacy_quoted(table) if quoted else table}"
+                     f" ADD COLUMN {spelled}{suffix}")
+        present.append(name)
+        added.append(name)
+    return added
+
+
+def _record_shape(record) -> tuple:
+    """What records written by one statement share."""
+    return record[0], tuple(record[2]), tuple(sorted(record[1]))
+
+
+def _legacy_apply(conn, records, *, guard, every_row: bool,
+                  key_column: Optional[str], types: Mapping[str, str],
+                  upsert: bool, create: bool = True) -> int:
+    """Write ``records`` into an open SQLite transaction; rows changed.
+
+    With ``create`` a missing column is added first (and clearing one that
+    does not exist does nothing); without it SQLite's own ``no such
+    column`` is raised and the transaction rolls back.
+    """
+    present: Dict[str, List[str]] = {}
+    changed = 0
+    index = 0
+    while index < len(records):
+        table, identity, values = records[index]
+        end = index + 1
+        while end < len(records) and (_record_shape(records[end])
+                                      == _record_shape(records[index])):
+            end += 1
+        batch = records[index:end]
+        index = end
+        if table not in present:
+            present[table] = _legacy_columns(conn, table)
+        columns = present[table]
+        if not columns:
+            continue
+        names = list(values)
+        if create and all(_missing(vals[n]) for _t, _i, vals in batch
+                          for n in names):
+            names = [n for n in names if n in columns]
+            if not names:
+                continue
+            values = {n: None for n in names}
+            batch = [(t, i, {n: v[n] for n in names}) for t, i, v in batch]
+        if upsert:
+            for _t, ident, vals in batch:
+                for name, value in vals.items():
+                    changed += conn.execute(
+                        f"INSERT OR REPLACE INTO {_legacy_quoted(table)} "
+                        f"({_legacy_quoted(key_column)}, "
+                        f"{_legacy_quoted(name)}) VALUES (?, ?)",
+                        (ident.get("key"), value)).rowcount
+            continue
+        wanted = {name: types[name] if name in types else _sql_type(
+            [vals[name] for _t, _i, vals in batch]) for name in names}
+        if create:
+            _legacy_add_columns(conn, table, columns, wanted, names)
+        sql = (f"UPDATE {_legacy_quoted(table)} SET "
+               + ", ".join(f"{_legacy_quoted(n)} = ?" for n in names))
+        every = not identity
+        if every and not every_row:
+            raise StoreError(_message(
+                "an edit of {table} names no row; pass every_row=True to "
+                "edit every row", table=table))
+        conditions = []
+        if not every:
+            if "key" in identity:
+                ident = [key_column or _identity(table) or "object_key"]
+            else:
+                ident = ["object_key"] + (["timeID"] if "timeID" in identity
+                                          else [])
+            conditions.extend(f"{_legacy_quoted(c)} = ?" for c in ident)
+        conditions.extend(c for c in (_guard_sql(n, guard) for n in names) if c)
+        if conditions:
+            sql += " WHERE " + " AND ".join(conditions)
+        params = []
+        for _t, ident, vals in batch:
+            row = [vals[n] for n in names]
+            if not every:
+                row += ([ident["key"]] if "key" in ident else
+                        [ident["object_key"]] + ([ident["timeID"]]
+                                                 if "timeID" in ident else []))
+            params.append(tuple(row))
+        if every:
+            for row in params:
+                changed += conn.execute(sql, row).rowcount
+        else:
+            changed += conn.executemany(sql, params).rowcount
+    return changed
+
+
+def _legacy_edit(path: str, records, *, guard, every_row, key_column, types,
+                 upsert, timeout, create=True) -> int:
+    """:func:`edit` on an older ``measurements.db``: in place, one transaction."""
+    from .database_concurrency import transaction
+
+    conn = _legacy_connection(path, timeout=timeout)
+    try:
+        with transaction(conn):
+            return _legacy_apply(conn, records, guard=guard,
+                                 every_row=every_row, key_column=key_column,
+                                 types=types, upsert=upsert, create=create)
+    finally:
+        conn.close()
+
+
+def _edit_folder(project: str, *parts: str) -> str:
+    """A folder of the edit log, made when missing."""
+    folder = os.path.join(project, EDITS, *parts)
+    os.makedirs(folder, exist_ok=True)
+    return folder
+
+
+def _edit_rows(records, *, kind, author, source, session,
+               run_id) -> List[Dict[str, Any]]:
+    """The edit-log rows of ``records``, each with its own stamp.
+
+    A record with no identity becomes an every-row edit of its column.
+    """
+    writer = _writer_id()
+    rows = []
+    for table, identity, values in records:
+        for name, value in values.items():
+            op, number, text = _edit_value(value)
+            seq_ns, seq_writer = _edit_stamp(writer)
+            key = identity.get("key")
+            rows.append({
+                "table": table,
+                "object_key": identity.get("object_key"),
+                "timeID": identity.get("timeID"),
+                "key": None if key is None else str(key),
+                "column": name, "value_num": number, "value_text": text,
+                "op": op, "seq_ns": seq_ns, "seq_writer": seq_writer,
+                "author": None if author is None else str(author),
+                "source": str(source),
+                "session": None if session is None else str(session),
+                "run_id": None if run_id is None else str(run_id),
+                "kind": str(kind)})
+    return rows
+
+
+def _publish_edit_file(project: str, kind: str, rows, *,
+                       stem: str = "edit") -> Optional[str]:
+    """Write edit rows as one Parquet file of ``kind``, atomically."""
+    pa = _require("pyarrow")
+    pq = _require("pyarrow.parquet")
+    if not len(rows):
+        return None
+    schema = _edit_schema()
+    data = pa.table({name: pa.array([r.get(name) for r in rows],
+                                    schema.field(name).type)
+                     for name in schema.names}, schema=schema)
+    folder = _edit_folder(project, kind)
+    first = int(min(r["seq_ns"] for r in rows))
+    final = os.path.join(folder, f"{stem}-{first:020d}-{uuid.uuid4().hex}"
+                                 f".parquet")
+    temporary = final + ".tmp"
+    pq.write_table(data, temporary, compression="zstd")
+    _fsync(temporary)
+    os.replace(temporary, final)
+    return final
+
+
+def _edit_sources(project: str) -> tuple:
+    """``(parquet files, journal files)`` of the edit log, sorted."""
+    root = os.path.join(project, EDITS)
+    if not os.path.isdir(root):
+        return [], []
+    skip = tuple(os.sep + name + os.sep
+                 for name in (_TRAINING, _JOURNALS, _BOOKKEEPING))
+    files = sorted(p for p in glob.glob(os.path.join(
+        glob.escape(root), "*", "**", "*.parquet"), recursive=True)
+        if not any(s in p for s in skip))
+    journals = []
+    for path in sorted(glob.glob(os.path.join(glob.escape(root), _JOURNALS,
+                                              "*", "*.jsonl"))):
+        try:
+            if os.path.getsize(path):
+                journals.append(path)
+        except OSError:
+            continue
+    return files, journals
+
+
+def _edit_signature(project: str) -> tuple:
+    """What changes whenever an edit is written: names, sizes, mtimes."""
+    files, journals = _edit_sources(project)
+    declared = os.path.join(project, EDITS, _DECLARED)
+    out = []
+    kept = sorted(glob.glob(os.path.join(glob.escape(os.path.join(
+        project, EDITS, _BOOKKEEPING)), "*", "*.parquet")))
+    for path in files + journals + [declared] + kept:
+        try:
+            found = os.stat(path)
+        except OSError:
+            continue
+        out.append((path, found.st_size, found.st_mtime_ns))
+    return tuple(out)
+
+
+def _edits_select(files, journals) -> str:
+    """The SQL of every edit row of ``files`` and ``journals``, once each."""
+    names = [n for n, _k in _EDIT_COLUMNS]
+    duck = {"string": "VARCHAR", "int64": "BIGINT", "int32": "INTEGER",
+            "float64": "DOUBLE"}
+    typed = {n: duck[k] for n, k in _EDIT_COLUMNS}
+    typed["kind"] = "VARCHAR"
+    selects = []
+    cast = ", ".join(f"CAST({_ident(n)} AS {typed[n]}) AS {_ident(n)}"
+                     for n in names)
+    if files:
+        listed = ", ".join(_literal(p) for p in files)
+        kind = ("regexp_extract(replace(filename, '\\', '/'), "
+                "'/edits/([^/]+)/', 1)")
+        selects.append(
+            f"SELECT {cast}, CAST({kind} AS VARCHAR) AS kind FROM "
+            f"read_parquet([{listed}], union_by_name = true, "
+            f"filename = true)")
+    if journals:
+        listed = ", ".join(_literal(p) for p in journals)
+        spec = ", ".join(f"{_literal(n)}: {_literal(typed[n])}"
+                         for n in names + ["kind"])
+        selects.append(
+            f"SELECT {cast}, kind FROM read_json([{listed}], format = "
+            f"'newline_delimited', columns = {{{spec}}}, "
+            f"ignore_errors = true)")
+    if not selects:
+        empty = ", ".join(f"CAST(NULL AS {typed[n]}) AS {_ident(n)}"
+                          for n in names + ["kind"])
+        return f"SELECT {empty} WHERE false"
+    return ("SELECT DISTINCT * FROM (" + " UNION ALL BY NAME ".join(selects)
+            + ") WHERE seq_ns IS NOT NULL")
+
+
+def _later(left: str, right: str) -> str:
+    """SQL: the stamp of alias ``left`` sorts after that of ``right``."""
+    return (f"({left}.seq_ns > {right}.seq_ns OR ({left}.seq_ns = "
+            f"{right}.seq_ns AND {left}.seq_writer > {right}.seq_writer))")
+
+
+def _edit_views(conn, project: str) -> None:
+    """Create ``spacr_edits``, ``labels_latest`` and their helpers on ``conn``."""
+    files, journals = _edit_sources(project)
+    conn.execute("CREATE OR REPLACE VIEW spacr_edits AS "
+                 + _edits_select(files, journals))
+    cell = ", ".join(_ident(c) for c in _CELL)
+    conn.execute(
+        "CREATE OR REPLACE VIEW spacr_edit_cells AS SELECT * EXCLUDE (_n) "
+        "FROM (SELECT *, row_number() OVER (PARTITION BY "
+        f"{cell} ORDER BY seq_ns DESC, seq_writer DESC) AS _n FROM "
+        "spacr_edits WHERE object_key IS NOT NULL OR key IS NOT NULL) "
+        "WHERE _n = 1")
+    conn.execute(
+        "CREATE OR REPLACE VIEW labels_every_row AS SELECT * EXCLUDE (_n) "
+        "FROM (SELECT *, row_number() OVER (PARTITION BY \"table\", "
+        "\"column\" ORDER BY seq_ns DESC, seq_writer DESC) AS _n FROM "
+        "spacr_edits WHERE object_key IS NULL AND key IS NULL) WHERE _n = 1")
+    conn.execute(
+        "CREATE OR REPLACE VIEW labels_latest AS SELECT c.\"table\", "
+        "c.object_key, c.\"timeID\", c.key, c.\"column\", c.value_num, "
+        "c.value_text, c.seq_ns, c.seq_writer, c.author, c.source, "
+        "c.session, c.kind FROM spacr_edit_cells c LEFT JOIN "
+        "labels_every_row a ON a.\"table\" = c.\"table\" AND a.\"column\" = "
+        f"c.\"column\" WHERE c.op = 'set' AND (a.seq_ns IS NULL OR "
+        f"{_later('c', 'a')})")
+
+
+def _declared(project: str) -> Dict[tuple, str]:
+    """``{(table, column): SQLite type}`` declared by :func:`ensure_columns`."""
+    path = os.path.join(project, EDITS, _DECLARED)
+    out: Dict[tuple, str] = {}
+    if not os.path.isfile(path):
+        return out
+    with builtins.open(path, encoding="utf-8") as handle:
+        for line in handle:
+            try:
+                row = json.loads(line)
+                out[(str(row["table"]), str(row["column"]))] = str(
+                    row.get("type") or "")
+            except (ValueError, KeyError, TypeError):
+                continue
+    return out
+
+
+def _append_lines(path: str, rows: Sequence[Mapping[str, Any]]) -> None:
+    """Append JSON lines to ``path`` and fsync before returning."""
+    text = "".join(json.dumps(dict(r), sort_keys=True) + "\n" for r in rows)
+    with builtins.open(path, "a", encoding="utf-8") as handle:
+        handle.write(text)
+        handle.flush()
+        os.fsync(handle.fileno())
+
+
+def _label_columns(conn, project: str, table: str) -> List[tuple]:
+    """``(column, DuckDB type)`` of the label columns of ``table``, sorted."""
+    declared = {c: t for (name, c), t in _declared(project).items()
+                if name == table}
+    found = conn.execute(
+        "SELECT \"column\", bool_or(value_text IS NOT NULL), "
+        "bool_and(value_num IS NULL OR value_num = trunc(value_num)) "
+        "FROM spacr_edits WHERE \"table\" = ? GROUP BY \"column\"",
+        [table]).fetchall()
+    kinds = {}
+    for name, text, integral in found:
+        kinds[name] = "VARCHAR" if text else ("BIGINT" if integral
+                                              else "DOUBLE")
+    for name, kind in declared.items():
+        mapped = _LABEL_TYPES.get(str(kind).upper())
+        kinds[name] = mapped or kinds.get(name) or "DOUBLE"
+    return sorted(kinds.items())
+
+
+def _every_row_case(expression: str, number: int, kind: str, every) -> str:
+    """``expression`` overridden by a later every-row edit of its column."""
+    op, value, text, seq_ns, seq_writer = every
+    constant = "NULL"
+    if op == "set":
+        constant = _literal(text) if kind == "VARCHAR" else repr(float(value))
+    return (f"CASE WHEN l.n{number} IS NULL OR {int(seq_ns)} > l.n{number} "
+            f"OR ({int(seq_ns)} = l.n{number} AND {int(seq_writer)} > "
+            f"l.w{number}) THEN {constant} ELSE ({expression}) END")
+
+
+def _labeled_select(conn, project: str, table: str, base_columns: List[str],
+                    scores: Sequence[tuple] = ()) -> Optional[str]:
+    """The SQL of ``<table>_labeled``, or None when nothing labels it.
+
+    :param scores: ``(score table, its columns, join keys)`` of the
+        active outputs of ``table``.
+    """
+    labels = _label_columns(conn, project, table)
+    if not labels and not scores:
+        return None
+    identity = _identity(table)
+    if identity is not None:
+        join = f"b.{_ident(identity)} = l.key"
+        ident = "key"
+    else:
+        join = "b.object_key = l.object_key"
+        if "timeID" in base_columns:
+            join += (" AND coalesce(b.\"timeID\", 0) = "
+                     "coalesce(l.\"timeID\", 0)")
+        ident = "object_key, \"timeID\""
+    every = {row[0]: row[1:] for row in conn.execute(
+        "SELECT \"column\", op, value_num, value_text, seq_ns, seq_writer "
+        "FROM labels_every_row WHERE \"table\" = ?", [table]).fetchall()}
+    aggregates = []
+    outputs = []
+    replaced = []
+    for number, (name, kind) in enumerate(labels):
+        value = "value_text" if kind == "VARCHAR" else "value_num"
+        quoted = _literal(name)
+        aggregates.append(
+            f"max(CASE WHEN \"column\" = {quoted} THEN 1 END) AS e{number}, "
+            f"max(CASE WHEN \"column\" = {quoted} AND op = 'set' THEN "
+            f"{value} END) AS v{number}, max(CASE WHEN \"column\" = {quoted} "
+            f"THEN seq_ns END) AS n{number}, max(CASE WHEN \"column\" = "
+            f"{quoted} THEN seq_writer END) AS w{number}")
+        base = "NULL"
+        if name in base_columns:
+            base = f"b.{_ident(name)}"
+            replaced.append(name)
+        expression = (f"CASE WHEN l.e{number} = 1 THEN l.v{number} "
+                      f"ELSE {base} END")
+        if name in every:
+            expression = _every_row_case(expression, number, kind,
+                                         every[name])
+        outputs.append(f"CAST({expression} AS {kind}) AS {_ident(name)}")
+    joins = ""
+    if labels:
+        joins += (f" LEFT JOIN (SELECT {ident}, " + ", ".join(aggregates)
+                  + " FROM spacr_edit_cells WHERE \"table\" = "
+                  f"{_literal(table)} GROUP BY {ident}) l ON {join}")
+    taken = {name for name, _k in labels}
+    for number, (score_table, score_columns, keys) in enumerate(scores):
+        alias = f"s{number}"
+        on = " AND ".join(f"b.{_ident(k)} = {alias}.{_ident(k)}" for k in keys)
+        joins += f" LEFT JOIN {_ident(score_table)} {alias} ON {on}"
+        for name in score_columns:
+            if name in taken or name in keys or name in ("plate", "well"):
+                continue
+            taken.add(name)
+            if name in base_columns:
+                replaced.append(name)
+            outputs.append(f"{alias}.{_ident(name)} AS {_ident(name)}")
+    keep = "b.*"
+    if replaced:
+        keep = "b.* EXCLUDE (" + ", ".join(_ident(n) for n in replaced) + ")"
+    return (f"SELECT {keep}" + "".join(", " + o for o in outputs)
+            + f" FROM {_ident(table)} b{joins}")
+
+
+def _resolved(conn, table: str, column: str) -> Dict[Any, Any]:
+    """``{identity: value}`` of the latest cell edits of one column.
+
+    The identity is the text key, or ``(object_key, timeID)``; a cleared
+    cell maps to None. Every-row edits are not included.
+    """
+    rows = conn.execute(
+        "SELECT key, object_key, \"timeID\", op, value_num, value_text FROM "
+        "spacr_edit_cells WHERE \"table\" = ? AND \"column\" = ?",
+        [table, column]).fetchall()
+    out = {}
+    for key, object_key, time_id, op, number, text in rows:
+        ident = key if key is not None else (object_key, time_id)
+        out[ident] = None if op != "set" else (text if text is not None
+                                               else number)
+    return out
+
+
+def _edit_connection(project: str):
+    """An in-memory DuckDB with the edit views of ``project``."""
+    conn = _connect()
+    _edit_views(conn, project)
+    return conn
+
+
+def _base_keys(project: str, table: str, column: str, values,
+               *, want: Sequence[str]):
+    """Rows of a registered ``table`` whose ``column`` is in ``values``.
+
+    :returns: a DataFrame of ``column`` and ``want``, or None when the
+        store has no such table.
+    """
+    if not os.path.isfile(os.path.join(project, CATALOG)):
+        return None
+    reader = Store(project, verify="none")
+    try:
+        if table not in reader._views:
+            return None
+        present = reader._columns(table)
+        if column not in present:
+            raise StoreError(_message(
+                "{table} has no column {column}", table=table, column=column))
+        wanted = [c for c in dict.fromkeys([column, *want]) if c in present]
+        listed = [_python(v) for v in dict.fromkeys(values)]
+        select = ", ".join(_ident(c) for c in wanted)
+        if not listed:
+            return _arrow_of(reader._conn, f"SELECT {select} FROM "
+                             f"{_ident(table)} LIMIT 0").to_pandas()
+        return _arrow_of(
+            reader._conn, f"SELECT {select} FROM {_ident(table)} WHERE "
+            f"{_ident(column)} IN (SELECT unnest(?))", [listed]).to_pandas()
+    finally:
+        reader.close()
+
+
+def _matched(found, column: str, idents) -> Dict[Any, List[Dict[str, Any]]]:
+    """``{value of column: [identity, ...]}`` of the rows ``found``."""
+    matches: Dict[Any, List[Dict[str, Any]]] = {}
+    for row in found.to_dict("records"):
+        ident = {}
+        for name in idents:
+            if name in row and not _missing(row[name]):
+                ident[name] = (str(row[name]) if name == "key"
+                               else int(row[name]))
+        matches.setdefault(_python(row[column]), []).append(ident)
+    return matches
+
+
+def _store_targets(project: str, records, *, key_column: Optional[str],
+                   every_row: bool) -> List[tuple]:
+    """``records`` keyed by their table's identity, rows the table lacks dropped.
+
+    A record keyed by another column (``key_column``, for example
+    ``prcfo``) becomes one record per row that column matches. Edits of a
+    table the store does not hold yet are kept as they are.
+    """
+    every = [r for r in records if not r[1]]
+    if every and not every_row:
+        raise StoreError(_message(
+            "an edit of {table} names no row; pass every_row=True to edit "
+            "every row", table=every[0][0]))
+    out = []
+    keyed = [r for r in records if r[1]]
+    for table in dict.fromkeys(r[0] for r in records):
+        out.extend((t, {}, v) for t, i, v in records if t == table and not i)
+        mine = [r for r in keyed if r[0] == table]
+        if not mine:
+            continue
+        identity = _identity(table)
+        match = key_column or identity or "object_key"
+        if match == "object_key":
+            found = _base_keys(project, table, "object_key",
+                               [r[1].get("object_key") for r in mine],
+                               want=[])
+            known = None if found is None else set(
+                int(v) for v in found["object_key"].tolist())
+            out.extend(r for r in mine if "object_key" in r[1] and (
+                known is None or int(r[1]["object_key"]) in known))
+            continue
+        want = [identity] if identity else ["object_key", "timeID"]
+        found = _base_keys(project, table, match,
+                           [r[1].get("key") for r in mine], want=want)
+        if found is None:
+            if match != identity:
+                raise StoreError(_message(
+                    "{table} is not in this store, so {column} cannot be "
+                    "matched", table=table, column=match))
+            out.extend(r for r in mine if "key" in r[1])
+            continue
+        if identity:
+            found = found.assign(key=found[identity].astype(str))
+        matches = _matched(found, match, ["key"] if identity
+                           else ["object_key", "timeID"])
+        for _t, ident, values in mine:
+            for target in matches.get(ident.get("key"), []):
+                out.append((table, target, values))
+    return out
+
+
+def _cell_identity(identity: Mapping[str, Any]):
+    """The key :func:`_resolved` uses for one record's identity."""
+    if "key" in identity:
+        return str(identity["key"])
+    return (identity.get("object_key"), identity.get("timeID"))
+
+
+def _guarded(project: str, targets, guard) -> List[tuple]:
+    """The targets whose current cells pass ``guard``."""
+    conn = _edit_connection(project)
+    try:
+        current: Dict[tuple, Dict[Any, Any]] = {}
+        kept = []
+        for table, identity, values in targets:
+            passes = True
+            for name in values:
+                if (table, name) not in current:
+                    current[(table, name)] = _resolved(conn, table, name)
+                passes = passes and _guard_passes(
+                    current[(table, name)].get(_cell_identity(identity)),
+                    guard)
+            if passes:
+                kept.append((table, identity, values))
+        return kept
+    finally:
+        conn.close()
+
+
+def _store_edit(project: str, records, *, kind, author, source, session,
+                run_id, guard, every_row, key_column) -> int:
+    """:func:`edit` on a store project: append one edit file."""
+    targets = _store_targets(project, records, key_column=key_column,
+                             every_row=every_row)
+    with _register_lock(project, name=_EDIT_LOCK):
+        if guard is not None:
+            targets = _guarded(project, targets, guard)
+        rows = _edit_rows(targets, kind=kind, author=author, source=source,
+                          session=session, run_id=run_id)
+        _publish_edit_file(project, kind, rows)
+    _refresh_training(project, {(r["table"], r["column"]) for r in rows})
+    return len(targets)
+
+
+def _check_kind(kind: str) -> str:
+    """``kind`` when it is a safe folder name."""
+    text = str(kind or "")
+    if not _KIND.match(text):
+        raise StoreError(_message("{kind} is not an edit kind; use letters, "
+                                  "digits and underscores", kind=kind))
+    return text
+
+
+def edit(project, rows, *, kind: str, source: str,
+         author: Optional[str] = None, session: Optional[str] = None,
+         run_id: Optional[str] = None, table: Optional[str] = None,
+         column: Optional[str] = None, columns: Optional[Sequence[str]] = None,
+         key_column: Optional[str] = None, guard=None,
+         every_row: bool = False, types: Optional[Mapping[str, str]] = None,
+         upsert: bool = False, create: bool = True,
+         timeout: float = 30.0) -> int:
+    """Record edits to labels, verdicts, exclusions and other user columns.
+
+    In a store project the edits are appended to the edit log and nothing
+    is changed in place; ``<table>_labeled`` and ``labels_latest`` show the
+    latest value of each cell, and the full history stays. In an older
+    ``measurements.db`` the same call writes the columns in place, in one
+    transaction, adding a missing column first, so a legacy project shows
+    exactly the labels it always did.
+
+    :param project: a store project folder, or an older ``measurements.db``
+        (or the folder that holds one).
+    :param rows: a DataFrame or mappings, one per edit. Each carries the
+        row it edits (``key``: the table's text identity such as
+        ``png_path``, or ``object_key`` with an optional ``timeID``) and
+        ``value`` (None or NaN clears), plus ``column`` and ``table`` when
+        they differ from the keywords. With ``columns`` each mapping
+        instead carries those columns' values.
+    :param kind: the log the edits belong to, for example ``annotation``,
+        ``verdict``, ``exclusion`` or ``browser``.
+    :param source: who made them: ``annotator``, ``suggest``, ``browser``,
+        ``rule:<id>``, ``import``, ...
+    :param author: the person, kept beside every edit.
+    :param session: the session that made them.
+    :param run_id: the run they came from.
+    :param table: the table of rows that name none.
+    :param column: the column of rows that name none.
+    :param columns: the value columns of wide rows.
+    :param key_column: the column ``key`` matches when it is not the
+        table's identity (for example ``prcfo``); in a store project the
+        matched rows are recorded by their identity.
+    :param guard: write only cells whose current value passes: ``"unset"``
+        (empty), ``("above", n)`` or ``("unset_or_above", n)``.
+    :param every_row: allow rows that carry no identity; each applies to
+        every row of the table (in a store project one edit row says so).
+        Rows that do carry one are still applied to their row, after the
+        every-row edits of their table.
+    :param types: SQLite types for columns a legacy file lacks; ``""`` adds
+        an untyped column. Inferred from the values otherwise.
+    :param upsert: legacy only: ``INSERT OR REPLACE`` ``(key_column,
+        column)`` rows instead of updating, for key/value tables such as
+        ``settings``.
+    :param create: legacy only: add a missing column; when False, writing
+        a column the table lacks raises SQLite's ``no such column``.
+    :param timeout: seconds a legacy write waits for SQLite's lock.
+    :returns: the rows changed (legacy) or the edits recorded for rows the
+        table holds (store).
+    :raises StoreError: for a project that takes no edits, an unknown
+        guard or a bad kind.
+    """
+    kind = _check_kind(kind)
+    records = _records(rows, table=table, columns=columns, column=column)
+    if not records:
+        return 0
+    where, path = _edit_target(project)
+    if where == "legacy":
+        return _legacy_edit(path, records, guard=guard, every_row=every_row,
+                            key_column=key_column, types=types or {},
+                            upsert=upsert, timeout=timeout, create=create)
+    return _store_edit(path, records, kind=kind, author=author, source=source,
+                       session=session, run_id=run_id, guard=guard,
+                       every_row=every_row, key_column=key_column)
+
+
+def _legacy_ready(path: str, table: str, columns, index, timeout) -> bool:
+    """Whether a legacy table has ``columns`` and ``index``, read only."""
+    import sqlite3
+
+    try:
+        conn = _legacy_connection(path, readonly=True, timeout=timeout)
+    except sqlite3.Error:
+        return False
+    try:
+        present = _legacy_columns(conn, table)
+        return all(c in present for c in columns) and (
+            index is None or conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type = 'index' AND "
+                "name = ?", (index[0],)).fetchone() is not None)
+    except sqlite3.Error:
+        return False
+    finally:
+        conn.close()
+
+
+def ensure_columns(project, table: str, columns: Mapping[str, str], *,
+                   index: Optional[tuple] = None, quoted: bool = True,
+                   timeout: float = 30.0) -> List[str]:
+    """Declare label columns of ``table``, so they exist before any edit.
+
+    An older ``measurements.db`` gets ``ALTER TABLE ... ADD COLUMN`` for each
+    missing one (and the index, when asked), after a read-only check, so a
+    table that already has them takes no write lock. A store project records
+    the declaration, and ``<table>_labeled`` shows the column, typed, even
+    while it holds no edit.
+
+    :param project: a store project or an older ``measurements.db``.
+    :param table: the table.
+    :param columns: ``{column: SQLite type}``, in the order to add them;
+        ``""`` adds an untyped column.
+    :param index: ``(index name, column)`` to create on a legacy table.
+    :param quoted: write the legacy ``ALTER TABLE`` with quoted names
+        (False only for plain names, as some tables were always altered).
+    :param timeout: seconds a legacy write waits for SQLite's lock.
+    :returns: the columns added or newly declared, in order.
+    :raises spacr.database_concurrency.DatabaseBusy: when a legacy file
+        stays locked for ``timeout`` seconds.
+    """
+    where, path = _edit_target(project)
+    if where == "store":
+        known = _declared(path)
+        added = [c for c in columns if (table, c) not in known]
+        if added:
+            _edit_folder(path)
+            _append_lines(os.path.join(path, EDITS, _DECLARED),
+                          [{"table": table, "column": c,
+                            "type": columns[c]} for c in added])
+        return added
+    import sqlite3
+
+    from .database_concurrency import DatabaseBusy, is_busy_error, transaction
+
+    if _legacy_ready(path, table, columns, index, timeout):
+        return []
+    conn = _legacy_connection(path, timeout=timeout)
+    try:
+        with transaction(conn):
+            present = _legacy_columns(conn, table)
+            if not present:
+                return []
+            if not quoted and not all(_KIND.match(str(c)) for c in columns):
+                raise StoreError(_message(
+                    "only plain column names can be added unquoted"))
+            added = _legacy_add_columns(conn, table, present, columns,
+                                        list(columns), quoted=quoted)
+            if index is not None:
+                conn.execute(
+                    f"CREATE INDEX IF NOT EXISTS {_legacy_quoted(index[0])} "
+                    f"ON {_legacy_quoted(table)} ({_legacy_quoted(index[1])})")
+            return added
+    except sqlite3.OperationalError as exc:
+        if is_busy_error(exc) and not isinstance(exc, DatabaseBusy):
+            raise DatabaseBusy(
+                f"{path} stayed locked by another connection for "
+                f"{timeout:g} s: {exc}") from exc
+        raise
+    finally:
+        conn.close()
+
+
+class EditJournal:
+    """A GUI session's edits: each :meth:`add` costs one fsynced line.
+
+    Made by :func:`journal`. In a store project the lines go to
+    ``edits/_journal/<kind>/<session>-<pid>.jsonl``, which every view reads
+    at once, and every :data:`FOLD_EVERY` edits (and on :meth:`close`) they
+    are folded into one Parquet edit file. A crash loses nothing that was
+    fsynced: the journal stays, the views keep reading it and
+    :func:`compact` folds it. In an older ``measurements.db`` each add is
+    one SQLite transaction on the journal's own connection, made in the
+    thread that opens it; a column the table lacks is not added (declare it
+    with :func:`ensure_columns`), so the write fails as it always did.
+
+    :param project: a store project or an older ``measurements.db``.
+    :param kind: the edit kind.
+    :param source: the source of every edit.
+    :param author: the person.
+    :param session: the session name; a fresh one when None.
+    :param run_id: the run, if any.
+    :param fold_every: edits between folds.
+    :param timeout: seconds a legacy write waits for SQLite's lock.
+    """
+
+    def __init__(self, project, *, kind: str, source: str,
+                 author: Optional[str] = None, session: Optional[str] = None,
+                 run_id: Optional[str] = None, fold_every: int = FOLD_EVERY,
+                 timeout: float = 30.0):
+        """Open the journal; nothing is written until the first add."""
+        self.kind = _check_kind(kind)
+        self.source = str(source)
+        self.author = author
+        self.session = session or uuid.uuid4().hex[:12]
+        self.run_id = run_id
+        self.fold_every = max(1, int(fold_every))
+        self.timeout = timeout
+        self.where, self.path = _edit_target(project)
+        self._conn = None
+        self._lines = 0
+        self._added: List[List[tuple]] = []
+        self._closed = False
+        self.file: Optional[str] = None
+        if self.where == "store":
+            self.file = os.path.join(
+                self.path, EDITS, _JOURNALS, self.kind,
+                f"{_safe_name(self.session)}-{os.getpid()}.jsonl")
+        else:
+            self._conn = _legacy_connection(self.path, timeout=self.timeout)
+
+    def __enter__(self) -> "EditJournal":
+        """The journal itself, for ``with``."""
+        return self
+
+    def __exit__(self, *exc) -> None:
+        """Fold and close on leaving ``with``."""
+        self.close()
+
+    def add(self, key=None, value=None, *, column: str, table: str,
+            object_key=None, timeID=None) -> int:
+        """Record one edit: ``value`` (None clears) in ``column`` of one row.
+
+        :param key: the row's text identity (``png_path`` of a crop table).
+        :param value: the new value; None clears the cell.
+        :param column: the column.
+        :param table: the table.
+        :param object_key: the row's object key, instead of ``key``.
+        :param timeID: the row's time point, with ``object_key``.
+        :returns: rows changed (legacy) or 1.
+        """
+        identity = {"key": key} if key is not None else {
+            "object_key": object_key, "timeID": timeID}
+        return self.add_many(table, column, [(identity, value)])
+
+    def add_many(self, table: str, column: str, values, *,
+                 key_column: Optional[str] = None) -> int:
+        """Record a batch of edits of one column, with one fsync.
+
+        :param table: the table.
+        :param column: the column.
+        :param values: ``{key: value}``, or ``(identity mapping, value)``
+            pairs; None clears.
+        :param key_column: legacy only: the column ``key`` matches when it
+            is not the table's identity.
+        :returns: rows changed (legacy) or the edits recorded.
+        :raises StoreError: after :meth:`close`.
+        """
+        return self.add_batch(table, {column: values}, key_column=key_column)
+
+    def add_batch(self, table: str, columns: Mapping[str, Any], *,
+                  key_column: Optional[str] = None) -> int:
+        """Record batches of several columns at once: one fsync, or one
+        SQLite transaction in an older ``measurements.db``.
+
+        :param table: the table.
+        :param columns: ``{column: values}``, each as for :meth:`add_many`.
+        :param key_column: legacy only: the column ``key`` matches when it
+            is not the table's identity.
+        :returns: rows changed (legacy) or the edits recorded.
+        :raises StoreError: after :meth:`close`.
+        """
+        if self._closed:
+            raise StoreError(_message("this edit journal is closed"))
+        records = []
+        for column, values in columns.items():
+            items = values.items() if isinstance(values, Mapping) else values
+            for ident, value in items:
+                if isinstance(ident, Mapping):
+                    identity = {k: _python(v) for k, v in ident.items()
+                                if not _missing(v)}
+                else:
+                    identity = {"key": _python(ident)}
+                records.append((str(table), identity, {str(column): value}))
+        if not records:
+            return 0
+        if self.where == "legacy":
+            from .database_concurrency import transaction
+
+            with transaction(self._conn):
+                return _legacy_apply(self._conn, records, guard=None,
+                                     every_row=False, key_column=key_column,
+                                     types={c: "INTEGER" for c in columns},
+                                     upsert=False, create=False)
+        rows = _edit_rows(records, kind=self.kind, author=self.author,
+                          source=self.source, session=self.session,
+                          run_id=self.run_id)
+        os.makedirs(os.path.dirname(self.file), exist_ok=True)
+        _append_lines(self.file, rows)
+        self._added.append([(r["table"], r["object_key"], r["timeID"],
+                             r["key"], r["column"], r["seq_ns"],
+                             r["seq_writer"]) for r in rows])
+        self._lines += len(rows)
+        if self._lines >= self.fold_every:
+            self.fold()
+        return len(rows)
+
+    def undo(self) -> int:
+        """Undo this journal's latest add: append each cell's earlier value.
+
+        The undone edit stays in the history; the cell gets the value it
+        held just before it (from any author), or is cleared when it had
+        none.
+
+        :returns: the edits appended; 0 when there is nothing to undo.
+        :raises StoreError: on an older ``measurements.db``, which keeps no
+            history.
+        """
+        if self.where == "legacy":
+            raise StoreError(_message(
+                "an older measurements.db keeps no edit history to undo"))
+        if not self._added:
+            return 0
+        rows = _undo_rows(self.path, self._added.pop(), kind=self.kind,
+                          author=self.author, source=self.source,
+                          session=self.session, run_id=self.run_id)
+        _append_lines(self.file, rows)
+        self._lines += len(rows)
+        return len(rows)
+
+    def fold(self) -> Optional[str]:
+        """Fold the journal's lines into one Parquet edit file now.
+
+        :returns: the new file, or None when there was nothing to fold.
+        """
+        if self.where == "legacy" or self.file is None:
+            return None
+        folded = _fold_journal(self.path, self.file)
+        self._lines = 0
+        return folded
+
+    def close(self) -> Optional[str]:
+        """Fold what is left and close the journal.
+
+        :returns: the last folded file, or None.
+        """
+        if self._closed:
+            return None
+        self._closed = True
+        if self._conn is not None:
+            self._conn.close()
+            self._conn = None
+        folded = self.fold()
+        if (self.file is not None and os.path.isfile(self.file)
+                and not os.path.getsize(self.file)):
+            _remove(self.file)
+        return folded
+
+
+def journal(project, *, kind: str, source: str, author: Optional[str] = None,
+            session: Optional[str] = None, run_id: Optional[str] = None,
+            fold_every: int = FOLD_EVERY) -> EditJournal:
+    """Open an :class:`EditJournal` for a GUI session's clicks.
+
+    :param project: a store project or an older ``measurements.db``.
+    :param kind: the edit kind, for example ``annotation``.
+    :param source: the source of every edit, for example ``annotator``.
+    :param author: the person.
+    :param session: the session name; a fresh one when None.
+    :param run_id: the run, if any.
+    :param fold_every: edits between folds into a Parquet file.
+    :returns: the journal; close it (or use ``with``) to fold it.
+    """
+    return EditJournal(project, kind=kind, source=source, author=author,
+                       session=session, run_id=run_id, fold_every=fold_every)
+
+
+def _read_journal(path: str) -> List[Dict[str, Any]]:
+    """The complete lines of a journal; a torn last line is skipped."""
+    rows = []
+    try:
+        with builtins.open(path, encoding="utf-8") as handle:
+            for line in handle:
+                if not line.endswith("\n"):
+                    break
+                try:
+                    rows.append(json.loads(line))
+                except ValueError:
+                    continue
+    except FileNotFoundError:
+        return []
+    return rows
+
+
+def _fold_journal(project: str, path: str) -> Optional[str]:
+    """Write a journal's lines as one edit file, then empty the journal.
+
+    A crash between the two leaves the rows twice, once in each; every view
+    reads edits ``DISTINCT``, so they count once.
+    """
+    rows = _read_journal(path)
+    if not rows:
+        return None
+    by_kind: Dict[str, List[Dict[str, Any]]] = {}
+    fallback = os.path.basename(os.path.dirname(path))
+    for row in rows:
+        by_kind.setdefault(str(row.get("kind") or fallback), []).append(row)
+    folded = None
+    for kind, mine in sorted(by_kind.items()):
+        folded = _publish_edit_file(project, kind, mine)
+    with builtins.open(path, "r+", encoding="utf-8") as handle:
+        handle.truncate(0)
+        handle.flush()
+        os.fsync(handle.fileno())
+    _refresh_training(project, {(r["table"], r["column"]) for r in rows})
+    return folded
+
+
+def _undo_rows(project: str, undone: Sequence[tuple], *, kind, author,
+               source, session, run_id) -> List[Dict[str, Any]]:
+    """Rows that give each undone cell the value it held just before."""
+    conn = _edit_connection(project)
+    writer = _writer_id()
+    rows = []
+    try:
+        for table, object_key, time_id, key, column, seq_ns, seq_writer in undone:
+            before = conn.execute(
+                "SELECT op, value_num, value_text FROM spacr_edits WHERE "
+                "\"table\" = ? AND \"column\" = ? AND key IS NOT DISTINCT "
+                "FROM ? AND object_key IS NOT DISTINCT FROM ? AND \"timeID\" "
+                "IS NOT DISTINCT FROM ? AND (seq_ns < ? OR (seq_ns = ? AND "
+                "seq_writer < ?)) ORDER BY seq_ns DESC, seq_writer DESC "
+                "LIMIT 1", [table, column, key, object_key, time_id, seq_ns,
+                            seq_ns, seq_writer]).fetchone()
+            op, number, text = before if before else ("clear", None, None)
+            if op != "set":
+                op, number, text = "clear", None, None
+            stamp, mine = _edit_stamp(writer)
+            rows.append({"table": table, "object_key": object_key,
+                         "timeID": time_id, "key": key, "column": column,
+                         "value_num": number, "value_text": text, "op": op,
+                         "seq_ns": stamp, "seq_writer": mine,
+                         "author": author, "source": source,
+                         "session": session, "run_id": run_id, "kind": kind})
+    finally:
+        conn.close()
+    return rows
+
+
+def undo(project, stamp: tuple, *, kind: str, source: str,
+         author: Optional[str] = None, session: Optional[str] = None) -> int:
+    """Undo one recorded edit by appending the value its cell held before.
+
+    :param project: a store project.
+    :param stamp: the edit's ``(seq_ns, seq_writer)``.
+    :param kind: the kind the undo is recorded under.
+    :param source: its source.
+    :param author: its author.
+    :param session: its session.
+    :returns: the edits appended (0 when no edit has that stamp).
+    :raises StoreError: on an older ``measurements.db``, which keeps no
+        history.
+    """
+    kind = _check_kind(kind)
+    where, path = _edit_target(project)
+    if where == "legacy":
+        raise StoreError(_message(
+            "an older measurements.db keeps no edit history to undo"))
+    conn = _edit_connection(path)
+    try:
+        found = conn.execute(
+            "SELECT \"table\", object_key, \"timeID\", key, \"column\", "
+            "seq_ns, seq_writer FROM spacr_edits WHERE seq_ns = ? AND "
+            "seq_writer = ?", [int(stamp[0]), int(stamp[1])]).fetchall()
+    finally:
+        conn.close()
+    if not found:
+        return 0
+    rows = _undo_rows(path, found, kind=kind, author=author, source=source,
+                      session=session, run_id=None)
+    _publish_edit_file(path, kind, rows)
+    _refresh_training(path, {(r["table"], r["column"]) for r in rows})
+    return len(rows)
+
+
+def _training_path(project: str, table: str, column: str) -> str:
+    """Where the training table of one label column lives."""
+    return os.path.join(project, EDITS, _TRAINING, _encoded(table),
+                        _encoded(column) + ".parquet")
+
+
+def _refresh_training(project: str, touched) -> None:
+    """Rewrite the training table of each touched ``(table, column)``.
+
+    One small file per label column holds the identity and latest value of
+    every labelled row, so a classifier's training pull reads the labelled
+    rows by key and never joins the whole table.
+    """
+    if not touched:
+        return
+    pq = _require("pyarrow.parquet")
+    conn = _edit_connection(project)
+    try:
+        for table, column in sorted(touched):
+            data = _arrow_of(
+                conn,
+                "SELECT object_key, \"timeID\", key, value_num, value_text, "
+                "seq_ns, seq_writer FROM labels_latest WHERE \"table\" = ? "
+                "AND \"column\" = ? ORDER BY key, object_key, \"timeID\"",
+                [table, column])
+            path = _training_path(project, table, column)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            temporary = path + f".{uuid.uuid4().hex}.tmp"
+            pq.write_table(data, temporary, compression="zstd")
+            _fsync(temporary)
+            os.replace(temporary, path)
+    finally:
+        conn.close()
+
+
+def _owner_alive(path: str) -> bool:
+    """Whether another live process owns the journal at ``path``."""
+    match = re.search(r"-(\d+)\.jsonl$", path)
+    if not match:
+        return False
+    pid = int(match.group(1))
+    return pid != os.getpid() and _alive(pid)
+
+
+def _snapshot(path: str, kind: str, files: List[str]) -> int:
+    """Replace ``files`` of one kind by one sorted snapshot; its rows."""
+    pq = _require("pyarrow.parquet")
+    conn = _connect()
+    try:
+        data = _arrow_of(
+            conn, "SELECT * EXCLUDE (kind) FROM (" + _edits_select(files, [])
+            + ") ORDER BY \"table\", \"column\", object_key, key, \"timeID\", "
+            "seq_ns, seq_writer")
+    finally:
+        conn.close()
+    schema = _edit_schema()
+    data = data.select(schema.names).cast(schema)
+    folder = _edit_folder(path, kind)
+    first = int(data.column("seq_ns")[0].as_py()) if data.num_rows else 0
+    final = os.path.join(folder,
+                         f"snapshot-{first:020d}-{uuid.uuid4().hex}.parquet")
+    temporary = final + ".tmp"
+    pq.write_table(data, temporary, compression="zstd")
+    _fsync(temporary)
+    os.replace(temporary, final)
+    for name in files:
+        _remove(name)
+    return data.num_rows
+
+
+def compact(project) -> Dict[str, Any]:
+    """Fold the edit log of a store project into one snapshot per kind.
+
+    Journals whose session has ended are folded first. Each kind's edit
+    files then become one file sorted by ``(table, column, object_key,
+    key, seq)``, written before the old ones are removed; it keeps the full
+    history, and a reader that sees both reads each row once.
+
+    :param project: a store project folder.
+    :returns: ``{"journals", "files", "rows"}``: journals folded, edit files
+        replaced, rows in the snapshots.
+    :raises StoreError: on an older ``measurements.db``.
+    """
+    where, path = _edit_target(project)
+    if where == "legacy":
+        raise StoreError(_message(
+            "an older measurements.db has no edit log to compact"))
+    folded = replaced = total = 0
+    with _register_lock(path, name=_EDIT_LOCK):
+        for journal_file in _edit_sources(path)[1]:
+            if not _owner_alive(journal_file):
+                if _fold_journal(path, journal_file):
+                    folded += 1
+                _remove(journal_file)
+        by_kind: Dict[str, List[str]] = {}
+        root = os.path.join(path, EDITS)
+        for name in _edit_sources(path)[0]:
+            kind = os.path.relpath(name, root).split(os.sep)[0]
+            by_kind.setdefault(kind, []).append(name)
+        for kind, mine in sorted(by_kind.items()):
+            total += _snapshot(path, kind, mine)
+            replaced += len(mine)
+    return {"journals": folded, "files": replaced, "rows": total}
+
+
+def _bookkeeping_files(project: str) -> Dict[str, List[str]]:
+    """``{table: its Parquet files}`` of the bookkeeping tables, sorted."""
+    root = os.path.join(project, EDITS, _BOOKKEEPING)
+    out: Dict[str, List[str]] = {}
+    for path in sorted(glob.glob(os.path.join(glob.escape(root), "*",
+                                              "*.parquet"))):
+        name = urllib.parse.unquote(os.path.basename(os.path.dirname(path)))
+        out.setdefault(name, []).append(path)
+    return out
+
+
+def append_rows(project, table: str, rows, *, columns: Sequence[str],
+                ddl: str, timeout: float = 30.0) -> int:
+    """Append bookkeeping rows (provenance, run logs, audits) to ``table``.
+
+    These are records, not edits of another table's cells: each call adds
+    rows and nothing is changed. An older ``measurements.db`` gets ``ddl``
+    (a ``CREATE TABLE IF NOT EXISTS``) and the rows in one transaction; a
+    store project gets one Parquet file per call under
+    ``edits/_bookkeeping/<table>/``, which :class:`Store` shows as the view
+    ``table``.
+
+    :param project: a store project or an older ``measurements.db``.
+    :param table: the bookkeeping table.
+    :param rows: mappings, each holding every one of ``columns``.
+    :param columns: the columns, in the table's order.
+    :param ddl: the SQLite ``CREATE TABLE IF NOT EXISTS`` of ``table``.
+    :param timeout: seconds a legacy write waits for SQLite's lock.
+    :returns: the rows appended.
+    """
+    rows = [dict(r) for r in rows]
+    where, path = _edit_target(project)
+    if where == "legacy":
+        from .database_concurrency import transaction
+
+        conn = _legacy_connection(path, timeout=timeout)
+        try:
+            with transaction(conn):
+                conn.execute(ddl)
+                if not rows:
+                    return 0
+                marks = ", ".join("?" for _c in columns)
+                return conn.executemany(
+                    f"INSERT INTO {_legacy_quoted(table)} VALUES ({marks})",
+                    [tuple(_python(r.get(c)) for c in columns)
+                     for r in rows]).rowcount
+        finally:
+            conn.close()
+    if not rows:
+        return 0
+    pa = _require("pyarrow")
+    pq = _require("pyarrow.parquet")
+    data = pa.Table.from_pylist([{c: _python(r.get(c)) for c in columns}
+                                 for r in rows])
+    folder = _edit_folder(path, _BOOKKEEPING, _encoded(table))
+    stamp, _writer = _edit_stamp(_writer_id())
+    final = os.path.join(folder, f"rows-{stamp:020d}-{uuid.uuid4().hex}"
+                                 f".parquet")
+    temporary = final + ".tmp"
+    pq.write_table(data, temporary, compression="zstd")
+    _fsync(temporary)
+    os.replace(temporary, final)
+    return len(rows)
+
+
+def _safe_name(text: str) -> str:
+    """``text`` with anything but letters, digits, ``_``, ``.``, ``-`` as ``_``."""
+    return re.sub(r"[^A-Za-z0-9_.-]", "_", str(text))
+
+
+def write_scores(project, frame, *, model: str, run_id: str, target: str,
+                 kind: str = "classifier", plate=None, well=None,
+                 activate: bool = True) -> str:
+    """Write a model's dense outputs as their own table, and make it active.
+
+    Scores are not edits: a million of them are one column. They go to
+    ``score__<model>__<run_id>``, one part per well, keyed like
+    ``target``, and ``spacr_active_outputs`` names the table that is
+    current for ``kind``; ``<target>_labeled`` joins it. Switching models
+    changes that one row.
+
+    :param project: a store project folder.
+    :param frame: one row per object: the identity of ``target``
+        (``object_key`` and ``timeID``, or its text identity such as
+        ``png_path``) and the output columns; ``plate`` and ``well``
+        columns split it into parts.
+    :param model: the model name.
+    :param run_id: the scoring run.
+    :param target: the table the scores belong to, for example ``cell``.
+    :param kind: the output kind, for example ``classifier``.
+    :param plate: the plate when ``frame`` has no ``plate`` column.
+    :param well: the well when ``frame`` has no ``well`` column.
+    :param activate: make this table the active one for ``kind``.
+    :returns: the table name.
+    :raises StoreError: when ``frame`` lacks the target's identity.
+    """
+    import pandas as pd
+
+    frame = pd.DataFrame(frame)
+    identity = _identity(target)
+    keys = [identity] if identity else [c for c in ("object_key", "timeID")
+                                        if c in frame.columns]
+    if not keys or any(k not in frame.columns for k in keys):
+        raise StoreError(_message(
+            "scores for {target} need the column(s) {keys}", target=target,
+            keys=", ".join(keys or ["object_key"])))
+    name = f"score__{_safe_name(model)}__{_safe_name(run_id)}"
+    frame = frame.copy()
+    if "plate" not in frame.columns:
+        frame["plate"] = str(plate if plate is not None else "plate")
+    if "well" not in frame.columns:
+        frame["well"] = str(well if well is not None else "all")
+    for (plate_name, well_name), part in frame.groupby(["plate", "well"],
+                                                       sort=True):
+        write_table(project, name, part.reset_index(drop=True),
+                    plate=str(plate_name), well=str(well_name),
+                    run_id=run_id, sort_by=tuple(keys),
+                    key_columns=tuple(keys))
+    register(project)
+    if activate:
+        _activate(project, kind, name, target)
+    return name
+
+
+def activate(project, kind: str, table: str, target: str) -> None:
+    """Make ``table`` the active output of ``kind`` for ``target``.
+
+    One row of ``spacr_active_outputs`` in the catalog changes, under the
+    register lock; ``<target>_labeled`` then joins ``table``.
+
+    :param project: a store project folder.
+    :param kind: the output kind, for example ``classifier``.
+    :param table: a registered score table.
+    :param target: the table the scores belong to.
+    :raises StoreError: when the store does not hold ``table``.
+    """
+    _activate(project, kind, table, target)
+
+
+def _activate(project, kind: str, table: str, target: str) -> None:
+    """:func:`activate`, callable where a parameter shadows its name."""
+    path = os.path.abspath(os.fspath(project))
+    with _register_lock(path):
+        conn = _connect(os.path.join(path, CATALOG))
+        try:
+            known = conn.execute("SELECT 1 FROM spacr_files WHERE "
+                                 "table_name = ? LIMIT 1", [str(table)]
+                                 ).fetchone()
+            if known is None:
+                raise StoreError(_message(
+                    "{table} is not a table of this store", table=table))
+            conn.execute(_ACTIVE_DDL)
+            conn.execute("INSERT OR REPLACE INTO spacr_active_outputs VALUES "
+                         "(?, ?, ?, ?)", [str(kind), str(table), str(target),
+                                          _now()])
+        finally:
+            conn.close()

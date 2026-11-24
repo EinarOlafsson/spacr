@@ -126,14 +126,18 @@ def _queued_startup_failure(path, monkeypatch):
 def test_empty_configured_path_connection_failure_retains_labels_without_path_facts(monkeypatch):
     import errno
 
-    real_connect = engine.connect_database
+    from spacr import store
+
+    real_journal = store.journal
 
     def disk_unavailable(path, *args, **kwargs):
         if path == '':
             raise OSError(errno.ENOSPC, 'no database storage available')
-        return real_connect(path, *args, **kwargs)
+        return real_journal(path, *args, **kwargs)
 
-    monkeypatch.setattr(engine, 'connect_database', disk_unavailable)
+    # The writer opens its database through the store's edit journal
+    # (unified-store step S5), so that is where storage can be missing.
+    monkeypatch.setattr(store, 'journal', disk_unavailable)
     _worker, error = _queued_startup_failure('', monkeypatch)
     facts = error._spacr_annotation_database
     assert facts['path'] == 'empty'
@@ -186,6 +190,11 @@ def test_cursor_allocation_failure_closes_real_connection_and_preserves_rows(tmp
         def cursor(self):
             raise MemoryError('database cursor allocation failed')
 
+        in_transaction = False
+
+        def execute(self, *args, **kwargs):
+            raise MemoryError('database cursor allocation failed')
+
         def __init__(self):
             self.connection = sqlite3.connect(path)
 
@@ -195,8 +204,26 @@ def test_cursor_allocation_failure_closes_real_connection_and_preserves_rows(tmp
                 self.connection.execute('SELECT 1')
             closed.append(True)
 
-    monkeypatch.setattr(engine, 'connect_database', lambda *args, **kwargs: CursorAllocationFailure())
-    _worker, error = _queued_startup_failure(str(path), monkeypatch)
+    from spacr import store
+
+    # The writer's connection is the store journal's (unified-store step S5).
+    # The connection opens, so the failure comes with the first write: the
+    # batch is kept as the failed batch, unsaved, and no startup facts are
+    # attached because the database itself was reached.
+    monkeypatch.setattr(store, '_legacy_connection',
+                        lambda *args, **kwargs: CursorAllocationFailure())
+    captured = []
+    monkeypatch.setattr(engine.LOG, 'exception',
+                        lambda *args, **kwargs: captured.append(sys.exc_info()[1]))
+    worker = engine.SaveWorker(str(path), 'annotate')
+    labels = {'/private/patient/image.png': 1, '/private/patient/second.png': 2}
+    worker.submit(labels)
+    worker.start()
+    worker.stop(wait=True)
+    assert not worker.is_alive and worker.pending_batches == 1
+    assert worker.last_save_ts is None and worker.last_error
+    assert worker._failed_batch == labels
+    error = captured[0]
     assert isinstance(error, MemoryError) and not hasattr(error, '_spacr_annotation_database')
     assert closed == [True]
     with sqlite3.connect(path) as connection:

@@ -4305,6 +4305,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_phtables_store_arrivals(callables)
     from tests.test_store_hardening_s0 import _validated_s0_arrivals
     callables = _validated_s0_arrivals(callables)
+    from tests.test_store_edit_log_s5 import _validated_s5_arrivals
+    callables = _validated_s5_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -7264,6 +7266,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **_phtables_store_birth_arrivals(zoo_additions)}
     from tests.test_store_hardening_s0 import _s0_birth_arrivals
     zoo_additions = {**zoo_additions, **_s0_birth_arrivals(zoo_additions)}
+    from tests.test_store_edit_log_s5 import _s5_birth_arrivals
+    zoo_additions = {**zoo_additions, **_s5_birth_arrivals(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
@@ -7922,6 +7926,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= _phtables_store_birth_arrivals().keys()
     from tests.test_store_hardening_s0 import _s0_birth_arrivals
     contract_callables |= _s0_birth_arrivals().keys()
+    from tests.test_store_edit_log_s5 import _s5_birth_arrivals
+    contract_callables |= _s5_birth_arrivals().keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -8099,6 +8105,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= _phtables_store_birth_arrivals().keys()
     from tests.test_store_hardening_s0 import _s0_birth_arrivals
     arrival_callables |= _s0_birth_arrivals().keys()
+    from tests.test_store_edit_log_s5 import _s5_birth_arrivals
+    arrival_callables |= _s5_birth_arrivals().keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background

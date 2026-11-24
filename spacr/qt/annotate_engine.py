@@ -32,11 +32,6 @@ from skimage.exposure import rescale_intensity
 from spacr.database_concurrency import (
     connect as connect_database,
 )
-from spacr.database_concurrency import (
-    DatabaseBusy,
-    is_busy_error,
-    transaction,
-)
 
 from .i18n import tr
 
@@ -943,29 +938,12 @@ def ensure_annotation_column(db_path: str, column: str, *,
         return
     if _annotation_schema_ready(db_path, column, table):
         return
-    safe = column.replace('"', '""')
-    conn = connect_database(db_path, timeout=_SCHEMA_WRITE_TIMEOUT_S)
-    try:
-        cur = conn.cursor()
-        try:
-            with transaction(conn):
-                cur.execute(f'PRAGMA table_info("{table}")')
-                cols = {row[1] for row in cur.fetchall()}
-                if column not in cols:
-                    cur.execute(
-                        f'ALTER TABLE "{table}" ADD COLUMN "{safe}" INTEGER')
-                identity = _annotation_identity(table)
-                index = "idx_ome_crop_object_id" if table == "ssCell_Crops" else "idx_png_path"
-                cur.execute(f'CREATE INDEX IF NOT EXISTS "{index}" '
-                            f'ON "{table}" ("{identity}")')
-        except sqlite3.OperationalError as exc:
-            if is_busy_error(exc) and not isinstance(exc, DatabaseBusy):
-                raise DatabaseBusy(
-                    f"{db_path} stayed locked by another connection for "
-                    f"{_SCHEMA_WRITE_TIMEOUT_S:g} s: {exc}") from exc
-            raise
-    finally:
-        conn.close()
+    from spacr import store
+
+    index = "idx_ome_crop_object_id" if table == "ssCell_Crops" else "idx_png_path"
+    store.ensure_columns(db_path, table, {column: "INTEGER"},
+                         index=(index, _annotation_identity(table)),
+                         timeout=_SCHEMA_WRITE_TIMEOUT_S)
 
 
 #: Seconds `ensure_annotation_column` waits for the write lock when it really
@@ -1504,21 +1482,15 @@ def clear_column(db_path: str, annotation_column: str, *,
     """
     if not os.path.isfile(db_path):
         return
+    from spacr import store
+
     from ..suggest import verdict_column
 
-    col = (annotation_column or "").replace('"', '""')
-    verdict = verdict_column(annotation_column or "").replace('"', '""')
-    conn = connect_database(db_path, timeout=30)
-    try:
-        has_verdict = any(
-            row[1] == verdict_column(annotation_column or "")
-            for row in conn.execute(f'PRAGMA table_info("{table}")'))
-        with transaction(conn):
-            conn.execute(f'UPDATE "{table}" SET "{col}" = NULL')
-            if has_verdict:
-                conn.execute(f'UPDATE "{table}" SET "{verdict}" = NULL')
-    finally:
-        conn.close()
+    store.edit(db_path, [{"column": annotation_column or "", "value": None},
+                         {"column": verdict_column(annotation_column or ""),
+                          "value": None}],
+               kind="annotation", source="annotator", table=table,
+               every_row=True)
 
 
 def find_last_annotated_offset(
@@ -1738,32 +1710,18 @@ class SaveWorker:
         else:
             pending.update(item)
 
-    def _write_column(self, cur, col: str, pending: dict) -> None:
-        """Write one coalesced ``{png_path: value}`` batch into ``col``.
+    @staticmethod
+    def _column_batch(pending: dict) -> dict:
+        """One coalesced ``{png_path: value}`` batch as the journal takes it.
 
-        :param cur: a cursor inside the caller's transaction.
-        :param col: the column, already quoted-safe (``"`` doubled).
+        Clears come before sets, as they always have; a set is an integer.
+
         :param pending: ``{png_path: value}``; ``None`` clears.
+        :returns: ``{png_path: int or None}``.
         """
-        if not pending:
-            return
-        to_null = [p for p, v in pending.items() if v is None]
-        to_set = [
-            (int(v), p) for p, v in pending.items()
-            if v is not None
-        ]
-        if to_null:
-            cur.executemany(
-                f'UPDATE "{self.table}" SET "{col}" = NULL '
-                f'WHERE "{_annotation_identity(self.table)}" = ?',
-                [(p,) for p in to_null],
-            )
-        if to_set:
-            cur.executemany(
-                f'UPDATE "{self.table}" SET "{col}" = ? '
-                f'WHERE "{_annotation_identity(self.table)}" = ?',
-                to_set,
-            )
+        cleared = {p: None for p, v in pending.items() if v is None}
+        given = {p: int(v) for p, v in pending.items() if v is not None}
+        return {**cleared, **given}
 
     def _run(self) -> None:
         """Drain the annotation queue into the database until told to stop.
@@ -1772,8 +1730,9 @@ class SaveWorker:
         unsafe for projects on NAS and NFS mounts, which is where a shared
         plate usually lives.
         """
-        conn = None
-        cur = None
+        from spacr import store
+
+        journal = None
         try:
             try:
                 if self.db_path:
@@ -1782,9 +1741,10 @@ class SaveWorker:
             except FileNotFoundError:
                 raise FileNotFoundError(
                     _missing_annotation_database_message(self.db_path)) from None
-            conn = connect_database(self.db_path, timeout=30)
-            cur = conn.cursor()
-            col = (self.annotation_column or "").replace('"', '""')
+            journal = store.journal(self.db_path, kind="annotation",
+                                    source="annotator")
+            col = self.annotation_column or ""
+            identity = _annotation_identity(self.table)
             while True:
                 try:
                     item = self._q.get(timeout=0.1)
@@ -1813,11 +1773,13 @@ class SaveWorker:
                         break
                 self._busy = True
                 try:
-                    with transaction(conn):
-                        self._write_column(cur, col, pending)
-                        for name, batch in others.items():
-                            self._write_column(
-                                cur, name.replace('"', '""'), batch)
+                    columns = {}
+                    if pending:
+                        columns[col] = self._column_batch(pending)
+                    for name, batch in others.items():
+                        if batch:
+                            columns[name] = self._column_batch(batch)
+                    journal.add_batch(self.table, columns, key_column=identity)
                 except BaseException as exc:
                     with self._lock:
                         self._last_error = (
@@ -1843,7 +1805,7 @@ class SaveWorker:
                     self._busy = False
                     self._q.task_done()
         except BaseException as exc:
-            if conn is None:
+            if journal is None:
                 exc._spacr_annotation_database = _annotation_database_diagnostics(
                     self.db_path, exc, self.pending_batches)
             with self._lock:
@@ -1854,10 +1816,5 @@ class SaveWorker:
             LOG.exception(
                 "Annotate database writer stopped before saving queued edits")
         finally:
-            if cur is not None:
-                try:
-                    cur.close()
-                except sqlite3.Error:
-                    pass
-            if conn is not None:
-                conn.close()
+            if journal is not None:
+                journal.close()

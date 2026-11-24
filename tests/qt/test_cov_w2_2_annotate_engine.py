@@ -802,7 +802,7 @@ def test_a_failed_write_is_reported_and_the_batch_is_kept(project,
     def explode(_conn):
         raise sqlite3.OperationalError("database is locked")
 
-    monkeypatch.setattr(engine, "transaction", explode)
+    monkeypatch.setattr("spacr.database_concurrency.transaction", explode)
 
     worker = _worker(project)
     try:

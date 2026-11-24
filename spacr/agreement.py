@@ -81,6 +81,7 @@ __all__ = [
     "PNG_KEY",
     "agreement_report",
     "annotation_columns",
+    "annotations_by_author",
     "cohens_kappa",
     "confusion_matrix",
     "disagreements",
@@ -743,6 +744,44 @@ def load_annotations(db_path: str, columns: Sequence[str],
                               dtype=object)
     return pd.DataFrame(data, columns=[key] + cols)
 
+
+
+def annotations_by_author(project: str, column: str, *,
+                          table: str = PNG_TABLE) -> pd.DataFrame:
+    """One label column of a store project's edit log, one column per author.
+
+    Read from the full edit log, not the resolved view: when two annotators
+    labelled the same crop the view keeps the later one (last writer wins),
+    while the log keeps both, which is what agreement needs. Each author's
+    own latest value of each row is used; a cleared value is an abstention.
+
+    :param project: a store project folder.
+    :param column: the label column.
+    :param table: the table (default ``png_list``).
+    :returns: a DataFrame with ``key`` first, then one normalised column per
+        author, in name order; empty when no author labelled the column.
+    """
+    from . import store
+
+    with store.open(project, verify="none") as reader:
+        log = reader.edits(latest=False, table=table, column=column)
+    if log.empty:
+        return pd.DataFrame(columns=["key"])
+    log = log.assign(
+        key=log["key"].where(log["key"].notna(),
+                             log["object_key"].astype("string")),
+        author=log["author"].fillna("").astype(str),
+        value=log["value_text"].where(log["value_text"].notna(),
+                                      log["value_num"]))
+    log.loc[log["op"] != "set", "value"] = None
+    latest = log.sort_values(["seq_ns", "seq_writer"]).groupby(
+        ["key", "author"], sort=True).tail(1)
+    wide = latest.pivot(index="key", columns="author", values="value")
+    out = pd.DataFrame({"key": pd.Series(list(wide.index), dtype=object)})
+    for author in sorted(wide.columns):
+        out[author] = pd.Series(_normalise(wide[author].tolist()),
+                                dtype=object)
+    return out
 
 
 @dataclass

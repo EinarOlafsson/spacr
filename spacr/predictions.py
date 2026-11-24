@@ -790,6 +790,7 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
     :raises ValueError: if a Parquet table is missing or prediction output
         would replace a join-key column in an alternate store.
     """
+    from . import store
     from .tabular import _backend_of, resolve_path
 
     backend = _backend_of(db_path)
@@ -810,6 +811,13 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
             f"merge_prediction_results: results frame has no column(s) "
             f"{missing}; it carries {list(results.columns)[:12]}"
             + (" ..." if len(results.columns) > 12 else ""))
+
+    if os.path.isfile(os.path.join(db_path, store.CATALOG)):
+        report = _merge_store_project(results, db_path, spec, table, key,
+                                      timelapse)
+        if verbose:
+            print(report.summary())
+        return report
 
     if backend in ('duckdb', 'postgres'):
         report = _merge_sql_store(results, db_path, spec, table, key,
@@ -843,6 +851,48 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
 
     if verbose:
         print(report.summary())
+    return report
+
+
+def _merge_store_project(results, project, spec, table, key, timelapse):
+    """Write the scores of a store project as a derived score table.
+
+    The table's rows are never rewritten: the planned values go to
+    ``score__<columns>__<digest>`` through :func:`spacr.store.write_scores`,
+    keyed like ``table``, and become its active output, which
+    ``<table>_labeled`` joins. The run id is a digest of the scores, so the
+    same merge writes the same table.
+    """
+    import hashlib
+
+    from . import store
+
+    with store.open(project, verify="none") as reader:
+        table_columns = list(reader.columns(table)["name"])
+        identity = store._identity(table)
+        wanted = [identity] if identity else ["object_key", "timeID"]
+        key_columns = [c for c in table_columns
+                       if c in ("prcfo", "png_path", "file_name")
+                       or c in _PRCFO_METADATA or c in _OBJECT_ID_COLUMNS
+                       or c in ("timeID", "time_id")]
+        if set(spec) & set(key_columns):
+            raise ValueError('Prediction output cannot replace a join-key column.')
+        select = list(dict.fromkeys(
+            key_columns + [c for c in wanted + ["plate", "well"]
+                           if c in table_columns]))
+        db_frame = reader.query(table=table, features=select)[select]
+    updates, report, order, _types = _plan_merge(
+        results, spec, table, key, timelapse, table_columns, db_frame,
+        range(len(db_frame)), [])
+    rows = [update[-1] for update in updates]
+    out = db_frame.iloc[rows][[c for c in wanted + ["plate", "well"]
+                               if c in db_frame.columns]].reset_index(drop=True)
+    for position, column in enumerate(order):
+        out[column] = [update[position] for update in updates]
+    digest = hashlib.sha256(pd.util.hash_pandas_object(
+        out, index=False).values.tobytes()).hexdigest()[:12]
+    store.write_scores(project, out, model="_".join(order), run_id=digest,
+                       target=table, kind="prediction")
     return report
 
 
