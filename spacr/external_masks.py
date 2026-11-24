@@ -578,7 +578,11 @@ def _pair_masks(image_plan: cv.ConversionPlan,
 
 def default_settings(settings: Optional[Mapping[str, Any]] = None
                      ) -> Dict[str, Any]:
-    """Return importer settings plus the complete Measure setting contract."""
+    """Return importer settings plus the complete Measure setting contract.
+
+    The import saves its crops as PNG files listed in ``png_list``, which
+    :func:`run_external_masks` checks for when ``save_png`` is on.
+    """
     from .settings import get_measure_crop_settings
 
     resolved = get_measure_crop_settings({})
@@ -599,6 +603,7 @@ def default_settings(settings: Optional[Mapping[str, Any]] = None
         "experiment": "external_masks",
         "save_measurements": True,
         "save_png": True,
+        "crop_image_format": "png",
         "cytoplasm": True,
     })
     resolved.update(dict(settings or {}))

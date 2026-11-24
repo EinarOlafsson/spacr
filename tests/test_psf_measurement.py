@@ -316,7 +316,8 @@ def test_crops_retain_source_pixels_for_both_intensity_choices(tmp_path):
     captures = []
     for source in ('original', 'processed'):
         project, merged, name = _project(tmp_path / source)
-        settings = _config(merged, save_png=True, save_arrays=True)
+        settings = _config(merged, save_png=True, save_arrays=True,
+                           crop_image_format='png')
         settings['psf_measurement_source'] = source
         result = _measure_crop_core(0, [], name, settings)
         assert not result[4], result[4]

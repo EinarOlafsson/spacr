@@ -2197,6 +2197,14 @@ def _check_regression_score_columns(settings: Dict[str, Any], *,
                 "containing the intended response, or explicitly choose the measured "
                 "response in dependent_variable. Check that Score source and Count "
                 "source are not swapped. No response column is chosen automatically.")
+            looks_like_counts = sorted({'grna', 'grna_name', 'count'}.intersection(columns))
+            if looks_like_counts:
+                fix = tr(
+                    "The score table has {columns} and no score column, which is the "
+                    "shape of a COUNT file. The score and count inputs look swapped: in "
+                    "Regression > Input Tables > Paired data, put this file in Count "
+                    "source and the per-object score file in Score source.",
+                    columns=looks_like_counts)
             if response == 'pred':
                 fix = f"{fix} {pred_guidance()}"
             problems.append(Problem(

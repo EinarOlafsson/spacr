@@ -436,6 +436,9 @@ def test_measure_final_overload_pass_follows_all_fields_and_counts_each_once(
         IO, '_listdir_visible',
         lambda folder: list(order) if str(folder) == str(merged)
         else original_listdir(folder))
+    # With the default OME-Zarr crop format, Measure runs the fields in name
+    # order whatever order the folder lists them in, so the primary overload is the first field by name and the
+    # field that commits is the second.
     primary = _Item60Result(error=MemoryError('primary overload'))
     other = _Item60Result(value=(1, .1, np.array([0]), {}))
     final = (_Item60Result(error=MemoryError('final overload')) if final_error else
@@ -456,7 +459,8 @@ def test_measure_final_overload_pass_follows_all_fields_and_counts_each_once(
         assert connection.execute('SELECT n_succeeded, n_failed FROM run_status').fetchone() == (
             (1, 1) if final_error else (2, 0))
         committed = {row[0] for row in connection.execute(f'SELECT field FROM {_WRITE_TICKETS_TABLE}')}
-    assert committed == ({order[1]} if final_error else set(names))
+    run_order = sorted(order)
+    assert committed == ({run_order[1]} if final_error else set(names))
 
 
 def test_invalid_measure_worker_result_is_not_admitted_to_the_final_queue(

@@ -8721,7 +8721,7 @@ Read by ``run_embedding_profiles``.
 crop_image_format
 -----------------
 
-(str) - The format Measure writes object crops in. 'ome-zarr' keeps each object's bounding box plus crop_margin_px at full bit depth, with every channel, every object class's labels cut to the same box and the object's ID: in crop.ome.zarr when save_png is on, streamed from fov.ome.zarr when it is off. The crop index is the spacr store table crop_index (mirrored to measurements.db table ssCell_Crops for Annotate). Intensities are not stretched. 'png' writes the legacy PNG folders. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.
+(str) - The format Measure writes object crops in. 'ome-zarr' keeps each object's bounding box plus crop_margin_px at full bit depth, with every channel, every object class's labels cut to the same box and the object's ID: in crop.ome.zarr when save_png is on, streamed from fov.ome.zarr when it is off. The crop index is the spacr store table crop_index (mirrored to measurements.db table ssCell_Crops for Annotate). Intensities are not stretched. 'png' writes the legacy PNG folders. External Masks starts at 'png', because its import lists its crops in png_list. Default 'ome-zarr'; older saved settings keep their recorded format. Alpha.
 
 | ``_measure_crop_queued``
 |     ``_measure_crop_core``
