@@ -1452,6 +1452,12 @@ def _write_crop_index(db_path: Any, frame: Any, *, project: Any = None) -> None:
                          sort_by=("object_type", "field", "object_label"),
                          key_columns=("object_id", "object_type", "field", "object_label"))
     store.register(str(project))
+    from .measurement_store import drop_tables, store_native, write_rows
+    if store_native(db_path):
+        drop_tables(db_path, ["ssCell_Crops"])
+        write_rows(os.path.dirname(os.path.abspath(os.fspath(db_path))),
+                   "ssCell_Crops", frame, narrow=False)
+        return
     write_database(frame, os.fspath(db_path), "ssCell_Crops",
                    if_exists="replace", canonicalise=False)
 
@@ -1540,23 +1546,14 @@ def _read_crop_index(project: Any) -> Optional[Any]:
                     return found.astype(object).where(found.notna(), None)
         except store.StoreError:
             pass
+    from .measurement_store import exists as _measurements_exist
+    from .measurement_store import read as _store_read, tables as _store_tables
+    if not _measurements_exist(str(db)):
+        return None
+    if "ssCell_Crops" not in _store_tables(str(db)):
+        return None
     if not db.is_file():
-        return None
-    try:
-        with store.open(str(project)) as opened:
-            if "ssCell_Crops" in opened.tables():
-                return opened.query(table="ssCell_Crops")
-    except store.StoreError:
-        pass
-    from contextlib import closing
-
-    from .database_concurrency import connect
-
-    with closing(connect(db, readonly=True)) as conn:
-        present = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
-                               "AND name='ssCell_Crops'").fetchone()
-    if not present:
-        return None
+        return _store_read(str(db), "ssCell_Crops")
     return read_database(str(db), "ssCell_Crops", canonicalise=False,
                          report=None, migrate=False, read_only=True)[0]
 
@@ -1647,19 +1644,18 @@ def ome_zarr_crops_exist(root: Any) -> bool:
         A project that streams its crops (saving crops off, item 0aj) has no
         crop store, only the index and ``fov.ome.zarr``.
     """
-    from contextlib import closing
-
-    from .database_concurrency import connect
     from .image_store import _is_merged_store, _merged_store_path
 
     root = Path(root)
     db = Path(measurements_db_path(root))
     stored = any(any((root / name).glob(f"plate=*/well=*{suffix}"))
                  for name, suffix in _CROP_ROOTS)
-    if not db.is_file() or not (stored or _is_merged_store(_merged_store_path(root))):
+    from .measurement_store import connect as _connect_measurements, exists
+    if not exists(str(db)) or not (stored or _is_merged_store(_merged_store_path(root))):
         return False
-    with closing(connect(db, readonly=True)) as conn:
-        columns = [r[1] for r in conn.execute('PRAGMA table_info("ssCell_Crops")')]
+    with _connect_measurements(str(db), readonly=True) as conn:
+        columns = [r[1] for r in conn.execute(
+            'PRAGMA table_info("ssCell_Crops")').fetchall()]
     return bool(columns) and (stored or "source_field" in columns)
 
 

@@ -20,6 +20,8 @@ from pathlib import Path
 import pandas as pd
 
 from . import schema
+from .measurement_store import connect as _connect_measurements
+from .measurement_store import exists as _measurements_exist
 
 _ORIGINAL_PREFIX = "original_"
 MAP_NAMES = ("conversion_map.csv", "rename_log.csv", "channel_sorting_manifest.csv")
@@ -46,15 +48,15 @@ def discover_maps(db_path) -> list[Path]:
     folders = [folder, *list(folder.parents)[:3]]
     found = [candidate for parent in folders for name in MAP_NAMES
              if (candidate := parent / name).is_file()]
-    if path.is_file() and path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
+    if _measurements_exist(path) and path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
         try:
-            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
+            with closing(_connect_measurements(path, readonly=True)) as connection:
                 exists = connection.execute(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name='conversion_map'"
                 ).fetchone()
             if exists:
                 found.append(path)
-        except sqlite3.Error:
+        except (sqlite3.Error, ValueError):
             pass
     return found
 
@@ -212,7 +214,7 @@ def _map_payload(path):
         try:
             from .tabular import _read_query
 
-            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
+            with closing(_connect_measurements(path, readonly=True)) as connection:
                 stored = _read_query(connection, 'SELECT * FROM "conversion_map"',
                                      canonicalise=False, report=None)
             stored = stored.fillna("").astype(str)
@@ -220,7 +222,7 @@ def _map_payload(path):
             stored = stored.sort_values(list(stored.columns), kind="stable")
             payload = stored.to_csv(index=False, lineterminator="\n").encode("utf-8")
             map_table = "conversion_map"
-        except (sqlite3.Error, pd.errors.DatabaseError) as error:
+        except (sqlite3.Error, pd.errors.DatabaseError, ValueError) as error:
             raise ValueError(f"Cannot read a conversion_map table from {path}: {error}") from error
     else:
         payload = path.read_bytes()

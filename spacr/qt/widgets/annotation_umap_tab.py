@@ -336,7 +336,11 @@ class AnnotationUmapTab(QWidget):
             purity_by_guide,
         )
 
+        from ...schema import is_provenance_column
+
         features = self._frame.select_dtypes(include=[np.number])
+        features = features.drop(columns=[
+            c for c in features.columns if is_provenance_column(c)])
         marks = self._controls
         control_rows = [i for i, m in enumerate(marks) if m is not None]
         if len(control_rows) < 8:

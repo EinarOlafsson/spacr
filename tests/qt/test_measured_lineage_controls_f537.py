@@ -1,4 +1,5 @@
 """Measure exposes alpha lineage controls and calls the real measured-colour engine."""
+from tests import store_sql
 import sqlite3
 
 import numpy as np
@@ -79,7 +80,7 @@ def test_measure_pipeline_uses_saved_filename_mapping_for_actual_area(tmp_path):
         'radial_dist': False, 'calculate_correlation': False,
         'merge_edge_pathogen_cells': False, 'experiment': 'lineage_integration'})
     db = tmp_path / 'measurements' / 'measurements.db'
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         measured = pd.read_sql_query('SELECT prcf, cell_area FROM cell ORDER BY prcf', connection)
     assert sorted(measured['cell_area']) == [4, 9, 16]
     saved = pd.read_csv(tracks_dir / 'lineage_measured' / (path.stem + '_segments.csv'))

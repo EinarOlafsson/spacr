@@ -180,6 +180,7 @@ _NAME_COLUMNS: Tuple[str, ...] = ("path", "png_path", "file_name")
 #:
 #: Order is precedence, and the two additions go LAST so no table that
 #: resolved before resolves differently now.
+from .measurement_store import connect as _connect_measurements
 from .schema import OBJECT_KEY as _OBJECT_KEY, ORGANELLE_ROLES as _ORGANELLE_ROLES
 
 _OBJECT_ID_COLUMNS: Tuple[str, ...] = (
@@ -687,12 +688,14 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
     :param verbose: print each repair.
     :returns: list of ``(table, column, rows_repaired)``.
     """
+    from .measurement_store import exists as _measurements_exist
     from .tabular import _backend_of, resolve_path
 
     backend = _backend_of(db_path)
     if backend in ('duckdb', 'parquet'):
         db_path = resolve_path(db_path)
-    if backend != 'postgres' and not os.path.exists(str(db_path)):
+    if backend != 'postgres' and not (os.path.exists(str(db_path))
+                                      or _measurements_exist(str(db_path))):
         return []
     if backend in ('duckdb', 'postgres'):
         repaired = _migrate_sql_store(str(db_path), table, backend)
@@ -712,15 +715,15 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
         return repaired
 
     repaired: List[Tuple[str, str, int]] = []
-    con = sqlite3.connect(str(db_path), timeout=30)
+    con = _connect_measurements(str(db_path), readonly=False)
     con.isolation_level = None
     try:
         cur = con.cursor()
         tables = {row[0] for row in
-                  cur.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+                  cur.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
         if table not in tables:
             return []
-        cols = [row[1] for row in cur.execute(f"PRAGMA table_info({_quote(table)})")]
+        cols = [row[1] for row in cur.execute(f"PRAGMA table_info({_quote(table)})").fetchall()]
         pending = [c for c in ANNOTATE_ENCODED_COLUMNS if c in cols]
         if not pending:
             return []
@@ -731,7 +734,7 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
                 quoted = _quote(column)
                 distinct = {row[0] for row in cur.execute(
                     f"SELECT DISTINCT {quoted} FROM {_quote(table)} "
-                    f"WHERE {quoted} IS NOT NULL")}
+                    f"WHERE {quoted} IS NOT NULL").fetchall()}
                 if not distinct or not distinct.issubset({1, 2}) or 2 not in distinct:
                     continue
                 _execute(cur, f"UPDATE {_quote(table)} SET {quoted} = 0 "
@@ -791,12 +794,14 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
         would replace a join-key column in an alternate store.
     """
     from . import store
+    from .measurement_store import exists as _measurements_exist
     from .tabular import _backend_of, resolve_path
 
     backend = _backend_of(db_path)
     db_path = (resolve_path(db_path) if backend in ('duckdb', 'parquet')
                else str(db_path))
-    if backend != 'postgres' and not os.path.exists(db_path):
+    if backend != 'postgres' and not (os.path.exists(db_path)
+                                      or _measurements_exist(db_path)):
         print(f"Database not found at {db_path}; skipping merge.")
         return None
 
@@ -834,7 +839,7 @@ def merge_prediction_results(results, db_path, columns, table: str = PNG_TABLE,
 
     repaired = migrate_prediction_columns(db_path, table=table, verbose=False)
 
-    con = sqlite3.connect(db_path, timeout=30)
+    con = _connect_measurements(db_path, readonly=False)
     con.isolation_level = None
     try:
         cur = con.cursor()

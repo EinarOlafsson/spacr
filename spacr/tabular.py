@@ -718,6 +718,9 @@ def _store_project(source: Any) -> Optional[str]:
         return None
     if os.path.basename(path) == CATALOG:
         return os.path.dirname(path)
+    if (not os.path.exists(path) and os.path.basename(path) in _LEGACY_NAMES
+            and os.path.isfile(os.path.join(os.path.dirname(path), CATALOG))):
+        return os.path.dirname(path)
     return path
 
 
@@ -868,7 +871,8 @@ def read_database(db: Any, tables: Any, *, canonicalise: bool = True,
             'read_only=True cannot migrate: a migration writes. Pass '
             'migrate=False, or open read/write.')
     path = resolve_path(db)
-    if migrate and backend == 'sqlite' and not os.path.isdir(path):
+    if (migrate and backend == 'sqlite' and not os.path.isdir(path)
+            and (os.path.exists(path) or _store_project(path) == path)):
         from .database_schema import ensure_database_schema
         ensure_database_schema(path)
     with _opened_store(db) as opened:
@@ -925,6 +929,11 @@ def write_database(frame: pd.DataFrame, db: Any, table: str, *,
                          f"not {if_exists!r}.")
     target = resolve_path(db)
     parent = os.path.dirname(os.path.abspath(target))
+    from .measurement_store import store_native
+    if (os.path.basename(target) == 'measurements.db'
+            and not os.path.exists(target) and store_native(target)):
+        _write_store_table(frame, target, table, if_exists, index)
+        return target
     os.makedirs(parent, exist_ok=True)
     with _connect(target, migrate=migrate) as conn:
         existing = _sqlite_table_columns(conn, table)
@@ -934,6 +943,33 @@ def write_database(frame: pd.DataFrame, db: Any, table: str, *,
             _sqlite_add_missing_columns(conn, table, frame, existing, index)
         frame.to_sql(table, conn, if_exists=if_exists, index=index, **kwargs)
     return target
+
+
+def _write_store_table(frame: pd.DataFrame, target: str, table: str,
+                       if_exists: str, index: bool) -> None:
+    """:func:`write_database` into a project's spaCR store.
+
+    A ``measurements.db`` path that does not exist names the store project
+    of its folder (Measure no longer writes the file). The rows go through
+    :func:`spacr.measurement_store.write_rows`, the store's writer.
+
+    :param frame: the rows.
+    :param target: the absent ``measurements.db`` path.
+    :param table: the table.
+    :param if_exists: ``'append'``, ``'replace'`` or ``'fail'``.
+    :param index: write the index as a column.
+    """
+    from .measurement_store import drop_tables, project_of, tables, write_rows
+
+    present = table in set(tables(target))
+    if present and if_exists == 'fail':
+        raise ValueError(f'Table {table!r} already exists in {target!r}.')
+    if present and if_exists == 'replace':
+        drop_tables(target, [table])
+    if index:
+        frame = frame.reset_index()
+    os.makedirs(project_of(target), exist_ok=True)
+    write_rows(project_of(target), table, frame, narrow=False)
 
 
 def _sqlite_table_columns(conn: sqlite3.Connection, table: str) -> List[str]:

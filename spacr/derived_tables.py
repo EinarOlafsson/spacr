@@ -21,6 +21,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from .measurement_store import connect as _connect_measurements
 from .merge_tables import (
     CROP_SUFFIX,
     IDENTITY,
@@ -50,12 +51,12 @@ def schemas(path):
     :param path: SQLite database path.
     :returns: Table names mapped to lists of column-name/type pairs.
     """
-    with sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True, timeout=30.0) as db:
+    with _connect_measurements(path, readonly=True) as db:
         names = [r[0] for r in db.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
-            "AND name NOT LIKE 'sqlite_%' ORDER BY name")]
+            "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()]
         return {name: [[r[1], r[2]] for r in db.execute(
-            'PRAGMA table_info("' + name.replace('"', '""') + '")')]
+            'PRAGMA table_info("' + name.replace('"', '""') + '")').fetchall()]
                 for name in names}
 
 
@@ -69,7 +70,7 @@ def column_sample(path, table, limit=200):
     """
     from .tabular import _read_query
 
-    with sqlite3.connect(Path(path).resolve().as_uri() + "?mode=ro", uri=True, timeout=30.0) as db:
+    with _connect_measurements(path, readonly=True) as db:
         return _read_query(db, 'SELECT * FROM "' + table.replace('"', '""') +
                            '" LIMIT ?', params=(int(limit),),
                            canonicalise=False, report=None)

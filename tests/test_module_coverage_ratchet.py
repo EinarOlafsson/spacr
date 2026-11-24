@@ -616,6 +616,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # that verifies fov.ome.zarr against its checksums and originals
         # (spacr/cli_store.py).
         'spacr/cli_store.py',
+        # 725 -> 726 on 2026-11-24, +1/-0, unified store step S4: Measure's and Make
+        # Masks' tables in the spaCR store (spacr/measurement_store.py).
+        'spacr/measurement_store.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -1222,8 +1225,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # the workflow's --expected-file-count moves to 724 at the pilot landing.
     # 724 -> 725 on 2026-11-24 (item 0aj): spacr/cli_store.py, the spacr-store
     # command; the workflow's --expected-file-count moves to 725 at landing.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 725
-    assert "--expected-file-count 725" in combine_script
+    # 725 -> 726 on 2026-11-24 (store step S4): spacr/measurement_store.py; the
+    # workflow's --expected-file-count moves to 726 at landing.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 726
+    assert "--expected-file-count 726" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

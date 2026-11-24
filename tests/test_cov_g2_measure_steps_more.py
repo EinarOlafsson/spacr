@@ -1,6 +1,7 @@
 """Measure side steps: original filenames, backends and CellProfiler edges."""
 from __future__ import annotations
 
+from tests import store_sql
 import sqlite3
 import sys
 import types
@@ -20,7 +21,7 @@ def test_a_table_the_manifest_cannot_join_is_skipped(tmp_path, monkeypatch):
     import spacr.original_filenames as of
 
     db = tmp_path / "measurements.db"
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         con.execute("CREATE TABLE cell (plateID TEXT, rowID TEXT, columnID TEXT, fieldID TEXT)")
         con.execute("INSERT INTO cell VALUES ('p', 'r1', 'c1', 'f1')")
     monkeypatch.setattr(m, "_original_filename_map", lambda db, src: "map.csv")
@@ -45,7 +46,7 @@ def test_a_backend_that_already_has_every_table_copies_nothing(tmp_path,
     import spacr.tabular as tabular
 
     db = tmp_path / "measurements.db"
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         con.execute("CREATE TABLE cell (a INTEGER)")
     copied = []
     monkeypatch.setattr(tabular, "database_tables",
@@ -226,7 +227,7 @@ def test_viability_without_qc_rows_writes_no_qc_table(tmp_path, monkeypatch):
     monkeypatch.setattr(m, "_viability_qc", lambda wells, cuts: pd.DataFrame())
     m._classify_viability(db, {"channels": [0, 1, 2], "viability_dead_channel": 1},
                           plot=False)
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         names = {r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
     assert m._VIABILITY_QC_TABLE not in names
@@ -244,7 +245,7 @@ def test_cell_cycle_without_wells_writes_no_well_table(tmp_path, monkeypatch):
     monkeypatch.setattr(m, "_cell_cycle_by_well", lambda table, counted: pd.DataFrame())
     m._classify_cell_cycle(str(db), {"channels": [0, 1], "cell_cycle_channel": 0,
                                      "cell_cycle_method": "measurements"}, plot=False)
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         names = {r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
     assert m._CELL_CYCLE_WELL_TABLE not in names
@@ -266,7 +267,7 @@ def test_original_columns_already_present_are_not_added_again(tmp_path,
     import spacr.original_filenames as of
 
     db = tmp_path / "measurements.db"
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         con.execute("CREATE TABLE cell (plateID TEXT, rowID TEXT, columnID TEXT, "
                     "fieldID TEXT, original_filename TEXT)")
         con.execute("INSERT INTO cell VALUES ('p', 'r1', 'c1', 'f1', NULL)")
@@ -278,7 +279,7 @@ def test_original_columns_already_present_are_not_added_again(tmp_path,
     monkeypatch.setattr(of, "_original_columns", enrich)
     done = m._add_original_filename_columns(str(db), str(tmp_path), report=lambda s: None)
     assert done
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         assert con.execute("SELECT original_filename FROM cell").fetchone() == ("a.tif",)
     assert pd
 

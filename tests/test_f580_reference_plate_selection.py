@@ -1,4 +1,5 @@
 """An explicit calibration reference is exact, reproducible and read only."""
+from tests import store_sql
 import copy
 import hashlib
 import json
@@ -106,12 +107,12 @@ def test_actual_measurement_records_reference_and_changed_selection_refuses_resu
     measure.measure_crop(resolved)
     measure.measure_crop(get_measure_crop_settings({**settings, 'resume': True}))
     database = tmp_path / 'measurements' / 'measurements.db'
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         connection.execute('PRAGMA wal_checkpoint(TRUNCATE)')
         rows = connection.execute('SELECT intensity_calibration FROM intensity_rescale').fetchall()
     records = [json.loads(row[0]) for row in rows]
     assert records and {record['reference_plate'] for record in records} == {'plate2'}
-    old_bytes = database.read_bytes()
+    old_bytes = store_sql.fingerprint(database)
 
     def forbidden(*args, **kwargs):
         pytest.fail('Changed calibration reached database/resume mutation')
@@ -121,5 +122,5 @@ def test_actual_measurement_records_reference_and_changed_selection_refuses_resu
     monkeypatch.setattr(io, '_save_settings_to_db', forbidden)
     with pytest.raises(ValueError, match='different or unverified intensity calibration'):
         measure.measure_crop(get_measure_crop_settings({**settings, KEY: 'plate1', 'resume': True}))
-    assert database.read_bytes() == old_bytes
+    assert store_sql.fingerprint(database) == old_bytes
     assert hashes(merged) == before

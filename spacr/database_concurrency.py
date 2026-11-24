@@ -576,6 +576,13 @@ def connect(
     owned = _WRITE_PACKET_CONNECTION.get()
     if owned is not None and owned[0] == absolute:
         return owned[1]
+    if (os.path.basename(absolute) == 'measurements.db'
+            and os.path.isfile(os.path.join(os.path.dirname(absolute),
+                                            'spacr.duckdb'))):
+        from .measurement_store import _StoreConnection, legacy_database
+
+        if legacy_database(absolute) is None:
+            return _StoreConnection(absolute, readonly=readonly)
     timeout = max(0.0, float(timeout))
     if readonly:
         connection = sqlite3.connect(

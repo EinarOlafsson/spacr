@@ -8,6 +8,7 @@ On the reanalysis data (plate103) the spaCR functions reproduce the
 reference vacuole table on real masks, the classifier calls, the per-well
 and per-condition tables and the cross-validation report.
 """
+from tests import store_sql
 import os
 
 import numpy as np
@@ -239,7 +240,7 @@ def _measure_field(tmp_path, **over):
     measure.measure_crop(settings)
     import sqlite3
 
-    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as db:
+    with store_sql.connect(tmp_path / 'measurements' / 'measurements.db') as db:
         tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         cells = pd.read_sql('SELECT * FROM cell', db)
         vacuoles = (pd.read_sql('SELECT * FROM vacuole', db) if 'vacuole' in tables else None)
@@ -339,7 +340,7 @@ def test_vacuole_tables_skip_empty_fields_and_a_database_without_them(tmp_path):
     cell[2:18, 2:18] = 1
     _save_vacuole_tables((cell, np.zeros_like(cell), None), 'plate1_B02_1', str(tmp_path),
                          {'host_min_size': 10})
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         tables = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         con.execute('CREATE TABLE cell (object_label INTEGER)')
     assert 'vacuole_host' in tables and 'vacuole' not in tables
@@ -374,7 +375,10 @@ def test_a_field_measured_again_on_resume_keeps_one_set_of_vacuole_rows(tmp_path
                 vacuole_min_size=5)
     _, _, first_vacuoles, first_hosts = _measure_field(tmp_path, **over)
     db = tmp_path / 'measurements' / 'measurements.db'
-    with sqlite3.connect(db) as con:
+    # Unified store, step S4: a partial field is built by deleting rows, which
+    # an older (SQLite) project allows; the resume then continues it there.
+    store_sql.to_legacy(db)
+    with store_sql.connect(db) as con:
         con.execute('DELETE FROM cytoplasm')
     settings = get_measure_crop_settings({})
     settings.update({'src': str(tmp_path / 'merged'), 'channels': [0, 1], 'cell_mask_dim': 2,
@@ -383,7 +387,7 @@ def test_a_field_measured_again_on_resume_keeps_one_set_of_vacuole_rows(tmp_path
                      'save_png': False, 'save_arrays': False, 'plot': False, 'verbose': False,
                      'n_jobs': 1, 'resume': True, **over})
     measure.measure_crop(settings)
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         assert con.execute('SELECT COUNT(*) FROM cytoplasm').fetchone()[0] > 0
         vacuoles = pd.read_sql('SELECT * FROM vacuole', con)
         hosts = pd.read_sql('SELECT * FROM vacuole_host', con)
@@ -399,12 +403,12 @@ def test_releasing_a_field_leaves_the_other_fields_rows(tmp_path):
 
     db = tmp_path / 'measurements.db'
     assert _release_vacuole_rows(str(db), 'plate1_B02_1') == 0
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         con.execute('CREATE TABLE vacuole (file_name TEXT, area_px INTEGER)')
         con.executemany('INSERT INTO vacuole VALUES (?, ?)',
                         [('plate1_B02_1', 5), ('plate1_B02_1', 6), ('plate1_B02_10', 7)])
     assert _release_vacuole_rows(str(db), 'plate1_B02_1') == 2
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         assert con.execute('SELECT file_name FROM vacuole').fetchall() == [('plate1_B02_10',)]
 
 
@@ -422,6 +426,6 @@ def test_a_field_with_vacuoles_replaces_its_rows_rather_than_adding_to_them(tmp_
     for _ in range(2):
         _save_vacuole_tables((cell, parasites, None), 'plate1_B02_1', str(tmp_path),
                              {'host_min_size': 10})
-    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as con:
+    with store_sql.connect(tmp_path / 'measurements' / 'measurements.db') as con:
         rows = con.execute('SELECT well, field, host_cell, file_name FROM vacuole').fetchall()
     assert rows == [('B02', 1, 1, 'plate1_B02_1')] * 2

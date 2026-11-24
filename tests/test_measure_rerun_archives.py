@@ -1,4 +1,5 @@
 """Fresh Measure populations retain old tables without duplicating canonical rows."""
+from tests import store_sql
 import sqlite3
 from pathlib import Path
 
@@ -27,14 +28,14 @@ def _project(tmp_path):
 
 
 def _seed(database, tables=('cell', 'nucleus', 'png_list')):
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         for index, table in enumerate(tables):
             connection.execute(f'CREATE TABLE {_quote(table)} (object_label INTEGER, value INTEGER)')
             connection.execute(f'INSERT INTO {_quote(table)} VALUES (1, ?)', (index + 10,))
 
 
 def _snapshot(database):
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         schema = connection.execute(
             "SELECT name,type,sql FROM sqlite_master ORDER BY name").fetchall()
         rows = {name: connection.execute(f'SELECT * FROM {_quote(name)}').fetchall()
@@ -58,7 +59,7 @@ def test_real_three_measure_runs_archive_populations_and_keep_png_and_organelle_
     for table in organs:
         expected[table] = len(first[table])
     assert {table: len(first[table]) for table in expected} == expected
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         first_pngs = connection.execute('SELECT png_path,prcfo,cell_id FROM png_list ORDER BY prcfo').fetchall()
     png_identity = [row[1:] for row in first_pngs]
     png_names = [Path(row[0]).name for row in first_pngs]
@@ -71,7 +72,7 @@ def test_real_three_measure_runs_archive_populations_and_keep_png_and_organelle_
             assert len(current[table]) == count
             assert current[f'{table}_{suffix}'] == previous[table]
             assert current[f'{table}_1'] == first[table]
-        with sqlite3.connect(database) as connection:
+        with store_sql.connect(database) as connection:
             labels = connection.execute(
                 'SELECT object_label,COUNT(*) FROM cell GROUP BY object_label').fetchall()
             pngs = connection.execute('SELECT png_path,prcfo,cell_id FROM png_list ORDER BY prcfo').fetchall()
@@ -96,7 +97,7 @@ def test_archive_collision_uses_common_suffix_preserves_old_archives_and_provena
     dynamic = ORGANELLE_ROLES[4]
     live = ('cell', 'nucleus', 'png_list', dynamic, 'custom_derived')
     _seed(database, live + protected + ('cell_1', 'png_list_2'))
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         connection.execute('CREATE TABLE empty_derived (value TEXT)')
     before_schema, before = _snapshot(database)
     settings = {'src': str(merged)}
@@ -117,12 +118,12 @@ def test_archive_collision_uses_common_suffix_preserves_old_archives_and_provena
 def test_archive_keeps_existing_views_on_old_population_and_releases_index_names(tmp_path):
     merged, database = _project(tmp_path)
     _seed(database)
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         connection.execute('CREATE UNIQUE INDEX cell_label_index ON cell(object_label)')
         connection.execute('CREATE VIEW old_summary AS SELECT SUM(value) AS total FROM cell')
         connection.execute('CREATE VIEW old_report AS SELECT total FROM old_summary')
     measure._archive_measurement_run({'src': str(merged)})
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         assert connection.execute('SELECT * FROM old_summary').fetchall() == [(10,)]
         assert connection.execute('SELECT * FROM old_report').fetchall() == [(10,)]
         connection.execute('CREATE TABLE cell (object_label INTEGER, value INTEGER)')
@@ -136,7 +137,7 @@ def test_cancellation_after_renames_rolls_back_every_table_and_index(tmp_path, m
 
     merged, database = _project(tmp_path)
     _seed(database)
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         connection.execute('CREATE INDEX cell_value ON cell(value)')
     before = _snapshot(database)
     calls = []
@@ -167,7 +168,7 @@ def test_continuation_and_nonwriting_modes_leave_existing_tables_unchanged(tmp_p
 
 def test_empty_canonical_tables_do_not_trigger_archiving(tmp_path):
     merged, database = _project(tmp_path)
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         connection.execute('CREATE TABLE cell (object_label INTEGER)')
         connection.execute('CREATE TABLE png_list (png_path TEXT)')
     before = _snapshot(database)
@@ -217,7 +218,7 @@ def test_archive_preserves_watch_receipts_and_independent_saved_condition_tables
                                     include='^A', exclude='', manual_rows=[])]
     frame = apply_conditions(base, definition, source)
     save_annotated_table(database, 'saved_treatments', frame, definition, source)
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         connection.execute('CREATE TABLE spacr_watch_fields (field TEXT PRIMARY KEY, merged_at REAL)')
         connection.execute('INSERT INTO spacr_watch_fields VALUES (?, ?)', ('plate1_A01_F001', 123.5))
         payload = connection.execute(
@@ -248,7 +249,7 @@ def test_archive_rebinds_canonical_annotation_receipt_and_rolls_back_malformed_p
 
     merged, database = _project(tmp_path)
     base = pd.DataFrame({'wellID': ['A1', 'B1'], 'value': [4, 7]})
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         base.to_sql('foreign_input', connection, index=False)
     source = source_context(str(database), 'foreign_input')
     definition = new_definition(base, source)
@@ -257,12 +258,12 @@ def test_archive_rebinds_canonical_annotation_receipt_and_rolls_back_malformed_p
     frame = apply_conditions(base, definition, source)
     for table in ('cell', 'saved_treatments'):
         save_annotated_table(database, table, frame, definition, source)
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         original_receipts = dict(connection.execute(
             'SELECT table_name,payload_json FROM _spacr_condition_annotations'))
     original = json.loads(original_receipts['cell'])
     measure._archive_measurement_run({'src': str(merged)})
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         connection.execute('CREATE TABLE cell (value INTEGER)')
         connection.execute('INSERT INTO cell VALUES (99)')
         archived = pd.read_sql_query('SELECT * FROM cell_1', connection)
@@ -284,11 +285,11 @@ def test_archive_rebinds_canonical_annotation_receipt_and_rolls_back_malformed_p
     editable['conditions'][0]['include'] = '^B'
     edited = apply_conditions(unannotated, editable, archived_source)
     save_annotated_table(database, 'edited_conditions', edited, editable, archived_source)
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         saved = pd.read_sql_query('SELECT * FROM edited_conditions', connection)
     assert saved_table_annotation(database, 'edited_conditions', saved) is not None
     for malformed in ('{', '[]', '{}', '{"editable_definition":{"source":null}}'):
-        with sqlite3.connect(database) as connection:
+        with store_sql.connect(database) as connection:
             connection.execute('INSERT OR REPLACE INTO _spacr_condition_annotations VALUES (?,?)',
                                ('cell', malformed))
         before = _snapshot(database)
@@ -300,7 +301,7 @@ def test_archive_rebinds_canonical_annotation_receipt_and_rolls_back_malformed_p
 def test_archive_trigger_names_are_collision_safe_and_stay_on_the_old_population(tmp_path):
     merged, database = _project(tmp_path)
     _seed(database, ('cell',))
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         connection.execute('CREATE TABLE _spacr_trigger_events (value INTEGER)')
         connection.execute('CREATE INDEX cell_value ON cell(value)')
         connection.execute('CREATE INDEX cell_value__cell_1 ON _spacr_trigger_events(value)')
@@ -309,7 +310,7 @@ def test_archive_trigger_names_are_collision_safe_and_stay_on_the_old_population
         connection.execute('CREATE TRIGGER cell_changed__cell_1 AFTER UPDATE ON _spacr_trigger_events '
                            'BEGIN SELECT 1; END')
     measure._archive_measurement_run({'src': str(merged)})
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         triggers = connection.execute(
             "SELECT name FROM sqlite_master WHERE type='trigger' AND tbl_name='cell_1'").fetchall()
         assert len(triggers) == 1
@@ -340,7 +341,7 @@ def test_current_filename_manifest_never_rewrites_archived_population_provenance
     _write_manifest(tmp_path)
     (tmp_path / 'measurements').mkdir()
     database = tmp_path / 'measurements' / 'measurements.db'
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         for table in ('cell', 'cell_1'):
             connection.execute(f'CREATE TABLE {_quote(table)} '
                                '(prcf TEXT, original_filename TEXT, original_path TEXT, original_plate TEXT)')
@@ -355,7 +356,7 @@ def test_current_filename_manifest_never_rewrites_archived_population_provenance
     for table in ('cell_1', 'cell_2'):
         assert after[table] == before[table]
         assert [row for row in after_schema if row[0] == table] == [row for row in before_schema if row[0] == table]
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         assert connection.execute('SELECT original_filename, original_path FROM cell').fetchone() == (
             'well_A1_pos3.nd2', '/raw/exp7/well_A1_pos3.nd2')
 
@@ -418,12 +419,12 @@ def test_windows_lock_adapter_owns_and_closes_only_its_actual_file_handle(tmp_pa
 def test_archive_without_an_annotation_receipt_preserves_every_population_row(tmp_path):
     merged, database = _project(tmp_path)
     _seed(database, tables=('cell',))
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         connection.execute('CREATE TABLE _spacr_condition_annotations (table_name TEXT, payload_json TEXT)')
     before_rows = _snapshot(database)[1]['cell']
     measure._archive_measurement_run({'src': [str(merged)]})
     assert _snapshot(database)[1]['cell_1'] == before_rows
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         assert connection.execute('SELECT * FROM _spacr_condition_annotations').fetchall() == []
 
 
@@ -438,7 +439,7 @@ def test_a_run_with_vacuoles_writes_their_tables_and_counts_them_per_cell(
     measure.measure_crop(dict(settings))
 
     database = tmp_path / 'measurements' / 'measurements.db'
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         vacuoles = connection.execute('SELECT COUNT(*) FROM vacuole').fetchone()[0]
         hosts = connection.execute('SELECT COUNT(*) FROM vacuole_host').fetchone()[0]
         counted = connection.execute(

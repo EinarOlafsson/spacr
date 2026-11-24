@@ -19,6 +19,7 @@ real SQLite files under ``tmp_path``.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import re
 import sqlite3
@@ -299,7 +300,7 @@ def _measurement_db(path, plate):
                           "rowID": [f"r{i + 1}" for i in range(3)],
                           "columnID": ["c1"] * 3, "area": range(3)})
     path.parent.mkdir(parents=True, exist_ok=True)
-    with sqlite3.connect(str(path)) as db:
+    with store_sql.connect(str(path)) as db:
         frame.to_sql("cell", db, index=False)
     return str(path)
 

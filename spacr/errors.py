@@ -684,6 +684,9 @@ def read_run_status(artifact: Union[str, os.PathLike],
                     print(run['summary'])
     """
     target = Path(artifact)
+    if (target.suffix.lower() in DB_SUFFIXES and not target.exists()
+            and (target.parent / 'spacr.duckdb').is_file()):
+        target = target.parent / 'spacr.duckdb'
     if target.suffix.lower() in DB_SUFFIXES:
         if not target.is_file():
             return []

@@ -1,6 +1,7 @@
 """Measure consumes committed native pixels, labels and calibration references."""
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import sqlite3
 
@@ -196,7 +197,7 @@ def test_real_measure_native_outputs_match_explicit_legacy_despite_different_npy
         else:
             settings["mask_image_format"] = "npy"
         measure_crop(settings)
-        with sqlite3.connect(root / "measurements/measurements.db") as conn:
+        with store_sql.connect(root / "measurements/measurements.db") as conn:
             tables = {name: pd.read_sql_query(f'SELECT * FROM "{name}"', conn)
                       for name in ("cell", "nucleus", "ssCell_Crops")}
         assert len(tables["cell"]) == len(tables["nucleus"]) == 2

@@ -5751,12 +5751,18 @@ def read_settings_history(db_path):
                       run['settings'].get('crop_mode'))
     """
     if not os.path.isfile(str(db_path)):
-        return []
-    conn = sqlite3.connect(str(db_path), timeout=5)
-    try:
-        rows = _settings_history_rows(conn)
-    finally:
-        conn.close()
+        from .measurement_store import read as _store_read
+        frame = _store_read(db_path, SETTINGS_HISTORY_TABLE)
+        if frame.empty:
+            return []
+        rows = list(frame[list(SETTINGS_HISTORY_COLUMNS)].itertuples(
+            index=False, name=None))
+    else:
+        conn = sqlite3.connect(str(db_path), timeout=5)
+        try:
+            rows = _settings_history_rows(conn)
+        finally:
+            conn.close()
     runs = []
     index = {}
     for run_id, stage, stamped, key, value in rows:
@@ -5822,6 +5828,16 @@ def _save_settings_to_db(settings, stage=None):
     src = os.path.dirname(settings['src'])
     directory = f'{src}/measurements'
     os.makedirs(directory, exist_ok=True)
+    from .measurement_store import store_native, write_rows
+    if store_native(f'{directory}/measurements.db'):
+        history = pd.DataFrame(
+            [(run_id, stage, stamped, key, value) for key, value in
+             zip(settings_df['setting_key'], settings_df['setting_value'])],
+            columns=list(SETTINGS_HISTORY_COLUMNS))
+        write_rows(directory, SETTINGS_HISTORY_TABLE, history, narrow=False,
+                   register=False)
+        write_rows(directory, SETTINGS_TABLE, settings_df, narrow=False)
+        return
     conn = sqlite3.connect(f'{directory}/measurements.db', timeout=5)
     try:
         from .database_schema import migrate_connection
@@ -6045,6 +6061,29 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
 
         records.append((file_name, count_type, object_count))
 
+    from .measurement_store import store_native, write_rows
+    if store_native(db_path):
+        if records:
+            write_rows(os.path.dirname(os.path.abspath(db_path)),
+                       'object_counts', pd.DataFrame(
+                           records, columns=['file_name', 'count_type',
+                                             'object_count']), narrow=False)
+    else:
+        _save_object_counts_sqlite(db_path, records)
+    from .measure import _write_image_rows
+    _write_image_rows(
+        db_path,
+        [{'file_name': file_name, f'mask_{count_type}_count': object_count}
+         for file_name, count_type, object_count in records],
+        timelapse='timelapse' in str(added_string))
+
+
+def _save_object_counts_sqlite(db_path, records):
+    """Upsert ``object_counts`` rows into a legacy ``measurements.db``.
+
+    :param db_path: the legacy database.
+    :param records: ``(file_name, count_type, object_count)`` tuples.
+    """
     from .database_concurrency import connect as _connect_database
 
     conn = _connect_database(db_path)
@@ -6071,12 +6110,6 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
         conn.commit()
     finally:
         conn.close()
-    from .measure import _write_image_rows
-    _write_image_rows(
-        db_path,
-        [{'file_name': file_name, f'mask_{count_type}_count': object_count}
-         for file_name, count_type, object_count in records],
-        timelapse='timelapse' in str(added_string))
 
 def _create_database(db_path):
     """Create a SQLite database at the current spaCR schema version.
@@ -6949,6 +6982,18 @@ def _read_db(db_loc, tables):
     if backend != 'postgres' and isinstance(db_loc, (str, os.PathLike)):
         db_loc = os.path.abspath(
             os.path.expanduser(os.path.expandvars(os.fspath(db_loc))))
+        from .measurement_store import exists as _measurements_exist
+        if (backend == 'sqlite' and not os.path.isfile(db_loc)
+                and _measurements_exist(db_loc)):
+            from .measurement_store import read as _store_read, tables as _store_tables
+            from .utils import correct_metadata
+            present = set(_store_tables(db_loc))
+            frames = []
+            for table in ([tables] if isinstance(tables, str) else list(tables)):
+                if table not in present:
+                    raise ValueError(f"Table not found in database: {table}")
+                frames.append(correct_metadata(_store_read(db_loc, table)))
+            return frames
         if backend == 'sqlite' and not os.path.isfile(db_loc):
             raise FileNotFoundError(
                 f"Measurements database not found: {db_loc}. Set src to the "

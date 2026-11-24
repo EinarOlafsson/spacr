@@ -3812,7 +3812,8 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     """
     if bleach_correction not in ('legacy', 'ratio', 'exponential', 'histogram'):
         raise ValueError('bleach_correction must be legacy, ratio, exponential or histogram')
-    conn = sqlite3.connect(db_loc, timeout=30)
+    from .measurement_store import connect as _connect_measurements
+    conn = _connect_measurements(db_loc, readonly=True)
     cell_df = pd.read_sql(f"SELECT * FROM {'cell'}", conn)
     
     merge_keys = _object_group_keys(cell_df, 'object_label')
@@ -7438,30 +7439,29 @@ def _save_measurements_and_well_summary(
     os.makedirs(measurements_dir, exist_ok=True)
     db_path = os.path.join(measurements_dir, "measurements.db")
 
-    with sqlite3.connect(db_path, timeout=30) as conn:
-        all_df.to_sql(db_table_name, conn, if_exists="replace", index=False)
+    from .measurement_store import ensure_store, legacy_database
+    from .tabular import write_database
+    if legacy_database(db_path) is None:
+        ensure_store(db_path)
+    write_database(all_df, db_path, db_table_name, if_exists="replace",
+                   canonicalise=False)
+    print(
+        f"[summarise_tracks_from_merged] Saved measurements to "
+        f"{db_path} (table='{db_table_name}')"
+    )
+    if not well_summary_df.empty:
+        well_table_name = db_table_name + "_well_motility"
+        write_database(well_summary_df, db_path, well_table_name,
+                       if_exists="replace", canonicalise=False)
         print(
-            f"[summarise_tracks_from_merged] Saved measurements to "
-            f"{db_path} (table='{db_table_name}')"
+            f"[summarise_tracks_from_merged] Saved well-level motility "
+            f"summary to {db_path} (table='{well_table_name}')"
         )
-
-        if not well_summary_df.empty:
-            well_table_name = db_table_name + "_well_motility"
-            well_summary_df.to_sql(
-                well_table_name,
-                conn,
-                if_exists="replace",
-                index=False,
-            )
-            print(
-                f"[summarise_tracks_from_merged] Saved well-level motility "
-                f"summary to {db_path} (table='{well_table_name}')"
-            )
-        else:
-            print(
-                "[summarise_tracks_from_merged] No well-level motility "
-                "summary table was created."
-            )
+    else:
+        print(
+            "[summarise_tracks_from_merged] No well-level motility "
+            "summary table was created."
+        )
 
     return measurements_dir, db_path
 
@@ -9242,9 +9242,10 @@ def automated_motility_assay(settings):
         raise ValueError(f'Unknown motility bleach correction: {bleach_method!r}')
     measurements_dir = os.path.join(src, "measurements")
     db_path = os.path.join(measurements_dir, "measurements.db")
-    if bleach_method != 'none' and reuse_existing and os.path.isfile(db_path):
-        from pathlib import Path
-        with sqlite3.connect(Path(db_path).resolve().as_uri() + '?mode=ro', uri=True, timeout=30.0) as conn:
+    from .measurement_store import connect as _connect_measurements
+    from .measurement_store import exists as _measurements_exist
+    if bleach_method != 'none' and reuse_existing and _measurements_exist(db_path):
+        with _connect_measurements(db_path, readonly=True) as conn:
             exists = conn.execute(
                 'SELECT 1 FROM sqlite_master WHERE type="table" AND name=?',
                 (db_table_name,)).fetchone()
@@ -9260,15 +9261,16 @@ def automated_motility_assay(settings):
     all_df = None
     loaded_from_db = False
 
-    if reuse_existing and os.path.exists(db_path):
+    from .measurement_store import exists as _measurements_exist
+    if reuse_existing and _measurements_exist(db_path):
         try:
             print(
                 f"[summarise_tracks_from_merged] Attempting to reuse existing "
                 f"measurements from {db_path} (table='{db_table_name}')."
             )
 
-            with sqlite3.connect(db_path, timeout=30) as conn:
-                all_df = pd.read_sql_query(f"SELECT * FROM {db_table_name}", conn)
+            from .measurement_store import read as _store_read
+            all_df = _store_read(db_path, db_table_name)
 
             if (
                 all_df is not None

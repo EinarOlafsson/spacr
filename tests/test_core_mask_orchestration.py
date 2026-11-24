@@ -18,6 +18,7 @@ Everything is CPU-only, offline and deterministic.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import random
 import sqlite3
@@ -586,7 +587,7 @@ def test_run_status_is_stamped_into_measurements_db(run_dir, stubs):
     meas = run_dir / "measurements"
     meas.mkdir()
     db = meas / "measurements.db"
-    sqlite3.connect(str(db)).close()
+    store_sql.connect(str(db)).close()
 
     preprocess_generate_masks(_mask_settings(run_dir))
 
@@ -609,7 +610,7 @@ def test_two_folders_are_both_segmented_and_stamped(tmp_path, stubs):
         np.save(d / "stack" / "f0.npy", np.zeros((3, 8, 8), np.uint16))
         (d / "measurements").mkdir()
         db = d / "measurements" / "measurements.db"
-        sqlite3.connect(str(db)).close()
+        store_sql.connect(str(db)).close()
         dbs.append(db)
 
     s = _mask_settings(tmp_path / "p1")

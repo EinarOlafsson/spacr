@@ -43,6 +43,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ...measurement_store import exists as _measurements_exist
 from ..theme import SPACING
 from .table_chip import TableChip
 
@@ -101,7 +102,7 @@ def _read_the_merge(paths: Sequence[str], table: str):
     try:
         from ...multi_database import describe_merge
 
-        missing = [path for path in paths if not os.path.isfile(path)]
+        missing = [path for path in paths if not _measurements_exist(path)]
         if missing:
             return ("missing", (missing, len(paths)))
         return ("plan", describe_merge(paths, table))
@@ -123,7 +124,7 @@ def _restored_source_paths(sources, databases, mode):
         for source, database in zip(sources, databases):
             original = database_for_source(source, mode)
             if (database and database != original
-                    and os.path.isfile(database) and not os.path.isfile(original)):
+                    and _measurements_exist(database) and not _measurements_exist(original)):
                 overrides[source] = database
                 if source not in present:
                     present.append(source)

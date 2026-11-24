@@ -1,6 +1,7 @@
 """External images + label masks become a normal Measure project."""
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -92,7 +93,7 @@ def test_run_builds_merged_stacks_then_delegates_to_measure(
         project = os.path.dirname(measure_settings["src"])
         db = os.path.join(project, "measurements", "measurements.db")
         os.makedirs(os.path.dirname(db), exist_ok=True)
-        with sqlite3.connect(db) as connection:
+        with store_sql.connect(db) as connection:
             for table in ("cell", "nucleus", "cytoplasm", "png_list"):
                 connection.execute(
                     f'CREATE TABLE "{table}" (object_label INTEGER)')
@@ -102,7 +103,7 @@ def test_run_builds_merged_stacks_then_delegates_to_measure(
     monkeypatch.setattr("spacr.measure.measure_crop", fake_measure_crop)
     result = em.run_external_masks(plan, settings)
 
-    assert os.path.isfile(result.db_path)
+    assert store_sql.measured(result.db_path)
     assert {"cell", "nucleus", "cytoplasm", "png_list"} <= set(
         result.tables)
     assert received["src"] == os.path.join(result.destination, "merged")
@@ -135,7 +136,7 @@ def test_only_supplied_object_tables_are_required(tmp_path, monkeypatch):
         project = os.path.dirname(measure_settings["src"])
         db = os.path.join(project, "measurements", "measurements.db")
         os.makedirs(os.path.dirname(db), exist_ok=True)
-        with sqlite3.connect(db) as connection:
+        with store_sql.connect(db) as connection:
             connection.execute(
                 "CREATE TABLE cell (object_label INTEGER)")
             connection.execute(

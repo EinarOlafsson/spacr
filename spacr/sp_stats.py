@@ -2390,11 +2390,13 @@ def _feature_qc_database(db_path: str, *,
     from .tabular import _read_query
     from pathlib import Path
 
-    uri = Path(db_path).resolve().as_uri() + "?mode=ro"
+    from .measurement_store import connect as _connect_measurements
+
     frames = []
-    with closing(sqlite3.connect(uri, uri=True, timeout=30.0)) as connection:
+    with closing(_connect_measurements(str(Path(db_path).resolve()),
+                                       readonly=True)) as connection:
         present = {row[0] for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'")}
+            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
         for table in tables:
             if table not in present:
                 continue

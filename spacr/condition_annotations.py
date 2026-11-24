@@ -746,12 +746,12 @@ def saved_table_annotation(path, name, frame):
     :param frame: Actual stored table including every annotation output column.
     :returns: Editable annotation definition or None for an ordinary table.
     """
-    import sqlite3
+    from .measurement_store import connect as _connect_measurements
 
-    with sqlite3.connect(f"file:{Path(path).resolve()}?mode=ro", uri=True, timeout=30) as db:
+    with _connect_measurements(path, readonly=True) as db:
         if not db.execute('SELECT 1 FROM sqlite_master WHERE type=\'table\' AND name=?', (PROVENANCE_TABLE,)).fetchone():
             return None
-        fields = [row[1] for row in db.execute(f'PRAGMA table_info({_quote(PROVENANCE_TABLE)})')]
+        fields = [row[1] for row in db.execute(f'PRAGMA table_info({_quote(PROVENANCE_TABLE)})').fetchall()]
         if fields != ['table_name', 'payload_json']:
             return None
         row = db.execute(f'SELECT payload_json FROM {_quote(PROVENANCE_TABLE)} WHERE table_name=?', (name,)).fetchone()
@@ -884,8 +884,9 @@ def _has_png_list(path):
     import sqlite3
 
     from .database_concurrency import connect, is_busy_error
+    from .measurement_store import exists as _measurements_exist
 
-    if not Path(path).is_file():
+    if not _measurements_exist(path):
         return False
     try:
         connection = connect(path, readonly=True, timeout=_PNG_LIST_BUSY_WAIT_S)
@@ -896,6 +897,8 @@ def _has_png_list(path):
             connection.close()
     except sqlite3.Error as exc:
         return is_busy_error(exc)
+    except ValueError:
+        return False
 
 
 def _plate_database(names, roots):
@@ -1235,7 +1238,7 @@ def saved_png_list_annotation(path, name=None, merge_definition=None, frame=None
     for database in databases:
         try:
             connection = connect(database, readonly=True, timeout=_PNG_LIST_BUSY_WAIT_S)
-        except sqlite3.Error:
+        except (sqlite3.Error, ValueError):
             continue
         try:
             if not connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",

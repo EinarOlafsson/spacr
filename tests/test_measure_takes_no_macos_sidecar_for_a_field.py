@@ -10,6 +10,7 @@ for the sidecar. The same folder is listed by the Measure resume
 and by the streamed dataset (``spacr.stream_dataset``).
 """
 from __future__ import annotations
+from tests import store_sql
 
 import logging
 import struct
@@ -60,7 +61,7 @@ def test_measure_crop_on_a_macos_volume_reports_a_complete_run(
     printed = capsys.readouterr().out + caplog.text
     assert "RUN INCOMPLETE" not in printed
     assert "._plate1_A01_F001" not in printed
-    assert (tmp_path / "measurements" / "measurements.db").is_file()
+    assert store_sql.measured(tmp_path / "measurements" / "measurements.db")
 
 
 def test_the_measure_resume_plans_no_sidecar(tmp_path, synth_masks_multi, rng):

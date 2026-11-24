@@ -7,6 +7,7 @@ pixel(s) ... at the top of its dtype") and lost real signal.
 
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -102,7 +103,7 @@ def test_measure_crop_reports_zero_clipped_pixels_and_keeps_bright_signal(
     measure_crop(settings)
 
     assert 'clipped' not in capsys.readouterr().out
-    connection = sqlite3.connect(str(run / 'measurements' / 'measurements.db'))
+    connection = store_sql.connect(str(run / 'measurements' / 'measurements.db'))
     try:
         means = sorted(row[0] for row in connection.execute(
             'SELECT cell_channel_0_mean_intensity FROM cell'))

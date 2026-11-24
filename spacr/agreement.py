@@ -615,7 +615,9 @@ def _connect(db_path: str) -> sqlite3.Connection:
     if not db_path or not str(db_path).strip():
         raise ValueError("No database path given.")
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
-    if not os.path.isfile(path):
+    from .measurement_store import exists as _measurements_exist
+
+    if not _measurements_exist(path):
         raise FileNotFoundError(f"No such database: {path}")
     from .database_concurrency import connect as _connect_database
 

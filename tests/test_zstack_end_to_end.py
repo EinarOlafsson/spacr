@@ -24,6 +24,7 @@ working.
 
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import shutil
 import sqlite3
@@ -208,7 +209,7 @@ def measured(tmp_path, fake_model):
 
 
 def _table(root, name):
-    connection = sqlite3.connect(str(root / "measurements" / "measurements.db"))
+    connection = store_sql.connect(str(root / "measurements" / "measurements.db"))
     try:
         columns = [row[1] for row in
                    connection.execute(f'PRAGMA table_info("{name}")')]

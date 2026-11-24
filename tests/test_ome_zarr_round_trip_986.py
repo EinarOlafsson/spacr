@@ -7,6 +7,7 @@ store, class membership matches png_list exactly, a shuffled index does not
 """
 from __future__ import annotations
 
+from tests import store_sql
 import hashlib
 import json
 import sqlite3
@@ -88,7 +89,7 @@ def _png_crops(root: Path):
 
 
 def _png_list_counts(root: Path):
-    with sqlite3.connect(str(root / "measurements" / "measurements.db")) as conn:
+    with store_sql.connect(str(root / "measurements" / "measurements.db")) as conn:
         paths = [r[0] for r in conn.execute("SELECT png_path FROM png_list")]
     counts = {}
     for p in paths:
@@ -109,7 +110,7 @@ def _zarr_views(root: Path, table: pd.DataFrame):
 
 
 def _table(root: Path) -> pd.DataFrame:
-    with sqlite3.connect(str(root / "measurements" / "measurements.db")) as conn:
+    with store_sql.connect(str(root / "measurements" / "measurements.db")) as conn:
         return pd.read_sql("SELECT * FROM ssCell_Crops", conn)
 
 

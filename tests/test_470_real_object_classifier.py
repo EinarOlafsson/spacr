@@ -1,5 +1,6 @@
 """The real / not-real classifier: trained from Annotate calls, scored on
 held-out wells, and used after detection to erase objects it rejects."""
+from tests import store_sql
 import json
 import sqlite3
 import subprocess
@@ -43,7 +44,7 @@ def _annotated_db(folder, rng, per_well=10, wells=("A01", "A02", "B01", "B02", "
                          "real": 1 if real else 2})
     rows.append({"png_path": str(path), "file_name": path.name, "real": None})
     database = folder / "measurements.db"
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         pd.DataFrame(rows).to_sql("png_list", connection, index=False)
     return database
 
@@ -212,19 +213,19 @@ def test_the_mask_run_applies_the_classifier_when_set(yokogawa_cellvoyager_dir,
 
 def test_annotation_reader_preserves_source_database_bytes(tmp_path):
     database = _annotated_db(tmp_path, np.random.default_rng(470), per_well=3)
-    before = database.read_bytes()
+    before = store_sql.fingerprint(database)
     frame = oc._annotated_real_crops([str(database)])
     assert len(frame) == 15
-    assert database.read_bytes() == before
+    assert store_sql.fingerprint(database) == before
 
 
 def test_annotation_reader_coalesces_repeated_identical_source_rows(tmp_path):
     database = _annotated_db(tmp_path, np.random.default_rng(471), per_well=3)
-    before = database.read_bytes()
+    before = store_sql.fingerprint(database)
     once = oc._annotated_real_crops([str(database)])
     repeated = oc._annotated_real_crops([str(database), str(database)])
     pd.testing.assert_frame_equal(repeated, once)
-    assert database.read_bytes() == before
+    assert store_sql.fingerprint(database) == before
 
 
 @pytest.mark.parametrize('conflict', ['label', 'group'])
@@ -234,7 +235,7 @@ def test_annotation_reader_refuses_conflicts_without_modifying_sources(tmp_path,
     database = _annotated_db(tmp_path / 'original', np.random.default_rng(472), per_well=3)
     other = tmp_path / 'other.db'
     shutil.copyfile(database, other)
-    with sqlite3.connect(other) as db:
+    with store_sql.connect(other) as db:
         if conflict == 'label':
             db.execute('UPDATE png_list SET real = 1 WHERE rowid = 1')
         else:
@@ -250,7 +251,7 @@ def _sample_fingerprinted_annotation(tmp_path):
     import hashlib
 
     database = _annotated_db(tmp_path, np.random.default_rng(473), per_well=3)
-    with sqlite3.connect(database) as db:
+    with store_sql.connect(database) as db:
         crop = Path(db.execute('SELECT png_path FROM png_list WHERE rowid = 1').fetchone()[0])
         pixels = crop.read_bytes()
         db.execute('ALTER TABLE png_list ADD COLUMN sample_png_sha256 TEXT')
@@ -262,9 +263,9 @@ def _sample_fingerprinted_annotation(tmp_path):
 
 def test_annotation_reader_accepts_matching_sample_creation_fingerprint(tmp_path):
     database, crop = _sample_fingerprinted_annotation(tmp_path)
-    before = database.read_bytes(), crop.read_bytes()
+    before = store_sql.fingerprint(database), crop.read_bytes()
     assert len(oc._annotated_real_crops([str(database)])) == 15
-    assert (database.read_bytes(), crop.read_bytes()) == before
+    assert (store_sql.fingerprint(database), crop.read_bytes()) == before
 
 
 @pytest.mark.parametrize('problem', ['pixels', 'digest', 'size', 'fractional', 'partial'])
@@ -273,7 +274,7 @@ def test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint(tmp_
     if problem == 'pixels':
         crop.write_bytes(crop.read_bytes() + b'changed after sampling')
     else:
-        with sqlite3.connect(database) as db:
+        with store_sql.connect(database) as db:
             statement = {
                 'digest': "sample_png_sha256 = 'not-a-digest'",
                 'size': 'sample_png_bytes = -1',
@@ -281,10 +282,10 @@ def test_annotation_reader_refuses_changed_or_incomplete_sample_fingerprint(tmp_
                 'partial': 'sample_png_sha256 = NULL',
             }[problem]
             db.execute('UPDATE png_list SET ' + statement + ' WHERE rowid = 1')
-    before = database.read_bytes(), crop.read_bytes()
+    before = store_sql.fingerprint(database), crop.read_bytes()
     with pytest.raises(ValueError, match='sample-creation fingerprint'):
         oc._annotated_real_crops([str(database)])
-    assert (database.read_bytes(), crop.read_bytes()) == before
+    assert (store_sql.fingerprint(database), crop.read_bytes()) == before
 
 
 def test_annotation_reader_does_not_create_missing_databases(tmp_path):
@@ -309,7 +310,7 @@ def _annotation_reader_uses_exact_reviewed_runtime_diagnostics_case(tmp_path, mo
     else:
         other = tmp_path / 'other.db'
         shutil.copyfile(database, other)
-        with sqlite3.connect(other) as db:
+        with store_sql.connect(other) as db:
             db.execute('UPDATE png_list SET real = 1 WHERE rowid = 1')
         databases.append(str(other))
         source = 'Annotated crop {path} has conflicting labels or acquisition identities.'

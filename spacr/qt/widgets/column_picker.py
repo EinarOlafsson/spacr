@@ -90,6 +90,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from ...measurement_store import connect as _connect_measurements
+from ...measurement_store import exists as _measurements_exist
 from .toggle import Toggle
 from .sortable_table import _reuse_tree_items, install_sorting
 
@@ -150,7 +152,7 @@ def resolve_db_path(path: str) -> str:
             os.path.join(p, _MEASUREMENTS_SUBDIR, DB_FILENAME),
             os.path.join(p, DB_FILENAME),
         ):
-            if os.path.isfile(candidate):
+            if _measurements_exist(candidate):
                 return candidate
         return os.path.join(p, _MEASUREMENTS_SUBDIR, DB_FILENAME)
     return p
@@ -199,7 +201,7 @@ class SchemaReader:
         :returns: a connection with ``query_only`` set, so nothing reached
             through this reader can write.
         """
-        con = sqlite3.connect(self.uri, uri=True, timeout=30)
+        con = _connect_measurements(self.path, readonly=True)
         con.execute("PRAGMA query_only = ON")
         return con
 
@@ -336,13 +338,13 @@ def open_reader(path: Any) -> Tuple[Optional[SchemaReader], str]:
     except ValueError:
         return None, ("No database selected — point this module at a run "
                       "folder (its 'src' setting) or at a measurements.db.")
-    if not os.path.isfile(resolved):
+    if not _measurements_exist(resolved):
         return None, (f"No database at {resolved} — run Measure first, or "
                       f"pick a folder that already has one.")
     reader = SchemaReader(resolved)
     try:
         reader.probe()
-    except sqlite3.OperationalError as exc:
+    except (sqlite3.OperationalError, ValueError) as exc:
         return None, f"Cannot open {os.path.basename(resolved)}: {exc}"
     except sqlite3.DatabaseError as exc:
         return None, f"{os.path.basename(resolved)} is not a SQLite database ({exc})."
@@ -486,7 +488,7 @@ def read_table(reader: Optional[SchemaReader],
         return payload
     try:
         payload["columns"] = reader.column_info(payload["table"])
-    except sqlite3.Error as exc:
+    except (sqlite3.Error, ValueError) as exc:
         payload["error"] = (
             f"Cannot list the columns of '{payload['table']}': {exc}. A view "
             f"whose table has been dropped does this — pick another table.")
@@ -521,7 +523,7 @@ def read_schema(db_path: Any, reader: Optional[SchemaReader] = None,
         return payload
     try:
         payload["tables"] = reader.tables()
-    except sqlite3.Error as exc:
+    except (sqlite3.Error, ValueError) as exc:
         payload["schema_error"] = f"Cannot read the schema: {exc}"
         return payload
     if not payload["tables"]:
@@ -912,7 +914,7 @@ class ColumnPickerDialog(QDialog):
             return
         try:
             n = self._reader.count_non_null(table, item.text(0))
-        except sqlite3.Error as exc:
+        except (sqlite3.Error, ValueError) as exc:
             self._set_banner(f"Could not count '{item.text(0)}': {exc}")
             return
         item.setText(2, f"{n:,}")

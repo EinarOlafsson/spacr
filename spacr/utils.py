@@ -2461,6 +2461,40 @@ def _existing_measurement_identity(db_path, table):
             attempt += 1
 
 
+def _store_measurement_identity(db_path, table):
+    """The ``(ndim, units)`` pairs of a store project's registered ``table``.
+
+    :param db_path: the project's ``measurements.db`` path (absent).
+    :param table: object table name.
+    :returns: a set of pairs; empty when the store or table does not exist.
+    """
+    from . import store
+    from .measurement_store import project_of
+
+    project = project_of(db_path)
+    if not os.path.isfile(os.path.join(project, store.CATALOG)):
+        return set()
+    with store.open(project, verify='none') as opened:
+        if table not in opened.tables():
+            return set()
+        have = set(opened._table_columns(table)['name'])
+        if not {'measurement_ndim', 'measurement_units'} <= have:
+            rows = opened.sql(f'SELECT 1 FROM "{table}" LIMIT 1',
+                              as_='arrow').num_rows
+            return {_LEGACY_STAMP} if rows else set()
+        rows = opened.sql(
+            'SELECT DISTINCT measurement_ndim, measurement_units '
+            f'FROM "{table}"', as_='arrow').to_pylist()
+    found = set()
+    for row in rows:
+        ndim, units = row['measurement_ndim'], row['measurement_units']
+        if ndim is None or units is None:
+            found.add(_LEGACY_STAMP)
+        else:
+            found.add((int(ndim), str(units)))
+    return found
+
+
 def _existing_measurement_identity_once(db_path, table):
     """Return the ``(ndim, units)`` pairs already present in ``table``.
 
@@ -2469,7 +2503,7 @@ def _existing_measurement_identity_once(db_path, table):
         NULL, count as :data:`_LEGACY_STAMP`.
     """
     if not os.path.isfile(db_path):
-        return set()
+        return _store_measurement_identity(db_path, table)
     from .database_concurrency import connect
 
     conn = connect(db_path, readonly=True, timeout=DB_WRITE_TIMEOUT)
@@ -3067,6 +3101,13 @@ def _append_to_measurements_db(db_path, table, frame, required=True,
                                store=None):
     """Append ``frame`` to ``table``, surviving a lock and a widened schema.
 
+    A store project (every project Measure or Make Masks writes since the
+    unified store, step S4) gets the rows through
+    :func:`spacr.measurement_store.append`: inside a Measure field packet
+    they wait for the field's spool, otherwise each well is rewritten
+    through :func:`spacr.store.write_table`. measurements.db is written only
+    for a legacy project that still has one.
+
     This used to be a bare ``except sqlite3.OperationalError: print(...)``,
     which hid two different data-loss bugs behind one printed line.
 
@@ -3106,6 +3147,10 @@ def _append_to_measurements_db(db_path, table, frame, required=True,
     from .database_concurrency import _capture_write_operation, _inside_write_packet
     if _capture_write_operation('append', (db_path, table, frame, required, store)):
         return
+    from .measurement_store import append as _store_append, store_native
+    if store_native(db_path):
+        _store_append(db_path, table, frame)
+        return
     delay = 0.2
     attempt = 1
     while True:
@@ -3143,19 +3188,19 @@ def _append_to_measurements_db(db_path, table, frame, required=True,
 
 
 def _measurement_store_for(db_path, settings):
-    """The store ``measurement_backend`` names for ``db_path``, or ``None``.
+    """A second store the measurements are streamed to: always ``None``.
 
-    :param db_path: the run's measurements.db.
+    ``measurement_backend`` is ``spacr_store`` only (unified store, step
+    S4): every table goes to the spaCR store in the measurements folder,
+    which readers open through ``db_path``. A retired value (``duckdb``,
+    ``parquet``, ``postgres``) is an export written once the run is
+    complete, not a store the run writes into.
+
+    :param db_path: the run's measurements.db path.
     :param settings: the run settings.
-    :returns: ``None`` for sqlite and spacr_store (which is written from
-        measurements.db once the run is complete), else the DuckDB, Parquet
-        or PostgreSQL locator.
+    :returns: None.
     """
-    backend = str((settings or {}).get('measurement_backend') or 'sqlite')
-    if backend.lower() in ('sqlite', 'spacr_store'):
-        return None
-    from .measure import _measurement_backend_target
-    return _measurement_backend_target(db_path, settings)
+    return None
 
 
 def _append_to_measurement_store(store, table, frame, required):
@@ -3528,6 +3573,19 @@ def _pivot_counts_table(db_path):
         pivoted_df = pivoted_df.fillna(0)
         return pivoted_df
 
+    from .measurement_store import drop_tables, exists, store_native, write_rows
+    if store_native(db_path):
+        if not exists(db_path):
+            return
+        from .measurement_store import read as _store_read
+        df = _store_read(db_path, 'object_counts')
+        if df.empty:
+            return
+        pivoted_df = _pivot_dataframe(df)
+        drop_tables(db_path, ['pivoted_counts'])
+        write_rows(os.path.dirname(os.path.abspath(db_path)), 'pivoted_counts',
+                   pivoted_df, narrow=False)
+        return
     df = _read_table_to_dataframe(db_path, 'object_counts')
     pivoted_df = _pivot_dataframe(df)
     from .foreign import _replace_table_atomically

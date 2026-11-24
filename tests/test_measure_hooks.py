@@ -17,6 +17,7 @@ instead of quietly producing wrong rows.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 import sys
@@ -142,10 +143,10 @@ def _tables(project):
     measurement.
     """
     db = os.path.join(str(project), "measurements", "measurements.db")
-    if not os.path.isfile(db):
+    if not store_sql.measured(db):
         return {}
     frames = {}
-    con = sqlite3.connect(db)
+    con = store_sql.connect(db)
     try:
         names = [row[0] for row in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]
@@ -842,7 +843,7 @@ def test_measure_crop_checks_the_start_method_before_it_starts_the_pool(
 
     assert calls, "measure_crop did not consult the hook/start-method check"
     assert calls[0] in {"fork", "spawn", "forkserver"}
-    assert os.path.isfile(
+    assert store_sql.measured(
         os.path.join(str(project), "measurements", "measurements.db"))
 
 

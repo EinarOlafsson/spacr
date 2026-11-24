@@ -5654,7 +5654,7 @@ def _validate_measurement_calibration_history(settings, db_path):
     :raises ValueError: Existing measurements have incompatible or unverified
         calibration or lack the required per-field provenance.
     """
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return
     from .database_concurrency import connect
     from .resume import MEASURE_OWNED_TABLES, measure_rows_clause, read_recorded_settings
@@ -5670,7 +5670,7 @@ def _validate_measurement_calibration_history(settings, db_path):
             "SELECT name FROM sqlite_master WHERE type='table'")}
         occupied = {}
         for table in tables & (MEASURE_OWNED_TABLES - {'png_list', 'intensity_rescale'}):
-            clause = measure_rows_clause(connection, table) or '1'
+            clause = measure_rows_clause(connection, table) or 'TRUE'
             if connection.execute(f'SELECT 1 FROM "{table}" WHERE {clause} LIMIT 1').fetchone():
                 occupied[table] = clause
         if not occupied:
@@ -5791,6 +5791,11 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'intensity_calibration',
     )
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
+    from .measurement_store import append as _store_append, store_native
+    if store_native(db_path):
+        _store_append(db_path, 'intensity_rescale', pd.DataFrame(
+            [{column: values[column] for column in columns}]))
+        return
     conn = connect(db_path, timeout=30)
     try:
         with transaction(conn, attempts=8, busy_timeout=30):
@@ -6511,6 +6516,10 @@ def _write_confluency_record(source_folder, file_name, settings, result):
     columns = tuple(values)
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    from .measurement_store import append as _store_append, store_native
+    if store_native(db_path):
+        _store_append(db_path, _CONFLUENCY_TABLE, pd.DataFrame([values]))
+        return
     conn = connect(db_path, timeout=30)
     try:
         with transaction(conn, attempts=8, busy_timeout=30):
@@ -6556,7 +6565,7 @@ def _read_confluency(db_path):
     :returns: one row per field.
     """
     from .database_concurrency import connect
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return pd.DataFrame()
     conn = connect(db_path, readonly=True)
     try:
@@ -6665,6 +6674,11 @@ def _write_image_rows(db_path, rows, *, timelapse=False):
     quote = _measure_archive_quote
     columns = list(dict.fromkeys(name for row in prepared for name in row))
     os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
+    from .measurement_store import append as _store_append, store_native
+    if store_native(db_path):
+        _store_append(db_path, _IMAGE_TABLE, pd.DataFrame(prepared,
+                                                          columns=columns))
+        return len(prepared)
     with closing(connect(db_path, timeout=30.0)) as conn:
         with transaction(conn, attempts=8, busy_timeout=30):
             conn.execute(
@@ -6861,7 +6875,7 @@ def _read_image_table(db_path, columns=None):
     from .database_concurrency import connect
     from .tabular import _read_query
 
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return pd.DataFrame()
     with closing(connect(db_path, readonly=True, timeout=30.0)) as conn:
         present = {row[1] for row in conn.execute(f'PRAGMA table_info({_IMAGE_TABLE})')}
@@ -6984,7 +6998,7 @@ def _read_confluency_wells(source):
     if isinstance(source, pd.DataFrame):
         return source
     from .database_concurrency import connect
-    if not source or not os.path.isfile(source):
+    if not source or not _measurements_exist(source):
         return pd.DataFrame()
     conn = connect(source, readonly=True)
     try:
@@ -12916,8 +12930,28 @@ def _measure_crop_queued(index, time_ls, file, settings, psf_plan=None,
     return (*result, ticket)
 
 
-def _commit_measure_packet(db_path, packet):
-    """Dispatch existing scientific helpers inside one atomic field commit."""
+#: The run id and time-lapse flag of each Measure run in progress, by the
+#: absolute ``measurements.db`` path its packets name.
+_MEASURE_RUNS = {}
+
+
+def _commit_measure_packet(db_path, packet, *, run_id=None, timelapse=None):
+    """Dispatch existing scientific helpers inside one atomic field commit.
+
+    A store project (every new one) spools the field's tables through
+    :func:`spacr.measurement_store.spool_field`; its ``measure_fields`` row,
+    written last, is the commit. A legacy ``measurements.db`` keeps its
+    SQLite packet transaction.
+
+    :param db_path: the run's ``measurements.db`` path (absent for a store
+        project).
+    :param packet: ticket, field and scientific operations.
+    :param run_id: the Measure run, recorded on the spooled parts; None
+        takes the one :data:`_MEASURE_RUNS` holds for ``db_path``.
+    :param timelapse: parse a timepoint from the field name; None takes the
+        run's.
+    :returns: True for a new commit, False for an already committed one.
+    """
     from .database_concurrency import _commit_write_packet
     from .utils import _append_to_measurements_db, _merge_and_save_to_database
 
@@ -12947,6 +12981,20 @@ def _commit_measure_packet(db_path, packet):
             raise ValueError('Measure packet targets a different database')
         handlers[name](*arguments, **keywords)
 
+    from .measurement_store import field_packet, spool_field, store_native
+    if store_native(db_path):
+        if packet.get('operations') is None:
+            return False
+        recorded = _MEASURE_RUNS.get(os.path.abspath(db_path), (None, False))
+        run_id = recorded[0] if run_id is None else run_id
+        timelapse = recorded[1] if timelapse is None else timelapse
+        with field_packet() as collected:
+            for operation in packet['operations']:
+                dispatch(operation)
+        spool_field(db_path, packet['field'], collected,
+                    ticket=packet['ticket'], run_id=run_id,
+                    timelapse=timelapse)
+        return True
     return _commit_write_packet(db_path, packet, dispatch)
 
 
@@ -13426,21 +13474,11 @@ def _emit_shared_nucleus_report(db_path, run=None):
     :param run: the :class:`spacr.runctx.RunContext`, or ``None``.
     :returns: the count of flagged nuclei.
     """
-    from .database_concurrency import connect
-    from .tabular import _read_query
+    from .measurement_store import read as _store_read
 
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path:
         return 0
-    conn = connect(db_path, readonly=True)
-    try:
-        present = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='nucleus'"
-        ).fetchone()
-        if not present:
-            return 0
-        frame = _read_query(conn, 'SELECT * FROM nucleus', canonicalise=False)
-    finally:
-        conn.close()
+    frame = _store_read(db_path, 'nucleus')
     if 'nucleus_shared' not in frame.columns:
         return 0
     count = int(frame['nucleus_shared'].astype(bool).sum())
@@ -13546,6 +13584,72 @@ def _original_filename_map(db_path, src):
     return (csvs or found or [None])[0]
 
 
+def _add_original_filename_columns_store(db_path, src, *, report=print):
+    """:func:`_add_original_filename_columns` for a store project.
+
+    Each table with field identity columns is read through the store, given
+    the manifest's ``original_*`` columns by its identity and written back
+    well by well through :func:`spacr.store.write_table`.
+
+    :param db_path: the project's ``measurements.db`` path (absent).
+    :param src: the measured ``merged`` folder.
+    :param report: called with one summary line per enriched table.
+    :returns: {table: number of matched rows}.
+    """
+    from . import store
+    from .measurement_store import exists, project_of, rewrite_table, tables
+    from .original_filenames import _identity_columns, _original_columns
+
+    if not exists(db_path):
+        return {}
+    map_path = _original_filename_map(project_of(db_path), src)
+    if map_path is None:
+        return {}
+    project = project_of(db_path)
+    done = {}
+    with store.open(project, verify='none') as opened:
+        names = [t for t in tables(db_path) if t != 'conversion_map'
+                 and not re.search(r'_\d+$', t)]
+        frames = {}
+        for table in names:
+            columns = list(opened._table_columns(table)['name'])
+            keys = _identity_columns(columns)
+            if not keys:
+                continue
+            frames[table] = (keys, opened.query(table=table))
+    for table, (keys, frame) in frames.items():
+        distinct = frame[keys].drop_duplicates().reset_index(drop=True)
+        try:
+            enriched, _ = _original_columns(distinct, map_path)
+        except ValueError:
+            continue
+        added = [name for name in enriched.columns if name not in keys]
+        if not added:
+            continue
+        base = frame.drop(columns=[c for c in added if c in frame.columns])
+        merged = base.merge(enriched[keys + added], on=keys, how='left',
+                            sort=False)
+        for column in added:
+            merged[column] = merged[column].map(
+                lambda v: None if v is None or bool(pd.isna(v)) else str(v))
+        merged = merged.drop(columns=[c for c in ('crop_store', 'crop_index')
+                                      if c in merged.columns
+                                      and merged[c].isna().all()])
+        wells = {}
+        for plate, well in sorted(set(zip(merged['plate'].astype(str),
+                                          merged['well'].astype(str)))):
+            wells[(plate, well)] = merged[
+                (merged['plate'].astype(str) == plate)
+                & (merged['well'].astype(str) == well)]
+        rewrite_table(project, table, wells, narrow=True, register=False)
+        done[table] = int(enriched['original_filename'].notna().sum())
+        report(f"Original filenames from {map_path.name}: {table} "
+               f"({done[table]} of {len(enriched)} field(s) matched).")
+    if done:
+        store.register(project)
+    return done
+
+
 def _add_original_filename_columns(db_path, src, *, report=print):
     """Add ``original_*`` columns to every measurement table a manifest covers.
 
@@ -13564,8 +13668,10 @@ def _add_original_filename_columns(db_path, src, *, report=print):
     from .original_filenames import _identity_columns, _original_columns
     from .tabular import _quote_identifier, _read_query
 
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path:
         return {}
+    if not os.path.isfile(db_path):
+        return _add_original_filename_columns_store(db_path, src, report=report)
     map_path = _original_filename_map(db_path, src)
     if map_path is None:
         return {}
@@ -14073,8 +14179,12 @@ def measure_crop(settings):
                     _validate_measurement_calibration_history(
                         settings, os.path.join(_measurements_dir, 'measurements.db'))
                 os.makedirs(_measurements_dir, exist_ok=True)
-                enable_wal_where_safe(
-                    os.path.join(_measurements_dir, 'measurements.db'))
+                from .measurement_store import legacy_database as _legacy_db
+                from .resume import resume_enabled as _resume_enabled
+                if (_legacy_db(_measurements_dir) is not None
+                        and _resume_enabled(settings)):
+                    enable_wal_where_safe(
+                        os.path.join(_measurements_dir, 'measurements.db'))
 
                 from .illumination import (
                     prepare_illumination_correction,
@@ -14168,7 +14278,12 @@ def measure_crop(settings):
                     print(f"Converted crop_mode to list: {settings['crop_mode']}")
             
                 if files:
+                    _archive_measure_store(settings)
                     _archive_measurement_run(settings)
+                elif not settings.get('dry_run'):
+                    from .measurement_store import ensure_store
+                    ensure_store(os.path.join(_measurements_dir,
+                                              'measurements.db'), retire=False)
                 resume_plan = plan_measure_resume(settings)
 
                 _save_settings_to_db(settings)
@@ -14227,9 +14342,8 @@ def measure_crop(settings):
                 verdict_lock = threading.Lock()
                 writer = None
                 writer_started = False
-                queued_sqlite = str(settings.get('measurement_backend') or
-                                    'sqlite').lower() in ('sqlite',
-                                                          'spacr_store')
+                measure_run_id = None
+                queued_sqlite = True
 
                 def record_verdict(item, error=None, stage='measure'):
                     """Count each field once, after its actual final outcome."""
@@ -14301,6 +14415,8 @@ def measure_crop(settings):
                     return _on_error
 
                 ctx = _measure_pool_context(settings)
+                from .measurement_store import forget_sessions
+                forget_sessions()
                 start_method = ctx.get_start_method()
                 warn_if_hooks_will_not_reach_workers(start_method)
                 pool_jobs = resolve_pool_size(n_jobs, len(files),
@@ -14318,6 +14434,11 @@ def measure_crop(settings):
                 if queued_sqlite:
                     from .database_concurrency import _DatabaseWriteQueue
 
+                    import uuid as _uuid
+
+                    measure_run_id = _uuid.uuid4().hex
+                    _MEASURE_RUNS[os.path.abspath(db_path)] = (
+                        measure_run_id, bool(settings.get('timelapse')))
                     writer = _DatabaseWriteQueue(
                         os.path.join(os.path.dirname(db_path), '.write_queue'),
                         lambda packet: _commit_measure_packet(db_path, packet),
@@ -14413,6 +14534,8 @@ def measure_crop(settings):
                             pool.join()
                         if writer is not None:
                             writer.finish()
+                    _compact_measure_store(db_path, settings,
+                                           run_id=measure_run_id)
                 except BaseException:
                     if writer_started:
                         writer.cancel()
@@ -14429,10 +14552,10 @@ def measure_crop(settings):
 
                     db_path = os.path.join(os.path.dirname(settings['src']),
                                            'measurements', 'measurements.db')
-                    ledger.finalize(
-                        artifact=db_path if os.path.isfile(db_path) else None)
+                    ledger.finalize(artifact=_measure_artifact(db_path))
 
                 _add_original_filename_columns(db_path, settings['src'])
+                _report_steps_not_on_the_store(settings, db_path)
                 if crop_format != 'png':
                     from .crop_store import close_measure_sink
                     written = close_measure_sink(os.path.dirname(settings['src']),
@@ -14446,7 +14569,7 @@ def measure_crop(settings):
                 if str(settings.get('plate_barcode_source') or '').strip():
                     _run_plate_barcode_step(settings)
 
-                if settings.get('confluency') and os.path.isfile(db_path):
+                if settings.get('confluency') and _measurements_exist(db_path):
                     wells = _aggregate_confluency_by_well(
                         db_path, settings.get('confluency_qc_threshold'))
                     if not wells.empty:
@@ -14455,28 +14578,28 @@ def measure_crop(settings):
                               f"measurements.db:{_CONFLUENCY_WELL_TABLE}, "
                               f"{failing} below the monolayer QC threshold.")
 
-                if settings.get('cell_cycle') and os.path.isfile(db_path):
+                if settings.get('cell_cycle') and _measurements_exist(db_path):
                     _run_cell_cycle_step(db_path, settings)
                 if settings.get('wound_closure'):
                     _run_wound_closure(settings['src'], settings)
 
                 if (settings['timelapse']
                         and settings.get('bleach_correction', 'none') != 'none'
-                        and os.path.isfile(db_path)):
+                        and _measurements_exist(db_path)):
                     _run_bleach_correction_step(db_path, settings)
 
-                if settings.get('time_to_event') and os.path.isfile(db_path):
+                if settings.get('time_to_event') and _measurements_exist(db_path):
                     _run_time_to_event_step(db_path, settings)
 
-                if settings.get('viability') and os.path.isfile(db_path):
+                if settings.get('viability') and _measurements_exist(db_path):
                     _run_viability_step(db_path, settings)
 
                 if (str(settings.get('cellprofiler_pipeline') or '').strip()
-                        and os.path.isfile(db_path)):
+                        and _measurements_exist(db_path)):
                     _run_cellprofiler_step(db_path, settings)
 
                 if (settings.get('timelapse_lineage') and settings['timelapse']
-                        and os.path.isfile(db_path)):
+                        and _measurements_exist(db_path)):
                     from ._lineage_measurements import _run_measured_lineage_step
                     _run_measured_lineage_step(db_path, settings)
 
@@ -14495,15 +14618,139 @@ def measure_crop(settings):
                         _emit_per_cell_export(settings, db_path)
                     if settings.get('profiling'):
                         _emit_profiles(settings, db_path)
-                    backend = str(settings.get('measurement_backend')
-                                  or 'sqlite').lower()
-                    if backend == 'spacr_store' and os.path.isfile(db_path):
-                        _write_measure_store(db_path, settings)
-                    elif backend != 'sqlite' and os.path.isfile(db_path):
+                    if _measurement_export_backend(settings):
                         _copy_to_measurement_backend(db_path, settings)
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+#: Optional post-run steps that still read and write SQLite tables, so they
+#: do not run on a store project yet (unified store, step S4 follow-up).
+_STEPS_NOT_ON_THE_STORE = (
+    ('feature_qc_drop', 'dropping the flagged feature columns'),
+)
+
+
+def _report_steps_not_on_the_store(settings, db_path):
+    """Say which enabled optional steps a store project does not run yet.
+
+    :param settings: the run settings.
+    :param db_path: the run's ``measurements.db`` path.
+    :returns: the setting names reported.
+    """
+    from .measurement_store import store_native
+    from .qt.i18n import tr
+
+    if not store_native(db_path):
+        return []
+    named = [(key, what) for key, what in _STEPS_NOT_ON_THE_STORE
+             if settings.get(key) not in (None, False, '', 'none', 0)]
+    for key, what in named:
+        print(tr("[measure] {what} ({key}) does not run on the spaCR store yet; "
+                 "the measurements are in the store and this step is skipped.",
+                 what=what, key=key))
+    return [key for key, _what in named]
+
+
+def _measurements_exist(db_path):
+    """Whether ``db_path`` names measurements: a database file or a store project."""
+    from .measurement_store import exists
+
+    return bool(db_path) and exists(db_path)
+
+
+def _measure_artifact(db_path):
+    """The file a Measure run's ledger stamps: the store catalog or the legacy db.
+
+    :param db_path: the run's ``measurements.db`` path.
+    :returns: the path, or None when the run wrote nothing.
+    """
+    from .measurement_store import legacy_database, project_of
+    from .store import CATALOG
+
+    legacy = legacy_database(db_path)
+    if legacy is not None:
+        return legacy
+    catalog = os.path.join(project_of(db_path), CATALOG)
+    return catalog if os.path.isfile(catalog) else None
+
+
+def _archive_measure_store(settings):
+    """Keep a project's earlier Measure population before a fresh run.
+
+    A legacy ``measurements.db`` is copied into the store (all but the tables
+    Measure rebuilds) and moved to ``measurements/archive/``; the store's
+    earlier Measure tables are copied under ``archive/`` and leave the
+    catalog, and a stale run spool is removed. A resume keeps all of them
+    (a resumed legacy run keeps its ``measurements.db``); otherwise the
+    project is a store project afterwards (:func:`spacr.measurement_store.
+    ensure_store`).
+
+    :param settings: the run settings, with ``src`` the merged folder.
+    :returns: the archived tables, ``{table: folder}``.
+    """
+    from .measurement_store import (FIELDS_TABLE, archive_tables, discard_spool,
+                                    ensure_store, legacy_database,
+                                    retire_legacy_database)
+    from .resume import MEASURE_OWNED_TABLES, resume_enabled
+
+    if settings.get('dry_run'):
+        return {}
+    db_path = os.path.join(os.path.dirname(settings['src']), 'measurements',
+                           'measurements.db')
+    if (resume_enabled(settings)
+            or not (settings.get('save_measurements', True)
+                    or settings.get('save_png'))):
+        if legacy_database(db_path) is None:
+            ensure_store(db_path)
+        return {}
+    owned = set(MEASURE_OWNED_TABLES) | {FIELDS_TABLE, 'ssCell_Crops'}
+    retire_legacy_database(db_path, keep=owned)
+    ensure_store(db_path)
+    discard_spool(db_path)
+    archived = archive_tables(db_path, owned)
+    if archived:
+        print('[measure] Preserved previous tables under archive/: '
+              + ', '.join(sorted(archived)))
+    return archived
+
+
+def _compact_measure_store(db_path, settings, *, run_id=None):
+    """Write a Measure run's spooled fields into the project store.
+
+    :param db_path: the run's ``measurements.db`` path (absent for a store
+        project; nothing happens for a legacy one).
+    :param settings: the run settings, recorded with the run.
+    :param run_id: the run.
+    :returns: the compaction report, or None for a legacy project.
+    """
+    from .measurement_store import compact, store_native
+
+    if not store_native(db_path):
+        return None
+    channels = [str(c) for c in (settings.get('channel_names') or [])]
+    report = compact(db_path, run_id=run_id, settings=settings,
+                     channels=channels)
+    if report.get('tables'):
+        print(f"spaCR store: {len(report['tables'])} table(s) written to "
+              f"{report['project']}.")
+    return report
+
+
+def _measurement_export_backend(settings):
+    """The export a retired ``measurement_backend`` value still asks for.
+
+    ``measurement_backend`` is ``spacr_store`` only; a settings file that
+    still says ``duckdb``, ``parquet`` or ``postgres`` keeps getting that
+    copy of the finished tables as an export.
+
+    :param settings: the run settings.
+    :returns: the backend name, or None.
+    """
+    requested = str(settings.get('_measurement_backend_requested')
+                    or settings.get('measurement_backend') or '').lower()
+    return requested if requested in ('duckdb', 'parquet', 'postgres') else None
+
 
 def _measurement_backend_target(db_path, settings):
     """Where ``measurement_backend`` sends the measurements of ``db_path``.
@@ -14517,7 +14764,7 @@ def _measurement_backend_target(db_path, settings):
     :returns: a path or a PostgreSQL connection string.
     :raises ValueError: for a backend that is not one of the stores.
     """
-    backend = str(settings.get('measurement_backend') or 'sqlite').lower()
+    backend = _measurement_export_backend(settings) or 'spacr_store'
     target = str(settings.get('measurement_backend_target') or '').strip()
     folder = os.path.dirname(db_path)
     if backend == 'duckdb':
@@ -15878,9 +16125,10 @@ def _emit_infection_report(db_path):
 
     :param db_path: the ``measurements.db`` the run produced.
     """
+    from .measurement_store import exists as _measurements_exist
     from .utils import console_safe
 
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path or not _measurements_exist(db_path):
         return
     try:
         from .infection import write_infection_report
@@ -15907,15 +16155,18 @@ def _emit_feature_qc(settings, db_path):
     :param settings: the run's settings, with ``feature_qc_drop``.
     :param db_path: the ``measurements.db`` the run produced.
     """
+    from .measurement_store import exists as _measurements_exist
     from .utils import console_safe
 
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path or not _measurements_exist(db_path):
         return
     try:
         from .sp_stats import _feature_qc_report
 
+        from .measurement_store import store_native
         flagged, written, dropped = _feature_qc_report(
-            db_path, drop=bool(settings.get('feature_qc_drop')))
+            db_path, drop=bool(settings.get('feature_qc_drop'))
+            and not store_native(db_path))
     except Exception as exc:                                 # noqa: BLE001
         print(console_safe(f"Feature QC could not run: {exc}"))
         return
@@ -15952,7 +16203,7 @@ def _emit_per_cell_export(settings, db_path):
     """
     from .utils import console_safe
 
-    if not db_path or not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return
     try:
         from .sp_stats import export_per_cell
@@ -15990,7 +16241,7 @@ def _emit_profiles(settings, db_path):
     :param settings: the run's settings, with the ``profiling_*`` keys.
     :param db_path: the ``measurements.db`` the run produced.
     """
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path or not _measurements_exist(db_path):
         return
     try:
         from .sp_stats import _profile_measurements
@@ -16384,7 +16635,7 @@ def generate_object_dataset(
         root = os.path.dirname(root.rstrip(os.sep))
     if db_path is None:
         db_path = os.path.join(root, 'measurements', 'measurements.db')
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         raise FileNotFoundError(f"measurements database not found: {db_path}")
 
     if mask_dims is None:

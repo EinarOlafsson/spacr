@@ -8,6 +8,7 @@ The worker is called in this process, as the pool would call it, so what it
 writes can be read back directly."""
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import sqlite3
 
@@ -19,7 +20,7 @@ from spacr import measure as m
 
 
 def _rows(db, sql):
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         return pd.read_sql_query(sql, conn)
 
 

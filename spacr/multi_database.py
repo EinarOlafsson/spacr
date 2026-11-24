@@ -53,6 +53,7 @@ import pandas as pd
 
 from . import schema, tabular
 from .logging_util import _spacr_home
+from .measurement_store import connect as _connect_measurements
 
 __all__ = [
     "SOURCE_COLUMN",
@@ -430,7 +431,7 @@ def _table_columns(path: str, table: str) -> List[str]:
     :param path: SQLite database path opened read-only.
     :param table: table whose metadata is requested.
     """
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
+    with _connect_measurements(path, readonly=True) as db:
         rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
     return [row[1] for row in rows]
 
@@ -465,7 +466,7 @@ def column_kinds(path: str, table: str) -> Dict[str, str]:
     :param table: the table.
     :returns: one entry per column, in the table's own column order.
     """
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
+    with _connect_measurements(path, readonly=True) as db:
         rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
     out: Dict[str, str] = {}
     for row in rows:
@@ -488,7 +489,7 @@ def _row_count(path: str, table: str) -> int:
     :param path: SQLite database path opened read-only.
     :param table: table to count.
     """
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
+    with _connect_measurements(path, readonly=True) as db:
         return int(db.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])
 
 
@@ -516,7 +517,7 @@ def _stored_plates(path: str, table: str,
     """
     if not plate_column:
         return []
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
+    with _connect_measurements(path, readonly=True) as db:
         rows = db.execute(
             f'SELECT DISTINCT "{plate_column}" FROM "{table}"').fetchall()
     return sorted(str(row[0]) for row in rows if row[0] is not None)
@@ -531,7 +532,7 @@ def _plates(path: str, table: str, plate_column: Optional[str]) -> List[str]:
     """
     if not plate_column:
         return []
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
+    with _connect_measurements(path, readonly=True) as db:
         rows = db.execute(
             f'SELECT DISTINCT "{plate_column}" FROM "{table}"').fetchall()
     return sorted({canonical_plate_id(row[0])
@@ -558,7 +559,7 @@ def _screen_plate_pairs(path: str, table: str, plate_column: Optional[str],
     if screen is not None or not screen_column:
         label = schema.screen_id(screen)
         return [(label, plate) for plate in _plates(path, table, plate_column)]
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
+    with _connect_measurements(path, readonly=True) as db:
         rows = db.execute(
             f'SELECT DISTINCT "{screen_column}", "{plate_column}" '
             f'FROM "{table}"').fetchall()

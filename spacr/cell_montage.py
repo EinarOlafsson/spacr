@@ -1947,7 +1947,9 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
     :raises MissingScores: the table has no score column, or no finite score
         in it -- i.e. classification has not been merged into this database.
     """
-    if not os.path.isfile(db_path):
+    from .measurement_store import exists as _measurements_exist
+
+    if not _measurements_exist(db_path):
         raise MontageError(f"measurements database not found: {db_path}")
     from .database_concurrency import connect as _connect
 
@@ -2300,7 +2302,9 @@ def resolve_montage_crop_source(src, *, object_type: str = "cell",
         if os.path.basename(os.path.abspath(root)) == "merged":
             root = os.path.dirname(os.path.abspath(root))
         db = os.path.join(root, "measurements", "measurements.db")
-        if os.path.isfile(db):
+        from .measurement_store import exists as _measurements_exist
+
+        if _measurements_exist(db):
             try:
                 saved = crop_settings_from_db(db)
             except Exception:                               # noqa: BLE001

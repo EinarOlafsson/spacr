@@ -14,6 +14,7 @@ features/future/535_cell_cycle_phase_classification_three_ways.txt.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import os
 import re
@@ -225,7 +226,7 @@ def test_labels_come_from_annotate_through_the_cell_or_from_the_gates(
                                                table["cell_id"][:40])],
         "phase_annotation": [PHASES.index(t) + 1 for t in truth[:40]],
     })
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         crops.to_sql("png_list", conn, index=False)
     labels, source = _cell_cycle_labels(str(db), table, measured,
                                         "phase_annotation")
@@ -373,7 +374,7 @@ def test_measure_writes_the_phase_column_and_the_per_well_fractions(
     measure.measure_crop(_measure_settings(merged, plot=True))
 
     db = tmp_path / "measurements" / "measurements.db"
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         table = pd.read_sql_query(f"SELECT * FROM {_CELL_CYCLE_TABLE}", conn)
         wells = pd.read_sql_query(f"SELECT * FROM {_CELL_CYCLE_WELL_TABLE}",
                                   conn)
@@ -399,7 +400,7 @@ def test_measure_writes_the_phase_column_and_the_per_well_fractions(
 def test_a_failed_step_is_reported_and_does_not_fail_the_run(tmp_path,
                                                              capsys):
     db = tmp_path / "measurements.db"
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         pd.DataFrame({"object_label": [1]}).to_sql("cell", conn, index=False)
     assert measure._run_cell_cycle_step(str(db), {"cell_cycle": True}) is None
     assert "no nucleus table" in capsys.readouterr().out
@@ -440,7 +441,7 @@ def test_the_torch_route_trains_with_classify_and_reuses_its_model(
         **settings, "cell_cycle_method": "torch", "cell_cycle_model": model})
     assert again["torch"]["model"] == model
     assert reused["phase_torch"].notna().all()
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         agreement = pd.read_sql_query("SELECT * FROM cell_cycle_agreement",
                                       conn)
     assert "max_fraction_difference" in agreement
@@ -529,7 +530,7 @@ def test_the_real_plate1_nuclei_fit_a_g1_and_a_g2_peak(tmp_path):
                   / "measurements.db")
     if not source.is_file():
         pytest.skip(f"plate1 example data not downloaded: {source} is missing")
-    connection = sqlite3.connect(f"file:{source}?mode=ro", uri=True)
+    connection = store_sql.connect(f"file:{source}?mode=ro", uri=True)
     columns = {row[1] for row in connection.execute(
         "PRAGMA table_info(nucleus)")}
     needed = "nucleus_channel_0_integrated_intensity"

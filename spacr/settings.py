@@ -1996,6 +1996,38 @@ def _set_measure_min_size_defaults(settings):
             settings.setdefault(key, legacy)
 
 
+#: The ``measurement_backend`` values spaCR no longer writes, and what each
+#: becomes (unified store, step S4). Every run writes the spaCR store; the
+#: three copy backends keep their copy as an export of the finished run.
+_RETIRED_MEASUREMENT_BACKENDS = {
+    'sqlite': 'spacr_store',
+    'duckdb': 'spacr_store',
+    'parquet': 'spacr_store',
+    'postgres': 'spacr_store',
+}
+
+
+def _retire_measurement_backend(settings):
+    """Map a retired ``measurement_backend`` value onto ``spacr_store``.
+
+    An older settings file still loads: ``sqlite`` becomes ``spacr_store``
+    (measurements.db is no longer written), and ``duckdb``, ``parquet`` or
+    ``postgres`` becomes ``spacr_store`` plus that copy as an export of the
+    finished tables, recorded in ``_measurement_backend_requested``.
+
+    :param settings: the settings dict, changed in place.
+    :returns: the retired value, or None when there was none.
+    """
+    value = str(settings.get('measurement_backend') or 'spacr_store').strip()
+    lowered = value.lower()
+    if lowered not in _RETIRED_MEASUREMENT_BACKENDS:
+        return None
+    settings['measurement_backend'] = _RETIRED_MEASUREMENT_BACKENDS[lowered]
+    if lowered != 'sqlite':
+        settings['_measurement_backend_requested'] = lowered
+    return lowered
+
+
 def get_measure_crop_settings(settings=None):
     """Return the default settings for the measure-and-crop pipeline.
 
@@ -2060,8 +2092,9 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('gpu_fallback_policy', 'per_item')
     settings.setdefault('export_vvvv', False)
     settings.setdefault('ram_guard', True)
-    settings.setdefault('measurement_backend', 'sqlite')
+    settings.setdefault('measurement_backend', 'spacr_store')
     settings.setdefault('measurement_backend_target', '')
+    _retire_measurement_backend(settings)
     settings.setdefault('feature_qc_drop', False)
     settings.setdefault('per_cell_export', False)
     settings.setdefault('per_cell_nucleus', 'largest')
@@ -6131,8 +6164,8 @@ tooltips = {
     "measure_gpu_check": "(bool) - Before a measure_gpu run, measure the first field on the CPU and on the GPU and compare every column; when a column differs by more than measure_gpu_check_rtol, the run stops before any field is measured and lists the columns. Only read with measure_gpu on and a CUDA device visible. The OPS setting ops_ph_measure_gpu_check runs the same check. Default True.",
     "measure_gpu_check_rtol": "(float) - The relative tolerance of measure_gpu_check: a column passes when every value is within this fraction of its CPU value, or both are missing. Default 0.0001.",
     "measure_gpu": "(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. With cuCIM installed (the 'gpu' extra), the per-object morphology table is computed on the GPU too; without it, morphology stays on the CPU. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
-    "measurement_backend": "(str) - Where a finished run's measurements are also stored. sqlite keeps only measurements.db. duckdb copies every table into a DuckDB file and parquet into a folder of Parquet files, both for very large screens; postgres copies them into a PostgreSQL database that several users can write at once. spacr_store writes each object table and its crops as the spaCR store in the measurements folder, one Parquet part and one Zarr crop store per well, which spacr.store.open reads. measurements.db stays the working copy every later step reads. Needs pip install spacr[databases]. Default sqlite.",
-    "measurement_backend_target": "(str) - The DuckDB file, Parquet folder or PostgreSQL connection string the measurements are copied to. Blank puts measurements.duckdb or measurements.parquetdb beside measurements.db, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for sqlite. Default blank.",
+    "measurement_backend": "(str) - Where Measure, Make Masks and every later step keep the measurement tables: spacr_store, the only value. Each object table goes to the spaCR store in the measurements folder, one Parquet part per table and well in the recorded per-column dtypes, with one DuckDB catalog (spacr.duckdb); spacr.store.open and every spaCR reader open it. measurements.db is no longer written; an older project that has one is still read. The retired values still load: sqlite means spacr_store, and duckdb, parquet or postgres mean spacr_store plus that copy as an export of the finished tables. Default spacr_store.",
+    "measurement_backend_target": "(str) - Where the export of a retired measurement_backend value (duckdb, parquet or postgres) goes: a DuckDB file, a Parquet folder or a PostgreSQL connection string. Blank puts measurements.duckdb or measurements.parquetdb in the measurements folder, and reaches PostgreSQL through the PGHOST, PGDATABASE, PGUSER and PGPASSWORD environment variables. Keep passwords in ~/.pgpass, not here. Ignored for spacr_store. Default blank.",
     "wound_closure": "(bool) - Measure a scratch or wound-healing assay: find the open wound in every frame of every field, then write its area, mean and minimum width, the closure rate and the half-closure time per field, per well and per condition to measurements.db and results/wound_closure, with closure curves and a plate map. Frames are grouped by plate, well and field and ordered by timepoint; the first frame decides where the scratch is. Default False.",
     "wound_source": "(str) - How the open wound is told apart from the monolayer. texture reads the local variation of wound_channel, for brightfield and phase. intensity thresholds wound_channel, for a fluorescent cytoplasm or membrane stain. masks takes every pixel outside the segmented cells as open. The cut is decided on each field's first frame and kept for its later frames. Default texture.",
     "wound_channel": "(int or None) - The merged-array channel the texture and intensity wound sources read, counted as in channels. Blank uses the first entry of channels. Pick the brightfield or phase plane for texture, the stain for intensity. Ignored by the masks source. Default None.",

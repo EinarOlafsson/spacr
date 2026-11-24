@@ -31,6 +31,7 @@ The load-bearing tests, in the order they matter:
 """
 from __future__ import annotations
 
+from tests import store_sql
 import sqlite3
 import types
 from pathlib import Path
@@ -205,7 +206,7 @@ def _artifacts(src, object_type="cell"):
     masks = {p.name: p.read_bytes() for p in sorted(folder.iterdir())}
 
     db = Path(src).parent / "measurements" / "measurements.db"
-    con = sqlite3.connect(str(db))
+    con = store_sql.connect(str(db))
     try:
         rows = sorted(con.execute(
             "SELECT file_name, count_type, object_count FROM object_counts"))

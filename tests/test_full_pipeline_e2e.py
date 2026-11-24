@@ -40,6 +40,7 @@ training + repeated Cellpose passes. Skips cleanly when torch.cuda
 """
 from __future__ import annotations
 
+from tests import store_sql
 import shutil
 import sqlite3
 import time
@@ -297,7 +298,7 @@ def _annotated_workspace(_measured_workspace):
     dbs = list(plate.rglob("measurements.db"))
     assert dbs, "measure_crop from stage 2 did not write measurements.db"
     db_path = dbs[0]
-    with sqlite3.connect(str(db_path)) as conn:
+    with store_sql.connect(str(db_path)) as conn:
         cols = [column[1] for column in conn.execute(
             "PRAGMA table_info(png_list)").fetchall()]
         if "test" not in cols:
@@ -328,7 +329,7 @@ def test_stage_3_programmatic_annotate(_annotated_workspace):
     plate = _annotated_workspace["plate"]
     dbs = list(plate.rglob("measurements.db"))
     db_path = dbs[0]
-    with sqlite3.connect(str(db_path)) as conn:
+    with store_sql.connect(str(db_path)) as conn:
         counts = dict(conn.execute(
             "SELECT test, COUNT(*) FROM png_list GROUP BY test"
         ).fetchall())
@@ -494,7 +495,7 @@ def test_stage_6_xgboost_per_measurement_category(_measured_workspace):
     out_dir.mkdir(parents=True, exist_ok=True)
 
     trained: dict = {}
-    with sqlite3.connect(str(db_path)) as conn:
+    with store_sql.connect(str(db_path)) as conn:
         tables = [r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]
         for cat in MEASUREMENT_CATEGORIES:

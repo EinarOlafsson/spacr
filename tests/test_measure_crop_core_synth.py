@@ -9,6 +9,7 @@ otherwise only runs behind the slow/gpu e2e pipeline.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -97,7 +98,7 @@ def _counts_in(db_path):
     """``{table: rows}`` for the measurement tables that exist."""
     import sqlite3
 
-    con = sqlite3.connect(str(db_path))
+    con = store_sql.connect(str(db_path))
     try:
         present = {r[0] for r in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
@@ -116,7 +117,7 @@ def _assert_the_measurement_happened(tmp_path, crops=True):
     in it, which is what the old assertions passed against.
     """
     db = tmp_path / "measurements" / "measurements.db"
-    assert db.is_file(), "no measurements.db was written at all"
+    assert store_sql.measured(db), "no measurements.db was written at all"
     counts = _counts_in(db)
     assert counts, "measurements.db has no measurement table in it"
     objects = {k: v for k, v in counts.items() if k in FIXTURE_COUNTS}
@@ -144,8 +145,8 @@ def test_measure_crop_core_writes_measurements_and_pngs(tmp_path, synth_masks_mu
     assert np.max(cells) >= 1
     # measurements.db written one level up from merged/
     db = tmp_path / "measurements" / "measurements.db"
-    assert db.is_file()
-    con = sqlite3.connect(db)
+    assert store_sql.measured(db)
+    con = store_sql.connect(db)
     tables = {r[0] for r in con.execute(
         "SELECT name FROM sqlite_master WHERE type='table'")}
     con.close()
@@ -167,7 +168,7 @@ def test_measure_crop_core_cytoplasm_and_bounding_box(tmp_path, synth_masks_mult
         0, [], name, settings)
     assert index == 0
     _assert_the_measurement_happened(tmp_path)
-    assert (tmp_path / "measurements" / "measurements.db").is_file()
+    assert store_sql.measured(tmp_path / "measurements" / "measurements.db")
 
 
 def test_measure_crop_core_nucleus_and_pathogen_crop_modes(tmp_path, synth_masks_multi, rng):
@@ -252,7 +253,7 @@ def test_measure_crop_end_to_end_single_field(tmp_path, synth_masks_multi, rng):
     settings = _settings_for(merged, n_jobs=1)
     # measure_crop mutates settings['src']; pass a copy.
     measure_crop(dict(settings))
-    assert (tmp_path / "measurements" / "measurements.db").is_file()
+    assert store_sql.measured(tmp_path / "measurements" / "measurements.db")
 
 
 def test_measure_crop_core_plot_path(tmp_path, synth_masks_multi, rng):
@@ -370,7 +371,7 @@ def test_get_object_counts(tmp_path):
     from spacr.measure import get_object_counts
     meas = tmp_path / "measurements"
     meas.mkdir()
-    con = sqlite3.connect(meas / "measurements.db")
+    con = store_sql.connect(meas / "measurements.db")
     con.execute("CREATE TABLE object_counts (file_name TEXT, count_type TEXT, object_count INT)")
     con.executemany(
         "INSERT INTO object_counts VALUES (?,?,?)",

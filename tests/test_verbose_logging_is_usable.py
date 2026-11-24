@@ -11,6 +11,7 @@ program; make sure this feature is usable".
 """
 from __future__ import annotations
 
+from tests import store_sql
 import logging
 import os
 import sqlite3
@@ -86,7 +87,7 @@ def test_a_verbose_measure_run_finishes(logging_sandbox, tmp_path):
     measure_crop(settings)
 
     db = layout.src / "measurements" / "measurements.db"
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         tables = {row[0] for row in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
     assert "cell" in tables

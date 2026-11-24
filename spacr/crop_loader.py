@@ -299,6 +299,9 @@ def _require_file(path: str, what: str) -> str:
         raise CropLoadError(f"no {what} was chosen")
     absolute = os.path.abspath(os.path.expanduser(os.fspath(path)))
     if not os.path.isfile(absolute):
+        from .measurement_store import exists as _measurements_exist
+        if absolute.endswith("measurements.db") and _measurements_exist(absolute):
+            return absolute
         raise CropLoadError(f"{what} not found: {absolute}")
     return absolute
 

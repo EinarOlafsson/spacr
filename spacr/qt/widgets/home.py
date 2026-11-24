@@ -4014,6 +4014,7 @@ def _easy_table_evidence(path):
 def _easy_analysis_inputs(root, details=None):
     """Reserve bounded discovery for scientific databases beneath immediate plate folders."""
     from itertools import islice
+    from ...measurement_store import exists as _measurements_exist
 
     folders = [root]
     try:
@@ -4025,7 +4026,7 @@ def _easy_analysis_inputs(root, details=None):
     found = []
     for folder in folders[:17]:
         for candidate in (folder / 'measurements' / 'measurements.db', folder / 'measurements.db'):
-            if candidate.is_file() and not any(part.is_symlink() for part in (candidate, candidate.parent)):
+            if _measurements_exist(candidate) and not any(part.is_symlink() for part in (candidate, candidate.parent)):
                 found.append(candidate)
     if details is not None:
         details.update(sampled_plate_candidates=min(len(folders), 17),
@@ -4036,9 +4037,10 @@ def _easy_analysis_inputs(root, details=None):
 def _easy_database_evidence(path):
     """Read only bounded SQLite schema metadata, never measurement rows."""
     import sqlite3
+    from ...measurement_store import connect as _connect_measurements
     from ...schema import IMAGE_MEASUREMENT_TABLES, OBJECT_TABLES, ORGANELLE_SUMMARY_TABLES
 
-    connection = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True, timeout=.25)
+    connection = _connect_measurements(path, readonly=True)
     try:
         connection.execute('PRAGMA query_only=ON')
         connection.set_progress_handler(lambda: 1, 100000)
@@ -4376,14 +4378,15 @@ def _easy_specialized_inputs(root, files, images, schemas):
             if not _easy_merged_evidence(project):
                 continue
             try:
-                connection = sqlite3.connect(database.as_uri() + '?mode=ro', uri=True, timeout=.25)
+                from ...measurement_store import connect as _connect_measurements
+                connection = _connect_measurements(database, readonly=True)
                 try:
                     connection.execute('PRAGMA query_only=ON')
                     connection.set_progress_handler(lambda: 1, 100000)
                     sources = connection.execute('SELECT substr(source, 1, 4096) FROM spatial_fields LIMIT 8').fetchall()
                 finally:
                     connection.close()
-            except (OSError, sqlite3.Error):
+            except (OSError, ValueError, sqlite3.Error):
                 continue
             if not any(isinstance(row[0], str) and os.path.abspath(os.path.expanduser(row[0])) == str(folder)
                        for row in sources):
@@ -4678,6 +4681,7 @@ def _easy_generated_outputs(path, files, schemas, run_evidence, calibrated=False
     import sqlite3
     from pathlib import Path
 
+    from ...measurement_store import exists as _measurements_exist
     from ...ports import CROPS, MASKS, MERGED_ARRAYS, MODEL_WEIGHTS, PORTS
     from ..i18n import tr
 
@@ -4767,12 +4771,12 @@ def _easy_generated_outputs(path, files, schemas, run_evidence, calibrated=False
     scientific = next((item for item in schemas if item['objects'] and item['numeric']
                        and Path(item['path']).parent in (project, project / 'measurements')), None)
     database = project / 'measurements' / 'measurements.db'
-    if scientific is None and artifacts and database.is_file() and not database.is_symlink():
+    if scientific is None and artifacts and _measurements_exist(database) and not database.is_symlink():
         try:
             evidence = _easy_database_evidence(database)
             if evidence['objects'] and evidence['numeric']:
                 scientific = dict(path=str(database), **evidence)
-        except (OSError, sqlite3.Error):
+        except (OSError, ValueError, sqlite3.Error):
             pass
     if scientific:
         artifacts.append(dict(kind='measurements', path=scientific['path'], producer='measure'))
@@ -5104,7 +5108,7 @@ def _easy_inspect_path_impl(value):
             try:
                 if _easy_database_evidence(own)['annotation_only']:
                     own = None
-            except (OSError, sqlite3.Error):
+            except (OSError, ValueError, sqlite3.Error):
                 own = None
         if own is not None:
             actions.append((key, title, description, str(own)))
@@ -5119,7 +5123,7 @@ def _easy_inspect_path_impl(value):
     for database in analysis_databases:
         try:
             evidence = _easy_database_evidence(database)
-        except (OSError, sqlite3.Error):
+        except (OSError, ValueError, sqlite3.Error):
             continue
         schemas.append(dict(path=str(database), **evidence))
     scientific = next((item for item in schemas if item['objects'] and item['numeric']), None)

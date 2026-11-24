@@ -17,6 +17,7 @@ painted squares, once as a batch run and once through the watch.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import os
 import shutil
@@ -237,11 +238,11 @@ def test_stop_while_waiting_ends_the_watch(tmp_path):
 
 def test_a_field_is_appended_to_the_combined_database_once(tmp_path):
     field_db = tmp_path / "field.db"
-    with sqlite3.connect(field_db) as connection:
+    with store_sql.connect(field_db) as connection:
         connection.execute("CREATE TABLE cell (prcfo TEXT, area REAL)")
         connection.execute("INSERT INTO cell VALUES ('p1_r1_c1_f1_o1', 3.0)")
     later_db = tmp_path / "later.db"
-    with sqlite3.connect(later_db) as connection:
+    with store_sql.connect(later_db) as connection:
         connection.execute(
             "CREATE TABLE cell (prcfo TEXT, area REAL, extra REAL)")
         connection.execute(
@@ -250,7 +251,7 @@ def test_a_field_is_appended_to_the_combined_database_once(tmp_path):
     assert core._watch_merge_database(str(field_db), str(combined), "a")
     assert not core._watch_merge_database(str(field_db), str(combined), "a")
     assert core._watch_merge_database(str(later_db), str(combined), "b")
-    with sqlite3.connect(combined) as connection:
+    with store_sql.connect(combined) as connection:
         rows = connection.execute(
             "SELECT prcfo, area, extra FROM cell ORDER BY prcfo").fetchall()
     assert rows == [("p1_r1_c1_f1_o1", 3.0, None),
@@ -331,7 +332,7 @@ MEASURE = {"timelapse": False, "channels": [0, 1], "cell_min_size": 0,
 
 def _rows(db, table):
     """Keep scientific columns, excluding the explicitly named file-location fields."""
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         columns = [row[1] for row in connection.execute(
             f'PRAGMA table_info("{table}")')]
         kept = [column for column in columns
@@ -344,7 +345,7 @@ def _rows(db, table):
 def test_batch_watch_row_comparison_keeps_pathogen_measurements(tmp_path):
     databases = [tmp_path / "batch.db", tmp_path / "watch.db"]
     for index, path in enumerate(databases):
-        with sqlite3.connect(path) as connection:
+        with store_sql.connect(path) as connection:
             connection.execute(
                 "CREATE TABLE cell (plateID TEXT, file_name TEXT, path_name TEXT, "
                 "png_path TEXT, "
@@ -358,7 +359,7 @@ def test_batch_watch_row_comparison_keeps_pathogen_measurements(tmp_path):
                        "cell_channel_0_distance_to_pathogen"]
     assert rows == [("plate1", 1.25, 2.5)]
     assert _rows(databases[0], "cell") == _rows(databases[1], "cell")
-    with sqlite3.connect(databases[1]) as connection:
+    with store_sql.connect(databases[1]) as connection:
         connection.execute("UPDATE cell SET cell_channel_0_distance_to_pathogen = 7.5")
     assert _rows(databases[0], "cell") != _rows(databases[1], "cell")
 

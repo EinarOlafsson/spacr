@@ -35,6 +35,7 @@ also want a network on a cold machine.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import gzip
 import os
 import re
@@ -61,7 +62,7 @@ def _load_demo_settings(layout):
 
 def _tables(db_path):
     """``{table_name: row_count}`` for a measurements database."""
-    with sqlite3.connect(str(db_path)) as conn:
+    with store_sql.connect(str(db_path)) as conn:
         names = [r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]
         return {n: conn.execute(f'SELECT COUNT(*) FROM "{n}"').fetchone()[0]
@@ -69,7 +70,7 @@ def _tables(db_path):
 
 
 def _columns(db_path, table):
-    with sqlite3.connect(str(db_path)) as conn:
+    with store_sql.connect(str(db_path)) as conn:
         return [r[1] for r in conn.execute(f'PRAGMA table_info("{table}")')]
 
 
@@ -184,7 +185,7 @@ def test_classify_demo_writes_labelled_crops_and_a_png_list(tmp_path):
     sample = np.asarray(Image.open(pngs[0]))
     assert sample.shape == (64, 64, 3) and sample.max() > sample.min()
 
-    with sqlite3.connect(str(layout.db_path)) as conn:
+    with store_sql.connect(str(layout.db_path)) as conn:
         rows = conn.execute(
             "SELECT annotate, COUNT(*), COUNT(DISTINCT wellID) "
             "FROM png_list GROUP BY annotate").fetchall()
@@ -296,7 +297,7 @@ def test_measure_demo_writes_every_expected_measurement_table(tmp_path):
     measure_crop(_load_demo_settings(layout))
 
     db = Path(layout.src) / "measurements" / "measurements.db"
-    assert db.is_file(), "measure_crop wrote no measurements database"
+    assert store_sql.measured(db), "measure_crop wrote no measurements database"
     counts = _tables(db)
     for table in ("cell", "nucleus", "cytoplasm", "pathogen"):
         assert table in counts, sorted(counts)
@@ -316,7 +317,7 @@ def test_measure_demo_writes_every_expected_measurement_table(tmp_path):
     # Non-degenerate geometry: the demo draws cells at _RADIUS_CELL, so the
     # measured areas have to be in the right order of magnitude and vary.
     import pandas as pd
-    with sqlite3.connect(str(db)) as conn:
+    with store_sql.connect(str(db)) as conn:
         area = pd.read_sql("SELECT cell_area FROM cell", conn)["cell_area"]
     assert area.min() > 100 and area.max() < 5000, area.describe()
     assert area.std() > 0, "every cell measured the identical area"
@@ -462,7 +463,7 @@ def test_classify_demo_trains_a_model_and_predicts_every_crop(tmp_path):
     assert all(p.stat().st_size > 1_000_000 for p in weights), (
         [(p.name, p.stat().st_size) for p in weights])
 
-    with sqlite3.connect(str(layout.db_path)) as conn:
+    with store_sql.connect(str(layout.db_path)) as conn:
         cols = [r[1] for r in conn.execute('PRAGMA table_info("png_list")')]
         assert "pred" in cols, cols
         n_pred = conn.execute(

@@ -749,7 +749,9 @@ def _connect(db_path: str) -> sqlite3.Connection:
     if not db_path or not str(db_path).strip():
         raise ValueError("No database path given.")
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
-    if not os.path.isfile(path):
+    from .measurement_store import exists as _measurements_exist
+
+    if not _measurements_exist(path):
         raise FileNotFoundError(f"No such database: {path}")
     from .database_concurrency import connect as _connect_database
 
@@ -2554,7 +2556,7 @@ def _feature_columns(columns: Iterable[Any],
     for column in columns:
         entry = _entry(column)
         family = str(getattr(entry, "family", None) or "unknown")
-        if family == "meta":
+        if family == "meta" or schema.is_provenance_column(column):
             continue
         channel = getattr(entry, "channel", None)
         group = NO_CHANNEL if channel is None else f"channel_{int(channel)}"
@@ -3132,7 +3134,8 @@ def _store_crop_embeddings(db_path: str, prcfo: Sequence[Any],
 def _stored_embedding_frame(db_path: str) -> Optional[pd.DataFrame]:
     """The stored crop-embedding table, or ``None`` when there is none."""
     from . import tabular
-    if not os.path.exists(str(db_path)):
+    from .measurement_store import exists as _measurements_exist
+    if not (os.path.exists(str(db_path)) or _measurements_exist(str(db_path))):
         return None
     if _EMBEDDING_TABLE not in tabular.database_tables(db_path):
         return None
@@ -3257,6 +3260,8 @@ def _multi_similarity_index(db_paths: Sequence[str], *,
     feature names. Mixing these two feature kinds is refused rather than
     filling missing or incompatible dimensions with zeroes.
     """
+    from .measurement_store import exists as _measurements_exist
+
     paths = list(dict.fromkeys(os.path.abspath(str(path)) for path in db_paths))
     if len(paths) < 2 or len({os.path.realpath(path) for path in paths}) < len(paths):
         raise ValueError("Choose at least two different plate databases.")
@@ -3265,7 +3270,7 @@ def _multi_similarity_index(db_paths: Sequence[str], *,
     kind = fingerprint = provenance = columns = None
     frames = []
     for path in paths:
-        if not os.path.isfile(path):
+        if not _measurements_exist(path):
             raise ValueError(f"Plate database does not exist: {path}")
         stored = (_stored_embedding_frame(path)
                   if feature_kind != "measurements" else None)

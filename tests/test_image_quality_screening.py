@@ -1,4 +1,5 @@
 """Raw-image screening has explicit thresholds, policies and field identities."""
+from tests import store_sql
 import json
 
 import numpy as np
@@ -134,16 +135,16 @@ def test_exclusion_cannot_silently_leave_old_measured_fields(tmp_path):
     fields(tmp_path)
     screen_fields(tmp_path, {'image_qc_mode': 'report'})
     original = (tmp_path / 'qc/image_quality.json').read_bytes()
-    with sqlite3.connect(tmp_path / 'measurements/measurements.db', timeout=30.0) as connection:
+    with store_sql.connect(tmp_path / 'measurements/measurements.db', timeout=30.0) as connection:
         assert connection.execute('SELECT image_qc_status FROM image WHERE file_name = ?',
                                   ('blurred',)).fetchone() == ('accepted',)
-    with sqlite3.connect(tmp_path / 'measurements/measurements.db') as connection:
+    with store_sql.connect(tmp_path / 'measurements/measurements.db') as connection:
         connection.execute('CREATE TABLE cell (file_name TEXT, area REAL)')
         connection.execute('INSERT INTO cell VALUES (?, ?)', ('blurred', 42))
     with pytest.raises(ValueError, match='overlap existing measurements'):
         screen_fields(tmp_path, dict(image_qc_mode='exclude', image_qc_min_focus={0: 1}))
     assert (tmp_path / 'qc/image_quality.json').read_bytes() == original
-    with sqlite3.connect(tmp_path / 'measurements/measurements.db') as connection:
+    with store_sql.connect(tmp_path / 'measurements/measurements.db') as connection:
         assert connection.execute('SELECT * FROM cell').fetchall() == [('blurred', 42)]
 
 

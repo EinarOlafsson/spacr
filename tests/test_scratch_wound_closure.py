@@ -9,6 +9,7 @@ tables, the CSV exports and the figures back.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -503,7 +504,7 @@ def test_measure_writes_closure_per_field_well_and_condition(tmp_path):
     measure.measure_crop(_settings(merged))
 
     db = tmp_path / "measurements" / "measurements.db"
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         fields = pd.read_sql_query(f"SELECT * FROM {_WOUND_TABLE}", conn)
         wells = pd.read_sql_query(f"SELECT * FROM {_WOUND_WELL_TABLE}", conn)
         summary = pd.read_sql_query(
