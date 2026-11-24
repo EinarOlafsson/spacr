@@ -403,6 +403,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assignments = (assignments - spatial_arrivals.keys()
                    - _LAUNCHER_ASSIGNMENTS - _N696_ASSIGNMENT_ARRIVALS.keys()
                    - _N673_WGPU_ASSIGNMENTS)
+    # 2026-11-24 (merge 9, one robust z): batch_correction.MAD_SCALE_ROUNDED,
+    # the one MAD-to-SD constant, is named and taken out here, so the count
+    # and every fingerprint below describe the surface before it.
+    robust_z_constants = {"spacr.batch_correction.MAD_SCALE_ROUNDED"}
+    assert robust_z_constants <= assignments
+    assignments = assignments - robust_z_constants
     # 35 -> 39 on 2026-11-05 (item 770): batch_correction's EMBEDDING_METHODS,
     # TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
     assert len(assignments) == 39
@@ -2568,6 +2574,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **_current_cropstore_rule43_api(zoo_arrivals)}
     from tests.complex_shap_api_hooks import _current_complex_shap_api
     zoo_arrivals = {**zoo_arrivals, **_current_complex_shap_api(zoo_arrivals)}
+    from tests.l3_api_hooks import _current_l3_api
+    zoo_arrivals = {**zoo_arrivals, **_current_l3_api(zoo_arrivals)}
     sweep_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "955_ops_fdr_sweep_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
     assert len(sweep_arrivals) == 1
