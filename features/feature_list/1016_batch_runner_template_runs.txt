@@ -31,32 +31,32 @@ Reuse the existing pieces: BatchDropHandler and plate_queue
 chaining port bindings. Don't build a second settings loader."
 
 BUILD
-- spacr/batch.py (light, outside __all__, so not public API):
-  read_template_run reads every
+- spacr/batch.py (light, private helpers, not public API):
+  _read_template_run reads every
   settings snapshot of a run folder (settings/ then the folder; JSON wins
   over a CSV of the same name) with spacr.cli.load_settings_file, the loader
   the queue resolves job settings with; run bookkeeping keys starting with
   "_" are dropped; modules are put in run order from spacr.ports (producer
   before consumer).
-- snapshot_files and module_for_snapshot are the one implementation of
+- _snapshot_files and _module_for_snapshot are the one implementation of
   "which files are snapshots, which module is each"; the Plate Queue and
   Batch drop handlers (_settings_files, _module_from_settings) now call them.
-- template_job_settings: the template settings with the source key
+- _template_job_settings: the template settings with the source key
   (spacr.chaining.source_key) set to the new folder and every path inside
   the template run moved to the same place in the new folder. Nothing else
   changes.
-- chained_input: a later module that reads what an earlier template module
+- _chained_input: a later module that reads what an earlier template module
   writes gets its input through spacr.chaining.binding_for (ROOT or PATH
   form) and depends_on that job, so Measure runs after the Mask job of the
   same folder.
-- check_template_folder: plain-sentence mismatches, no job added: no images; file
+- _check_template_folder: plain-sentence mismatches, no job added: no images; file
   names that do not parse with the template pattern (custom_regex or
   metadata_type); channels; z planes; image size; pixel type (TIFF/NPY
   header, no pixels read); then every ERROR of validate_settings on the
   resolved job settings ("whatever else the template settings assume").
   The raw-name parse is the shared spacr.validate._raw_image_names /
   _parse_raw_names, which _scan_raw_images now uses too.
-- add_template_jobs: one Job per template module, settings in its own JSON
+- _add_template_jobs: one Job per template module, settings in its own JSON
   file under <spacr home>/batch/template_jobs/, added through Queue.add (the
   same validation as the Add job button); a folder whose jobs cannot all be
   added leaves the queue and the disk as they were.

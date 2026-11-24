@@ -38,13 +38,13 @@ Behaviour for unattended runs:
   overnight jobs is unreadable — and the path is on the job record.
 
 Template runs: a finished run folder records the settings of every module that
-ran on it in ``<run>/settings/``. :func:`read_template_run` reads them as a
-template; :func:`add_template_jobs` turns a new image folder into one job per
+ran on it in ``<run>/settings/``. :func:`_read_template_run` reads them as a
+template; :func:`_add_template_jobs` turns a new image folder into one job per
 template module, with the template settings unchanged except the source folder
 and every output path that lay inside the template run, and a later module
 (Measure) chained to the output of the earlier one (Mask) through the port
 bindings of :mod:`spacr.chaining`. A folder becomes jobs only when
-:func:`check_template_folder` finds no difference from the template: file
+:func:`_check_template_folder` finds no difference from the template: file
 names, channels, z planes, image size and pixel type, and every error
 :func:`spacr.validate.validate_settings` reports. These helpers serve the
 Batch Runner and are not part of the public API.
@@ -1909,7 +1909,7 @@ def _enable_field_resume(job: Job) -> None:
     job.overrides = overrides
 
 
-TEMPLATE_SNAPSHOT_SUFFIXES: Tuple[str, ...] = (".json", ".csv")
+_TEMPLATE_SNAPSHOT_SUFFIXES: Tuple[str, ...] = (".json", ".csv")
 
 _SNAPSHOT_MODULES: Tuple[Tuple[str, str], ...] = (
     ("measure_crop", "measure"),
@@ -1928,12 +1928,12 @@ _SNAPSHOT_MODULES: Tuple[Tuple[str, str], ...] = (
 )
 
 
-class TemplateError(ValueError):
+class _TemplateError(ValueError):
     """A folder that cannot be used as a template run."""
 
 
 @dataclass
-class TemplateRun:
+class _TemplateRun:
     """The module settings one finished run recorded.
 
     :param root: the run folder, the project root its outputs lie in.
@@ -1954,7 +1954,7 @@ class TemplateRun:
         return tuple(self.settings)
 
 
-def snapshot_files(path: Any, suffixes: Sequence[str] = TEMPLATE_SNAPSHOT_SUFFIXES) -> List[str]:
+def _snapshot_files(path: Any, suffixes: Sequence[str] = _TEMPLATE_SNAPSHOT_SUFFIXES) -> List[str]:
     """The settings snapshots of a run folder, from ``settings/`` and the folder.
 
     A file counts when its name holds ``setting`` and ends in one of
@@ -1992,7 +1992,7 @@ def snapshot_files(path: Any, suffixes: Sequence[str] = TEMPLATE_SNAPSHOT_SUFFIX
     return list(dict.fromkeys(os.path.abspath(p) for p in found))
 
 
-def module_for_snapshot(path: Any, default: str = "mask") -> str:
+def _module_for_snapshot(path: Any, default: str = "mask") -> str:
     """The module a settings snapshot belongs to, read from its file name.
 
     :param path: the snapshot path, for example ``gen_mask_settings.json``.
@@ -2057,22 +2057,22 @@ def _run_order(modules: Sequence[str]) -> List[str]:
     return ordered
 
 
-def read_template_run(path: Any) -> TemplateRun:
+def _read_template_run(path: Any) -> _TemplateRun:
     """Read every module settings snapshot a finished run recorded.
 
     :param path: the run folder, or its ``settings/`` folder.
     :returns: the template, its modules in run order.
-    :raises TemplateError: when the folder holds no readable module snapshot.
+    :raises _TemplateError: when the folder holds no readable module snapshot.
     """
     root = os.path.abspath(os.path.expanduser(str(path)))
     if os.path.basename(os.path.normpath(root)) == "settings":
         root = os.path.dirname(os.path.normpath(root))
     if not os.path.isdir(root):
-        raise TemplateError(_tr("{folder} is not a folder.", folder=root))
-    template = TemplateRun(root=root)
+        raise _TemplateError(_tr("{folder} is not a folder.", folder=root))
+    template = _TemplateRun(root=root)
     found: Dict[str, Tuple[str, Dict[str, Any]]] = {}
-    for snapshot in snapshot_files(root):
-        module = module_for_snapshot(snapshot, default="")
+    for snapshot in _snapshot_files(root):
+        module = _module_for_snapshot(snapshot, default="")
         if not module or resolve_module(module) is None or module in found:
             continue
         try:
@@ -2083,7 +2083,7 @@ def read_template_run(path: Any) -> TemplateRun:
         found[module] = (snapshot, {k: v for k, v in values.items()
                                     if not str(k).startswith("_")})
     if not found:
-        raise TemplateError(_tr(
+        raise _TemplateError(_tr(
             "No module settings were found in {path}. A finished run keeps "
             "them in its settings folder, for example "
             "settings/gen_mask_settings.json.", path=os.path.join(root, "settings")))
@@ -2106,7 +2106,7 @@ def _rebased(value: Any, old_root: str, new_root: str) -> Any:
     return value
 
 
-def template_job_settings(template: TemplateRun, module: str, folder: Any) -> Dict[str, Any]:
+def _template_job_settings(template: _TemplateRun, module: str, folder: Any) -> Dict[str, Any]:
     """The settings of ``module`` for a new folder, from the template.
 
     The template settings, with the source folder set to ``folder`` and every
@@ -2128,7 +2128,7 @@ def template_job_settings(template: TemplateRun, module: str, folder: Any) -> Di
     return values
 
 
-def chained_input(template: TemplateRun, module: str,
+def _chained_input(template: _TemplateRun, module: str,
                   upstream_settings: Mapping[str, Any]) -> Tuple[str, str, Any]:
     """The input ``module`` reads from an earlier job of the same folder.
 
@@ -2224,7 +2224,7 @@ def _listing(values: Sequence[str]) -> str:
     return ", ".join(str(v) for v in values) if values else "-"
 
 
-def _raw_mismatches(template: TemplateRun, module: str, folder: str) -> List[str]:
+def _raw_mismatches(template: _TemplateRun, module: str, folder: str) -> List[str]:
     """Differences between the raw images of ``folder`` and of the template."""
     from .validate import _raw_image_names
 
@@ -2273,7 +2273,7 @@ def _raw_mismatches(template: TemplateRun, module: str, folder: str) -> List[str
     return problems
 
 
-def check_template_folder(template: TemplateRun, folder: Any) -> List[str]:
+def _check_template_folder(template: _TemplateRun, folder: Any) -> List[str]:
     """Every way a new folder differs from what the template assumes.
 
     :param template: the imported template.
@@ -2294,7 +2294,7 @@ def check_template_folder(template: TemplateRun, folder: Any) -> List[str]:
             return problems
     try:
         settings = resolve_job_settings(Job(
-            module=first, settings=template_job_settings(template, first, path)))
+            module=first, settings=_template_job_settings(template, first, path)))
     except SettingsError as exc:
         return [str(exc).splitlines()[0]]
     module = resolve_module(first)
@@ -2312,14 +2312,14 @@ def _write_template_job_settings(path: str, settings: Mapping[str, Any]) -> None
     _atomic_write(path, json.dumps(dict(settings), indent=2, default=str) + "\n")
 
 
-def template_job_folder() -> str:
+def _template_job_folder() -> str:
     """Where the settings files of template jobs are kept."""
     from .logging_util import _spacr_home
 
     return str(_spacr_home() / "batch" / "template_jobs")
 
 
-def add_template_jobs(queue, template: TemplateRun, folder: Any,
+def _add_template_jobs(queue, template: _TemplateRun, folder: Any,
                     directory: Optional[str] = None) -> List[Any]:
     """Add one job per template module for a new folder, chained in order.
 
@@ -2329,17 +2329,17 @@ def add_template_jobs(queue, template: TemplateRun, folder: Any,
     :param queue: the :class:`spacr.batch.Queue` to add to.
     :param template: the imported template.
     :param folder: the new source folder.
-    :param directory: where the job settings files go; :func:`template_job_folder`
+    :param directory: where the job settings files go; :func:`_template_job_folder`
         when None.
     :returns: the added :class:`spacr.batch.Job` objects, in run order.
-    :raises TemplateError: listing every mismatch, or why a job could not be
+    :raises _TemplateError: listing every mismatch, or why a job could not be
         added.
     """
-    problems = check_template_folder(template, folder)
+    problems = _check_template_folder(template, folder)
     if problems:
-        raise TemplateError("\n".join(problems))
+        raise _TemplateError("\n".join(problems))
     path = os.path.abspath(os.path.expanduser(str(folder)))
-    target = directory or template_job_folder()
+    target = directory or _template_job_folder()
     name = os.path.basename(os.path.normpath(path)) or "plate"
     tag = uuid.uuid4().hex[:6]
     added: List[Any] = []
@@ -2347,11 +2347,11 @@ def add_template_jobs(queue, template: TemplateRun, folder: Any,
     files: List[str] = []
     try:
         for index, module in enumerate(template.modules):
-            settings = template_job_settings(template, module, path)
+            settings = _template_job_settings(template, module, path)
             depends: List[str] = []
             upstream, _port = _upstream_port(module, template.modules[:index])
             if upstream in written:
-                _module, setting, value = chained_input(
+                _module, setting, value = _chained_input(
                     template, module, written[upstream][1])
                 settings[setting] = ([value] if isinstance(settings.get(setting), list)
                                      else value)
@@ -2372,11 +2372,11 @@ def add_template_jobs(queue, template: TemplateRun, folder: Any,
                 os.remove(written_file)
             except OSError:
                 pass
-        raise TemplateError(str(exc)) from exc
+        raise _TemplateError(str(exc)) from exc
     return added
 
 
-def save_job_settings(job, values: Mapping[str, Any]) -> bool:
+def _save_job_settings(job, values: Mapping[str, Any]) -> bool:
     """Merge ``values`` into a template job settings file, on disk at once.
 
     :param job: a :class:`spacr.batch.Job` whose settings is a file.
@@ -2395,7 +2395,7 @@ def save_job_settings(job, values: Mapping[str, Any]) -> bool:
     return True
 
 
-def read_job_settings(job) -> Dict[str, Any]:
+def _read_job_settings(job) -> Dict[str, Any]:
     """The settings stored for a template job.
 
     :param job: a :class:`spacr.batch.Job` whose settings is a file.
@@ -2403,11 +2403,11 @@ def read_job_settings(job) -> Dict[str, Any]:
     return dict(load_settings_file(job.settings_path))
 
 
-def is_template_job(job, directory: Optional[str] = None) -> bool:
+def _is_template_job(job, directory: Optional[str] = None) -> bool:
     """True when ``job`` keeps its settings in the template job folder.
 
     :param job: a :class:`spacr.batch.Job`.
-    :param directory: the template job folder; :func:`template_job_folder` when None.
+    :param directory: the template job folder; :func:`_template_job_folder` when None.
     """
     path = job.settings_path
-    return bool(path) and _within(os.path.abspath(path), directory or template_job_folder())
+    return bool(path) and _within(os.path.abspath(path), directory or _template_job_folder())

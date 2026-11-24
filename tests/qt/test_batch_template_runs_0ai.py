@@ -73,7 +73,7 @@ def screen(qtbot, qt_theme_applied, tmp_path):
 
 def test_a_mask_only_template_reads_its_mask_settings(tmp_path):
     run = _template(tmp_path, measure=False)
-    template = bt.read_template_run(run)
+    template = bt._read_template_run(run)
     assert template.modules == ("mask",)
     assert template.files["mask"].endswith("gen_mask_settings.json")
     assert template.settings["mask"]["nucleus_background"] == 100
@@ -82,12 +82,12 @@ def test_a_mask_only_template_reads_its_mask_settings(tmp_path):
 
 def test_a_mask_and_measure_template_reads_both_in_run_order(tmp_path):
     run = _template(tmp_path)
-    assert bt.read_template_run(run / "settings").modules == ("mask", "measure")
+    assert bt._read_template_run(run / "settings").modules == ("mask", "measure")
 
 
 def test_a_folder_without_settings_is_not_a_template(tmp_path):
-    with pytest.raises(bt.TemplateError, match="No module settings"):
-        bt.read_template_run(_plate(tmp_path, "raw"))
+    with pytest.raises(bt._TemplateError, match="No module settings"):
+        bt._read_template_run(_plate(tmp_path, "raw"))
 
 
 def test_one_folder_makes_a_mask_job_and_a_chained_measure_job(screen, tmp_path):
@@ -97,11 +97,11 @@ def test_one_folder_makes_a_mask_job_and_a_chained_measure_job(screen, tmp_path)
     mask, measure = screen.queue().jobs
     assert (mask.module, measure.module) == ("mask", "measure")
     assert measure.depends_on == [mask.id]
-    stored = bt.read_job_settings(mask)
+    stored = bt._read_job_settings(mask)
     assert stored["src"] == str(new)
     assert stored["nucleus_background"] == 100
     assert stored["pathogen_channel"] == 2
-    assert bt.read_job_settings(measure)["src"] == str(new)
+    assert bt._read_job_settings(measure)["src"] == str(new)
     assert screen._template_jobs.count() == 2
 
 
@@ -113,8 +113,8 @@ def test_three_folders_make_three_job_pairs(screen, tmp_path):
     assert [j.module for j in jobs] == ["mask", "measure"] * 3
     for mask, measure in zip(jobs[::2], jobs[1::2]):
         assert measure.depends_on == [mask.id]
-        assert bt.read_job_settings(mask)["src"] == bt.read_job_settings(measure)["src"]
-    assert sorted(bt.read_job_settings(j)["src"] for j in jobs[::2]) == sorted(folders)
+        assert bt._read_job_settings(mask)["src"] == bt._read_job_settings(measure)["src"]
+    assert sorted(bt._read_job_settings(j)["src"] for j in jobs[::2]) == sorted(folders)
 
 
 def test_a_folder_that_does_not_match_is_refused_in_plain_words(screen, tmp_path):
@@ -132,12 +132,12 @@ def test_a_folder_that_does_not_match_is_refused_in_plain_words(screen, tmp_path
 
 
 def test_the_pixel_type_and_z_planes_are_checked(tmp_path):
-    template = bt.read_template_run(_template(tmp_path))
+    template = bt._read_template_run(_template(tmp_path))
     eight_bit = _plate(tmp_path, "eight_bit", dtype=np.uint8)
-    assert any("pixel type differs" in p for p in bt.check_template_folder(template, eight_bit))
+    assert any("pixel type differs" in p for p in bt._check_template_folder(template, eight_bit))
     stacks = _plate(tmp_path, "stacks", pattern="W{well}F0001T0001Z001C{channel}.tif")
     _plate(tmp_path, "stacks", pattern="W{well}F0001T0001Z002C{channel}.tif")
-    assert any("z planes differ" in p for p in bt.check_template_folder(template, stacks))
+    assert any("z planes differ" in p for p in bt._check_template_folder(template, stacks))
 
 
 def test_the_queue_runs_mask_before_measure(screen, tmp_path):
@@ -184,11 +184,11 @@ def test_editing_a_job_on_its_module_screen_saves_to_the_job(qtbot, qt_theme_app
     widget = model._widgets["nucleus_background"]
     assert model.set_value_for_key("nucleus_background", 250)
     widget.editingFinished.emit()
-    assert bt.read_job_settings(mask)["nucleus_background"] == 250
+    assert bt._read_job_settings(mask)["nucleus_background"] == 250
     assert json.loads(Path(mask.settings_path).read_text())["nucleus_background"] == 250
 
     screen._batch_job_bar._stop()
     assert window._batch_job_editor is None
     model.set_value_for_key("nucleus_background", 300)
     widget.editingFinished.emit()
-    assert bt.read_job_settings(mask)["nucleus_background"] == 250
+    assert bt._read_job_settings(mask)["nucleus_background"] == 250

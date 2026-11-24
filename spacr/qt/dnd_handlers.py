@@ -2799,16 +2799,16 @@ def _contains_suffix(folder: Path, suffixes, *, recursive: bool = False) -> bool
 
 def _settings_files(path: Path) -> List[Path]:
     """Settings snapshots directly associated with a dropped plate."""
-    from ..batch import snapshot_files
+    from ..batch import _snapshot_files
 
-    return [Path(p) for p in snapshot_files(path, suffixes=(".csv",))]
+    return [Path(p) for p in _snapshot_files(path, suffixes=(".csv",))]
 
 
 def _module_from_settings(path: Path, default: str = "mask") -> str:
     """Infer a runnable GUI module from spaCR's settings snapshot name."""
-    from ..batch import module_for_snapshot
+    from ..batch import _module_for_snapshot
 
-    return module_for_snapshot(path, default)
+    return _module_for_snapshot(path, default)
 
 
 class ForeignProjectDropHandler(DropHandler):
@@ -3175,9 +3175,9 @@ class _TemplateRunDropHandler(BatchDropHandler):
         :param path: the dropped folder.
         :returns: True when the folder records module settings.
         """
-        from ..batch import snapshot_files
+        from ..batch import _snapshot_files
 
-        return path.is_dir() and bool(snapshot_files(path))
+        return path.is_dir() and bool(_snapshot_files(path))
 
     def error_message(self, path: Path) -> str:
         """Say which folder a template is.

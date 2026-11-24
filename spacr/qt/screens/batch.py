@@ -168,7 +168,7 @@ class BatchScreen(QWidget):
         self._stop_requested = False
         self._result: Optional[bt.QueueResult] = None
         self._problems: List[bt.Problem] = []
-        self._template: Optional[bt.TemplateRun] = None
+        self._template: Optional[bt._TemplateRun] = None
         self._template_job_dir: str = ""
         self._jobs: List[tuple] = []
         self._close_drain = _CloseDrain(self)
@@ -453,8 +453,8 @@ class BatchScreen(QWidget):
         :returns: True when the template was imported.
         """
         try:
-            template = bt.read_template_run(path)
-        except bt.TemplateError as exc:
+            template = bt._read_template_run(path)
+        except bt._TemplateError as exc:
             self._set_status(str(exc), error=True)
             return False
         self._template = template
@@ -491,15 +491,16 @@ class BatchScreen(QWidget):
         refused: List[str] = []
         for path in paths:
             try:
-                jobs = bt.add_template_jobs(self._queue, self._template, path,
+                jobs = bt._add_template_jobs(self._queue, self._template, path,
                                            directory=self._template_job_dir or None)
-            except bt.TemplateError as exc:
+            except bt._TemplateError as exc:
                 refused.append(tr("{folder} was not added:", folder=path) + "\n"
                                + "\n".join(f"  - {line}" for line in str(exc).splitlines()))
                 continue
             added += 1
             for job in jobs:
                 self.job_status_changed.emit(job.id, job.status)
+        self._size_progress()
         self._refresh_table()
         self._update_controls()
         self.queue_changed.emit(len(self._queue))
@@ -518,7 +519,7 @@ class BatchScreen(QWidget):
         """The queued jobs that keep their settings as template jobs."""
         directory = self._template_job_dir or None
         return [job for job in self._queue.jobs
-                if bt.is_template_job(job, directory)]
+                if bt._is_template_job(job, directory)]
 
     def _refresh_template_jobs(self) -> None:
         """Rebuild the jobs list from the queue."""
@@ -558,7 +559,7 @@ class BatchScreen(QWidget):
                 "spaCR window."), error=True)
             return None
         try:
-            settings = bt.read_job_settings(job)
+            settings = bt._read_job_settings(job)
         except Exception as exc:
             self._set_status(tr("Could not read the job settings: {error}",
                                 error=str(exc).splitlines()[0]), error=True)
@@ -687,8 +688,14 @@ class BatchScreen(QWidget):
         self.select_job(job.id)
         return True
 
+    def _size_progress(self) -> None:
+        """Count the queued jobs on the progress bar while nothing runs."""
+        if not self._busy:
+            self._progress.setRange(0, max(1, len(self._queue)))
+
     def _after_edit(self, message: str) -> None:
         """Refresh everything an edit touches, then re-validate quietly."""
+        self._size_progress()
         self._refresh_table()
         self._update_controls()
         self.queue_changed.emit(len(self._queue))
@@ -1105,8 +1112,6 @@ class BatchScreen(QWidget):
         user picked.
         """
         jobs = self._queue.jobs
-        if not self._busy:
-            self._progress.setRange(0, max(1, len(jobs)))
         spare = _spare_items(self._table)
         for row in range(len(jobs), self._table.rowCount()):
             for col in range(self._table.columnCount()):
@@ -1352,7 +1357,7 @@ class _JobEditor:
         except (TypeError, ValueError, RuntimeError):
             return False
         try:
-            changed = bt.save_job_settings(job, values)
+            changed = bt._save_job_settings(job, values)
         except Exception as exc:
             self.batch._set_status(tr("Could not save the change to {job}: {error}",
                                       job=self.job_id, error=exc), error=True)
