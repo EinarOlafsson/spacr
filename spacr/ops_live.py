@@ -20,7 +20,8 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
-_STEPS: Tuple[str, ...] = ("align", "spots", "objects", "merge", "cluster")
+_STEPS: Tuple[str, ...] = ("align", "spots", "objects", "merge", "cluster",
+                           "voyager3")
 
 _STEP_NEEDS: Dict[str, Tuple[str, ...]] = {
     "align": (),
@@ -28,6 +29,7 @@ _STEP_NEEDS: Dict[str, Tuple[str, ...]] = {
     "objects": ("align",),
     "merge": ("align",),
     "cluster": ("merge",),
+    "voyager3": ("cluster",),
 }
 
 _EVERY_STEP = _STEPS
@@ -35,6 +37,7 @@ _EVERY_STEP = _STEPS
 _SHARED_CATEGORY_WORDS: Tuple[str, ...] = ("input", "performance")
 
 _STEM_STEPS: Tuple[Tuple[str, str], ...] = (
+    ("ops_voyager3_", "voyager3"),
     ("ops_registration_", "align"),
     ("ops_channel_registration", "align"),
     ("ops_spot_min_peak", "align"),
@@ -117,6 +120,7 @@ _LIVE_STEPS: Dict[str, Tuple[str, ...]] = {
     "ops_live_ph_fields": ("objects",),
     "ops_live_merge_fields": ("merge",),
     "ops_live_genes": ("cluster",),
+    "ops_live_voyager3_clusters": ("voyager3",),
 }
 """The preview-only settings (the region and the Sample of each tab) and
 the steps each one changes. They are never written into the OPS run."""
@@ -1860,12 +1864,71 @@ def _run_cluster(ctx: _Context, cancelled=None) -> Dict[str, Any]:
             "total_genes": int(len(genes))}
 
 
+def _run_voyager3(ctx: _Context, cancelled=None) -> Dict[str, Any]:
+    """Name the role of the preview clusters with Voyager3, as the ``voyager3`` phase does.
+
+    The Clustering tab clusters are written as a cluster table in the
+    preview workspace and :func:`spacr.voyager3.run_voyager3` reads it with
+    the form's ``ops_voyager3_*`` settings, writing into the workspace. The
+    largest clusters are annotated, as many as the Voyager3 Sample
+    (``ops_live_voyager3_clusters``, 0 for all) asks.
+
+    :returns: the cluster and candidate tables Voyager3 wrote, the method
+        and provider, and the progress lines.
+    :raises _NotReady: when the Clustering tab made no clusters.
+    """
+    import pandas as pd
+
+    from .tabular import read_table
+    from .voyager3 import run_voyager3
+
+    clustered = _result(ctx, "cluster", cancelled)
+    labels = clustered.get("labels")
+    if labels is None:
+        raise _NotReady("clusters")
+    folder = ctx.folder / "voyager3"
+    folder.mkdir(parents=True, exist_ok=True)
+    table = pd.DataFrame({"gene": list(clustered["genes"]),
+                          "cluster": [int(c) for c in labels]})
+    source = folder / "live_clusters.csv"
+    table.to_csv(source, index=False)
+    sizes = table.groupby("cluster")["gene"].nunique().sort_values(ascending=False, kind="stable")
+    sizes = sizes[sizes >= 2]
+    if sizes.empty:
+        raise _NotReady("clusters")
+    most = _live_int(ctx.settings, "ops_live_voyager3_clusters", 3)
+    chosen = [str(c) for c in (sizes.index[:most] if most > 0 else sizes.index)]
+    settings = _preview_settings(ctx.settings, ctx.folder)
+    settings.update({"ops_voyager3_clusters": str(source),
+                     "ops_voyager3_cluster_column": "cluster",
+                     "ops_voyager3_cluster_ids": ",".join(chosen)})
+    lines: List[str] = []
+
+    def say(text: str) -> None:
+        """Keep the progress line and stop here when the pass was cancelled."""
+        lines.append(str(text))
+        _check(cancelled)
+
+    run = run_voyager3(settings, report=say, out_dir=str(folder / "out"))
+    outputs = run["outputs"]
+    clusters = read_table(outputs["clusters"], canonicalise=False, report=None)
+    candidates = read_table(outputs["candidates"], canonicalise=False, report=None)
+    with open(run["provenance"], encoding="utf-8") as handle:
+        provenance = json.load(handle)
+    return {"clusters": clusters, "candidates": candidates,
+            "method": str(provenance.get("method") or "ai"),
+            "provider": str(provenance.get("provider_label") or provenance.get("provider") or ""),
+            "model": str(provenance.get("model") or ""), "lines": lines,
+            "annotated": len(chosen), "total_clusters": int(len(sizes))}
+
+
 _RUNNERS: Dict[str, Callable[..., Dict[str, Any]]] = {
     "align": _run_align,
     "spots": _run_spots,
     "objects": _run_objects,
     "merge": _run_merge,
     "cluster": _run_cluster,
+    "voyager3": _run_voyager3,
 }
 
 
@@ -1876,7 +1939,7 @@ def _run_step(form: Mapping[str, Any], step: str, cache: dict,
     """Run one tab's step with the form's settings, reusing the cache.
 
     :param form: the settings on the OPS form.
-    :param step: one of the five steps.
+    :param step: one of the steps in ``_STEPS``.
     :param cache: kept by the panel between passes.
     :param cancelled: answers whether the pass was cancelled.
     :param steps: the setting-to-step map, when the caller holds it.

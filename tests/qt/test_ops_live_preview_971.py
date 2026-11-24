@@ -23,7 +23,7 @@ from spacr import ops_live  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
-STEPS = ("align", "spots", "objects", "merge", "cluster")
+STEPS = ("align", "spots", "objects", "merge", "cluster", "voyager3")
 
 
 def _labels(size=48, n=3):
@@ -82,6 +82,16 @@ def _fake_result(step: str):
                 "genes": genes, "merged": merged, "objects": objects,
                 "cells": cells, "per_field": [{"site": 7, "cells": 2, "matched": 1}],
                 "align": align}
+    if step == "voyager3":
+        clusters = pd.DataFrame({
+            "cluster": ["0", "1", "0"], "kind": ["real", "real", "shuffled"],
+            "n_genes": [4, 3, 4], "biological_role": ["ribosome", "proteasome", "none"],
+            "confidence_rule": ["high", "low", "none"],
+            "support_fraction": ["0.7500", "0.3333", "0.0000"],
+            "supporting_genes": ["G0; G1; G2", "G4", ""], "candidates": ["G3 (ribosome)", "", ""]})
+        return {"clusters": clusters, "candidates": pd.DataFrame(), "method": "ai",
+                "provider": "spaCR AI", "model": "", "lines": [], "annotated": 2,
+                "total_clusters": 3}
     return {"genes": [f"G{i}" for i in range(8)],
             "components": rng.normal(size=(8, 3)), "n_components": 3,
             "n_features": 5, "labels": np.array([0, 0, 1, 1, 2, 2, 0, 1]),
@@ -293,9 +303,11 @@ def test_a_subcategory_places_a_setting_by_its_name():
 
 
 def test_a_step_change_invalidates_what_reads_from_it():
-    assert set(ops_live._downstream("align")) == {"spots", "objects", "merge", "cluster"}
-    assert ops_live._downstream("merge") == ("cluster",)
-    assert ops_live._downstream("cluster") == ()
+    assert set(ops_live._downstream("align")) == {"spots", "objects", "merge", "cluster",
+                                                  "voyager3"}
+    assert ops_live._downstream("merge") == ("cluster", "voyager3")
+    assert ops_live._downstream("cluster") == ("voyager3",)
+    assert ops_live._downstream("voyager3") == ()
     steps = ops_live._step_map()
     base = {"ops_merge_threshold": 4.0, "ops_cluster_knn": 12,
             "ops_raster_overlap": 213}

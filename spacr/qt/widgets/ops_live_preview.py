@@ -30,7 +30,8 @@ from .preview_contract import (PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT,
 
 LOG = logging.getLogger("spacr.qt.widgets.ops_live_preview")
 
-_STEP_ORDER: Tuple[str, ...] = ("align", "spots", "objects", "merge", "cluster")
+_STEP_ORDER: Tuple[str, ...] = ("align", "spots", "objects", "merge", "cluster",
+                                "voyager3")
 
 
 def _title(step: str) -> str:
@@ -41,6 +42,7 @@ def _title(step: str) -> str:
         "objects": tr("Objects & phenotype"),
         "merge": tr("Merge & aggregation"),
         "cluster": tr("Clustering"),
+        "voyager3": tr("Voyager3"),
     }[step]
 
 
@@ -60,6 +62,9 @@ def _blurb(step: str) -> str:
                     "matched cells to one profile per gene."),
         "cluster": tr("Embed the gene profiles and cluster them at the first "
                       "graph, resolution and seed the settings name."),
+        "voyager3": tr("Name the biological role of the largest preview clusters "
+                       "from the UniProt facts of their genes, with the AI or "
+                       "the enrichment test the Voyager3 settings choose."),
     }[step]
 
 
@@ -666,12 +671,68 @@ def _draw_cluster(result: Mapping[str, Any], colours):
             "sample": sample}
 
 
+_CONFIDENCE_ORDER = ("high", "medium", "low", "none")
+
+
+def _draw_voyager3(result: Mapping[str, Any], colours):
+    """Tab 6: the role Voyager3 names for each cluster, how well its genes bear it out, and the candidates.
+
+    :returns: the tab's pictures (none), graphs, table and sample line.
+    """
+    clusters = result["clusters"]
+    real = clusters[clusters["kind"].astype(str) == "real"] if "kind" in clusters.columns \
+        else clusters
+    shuffled = clusters[clusters["kind"].astype(str) == "shuffled"] \
+        if "kind" in clusters.columns else clusters.iloc[0:0]
+    graphs: List[Dict[str, Any]] = []
+    if len(real):
+        words = real["confidence_rule"].astype(str).str.lower()
+        counts = [float((words == w).sum()) for w in _CONFIDENCE_ORDER]
+        graphs.append({"kind": "bars", "title": tr("Confidence of the named roles"),
+                       "x_label": tr("Confidence (share of genes cited as support)"),
+                       "y_label": tr("Clusters"), "x": np.arange(4.0),
+                       "heights": np.array(counts), "width": 0.6,
+                       "colours": [colours["blue"], colours["teal"], colours["navy"],
+                                   _CONTROL_GREY],
+                       "ticks": [tr("high"), tr("medium"), tr("low"), tr("none")],
+                       "labels": True})
+        support = 100.0 * real["support_fraction"].astype(float).to_numpy()
+        series = [(tr("clusters"), list(support), colours["blue"])]
+        if len(shuffled):
+            matched = shuffled.set_index("cluster")["support_fraction"].astype(float)
+            series.append((tr("shuffled genes (ref.)"),
+                           [100.0 * float(matched.get(c, np.nan))
+                            for c in real["cluster"]], _CONTROL_GREY))
+        graphs.append({"kind": "grouped", "title": tr("Genes cited as support"),
+                       "x_label": tr("Cluster"), "y_label": tr("Genes cited (%)"),
+                       "ticks": [str(c) for c in real["cluster"]],
+                       "x": np.arange(len(real), dtype=float), "series": series})
+    else:
+        graphs.append({"kind": "message", "title": tr("Confidence of the named roles"),
+                       "text": tr("Voyager3 named no cluster.")})
+    header = [tr("Cluster"), tr("Genes"), tr("Role"), tr("Confidence"),
+              tr("Genes cited (%)"), tr("Supporting genes"), tr("Candidates")]
+    rows = [[str(r["cluster"]), str(r["n_genes"]), str(r["biological_role"]),
+             str(r["confidence_rule"]), f"{100.0 * float(r['support_fraction']):.1f}",
+             str(r["supporting_genes"]), str(r["candidates"])]
+            for _i, r in real.iterrows()]
+    method = result.get("method") or "ai"
+    used = (tr("the enrichment test") if method == "enrichment"
+            else tr("{provider} {model}", provider=result.get("provider") or tr("the AI"),
+                    model=result.get("model") or ""))
+    sample = tr("{n} of {total} clusters named by {used}", n=result.get("annotated", len(real)),
+                total=result.get("total_clusters", len(real)), used=used.strip())
+    return {"images": [], "graphs": graphs, "header": header, "rows": rows,
+            "sample": sample}
+
+
 _DRAW: Dict[str, Callable[..., Dict[str, Any]]] = {
     "align": _draw_align,
     "spots": _draw_spots,
     "objects": _draw_objects,
     "merge": _draw_merge,
     "cluster": _draw_cluster,
+    "voyager3": _draw_voyager3,
 }
 
 
@@ -700,6 +761,9 @@ def _not_ready_text(step: str, reason: str, detail: Mapping[str, Any]) -> str:
                         "genotype_source to preview on the OPS test data."),
         "genes": tr("The aggregate phase wrote no gene table. Run the Merge & "
                     "aggregation tab first and check what it says."),
+        "clusters": tr("Voyager3 names the clusters of the Clustering tab, and it "
+                       "made no cluster with 2 or more genes. Run the Clustering "
+                       "tab first and check what it says."),
         "few_genes": tr("Only {n} genes have at least {floor} cells "
                         "(ops_profile_min_cells); clustering needs 5 or more. "
                         "Lower ops_profile_min_cells or preview on more data.",
@@ -1285,6 +1349,7 @@ _SAMPLES: Dict[str, Tuple[str, int, int, int, int]] = {
     "objects": ("ops_live_ph_fields", 1, 9, 9, 1),
     "merge": ("ops_live_merge_fields", 0, 500, 0, 1),
     "cluster": ("ops_live_genes", 0, 20000, 0, 5),
+    "voyager3": ("ops_live_voyager3_clusters", 0, 200, 3, 1),
 }
 """Each tab's Sample: its preview-only setting, lowest, highest, default and
 step. A lowest of 0 means every one, and the box says so."""
@@ -1308,12 +1373,16 @@ def _sample_words(step: str) -> Tuple[str, str]:
         "cluster": (tr(" genes"), tr(
             "The most genes that are clustered, the genes with most cells "
             "first.")),
+        "voyager3": (tr(" clusters"), tr(
+            "How many clusters Voyager3 names, the largest first. Each one is "
+            "one question to the AI when the method is ai.")),
     }[step]
 
 
 def _sample_all(step: str) -> str:
     """What a tab's Sample box says at 0, which means every one."""
-    return {"merge": tr("all fields"), "cluster": tr("all genes")}.get(step, tr("all"))
+    return {"merge": tr("all fields"), "cluster": tr("all genes"),
+            "voyager3": tr("all clusters")}.get(step, tr("all"))
 
 
 def _table_widget(header, rows, parent=None) -> QTableWidget:

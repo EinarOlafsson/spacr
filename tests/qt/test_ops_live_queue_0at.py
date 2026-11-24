@@ -23,7 +23,7 @@ from tests.qt.test_ops_live_preview_971 import _fake_result  # noqa: E402
 
 pytestmark = pytest.mark.qt
 
-STEPS = ("align", "spots", "objects", "merge", "cluster")
+STEPS = ("align", "spots", "objects", "merge", "cluster", "voyager3")
 
 
 class _Runner:
@@ -329,3 +329,76 @@ def test_the_font_scale_slider_is_gone(qapp):
                     if w.objectName() in ("PreviewScaleControl", "PreviewScaleSlider")]
     finally:
         panel.shutdown()
+
+
+def test_voyager3_is_its_own_tab_after_clustering(qapp):
+    from spacr.ops_settings import OPS_DEFAULTS
+    from spacr.qt.widgets.ops_live_preview import _OpsLivePanel
+
+    panel = _OpsLivePanel(lambda: {"genotype_source": "/x"}, run_step=_Runner())
+    try:
+        titles = [panel._tabs.tabText(i) for i in range(panel._tabs.count())]
+        assert titles[-2:] == ["Clustering", "Voyager3"]
+        own = set(panel.step_settings("voyager3"))
+        assert own == {k for k in OPS_DEFAULTS if k.startswith("ops_voyager3_")}
+        assert not own & set(panel.step_settings("cluster"))
+        page = panel.page("voyager3")
+        assert page.sample_spin.value() == 3 and page.sample_key == "ops_live_voyager3_clusters"
+    finally:
+        panel.shutdown()
+
+
+def test_voyager3_shows_its_clusters_and_carries_its_settings(qtbot, live):
+    copied = []
+    panel, runner = live(propagate=copied.append)
+    _run(qtbot, panel, runner, "voyager3")
+    page = panel.page("voyager3")
+    assert page.queue.count() == len(page.graphs) + 1
+    assert page.table.rowCount() == 2, "the shuffled control is not a row of its own"
+    assert page.table.item(0, 2).text() == "ribosome"
+    assert "named by" in page.sample.text()
+    panel.panel_setting_changed("voyager3", "ops_voyager3_method", "enrichment")
+    qtbot.waitUntil(lambda: runner.calls.count("voyager3") == 2, timeout=10000)
+    qtbot.waitUntil(lambda: not panel.preview_running(), timeout=10000)
+    assert runner.forms[-1]["ops_voyager3_method"] == "enrichment"
+    assert panel.apply_to_ops("voyager3") == 1
+    assert copied == [{"ops_voyager3_method": "enrichment"}]
+
+
+def test_the_voyager3_step_names_the_largest_preview_clusters(tmp_path, monkeypatch):
+    import json
+
+    import pandas as pd
+
+    seen = {}
+
+    def fake_run(settings, report=None, out_dir=None, provider=None):
+        seen.update(settings)
+        report("Progress: 1/1, operation_type: Voyager3")
+        os.makedirs(out_dir, exist_ok=True)
+        table = pd.DataFrame({"cluster": ["1"], "kind": ["real"], "n_genes": [3],
+                              "biological_role": ["x"], "confidence_rule": ["high"],
+                              "support_fraction": ["1.0"], "supporting_genes": ["A"],
+                              "candidates": [""]})
+        paths = {"clusters": os.path.join(out_dir, "c.csv"),
+                 "candidates": os.path.join(out_dir, "d.csv")}
+        table.to_csv(paths["clusters"], index=False)
+        pd.DataFrame({"cluster": []}).to_csv(paths["candidates"], index=False)
+        provenance = os.path.join(out_dir, "p.json")
+        with open(provenance, "w") as handle:
+            json.dump({"method": "ai", "provider": "fake"}, handle)
+        return {"outputs": paths, "provenance": provenance}
+
+    import os
+
+    monkeypatch.setattr("spacr.voyager3.run_voyager3", fake_run)
+    clustered = {"genes": ["A", "B", "C", "D", "E", "F"], "labels": [1, 1, 1, 2, 2, 3]}
+    ctx = ops_live._Context(settings={"ops_live_voyager3_clusters": 1}, test_root=None,
+                            folder=tmp_path, well="A1", steps={})
+    monkeypatch.setattr(ops_live, "_result", lambda c, step, cancelled=None: clustered)
+    out = ops_live._run_voyager3(ctx)
+    assert seen["ops_voyager3_cluster_ids"] == "1"
+    table = pd.read_csv(seen["ops_voyager3_clusters"])
+    assert list(table.columns) == ["gene", "cluster"] and len(table) == 6
+    assert out["annotated"] == 1 and out["total_clusters"] == 2
+    assert str(tmp_path) in str(seen["dst_root"])
