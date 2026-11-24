@@ -240,7 +240,7 @@ class CropPoolWriter:
         self.pools: List[str] = []
         self.keep_rows = True
         self.workers = 1
-        self._threads = None
+        self._procs = None
         self._inflight: "collections.deque" = collections.deque()
         self._groups: set = set()
         self._set_attributes(dict(attributes or {}))
@@ -330,11 +330,10 @@ class CropPoolWriter:
         A well of a million crops then needs no rows in memory, and
         :meth:`commit` only renames the row file it streamed; it returns
         the record without ``rows`` (:func:`_read_commit_record` reads it
-        back). ``workers`` above 1 writes that many shards at once on writer
-        threads; the shards, pools and rows are the same for every value.
-        zarr already compresses one shard's chunks on several cores, so
-        more threads rarely help: on 100,000 crops of 4 x 115 x 115 pixels
-        two took four times as long as one.
+        back). ``workers`` above 1 hands each full shard, put together in
+        shared memory, to one of that many writer processes, which compress
+        and write it while this process fills the next; the shards, pools
+        and rows are the same for every value.
 
         :param workers: shards written at once.
         :returns: the writer.
@@ -398,10 +397,11 @@ class CropPoolWriter:
     def _flush(self) -> None:
         """Write the buffered crops as one pool shard and one mask shard.
 
-        With ``workers`` above 1 the shard is written (assembled, compressed
-        and its rows built) on a writer thread while the caller keeps
-        filling the next one; at most ``workers`` shards are in flight, and
-        their rows reach the row file in shard order.
+        With ``workers`` above 1 (:meth:`_streaming`) the shard is put
+        together here in shared memory and compressed and written by a
+        writer process while this process fills the next one; at most
+        ``workers`` shards are in flight, and their rows reach the row file
+        in shard order.
         """
         crops, self._buffer = self._buffer, []
         name = str(self._shard)
@@ -410,22 +410,55 @@ class CropPoolWriter:
         classes = sorted({c for crop in crops for c in (crop.get("labels") or {})})
         self._ensure_groups(["pool", "mask"] + [f"labels/{c}" for c in classes])
         if self.workers <= 1:
-            self._take(self._write_shard(name, crops, classes))
+            arrays, offsets = _shard_arrays(self.channels, self.dtype, self.mask_dtype,
+                                            crops, classes, np.empty)
+            for kind, array, chunks, shards in arrays:
+                _write_pool_array(self.zarr, self.path / self.object_type / kind, name,
+                                  array, chunks, shards)
+            del arrays
+            self._take(self._shard_rows(name, crops, offsets))
             return
-        if self._threads is None:
-            from concurrent.futures import ThreadPoolExecutor
+        if self._procs is None:
+            import multiprocessing
+            from concurrent.futures import ProcessPoolExecutor
 
-            self._threads = ThreadPoolExecutor(self.workers)
-        self._inflight.append(self._threads.submit(self._write_shard, name, crops, classes))
+            self._procs = ProcessPoolExecutor(
+                self.workers, mp_context=multiprocessing.get_context("spawn"))
+        held: List[Any] = []
+
+        def shared(shape, dtype):
+            """An array in a new shared-memory block, which the writer process attaches."""
+            from multiprocessing import shared_memory
+
+            block = shared_memory.SharedMemory(
+                create=True, size=max(1, int(np.prod(shape)) * np.dtype(dtype).itemsize))
+            held.append(block)
+            return np.ndarray(shape, dtype, buffer=block.buf)
+
+        arrays, offsets = _shard_arrays(self.channels, self.dtype, self.mask_dtype,
+                                        crops, classes, shared)
+        specs = [(kind, held[index].name, array.shape, array.dtype.str, chunks, shards)
+                 for index, (kind, array, chunks, shards) in enumerate(arrays)]
+        del arrays
+        future = self._procs.submit(_write_shared_shard, str(self.path / self.object_type),
+                                    name, specs)
+        self._inflight.append((future, held, name, crops, offsets))
         self._drain(self.workers)
 
     def _drain(self, keep: int) -> None:
         """Take finished shards in order until at most ``keep`` are in flight."""
         while len(self._inflight) > keep:
-            self._take(self._inflight.popleft().result())
-        if not self._inflight and self._threads is not None and keep == 0:
-            self._threads.shutdown()
-            self._threads = None
+            future, held, name, crops, offsets = self._inflight.popleft()
+            try:
+                future.result()
+            finally:
+                for block in held:
+                    block.close()
+                    block.unlink()
+            self._take(self._shard_rows(name, crops, offsets))
+        if not self._inflight and self._procs is not None and keep == 0:
+            self._procs.shutdown()
+            self._procs = None
 
     def _take(self, written: Tuple[str, int, Optional[List[Dict[str, Any]]]]) -> None:
         """Append one written shard's rows to the row file (and the kept rows)."""
@@ -449,7 +482,7 @@ class CropPoolWriter:
         return self._stream
 
     def _ensure_groups(self, kinds: Sequence[str]) -> None:
-        """Create each kind's parent group once, before any writer thread uses it."""
+        """Create each kind's parent group once, before any writer uses it."""
         for kind in kinds:
             if kind in self._groups:
                 continue
@@ -458,63 +491,12 @@ class CropPoolWriter:
             self.zarr.open_group(str(parent), mode="a", zarr_format=3)
             self._groups.add(kind)
 
-    def _write_shard(self, name: str, crops: List[Mapping[str, Any]],
-                     classes: Sequence[str]
-                     ) -> Tuple[str, int, Optional[List[Dict[str, Any]]]]:
-        """Write one shard's pool, mask and label arrays; its rows as JSON lines.
+    def _shard_rows(self, name: str, crops: List[Mapping[str, Any]], offsets: Sequence[int]
+                    ) -> Tuple[str, int, Optional[List[Dict[str, Any]]]]:
+        """One written shard's rows as JSON lines, and as dicts when the writer keeps rows.
 
-        :returns: ``(lines, count, rows)``: the rows as the row file holds
-            them, how many, and the row dicts when the writer keeps rows.
+        :returns: ``(lines, count, rows)``.
         """
-        from zarr.codecs import ZstdCodec
-
-        sizes = [int(c["pixels"].shape[1] * c["pixels"].shape[2]) for c in crops]
-        total = int(sum(sizes))
-        pool = np.empty((self.channels, total), self.dtype)
-        mask = np.empty(total, self.mask_dtype)
-        offset = 0
-        offsets = []
-        for crop, size in zip(crops, sizes):
-            pool[:, offset:offset + size] = crop["pixels"].reshape(self.channels, size)
-            mask[offset:offset + size] = np.asarray(crop["mask"]).reshape(size)
-            offsets.append(offset)
-            offset += size
-        chunk = max(1, -(-total // 16)) if total else 1
-        arrays = [("pool", pool, (self.channels, chunk), (self.channels, chunk * 16)),
-                  ("mask", mask, (chunk,), (chunk * 16,))]
-        for cls in classes:
-            planes = [np.asarray((crop.get("labels") or {}).get(
-                cls, np.zeros(crop["pixels"].shape[1:], np.uint16))).reshape(size)
-                for crop, size in zip(crops, sizes)]
-            from .image_store import _compact_labels
-            joined = (_compact_labels(np.concatenate(planes)) if planes
-                      else np.zeros(0, np.uint16))
-            arrays.append((f"labels/{cls}", joined, (chunk,), (chunk * 16,)))
-        # The shard's pixels are in the pool arrays now; the crops keep
-        # only what their rows need, so a shard is held once while it is
-        # compressed (item 0ap).
-        for crop in crops:
-            crop.pop("pixels", None)
-            crop.pop("mask", None)
-            if crop.get("labels"):
-                crop["labels"] = dict.fromkeys(crop["labels"], True)
-        for kind, array, chunks, shards in arrays:
-            parent = self.path / self.object_type / kind
-            tmp = parent / f".{name}.tmp"
-            if tmp.exists():
-                shutil.rmtree(tmp)
-            group = self.zarr.open_group(str(tmp.parent), mode="a", zarr_format=3)
-            out = group.create_array(
-                tmp.name, shape=array.shape, dtype=array.dtype,
-                chunks=chunks, shards=shards,
-                compressors=[ZstdCodec(level=3)], fill_value=0,
-                overwrite=True)
-            if total:
-                out[...] = array
-            if (parent / name).exists():
-                shutil.rmtree(parent / name)
-            os.replace(tmp, parent / name)
-        del pool, mask, arrays
         store = self.relative.as_posix()
         array_name = f"{self.object_type}/pool/{name}"
         lines, rows = [], ([] if self.keep_rows else None)
@@ -535,6 +517,92 @@ class CropPoolWriter:
         return "".join(lines), len(lines), rows
 
 
+def _shard_arrays(channels: int, dtype: Any, mask_dtype: Any, crops: List[Dict[str, Any]],
+                  classes: Sequence[str], allocate) -> Tuple[List[Tuple[str, np.ndarray, Any, Any]],
+                                                             List[int]]:
+    """One shard's pool, mask and label arrays with their chunking, and each crop's offset.
+
+    The crops give up their pixels once they are in the arrays, so a shard is
+    held once while it is written (item 0ap).
+
+    :param allocate: ``(shape, dtype) -> array`` for the pool and mask
+        (``np.empty``, or shared memory for a writer process).
+    :returns: ``([(kind, array, chunks, shards)], offsets)``.
+    """
+    sizes = [int(c["pixels"].shape[1] * c["pixels"].shape[2]) for c in crops]
+    total = int(sum(sizes))
+    pool = allocate((channels, total), np.dtype(dtype))
+    mask = allocate((total,), np.dtype(mask_dtype))
+    offset = 0
+    offsets = []
+    for crop, size in zip(crops, sizes):
+        pool[:, offset:offset + size] = crop["pixels"].reshape(channels, size)
+        mask[offset:offset + size] = np.asarray(crop["mask"]).reshape(size)
+        offsets.append(offset)
+        offset += size
+    chunk = max(1, -(-total // 16)) if total else 1
+    arrays = [("pool", pool, (channels, chunk), (channels, chunk * 16)),
+              ("mask", mask, (chunk,), (chunk * 16,))]
+    for cls in classes:
+        planes = [np.asarray((crop.get("labels") or {}).get(
+            cls, np.zeros(crop["pixels"].shape[1:], np.uint16))).reshape(size)
+            for crop, size in zip(crops, sizes)]
+        from .image_store import _compact_labels
+        joined = (_compact_labels(np.concatenate(planes)) if planes
+                  else np.zeros(0, np.uint16))
+        placed = allocate(joined.shape, joined.dtype)
+        placed[...] = joined
+        arrays.append((f"labels/{cls}", placed, (chunk,), (chunk * 16,)))
+    for crop in crops:
+        crop.pop("pixels", None)
+        crop.pop("mask", None)
+        if crop.get("labels"):
+            crop["labels"] = dict.fromkeys(crop["labels"], True)
+    return arrays, offsets
+
+
+def _write_pool_array(zarr: Any, parent: Path, name: str, array: np.ndarray,
+                      chunks: Any, shards: Any) -> None:
+    """Write one pool array whole under a temporary name, then rename it into place."""
+    from zarr.codecs import ZstdCodec
+
+    tmp = parent / f".{name}.tmp"
+    if tmp.exists():
+        shutil.rmtree(tmp)
+    group = zarr.open_group(str(tmp.parent), mode="a", zarr_format=3)
+    out = group.create_array(
+        tmp.name, shape=array.shape, dtype=array.dtype,
+        chunks=chunks, shards=shards,
+        compressors=[ZstdCodec(level=3)], fill_value=0,
+        overwrite=True)
+    if array.size:
+        out[...] = array
+    if (parent / name).exists():
+        shutil.rmtree(parent / name)
+    os.replace(tmp, parent / name)
+
+
+def _write_shared_shard(class_path: str, name: str, specs) -> None:
+    """A writer process: compress and write one shard's arrays from shared memory (item 0ap).
+
+    :param class_path: the class folder (``.../<class>``).
+    :param name: the shard's name.
+    :param specs: ``(kind, block, shape, dtype, chunks, shards)`` per array.
+    """
+    from multiprocessing import shared_memory
+
+    from .ome_zarr import require_zarr
+
+    zarr = require_zarr()
+    for kind, block_name, shape, dtype, chunks, shards in specs:
+        block = shared_memory.SharedMemory(name=block_name, track=False)
+        try:
+            array = np.ndarray(tuple(shape), np.dtype(dtype), buffer=block.buf)
+            _write_pool_array(zarr, Path(class_path) / kind, name, array,
+                              tuple(chunks), tuple(shards))
+            del array
+        finally:
+            block.close()
 #: Where a crop's pixels are: the row columns only the writer knows (item 0ap).
 _LOCATION_KEYS: Tuple[str, ...] = ("crop_store", "crop_array", "crop_index", "offset",
                                    "mask_offset")
