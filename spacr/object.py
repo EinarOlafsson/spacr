@@ -12,6 +12,9 @@ from . import accelerator
 import numpy as np
 
 from ._mask_batches import _open_batch as open_mask_batch
+# Item 0aj P2: the one reader and writer of the object masks (labels in fov.ome.zarr).
+from .image_store import (_mask_exists, _mask_folder_exists, _prepare_mask_folder,
+                          _read_mask, _write_mask)
 import pandas as pd
 from multiprocessing import cpu_count
 from .resource_log import _parallel_pool as Pool
@@ -1900,7 +1903,7 @@ def _mask_calibration_setup(resident, settings, masks_dir, filename):
         model = _organelle_model_setup(view, role)
         folder = os.path.join(os.path.dirname(os.fspath(masks_dir)), 'cell_mask_stack')
         folder = (folder if view.get('organelle_mask_within_cells')
-                  and os.path.isdir(folder) else None)
+                  and _mask_folder_exists(folder) else None)
         images = _organelle_input_batch(
             resident, view, _organelle_channel_position(view), [filename], folder)
         sample = prepare_batch_for_segmentation(images[..., None])
@@ -2150,7 +2153,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
-        os.makedirs(output_folder, exist_ok=True)
+        # Item 0aj P2: the folder only for .npy masks; fov.ome.zarr keeps them as labels.
+        _prepare_mask_folder(output_folder)
         overall_average_size = 0
 
         with _mask_archive_arrays(
@@ -2176,7 +2180,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
 
                 for filename in filenames:
                     output_path = os.path.join(output_folder, filename)
-                    if os.path.exists(output_path) and not (
+                    if _mask_exists(output_path) and not (
                             z_plan is None and t_plan is None and _mask_replay(settings)):
                         print(f"File {filename} already exists in the output folder. Skipping...")
 
@@ -2525,7 +2529,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             for mask in mask_stack]
                         for mask_index, mask in enumerate(mask_stack):
                             output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                            _save_array_atomic(output_filename, mask)
+                            _write_mask(output_filename, mask)
                         mask_stack = []
                         batch_filenames = []
                     clock = _add_stage(stages, 'write', clock)
@@ -2670,7 +2674,8 @@ def generate_cellpose_masks(src, settings, object_type):
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
-        os.makedirs(output_folder, exist_ok=True)
+        # Item 0aj P2: the folder only for .npy masks; fov.ome.zarr keeps them as labels.
+        _prepare_mask_folder(output_folder)
         overall_average_size = 0
         
         with open_mask_batch(path, settings=settings) as data:
@@ -2680,7 +2685,7 @@ def generate_cellpose_masks(src, settings, object_type):
             for i, filename in enumerate(filenames):
                 output_path = os.path.join(output_folder, filename)
                 
-                if os.path.exists(output_path) and not _mask_replay(settings):
+                if _mask_exists(output_path) and not _mask_replay(settings):
                     print(f"File {filename} already exists in the output folder. Skipping...")
                     continue
         
@@ -2865,7 +2870,7 @@ def generate_cellpose_masks(src, settings, object_type):
                     mask, field_shape, object_type)) for mask in mask_stack]
                 for mask_index, mask in enumerate(mask_stack):
                     output_filename = os.path.join(output_folder, batch_filenames[mask_index])
-                    _save_array_atomic(output_filename, mask)
+                    _write_mask(output_filename, mask)
                 mask_stack = []
                 batch_filenames = []
 
@@ -2979,7 +2984,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
     cell_mask_folder = None
     if settings.get('organelle_mask_within_cells', False):
         candidate = os.path.join(os.path.dirname(src), 'cell_mask_stack')
-        if os.path.exists(candidate):
+        if _mask_folder_exists(candidate):
             cell_mask_folder = candidate
             print(f'Per-cell masking enabled, using cell masks from {candidate}')
         else:
@@ -2988,7 +2993,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
     for file_index, path in enumerate(paths):
         cancellation_checkpoint()
         output_folder = os.path.join(os.path.dirname(path), f'{object_type}_mask_stack')
-        os.makedirs(output_folder, exist_ok=True)
+        # Item 0aj P2: the folder only for .npy masks; fov.ome.zarr keeps them as labels.
+        _prepare_mask_folder(output_folder)
 
         with open_mask_batch(path, settings=settings) as data:
             stack = data['data']
@@ -3080,7 +3086,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
                 mask_stack = [_as_uint16_mask(mask) for mask in mask_stack]
                 for mask_idx, mask in enumerate(mask_stack):
                     out_path = os.path.join(output_folder, batch_filenames[mask_idx])
-                    _save_array_atomic(out_path, mask)
+                    _write_mask(out_path, mask)
                 mask_stack = []
                 batch_filenames = []
 
@@ -3192,13 +3198,13 @@ def _apply_cell_mask(img_batch, batch_filenames, cell_mask_folder):
     out = img_batch.copy()
     for idx, fn in enumerate(batch_filenames):
         cell_mask_path = os.path.join(cell_mask_folder, fn)
-        if os.path.exists(cell_mask_path):
-            cell_mask = np.load(cell_mask_path)
+        if _mask_exists(cell_mask_path):
+            cell_mask = _read_mask(cell_mask_path)
             out[idx][cell_mask == 0] = 0
         else:
             cell_mask_path_npy = cell_mask_path if cell_mask_path.endswith('.npy') else cell_mask_path + '.npy'
-            if os.path.exists(cell_mask_path_npy):
-                cell_mask = np.load(cell_mask_path_npy)
+            if _mask_exists(cell_mask_path_npy):
+                cell_mask = _read_mask(cell_mask_path_npy)
                 out[idx][cell_mask == 0] = 0
     return out
 

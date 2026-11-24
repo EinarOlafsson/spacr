@@ -2796,11 +2796,11 @@ def _invalidate_v1_object_masks(output_dir):
     completeness check and per-batch resume check reuse masks drawn from the
     old, potentially uncorrected pixels.
     """
+    from .image_store import _mask_folders, _remove_mask_folder
     removed = []
-    for name in sorted(os.listdir(output_dir)):
-        path = os.path.join(output_dir, name)
-        if name.endswith('_mask_stack') and os.path.isdir(path):
-            shutil.rmtree(path)
+    # The folders, and (item 0aj P2) the label classes kept in fov.ome.zarr.
+    for name, path in _mask_folders(output_dir).items():
+        if _remove_mask_folder(path):
             removed.append(name)
     return tuple(removed)
 
@@ -2830,15 +2830,25 @@ def _invalidate_v1_segmentation_outputs(src):
 
 def _preserve_v1_segmentation_outputs(src):
     """Move superseded channel-order evidence outside the active output paths."""
+    from .image_store import _mask_folders, _mask_names, _read_mask, _remove_mask_folder
     masks_dir = os.path.join(src, 'masks')
-    paths = [os.path.join(masks_dir, name) for name in sorted(os.listdir(masks_dir))
-             if name.endswith('_mask_stack') and os.path.isdir(os.path.join(masks_dir, name))]
+    folders = _mask_folders(masks_dir)
+    paths = [path for path in folders.values() if os.path.isdir(path)]
+    # Item 0aj P2: label classes kept in fov.ome.zarr are saved as .npy evidence.
+    in_store = [path for path in folders.values() if not os.path.isdir(path)]
     merged_dir = os.path.join(src, 'merged')
     if os.path.isdir(merged_dir):
         paths.append(merged_dir)
-    if not paths:
+    if not paths and not in_store:
         return None
     backup = tempfile.mkdtemp(prefix='previous_segmentation_channel_order_', dir=src)
+    for path in in_store:
+        destination = os.path.join(backup, os.path.relpath(path, src))
+        os.makedirs(destination, exist_ok=True)
+        for name in _mask_names(path):
+            _save_array_atomic(os.path.join(destination, name),
+                               _read_mask(os.path.join(path, name)))
+        _remove_mask_folder(path)
     moved = []
     try:
         for path in paths:
@@ -2860,10 +2870,18 @@ def _restore_v1_segmentation_outputs(src, backup):
     """Restore evidence when replacement archives could not be published."""
     if backup is None:
         return
+    from .image_store import _masks_in_store, _write_mask
     saved_masks = os.path.join(backup, 'masks')
     if os.path.isdir(saved_masks):
         for name in sorted(os.listdir(saved_masks)):
-            os.replace(os.path.join(saved_masks, name), os.path.join(src, 'masks', name))
+            target = os.path.join(src, 'masks', name)
+            if not os.path.exists(target) and _masks_in_store(target):
+                # Item 0aj P2: back into the field labels of fov.ome.zarr.
+                for field in sorted(os.listdir(os.path.join(saved_masks, name))):
+                    _write_mask(os.path.join(target, field),
+                               np.load(os.path.join(saved_masks, name, field)))
+                continue
+            os.replace(os.path.join(saved_masks, name), target)
     saved_merged = os.path.join(backup, 'merged')
     if os.path.isdir(saved_merged):
         os.replace(saved_merged, os.path.join(src, 'merged'))
@@ -5182,7 +5200,7 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
     Returns:
         tuple: A tuple containing the filtered batch (numpy array) and the filtered filenames (list).
     """
-    from .resume import read_npy_header, validate_merged_field
+    from .image_store import _mask_exists, _mask_header, _mask_valid
 
     fields = dict(zip(batch_filenames, batch))
 
@@ -5198,16 +5216,17 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
                 generated again.
         """
         path = os.path.join(output_folder, filename)
-        if not os.path.isfile(path):
+        # Item 0aj P2: the mask file, or its committed label in fov.ome.zarr.
+        if not _mask_exists(path):
             return True
-        ok, reason = validate_merged_field(path)
+        ok, reason = _mask_valid(path)
         if not ok:
             print(f"{path} is damaged ({reason}); generating it again.")
             return True
         field = getattr(fields.get(filename), "shape", None)
         if field is not None and len(field) >= 3:
             try:
-                shape = tuple(read_npy_header(path)["shape"])
+                shape = tuple(_mask_header(path)[0])
             except Exception:
                 return True
             if len(shape) == 2 and shape not in (tuple(field[-3:-1]),
@@ -6165,7 +6184,10 @@ def _mask_variant_path(folder, ref_filename):
         p = os.path.join(folder, cand)
         if os.path.isfile(p):
             return p
-    return None
+    # Item 0aj P2: the field's committed label in fov.ome.zarr.
+    from .image_store import _mask_exists
+    p = os.path.join(folder, base + '.npy')
+    return p if _mask_exists(p) else None
 
 
 def _listdir_visible(folder):
@@ -6292,16 +6314,15 @@ def _load_and_concatenate_arrays(
     overrides = dict(mask_folders or {})
     if set(overrides) - {'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES}:
         raise ValueError('Unknown object role in mask folder overrides')
+    from .image_store import _mask_folder_exists, _mask_folders, _read_mask
     for role, folder in overrides.items():
-        if not os.path.isdir(folder):
+        if not _mask_folder_exists(folder):
             raise ValueError(f'Mask folder override for {role} is not a directory: {folder}')
     folder_paths = [os.path.join(src+'/stack')]
     mask_roles = []
 
-    try:
-        _mask_stacks = set(_listdir_visible(os.path.join(src, 'masks')))
-    except OSError:
-        _mask_stacks = set()
+    # The mask folders, and (item 0aj P2) the label classes kept in fov.ome.zarr.
+    _mask_stacks = set(_mask_folders(os.path.join(src, 'masks')))
 
     def add_mask_folder(role, enabled):
         """Queue one object's mask stack, if this run has that object.
@@ -6489,9 +6510,18 @@ def _load_and_concatenate_arrays(
 
                 stack_ls.append(concatenated_array)
 
+                # Item 0aj P2: a role read from its own label in fov.ome.zarr
+                # is already stored as the merge would write it.
+                from .image_store import _mask_label_name
+                stored_roles = set()
+                for role, folder in zip(mask_roles, folder_paths[1:]):
+                    array_path = _mask_variant_path(folder, filename)
+                    if (not os.path.isfile(array_path)
+                            and _mask_label_name(folder) == role):
+                        stored_roles.add(role)
                 for folder in folder_paths[1:]:
                     array_path = _mask_variant_path(folder, filename)
-                    array = _load_array_any(array_path)
+                    array = _read_mask(array_path)
                     if array.ndim in (2, concatenated_array.ndim - 1):
                         array = np.expand_dims(array, axis=-1)
                     stack_ls.append(array)
@@ -6500,6 +6530,7 @@ def _load_and_concatenate_arrays(
                 stack_ls = [np.expand_dims(arr, axis=-1) if arr.ndim == 2 else arr for arr in stack_ls]
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
+                    stored_roles = set()
                     max_tuple_length = max(len(shape) for shape in unique_shapes)
                     padded_shapes = [shape + (0,) * (max_tuple_length - len(shape)) for shape in unique_shapes]
                     max_dims = np.max(np.array(padded_shapes), axis=0)
@@ -6520,7 +6551,8 @@ def _load_and_concatenate_arrays(
                         from .image_store import _write_merged_field
                         _write_merged_field(store_writer, filename, stack,
                                             store_layout,
-                                            image_dtype=concatenated_array.dtype)
+                                            image_dtype=concatenated_array.dtype,
+                                            stored_labels=stored_roles)
                     else:
                         output_path = os.path.join(output_folder, filename)
                         _save_array_atomic(output_path, stack)

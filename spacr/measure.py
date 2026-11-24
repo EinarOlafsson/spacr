@@ -19235,18 +19235,16 @@ def _image_feature_masks(files, plate, well, field, shape, roles=('cell', 'nucle
     for role in roles:
         for folder in folders:
             stack = folder / 'masks' / f'{role}_mask_stack'
-            if not stack.is_dir():
+            # Item 0aj P2: the folder, or the role's labels in fov.ome.zarr.
+            from .image_store import _mask_exists, _mask_folder_exists, _read_mask
+            if not _mask_folder_exists(stack):
                 continue
             for stem in sorted(stems):
                 for suffix in ('.npy', '.tif', '.tiff'):
                     candidate = stack / (stem + suffix)
-                    if not candidate.is_file():
+                    if not _mask_exists(candidate):
                         continue
-                    if suffix == '.npy':
-                        labels = np.load(candidate, mmap_mode='r', allow_pickle=False)
-                    else:
-                        import tifffile
-                        labels = tifffile.imread(candidate)
+                    labels = _read_mask(candidate, mmap_mode='r')
                     labels = np.squeeze(np.asarray(labels))
                     if labels.shape == tuple(shape) and np.issubdtype(labels.dtype, np.integer):
                         found[role] = labels

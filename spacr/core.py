@@ -999,7 +999,8 @@ def preprocess_generate_masks(settings):
                                     organelle_folder = None
                                     if settings.get('organelle_channel') is not None:
                                         candidate = os.path.join(mask_src, 'organelle_mask_stack')
-                                        if os.path.exists(candidate):
+                                        from .image_store import _mask_folder_exists
+                                        if _mask_folder_exists(candidate):
                                             organelle_folder = candidate
 
                                     print(f'Adjusting cell masks with nuclei and pathogen masks')

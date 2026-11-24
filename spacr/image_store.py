@@ -306,7 +306,9 @@ class PlateWriter:
         return names
 
     def write_labels(self, well: str, field: Any, labels: Mapping[str, np.ndarray], *,
-                     record: Optional[Mapping[str, Any]] = None) -> str:
+                     record: Optional[Mapping[str, Any]] = None,
+                     keep_others: bool = False,
+                     unchanged: Iterable[str] = ()) -> str:
         """Add label images to a committed field, never touching its channels (item 0aj P1c).
 
         The field's image arrays are left as they are, so their recorded
@@ -314,10 +316,20 @@ class PlateWriter:
         earlier run) are removed. The field is committed again with its
         earlier ledger values updated by ``record``.
 
+        With ``keep_others`` (item 0aj P2, one object mask as a Mask stage
+        writes it) the field's other labels stay, and the ledger is left
+        alone: each label image is renamed into place whole, so its presence
+        is its commit, and several processes may add different classes to
+        one store at once. The merge commits the field's final labels.
+
         :param well: the well name.
         :param field: the field number.
         :param labels: ``{object class: label image (Y, X)}``.
         :param record: ledger values to add, such as the merged ``shape``.
+        :param keep_others: keep the other labels and do not commit.
+        :param unchanged: classes of ``labels`` the field already holds with
+            these exact values (item 0aj P2); their committed label images
+            are kept instead of written again.
         :returns: the field's store key.
         :raises ValueError: the field has no committed image.
         """
@@ -330,12 +342,30 @@ class PlateWriter:
                 raise ValueError(f"field {well}/{field}: label image {name!r} has "
                                  f"{np.ndim(mask)} axes; only (Y, X) is written")
         target = self.path / key
+        if keep_others:
+            self._write_label_arrays(target, labels, {})
+            present = sorted(group.name for group in (target / "labels").iterdir()
+                             if (group / "zarr.json").is_file()
+                             and not group.name.startswith("."))
+            self.zarr.open_group(str(target / "labels"), mode="a",
+                                 zarr_format=3).attrs.update(
+                {"ome": {"version": self.ngff_version, "labels": present}})
+            return key
         stale = target / "labels"
         if stale.is_dir():
             for old in stale.iterdir():
                 if old.is_dir() and old.name not in {str(n) for n in labels}:
                     shutil.rmtree(old)
-        names = self._write_label_arrays(target, labels, {})
+        kept_labels = {str(n) for n in unchanged
+                       if str(n) in {str(m) for m in labels}
+                       and (stale / str(n) / "zarr.json").is_file()}
+        names = self._write_label_arrays(
+            target, {n: m for n, m in labels.items() if str(n) not in kept_labels}, {})
+        if kept_labels:
+            names = [str(n) for n in labels]
+            self.zarr.open_group(str(target / "labels"), mode="a",
+                                 zarr_format=3).attrs.update(
+                {"ome": {"version": self.ngff_version, "labels": names}})
         kept = {k: v for k, v in entry.items()
                 if k not in ("key", "well", "field", "labels", "image")}
         kept.update(json.loads(json.dumps(dict(record or {}), default=str)))
@@ -750,7 +780,8 @@ def _merged_writer(project: Any, plate: str, layout: Mapping[str, Any], *,
 
 def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
                         layout: Mapping[str, Any], *,
-                        image_dtype: Any = None) -> str:
+                        image_dtype: Any = None,
+                        stored_labels: Iterable[str] = ()) -> str:
     """Write one merged field ``(Y, X, planes)`` into the merged store, then commit it.
 
     The intensity planes are stored as one ``(C, Y, X)`` image in
@@ -766,6 +797,9 @@ def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
     :param stack: the merged field.
     :param layout: the store's plane layout.
     :param image_dtype: the dtype to keep the intensity planes in.
+    :param stored_labels: classes whose label the field already holds with
+        exactly these values (item 0aj P2: the merge read them from there);
+        they are kept, not written again.
     :returns: the field's store key.
     """
     stack = np.asarray(stack)
@@ -788,7 +822,8 @@ def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
             and stored.get("name") == os.path.basename(str(name))):
         # Item 0aj P1c: preprocessing stored the channels; add the masks only.
         return writer.write_labels(well, field, labels, record={
-            "dtype": stack.dtype.str, "shape": [int(v) for v in stack.shape]})
+            "dtype": stack.dtype.str, "shape": [int(v) for v in stack.shape]},
+            unchanged=stored_labels)
     image = np.ascontiguousarray(image)
     return writer.write_field(well, field, image, labels,
                               record={"name": os.path.basename(str(name)),
@@ -1573,3 +1608,462 @@ def _write_stack_field(writer: PlateWriter, name: str, stack: np.ndarray,
         "stack_dtype": stack.dtype.str, "stack_shape": [int(v) for v in stack.shape],
         "image_dtype": image.dtype.str, "plane_sha256": _plane_hashes(image),
         "source_channels": [str(c) for c in channels]})
+
+
+# ---------------------------------------------------------------------------
+# The object masks (item 0aj P2): no masks/<class>_mask_stack/*.npy, the
+# masks are labels of their field in fov.ome.zarr
+# ---------------------------------------------------------------------------
+#
+# A project folder whose field stacks live in fov.ome.zarr (item 0aj P1c)
+# keeps its object masks there too: every Mask stage that used to write
+# ``masks/<class>_mask_stack/<field>.npy`` writes ``labels/<class>`` of that
+# field through :func:`_write_mask` (PlateWriter.write_labels), and reads it
+# back through :func:`_read_mask`. The mask-folder paths stay the names the
+# stages pass around; the folders themselves are never created. An older
+# project, or a run whose stacks are ``stack/*.npy`` (mask_image_format
+# 'npy' or 'tiff', time-lapse), keeps its ``.npy`` files, read by the same
+# functions.
+#
+# Commit rule (the 430 rule, per field and class): a label image is written
+# to a temporary group and renamed into place, so ``labels/<class>`` either
+# is absent or holds the complete mask. A field+class is done only once that
+# rename has happened; the merge then records the field's final labels in
+# the store ledger.
+
+#: The suffix of the folder Mask Generation names after each object class.
+MASK_STACK_SUFFIX = "_mask_stack"
+
+#: The file types a mask folder holds in an older project.
+_MASK_FILE_SUFFIXES = (".npy", ".tif", ".tiff")
+
+
+def _mask_label_name(folder: Any) -> Optional[str]:
+    """The label class a project's mask folder stands for, or None (item 0aj P2).
+
+    ``<project>/masks/cell_mask_stack`` -> ``'cell'``,
+    ``.../masks/adjusted_cell_mask_stack`` -> ``'adjusted_cell'``,
+    ``.../masks/nucleus_territory_seed_stack`` -> ``'nucleus_territory_seed'``.
+    A folder that is not directly inside a ``masks`` folder, or whose name
+    does not end in ``_stack``, is not a mask folder.
+
+    :param folder: the mask folder path (it need not exist).
+    """
+    target = Path(os.path.normpath(os.fspath(folder)))
+    if target.parent.name != "masks":
+        return None
+    name = target.name
+    if name.endswith(MASK_STACK_SUFFIX):
+        name = name[:-len(MASK_STACK_SUFFIX)]
+    elif name.endswith("_stack") and name != "_stack":
+        name = name[:-len("_stack")]
+    else:
+        return None
+    return name or None
+
+
+def _mask_project_store(folder: Any) -> Path:
+    """The fov.ome.zarr of the project that holds ``<project>/masks/<folder>``."""
+    target = Path(os.path.normpath(os.fspath(folder)))
+    return _merged_store_path(target.parent.parent)
+
+
+def _mask_folder_files(folder: Any) -> List[str]:
+    """The visible mask files (npy/tif) of a real mask folder, sorted."""
+    try:
+        names = os.listdir(os.fspath(folder))
+    except OSError:
+        return []
+    return sorted(n for n in names if not n.startswith(".")
+                  and n.lower().endswith(_MASK_FILE_SUFFIXES))
+
+
+def _mask_store_entries(folder: Any) -> Dict[str, Dict[str, Any]]:
+    """``{field file name: entry}`` of the fields whose masks ``folder`` keeps in fov.ome.zarr.
+
+    Empty unless ``folder`` is a project mask folder whose project stores its
+    fields' channels in fov.ome.zarr and the folder itself holds no mask
+    files (an older project's files always win).
+    """
+    if _mask_label_name(folder) is None or _mask_folder_files(folder):
+        return {}
+    store = _mask_project_store(folder)
+    if not (store / _LEDGER).is_file():
+        return {}
+    return _image_entries(store)
+
+
+def _masks_in_store(folder: Any) -> bool:
+    """Whether the masks of ``folder`` are labels in fov.ome.zarr (item 0aj P2)."""
+    return bool(_mask_store_entries(folder))
+
+
+def _mask_label_dir(store: Path, entry: Mapping[str, Any], label: str) -> Path:
+    """``<store>/<row>/<col>/<field>/labels/<label>``."""
+    return Path(store) / entry["key"] / "labels" / str(label)
+
+
+#: The ledger value of ``masks`` for a merged field whose labels no longer
+#: count as working masks: the run ended without keeping intermediates, where
+#: an older project deleted ``masks/`` (item 0aj P2).
+MASKS_CONSUMED = "consumed"
+
+
+def _label_committed(store: Path, entry: Mapping[str, Any], label: str) -> bool:
+    """Whether the field's ``labels/<label>`` is a committed working mask.
+
+    Committed: renamed into place whole. A field whose masks were consumed
+    at the end of a run (:func:`_consume_working_masks`) has none.
+    """
+    if entry.get("masks") == MASKS_CONSUMED:
+        return False
+    return (_mask_label_dir(store, entry, label) / "zarr.json").is_file()
+
+
+def _mask_location(path: Any) -> Optional[Tuple[Path, Dict[str, Any], str]]:
+    """``(store, entry, label)`` when ``masks/<class>_mask_stack/<name>`` lives in fov.ome.zarr.
+
+    None for a real file and for a path outside a store-backed mask folder.
+    The name is matched by its stem, so ``<name>.tif`` finds the field too.
+    """
+    target = Path(os.fspath(path))
+    if target.is_file():
+        return None
+    folder = target.parent
+    entries = _mask_store_entries(folder)
+    if not entries:
+        return None
+    name = f"{os.path.splitext(target.name)[0]}.npy"
+    entry = entries.get(name)
+    if entry is None or (folder.parent.parent / "stack" / name).is_file():
+        # A field whose stack is a stack/*.npy file keeps .npy masks.
+        return None
+    return _mask_project_store(folder), entry, str(_mask_label_name(folder))
+
+
+def _mask_names(folder: Any) -> List[str]:
+    """THE list of a mask folder's masks, ``<plate>_<well>_<field>_<time>.npy``, sorted (item 0aj P2).
+
+    The files of a real folder (an older project); otherwise the fields of
+    fov.ome.zarr whose ``labels/<class>`` is committed.
+
+    :param folder: ``<project>/masks/<class>_mask_stack`` (it need not exist).
+    """
+    files = _mask_folder_files(folder)
+    if files:
+        return files
+    entries = _mask_store_entries(folder)
+    if not entries:
+        return []
+    store, label = _mask_project_store(folder), str(_mask_label_name(folder))
+    return sorted(name for name, entry in entries.items()
+                  if _label_committed(store, entry, label))
+
+
+def _mask_folder_exists(folder: Any) -> bool:
+    """Whether a project has masks of this folder's class: the folder, or committed labels."""
+    return os.path.isdir(os.fspath(folder)) or bool(_mask_names(folder))
+
+
+def _mask_exists(path: Any) -> bool:
+    """Whether one field's mask is there: the file, or its committed label (item 0aj P2)."""
+    if os.path.isfile(os.fspath(path)):
+        return True
+    found = _mask_location(path)
+    return found is not None and _label_committed(*found)
+
+
+def _read_mask(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
+    """THE reader of one field's object mask (item 0aj P2).
+
+    ``masks/<class>_mask_stack/<name>.npy`` (or ``.tif``) when that file
+    exists, as before; otherwise the field's ``labels/<class>`` in the
+    project's fov.ome.zarr, value for value (uint16, or uint32 above 65535).
+
+    :param path: the mask path a Mask stage names (the file need not exist).
+    :param mmap_mode: passed to :func:`numpy.load` for an ``.npy`` file.
+    :raises FileNotFoundError: neither the file nor a committed label exists.
+    """
+    target = os.fspath(path)
+    if os.path.isfile(target):
+        if target.lower().endswith((".tif", ".tiff")):
+            import tifffile
+
+            return tifffile.imread(target)
+        return np.load(target, mmap_mode=mmap_mode, allow_pickle=False)
+    found = _mask_location(path)
+    if found is None or not _label_committed(*found):
+        raise FileNotFoundError(target)
+    store, entry, label = found
+    return read_labels(store / entry["key"], label)
+
+
+def _mask_header(path: Any) -> Tuple[Tuple[int, ...], np.dtype]:
+    """``(shape, dtype)`` of one field's mask without reading its pixels (item 0aj P2)."""
+    found = _mask_location(path)
+    if found is None:
+        target = os.fspath(path)
+        if target.lower().endswith((".tif", ".tiff")):
+            image = _read_mask(target)
+            return tuple(image.shape), image.dtype
+        header = np.load(target, mmap_mode="r", allow_pickle=False)
+        return tuple(header.shape), header.dtype
+    meta = json.loads((_mask_label_dir(*found) / "0" / "zarr.json")
+                      .read_text(encoding="utf-8"))
+    return tuple(int(v) for v in meta["shape"]), np.dtype(meta["data_type"])
+
+
+def _mask_valid(path: Any) -> Tuple[bool, str]:
+    """``(ok, reason)`` for one field's mask, as :func:`spacr.resume.validate_merged_field` (item 0aj P2).
+
+    A mask file is checked by its header and length; a label in fov.ome.zarr
+    is complete once committed, so it is ``(True, 'done')`` or
+    ``(False, 'missing')``.
+    """
+    from .resume import REASON_DONE, REASON_MISSING, validate_merged_field
+
+    found = _mask_location(path)
+    if found is None:
+        return validate_merged_field(os.fspath(path))
+    return (True, REASON_DONE) if _label_committed(*found) else (False, REASON_MISSING)
+
+
+def _mask_stat(path: Any) -> os.stat_result:
+    """``os.stat`` of one mask: the file, or its committed label's files (size summed, newest time)."""
+    found = _mask_location(path)
+    if found is None:
+        return os.stat(os.fspath(path))
+    group = _mask_label_dir(*found)
+    stats = [os.stat(os.path.join(base, name))
+             for base, _dirs, names in os.walk(group) for name in names]
+    if not stats:
+        raise FileNotFoundError(os.fspath(path))
+    newest = max(stats, key=lambda item: item.st_mtime_ns)
+    values = list(newest)
+    values[6] = sum(item.st_size for item in stats)
+    return os.stat_result(values, {"st_mtime_ns": newest.st_mtime_ns})
+
+
+#: ``{(store path, process id): PlateWriter}``: one label writer per store and process.
+_LABEL_WRITERS: Dict[Tuple[str, int], PlateWriter] = {}
+
+
+def _label_writer(store: Path, entry: Mapping[str, Any]) -> PlateWriter:
+    """The project's fov.ome.zarr writer for masks, kept open per process."""
+    cache_key = (str(store), os.getpid())
+    writer = _LABEL_WRITERS.get(cache_key)
+    if writer is None or not writer.path.is_dir():
+        plate = split_field_name(entry["name"])[0]
+        writer = PlateWriter(store.parent, plate, store_path=store, shards=True)
+        _LABEL_WRITERS[cache_key] = writer
+    if entry["key"] not in writer._committed:
+        writer._committed[entry["key"]] = dict(entry)
+    return writer
+
+
+def _write_mask(path: Any, mask: np.ndarray) -> str:
+    """THE writer of one field's object mask for every Mask stage (item 0aj P2).
+
+    When the project keeps its fields in fov.ome.zarr, the mask becomes the
+    field's ``labels/<class>`` through :meth:`PlateWriter.write_labels`
+    (other classes kept, the channels never touched), as uint16, or uint32
+    above 65535, exactly. Otherwise (an older project, or a run whose stacks
+    are ``.npy``) it is written to ``path`` as ``.npy`` atomically, its
+    folder created when missing, as before.
+
+    :param path: ``<project>/masks/<class>_mask_stack/<name>.npy``.
+    :param mask: the field's label image ``(Y, X)``.
+    :returns: ``path``.
+    """
+    found = _mask_location(path)
+    if found is None:
+        from .io import _save_array_atomic
+
+        os.makedirs(os.path.dirname(os.fspath(path)) or ".", exist_ok=True)
+        return _save_array_atomic(os.fspath(path), mask)
+    store, entry, label = found
+    _plate, well, field = split_field_name(entry["name"])
+    writer = _label_writer(store, entry)
+    if "shape" in entry or entry.get("masks") == MASKS_CONSUMED:
+        _reopen_merged_field(writer, store, entry)
+    writer.write_labels(well, field, {label: _compact_labels(mask)}, keep_others=True)
+    return os.fspath(path)
+
+
+def _reopen_merged_field(writer: PlateWriter, store: Path, entry: Mapping[str, Any]) -> None:
+    """A new mask for a merged field: the field is not merged any more (item 0aj P2).
+
+    The field leaves the merged fields (Measure, resume) until the merge
+    commits it again with the new mask, so a merged field never mixes masks
+    of two runs. When its masks were consumed, its other labels go too, as
+    an older project's deleted ``masks/`` held none.
+    """
+    import fcntl
+
+    key = entry["key"]
+    labels_dir = Path(store) / key / "labels"
+    if entry.get("masks") == MASKS_CONSUMED and labels_dir.is_dir():
+        for group in labels_dir.iterdir():
+            if group.is_dir():
+                shutil.rmtree(group)
+    kept = {k: v for k, v in entry.items()
+            if k not in ("key", "well", "field", "labels", "image", "shape",
+                         "dtype", "masks")}
+    present = sorted(g.name for g in labels_dir.iterdir()
+                     if (g / "zarr.json").is_file()) if labels_dir.is_dir() else []
+    _plate, well, field = split_field_name(entry["name"])
+    with open(Path(store) / f".{_LEDGER}.lock", "a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            writer._commit(key, well, field, present, True, kept)
+        finally:
+            fcntl.flock(lock, fcntl.LOCK_UN)
+
+
+def _consume_working_masks(project: Any) -> int:
+    """End of a run that keeps no intermediates: the merged labels stop being working masks (item 0aj P2).
+
+    An older project deleted ``masks/`` here. The labels of fov.ome.zarr
+    are the run's output and stay; each merged field is marked
+    ``masks='consumed'`` in the ledger, so a later run segments it again
+    (its first new mask reopens the field) instead of reusing the merged
+    labels as raw masks.
+
+    :param project: the project folder.
+    :returns: the fields marked.
+    """
+    import fcntl
+
+    store = _merged_store_path(project)
+    ledger = store / _LEDGER
+    if not ledger.is_file():
+        return 0
+    entries = [dict(entry, masks=MASKS_CONSUMED) for entry in _store_entries(store).values()
+               if entry.get("masks") != MASKS_CONSUMED]
+    if not entries:
+        return 0
+    with open(store / f".{_LEDGER}.lock", "a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            with open(ledger, "a", encoding="utf-8") as handle:
+                for entry in entries:
+                    handle.write(json.dumps(entry, sort_keys=True) + "\n")
+                handle.flush()
+                os.fsync(handle.fileno())
+        finally:
+            fcntl.flock(lock, fcntl.LOCK_UN)
+    for writer in _LABEL_WRITERS.values():
+        if writer.path == store:
+            for entry in entries:
+                writer._committed[entry["key"]] = entry
+    return len(entries)
+
+
+def _prepare_mask_folder(folder: Any) -> None:
+    """Create a mask folder only when its masks are files (item 0aj P2).
+
+    A project whose fields live in fov.ome.zarr keeps its masks as labels
+    there, so ``masks/<class>_mask_stack`` is never created.
+    """
+    if _mask_label_name(folder) is not None:
+        store = _mask_project_store(folder)
+        stack = Path(os.path.normpath(os.fspath(folder))).parent.parent / "stack"
+        if ((store / _LEDGER).is_file() and _image_entries(store)
+                and not _stack_folder_names(stack)):
+            return
+    os.makedirs(os.fspath(folder), exist_ok=True)
+
+
+def _remove_mask_folder(folder: Any) -> bool:
+    """Remove a class's masks: the folder, and its labels in fov.ome.zarr (item 0aj P2).
+
+    It runs where a stage redraws that class (a fresh run, superseded
+    inputs), so the label goes from every field, merged or not.
+
+    :returns: whether anything was removed.
+    """
+    removed = False
+    target = os.fspath(folder)
+    if os.path.isdir(target):
+        shutil.rmtree(target)
+        removed = True
+    label = _mask_label_name(folder)
+    if label is None:
+        return removed
+    store = _mask_project_store(folder)
+    if not (store / _LEDGER).is_file():
+        return removed
+    for entry in _image_entries(store).values():
+        group = _mask_label_dir(store, entry, label)
+        if group.is_dir():
+            shutil.rmtree(group)
+            removed = True
+    return removed
+
+
+def _mask_folders(masks_dir: Any) -> Dict[str, str]:
+    """``{folder name: path}`` of every ``*_mask_stack`` of a ``masks`` folder (item 0aj P2).
+
+    Real folders, plus one (never created) folder per label class committed
+    on a field of the project's fov.ome.zarr.
+    """
+    masks_dir = os.fspath(masks_dir)
+    found: Dict[str, str] = {}
+    try:
+        for name in sorted(os.listdir(masks_dir)):
+            path = os.path.join(masks_dir, name)
+            if name.endswith(MASK_STACK_SUFFIX) and os.path.isdir(path):
+                found[name] = path
+    except OSError:
+        pass
+    store = _merged_store_path(Path(masks_dir).parent)
+    if Path(masks_dir).name == "masks" and (store / _LEDGER).is_file():
+        for entry in _image_entries(store).values():
+            labels = Path(store) / entry["key"] / "labels"
+            if entry.get("masks") == MASKS_CONSUMED or not labels.is_dir():
+                continue
+            for group in labels.iterdir():
+                if (group / "zarr.json").is_file() and not group.name.startswith("."):
+                    folder = f"{group.name}{MASK_STACK_SUFFIX}"
+                    found.setdefault(folder, os.path.join(masks_dir, folder))
+    return dict(sorted(found.items()))
+
+
+def _mask_digest(path: Any) -> Optional[str]:
+    """The SHA-256 of one mask (item 0aj P2), or None when it cannot be read.
+
+    A mask file: the sha256 of its bytes, as before. A label in fov.ome.zarr:
+    the sha256 of its dtype, shape and C-order pixel bytes, so an unchanged
+    label always gives the same digest and a rewritten one another.
+    """
+    import hashlib
+
+    digest = hashlib.sha256()
+    target = os.fspath(path)
+    if os.path.isfile(target):
+        try:
+            with open(target, "rb") as handle:
+                for block in iter(lambda: handle.read(1 << 20), b""):
+                    digest.update(block)
+        except OSError:
+            return None
+        return digest.hexdigest()
+    try:
+        mask = _read_mask(path)
+    except (OSError, ValueError):
+        return None
+    digest.update(f"{mask.dtype.str}{tuple(mask.shape)}".encode("ascii"))
+    digest.update(np.ascontiguousarray(mask).tobytes())
+    return digest.hexdigest()
+
+
+def _mask_sidecar_folder(folder: Any) -> str:
+    """Where a record kept beside a mask folder's masks goes (item 0aj P2).
+
+    The folder itself for ``.npy`` masks; the ``masks`` folder above it when
+    the masks are labels in fov.ome.zarr (the mask folder is never created).
+    """
+    folder = os.fspath(folder)
+    if os.path.isdir(folder) or not _masks_in_store(folder):
+        return folder
+    return os.path.dirname(os.path.normpath(folder))

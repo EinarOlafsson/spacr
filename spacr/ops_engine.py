@@ -14159,8 +14159,13 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
     sample = str(settings.get("spatial_sample") or "").strip() or \
         os.path.basename(os.path.normpath(folder)) or "slide"
     plate = escape_filename_component(sample)
-    for sub in ("stack", "merged", os.path.join("masks", "cell_mask_stack"),
-                os.path.join("masks", "nucleus_mask_stack"), "measurements"):
+    # Item 0aj P2: with fov.ome.zarr the masks are only its labels, written by
+    # the merged-store writer below; no masks/<class>_mask_stack is made.
+    masks_as_files = (str(settings.get("mask_image_format") or "ome-zarr")
+                      .strip().lower() != "ome-zarr")
+    for sub in ("stack", "merged", "measurements",
+                *((os.path.join("masks", "cell_mask_stack"),
+                   os.path.join("masks", "nucleus_mask_stack")) if masks_as_files else ())):
         target = os.path.join(dst, sub)
         os.makedirs(target, exist_ok=True)
         for name in os.listdir(target):
@@ -14304,10 +14309,11 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
             lookup[int(one.label)] = local
         cell_plane, nucleus_plane = lookup[cells], lookup[nuclei]
         stack = np.load(stack_path)
-        np.save(os.path.join(dst, "masks", "cell_mask_stack", f"{stem}.npy"),
-                cell_plane)
-        np.save(os.path.join(dst, "masks", "nucleus_mask_stack",
-                             f"{stem}.npy"), nucleus_plane)
+        if masks_as_files:
+            np.save(os.path.join(dst, "masks", "cell_mask_stack", f"{stem}.npy"),
+                    cell_plane)
+            np.save(os.path.join(dst, "masks", "nucleus_mask_stack",
+                                 f"{stem}.npy"), nucleus_plane)
         merged_field = np.dstack([stack, cell_plane, nucleus_plane]).astype(np.uint16)
         if store_writer is not None:
             _write_merged_field(store_writer, f"{stem}.npy", merged_field, layout,

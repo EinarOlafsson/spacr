@@ -1835,7 +1835,8 @@ def _mask_fits_its_field(mask_path, stack_path):
     from .resume import read_npy_header
 
     try:
-        mask = tuple(read_npy_header(mask_path)["shape"])
+        from .image_store import _mask_header
+        mask = tuple(_mask_header(mask_path)[0])
         from .image_store import _stack_header
         field = tuple(_stack_header(stack_path)[0])
     except Exception:
@@ -1864,13 +1865,14 @@ def check_mask_folder(src, mask_fldr, resume=False):
     mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
 
-    if not os.path.exists(mask_folder):
+    from .image_store import _stack_names, _mask_folder_exists, _mask_valid
+    # The folder, or (item 0aj P2) its class's labels in fov.ome.zarr.
+    if not _mask_folder_exists(mask_folder):
         return True
-    
-    from .image_store import _stack_names
+
     # stack/*.npy, or the field stacks in fov.ome.zarr (item 0aj P1c).
     expected = _stack_names(stack_folder)
-    if all(validate_merged_field(os.path.join(mask_folder, file))[0]
+    if all(_mask_valid(os.path.join(mask_folder, file))[0]
            and _mask_fits_its_field(os.path.join(mask_folder, file),
                                     os.path.join(stack_folder, file))
            for file in expected):
@@ -9507,28 +9509,27 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
             if folder is not None):
         raise ValueError('The adjusted-mask output folder must differ from all source folders')
 
-    if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
+    # Item 0aj P2: the masks are files, or labels in fov.ome.zarr, through one reader.
+    from .image_store import _mask_exists, _read_mask, _write_mask
+    if not (_mask_exists(cell_path) and _mask_exists(nuclei_path)):
         raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
 
-    parasite_mask = np.load(parasite_path, allow_pickle=False)
-    cell_mask = np.load(cell_path, allow_pickle=False)
-    nuclei_mask = np.load(nuclei_path, allow_pickle=False)
+    parasite_mask = _read_mask(parasite_path)
+    cell_mask = _read_mask(cell_path)
+    nuclei_mask = _read_mask(nuclei_path)
 
     organelle_mask = None
     if organelle_folder is not None:
         organelle_path = os.path.join(organelle_folder, file_name)
-        if os.path.exists(organelle_path):
-            organelle_mask = np.load(organelle_path, allow_pickle=False)
+        if _mask_exists(organelle_path):
+            organelle_mask = _read_mask(organelle_path)
 
     merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold, perimeter_threshold)
 
-    from .io import _save_array_atomic
-
     output_path = cell_path
     if output_folder is not None:
-        os.makedirs(output_folder, exist_ok=True)
         output_path = os.path.join(output_folder, file_name)
-    _save_array_atomic(output_path, merged_cell_mask)
+    _write_mask(output_path, merged_cell_mask)
 
     end = time.perf_counter()
     return end - start
@@ -9566,7 +9567,8 @@ def _read_adjusted_cells(cell_folder):
     """
     import json
 
-    path = os.path.join(cell_folder, ADJUSTED_CELLS_LEDGER)
+    from .image_store import _mask_sidecar_folder
+    path = os.path.join(_mask_sidecar_folder(cell_folder), ADJUSTED_CELLS_LEDGER)
     try:
         with open(path, encoding='utf-8') as handle:
             record = json.load(handle)
@@ -9586,6 +9588,8 @@ def _write_adjusted_cells(cell_folder, record):
     import json
     import tempfile
 
+    from .image_store import _mask_sidecar_folder
+    cell_folder = _mask_sidecar_folder(cell_folder)
     path = os.path.join(cell_folder, ADJUSTED_CELLS_LEDGER)
     fd, temporary = tempfile.mkstemp(prefix='.spacr_tmp_', suffix='.json',
                                      dir=cell_folder)
@@ -9628,11 +9632,12 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
         An explicit output folder must differ from every source folder and
         must not contain masks outside the selected field set.
     """
-    from .io import _listdir_visible
+    # Item 0aj P2: the mask files, or the committed labels in fov.ome.zarr.
+    from .image_store import _mask_digest, _mask_folder_exists, _mask_header, _mask_names, _mask_valid
 
-    parasite_files = sorted([f for f in _listdir_visible(parasite_folder) if f.endswith('.npy')])
-    cell_files = sorted([f for f in _listdir_visible(cell_folder) if f.endswith('.npy')])
-    nuclei_files = sorted([f for f in _listdir_visible(nuclei_folder) if f.endswith('.npy')])
+    parasite_files = [f for f in _mask_names(parasite_folder) if f.endswith('.npy')]
+    cell_files = [f for f in _mask_names(cell_folder) if f.endswith('.npy')]
+    nuclei_files = [f for f in _mask_names(nuclei_folder) if f.endswith('.npy')]
 
     if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
         raise ValueError("The number of files in the folders do not match.")
@@ -9644,8 +9649,8 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
             "Mask filenames do not match across parasite, cell and nuclei folders: "
             f"{', '.join(sorted(unmatched)[:5])}. No cell masks were changed.")
 
-    if organelle_folder is not None and os.path.exists(organelle_folder):
-        organelle_files = sorted([f for f in _listdir_visible(organelle_folder) if f.endswith('.npy')])
+    if organelle_folder is not None and _mask_folder_exists(organelle_folder):
+        organelle_files = [f for f in _mask_names(organelle_folder) if f.endswith('.npy')]
         if len(organelle_files) != len(parasite_files):
             print(f'Warning: organelle mask count ({len(organelle_files)}) does not match other masks ({len(parasite_files)}). Organelle masks will be loaded per-file where available.')
     else:
@@ -9656,15 +9661,14 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                for folder in (parasite_folder, cell_folder, nuclei_folder, organelle_folder)
                if folder is not None):
             raise ValueError('The adjusted-mask output folder must differ from all source folders')
-        if os.path.isdir(output_folder):
-            extra = {name for name in _listdir_visible(output_folder)
+        if _mask_folder_exists(output_folder):
+            extra = {name for name in _mask_names(output_folder)
                      if name.endswith('.npy')} - set(parasite_files)
             if extra:
                 raise ValueError(f'Adjusted-mask output folder contains unrelated fields: '
                                  f'{", ".join(sorted(extra)[:5])}')
 
     from .cancellation import checkpoint
-    from .resume import read_npy_header
 
     for name in parasite_files:
         checkpoint()
@@ -9672,15 +9676,16 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                  for folder in (parasite_folder, cell_folder, nuclei_folder)]
         if organelle_folder is not None:
             candidate = os.path.join(organelle_folder, name)
-            if os.path.exists(candidate):
+            if name in organelle_files:
                 paths.append(candidate)
         expected_shape = None
         for path in paths:
-            header = read_npy_header(path)
-            shape = header['shape']
-            if (len(shape) != 2 or min(shape) <= 0
-                    or header['expected_bytes'] is None
-                    or header['actual_bytes'] < header['expected_bytes']):
+            try:
+                ok = _mask_valid(path)[0]
+                shape = tuple(_mask_header(path)[0]) if ok else ()
+            except (OSError, ValueError):
+                ok, shape = False, ()
+            if not ok or len(shape) != 2 or min(shape) <= 0:
                 raise ValueError(f'Invalid or incomplete two-dimensional mask: {path}')
             if expected_shape is not None and shape != expected_shape:
                 raise ValueError(f'Mask dimensions do not match for {name}: '
@@ -9691,7 +9696,7 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     if output_folder is None:
         record = _read_adjusted_cells(cell_folder)
         already = {name for name in parasite_files
-                   if name in record and record[name] == _file_sha256(
+                   if name in record and record[name] == _mask_digest(
                        os.path.join(cell_folder, name))}
         if already:
             print(f'{len(already)} of {len(parasite_files)} cell masks were '
@@ -9707,8 +9712,9 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     else:
         n_jobs = max(1, int(n_jobs))
     from .resource_log import _array_file_nbytes, _guard_workers
-    n_jobs = _guard_workers('adjust_masks', n_jobs, _array_file_nbytes(
-        os.path.join(cell_folder, parasite_files[0])))
+    _first_shape, _first_dtype = _mask_header(os.path.join(cell_folder, parasite_files[0]))
+    n_jobs = _guard_workers('adjust_masks', n_jobs,
+                            int(np.prod(_first_shape)) * np.dtype(_first_dtype).itemsize)
     n_jobs = max(1, min(n_jobs, len(parasite_files)))
 
     time_ls = []
@@ -9727,7 +9733,7 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
         for i, (name, duration) in enumerate(zip(parasite_files, durations), 1):
             time_ls.append(duration)
             if record is not None:
-                record[name] = _file_sha256(os.path.join(cell_folder, name))
+                record[name] = _mask_digest(os.path.join(cell_folder, name))
                 _write_adjusted_cells(cell_folder, record)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
         return
@@ -9737,7 +9743,7 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                 zip(parasite_files, pool.imap(process_fn, parasite_files)), 1):
             time_ls.append(duration)
             if record is not None:
-                record[name] = _file_sha256(os.path.join(cell_folder, name))
+                record[name] = _mask_digest(os.path.join(cell_folder, name))
                 _write_adjusted_cells(cell_folder, record)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls,
                            batch_size=None,
@@ -10649,6 +10655,11 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                 print(f"cleanup: keeping stack/ + masks/ — {missing} field(s) "
                       "not present in merged/")
         else:
+            if merged == store:
+                # Item 0aj P2: the masks are the store's labels (the output);
+                # they stop counting as working masks, as masks/ is removed.
+                from .image_store import _consume_working_masks
+                _consume_working_masks(src)
             for folder in (stack, masks):
                 if os.path.isdir(folder):
                     shutil.rmtree(folder, ignore_errors=True)
