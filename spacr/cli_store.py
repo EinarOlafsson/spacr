@@ -21,7 +21,7 @@ import sys
 def build_parser() -> argparse.ArgumentParser:
     """Build the ``spacr store`` argument parser.
 
-    :returns: the parser, with the ``verify`` subcommand.
+    :returns: the parser, with the compact, verify, compare, export, ui and migrate subcommands.
     """
     from .qt.i18n import tr
 
@@ -214,7 +214,7 @@ def main(argv=None) -> int:
     """Run ``spacr store``.
 
     :param argv: the arguments after ``store``; None reads the process arguments.
-    :returns: 0 when every plane matches, 1 on any mismatch or error.
+    :returns: 0 when the command succeeded, 1 on any mismatch or error.
     :raises SystemExit: status 2 for invalid arguments.
     """
     from .image_store import verify_project
