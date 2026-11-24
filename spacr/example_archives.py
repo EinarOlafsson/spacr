@@ -167,10 +167,9 @@ OPS_E2E_FULL_FOLDER = "ops_e2e_full"
 #: unpacks over its tier's folder and adds or replaces paths under
 #: ``reference/`` only; the tier archives themselves are unchanged.
 #:
-#: The core tier's are revision 3 (2026-11-23): OPS adopted Measure's
-#: nucleus-cell ownership rule (a nucleus split under 90 % between cells
-#: merges them, the maintainer's decision), which moves the core tier's
-#: phenotype cells from 490 to 485. Revision 3 holds the whole core
+#: The core tier uses revision 3: OPS applies the nucleus-cell ownership
+#: rule of Measure (a nucleus split under 90 % between cells merges them),
+#: which gives the core tier 485 phenotype cells where revision 2 had 490. Revision 3 holds the whole core
 #: reference set, revision 2's addendum included, so it replaces revision 2
 #: rather than adding to it. It was built by
 #: ``tools/build_ops_e2e_reference.py``. The full tier's stay at revision 2.
