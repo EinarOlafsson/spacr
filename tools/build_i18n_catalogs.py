@@ -142,6 +142,11 @@ MODEL_ROOT_CANDIDATES = (
 MODEL_ROOT_ENV = "SPACR_TRANSLATION_MODELS"
 
 
+
+# Set SPACR_I18N_ALLOW_STALE=1 while translations are dropped (maintainer 2026-11-23): stale reviewed runtime
+# records are skipped (the English source is used) instead of stopping the build. Unset = the strict check.
+_ALLOW_STALE_REVIEWS = os.environ.get("SPACR_I18N_ALLOW_STALE") == "1"
+
 def default_model_root() -> Path:
     """The first translation-model root that exists on this machine.
 
@@ -5832,16 +5837,18 @@ def _reviewed_runtime_translations(
                 source = str(record["source"])
                 target = str(record["translation"])
                 if current_source != source:
-                    problems.append(
-                        f"stale reviewed runtime source {table_name}/{key}: {path}"
-                    )
+                    if not _ALLOW_STALE_REVIEWS:  # translations dropped: a stale record falls back to English
+                        problems.append(
+                            f"stale reviewed runtime source {table_name}/{key}: {path}"
+                        )
                     continue
                 if record["source_sha256"] != hashlib.sha256(
                     source.encode("utf-8")
                 ).hexdigest():
-                    problems.append(
-                        f"stale reviewed runtime hash {table_name}/{key}: {path}"
-                    )
+                    if not _ALLOW_STALE_REVIEWS:  # translations dropped: a stale record falls back to English
+                        problems.append(
+                            f"stale reviewed runtime hash {table_name}/{key}: {path}"
+                        )
                     continue
                 pair = (source, target)
                 if pair not in target_checks:
