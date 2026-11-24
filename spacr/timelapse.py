@@ -5089,7 +5089,6 @@ def _load_intensity_stack_from_merged(
     stack = np.zeros((T, height, width, n_channels), dtype=dtype)
 
     for t, fn in enumerate(filenames):
-        # merged/<name>.npy or the frame's view in fov.ome.zarr (item 0aj P3).
         path = merged_field_path(merged_dir, fn)
         arr = None if path is None else _read_field(path)
 
@@ -5166,7 +5165,6 @@ def _load_masks_from_merged(
         return cell_masks, nucleus_masks, pathogen_masks
 
     for t, fn in enumerate(filenames):
-        # merged/<name>.npy or the frame's view in fov.ome.zarr (item 0aj P3).
         path = merged_field_path(merged_dir, fn)
         arr = None if path is None else _read_field(path)
 
@@ -9293,7 +9291,6 @@ def automated_motility_assay(settings):
             )
             all_df = None
 
-    # merged/ or fov.ome.zarr, through the shared reader (item 0aj P3).
     from .image_store import _list_fields, merged_source
 
     merged_dir = merged_source(src)

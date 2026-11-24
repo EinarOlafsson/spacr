@@ -767,7 +767,6 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
         for name in todo:
             series = frames_of[split_field_name(name)]
             if len(series) > 1:
-                # A time-lapse field (item 0aj P3): its frames on one t axis.
                 _write_merged_series(writer, series, [np.load(merged / f) for f in series],
                                      layout)
             else:
@@ -877,7 +876,6 @@ def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
         name = f"{os.path.splitext(os.path.basename(str(name)))[0]}.npy"
     series = _layered_entry(writer, name)
     if series is not None:
-        # A time-lapse field (item 0aj P3): its frames' masks become (T, Y, X) labels.
         return _write_merged_frame(writer, name, stack, layout, series)
     stored = writer._committed.get(field_key(well, field)) or {}
     if (stored.get("image_planes") == STACK_PLANES
@@ -932,7 +930,6 @@ def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarra
     for name, entry in sorted(_image_entries(target).items()):
         if not entry.get("image"):
             continue
-        # Every stored plane: each frame's channels with their raw z planes (item 0aj P3).
         image = _as_planes(read_frame_channels(target / entry["key"], entry, z_projection=None))
         report["fields"] += 1
         recorded = entry.get("plane_sha256")
@@ -1005,7 +1002,6 @@ def original_planes(project: Any, settings: Optional[Mapping[str, Any]] = None
         order = [c for c in _source_channels(store, sorted_channels, entry) if c in by_channel]
         if entry.get("image_planes") != "stack" and layout.get("intensity_channels") is not None:
             order = [order[int(i)] for i in layout["intensity_channels"] if int(i) < len(order)]
-        # Raw z planes (item 0aj P3): each channel's files, in z order.
         planes[name] = [functools.partial(read_image, path)
                         for c in order for path in by_channel[c]]
     return planes, notes
@@ -1050,7 +1046,6 @@ def _original_files(project: Any, settings: Optional[Mapping[str, Any]] = None,
                                 source_plate=source_plate)
     sorted_channels = [str(c) for c in sorted({key[3] for key in by_key})]
     fields: Dict[str, Dict[str, List[str]]] = collections.defaultdict(dict)
-    # Each channel's files in z order, as Mask stores the planes (item 0aj P3).
     for key, paths in sorted(by_key.items(), key=lambda item: z_order(item[0])):
         stem = _escaped_field_stem(key[0], key[1], key[2], key[4])
         fields[f"{stem}.npy"].setdefault(str(key[3]), []).extend(paths)
@@ -1243,7 +1238,6 @@ def _settle_originals(project: Any, *, keep: bool = True,
             continue
         raw = read_frame_channels(store / entry["key"], entry, z_projection=None)
         problems = _field_checksum_problems(name, entry, _as_planes(raw))
-        # The stored planes of each channel: one, or its raw z planes (item 0aj P3).
         image = raw if "z" in _entry_axes(entry) else raw[:, None]
         reason = None
         channels = _source_channels(store, found_channels, entry)
@@ -1370,7 +1364,6 @@ def _parse_ledger(ledger: str) -> Dict[str, Dict[str, Any]]:
                 by_key[entry["key"]] = entry
     for entry in by_key.values():
         if entry.get("frames"):
-            # A time-lapse field (item 0aj P3): one view per frame name.
             entries.update(_frame_views(entry))
         elif entry.get("name"):
             entries[str(entry["name"])] = entry
@@ -1692,26 +1685,6 @@ def _write_stack_field(writer: PlateWriter, name: str, stack: np.ndarray,
         "source_channels": [str(c) for c in channels]})
 
 
-# ---------------------------------------------------------------------------
-# The object masks (item 0aj P2): no masks/<class>_mask_stack/*.npy, the
-# masks are labels of their field in fov.ome.zarr
-# ---------------------------------------------------------------------------
-#
-# A project folder whose field stacks live in fov.ome.zarr (item 0aj P1c)
-# keeps its object masks there too: every Mask stage that used to write
-# ``masks/<class>_mask_stack/<field>.npy`` writes ``labels/<class>`` of that
-# field through :func:`_write_mask` (PlateWriter.write_labels), and reads it
-# back through :func:`_read_mask`. The mask-folder paths stay the names the
-# stages pass around; the folders themselves are never created. An older
-# project, or a run whose stacks are ``stack/*.npy`` (mask_image_format
-# 'npy' or 'tiff', time-lapse), keeps its ``.npy`` files, read by the same
-# functions.
-#
-# Commit rule (the 430 rule, per field and class): a label image is written
-# to a temporary group and renamed into place, so ``labels/<class>`` either
-# is absent or holds the complete mask. A field+class is done only once that
-# rename has happened; the merge then records the field's final labels in
-# the store ledger.
 
 #: The suffix of the folder Mask Generation names after each object class.
 MASK_STACK_SUFFIX = "_mask_stack"
@@ -1818,7 +1791,6 @@ def _mask_location(path: Any) -> Optional[Tuple[Path, Dict[str, Any], str]]:
     name = f"{os.path.splitext(target.name)[0]}.npy"
     entry = entries.get(name)
     if entry is None or (folder.parent.parent / "stack" / name).is_file():
-        # A field whose stack is a stack/*.npy file keeps .npy masks.
         return None
     return _mask_project_store(folder), entry, str(_mask_label_name(folder))
 
@@ -2208,20 +2180,6 @@ def _mask_sidecar_folder(folder: Any) -> str:
     return _mask_run_dir(os.path.dirname(os.path.normpath(folder)))
 
 
-# ---------------------------------------------------------------------------
-# Time and depth (item 0aj P3): TCZYX images, TZYX labels, z reduced on read
-# ---------------------------------------------------------------------------
-#
-# A field with a time or depth axis is ONE NGFF 0.6 image with those axes:
-# the image ``(T, C, Z, Y, X)`` with only the axes it has, its labels
-# ``(T, Z, Y, X)`` likewise. The raw z planes are stored; any z reduction a
-# module needs (the maximum projection Mask segments and Measure measures)
-# is computed when the field is read, here, with a ``z_projection``
-# parameter. Every frame of a time-lapse field keeps its own field file name
-# (``<plate>_<well>_<field>_<time>.npy``) as a view of the one stored field,
-# so each reader asks for one frame by name, as it asked for one ``.npy``.
-# A 2-D, single-time field records no axes and is stored and read exactly
-# as before.
 
 def field_axes(ndim: int, axes: Optional[str] = None, *, kind: str = "image",
                where: str = "field") -> str:
@@ -2523,7 +2481,6 @@ def _write_merged_frame(writer: PlateWriter, name: str, stack: np.ndarray,
     labels = {role: _compact_labels(stack[..., int(dim)])
               for role, dim in (layout.get("mask_dims") or {}).items()
               if int(dim) < stack.shape[-1]}
-    # The frames wait on the writer itself, so a new run never sees an old run's frames.
     waiting = writer.__dict__.setdefault("_pending_frames", {})
     pending = waiting.setdefault(entry["key"], {})
     pending[index] = (labels, [int(v) for v in stack.shape], stack.dtype.str)

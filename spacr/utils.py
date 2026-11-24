@@ -9507,7 +9507,6 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
             if folder is not None):
         raise ValueError('The adjusted-mask output folder must differ from all source folders')
 
-    # Item 0aj P2: the masks are files, or labels in fov.ome.zarr, through one reader.
     from .image_store import _mask_exists, _read_mask, _write_mask
     if not (_mask_exists(cell_path) and _mask_exists(nuclei_path)):
         raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
@@ -9631,7 +9630,6 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
         An explicit output folder must differ from every source folder and
         must not contain masks outside the selected field set.
     """
-    # Item 0aj P2: the mask files, or the committed labels in fov.ome.zarr.
     from .image_store import _mask_digest, _mask_folder_exists, _mask_header, _mask_names, _mask_valid
 
     parasite_files = [f for f in _mask_names(parasite_folder) if f.endswith('.npy')]
@@ -10652,13 +10650,9 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                       "not present in merged/")
         else:
             if merged == store:
-                # Item 0aj P2: the masks are the store's labels (the output);
-                # they stop counting as working masks, as masks/ is removed.
                 from .image_store import (MASK_RUN_RECORDS, _consume_working_masks,
                                           _remove_mask_run_records)
                 _consume_working_masks(src)
-                # Item 0aj P4: the run's records (batch plan, ledgers) go
-                # with the working masks; nothing of masks/ was created.
                 if _remove_mask_run_records(src):
                     deleted.append(os.path.join(store, MASK_RUN_RECORDS))
             for folder in (stack, masks):

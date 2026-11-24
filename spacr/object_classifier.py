@@ -733,7 +733,6 @@ def _drop_unreal_objects(src: str, settings: Mapping[str, Any]) -> Dict[str, int
     """
     import pandas as pd
 
-    # Item 0aj P2: the masks (and P1c: the stacks) through the one store reader and writer.
     from .image_store import (_read_stack, _stack_entry, _mask_folder_exists, _mask_names,
                               _read_mask, _write_mask)
     from .tabular import write_table

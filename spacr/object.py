@@ -12,7 +12,6 @@ from . import accelerator
 import numpy as np
 
 from ._mask_batches import _open_batch as open_mask_batch
-# Item 0aj P2: the one reader and writer of the object masks (labels in fov.ome.zarr).
 from .image_store import (_mask_exists, _mask_folder_exists, _prepare_mask_folder,
                           _read_mask, _write_mask)
 import pandas as pd
@@ -2153,7 +2152,6 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
-        # Item 0aj P2: the folder only for .npy masks; fov.ome.zarr keeps them as labels.
         _prepare_mask_folder(output_folder)
         overall_average_size = 0
 
@@ -2674,7 +2672,6 @@ def generate_cellpose_masks(src, settings, object_type):
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
-        # Item 0aj P2: the folder only for .npy masks; fov.ome.zarr keeps them as labels.
         _prepare_mask_folder(output_folder)
         overall_average_size = 0
         
@@ -2993,7 +2990,6 @@ def generate_organelle_masks_sam(src, settings, object_type):
     for file_index, path in enumerate(paths):
         cancellation_checkpoint()
         output_folder = os.path.join(os.path.dirname(path), f'{object_type}_mask_stack')
-        # Item 0aj P2: the folder only for .npy masks; fov.ome.zarr keeps them as labels.
         _prepare_mask_folder(output_folder)
 
         with open_mask_batch(path, settings=settings) as data:

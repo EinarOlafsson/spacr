@@ -14159,8 +14159,6 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
     sample = str(settings.get("spatial_sample") or "").strip() or \
         os.path.basename(os.path.normpath(folder)) or "slide"
     plate = escape_filename_component(sample)
-    # Item 0aj P2: with fov.ome.zarr the masks are only its labels, written by
-    # the merged-store writer below; no masks/<class>_mask_stack is made.
     masks_as_files = (str(settings.get("mask_image_format") or "ome-zarr")
                       .strip().lower() != "ome-zarr")
     for sub in ("stack", "merged", "measurements",

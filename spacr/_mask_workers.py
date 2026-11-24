@@ -299,7 +299,6 @@ def _mask_output_digest(path):
     from .resume import validate_merged_field
 
     if not Path(path).is_file():
-        # Item 0aj P2: a mask kept as a label in fov.ome.zarr.
         from .image_store import _mask_digest, _mask_valid
         valid, reason = _mask_valid(path)
         if not valid:
@@ -2423,7 +2422,6 @@ def _mask_digests(folder):
 
     if folder is None:
         return {}
-    # Item 0aj P2: the mask files, or the class's labels in fov.ome.zarr.
     return {name: _mask_output_digest(Path(folder) / name)
             for name in _mask_names(folder) if name.endswith('.npy')}
 

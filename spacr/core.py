@@ -355,8 +355,6 @@ def _prepare_mask_batch_plan(mask_src, settings):
     batches._legacy_batch_size(settings)
     plan = batches._read_plan(mask_src)
     if plan is None or plan.get('archive_equivalent'):
-        # Item 0aj P4: a plotting run's plan keeps its archive route's batches
-        # and tile batch: nothing is calibrated or resized.
         return plan
     active = (settings['_batch_size_request'] == batches._AUTO_VRAM
               or batches._wants_auto_tiles(settings))
@@ -828,9 +826,6 @@ def preprocess_generate_masks(settings):
                         mask_src = os.path.join(src, 'masks')
                         from .image_store import _mask_run_dir
                         if _mask_run_dir(mask_src) == mask_src:
-                            # Item 0aj P4: a project whose fields live in
-                            # fov.ome.zarr never gets a masks/ folder; its
-                            # run records go to fov.ome.zarr/.spacr_mask_run.
                             os.makedirs(mask_src, exist_ok=True)
 
                         _prepare_mask_batch_plan(mask_src, settings)
@@ -1021,7 +1016,6 @@ def preprocess_generate_masks(settings):
                             _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
 
                         field_format = str(settings.get('mask_image_format') or 'ome-zarr').strip().lower()
-                        # Item 0aj P3: a time-lapse field is one fov.ome.zarr field with a t axis.
                         merge_format = 'ome-zarr' if field_format == 'ome-zarr' else 'npy'
                         _load_and_concatenate_arrays(
                             src,

@@ -1838,8 +1838,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     files_to_process = sum(len(image_paths_by_key[key]) for key in pending_keys)
     time_ls = []
     if writer is not None:
-        # Item 0aj P3: raw z planes and time-lapse frames go into fov.ome.zarr
-        # as their own axes; the 2-D view is computed on read.
         files_processed = _store_field_series(
             writer, field_keys, image_paths_by_key, sorted_channels, channels_seen,
             timelapse=bool(timelapse), files_to_process=files_to_process)
@@ -2935,7 +2933,6 @@ def _invalidate_v1_object_masks(output_dir):
     """
     from .image_store import _mask_folders, _remove_mask_folder
     removed = []
-    # The folders, and (item 0aj P2) the label classes kept in fov.ome.zarr.
     for name, path in _mask_folders(output_dir).items():
         if _remove_mask_folder(path):
             removed.append(name)
@@ -2971,7 +2968,6 @@ def _preserve_v1_segmentation_outputs(src):
     masks_dir = os.path.join(src, 'masks')
     folders = _mask_folders(masks_dir)
     paths = [path for path in folders.values() if os.path.isdir(path)]
-    # Item 0aj P2: label classes kept in fov.ome.zarr are saved as .npy evidence.
     in_store = [path for path in folders.values() if not os.path.isdir(path)]
     merged_dir = os.path.join(src, 'merged')
     if os.path.isdir(merged_dir):
@@ -3013,7 +3009,6 @@ def _restore_v1_segmentation_outputs(src, backup):
         for name in sorted(os.listdir(saved_masks)):
             target = os.path.join(src, 'masks', name)
             if not os.path.exists(target) and _masks_in_store(target):
-                # Item 0aj P2: back into the field labels of fov.ome.zarr.
                 for field in sorted(os.listdir(os.path.join(saved_masks, name))):
                     _write_mask(os.path.join(target, field),
                                np.load(os.path.join(saved_masks, name, field)))
@@ -3160,7 +3155,6 @@ def _concatenate_and_normalize_impl(
     if settings['timelapse']:
         os.makedirs(archive_output_fldr, exist_ok=True)
         try:
-            # Item 0aj P3: the frames may live in fov.ome.zarr (one t axis per field).
             from .image_store import _read_stack, _stack_names
             source_npy_names = _stack_names(src)
             time_stack_path_lists = _generate_time_lists(source_npy_names)
@@ -3275,10 +3269,6 @@ def _concatenate_and_normalize_impl(
                 print(f'Set {len(moved)} earlier normalised archive(s) aside as '
                       f'<name>.superseded: the batches are now built in memory.')
             if settings.get('plot'):
-                # Item 0aj P4: a plotting run wrote masks/*.npz before; its
-                # in-memory batches keep exactly what that archive route did
-                # (the batch_size cut, no VRAM resize, no tile calibration),
-                # so its masks are those of earlier versions.
                 legacy = int(settings['batch_size'])
                 batches = [names[i:i + legacy] for i in range(0, len(names), legacy)]
                 mask_batches._write_plan(
@@ -3297,7 +3287,6 @@ def _concatenate_and_normalize_impl(
             print(f'All files concatenated and normalized. Saved to: {output_fldr}')
             ledger.finalize()
             return output_fldr
-        # Item 0aj P4: only the archive route below writes into masks/.
         os.makedirs(archive_output_fldr, exist_ok=True)
         batch_index = first_batch_index
         stack_ls = []
@@ -4023,8 +4012,6 @@ def _check_normalized_archives(masks_path):
         archives = sorted(name for name in _listdir_visible(masks_path)
                           if name.endswith('.npz'))
     else:
-        # Item 0aj P4: a project whose fields live in fov.ome.zarr has no
-        # masks/ folder; its batch plan is in fov.ome.zarr/.spacr_mask_run.
         earlier, archives = [], []
     if not archives:
         from . import _mask_batches as mask_batches
@@ -5172,8 +5159,6 @@ def preprocess_img_data(settings):
         if os.path.exists(os.path.join(src,'channel_stack')):
             print('Found existing channel_stack folder.')
         from ._mask_batches import _plan_file
-        # Item 0aj P4: a store project's normalised batches are its plan in
-        # fov.ome.zarr/.spacr_mask_run; it has no masks/ folder.
         earlier_masks = (os.path.exists(os.path.join(src, 'masks')) or
                          os.path.isfile(_plan_file(os.path.join(src, 'masks'))))
         if earlier_masks and settings.get('test_mode', False):
@@ -5379,7 +5364,6 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
                 generated again.
         """
         path = os.path.join(output_folder, filename)
-        # Item 0aj P2: the mask file, or its committed label in fov.ome.zarr.
         if not _mask_exists(path):
             return True
         ok, reason = _mask_valid(path)
@@ -6347,7 +6331,6 @@ def _mask_variant_path(folder, ref_filename):
         p = os.path.join(folder, cand)
         if os.path.isfile(p):
             return p
-    # Item 0aj P2: the field's committed label in fov.ome.zarr.
     from .image_store import _mask_exists
     p = os.path.join(folder, base + '.npy')
     return p if _mask_exists(p) else None
@@ -6484,7 +6467,6 @@ def _load_and_concatenate_arrays(
     folder_paths = [os.path.join(src+'/stack')]
     mask_roles = []
 
-    # The mask folders, and (item 0aj P2) the label classes kept in fov.ome.zarr.
     _mask_stacks = set(_mask_folders(os.path.join(src, 'masks')))
 
     def add_mask_folder(role, enabled):
@@ -6669,8 +6651,6 @@ def _load_and_concatenate_arrays(
 
                 stack_ls.append(concatenated_array)
 
-                # Item 0aj P2: a role read from its own label in fov.ome.zarr
-                # is already stored as the merge would write it.
                 from .image_store import _mask_label_name
                 stored_roles = set()
                 for role, folder in zip(mask_roles, folder_paths[1:]):

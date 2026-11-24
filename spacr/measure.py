@@ -19228,7 +19228,6 @@ def _image_feature_masks(files, plate, well, field, shape, roles=('cell', 'nucle
     for role in roles:
         for folder in folders:
             stack = folder / 'masks' / f'{role}_mask_stack'
-            # Item 0aj P2: the folder, or the role's labels in fov.ome.zarr.
             from .image_store import _mask_exists, _mask_folder_exists, _read_mask
             if not _mask_folder_exists(stack):
                 continue

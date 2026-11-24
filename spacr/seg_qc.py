@@ -802,7 +802,6 @@ def _iter_masks(source: Any):
             return
         from .image_store import _mask_names, _read_mask
         if not os.path.exists(path) and _mask_names(path):
-            # Item 0aj P2: the masks are labels in the project's fov.ome.zarr.
             for name in _mask_names(path):
                 full = os.path.join(path, name)
                 yield os.path.splitext(name)[0], (lambda p=full: _read_mask(p))
@@ -2182,7 +2181,6 @@ def find_mask_stacks(root: str) -> Dict[str, str]:
         return found
     from .image_store import _mask_folders
     for level in levels:
-        # Item 0aj P2: real folders, and the label classes of fov.ome.zarr.
         for name, path in _mask_folders(level).items():
             found.setdefault(name[:-len(MASK_STACK_SUFFIX)], path)
     return found
@@ -2202,7 +2200,6 @@ def mask_stack_mtime(folder: str) -> float:
         newest = float(os.stat(folder).st_mtime)
     except OSError:
         from .image_store import _mask_names, _mask_stat
-        # Item 0aj P2: a class kept as labels in fov.ome.zarr has no folder.
         for name in _mask_names(folder)[:_MAX_MTIME_STATS]:
             try:
                 newest = max(newest, float(_mask_stat(os.path.join(folder, name)).st_mtime))

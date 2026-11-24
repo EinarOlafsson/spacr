@@ -750,7 +750,6 @@ def _resolve_plan(masks_dir, settings, *, free_vram=None, free_ram=None, log=pri
     """
     plan = _read_plan(masks_dir)
     if plan is None or plan.get('archive_equivalent'):
-        # Item 0aj P4: a plotting run's batches are those its archives had.
         return plan
     request = _legacy_batch_size(settings)
     if request == _AUTO_VRAM:

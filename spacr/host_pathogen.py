@@ -827,7 +827,6 @@ def write_nucleus_territories(mask_src, expand_px, min_nucleus_size=250):
     """
     import os
 
-    # Item 0aj P2: the masks are files, or labels in fov.ome.zarr, through one reader and writer.
     from .image_store import (_mask_folder_exists, _mask_names, _prepare_mask_folder,
                               _read_mask, _write_mask)
 
