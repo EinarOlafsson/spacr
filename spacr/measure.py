@@ -15911,13 +15911,13 @@ def get_object_counts(src):
         ``avg_object_count_per_file_name``.
     """
     database_path = os.path.join(src, 'measurements/measurements.db')
-    conn = sqlite3.connect(database_path, timeout=30)
-    df = pd.read_sql_query("SELECT * FROM object_counts", conn)
+    from . import store
+    with store.open(store.locate(database_path), verify="none") as opened:
+        df = store._table_frame(opened, 'object_counts')
     grouped_df = df.groupby('count_type').agg(
         total_object_count=('object_count', 'sum'),
         avg_object_count_per_file_name=('object_count', 'mean')
     ).reset_index()
-    conn.close()
     return grouped_df
 
 
@@ -16225,17 +16225,14 @@ def generate_object_dataset(
         clauses.append(f"({where})")
 
     where_sql = (" WHERE " + " AND ".join(clauses)) if clauses else ""
-    limit_sql = f" LIMIT {int(limit)}" if limit else ""
-    query = (
-        "SELECT object_label, path_name, plateID, rowID, columnID, fieldID "
-        f"FROM {object_type}{where_sql}{limit_sql}")
-
-    conn = sqlite3.connect(db_path, timeout=30)
-    try:
-        conn.row_factory = sqlite3.Row
-        selected = conn.execute(query, params).fetchall()
-    finally:
-        conn.close()
+    from . import store as _store
+    names = ("object_label", "path_name", "plateID", "rowID", "columnID",
+             "fieldID")
+    with _store.open(_store.locate(db_path), verify="none") as opened:
+        selected = [dict(zip(names, record)) for record in _store._select_rows(
+            opened, object_type, names,
+            where=" AND ".join(clauses) if clauses else None,
+            params=params, limit=int(limit) if limit else None)]
 
     if verbose:
         print(f"generate_object_dataset({object_type}): {len(selected)} "

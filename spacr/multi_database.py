@@ -44,7 +44,6 @@ from __future__ import annotations
 import datetime as _datetime
 import json
 import os
-import sqlite3
 from dataclasses import dataclass, field
 from typing import (
     Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple)
@@ -424,15 +423,29 @@ def source_labels(paths: Sequence[str]) -> Tuple[str, ...]:
     return tuple(used)
 
 
-def _table_columns(path: str, table: str) -> List[str]:
+def _reading(path: str):
+    """The shared reader, opened on one database; close it when done.
+
+    :param path: a measurement database, or a project folder.
+    """
+    from . import store
+
+    return store.open(store.locate(path), verify="none")
+
+
+def _table_columns(path: str, table: str, held=None) -> List[str]:
     """Return stored column names in table order without reading data rows.
 
-    :param path: SQLite database path opened read-only.
+    :param path: database path, opened read-only.
     :param table: table whose metadata is requested.
+    :param held: an open store on ``path``; one is opened when omitted.
     """
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
-    return [row[1] for row in rows]
+    if held is None:
+        with _reading(path) as opened:
+            return _table_columns(path, table, opened)
+    if table not in held.tables():
+        return []
+    return [str(name) for name in held.columns(table)["name"]]
 
 
 #: SQLite's own type-affinity rules, in the order the engine applies them.
@@ -465,8 +478,12 @@ def column_kinds(path: str, table: str) -> Dict[str, str]:
     :param table: the table.
     :returns: one entry per column, in the table's own column order.
     """
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
+    with _reading(path) as held:
+        if table in held.tables():
+            rows = [(None, str(r[0]), str(r[1] or "")) for r in
+                    held._table_columns(table).itertuples(index=False)]
+        else:
+            rows = []
     out: Dict[str, str] = {}
     for row in rows:
         declared = str(row[2] or "").upper()
@@ -482,14 +499,19 @@ def column_kinds(path: str, table: str) -> Dict[str, str]:
     return out
 
 
-def _row_count(path: str, table: str) -> int:
-    """Return the exact number of rows in one SQLite table.
+def _row_count(path: str, table: str, held=None) -> int:
+    """Return the exact number of rows in one table.
 
-    :param path: SQLite database path opened read-only.
+    :param path: database path, opened read-only.
     :param table: table to count.
+    :param held: an open store on ``path``; one is opened when omitted.
+    :raises StoreError: when the database has no such table.
     """
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        return int(db.execute(f'SELECT COUNT(*) FROM "{table}"').fetchone()[0])
+    if held is None:
+        with _reading(path) as opened:
+            return _row_count(path, table, opened)
+    from .store import _count_rows
+    return _count_rows(held, table)
 
 
 def _canonical_columns(columns: Sequence[str]) -> Dict[str, str]:
@@ -506,7 +528,7 @@ def _canonical_columns(columns: Sequence[str]) -> Dict[str, str]:
 
 
 def _stored_plates(path: str, table: str,
-                   plate_column: Optional[str]) -> List[str]:
+                   plate_column: Optional[str], held=None) -> List[str]:
     """The plate ids exactly as the database spells them.
 
     The un-normalised counterpart of :func:`_plates`. Somebody has to hold
@@ -516,31 +538,38 @@ def _stored_plates(path: str, table: str,
     """
     if not plate_column:
         return []
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        rows = db.execute(
-            f'SELECT DISTINCT "{plate_column}" FROM "{table}"').fetchall()
+    if held is None:
+        with _reading(path) as opened:
+            return _stored_plates(path, table, plate_column, opened)
+    from .store import _select_rows
+    rows = _select_rows(held, table, [plate_column], distinct=True)
     return sorted(str(row[0]) for row in rows if row[0] is not None)
 
 
-def _plates(path: str, table: str, plate_column: Optional[str]) -> List[str]:
+def _plates(path: str, table: str, plate_column: Optional[str],
+            held=None) -> List[str]:
     """Return sorted distinct canonical plate IDs from one table.
 
     :param path: SQLite database path opened read-only.
     :param table: table containing the plate column.
     :param plate_column: stored plate-column name, or ``None`` when absent.
+    :param held: an open store on ``path``; one is opened when omitted.
     """
     if not plate_column:
         return []
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        rows = db.execute(
-            f'SELECT DISTINCT "{plate_column}" FROM "{table}"').fetchall()
+    if held is None:
+        with _reading(path) as opened:
+            return _plates(path, table, plate_column, opened)
+    from .store import _select_rows
+    rows = _select_rows(held, table, [plate_column], distinct=True)
     return sorted({canonical_plate_id(row[0])
                    for row in rows if row[0] is not None})
 
 
 def _screen_plate_pairs(path: str, table: str, plate_column: Optional[str],
                         screen_column: Optional[str],
-                        screen: Optional[str]) -> List[Tuple[str, str]]:
+                        screen: Optional[str],
+                        held=None) -> List[Tuple[str, str]]:
     """Distinct ``(screenID, plateID)`` this source will contribute.
 
     Three cases, in the order they are decided:
@@ -557,11 +586,15 @@ def _screen_plate_pairs(path: str, table: str, plate_column: Optional[str],
         return []
     if screen is not None or not screen_column:
         label = schema.screen_id(screen)
-        return [(label, plate) for plate in _plates(path, table, plate_column)]
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=30) as db:
-        rows = db.execute(
-            f'SELECT DISTINCT "{screen_column}", "{plate_column}" '
-            f'FROM "{table}"').fetchall()
+        return [(label, plate)
+                for plate in _plates(path, table, plate_column, held)]
+    if held is None:
+        with _reading(path) as opened:
+            return _screen_plate_pairs(path, table, plate_column,
+                                       screen_column, screen, opened)
+    from .store import _select_rows
+    rows = _select_rows(held, table, [screen_column, plate_column],
+                        distinct=True)
     return sorted({(schema.screen_id(row[0]), canonical_plate_id(row[1]))
                    for row in rows if row[1] is not None})
 
@@ -608,21 +641,23 @@ def describe_merge(paths: Sequence[str], table: str, *,
     summaries: List[SourceSummary] = []
     labels = list(source_labels(paths))
     for path, screen, label in zip(paths, assigned, labels):
-        columns = _table_columns(path, table)
-        canonical = _canonical_columns(columns)
-        stored = {value: key for key, value in canonical.items()}
-        plate_column = stored.get(schema.PLATE_KEY)
-        screen_column = stored.get(schema.SCREEN_KEY)
-        summaries.append(SourceSummary(
-            path=str(path), label=label, table=table,
-            rows=_row_count(path, table),
-            columns=tuple(columns),
-            plates=tuple(_plates(path, table, plate_column)),
-            stored_plates=tuple(_stored_plates(path, table, plate_column)),
-            screen=screen,
-            screen_plates=tuple(_screen_plate_pairs(
-                path, table, plate_column, screen_column, screen)),
-        ))
+        with _reading(path) as held:
+            columns = _table_columns(path, table, held)
+            canonical = _canonical_columns(columns)
+            stored = {value: key for key, value in canonical.items()}
+            plate_column = stored.get(schema.PLATE_KEY)
+            screen_column = stored.get(schema.SCREEN_KEY)
+            summaries.append(SourceSummary(
+                path=str(path), label=label, table=table,
+                rows=_row_count(path, table, held),
+                columns=tuple(columns),
+                plates=tuple(_plates(path, table, plate_column, held)),
+                stored_plates=tuple(_stored_plates(path, table, plate_column,
+                                                   held)),
+                screen=screen,
+                screen_plates=tuple(_screen_plate_pairs(
+                    path, table, plate_column, screen_column, screen, held)),
+            ))
 
     if not summaries:
         return MergePlan((), (), {}, {})

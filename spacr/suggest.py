@@ -173,13 +173,12 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
     """
     from .active_learning import as_probabilities
 
-    with _connect_read_only(db_path) as db:
-        try:
-            from .tabular import _read_query
-            crops = _read_query(db, f'SELECT * FROM "{png_table}"',
-                               report=None)
-        except Exception:                                    # noqa: BLE001
-            return Suggestions(pd.DataFrame(), note="no crop table")
+    try:
+        from .tabular import read_database
+        crops = read_database(db_path, [png_table], report=None,
+                              migrate=False)[0]
+    except Exception:                                        # noqa: BLE001
+        return Suggestions(pd.DataFrame(), note="no crop table")
 
     if crops.empty:
         return Suggestions(pd.DataFrame(), note="the crop table is empty")

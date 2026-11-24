@@ -34,7 +34,6 @@ from __future__ import annotations
 import contextlib
 import logging
 import re
-import sqlite3
 from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
@@ -674,21 +673,16 @@ def aggregate_by_feature(frame: pd.DataFrame, by, *,
     return table
 
 
-def _connect(db_path: str) -> sqlite3.Connection:
-    """Open a measurement database through SQLite's read-only URI."""
-    return sqlite3.connect(Path(db_path).resolve().as_uri() + "?mode=ro", uri=True, timeout=30)
-
-
 def table_names(db_path: str) -> Tuple[str, ...]:
     """Every table in the database, excluding SQLite's own internals.
 
-    :param db_path: path to the SQLite database.
+    :param db_path: path to the measurement database.
     :returns: the table names, sorted.
     """
-    with _connect(db_path) as db:
-        rows = db.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-    return tuple(str(r[0]) for r in rows)
+    from . import store
+
+    with store.open(store.locate(db_path), verify="none") as opened:
+        return tuple(opened.tables())
 
 
 def mergeable_tables(db_path: str) -> Tuple[str, ...]:
@@ -710,11 +704,11 @@ def _read(db_path: str, table: str) -> pd.DataFrame:
     cached = _merge_source_frames.get()
     if cached is not None and cached[0] == str(Path(db_path).resolve()) and table in cached[1]:
         return cached[1][table].copy()
-    from .tabular import _read_query
+    from .tabular import read_database
 
-    with _connect(db_path) as db:
-        return _read_query(db, 'SELECT * FROM "' + table.replace('"', '""') + '"',
-                           canonicalise=False, report=None)
+    return read_database(db_path, [table], canonicalise=False, report=None,
+                         migrate=False, read_only=True,
+                         chunksize=2**31 - 1)[0]
 
 
 def _keys_in(frame: pd.DataFrame, *, include_file_name: bool = False) -> List[str]:

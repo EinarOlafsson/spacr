@@ -5154,17 +5154,16 @@ def _read_and_join_tables(db_path, table_names=None,
                         _time_column)
     ensure_database_schema(db_path)
 
-    from .database_concurrency import connect as _connect_database
+    from . import store as _store
 
-    conn = _connect_database(db_path)
     dataframes = {}
-    for table_name in table_names:
-        try:
-            dataframes[table_name] = pd.read_sql(f"SELECT * FROM {table_name}", conn)
-        except (sqlite3.OperationalError, pd.io.sql.DatabaseError) as e:
-            print(f"Table {table_name} not found in the database.")
-            print(e)
-    conn.close()
+    with _store.open(_store.locate(db_path), verify="none") as opened:
+        for table_name in table_names:
+            try:
+                dataframes[table_name] = _store._table_frame(opened, table_name)
+            except _store.StoreError as e:
+                print(f"Table {table_name} not found in the database.")
+                print(e)
     if 'png_list' in dataframes:
         png_raw = dataframes['png_list']
         id_column = PNG_OBJECT_ID_COLUMNS['cell']
@@ -5357,11 +5356,20 @@ def read_settings_history(db_path):
     """
     if not os.path.isfile(str(db_path)):
         return []
-    conn = sqlite3.connect(str(db_path), timeout=5)
+    from . import store as _store
+
     try:
-        rows = _settings_history_rows(conn)
-    finally:
-        conn.close()
+        with _store.open(_store.locate(db_path), verify="none") as opened:
+            if SETTINGS_HISTORY_TABLE not in opened.tables():
+                rows = []
+            elif _store._legacy_is_sqlite(opened):
+                with _store.legacy_connection(opened) as conn:
+                    rows = _settings_history_rows(conn)
+            else:
+                rows = _store._select_rows(
+                    opened, SETTINGS_HISTORY_TABLE, SETTINGS_HISTORY_COLUMNS)
+    except (sqlite3.Error, _store.StoreError):
+        rows = []
     runs = []
     index = {}
     for run_id, stage, stamped, key, value in rows:
@@ -6473,52 +6481,9 @@ def _read_db(db_loc, tables):
     if writable:
         ensure_database_schema(db_loc)
 
-    dfs = []
-    chunksize = 100_000
-
-    if writable:
-        connect_to = db_loc
-        connect_kwargs = {}
-    else:
-        connect_to = f"file:{pathlib.Path(db_loc).as_uri()[7:]}?mode=ro"
-        connect_kwargs = {"uri": True}
-
-    with sqlite3.connect(connect_to, timeout=30, **connect_kwargs) as conn:
-        existing_tables = {
-            row[0]
-            for row in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).fetchall()
-        }
-
-        for table in tables:
-            if table not in existing_tables:
-                raise ValueError(f"Table not found in database: {table}")
-
-            quoted_table = _quote_identifier(table)
-            query = f"SELECT * FROM {quoted_table}"
-
-            chunks = []
-            for chunk in pd.read_sql_query(query, conn, chunksize=chunksize):
-                chunks.append(chunk)
-
-            if len(chunks) == 0:
-                df = pd.read_sql_query(f"SELECT * FROM {quoted_table} LIMIT 0", conn)
-            elif len(chunks) == 1:
-                df = chunks[0]
-            else:
-                df = pd.concat(chunks, ignore_index=True)
-
-            del chunks
-            gc.collect()
-
-            df = correct_metadata(df)
-            dfs.append(df)
-
-            del df
-            gc.collect()
-
-    return dfs
+    frames = read_database(db_loc, tables, canonicalise=False, report=None,
+                           migrate=False, chunksize=100_000)
+    return [correct_metadata(frame) for frame in frames]
 
 def _read_and_merge_data(
         locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10,
@@ -7446,17 +7411,21 @@ def crop_rows_from_object_table(db_path, object_type='cell', verbose=True):
         return pd.DataFrame()
     select = ('object_label, plateID, rowID, columnID, fieldID, prcf, '
               'file_name, path_name')
-    from .database_concurrency import connect as _connect_database
+    from . import store as _store
 
-    conn = _connect_database(db_path)
     try:
+        opened = _store.open(_store.locate(db_path), verify="none")
+    except (_store.StoreError, FileNotFoundError, sqlite3.Error):
+        return pd.DataFrame()
+    with opened:
+        columns = [c.strip() for c in select.split(',')]
         try:
-            df = pd.read_sql(f'SELECT {select} FROM "{object_type}"', conn)
+            df = _store._select_frame(opened, object_type, columns)
         except Exception:
+            columns = ['object_label', 'plateID', 'rowID', 'columnID',
+                       'fieldID', 'file_name', 'path_name']
             try:
-                df = pd.read_sql(
-                    f'SELECT object_label, plateID, rowID, columnID, fieldID, '
-                    f'file_name, path_name FROM "{object_type}"', conn)
+                df = _store._select_frame(opened, object_type, columns)
             except Exception:
                 if verbose:
                     print(f"crop_rows_from_object_table: no '{object_type}' "
@@ -7465,15 +7434,12 @@ def crop_rows_from_object_table(db_path, object_type='cell', verbose=True):
         parents = {}
         if object_type in ('nucleus', 'pathogen'):
             try:
-                link = pd.read_sql(
-                    f'SELECT object_label, prcf, cell_id FROM "{object_type}"',
-                    conn)
+                link = _store._select_frame(
+                    opened, object_type, ['object_label', 'prcf', 'cell_id'])
                 parents = {(r.prcf, r.object_label): r.cell_id
                            for r in link.itertuples()}
             except Exception:
                 parents = {}
-    finally:
-        conn.close()
     if df.empty:
         return df
     df['object_type'] = object_type
@@ -7854,15 +7820,13 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
         return crop_refs_for_rows(source, rows, object_type)
     png_df = None
     if os.path.isfile(db_path):
-        from .database_concurrency import connect as _connect_database
+        from . import store as _store
 
-        conn = _connect_database(db_path)
         try:
-            png_df = pd.read_sql('SELECT * FROM png_list', conn)
+            with _store.open(_store.locate(db_path), verify="none") as opened:
+                png_df = _store._table_frame(opened, 'png_list')
         except Exception:
             png_df = None
-        finally:
-            conn.close()
 
     def _filter(frame, column):
         """Keep the rows whose ``column`` contains any of the wanted terms.
@@ -9237,8 +9201,6 @@ def _no_training_crops_error(src, db_path, object_type, png_type):
     """
     import sqlite3
 
-    from .database_concurrency import connect as _connect_database
-
     if os.path.isfile(src):
         return FileNotFoundError(
             f"No crops to train on: src is the file {src}, but Classify "
@@ -9252,19 +9214,15 @@ def _no_training_crops_error(src, db_path, object_type, png_type):
             f"folder that holds measurements/, not its parent or a "
             f"sub-folder), or run Measure on this plate first.")
     counts = {}
+    from . import store as _store
+
     try:
-        conn = _connect_database(db_path, readonly=True)
-        try:
-            names = [row[0] for row in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'")]
+        with _store.open(_store.locate(db_path), verify="none") as opened:
+            names = list(opened.tables())
             for name in ('png_list', object_type):
                 if name in names:
-                    quoted = name.replace('"', '""')
-                    counts[name] = conn.execute(
-                        f'SELECT COUNT(*) FROM "{quoted}"').fetchone()[0]
-        finally:
-            conn.close()
-    except sqlite3.Error:
+                    counts[name] = _store._count_rows(opened, name)
+    except (sqlite3.Error, _store.StoreError, OSError):
         names = []
 
     said = [f"'{name}' has {counts[name]} row(s)" if name in counts
@@ -9820,17 +9778,11 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
     all_paths = []
 
     print(f'Reading DataBase: {db_path}')
-    with sqlite3.connect(db_path, timeout=30) as conn:
-        cursor = conn.cursor()
-        query = f"SELECT png_path, {annotation_column} FROM png_list"
-        cursor.execute(query)
-        
-        while True:
-            rows = cursor.fetchmany(1000)
-            if not rows:
-                break
-            for row in rows:
-                all_paths.append(row)
+    from . import store as _store
+
+    with _store.open(_store.locate(db_path), verify="none") as opened:
+        all_paths.extend(_store._select_rows(
+            opened, 'png_list', ['png_path', annotation_column]))
 
     print('Total paths retrieved:', len(all_paths))
     
@@ -9915,17 +9867,11 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
     all_paths = []
 
     print(f'Reading DataBase: {db_path}')
-    with sqlite3.connect(db_path, timeout=30) as conn:
-        cursor = conn.cursor()
-        query = f"SELECT png_path, {annotation_column}, rowID, columnID FROM png_list"
-        cursor.execute(query)
-        
-        while True:
-            rows = cursor.fetchmany(1000)
-            if not rows:
-                break
-            for row in rows:
-                all_paths.append(row)
+    from . import store as _store
+
+    with _store.open(_store.locate(db_path), verify="none") as opened:
+        all_paths.extend(_store._select_rows(
+            opened, 'png_list', ['png_path', annotation_column, 'rowID', 'columnID']))
 
     print('Total paths retrieved:', len(all_paths))
     

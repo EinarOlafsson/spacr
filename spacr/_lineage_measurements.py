@@ -177,26 +177,26 @@ def _load_lineage_sources(tracks_path):
 
 def _measured_lineage_inputs(db_path, tracks_path, column):
     """Read a single measured feature with exact field, frame and label identities."""
-    from .database_concurrency import connect
-    from .tabular import _quote_identifier, _read_query
+    from . import store as _store
+    from .tabular import _quote_identifier
 
     tracks, mapping, provenance = _load_lineage_sources(tracks_path)
     table = provenance['object_type']
     if not column or column in ('prcf', 'object_label', 'frame', 'track_id'):
         raise ValueError('lineage colour must name a numeric measurement feature')
-    quote = _quote_identifier
-    with closing(connect(db_path, readonly=True)) as connection:
-        columns = {row[1] for row in connection.execute(f'PRAGMA table_info({quote(table)})')}
+    _quote_identifier(table), _quote_identifier(column)
+    with _store.open(str(db_path), verify="none") as opened:
+        columns = (set(opened._table_columns(table)["name"])
+                   if table in opened.tables() else set())
         if not {'prcf', 'object_label', column} <= columns:
             raise ValueError(f'lineage measurement table {table} lacks identity or feature column {column!r}')
         pieces = []
         fields = sorted(mapping['prcf'].unique())
         for offset in range(0, len(fields), 500):
             wanted = fields[offset:offset + 500]
-            query = (f'SELECT prcf, object_label, {quote(column)} FROM {quote(table)} '
-                     f'WHERE prcf IN ({",".join("?" for _ in wanted)})')
-            pieces.append(_read_query(connection, query, params=wanted,
-                                      canonicalise=False, report=None))
+            pieces.append(_store._select_frame(
+                opened, table, ['prcf', 'object_label', column],
+                where={'prcf': wanted}))
     measured = pd.concat(pieces, ignore_index=True) if pieces else pd.DataFrame(
         columns=['prcf', 'object_label', column])
     labels = pd.to_numeric(measured['object_label'], errors='coerce')

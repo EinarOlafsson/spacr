@@ -92,7 +92,12 @@ RAW_CALL = re.compile(r"pd\.read_csv\(|pd\.read_sql\w*\(|\.to_csv\(|\.to_sql\(")
 #: feature QC report had added eighteen raw writes, which took the count to
 #: 259. All eighteen now go through `tabular.write_table`, and the ceiling
 #: comes down to the count.
-CEILING = 241
+#:
+#: 241 -> 230 on 2026-11-24 (unified store S7, first batch): the readers of
+#: `io` (settings history, crop rows, png_list, table joins), `hit_investigation`
+#: and `measure` take their tables from `spacr.store` instead of
+#: `pandas.read_sql`.
+CEILING = 230
 
 #: Files allowed to hold raw calls without argument, and why.
 EXPECTED_HOMES = {
