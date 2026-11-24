@@ -149,28 +149,26 @@ def _db_with_wells(tmp_path):
 
 
 def test_a_well_is_read_by_a_query_on_that_well(tmp_path, monkeypatch):
+    """Only the asked well's part is read, through the store's reader (0an)."""
+    from spacr import ops_store
+
     db, rows = _db_with_wells(tmp_path)
     seen = []
-    original = ops_engine.__dict__.get("_read_query")
-    from spacr import tabular
+    real = ops_store._read
 
-    real = tabular._read_query
+    def spy(project, table, wells=None):
+        """Record which wells each read asks for."""
+        seen.append(wells)
+        return real(project, table, wells)
 
-    def spy(conn, sql, **kwargs):
-        """Record each query."""
-        seen.append(sql)
-        return real(conn, sql, **kwargs)
-
-    monkeypatch.setattr(tabular, "_read_query", spy)
+    monkeypatch.setattr(ops_store, "_read", spy)
     got = ops_engine._well_rows(db, "ops_objects", "P1", "A1")
     want = rows[rows.well == "A1"].reset_index(drop=True)
     pd.testing.assert_frame_equal(got, want, check_dtype=False)
     assert got["object_id"].tolist() == sorted(got["object_id"])
-    assert any("WHERE plate = ? AND well = ?" in sql for sql in seen)
-    assert not any(sql.strip() == "SELECT * FROM ops_objects" for sql in seen)
+    assert seen == [[("P1", "A1")]]
     assert ops_engine._well_rows(db, "ops_objects", "P1", "Z9").empty
     assert ops_engine._well_rows(db, "ops_merge", "P1", "A1") is None
-    del original
 
 
 def test_two_genotype_tables_give_two_aggregates_without_rerunning(tmp_path):

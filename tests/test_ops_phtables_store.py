@@ -297,7 +297,7 @@ def test_a_value_beyond_the_recorded_dtype_widens_its_column(tmp_path):
 def test_the_rebuild_drops_the_older_tables_and_database(built):
     run, _cells = built
     folder = run / "measurements"
-    folder.mkdir()
+    folder.mkdir(exist_ok=True)  # the run's OPS tables are already there
     with sqlite3.connect(folder / "measurements.db") as conn:
         conn.execute("CREATE TABLE cell (prcfo TEXT)")
     _tables(run, ops_tables_layout="wide")

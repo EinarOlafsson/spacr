@@ -437,8 +437,18 @@ def _write_well(db_path: str, table: str, frame, plate: str,
         if schema is None:
             return row_count(db_path, table) or 0
     os.makedirs(project, exist_ok=True)
-    _write_part(project, table, frame, plate, well, schema=schema)
-    store.register(project)
+    parts = {(plate, well): frame}
+    if schema is None and _WHOLE not in (plate, well):
+        # Rows that name no plate or well cannot say whose they are, so they
+        # are not kept beside a well's rows (as the SQLite replace did not).
+        for where in (_stored(project, name) or {}):
+            if _WHOLE in where:
+                parts[where] = frame.iloc[:0]
+    if schema is not None:
+        _write_part(project, table, frame, plate, well, schema=schema)
+        store.register(project)
+    else:
+        _write_parts(project, table, parts)
     return row_count(db_path, table) or 0
 
 
@@ -516,9 +526,12 @@ def _refuse_appended_keys(table: str, existing, frame,
     columns = [c for c in key if c in existing.columns]
     if not columns or not len(existing):
         return
-    old = existing[columns].astype(str).drop_duplicates()
-    new = frame[columns].astype(str)
-    shared = new.merge(old, on=columns, how="inner")
+    old = set(existing[columns].astype(str).itertuples(index=False,
+                                                       name=None))
+    new = frame[columns]
+    hit = [tuple(map(str, row)) in old
+           for row in new.itertuples(index=False, name=None)]
+    shared = new[hit]
     if not len(shared):
         return
     raise StoreError(
@@ -600,6 +613,10 @@ def _read_rows(db_path: str, table: str, plate: Optional[str] = None,
             chosen = [(p, w) for p, w in present if p == str(plate)
                       and (wells is None or w in asked)]
         frame = _read(project, table, chosen)
+        for position, name in enumerate(("plate", "well")):
+            if name in frame.columns and all(key[position] == _WHOLE
+                                             for key in present):
+                frame = frame.drop(columns=[name])
         return _as_read(frame, table).reset_index(drop=True)
     legacy = _legacy(db_path)
     if legacy is None or table not in _legacy_tables(legacy):

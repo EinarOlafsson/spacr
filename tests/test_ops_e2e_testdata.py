@@ -222,7 +222,13 @@ def _assert_frames_equal(found: pd.DataFrame, ref: pd.DataFrame, *,
                                        rtol=rtol, atol=atol, equal_nan=True,
                                        err_msg=f"{what}: {column}")
         else:
-            assert found[column].tolist() == ref[column].tolist(), (what, column)
+            # A column with no value at all came back from SQLite as None
+            # objects and comes back from the store as NaN (item 0an); both
+            # are missing values, compared as such.
+            def present(values):
+                return [None if pd.isna(v) else v for v in values]
+
+            assert present(found[column]) == present(ref[column]), (what, column)
 
 
 def _seeded_run(root: Path, dst: Path, settings_file: str):
