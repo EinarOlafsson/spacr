@@ -104,6 +104,8 @@ def _file(db_path: Any) -> Optional[str]:
         return None
     if os.path.basename(path) == 'spacr.duckdb':
         return None
+    if os.path.basename(path) == LEGACY_NAME:
+        return legacy_database(path)
     return path if os.path.isfile(path) else None
 
 
@@ -114,7 +116,25 @@ def legacy_database(db_path: Any) -> Optional[str]:
     :returns: the file's path, or None.
     """
     path = os.path.join(project_of(db_path), LEGACY_NAME)
-    return path if os.path.isfile(path) else None
+    if not os.path.isfile(path):
+        return None
+    if (os.path.getsize(path) == 0 or (os.path.isfile(os.path.join(
+            os.path.dirname(path), 'spacr.duckdb')) and _empty_sqlite(path))):
+        return None
+    return path
+
+
+def _empty_sqlite(path: str) -> bool:
+    """Whether a SQLite file holds no table (a file a stray connect created)."""
+    import sqlite3
+
+    try:
+        with contextlib.closing(sqlite3.connect(
+                f'file:{path}?mode=ro', uri=True, timeout=5)) as conn:
+            return conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE "
+                                "type = 'table'").fetchone()[0] == 0
+    except sqlite3.Error:
+        return False
 
 
 def store_native(db_path: Any) -> bool:
@@ -380,8 +400,8 @@ def _key_columns(frame) -> tuple:
     return tuple(c for c in KEY_COLUMNS if c in frame.columns)
 
 
-def _existing_well(project: str, table: str, plate: str, well: str):
-    """The registered rows of one well of a table, or None."""
+def _registered(project: str, table: str):
+    """The registered wells of a table: ``[(plate, well)]``, or None when absent."""
     from . import store
 
     if not os.path.isfile(os.path.join(project, store.CATALOG)):
@@ -389,22 +409,195 @@ def _existing_well(project: str, table: str, plate: str, well: str):
     with store.open(project, verify='none') as opened:
         if table not in opened.tables():
             return None
-        frame = opened.query({'plate': plate, 'well': well}, table=table)
-    if frame is None or len(frame) == 0:
-        return None
-    drop = ['crop_store', 'crop_index']
-    if table not in POINTER_TABLES:
-        drop += ['plate', 'well']
-    return frame.drop(columns=[c for c in drop if c in frame.columns])
+        found = opened.sql(f'SELECT DISTINCT plate, well FROM "{table}__keys"'
+                           if f'{table}__keys' in opened.tables() else
+                           f'SELECT DISTINCT plate, well FROM "{table}"')
+    return sorted(set(zip(found['plate'].astype(str), found['well'].astype(str))))
+
+
+def _existing_wells(project: str, table: str, wells=None) -> Dict[tuple, Any]:
+    """Registered rows of a table per well, as Arrow tables (stored names).
+
+    :param wells: the ``(plate, well)`` pairs to read; None reads every well.
+    """
+    from . import store
+
+    out: Dict[tuple, Any] = {}
+    if not os.path.isfile(os.path.join(project, store.CATALOG)):
+        return out
+    with store.open(project, verify='none') as opened:
+        if table not in opened.tables():
+            return out
+        if wells is None:
+            found = opened.sql(f'SELECT DISTINCT plate, well FROM "{table}"')
+            wells = sorted(set(zip(found['plate'].astype(str),
+                                   found['well'].astype(str))))
+        for plate, well in wells:
+            data = opened.sql(f'SELECT * FROM "{table}" WHERE plate = ? AND '
+                              f'well = ?', [plate, well], as_='arrow')
+            if not data.num_rows:
+                continue
+            drop = [c for c in ('crop_store', 'crop_index')
+                    if c in data.column_names]
+            if table not in POINTER_TABLES:
+                drop += [c for c in ('plate', 'well') if c in data.column_names]
+            out[(plate, well)] = data.drop_columns(drop)
+    return out
+
+
+def _existing_well(project: str, table: str, plate: str, well: str):
+    """The registered rows of one well of a table as a DataFrame, or None."""
+    found = _existing_wells(project, table, [(plate, well)])
+    data = found.get((plate, well))
+    return None if data is None else data.to_pandas()
+
+
+def _arrow(frame):
+    """A DataFrame (or Arrow table) as an Arrow table without its index."""
+    import pyarrow as pa
+
+    if isinstance(frame, pa.Table):
+        return frame
+    return pa.Table.from_pandas(frame, preserve_index=False).replace_schema_metadata(None)
+
+
+def _ranges(parts) -> Dict[str, tuple]:
+    """``column -> (min, max)`` over several Arrow tables of one schema."""
+    import pyarrow as pa
+    import pyarrow.compute as pc
+
+    ranges: Dict[str, tuple] = {}
+    if not parts:
+        return ranges
+    schema = parts[0].schema
+    for field in schema:
+        kind = field.type
+        if not (pa.types.is_floating(kind) or pa.types.is_integer(kind)):
+            continue
+        low = high = None
+        for part in parts:
+            column = part.column(field.name)
+            if pa.types.is_floating(kind):
+                column = pc.if_else(pc.is_nan(column), pa.scalar(None, kind),
+                                    column)
+            stats = pc.min_max(column).as_py()
+            if stats['min'] is None:
+                continue
+            low = stats['min'] if low is None else min(low, stats['min'])
+            high = stats['max'] if high is None else max(high, stats['max'])
+        ranges[field.name] = ((float('nan'), float('nan')) if low is None
+                              else (low, high))
+    return ranges
+
+
+def _unified(parts):
+    """One schema for Arrow tables: columns in first-seen order, types promoted."""
+    import pyarrow as pa
+
+    schema = pa.unify_schemas([p.schema for p in parts],
+                              promote_options='permissive')
+    return pa.schema([pa.field(f.name, pa.string() if pa.types.is_null(f.type)
+                               else f.type) for f in schema])
+
+
+def rewrite_table(project: str, table: str, wells: Mapping[tuple, Any], *,
+                  run_id: Optional[str] = None, narrow: bool = False,
+                  channels: Sequence[str] = (), register: bool = True,
+                  sort: bool = True) -> int:
+    """Write wells of a table with ONE schema, through the store's writer.
+
+    The store holds one schema per table (step S0), so every well written
+    together gets the same columns and types: the union of the parts in
+    first-seen order, promoted where they differ, and with ``narrow`` the
+    recorded per-column dtypes guarded by the ranges over all of them. A
+    table whose columns changed must be rewritten whole (every well).
+
+    :param project: the measurements folder.
+    :param table: the table.
+    :param wells: ``{(plate, well): DataFrame or Arrow table or [them]}``.
+    :param run_id: the run.
+    :param narrow: apply the recorded dtype map.
+    :param channels: the run's channel names, for the dtype families.
+    :param register: register afterwards.
+    :param sort: sort each well's rows by ``object_key`` (and ``timeID``).
+    :returns: the rows written.
+    """
+    from . import store
+
+    batches = {}
+    for key in sorted(wells):
+        value = wells[key]
+        items = value if isinstance(value, (list, tuple)) else [value]
+        arrows = [_arrow(_clean(v) if not hasattr(v, 'schema') else v)
+                  for v in items if v is not None and len(v)]
+        batches[key] = [a.drop_columns([c for c in ('plate', 'well')
+                                        if c in a.column_names])
+                        for a in arrows]
+    flat = [b for items in batches.values() for b in items]
+    if not flat:
+        return 0
+    schema = _unified(flat)
+    batches = {k: [_conform(b, schema) for b in v] for k, v in batches.items()}
+    ranges = _ranges([b for v in batches.values() for b in v]) if narrow else None
+    names = set(schema.names)
+    sort_by = tuple(c for c in ('object_key', 'timeID') if c in names)
+    keys = tuple(c for c in KEY_COLUMNS if c in names)
+    rows = 0
+    for (plate, well), items in batches.items():
+        if not items:
+            continue
+        if sort and sort_by:
+            import pyarrow as pa
+            import pyarrow.compute as pc
+
+            data = pa.concat_tables(items)
+            order = pc.sort_indices(data, sort_keys=[(c, 'ascending')
+                                                     for c in sort_by])
+            items = [data.take(order)]
+        with store.writer(project, table, plate=plate, well=well,
+                          run_id=run_id, sort_by=sort_by, key_columns=keys,
+                          schema=schema, ranges=ranges, narrow=narrow,
+                          channels=channels) as part:
+            for batch in items:
+                part.append(batch)
+        rows += part.rows
+    if register:
+        store.register(project)
+    return rows
+
+
+def _schema_fits(project: str, table: str, parts) -> bool:
+    """Whether new parts can join a registered table without a rewrite.
+
+    True when the table is absent, or when every column of the parts is a
+    column of the table with the same stored type.
+    """
+    from . import store
+
+    if not os.path.isfile(os.path.join(project, store.CATALOG)):
+        return True
+    with store.open(project, verify='none') as opened:
+        if table not in opened.tables():
+            return True
+        columns = opened.columns(table)
+    stored = dict(zip(columns['name'], columns['stored_type'].astype(str)))
+    for part in parts:
+        for field in part.schema:
+            if field.name in ('plate', 'well'):
+                continue
+            if field.name not in stored or str(field.type) != stored[field.name]:
+                return False
+    return True
 
 
 def write_rows(project: str, table: str, frame, *, run_id: Optional[str] = None,
-               narrow: bool = True, register: bool = True) -> Dict[str, Any]:
+               narrow: bool = False, register: bool = True) -> Dict[str, Any]:
     """Write a frame into a project table, well by well, and register it.
 
-    Each well's part is rewritten with its earlier rows plus these (merged
-    by key for an upsert table, replaced for a replace table), through
-    :func:`spacr.store.write_table`.
+    Each touched well's part is rewritten with its earlier rows plus these
+    (merged by key for an upsert table; a replace table is replaced). When
+    the rows bring a column or a type the table does not hold, every well is
+    rewritten with the widened schema (one schema per table).
 
     :param project: the measurements folder.
     :param table: the table.
@@ -419,29 +612,43 @@ def write_rows(project: str, table: str, frame, *, run_id: Optional[str] = None,
     from . import store
 
     frame = _clean(_stored_names(table, _with_keys(table, frame)))
-    count = 0
-    for plate, well, rows in _partitions(frame):
-        part = frame.iloc[rows]
-        if table not in REPLACE_TABLES:
-            old = _existing_well(project, table, plate, well)
-            if table in UPSERT_KEYS:
-                part = _merge_upsert(old, part, UPSERT_KEYS[table])
-            elif old is not None:
-                part = pd.concat([old, part], ignore_index=True, sort=False)
-        part = _clean(part)
-        store.write_table(project, table, part, plate=plate, well=well,
-                          run_id=run_id, sort_by=_sort_by(part),
-                          key_columns=_key_columns(part), narrow=narrow)
-        count += 1
-    if register:
-        store.register(project)
-    return {'wells': count, 'rows': int(len(frame))}
+    touched = [(p, w, frame.iloc[r]) for p, w, r in _partitions(frame)]
+    if table in REPLACE_TABLES:
+        drop_tables(project, [table])
+        old = {}
+    else:
+        old = _existing_wells(project, table, [(p, w) for p, w, _f in touched])
+    new = {}
+    for plate, well, part in touched:
+        before = old.get((plate, well))
+        before = None if before is None else before.to_pandas()
+        if table in UPSERT_KEYS:
+            part = _merge_upsert(before, part, UPSERT_KEYS[table])
+        elif before is not None:
+            part = pd.concat([before, part], ignore_index=True, sort=False)
+        new[(plate, well)] = _arrow(_clean(part))
+    if not _schema_fits(project, table, list(new.values())):
+        everything = _existing_wells(project, table)
+        everything.update(new)
+        new = everything
+    rewrite_table(project, table, new, run_id=run_id, narrow=narrow,
+                  register=register)
+    return {'wells': len(touched), 'rows': int(len(frame))}
+
+
+def _spool_table(table: str, stem: str) -> str:
+    """The spool's table of one field's rows of ``table``."""
+    return f'{table}~{stem}'
 
 
 def spool_field(db_path: Any, field: str, packet: Mapping[str, List[Any]], *,
                 ticket: str, run_id: Optional[str] = None,
                 timelapse: bool = False) -> Dict[str, int]:
     """Write one field's packet to the run spool, its commit mark last.
+
+    Each table's rows of the field are their own spool table
+    (``<table>~<field>``), since fields may differ in their columns and a
+    store table has one schema; :func:`compact` unifies them.
 
     :param db_path: the project's ``measurements.db`` path or folder.
     :param field: the field's file name.
@@ -464,7 +671,6 @@ def spool_field(db_path: Any, field: str, packet: Mapping[str, List[Any]], *,
         well = _text(identity.rowID) + _text(identity.columnID)
     except Exception:
         plate, well = '_', '_'
-    partition = f'{well}@{stem}'
     written: Dict[str, int] = {}
     for table in sorted(packet):
         frames = [f for f in packet[table] if f is not None and len(f)]
@@ -475,16 +681,16 @@ def spool_field(db_path: Any, field: str, packet: Mapping[str, List[Any]], *,
         if table in UPSERT_KEYS:
             frame = _merge_upsert(None, frame, UPSERT_KEYS[table])
         frame = _clean(_with_keys(table, frame))
-        store.write_table(spool, table, frame, plate=plate, well=partition,
-                          run_id=run_id, sort_by=_sort_by(frame),
+        store.write_table(spool, _spool_table(table, stem), frame,
+                          plate=plate, well=well, run_id=run_id,
+                          sort_by=_sort_by(frame),
                           key_columns=_key_columns(frame))
         written[table] = int(len(frame))
     mark = pd.DataFrame([{'ticket': str(ticket), 'field': str(field),
-                          'stem': stem, 'plate': plate, 'well': well,
-                          'tables': ','.join(sorted(written)),
-                          'run_id': run_id}])
-    store.write_table(spool, FIELDS_TABLE, mark.drop(columns=['plate', 'well']),
-                      plate=plate, well=partition, run_id=run_id, sort_by=())
+                          'stem': stem, 'tables': ','.join(sorted(written)),
+                          'run_id': str(run_id)}])
+    store.write_table(spool, FIELDS_TABLE, mark, plate=plate,
+                      well=f'{well}@{stem}', run_id=run_id, sort_by=())
     return written
 
 
@@ -530,11 +736,11 @@ def measured_fields(db_path: Any) -> List[str]:
     return sorted(done)
 
 
-def _field_order(well_field: str):
-    """Sort key of a spool partition ``<well>@<stem>``: field then time."""
+def _field_order(stem: str):
+    """Sort key of a field stem: field number, then time, then the stem."""
     from . import schema
 
-    stem = well_field.split('@', 1)[-1]
+    stem = stem.split('@', 1)[-1]
     try:
         identity = schema.parse_field_stem(stem, timelapse=stem.count('_') >= 3)
         field = int(str(identity.fieldID).lstrip('f') or 0)
@@ -550,11 +756,12 @@ def compact(db_path: Any, *, run_id: Optional[str] = None,
             channels: Sequence[str] = ()) -> Dict[str, Any]:
     """Write the run spool into the project store, one part per well.
 
-    Each table's wells are written once with the streamed writer, fields in
-    order (so rows stay in ``object_key`` order), in the recorded per-column
-    dtypes; a well the project already holds keeps its earlier rows first,
-    and an upsert table is merged by key. The project is registered with the
-    run and the spool removed.
+    Each table is written once, all its wells with one schema (the union of
+    its fields' columns) and, for the object tables, the recorded per-column
+    dtypes guarded by the ranges over the whole table; rows stay in
+    ``object_key`` order. Wells the project already holds keep their earlier
+    rows, and an upsert table is merged by key. The project is registered
+    with the run and the spool removed.
 
     :param db_path: the project's ``measurements.db`` path or folder.
     :param run_id: the run.
@@ -563,8 +770,6 @@ def compact(db_path: Any, *, run_id: Optional[str] = None,
     :returns: ``{"tables": {table: rows}, "registered": ...}``.
     """
     import pandas as pd
-    import pyarrow as pa
-    import pyarrow.compute as pc
 
     from . import store
 
@@ -578,80 +783,42 @@ def compact(db_path: Any, *, run_id: Optional[str] = None,
         discard_spool(db_path)
         return report
     with store.open(spool, verify='none') as opened:
-        tables = [t for t in opened.tables() if not t.endswith('__keys')
-                  and not t.endswith('__rows')]
-        for table in sorted(tables):
-            parts = opened.sql(
-                f'SELECT DISTINCT plate, well FROM "{table}__keys"')
-            wells: Dict[tuple, List[str]] = {}
-            for plate, well_field in zip(parts['plate'], parts['well']):
-                well = str(well_field).split('@', 1)[0]
-                wells.setdefault((str(plate), well), []).append(
-                    str(well_field))
-            rows = 0
-            for (plate, well) in sorted(wells):
-                fields = sorted(wells[(plate, well)], key=_field_order)
-                batches = []
-                for well_field in fields:
-                    data = opened.sql(
-                        f'SELECT * FROM "{table}" WHERE plate = ? AND '
-                        f'well = ?', [plate, well_field], as_='arrow')
-                    data = data.drop_columns([c for c in ('plate', 'well')
-                                              if c in data.column_names])
-                    batches.append(data)
-                old = _existing_well(project, table, plate, well)
-                if table in UPSERT_KEYS or table in REPLACE_TABLES:
-                    frame = pd.concat([b.to_pandas() for b in batches],
-                                      ignore_index=True, sort=False)
-                    if table in UPSERT_KEYS:
-                        frame = _merge_upsert(old, frame, UPSERT_KEYS[table])
-                    frame = _clean(frame)
-                    store.write_table(project, table, frame, plate=plate,
-                                      well=well, run_id=run_id,
-                                      sort_by=_sort_by(frame),
-                                      key_columns=_key_columns(frame),
-                                      narrow=True, channels=channels)
-                    rows += int(len(frame))
-                    continue
-                if old is not None and len(old):
-                    batches.insert(0, pa.Table.from_pandas(
-                        _clean(old), preserve_index=False))
-                schema = pa.unify_schemas([b.schema for b in batches],
-                                          promote_options='permissive')
-                batches = [_conform(b, schema) for b in batches]
-                ranges = {}
-                for name in schema.names:
-                    kind = schema.field(name).type
-                    if not (pa.types.is_floating(kind)
-                            or pa.types.is_integer(kind)):
-                        continue
-                    low = high = None
-                    for batch in batches:
-                        column = batch.column(name)
-                        if pa.types.is_floating(kind):
-                            column = pc.if_else(pc.is_nan(column),
-                                                pa.scalar(None, kind), column)
-                        stats = pc.min_max(column).as_py()
-                        if stats['min'] is None:
-                            continue
-                        low = stats['min'] if low is None else min(low, stats['min'])
-                        high = stats['max'] if high is None else max(high, stats['max'])
-                    ranges[name] = ((float('nan'), float('nan'))
-                                    if low is None else (low, high))
-                names = set(schema.names)
-                with store.writer(project, table, plate=plate, well=well,
-                                  run_id=run_id,
-                                  sort_by=tuple(c for c in ('object_key',
-                                                            'timeID')
-                                                if c in names),
-                                  key_columns=tuple(c for c in KEY_COLUMNS
-                                                    if c in names),
-                                  schema=schema, ranges=ranges, narrow=True,
-                                  channels=channels) as part:
-                    for batch in batches:
-                        part.append(batch)
-                rows += part.rows
-            report['tables'][table] = rows
+        grouped: Dict[str, List[str]] = {}
+        for name in opened.tables():
+            if name.endswith('__keys') or name.endswith('__rows') or '~' not in name:
+                continue
+            table, stem = name.split('~', 1)
+            grouped.setdefault(table, []).append(stem)
+        if FIELDS_TABLE in opened.tables():
+            marks = opened.query(table=FIELDS_TABLE).drop(
+                columns=['plate', 'well'], errors='ignore')
+            write_rows(project, FIELDS_TABLE, marks, run_id=run_id,
+                       register=False)
+            report['tables'][FIELDS_TABLE] = int(len(marks))
+        for table in sorted(grouped):
+            stems = sorted(grouped[table], key=_field_order)
+            wells: Dict[tuple, List[Any]] = {}
+            for stem in stems:
+                data = opened.sql(f'SELECT * FROM "{_spool_table(table, stem)}"',
+                                  as_='arrow')
+                plates = data.column('plate').to_pylist()
+                key = (str(plates[0]), str(data.column('well')[0].as_py()))
+                data = data.drop_columns([c for c in ('plate', 'well')
+                                          if c in data.column_names])
+                wells.setdefault(key, []).append(data)
+            if table in UPSERT_KEYS or table in REPLACE_TABLES:
+                frame = pd.concat([b.to_pandas() for items in wells.values()
+                                   for b in items], ignore_index=True, sort=False)
+                write_rows(project, table, frame, run_id=run_id,
+                           register=False)
+                report['tables'][table] = int(len(frame))
+                continue
+            old = _existing_wells(project, table)
+            for key, data in old.items():
+                wells.setdefault(key, []).insert(0, data)
+            report['tables'][table] = rewrite_table(
+                project, table, wells, run_id=run_id, narrow=True,
+                channels=channels, register=False, sort=False)
     run = None
     if run_id is not None:
         run = {'run_id': run_id, 'settings': dict(settings or {})}
@@ -1015,22 +1182,24 @@ class _Session:
                     f'SELECT DISTINCT plate, well FROM (SELECT {old} FROM '
                     f'{shadow} EXCEPT ALL SELECT {listed} FROM {quoted})'
                 ).fetchall()
+                if dirty and set(columns) != have:
+                    dirty = [tuple(r) for r in self.db.execute(
+                        f'SELECT DISTINCT plate, well FROM {quoted}').fetchall()]
+                parts = {}
                 for plate, well in sorted(set(dirty), key=str):
-                    frame = self.db.execute(
-                        f'SELECT * FROM {quoted} WHERE plate IS NOT DISTINCT '
-                        f'FROM ? AND well IS NOT DISTINCT FROM ?',
-                        [plate, well]).df()
-                    part = _stored_names(name, _with_keys(name, frame))
-                    if name not in POINTER_TABLES:
-                        part = part.drop(columns=[c for c in ('crop_store',
-                                                              'crop_index')
-                                                  if c in part.columns])
-                    part = _clean(part)
-                    store.write_table(self.project, name, part,
-                                      plate=str(plate), well=str(well),
-                                      sort_by=_sort_by(part),
-                                      key_columns=_key_columns(part))
-                    written += 1
+                    parts[(str(plate), str(well))] = self._part(
+                        name, quoted, plate, well)
+                if parts and not _schema_fits(self.project, name,
+                                              list(parts.values())):
+                    for plate, well in self.db.execute(
+                            f'SELECT DISTINCT plate, well FROM {quoted}'
+                    ).fetchall():
+                        key = (str(plate), str(well))
+                        if key not in parts:
+                            parts[key] = self._part(name, quoted, plate, well)
+                if parts:
+                    rewrite_table(self.project, name, parts, register=False)
+                    written += len(parts)
                 if dirty:
                     self.db.execute(f'DROP TABLE {shadow}')
                     self.db.execute(f'CREATE TABLE {shadow} AS SELECT * FROM '
@@ -1040,6 +1209,25 @@ class _Session:
                 _SESSIONS.pop(self.key, None)
                 _SESSIONS[self._key()] = self
         return written
+
+    def _part(self, name: str, quoted: str, plate, well):
+        """One well of an in-memory table as the Arrow table the store keeps."""
+        import pyarrow as pa
+
+        data = self.store.sql(
+            f'SELECT * FROM {quoted} WHERE plate IS NOT DISTINCT FROM ? AND '
+            f'well IS NOT DISTINCT FROM ?', [plate, well], as_='arrow')
+        if 'prcfo' in data.column_names and 'object_key' not in data.column_names:
+            data = data.append_column('object_key', pa.array(
+                object_keys([str(v) for v in data.column('prcfo').to_pylist()]),
+                pa.int64()))
+        if name in POINTER_TABLES:
+            data = data.rename_columns([POINTER_RENAMES.get(c, c)
+                                        for c in data.column_names])
+        else:
+            data = data.drop_columns([c for c in ('crop_store', 'crop_index')
+                                      if c in data.column_names])
+        return data
 
     def _key(self) -> tuple:
         """This session's cache key: the project and its catalog's stamp."""
