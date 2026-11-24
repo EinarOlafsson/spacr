@@ -11,6 +11,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Mapping
 
@@ -22,6 +23,11 @@ PINNED_BASELINE_SOURCE_HASH_SHA256 = '26a77519ac43c576346359e669772f630966a71f56
 TABLE_NAMES = {'SETTING_LABELS':'setting_labels','SETTING_TOOLTIPS':'setting_tooltips',
                'CATEGORY_HELP':'categories','UI':'ui','MODULE_SUMMARIES':'module_summaries'}
 LANGUAGES = ('sv','de','es','zh_CN','pt','hi','ko','is','fr')
+
+
+# Set SPACR_I18N_ALLOW_STALE=1 while translations are dropped (maintainer 2026-11-23): a caption arrival without a
+# reviewed record is written with no proofs (translation debt) instead of stopping the refresh. Unset = the strict check.
+_ALLOW_STALE_REVIEWS = os.environ.get("SPACR_I18N_ALLOW_STALE") == "1"
 
 def _sha(value: object) -> str:
     return hashlib.sha256(str(value).encode('utf-8')).hexdigest()
@@ -194,7 +200,10 @@ def refresh_arrival_contract(*, workers: int = 1) -> dict:
             target = getattr(catalog,table)[key]
             proof_key = (language,TABLE_NAMES[table],key,source,target)
             proofs = proof_index.get(proof_key)
-            assert proofs, f'caption arrival lacks explicit reviewed record: {language}/{identity}'
+            if not proofs and _ALLOW_STALE_REVIEWS:  # translations dropped: record the debt, the English source stays
+                proofs = []
+            else:
+                assert proofs, f'caption arrival lacks explicit reviewed record: {language}/{identity}'
             row['reviewed_evidence'][language] = {
                 'translation':target,'translation_sha256':_sha(target),
                 'matching_review_records':proofs}
