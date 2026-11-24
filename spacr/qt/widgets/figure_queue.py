@@ -1332,6 +1332,7 @@ class FigureQueue(QWidget):
         self._preview_retry.timeout.connect(lambda: self._on_preview_rendered(None))
         #: Set by the owning screen; see :meth:`set_propagate_callback`.
         self._propagate_cb = None
+        self._widgets: Dict[int, QWidget] = {}
         _LIVE_QUEUES.add(self)
         cleanup = sys.modules.get("spacr.qt.resource_cleanup")
         install = getattr(cleanup, "install_budget_sweep", None)
@@ -1762,6 +1763,121 @@ class FigureQueue(QWidget):
             return True
         return int(current) == new_index - 1
 
+    def _add_widget(self, widget: QWidget, title: str = "",
+                   thumbnail: Optional[QPixmap] = None) -> int:
+        """Append a live Qt widget (a graph, a table, a picture view) as one entry.
+
+        The entry is shown the way a figure is: one at a time, filling the
+        view, with its thumbnail in the strip on the left. The queue owns
+        the widget from here on and deletes it on :meth:`clear`.
+
+        :param widget: the widget to show; it is reparented into the queue.
+        :param title: the entry name, shown under its thumbnail and in
+            :meth:`figure_titles`.
+        :param thumbnail: the strip picture; the widget drawn at 420 by 420
+            pixels when None.
+        :returns: the entry index.
+        """
+        idx = self._count
+        self._count += 1
+        self._widgets[idx] = widget
+        if title:
+            self._titles[idx] = str(title)
+        self._stack.addWidget(widget)
+        if thumbnail is None or thumbnail.isNull():
+            thumbnail = self._grab_thumbnail(widget)
+        if thumbnail is not None and not thumbnail.isNull():
+            self._cache_pixmap(idx, thumbnail)
+        item = self._figure_item(f"#{idx + 1}")
+        item.setToolTip(str(title))
+        if thumbnail is not None and not thumbnail.isNull():
+            item.setIcon(self._thumb_icon(thumbnail))
+        self._list.addItem(item)
+        if self._following_the_tail(idx):
+            self._list.setCurrentRow(idx)
+            self.show_index(idx)
+        return idx
+
+    def _widget_at(self, idx: int) -> Optional[QWidget]:
+        """The widget an entry shows, or None for a figure entry.
+
+        :param idx: the entry index.
+        """
+        return self._widgets.get(int(idx))
+
+    def _current_index(self) -> int:
+        """The index of the entry on view, or -1 when the queue is empty."""
+        return int(self._current)
+
+    def _set_opaque(self, opaque: bool = True) -> None:
+        """Paint the view and the strip on the theme surface instead of letting the page show through.
+
+        :param opaque: True paints the theme surface colour behind every
+            entry; False goes back to the transparent default.
+        """
+        from PySide6.QtGui import QBrush
+
+        try:
+            colour = QColor(active_palette().get("surface", "#161719"))
+        except Exception:
+            colour = QColor("#161719")
+        brush = QBrush(colour) if opaque else Qt.NoBrush
+        self._view.setBackgroundBrush(brush)
+        try:
+            self._view.scene().setBackgroundBrush(brush)
+        except Exception:
+            LOG.debug("the view has no scene yet", exc_info=True)
+        self._opaque = bool(opaque)
+        sheet = f"background-color: {colour.name()};" if opaque else ""
+        for widget in (self._stack, self._list, self._list.viewport()):
+            widget.setProperty("spacrTransparent", not opaque)
+            widget.setAutoFillBackground(bool(opaque))
+            widget.setStyleSheet(sheet)
+            style = widget.style()
+            if style is not None:
+                style.unpolish(widget)
+                style.polish(widget)
+
+    def _is_opaque(self) -> bool:
+        """Whether :meth:`_set_opaque` turned the opaque surface on."""
+        return bool(getattr(self, "_opaque", False))
+
+    def _set_figure_tools_visible(self, visible: bool) -> None:
+        """Show or hide Figure settings and Clear figures under the view.
+
+        A queue of live widgets that its owner refills hides them: there is
+        no matplotlib figure to restyle and nothing a user should clear.
+
+        :param visible: False hides both controls; the position label stays.
+        """
+        self._figure_tools_hidden = not visible
+        self._clear_label.setVisible(bool(visible))
+        self._refresh_nav()
+
+    def _grab_thumbnail(self, widget: QWidget) -> Optional[QPixmap]:
+        """``widget`` drawn off screen at 420 by 420 pixels, for its strip thumbnail."""
+        try:
+            if widget.size().width() < 120 or widget.size().height() < 120:
+                widget.resize(420, 420)
+            widget.ensurePolished()
+            pixmap = widget.grab()
+            return None if pixmap.isNull() else pixmap
+        except Exception:
+            LOG.debug("could not draw a thumbnail for a widget entry", exc_info=True)
+            return None
+
+    def _drop_widgets(self) -> None:
+        """Take every widget entry out of the view and delete it."""
+        for widget in self._widgets.values():
+            try:
+                self._stack.removeWidget(widget)
+                widget.hide()
+                widget.setParent(None)
+                widget.deleteLater()
+            except RuntimeError:
+                LOG.debug("a widget entry was already deleted", exc_info=True)
+        self._widgets.clear()
+
     def workspace_state(self) -> dict:
         """Record ordered figure files, titles, run sections and the selected slot.
 
@@ -1964,6 +2080,16 @@ class FigureQueue(QWidget):
         if not (0 <= idx < self._count):
             return
         self._current = idx
+        held = self._widgets.get(idx)
+        if held is not None:
+            self._teardown_canvas()
+            self._stack.setCurrentWidget(held)
+            if self._list.currentRow() != idx:
+                self._list.blockSignals(True)
+                self._list.setCurrentRow(idx)
+                self._list.blockSignals(False)
+            self._refresh_nav()
+            return
         live = self._figures.get(idx) if self.has_live_figure(idx) else None
         if live is not None:
             self._figures.move_to_end(idx)
@@ -2236,6 +2362,7 @@ class FigureQueue(QWidget):
         self._titles.clear()
         self._pdf_state.clear()
         self._pdf_render_px.clear()
+        self._drop_widgets()
         self._count = 0
         self._current = -1
         self._view.set_pixmap(QPixmap())
@@ -3198,7 +3325,8 @@ class FigureQueue(QWidget):
         self._pos_label.setText(
             f"{self._current + 1} / {self._count}" if self._count
             else "0 / 0")
-        self._fig_settings_btn.setVisible(self._count > 0)
+        self._fig_settings_btn.setVisible(
+            self._count > 0 and not getattr(self, "_figure_tools_hidden", False))
 
     def _shutdown_jobs(self, timeout_ms: int = 2000) -> None:
         """Stop every in-flight crisp render and wait briefly for its thread.

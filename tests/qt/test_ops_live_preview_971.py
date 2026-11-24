@@ -196,7 +196,7 @@ def test_every_tab_renders_through_the_panel(qtbot, make_panel, step):
     page = panel.page(step)
     if step in ("align", "spots", "objects"):
         assert page.shown_size(0) is not None
-    assert any(graph.isVisibleTo(page) for graph in page.graphs)
+    assert page.graphs, "the graphs are entries of the tab's queue"
     assert page.table.columnCount() > 0 and page.sample.text()
 
 
@@ -274,7 +274,7 @@ def test_every_ops_setting_finds_its_tab_in_the_registry():
     from spacr.ops_settings import OPS_DEFAULTS
 
     steps = ops_live._step_map()
-    assert set(steps) == set(OPS_DEFAULTS)
+    assert set(steps) == set(OPS_DEFAULTS) | set(ops_live._LIVE_STEPS)
     assert all(set(found) <= set(STEPS) and found for found in steps.values())
     expected = {"ops_raster_overlap": ("align",), "ops_read_threshold": ("spots",),
                 "ops_sbs_nucleus_model": ("spots",), "ops_ph_downsample": ("objects",),

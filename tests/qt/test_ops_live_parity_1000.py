@@ -3,7 +3,7 @@
 A tab never raises: a missing input is a notice saying what to run first, and
 test data named by genotype_source is the test data. A tab says it runs while
 it runs. Every tab has an image-quality slider, zoomable pictures, a Settings
-panel with Close and Propagate, and in laptop mode a Refresh view button that is
+panel with Close and Apply to OPS module, and in laptop mode a Refresh view button that is
 the only thing that refreshes. Spots and Objects graphs are pyqtgraph plots.
 Align & stitch shows the seam before and after stitching and the phenotype
 field on the sequencing crop.
@@ -232,29 +232,27 @@ def test_a_picture_zooms_like_mask_generation(qtbot, panel):
     assert view.scale_factor() > before
 
 
-def test_the_settings_panel_reruns_its_tab_and_propagates(qtbot, panel):
-    """F1: a change runs the tab with it; Propagate copies into the form; Close."""
+def test_the_settings_panel_reruns_its_tab_and_applies_to_ops(qtbot, panel):
+    """0at: a change runs the tab with it; Apply to OPS module copies what was tuned."""
     copied = []
     runner = _Runner()
     live = panel(runner, form={"genotype_source": "/somewhere",
                                "ops_merge_threshold": 4.0}, propagate=copied.append)
     live.show_step("merge")
     dialog = live.open_settings("merge")
-    assert dialog.close_btn is not None and dialog.propagate_btn.isCheckable()
+    assert dialog.close_btn is not None
+    assert dialog.apply_btn.text() == "Apply to OPS module"
+    dialog.apply_btn.click()
+    assert copied == [] and "nothing" in dialog.note.text().lower()
     editor = dialog.editors["ops_merge_threshold"]
     editor.setValue(6.5)
     qtbot.waitUntil(lambda: runner.calls == ["merge"], timeout=10000)
     _idle(qtbot, live)
     assert runner.forms[-1]["ops_merge_threshold"] == 6.5
-    assert copied == [], "nothing reaches the form before Propagate"
-    dialog.propagate_btn.setChecked(True)
-    assert copied and copied[-1]["ops_merge_threshold"] == 6.5
-    editor.setValue(7.0)
-    assert copied[-1] == {"ops_merge_threshold": 7.0}
+    assert copied == [], "nothing reaches the form before Apply to OPS module"
+    dialog.apply_btn.click()
+    assert copied == [{"ops_merge_threshold": 6.5}]
     dialog.close()
-    assert not dialog.isVisible() and not dialog.propagate_btn.isChecked()
-    editor.setValue(8.0)
-    assert copied[-1] == {"ops_merge_threshold": 7.0}
 
 
 def test_a_form_edit_replaces_the_panel_value(qtbot, panel):
@@ -335,7 +333,7 @@ def test_the_graphs_are_qt_graphs(qtbot, panel, step):
     qtbot.waitUntil(lambda: runner.calls == [step], timeout=10000)
     _idle(qtbot, live)
     page = live.page(step)
-    shown = [g for g in page.graphs if g.isVisibleTo(page)]
+    shown = list(page.graphs)
     assert shown and all(isinstance(g.plot, pg.PlotWidget) for g in shown
                          if g.spec["kind"] != "message")
     kinds = {type(item).__name__ for g in shown for item in g.items()}

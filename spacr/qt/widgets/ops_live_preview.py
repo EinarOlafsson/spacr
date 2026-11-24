@@ -18,7 +18,7 @@ import numpy as np
 from PySide6.QtCore import Qt, QThread, QTimer, Signal
 from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QDialog,
                                QDialogButtonBox, QDoubleSpinBox, QFormLayout,
-                               QGridLayout, QGroupBox, QHBoxLayout, QHeaderView,
+                               QGroupBox, QHBoxLayout, QHeaderView,
                                QLabel, QLineEdit, QPushButton, QScrollArea,
                                QSizePolicy, QSpinBox, QTableWidget,
                                QTabWidget, QVBoxLayout, QWidget)
@@ -47,13 +47,14 @@ def _title(step: str) -> str:
 def _blurb(step: str) -> str:
     """One sentence on what a tab runs, in the interface language."""
     return {
-        "align": tr("Stitch a 2 x 2 block of sequencing tiles, place the "
-                    "phenotype fields on it and align every cycle of one crop "
-                    "to cycle 1."),
+        "align": tr("Stitch the block of sequencing tiles of the chosen region, "
+                    "place the phenotype fields on it and align every cycle of "
+                    "one crop to cycle 1."),
         "spots": tr("Segment the nuclei of one sequencing crop, detect its "
                     "reads, call their bases and give each nucleus the guide "
                     "its reads agree on."),
-        "objects": tr("Segment nuclei and cells on one phenotype crop and "
+        "objects": tr("Segment nuclei and cells over the whole genotyped "
+                      "region, on every phenotype field placed over it, and "
                       "measure them."),
         "merge": tr("Match phenotype cells to called nuclei, then reduce the "
                     "matched cells to one profile per gene."),
@@ -67,28 +68,6 @@ _DEBOUNCE_MS = 600
 _ORPHANS: List[QThread] = []
 
 _TABLE_ROWS = 40
-
-_STEP_SETTINGS: Dict[str, Tuple[str, ...]] = {
-    "align": ("ops_raster_overlap", "ops_sites", "ops_channel_registration",
-              "ops_registration_refine_px", "ops_spot_min_peak",
-              "ops_spot_overrule_share", "ops_registration_precision",
-              "ops_registration_backend", "ops_compose_blend"),
-    "spots": ("ops_read_threshold", "ops_read_mismatches", "ops_min_reads",
-              "ops_min_fraction", "ops_cell_rule", "ops_decode_quality_weighted",
-              "ops_single_read_quality", "ops_spot_detector",
-              "ops_sbs_nucleus_model", "cellpose_diameter"),
-    "objects": ("ops_ph_nucleus_model", "ops_ph_cell_model",
-                "ops_ph_nucleus_diameter", "ops_ph_cell_diameter",
-                "ops_ph_downsample", "ops_ph_cell_channel", "ops_ph_texture",
-                "ops_ph_funk_features", "ops_ph_zernike"),
-    "merge": ("ops_merge_threshold", "ops_merge_min_votes",
-              "ops_merge_min_match_fraction", "ops_merge_strategy",
-              "ops_aggregate_level", "ops_control_prefix"),
-    "cluster": ("ops_profile_min_cells", "ops_cluster_graph", "ops_cluster_knn",
-                "ops_cluster_resolutions", "ops_cluster_seeds"),
-}
-"""The settings each tab's Settings panel offers: the ones its step reads."""
-
 
 def _theme_colours() -> Dict[str, str]:
     """The colours a preview picture is drawn in, from the active theme."""
@@ -137,14 +116,28 @@ def _colour(value: str) -> np.ndarray:
                     np.float32)
 
 
-def _scaled(image: np.ndarray, low: float = 1.0, high: float = 99.5
-            ) -> np.ndarray:
-    """``image`` stretched between two percentiles to 0..1, for display only."""
+def _levels(image: np.ndarray, low: float = 1.0, high: float = 99.5
+            ) -> Tuple[float, float]:
+    """The two percentiles :func:`_scaled` stretches between."""
     image = np.asarray(image, np.float32)
     finite = image[np.isfinite(image)]
     if finite.size == 0:
-        return np.zeros_like(image)
+        return 0.0, 1.0
     lo, hi = np.percentile(finite, [low, high])
+    return float(lo), float(hi)
+
+
+def _scaled(image: np.ndarray, low: float = 1.0, high: float = 99.5,
+            levels: Optional[Tuple[float, float]] = None) -> np.ndarray:
+    """``image`` stretched between two percentiles to 0..1, for display only.
+
+    :param levels: ``(low, high)`` values to stretch between instead, so
+        two pictures of the same stain match.
+    """
+    image = np.asarray(image, np.float32)
+    if not np.isfinite(image).any():
+        return np.zeros_like(image)
+    lo, hi = levels if levels is not None else _levels(image, low, high)
     return np.clip((np.nan_to_num(image) - lo) / max(hi - lo, 1e-6), 0, 1)
 
 
@@ -238,30 +231,15 @@ def _draw_align(result: Mapping[str, Any], colours):
 
     :returns: the tab's pictures, graphs, table and sample line.
     """
-    from spacr.ops_live import _ph_to_well
-
     step = result["step"]
     top, left = result["origin"]
-    mosaic = _bytes(_tint(_scaled(result["mosaic"]), colours["blue"])).astype(
-        np.float32) / 255.0
-    height, width = result["tile_shape"]
-    for site, (y, x) in result["tiles"].items():
-        _box(mosaic, (y - top) / step, (x - left) / step, height / step,
-             width / step, _ON_IMAGE["blue"])
-    for info in result["fields"]:
-        if not info.get("files"):
-            continue
-        h, w = info["shape"]
-        corners = _ph_to_well(info, [[0, 0], [0, w], [h, w], [h, 0]])
-        _polygon(mosaic, (corners[:, 0] - top) / step,
-                 (corners[:, 1] - left) / step, _ON_IMAGE["teal"])
+    levels = _levels(result["mosaic"])
+    mosaic = _mosaic_picture(result, colours, result["mosaic"], top, left, step,
+                             levels)
     site = result["crop_site"]
-    cy, cx = result["tiles"][site]
     row, column, crop = result["crop"]
-    _box(mosaic, (cy + row - top) / step, (cx + column - left) / step,
-         crop / step, crop / step, _ON_IMAGE["text"])
     images = [(tr("Stitched tiles (blue), phenotype fields (teal), crop (white)"),
-               _bytes(mosaic))]
+               mosaic)]
     rows: List[List[str]] = []
     seam = result.get("seam")
     if seam:
@@ -325,8 +303,62 @@ def _draw_align(result: Mapping[str, Any], colours):
                 tiles=len(result["tiles"]),
                 fields=sum(1 for f in result["fields"] if f.get("files")),
                 size=crop, site=site)
+    lite = {key: result.get(key) for key in (
+        "tiles", "tile_shape", "origin", "step", "tile_sources", "fields",
+        "crop_site", "crop")}
+
+    def render(window, fine: int) -> np.ndarray:
+        """The mosaic window ``(top, left, bottom, right)`` in mosaic pixels, at ``fine``."""
+        from spacr.ops_live import _mosaic_window
+
+        well = (top + window[0] * step, left + window[1] * step,
+                top + window[2] * step, left + window[3] * step)
+        plane = _mosaic_window(lite, well, fine)
+        return _mosaic_picture(lite, colours, plane, well[0], well[1], fine, levels)
+    fields = [int(f["site"]) for f in result["fields"] if f.get("files")]
     return {"images": images, "graphs": graphs, "header": header, "rows": rows,
-            "sample": sample}
+            "sample": sample, "mosaic": {"render": render, "step": int(step)},
+            "regions": result.get("regions") or [sorted(result["tiles"])],
+            "region": int(result.get("region") or 0), "region_fields": fields}
+
+
+def _mosaic_picture(result: Mapping[str, Any], colours, plane: np.ndarray,
+                    top: float, left: float, step: float,
+                    levels: Optional[Tuple[float, float]] = None) -> np.ndarray:
+    """The stitched stain with the tiles, the placed fields and the crop drawn on it.
+
+    One drawing for the whole-block mosaic and for the finer windows a
+    zoomed view asks for.
+
+    :param result: the Align & stitch result (or its geometry).
+    :param plane: the stain, ``step`` well pixels per pixel.
+    :param top: the plane top in the well frame.
+    :param left: the plane left in the well frame.
+    :param step: well pixels per plane pixel.
+    :param levels: the stretch of the whole mosaic, so windows match it.
+    :returns: RGB uint8.
+    """
+    from spacr.ops_live import _ph_to_well
+
+    picture = _bytes(_tint(_scaled(plane, levels=levels), colours["blue"])).astype(
+        np.float32) / 255.0
+    height, width = result["tile_shape"]
+    for _site, (y, x) in result["tiles"].items():
+        _box(picture, (y - top) / step, (x - left) / step, height / step,
+             width / step, _ON_IMAGE["blue"])
+    for info in result["fields"]:
+        if not info.get("files"):
+            continue
+        h, w = info["shape"]
+        corners = _ph_to_well(info, [[0, 0], [0, w], [h, w], [h, 0]])
+        _polygon(picture, (corners[:, 0] - top) / step,
+                 (corners[:, 1] - left) / step, _ON_IMAGE["teal"])
+    site = result["crop_site"]
+    cy, cx = result["tiles"][site]
+    row, column, crop = result["crop"]
+    _box(picture, (cy + row - top) / step, (cx + column - left) / step,
+         crop / step, crop / step, _ON_IMAGE["text"])
+    return _bytes(picture)
 
 
 def _draw_spots(result: Mapping[str, Any], colours):
@@ -354,7 +386,7 @@ def _draw_spots(result: Mapping[str, Any], colours):
              "heights": np.array([mapped, decoy, other, without], float),
              "width": 0.7,
              "colours": [colours["teal"], colours["blue_hi"], colours["navy"],
-                         colours["border"]],
+                         _CONTROL_GREY],
              "ticks": [tr("Guide"), tr("Decoy"), tr("Unmapped"), tr("No call")],
              "labels": True}
     header = [
@@ -409,26 +441,39 @@ def _first_column(table, *names: str) -> Optional[str]:
     return numeric[0] if numeric else None
 
 
-def _draw_objects(result: Mapping[str, Any], colours):
-    """Tab 3: nuclei and cells on the crop and two measured features.
-
-    :returns: the tab's pictures, graphs, table and sample line.
-    """
-    stack, channels = result["stack"], result["channels"]
+def _object_picture(part: Mapping[str, Any], channels: Sequence[str],
+                    body_name: str, colours) -> np.ndarray:
+    """One phenotype crop with its nuclei, cells and extra objects outlined."""
+    stack = part["stack"]
     dna = _scaled(stack[..., channels.index("DAPI")]) if "DAPI" in channels \
         else _scaled(stack[..., 0])
-    body_name = result["cell_channel"]
     body = (_scaled(stack[..., channels.index(body_name)])
             if body_name in channels else np.zeros_like(dna))
     picture = np.clip(_tint(dna, colours["navy"]) + _tint(body, colours["teal"]) * 0.7,
                       0, 1)
-    picture[_outline(result["cells"])] = np.array([0.40, 0.70, 1.00])
-    picture[_outline(result["nuclei"])] = np.array([0.55, 0.95, 0.90])
-    for mask in result.get("layers", {}).values():
+    picture[_outline(part["cells"])] = np.array([0.40, 0.70, 1.00])
+    picture[_outline(part["nuclei"])] = np.array([0.55, 0.95, 0.90])
+    for mask in (part.get("layers") or {}).values():
         picture[_outline(mask)] = np.array([1.0, 1.0, 1.0])
-    n_cells = int(len(np.unique(result["cells"])) - 1)
-    images = [(tr("{n} cells, field {site}", n=max(n_cells, 0),
-                  site=result["site"]), _bytes(picture))]
+    return _bytes(picture)
+
+
+def _draw_objects(result: Mapping[str, Any], colours):
+    """Tab 3: nuclei and cells over the genotyped region and two measured features.
+
+    One picture per phenotype field over the region.
+
+    :returns: the tab's pictures, graphs, table and sample line.
+    """
+    channels = result["channels"]
+    body_name = result["cell_channel"]
+    parts = result.get("parts") or [result]
+    images = []
+    for part in parts:
+        n_cells = int(len(np.unique(part["cells"])) - 1)
+        images.append((tr("{n} cells, field {site}", n=max(n_cells, 0),
+                          site=part["site"]),
+                       _object_picture(part, channels, body_name, colours)))
     table = result["table"]
     shown: List[str] = []
     graphs = []
@@ -446,12 +491,23 @@ def _draw_objects(result: Mapping[str, Any], colours):
     extra = [c for c in table.columns if c not in ("site", "label", *shown)
              and np.issubdtype(table[c].dtype, np.number)][:3]
     columns = shown + extra
-    header = [tr("Cell")] + columns
-    rows = [[str(int(r["label"]))] + [f"{float(r[c]):.4g}" for c in columns]
+    with_site = "site" in table.columns and len(parts) > 1
+    header = ([tr("Field")] if with_site else []) + [tr("Cell")] + columns
+    rows = [([str(int(r["site"]))] if with_site else []) + [str(int(r["label"]))]
+            + [f"{float(r[c]):.4g}" for c in columns]
             for _i, r in table.head(_TABLE_ROWS).iterrows()]
-    row, column, crop = result["window"]
-    sample = tr("crop {size} px of phenotype field {site}, {n} features per cell",
-                size=crop, site=result["site"], n=max(0, table.shape[1] - 2))
+    sites = ", ".join(str(p["site"]) for p in parts)
+    sbs = result.get("sbs_crop")
+    if sbs is not None:
+        sample = tr("the genotyped region ({size} px of tile {tile}) on phenotype "
+                    "fields {sites}, {n} cells, {features} features per cell",
+                    size=sbs[2], tile=result.get("sbs_site"), sites=sites,
+                    n=len(table), features=max(0, table.shape[1] - 2))
+    else:
+        window = result["window"]
+        sample = tr("crop {size} px of phenotype field {site}, {n} features per cell",
+                    size=window[2], site=result["site"],
+                    n=max(0, table.shape[1] - 2))
     return {"images": images, "graphs": graphs, "header": header, "rows": rows,
             "sample": sample}
 
@@ -510,7 +566,7 @@ def _draw_merge(result: Mapping[str, Any], colours):
                      "ticks": [str(f["site"]) for f in fields],
                      "x": np.arange(len(fields), dtype=float),
                      "series": [(tr("cells"), [f["cells"] for f in fields],
-                                 colours["navy"]),
+                                 _CONTROL_GREY),
                                 (tr("matched"), [f["matched"] for f in fields],
                                  colours["teal"])]}
     genes = result["genes"]
@@ -564,11 +620,15 @@ def _draw_cluster(result: Mapping[str, Any], colours):
                  k=result["n_components"]),
               tr("Graph {kind}, resolution {r}, seed {seed}", kind=result["kind"],
                  r=result["resolution"], seed=result["seed"]))
+    tile = {"genes": [str(g) for g in result["genes"]],
+            "clusters": None if labels is None else [int(c) for c in labels],
+            "n_cells": result.get("n_cells"), "components": components}
     for title, (a, b) in zip(titles, ((0, 1), (0, 2))):
         if components.ndim == 2 and components.shape[1] > b:
             graphs.append({"kind": "scatter", "title": title,
                            "x_label": f"PC {a + 1}", "y_label": f"PC {b + 1}",
                            "invert_y": False, "equal": False, "segments": None,
+                           "keys": tile["genes"], "tile": tile,
                            "sets": [("", components[:, a], components[:, b],
                                      colour, False)]})
         else:
@@ -739,12 +799,21 @@ def _graph_ink(widget: QWidget) -> Dict[str, str]:
         return {"fg": fg, "muted": fg, "border": fg}
 
 
+_ALPHA = 0.6
+
+_CONTROL_GREY = "#8c8c8c"
+
+
 class _QtGraph(QWidget):
     """One Qt-native graph of a tab, drawn with pyqtgraph.
 
     It shows a graph spec from a tab's draw function: bars, grouped bars, a
-    scatter with optional segments, or a sentence in the graph's place.
+    scatter with optional segments, or a sentence in the graph's place. A
+    scatter whose spec names its ``keys`` reports the clicked point through
+    :attr:`point_clicked`.
     """
+
+    point_clicked = Signal(int)
 
     def __init__(self, parent=None):
         """Lay out the title, the plot and the sentence shown instead of it."""
@@ -772,6 +841,7 @@ class _QtGraph(QWidget):
         self.message.hide()
         layout.addWidget(self.message, 1)
         self.spec: Optional[Mapping[str, Any]] = None
+        self.scatter_items: list = []
 
     def show_spec(self, spec: Mapping[str, Any], colours: Mapping[str, str]) -> None:
         """Draw one graph spec.
@@ -781,6 +851,7 @@ class _QtGraph(QWidget):
         :param colours: from :func:`_theme_colours`.
         """
         self.spec = spec
+        self.scatter_items = []
         self.title.setText(str(spec.get("title") or ""))
         if spec.get("kind") == "message" or self.plot is None:
             if self.plot is not None:
@@ -861,7 +932,7 @@ class _QtGraph(QWidget):
         bars = pg.BarGraphItem(x=np.asarray(spec["x"], float), height=heights,
                                width=float(spec.get("width") or 0.8),
                                brushes=brushes, pen=pg.mkPen(None))
-        bars.setOpacity(0.8)
+        bars.setOpacity(_ALPHA)
         self.plot.addItem(bars)
         if spec.get("labels"):
             for x, value in zip(np.asarray(spec["x"], float), heights):
@@ -882,7 +953,7 @@ class _QtGraph(QWidget):
             bars = pg.BarGraphItem(x=x + shift, height=np.asarray(values, float),
                                    width=width, brush=pg.mkBrush(colour),
                                    pen=pg.mkPen(None))
-            bars.setOpacity(0.8)
+            bars.setOpacity(_ALPHA)
             self.plot.addItem(bars)
             legend.addItem(bars, str(name))
         self._ticks(spec, pg)
@@ -906,21 +977,383 @@ class _QtGraph(QWidget):
             pen = pg.mkPen(colour if hollow and not isinstance(colour, (list, tuple))
                            else None)
             item = pg.ScatterPlotItem(x=np.asarray(xs, float), y=np.asarray(ys, float),
-                                      size=7 if hollow else 6, brush=brush, pen=pen,
+                                      size=7 if hollow else 8, brush=brush, pen=pen,
                                       name=str(name) if name else None)
+            item.setOpacity(_ALPHA)
+            if spec.get("keys") is not None:
+                item.sigClicked.connect(self._on_points_clicked)
             self.plot.addItem(item)
+            self.scatter_items.append(item)
+
+    def _on_points_clicked(self, _item, points, *_event) -> None:
+        """Report the first clicked point by its position in the spec."""
+        if len(points):
+            self.point_clicked.emit(int(points[0].index()))
 
     def items(self) -> list:
         """What the plot holds, for tests and checks."""
         return [] if self.plot is None else list(self.plot.getPlotItem().items)
 
 
-class _StepPage(QWidget):
-    """One tab: its tools, its pictures and graphs, its table and its sample.
+def _captioned(widget: QWidget, title: str) -> QWidget:
+    """``widget`` under its caption, as one entry of a tab's queue."""
+    holder = QWidget()
+    holder.setObjectName("OpsLiveEntry")
+    column = QVBoxLayout(holder)
+    column.setContentsMargins(0, 0, 0, 0)
+    column.setSpacing(2)
+    caption = QLabel(str(title), holder)
+    caption.setObjectName("OpsLiveImageTitle")
+    caption.setWordWrap(True)
+    column.addWidget(caption)
+    column.addWidget(widget, 1)
+    return holder
 
-    The tool row holds Settings, Refresh (laptop mode only), the running
-    indicator and the image-quality slider. Pictures are shown in Mask
-    Generation's zoomable view; graphs are pyqtgraph plots.
+
+class _SquareBox(QWidget):
+    """Hold one widget as the largest square that fits, centred.
+
+    A graph in the OPS live view is square, not a wide rectangle, whatever
+    shape the view around it has.
+
+    :param child: the widget to keep square.
+    :param parent: parent widget.
+    """
+
+    def __init__(self, child: QWidget, parent=None):
+        """Take ``child`` and size it on every resize."""
+        super().__init__(parent)
+        self.setObjectName("OpsLiveSquare")
+        self.child = child
+        child.setParent(self)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setMinimumSize(160, 160)
+
+    def resizeEvent(self, event):                          # noqa: N802
+        """Lay the child out as the largest centred square."""
+        super().resizeEvent(event)
+        side = min(self.width(), self.height())
+        self.child.setGeometry((self.width() - side) // 2,
+                               (self.height() - side) // 2, side, side)
+
+
+def _point_tile_html(tile: Mapping[str, Any], index: int) -> str:
+    """The information tile of one clustered gene, as HTML.
+
+    :param tile: the ``tile`` part of the embedding graph spec: ``genes``,
+        ``clusters``, ``n_cells``, ``components`` and ``string``.
+    :param index: the clicked point.
+    """
+    import html as html_text
+
+    genes = list(tile.get("genes") or ())
+    if not 0 <= index < len(genes):
+        return ""
+    gene = str(genes[index])
+    clusters = tile.get("clusters")
+    components = np.asarray(tile.get("components"), float)
+    rows: List[Tuple[str, str]] = []
+    if clusters is not None:
+        cluster = int(clusters[index])
+        members = [g for g, c in zip(genes, clusters) if int(c) == cluster and g != gene]
+        rows.append((tr("Cluster"), tr("{k}, {n} genes", k=cluster, n=len(members) + 1)))
+        rows.append((tr("Shares the cluster with"),
+                     ", ".join(members[:15]) + (" …" if len(members) > 15 else "")))
+    cells = tile.get("n_cells")
+    if cells is not None and index < len(cells):
+        rows.append((tr("Cells"), f"{int(cells[index])}"))
+    if components.ndim == 2 and components.shape[0] == len(genes):
+        position = ", ".join(f"{v:+.2f}" for v in components[index, :3])
+        rows.append((tr("Position (PC 1-3)"), position))
+        distance = np.linalg.norm(components - components[index], axis=1)
+        nearest = [genes[i] for i in np.argsort(distance) if i != index][:5]
+        rows.append((tr("Nearest genes in the embedding"), ", ".join(nearest)))
+    quoted = html_text.escape(gene)
+    links = (f'<a href="https://www.ncbi.nlm.nih.gov/gene/?term={quoted}%5Bsym%5D+AND+'
+             f'human%5Borgn%5D">NCBI Gene</a> · '
+             f'<a href="https://www.genecards.org/cgi-bin/carddisp.pl?gene={quoted}">'
+             f'GeneCards</a> · '
+             f'<a href="https://string-db.org/cgi/network?identifiers={quoted}'
+             f'&species=9606">STRING</a>')
+    body = "".join(f"<tr><td><b>{html_text.escape(k)}</b></td>"
+                   f"<td>{html_text.escape(v)}</td></tr>" for k, v in rows)
+    return (f"<h3>{quoted}</h3><table cellspacing='4'>{body}</table>"
+            f"<p>{links}</p>")
+
+
+class _PointGraph(QWidget):
+    """A square scatter with an information tile beside it, filled by a click.
+
+    Built for the clustering embedding: clicking a gene shows its cluster,
+    the genes it shares the cluster with, its cells, its position and its
+    nearest genes, with links out, as clicking a gene in the regression
+    results does.
+
+    :param spec: a scatter spec with ``keys`` and ``tile``.
+    :param colours: from :func:`_theme_colours`.
+    :param parent: parent widget.
+    """
+
+    def __init__(self, spec: Mapping[str, Any], colours: Mapping[str, str],
+                 parent=None):
+        """Lay out the square graph on the left and the tile on the right."""
+        super().__init__(parent)
+        self.setObjectName("OpsLivePointGraph")
+        from PySide6.QtWidgets import QTextBrowser
+
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        self.graph = _QtGraph()
+        self.graph.show_spec(spec, colours)
+        row.addWidget(_SquareBox(self.graph, self), 3)
+        self.tile = QTextBrowser(self)
+        self.tile.setObjectName("OpsLivePointTile")
+        self.tile.setOpenLinks(False)
+        self.tile.setOpenExternalLinks(False)
+        self.tile.setMinimumWidth(220)
+        self.tile.anchorClicked.connect(self._open)
+        self.tile.setPlainText(tr("Click a gene in the embedding to see what it is "
+                                  "and which genes it clusters with."))
+        row.addWidget(self.tile, 2)
+        self._spec = spec
+        self.shown_index: Optional[int] = None
+        self.graph.point_clicked.connect(self.show_point)
+
+    def show_point(self, index: int) -> None:
+        """Fill the tile for one point of the embedding.
+
+        :param index: the point, in the order of the spec's ``keys``.
+        """
+        text = _point_tile_html(self._spec.get("tile") or {}, int(index))
+        if text:
+            self.shown_index = int(index)
+            self.tile.setHtml(text)
+
+    @staticmethod
+    def _open(url) -> None:
+        """Open a link of the tile in the web browser."""
+        from PySide6.QtGui import QDesktopServices
+
+        QDesktopServices.openUrl(url)
+
+
+class _MosaicWorker(QThread):
+    """Draw part of the stitched block at a finer resolution, off the GUI thread."""
+
+    done = Signal(int, object, object, int)
+
+    def __init__(self, token: int, render: Callable[..., np.ndarray],
+                 window: Tuple[float, float, float, float], step: int, parent=None):
+        """Carry one render.
+
+        :param token: the view's request number, to drop late answers.
+        :param render: ``render(window, step)`` returning RGB uint8.
+        :param window: ``(top, left, bottom, right)`` in mosaic pixels.
+        :param step: well pixels per output pixel.
+        :param parent: parent object.
+        """
+        super().__init__(parent)
+        self._token, self._render = token, render
+        self._window, self._step = window, int(step)
+
+    def run(self) -> None:
+        """Render, and hand back the picture or None on any failure."""
+        try:
+            picture = self._render(self._window, self._step)
+        except Exception:                                    # noqa: BLE001
+            LOG.info("the zoomed mosaic could not be drawn", exc_info=True)
+            picture = None
+        try:
+            self.done.emit(self._token, picture, self._window, self._step)
+        except RuntimeError:
+            pass
+
+
+class _MosaicView(QWidget):
+    """The stitched block, drawn again from the tiles at the zoom level.
+
+    The whole block is first drawn every ``step`` sequencing pixels. When
+    the user zooms in past that, the visible part is read again from the
+    tiles at the finer step the screen can show and laid over the coarse
+    picture, so the mosaic stays sharp. It is a zoom view like every other
+    picture in the tab; see :attr:`view`.
+
+    :param render: ``render(window, step)``: the RGB picture of
+        ``(top, left, bottom, right)`` mosaic pixels at ``step`` sequencing
+        pixels per picture pixel.
+    :param base_step: sequencing pixels per pixel of the coarse picture.
+    :param parent: parent widget.
+    """
+
+    refined = Signal(int)
+
+    def __init__(self, render: Callable[..., np.ndarray], base_step: int, parent=None):
+        """Wrap a zoom view and watch its zoom and pan."""
+        super().__init__(parent)
+        self.setObjectName("OpsLiveMosaic")
+        from .live_preview import _ZoomView
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.view = _ZoomView(self)
+        self.view.setObjectName("OpsLiveImageView")
+        layout.addWidget(self.view)
+        self._render = render
+        self.base_step = max(1, int(base_step))
+        self._token = 0
+        self._workers: List[_MosaicWorker] = []
+        self.overlay = None
+        self.overlay_step: Optional[int] = None
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.setInterval(200)
+        self._timer.timeout.connect(self.refine)
+        self.view.zoom_changed.connect(lambda _s: self._timer.start())
+        self.view.horizontalScrollBar().valueChanged.connect(lambda _v: self._timer.start())
+        self.view.verticalScrollBar().valueChanged.connect(lambda _v: self._timer.start())
+
+    def wanted_step(self) -> int:
+        """The sequencing pixels per screen pixel at the present zoom, at least 1."""
+        ratio = float(self.view.devicePixelRatioF() or 1.0)
+        shown = abs(float(self.view.transform().m11())) * ratio
+        if shown <= 0:
+            return self.base_step
+        return int(max(1, min(self.base_step, np.floor(self.base_step / shown))))
+
+    def refine(self) -> None:
+        """Draw the visible part again at the zoom level, or drop the finer layer at fit."""
+        step = self.wanted_step()
+        if step >= self.base_step or self.view._pixmap_item is None:
+            self._drop_overlay()
+            return
+        scene = self.view.sceneRect()
+        seen = self.view.mapToScene(self.view.viewport().rect()).boundingRect()
+        seen = seen.intersected(scene)
+        if seen.isEmpty():
+            return
+        while (seen.width() * self.base_step / step) * (
+                seen.height() * self.base_step / step) > 3000 * 3000:
+            step += 1
+        window = (seen.top(), seen.left(), seen.bottom(), seen.right())
+        self._token += 1
+        worker = _MosaicWorker(self._token, self._render, window, step, self)
+        worker.done.connect(self._on_rendered)
+        worker.finished.connect(self._forget_worker)
+        self._workers.append(worker)
+        worker.start()
+
+    def _forget_worker(self) -> None:
+        """Let a finished worker go."""
+        worker = self.sender()
+        if worker in self._workers:
+            self._workers.remove(worker)
+            worker.deleteLater()
+
+    def _on_rendered(self, token: int, picture, window, step: int) -> None:
+        """Lay the finer picture over the coarse one where it belongs."""
+        if token != self._token or picture is None:
+            return
+        from .live_preview import numpy_to_qpixmap
+
+        self._drop_overlay()
+        pixmap = numpy_to_qpixmap(np.asarray(picture), normalise=False)
+        item = self.view.scene().addPixmap(pixmap)
+        item.setPos(float(window[1]), float(window[0]))
+        item.setScale(float(step) / float(self.base_step))
+        item.setTransformationMode(Qt.SmoothTransformation)
+        self.overlay, self.overlay_step = item, int(step)
+        self.refined.emit(int(step))
+
+    def _drop_overlay(self) -> None:
+        """Remove the finer layer, if any."""
+        if self.overlay is not None:
+            try:
+                self.view.scene().removeItem(self.overlay)
+            except RuntimeError:
+                pass
+        self.overlay, self.overlay_step = None, None
+
+    def wait(self) -> None:
+        """Wait for every render in flight, for shutdown and tests."""
+        for worker in list(self._workers):
+            worker.wait()
+
+
+_SAMPLES: Dict[str, Tuple[str, int, int, int, int]] = {
+    "align": ("ops_live_block", 1, 4, 2, 1),
+    "spots": ("ops_live_sbs_crop", 100, 1480, 400, 50),
+    "objects": ("ops_live_ph_fields", 1, 9, 9, 1),
+    "merge": ("ops_live_merge_fields", 0, 500, 0, 1),
+    "cluster": ("ops_live_genes", 0, 20000, 0, 5),
+}
+"""Each tab's Sample: its preview-only setting, lowest, highest, default and
+step. A lowest of 0 means every one, and the box says so."""
+
+
+def _sample_words(step: str) -> Tuple[str, str]:
+    """A tab's Sample unit and tooltip, in the interface language."""
+    return {
+        "align": (tr(" tiles per side"), tr(
+            "How many sequencing tiles along each side of the region are "
+            "stitched: 2 stitches a 2 x 2 block.")),
+        "spots": (tr(" px crop"), tr(
+            "The side of the sequencing crop that is genotyped, in pixels. "
+            "Objects & phenotype segments the same area.")),
+        "objects": (tr(" phenotype fields"), tr(
+            "The most phenotype fields over the genotyped region that are "
+            "segmented and measured, largest part first.")),
+        "merge": (tr(" fields listed"), tr(
+            "How many phenotype fields the cells-matched graph lists, the "
+            "fields with most cells first.")),
+        "cluster": (tr(" genes"), tr(
+            "The most genes that are clustered, the genes with most cells "
+            "first.")),
+    }[step]
+
+
+def _sample_all(step: str) -> str:
+    """What a tab's Sample box says at 0, which means every one."""
+    return {"merge": tr("all fields"), "cluster": tr("all genes")}.get(step, tr("all"))
+
+
+def _table_widget(header, rows, parent=None) -> QTableWidget:
+    """A sortable read-only table of one pass, with header tooltips."""
+    from .sortable_table import install_sorting, table_item
+
+    table = QTableWidget(0, 0, parent)
+    table.setObjectName("OpsLiveTable")
+    table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+    table.verticalHeader().setVisible(False)
+    table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+    install_sorting(table)
+    rows = list(rows)[:_TABLE_ROWS]
+    sorting = table.isSortingEnabled()
+    table.setSortingEnabled(False)
+    table.setColumnCount(len(header))
+    table.setRowCount(len(rows))
+    table.setHorizontalHeaderLabels(
+        [h[0] if isinstance(h, tuple) else str(h) for h in header])
+    for column, item in enumerate(header):
+        if isinstance(item, tuple):
+            cell = table.horizontalHeaderItem(column)
+            if cell is not None:
+                cell.setToolTip(item[1])
+    for r, values in enumerate(rows):
+        for c, value in enumerate(list(values)[:len(header)]):
+            table.setItem(r, c, table_item(str(value)))
+    table.setSortingEnabled(sorting)
+    return table
+
+
+class _StepPage(QWidget):
+    """One tab: Sample, Settings and Run preview, then its figure queue.
+
+    The tool row reads left to right: the region (Align & stitch only), the
+    Sample, Settings, Run preview, Refresh (laptop mode only), the running
+    indicator and the image-quality slider. Below it the tab shows one
+    picture, graph or table at a time in Mask Generation's figure queue
+    (:class:`~spacr.qt.widgets.figure_queue.FigureQueue`), with the
+    thumbnails on the left. Pictures zoom; graphs are square pyqtgraph plots.
 
     :param step: the tab's step.
     :param blurb: one sentence on what the tab runs, translated.
@@ -929,7 +1362,10 @@ class _StepPage(QWidget):
 
     settings_requested = Signal(str)
     refresh_requested = Signal(str)
+    run_requested = Signal(str)
     quality_changed = Signal(str, int)
+    sample_changed = Signal(str, str, int)
+    region_changed = Signal(int)
 
     def __init__(self, step: str, blurb: str, parent=None):
         """Lay out the tab, the same geometry for every step."""
@@ -947,14 +1383,55 @@ class _StepPage(QWidget):
         self.blurb.setObjectName("OpsLiveBlurb")
         layout.addWidget(self.blurb)
         tools = QHBoxLayout()
+        self.region = None
+        if step == "align":
+            from PySide6.QtWidgets import QComboBox
+
+            self.region = QComboBox(self)
+            self.region.setObjectName("OpsLiveRegion")
+            self.region.setToolTip(tr(
+                "The region of the well the preview stitches: a block of "
+                "sequencing tiles and every phenotype field placed on it. "
+                "Spots & genotyping reads the region shown here; Objects & "
+                "phenotype segments the whole part of it that is genotyped."))
+            self.region.addItem(tr("Region 1"), 0)
+            self.region.activated.connect(
+                lambda index: self.region_changed.emit(int(self.region.itemData(index) or 0)))
+            tools.addWidget(self.region)
+        key, low, high, default, single = _SAMPLES[step]
+        unit, tip = _sample_words(step)
+        self.sample_label = QLabel(tr("Sample"), self)
+        self.sample_label.setObjectName("OpsLiveSampleLabel")
+        tools.addWidget(self.sample_label)
+        self.sample_spin = QSpinBox(self)
+        self.sample_spin.setObjectName("OpsLiveSample")
+        self.sample_spin.setRange(low, high)
+        self.sample_spin.setSingleStep(single)
+        self.sample_spin.setValue(default)
+        self.sample_spin.setSuffix(unit)
+        if low == 0:
+            self.sample_spin.setSpecialValueText(_sample_all(step))
+        self.sample_spin.setToolTip(tip)
+        self.sample_spin.setKeyboardTracking(False)
+        self.sample_key = key
+        self.sample_spin.valueChanged.connect(
+            lambda value: self.sample_changed.emit(self.step, self.sample_key, int(value)))
+        tools.addWidget(self.sample_spin)
         self.settings_btn = QPushButton(tr("Settings…"), self)
         self.settings_btn.setObjectName("OpsLiveSettingsButton")
         self.settings_btn.setToolTip(tr(
-            "Open this tab's settings. A change runs the tab again on the "
-            "preview data; Propagate settings copies them into the OPS form."))
+            "Open every setting of this tab. A change runs the tab again on "
+            "the preview data; Apply to OPS module copies them into the OPS "
+            "settings the real run uses."))
         self.settings_btn.clicked.connect(
             lambda _checked=False: self.settings_requested.emit(self.step))
         tools.addWidget(self.settings_btn)
+        self.run_btn = QPushButton(tr(PREVIEW_RUN_TEXT), self)
+        self.run_btn.setObjectName("OpsLiveRunButton")
+        self.run_btn.setToolTip(tr("Run this tab again now on the sample."))
+        self.run_btn.clicked.connect(
+            lambda _checked=False: self.run_requested.emit(self.step))
+        tools.addWidget(self.run_btn)
         self.refresh_btn = QPushButton(tr("Refresh view"), self)
         self.refresh_btn.setObjectName("OpsLiveRefreshButton")
         self.refresh_btn.setToolTip(tr(
@@ -991,38 +1468,53 @@ class _StepPage(QWidget):
         self.notice.setAlignment(Qt.AlignCenter)
         self.notice.hide()
         layout.addWidget(self.notice)
-        self.images_host = QWidget(self)
-        self.images_host.setObjectName("OpsLiveImages")
-        self._image_grid = QGridLayout(self.images_host)
-        self._image_grid.setContentsMargins(0, 0, 0, 0)
-        self._image_grid.setSpacing(4)
-        self.images_host.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.images_host.hide()
-        layout.addWidget(self.images_host, 3)
-        self.views: List[Any] = []
-        self._view_titles: List[QLabel] = []
-        self.graphs_host = QWidget(self)
-        self.graphs_host.setObjectName("OpsLiveGraphs")
-        self._graph_row = QHBoxLayout(self.graphs_host)
-        self._graph_row.setContentsMargins(0, 0, 0, 0)
-        self._graph_row.setSpacing(6)
-        self.graphs_host.hide()
-        layout.addWidget(self.graphs_host, 2)
-        self.graphs: List[_QtGraph] = []
-        self.table = QTableWidget(0, 0, self)
-        self.table.setObjectName("OpsLiveTable")
-        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.table.verticalHeader().setVisible(False)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table.setFixedHeight(150)
-        from .sortable_table import install_sorting
+        from .figure_queue import FigureQueue
 
-        install_sorting(self.table)
-        layout.addWidget(self.table)
+        self.queue = FigureQueue(ram_cap=40, parent=self)
+        self.queue.setObjectName("OpsLiveQueue")
+        self.queue._set_figure_tools_visible(False)
+        self.queue._set_opaque(True)
+        layout.addWidget(self.queue, 1)
+        self.views: List[Any] = []
+        self.graphs: List[_QtGraph] = []
+        self.mosaic: Optional[_MosaicView] = None
+        self.point_graph: Optional[_PointGraph] = None
+        self.table = _table_widget([], [], self)
+        self.table.hide()
         self.sample = QLabel("", self)
-        self.sample.setObjectName("OpsLiveSample")
+        self.sample.setObjectName("OpsLiveSampleLine")
         self.sample.setWordWrap(True)
         layout.addWidget(self.sample)
+        self._payload: Optional[Mapping[str, Any]] = None
+
+    def sample_value(self) -> int:
+        """The Sample the tab uses now."""
+        return int(self.sample_spin.value())
+
+    def set_regions(self, regions: Sequence[Sequence[int]], current: int,
+                    fields: Sequence[int] = ()) -> None:
+        """List the regions the Align & stitch tab can stitch.
+
+        :param regions: each region as its sequencing tiles.
+        :param current: the region stitched now.
+        :param fields: the phenotype fields placed on the current region.
+        """
+        if self.region is None:
+            return
+        blocked = self.region.blockSignals(True)
+        try:
+            self.region.clear()
+            for index, sites in enumerate(regions):
+                text = tr("Region {n}: tiles {tiles}", n=index + 1,
+                          tiles=", ".join(str(s) for s in sites))
+                if index == current and fields:
+                    text = tr("{region}; fields {fields}", region=text,
+                              fields=", ".join(str(f) for f in fields))
+                self.region.addItem(text, index)
+            self.region.setCurrentIndex(max(0, min(int(current), len(regions) - 1)))
+            self.region.setEnabled(len(regions) > 1)
+        finally:
+            self.region.blockSignals(blocked)
 
     def quality_percent(self) -> int:
         """The image quality the slider is at, in percent."""
@@ -1068,107 +1560,102 @@ class _StepPage(QWidget):
         """Whether a quality change waits for Refresh."""
         return self._quality_pending
 
-    def _view(self, index: int):
-        """The zoomable view in slot ``index``, made when first needed."""
-        from .live_preview import _ZoomView
-
-        while len(self.views) <= index:
-            slot = len(self.views)
-            cell = QWidget(self.images_host)
-            column = QVBoxLayout(cell)
-            column.setContentsMargins(0, 0, 0, 0)
-            column.setSpacing(2)
-            caption = QLabel("", cell)
-            caption.setObjectName("OpsLiveImageTitle")
-            caption.setWordWrap(True)
-            column.addWidget(caption)
-            view = _ZoomView(cell)
-            view.setObjectName("OpsLiveImageView")
-            view.setMinimumHeight(140)
-            column.addWidget(view, 1)
-            self._image_grid.addWidget(cell, slot // 3, slot % 3)
-            self.views.append(view)
-            self._view_titles.append(caption)
-        return self.views[index]
-
-    def _graph(self, index: int) -> _QtGraph:
-        """The graph in slot ``index``, made when first needed."""
-        while len(self.graphs) <= index:
-            graph = _QtGraph(self.graphs_host)
-            self._graph_row.addWidget(graph, 1)
-            self.graphs.append(graph)
-        return self.graphs[index]
-
     def render_images(self) -> None:
         """Draw the held pictures at the slider's image quality."""
         from .live_preview import numpy_to_qpixmap
 
         self._quality_pending = False
         percent = self.quality_percent()
-        for index, (title, picture) in enumerate(self._images):
-            view = self._view(index)
+        for index, (_title_text, picture) in enumerate(self._images):
+            if index >= len(self.views):
+                break
+            view = self.views[index]
             view.set_render_percent(percent)
             view.set_pixmap(numpy_to_qpixmap(picture, normalise=False))
             view.set_picture_name(f"ops_live_{self.step}_{index + 1}")
-            self._view_titles[index].setText(title)
-        for index, view in enumerate(self.views):
-            view.parentWidget().setVisible(index < len(self._images))
-        self.images_host.setVisible(bool(self._images))
 
     def shown_size(self, index: int = 0) -> Optional[Tuple[int, int]]:
         """The ``(width, height)`` the picture in a slot is drawn at, or None."""
-        if index >= len(self.views):
+        if index >= len(self.views) or index >= len(self._images):
             return None
         pixmap = self.views[index].shown_pixmap()
         return None if pixmap is None else (pixmap.width(), pixmap.height())
 
+    def entry_titles(self) -> List[str]:
+        """The names of the entries in the tab's queue, in order."""
+        return list(self.queue.figure_titles())
+
     def show_result(self, payload: Mapping[str, Any]) -> None:
-        """Put one pass's pictures, graphs, table and sample line on the tab."""
-        from .sortable_table import table_item
+        """Put one pass's pictures, graphs and table in the tab's queue."""
+        from .live_preview import _ZoomView, numpy_to_qpixmap
 
         self.notice.hide()
+        self.queue.show()
+        self._payload = payload
         self._colours = _theme_colours()
+        keep = max(0, self.queue._current_index())
+        self._stop_mosaic()
+        self.queue.clear()
+        self.views, self.graphs = [], []
+        self.mosaic = self.point_graph = None
         self._images = [(str(t), np.asarray(p)) for t, p in payload.get("images", ())]
+        mosaic = payload.get("mosaic")
+        for index, (title, picture) in enumerate(self._images):
+            if index == 0 and mosaic is not None:
+                self.mosaic = _MosaicView(mosaic["render"], mosaic["step"])
+                view = self.mosaic.view
+                picture_widget: QWidget = self.mosaic
+            else:
+                view = _ZoomView()
+                view.setObjectName("OpsLiveImageView")
+                picture_widget = view
+            holder = _captioned(picture_widget, title)
+            self.views.append(view)
+            self.queue._add_widget(holder, title,
+                                  numpy_to_qpixmap(picture, normalise=False))
         self.render_images()
-        specs = list(payload.get("graphs", ()))
-        for index, spec in enumerate(specs):
-            self._graph(index).show_spec(spec, self._colours)
-        for index, graph in enumerate(self.graphs):
-            graph.setVisible(index < len(specs))
-        self.graphs_host.setVisible(bool(specs))
-        header, rows = payload["header"], payload["rows"][:_TABLE_ROWS]
-        sorting = self.table.isSortingEnabled()
-        self.table.setSortingEnabled(False)
-        self.table.clear()
-        self.table.setColumnCount(len(header))
-        self.table.setRowCount(len(rows))
-        labels = [h[0] if isinstance(h, tuple) else str(h) for h in header]
-        self.table.setHorizontalHeaderLabels(labels)
-        for column, item in enumerate(header):
-            if isinstance(item, tuple):
-                cell = self.table.horizontalHeaderItem(column)
-                if cell is not None:
-                    cell.setToolTip(item[1])
-        for r, values in enumerate(rows):
-            for c, value in enumerate(values[:len(header)]):
-                self.table.setItem(r, c, table_item(str(value)))
-        self.table.setSortingEnabled(sorting)
+        for spec in payload.get("graphs", ()):
+            if spec.get("kind") == "scatter" and spec.get("tile") is not None:
+                self.point_graph = _PointGraph(spec, self._colours)
+                graph, holder = self.point_graph.graph, self.point_graph
+            else:
+                graph = _QtGraph()
+                graph.show_spec(spec, self._colours)
+                holder = _SquareBox(graph)
+            self.graphs.append(graph)
+            self.queue._add_widget(holder, str(spec.get("title") or tr("Graph")))
+        header, rows = payload.get("header") or [], payload.get("rows") or []
+        self.table = _table_widget(header, rows)
+        if header:
+            name = tr("Table: {n} rows", n=min(len(rows), _TABLE_ROWS))
+            self.queue._add_widget(_captioned(self.table, name), name)
+        if self.queue.count():
+            self.queue.show_index(min(keep, self.queue.count() - 1))
         seconds = payload.get("seconds")
         source = (tr("OPS test data (Funk et al. 2022, plate A, well A1)")
                   if payload.get("test_data") else tr("your data"))
         self.sample.setText(tr("{sample}. {seconds} s on {source}.",
-                               sample=payload["sample"],
+                               sample=payload.get("sample", ""),
                                seconds=seconds if seconds is not None else "?",
                                source=source))
+        if self.region is not None and payload.get("regions"):
+            self.set_regions(payload["regions"], int(payload.get("region") or 0),
+                             payload.get("region_fields") or ())
+
+    def _stop_mosaic(self) -> None:
+        """Let a zoomed mosaic render in flight finish before its view goes."""
+        if self.mosaic is not None:
+            self.mosaic._timer.stop()
+            self.mosaic.wait()
 
     def _clear_pictures(self) -> None:
         """Drop the pictures and graphs, so a notice replaces the last pass."""
+        self._stop_mosaic()
         self._images = []
-        for view in self.views:
-            view.show_message("")
-            view.parentWidget().hide()
-        self.images_host.hide()
-        self.graphs_host.hide()
+        self.views, self.graphs = [], []
+        self.mosaic = self.point_graph = None
+        self.queue.clear()
+        self.queue.hide()
 
     def show_notice(self, text: str) -> None:
         """Say what the tab needs before it can run, in the pictures' place."""
@@ -1179,6 +1666,17 @@ class _StepPage(QWidget):
     def show_failure(self, text: str) -> None:
         """Say why the pass failed, in the pictures' place."""
         self.show_notice(text)
+
+
+def _same_value(first: Any, second: Any) -> bool:
+    """Whether an editor value says the same as a setting, so leaving an editor untouched runs nothing."""
+    if first == second:
+        return True
+    try:
+        return float(first) == float(second)
+    except (TypeError, ValueError):
+        return str(first if first is not None else "") == str(
+            second if second is not None else "")
 
 
 def _editor_value(widget) -> Any:
@@ -1279,18 +1777,18 @@ def _editor_signal(widget):
 
 
 class _StepSettingsDialog(QDialog):
-    """One tab's settings panel: its step's settings, Close and Propagate.
+    """One tab's settings: every setting its step reads, grouped as the OPS form groups them.
 
-    Built like Mask Generation's Live settings dialog: a change re-runs the
-    tab on the preview data (or waits for Refresh in laptop mode), and
-    Propagate settings, while on, copies every value into the OPS form.
+    A change runs the tab again on the preview data (or waits for Refresh in
+    laptop mode). Apply to OPS module copies the values tuned here into the
+    OPS settings the real run uses.
 
     :param panel: the OPS Live panel; also the dialog's parent.
-    :param step: the tab the panel edits.
+    :param step: the tab the dialog edits.
     """
 
     def __init__(self, panel: "_OpsLivePanel", step: str):
-        """Lay out one editor per setting, the extra groups and the buttons."""
+        """Lay out one editor per setting under its category, the extra groups and the buttons."""
         super().__init__(panel)
         self.setObjectName("OpsLiveSettingsDialog")
         self._panel, self.step = panel, step
@@ -1299,22 +1797,34 @@ class _StepSettingsDialog(QDialog):
         body = QWidget(self)
         column = QVBoxLayout(body)
         column.setContentsMargins(0, 0, 0, 0)
-        group = QGroupBox(_title(step), body)
-        form = QFormLayout(group)
         self.editors: Dict[str, QWidget] = {}
+        self.groups: Dict[str, QGroupBox] = {}
         values = panel.settings_now()
         from ..screens.settings_model import app_setting_label
 
+        try:
+            from spacr.ops_live import _registry_categories
+
+            categories = _registry_categories()
+        except Exception:
+            categories = {}
         for key in panel.step_settings(step):
+            title = categories.get(key) or _title(step)
+            group = self.groups.get(title)
+            if group is None:
+                group = QGroupBox(title, body)
+                group.setObjectName("OpsLiveSettingsGroup")
+                QFormLayout(group)
+                self.groups[title] = group
+                column.addWidget(group)
             editor = _editor_for(key, values.get(key), group)
             try:
                 label = app_setting_label("ops", key)
             except Exception:
                 label = key
-            form.addRow(label or key, editor)
+            group.layout().addRow(label or key, editor)
             self.editors[key] = editor
             _editor_signal(editor).connect(self._on_edit)
-        column.addWidget(group)
         self._borrowed: List[Tuple[QWidget, QWidget]] = []
         for title, widget in panel.step_extras(step):
             box = QGroupBox(title, body)
@@ -1330,6 +1840,10 @@ class _StepSettingsDialog(QDialog):
         scroll.setFrameShape(QScrollArea.NoFrame)
         scroll.setWidget(body)
         outer.addWidget(scroll, 1)
+        self.note = QLabel("", self)
+        self.note.setObjectName("OpsLiveSettingsNote")
+        self.note.setWordWrap(True)
+        outer.addWidget(self.note)
         buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
         self.refresh_btn = QPushButton(tr("Refresh view"), self)
         self.refresh_btn.setObjectName("OpsLiveDialogRefreshButton")
@@ -1339,14 +1853,13 @@ class _StepSettingsDialog(QDialog):
             lambda _checked=False: panel.refresh(step))
         self.refresh_btn.setVisible(_laptop_mode())
         buttons.addButton(self.refresh_btn, QDialogButtonBox.ActionRole)
-        self.propagate_btn = QPushButton(tr("Propagate settings"), self)
-        self.propagate_btn.setObjectName("ToggleButton")
-        self.propagate_btn.setCheckable(True)
-        self.propagate_btn.setToolTip(tr(
-            "When on, the values here are copied into the OPS settings form, "
-            "now and after every change."))
-        self.propagate_btn.toggled.connect(self._on_propagate_toggled)
-        buttons.addButton(self.propagate_btn, QDialogButtonBox.ActionRole)
+        self.apply_btn = QPushButton(tr("Apply to OPS module"), self)
+        self.apply_btn.setObjectName("OpsLiveApplyButton")
+        self.apply_btn.setToolTip(tr(
+            "Copy the values changed here into the OPS settings, so the real "
+            "OPS run uses them."))
+        self.apply_btn.clicked.connect(self._on_apply)
+        buttons.addButton(self.apply_btn, QDialogButtonBox.ActionRole)
         buttons.rejected.connect(self.close)
         self.close_btn = buttons.button(QDialogButtonBox.Close)
         outer.addWidget(buttons)
@@ -1356,10 +1869,10 @@ class _StepSettingsDialog(QDialog):
             install_api_tooltips(self, "ops", {w: k for k, w in self.editors.items()})
         except Exception:
             LOG.debug("no API help for the OPS live settings", exc_info=True)
-        self.resize(560, 520)
+        self.resize(600, 640)
 
     def values(self) -> Dict[str, Any]:
-        """Every setting the panel shows, as it reads now."""
+        """Every setting the dialog shows, as it reads now."""
         return {key: _editor_value(widget) for key, widget in self.editors.items()}
 
     def load(self, values: Mapping[str, Any]) -> None:
@@ -1373,17 +1886,20 @@ class _StepSettingsDialog(QDialog):
         widget = self.sender()
         key = widget.property("settingKey") if widget is not None else None
         if key in self.editors:
-            self._panel.panel_setting_changed(self.step, str(key),
-                                              _editor_value(self.editors[key]))
+            value = _editor_value(self.editors[key])
+            if _same_value(value, self._panel.settings_now().get(key)):
+                return
+            self._panel.panel_setting_changed(self.step, str(key), value)
 
-    def _on_propagate_toggled(self, on: bool) -> None:
-        """Copy now and keep copying while on, as Mask's Propagate does."""
-        self._panel.set_propagating(self.step, bool(on))
+    def _on_apply(self) -> None:
+        """Copy the tuned values into the OPS settings and say how many went."""
+        count = self._panel.apply_to_ops(self.step)
+        self.note.setText(tr("{n} settings copied into the OPS module.", n=count)
+                          if count else tr("Nothing changed here yet, so nothing "
+                                           "was copied."))
 
     def done(self, result) -> None:
-        """Hand borrowed widgets back and stop propagating on every exit."""
-        if self.propagate_btn.isChecked():
-            self.propagate_btn.setChecked(False)
+        """Hand borrowed widgets back on every exit."""
         for widget, home in self._borrowed:
             widget.hide()
             widget.setParent(home)
@@ -1418,7 +1934,6 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
         self._cancel_event = threading.Event()
         self._pending: Optional[str] = None
         self._overrides: Dict[str, Any] = {}
-        self._propagating: set = set()
         self._propagate_cb: Optional[Callable[[Dict[str, Any]], Any]] = None
         self._dialogs: Dict[str, _StepSettingsDialog] = {}
         self._extras: Dict[str, List[Tuple[str, QWidget]]] = {}
@@ -1439,10 +1954,6 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
             "genotype_source is empty."))
         self._data_btn.clicked.connect(self._get_test_data)
         row.addWidget(self._data_btn)
-        self._run_btn = QPushButton(tr(PREVIEW_RUN_TEXT), self)
-        self._run_btn.setObjectName("OpsLiveRunButton")
-        self._run_btn.clicked.connect(self.run_preview)
-        row.addWidget(self._run_btn)
         self._cancel_btn = QPushButton(tr(PREVIEW_CANCEL_TEXT), self)
         self._cancel_btn.setObjectName("OpsLiveCancelButton")
         self._cancel_btn.setEnabled(False)
@@ -1457,6 +1968,9 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
             page = _StepPage(step, _blurb(step), self._tabs)
             page.settings_requested.connect(self.open_settings)
             page.refresh_requested.connect(self.refresh)
+            page.run_requested.connect(self._on_run_requested)
+            page.sample_changed.connect(self.panel_setting_changed)
+            page.region_changed.connect(self.choose_region)
             page.quality_changed.connect(self._on_quality_changed)
             self._pages[step] = page
             index = self._tabs.addTab(page, _title(step).replace("&", "&&"))
@@ -1467,12 +1981,6 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
         self._timer.setSingleShot(True)
         self._timer.setInterval(_DEBOUNCE_MS)
         self._timer.timeout.connect(self._refresh_current)
-        try:
-            from .preview_scale import install_preview_scale
-
-            self._scale_control = install_preview_scale(self, "ops_live", row)
-        except Exception:
-            LOG.debug("no preview scale for OPS Live", exc_info=True)
         self._refresh_data_button()
         self._sync_laptop()
 
@@ -1515,14 +2023,17 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
         """The settings one tab's Settings panel offers.
 
         :param step: the tab.
-        :returns: the step's settings that the OPS module has.
+        :returns: every OPS setting the step alone reads, as the registry
+            places it (:func:`spacr.ops_live._step_map`); settings every
+            step reads, such as the input folders, are on the OPS form.
         """
         try:
             from spacr.ops_settings import OPS_DEFAULTS as defaults
         except Exception:
-            defaults = {}
-        known = set(defaults) | set(self.settings_now())
-        return tuple(key for key in _STEP_SETTINGS.get(step, ()) if key in known)
+            return ()
+        steps = self._step_map()
+        return tuple(sorted(key for key in defaults
+                            if tuple(steps.get(key, ())) == (step,)))
 
     def add_step_settings(self, step: str, title: str, widget: QWidget) -> None:
         """Put more inputs into one tab's Settings panel, under a heading.
@@ -1539,9 +2050,10 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
 
     def set_propagate_callback(self, callback: Optional[Callable[[Dict[str, Any]], Any]]
                                ) -> None:
-        """Say how Propagate settings writes values into the OPS form.
+        """Say how Apply to OPS module writes values into the OPS form.
 
-        :param callback: takes ``{setting: value}``; None turns Propagate off.
+        :param callback: takes ``{setting: value}``; None leaves Apply to OPS
+            module with nowhere to write.
         """
         self._propagate_cb = callback
 
@@ -1570,19 +2082,26 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
             if held is dialog:
                 self._dialogs.pop(step, None)
 
-    def set_propagating(self, step: str, on: bool) -> None:
-        """Turn one Settings panel's Propagate on or off.
+    def apply_to_ops(self, step: str) -> int:
+        """Copy the values tuned on one tab into the OPS settings (Apply to OPS module).
 
-        Turning it on copies the panel's values into the form at once.
+        :param step: the tab.
+        :returns: how many settings were copied.
         """
-        if on:
-            self._propagating.add(step)
-            dialog = self._dialogs.get(step)
-            values = dialog.values() if dialog is not None else {
-                key: self.settings_now().get(key) for key in self.step_settings(step)}
-            self.propagate(values)
-        else:
-            self._propagating.discard(step)
+        keys = set(self.step_settings(step))
+        tuned = {key: value for key, value in self._overrides.items() if key in keys}
+        copied = self.propagate(tuned)
+        if copied:
+            for key in tuned:
+                self._overrides.pop(key, None)
+        return copied
+
+    def choose_region(self, index: int) -> None:
+        """Stitch another region in Align & stitch, and read it in the tabs after it.
+
+        :param index: the region, from 0.
+        """
+        self.panel_setting_changed("align", "ops_live_region", int(index))
 
     def propagate(self, values: Mapping[str, Any]) -> int:
         """Copy settings into the OPS form.
@@ -1602,8 +2121,8 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
     def panel_setting_changed(self, step: str, key: str, value: Any) -> None:
         """A Settings panel changed one value: run its tab again.
 
-        The value is laid over the form for every later pass. With Propagate
-        on it is copied into the form too. Outside laptop mode the tab runs
+        The value is laid over the form for every later pass; Apply to OPS
+        module copies it into the form. Outside laptop mode the tab runs
         after the debounce, Live or not, because the panel is open for this;
         in laptop mode it waits for Refresh.
 
@@ -1612,8 +2131,6 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
         :param value: its new value.
         """
         self._overrides[key] = value
-        if step in self._propagating:
-            self.propagate({key: value})
         self._mark_stale(key)
         if step != self.current_step():
             self.show_step(step)
@@ -1823,6 +2340,12 @@ class _OpsLivePanel(LivePreviewContract, QWidget):
             self._start(self.current_step())
         else:
             self._clear_scheduled()
+
+    def _on_run_requested(self, step: str) -> None:
+        """A tab pressed its Run preview: run that tab now."""
+        if step != self.current_step():
+            self.show_step(step)
+        self.run_preview()
 
     def run_preview(self) -> None:
         """Run the tab on view now, Live or not."""
