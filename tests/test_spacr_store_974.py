@@ -292,14 +292,16 @@ def test_the_ops_run_writes_the_same_rows_and_crops_to_the_store(measured):
                ops_ph_measure_gpu=False, ops_tables_layout="wide",
                ops_storage="spacr_store")
     run = measured / "run"
-    assert out["store"]["wells"]["A1"] == {"cells": 8, "crops": 8,
+    project = run / "measurements"
+    assert out["store"]["project"] == str(project)
+    assert out["store"]["wells"]["A1"] == {"cell": 8, "crops": 8,
                                            "reads": 24, "barcodes": 8}
-    with sqlite3.connect(out["ph_tables"]["db"], timeout=30) as conn:
-        wide = pd.DataFrame(conn.execute("SELECT * FROM cell_wide").fetchall(),
-                            columns=[d[1] for d in conn.execute(
-                                "PRAGMA table_info(cell_wide)")])
-    with store.open(run, verify="full") as opened:
-        found, stack = opened.query(crops=True)
+    assert not (run / store.CATALOG).exists()
+    with store.open(project, verify="full") as opened:
+        assert {"cell", "nucleus", "cytoplasm", "cell_wide", "reads",
+                "barcodes"} <= set(opened.tables())
+        wide = opened.query(table="cell_wide")
+        found, stack = opened.query(table="cell", crops=True)
         barcodes = opened.query(table="barcodes")
         stored = opened.query(table="reads")
     assert len(barcodes) == 8
@@ -307,7 +309,8 @@ def test_the_ops_run_writes_the_same_rows_and_crops_to_the_store(measured):
     expected = reads.sort_values(["object_id", "read"]).reset_index(drop=True)
     pd.testing.assert_frame_equal(stored[expected.columns], expected)
     found = found.set_index("prcfo").loc[wide["prcfo"]].reset_index()
-    for column in wide.columns:
+    for column in [c for c in wide.columns if not c.startswith(
+            ("nucleus_", "cytoplasm_"))]:
         left = found[column].to_numpy()
         right = wide[column].to_numpy()
         if right.dtype.kind == "f" or found[column].dtype.kind == "f":
@@ -316,8 +319,8 @@ def test_the_ops_run_writes_the_same_rows_and_crops_to_the_store(measured):
         else:
             assert [None if pd.isna(v) else v for v in left] == [
                 None if pd.isna(v) else v for v in right], column
-    with store.open(run) as opened:
-        result, stack = opened.query(crops=True)
+    with store.open(project) as opened:
+        result, stack = opened.query(table="cell", crops=True)
     import glob
 
     shard = glob.glob(str(measured / "nas" / "data" / "cell" / PLATE / "A1" /

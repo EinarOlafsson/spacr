@@ -575,7 +575,6 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_merged_flatfield",
     "ops_merged_dtype",
     "ops_merged_save_sbs",
-    "ops_tables_parquet_threshold",
     "ops_crop_per_guide",
     "ops_crop_size",
     "ops_crop_channels",

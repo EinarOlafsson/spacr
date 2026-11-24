@@ -1,0 +1,49 @@
+{
+ "task": "phtables-store",
+ "branch": "ws-offload-ws-phtables-store",
+ "api_owners": {
+  "spacr.store.writer": {
+   "status": "added",
+   "docstring": "The streamed writer of one well's part of ``table``: every module's.\n\nMeasure, OPS and every other module that saves a table too large to\nhold at once appends it here a field (or a batch) at a time and\nfinishes it once; :func:`write_table` is the same writer for a frame\nheld whole. Use it as a context manager: it finishes on success and\naborts on an error, so nothing half-written becomes visible.\n\n:param project: the project folder (a run's ``measurements``).\n:param table: the object class or table.\n:param plate: the plate name.\n:param well: the well name.\n:param run_id: the run this write belongs to.\n:param sort_by: the order the rows are appended in (recorded only when\n    they did arrive in it).\n:param key_columns: the columns every feature query returns.\n:param row_copy: also write the row-major copy of the float columns.\n:param options: :class:`WellWriter`'s other arguments: ``schema``,\n    ``ranges``, ``narrow``, ``channels``, ``dtype_map``, ``crops``,\n    ``crop_rows``, ``masks`` and ``row_group_rows``.\n:returns: the :class:`WellWriter`."
+  },
+  "spacr.store.write_table": {
+   "status": "added",
+   "docstring": "Write one well's rows of ``table``, held whole, and leave a manifest.\n\nThe one-shot form of :func:`writer`: the rows are sorted by\n``sort_by`` (those present, nulls last) and handed to one\n:class:`WellWriter`, which writes them under a temporary name, flushes\nand renames them into ``tables/<table>/plate=<P>/well=<W>/``, puts the\ncrops in ``crops/plate=<P>/well=<W>.zarr`` in the same row order (each\nrow gets ``crop_store`` and ``crop_index``) and writes the manifest in\n``_pending/`` last; nothing is visible to readers until\n:func:`register` adds it to the catalog.\n\n:param project: the project folder.\n:param table: the object class or table, for example ``cell``.\n:param frame: a DataFrame or Arrow table, one row per object.\n:param plate: the plate name.\n:param well: the well name.\n:param run_id: the run this write belongs to.\n:param sort_by: the columns the rows are sorted by, those present.\n:param key_columns: the columns every feature query returns.\n:param crops: an array ``(k, C, H, W)`` indexable by an integer array.\n:param crop_rows: the frame row of each crop; every row when None.\n:param masks: an array ``(k, H, W)`` beside the crops, or None.\n:param row_group_rows: rows per row group, under the byte cap.\n:param row_copy: also write the float columns as a row-major Zarr copy,\n    which point lookups of every column read instead of the Parquet part.\n:param narrow: store numeric columns in the recorded dtypes\n    (:func:`_stored_types`), guarded by the frame's own ranges.\n:param channels: the run's channel names, for the dtype families.\n:returns: the manifest.\n:raises StoreError: when the frame's plate or well disagree with the\n    partition, or the crops do not match ``crop_rows``."
+  },
+  "spacr.store.WellWriter": {
+   "status": "added",
+   "docstring": "Write one well's part of a table in batches, then leave its manifest.\n\nThe one writer every module saves tables with (made by :func:`writer`;\n:func:`write_table` hands it a frame held whole). Batches -- a well's\ncells one field at a time -- are appended in order, so a well needs\nthe memory of one row group, not of the well, and the part is one file\nper table per well: nothing is spooled and nothing needs compacting.\n:meth:`finish` writes the key table, the crops and the row-major copy\nfrom the finished part, and the manifest last.\n\nValues: every batch is cast to the part's schema, which with\n``narrow`` is the recorded dtype map's (:func:`_stored_types`, keys\nuntouched), widened where ``ranges`` show a column does not fit. A\nvalue the stored type cannot hold is refused, never wrapped or turned\ninfinite; NaN is stored as null (DuckDB orders NaN above every number\nand averages it to NaN), and inf stays inf. float16 columns are not\nbyte-stream split, which DuckDB 2.0 cannot read.\n\n:param project: the project folder.\n:param table: the object class or table.\n:param plate: the plate name.\n:param well: the well name.\n:param schema: the part's Arrow schema without ``plate``, ``well`` and\n    the crop pointer, as the source holds it; a column a batch lacks is\n    null. None takes the first batch's schema.\n:param ranges: ``column -> (min, max)`` over the whole part\n    (:func:`_column_ranges` of the source), for the dtype guard; without\n    them a float16 family is stored as float32.\n:param narrow: apply the recorded dtype map to ``schema``.\n:param channels: the run's channel names, for the dtype families.\n:param dtype_map: the recorded dtype map.\n:param sort_by: the order the caller appends the rows in. Nothing is\n    sorted here: the catalog records it only when the rows did arrive\n    non-decreasing in its first column, and records no order otherwise.\n:param key_columns: the columns every feature query returns; never\n    narrowed.\n:param crops: the well's crops, ``(k, C, H, W)`` indexable by an integer\n    array, given at once (or per batch to :meth:`append`, not both).\n:param crop_rows: the part row of each of those crops; every row when\n    None.\n:param masks: an array ``(k, H, W)`` beside them, or None.\n:param run_id: the run this write belongs to.\n:param row_group_rows: rows per row group, under the byte cap.\n:param row_copy: also write the row-major copy of the float columns.\n:raises StoreError: from :meth:`append` when a batch's plate or well\n    disagree with the partition, a value does not fit its column's type\n    or a column is not in the schema; from :meth:`finish` when the crops\n    do not match the rows written."
+  },
+  "spacr.store.WellWriter.append": {
+   "status": "added",
+   "docstring": "Append the rows of ``frame``, a DataFrame or Arrow table.\n\n:param frame: the rows, in the part's order.\n:param field: the field they come from, for messages only.\n:param crops: these rows' crops, ``(k, C, H, W)``, when the crops\n    were not given to the writer.\n:param crop_rows: the frame row of each crop; every row when None.\n:param masks: their masks, or None.\n:returns: the rows written so far."
+  },
+  "spacr.store.WellWriter.finish": {
+   "status": "added",
+   "docstring": "Finish the part, write its key table, crops and copy, then the manifest.\n\n:returns: the manifest."
+  },
+  "spacr.store.WellWriter.abort": {
+   "status": "added",
+   "docstring": "Drop the unfinished part; nothing of it reaches the catalog."
+  }
+ },
+ "runtime_sources": [
+  "{path} does not hold the cells the well table {table} holds for its field; run ph_measure again"
+ ],
+ "setting_sources": {
+  "ops_storage": {
+   "status": "revised",
+   "tooltip": "(str) - 'current' writes the usual OPS outputs; ph_tables always writes the cell, nucleus and cytoplasm tables to the run's spaCR store in measurements/. 'spacr_store' also adds the reads and barcodes tables there and each cell's raw crop in a Zarr store per well, with the crop pointer on the cell table. spacr.store.open reads the store through its catalog spacr.duckdb. Default 'current'. Alpha."
+  },
+  "ops_tables_integer_keys": {
+   "status": "revised",
+   "tooltip": "(bool) - Give every row of the ph_tables cell, nucleus and cytoplasm tables an integer cell_key that joins as prcfo does but faster. Default False. Alpha."
+  }
+ },
+ "retired_catalog_keys": [
+  "ops_tables_parquet_threshold (SETTING_LABELS 'ops_tables_parquet_threshold' and 'ops.ops_tables_parquet_threshold', SETTING_TOOLTIPS 'ops_tables_parquet_threshold'): removed from all nine locale catalogs and en"
+ ],
+ "retired_api_owners": [
+  "spacr.ops_engine._ph_insert_rows.declared"
+ ]
+}

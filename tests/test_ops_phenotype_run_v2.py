@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import json
 import os
-import sqlite3
 import tarfile
 
 import numpy as np
@@ -204,20 +203,18 @@ def test_a_settings_file_run_writes_merged_tables_and_crops(measured):
 
     tables = out["ph_tables"]
     assert tables["rows"]["cell"] == 8 and tables["rows"]["image"] == 2
-    with sqlite3.connect(tables["db"]) as conn:
-        cell = pd.DataFrame(conn.execute(
-            "SELECT prcfo, object_id, sgRNA, gene, owned, fieldID, "
-            "cell_area FROM cell ORDER BY prcfo").fetchall(),
-            columns=["prcfo", "object_id", "sgRNA", "gene", "owned",
-                     "fieldID", "cell_area"])
-        indexes = {r[0] for r in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='index'")}
-        image = conn.execute("SELECT prcf, cell_count FROM image "
-                             "ORDER BY prcf").fetchall()
+    from spacr import store
+
+    with store.open(tables["store"]) as opened:
+        cell = opened.query(table="cell", features=[
+            "cell_area"]).sort_values("prcfo").reset_index(drop=True)
+        image = opened.sql("SELECT prcf, cell_count FROM image ORDER BY prcf")
+        keys = opened._tables["cell"]["key_columns"]
+    image = list(zip(image["prcf"], image["cell_count"]))
+    assert keys == list(ops_engine._PH_TABLE_KEYS)
     assert cell["prcfo"].iloc[0] == "P_1_r1_c1_f0_o1"
     assert cell["object_id"].is_unique and cell["owned"].eq(1).all()
     assert set(cell["gene"]) == {"nontargeting", "GENE1", "GENE2"}
-    assert {"ix_cell_prcfo", "ix_cell_field", "ix_nucleus_prcfo"} <= indexes
     assert image == [("P_1_r1_c1_f0", 4), ("P_1_r1_c1_f1", 4)]
     joined = cell.merge(pd.read_parquet(
         out["aggregate"]["outputs"]["cells_parquet"]).assign(
@@ -291,20 +288,6 @@ def test_float32_merged_fields_keep_the_flat_corrected_values(measured):
     expected = correct_field(stack, planes, offsets, ("DAPI", "GFP", "AF750"))
     assert field["channels"].dtype == np.float32
     assert np.array_equal(np.moveaxis(field["channels"], 0, -1), expected)
-
-
-def test_tables_above_the_threshold_go_to_parquet(measured):
-    out = _run(measured, ("ph_masks", "merge", "aggregate", "ph_tables"),
-               ops_tables_parquet_threshold=3)
-    tables = out["ph_tables"]
-    assert tables["wide_to_parquet"] and tables["parquet_files"] == 3
-    with sqlite3.connect(tables["db"]) as conn:
-        columns = [r[1] for r in conn.execute("PRAGMA table_info(cell)")]
-    assert columns == list(ops_engine._PH_TABLE_KEYS[:6]) + list(
-        ops_engine._PH_TABLE_KEYS[6:])
-    wide = pd.read_parquet(measured / "run" / "measurements" / "cell" /
-                           f"{PLATE}_A1.parquet")
-    assert len(wide) == 8 and "cell_area" in wide.columns
 
 
 def test_crops_per_guide_follow_the_seeded_priority(measured):

@@ -36,7 +36,6 @@ import json
 import os
 import random
 import shutil
-import sqlite3
 import tarfile
 import threading
 import time
@@ -636,11 +635,65 @@ def integer_cell_key(row, column, site, label) -> np.ndarray:
     return ((row * 100 + column) * 2 ** 24 + site) * 2 ** 20 + label
 
 
-def _timed(conn, sql: str, parameters: Sequence[Any] = ()) -> Tuple[float, int]:
-    """Seconds and rows of one query, every row fetched."""
+def _timed(opened, sql: str, parameters: Sequence[Any] = ()) -> Tuple[float, int]:
+    """Seconds and rows of one query on an open store, every row fetched."""
     tick = time.perf_counter()
-    rows = conn.execute(sql, tuple(parameters)).fetchall()
-    return round(time.perf_counter() - tick, 3), len(rows)
+    rows = opened.sql(sql, list(parameters) or None, as_="arrow").num_rows
+    return round(time.perf_counter() - tick, 3), int(rows)
+
+
+def _store_query_timings(opened, project: str, tables: Mapping[str, Any],
+                         plate: str, well: str,
+                         control_prefix: str) -> Dict[str, Any]:
+    """The measurement-table columns of one well's stress row, from the store.
+
+    :param opened: :func:`spacr.store.open` of the run's measurements.
+    :param project: its folder, whose size is ``db_bytes``.
+    :param tables: the ``ph_tables`` report.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param control_prefix: the control gene prefix the one-gene query skips.
+    :returns: ``measure_rows``, ``db_bytes``, ``index_build_s`` and the
+        query timings.
+    """
+    from . import schema
+
+    row_id, column_id = schema.parse_well(well)
+    out: Dict[str, Any] = {}
+    where = "rowID = ? AND columnID = ?"
+    keys = (row_id, column_id)
+    measured = 0
+    for table in ("cell", "nucleus", "cytoplasm"):
+        measured += int(opened.sql(f"SELECT COUNT(*) AS n FROM {table} WHERE "
+                                   f"{where}", list(keys))["n"].iloc[0])
+    out["measure_rows"] = measured
+    size = 0
+    for here, _folders, names in os.walk(project):
+        size += sum(os.path.getsize(os.path.join(here, n)) for n in names)
+    out["db_bytes"] = size
+    out["index_build_s"] = tables.get("index_seconds")
+    first = opened.sql(f"SELECT fieldID FROM cell WHERE {where} ORDER BY "
+                       f"fieldID LIMIT 1", list(keys))
+    if len(first):
+        out["query_one_field_s"], out["query_one_field_rows"] = _timed(
+            opened, "SELECT * FROM cell WHERE plate = ? AND rowID = ? AND "
+            "columnID = ? AND fieldID = ?",
+            (plate, row_id, column_id, first["fieldID"].iloc[0]))
+    gene = opened.sql(
+        f"SELECT gene, COUNT(*) AS n FROM cell WHERE {where} AND gene IS NOT "
+        f"NULL AND lower(gene) NOT LIKE ? GROUP BY gene ORDER BY n DESC, gene "
+        f"LIMIT 1", [*keys, control_prefix.lower() + "%"])
+    if len(gene):
+        out["query_one_gene"] = gene["gene"].iloc[0]
+        out["query_one_gene_s"], out["query_one_gene_rows"] = _timed(
+            opened, f"SELECT * FROM cell WHERE gene = ? AND {where}",
+            (gene["gene"].iloc[0], *keys))
+    out["query_join3_s"], out["query_join3_rows"] = _timed(
+        opened, "SELECT * FROM cell JOIN nucleus USING (prcfo) JOIN cytoplasm "
+        "USING (prcfo) WHERE cell.rowID = ? AND cell.columnID = ?", keys)
+    out["query_whole_well_s"], out["query_whole_well_rows"] = _timed(
+        opened, f"SELECT * FROM cell WHERE {where}", keys)
+    return out
 
 
 def _folder_size(paths: Sequence[str]) -> Tuple[int, int]:
@@ -683,9 +736,15 @@ def stress_rows(destination: str, plate: str, wells: Sequence[str],
     crop_root = crop_root or destination
     reports = run.get("wells") or {}
     tables = run.get("ph_tables") or {}
-    database = tables.get("db") or os.path.join(destination, "measurements",
-                                                "measurements.db")
-    has_db = os.path.isfile(database)
+    project = tables.get("store") or os.path.join(destination, "measurements")
+    opened = None
+    if os.path.isdir(project) or os.path.isfile(project):
+        from . import store
+
+        try:
+            opened = store.open(project, verify="none")
+        except store.StoreError:
+            opened = None
     rows: List[Dict[str, Any]] = []
     index = crop_index(crop_root, plate)
     rng = np.random.default_rng(seed)
@@ -711,50 +770,9 @@ def stress_rows(destination: str, plate: str, wells: Sequence[str],
             "nas_size_walk_s_excluding_png": walk,
             "peak_rss_gb_driver": report.get("peak_rss_gb"),
             "cells_segmented": (segment.get("objects") or {}).get("paired")}
-        if has_db:
-            from . import schema
-
-            row_id, column_id = schema.parse_well(well)
-            conn = sqlite3.connect(database, timeout=30)
-            try:
-                count = conn.execute(
-                    "SELECT COUNT(*) FROM cell WHERE rowID = ? AND columnID = ?",
-                    (row_id, column_id)).fetchone()[0]
-                measured = count
-                for table in ("nucleus", "cytoplasm"):
-                    measured += conn.execute(
-                        f"SELECT COUNT(*) FROM {table} WHERE rowID = ? AND "
-                        "columnID = ?", (row_id, column_id)).fetchone()[0]
-                row["measure_rows"] = int(measured)
-                row["db_bytes"] = os.path.getsize(database)
-                row["index_build_s"] = tables.get("index_seconds")
-                first = conn.execute(
-                    "SELECT fieldID FROM cell WHERE rowID = ? AND columnID = ? "
-                    "ORDER BY fieldID LIMIT 1", (row_id, column_id)).fetchone()
-                if first is not None:
-                    row["query_one_field_s"], row["query_one_field_rows"] = _timed(
-                        conn, "SELECT * FROM cell WHERE plateID = ? AND rowID = ? "
-                        "AND columnID = ? AND fieldID = ?",
-                        (plate, row_id, column_id, first[0]))
-                gene = conn.execute(
-                    "SELECT gene, COUNT(*) AS n FROM cell WHERE rowID = ? AND "
-                    "columnID = ? AND gene IS NOT NULL AND lower(gene) NOT LIKE ? "
-                    "GROUP BY gene ORDER BY n DESC, gene LIMIT 1",
-                    (row_id, column_id, control_prefix.lower() + "%")).fetchone()
-                if gene is not None:
-                    row["query_one_gene"] = gene[0]
-                    row["query_one_gene_s"], row["query_one_gene_rows"] = _timed(
-                        conn, "SELECT * FROM cell WHERE gene = ? AND rowID = ? "
-                        "AND columnID = ?", (gene[0], row_id, column_id))
-                row["query_join3_s"], row["query_join3_rows"] = _timed(
-                    conn, "SELECT * FROM cell JOIN nucleus USING (prcfo) JOIN "
-                    "cytoplasm USING (prcfo) WHERE cell.rowID = ? AND "
-                    "cell.columnID = ?", (row_id, column_id))
-                row["query_whole_well_s"], row["query_whole_well_rows"] = _timed(
-                    conn, "SELECT * FROM cell WHERE rowID = ? AND columnID = ?",
-                    (row_id, column_id))
-            finally:
-                conn.close()
+        if opened is not None and "cell" in opened.tables():
+            row.update(_store_query_timings(opened, project, tables, plate,
+                                            well, control_prefix))
         tar_index = (index[~index["crop_format"].eq("ome-zarr")]
                      if "crop_format" in index else index)
         crops = tar_index[tar_index["shard"].str.contains(
@@ -801,6 +819,8 @@ def stress_rows(destination: str, plate: str, wells: Sequence[str],
                  "peak_rss_gb_driver": _peak_rss_gb(),
                  "cells_segmented": int(sum(r.get("cells_segmented") or 0
                                             for r in rows))})
+    if opened is not None:
+        opened.close()
     return [{column: row.get(column) for column in STRESS_COLUMNS}
             for row in rows]
 

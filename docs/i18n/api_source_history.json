@@ -117,6 +117,13 @@
       "source_sha256": "22b3c9931ffd0eb23f80752788aee849607b02852c90402361b331fc5be27288",
       "text": "Plan an import without writing anything.\n\nFive things happen here, in order, and every one of them can only\nproduce a report:\n\n1. **Images** are scanned and planned by :mod:`spacr.convert` — the\n   Yokogawa naming, the well assignment and the ``conversion_map.csv``\n   come from there, unchanged.\n2. **Masks** are scanned the same way and paired to image fields. A\n   mask with no image and an image with no mask are both listed by\n   path in :attr:`ImportPlan.masks`.\n3. **Their table** is read and, when ``column_maps`` is not given,\n   :func:`infer_column_map` proposes one. A proposal is not an\n   application: it is what you save, edit and hand back.\n4. **Columns are resolved** — collisions with spaCR names settled, unit\n   conversions computed or refused.\n5. **The join is verified** against the label images: every count in\n   :class:`JoinReport` is measured from the masks.\n\n:param images: folder of their image files.\n:param masks: folder (taken as ``cell``), or ``{object_type: folder}``.\n:param measurements: their table, or a path to it.\n:param layout: source layout for :func:`spacr.convert.scan`.\n:param z_handling: :data:`spacr.convert.Z_MAX` by default, because a\n    merged array holds one plane per channel; keeping every z would\n    produce fields spaCR cannot merge, and the plan says so.\n:param mask_layout: layout for the mask folders; defaults to ``layout``.\n:param mask_suffixes: tokens stripped from mask filenames before\n    matching (:data:`MASK_SUFFIXES` by default).\n:param measurement_object: which object type their table measures;\n    defaults to the first mask type given.\n:param image_key: their column naming the image. Inferred when None.\n:param label_key: their column holding the object label. Inferred when\n    None.\n:param column_maps: the **reviewed** mapping. When None, an inferred\n    proposal is used and the plan states that it is a proposal.\n:param um_per_px: micrometres per pixel. None means unknown, and any\n    column needing it is reported uncalibrated rather than scaled by 1.\n:param on_conflict: ``'refuse'`` (default) or ``'rename'``.\n:param allow_spacr_targets: opt in to writing foreign values into\n    spaCR's own column names.\n:param verify_labels: read the masks to check the join. On by default.\n:param metadata_type: the filename convention their images and masks are\n    named by -- any of Mask's ``metadata_type`` values. ``None`` or\n    ``'auto'`` reads plate / well / field from the folders, as before. See\n    :func:`spacr.convert.scan`.\n:param custom_regex: the pattern for ``metadata_type='custom'``.\n:returns: an :class:`ImportPlan`.\n:raises ConfigurationError: for an unreadable input or an unknown\n    option — a setup mistake, not a per-item failure."
     },
+    "38352f571dd055cc19cbb907d6fe2f98f6d8bffd57b9052d454fd82ba0ce9730": {
+      "source_blocks_sha256": [
+        "38352f571dd055cc19cbb907d6fe2f98f6d8bffd57b9052d454fd82ba0ce9730"
+      ],
+      "source_sha256": "38352f571dd055cc19cbb907d6fe2f98f6d8bffd57b9052d454fd82ba0ce9730",
+      "text": "The SQLite type of a column."
+    },
     "4231a5b9cfc0826b7af583fddd62438a5394e588cdbcac9e2a22c1bb293c4077": {
       "source_blocks_sha256": [
         "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
@@ -416,6 +423,29 @@
       ],
       "source_sha256": "b8768bec80563f8d42333175fa36dd94ca5f0b327b9419d257597496ba274d30",
       "text": "Window-wide and screen-specific shortcuts for the spaCR Qt GUI.\n\nThe default window-wide actions include:\n\n    Ctrl+0        Go home (Cmd+H is Hide on macOS)\n    Ctrl+1..9     Open the corresponding app-registry entry if visible\n    Ctrl+K        Open the command palette\n    Ctrl+Shift+H  Search spaCR from the field beside the Help menu\n    F1            Show the shortcuts cheat sheet\n    ?             Use the active screen's help action, or show the cheat sheet\n    Ctrl+P        Open Preferences\n    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to defaults\n    Ctrl+/        Toggle the active module's AI Console\n    Ctrl+End      Jump to the newest console line\n    F11           Toggle full screen\n\n:func:`install` creates the bindings returned by :func:`installed`.\nOther actions in :data:`SHORTCUTS` are bound by the main window's menus;\nthe scroll gesture uses an event filter. Screen-owned bindings are included\nby :func:`mapped`, with their scope and saved overrides. Escape handling\nbelongs to the active screen, overlay or dialog rather than a binding\ninstalled here.\n\nDeclared window-wide key sequences can be rebound. The cheat sheet carries a \"Change\nshortcuts…\" button that opens a table of the window-wide actions; a key\ntyped there replaces the default, a key already taken by another action is\nnamed as a conflict and cannot be saved, and the overrides are kept in the\nPreferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a\nkeymap saved on one platform reads the same on the others. Keys that belong\nto a single screen (Annotate, Make Masks, the field browser, Gate Editor) have separate\neditable rows and saved overrides, applied to both existing and new screens."
+    },
+    "b95f05b75b04f615cf488c9322f9f6b417de40155bccd042141aed5525b9552b": {
+      "source_blocks_sha256": [
+        "2661925e258145729ad15af309f38425dbc93a5864bfc9273fcd3cca086a3b1f",
+        "40f509d47d0330f26a655d325970e38191858fda6c1968d7fe1127b25530ccd4",
+        "c4edcca7ec8015bf06eba2b31e3564bb8428ee8c4d2dfa0b5ed5c0a9457209c0",
+        "fc2a080a4543bbcf8269d99d1e82a5e6d9016c320790794ac504d0e8b66a1397",
+        "cc6ed0eb0cfd5bd3dea4742799c39b99b034412af41261e2d7d4a72dceb647b3",
+        "3e28f17163ab61e4bed912e3d61e38e6b11f90475fa391987588657c1a75314e",
+        "8b063c3b2ccc8f5f7eab3ff47093d5fc2b1d402e10b98d26144847c357045e15",
+        "a2b4d3966e65e52122dcd3d3b0f325354404dcd2dce5c542fb1a6cb38800569a",
+        "5e2d7c2f9976a1e7e4e4e539182ae34bdccf5e48dff5e2f8eb2dcfac62c34216",
+        "35cb4034144144402f558a986b3e3b03a1089eaa3d960e8f77dd0476d1ca993f",
+        "61fc8f4e4264e2a2f6a23475e57863eff23334849af675278044d64aa1d41452",
+        "0585aa55a9a0f7a5d1d5446c85b6fbd2e74a77126b1b17ba0c7d64fa7092cea2",
+        "6b875cd800b9871bafdbb3e112a49b0f57161a38455fff6c30e22767002e601a",
+        "431c38adc78615392260ba541ddd9ba5b49c36fb44f65b57c0b33cb66b2b6972",
+        "f357856de491794907f8ac0df2283601db1f94d853dc88d3f8d614beb1c77ec6",
+        "e9712869e62865759141b597558d9b751c042b32f9cae56308965033a223bb55",
+        "635f6794f96f3e8c010deda89be32f49b5eefd40e89e312d343e8ab5bae59320"
+      ],
+      "source_sha256": "b95f05b75b04f615cf488c9322f9f6b417de40155bccd042141aed5525b9552b",
+      "text": "Write one well's rows of ``table`` (and its crops) and leave a manifest.\n\nThe rows are sorted by ``sort_by`` and written under a temporary name,\nflushed and renamed into ``tables/<table>/plate=<P>/well=<W>/``. The\ncrops go to ``crops/plate=<P>/well=<W>.zarr`` in the same row order and\neach row gets ``crop_store`` and ``crop_index``. The manifest in\n``_pending/`` is written last; nothing is visible to readers until\n:func:`register` adds it to the catalog.\n\n:param project: the project folder.\n:param table: the object class, for example ``cells``.\n:param frame: a DataFrame or Arrow table, one row per object.\n:param plate: the plate name.\n:param well: the well name.\n:param sort_by: the columns the rows are sorted by, those present.\n:param key_columns: the columns every feature query returns.\n:param crops: an array ``(k, C, H, W)`` indexable by an integer array.\n:param crop_rows: the frame row of each crop; every row when None.\n:param masks: an array ``(k, H, W)`` beside the crops, or None.\n:param run_id: the run this write belongs to.\n:param row_group_rows: rows per row group, under the byte cap.\n:param row_copy: also write the float columns as a row-major Zarr copy,\n    which point lookups of every column read instead of the Parquet part.\n:returns: the manifest.\n:raises StoreError: when the frame's plate or well disagree with the\n    partition, or the crops do not match ``crop_rows``."
     },
     "c5f1b39a25030613819b91a1d14e94922cdd0f751242ec1e3f29e59c0f7891aa": {
       "source_blocks_sha256": [
