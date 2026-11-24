@@ -97,10 +97,14 @@ def test_the_mask_run_writes_masks_that_load_without_pickle(
     for path in masks:
         array = np.load(path, allow_pickle=False)
         assert array.dtype == np.uint16, path
-    merged = sorted((plate / "merged").glob("*.npy"))
+    from spacr.image_store import _field_header, _list_fields
+
+    # Item 0aj: the merged fields live in fov.ome.zarr.
+    store = plate / "fov.ome.zarr"
+    merged = _list_fields(store)
     assert len(merged) == 2
-    for path in merged:
-        assert np.load(path, allow_pickle=False).shape[-1] == 4 + 3
+    for name in merged:
+        assert _field_header(store / name)[0][-1] == 4 + 3
 
 
 def test_adjusting_cells_reads_whole_masks_without_pickle(tmp_path):

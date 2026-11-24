@@ -3776,7 +3776,8 @@ def plot_image_mask_overlay(
         mask_filtered = mask_filtered.astype(original_dtype)
         return mask_filtered
 
-    stack = np.load(file)
+    from .image_store import _read_field
+    stack = _read_field(file)
 
     if export_tiffs:
         save_dir = os.path.join(

@@ -160,7 +160,10 @@ def test_a_mask_run_without_resume_segments_a_truncated_mask_again(
 
     preprocess_generate_masks(_settings(plate, preprocess=True, **_RUN))
     fields = _stack_names(plate / "stack")
-    assert _stack_names(plate / "merged") == fields
+    from spacr.image_store import _list_fields, _read_field
+
+    store = plate / "fov.ome.zarr"   # item 0aj: the merged fields' store
+    assert sorted(_list_fields(store)) == sorted(fields)
     cell_masks = plate / "masks" / "cell_mask_stack"
     damaged = _cut_short(cell_masks / fields[1])
     capsys.readouterr()
@@ -176,6 +179,6 @@ def test_a_mask_run_without_resume_segments_a_truncated_mask_again(
     assert "All masks have been generated for cell_mask_stack" not in out
     assert f"{damaged} is damaged" in out
     assert validate_merged_field(str(damaged)) == (True, "done")
-    assert _stack_names(plate / "merged") == fields
-    merged = np.load(plate / "merged" / fields[1])
+    assert sorted(_list_fields(store)) == sorted(fields)
+    merged = _read_field(store / fields[1])
     assert merged.shape[-1] == 2 + 2

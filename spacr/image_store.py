@@ -17,6 +17,7 @@ format from what is on disk, never from a setting.
 from __future__ import annotations
 
 import collections
+import functools
 import json
 import logging
 import multiprocessing
@@ -86,6 +87,22 @@ FIELD_CODEC = "lz4"
 FIELD_CODEC_LEVEL = 5
 
 
+#: The OME-Zarr version of every new store spaCR writes (item 0aj,
+#: maintainer 2026-11-23: "0.6 is stable and more optimized"). Stores of
+#: 0.4 to 0.6 are still read; an existing 0.5 store keeps its version.
+DEFAULT_NGFF_VERSION = "0.6"
+
+
+def _stored_ngff_version(path: Any) -> Optional[str]:
+    """The ``ome`` version a store's root ``zarr.json`` declares, or None."""
+    try:
+        attrs = json.loads((Path(path) / "zarr.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    version = ((attrs.get("attributes") or {}).get("ome") or {}).get("version")
+    return str(version) if version else None
+
+
 class PlateWriter:
     """The only writer of one plate's OME-Zarr store (item 983).
 
@@ -94,12 +111,23 @@ class PlateWriter:
     :param channel_names: the image channels' names, written to ``omero``.
     :param spacing: a :class:`spacr.layers.Spacing` for the pixel size, or
         None to record pixels with no physical unit.
-    :param ngff_version: ``'0.5'`` (the default) or ``'0.6'`` (item 1007):
-        the OME-Zarr version of every group in the store. One store holds
-        one version, so a store started in the other one is refused.
+    :param ngff_version: ``'0.6'`` or ``'0.5'`` (item 1007): the OME-Zarr
+        version of every group in the store. None (the default) takes the
+        version of a store that already exists, so an older 0.5 store
+        resumes as 0.5, and writes a new store as 0.6 (item 0aj: 0.6 is
+        the default of every new store). One store holds one version, so a
+        store started in the other one is refused when a version is given.
     :param registration: optional field-number to OPS registration-row mapping.
         Requires version 0.6 and pixel coordinates (spacing=None). Existing
         stores must use the same registration mode.
+    :param store_path: the store folder itself, instead of
+        ``<root>/<plate>.ome.zarr`` (item 0aj: ``<project>/fov.ome.zarr``).
+    :param shards: write each field image and each label image as ONE
+        zarr v3 shard file holding its 1 x 256 x 256 chunks (item 0aj),
+        instead of one file per chunk.
+    :param attributes: JSON values merged into the store root's ``spacr``
+        attributes, such as the merged plane layout; a key stored with
+        another value is refused.
 
     Fields are written whole with :meth:`write_field`; the plate and well
     metadata are rewritten from the ledger after each field, so a reader
@@ -113,17 +141,23 @@ class PlateWriter:
 
     def __init__(self, root: Any, plate: str, *,
                  channel_names: Optional[Sequence[str]] = None,
-                 spacing=None, ngff_version: str = "0.5",
-                 registration: Optional[Mapping[Any, Mapping[str, Any]]] = None):
+                 spacing=None, ngff_version: Optional[str] = None,
+                 registration: Optional[Mapping[Any, Mapping[str, Any]]] = None,
+                 store_path: Any = None, shards: bool = False,
+                 attributes: Optional[Mapping[str, Any]] = None):
         """Open (or start) the plate store and read its commit ledger."""
         from .ome_zarr import require_zarr
         from .qt.i18n import tr
 
         self.zarr = require_zarr()
         self.plate = str(plate)
-        self.path = Path(root) / f"{self.plate}.ome.zarr"
+        self.path = (Path(store_path) if store_path is not None
+                     else Path(root) / f"{self.plate}.ome.zarr")
+        self.shards = bool(shards)
         self.channel_names = list(channel_names) if channel_names else None
         self.spacing = spacing
+        if ngff_version is None:
+            ngff_version = _stored_ngff_version(self.path) or DEFAULT_NGFF_VERSION
         self.ngff_version = str(ngff_version)
         if self.ngff_version not in ("0.5", "0.6"):
             raise ValueError(tr(
@@ -140,14 +174,23 @@ class PlateWriter:
         if not root_json.is_file():
             self.zarr.open_group(str(self.path), mode="w", zarr_format=3)
         else:
-            stored = (json.loads(root_json.read_text(encoding="utf-8"))
-                      .get("attributes", {}).get("ome", {}).get("version"))
+            stored_attrs = (json.loads(root_json.read_text(encoding="utf-8"))
+                            .get("attributes", {}))
+            stored = stored_attrs.get("ome", {}).get("version")
+            stored_plate = stored_attrs.get("ome", {}).get("plate", {}).get("name")
+            if stored_plate and str(stored_plate) != self.plate:
+                raise ValueError(tr(
+                    "{path} holds plate {stored}; it cannot take fields of plate "
+                    "{wanted}, because one plate store holds one plate.",
+                    path=self.path, stored=stored_plate, wanted=self.plate))
             if stored and str(stored) != self.ngff_version:
                 raise ValueError(tr(
                     "{path} is an OME-Zarr {stored} store; it cannot take "
                     "OME-Zarr {wanted} fields, because one store holds one "
                     "version. Write to a new folder or convert the store.",
                     path=self.path, stored=stored, wanted=self.ngff_version))
+        if attributes:
+            self._set_spacr_attrs(dict(attributes))
         self._committed: Dict[str, Dict[str, Any]] = {}
         ledger = self.path / _LEDGER
         if ledger.is_file():
@@ -170,12 +213,15 @@ class PlateWriter:
         return _field_key(well, field) in self._committed
 
     def write_field(self, well: str, field: Any, image: Optional[np.ndarray],
-                    labels: Optional[Mapping[str, np.ndarray]] = None) -> str:
+                    labels: Optional[Mapping[str, np.ndarray]] = None, *,
+                    record: Optional[Mapping[str, Any]] = None) -> str:
         """Write one field and its label images, then commit it.
 
         :param image: the field ``(C, Y, X)`` or ``(Y, X)``, or None to write
             labels only.
         :param labels: ``{object class: label image (Y, X)}``.
+        :param record: extra JSON values kept with the field's ledger entry,
+            such as the field's file ``name`` (item 0aj).
         :returns: the field's store key.
 
         Each array is written to a temporary group, closed and renamed into
@@ -227,7 +273,7 @@ class PlateWriter:
                 tmp, data, axes=axes, spacing=self.spacing,
                 channel_names=self.channel_names if data.ndim == 3 else None,
                 ngff_version=self.ngff_version, name=key,
-                shards=False,
+                shards=None if self.shards else False,
                 compressor=FIELD_CODEC, compression_level=FIELD_CODEC_LEVEL, **metadata))
         else:
             self.zarr.open_group(str(target), mode="w", zarr_format=3)
@@ -239,7 +285,7 @@ class PlateWriter:
             self._atomic(label_dir, lambda tmp, m=mask: write_ome_zarr(
                 tmp, m, axes=["y", "x"], spacing=self.spacing,
                 downsample="stride", ngff_version=self.ngff_version, name=str(name),
-                shards=False, compressor=FIELD_CODEC,
+                shards=None if self.shards else False, compressor=FIELD_CODEC,
                 compression_level=FIELD_CODEC_LEVEL, **label_metadata))
             self._set_attrs(label_dir, {"image-label": (
                 {"version": "0.5"} if self.ngff_version == "0.5" else {})})
@@ -248,7 +294,7 @@ class PlateWriter:
             self.zarr.open_group(str(target / "labels"), mode="a",
                                  zarr_format=3).attrs.update(
                 {"ome": {"version": self.ngff_version, "labels": names}})
-        self._commit(key, well, field, names, image is not None)
+        self._commit(key, well, field, names, image is not None, record)
         return key
 
     def _atomic(self, target: Path, write: Callable[[Path], Any]) -> None:
@@ -268,10 +314,28 @@ class PlateWriter:
         ome.update(extra)
         group.attrs.update({"ome": ome})
 
+    def _set_spacr_attrs(self, extra: Mapping[str, Any]) -> None:
+        """Merge ``extra`` into the store root's ``spacr`` attributes; refuse a change.
+
+        A key already stored with another value is refused, so one store
+        never mixes plane layouts (item 0aj).
+        """
+        group = self.zarr.open_group(str(self.path), mode="a", zarr_format=3)
+        stored = dict(group.attrs.get("spacr") or {})
+        wanted = json.loads(json.dumps(dict(extra), default=str))
+        for name, value in wanted.items():
+            if name in stored and stored[name] != value:
+                raise ValueError(
+                    f"{self.path}: {name} is {stored[name]!r} in the store, not "
+                    f"{value!r}; write to a new store")
+        stored.update(wanted)
+        group.attrs.update({"spacr": stored})
+
     def _commit(self, key: str, well: str, field: Any, labels: List[str],
-                has_image: bool) -> None:
+                has_image: bool, record: Optional[Mapping[str, Any]] = None) -> None:
         """Record the field in the ledger and rewrite the plate metadata."""
-        entry = {"key": key, "well": str(well), "field": int(field),
+        entry = {**json.loads(json.dumps(dict(record or {}), default=str)),
+                 "key": key, "well": str(well), "field": int(field),
                  "labels": labels, "image": bool(has_image)}
         if self.registration is not None:
             entry["registration"] = True
@@ -504,20 +568,22 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
     """Write every ``<src>/merged`` field in ``fmt`` (Mask Generation, item 983).
 
     :param src: the run root holding ``merged/`` and its plane layout.
-    :param fmt: ``'ome-zarr'``: one plate store per plate under
-        ``<src>/images/``, with the masks as labels. ``'tiff'``:
-        ``<src>/merged_tiff/<field>.tif`` (the image, planes first) and
-        ``<field>_<object>_mask.tif`` beside it, each in its own dtype.
-        ``'npy'`` writes nothing.
+    :param fmt: ``'ome-zarr'``: the project's merged store,
+        ``<src>/fov.ome.zarr`` (item 0aj), one shard file per field image
+        and label image, with the masks as labels and the field names and
+        plane layout recorded, so Measure reads it in place of the stacks.
+        ``'tiff'``: ``<src>/merged_tiff/<field>.tif`` (the image, planes
+        first) and ``<field>_<object>_mask.tif`` beside it, each in its own
+        dtype. ``'npy'`` writes nothing.
     :param workers: processes reading the merged stacks; the parent writes.
     :param channel_names: names for the intensity channels.
     :returns: per plate, what :func:`run_fields` reports; or ``tiff``, the
         files written.
 
-    The merged ``.npy`` stacks and plane layout stay in place for field
-    discovery and legacy readers. Measure reads committed spatial OME-Zarr
-    fields through :func:`read_image` when selected, with the retained
-    stacks as the fallback for missing or unsupported field layouts.
+    The merged ``.npy`` stacks are left in place. Mask Generation itself
+    writes the merged store field by field and no stacks (item 0aj); this
+    converts an older project's ``merged/`` folder. One store holds one
+    plate, so a folder of several plates is refused.
     """
     fmt = str(fmt or "npy").strip().lower()
     if fmt not in IMAGE_FORMATS:
@@ -544,6 +610,9 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
                 os.replace(tmp, target)
                 written.append(str(target))
         return {"tiff": written}
+    from .crops import MERGED_LAYOUT_SIDECAR
+
+    layout = json.loads((merged / MERGED_LAYOUT_SIDECAR).read_text(encoding="utf-8"))
     by_plate: Dict[str, List[Tuple[str, int, Any]]] = collections.defaultdict(list)
     seen: Dict[Tuple[str, str, int], str] = {}
     for name in names:
@@ -554,12 +623,449 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
                 f"({plate} {well} {field}) at two timepoints; the plate store "
                 f"has no time axis yet, so time-lapse fields are not exported")
         seen[(plate, well, field)] = name
-        by_plate[plate].append((well, field, (str(merged / name), intensity, mask_dims)))
+        by_plate[plate].append((well, field, name))
+    if len(by_plate) > 1:
+        raise ValueError(
+            f"{merged} holds fields of {len(by_plate)} plates "
+            f"({', '.join(sorted(by_plate))}); one merged store holds one plate. "
+            f"Give each plate its own project folder.")
     report: Dict[str, Any] = {}
     for plate, plan in sorted(by_plate.items()):
         plan.sort(key=lambda item: (item[0], item[1]))
-        writer = PlateWriter(Path(src) / "images", plate,
-                             channel_names=channel_names)
-        report[plate] = run_fields(plan, _merged_field, writer,
-                                   workers=workers, start_method=start_method)
+        writer = _merged_writer(src, plate, layout, channel_names=channel_names)
+        done = {entry.get("name") for entry in writer._committed.values()}
+        todo = [name for _w, _f, name in plan if name not in done]
+        for name in todo:
+            _write_merged_field(writer, name, np.load(merged / name), layout)
+        report[plate] = {"written": len(todo), "skipped": len(plan) - len(todo),
+                         "keys": [field_key(w, f) for w, f, n in plan if n in todo]}
     return report
+
+
+# ---------------------------------------------------------------------------
+# The project's merged store (item 0aj): <project>/fov.ome.zarr
+# ---------------------------------------------------------------------------
+
+#: The merged plate store of a project folder: the field channels with every
+#: object mask embedded as labels, one shard file per field image and label
+#: image. Measure reads it in place of ``merged/*.npy`` (item 0aj).
+MERGED_STORE_NAME = "fov.ome.zarr"
+
+
+def _merged_store_path(project: Any) -> Path:
+    """``<project>/fov.ome.zarr``."""
+    return Path(project) / MERGED_STORE_NAME
+
+
+def _compact_labels(mask: np.ndarray) -> np.ndarray:
+    """A label image as uint16 or uint32, chosen by its largest label; exact.
+
+    Integer labels from 0 to 65535 become uint16, larger ones uint32. A
+    label image with negative or non-integer values, or labels above the
+    uint32 range, keeps its dtype, so the stored labels always equal the
+    input exactly.
+
+    :param mask: the label image.
+    :returns: the label image in its compact dtype.
+    """
+    mask = np.asarray(mask)
+    if mask.size == 0:
+        return mask.astype(np.uint16)
+    if mask.dtype.kind == "b":
+        return mask.astype(np.uint16)
+    if mask.dtype.kind not in "iuf":
+        return mask
+    low, high = mask.min(), mask.max()
+    if low < 0:
+        return mask
+    if mask.dtype.kind == "f" and not np.array_equal(mask, np.floor(mask)):
+        return mask
+    if high <= np.iinfo(np.uint16).max:
+        return mask.astype(np.uint16)
+    if high <= np.iinfo(np.uint32).max:
+        return mask.astype(np.uint32)
+    return mask
+
+
+def _merged_writer(project: Any, plate: str, layout: Mapping[str, Any], *,
+                   channel_names: Optional[Sequence[str]] = None) -> PlateWriter:
+    """The single writer of ``<project>/fov.ome.zarr`` for one plate.
+
+    :param project: the project folder.
+    :param plate: the plate name; one store holds one plate.
+    :param layout: the merged plane layout (``intensity_channels``,
+        ``mask_plane_order``, ``mask_dims``), kept in the store's ``spacr``
+        attributes as ``merged_layout`` so readers rebuild the merged array.
+    :param channel_names: names for the intensity channels.
+    """
+    return PlateWriter(project, plate, store_path=_merged_store_path(project),
+                       shards=True, channel_names=channel_names,
+                       attributes={"merged_layout": dict(layout)})
+
+
+def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
+                        layout: Mapping[str, Any], *,
+                        image_dtype: Any = None) -> str:
+    """Write one merged field ``(Y, X, planes)`` into the merged store, then commit it.
+
+    The intensity planes are stored as one ``(C, Y, X)`` image in
+    ``image_dtype`` (the acquired dtype; the merged array's own dtype when
+    None or when the cast would change a value) and every mask plane as a
+    label image in :func:`_compact_labels`'s dtype. The ledger entry keeps
+    the field's file ``name``, the merged ``dtype`` and ``shape``, so
+    :func:`_read_field` rebuilds the array ``merged/<name>`` would have held,
+    value for value.
+
+    :param writer: the store's writer, from :func:`_merged_writer`.
+    :param name: the field's file name, ``<plate>_<well>_<field>[_<time>].npy``.
+    :param stack: the merged field.
+    :param layout: the store's plane layout.
+    :param image_dtype: the dtype to keep the intensity planes in.
+    :returns: the field's store key.
+    """
+    stack = np.asarray(stack)
+    if stack.ndim != 3:
+        raise ValueError(f"{name}: a merged field is (Y, X, planes), not {stack.shape}")
+    n_intensity = len(layout.get("intensity_channels") or ())
+    image = np.moveaxis(stack[..., :n_intensity], -1, 0)
+    if image_dtype is not None and np.dtype(image_dtype) != image.dtype:
+        narrowed = image.astype(image_dtype)
+        if np.array_equal(narrowed.astype(image.dtype), image):
+            image = narrowed
+    labels = {role: _compact_labels(stack[..., int(dim)])
+              for role, dim in (layout.get("mask_dims") or {}).items()
+              if int(dim) < stack.shape[-1]}
+    _plate, well, field = split_field_name(name)
+    if not str(name).endswith(".npy"):
+        name = f"{os.path.splitext(os.path.basename(str(name)))[0]}.npy"
+    image = np.ascontiguousarray(image)
+    return writer.write_field(well, field, image, labels,
+                              record={"name": os.path.basename(str(name)),
+                                      "dtype": stack.dtype.str,
+                                      "shape": [int(v) for v in stack.shape],
+                                      "image_dtype": image.dtype.str,
+                                      "plane_sha256": _plane_hashes(image)})
+
+
+def _plane_hashes(image: np.ndarray) -> List[str]:
+    """The sha256 of each channel plane's raw bytes (C-order), recorded at write (item 0aj).
+
+    :param image: the field's channels ``(C, Y, X)``.
+    """
+    import hashlib
+
+    return [hashlib.sha256(np.ascontiguousarray(plane).tobytes()).hexdigest()
+            for plane in np.asarray(image)]
+
+
+def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarray]]] = None
+                 ) -> Dict[str, Any]:
+    """Re-hash every committed field's channel planes against what was recorded (item 0aj).
+
+    The channels of ``fov.ome.zarr`` are the acquired pixels, byte for byte;
+    this is the check every run ends with and that
+    ``keep_original_images=False`` passes before it deletes an original.
+
+    :param store: the project's ``fov.ome.zarr`` (or the project folder).
+    :param originals: optional ``{field file name: [plane, ...]}`` to compare
+        the stored planes with as well (value, dtype and shape).
+    :returns: ``{"fields": n, "planes": n, "mismatches": [...], "unrecorded": [...]}``;
+        a field written before hashes were recorded is listed as unrecorded.
+    """
+    target = Path(store)
+    if not _is_merged_store(target):
+        target = _merged_store_path(target)
+    report: Dict[str, Any] = {"fields": 0, "planes": 0, "mismatches": [], "unrecorded": []}
+    for name, entry in sorted(_store_entries(target).items()):
+        image = read_image(target / entry["key"]) if entry.get("image") else None
+        if image is None:
+            continue
+        image = image if image.ndim == 3 else image[None]
+        report["fields"] += 1
+        recorded = entry.get("plane_sha256")
+        if not recorded:
+            report["unrecorded"].append(name)
+        else:
+            for index, (want, got) in enumerate(zip(recorded, _plane_hashes(image))):
+                report["planes"] += 1
+                if want != got:
+                    report["mismatches"].append(f"{name} plane {index}: checksum")
+            if len(recorded) != image.shape[0]:
+                report["mismatches"].append(f"{name}: {image.shape[0]} planes, {len(recorded)} recorded")
+        for index, plane in enumerate((originals or {}).get(name, ())):
+            plane = np.asarray(plane)
+            if (index >= image.shape[0] or plane.dtype != image.dtype
+                    or plane.shape != image.shape[1:] or not np.array_equal(plane, image[index])):
+                report["mismatches"].append(f"{name} plane {index}: differs from the original")
+    return report
+
+
+def _mask_settings_of(project: Path) -> Dict[str, Any]:
+    """The Mask settings a project recorded (``settings/gen_mask_settings``), or ``{}``."""
+    folder = project / "settings"
+    for name in ("gen_mask_settings.csv", "gen_mask_settings.json"):
+        path = folder / name
+        if not path.is_file():
+            continue
+        try:
+            if path.suffix == ".json":
+                return dict(json.loads(path.read_text(encoding="utf-8")))
+            from .utils import load_settings
+
+            return dict(load_settings(str(path)))
+        except Exception as exc:  # an unreadable file cannot name the originals
+            _LOG.info("could not read %s: %s", path, exc)
+    return {}
+
+
+def original_planes(project: Any, settings: Optional[Mapping[str, Any]] = None
+                    ) -> Tuple[Dict[str, List[Callable[[], np.ndarray]]], List[str]]:
+    """The acquired images of a project's fields, plane by plane as fov.ome.zarr keeps them (item 0aj).
+
+    The raw images in the project folder and in ``orig/`` are grouped with
+    the filename pattern of the recorded Mask settings, by the same
+    function Mask stacking uses, and ordered as the store keeps its
+    channels (the sorted channel names, then the run's ``channels``).
+
+    :param project: the project folder.
+    :param settings: Mask settings naming ``metadata_type`` and
+        ``custom_regex``; by default the ones the project recorded.
+    :returns: ``({field file name: [loader of each plane]}, notes)``. A
+        loader reads its file only when called. A field whose channel was
+        projected from several z slices or files has no single original
+        plane, so it is left out with a note.
+    """
+    import re
+
+    from .io import _RAW_IMAGE_SUFFIXES, _escaped_field_stem, _raw_image_names, _raw_images_by_key
+    from .utils import _get_regex
+
+    project = Path(project)
+    settings = dict(settings if settings is not None else _mask_settings_of(project))
+    names = (_raw_image_names(project, _RAW_IMAGE_SUFFIXES)
+             + _raw_image_names(project / "orig", _RAW_IMAGE_SUFFIXES))
+    if not names:
+        return {}, []
+    if not settings.get("metadata_type"):
+        return {}, [f"{project}: no recorded Mask settings name the file pattern; "
+                    f"the originals were not compared"]
+    ext = collections.Counter(n.rsplit(".", 1)[-1].lower() for n in names).most_common(1)[0][0]
+    regex = re.compile(_get_regex(settings["metadata_type"], ext, settings.get("custom_regex")))
+    by_key = _raw_images_by_key(str(project), regex, settings["metadata_type"],
+                                list(_RAW_IMAGE_SUFFIXES),
+                                metadata_well_map=settings.get("metadata_well_map"))
+    layout = _store_layout(_merged_store_path(project)) or {}
+    channels = layout.get("intensity_channels")
+    sorted_channels = sorted({key[3] for key in by_key})
+    fields: Dict[str, Dict[Any, List[str]]] = collections.defaultdict(dict)
+    for key, paths in by_key.items():
+        stem = _escaped_field_stem(key[0], key[1], key[2], key[4])
+        fields[stem].setdefault(key[3], []).extend(paths)
+    planes: Dict[str, List[Callable[[], np.ndarray]]] = {}
+    notes: List[str] = []
+    for stem, by_channel in sorted(fields.items()):
+        if any(len(paths) != 1 for paths in by_channel.values()):
+            notes.append(f"{stem}: a channel is projected from several files; "
+                         f"no single original plane to compare")
+            continue
+        order = [c for c in sorted_channels if c in by_channel]
+        if channels is not None:
+            order = [order[int(i)] for i in channels if int(i) < len(order)]
+        planes[f"{stem}.npy"] = [functools.partial(read_image, by_channel[c][0])
+                                 for c in order]
+    return planes, notes
+
+
+class _LazyPlanes:
+    """Planes read one at a time from their loaders, each time it is iterated."""
+
+    def __init__(self, loaders: Sequence[Callable[[], np.ndarray]]):
+        self._loaders = list(loaders)
+
+    def __len__(self) -> int:
+        return len(self._loaders)
+
+    def __iter__(self) -> Iterator[np.ndarray]:
+        return (load() for load in self._loaders)
+
+
+def verify_project(project: Any, *, originals: bool = True) -> Dict[str, Any]:
+    """``spacr store verify``: the recorded checksums and, when present, the originals (item 0aj).
+
+    :param project: the project folder or its ``fov.ome.zarr``.
+    :param originals: also compare every stored plane with its original
+        image, when the originals are in the project folder or ``orig/``.
+    :returns: :func:`verify_store`'s report plus ``originals_compared``
+        (planes compared with an original) and ``notes``.
+    """
+    target = Path(project)
+    if _is_merged_store(target):
+        target = target.parent
+    store = _merged_store_path(target)
+    if not _is_merged_store(store):
+        raise FileNotFoundError(f"{store} is not a spaCR fov.ome.zarr with committed fields")
+    loaders, notes = original_planes(target) if originals else ({}, [])
+    entries = _store_entries(store)
+    # Each field's originals are read only when verify_store reaches it, so
+    # one field's planes are in memory at a time.
+    compared = {name: _LazyPlanes(planes) for name, planes in loaders.items()
+                if name in entries}
+    for name in sorted(set(loaders) - set(compared)):
+        notes.append(f"{name}: an original with no field in the store")
+    report = verify_store(store, compared)
+    report["originals_compared"] = sum(len(v) for v in compared.values())
+    report["notes"] = notes
+    return report
+
+
+#: ``{ledger path: (mtime_ns, size, entries)}``: ONE parsed copy per ledger.
+#: An lru_cache keyed by the modification time kept a copy per commit, so a
+#: Mask run held memory that grew with the plate (test 622).
+_LEDGER_CACHE: "collections.OrderedDict[str, Tuple[int, int, Dict[str, Dict[str, Any]]]]" = (
+    collections.OrderedDict())
+_LEDGER_CACHE_SIZE = 16
+
+
+def _ledger_entries(ledger: str, modified: int, size: int) -> Dict[str, Dict[str, Any]]:
+    """The last ledger entry of every named field, cached while the ledger is unchanged."""
+    cached = _LEDGER_CACHE.get(ledger)
+    if cached is not None and cached[:2] == (modified, size):
+        _LEDGER_CACHE.move_to_end(ledger)
+        return cached[2]
+    entries = _parse_ledger(ledger)
+    _LEDGER_CACHE[ledger] = (modified, size, entries)
+    _LEDGER_CACHE.move_to_end(ledger)
+    while len(_LEDGER_CACHE) > _LEDGER_CACHE_SIZE:
+        _LEDGER_CACHE.popitem(last=False)
+    return entries
+
+
+def _parse_ledger(ledger: str) -> Dict[str, Dict[str, Any]]:
+    """``{field file name: last ledger entry}`` read from a commit ledger."""
+    entries: Dict[str, Dict[str, Any]] = {}
+    with open(ledger, encoding="utf-8") as handle:
+        by_key = {}
+        for line in handle:
+            if line.strip():
+                entry = json.loads(line)
+                by_key[entry["key"]] = entry
+    for entry in by_key.values():
+        if entry.get("name"):
+            entries[str(entry["name"])] = entry
+    return entries
+
+
+def _store_entries(store: Any) -> Dict[str, Dict[str, Any]]:
+    """``{field file name: ledger entry}`` of a merged store; empty when it has none."""
+    ledger = Path(store) / _LEDGER
+    try:
+        stat = os.stat(ledger)
+    except OSError:
+        return {}
+    return _ledger_entries(str(ledger), stat.st_mtime_ns, stat.st_size)
+
+
+def _is_merged_store(path: Any) -> bool:
+    """Whether ``path`` is a merged store (item 0aj): a plate store whose fields carry names."""
+    target = Path(os.fspath(path))
+    return (target.name.endswith(".ome.zarr") and _is_zarr_group(target)
+            and bool(_store_entries(target)))
+
+
+def _store_layout(store: Any) -> Optional[Dict[str, Any]]:
+    """The merged plane layout kept in a merged store's ``spacr`` attributes, or None."""
+    root_json = Path(store) / "zarr.json"
+    try:
+        attrs = json.loads(root_json.read_text(encoding="utf-8")).get("attributes", {})
+    except (OSError, ValueError):
+        return None
+    layout = (attrs.get("spacr") or {}).get("merged_layout")
+    return dict(layout) if isinstance(layout, dict) else None
+
+
+def _list_fields(folder: Any) -> List[str]:
+    """The field file names Measure and the overlays read from ``folder``.
+
+    :param folder: a merged store (its committed field names, sorted) or a
+        folder of ``.npy`` fields (its visible ``.npy`` names, in
+        :func:`os.listdir` order, as before).
+    """
+    if _is_merged_store(folder):
+        return sorted(_store_entries(folder))
+    try:
+        return [name for name in os.listdir(os.fspath(folder))
+                if name.endswith(".npy") and not name.startswith(".")]
+    except OSError:
+        return []
+
+
+def _store_field(path: Any) -> Optional[Tuple[Path, Dict[str, Any]]]:
+    """``(store, ledger entry)`` when ``path`` names a field inside a merged store."""
+    target = Path(os.fspath(path))
+    if target.is_file():
+        return None
+    entry = _store_entries(target.parent).get(target.name)
+    if entry is None:
+        return None
+    return target.parent, entry
+
+
+def _field_header(path: Any) -> Tuple[Tuple[int, ...], np.dtype]:
+    """``(shape, dtype)`` of one field, from an ``.npy`` header or a store ledger entry."""
+    found = _store_field(path)
+    if found is not None:
+        _store, entry = found
+        return tuple(int(v) for v in entry["shape"]), np.dtype(entry["dtype"])
+    header = np.load(os.fspath(path), mmap_mode="r")
+    return tuple(header.shape), header.dtype
+
+
+def _read_field(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
+    """One merged field ``(Y, X, planes)``: an ``.npy`` file or a merged-store field.
+
+    A store field is rebuilt from its image and labels exactly as
+    ``merged/<name>.npy`` held it: same shape, dtype, plane order and values.
+
+    :param path: ``merged/<name>.npy``, or ``<project>/fov.ome.zarr/<name>.npy``
+        (the field's name inside the store, which is not a file).
+    :param mmap_mode: passed to :func:`numpy.load` for an ``.npy`` file.
+    """
+    found = _store_field(path)
+    if found is None:
+        return np.load(os.fspath(path), mmap_mode=mmap_mode)
+    store, entry = found
+    layout = _store_layout(store) or {}
+    shape = tuple(int(v) for v in entry["shape"])
+    data = np.empty(shape, dtype=np.dtype(entry["dtype"]))
+    n_intensity = len(layout.get("intensity_channels") or ())
+    group = store / entry["key"]
+    if n_intensity:
+        data[..., :n_intensity] = np.moveaxis(read_image(group), 0, -1)
+    stored = set(entry.get("labels") or ())
+    for role, dim in (layout.get("mask_dims") or {}).items():
+        if int(dim) < shape[-1]:
+            if role not in stored:
+                raise ValueError(f"{store}: field {entry['name']} has no {role} labels")
+            data[..., int(dim)] = read_labels(group, role)
+    return data
+
+
+def _field_stat(path: Any) -> os.stat_result:
+    """``os.stat`` of one field: the ``.npy`` file, or a merged-store field's image shard.
+
+    For a store field the size is the bytes of its image and label shard
+    files and the time the newest of them, so a rewritten field reads as
+    changed, as a rewritten ``.npy`` does.
+    """
+    found = _store_field(path)
+    if found is None:
+        return os.stat(os.fspath(path))
+    store, entry = found
+    group = store / entry["key"]
+    stats = [os.stat(os.path.join(base, name))
+             for base, _dirs, names in os.walk(group) for name in names]
+    newest = max(stats, key=lambda item: item.st_mtime_ns)
+    values = list(newest)
+    values[6] = sum(item.st_size for item in stats)
+    result = os.stat_result(values, {"st_mtime_ns": newest.st_mtime_ns})
+    return result

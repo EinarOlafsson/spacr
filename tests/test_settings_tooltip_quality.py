@@ -76,6 +76,15 @@ CONFIG_DEFECT = "default/config defect"
 # difference is accepted.  Adding, removing, or substituting one row fails an
 # ordinary mapping comparison with a useful diff.
 DEFAULT_VARIANT_EXPECTATIONS = {
+    # Item 0aj (maintainer 2026-11-23): Measure streams crops from
+    # fov.ome.zarr by default, so save_png defaults to False; External Masks
+    # keeps saving them, as its import contract lists them in png_list. The
+    # tooltip names the exception in the sentence before its default.
+    ("external_masks", "save_png"): DefaultVariant(
+        "False", "True", ACCURATE_SHARED,
+        "External Masks imports labels and promises png_list crops; the shared "
+        "tooltip names this exception beside Measure's streaming default.",
+    ),
     # organelle_min_area names its own per-app split in prose: "Default 10 in
     # Mask; Measure and External Masks start at 0 because they consume
     # existing labels rather than segmenting new ones." The parser reads the
@@ -1681,7 +1690,10 @@ if app_key == "mask":
     # 40 are named separately, with this exception recorded by exact value.
     # OME-Zarr unifies the Classify and Image UMAP crop-source defaults;
     # their two old exceptions are now exact comparisons above.
-    assert len(variants) == 45
+    # 45 -> 46 on 2026-11-23, item 0aj: Measure's save_png now defaults to
+    # False (crops stream from fov.ome.zarr) while External Masks keeps True
+    # for its png_list contract; the tooltip names that exception.
+    assert len(variants) == 46
     assert variants == expected
     assert {
         classification: sum(
@@ -1696,7 +1708,8 @@ if app_key == "mask":
         # was confused by the neighbouring percentile. Instruction 391
         # removed the setting and the neighbour both.
         # Plaque's explicit model-scale default adds one named exception.
-        ACCURATE_SHARED: 25,
+        # 25 -> 26 on 2026-11-23, item 0aj: External Masks' save_png True.
+        ACCURATE_SHARED: 26,
         # 23 -> 22 on 2026-09-09, and it is the same one variant: the
         # `control_wells` split (357-Q6) took its repaired-tooltip entry
         # with it, because the tooltip it repaired documented two meanings

@@ -1216,6 +1216,57 @@ def _stack_field_stems(stack_path):
             if name.endswith('.npy')}
 
 
+def _raw_images_by_key(src, regular_expression, metadata_type, img_format, *,
+                       metadata_well_map=None, source_plate=None):
+    """The raw images of a plate folder and its ``orig/``, grouped by field and channel.
+
+    The one grouping Mask's stacking and ``spacr store verify`` share
+    (item 0aj): the images in ``src`` and those already set aside in
+    ``src/orig`` (a name in both is read from ``src``) are parsed with the
+    plate's filename pattern.
+
+    :param src: the plate folder.
+    :param regular_expression: the compiled filename pattern.
+    :param metadata_type: the microscope convention.
+    :param img_format: the image extensions to take.
+    :param metadata_well_map: indexed ScanR well map, when there is one.
+    :param source_plate: the plate name; the folder name by default.
+    :returns: ``{(plate, well, field, channel, time, slice): [paths]}``.
+    """
+    from .utils import _extract_filename_metadata
+
+    if isinstance(img_format, str):
+        img_format = [img_format]
+    orig_path = os.path.join(src, 'orig')
+    src_filenames = _raw_image_names(src, img_format)
+    in_src = set(src_filenames)
+    orig_filenames = [name for name in _raw_image_names(orig_path, img_format)
+                      if name not in in_src]
+    source_plate = source_plate or os.path.basename(os.path.normpath(src))
+    if metadata_type == 'scanr_indexed':
+        from .convert import _indexed_well_map
+        matches = [regular_expression.fullmatch(name)
+                   for name in src_filenames + orig_filenames]
+        metadata_well_map = _indexed_well_map(
+            metadata_well_map, {(source_plate, match.group('wellID') if match else None) for match in matches})
+    image_paths_by_key = defaultdict(list)
+    for folder, names in ((src, src_filenames),
+                          (orig_path, orig_filenames)):
+        if folder != src and not names:
+            continue
+        print(f'All files: {len(names)} in {folder}')
+        parsed = _extract_filename_metadata(
+            names, folder, regular_expression, metadata_type,
+            metadata_well_map=metadata_well_map,
+            source_plate=source_plate)
+        for key, paths in parsed.items():
+            if (folder != src and metadata_type != 'scanr_indexed'
+                    and 'plateID' not in regular_expression.groupindex):
+                key = (os.path.basename(src),) + tuple(key[1:])
+            image_paths_by_key[key].extend(paths)
+    return image_paths_by_key
+
+
 def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True, metadata_well_map=None, source_plate=None):
     """
     Convert z-stack images to maximum intensity projection (MIP) images and
@@ -1274,7 +1325,7 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     if isinstance(img_format, str):
         img_format = [img_format]
 
-    from .utils import _extract_filename_metadata, print_progress
+    from .utils import print_progress
 
     regular_expression = re.compile(regex)
     stack_path = os.path.join(src, 'stack')
@@ -1282,32 +1333,9 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     files_processed = 0
     channels_seen = set()
 
-    src_filenames = _raw_image_names(src, img_format)
-    in_src = set(src_filenames)
-    orig_filenames = [name for name in _raw_image_names(orig_path, img_format)
-                      if name not in in_src]
-    source_plate = source_plate or os.path.basename(os.path.normpath(src))
-    if metadata_type == 'scanr_indexed':
-        from .convert import _indexed_well_map
-        matches = [regular_expression.fullmatch(name)
-                   for name in src_filenames + orig_filenames]
-        metadata_well_map = _indexed_well_map(
-            metadata_well_map, {(source_plate, match.group('wellID') if match else None) for match in matches})
-    image_paths_by_key = defaultdict(list)
-    for folder, names in ((src, src_filenames),
-                          (orig_path, orig_filenames)):
-        if folder != src and not names:
-            continue
-        print(f'All files: {len(names)} in {folder}')
-        parsed = _extract_filename_metadata(
-            names, folder, regular_expression, metadata_type,
-            metadata_well_map=metadata_well_map,
-            source_plate=source_plate)
-        for key, paths in parsed.items():
-            if (folder != src and metadata_type != 'scanr_indexed'
-                    and 'plateID' not in regular_expression.groupindex):
-                key = (os.path.basename(src),) + tuple(key[1:])
-            image_paths_by_key[key].extend(paths)
+    image_paths_by_key = _raw_images_by_key(
+        src, regular_expression, metadata_type, img_format,
+        metadata_well_map=metadata_well_map, source_plate=source_plate)
     print(f'All unique FOV: {len(image_paths_by_key)} in {src}')
     if not image_paths_by_key:
         return 0
@@ -5838,9 +5866,20 @@ def _load_array_any(path):
 def _load_and_concatenate_arrays(
         src, channels, cell_chann_dim, nucleus_chann_dim,
         pathogen_chann_dim, organelle_chann_dim, resume=False,
-        organelle_chann_dims=None, mask_folders=None, cell_source=None):
+        organelle_chann_dims=None, mask_folders=None, cell_source=None,
+        image_format='npy'):
     """
     Load and concatenate arrays from multiple folders.
+
+    With ``image_format='ome-zarr'`` (item 0aj) each merged field goes
+    straight into the project's merged store, ``<src>/fov.ome.zarr``:
+    the intensity planes as one image in their acquired dtype and every
+    mask plane as a label image (uint16 or uint32 by its largest label),
+    one shard file each, and the plane layout in the store's attributes.
+    No ``merged/`` folder is written. A field counts as merged only once
+    its store entry is committed. A folder whose fields belong to several
+    plates, or name one field twice (time-lapse), cannot be one plate store,
+    so it is merged to ``merged/*.npy`` as before, with one note.
 
     Every merged stack is written **atomically** — to a temporary file in
     the destination folder, then ``os.replace``\\ d into place. The plain
@@ -5872,6 +5911,9 @@ def _load_and_concatenate_arrays(
             as ``cell_source`` in the plane-layout sidecar when given (for
             example ``'nucleus_territory'``, cells grown from nuclei); None
             writes the sidecar as before.
+        image_format (str): ``'npy'`` (``merged/*.npy``, the default here)
+            or ``'ome-zarr'`` (the merged store, see above). ``'tiff'``
+            merges to ``.npy``; the TIFF copy is exported afterwards.
 
     Returns:
         None
@@ -5919,13 +5961,24 @@ def _load_and_concatenate_arrays(
 
     output_folder = src+'/merged'
     reference_folder = folder_paths[0]
-    os.makedirs(output_folder, exist_ok=True)
 
     count=0
     reference_files = _listdir_visible(reference_folder)
     from .image_quality import excluded_fields
     rejected_quality = excluded_fields(src)
     reference_files = [name for name in reference_files if name not in rejected_quality]
+    to_store = (str(image_format or 'npy').strip().lower() == 'ome-zarr'
+                and _merged_store_plan(reference_files))
+    first_npy = next((n for n in reference_files if n.endswith('.npy')), None)
+    if to_store and first_npy is not None and np.load(
+            os.path.join(reference_folder, first_npy), mmap_mode='r').ndim != 3:
+        from .qt.i18n import tr
+        print(tr('fov.ome.zarr not written: the fields have time or depth axes, '
+                 'which the plate store has no place for yet; the fields are '
+                 'merged to merged/*.npy instead.'))
+        to_store = None
+    if not to_store:
+        os.makedirs(output_folder, exist_ok=True)
     all_imgs = len(reference_files)
     time_ls = []
     layout_written = False
@@ -5953,7 +6006,21 @@ def _load_and_concatenate_arrays(
         if cell_source is not None:
             intended_layout['cell_source'] = str(cell_source)
         manifest_path = os.path.join(output_folder, MERGED_LAYOUT_SIDECAR)
-        if resume and os.path.isfile(manifest_path):
+        if to_store:
+            from .image_store import _merged_store_path, _merged_writer, _store_layout
+            store_path = _merged_store_path(src)
+            existing = _store_layout(store_path) if os.path.isdir(store_path) else None
+            if resume and existing is not None and existing != intended_layout:
+                raise ValueError(
+                    'Cannot resume merged fields with a different plane '
+                    f'layout. Existing: {existing!r}; requested: '
+                    f'{intended_layout!r}. Start a non-resume merge into a '
+                    'clean destination so every field uses one layout.')
+            if not resume and os.path.isdir(store_path):
+                shutil.rmtree(store_path)
+            store_writer = _merged_writer(src, to_store, intended_layout)
+            store_layout = intended_layout
+        elif resume and os.path.isfile(manifest_path):
             try:
                 with open(manifest_path, 'r', encoding='utf-8') as handle:
                     existing_layout = json.load(handle)
@@ -5969,7 +6036,17 @@ def _load_and_concatenate_arrays(
                     'clean destination so every field uses one layout.')
 
     already_done = set()
-    if resume:
+    if resume and to_store:
+        from .resume import format_resume, plan_resume
+        from .image_store import _store_entries
+        candidates = [os.path.splitext(f)[0] for f in reference_files
+                      if f.endswith('.npy')]
+        committed = {os.path.splitext(name)[0]
+                     for name in _store_entries(store_writer.path)}
+        already_done = set(candidates) & committed
+        print(format_resume(plan_resume(candidates, already_done, enabled=True,
+                                        src=str(store_writer.path))))
+    elif resume:
         candidates = [os.path.splitext(f)[0] for f in reference_files
                       if f.endswith('.npy')]
         rejected = {}
@@ -5996,6 +6073,8 @@ def _load_and_concatenate_arrays(
                 if channels is not None:
                     concatenated_array = np.take(concatenated_array, channels, axis=-1)
 
+                if not layout_written and to_store:
+                    layout_written = True
                 if not layout_written:
                     n_intensity = int(concatenated_array.shape[-1])
                     layout = {
@@ -6061,8 +6140,14 @@ def _load_and_concatenate_arrays(
                     stack = np.concatenate(stack_ls, axis=-1)
 
                 if stack.shape[-1] > concatenated_array.shape[-1]:
-                    output_path = os.path.join(output_folder, filename)
-                    _save_array_atomic(output_path, stack)
+                    if to_store:
+                        from .image_store import _write_merged_field
+                        _write_merged_field(store_writer, filename, stack,
+                                            store_layout,
+                                            image_dtype=concatenated_array.dtype)
+                    else:
+                        output_path = os.path.join(output_folder, filename)
+                        _save_array_atomic(output_path, stack)
         
         stop = time.time()
         duration = stop - start
@@ -6073,6 +6158,46 @@ def _load_and_concatenate_arrays(
 
     return
         
+def _merged_store_plan(names):
+    """The plate a merged store can hold these fields as, or None (item 0aj).
+
+    One store holds one plate with one entry per well and field. Fields of
+    several plates, a name that is not a field name, or two names for one
+    field (time-lapse timepoints) cannot be one store; that is said once and
+    None is returned, so the caller merges to ``merged/*.npy`` instead.
+
+    :param names: the field file names to merge.
+    :returns: the plate name, or None.
+    """
+    from .image_store import split_field_name
+    from .qt.i18n import tr
+    plates, seen = set(), set()
+    for name in names:
+        if not name.endswith('.npy'):
+            continue
+        try:
+            plate, well, field = split_field_name(name)
+        except ValueError:
+            print(tr('fov.ome.zarr not written: {name} is not a field name; '
+                     'the fields are merged to merged/*.npy instead.', name=name))
+            return None
+        if (plate, well, field) in seen:
+            print(tr('fov.ome.zarr not written: two files name the same field '
+                     '({plate} {well} {field}), which one plate store cannot hold; '
+                     'the fields are merged to merged/*.npy instead.',
+                     plate=plate, well=well, field=field))
+            return None
+        seen.add((plate, well, field))
+        plates.add(plate)
+    if len(plates) > 1:
+        print(tr('fov.ome.zarr not written: the fields belong to {count} '
+                 'plates ({plates}) and one store holds one plate; the fields '
+                 'are merged to merged/*.npy instead.',
+                 count=len(plates), plates=', '.join(sorted(plates))))
+        return None
+    return next(iter(plates), None)
+
+
 def _export_vvvv_field(root, file_name, masks, image, *, measured=None,
                        origin='Mask Generation', source_path='',
                        pixel_size=None):
@@ -6131,23 +6256,30 @@ def _export_vvvv_merged(src, *, pixel_size=None):
     :param pixel_size: ``(x, y)`` pixel size in µm, or None.
     :returns: the folders written.
     """
+    from .image_store import (_is_merged_store, _merged_store_path, _read_field,
+                              _list_fields, _store_layout)
     merged = os.path.join(src, 'merged')
     layout_path = os.path.join(merged, MERGED_LAYOUT_SIDECAR)
-    if not os.path.isfile(layout_path):
+    store = os.fspath(_merged_store_path(src))
+    if not os.path.isfile(layout_path) and _is_merged_store(store):
+        merged = store
+        layout = _store_layout(store)
+    elif os.path.isfile(layout_path):
+        with open(layout_path, 'r', encoding='utf-8') as handle:
+            layout = json.load(handle)
+    else:
+        layout = None
+    if layout is None:
         print('vvvv export skipped: merged/ has no plane layout')
         return []
-    with open(layout_path, 'r', encoding='utf-8') as handle:
-        layout = json.load(handle)
     mask_dims = {str(role): int(dim)
                  for role, dim in (layout.get('mask_dims') or {}).items()}
     n_intensity = len(layout.get('intensity_channels') or ())
     root = os.path.join(src, 'vvvv', 'mask')
     written = []
-    for name in sorted(_listdir_visible(merged)):
-        if not name.endswith('.npy'):
-            continue
+    for name in sorted(_list_fields(merged)):
         path = os.path.join(merged, name)
-        array = np.load(path, mmap_mode='r')
+        array = _read_field(path, mmap_mode='r')
         if array.ndim != 3:
             print(f'vvvv export skipped {name}: only 2-D fields are exported')
             continue
@@ -10170,6 +10302,7 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
         if failed:
             from .qt.i18n import tr
             raise RuntimeError(tr("The native crop dataset index could not include every selected object. Correct the reported source error and generate the dataset again."))
+        index_rows = _save_native_dataset(dst, index_rows)
         write_table(pd.DataFrame(index_rows, dtype=object), os.path.join(dst, 'crop_index.csv'),
                     canonicalise=False, index=False)
     empty = []
@@ -10199,6 +10332,39 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
               f"training images; the model cannot learn them.")
 
     return os.path.join(dst, 'train'), os.path.join(dst, 'test')
+
+
+def _save_native_dataset(dst, index_rows):
+    """Save a native crop dataset as OME-Zarr under each source project's ``datasets/`` (item 0aj).
+
+    The selected crops are copied, through the shared crop reader and
+    writer, into ``<project>/datasets/<dataset name>.ome.zarr`` with their
+    class labels and keys back to the measured objects
+    (:func:`spacr.crop_store.write_training_dataset`), so a dataset no longer
+    depends on the crop store or the fields it was cut from. The rows of
+    ``crop_index.csv`` then point at the dataset store; PNG rows are kept.
+
+    :param dst: the generated dataset folder; its name names the store.
+    :param index_rows: the rows :func:`_dataset_index_row` built.
+    :returns: the rows to write to ``crop_index.csv``.
+    """
+    from .crop_store import write_training_dataset
+
+    name = os.path.basename(os.path.normpath(dst))
+    by_source = {}
+    for position, row in enumerate(index_rows):
+        if row.get('source_kind') == 'ome-zarr':
+            by_source.setdefault(row['source'], []).append(position)
+    out = list(index_rows)
+    for source, positions in by_source.items():
+        project = os.path.normpath(os.path.join(dst, source))
+        chosen = [index_rows[i] for i in positions]
+        saved = write_training_dataset(project, name, chosen)
+        for i, row, new in zip(positions, chosen, saved):
+            out[i] = {**new, 'source_kind': 'ome-zarr', 'source': source,
+                      'class': row['class'], 'split': row['split'],
+                      'crop_name': row['crop_name']}
+    return out
 
 
 def _dataset_index_row(item, root, class_name, split, destination, canonicalize, db_path):

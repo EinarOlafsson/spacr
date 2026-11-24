@@ -345,14 +345,15 @@ def test_merge_receives_every_channel_index_positionally(run_dir, stubs):
     # existed when it was written; 326 took it to 702, and core.py now sends
     # the slots the run configured rather than every slot that can be named.
     # This run configures none of them.
-    assert kwargs == {"organelle_chann_dims": {}, "resume": True}
+    assert kwargs == {"organelle_chann_dims": {}, "resume": True,
+                      "image_format": "npy"}
 
 
 def test_merge_resume_defaults_to_false(run_dir, stubs):
     from spacr.core import preprocess_generate_masks
     preprocess_generate_masks(_mask_settings(run_dir))
     assert stubs["concat"].calls[0][1] == {
-        "organelle_chann_dims": {}, "resume": False}
+        "organelle_chann_dims": {}, "resume": False, "image_format": "npy"}
 
 
 def test_secondary_organelle_slots_are_segmented_and_merged(run_dir, stubs):

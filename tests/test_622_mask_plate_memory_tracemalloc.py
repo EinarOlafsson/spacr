@@ -117,9 +117,12 @@ def test_mask_generation_peak_memory_does_not_scale_with_the_plate(
     large_src = _plate(tmp_path / "large", large_fields)
     large = _peak_bytes(large_src)
 
-    merged = sorted(p.name for p in (large_src / "merged").glob("*.npy"))
+    from spacr.image_store import _list_fields, _read_field
+
+    store = large_src / "fov.ome.zarr"   # item 0aj
+    merged = sorted(_list_fields(store))
     assert len(merged) == large_fields
-    stack = np.load(large_src / "merged" / merged[0])
+    stack = _read_field(store / merged[0])
     assert stack.shape[:2] == (SIDE, SIDE)
     assert stack.shape[2] >= len(CHANNELS) + 3
 
