@@ -351,8 +351,8 @@ _DIRECT_READER = re.compile(r"pd\.read_csv\(|pd\.read_sql")
 def _direct_reader_sites():
     sites = []
     for path in sorted(PACKAGE.rglob("*.py")):
-        if path.name == "tabular.py":
-            continue          # the funnel is allowed to be the funnel
+        if path.name in ("tabular.py", "store.py"):
+            continue          # the funnel, and the store's legacy reader behind it
         for number, line in enumerate(
                 path.read_text(encoding="utf-8").splitlines(), 1):
             if _DIRECT_READER.search(line):
