@@ -208,3 +208,84 @@ def test_a_library_without_a_barcode_column_names_its_columns(tmp_path):
     empty.write_text("gene\n", encoding="utf-8")
     with pytest.raises(ValueError, match="no rows"):
         ops_engine._load_library(str(empty))
+
+
+def _tree(root):
+    """Every file under a run folder, by path relative to it, as bytes."""
+    return {str(path.relative_to(root)): path.read_bytes()
+            for path in sorted(root.rglob("*")) if path.is_file()}
+
+
+
+_VOLATILE = {"seconds", "total_seconds", "field_seconds", "peak_rss_gb",
+             "created", "run_id"}
+
+
+def _steady(value):
+    """A report without its clock readings, memory peak and run stamp."""
+    if isinstance(value, dict):
+        return {key: _steady(item) for key, item in value.items()
+                if key not in _VOLATILE}
+    if isinstance(value, list):
+        return [_steady(item) for item in value]
+    return value
+
+
+@pytest.mark.parametrize("value", [None, ""])
+def test_no_subset_writes_what_a_run_without_the_setting_writes(well, tmp_path,
+                                                                value):
+    """``ops_sites`` None or empty: the whole run, byte for byte.
+
+    Every table file of the store is byte-identical to the run that never
+    set ``ops_sites``. The JSON reports agree once the run folder, the
+    timings, the memory peak and the run stamp are set aside; the DuckDB
+    catalogue only names the run folder and is not compared.
+    """
+    _raw, root, settings, library, _whole, _tops = well
+    out = tmp_path / "run"
+    ops_engine.run_ops({**settings, "dst_root": str(out), "ops_sites": value},
+                       library=library)
+    before, after = _tree(root / "whole"), _tree(out)
+    assert sorted(before) == sorted(after)
+    tables = [name for name in before if name.endswith(".parquet")]
+    assert len(tables) >= 3
+    for name in tables:
+        assert before[name] == after[name], name
+    for name in (name for name in before if name.endswith(".json")):
+        old = json.loads(before[name].decode().replace(str(root / "whole"), "<run>"))
+        new = json.loads(after[name].decode().replace(str(out), "<run>"))
+        assert _steady(old) == _steady(new), name
+        assert '"ops_sites":' not in json.dumps(new)
+
+
+def test_a_folder_of_the_listed_tiles_runs_on_the_whole_run_placement(
+        well, tmp_path):
+    """Only sites 0-2 on disk, placed by the whole run's placement file.
+
+    The folder fits no round well, so the layout comes from the seed: the
+    listed sites land where the whole run put them, in its frame, and the
+    run names the subset.
+    """
+    raw, root, settings, library, whole, _tops = well
+    partial = tmp_path / "partial"
+    for path in raw.rglob("*.tif"):
+        if int(path.stem.rsplit("-", 1)[1]) <= 2:
+            target = partial / path.relative_to(raw)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(path, target)
+    seed = whole["wells"]["A1"]["stitch"]["placement_seed_file"]
+    run = ops_engine.run_ops({**settings, "genotype_source": str(partial),
+                              "dst_root": str(tmp_path / "out"),
+                              "ops_sites": "0-2", "ops_placement_seed": seed},
+                             library=library)
+    report = run["wells"]["A1"]
+    assert report["stitch"]["placement"] == "seeded"
+    assert report["ops_sites"] == [0, 1, 2]
+    assert report["decode"]["fields"] == 3
+    columns = ["site", "y", "x", "origin_y", "origin_x"]
+    placed = _rows(run["db"], "ops_geometry")[columns].sort_values("site")
+    reference = _rows(whole["db"], "ops_geometry")[columns]
+    reference = reference[reference["site"] <= 2].sort_values("site")
+    pd.testing.assert_frame_equal(placed.reset_index(drop=True),
+                                  reference.reset_index(drop=True),
+                                  check_dtype=False)
