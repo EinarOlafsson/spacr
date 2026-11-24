@@ -935,6 +935,11 @@ def legacy_shape(frame, table=None):
             drop.append(column)
     if drop:
         frame = frame.drop(columns=drop)
+    flags = [c for c in frame.columns if frame[c].dtype.kind == 'b']
+    if flags:
+        frame = frame.copy()
+        for column in flags:
+            frame[column] = frame[column].astype('int64')
     empty = [c for c in frame.columns if frame[c].dtype.kind == 'f'
              and len(frame) and frame[c].isna().all()]
     if empty:
