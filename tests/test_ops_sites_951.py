@@ -22,6 +22,7 @@ pytest.importorskip("pyarrow")
 pd = pytest.importorskip("pandas")
 
 from spacr import ops_engine
+from spacr import ops_settings  # noqa: E402
 from tests.test_the_ops_engine_runs_a_well_end_to_end import (
     MARGIN, OVERLAP, _plate, _ThresholdModel)
 
@@ -34,6 +35,7 @@ def well(tmp_path_factory):
     """
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", OVERLAP)
     monkeypatch.setattr(ops_engine, "_WINDOW", 256)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 48)
     monkeypatch.setattr(ops_engine, "_cellpose_model",

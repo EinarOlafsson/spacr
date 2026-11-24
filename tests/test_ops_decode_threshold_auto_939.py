@@ -326,6 +326,7 @@ def auto_run(tmp_path_factory):
 
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", base.OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", base.OVERLAP)
     monkeypatch.setattr(ops_engine, "_WINDOW", 256)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 48)
     monkeypatch.setattr(ops_engine, "_cellpose_model",

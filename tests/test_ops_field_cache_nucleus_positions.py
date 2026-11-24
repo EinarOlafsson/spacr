@@ -18,6 +18,7 @@ import pytest
 pytest.importorskip("scipy")
 
 from spacr import ops_decode
+from spacr import ops_settings  # noqa: E402
 from spacr.ops_sbs import _disc_neighbours
 
 GUIDES = ["GTACGT", "CATGCA", "TGCATG"]
@@ -138,6 +139,7 @@ def synthetic_runs(tmp_path_factory):
 
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", base.OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", base.OVERLAP)
     monkeypatch.setattr(ops_engine, "_WINDOW", 256)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 48)
     monkeypatch.setattr(ops_engine, "_cellpose_model",

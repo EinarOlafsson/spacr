@@ -27,6 +27,7 @@ pytest.importorskip("pyarrow")
 from scipy import ndimage
 
 from spacr import ops_engine
+from spacr import ops_settings  # noqa: E402
 from spacr.ops_layout import round_well_layout
 from spacr.ops_sbs import BASES
 
@@ -164,6 +165,7 @@ def engine_run(tmp_path_factory):
     """
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", OVERLAP)
     monkeypatch.setattr(ops_engine, "_WINDOW", 256)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 48)
     monkeypatch.setattr(ops_engine, "_cellpose_model",

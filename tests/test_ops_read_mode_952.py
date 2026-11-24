@@ -27,6 +27,7 @@ from scipy import ndimage
 
 from spacr import ops_decode as D
 from spacr import ops_engine
+from spacr import ops_settings  # noqa: E402
 from spacr import ops_prefix as P
 from spacr import ops_sbs as S
 from spacr.tabular import read_table
@@ -211,6 +212,7 @@ def engine_well(tmp_path_factory):
 
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", base.OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", base.OVERLAP)
     monkeypatch.setattr(ops_engine, "_WINDOW", 256)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 48)
     monkeypatch.setattr(ops_engine, "_cellpose_model",

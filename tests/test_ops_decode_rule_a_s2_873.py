@@ -24,6 +24,7 @@ pytest.importorskip("tifffile")
 pytest.importorskip("pyarrow")
 
 from spacr import ops_decode, ops_engine, ops_sbs
+from spacr import ops_settings  # noqa: E402
 from spacr.ops_cycles import align_field
 from spacr.settings import ALPHA_FEATURES
 
@@ -316,6 +317,7 @@ def rule_a_run(tmp_path_factory):
 
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", base.OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", base.OVERLAP)
     monkeypatch.setattr(ops_engine, "_WINDOW", 256)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 48)
     monkeypatch.setattr(ops_engine, "_cellpose_model",
