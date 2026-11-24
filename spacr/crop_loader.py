@@ -310,8 +310,10 @@ def _connect(db_path: str):
     """Open ``db_path`` read-only, refusing a path that is not a database."""
     from .database_concurrency import connect
 
-    return connect(_require_file(db_path, "measurements database"),
-                   readonly=True)
+    from . import store
+
+    return store._legacy_open(
+        store.shared(_require_file(db_path, "measurements database")))
 
 
 def _table_columns(conn, table: str) -> Tuple[str, ...]:

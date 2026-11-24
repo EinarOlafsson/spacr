@@ -877,6 +877,27 @@ def _object_keys(frame):
             for field, obj in zip(fields, objects)]
 
 
+def _png_list_reader(path, timeout):
+    """A read-only SQLite connection to ``path`` that waits ``timeout`` seconds for a lock.
+
+    It is the shared store's reader, so the wait is the one
+    :func:`spacr.database_concurrency.connect` gives every reader.
+
+    :param path: the SQLite file.
+    :param timeout: seconds to wait for a lock another program holds.
+    :returns: a context manager yielding the connection.
+    :raises sqlite3.Error: when the file is locked past ``timeout`` or is not a database.
+    """
+    import sqlite3
+
+    from . import store
+
+    try:
+        return store.legacy_connection(store.shared(path, timeout=timeout), timeout=timeout)
+    except store.StoreError as exc:
+        raise sqlite3.DatabaseError(str(exc)) from exc
+
+
 def _has_png_list(path):
     """Whether the SQLite file at ``path`` has a ``png_list`` table.
 
@@ -885,22 +906,23 @@ def _has_png_list(path):
     """
     import sqlite3
 
-    from .database_concurrency import connect, is_busy_error
+    from . import store
+    from .database_concurrency import is_busy_error
     from .measurement_store import exists as _measurements_exist
 
     if not _measurements_exist(path):
         return False
     try:
-        connection = connect(path, readonly=True, timeout=_PNG_LIST_BUSY_WAIT_S)
-        try:
+        with _png_list_reader(path, _PNG_LIST_BUSY_WAIT_S) as connection:
             return connection.execute(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name='png_list'").fetchone() is not None
-        finally:
-            connection.close()
     except sqlite3.Error as exc:
         return is_busy_error(exc)
     except ValueError:
-        return False
+        try:
+            return "png_list" in store.shared(path).tables()
+        except (store.StoreError, FileNotFoundError, OSError):
+            return False
 
 
 def _plate_database(names, roots):
@@ -1231,8 +1253,6 @@ def saved_png_list_annotation(path, name=None, merge_definition=None, frame=None
     """
     import sqlite3
 
-    from .database_concurrency import connect
-
     source = source_context(path, name, merge_definition)
     if str(path).lower().endswith(_DELIMITED_SUFFIXES):
         if frame is None:
@@ -1242,20 +1262,27 @@ def saved_png_list_annotation(path, name=None, merge_definition=None, frame=None
         databases = [str(Path(path).resolve())]
     for database in databases:
         try:
-            connection = connect(database, readonly=True, timeout=_PNG_LIST_BUSY_WAIT_S)
-        except (sqlite3.Error, ValueError):
+            with _png_list_reader(database, _PNG_LIST_BUSY_WAIT_S) as connection:
+                if not connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+                                          (PROVENANCE_TABLE,)).fetchone():
+                    continue
+                row = connection.execute(
+                    f"SELECT payload_json FROM {_quote(PROVENANCE_TABLE)} WHERE table_name=?",
+                    (_receipt_key(source),)).fetchone()
+        except (sqlite3.Error, FileNotFoundError):
             continue
-        try:
-            if not connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
-                                      (PROVENANCE_TABLE,)).fetchone():
+        except ValueError:
+            from . import store
+
+            try:
+                with store.open(database, verify="none") as opened:
+                    if PROVENANCE_TABLE not in opened.tables():
+                        continue
+                    rows = store._select_rows(opened, PROVENANCE_TABLE, ["payload_json"],
+                                              where={"table_name": _receipt_key(source)}, limit=1)
+            except (store.StoreError, FileNotFoundError, OSError):
                 continue
-            row = connection.execute(
-                f"SELECT payload_json FROM {_quote(PROVENANCE_TABLE)} WHERE table_name=?",
-                (_receipt_key(source),)).fetchone()
-        except sqlite3.Error:
-            continue
-        finally:
-            connection.close()
+            row = rows[0] if rows else None
         if row:
             return json.loads(row[0]).get("definition")
     return None

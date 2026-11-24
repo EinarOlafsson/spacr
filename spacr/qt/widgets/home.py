@@ -4054,17 +4054,16 @@ def _easy_store_read(path, legacy, project):
 
     from ... import store
 
-    opened = store.shared(path)
+    opened = store.shared(path, timeout=0.25)
     with ExitStack() as stack:
         try:
-            connection = stack.enter_context(store.legacy_connection(opened))
+            connection = stack.enter_context(store.legacy_connection(opened, timeout=0.25))
         except store.StoreError:
             connection = None
         if connection is None:
             twin = store.fork(opened)
             stack.callback(twin.close)
             return project(twin)
-        connection.execute('PRAGMA busy_timeout=250')
         connection.set_progress_handler(lambda: 1, 100000)
         stack.callback(connection.set_progress_handler, None, 0)
         return legacy(connection)
