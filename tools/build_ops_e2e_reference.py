@@ -21,7 +21,8 @@ Revision 3 (2026-11-23) exists because the maintainer's ownership rule
 adopted by OPS through ``spacr.ops_sample.pair_nuclei_with_cells``) moves
 the phenotype cells from 490 to 484.
 
-usage: python tools/build_ops_e2e_reference.py <tier root> <out> --reason TEXT [--tar FILE]
+usage: python tools/build_ops_e2e_reference.py <tier root> <out> --reason TEXT
+       [--tar FILE] [--override KEY=VALUE ...]
 """
 from __future__ import annotations
 
@@ -46,6 +47,10 @@ MODELS = {"tile_affine": "ops_testdata_settings.csv",
           "similarity": "ops_testdata_settings_similarity.csv"}
 
 
+#: ``--override key=value`` pairs, applied to every settings file read.
+OVERRIDES: dict = {}
+
+
 def _settings(root: Path, dst: Path, name: str):
     from spacr.cli import load_settings_file
 
@@ -57,6 +62,7 @@ def _settings(root: Path, dst: Path, name: str):
     settings["ops_gpu"] = False
     settings["ops_ph_placement_seed"] = str(
         root / "reference" / "inputs" / "ops_ph_placement_seed.json")
+    settings.update(OVERRIDES)
     return settings
 
 
@@ -97,7 +103,17 @@ def main(argv=None):
     parser.add_argument("out", type=Path, help="an empty output folder")
     parser.add_argument("--reason", required=True)
     parser.add_argument("--tar", type=Path)
+    parser.add_argument("--override", action="append", default=[],
+                        metavar="KEY=VALUE",
+                        help="a settings value for every run (recorded in "
+                             "the provenance), e.g. ops_ph_image_format=npz, "
+                             "revision 2's mask format")
     args = parser.parse_args(argv)
+    for item in args.override:
+        key, sep, value = item.partition("=")
+        if not sep or not key:
+            parser.error(f"--override wants KEY=VALUE, got {item!r}")
+        OVERRIDES[key] = value
     if args.out.exists() and any(args.out.iterdir()):
         parser.error(f"{args.out} is not empty")
     work = args.out / "work"
@@ -152,6 +168,7 @@ def main(argv=None):
         "spacr_commit": commit,
         "route": "tools/build_ops_e2e_reference.py (the route of "
                  "PROVENANCE_rev2_addendum.json)",
+        "settings_overrides": OVERRIDES,
         "phenotype_cells": cells,
         "timing": timing,
         "environment": _environment(),
