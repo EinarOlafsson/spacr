@@ -34,6 +34,8 @@ PARENTS = {"prometaphase": "mitotic", "metaphase": "mitotic", "ana_telo_cyto": "
            "mitotic": "G2/M", "g2_prophase": "G2", "G1": "interphase", "S": "interphase",
            "G2": "interphase"}
 CHECKPOINT_FORMAT = "spacr-ops-cell-cycle-1"
+STAGE_BUNDLE_FORMAT = "spacr-cellcycle-stage-model-1"
+NORMALISATION = "robust z per well (spacr.ops_mitotic._well_robust_z)"
 ARREST_GENES = ("KIF11", "TPX2", "CENPE", "KIF18A", "NUF2", "NDC80", "SPC24", "SPC25", "CKAP5",
                 "CDC20", "PLK1", "AURKA", "ANAPC1", "ANAPC2", "ANAPC4", "ANAPC5", "ANAPC10",
                 "ANAPC11", "CDC16", "CDC23", "CDC27")
@@ -165,6 +167,23 @@ def _probabilities(model, x: np.ndarray) -> np.ndarray:
     if len(x):
         out[:, np.asarray(model.classes_, int)] = model.predict_proba(x)
     return out
+
+
+class _ClassMappedModel:
+    """A fitted learner whose own class indices are mapped onto :data:`CLASSES`.
+
+    :param model: a fitted classifier with ``classes_`` and ``predict_proba``.
+    :param classes: the :data:`CLASSES` index of each class the model knows.
+    """
+
+    def __init__(self, model, classes: Sequence[int]):
+        """Keep the model and the :data:`CLASSES` index of each of its classes."""
+        self.model = model
+        self.classes_ = np.asarray(classes, int)
+
+    def predict_proba(self, x):
+        """The wrapped model's probabilities, in the columns of ``classes_``."""
+        return self.model.predict_proba(x)
 
 
 def _encode(labels: Sequence[Any]) -> np.ndarray:
@@ -315,7 +334,7 @@ def train_cell_cycle_model(cells: pd.DataFrame, labels: Sequence[str], *, input_
     card = {"format": CHECKPOINT_FORMAT, "family": "tabular", "tabular": tabular,
             "input": input_mode, "classes": list(CLASSES), "parents": PARENTS,
             "features": list(features), "dna": dna, "mt": mt,
-            "normalisation": "robust z per well (spacr.ops_mitotic._well_robust_z)",
+            "normalisation": NORMALISATION,
             "data": [{"path": str(p), "sha256": _sha256(str(p))} for p in data_files],
             "label_counts": {CLASSES[i]: int(n) for i, n in
                              zip(*np.unique(y, return_counts=True))},
@@ -428,8 +447,82 @@ def save_cell_cycle_checkpoint(bundle: Mapping[str, Any], folder: str, *,
     return target
 
 
+def stage_bundle(path: str) -> Dict[str, Any]:
+    """A development stage-model bundle (a ``.joblib`` dict), mapped onto :data:`CLASSES`.
+
+    The bundle holds ``format`` ``spacr-cellcycle-stage-model-1``, a ``model``, ``features``,
+    its own ``classes`` and a ``normalisation`` text. Classes that :data:`CLASSES` has and the
+    bundle lacks (``telophase_daughters`` in the six-class plate A model) get probability 0.
+    The bundle's own class names are matched to :data:`CLASSES` by name and the mapping is
+    written in the card. The normalisation must be the per-well robust z of
+    :func:`spacr.ops_mitotic._well_robust_z`, which :func:`predict_stages` applies.
+
+    Unpickling runs code, so the bundle is only as safe as its source; there is no checksum
+    file to check, so the SHA-256 of the file is recorded in the card instead.
+
+    :param path: the ``.joblib`` file.
+    :returns: ``{"model", "features", "training", "card", "sha256"}``, the shape of
+        :func:`load_cell_cycle_checkpoint`.
+    :raises ValueError: for another format, a class :data:`CLASSES` does not know or another
+        normalisation.
+    """
+    import warnings
+
+    import joblib
+
+    from .qt.i18n import tr
+
+    warnings.warn(tr("loading the development stage model {path}: unpickling runs code; load "
+                     "only bundles you trust", path=path), stacklevel=2)
+    held = joblib.load(path)
+    if not isinstance(held, Mapping) or not str(held.get("format", "")).startswith(
+            STAGE_BUNDLE_FORMAT):
+        raise ValueError(tr("{path} is not a {format} stage-model bundle", path=path,
+                            format=STAGE_BUNDLE_FORMAT))
+    classes = [str(c) for c in held["classes"]]
+    unknown = [c for c in classes if c not in CLASSES]
+    if unknown:
+        raise ValueError(tr("the bundle {path} has classes {unknown} that spaCR does not call",
+                            path=path, unknown=unknown))
+    normalisation = str(held.get("normalisation") or "")
+    if not normalisation.startswith("robust z per well"):
+        raise ValueError(tr("the bundle {path} is normalised as {found}; spaCR applies the "
+                            "robust z per well", path=path, found=repr(normalisation)))
+    own = np.asarray(held["model"].classes_, int)
+    mapped = [CLASSES.index(classes[i]) for i in own]
+    digest = _sha256(path)
+    features = [str(f) for f in held["features"]]
+    dna = next((f.split("_")[1] for f in features if f.endswith("_mean_intensity")
+                and f.startswith(("cell_", "nucleus_"))), "dapi")
+    card = {"format": CHECKPOINT_FORMAT, "family": "tabular", "tabular": "hgb",
+            "input": "DNA", "classes": list(CLASSES), "parents": PARENTS,
+            "features": features, "dna": dna, "mt": None, "normalisation": normalisation,
+            "imported_from": {"path": str(path), "sha256": digest,
+                              "format": str(held["format"]), "classes": classes,
+                              "class_map": {classes[i]: CLASSES[m] for i, m in zip(own, mapped)},
+                              "absent_classes": [c for c in CLASSES if c not in classes],
+                              "cv": held.get("cv")},
+            "seed": 0, "spacr_version": _version()}
+    return {"model": _ClassMappedModel(held["model"], mapped), "features": features,
+            "training": None, "card": card, "sha256": digest}
+
+
+def import_stage_bundle(path: str, folder: str) -> str:
+    """Convert a development stage-model bundle to a release checkpoint folder.
+
+    :param path: the ``.joblib`` bundle read by :func:`stage_bundle`.
+    :param folder: the directory that receives the checkpoint.
+    :returns: the checkpoint directory of :func:`save_cell_cycle_checkpoint`; load it with
+        :func:`load_cell_cycle_checkpoint`.
+    """
+    return save_cell_cycle_checkpoint(stage_bundle(path), folder)
+
+
 def load_cell_cycle_checkpoint(path: str) -> Dict[str, Any]:
     """A checkpoint written by :func:`save_cell_cycle_checkpoint`, checked before unpickling.
+
+    A ``.joblib`` file is a development stage-model bundle and goes through
+    :func:`stage_bundle` instead.
 
     The card's ``format`` and the SHA-256 of every file in ``SHA256SUMS`` are checked first;
     only then is ``model.joblib`` loaded, with a warning, as
@@ -447,6 +540,8 @@ def load_cell_cycle_checkpoint(path: str) -> Dict[str, Any]:
 
     from .qt.i18n import tr
 
+    if os.path.isfile(path):
+        return stage_bundle(path)
     sums_path = os.path.join(path, "SHA256SUMS")
     if not os.path.isfile(sums_path):
         raise ValueError(tr("{path} is not a cell-cycle checkpoint: no SHA256SUMS", path=path))
@@ -579,6 +674,10 @@ def predict_stages(bundle: Mapping[str, Any], cells: pd.DataFrame) -> pd.DataFra
     if missing:
         raise ValueError(tr("the cell tables lack the model's features {missing}",
                             missing=missing[:5]))
+    recorded = str(bundle["card"].get("normalisation") or NORMALISATION)
+    if not recorded.startswith("robust z per well"):
+        raise ValueError(tr("the model was trained with the normalisation {found}; only the "
+                            "robust z per well is applied", found=repr(recorded)))
     p = _probabilities(bundle["model"], _matrix(cells, bundle["features"]))
     out = pd.DataFrame(p, index=cells.index, columns=[f"p_{c}" for c in CLASSES])
     out["model_stage"] = [CLASSES[i] for i in np.argmax(p, axis=1)]
