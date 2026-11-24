@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-773 Lifecycle: new, 185 Lifecycle: future in features/feature_list/.
+774 Lifecycle: new, 185 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -2151,3 +2151,5 @@ NEW FEATURES
        987_cellpose_batches_in_memory.txt
   993  CLI PREFLIGHT REFUSALS RETAIN THEIR PROBLEMS WITHOUT AUTOMATIC CRASH REPORTS
        993_cli_preflight_reporting.txt
+  1015  OPS LIVE SHOWS ONE FIGURE AT A TIME, WITH SAMPLE, SETTINGS AND RUN PREVIEW PER TAB
+       1015_ops_live_on_the_figure_queue.txt
