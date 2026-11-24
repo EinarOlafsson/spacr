@@ -695,14 +695,13 @@ def _dna_phases(cells: pd.DataFrame, settings: Mapping[str, Any], mitotic: np.nd
     :returns: the frame and fits of :func:`spacr.measure._cell_table_phases_measure_fc`,
         retaining exact fit populations for a separate fixed-fit diagnostic report.
     """
-    from . import measure
+    from .measure import dna_phases
 
     table = cells[["_dna_integrated", "well", "site"]].copy()
     table["mitotic"] = np.asarray(mitotic, bool)
     min_cells = int(settings.get("cell_cycle_field_min_cells") or 50)
-    return measure._cell_table_phases_measure_fc(table, dna="_dna_integrated", group="well",
-                                                 field="site", mitotic="mitotic",
-                                                 min_cells=min_cells, capture_diagnostics=True)
+    return dna_phases(table, dna="_dna_integrated", group="well", field="site",
+                      mitotic="mitotic", min_cells=min_cells, capture_diagnostics=True)
 
 
 def _fit_quality(content: np.ndarray, fit) -> Tuple[float, float]:

@@ -7668,6 +7668,76 @@ def _cell_cycle_fit_rows(fits, fit_group):
     return pd.DataFrame(rows)
 
 
+def dna_phases(cells, *, dna='_dna_integrated', group='well', field='site',
+               mitotic=None, centre=True, min_cells=_CELL_CYCLE_FIELD_MIN_CELLS,
+               gates=None, capture_diagnostics=False, groups=None, fields=None):
+    """The model-free DNA-content call of G1, S, G2, subG1, >4N and M (item 995).
+
+    The one entry point of the field-centred call: Measure's cell-cycle step
+    (:func:`_classify_cell_cycle`), the OPS cell-cycle phase
+    (:func:`spacr.ops_cell_cycle.run_cell_cycle_phase`) and the OPS profile
+    path all reach :func:`_field_centred_dna_phases` through it. It needs no
+    stage model, only the integrated DNA intensity of each nucleus, its
+    fit group (well) and its field (site).
+
+    :param cells: a frame with one row per cell, or the path of a cell table;
+        a path is read for the needed columns only, through
+        :func:`spacr.tabular.read_table_columns`.
+    :param dna: the integrated nuclear DNA intensity column.
+    :param group: the fit-group column, one fit per value.
+    :param field: the field column, nested in ``group``.
+    :param mitotic: the external M call: a boolean column name, a boolean
+        array, or None for no external call (every cell is then fitted as
+        non-mitotic and none is called M).
+    :param centre: centre every field on its G1 peak first.
+    :param min_cells: the non-mitotic cells a field needs to be shifted.
+    :param gates: optional ``[G1/S, S/G2]`` in DNA content units.
+    :param capture_diagnostics: retain exact fit populations for diagnostic
+        reporting without changing phases, fitting or verdicts.
+    :param groups: ready-made ``(name, row positions)`` fit groups, for a
+        caller that groups by more than one column; replaces ``group``.
+    :param fields: ready-made field label per row; replaces ``field``.
+    :returns: ``(frame, fits)`` of :func:`_field_centred_dna_phases`, the
+        frame on the index of ``cells``; ``phase`` is G1, S, G2, subG1,
+        >4N or M.
+    :raises ValueError: a column is missing.
+    """
+    from .qt.i18n import tr
+
+    if isinstance(cells, (str, os.PathLike)):
+        from .tabular import read_table_columns
+
+        asked = [c for c in (dna, group if groups is None else None,
+                             field if fields is None else None,
+                             mitotic if isinstance(mitotic, str) else None) if c]
+        cells = read_table_columns(cells, asked)
+    needed = [dna] + ([] if groups is not None else [group]) + (
+        [] if fields is not None or not centre else [field]) + (
+        [mitotic] if isinstance(mitotic, str) else [])
+    missing = [c for c in needed if c not in cells]
+    if missing:
+        raise ValueError(tr(
+            "The field-centred cell-cycle call needs the cell-table columns "
+            "{columns}, which are missing. Measure the nuclear DNA stain and "
+            "keep the well, site and mitotic-call columns in the cell "
+            "tables.", columns=missing))
+    flat = cells.reset_index(drop=True)
+    if groups is None:
+        groups = list(flat.groupby(group, sort=True).indices.items())
+    if fields is None and field in flat:
+        fields = flat[field].to_numpy()
+    if isinstance(mitotic, str):
+        mitotic = flat[mitotic].astype(object).where(
+            flat[mitotic].notna(), False).astype(bool).to_numpy()
+    frame, fits = _field_centred_dna_phases(
+        pd.to_numeric(flat[dna], errors='coerce').to_numpy(dtype=float),
+        groups=groups, fields=fields, mitotic=mitotic, centre=centre,
+        gates=gates, min_cells=min_cells,
+        capture_diagnostics=capture_diagnostics)
+    frame.index = cells.index
+    return frame, fits
+
+
 def _cell_table_phases_measure_fc(cells, *, dna='_dna_integrated',
                                   group='well', field='site',
                                   mitotic='mitotic',
@@ -7675,10 +7745,8 @@ def _cell_table_phases_measure_fc(cells, *, dna='_dna_integrated',
                                   capture_diagnostics=False):
     """Measure's field-centred DNA-content call on an OPS cell table.
 
-    The ``ops_profile_cell_cycle_method 'measure_fc'`` path: one fit per
-    ``group`` (well) on field-centred DNA, the fields being ``field``
-    (site), with the ``mitotic`` column as the external M call
-    (:func:`_field_centred_dna_phases`).
+    The ``ops_profile_cell_cycle_method 'measure_fc'`` path: :func:`dna_phases`
+    with the ``mitotic`` column required as the external M call.
 
     :param cells: one row per cell.
     :param dna: the integrated nuclear DNA intensity column.
@@ -7688,30 +7756,11 @@ def _cell_table_phases_measure_fc(cells, *, dna='_dna_integrated',
     :param min_cells: the non-mitotic cells a field needs to be shifted.
     :param capture_diagnostics: retain exact fit populations for diagnostic
         reporting without changing phases, fitting or verdicts.
-    :returns: ``(frame, fits)`` of :func:`_field_centred_dna_phases`, the
-        frame on the index of ``cells``; ``phase`` is G1, S, G2, subG1,
-        >4N or M.
+    :returns: ``(frame, fits)`` of :func:`dna_phases`.
     :raises ValueError: a column is missing.
     """
-    missing = [c for c in (dna, group, field, mitotic) if c not in cells]
-    if missing:
-        from .qt.i18n import tr
-
-        raise ValueError(tr(
-            "The field-centred cell-cycle call needs the cell-table columns "
-            "{columns}, which are missing. Measure the nuclear DNA stain and "
-            "keep the well, site and mitotic-call columns in the cell "
-            "tables.", columns=missing))
-    flat = cells.reset_index(drop=True)
-    groups = list(flat.groupby(group, sort=True).indices.items())
-    frame, fits = _field_centred_dna_phases(
-        pd.to_numeric(flat[dna], errors='coerce').to_numpy(dtype=float),
-        groups=groups, fields=flat[field].to_numpy(),
-        mitotic=flat[mitotic].astype(object).where(
-            flat[mitotic].notna(), False).astype(bool).to_numpy(),
-        centre=True, min_cells=min_cells, capture_diagnostics=capture_diagnostics)
-    frame.index = cells.index
-    return frame, fits
+    return dna_phases(cells, dna=dna, group=group, field=field, mitotic=mitotic,
+                      min_cells=min_cells, capture_diagnostics=capture_diagnostics)
 
 
 def _phases_by_measurements(nuclei, *, column, gates=None,
@@ -7847,8 +7896,8 @@ def _phases_by_centred_measurements(nuclei, *, column, gates, mitotic_ratio,
                  for name, index in groups]
     dna = _nucleus_dna(nuclei, column)
     external = None if mitotic is None else np.asarray(mitotic, dtype=bool)
-    called, details = _field_centred_dna_phases(
-        dna['dna_content'].to_numpy(dtype=float), groups=positions,
+    called, details = dna_phases(
+        dna[['dna_content']], dna='dna_content', groups=positions,
         fields=_field_labels(nuclei, groups) if field_centre else None,
         mitotic=external, centre=field_centre, min_cells=field_min_cells,
         gates=gates)
