@@ -2815,8 +2815,10 @@ def _check_destination(db_path: str, plan: ImportPlan, object_type: str,
     """
     if not os.path.isfile(db_path):
         return ('measure' if measure else 'write'), []
-    connection = sqlite3.connect(str(db_path), timeout=30)
-    try:
+    from . import store as _store
+
+    with _store.open(str(db_path), verify="none") as opened, \
+            _store.legacy_connection(opened) as connection:
         planned = sorted(_planned_prcfs(plan))
         existing = _field_tables(connection)
         if existing and planned and not any(
@@ -2843,8 +2845,6 @@ def _check_destination(db_path: str, plan: ImportPlan, object_type: str,
         if allowed:
             return 'write', []
         return 'preserve', [_preserve_note(object_type, count)]
-    finally:
-        connection.close()
 
 
 def _replace_table_atomically(connection: 'sqlite3.Connection', table: str,

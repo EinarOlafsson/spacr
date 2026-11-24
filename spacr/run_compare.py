@@ -733,38 +733,41 @@ def count_database(path: Union[str, os.PathLike, None]) -> RunCounts:
 
     overall: Dict[str, int] = {}
     per_plate: Dict[str, Dict[str, int]] = {}
-    try:
-        connection = sqlite3.connect(f"file:{target}?mode=ro", uri=True, timeout=30)
-    except sqlite3.Error as exc:
-        return RunCounts(path=target, note=f"could not open the database: {exc}")
-    try:
-        present = _tables(connection)
-        richest = ""
-        for table in OBJECT_TABLES:
-            if table not in present:
-                continue
-            columns = _columns(connection, table)
-            total = _scalar(connection, f'SELECT COUNT(*) FROM "{table}"')
-            if total is None:
-                continue
-            overall[table] = total
-            if not richest and _PLATE_COLUMN in columns:
-                richest = table
-            if _PLATE_COLUMN not in columns:
-                continue
-            for plate, count in _grouped(connection, table, _PLATE_COLUMN):
-                per_plate.setdefault(plate, {})[table] = count
+    import contextlib
 
-        if richest:
-            columns = _columns(connection, richest)
-            overall.update(_acquisition_counts(connection, richest, columns))
-            for plate in list(per_plate):
-                per_plate[plate].update(_acquisition_counts(
-                    connection, richest, columns, plate=plate))
-    except sqlite3.Error as exc:
-        return RunCounts(path=target, note=f"could not read the database: {exc}")
-    finally:
-        connection.close()
+    from . import store as _store
+    with contextlib.ExitStack() as stack:
+        try:
+            opened = stack.enter_context(_store.open(target, verify="none"))
+            connection = stack.enter_context(_store.legacy_connection(opened))
+        except (sqlite3.Error, _store.StoreError, OSError) as exc:
+            return RunCounts(path=target, note=f"could not open the database: {exc}")
+        try:
+            present = _tables(connection)
+            richest = ""
+            for table in OBJECT_TABLES:
+                if table not in present:
+                    continue
+                columns = _columns(connection, table)
+                total = _scalar(connection, f'SELECT COUNT(*) FROM "{table}"')
+                if total is None:
+                    continue
+                overall[table] = total
+                if not richest and _PLATE_COLUMN in columns:
+                    richest = table
+                if _PLATE_COLUMN not in columns:
+                    continue
+                for plate, count in _grouped(connection, table, _PLATE_COLUMN):
+                    per_plate.setdefault(plate, {})[table] = count
+
+            if richest:
+                columns = _columns(connection, richest)
+                overall.update(_acquisition_counts(connection, richest, columns))
+                for plate in list(per_plate):
+                    per_plate[plate].update(_acquisition_counts(
+                        connection, richest, columns, plate=plate))
+        except sqlite3.Error as exc:
+            return RunCounts(path=target, note=f"could not read the database: {exc}")
 
     if not overall:
         return RunCounts(path=target, available=True,
