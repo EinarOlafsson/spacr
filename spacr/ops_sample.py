@@ -282,13 +282,6 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     that cell; a cell keeps its largest such nucleus; cells without a
     nucleus and nuclei without a cell are dropped and counted.
     """
-    # Measure's own nucleus-cell ownership rule runs first, through the one
-    # shared implementation (maintainer decision 2026-11-23): a nucleus that
-    # spans several cells with under 90 % in any one MERGES those cells; with
-    # 90 % or more in one, its pixels in the others are removed
-    # (spacr.utils._merge_overlapping_objects). counts['merged_cells'] says
-    # how many cells were folded into others. The docstring above is pinned
-    # by a release contract, so the rule is documented here.
     from .utils import _merge_overlapping_objects
 
     nuclei = np.asarray(nuclei)
