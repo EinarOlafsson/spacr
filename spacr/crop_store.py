@@ -195,7 +195,9 @@ class CropPoolWriter:
         so a well of a million crops needs no rows in memory.
     :param workers: shards written at once on writer threads (item 0ap);
         1 writes each shard in the calling thread. The shards, pools and
-        rows are the same for every value.
+        rows are the same for every value. zarr already compresses one
+        shard's chunks on several cores, so more threads rarely help: on
+        100,000 crops of 4 x 115 x 115 pixels two took four times as long.
 
     Pools are written whole as they fill. :meth:`commit` then records them,
     with their table rows, as the class's committed set; a stopped run
@@ -301,9 +303,10 @@ class CropPoolWriter:
         The rows go to ``<class>/rows.jsonl`` and the record to
         ``<class>/spacr_commit.json``, each under a temporary name and then
         renamed, record last. Earlier commits of the class are kept: the
-        record lists every committed pool and row. The rows were streamed
-        to the temporary row file shard by shard (item 0ap), after the
-        earlier commit's rows, so the commit only renames it.
+        record lists every committed pool and row. With ``keep_rows=False``
+        the rows were streamed to the temporary row file shard by shard
+        (item 0ap), after the earlier commit's rows, so the commit only
+        renames it; kept rows are written here, after the earlier ones.
 
         :returns: the commit record, with its ``rows`` unless the writer was
             opened with ``keep_rows=False``.
@@ -313,6 +316,11 @@ class CropPoolWriter:
         previous = self._previous
         pools = list(previous["pools"]) if previous else []
         pools += [p for p in self.pools if p not in pools]
+        if self.keep_rows:
+            stream = self._open_stream()
+            for row in rows:
+                stream.write(json.dumps(row, default=_json_default, sort_keys=True) + "\n")
+            self._streamed += len(rows)
         n_rows = (int(previous["n_rows"]) if previous else 0) + self._streamed
         self._open_stream().close()
         os.replace(self._stream_path, base / "rows.jsonl")
@@ -365,6 +373,9 @@ class CropPoolWriter:
         if self._buffer:
             self._flush()
         self._drain(0)
+        if self.keep_rows:
+            self.rows.extend(json.loads(line) for line in lines)
+            return
         stream = self._open_stream()
         for line in lines:
             stream.write(line)
@@ -412,10 +423,13 @@ class CropPoolWriter:
     def _take(self, written: Tuple[str, int, Optional[List[Dict[str, Any]]]]) -> None:
         """Append one written shard's rows to the row file (and the kept rows)."""
         text, count, rows = written
+        if self.keep_rows:
+            # Kept rows are written at commit, as they are then: a caller
+            # may still add columns to the rows close() returned.
+            self.rows.extend(rows)
+            return
         self._open_stream().write(text)
         self._streamed += count
-        if self.keep_rows and rows is not None:
-            self.rows.extend(rows)
 
     def _open_stream(self):
         """The temporary row file, opened on first use after the earlier commit's rows."""
@@ -469,6 +483,14 @@ class CropPoolWriter:
             joined = (_compact_labels(np.concatenate(planes)) if planes
                       else np.zeros(0, np.uint16))
             arrays.append((f"labels/{cls}", joined, (chunk,), (chunk * 16,)))
+        # The shard's pixels are in the pool arrays now; the crops keep
+        # only what their rows need, so a shard is held once while it is
+        # compressed (item 0ap).
+        for crop in crops:
+            crop.pop("pixels", None)
+            crop.pop("mask", None)
+            if crop.get("labels"):
+                crop["labels"] = dict.fromkeys(crop["labels"], True)
         for kind, array, chunks, shards in arrays:
             parent = self.path / self.object_type / kind
             tmp = parent / f".{name}.tmp"

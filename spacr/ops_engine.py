@@ -9921,7 +9921,10 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
     :param channels: the channel names.
     :param cap: maximum crops in a pool.
     :param options: the options recorded with this run.
-    :param workers: shards the writer compresses at once (item 0ap).
+    :param workers: shards the writer compresses at once (item 0ap). 1,
+        the default: zarr already spreads a shard's chunks over the cores,
+        and on 100,000 check-field-sized crops two writer threads took four
+        times as long as one.
     :param source: for a well whose crops are streamed (saving crops off),
         each site's tiles and masks and the read options, written beside
         the crop index as :data:`OPS_CROP_SOURCE` for the crop reader.
@@ -10056,11 +10059,6 @@ def _ph_relative(path: str, root: str) -> str:
     return path if relative.startswith(os.pardir) else relative
 
 
-def _ph_crop_writers(settings: Mapping[str, Any]) -> int:
-    """Shards the crop writer compresses at once: half of ``n_workers``, 1 to 4 (item 0ap)."""
-    return max(1, min(4, int(settings.get("n_workers") or 1) // 2))
-
-
 def _ph_store_owned_cells(tables: Optional[Mapping[str, Any]], plate: str,
                           well: str):
     """``site`` and ``label`` of a well's owned, whole cells, read from the store.
@@ -10142,7 +10140,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     with their boxes, and :func:`spacr.crop_store.read_crop` cuts each from
     its tiles when it is read, the same pixels a saved crop holds (item
     0ap). The workers cut, check and index the crops; this process only
-    routes them into shards, which writer threads compress. A crop commit
+    routes them into shards and writes them. A crop commit
     and matching options are required for resume. The explicit legacy
     ``ops_crop_image_format='tiff-tar'`` keeps each crop as a TIFF member
     (``site-<n>/<prcfo>.tif``; page 0 the
@@ -10346,7 +10344,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             if crop_format == "ome-zarr":
                 crops, shard, unreadable = _ph_write_crop_pool(
                     root, plate, well, results, crop_channels, cap, options,
-                    workers=_ph_crop_writers(settings), source=source)
+                    source=source)
                 results = ()
             for result in results:
                 unreadable.extend(result["unreadable"])
