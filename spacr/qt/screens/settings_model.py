@@ -1374,7 +1374,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "@Segmentation QC",
             "save", "delete_intermediate", "keep_intermediate",
             "keep_original_images", "save_original_images",
-            "mask_image_format",
+            "split_plates", "mask_image_format",
             "filter", "merge_pathogens",
             "strict_errors", "max_failure_rate", "on_error",
             "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs", "ram_guard",
@@ -1621,7 +1621,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Storage", (
             "save", "delete_intermediate", "keep_intermediate",
             "keep_original_images", "save_original_images",
-            "mask_image_format",
+            "split_plates", "mask_image_format",
             "filter", "merge_pathogens",
         )),
         ("Runtime & Reliability", (

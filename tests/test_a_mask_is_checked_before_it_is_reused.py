@@ -159,8 +159,10 @@ def test_a_mask_run_without_resume_segments_a_truncated_mask_again(
     from spacr.resume import validate_merged_field
 
     preprocess_generate_masks(_settings(plate, preprocess=True, **_RUN))
-    fields = _stack_names(plate / "stack")
-    from spacr.image_store import _list_fields, _read_field
+    from spacr.image_store import _list_fields, _read_field, _stack_names as stack_fields
+
+    # Item 0aj P1c: the field stacks live in fov.ome.zarr; the shared lister reads them.
+    fields = stack_fields(plate / "stack")
 
     store = plate / "fov.ome.zarr"   # item 0aj: the merged fields' store
     assert sorted(_list_fields(store)) == sorted(fields)

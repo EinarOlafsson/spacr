@@ -358,6 +358,8 @@ from spacr.gene_knowledge import _DEFAULTS as GENE_KNOWLEDGE_DEFAULTS  # noqa: E
 KEYS_ADDED_BY_REGROUP = frozenset({
     # Merge 4: one size-filter boundary rule; the legacy rule is kept for old files.
     "size_filter_inclusive",
+    # 0aj P1b: split a source of several plates into plate folders (Mask).
+    "split_plates",
     # 977, alpha: ops_phases, a settings file names its own OPS phases (OPS input).
     "ops_phases",
     # 983 and 984, alpha: the image and crop formats, filed under Object Crops.

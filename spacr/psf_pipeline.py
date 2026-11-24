@@ -45,6 +45,7 @@ from pathlib import Path
 import tempfile
 
 import numpy as np
+from .image_store import _read_stack  # the one field-stack reader (item 0aj)
 
 from .point_spread import (PSF, apply_psf, describe_optics, fill_psf_settings,
                            gaussian_psf, load_psf, _spacing)
@@ -1293,9 +1294,9 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
     if requested_calibration and load is None:
         from functools import partial
 
-        load = partial(np.load, mmap_mode='r', allow_pickle=False)
+        load = partial(_read_stack, mmap_mode='r')
     else:
-        load = load or np.load
+        load = load or _read_stack
     wanted = {dye: {parse_well(well, strict=True) for well in wells}
               for dye, wells in controls.items()}
     source = Path(source_dir)
@@ -1522,7 +1523,7 @@ def _n2v_training_planes(source_dir, channel, load=None,
                          limit=_N2V_TRAIN_FIELDS):
     """One channel's planes from up to ``limit`` raw fields, evenly spaced
     through the sorted field names so every well and plate is sampled."""
-    load = load or np.load
+    load = load or _read_stack
     from .image_store import _list_fields
     names = sorted(_list_fields(source_dir))
     if not names:

@@ -457,8 +457,14 @@ def _peek_planes(directory: str) -> Tuple[Optional[int], str, int]:
     """
     from .image_store import _field_header, _is_merged_store, _list_fields
 
+    from .image_store import _stack_header, _stack_names
+
+    stack = os.path.basename(os.path.normpath(directory)) == "stack"
     if _is_merged_store(directory):
         npys = sorted(_list_fields(directory))
+    elif stack:
+        # stack/*.npy, or the field stacks in fov.ome.zarr (item 0aj P1c).
+        npys = _stack_names(directory)
     else:
         npys = sorted(f for f in _listdir(directory) if f.endswith(".npy"))
     if not npys:
@@ -466,7 +472,8 @@ def _peek_planes(directory: str) -> Tuple[Optional[int], str, int]:
 
     for name in npys[:3]:
         try:
-            shape, _dtype = _field_header(os.path.join(directory, name))
+            header = _stack_header if stack else _field_header
+            shape, _dtype = header(os.path.join(directory, name))
         except (OSError, ValueError, EOFError, KeyError):
             continue
         shape = tuple(shape)
@@ -587,7 +594,8 @@ def _inventory(src: Any, settings: Dict[str, Any], app: str) -> _Inventory:
             inv.array_source = os.path.join(os.path.basename(inv.merged_dir), example)
 
     inv.stack_dir = os.path.join(src, "stack")
-    if os.path.isdir(inv.stack_dir):
+    from .image_store import _stack_exists
+    if _stack_exists(inv.stack_dir):
         planes, example, count = _peek_planes(inv.stack_dir)
         inv.stack_files = count
         if planes is not None:

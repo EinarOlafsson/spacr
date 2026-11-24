@@ -163,7 +163,8 @@ def _write_gallery(destination, fields, paths, channel_ids):
     ordered = sorted(fields, key=lambda field: (not bool(field['reasons']), field['field']))
     for field in ordered[:64]:
         path = by_name[field['field']]
-        image = np.load(path, mmap_mode='r', allow_pickle=False)
+        from .image_store import _read_stack
+        image = _read_stack(path, mmap_mode='r')
         metric = next((record for record in field['channels'] if record['reasons']), field['channels'][0])
         channel = metric['channel']
         if image.ndim > 2:
@@ -222,7 +223,10 @@ def screen_fields(root, settings, paths=None, channel_ids=None):
     paths = [] if policy['image_qc_mode'] == 'off' else paths
     classifier = None
     if policy['image_qc_mode'] != 'off':
-        paths = sorted(root.joinpath('stack').glob('*.npy')) if paths is None else list(paths)
+        if paths is None:
+            from .image_store import _stack_names
+            paths = [root / 'stack' / name for name in _stack_names(root / 'stack')]
+        paths = list(paths)
         if not paths:
             raise ValueError('Image quality needs the raw stack fields; restore stack/ or rerun preprocessing')
         if policy['image_qc_classifier']:
@@ -230,7 +234,8 @@ def screen_fields(root, settings, paths=None, channel_ids=None):
         for path in paths:
             checkpoint()
             path = Path(path)
-            image = np.load(path, mmap_mode='r', allow_pickle=False)
+            from .image_store import _read_stack
+            image = _read_stack(path, mmap_mode='r')
             metrics = assess_image(image, policy, channel_ids)
             if classifier is not None:
                 _classify_records(classifier, image, metrics, policy, channel_ids)
@@ -841,7 +846,8 @@ def _labelled_qc_fields(policy, paths, channel_ids=None):
         path = by_name.get(name) or by_name.get(Path(name).name)
         if path is None:
             continue
-        image = np.load(path, mmap_mode='r', allow_pickle=False)
+        from .image_store import _read_stack
+        image = _read_stack(path, mmap_mode='r')
         records = assess_image(image, policy, channel_ids)
         channel = row.get('channel')
         if channel is None or (isinstance(channel, float) and math.isnan(channel)):

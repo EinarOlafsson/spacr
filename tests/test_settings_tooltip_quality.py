@@ -1569,6 +1569,18 @@ if app_key == "mask":
     assert item_1011 <= compared_pairs
     assert not item_1011 & recognized_arrivals
     recognized_arrivals |= item_1011
+    # Item 0aj P1b (2026-11-23): the new split_plates ("Default False.") and
+    # the rewritten keep_original_images help ("Default True.", which said
+    # "On by default" before), both resolved by Mask; each claim is the
+    # resolved default, so none is a variant.
+    item_0aj = {pair for pair in compared_pairs
+                if pair[1] in ("split_plates", "keep_original_images")}
+    assert ("mask", "split_plates") in item_0aj
+    assert ("mask", "keep_original_images") in item_0aj
+    assert not item_0aj & recognized_arrivals
+    for app, key in item_0aj:
+        assert resolve_default_settings(app)[key] is (key == "keep_original_images")
+    recognized_arrivals |= item_0aj
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

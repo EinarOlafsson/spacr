@@ -490,9 +490,10 @@ def test_a_test_mode_mask_run_on_a_macos_volume_completes(
     assert all(" of 1 fields" in line for line in qc_lines), qc_lines
 
     test_dir = plate / "test"
-    assert (test_dir / "stack" / "._test_N06_5_1.npy").exists() or \
-        (test_dir / "stack" / "._test_N06_6_1.npy").exists(), (
-        "the emulated volume wrote no sidecar beside the stack, so this "
+    # Item 0aj P1c: the field stacks live in fov.ome.zarr, so the sidecars
+    # #117 tripped over now sit beside the mask arrays the run wrote.
+    assert any(test_dir.rglob("._*.np[yz]")), (
+        "the emulated volume wrote no sidecar beside an array, so this "
         "test is not exercising #117")
     from tests.conftest import merged_field_arrays
 

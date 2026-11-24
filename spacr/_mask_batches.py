@@ -194,7 +194,8 @@ def _load_batch(plan, index, settings=None):
     stack_dir = os.path.normpath(os.path.join(masks_dir, plan['stack_dir']))
     names = _batch_fields(plan, index)
     channels = [int(channel) for channel in plan['channels']]
-    arrays = [np.load(os.path.join(stack_dir, name)) for name in names]
+    from .image_store import _read_stack
+    arrays = [_read_stack(os.path.join(stack_dir, name)) for name in names]
     shapes = {array.shape[:-1] for array in arrays}
     if len(shapes) > 1:
         largest = np.max(np.array(list(shapes)), axis=0)
@@ -429,13 +430,14 @@ def _field_costs(plan):
     stack_dir = os.path.normpath(os.path.join(masks_dir, plan['stack_dir']))
     for batch in plan['batches']:
         for name in batch['fields']:
+            from .image_store import _stack_header
             try:
-                first = np.load(os.path.join(stack_dir, name), mmap_mode='r')
+                shape, dtype = _stack_header(os.path.join(stack_dir, name))
             except (OSError, ValueError):
                 return 0, 0
-            pixels = int(np.prod(first.shape[:-1]))
+            pixels = int(np.prod(shape[:-1]))
             kept = pixels * len(plan['channels']) * 4
-            ram = pixels * first.shape[-1] * (first.dtype.itemsize + 4) + kept
+            ram = pixels * shape[-1] * (dtype.itemsize + 4) + kept
             return kept, ram
     return 0, 0
 
@@ -1030,7 +1032,8 @@ def _plan_records(plan):
             if identity in owners:
                 raise ValueError(f'Field {field!r} belongs to both {owners[identity]} and {name}')
             owners[identity] = name
-            status = os.stat(os.path.join(stack_dir, field))
+            from .image_store import _stack_stat
+            status = _stack_stat(os.path.join(stack_dir, field))
             sizes.append(status.st_size)
             stamps.append(status.st_mtime_ns)
         digest = hashlib.sha256(json.dumps({
@@ -1074,13 +1077,14 @@ def _batch_ram_estimate(plan, index):
     masks_dir = plan['_masks_dir']
     stack_dir = os.path.normpath(os.path.join(masks_dir, plan['stack_dir']))
     names = _batch_fields(plan, index)
+    from .image_store import _stack_header
     try:
-        first = np.load(os.path.join(stack_dir, names[0]), mmap_mode='r')
+        shape, dtype = _stack_header(os.path.join(stack_dir, names[0]))
     except (OSError, ValueError):
         return 0
-    pixels = int(np.prod(first.shape[:-1]))
-    raw = pixels * first.shape[-1] * first.dtype.itemsize
-    full = pixels * first.shape[-1] * 4
+    pixels = int(np.prod(shape[:-1]))
+    raw = pixels * shape[-1] * dtype.itemsize
+    full = pixels * shape[-1] * 4
     kept = pixels * len(plan['channels']) * 4
     return int(len(names) * (raw + full + kept))
 
