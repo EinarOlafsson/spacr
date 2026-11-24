@@ -23,6 +23,7 @@ import os
 import re
 import time
 from collections import Counter
+from .checkpoint import _atomic_json
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
 from .ops_settings import ops_defaults, ops_setting
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
@@ -8693,16 +8694,18 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
     _ph_options_marker(out_dir, options, existing_parts=bool(completed))
     os.makedirs(os.path.join(root, "merged"), exist_ok=True)
     layout_path = os.path.join(root, "merged", "LAYOUT.json")
-    with open(layout_path + ".part", "w", encoding="utf-8") as handle:
-        json.dump({"layout": _PH_MERGED_LAYOUT, "channels": list(channels),
-                   "masks": ["nuclei", "cells", "cytoplasm"],
-                   "flags": {"owned": {"0": "copy owned by another field",
-                                       "1": "owned by this field",
-                                       "2": "touches the field edge"}},
-                   "dtype": dtype, "axes": "CYX",
-                   **({"image_format": "ome-zarr", "field_metadata": "ops_field.json"}
-                      if image_format == "ome-zarr" else {})}, handle, indent=1)
-    os.replace(layout_path + ".part", layout_path)
+    _atomic_json(
+        layout_path,
+        {"layout": _PH_MERGED_LAYOUT, "channels": list(channels),
+         "masks": ["nuclei", "cells", "cytoplasm"],
+         "flags": {"owned": {"0": "copy owned by another field",
+                             "1": "owned by this field",
+                             "2": "touches the field edge"}},
+         "dtype": dtype, "axes": "CYX",
+         **({"image_format": "ome-zarr", "field_metadata": "ops_field.json"}
+            if image_format == "ome-zarr" else {})},
+        indent=1, sort_keys=False, normalize=False, ensure_ascii=True,
+        newline=False)
     placed = _ph_transforms(db, plate, well, destination)
     by_site = {int(r["site"]): r for r in placed.to_dict("records")}
     owned = _ph_owned_flags(destination, well, settings)
@@ -8748,10 +8751,11 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
             key = writer.write_field(well, result["site"], payload["channels"],
                                       payload["labels"])
             record_path = os.path.join(str(writer.path), key, "ops_field.json")
-            with open(record_path + ".part", "w", encoding="utf-8") as handle:
-                json.dump({"owned": payload["owned"].tolist(), "meta": payload["meta"]},
-                          handle, default=str)
-            os.replace(record_path + ".part", record_path)
+            _atomic_json(
+                record_path,
+                {"owned": payload["owned"].tolist(), "meta": payload["meta"]},
+                indent=None, sort_keys=False, default=str, normalize=False,
+                ensure_ascii=True, newline=False)
         results.append(result)
 
     if workers == 1:
@@ -10041,10 +10045,9 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
         well_report = {"crops": crops, "shards": shard,
                        "reasons": dict(reasons), "unreadable": unreadable,
                        "owned_cells": int(len(cells))}
-        os.makedirs(os.path.dirname(done_path), exist_ok=True)
-        with open(done_path, "w", encoding="utf-8") as handle:
-            json.dump({"options": options, **well_report}, handle, indent=1,
-                      default=str)
+        _atomic_json(done_path, {"options": options, **well_report}, indent=1,
+                     sort_keys=False, default=str, normalize=False,
+                     ensure_ascii=True, newline=False)
         report["wells"][well] = well_report
     report["seconds"] = round(time.perf_counter() - started, 1)
     _say(tr("{plate} ph_crops: {count} crops", plate=plate, count=sum(
@@ -12261,8 +12264,9 @@ def run_ops(settings: Mapping[str, Any], *,
             else:
                 os.makedirs(folder, exist_ok=True)
                 if not os.path.isfile(report_path) and "phenotype" in report:
-                    with open(report_path, "w", encoding="utf-8") as handle:
-                        json.dump(report, handle, indent=1, default=str)
+                    _atomic_json(report_path, report, indent=1,
+                                 sort_keys=False, default=str,
+                                 normalize=False, ensure_ascii=True, newline=False)
                 report["ph_fields"] = _ph_fields(
                     db, plate, well, phenotype_index[well], settings, gpu,
                     destination, segment=segment, measure=measure)
@@ -12282,9 +12286,8 @@ def run_ops(settings: Mapping[str, Any], *,
                 destination)
         report["seconds"] = round(time.perf_counter() - started, 1)
         report["peak_rss_gb"] = _peak_rss_gb()
-        os.makedirs(folder, exist_ok=True)
-        with open(report_path, "w", encoding="utf-8") as handle:
-            json.dump(report, handle, indent=1, default=str)
+        _atomic_json(report_path, report, indent=1, sort_keys=False,
+                     default=str, normalize=False, ensure_ascii=True, newline=False)
         if archive_root:
             from .ops_run_infra import archive_well
 
@@ -14690,9 +14693,9 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
         "total_seconds": round(time.perf_counter() - started, 1),
         "peak_rss_gb": _peak_rss_gb(),
     }
-    with open(os.path.join(dst, "spatial_mask_report.json"), "w",
-              encoding="utf-8") as handle:
-        json.dump(report, handle, indent=1, default=str)
+    _atomic_json(os.path.join(dst, "spatial_mask_report.json"), report,
+                 indent=1, sort_keys=False, default=str, normalize=False,
+                 ensure_ascii=True, newline=False)
     _say(f"spatial masks: {len(objects)} objects in {len(field_rows)} fields "
          f"from {len(windows)} windows in {report['total_seconds']} s")
     return report
@@ -15069,15 +15072,8 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
         owned["files"][name] = digest.hexdigest()
     summary["analysis_output_ownership"] = {"version": 1, "runs": runs}
     report = {key: value for key, value in summary.items()}
-    descriptor, pending_report = tempfile.mkstemp(
-        prefix=".spatial_map_report-", suffix=".json", dir=output)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-            json.dump(report, handle, indent=1, default=str)
-        os.replace(pending_report, report_path)
-    finally:
-        if os.path.exists(pending_report):
-            os.remove(pending_report)
+    _atomic_json(report_path, report, indent=1, sort_keys=False,
+                 default=str, normalize=False, ensure_ascii=True, newline=False)
     if not len(obs):
         retired = []
         for name, expected in owned["files"].items():
@@ -15096,15 +15092,8 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
         if retired:
             for name in retired:
                 del owned["files"][name]
-            descriptor, pending_report = tempfile.mkstemp(
-                prefix=".spatial_map_report-", suffix=".json", dir=output)
-            try:
-                with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-                    json.dump(report, handle, indent=1, default=str)
-                os.replace(pending_report, report_path)
-            finally:
-                if os.path.exists(pending_report):
-                    os.remove(pending_report)
+            _atomic_json(report_path, report, indent=1, sort_keys=False,
+                         default=str, normalize=False, ensure_ascii=True, newline=False)
     _say(f"spatial map: {summary['objects'][host]['objects']} {host} objects "
          f"counted from {summary['points_in_fields']} of {total} points")
     summary["obs"] = obs

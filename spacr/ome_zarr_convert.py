@@ -379,14 +379,11 @@ def _atomic_json(path, data, *, sort_keys=True):
     ``sort_keys=False`` keeps the key order, as :func:`upgrade_ngff` writes a
     store's ``zarr.json``.
     """
-    tmp = path.with_name(f".{path.name}.tmp")
-    with tmp.open("w", encoding="utf-8") as handle:
-        json.dump(data, handle, sort_keys=sort_keys, indent=2, allow_nan=False)
-        handle.write("\n")
-        handle.flush()
-        os.fsync(handle.fileno())
-    os.replace(tmp, path)
-    _sync_directory(path.parent)
+    from .checkpoint import _atomic_json as _shared_atomic_json
+
+    _shared_atomic_json(path, data, sort_keys=sort_keys, normalize=False,
+                        allow_nan=False, ensure_ascii=True,
+                        sync_directory=True)
 
 
 def _sync_directory(path):

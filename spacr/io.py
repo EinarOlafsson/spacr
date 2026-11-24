@@ -52,6 +52,7 @@ from torchvision import transforms
 pyczi = None
 
 from .errors import RunLedger
+from .checkpoint import _atomic_json
 from .image_colors import read_image_rgb
 from .classification_pixels import DECLARED_UINT8, read_classification_image, validate_policy
 from .tiff_io import write_tiff, _raster_with_axes, _yokogawa_planes
@@ -10612,9 +10613,9 @@ def generate_dataset_from_lists(dst, class_data, classes, test_split=0.1,
                 destination.append(item)
             print(split_report.summary())
             os.makedirs(dst, exist_ok=True)
-            with open(os.path.join(dst, '.spacr_split.json'), 'w', encoding="utf-8") as handle:
-                json.dump(split_report.to_dict(), handle, indent=2,
-                          sort_keys=True)
+            _atomic_json(os.path.join(dst, '.spacr_split.json'),
+                         split_report.to_dict(), normalize=False,
+                         ensure_ascii=True, newline=False)
 
     for class_index, (cls, data) in enumerate(zip(classes, class_data)):
         train_class_dir = os.path.join(dst, f'train/{cls}')

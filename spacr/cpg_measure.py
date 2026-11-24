@@ -48,6 +48,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence
 import numpy as np
 import pandas as pd
 
+from .checkpoint import _atomic_json
 from .qt.i18n import tr
 
 #: How ``cpg_painting_frame_shift`` moves the painting images into the frame
@@ -381,8 +382,8 @@ def run_cpg_measure(settings: Mapping[str, Any],
     from . import __version__
 
     result["settings"] = os.path.join(folder, "cpg_measure_settings.json")
-    with open(result["settings"] + ".part", "w", encoding="utf-8") as handle:
-        json.dump({**stamped, "spacr_version": __version__}, handle, indent=1, default=str)
-    os.replace(result["settings"] + ".part", result["settings"])
+    _atomic_json(result["settings"], {**stamped, "spacr_version": __version__},
+                 indent=1, sort_keys=False, default=str, normalize=False,
+                 ensure_ascii=True, newline=False)
     result["seconds"] = round(time.perf_counter() - started, 1)
     return result
