@@ -194,6 +194,8 @@ def _well_robust_z(cells: pd.DataFrame, features: Sequence[str],
     """
     if group is None:
         return cells[list(features)].to_numpy(np.float32)
+    from .batch_correction import MAD_SCALE_ROUNDED, _center, _scale
+
     groups = pd.factorize(cells[group])[0]
     rows_of = [np.flatnonzero(groups == g) for g in np.unique(groups)]
     out = np.empty((len(cells), len(features)), np.float32)
@@ -202,8 +204,9 @@ def _well_robust_z(cells: pd.DataFrame, features: Sequence[str],
         column = np.where(np.isfinite(column), column, np.nan)
         for rows in rows_of:
             block = column[rows]
-            median = np.nanmedian(block) if len(block) else np.nan
-            mad = 1.4826 * np.nanmedian(np.abs(block - median)) if len(block) else np.nan
+            median = _center(block, True)
+            mad = _scale(block, True, centre=median, constant=MAD_SCALE_ROUNDED,
+                         zero_scale="keep")
             out[rows, j] = (block - median) / mad if mad > 0 else np.nan
     return out
 
@@ -248,6 +251,8 @@ def _fit_population_normalization(cells, features, group):
         from .qt.i18n import tr
 
         raise ValueError(tr("reference_cells lacks feature columns: {missing}").format(missing=missing))
+    from .batch_correction import MAD_SCALE_ROUNDED, _center, _scale
+
     fitted = {}
     for key, rows in _normalization_groups(cells, group).items():
         median = np.full(len(features), np.nan)
@@ -256,10 +261,9 @@ def _fit_population_normalization(cells, features, group):
             values = cells[feature].iloc[rows].to_numpy(np.float64, na_value=np.nan)
             values = values[np.isfinite(values)]
             if len(values):
-                median[j] = np.median(values)
-                mad = 1.4826 * np.median(np.abs(values - median[j]))
-                if mad > 0:
-                    scale[j] = mad
+                median[j] = _center(values, True, skipna=False)
+                scale[j] = _scale(values, True, centre=median[j], skipna=False,
+                                  constant=MAD_SCALE_ROUNDED, zero_scale="nan")
         fitted[key] = {"median": median, "scale": scale, "cells": int(len(rows))}
     return {"schema": 1, "group": group, "features": list(features),
             "reference_cells": int(len(cells)), "groups": fitted}

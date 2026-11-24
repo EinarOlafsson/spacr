@@ -87,6 +87,7 @@ from scipy.stats import chi2_contingency, fisher_exact
 import itertools
 import re
 from .multiple_testing import _multipletests, _posthoc_dunn
+from .batch_correction import MAD_SCALE_ROUNDED, _center as _frame_center, _scale as _frame_scale
 
 _ENGINE_TEST_NAMES = {
     "Student's t": 'T-test',
@@ -504,8 +505,8 @@ def mad(values, *, scale: bool = True) -> float:
     data = _finite(values)
     if not data.size:
         return float("nan")
-    raw = float(np.median(np.abs(data - np.median(data))))
-    return raw * MAD_SCALE if scale else raw
+    return float(_frame_scale(data, True, constant=MAD_SCALE if scale else 1.0,
+                              skipna=False, zero_scale="keep"))
 
 
 def robust_z_scores(values, reference) -> np.ndarray:
@@ -3062,11 +3063,9 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
                     "against; check the negative control, or normalise "
                     "against every well")
             if method == "mad_robustize":
-                centre = np.nanmedian(fit, axis=0)
-                spread = np.nanmedian(np.abs(fit - centre), axis=0) * MAD_SCALE
-                flat = (spread < tiny) & (np.nan_to_num(
-                    np.nanstd(fit, axis=0), nan=0.0) < tiny)
-                spread = np.where(flat, 1.0, spread + epsilon)
+                centre = _frame_center(fit, True)
+                spread = _frame_scale(fit, True, centre=centre, constant=MAD_SCALE,
+                                      zero_scale="epsilon", epsilon=epsilon, tiny=tiny)
                 result[rows] = (values[rows] - centre) / spread
             elif method == "ljosa_percentile":
                 low, high = np.nanpercentile(fit, [1, 99], axis=0)
@@ -7274,9 +7273,8 @@ def _score_anomalies(frame: pd.DataFrame, *,
         if int(plate_controls.sum()) >= _ANOMALY_MIN_CONTROLS:
             centred[on_plate] = (values[on_plate]
                                  - np.median(values[plate_controls], axis=0))
-    spread = 1.4826 * np.median(np.abs(centred[negative]), axis=0)
-    fallback = centred[negative].std(axis=0)
-    spread = np.where(spread > 0, spread, fallback)
+    spread = _frame_scale(centred[negative], True, centre=0.0, skipna=False,
+                          constant=MAD_SCALE_ROUNDED, zero_scale="sd")
     informative = spread > 0
     if not informative.any():
         raise HitScoringError(
@@ -8014,10 +8012,9 @@ def _standardised_measurements(frame: pd.DataFrame, measurements: Sequence[str])
     values = values.replace([np.inf, -np.inf], np.nan)
     keep = [name for name in values.columns if values[name].notna().mean() > 0.5]
     values = values[keep]
-    centre = values.median()
-    spread = (values - centre).abs().median() * 1.4826
-    fallback = values.std(ddof=0)
-    spread = spread.where(spread > 0, fallback)
+    centre = _frame_center(values, True)
+    spread = _frame_scale(values, True, centre=centre, constant=MAD_SCALE_ROUNDED,
+                          zero_scale="sd")
     usable = [name for name in values.columns if np.isfinite(spread[name]) and spread[name] > 0]
     scaled = (values[usable] - centre[usable]) / spread[usable]
     return scaled.fillna(0.0)
@@ -8054,9 +8051,9 @@ def _typical_in_focus(frame: pd.DataFrame, index, *, focus_column: Optional[str]
                     excluded[item] = f'blurred ({focus_column})'
     if scaled.shape[1] and len(members) >= 3:
         block = scaled.loc[members]
-        centre = block.median()
-        spread = (block - centre).abs().median() * 1.4826
-        spread = spread.where(spread > 0, 1.0)
+        centre = _frame_center(block, True)
+        spread = _frame_scale(block, True, centre=centre, constant=MAD_SCALE_ROUNDED,
+                              zero_scale="unit")
         deviation = ((block - centre) / spread).abs().max(axis=1)
         for item, value in deviation.items():
             if item not in excluded and value > outlier_z:
@@ -8188,7 +8185,7 @@ MOA_EVALUATION_NORMALISATIONS = ("ljosa", "zscore", "robust", "none")
 _MOA_KEYS = ("plate", "well", "compound", "concentration")
 
 #: The MAD scale ``run_and_score.py``'s robust normalisation uses.
-_MOA_MAD_SCALE = 1.4826
+_MOA_MAD_SCALE = MAD_SCALE_ROUNDED
 
 
 def _moa_given(value: Any) -> Any:
@@ -8289,12 +8286,10 @@ def _moa_normalise(frame: pd.DataFrame, features: List[str], method: str,
             reference = values[rows & control_rows]
             if not len(reference):
                 raise _ProfilingError(f"plate {plate} has no control well")
-            if method == "zscore":
-                centre, scale = reference.mean(), reference.std(ddof=1)
-            else:
-                centre = reference.median()
-                scale = _MOA_MAD_SCALE * (reference - centre).abs().median()
-            scale = scale.where(np.isfinite(scale) & (scale > 0))
+            robust = method != "zscore"
+            centre = _frame_center(reference, robust)
+            scale = _frame_scale(reference, robust, centre=centre, ddof=1,
+                                 constant=_MOA_MAD_SCALE, zero_scale="finite")
             bad |= set(scale.index[scale.isna()]) | set(centre.index[~np.isfinite(centre)])
             out.loc[rows, features] = ((values[rows] - centre) / scale).to_numpy()
     keep = [name for name in features if name not in bad]

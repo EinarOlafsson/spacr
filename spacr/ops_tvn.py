@@ -121,6 +121,58 @@ def _centerscale_by_batch(values: np.ndarray, batches: np.ndarray) -> np.ndarray
     return values
 
 
+def _streamed_batch_statistics(embedding, rows: np.ndarray, batches: np.ndarray,
+                               control: np.ndarray, chunk: int, *,
+                               constant: float) -> Tuple[Dict[Any, np.ndarray], ...]:
+    """Per-batch centre-scale statistics of embedding rows read a chunk at a time.
+
+    The streamed counterpart of :func:`_centerscale_by_batch` for an
+    embedding that stays on disk: the mean and population standard
+    deviation of every batch (float32 chunk sums, float64 squares, the
+    variance floored at 1e-12), and the median and ``constant`` times the
+    MAD of its control rows (:func:`spacr.batch_correction._scale`, a zero
+    MAD set to 1).
+
+    :param embedding: the embedding rows (an array or a memory map).
+    :param rows: the rows used, in order.
+    :param batches: the batch of each used row.
+    :param control: True for a control row.
+    :param chunk: rows read at a time.
+    :param constant: the MAD factor.
+    :returns: ``(mean, sd, median, mad)`` keyed by batch.
+    """
+    from .batch_correction import _center, _scale
+
+    names = sorted(pd.unique(batches))
+    width = np.asarray(embedding[rows[:1]]).shape[1]
+    first = {w: np.zeros(width) for w in names}
+    second = {w: np.zeros(width) for w in names}
+    count = {w: 0 for w in names}
+    controls: Dict[Any, List[np.ndarray]] = {w: [] for w in names}
+    for start in range(0, len(rows), int(chunk)):
+        x = np.asarray(embedding[rows[start:start + int(chunk)]], dtype=np.float32)
+        here = batches[start:start + int(chunk)]
+        for w in names:
+            k = here == w
+            if k.any():
+                first[w] += x[k].sum(0)
+                second[w] += (x[k].astype(np.float64) ** 2).sum(0)
+                count[w] += int(k.sum())
+                kc = k & control[start:start + int(chunk)]
+                if kc.any():
+                    controls[w].append(x[kc])
+    mean = {w: first[w] / count[w] for w in names}
+    sd = {w: np.sqrt(np.clip(second[w] / count[w] - mean[w] ** 2, 1e-12, None))
+          for w in names}
+    median, mad = {}, {}
+    for w in names:
+        values = np.vstack(controls[w])
+        median[w] = _center(values, True, skipna=False)
+        mad[w] = _scale(values, True, centre=median[w], constant=constant,
+                        skipna=False, zero_scale="zero_unit")
+    return mean, sd, median, mad
+
+
 def _scale_rows(values: np.ndarray, reference: np.ndarray, epsilon: float) -> np.ndarray:
     """``values`` centred and scaled on ``reference``; ``epsilon`` shrinks weak axes."""
     from sklearn.preprocessing import StandardScaler
