@@ -148,6 +148,7 @@ Typical use, from ``measure_crop``::
 from __future__ import annotations
 
 import ast
+import contextlib
 import os
 import sqlite3
 from dataclasses import dataclass, field as _dc_field
@@ -766,6 +767,20 @@ def completed_fields_in_merged(src: str,
 
 
 
+@contextlib.contextmanager
+def _reading(db_path: str):
+    """A read-only SQLite connection to ``measurements.db``, from the shared reader.
+
+    :param db_path: path to ``measurements.db``.
+    :returns: a context manager yielding the connection.
+    """
+    from . import store
+
+    with store.open(str(db_path), verify="none") as opened:
+        with store.legacy_connection(opened) as conn:
+            yield conn
+
+
 def _table_columns(conn: sqlite3.Connection, table: str) -> List[str]:
     """Column names of ``table``, or ``[]`` when it does not exist."""
     try:
@@ -1007,8 +1022,7 @@ def discover_field_tables(db_path: str,
     """
     if not os.path.isfile(db_path):
         return []
-    conn = connect_database(db_path, readonly=True, timeout=30)
-    try:
+    with _reading(db_path) as conn:
         out = []
         for table in _list_tables(conn):
             if not include_non_field and table in NON_FIELD_TABLES:
@@ -1019,8 +1033,6 @@ def discover_field_tables(db_path: str,
             if all(key in columns for key in FIELD_KEY_COLUMNS):
                 out.append(table)
         return out
-    finally:
-        conn.close()
 
 
 def _key_columns_for(conn: sqlite3.Connection, table: str,
@@ -1118,8 +1130,7 @@ def completed_fields_in_db(db_path: str,
         return set()
 
     key_columns = list(FIELD_KEY_COLUMNS)
-    conn = connect_database(db_path, readonly=True, timeout=30)
-    try:
+    with _reading(db_path) as conn:
         present: Dict[str, Set[Tuple[str, ...]]] = {}
         for table in tables:
             columns = set(_table_columns(conn, table))
@@ -1188,8 +1199,6 @@ def completed_fields_in_db(db_path: str,
             else:
                 partial[label] = REASON_PARTIAL_DB
         return done
-    finally:
-        conn.close()
 
 
 def clear_field_rows(db_path: str,
@@ -1414,8 +1423,7 @@ def supersede_imported_copies(db_path: str,
 
     released = 0
     notes: List[str] = []
-    conn = connect_database(db_path, readonly=True, timeout=30)
-    try:
+    with _reading(db_path) as conn:
         work: List[Tuple[str, int, List[str]]] = []
         for table in tables:
             if table not in MEASURE_OWNED_TABLES:
@@ -1437,8 +1445,6 @@ def supersede_imported_copies(db_path: str,
                          sorted(identity_to_prcf(dict(zip(FIELD_KEY_COLUMNS,
                                                           key)))
                                 for key in uncovered)))
-    finally:
-        conn.close()
 
     for table, held, uncovered in work:
         if timelapse:
@@ -1629,14 +1635,12 @@ def read_recorded_settings(source: str) -> Dict[str, Any]:
                                                   frame['setting_value'])}
         return {}
     if path.lower().endswith(('.db', '.sqlite', '.sqlite3')):
-        conn = connect_database(path, readonly=True, timeout=30)
         try:
-            rows = conn.execute(
-                'SELECT setting_key, setting_value FROM settings').fetchall()
-        except sqlite3.Error:
+            with _reading(path) as conn:
+                rows = conn.execute(
+                    'SELECT setting_key, setting_value FROM settings').fetchall()
+        except (sqlite3.Error, ValueError):
             return {}
-        finally:
-            conn.close()
         return {str(k): v for k, v in rows}
     if path.lower().endswith('.csv'):
         import csv

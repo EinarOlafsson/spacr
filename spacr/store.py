@@ -3130,12 +3130,9 @@ def open(project, *, threads: Optional[int] = None,
     :raises StoreError: when there is nothing to open, or a registered file
         changed.
     """
-    path = os.fspath(project)
-    if (not os.path.exists(path)
-            and os.path.basename(path) == _LEGACY_NAMES[0]
-            and os.path.isfile(os.path.join(os.path.dirname(
-                os.path.abspath(path)), CATALOG))):
-        project = os.path.dirname(os.path.abspath(path))
+    from .measurement_store import store_folder
+
+    project = store_folder(project) or project
     return Store(project, threads=threads, verify=verify)
 
 
@@ -6078,3 +6075,139 @@ def interrupt(store: Store) -> None:
             held.interrupt()
         except Exception:
             pass
+
+
+#: Small read helpers for library readers (unified-store step S7). They stay
+#: private: modules that read spaCR data take rows through them instead of
+#: opening SQLite, and the public reading surface stays as S6 left it.
+_S7_READ_HELPERS = 1
+
+
+def _select_rows(store: Store, table: str, columns, *, distinct: bool = False,
+                 where=None, params=None, order_by=None,
+                 limit: Optional[int] = None):
+    """Rows of some columns of one table, as Python tuples.
+
+    An older SQLite file answers with SQLite itself, so values keep the types
+    SQLite stores; a store project answers in DuckDB.
+
+    :param store: an open store.
+    :param table: the table.
+    :param columns: the column names to select.
+    :param distinct: select ``DISTINCT`` rows.
+    :param where: a SQL ``WHERE`` clause or a mapping, as for
+        :meth:`Store.query`.
+    :param params: the ``?`` values of a SQL ``where`` string.
+    :param order_by: column names to sort by; none leaves the order open.
+    :param limit: the most rows; None returns all.
+    :returns: a list of tuples, one per row.
+    :raises StoreError: when the table or a column is unknown.
+    """
+    store._known(table)
+    present = list(store._table_columns(table)["name"])
+    wanted = list(columns)
+    missing = [c for c in wanted + list(order_by or ()) if c not in present]
+    if missing:
+        raise StoreError(f"{table} has no column {missing[:5]}")
+    sqlite = _legacy_is_sqlite(store)
+    quote = _legacy_quoted if sqlite else _ident
+    sql = (f"SELECT {'DISTINCT ' if distinct else ''}"
+           f"{', '.join(quote(c) for c in wanted)} FROM {quote(table)}")
+    clause, held = _where_clause(where)
+    params = list(params or ()) + held
+    sql += clause
+    if order_by:
+        sql += " ORDER BY " + ", ".join(quote(c) for c in order_by)
+    if limit is not None:
+        sql += f" LIMIT {max(int(limit), 0)}"
+    if sqlite:
+        with _legacy_reading(store.legacy) as conn:
+            return [tuple(row) for row in conn.execute(sql, params).fetchall()]
+    result = _upcast_half(_arrow_of(store._conn, sql, params or None))
+    columns_ = [result.column(i).to_pylist() for i in range(len(wanted))]
+    return [tuple(_python(v) for v in row) for row in zip(*columns_)]
+
+
+def _like(store: Store) -> str:
+    """The case-insensitive ``LIKE`` operator of the store's SQL dialect.
+
+    SQLite's ``LIKE`` ignores ASCII case; DuckDB's does not and spells the
+    same test ``ILIKE``.
+
+    :param store: an open store.
+    :returns: ``"LIKE"`` for an older SQLite file, ``"ILIKE"`` otherwise.
+    """
+    return "LIKE" if _legacy_is_sqlite(store) else "ILIKE"
+
+
+def _select_frame(store: Store, table: str, columns, **kwargs):
+    """:func:`_select_rows` as a DataFrame, typed as ``pandas.read_sql_query`` types it.
+
+    :param store: an open store.
+    :param table: the table.
+    :param columns: the column names to select.
+    :param kwargs: passed to :func:`_select_rows`.
+    :returns: a DataFrame with ``columns`` in the order given.
+    """
+    import pandas as pd
+
+    rows = _select_rows(store, table, columns, **kwargs)
+    return pd.DataFrame.from_records(rows, columns=list(columns),
+                                     coerce_float=True)
+
+
+def _sql_frame(store: Store, sql: str, params=None):
+    """The result of one SELECT as a DataFrame, in the store's own dialect.
+
+    An older SQLite file answers with SQLite itself and
+    ``pandas.read_sql_query`` typing; a store project answers in DuckDB.
+
+    :param store: an open store.
+    :param sql: the SELECT.
+    :param params: its ``?`` values.
+    :returns: a DataFrame.
+    """
+    import pandas as pd
+
+    if _legacy_is_sqlite(store):
+        with _legacy_reading(store.legacy) as conn:
+            return pd.read_sql_query(sql, conn, params=params)
+    return store.sql(sql, params)
+
+
+#: A chunk size no table reaches, for reading one table in one frame.
+_ALL_ROWS = 2**31 - 1
+
+
+def _table_frame(store: Store, table: str, **kwargs):
+    """One whole table as one DataFrame, typed as the store's reader types it.
+
+    :param store: an open store.
+    :param table: the table.
+    :param kwargs: passed to :meth:`Store._frames` (``limit`` and so on).
+    :returns: the DataFrame.
+    :raises StoreError: when the store has no such table.
+    """
+    return next(store._frames(table, chunksize=_ALL_ROWS, **kwargs))
+
+
+def _count_rows(store: Store, table: str, where=None) -> int:
+    """The number of rows of ``table``; an older SQLite file counts with SQLite.
+
+    :meth:`Store.count` counts an older file through DuckDB, which refuses a
+    column whose values do not fit its declared type; SQLite does not.
+
+    :param store: an open store.
+    :param table: the table.
+    :param where: a SQL ``WHERE`` clause or a mapping.
+    :returns: the row count.
+    :raises StoreError: when the store has no such table.
+    """
+    if not _legacy_is_sqlite(store):
+        return store.count(table, where)
+    store._known(table)
+    clause, params = _where_clause(where)
+    with _legacy_reading(store.legacy) as conn:
+        return int(conn.execute(
+            f"SELECT COUNT(*) FROM {_legacy_quoted(table)}{clause}",
+            params).fetchone()[0])

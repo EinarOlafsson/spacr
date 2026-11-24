@@ -8586,29 +8586,21 @@ def generate_path_list_from_db(db_path, file_metadata):
 
     print(f"Reading DataBase: {db_path}")
     try:
-        with sqlite3.connect(db_path, timeout=30) as conn:
-            cursor = conn.cursor()
-
+        from . import store
+        with store.open(store.locate(db_path), verify="none") as opened:
+            like = store._like(opened)
+            where, params = None, None
             if file_metadata:
                 if isinstance(file_metadata, str):
-                    cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_metadata}%",))
+                    where = f"png_path {like} ?"
+                    params = [f"%{file_metadata}%"]
                 elif isinstance(file_metadata, list):
-                    query = "SELECT png_path FROM png_list WHERE " + " OR ".join(
-                        ["png_path LIKE ?" for _ in file_metadata])
+                    where = " OR ".join([f"png_path {like} ?" for _ in file_metadata])
                     params = [f"%{meta}%" for meta in file_metadata]
-                    cursor.execute(query, params)
-            else:
-                cursor.execute("SELECT png_path FROM png_list")
+            if not file_metadata or where is not None:
+                all_paths.extend(row[0] for row in store._select_rows(
+                    opened, 'png_list', ['png_path'], where=where, params=params))
 
-            while True:
-                rows = cursor.fetchmany(1000)
-                if not rows:
-                    break
-                all_paths.extend([row[0] for row in rows])
-
-    except sqlite3.Error as e:
-        print(f"Database error: {e}")
-        return
     except Exception as e:
         print(f"Error: {e}")
         return

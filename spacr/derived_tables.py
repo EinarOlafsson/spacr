@@ -14,14 +14,12 @@ import copy
 import json
 import os
 import re
-import sqlite3
 import tempfile
 from dataclasses import asdict
 from pathlib import Path
 
 import pandas as pd
 
-from .measurement_store import connect as _connect_measurements
 from .merge_tables import (
     CROP_SUFFIX,
     IDENTITY,
@@ -51,13 +49,12 @@ def schemas(path):
     :param path: SQLite database path.
     :returns: Table names mapped to lists of column-name/type pairs.
     """
-    with _connect_measurements(path, readonly=True) as db:
-        names = [r[0] for r in db.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()]
-        return {name: [[r[1], r[2]] for r in db.execute(
-            'PRAGMA table_info("' + name.replace('"', '""') + '")').fetchall()]
-                for name in names}
+    from . import store
+
+    with store.open(str(Path(path).resolve()), verify="none") as opened:
+        return {name: [[str(r[0]), str(r[1])] for r in
+                       opened._table_columns(name).itertuples(index=False)]
+                for name in opened.tables()}
 
 
 def column_sample(path, table, limit=200):
@@ -68,12 +65,10 @@ def column_sample(path, table, limit=200):
     :param limit: Maximum sampled rows.
     :returns: Sample frame preserving SQLite column types when possible.
     """
-    from .tabular import _read_query
+    from . import store
 
-    with _connect_measurements(path, readonly=True) as db:
-        return _read_query(db, 'SELECT * FROM "' + table.replace('"', '""') +
-                           '" LIMIT ?', params=(int(limit),),
-                           canonicalise=False, report=None)
+    with store.open(str(Path(path).resolve()), verify="none") as opened:
+        return store._table_frame(opened, table, limit=int(limit))
 
 
 def identity_columns(frame):

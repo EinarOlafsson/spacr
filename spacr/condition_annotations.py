@@ -746,15 +746,17 @@ def saved_table_annotation(path, name, frame):
     :param frame: Actual stored table including every annotation output column.
     :returns: Editable annotation definition or None for an ordinary table.
     """
-    from .measurement_store import connect as _connect_measurements
+    from . import store
 
-    with _connect_measurements(path, readonly=True) as db:
-        if not db.execute('SELECT 1 FROM sqlite_master WHERE type=\'table\' AND name=?', (PROVENANCE_TABLE,)).fetchone():
+    with store.open(str(Path(path).resolve()), verify="none") as opened:
+        if PROVENANCE_TABLE not in opened.tables():
             return None
-        fields = [row[1] for row in db.execute(f'PRAGMA table_info({_quote(PROVENANCE_TABLE)})').fetchall()]
+        fields = list(opened._table_columns(PROVENANCE_TABLE)["name"])
         if fields != ['table_name', 'payload_json']:
             return None
-        row = db.execute(f'SELECT payload_json FROM {_quote(PROVENANCE_TABLE)} WHERE table_name=?', (name,)).fetchone()
+        rows = store._select_rows(opened, PROVENANCE_TABLE, ['payload_json'],
+                                  where={'table_name': name}, limit=1)
+    row = rows[0] if rows else None
     if not row:
         return None
     payload = json.loads(row[0])

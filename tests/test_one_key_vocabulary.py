@@ -343,7 +343,9 @@ def test_the_sql_column_list_is_canonical_too(tmp_path):
 #: recording the move mentioned the thing it had just stopped doing. If this
 #: reports no progress after a reader was genuinely moved, grep the file for
 #: the literal before doubting the move.
-DIRECT_READER_CEILING = 85
+#: 85 -> 73 on 2026-11-24: `io`, `hit_investigation` and `measure` read through
+#: `spacr.store` (unified store S7).
+DIRECT_READER_CEILING = 73
 
 _DIRECT_READER = re.compile(r"pd\.read_csv\(|pd\.read_sql")
 
