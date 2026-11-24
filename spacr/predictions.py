@@ -781,7 +781,10 @@ def migrate_prediction_columns(db_path, table: str = PNG_TABLE,
     from . import store
     from .measurement_store import store_folder
 
-    db_path = store_folder(db_path) or db_path
+    folder = store_folder(db_path)
+    if folder is None and not os.path.isfile(str(db_path)):
+        return []
+    db_path = folder or db_path
     if os.path.isfile(os.path.join(str(db_path), store.CATALOG)):
         return []
     with store.transaction(str(db_path)) as tx:

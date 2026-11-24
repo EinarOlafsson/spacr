@@ -36,6 +36,11 @@ from urllib.parse import quote
 LOG = logging.getLogger(__name__)
 
 _WRITE_PACKET_CONNECTION = contextvars.ContextVar('spacr_write_packet_connection', default=None)
+
+#: True while a caller reads an older ``measurements.db`` that sits beside a
+#: store project (spacr.store.migrate_legacy): :func:`connect` then opens the
+#: SQLite file itself instead of the store's SQL view of the project.
+_DIRECT_SQLITE = contextvars.ContextVar('spacr_direct_sqlite', default=False)
 _WRITE_TICKETS_TABLE = '_spacr_write_queue_commits'
 _WRITE_PACKET_OPERATIONS = contextvars.ContextVar('spacr_write_packet_operations', default=None)
 
@@ -577,6 +582,7 @@ def connect(
     if owned is not None and owned[0] == absolute:
         return owned[1]
     if (os.path.basename(absolute) == 'measurements.db'
+            and not _DIRECT_SQLITE.get()
             and os.path.isfile(os.path.join(os.path.dirname(absolute),
                                             'spacr.duckdb'))):
         from .measurement_store import _StoreConnection, legacy_database

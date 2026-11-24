@@ -1296,11 +1296,9 @@ class TestTheStockImporterLosesTheOrganelleSummary:
         checks that organelles were measured at all sees a table.
         """
         assert "organelle" in stock_import.tables
-        connection = sqlite3.connect(stock_import.db_path)
-        try:
-            organelles = pd.read_sql('SELECT * FROM organelle', connection)
-        finally:
-            connection.close()
+        from spacr import store
+
+        organelles = store.read_frame(stock_import.db_path, table="organelle")
         assert len(organelles) == 8               # 4 cells x 2 organelles
 
     def test_the_same_import_writes_it_when_the_setting_is_a_list(self,

@@ -1145,10 +1145,17 @@ class _Session:
                        if not t.endswith('__keys') and not t.endswith('__rows')]
         self.editable = [t for t in self.tables if _editable(t)]
         self.materialized = set()
+        labeled = {}
+        for name, view in self.store._labels().items():
+            if name in self.editable:
+                held = '"' + ('__labeled_' + name).replace('"', '""') + '"'
+                self.db.execute(f'CREATE TABLE {held} AS SELECT * FROM "{view}"')
+                labeled[name] = held
         for name in self.tables:
             quoted = '"' + name.replace('"', '""') + '"'
             source = '"' + ('__store_' + name).replace('"', '""') + '"'
             self.db.execute(f'ALTER VIEW {quoted} RENAME TO {source}')
+            source = labeled.get(name, source)
             columns = [r[0] for r in self.db.execute(
                 f'DESCRIBE SELECT * FROM {source}').fetchall()]
             hidden = ['object_key']
@@ -1399,12 +1406,17 @@ def _sql_text(value: str) -> str:
 
 
 def _catalog_key(project: str) -> tuple:
-    """``(project, catalog mtime, size)``."""
+    """``(project, catalog mtime, size, edit-log signature)``.
+
+    The edit log (step S5) is part of the key, so a session built before a
+    label was saved is rebuilt and reads the latest labels.
+    """
     from . import store
 
     path = os.path.join(project, store.CATALOG)
     stat = os.stat(path)
-    return (project, stat.st_mtime_ns, stat.st_size)
+    return (project, stat.st_mtime_ns, stat.st_size,
+            store._edit_signature(project))
 
 
 def _session(project: str) -> _Session:

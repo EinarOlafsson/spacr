@@ -906,11 +906,13 @@ def _has_png_list(path):
     """
     import sqlite3
 
+    import os
+
     from . import store
     from .database_concurrency import is_busy_error
-    from .measurement_store import exists as _measurements_exist
+    from .measurement_store import store_folder
 
-    if not _measurements_exist(path):
+    if not (os.path.isfile(os.fspath(path)) or store_folder(path) is not None):
         return False
     try:
         with _png_list_reader(path, _PNG_LIST_BUSY_WAIT_S) as connection:

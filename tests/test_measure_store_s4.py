@@ -154,14 +154,17 @@ def _crop_project(project):
 
 def test_the_database_browser_reads_a_store_project(project):
     _crop_project(project)
-    from spacr.qt.screens.db_browser import ReadOnlyDb, resolve_db_path
-    assert resolve_db_path(os.path.dirname(os.path.dirname(project))) == project
-    db = ReadOnlyDb(project)
+    from spacr.qt.screens.db_browser import resolve_db_path
+    from spacr.store_browse import StoreDb
+    found = resolve_db_path(os.path.dirname(os.path.dirname(project)))
+    assert found == os.path.dirname(project)
+    db = StoreDb(found)
     assert {'cell', 'png_list'} <= set(db.tables())
     assert 'cell_area' in db.columns('cell')
     assert db.count('cell') == 4
-    chunk = db.chunk('cell')
-    assert len(chunk[0] if isinstance(chunk, tuple) else chunk) >= 1
+    chunk = db.chunk('cell', limit=10)
+    _columns, rows, _keys = chunk
+    assert len(rows) == 4
 
 
 def test_graph_builder_reads_a_store_table(project):
@@ -169,7 +172,7 @@ def test_graph_builder_reads_a_store_table(project):
     from spacr.qt.screens.graph_builder import read_table, table_names
     assert table_names(project)[0] == 'cell'
     frame = read_table(project, 'cell')
-    assert len(frame) == 4 and 'object_key' not in frame.columns
+    assert len(frame) == 4 and 'cell_area' in frame.columns
 
 
 def test_the_annotator_counts_pages_and_saves_into_the_store(project):

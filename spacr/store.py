@@ -5495,7 +5495,13 @@ def migrate_legacy(project, *, db: Optional[str] = None,
         raise StoreError(_message(
             "migrate_legacy imports the labels of crop tables; {table} is "
             "not one", table=table))
-    conn = _legacy_connection(source, readonly=True)
+    from .database_concurrency import _DIRECT_SQLITE
+
+    direct = _DIRECT_SQLITE.set(True)
+    try:
+        conn = _legacy_connection(source, readonly=True)
+    finally:
+        _DIRECT_SQLITE.reset(direct)
     try:
         found = conn.execute(
             f"PRAGMA table_info({_legacy_quoted(table)})").fetchall()
