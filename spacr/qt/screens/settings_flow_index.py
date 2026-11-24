@@ -1758,6 +1758,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_voyager3_resume',
     'ops_voyager3_shuffle_control',
     'ops_voyager3_timeout',
+    'ops_well_statistics',
     'ops_window_overlap',
     'optimizer_type',
     'order',

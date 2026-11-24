@@ -166,7 +166,7 @@ def test_gmc_well_statistics_wraps_ops_tvn(seed, dtype):
     for w in ("w1", "w2", "w3"):
         control[np.flatnonzero(wells == w)[0]] = True
     old = _old_well_statistics(embedding, rows, wells, control, 37)
-    new = gmc._well_statistics(embedding, rows, wells, control, 37)
+    new = gmc._well_statistics(embedding, rows, wells, control, 37, "legacy")
     for a, b in zip(old, new):
         assert list(a) == list(b)
         for w in a:

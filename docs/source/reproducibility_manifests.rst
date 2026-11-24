@@ -232,6 +232,16 @@ default after a higher-numbered item takes the next free number:
   post-Cellpose size filter (``filter=True``) and the plot filter dropped it.
   Files stamped before 960 retain ``False`` and reproduce their masks.
 
+- 962 (merge 9b, one per-well centre-scale routine): ``ops_well_statistics``
+  is now ``'two_pass'``. The TVN's per-well centre-scale of its PCA input and
+  the embedding profiles' per-well mean and standard deviation share one
+  routine (``spacr.ops_tvn.batch_mean_sd``): float64, the mean first and then
+  the squared deviations from it, read in bounded chunks, and a feature
+  with no spread scaled by 1. Files stamped before 962 retain ``'legacy'``
+  (StandardScaler in the in-memory TVN; single-pass float32 sums with a
+  variance floor of 1e-12 in the embedding profiles) and reproduce their
+  earlier output. Numbers 960 and 961 belong to other merges.
+
 Public API
 ----------
 

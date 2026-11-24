@@ -630,6 +630,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # TVN profiles for the OPS aggregate phase (item 854, 2026-11-07).
     "ops_profile_normalisation", "ops_tvn_mode", "ops_tvn_pca_sample",
     "ops_tvn_seed", "ops_tvn_components", "ops_tvn_whiten_epsilon",
+    "ops_well_statistics",
     # Cluster benchmarks and consensus clustering (item 855, 2026-11-07).
     "ops_cluster_benchmark", "ops_benchmark_corum", "ops_benchmark_kegg",
     "ops_benchmark_string", "ops_reference_clusters", "ops_cluster_target",

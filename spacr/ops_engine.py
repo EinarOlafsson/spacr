@@ -8041,7 +8041,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         tvn_settings = {key: settings.get(key) for key in (
             "ops_tvn_mode", "ops_tvn_pca_sample", "ops_tvn_seed",
             "ops_tvn_components", "ops_tvn_whiten_epsilon",
-            "ops_aggregate_level")}
+            "ops_well_statistics", "ops_aggregate_level")}
         extra: List[str] = []
         if wants_profiles:
             tvn_settings["_keep_embedding"] = True
@@ -11810,7 +11810,8 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
             exported, matched, control=matched_control,
             rows=matched["row"].to_numpy(),
             whiten_epsilon=float(_setting_number(
-                settings.get("ops_tvn_whiten_epsilon"), "ops_tvn_whiten_epsilon", 3.0)))
+                settings.get("ops_tvn_whiten_epsilon"), "ops_tvn_whiten_epsilon", 3.0)),
+            well_statistics=settings.get("ops_well_statistics") or "two_pass")
         _ph_profile_tables("genes_embedding", embedded, destination, label,
                            outputs)
         report["embedding"] = {"folder": folder, "cells_matched": int(len(matched)),

@@ -4010,8 +4010,8 @@ EMBEDDING_NORMS: Tuple[str, ...] = ("tvn", "robustz")
 
 
 def _well_statistics(embedding, rows: np.ndarray, wells: np.ndarray,
-                     control: np.ndarray, chunk: int
-                     ) -> Tuple[Dict[Any, np.ndarray], ...]:
+                     control: np.ndarray, chunk: int,
+                     method: str = "two_pass") -> Tuple[Dict[Any, np.ndarray], ...]:
     """Per-well mean, standard deviation, control median and control MAD.
 
     :param embedding: the embedding rows (an array or a memory map).
@@ -4019,12 +4019,14 @@ def _well_statistics(embedding, rows: np.ndarray, wells: np.ndarray,
     :param wells: the well of each used row.
     :param control: True for a control row.
     :param chunk: rows read at a time.
-    :returns: ``(mean, sd, median, mad)`` keyed by well; a zero MAD is 1.
+    :param method: ``'two_pass'`` or ``'legacy'``, as in
+        :func:`spacr.ops_tvn.batch_mean_sd`.
+    :returns: ``(mean, sd, median, mad)`` keyed by well; a zero SD or MAD is 1.
     """
     from .ops_tvn import _streamed_batch_statistics
 
     return _streamed_batch_statistics(embedding, rows, wells, control, chunk,
-                                      constant=MAD_TO_SD)
+                                      constant=MAD_TO_SD, method=method)
 
 
 def _scaled_by_well(x: np.ndarray, wells: np.ndarray, centre: Mapping,
@@ -4049,7 +4051,8 @@ def embedding_profiles(embedding, cells: pd.DataFrame, *,
                        guide: str = "sgRNA", gene: str = "gene",
                        well: str = "well", norm: str = "tvn",
                        sample: int = 100000, seed: int = 0,
-                       chunk: int = 200000, whiten_epsilon: float = 0.0
+                       chunk: int = 200000, whiten_epsilon: float = 0.0,
+                       well_statistics: str = "two_pass"
                        ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """Gene profiles from frozen single-cell embeddings.
 
@@ -4073,6 +4076,9 @@ def embedding_profiles(embedding, cells: pd.DataFrame, *,
     :param seed: the sample and PCA seed.
     :param chunk: embedding rows read at a time.
     :param whiten_epsilon: the TVN whitening epsilon; 0 is Brieflow's TVN.
+    :param well_statistics: ``'two_pass'`` (float64 two-pass per-well mean
+        and SD) or ``'legacy'`` (the single-pass float32 sums of settings
+        saved before schema 962).
     :returns: ``(genes, info)``: ``gene, n_guides, n_cells, emb_0 ...``
         (a guide is the median of its cells, a gene the median of its
         guides) and ``components`` and ``cells``.
@@ -4091,7 +4097,8 @@ def embedding_profiles(embedding, cells: pd.DataFrame, *,
     wells = cells[well].to_numpy()
     control = pd.Series(control, index=cells.index).fillna(False
                                                            ).astype(bool).to_numpy()
-    mean, sd, median, mad = _well_statistics(embedding, rows, wells, control, chunk)
+    mean, sd, median, mad = _well_statistics(embedding, rows, wells, control, chunk,
+                                                  well_statistics)
     centre, scale = (mean, sd) if norm == "tvn" else (median, mad)
     rng = np.random.default_rng(int(seed))
     picked = np.sort(rng.choice(len(rows), min(int(sample), len(rows)), replace=False))

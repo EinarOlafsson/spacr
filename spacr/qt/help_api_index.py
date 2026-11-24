@@ -15972,6 +15972,7 @@ SETTING_CONSUMERS = {
     'ops_voyager3_resume': (('spacr.ops_settings', 'ops_defaults'), ('spacr.voyager3', 'run_voyager3'),),
     'ops_voyager3_shuffle_control': (('spacr.ops_settings', 'ops_defaults'), ('spacr.voyager3', 'run_voyager3'),),
     'ops_voyager3_timeout': (('spacr.ops_settings', 'ops_defaults'), ('spacr.voyager3', 'run_voyager3'),),
+    'ops_well_statistics': (('spacr.ops_settings', 'ops_defaults'), ('spacr.ops_tvn', 'tvn_options'),),
     'ops_window_overlap': (('spacr.ops_settings', 'ops_defaults'),),
     'optimizer_type': (('spacr.deep_spacr', 'train_test_model'), ('spacr.qt.screens.settings_model', 'organelle_morphology_now'), ('spacr.settings', 'deep_spacr_defaults'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'get_train_test_model_settings'), ('spacr.settings', 'organelle_measurement_caveats'), ('spacr.settings', 'set_default_train_test_model'),),
     'organelle_adaptive_block_size': (('spacr.object_roles', 'organelle_settings_view'),),
