@@ -686,8 +686,6 @@ def read_run_status(artifact: Union[str, os.PathLike],
     target = Path(artifact)
     if (target.suffix.lower() in DB_SUFFIXES and not target.exists()
             and (target.parent / 'spacr.duckdb').is_file()):
-        # Unified store, step S4: a store project's measurements.db names
-        # its catalog, whose stamp is the catalog's sidecar.
         target = target.parent / 'spacr.duckdb'
     if target.suffix.lower() in DB_SUFFIXES:
         if not target.is_file():

@@ -525,8 +525,6 @@ def ensure_database_schema(
             and os.path.basename(db_path) == 'measurements.db'
             and os.path.isfile(os.path.join(os.path.dirname(db_path),
                                             'spacr.duckdb'))):
-        # Unified store, step S4: a store project has no SQLite schema to
-        # migrate; its catalog keeps its own version.
         return MigrationReport(path=db_path, from_version=target_version,
                                to_version=target_version, applied=(),
                                column_renames=())

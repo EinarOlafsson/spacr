@@ -880,7 +880,7 @@ def _measurements_exist(db_path: str) -> bool:
 
     A Measure run writes the spaCR store in the measurements folder and no
     ``measurements.db``; :func:`spacr.database_concurrency.connect` opens it
-    through :class:`spacr.measurement_store.StoreConnection`.
+    through :class:`spacr.measurement_store._StoreConnection`.
     """
     from ..measurement_store import exists
 

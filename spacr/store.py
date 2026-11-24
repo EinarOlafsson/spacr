@@ -2836,10 +2836,6 @@ def open(project, *, threads: Optional[int] = None,
     :returns: the :class:`Store`.
     :raises StoreError: when there is nothing to open, or a registered file
         changed.
-
-    A ``measurements.db`` path that does not exist beside a catalog opens
-    the store project of its folder: Measure writes the store there and no
-    longer writes ``measurements.db``.
     """
     path = os.fspath(project)
     if (not os.path.exists(path)

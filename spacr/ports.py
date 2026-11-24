@@ -619,8 +619,6 @@ def resolve_port(port: Port, root: str) -> ResolvedPort:
         if (not exists and port.kind == MEASUREMENTS_DB
                 and os.path.isfile(os.path.join(os.path.dirname(target),
                                                 "spacr.duckdb"))):
-            # Unified store, step S4: Measure writes the spaCR store in the
-            # measurements folder; measurements.db names it.
             exists = True
         return ResolvedPort(port=port, root=root, target=target, paths=(),
                             exists=exists, count=1 if exists else 0)

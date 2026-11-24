@@ -11,7 +11,7 @@ from __future__ import annotations
 import sqlite3
 from typing import Dict, Iterable, Mapping, Optional, Sequence
 
-from .measurement_store import StoreConnection
+from .measurement_store import _StoreConnection
 from .measurement_store import connect as _connect_measurements
 
 #: The columns written, and the SQLite type each takes.
@@ -141,7 +141,7 @@ def write(db_path: str, rows: Iterable[Mapping], *,
                 values + [key])
             matched += cursor.rowcount
 
-        if "settings" in tables and not isinstance(connection, StoreConnection):
+        if "settings" in tables and not isinstance(connection, _StoreConnection):
             cursor.execute(
                 "INSERT OR REPLACE INTO settings (setting_key, setting_value)"
                 " VALUES (?, ?)", (NOTE_KEY, ATTRIBUTION_NOTE))

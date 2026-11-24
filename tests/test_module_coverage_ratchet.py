@@ -612,6 +612,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 723 -> 724 on 2026-11-22, +1/-0, item 1007 lane C (pilot):
         # exact stored registration transformations.
         'spacr/ome_zarr_registration.py',
+        # +1/-0 on 2026-11-24, unified store step S4: Measure's and Make
+        # Masks' tables in the spaCR store (spacr/measurement_store.py).
+        'spacr/measurement_store.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online

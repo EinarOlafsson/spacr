@@ -703,8 +703,6 @@ def spool_field(db_path: Any, field: str, packet: Mapping[str, List[Any]], *,
                               sort_by=_sort_by(part),
                               key_columns=_key_columns(part))
         written[table] = int(len(frame))
-    # The mark holds nothing run-specific, so a rerun with the same
-    # settings writes the same bytes (the run is recorded in the catalog).
     mark = pd.DataFrame([{'field_file': str(field), 'stem': stem,
                           'tables': ','.join(sorted(written))}])
     store.write_table(spool, FIELDS_TABLE, mark, plate=plate,
@@ -934,8 +932,6 @@ def legacy_shape(frame, table=None):
             drop.append(column)
     if drop:
         frame = frame.drop(columns=drop)
-    # A column with no value at all reads as SQLite gave it: objects that
-    # are None, which the measurement readers leave out of the features.
     empty = [c for c in frame.columns if frame[c].dtype.kind == 'f'
              and len(frame) and frame[c].isna().all()]
     if empty:
@@ -1076,10 +1072,6 @@ def retire_legacy_database(db_path: Any, *, keep: Iterable[str] = ()) -> Optiona
     return target
 
 
-# ---------------------------------------------------------------------------
-# SQL over a store project, for the readers and the annotation writers that
-# were written against measurements.db.
-# ---------------------------------------------------------------------------
 
 #: Tables a connection holds in memory, so the annotation writers can add
 #: and update their columns; a commit rewrites the edited wells' parts.
@@ -1382,10 +1374,10 @@ def forget_sessions() -> None:
         _SESSIONS.clear()
 
 
-class StoreCursor:
-    """A DB-API cursor over a :class:`StoreConnection`, SQLite-shaped."""
+class _StoreCursor:
+    """A DB-API cursor over a :class:`_StoreConnection`, SQLite-shaped."""
 
-    def __init__(self, connection: 'StoreConnection'):
+    def __init__(self, connection: '_StoreConnection'):
         """Bind to the connection's DuckDB cursor."""
         self.connection = connection
         self._cursor = connection._db
@@ -1426,7 +1418,7 @@ class StoreCursor:
         """Nothing to release; the connection owns the cursor."""
 
 
-class StoreConnection(__import__('sqlite3').Connection):
+class _StoreConnection(__import__('sqlite3').Connection):
     """A SQLite-shaped connection to a store project (read, and annotation edits).
 
     What it is for: the readers and annotation writers that were written
@@ -1475,9 +1467,9 @@ class StoreConnection(__import__('sqlite3').Connection):
         """Rows changed through this connection."""
         return self._changes
 
-    def cursor(self) -> StoreCursor:
+    def cursor(self) -> _StoreCursor:
         """A cursor."""
-        return StoreCursor(self)
+        return _StoreCursor(self)
 
     def _fetch(self, row):
         """Apply ``row_factory`` to one row."""
@@ -1554,12 +1546,12 @@ class StoreConnection(__import__('sqlite3').Connection):
 
     def execute(self, sql: str, parameters=()):
         """Run one statement and return its cursor."""
-        cursor = StoreCursor(self)
+        cursor = _StoreCursor(self)
         return cursor.execute(sql, parameters)
 
     def executemany(self, sql: str, sequence):
         """Run one statement per parameter row."""
-        cursor = StoreCursor(self)
+        cursor = _StoreCursor(self)
         return cursor.executemany(sql, sequence)
 
     def commit(self) -> None:
@@ -1627,7 +1619,7 @@ class _RowCursor:
 
 def connect(db_path: Any, *, readonly: bool = False):
     """A connection to a project's measurements: SQLite for a legacy file,
-    :class:`StoreConnection` for a store project.
+    :class:`_StoreConnection` for a store project.
 
     :param db_path: the project's ``measurements.db`` path or folder.
     :param readonly: open read-only.
@@ -1638,4 +1630,4 @@ def connect(db_path: Any, *, readonly: bool = False):
         from .database_concurrency import connect as _sqlite
 
         return _sqlite(legacy, readonly=readonly)
-    return StoreConnection(db_path, readonly=readonly)
+    return _StoreConnection(db_path, readonly=readonly)

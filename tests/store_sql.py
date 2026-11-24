@@ -5,7 +5,7 @@ longer write ``measurements.db``. A test that opened the run's database with
 ``sqlite3.connect`` opens it with :func:`connect` instead: an existing
 database file (a fixture, or an older project) is opened by SQLite as
 before, and a store project through
-:class:`spacr.measurement_store.StoreConnection`, which answers the same SQL.
+:class:`spacr.measurement_store._StoreConnection`, which answers the same SQL.
 """
 from __future__ import annotations
 
@@ -36,11 +36,11 @@ def connect(database, *args, **kwargs):
     path = _path(database)
     beside = os.path.join(os.path.dirname(os.path.abspath(path)), 'spacr.duckdb')
     if (os.path.basename(path) == 'measurements.db' and os.path.isfile(beside)):
-        from spacr.measurement_store import StoreConnection, legacy_database
+        from spacr.measurement_store import _StoreConnection, legacy_database
 
         if legacy_database(path) is None:
             readonly = 'mode=ro' in os.fspath(database)
-            return StoreConnection(path, readonly=readonly)
+            return _StoreConnection(path, readonly=readonly)
     return sqlite3.connect(database, *args, **kwargs)
 
 
