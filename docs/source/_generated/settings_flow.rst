@@ -28339,7 +28339,7 @@ Read by ``propose_map_barcodes_settings``, ``generate_barecode_mapping``.
 ome_zarr_ngff_version
 ---------------------
 
-The OME-Zarr version of the phenotype plate stores, the merged field images and their masks, when ops_ph_image_format is ome-zarr. '0.5' writes the current spaCR format; '0.6' writes the same pixels with the version 0.6 metadata (named coordinate systems), which other OME-Zarr 0.6 tools read. One store holds one version, so a store started in the other version is refused. The cell crop pools are not OME-Zarr images and do not change. Default 0.5. Alpha.
+The OME-Zarr version of the phenotype plate stores, the merged field images and their masks, when ops_ph_image_format is ome-zarr. '0.6' (the default for new stores, as for every spaCR store) writes the version 0.6 metadata (named coordinate systems); '0.5' writes the same pixels with the older metadata, for tools that do not read 0.6 yet. spaCR reads 0.4 to 0.6. One store holds one version, so a store started in the other version is refused. The cell crop pools are not OME-Zarr images and do not change. Default 0.6. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
