@@ -163,11 +163,19 @@ OPS_E2E_FULL_ARCHIVE = "ops_testdata_funk2022_A1_full.tar"
 #: Where the full tier unpacks, beside the core tier's ``ops_e2e`` folder.
 OPS_E2E_FULL_FOLDER = "ops_e2e_full"
 
-#: The phenotype and merge references of each tier (revision 2), keyed by
-#: tier. Each unpacks over its tier's folder and adds only new paths under
-#: ``reference/``; the tier archives themselves are unchanged.
+#: The phenotype and merge references of each tier, keyed by tier. Each
+#: unpacks over its tier's folder and adds or replaces paths under
+#: ``reference/`` only; the tier archives themselves are unchanged.
+#:
+#: The core tier's are revision 3 (2026-11-23): OPS adopted Measure's
+#: nucleus-cell ownership rule (a nucleus split under 90 % between cells
+#: merges them, the maintainer's decision), which moves the core tier's
+#: phenotype cells from 490 to 485. Revision 3 holds the whole core
+#: reference set, revision 2's addendum included, so it replaces revision 2
+#: rather than adding to it. It was built by
+#: ``tools/build_ops_e2e_reference.py``. The full tier's stay at revision 2.
 OPS_E2E_REFERENCE_ARCHIVES: Dict[str, str] = {
-    "core": "ops_testdata_funk2022_A1_rev2_core.tar",
+    "core": "ops_testdata_funk2022_A1_rev3_core.tar",
     "full": "ops_testdata_funk2022_A1_rev2_full.tar",
 }
 
@@ -294,6 +302,7 @@ EXAMPLE_OPT_IN_ARCHIVES: Dict[str, str] = {
     "ops_testdata_funk2022_A1_profiles.tar": OPS_E2E_EXAMPLE_REPO,
     "ops_testdata_funk2022_A1_rev2_core.tar": OPS_E2E_EXAMPLE_REPO,
     "ops_testdata_funk2022_A1_rev2_full.tar": OPS_E2E_EXAMPLE_REPO,
+    "ops_testdata_funk2022_A1_rev3_core.tar": OPS_E2E_EXAMPLE_REPO,
 }
 
 #: The SHA-256 each pinned archive must have, keyed by archive name.
@@ -311,6 +320,7 @@ EXAMPLE_ARCHIVE_SHA256: Dict[str, str] = {
     OPS_E2E_FULL_ARCHIVE: "6e4d9a6cbcdbf3ef96025c097093631306a2763eb799b36bee1c5577f5eabb20",
     "ops_testdata_funk2022_A1_rev2_core.tar": "f262d3b635d22cd001d39b27c55f8574789d8a43385a7da07c1907ef41a56a6c",
     "ops_testdata_funk2022_A1_rev2_full.tar": "2bb52bdb85a5e3441e863bc4050327c900af5b02570f8b77a6fb89dcc2c8ef58",
+    "ops_testdata_funk2022_A1_rev3_core.tar": "36d159e88b05f8e77a34e6aa347c41e7219b4a0386ed3f787e7ea24edbcb1c6b",
     "ops_testdata_funk2022_A1_profiles.tar": "42a29cc33211f6e37b3b0980eb6164551438c40932c025311162e5bf0541beef",
 }
 

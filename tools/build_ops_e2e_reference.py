@@ -94,6 +94,26 @@ def _environment():
     return out
 
 
+def _pack(out: Path, tar_path: Path) -> None:
+    """Write ``SHA256SUMS_rev3`` for ``out/reference`` and pack both.
+
+    The archive unpacks as ``ops_testdata_funk2022_A1/...``, over the tier
+    folder, as revision 2's reference archives do.
+    """
+    import hashlib
+
+    ref = out / "reference"
+    sums = []
+    for path in sorted(p for p in ref.rglob("*") if p.is_file()):
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        sums.append(f"{digest}  {path.relative_to(out).as_posix()}")
+    (out / "SHA256SUMS_rev3").write_text("\n".join(sums) + "\n")
+    with tarfile.open(tar_path, "w") as tar:
+        tar.add(out / "SHA256SUMS_rev3",
+                arcname="ops_testdata_funk2022_A1/SHA256SUMS_rev3")
+        tar.add(ref, arcname="ops_testdata_funk2022_A1/reference")
+
+
 def main(argv=None):
     import pandas as pd
     from spacr.ops_engine import _replace_well_rows
@@ -175,18 +195,13 @@ def main(argv=None):
         "machine": platform.node(),
     }, indent=1))
     shutil.rmtree(work)
-    import hashlib
-
-    sums = []
-    for path in sorted(p for p in ref.rglob("*") if p.is_file()):
-        digest = hashlib.sha256(path.read_bytes()).hexdigest()
-        sums.append(f"{digest}  {path.relative_to(args.out).as_posix()}")
-    (args.out / "SHA256SUMS_rev3").write_text("\n".join(sums) + "\n")
+    # Revision 2's addendum stays beside revision 3's: the loaders look for
+    # it, and it still describes how every unchanged reference file was made.
+    previous = args.root / "reference" / "PROVENANCE_rev2_addendum.json"
+    if previous.is_file():
+        shutil.copy(previous, ref / previous.name)
     if args.tar:
-        with tarfile.open(args.tar, "w") as tar:
-            tar.add(args.out / "SHA256SUMS_rev3",
-                    arcname="ops_testdata_funk2022_A1/SHA256SUMS_rev3")
-            tar.add(ref, arcname="ops_testdata_funk2022_A1/reference")
+        _pack(args.out, args.tar)
     print(json.dumps({"cells": cells, "out": str(args.out),
                       "tar": str(args.tar) if args.tar else None}))
 
