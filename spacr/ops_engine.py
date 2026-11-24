@@ -10241,10 +10241,6 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     if margin is not None:
         options.update({"size": None, "margin_px": margin,
                         "zero_outside": zero_outside})
-    # save_png is spaCR's one "save crops" switch, off by default (item
-    # 0aj): OPS then records only which crops it chose, and the crop
-    # reader cuts each from its tiles on demand (item 0ap). The legacy
-    # tiff-tar format always stores.
     save = crop_format != "ome-zarr" or bool(settings.get("save_png", False))
     if not save:
         options["streamed"] = True
@@ -10354,10 +10350,6 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                 workers, mp_context=multiprocessing.get_context("spawn"))
             def ordered_results():
                 """Bound native result arrays to two fields per worker."""
-                # Fields come back in plan order, and a field is handed out
-                # as soon as an earlier one is taken, so the workers never
-                # wait for the slowest field of a batch (item 0ap); at most
-                # 2 * workers fields' crops are held at once.
                 ahead = collections.deque()
                 queue = iter(tasks)
                 for task in itertools.islice(queue, 2 * workers):
@@ -10484,9 +10476,6 @@ def _ops_store_crops(root: str, plate: str, well: str, prcfo):
     from .tabular import read_table
 
     if _ph_crop_commit(root, plate, well, rows=False) is not None:
-        # The crop index already points at the crops (a pool, or the tiles
-        # they are cut from on read), so they are not copied into the
-        # store a second time, and its rows are not read (item 0ap).
         return None, None, None
     base = os.path.join(root, "data", "cell", str(plate), str(well))
     indexes = sorted(globbing.glob(os.path.join(globbing.escape(base), "**",
@@ -10612,8 +10601,6 @@ def _ops_store_wells(db: str, plate: str, wells: Sequence[str],
                 (str(plate), str(well)))
             row_copy = bool(settings.get("ops_store_row_copy", False))
             if crops is None and written is not None and not row_copy:
-                # Nothing to add to the cell table ph_tables wrote: it is
-                # not streamed a second time (item 0an).
                 counts["cell"] = int(written)
             else:
                 streamed = _ph_stream_well(

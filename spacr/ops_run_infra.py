@@ -455,8 +455,6 @@ def _native_crop_rows(root: str, plate: str, wells: Optional[Sequence[str]]):
         for row in commit["rows"]:
             if row.get("ops_crop") is not True:
                 continue
-            # A streamed crop (saving crops off, item 0ap) has no pool: it
-            # is grouped by the field the reader cuts it from.
             shard = (os.path.join(root, row["crop_store"], row["crop_array"])
                      if row.get("crop_array") else
                      os.path.join(root, "streamed", str(well), str(row.get("source_field"))))

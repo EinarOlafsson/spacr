@@ -1896,7 +1896,7 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask):
 
     Measure, External Masks (through Measure), OPS
     (:func:`spacr.ops_sample.pair_nuclei_with_cells`) and the time-lapse
-    tables all give nuclei to cells here (maintainer decision 2026-11-23):
+    tables all give nuclei to cells here:
 
     1. :func:`_merge_spanning_children`: a nucleus split between several
        cells with under 90 % in each merges those cells into one; with 90 %

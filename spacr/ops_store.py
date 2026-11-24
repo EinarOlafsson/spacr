@@ -390,8 +390,6 @@ def write_table(db_path: str, table: str, frame, *,
                 _refuse_appended_keys(table, existing, parts[where], key)
             parts[where] = combined
     else:
-        # A well the new table does not hold is written empty, which
-        # supersedes its earlier rows in the same catalog transaction.
         for where in [w for w in present if w not in parts]:
             parts[where] = frame.iloc[:0]
     os.makedirs(project, exist_ok=True)
@@ -439,8 +437,6 @@ def _write_well(db_path: str, table: str, frame, plate: str,
     os.makedirs(project, exist_ok=True)
     parts = {(plate, well): frame}
     if schema is None and _WHOLE not in (plate, well):
-        # Rows that name no plate or well cannot say whose they are, so they
-        # are not kept beside a well's rows (as the SQLite replace did not).
         for where in (_stored(project, name) or {}):
             if _WHOLE in where:
                 parts[where] = frame.iloc[:0]

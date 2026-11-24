@@ -248,8 +248,6 @@ class CropPoolWriter:
         self._set_attributes(dict(attributes or {}))
         base = self.path / self.object_type
         self._previous = _read_commit_at(base, rows=False)
-        # The rows stream to a temporary file as shards are written (item
-        # 0ap): an earlier commit's rows first, unparsed, then each shard's.
         self._stream_path = base / ".rows.jsonl.tmp"
         self._stream = None
         self._streamed = 0
@@ -472,8 +470,6 @@ class CropPoolWriter:
         """Append one written shard's rows to the row file (and the kept rows)."""
         text, count, rows = written
         if self.keep_rows:
-            # Kept rows are written at commit, as they are then: a caller
-            # may still add columns to the rows close() returned.
             self.rows.extend(rows)
             return
         self._open_stream().write(text)
@@ -1258,8 +1254,6 @@ def _stream_crop(project: Any, row: Mapping[str, Any], *, labels: bool = False
         ``labels``, ``labels``.
     """
     if _is_ops_source(row):
-        # The field source of an OPS crop (item 0ap): the site's tiles,
-        # read as ph_crops reads them, cut by the OPS cut (_cut_box).
         from .ops_engine import _ph_stream_crop
 
         pixels, mask = _ph_stream_crop(project, row)
