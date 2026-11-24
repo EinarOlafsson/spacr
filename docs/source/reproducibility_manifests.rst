@@ -230,7 +230,7 @@ default after a higher-numbered item takes the next free number:
   An object whose size equals the minimum or maximum is kept everywhere, as
   Measure and the Make Masks window already did. The legacy Make Masks
   post-Cellpose size filter (``filter=True``) and the plot filter dropped it.
-  Files stamped before 960 retain ``False`` and reproduce their masks.
+  Files stamped before 961 retain ``False`` and reproduce their masks.
 
 - 962 (merge 9b, one per-well centre-scale routine): ``ops_well_statistics``
   is now ``'two_pass'``. The TVN's per-well centre-scale of its PCA input and
