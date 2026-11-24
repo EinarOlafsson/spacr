@@ -61,9 +61,9 @@ empty by default and both entry points return their input unchanged when they
 are, so an ordinary run is byte-identical to one from before they existed.
 """
 
-import os, cv2, time, sqlite3, threading, traceback, shutil, inspect, contextlib
+import os, cv2, time, sqlite3, threading, traceback, shutil, inspect, contextlib, contextvars
 import json
-from functools import lru_cache
+from functools import lru_cache, partial
 import re
 import numpy as np
 import pandas as pd
@@ -741,6 +741,9 @@ def _analyze_cytoskeleton(array, mask, channel, *, object_support=True):
     """Extract per-object skeleton length and branch counts from a cytoskeleton channel.
 
     Skeleton pixels are restricted to the object mask after local thresholding.
+    The skeleton length is its pixel count: the sum of the areas of its
+    connected pieces, as a float (an int 0 for an empty skeleton), which is
+    what it was summed from.
 
     :param array: Multi-channel intensity image ``(H, W, C)``.
     :param mask: Label mask; each non-zero label defines one object.
@@ -750,7 +753,17 @@ def _analyze_cytoskeleton(array, mask, channel, *, object_support=True):
     :returns: DataFrame with ``object_label``, ``skeleton_length`` and
         ``skeleton_branch_points`` columns.
     """
+    return pd.DataFrame(_skeleton_rows(array, mask, channel,
+                                       object_support=object_support))
 
+
+def _skeleton_rows(array, mask, channel, *, object_support=True):
+    """The rows of :func:`_analyze_cytoskeleton` as a list of dicts.
+
+    :func:`measure_cytoskeleton` reads one object's row per call, so it takes
+    the list rather than a frame built and indexed for every cell and
+    channel. The parameters are :func:`_analyze_cytoskeleton`'s.
+    """
     image = array[..., channel]
 
     properties_list = []
@@ -774,8 +787,9 @@ def _analyze_cytoskeleton(array, mask, channel, *, object_support=True):
 
                 skeleton = morphology.skeletonize(img_as_bool(cytoskeleton))
 
-                skeleton_props = measure.regionprops(measure.label(skeleton), intensity_image=image)
-                skeleton_length = sum(prop.area for prop in skeleton_props)
+                skeleton_pixels = int(np.count_nonzero(skeleton))
+                skeleton_length = (np.float64(skeleton_pixels) if skeleton_pixels
+                                   else 0)
                 skel = skeleton.astype(np.uint8)
                 neighbour_count = convolve(
                     skel, np.ones((3, 3), dtype=np.uint8),
@@ -795,7 +809,7 @@ def _analyze_cytoskeleton(array, mask, channel, *, object_support=True):
                     "skeleton_branch_points": 0
                 })
 
-    return pd.DataFrame(properties_list)
+    return properties_list
 
 
 def measure_cytoskeleton(labels, image, channels=None, *, channel_names=None):
@@ -871,10 +885,10 @@ def measure_cytoskeleton(labels, image, channels=None, *, channel_names=None):
         window = _grow_window(box, 24, labels.shape)
         mask = labels[window] == label
         for channel in selected:
-            measured = _analyze_cytoskeleton(image[window], mask, channel)
-            if not measured.empty:
+            measured = _skeleton_rows(image[window], mask, channel)
+            if measured:
                 for statistic in ('skeleton_length', 'skeleton_branch_points'):
-                    columns[f'channel_{channel}_{statistic}'][row] = measured.iloc[0][statistic]
+                    columns[f'channel_{channel}_{statistic}'][row] = measured[0][statistic]
     return pd.DataFrame(columns)
 
 
@@ -1925,6 +1939,7 @@ def _intensity_measurements(
               *organelle_masks.values(), cytoplasm_mask]
     dfs = [[] for _ in ls]
     
+    geometry = {}
     for i in range(0, channel_arrays.shape[-1]):
         channel = channel_arrays[..., i]
         channel_percentiles = _field_reference_percentiles(channel)
@@ -1968,18 +1983,28 @@ def _intensity_measurements(
 
             if periphery:
                 if ls[j] in ('nucleus', 'pathogen', *ORGANELLE_ROLES):
-                    periphery_intensity_stats = _periphery_intensity(label, channel)
+                    if ('periphery', j) not in geometry:
+                        geometry['periphery', j] = _periphery_selections(label)
+                    periphery_intensity_stats = _periphery_intensity(
+                        label, channel, selections=geometry['periphery', j])
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(periphery_intensity_stats, columns=[f'periphery_{stat}' for stat in col_lables])], axis=1)
 
             if outside:
                 if ls[j] in ('cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES):
+                    if ('outside', j) not in geometry:
+                        geometry['outside', j] = _outside_selections(
+                            label, spacing=spacing,
+                            exclude_foreground=(ls[j] == 'cell'))
                     outside_intensity_stats = _outside_intensity(
                         label, channel, spacing=spacing,
-                        exclude_foreground=(ls[j] == 'cell'))
+                        exclude_foreground=(ls[j] == 'cell'),
+                        selections=geometry['outside', j])
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
 
             label_shape = np.asarray(label).shape
-            label_boxes = _label_bounding_boxes(label)
+            if ('boxes', j) not in geometry:
+                geometry['boxes', j] = _label_bounding_boxes(label)
+            label_boxes = geometry['boxes', j]
             label_field = _whole_field_window(label_shape)
             blur_col = []
             for region_label in mask_intensity_df['label']:
@@ -2045,14 +2070,18 @@ def _intensity_measurements(
 
     if calculate_correlation:
         if channel_arrays.shape[-1] >= 2:
-            for i in range(channel_arrays.shape[-1]):
-                for j in range(i+1, channel_arrays.shape[-1]):
-                    chan_i = channel_arrays[..., i]
-                    chan_j = channel_arrays[..., j]
-                    for m, mask in enumerate(labels):
-                        coloc_df = _calculate_correlation_object_level(chan_i, chan_j, mask, settings)
+            for m, mask in enumerate(labels):
+                correlation_cache = {}
+                for i in range(channel_arrays.shape[-1]):
+                    for j in range(i+1, channel_arrays.shape[-1]):
+                        chan_i = channel_arrays[..., i]
+                        chan_j = channel_arrays[..., j]
+                        coloc_df = _calculate_correlation_object_level(
+                            chan_i, chan_j, mask, settings,
+                            cache=correlation_cache, channels=(i, j))
                         coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
                         dfs[m].append(coloc_df)
+                del correlation_cache
 
     if 'cytoskeleton' in blocks and ndim == 2:
         skeleton = measure_cytoskeleton(
@@ -2089,6 +2118,22 @@ _PROFILE_FIELD_FAMILIES = {
 }
 
 
+def _whole_field_frames(masks, image, families, options, share=None):
+    """The frames of the whole-field profiling families, in family order.
+
+    :param masks: the validated masks of :func:`_add_profile_frames`.
+    :param image: the float64 ``(H, W, C)`` image.
+    :param families: names in :data:`_PROFILE_FIELD_FAMILIES`.
+    :param options: per-family keyword arguments.
+    :param share: the threads these families may use, or None for the
+        whole budget (:func:`_thread_share`).
+    """
+    with (_thread_share(share) if share else contextlib.nullcontext()):
+        return [globals()[_PROFILE_FIELD_FAMILIES[family]](
+            masks, image, **options.get(family, {}))
+            for family in families]
+
+
 def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
                         granularity_subsample=1.0):
     """Append the profiling families of every non-empty mask to its frame list.
@@ -2105,7 +2150,11 @@ def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
 
     The families that filter the whole field (LBP, Gabor, granularity) run
     once for all masks; the others run per mask through
-    :func:`measure_profile_features`.
+    :func:`measure_profile_features`. With more than one thread
+    (:func:`_field_threads`) the whole-field families, whose kernels release
+    the GIL, run on a thread of their own while the per-object families run,
+    the budget split between the two; each frame is computed as in a single
+    thread and the columns keep their order.
     """
     present = [m for m, mask in enumerate(masks)
                if mask is not None and np.max(mask) != 0]
@@ -2118,17 +2167,34 @@ def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
     checked = [_profile_inputs(masks[m], None)[0] for m in present]
     blocks = {m: [pd.DataFrame({'label': np.unique(mask[mask > 0])})]
               for m, mask in zip(present, checked)}
-    if per_object:
-        for m in present:
-            blocks[m].append(measure_profile_features(
-                masks[m], image, per_object).drop(columns='label'))
     options = {'granularity': {'subsample': granularity_subsample}}
-    for family in families:
-        if family in _PROFILE_FIELD_FAMILIES:
-            frames = globals()[_PROFILE_FIELD_FAMILIES[family]](
-                checked, image, **options.get(family, {}))
-            for m, frame in zip(present, frames):
-                blocks[m].append(frame.drop(columns='label'))
+    field_families = [f for f in families if f in _PROFILE_FIELD_FAMILIES]
+
+    budget = _field_threads()
+
+    background = None
+    if field_families and per_object and budget > 1:
+        from concurrent.futures import ThreadPoolExecutor
+
+        background = ThreadPoolExecutor(max_workers=1)
+        pending = background.submit(_whole_field_frames, checked, image,
+                                    field_families, options, budget // 2)
+    try:
+        if per_object:
+            with (_thread_share(budget - budget // 2) if background
+                  else contextlib.nullcontext()):
+                for m in present:
+                    blocks[m].append(measure_profile_features(
+                        masks[m], image, per_object).drop(columns='label'))
+        field_frames = (pending.result() if background else
+                        _whole_field_frames(checked, image, field_families,
+                                            options))
+    finally:
+        if background is not None:
+            background.shutdown(wait=True)
+    for frames in field_frames:
+        for m, frame in zip(present, frames):
+            blocks[m].append(frame.drop(columns='label'))
     for m in present:
         frame = pd.concat([b.reset_index(drop=True) for b in blocks[m]], axis=1)
         frame.columns = [col if col == 'label' else f'{roles[m]}_{col}'
@@ -2309,6 +2375,28 @@ def _field_reference_percentiles(image):
     return float(np.percentile(field, 90)), float(np.percentile(field, 10))
 
 
+#: SciPy's skewness, kurtosis and entropy without their axis and NaN-policy
+#: wrapper. :func:`_extended_regionprops_table` calls each once per object on
+#: a 1-D float array it has already cleared of NaN, where the wrapper does no
+#: more than hand the array on, at about half a millisecond a call; the
+#: arithmetic is the wrapped function's own, so the values are unchanged.
+#: The object's mode and Shannon entropy come from one :func:`numpy.unique`,
+#: the value counts ``scipy.stats.mode`` and ``skimage.measure.shannon_entropy``
+#: each take (the smallest most frequent value; entropy in bits).
+_SCIPY_SKEW = getattr(skew, '__wrapped__', skew)
+_SCIPY_KURTOSIS = getattr(kurtosis, '__wrapped__', kurtosis)
+
+
+def _scipy_entropy():
+    """``scipy.stats.entropy`` without its axis and NaN-policy wrapper."""
+    from scipy.stats import entropy
+
+    return getattr(entropy, '__wrapped__', entropy)
+
+
+_SCIPY_ENTROPY = _scipy_entropy()
+
+
 def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
                                 field_percentiles=None):
     """Return a regionprops table extended with distributional intensity features (mean/std/skew/kurtosis/mode/CV/Gini/entropy/percentiles).
@@ -2391,23 +2479,28 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
         else:
             has_variation = not np.all(intens == intens[0])
             integrated_intensity.append(np.sum(intens))
-            std_intensity.append(np.std(intens))
+            spread = np.std(intens)
+            level = np.mean(intens)
+            std_intensity.append(spread)
             median_intensity.append(np.median(intens))
             wide = intens.astype(np.float64, copy=False)
             skew_intensity.append(
-                skew(wide) if intens.size > 2 and has_variation else np.nan)
+                _SCIPY_SKEW(wide) if intens.size > 2 and has_variation
+                else np.nan)
             kurtosis_intensity.append(
-                kurtosis(wide) if intens.size > 3 and has_variation else np.nan)
-            mode_val = np.atleast_1d(np.asarray(mode(intens, nan_policy='omit').mode))
-            mode_intensity.append(float(mode_val[0]) if mode_val.size else np.nan)
+                _SCIPY_KURTOSIS(wide) if intens.size > 3 and has_variation
+                else np.nan)
+            values, counts = np.unique(intens, return_counts=True)
+            mode_intensity.append(float(values[np.argmax(counts)]))
             range_intensity.append(np.ptp(intens))
             upper_quartile, lower_quartile = _percentiles_of(intens, [75, 25])
             iqr_intensity.append(upper_quartile - lower_quartile)
-            cv_intensity.append(np.std(intens) / np.mean(intens) if np.mean(intens) != 0 else np.nan)
+            cv_intensity.append(spread / level if level != 0 else np.nan)
             gini_intensity.append(_gini(intens))
             frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
             frac_low10.append(np.mean(intens < field_p10) if np.isfinite(field_p10) else np.nan)
-            entropy_intensity.append(shannon_entropy(intens) if intens.size > 1 else 0.0)
+            entropy_intensity.append(
+                _SCIPY_ENTROPY(counts, base=2) if intens.size > 1 else 0.0)
 
     df['integrated_intensity'] = integrated_intensity
     df['std_intensity'] = std_intensity
@@ -2447,6 +2540,54 @@ def _homogeneity_offset(distance, width):
     return max(0, min(int(distance), int(width) - 1))
 
 
+def _homogeneity_weights():
+    """``1 / (1 + (i - j)^2)`` over 256 x 256 grey levels, shaped as ``graycoprops`` shapes it."""
+    rows, cols = np.ogrid[0:256, 0:256]
+    return (1.0 / (1.0 + (rows - cols) ** 2)).reshape((256, 256, 1, 1))
+
+
+_HOMOGENEITY_WEIGHTS = _homogeneity_weights()
+
+
+def _glcm_pair_counts(image, offset):
+    """The symmetric pair counts ``graycomatrix(image, [offset], [0], symmetric=True)`` makes.
+
+    :returns: uint32 counts shaped ``(256, 256, 1, 1)``: each pixel with the
+        one ``offset`` columns to its right, and the transpose added.
+    """
+    left = image[:, :-offset].astype(np.intp).ravel()
+    right = image[:, offset:].ravel()
+    counts = np.bincount(left * 256 + right, minlength=256 * 256)
+    pairs = counts.astype(np.uint32).reshape((256, 256, 1, 1))
+    return pairs + np.transpose(pairs, (1, 0, 2, 3))
+
+
+def _glcm_homogeneity(image, offset):
+    """GLCM homogeneity of a uint8 image at a horizontal ``offset``, NaN with no pair.
+
+    The value of ``graycoprops(graycomatrix(image, [offset], [0],
+    symmetric=True, normed=True), 'homogeneity')[0, 0]``, step for step:
+    the same pair counts (each pixel with the one ``offset`` columns to its
+    right), the same symmetric sum, the two normalisations graycomatrix and
+    graycoprops each make, and the same weighted sum over a matrix of the
+    same shape, so the result is the same float. The counts are taken with
+    one :func:`numpy.bincount` in place of skimage's checks and loop, which
+    cost more than the sum itself on a single object's box.
+
+    :param image: 2-D uint8 grey levels.
+    :param offset: column offset, at least 1 and less than the width.
+    """
+    pairs = _glcm_pair_counts(image, offset)
+    if not pairs.any():
+        return np.nan
+    for _normalisation in range(2):
+        pairs = pairs.astype(np.float64)
+        sums = np.sum(pairs, axis=(0, 1), keepdims=True)
+        sums[sums == 0] = 1
+        pairs /= sums
+    return np.sum(pairs * _HOMOGENEITY_WEIGHTS, axis=(0, 1))[0, 0]
+
+
 def _calculate_homogeneity(label, channel, distances=None):
         """Return per-region GLCM homogeneity across the requested co-occurrence distances.
 
@@ -2479,12 +2620,8 @@ def _calculate_homogeneity(label, channel, distances=None):
                 if offset == 0:
                     homogeneity_per_distance.append(1.0)
                     continue
-                glcm = graycomatrix(rescaled_image, [offset], [0], symmetric=True, normed=True)
-                if not np.any(glcm):
-                    homogeneity_per_distance.append(np.nan)
-                else:
-                    homogeneity_per_distance.append(
-                        graycoprops(glcm, 'homogeneity')[0, 0])
+                homogeneity_per_distance.append(
+                    _glcm_homogeneity(rescaled_image, offset))
             homogeneity_values.append(homogeneity_per_distance)
         columns = [f'homogeneity_distance_{d}' for d in distances]
         homogeneity_df = pd.DataFrame(homogeneity_values, columns=columns)
@@ -3120,24 +3257,40 @@ def _torch_zernike(mask, degree, device):
     return torch.stack(moments, dim=1).detach().cpu().numpy()
 
 
-def _periphery_intensity(label_mask, image):
-    """Return per-region intensity stats along each object's outer boundary.
+def _periphery_selections(label_mask):
+    """``(label, window, boundary pixels)`` of every object, as :func:`_periphery_intensity` reads them.
 
-    :param label_mask: Label mask defining the regions.
-    :param image: Intensity image co-aligned with ``label_mask``.
-    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
+    The pixels depend on the mask only, so a caller measuring several
+    channels over one mask takes them once.
     """
-    periphery_intensity_stats = []
+    selections = []
     boundary = find_boundaries(label_mask)
     boxes = _label_bounding_boxes(label_mask)
     whole = _whole_field_window(np.asarray(label_mask).shape)
-    cut_points = [5, 10, 25, 50, 75, 85, 95]
     _labels_0 = np.unique(label_mask)
     _labels_0 = _labels_0[_labels_0 != 0]
     for region in _labels_0:
         box = _box_for(boxes, region)
         window = whole if box is None else box
-        region_boundary = boundary[window] & (label_mask[window] == region)
+        selections.append(
+            (region, window, boundary[window] & (label_mask[window] == region)))
+    return selections
+
+
+def _periphery_intensity(label_mask, image, selections=None):
+    """Return per-region intensity stats along each object's outer boundary.
+
+    :param label_mask: Label mask defining the regions.
+    :param image: Intensity image co-aligned with ``label_mask``.
+    :param selections: :func:`_periphery_selections` of ``label_mask``,
+        when the caller already has them.
+    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
+    """
+    periphery_intensity_stats = []
+    if selections is None:
+        selections = _periphery_selections(label_mask)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
+    for region, window, region_boundary in selections:
         intensities = image[window][region_boundary]
         if intensities.size == 0:
             periphery_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
@@ -3147,39 +3300,21 @@ def _periphery_intensity(label_mask, image):
                 (region, np.mean(intensities), *quantiles))
     return periphery_intensity_stats
 
-def _outside_intensity(label_mask, image, distance=5, spacing=None, *,
-                       exclude_foreground=False):
-    """Return per-region intensity stats within a ``distance``-pixel ring outside each object.
+def _outside_selections(label_mask, distance=5, spacing=None, *,
+                        exclude_foreground=False):
+    """``(label, window, ring pixels)`` of every object, as :func:`_outside_intensity` reads them.
 
-    :param label_mask: Label mask defining the regions.
-    :param image: Intensity image co-aligned with ``label_mask``.
-    :param distance: Ring width, in xy pixels.
-    :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`.
-        ``None`` (2-D) keeps the historical ``binary_dilation`` ring exactly.
-    :param exclude_foreground: Keep only label-zero ring pixels for cell
-        background; an empty background ring yields NaN statistics. False
-        preserves the historical surrounding-object measurements.
-    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
-
-    .. note::
-
-       In 3-D the ring is built from a **sampled** distance transform, not from
-       ``binary_dilation(iterations=distance)``. Iterated dilation counts
-       voxels, so on a stack with dz = 5 dxy it grows the shell 5x further in z
-       than in xy in physical terms -- a 25x thicker slab of neighbouring
-       tissue on one axis than on the others -- and the "outside intensity" it
-       reports is dominated by whatever sits above and below the object. The
-       ring width is converted with the xy spacing so it still means
-       ``distance`` xy pixels.
+    The ring depends on the mask only, so a caller measuring several
+    channels over one mask takes it once. The parameters are
+    :func:`_outside_intensity`'s.
     """
-    outside_intensity_stats = []
+    selections = []
     if spacing is not None:
         ring_width = float(distance) * float(spacing[-1])
     shape = np.asarray(label_mask).shape
     boxes = _label_bounding_boxes(label_mask)
     whole = _whole_field_window(shape)
     pad = _ring_padding(distance, spacing, shape)
-    cut_points = [5, 10, 25, 50, 75, 85, 95]
     for region in np.unique(label_mask):
         if region == 0:
             continue
@@ -3194,6 +3329,45 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None, *,
         outside_mask = dilated_mask & ~region_mask
         if exclude_foreground:
             outside_mask &= label_mask[window] == 0
+        selections.append((region, window, outside_mask))
+    return selections
+
+
+def _outside_intensity(label_mask, image, distance=5, spacing=None, *,
+                       exclude_foreground=False, selections=None):
+    """Return per-region intensity stats within a ``distance``-pixel ring outside each object.
+
+    :param label_mask: Label mask defining the regions.
+    :param image: Intensity image co-aligned with ``label_mask``.
+    :param distance: Ring width, in xy pixels.
+    :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`.
+        ``None`` (2-D) keeps the historical ``binary_dilation`` ring exactly.
+    :param exclude_foreground: Keep only label-zero ring pixels for cell
+        background; an empty background ring yields NaN statistics. False
+        preserves the historical surrounding-object measurements.
+    :param selections: :func:`_outside_selections` of ``label_mask`` with
+        the same ``distance``, ``spacing`` and ``exclude_foreground``, when
+        the caller already has them.
+    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
+
+    .. note::
+
+       In 3-D the ring is built from a **sampled** distance transform, not from
+       ``binary_dilation(iterations=distance)``. Iterated dilation counts
+       voxels, so on a stack with dz = 5 dxy it grows the shell 5x further in z
+       than in xy in physical terms -- a 25x thicker slab of neighbouring
+       tissue on one axis than on the others -- and the "outside intensity" it
+       reports is dominated by whatever sits above and below the object. The
+       ring width is converted with the xy spacing so it still means
+       ``distance`` xy pixels.
+    """
+    outside_intensity_stats = []
+    if selections is None:
+        selections = _outside_selections(
+            label_mask, distance, spacing,
+            exclude_foreground=exclude_foreground)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
+    for region, window, outside_mask in selections:
         intensities = image[window][outside_mask]
         if intensities.size == 0:
             outside_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
@@ -3322,7 +3496,41 @@ def _pearson_r(x, y):
     return float(np.clip((xm * ym).sum() / den, -1.0, 1.0))
 
 
-def _calculate_correlation_object_level(channel_image1, channel_image2, mask, settings):
+def _correlation_objects(mask):
+    """``(label, window, object pixels)`` of every object, in label order, for the correlation block."""
+    boxes = _label_bounding_boxes(mask)
+    whole = _whole_field_window(np.asarray(mask).shape)
+    _labels_1 = np.unique(mask)
+    _labels_1 = _labels_1[_labels_1 != 0]
+    objects = []
+    for i in _labels_1:
+        box = _box_for(boxes, i)
+        window = whole if box is None else box
+        objects.append((i, window, mask[window] == i))
+    return objects
+
+
+def _correlation_channel(image, objects):
+    """Per object of :func:`_correlation_objects`: one channel's pixels and Manders background.
+
+    :returns: one ``(pixels, float64 pixels, threshold, a, sum a, sum a^2)``
+        per object, ``a`` the pixels above the threshold less it, as
+        :func:`_calculate_correlation_object_level` computes them.
+    """
+    rows = []
+    for _label, window, object_mask in objects:
+        pixels = image[window][object_mask]
+        wide = np.asarray(pixels, dtype=np.float64)
+        median = np.median(wide)
+        threshold = median + 3.0 * 1.4826 * np.median(np.abs(wide - median))
+        above = np.clip(wide - threshold, 0, None)
+        rows.append((pixels, wide, threshold, above, above.sum(),
+                     (above * above).sum()))
+    return rows
+
+
+def _calculate_correlation_object_level(channel_image1, channel_image2, mask, settings,
+                                        *, cache=None, channels=None):
         """
         Calculate correlation at the object level between two channel images based on a mask.
 
@@ -3376,18 +3584,28 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
            NaN anywhere deletes the whole column from every model matrix, and
            64.5% of background-only objects would produce one. The cost is that
            "no signal" and "signal that does not colocalise" both read 0.0.
+
+        Args (keyword only):
+            cache (dict, optional): shared by the calls for one mask, so its
+                objects and each channel's pixels and background are taken
+                once rather than once per channel pair; the values are the
+                same either way.
+            channels (tuple, optional): the indices of the two images in the
+                field, the keys of ``cache``; needed with ``cache``.
         """
+        if cache is None or channels is None:
+            cache, channels = {}, (0, 1)
+        if 'objects' not in cache:
+            cache['objects'] = _correlation_objects(mask)
+        objects = cache['objects']
+        for slot, image in zip(channels, (channel_image1, channel_image2)):
+            if slot not in cache:
+                cache[slot] = _correlation_channel(image, objects)
+        first, second = cache[channels[0]], cache[channels[1]]
         corr_data = {}
-        boxes = _label_bounding_boxes(mask)
-        whole = _whole_field_window(np.asarray(mask).shape)
-        _labels_1 = np.unique(mask)
-        _labels_1 = _labels_1[_labels_1 != 0]
-        for i in _labels_1:
-            box = _box_for(boxes, i)
-            window = whole if box is None else box
-            object_mask = (mask[window] == i)
-            object_channel_image1 = channel_image1[window][object_mask]
-            object_channel_image2 = channel_image2[window][object_mask]
+        for (i, _window, _object), one, two in zip(objects, first, second):
+            object_channel_image1, v1, thr1, a, sa, saa = one
+            object_channel_image2, v2, thr2, b, sb, sbb = two
             if len(object_channel_image1) < 2 or len(object_channel_image2) < 2:
                 pearson_corr = np.nan
             else:
@@ -3396,19 +3614,9 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
             corr_data[i] = {f'label_correlation': i,
                             f'Pearson_correlation': pearson_corr}
 
-            v1 = np.asarray(object_channel_image1, dtype=np.float64)
-            v2 = np.asarray(object_channel_image2, dtype=np.float64)
-            med1 = np.median(v1)
-            thr1 = med1 + 3.0 * 1.4826 * np.median(np.abs(v1 - med1))
-            med2 = np.median(v2)
-            thr2 = med2 + 3.0 * 1.4826 * np.median(np.abs(v2 - med2))
-            a = np.clip(v1 - thr1, 0, None)
-            b = np.clip(v2 - thr2, 0, None)
-            sa = a.sum()
-            sb = b.sum()
             M1_true = float(a[v2 > thr2].sum() / sa) if sa > 0 else 0.0
             M2_true = float(b[v1 > thr1].sum() / sb) if sb > 0 else 0.0
-            den = np.sqrt((a * a).sum() * (b * b).sum())
+            den = np.sqrt(saa * sbb)
             MOC = float((a * b).sum() / den) if den > 0 else 0.0
 
             corr_data[i].update({'manders_m1': M1_true,
@@ -3663,9 +3871,12 @@ def _weighted_moments(flat, rows, cols, weights, size, present):
     with np.errstate(invalid='ignore', divide='ignore'):
         dr = rows - centre_r[flat]
         dc = cols - centre_c[flat]
+        row_powers = {p: dr ** p for p in range(4)}
+        col_powers = {q: dc ** q for q in range(4)}
         m = [[None] * 4 for _ in range(4)]
         for p, q in ((2, 0), (0, 2), (1, 1), (3, 0), (0, 3), (2, 1), (1, 2)):
-            mu = np.bincount(flat, weights * dr ** p * dc ** q, size)
+            mu = np.bincount(flat, weights * row_powers[p] * col_powers[q],
+                             size)
             m[p][q] = (mu / mu00 ** ((p + q) / 2 + 1))[present]
         hu = _hu_from_moments(m)
     bad = ~(mu00[present] > 0)
@@ -3673,13 +3884,47 @@ def _weighted_moments(flat, rows, cols, weights, size, present):
     return centre_r[present], centre_c[present], mu00[present], hu
 
 
+#: The foregrounds :func:`_foreground` has found inside a
+#: :func:`_shared_foregrounds` scope, by mask: ``{id: (mask, foreground)}``.
+_FOREGROUNDS = contextvars.ContextVar('spacr_measure_foregrounds', default=None)
+
+
+@contextlib.contextmanager
+def _shared_foregrounds():
+    """Within this scope, :func:`_foreground` finds each mask's foreground once.
+
+    The profiling families of one mask each start from the same flat
+    labels, coordinates and foreground index; inside the scope (one
+    :func:`measure_profile_features` call, one :func:`_add_funk_frames`
+    pass) the arrays found for a mask are handed to every later family that
+    asks for the same mask object. Nothing in the scope writes to a mask or
+    to those arrays, so they are the arrays each family would make.
+    """
+    if _FOREGROUNDS.get() is not None:
+        yield
+        return
+    token = _FOREGROUNDS.set({})
+    try:
+        yield
+    finally:
+        _FOREGROUNDS.reset(token)
+
+
 def _foreground(labels):
     """Flat label, row and column of every labelled pixel, and the bincount size."""
+    shared = _FOREGROUNDS.get()
+    if shared is not None:
+        known = shared.get(id(labels))
+        if known is not None and known[0] is labels:
+            return known[1]
     inside = labels.ravel() > 0
     flat = labels.ravel()[inside]
     rows, cols = np.indices(labels.shape, dtype=np.float64)
-    return (flat, rows.ravel()[inside], cols.ravel()[inside], inside,
-            int(labels.max()) + 1)
+    found = (flat, rows.ravel()[inside], cols.ravel()[inside], inside,
+             int(labels.max()) + 1)
+    if shared is not None:
+        shared[id(labels)] = (labels, found)
+    return found
 
 
 def measure_edge_intensity(labels, image):
@@ -4130,8 +4375,21 @@ def _grouped_median(sorted_values, starts, counts):
 
 
 def _sorted_by_label(flat, values):
-    """``values`` sorted within each label: ``(order, sorted values, starts, counts)``."""
-    order = np.lexsort((values, flat))
+    """``values`` sorted within each label: ``(order, sorted values, starts, counts)``.
+
+    The order is :func:`numpy.lexsort` of ``(values, flat)``, value for
+    value, found by two stable sorts: by value, then by label. A stable sort
+    keeps equal labels in value order and equal values in pixel order, which
+    is exactly lexsort's tie rule, so the permutation is the same; labels
+    that fit 16 bits are sorted by NumPy's radix sort, and the pair takes
+    well under half of lexsort's time on a field.
+    """
+    by_value = np.argsort(values, kind='stable')
+    keys = flat[by_value]
+    if keys.size and 0 <= int(keys.min()) and int(keys.max()) < 2 ** 16:
+        keys = keys.astype(np.uint16)
+    order = by_value[np.argsort(keys, kind='stable')]
+    del keys
     labels_sorted = flat[order]
     counts = np.bincount(labels_sorted)
     present = np.nonzero(counts)[0]
@@ -4150,11 +4408,27 @@ def _robust_threshold(flat, values, presorted=None):
         presorted if presorted is not None else _sorted_by_label(flat, values))
     median = np.zeros(int(flat.max()) + 1)
     median[present] = _grouped_median(ordered, starts, counts)
-    deviation = np.abs(values - median[flat])
-    _order, ordered, starts, counts, present = _sorted_by_label(flat, deviation)
+    deviation = np.abs(ordered - median[flat[_order]])
     mad = np.zeros_like(median)
-    mad[present] = _grouped_median(ordered, starts, counts)
+    mad[present] = _segment_medians(deviation, starts, counts)
     return (median + 3.0 * 1.4826 * mad)[flat]
+
+
+def _segment_medians(values, starts, counts):
+    """Median of each run ``values[start:start + count]``, as :func:`_grouped_median` of it sorted.
+
+    Each run is partitioned at its middle order statistics rather than
+    sorted, which selects the same two values: the absolute deviations of
+    :func:`_robust_threshold` need their median only, and a partition costs a
+    fraction of the sort by label and value it replaces.
+    """
+    out = np.empty(len(starts))
+    for index, (start, count) in enumerate(zip(np.asarray(starts).tolist(),
+                                               np.asarray(counts).tolist())):
+        low, high = (count - 1) // 2, count // 2
+        run = np.partition(values[start:start + count], (low, high))
+        out[index] = (run[low] + run[high]) / 2
+    return out
 
 
 def _within_label_ranks(flat, values, presorted=None):
@@ -4203,6 +4477,91 @@ def _pearson_by_label(flat, x, y, size):
     return np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan), dx, dy
 
 
+class _LabelPixels:
+    """One mask's foreground pixels over one image, with per-channel orderings made once.
+
+    :func:`measure_colocalisation`, :func:`measure_colocalisation_extra`
+    and :func:`measure_colocalisation_otsu` each sort every channel within
+    each object, take its robust background and its within-object ranks.
+    Those are the same arrays for the same mask and image, so
+    :func:`measure_profile_features` builds one of these per mask and hands
+    it to every family it runs; each array is computed by the same function
+    on the same input as before, the first time it is asked for.
+
+    :param labels: the int64 label mask of :func:`_profile_inputs`.
+    :param image: the float64 ``(H, W, C)`` image of :func:`_profile_inputs`.
+    """
+
+    def __init__(self, labels, image):
+        """Take the mask's foreground and every channel's values on it."""
+        self.foreground = _foreground(labels)
+        inside = self.foreground[3]
+        self.planes = [image[..., c].ravel()[inside]
+                       for c in range(image.shape[-1])]
+        self._sort_cache = {}
+        self._threshold_cache = {}
+        self._rank_cache = {}
+
+    def _sort(self, channel):
+        """:func:`_sorted_by_label` of one channel."""
+        if channel not in self._sort_cache:
+            self._sort_cache[channel] = _sorted_by_label(
+                self.foreground[0], self.planes[channel])
+        return self._sort_cache[channel]
+
+    def _threshold(self, channel):
+        """:func:`_robust_threshold` of one channel, per pixel."""
+        if channel not in self._threshold_cache:
+            self._threshold_cache[channel] = _robust_threshold(
+                self.foreground[0], self.planes[channel], self._sort(channel))
+        return self._threshold_cache[channel]
+
+    def _ranks(self, channel):
+        """:func:`_within_label_ranks` of one channel."""
+        if channel not in self._rank_cache:
+            self._rank_cache[channel] = _within_label_ranks(
+                self.foreground[0], self.planes[channel], self._sort(channel))
+        return self._rank_cache[channel]
+
+    def _prepare(self):
+        """Make every channel's sort, background and ranks, the channels side by side.
+
+        Nothing is made for an empty mask or a single channel, which the
+        families answer without them.
+
+        The channels are independent, so they are computed on
+        :func:`_field_threads` threads (:func:`_field_map`); each is the same
+        arrays a single thread makes.
+        """
+        if self.foreground[0].size and len(self.planes) > 1:
+            _field_map(self._prepare_channel, range(len(self.planes)))
+        return self
+
+    def _prepare_channel(self, channel):
+        """Make one channel's background and ranks (and so its sort)."""
+        self._threshold(channel)
+        self._ranks(channel)
+
+
+def _label_pixels(labels, image):
+    """The :class:`_LabelPixels` of ``labels`` over ``image``.
+
+    Inside a :func:`_shared_foregrounds` scope one is made per mask and
+    image, with every channel prepared at once, and handed to each
+    colocalisation family that asks; outside it each call makes its own.
+    """
+    shared = _FOREGROUNDS.get()
+    if shared is None:
+        return _LabelPixels(labels, image)
+    key = ('pixels', id(labels), id(image))
+    known = shared.get(key)
+    if known is not None and known[0] is labels and known[1] is image:
+        return known[2]
+    pixels = _LabelPixels(labels, image)._prepare()
+    shared[key] = (labels, image, pixels)
+    return pixels
+
+
 def measure_colocalisation(labels, image):
     """Colocalisation of every channel pair in each object, beyond Pearson and Manders.
 
@@ -4236,18 +4595,16 @@ def measure_colocalisation(labels, image):
     out = {'label': present}
     if image.shape[-1] < 2:
         return pd.DataFrame(out)
-    flat, _rows, _cols, inside, size = _foreground(labels)
+    pixels = _label_pixels(labels, image)
+    flat, _rows, _cols, inside, size = pixels.foreground
     if flat.size == 0:
         for i, j in combinations(range(image.shape[-1]), 2):
             for stat in ('spearman', 'icq', 'k1', 'k2', 'rwc1', 'rwc2'):
                 out[f'channel_{i}_channel_{j}_{stat}'] = np.zeros(0)
         return pd.DataFrame(out)
-    planes = [image[..., c].ravel()[inside] for c in range(image.shape[-1])]
-    sorts = [_sorted_by_label(flat, v) for v in planes]
-    thresholds = [_robust_threshold(flat, v, s)
-                  for v, s in zip(planes, sorts)]
-    ranks = [_within_label_ranks(flat, v, s) for v, s in zip(planes, sorts)]
-    del sorts
+    planes = pixels.planes
+    thresholds = [pixels._threshold(c) for c in range(len(planes))]
+    ranks = [pixels._ranks(c) for c in range(len(planes))]
     for i, j in combinations(range(image.shape[-1]), 2):
         base = f'channel_{i}_channel_{j}_'
         x, y = planes[i], planes[j]
@@ -4441,7 +4798,8 @@ def measure_colocalisation_extra(labels, image, bins=PROFILE_MI_BINS,
     labels, image, present = _profile_inputs(labels, image)
     out = {'label': present}
     n_channels = image.shape[-1]
-    flat, rows, cols, inside, size = _foreground(labels)
+    pixels = _label_pixels(labels, image)
+    flat, rows, cols, inside, size = pixels.foreground
     pairs = list(combinations(range(n_channels), 2))
     stats = (('nmi', 'costes_m1', 'costes_m2') if costes else ('nmi',)) + (
         'puncta_overlap_ij', 'puncta_overlap_ji')
@@ -4454,12 +4812,11 @@ def measure_colocalisation_extra(labels, image, bins=PROFILE_MI_BINS,
                 out[f'channel_{i}_channel_{j}_{stat}'] = np.zeros(0)
         return pd.DataFrame(out)
     count = np.bincount(flat, None, size).astype(float)
-    planes = [image[..., c].ravel()[inside] for c in range(n_channels)]
+    planes = pixels.planes
     above, ranks, spots = [], [], []
-    for v in planes:
-        order = _sorted_by_label(flat, v)
-        above.append(v > _robust_threshold(flat, v, order))
-        ranks.append(_within_label_ranks(flat, v, order)[0])
+    for c, v in enumerate(planes):
+        above.append(v > pixels._threshold(c))
+        ranks.append(pixels._ranks(c)[0])
         spots.append(_puncta(flat, rows, cols, above[-1], size, labels.shape))
     for c in range(n_channels):
         with np.errstate(invalid='ignore', divide='ignore'):
@@ -4620,13 +4977,14 @@ def measure_colocalisation_otsu(labels, image):
             for stat in stats:
                 out[f'channel_{i}_channel_{j}_{stat}'] = np.zeros(0)
         return pd.DataFrame(out)
-    flat, _rows, _cols, inside, size = _foreground(labels)
-    planes = [image[..., c].ravel()[inside] for c in range(image.shape[-1])]
+    pixels = _label_pixels(labels, image)
+    flat, _rows, _cols, inside, size = pixels.foreground
+    planes = pixels.planes
     above, ranks, sums, squares = [], [], [], []
-    for values in planes:
-        ordered = _sorted_by_label(flat, values)
+    for c, values in enumerate(planes):
+        ordered = pixels._sort(c)
         above.append(values > _otsu_by_label(flat, values, ordered)[flat])
-        ranks.append(_within_label_ranks(flat, values, ordered))
+        ranks.append(pixels._ranks(c))
         sums.append(np.bincount(flat, values, size))
         squares.append(np.bincount(flat, values * values, size))
     for i, j in pairs:
@@ -4730,6 +5088,216 @@ def _mask_index(masks):
     return index
 
 
+#: The share of :func:`_field_threads` the current thread may use, set while
+#: :func:`_add_profile_frames` splits the budget between its two halves.
+_THREAD_SHARE = contextvars.ContextVar('spacr_measure_thread_share',
+                                       default=None)
+
+
+def _field_threads():
+    """How many threads one field's per-channel steps may use: the process's OpenMP budget.
+
+    ``OMP_NUM_THREADS`` is the compute budget a caller gives the process
+    (Measure's workers set it to 1, the OPS phenotype workers and the job
+    scheduler to their grant), so the per-channel steps of a field use the
+    same budget as the libraries under them. Unset or unreadable, one.
+    While the budget is split (:data:`_THREAD_SHARE`), the current thread's
+    share.
+    """
+    share = _THREAD_SHARE.get()
+    if share is not None:
+        return share
+    try:
+        return max(1, int(os.environ.get('OMP_NUM_THREADS') or 1))
+    except ValueError:
+        return 1
+
+
+@contextlib.contextmanager
+def _thread_share(count):
+    """Within this scope the current thread's steps use ``count`` threads."""
+    token = _THREAD_SHARE.set(max(1, int(count)))
+    try:
+        yield
+    finally:
+        _THREAD_SHARE.reset(token)
+
+
+def _field_map(function, items):
+    """``[function(item) for item in items]``, in order, on :func:`_field_threads` threads.
+
+    For the whole-field steps whose kernels release the GIL (sorting,
+    grey reconstruction, resampling, local binary patterns). Each item is
+    computed by the same code as in a plain loop, so the results do not
+    depend on the thread count; only the wall time does.
+    """
+    items = list(items)
+    workers = min(_field_threads(), len(items))
+    if workers <= 1:
+        return [function(item) for item in items]
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(function, items))
+
+
+def _dilation_reconstruction_kernel():
+    """The compiled grey reconstruction of :func:`_reconstruct_by_dilation`, or None without numba."""
+    global _DILATION_KERNEL
+    if _DILATION_KERNEL is not None:
+        return _DILATION_KERNEL or None
+    try:
+        import numba
+    except Exception:
+        _DILATION_KERNEL = False
+        return None
+    _DILATION_KERNEL = numba.njit(cache=True, nogil=True)(_dilation_reconstruction)
+    return _DILATION_KERNEL
+
+
+def _dilation_reconstruction(seed, mask):
+    """Vincent's (1993) hybrid grey reconstruction by dilation, 8-connected, for numba.
+
+    A forward raster scan, a backward raster scan that queues every pixel
+    that can still raise a neighbour, and a first-in first-out propagation
+    from the queue until nothing changes. Plain Python works too, slowly;
+    :func:`_dilation_reconstruction_kernel` compiles it.
+
+    :param seed: 2-D float64 seed, nowhere above ``mask``.
+    :param mask: 2-D float64 mask of the same shape.
+    :returns: the reconstruction, a new array.
+    """
+    rows, cols = seed.shape
+    out = seed.copy()
+    for r in range(rows):
+        for c in range(cols):
+            value = out[r, c]
+            for dr, dc in ((-1, -1), (-1, 0), (-1, 1), (0, -1)):
+                rr, cc = r + dr, c + dc
+                if 0 <= rr < rows and 0 <= cc < cols and out[rr, cc] > value:
+                    value = out[rr, cc]
+            out[r, c] = min(value, mask[r, c])
+    size = rows * cols + 1
+    queue_r = np.empty(size, np.int64)
+    queue_c = np.empty(size, np.int64)
+    head = 0
+    tail = 0
+    count = 0
+    for r in range(rows - 1, -1, -1):
+        for c in range(cols - 1, -1, -1):
+            value = out[r, c]
+            for dr, dc in ((1, 1), (1, 0), (1, -1), (0, 1)):
+                rr, cc = r + dr, c + dc
+                if 0 <= rr < rows and 0 <= cc < cols and out[rr, cc] > value:
+                    value = out[rr, cc]
+            value = min(value, mask[r, c])
+            out[r, c] = value
+            for dr, dc in ((1, 1), (1, 0), (1, -1), (0, 1)):
+                rr, cc = r + dr, c + dc
+                if (0 <= rr < rows and 0 <= cc < cols
+                        and out[rr, cc] < value
+                        and out[rr, cc] < mask[rr, cc]):
+                    queue_r[tail] = r
+                    queue_c[tail] = c
+                    tail = (tail + 1) % size
+                    count += 1
+                    break
+    while count > 0:
+        r = queue_r[head]
+        c = queue_c[head]
+        head = (head + 1) % size
+        count -= 1
+        value = out[r, c]
+        for dr in (-1, 0, 1):
+            for dc in (-1, 0, 1):
+                if dr == 0 and dc == 0:
+                    continue
+                rr, cc = r + dr, c + dc
+                if (0 <= rr < rows and 0 <= cc < cols
+                        and out[rr, cc] < value
+                        and mask[rr, cc] != out[rr, cc]):
+                    out[rr, cc] = min(value, mask[rr, cc])
+                    if count == size:
+                        grown_r = np.empty(2 * size, np.int64)
+                        grown_c = np.empty(2 * size, np.int64)
+                        for k in range(count):
+                            grown_r[k] = queue_r[(head + k) % size]
+                            grown_c[k] = queue_c[(head + k) % size]
+                        queue_r, queue_c = grown_r, grown_c
+                        head, tail, size = 0, count, 2 * size
+                    queue_r[tail] = rr
+                    queue_c[tail] = cc
+                    tail = (tail + 1) % size
+                    count += 1
+    return out
+
+
+#: The compiled :func:`_dilation_reconstruction`; None until asked for,
+#: False where numba is not installed.
+_DILATION_KERNEL = None
+
+
+def _reconstruct_by_dilation(seed, mask):
+    """Grey reconstruction by dilation of ``seed`` under ``mask``, 8-connected.
+
+    The value of ``skimage.morphology.reconstruction(seed, mask,
+    method='dilation')`` with its default 3 x 3 footprint. Reconstruction
+    only selects values (each output pixel is the largest seed value that
+    reaches it along a path, capped by the mask), so every correct
+    algorithm gives the same floats; this one is Vincent's (1993) hybrid
+    raster-scan and queue algorithm, compiled with numba, which on a
+    granularity plane takes a small fraction of skimage's time, spent there
+    on rank-ordering every pixel. Without numba, or for anything but two
+    finite float64 planes of one shape with the seed nowhere above the mask,
+    skimage answers.
+    """
+    from skimage.morphology import reconstruction
+
+    seed = np.asarray(seed)
+    mask = np.asarray(mask)
+    kernel = _dilation_reconstruction_kernel()
+    if (kernel is None or seed.ndim != 2 or seed.shape != mask.shape
+            or seed.dtype != np.float64 or mask.dtype != np.float64
+            or not seed.size or not np.isfinite(seed).all()
+            or not np.isfinite(mask).all() or (seed > mask).any()):
+        return reconstruction(seed, mask, method='dilation')
+    return kernel(np.ascontiguousarray(seed), np.ascontiguousarray(mask))
+
+
+def _granularity_channel(c, *, image, index, footprint, cross, scale, full,
+                         spectrum_length):
+    """One channel's granularity spectrum for every mask of :func:`_granularity_frames`.
+
+    :returns: per mask, ``[(column, values)]`` in step order.
+    """
+    from scipy import ndimage
+
+    columns = [[] for _ in index]
+    plane = image[..., c]
+    if scale < 1:
+        plane = ndimage.zoom(plane, scale, order=1)
+    background = ndimage.grey_opening(plane, footprint=footprint)
+    pixels = np.clip(plane - background, 0, None)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        seen = _granularity_full(pixels, full)
+        starts = [np.bincount(flat, seen.ravel()[inside], size) / count
+                  for flat, inside, size, _p, count in index]
+        previous = list(starts)
+        eroded = pixels
+        for k in range(1, int(spectrum_length) + 1):
+            eroded = ndimage.grey_erosion(eroded, footprint=cross)
+            rebuilt = _granularity_full(
+                _reconstruct_by_dilation(eroded, pixels), full)
+            for m, (flat, inside, size, present, count) in enumerate(index):
+                current = np.bincount(flat, rebuilt.ravel()[inside],
+                                      size) / count
+                step = (previous[m] - current) * 100 / starts[m]
+                columns[m].append((f'channel_{c}_granularity_{k}', np.where(
+                    starts[m][present] > 0, step[present], np.nan)))
+                previous[m] = current
+    return columns
+
+
 def _granularity_frames(masks, image, spectrum_length=16,
                         background_radius=10, subsample=1.0):
     """:func:`measure_granularity` of several masks over one image, sieving once.
@@ -4739,7 +5307,7 @@ def _granularity_frames(masks, image, spectrum_length=16,
     :returns: one frame per mask, as :func:`measure_granularity`.
     """
     from scipy import ndimage
-    from skimage.morphology import disk, reconstruction
+    from skimage.morphology import disk
 
     index = _mask_index(masks)
     outs = [{'label': present} for _f, _i, _s, present, _c in index]
@@ -4754,29 +5322,14 @@ def _granularity_frames(masks, image, spectrum_length=16,
             "profile_granularity_subsample to a number greater than 0 and "
             "at most 1, then rerun Measure.", subsample=subsample))
     full = image.shape[:2]
-    for c in range(image.shape[-1]):
-        plane = image[..., c]
-        if scale < 1:
-            plane = ndimage.zoom(plane, scale, order=1)
-        background = ndimage.grey_opening(plane, footprint=footprint)
-        pixels = np.clip(plane - background, 0, None)
-        with np.errstate(invalid='ignore', divide='ignore'):
-            seen = _granularity_full(pixels, full)
-            starts = [np.bincount(flat, seen.ravel()[inside], size) / count
-                      for flat, inside, size, _p, count in index]
-            previous = list(starts)
-            eroded = pixels
-            for k in range(1, int(spectrum_length) + 1):
-                eroded = ndimage.grey_erosion(eroded, footprint=cross)
-                rebuilt = _granularity_full(
-                    reconstruction(eroded, pixels, method='dilation'), full)
-                for m, (flat, inside, size, present, count) in enumerate(index):
-                    current = np.bincount(flat, rebuilt.ravel()[inside],
-                                          size) / count
-                    step = (previous[m] - current) * 100 / starts[m]
-                    outs[m][f'channel_{c}_granularity_{k}'] = np.where(
-                        starts[m][present] > 0, step[present], np.nan)
-                    previous[m] = current
+
+
+    sieve = partial(
+        _granularity_channel, image=image, index=index, footprint=footprint,
+        cross=cross, scale=scale, full=full, spectrum_length=spectrum_length)
+    for columns in _field_map(sieve, range(image.shape[-1])):
+        for m, pairs in enumerate(columns):
+            outs[m].update(pairs)
     return [pd.DataFrame(out) for out in outs]
 
 
@@ -4822,26 +5375,39 @@ def measure_lbp(labels, image, radii=PROFILE_LBP_RADII):
     return _lbp_frames([labels], image, radii)[0]
 
 
-def _lbp_frames(masks, image, radii=PROFILE_LBP_RADII):
-    """:func:`measure_lbp` of several masks over one image, coding the field once."""
+def _lbp_channel(item, *, image, index):
+    """One ``(channel, radius)`` of :func:`_lbp_frames` for every mask.
+
+    :returns: per mask, ``[(column, values)]`` in code order.
+    """
     from skimage.feature import local_binary_pattern
 
+    c, radius = item
+    columns = [[] for _ in index]
+    points = 8 * int(radius)
+    codes = local_binary_pattern(image[..., c], points, float(radius),
+                                 method='uniform').astype(np.int64)
+    for m, (flat, inside, size, present, count) in enumerate(index):
+        bins = points + 2
+        tally = np.bincount(flat * bins + codes.ravel()[inside],
+                            minlength=size * bins).reshape(size, bins)
+        with np.errstate(invalid='ignore', divide='ignore'):
+            for k in range(bins):
+                share = tally[:, k].astype(float) / count
+                columns[m].append(
+                    (f'channel_{c}_lbp_r{int(radius)}_{k}', share[present]))
+    return columns
+
+
+def _lbp_frames(masks, image, radii=PROFILE_LBP_RADII):
+    """:func:`measure_lbp` of several masks over one image, coding the field once."""
     index = _mask_index(masks)
     outs = [{'label': present} for _f, _i, _s, present, _c in index]
-    for c in range(image.shape[-1]):
-        plane = image[..., c]
-        for radius in radii:
-            points = 8 * int(radius)
-            codes = local_binary_pattern(plane, points, float(radius),
-                                         method='uniform').astype(np.int64)
-            for m, (flat, inside, size, present, count) in enumerate(index):
-                code = codes.ravel()[inside]
-                with np.errstate(invalid='ignore', divide='ignore'):
-                    for k in range(points + 2):
-                        share = np.bincount(flat, (code == k).astype(float),
-                                            size) / count
-                        outs[m][f'channel_{c}_lbp_r{int(radius)}_{k}'] = \
-                            share[present]
+    items = [(c, radius) for c in range(image.shape[-1]) for radius in radii]
+    code = partial(_lbp_channel, image=image, index=index)
+    for columns in _field_map(code, items):
+        for m, pairs in enumerate(columns):
+            outs[m].update(pairs)
     return [pd.DataFrame(out) for out in outs]
 
 
@@ -4933,7 +5499,8 @@ def measure_periphery(labels, image):
         the percentiles are what it adds.
     """
     labels, image, present = _profile_inputs(labels, image)
-    rows = [_periphery_intensity(labels, image[..., c])
+    selections = _periphery_selections(labels)
+    rows = [_periphery_intensity(labels, image[..., c], selections=selections)
             for c in range(image.shape[-1])]
     return _ring_table(rows, present, 'periphery')
 
@@ -4955,8 +5522,11 @@ def measure_outside(labels, image, distance=5, exclude_foreground=True):
         0 otherwise.
     """
     labels, image, present = _profile_inputs(labels, image)
+    selections = _outside_selections(labels, distance,
+                                     exclude_foreground=exclude_foreground)
     rows = [_outside_intensity(labels, image[..., c], distance=distance,
-                               exclude_foreground=exclude_foreground)
+                               exclude_foreground=exclude_foreground,
+                               selections=selections)
             for c in range(image.shape[-1])]
     table = _ring_table(rows, present, 'outside')
     table['enclosed'] = (table['channel_0_outside_mean'].isna()
@@ -4985,43 +5555,44 @@ def measure_profile_features(labels, image, families='profiling',
     chosen = profile_feature_families(families)
     labels, image, present = _profile_inputs(labels, image)
     frames = []
-    for family in chosen:
-        if family == 'edge_intensity':
-            frames.append(measure_edge_intensity(labels, image))
-        elif family == 'intensity_moments':
-            frames.append(measure_intensity_moments(labels, image))
-        elif family == 'radial_distribution':
-            frames.append(measure_radial_distribution(labels, image))
-        elif family == 'shape_extended':
-            frames.append(measure_shape_extended(labels))
-        elif family == 'texture_haralick':
-            frames.append(measure_texture(labels, image, haralick=True,
-                                          pftas=False))
-        elif family == 'texture_pftas':
-            frames.append(measure_texture(labels, image, haralick=False,
-                                          pftas=True))
-        elif family == 'texture_lbp':
-            frames.append(measure_lbp(labels, image))
-        elif family == 'texture_gabor':
-            frames.append(measure_gabor(labels, image))
-        elif family == 'periphery':
-            frames.append(measure_periphery(labels, image))
-        elif family == 'outside':
-            frames.append(measure_outside(labels, image))
-        elif family == 'colocalisation':
-            frames.append(measure_colocalisation(labels, image))
-        elif family == 'colocalisation_extra':
-            frames.append(measure_colocalisation_extra(labels, image,
-                                                       costes=False))
-        elif family == 'colocalisation_costes':
-            frames.append(measure_costes(labels, image))
-        elif family == 'colocalisation_otsu':
-            frames.append(measure_colocalisation_otsu(labels, image))
-        elif family == 'neighbours':
-            frames.append(measure_neighbours(labels, neighbour_radius))
-        elif family == 'granularity':
-            frames.append(measure_granularity(
-                labels, image, subsample=granularity_subsample))
+    with _shared_foregrounds():
+        for family in chosen:
+            if family == 'edge_intensity':
+                frames.append(measure_edge_intensity(labels, image))
+            elif family == 'intensity_moments':
+                frames.append(measure_intensity_moments(labels, image))
+            elif family == 'radial_distribution':
+                frames.append(measure_radial_distribution(labels, image))
+            elif family == 'shape_extended':
+                frames.append(measure_shape_extended(labels))
+            elif family == 'texture_haralick':
+                frames.append(measure_texture(labels, image, haralick=True,
+                                              pftas=False))
+            elif family == 'texture_pftas':
+                frames.append(measure_texture(labels, image, haralick=False,
+                                              pftas=True))
+            elif family == 'texture_lbp':
+                frames.append(measure_lbp(labels, image))
+            elif family == 'texture_gabor':
+                frames.append(measure_gabor(labels, image))
+            elif family == 'periphery':
+                frames.append(measure_periphery(labels, image))
+            elif family == 'outside':
+                frames.append(measure_outside(labels, image))
+            elif family == 'colocalisation':
+                frames.append(measure_colocalisation(labels, image))
+            elif family == 'colocalisation_extra':
+                frames.append(measure_colocalisation_extra(labels, image,
+                                                           costes=False))
+            elif family == 'colocalisation_costes':
+                frames.append(measure_costes(labels, image))
+            elif family == 'colocalisation_otsu':
+                frames.append(measure_colocalisation_otsu(labels, image))
+            elif family == 'neighbours':
+                frames.append(measure_neighbours(labels, neighbour_radius))
+            elif family == 'granularity':
+                frames.append(measure_granularity(
+                    labels, image, subsample=granularity_subsample))
     out = pd.DataFrame({'label': present})
     for frame in frames:
         out = pd.concat([out, frame.drop(columns='label').reset_index(drop=True)],
