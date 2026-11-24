@@ -31,6 +31,8 @@ from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
+from .ports import measurements_db_path
+
 __all__ = ["CROP_COLUMNS", "CropPoolWriter", "CropSink", "cut_crops",
            "read_crop", "export_crops", "crop_relationships",
            "open_measure_sink", "receive_measure_crops", "close_measure_sink",
@@ -1528,7 +1530,7 @@ def _read_crop_index(project: Any) -> Optional[Any]:
     from . import store
     from .tabular import read_database
 
-    db = Path(project) / "measurements" / "measurements.db"
+    db = Path(measurements_db_path(project))
     if (Path(project) / store.CATALOG).is_file():
         try:
             with store.open(str(project)) as opened:
@@ -1546,9 +1548,11 @@ def _read_crop_index(project: Any) -> Optional[Any]:
                 return opened.query(table="ssCell_Crops")
     except store.StoreError:
         pass
-    import sqlite3
+    from contextlib import closing
 
-    with sqlite3.connect(str(db), timeout=30) as conn:
+    from .database_concurrency import connect
+
+    with closing(connect(db, readonly=True)) as conn:
         present = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
                                "AND name='ssCell_Crops'").fetchone()
     if not present:
@@ -1643,17 +1647,18 @@ def ome_zarr_crops_exist(root: Any) -> bool:
         A project that streams its crops (saving crops off, item 0aj) has no
         crop store, only the index and ``fov.ome.zarr``.
     """
-    import sqlite3
+    from contextlib import closing
 
+    from .database_concurrency import connect
     from .image_store import _is_merged_store, _merged_store_path
 
     root = Path(root)
-    db = root / "measurements" / "measurements.db"
+    db = Path(measurements_db_path(root))
     stored = any(any((root / name).glob(f"plate=*/well=*{suffix}"))
                  for name, suffix in _CROP_ROOTS)
     if not db.is_file() or not (stored or _is_merged_store(_merged_store_path(root))):
         return False
-    with sqlite3.connect(str(db), timeout=30) as conn:
+    with closing(connect(db, readonly=True)) as conn:
         columns = [r[1] for r in conn.execute('PRAGMA table_info("ssCell_Crops")')]
     return bool(columns) and (stored or "source_field" in columns)
 
@@ -1713,7 +1718,7 @@ class OmeZarrCropSource(_lazy_crop_source_base()):
         self.root = root
         self.reason = reason
         if db_path is None and root:
-            db_path = os.path.join(root, "measurements", "measurements.db")
+            db_path = measurements_db_path(root)
         self.db_path = db_path
         self.channels = None if channels is None else [int(c) for c in channels]
         self.size = None if size is None else (int(size[0]), int(size[1]))
