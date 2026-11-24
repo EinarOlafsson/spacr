@@ -110,7 +110,12 @@ def _file(db_path: Any) -> Optional[str]:
 
 
 def legacy_database(db_path: Any) -> Optional[str]:
-    """The legacy ``measurements.db`` of a locator, when it exists.
+    """The legacy ``measurements.db`` of a locator, when it is the project's.
+
+    A current store (its catalog and ``STORE_VERSION``) is the project's
+    measurements, so a ``measurements.db`` beside it, which a writer not yet
+    on the store may have created, is not read; neither is an empty one
+    beside a catalog.
 
     :param db_path: as for :func:`project_of`.
     :returns: the file's path, or None.
@@ -118,8 +123,12 @@ def legacy_database(db_path: Any) -> Optional[str]:
     path = os.path.join(project_of(db_path), LEGACY_NAME)
     if not os.path.isfile(path):
         return None
+    folder = os.path.dirname(path)
+    if (os.path.isfile(os.path.join(folder, 'spacr.duckdb'))
+            and os.path.isfile(os.path.join(folder, 'STORE_VERSION'))):
+        return None
     try:
-        if os.path.isfile(os.path.join(os.path.dirname(path), 'spacr.duckdb')) and (
+        if os.path.isfile(os.path.join(folder, 'spacr.duckdb')) and (
                 os.path.getsize(path) == 0 or _empty_sqlite(path)):
             return None
     except OSError:
