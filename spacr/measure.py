@@ -14479,8 +14479,6 @@ _STEPS_NOT_ON_THE_STORE = (
     ('viability', 'viability'),
     ('cellprofiler_pipeline', 'the CellProfiler step'),
     ('timelapse_lineage', 'the measured lineage'),
-    ('per_cell_export', 'the per-cell export'),
-    ('profiling', 'profiling'),
     ('feature_qc_drop', 'dropping the flagged feature columns'),
 )
 
@@ -16057,7 +16055,7 @@ def _emit_per_cell_export(settings, db_path):
     """
     from .utils import console_safe
 
-    if not db_path or not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return
     try:
         from .sp_stats import export_per_cell
@@ -16095,7 +16093,7 @@ def _emit_profiles(settings, db_path):
     :param settings: the run's settings, with the ``profiling_*`` keys.
     :param db_path: the ``measurements.db`` the run produced.
     """
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path or not _measurements_exist(db_path):
         return
     try:
         from .sp_stats import _profile_measurements

@@ -211,21 +211,28 @@ def _partitions(frame) -> List[tuple]:
 
     columns = set(frame.columns)
     if {'plateID', 'rowID', 'columnID'} <= columns:
-        plates = frame['plateID'].map(_text)
-        wells = frame['rowID'].map(_text) + frame['columnID'].map(_text)
+        plates = (frame['plate'] if 'plate' in columns
+                  else frame['plateID']).map(_text)
+        wells = (frame['well'].map(_text) if 'well' in columns else
+                 frame['rowID'].map(_text) + frame['columnID'].map(_text))
     elif {'plate', 'well'} <= columns:
         plates = frame['plate'].map(_text)
         wells = frame['well'].map(_text)
     else:
         source = next((c for c in ('prcfo', 'prcf', 'file_name')
                        if c in columns), None)
-        if source is None:
+        if source is None and not ({'plate', 'well'} & columns):
             return [(RUN_PARTITION[0], RUN_PARTITION[1],
                      np.arange(len(frame)))]
         from . import schema
 
         plates, wells = [], []
-        for value in frame[source]:
+        for value in (frame[source] if source is not None
+                      else [None] * len(frame)):
+            if value is None:
+                plates.append(RUN_PARTITION[0])
+                wells.append(RUN_PARTITION[1])
+                continue
             try:
                 field = schema.parse_field_stem(str(value).split('_o')[0]
                                                 if source == 'prcfo'
@@ -240,6 +247,10 @@ def _partitions(frame) -> List[tuple]:
 
         plates = pd.Series(plates, index=frame.index)
         wells = pd.Series(wells, index=frame.index)
+    if 'plate' in columns:
+        plates = frame['plate'].map(_text)
+    if 'well' in columns:
+        wells = frame['well'].map(_text)
     keys = list(zip(plates.astype(str), wells.astype(str)))
     groups: Dict[tuple, List[int]] = {}
     for position, key in enumerate(keys):
@@ -681,10 +692,15 @@ def spool_field(db_path: Any, field: str, packet: Mapping[str, List[Any]], *,
         if table in UPSERT_KEYS:
             frame = _merge_upsert(None, frame, UPSERT_KEYS[table])
         frame = _clean(_with_keys(table, frame))
-        store.write_table(spool, _spool_table(table, stem), frame,
-                          plate=plate, well=well, run_id=run_id,
-                          sort_by=_sort_by(frame),
-                          key_columns=_key_columns(frame))
+        groups = _partitions(frame)
+        if len(groups) == 1 and groups[0][:2] == RUN_PARTITION:
+            groups = [(plate, well, groups[0][2])]
+        for part_plate, part_well, rows in groups:
+            part = frame.iloc[rows]
+            store.write_table(spool, _spool_table(table, stem), part,
+                              plate=part_plate, well=part_well, run_id=run_id,
+                              sort_by=_sort_by(part),
+                              key_columns=_key_columns(part))
         written[table] = int(len(frame))
     mark = pd.DataFrame([{'ticket': str(ticket), 'field': str(field),
                           'stem': stem, 'tables': ','.join(sorted(written)),
@@ -801,11 +817,18 @@ def compact(db_path: Any, *, run_id: Optional[str] = None,
             for stem in stems:
                 data = opened.sql(f'SELECT * FROM "{_spool_table(table, stem)}"',
                                   as_='arrow')
-                plates = data.column('plate').to_pylist()
-                key = (str(plates[0]), str(data.column('well')[0].as_py()))
-                data = data.drop_columns([c for c in ('plate', 'well')
-                                          if c in data.column_names])
-                wells.setdefault(key, []).append(data)
+                pairs = sorted(set(zip(map(str, data.column('plate').to_pylist()),
+                                       map(str, data.column('well').to_pylist()))))
+                for key in pairs:
+                    if len(pairs) == 1:
+                        chunk = data
+                    else:
+                        import pyarrow.compute as pc
+                        chunk = data.filter(pc.and_(
+                            pc.equal(data.column('plate'), key[0]),
+                            pc.equal(data.column('well'), key[1])))
+                    wells.setdefault(key, []).append(chunk.drop_columns(
+                        [c for c in ('plate', 'well') if c in chunk.column_names]))
             if table in UPSERT_KEYS or table in REPLACE_TABLES:
                 frame = pd.concat([b.to_pandas() for items in wells.values()
                                    for b in items], ignore_index=True, sort=False)
@@ -900,14 +923,35 @@ def legacy_shape(frame, table=None):
     if table in POINTER_TABLES:
         return frame
     drop = [c for c in ('object_key',) if c in frame.columns]
-    if 'plateID' in frame.columns or (
-            'plate' in frame.columns and len(frame)
-            and set(frame['plate'].astype(str)) == {RUN_PARTITION[0]}):
-        drop += [c for c in ('plate', 'well') if c in frame.columns]
+    drop += _partition_only(frame)
     for column in ('crop_store', 'crop_index'):
         if column in frame.columns and frame[column].isna().all():
             drop.append(column)
     return frame.drop(columns=drop) if drop else frame
+
+
+def _partition_only(frame) -> List[str]:
+    """The ``plate``/``well`` columns of a store frame that only repeat its keys.
+
+    A table that carried its own ``plate`` or ``well`` (a value other than
+    ``plateID``, or ``rowID`` + ``columnID``) keeps it; the store's partition
+    columns that merely repeat those keys, or name the run partition, go.
+    """
+    out = []
+    if not len(frame):
+        return [c for c in ('plate', 'well') if c in frame.columns]
+    if 'plate' in frame.columns:
+        plate = frame['plate'].astype(str)
+        if ((plate == RUN_PARTITION[0]).all() or ('plateID' in frame.columns
+                and (plate == frame['plateID'].map(_text)).all())):
+            out.append('plate')
+    if 'well' in frame.columns:
+        well = frame['well'].astype(str)
+        if ((well == RUN_PARTITION[1]).all() or ({'rowID', 'columnID'}
+                <= set(frame.columns) and (well == frame['rowID'].map(_text)
+                                           + frame['columnID'].map(_text)).all())):
+            out.append('well')
+    return out
 
 
 def tables(db_path: Any) -> List[str]:
@@ -1079,8 +1123,10 @@ class _Session:
             columns = [r[0] for r in self.db.execute(
                 f'DESCRIBE SELECT * FROM {source}').fetchall()]
             hidden = ['object_key']
-            if 'plateID' in columns and name not in self.editable:
-                hidden += ['plate', 'well']
+            if name not in self.editable and 'plate' in columns:
+                sample = self.db.execute(
+                    f'SELECT * FROM {source} LIMIT 256').df()
+                hidden += _partition_only(sample)
             if name not in POINTER_TABLES:
                 hidden += ['crop_store', 'crop_index']
             hidden = [c for c in hidden if c in columns]
