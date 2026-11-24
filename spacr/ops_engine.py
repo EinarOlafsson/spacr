@@ -24,6 +24,7 @@ import re
 import time
 from collections import Counter
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
+from .ops_settings import ops_defaults, ops_setting
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -2428,7 +2429,7 @@ def _objects_window_basis(settings: Mapping[str, Any], blend: str,
 
     from . import __version__
 
-    name = str(settings.get("ops_sbs_nucleus_model") or "").strip() or "cpsam"
+    name = str(ops_setting(settings, "ops_sbs_nucleus_model")).strip()
     model: Dict[str, Any] = {"name": name}
     if os.path.isfile(name):
         stat = os.stat(name)
@@ -4010,7 +4011,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                           else None)
     decoys: List[str] = []
     rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
-    mode = str(settings.get("ops_decode_threshold_mode") or "manual").strip().lower()
+    mode = str(ops_setting(settings, "ops_decode_threshold_mode")).strip().lower()
     if mode == "auto" and not (rule_a["active"] and rule == "mapped"
                                and int(rule_a.get("decoy_k") or 0) > 0):
         _say(f"{well} decode: ops_decode_threshold_mode 'auto' tunes the "
@@ -4110,7 +4111,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
 
     library_set = frozenset(library)
     decoy_set = frozenset(decoys)
-    workers = max(1, min(int(settings.get("n_workers") or 1),
+    workers = max(1, min(int(ops_setting(settings, "n_workers")),
                          _DECODE_WORKERS_CAP, len(tasks)))
     if detector in _BACKEND_SPOT_DETECTORS and workers > 1:
         _say(f"{well} decode: {detector} runs in one worker of its own, so the "
@@ -5377,7 +5378,7 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
         raise ValueError(tr("no phenotype field to build flat-field maps from"))
     tasks = [{"well": w, "site": site, "files": files[w][site],
               "channels": channels} for w, site in chosen]
-    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks)))
+    workers = max(1, min(int(ops_setting(settings, "n_workers")), len(tasks)))
     if workers == 1:
         results = [_ph_flat_blocks(task) for task in tasks]
     else:
@@ -5595,7 +5596,7 @@ def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
         raise ValueError(tr("ph_flatfield_objects found no segmented field; run ph_segment first"))
     tasks = [{"well": w, "site": s, "files": files[(w, s)][0], "mask_path": files[(w, s)][1],
               "fits": fits} for w, s in chosen]
-    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks)))
+    workers = max(1, min(int(ops_setting(settings, "n_workers")), len(tasks)))
     if workers == 1:
         results = [_ph_object_means(task) for task in tasks]
     else:
@@ -5716,7 +5717,7 @@ def _ph_masks(plate: str, well: str, settings: Mapping[str, Any],
               "part_path": parts[s], "flat_folder": flat_folder,
               "channels": channels}
              for s in sites if not os.path.isfile(parts[s])]
-    workers = max(1, min(int(settings.get("n_workers") or 1),
+    workers = max(1, min(int(ops_setting(settings, "n_workers")),
                          len(tasks) or 1))
     if workers == 1:
         for task in tasks:
@@ -6146,7 +6147,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                   if measure else set())
     from ._mask_batches import _field_order
 
-    processing_order = _field_order(sites, dict(settings, randomize=settings.get('randomize', False)))
+    processing_order = _field_order(sites, dict(settings, randomize=ops_setting(settings, 'randomize')))
     stager = None
     if stage_dir:
         from .ops_run_infra import FieldStager
@@ -7874,7 +7875,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
 
         cells[dna_column] = correct_features(
             cells, cells, [dna_column], flat_offsets)[dna_column].to_numpy()
-    if str(settings.get("ops_mitotic_source") or "").strip().lower() == "cell_cycle":
+    if str(ops_setting(settings, "ops_mitotic_source")).strip().lower() == "cell_cycle":
         from .ops_cell_cycle import MITOTIC_STAGES
 
         staged = _rows_for_wells(db, "ops_cell_cycle", plate, pooled)
@@ -8735,7 +8736,7 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
             "meta": {"plate": plate, "well": well, "site": site,
                      "transform": transform, "spacr_version": __version__,
                      "spacr_commit": commit}})
-    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks) or 1))
+    workers = max(1, min(int(ops_setting(settings, "n_workers")), len(tasks) or 1))
     results = []
 
     def persist(result):
@@ -9991,7 +9992,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                   "plate": plate, "well": well}
                  for site, labels in sorted(chosen.items())
                  if site in files and site in mask_paths]
-        workers = max(1, min(int(settings.get("n_workers") or 1),
+        workers = max(1, min(int(ops_setting(settings, "n_workers")),
                              len(tasks) or 1))
         if workers == 1:
             results = map(_ph_crop_field, tasks)
@@ -11542,7 +11543,7 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
     if cycle_method not in ("", "measure_fc"):
         raise ValueError(tr("ops_profile_cell_cycle_method must be empty or "
                             "measure_fc; got {value}", value=cycle_method))
-    source = str(settings.get("ops_mitotic_source") or "rule").strip().lower()
+    source = str(ops_setting(settings, "ops_mitotic_source")).strip().lower()
     if source not in ("rule", "classifier", "cell_cycle"):
         raise ValueError(tr("ops_mitotic_source must be rule, classifier or cell_cycle; "
                             "got {value}", value=source))
@@ -11980,7 +11981,7 @@ def run_ops(settings: Mapping[str, Any], *,
     from . import ops_settings  # noqa: F401
     from .settings import _fold_renamed_settings
 
-    settings = _fold_renamed_settings(dict(settings or {}))
+    settings = ops_defaults(_fold_renamed_settings(dict(settings or {})))
     phases = _run_phases(settings, phases)
     if settings.get("ops_gpu_admission") and not _OPS_ADMITTED.get():
         return _ops_admitted_run(settings, wells=wells, phases=phases,

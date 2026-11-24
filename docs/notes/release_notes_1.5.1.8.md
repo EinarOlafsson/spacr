@@ -4,6 +4,8 @@ This release writes raw crops and records how every classifier's inputs were pre
 
 ### Upgrading
 
+- **Calling the OPS engine from Python now gives the same defaults as the command line and the app (960).** Before, `run_ops` did not fill in the OPS defaults and each module carried its own fallback value for a missing setting, 22 of which disagreed with the declared default (for example the decode threshold mode fell back to `manual` while the default is `auto`, and the field order fell back to acquisition order while the default is randomised). `run_ops` now fills the declared defaults once and every module reads that one table, so a direct call that leaves a setting out behaves exactly like a settings file run with the command line. Settings files and run journals are unaffected: they were already filled with the declared defaults, and files saved before 960 keep the earlier value of two settings that had no record of it, `ops_feature_screen_permutations` (0, now 500) and `ops_feature_screen_ridge` (0.0, now 1e-06). The other settings that differed already keep their earlier values for older files.
+
 - **Spatial Mask Generation retains automatic results for replay.** Saved settings now keep exact per-field normalization bounds and per-field, per-role diameters, including native-scale `None`. Reloading uses those values and refuses mismatched pixels, configuration or padded shape. Resolved PSF values, fitted illumination and Noise2Void model paths, and replication linkage distance are also saved. Settings schema 950 adds this record without changing defaults; the GUI retains it. Use a fresh automatic settings file to estimate again.
 
 Upgrade an existing Python environment with:

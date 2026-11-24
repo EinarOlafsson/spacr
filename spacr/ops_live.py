@@ -17,6 +17,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
+from .ops_settings import ops_setting
 
 import numpy as np
 
@@ -890,7 +891,7 @@ def _decode_options(settings: Mapping[str, Any], library: Sequence[str], *,
         if well is not None and settings.get("dst_root"):
             rule_a["fdr_scale"] = _reported_fdr_scale(
                 os.path.join(str(settings["dst_root"]), "measurements.db"), well,
-                rule_a["fdr_scale"], str(settings.get("ops_decode_fdr_calibration") or "none"))
+                rule_a["fdr_scale"], str(ops_setting(settings, "ops_decode_fdr_calibration")))
         if rule_a["decoy_k"] > 0:
             decoys = decoy_library(library, k=rule_a["decoy_k"])
         if read_mode != "log":

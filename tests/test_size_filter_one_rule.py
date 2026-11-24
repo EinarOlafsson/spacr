@@ -110,8 +110,8 @@ def test_gui_remove_small_objects_binary_mask_is_split_into_components():
 def test_old_settings_fold_to_the_strict_rule():
     from spacr import settings as S
 
-    assert S.DEFAULT_CHANGES[960] == {'size_filter_inclusive': False}
-    assert S.SETTINGS_SCHEMA_VERSION >= 960
+    assert S.DEFAULT_CHANGES[961] == {'size_filter_inclusive': False}
+    assert S.SETTINGS_SCHEMA_VERSION >= 961
     old = {}
     S._fold_older_defaults(old, 959)
     assert old['size_filter_inclusive'] is False

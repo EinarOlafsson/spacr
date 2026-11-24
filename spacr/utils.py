@@ -6457,7 +6457,7 @@ def _filter_object(mask, min_value=None, max_value=None, *, bounds=None,
     :param bounds: ``(min, max)`` in place of the two arguments above.
     :param inclusive: True (the default) keeps an object whose size equals a
         bound. False restores the earlier Make Masks rule, which dropped it
-        (``min < size < max``); only settings written before schema 960 ask
+        (``min < size < max``); only settings written before schema 961 ask
         for it, through ``size_filter_inclusive``.
     :returns: ``mask``, filtered in place. A strict bound is the inclusive
         one moved by one, because an object's size is a whole number of

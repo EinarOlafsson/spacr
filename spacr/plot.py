@@ -4672,7 +4672,7 @@ def _filter_objects_in_plot(stack, cell_mask_dim, nucleus_mask_dim, pathogen_mas
         nuclei_limit (bool): Whether to include multinucleated cells.
         pathogen_limit (bool): Whether to include multiinfected cells.
         size_filter_inclusive (bool): Keep an object whose area equals a bound
-            (the default); False drops it, as settings before schema 960 did.
+            (the default); False drops it, as settings before schema 961 did.
 
     Returns:
         numpy.ndarray: The filtered stack of masks.

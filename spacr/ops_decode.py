@@ -25,6 +25,7 @@ import json
 import os
 from functools import lru_cache
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from .ops_settings import ops_setting
 
 import numpy as np
 
@@ -3917,7 +3918,7 @@ def run_compare_calls(db: str, plate: str, wells: Sequence[str],
     else:
         fields = sorted({(str(w), int(s)) for frame in external.values()
                          for w, s in zip(frame["well"], frame["site"])})
-    method = str(settings.get("ops_decode_fdr_calibration") or "none").strip().lower()
+    method = str(ops_setting(settings, "ops_decode_fdr_calibration")).strip().lower()
     scales = {well: _reported_fdr_scale(db, well, rule["fdr_scale"], method)
               for well in {well for well, _site in fields}}
     geometry = read_ops_table(db, "ops_geometry")
