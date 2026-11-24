@@ -118,8 +118,8 @@ def legacy_database(db_path: Any) -> Optional[str]:
     path = os.path.join(project_of(db_path), LEGACY_NAME)
     if not os.path.isfile(path):
         return None
-    if (os.path.getsize(path) == 0 or (os.path.isfile(os.path.join(
-            os.path.dirname(path), 'spacr.duckdb')) and _empty_sqlite(path))):
+    if os.path.isfile(os.path.join(os.path.dirname(path), 'spacr.duckdb')) and (
+            os.path.getsize(path) == 0 or _empty_sqlite(path)):
         return None
     return path
 
