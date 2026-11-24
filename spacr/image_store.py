@@ -1981,22 +1981,28 @@ MASK_RUN_RECORDS = ".spacr_mask_run"
 def _mask_run_dir(masks_dir: Any) -> str:
     """THE folder of a Mask run's records for a ``masks`` folder (item 0aj P4).
 
-    ``<project>/masks`` itself for an older project (a real ``masks/``
-    folder, which always wins, so its ``*.npz`` archives and plan still
-    read) and for runs whose stacks are files; ``<project>/fov.ome.zarr/
-    .spacr_mask_run`` when the project keeps its fields in fov.ome.zarr, so
-    no ``masks/`` folder is ever created. Nothing is created here.
+    ``<project>/fov.ome.zarr/.spacr_mask_run`` once a run keeps its records
+    there, and for a project that keeps its fields in fov.ome.zarr, so no
+    ``masks/`` folder is ever created; ``<project>/masks`` itself for an
+    older project (a real ``masks/`` folder and no record folder, so its
+    ``*.npz`` archives and plan still read) and for runs whose stacks are
+    files. A record folder that exists always wins, so the choice does not
+    change in the middle of a run when something else creates ``masks/``.
+    Nothing is created here.
 
     :param masks_dir: ``<project>/masks`` (it need not exist).
     :returns: the folder path, as a string.
     """
     masks_dir = os.fspath(masks_dir)
     target = Path(os.path.normpath(masks_dir))
-    if target.name != "masks" or os.path.isdir(masks_dir):
+    if target.name != "masks":
         return masks_dir
-    if not _project_keeps_masks_in_store(target.parent):
+    records = _merged_store_path(target.parent) / MASK_RUN_RECORDS
+    if records.is_dir():
+        return os.fspath(records)
+    if os.path.isdir(masks_dir) or not _project_keeps_masks_in_store(target.parent):
         return masks_dir
-    return os.fspath(_merged_store_path(target.parent) / MASK_RUN_RECORDS)
+    return os.fspath(records)
 
 
 def _remove_mask_run_records(project: Any) -> bool:

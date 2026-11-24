@@ -311,5 +311,10 @@ def test_the_record_folder_follows_the_project_layout(tmp_path):
     other = project / "phenotype_masks"
     assert IS._mask_run_dir(other) == os.fspath(other)
     Path(expected).mkdir()
+    # Once a run keeps its records in the store they stay there, even when
+    # something creates masks/ in the middle of the run.
+    masks.mkdir()
+    assert IS._mask_run_dir(masks) == expected
+    masks.rmdir()
     assert IS._remove_mask_run_records(project) and not Path(expected).exists()
     assert not IS._remove_mask_run_records(project)
