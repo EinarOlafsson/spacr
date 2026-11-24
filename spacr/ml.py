@@ -12159,7 +12159,7 @@ def complex_membership_importance(profiles, labels, split, groups, settings=None
         os.makedirs(config['output_dir'], exist_ok=True)
         for name, value in result.items():
             if name == 'heldout_topk':
-                with open(os.path.join(config['output_dir'], 'heldout_topk.json'), 'w') as handle:
+                with open(os.path.join(config['output_dir'], 'heldout_topk.json'), 'w', encoding='utf-8') as handle:
                     json.dump(value, handle, indent=2)
             else:
                 tabular.write_table(value, os.path.join(config['output_dir'], f'{name}.csv'),

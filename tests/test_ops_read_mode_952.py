@@ -139,6 +139,13 @@ def test_the_choice_reads_decoy_counts_only():
     assert first["chosen"] == again["chosen"] and first["report"] == again["report"]
 
 
+#: What a direct run_prefix_decode call fell back to before one OPS default
+#: table (merge 1): these tests were written against it, so they pass it
+#: explicitly now that an unset key takes OPS_DEFAULTS.
+DIRECT_CALL_FALLBACKS = {"ops_prefix_decoy_k": 0, "ops_prefix_fdr_target_pct": 0.1,
+                         "ops_prefix_minority_min_reads": 0}
+
+
 def _prefix(tmp_path, name, **extra):
     stack, labels = synthetic_site()
     root = tmp_path / "data"
@@ -151,7 +158,7 @@ def _prefix(tmp_path, name, **extra):
                 "cpg_phenotype_channels": ["CorrDNA"], "ops_library": str(tmp_path / "Barcodes.csv"),
                 "ops_prefix_masks": str(root / "masks" / "{plate}_{well}_{site}_cells.tiff"),
                 "ops_read_threshold": 10.0, "n_workers": 1,
-                "dst_root": str(tmp_path / name), **extra}
+                "dst_root": str(tmp_path / name), **DIRECT_CALL_FALLBACKS, **extra}
     return P.run_prefix_decode(settings)
 
 

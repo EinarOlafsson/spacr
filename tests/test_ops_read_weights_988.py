@@ -173,6 +173,7 @@ def test_the_settings_are_alpha_off_and_checked():
 
 def test_the_weighted_tuning_grid_keeps_off_in_every_weight_axis():
     chosen = P.prefix_settings({"ops_library": "x.csv",
+                                "ops_prefix_minority_min_reads": 0,
                                 "ops_prefix_quality_method": "weighted_majority",
                                 "ops_prefix_threshold_tuning": "per_well_decoy",
                                 "ops_prefix_decoy_k": 4})
