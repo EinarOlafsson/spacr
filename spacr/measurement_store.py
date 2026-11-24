@@ -921,6 +921,8 @@ def legacy_shape(frame, table=None):
     store's integer key, which a reader written for measurements.db would
     take for a feature).
     """
+    import pandas as pd
+
     if table in POINTER_TABLES:
         return frame
     drop = [c for c in ('object_key',) if c in frame.columns]
@@ -928,7 +930,18 @@ def legacy_shape(frame, table=None):
     for column in ('crop_store', 'crop_index'):
         if column in frame.columns and frame[column].isna().all():
             drop.append(column)
-    return frame.drop(columns=drop) if drop else frame
+    if drop:
+        frame = frame.drop(columns=drop)
+    # A column with no value at all reads as SQLite gave it: objects that
+    # are None, which the measurement readers leave out of the features.
+    empty = [c for c in frame.columns if frame[c].dtype.kind == 'f'
+             and len(frame) and frame[c].isna().all()]
+    if empty:
+        frame = frame.copy()
+        for column in empty:
+            frame[column] = pd.Series([None] * len(frame), dtype=object,
+                                      index=frame.index)
+    return frame
 
 
 def _partition_only(frame) -> List[str]:
