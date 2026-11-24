@@ -2287,6 +2287,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'spectral_n_neighbors',
     'spline_degree',
     'spline_knots',
+    'split_plates',
     'src',
     'ssmd_estimator',
     'stage',
