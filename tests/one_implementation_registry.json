@@ -1,0 +1,224 @@
+{
+  "_comment": [
+    "AGENTS.md rule 43: one operation, one implementation. Each entry names the one owner of an operation",
+    "and the AST signatures that implement it. tests/test_one_implementation_per_operation.py counts every",
+    "signature outside the owners, per file, and compares with one_implementation_baseline.json.",
+    "A count above baseline, or a file missing from the baseline, fails. A count below baseline also fails",
+    "until the baseline is lowered in the same commit, so the ceiling only goes down.",
+    "Signature kinds: calls (fully-qualified, import aliases resolved), method (attribute name on any object),",
+    "name_calls (a bare or attribute call of this function name), numbers (float literals), strings (exact",
+    "string literals), detector (named custom AST rule in the test).",
+    "Owners are repo-relative paths; a trailing '/' owns a folder. owner_function documents the entry point",
+    "callers must use; enforcement is per owner module."
+  ],
+  "operations": {
+    "object_regionprops_table": {
+      "description": "Per-object morphology/intensity tables from label images (regionprops).",
+      "owners": ["spacr/measure.py"],
+      "owner_function": "spacr.measure._morphological_measurements / _intensity_measurements / _safe_morphology_table",
+      "calls": ["skimage.measure.regionprops", "skimage.measure.regionprops_table"],
+      "covered_by": "OPS: ws-offload-ws-ops-measure-shared; timelapse/division/host_pathogen: audit C2/C3"
+    },
+    "texture_haralick": {
+      "description": "Haralick / grey-level co-occurrence texture.",
+      "owners": ["spacr/measure.py"],
+      "owner_function": "spacr.measure._intensity_measurements (texture family)",
+      "calls": ["mahotas.features.haralick", "mahotas.features.texture.haralick",
+                "skimage.feature.graycomatrix", "skimage.feature.greycomatrix",
+                "skimage.feature.graycoprops", "skimage.feature.greycoprops"]
+    },
+    "zernike_moments": {
+      "description": "Zernike shape moments.",
+      "owners": ["spacr/measure.py"],
+      "owner_function": "spacr.measure._calculate_zernike",
+      "calls": ["mahotas.features.zernike_moments", "mahotas.features.zernike"]
+    },
+    "cytoplasm_derivation": {
+      "description": "Cytoplasm = cell labels with nucleus (and other) pixels zeroed.",
+      "owners": ["spacr/measure.py"],
+      "owner_function": "spacr.measure.derive_cytoplasm(cell, exclude=[...]) (to be extracted from _measure_crop_core)",
+      "detector": "cytoplasm_where",
+      "covered_by": "ops_sample site: ws-offload-ws-ops-measure-shared"
+    },
+    "cellpose_model_construction": {
+      "description": "Constructing a Cellpose model from a resolved checkpoint.",
+      "owners": ["spacr/utils.py", "spacr/object.py", "spacr/_segmentation_backends.py"],
+      "owner_function": "spacr.utils.build_cellpose_model (proposed) over utils._resolve_cellpose_pretrained",
+      "calls": ["cellpose.models.CellposeModel", "cellpose.models.Cellpose",
+                "cellpose.models.SizeModel", "cellpose.denoise.CellposeDenoiseModel"]
+    },
+    "cellpose_governed_eval": {
+      "description": "Running a segmentation model under the GPU governor.",
+      "owners": ["spacr/object.py", "spacr/_mask_batches.py", "spacr/_mask_tracing.py",
+                 "spacr/_segmentation_backends.py", "spacr/_gpu_governor.py"],
+      "owner_function": "spacr.object._mask_eval",
+      "name_calls": ["_governed_eval"]
+    },
+    "watershed_split": {
+      "description": "Watershed splitting of touching objects.",
+      "owners": ["spacr/object.py"],
+      "owner_function": "spacr.object._watershed_split",
+      "calls": ["skimage.segmentation.watershed", "skimage.morphology.watershed"]
+    },
+    "label_relabel_sequential": {
+      "description": "Compacting label IDs.",
+      "owners": ["spacr/qt/mask_engine.py"],
+      "owner_function": "spacr.qt.mask_engine.compact_labels",
+      "calls": ["skimage.segmentation.relabel_sequential"]
+    },
+    "small_object_removal": {
+      "description": "Binary small-object / hole removal.",
+      "owners": ["spacr/measure.py"],
+      "owner_function": "spacr.utils._filter_object (labels) / measure (binary)",
+      "calls": ["skimage.morphology.remove_small_objects", "skimage.morphology.remove_small_holes"]
+    },
+    "border_clearing": {
+      "description": "Removing labels that touch the field border.",
+      "owners": ["spacr/qt/mask_engine.py"],
+      "owner_function": "spacr.qt.mask_engine.border_labels (proposed)",
+      "calls": ["skimage.segmentation.clear_border"]
+    },
+    "classical_threshold": {
+      "description": "Global/local intensity thresholds for classical segmentation.",
+      "owners": ["spacr/object.py", "spacr/intensity_rescale.py"],
+      "owner_function": "spacr.object._segment_single_image",
+      "calls": ["skimage.filters.threshold_otsu", "skimage.filters.threshold_li",
+                "skimage.filters.threshold_triangle", "skimage.filters.threshold_local",
+                "skimage.filters.threshold_multiotsu", "skimage.filters.threshold_yen"]
+    },
+    "tiff_write": {
+      "description": "Writing TIFF images/masks.",
+      "owners": ["spacr/tiff_io.py"],
+      "owner_function": "spacr.tiff_io.write_tiff",
+      "calls": ["tifffile.imwrite", "tifffile.imsave", "tifffile.TiffWriter",
+                "skimage.io.imsave", "cellpose.io.imsave"],
+      "covered_by": "crop blobs: WS 0aj"
+    },
+    "raster_decode": {
+      "description": "Decoding raw rasters (TIFF and friends) from disk.",
+      "owners": ["spacr/tiff_io.py", "spacr/image_store.py"],
+      "owner_function": "spacr.tiff_io (read with axes) / spacr.image_store.read_image, read_labels",
+      "calls": ["tifffile.imread", "tifffile.TiffFile", "tifffile.memmap",
+                "skimage.io.imread", "imageio.imread", "imageio.v2.imread", "imageio.v3.imread",
+                "cv2.imread"],
+      "covered_by": "stored-array/mask format: WS 0aj; OPS plane policy: 1010b section 1"
+    },
+    "zarr_store_open": {
+      "description": "Opening Zarr arrays/groups (images, masks, crops).",
+      "owners": ["spacr/store.py", "spacr/crop_store.py", "spacr/ome_zarr.py", "spacr/image_store.py"],
+      "owner_function": "spacr.store.write_array / spacr.image_store",
+      "calls": ["zarr.open", "zarr.open_group", "zarr.open_array", "zarr.create", "zarr.group",
+                "zarr.creation.open_array", "zarr.convenience.open"],
+      "covered_by": "WS 0aj"
+    },
+    "sqlite_connect": {
+      "description": "Opening the SQLite measurement database.",
+      "owners": ["spacr/store.py", "spacr/database_concurrency.py", "spacr/tabular.py"],
+      "owner_function": "spacr.store.open / store_legacy",
+      "calls": ["sqlite3.connect"],
+      "covered_by": "unified store S3-S7"
+    },
+    "duckdb_connect": {
+      "description": "Opening DuckDB catalogs.",
+      "owners": ["spacr/store.py", "spacr/tabular.py"],
+      "owner_function": "spacr.store.open",
+      "calls": ["duckdb.connect"],
+      "covered_by": "unified store S3"
+    },
+    "parquet_write": {
+      "description": "Writing Parquet tables.",
+      "owners": ["spacr/store.py", "spacr/tabular.py"],
+      "owner_function": "spacr.store.writer / write_table",
+      "calls": ["pyarrow.parquet.write_table", "pyarrow.parquet.ParquetWriter"],
+      "method": ["to_parquet"],
+      "covered_by": "unified store S2/S4"
+    },
+    "measurements_db_path": {
+      "description": "Building the project's measurements.db path by hand (one file structure).",
+      "owners": ["spacr/ports.py", "spacr/store.py"],
+      "owner_function": "spacr.ports.paths(root).measurements_db (proposed)",
+      "strings": ["measurements.db"],
+      "covered_by": "contents of measurements/: unified store section 2.1; path helper: audit E6"
+    },
+    "translation_registration": {
+      "description": "Estimating translation between images (phase correlation / ECC).",
+      "owners": ["spacr/stitch_core.py", "spacr/ops_register.py"],
+      "owner_function": "spacr.stitch_core.register_strip_pair / spacr.ops_register.phase_correlate",
+      "calls": ["skimage.registration.phase_cross_correlation", "cv2.phaseCorrelate",
+                "skimage.feature.register_translation", "cv2.findTransformECC"],
+      "covered_by": "1010b section 3"
+    },
+    "pca": {
+      "description": "Principal components of feature profiles.",
+      "owners": ["spacr/ops_reference.py", "spacr/ops_tvn.py", "spacr/ops_scoring.py",
+                 "spacr/gpu_reduce.py", "spacr/mps_reduce.py"],
+      "owner_function": "spacr.ops_reference._GeneEmbedding / spacr.gpu_reduce.make_reducer",
+      "calls": ["sklearn.decomposition.PCA", "sklearn.decomposition.IncrementalPCA"]
+    },
+    "umap_tsne": {
+      "description": "Non-linear 2-D embedding.",
+      "owners": ["spacr/gpu_reduce.py"],
+      "owner_function": "spacr.gpu_reduce.make_reducer",
+      "calls": ["umap.UMAP", "umap.umap_.UMAP", "sklearn.manifold.TSNE", "openTSNE.TSNE"]
+    },
+    "phate_leiden": {
+      "description": "PHATE graph and Leiden/Louvain clustering.",
+      "owners": ["spacr/ops_clusters.py"],
+      "owner_function": "spacr.ops_clusters.leiden_partitions(gene_graph(...))",
+      "calls": ["phate.PHATE", "leidenalg.find_partition", "igraph.Graph.community_leiden",
+                "community.best_partition", "scanpy.tl.leiden", "scanpy.tl.louvain",
+                "networkx.algorithms.community.louvain_communities",
+                "networkx.community.louvain_communities"]
+    },
+    "fdr_adjust": {
+      "description": "Multiple-testing correction (BH and friends).",
+      "owners": ["spacr/multiple_testing.py"],
+      "owner_function": "spacr.multiple_testing.adjust_p_values",
+      "calls": ["statsmodels.stats.multitest.multipletests", "statsmodels.stats.multitest.fdrcorrection",
+                "scipy.stats.false_discovery_control"]
+    },
+    "robust_scale_constant": {
+      "description": "MAD-to-SD constant written inline (robust z / MAD fences).",
+      "owners": ["spacr/sp_stats.py", "spacr/thresholds.py"],
+      "owner_function": "spacr.sp_stats.MAD_SCALE, robust_z_scores; spacr.thresholds.robust_sigma",
+      "numbers": [1.4826, 0.6745]
+    },
+    "feature_standardise": {
+      "description": "Centre/scale features with sklearn scalers.",
+      "owners": ["spacr/batch_correction.py", "spacr/ops_tvn.py", "spacr/ops_reference.py"],
+      "owner_function": "spacr.batch_correction._center / _scale",
+      "calls": ["sklearn.preprocessing.StandardScaler", "sklearn.preprocessing.RobustScaler"]
+    },
+    "process_pool": {
+      "description": "Creating worker process pools.",
+      "owners": ["spacr/resource_log.py", "spacr/_mask_workers.py"],
+      "owner_function": "spacr.resource_log._parallel_process_executor",
+      "calls": ["concurrent.futures.ProcessPoolExecutor", "concurrent.futures.process.ProcessPoolExecutor",
+                "multiprocessing.Pool", "multiprocessing.pool.Pool"]
+    },
+    "gpu_memory_cap": {
+      "description": "Per-process VRAM cap.",
+      "owners": ["spacr/_gpu_governor.py", "spacr/gpu_admission.py"],
+      "owner_function": "spacr._gpu_governor",
+      "calls": ["torch.cuda.set_per_process_memory_fraction"]
+    },
+    "thread_caps": {
+      "description": "Capping BLAS/OpenMP threads.",
+      "owners": ["spacr/resource_log.py"],
+      "owner_function": "one thread-cap owner beside resource_log (audit E5b)",
+      "calls": ["threadpoolctl.threadpool_limits"],
+      "strings": ["OMP_NUM_THREADS"]
+    },
+    "figure_save": {
+      "description": "Saving figures. Enforced by tests/test_every_kept_figure_goes_through_one_writer.py; listed for completeness.",
+      "owners": [],
+      "delegated_to": "tests/test_every_kept_figure_goes_through_one_writer.py"
+    },
+    "flat_field": {
+      "description": "Flat-field fit, normalisation convention and application. One numerical owner, one map convention recorded in metadata.",
+      "owners": ["spacr/ops_flatfield.py"],
+      "owner_function": "spacr.ops_flatfield (item 1009)",
+      "delegated_to": "item 1009 (no AST signature: the estimators use generic numpy)"
+    }
+  }
+}
