@@ -1650,6 +1650,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_profile_generic_axes',
     'ops_profile_min_cells',
     'ops_profile_normalisation',
+    'ops_profile_nuisance',
+    'ops_profile_nuisance_fit',
     'ops_profile_recipe',
     'ops_profile_responder_alpha',
     'ops_profile_run',
