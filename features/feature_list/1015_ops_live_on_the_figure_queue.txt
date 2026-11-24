@@ -67,3 +67,9 @@ NOTES
 ws-offload-ws-ops-live-queue. Lesson 76_ops needs re-recording when
 tutorials resume (on hold). New tr() strings go to the translation debt
 log (translations on hold).
+2026-11-24 (maintainer, asked directly): a region is one block of sequencing
+tiles plus every phenotype field placed on it. The test data has one block
+(tiles 321, 322, 331, 332); two more blocks are prepared from LaC024E A1 as a
+new revision of the Hugging Face OPS test dataset, uploaded only with the
+maintainer OK. OPS live keeps its 5 tabs (spots and genotyping, objects and
+phenotype stay combined).
