@@ -512,3 +512,18 @@ def test_each_region_reads_its_own_references_and_workspace(tmp_path, monkeypatc
     assert ops_live._workspace(dict(base, ops_live_region=2)) != first
     assert ops_live._workspace(dict(base, ops_live_region=1)) != ops_live._workspace(
         dict(base, ops_live_region=2))
+
+
+def test_the_keys_of_the_field_graphs_sit_above_the_plot_not_on_the_bars(qtbot):
+    from spacr.qt.widgets.ops_live_preview import _QtGraph, _draw_merge, _theme_colours
+
+    graphs = _draw_merge(_merge_result(), _theme_colours())["graphs"]
+    for spec, words in ((graphs[0], ["all fields"]),
+                        (graphs[3], ["matched to a nucleus", "not matched"])):
+        graph = _QtGraph()
+        qtbot.addWidget(graph)
+        graph.show_spec(spec, _theme_colours())
+        assert graph.plot.getPlotItem().legend is None, "no legend inside the plot box"
+        assert all(word in graph.key_text() for word in words)
+        layout = graph.layout()
+        assert layout.indexOf(graph.key) < layout.indexOf(graph.plot)

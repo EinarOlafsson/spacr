@@ -637,8 +637,7 @@ def _draw_merge(result: Mapping[str, Any], colours):
                        "x_label": tr("Phenotype field"), "y_label": tr("Cells"),
                        "x": np.arange(len(sites), dtype=float), "ticks": sites,
                        "layers": [(tr("matched to a nucleus"), matched, colours["blue"]),
-                                  (tr("not matched"), total - matched, _CONTROL_GREY)],
-                       "y_max": float(total.max()) * 1.3 if len(total) else None})
+                                  (tr("not matched"), total - matched, _CONTROL_GREY)]})
     if joined is not None and len(joined):
         distance = np.hypot(joined["y"] - joined["centroid_y"],
                             joined["x"] - joined["centroid_x"]).to_numpy(float)
@@ -1000,6 +999,13 @@ class _QtGraph(QWidget):
         self.title.setObjectName("OpsLiveGraphTitle")
         self.title.setWordWrap(True)
         layout.addWidget(self.title)
+        self.key = QLabel("", self)
+        self.key.setObjectName("OpsLiveGraphKey")
+        self.key.setWordWrap(True)
+        self.key.setTextFormat(Qt.RichText)
+        self.key.setContentsMargins(0, 0, 0, 8)
+        self.key.hide()
+        layout.addWidget(self.key)
         self.plot = pg.PlotWidget(self) if HAVE_PYQTGRAPH else None
         if self.plot is not None:
             self.plot.setObjectName("OpsLiveGraphPlot")
@@ -1024,6 +1030,8 @@ class _QtGraph(QWidget):
         """
         self.spec = spec
         self.scatter_items = []
+        self._key_entries: List[str] = []
+        self.key.hide()
         self.title.setText(str(spec.get("title") or ""))
         if spec.get("kind") == "message" or self.plot is None:
             if self.plot is not None:
@@ -1085,9 +1093,7 @@ class _QtGraph(QWidget):
             line = pg.InfiniteLine(pos=float(level), angle=0, pen=pg.mkPen(
                 colours["fg"], width=1, style=Qt.DotLine))
             self.plot.addItem(line)
-            self.plot.addLegend(offset=(-4, 4), labelTextColor=colours["fg"]).addItem(
-                pg.PlotDataItem(pen=pg.mkPen(colours["fg"], width=1, style=Qt.DotLine)),
-                str(name))
+            self._key(str(name), colours["fg"], line=True)
         view.autoRange()
         if kind in ("bars", "grouped", "stacked"):
             self._floor_at_zero(spec, view)
@@ -1208,16 +1214,38 @@ class _QtGraph(QWidget):
         """Bars of several layers stacked on one another, the first at the bottom."""
         x = np.asarray(spec["x"], float)
         bottom = np.zeros(len(x))
-        legend = self.plot.addLegend(offset=(-4, 4), labelTextColor=colours["fg"])
         for name, values, colour in spec["layers"]:
             values = np.asarray(values, float)
             bars = pg.BarGraphItem(x=x, y0=bottom, height=values, width=0.6,
                                    brush=pg.mkBrush(colour), pen=pg.mkPen(None))
             bars.setOpacity(_ALPHA)
             self.plot.addItem(bars)
-            legend.addItem(bars, str(name))
+            self._key(str(name), colour)
             bottom = bottom + values
         self._ticks(spec, pg)
+
+    def _key(self, name: str, colour: str, line: bool = False) -> None:
+        """Add one entry to the key above the plot, outside the data.
+
+        :param name: what the mark stands for, translated.
+        :param colour: its colour.
+        :param line: a dotted line instead of a filled square.
+        """
+        import html
+
+        mark = "\u2508\u2508" if line else "\u25a0"
+        self._key_entries.append(f'<span style="color:{colour}">{mark}</span>&nbsp;'
+                                 f'{html.escape(name)}')
+        self.key.setText("&nbsp;&nbsp;&nbsp;".join(self._key_entries))
+        self.key.show()
+
+    def key_text(self) -> str:
+        """The key above the plot as plain text, for tests and checks."""
+        from PySide6.QtGui import QTextDocument
+
+        document = QTextDocument()
+        document.setHtml(self.key.text())
+        return document.toPlainText() if self.key.isVisibleTo(self) else ""
 
     def _heatmap(self, spec: Mapping[str, Any], colours, pg) -> None:
         """A matrix of values, diverging around 0, its rows and columns named."""
