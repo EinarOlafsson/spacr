@@ -225,3 +225,39 @@ def test_streamed_crops_of_a_z_stack_are_cut_from_the_projection(tmp_path):
     assert np.array_equal(windows.labels("cell", 3, 20, 5, 30), whole[3:20, 5:30, 2])
     windows.prefetch(0, 40, 0, 48)
     assert np.array_equal(windows.channels([1], 3, 20, 5, 30), box[1:])
+
+
+@pytest.mark.parametrize("kind", ["t", "z"])
+def test_mask_merge_puts_t_and_z_fields_into_the_store_as_a_merged_npy_run_would(tmp_path, kind):
+    """The real merge step: every frame (t) or the projected field (z) reads
+    back exactly as merged/*.npy would hold it; the channels stay as acquired."""
+    from spacr.image_store import _list_fields, _read_field, _read_stack, verify_store
+    from spacr.io import _load_and_concatenate_arrays
+
+    project = tmp_path / "plate1"
+    if kind == "t":
+        _write_plate(project, frames=3)
+        _ingest(project, timelapse=True)
+    else:
+        _write_plate(project, slices=3, fields=(1, 2))
+        _ingest(project)
+    names = sorted(_list_fields(project / "stack"))
+    folder = project / "masks" / "cell_mask_stack"
+    folder.mkdir(parents=True)
+    expected = {}
+    for i, name in enumerate(names):
+        cells = np.zeros((40, 48), np.uint16)
+        cells[3 + i:20 + i, 5:30] = 1
+        cells[25:38, 30:45] = 2
+        np.save(folder / name, cells)
+        stack = _read_stack(project / "stack" / name)
+        expected[name] = np.concatenate([stack, cells[..., None].astype(stack.dtype)], -1)
+    _load_and_concatenate_arrays(str(project), [0, 1], 0, None, None, None,
+                                 image_format="ome-zarr")
+    store = project / "fov.ome.zarr"
+    assert not (project / "merged").exists()
+    assert sorted(_list_fields(store)) == names
+    for name in names:
+        got = _read_field(store / name)
+        assert got.dtype == expected[name].dtype and np.array_equal(got, expected[name])
+    assert verify_store(project)["mismatches"] == []
