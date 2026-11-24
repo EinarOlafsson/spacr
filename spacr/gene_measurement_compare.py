@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 
 from .figures.style import figure_style, theme_target
+from .multiple_testing import adjust_p_values
 from .object_roles import ORGANELLE_ROLES
 from .style_base import SHARED_CHOICES, FigureStyle
 
@@ -1612,8 +1613,6 @@ def bootstrap_gene_pvalues(control_values: pd.DataFrame,
     the non-targeting guides hits. It is kept only to rerun analyses made
     before spaCR 1.5.1.8.
     """
-    from .multiple_testing import _multipletests
-
     null = str(null or "calibrated").strip().lower()
     if null not in _GENE_PVALUE_NULLS:
         raise ValueError(f"null must be one of {list(_GENE_PVALUE_NULLS)}; "
@@ -1689,8 +1688,8 @@ def bootstrap_gene_pvalues(control_values: pd.DataFrame,
         fdr = pd.Series(np.nan, index=out.index)
         finite = out[column].notna()
         if finite.any():
-            fdr[finite] = _multipletests(out.loc[finite, column].to_numpy(),
-                                         "fdr_bh")[1]
+            fdr[finite] = adjust_p_values(out.loc[finite, column].to_numpy(),
+                                          "fdr_bh")[0]
         out[f"{feature}_fdr"] = fdr
     if null == "calibrated":
         out.attrs["null"] = params
@@ -2832,8 +2831,8 @@ def _phase_profile_tests(name: str, medians: pd.DataFrame,
     frame = pd.DataFrame(rows)
     tested = ~frame.gene.str.startswith(("NTpseudo", "RANDSET"))
     frame["q"] = np.nan
-    frame.loc[tested, "q"] = stats.false_discovery_control(
-        frame.p[tested].to_numpy())
+    frame.loc[tested, "q"] = adjust_p_values(
+        frame.p[tested].to_numpy(), "fdr_bh")[0]
     frame["null_scale_c"], frame["null_df_nu"] = scale, df
     return frame
 
@@ -3205,8 +3204,6 @@ def neighbour_effects(wells: Mapping[str, Tuple[pd.DataFrame, pd.DataFrame,
     empirical against the pooled null genes of the same exposure-count
     quintile, ``q`` Benjamini-Hochberg across genes.
     """
-    from scipy.stats import false_discovery_control
-
     receivers = str(receivers or "inactive").strip().lower()
     if receivers not in NEIGHBOUR_RECEIVERS:
         raise ValueError(f"receivers must be one of {list(NEIGHBOUR_RECEIVERS)}; "
@@ -3295,7 +3292,7 @@ def neighbour_effects(wells: Mapping[str, Tuple[pd.DataFrame, pd.DataFrame,
         tests[f"p_{kind}"] = p
         genes_rows = (tests.kind == "gene").to_numpy() & np.isfinite(p)
         q = np.full(len(tests), np.nan)
-        q[genes_rows] = false_discovery_control(p[genes_rows])
+        q[genes_rows] = adjust_p_values(p[genes_rows], "fdr_bh")[0]
         tests[f"q_{kind}"] = q
     return {"tests": tests, "nulls": nulls, "d": d, "V": v,
             "names": np.array(names)}
@@ -4199,13 +4196,8 @@ def _squared_distances(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 
 
 def _bh(p: np.ndarray) -> np.ndarray:
-    """Benjamini-Hochberg q-values, clipped to [0, 1]."""
-    p = np.asarray(p, float)
-    n = len(p)
-    order = np.argsort(p)
-    q = np.empty(n)
-    q[order] = np.minimum.accumulate((p[order] * n / np.arange(1, n + 1))[::-1])[::-1]
-    return np.clip(q, 0, 1)
+    """Benjamini-Hochberg q-values, clipped to [0, 1]; NaN p stay NaN."""
+    return adjust_p_values(p, "fdr_bh")[0]
 
 
 def _upper_p(null: np.ndarray, values: np.ndarray) -> np.ndarray:

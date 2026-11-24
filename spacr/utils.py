@@ -102,7 +102,7 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.stattools import durbin_watson
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
-from statsmodels.stats.multitest import multipletests
+from .multiple_testing import adjust_p_values
 from itertools import combinations
 from functools import reduce
 
@@ -5618,7 +5618,7 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
     pvalues = filtered_results_df['PValue'].values
 
     if len(pvalues) > 0:
-        adjusted_pvalues = multipletests(pvalues, method='fdr_bh')[1]
+        adjusted_pvalues = adjust_p_values(pvalues, 'fdr_bh')[0]
         filtered_results_df.loc[:, 'AdjustedPValue'] = adjusted_pvalues
     else:
         print("No p-values to adjust. Check your data filtering steps.")

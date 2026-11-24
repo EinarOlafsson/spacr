@@ -706,13 +706,10 @@ def mitotic_index_agreement(genes: pd.DataFrame, reference: pd.DataFrame, *,
 
 
 def _bh(p: np.ndarray) -> np.ndarray:
-    """Benjamini-Hochberg q-values, clipped to [0, 1]."""
-    p = np.asarray(p, float)
-    n = len(p)
-    order = np.argsort(p)
-    q = np.empty(n)
-    q[order] = np.minimum.accumulate((p[order] * n / np.arange(1, n + 1))[::-1])[::-1]
-    return np.clip(q, 0, 1)
+    """Benjamini-Hochberg q-values, clipped to [0, 1]; NaN p stay NaN."""
+    from .multiple_testing import adjust_p_values
+
+    return adjust_p_values(p, "fdr_bh")[0]
 
 
 def published_mitotic_index(table: pd.DataFrame, *, guides: int = 4) -> pd.Series:

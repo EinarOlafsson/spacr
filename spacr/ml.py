@@ -7537,14 +7537,9 @@ def _drug_screen_design(frame, terms):
 
 def _drug_screen_bh(p_values):
     """Benjamini-Hochberg q-values, NaN where the p-value is NaN."""
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
-    p = np.asarray(p_values, dtype=float)
-    q = np.full(p.shape, np.nan)
-    ok = ~np.isnan(p)
-    if ok.any():
-        q[ok] = multipletests(p[ok], method='fdr_bh')[1]
-    return q
+    return adjust_p_values(p_values, 'fdr_bh')[0]
 
 
 def _perform_drug_screen_regression(settings):
