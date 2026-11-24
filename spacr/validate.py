@@ -1176,6 +1176,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "overview_measure_saturation": "",
     "overview_original_on_open": "overview_preview_resolution",
     "cellpose_model": "ops_sbs_nucleus_model",
+    "ops_tables_parquet_threshold": "",
     **{f"{obj}_{bound}": "object_filters"
        for obj in ("cell", "nucleus", "pathogen")
        for bound in ("min_area", "max_area", "min_intensity",

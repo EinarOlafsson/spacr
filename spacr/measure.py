@@ -14442,7 +14442,10 @@ def _write_measure_store(db_path, settings):
     object class are copied at their stored bit depth into the well's Zarr
     store, so each row carries ``crop_store`` and ``crop_index``.
     ``measurements.db`` stays the working copy every later step reads. A
-    failed write is reported and the run still succeeds.
+    failed write is reported and the run still succeeds. The parts go
+    through :func:`spacr.store.write_table`, the writer OPS saves its tables
+    with, with the dtype map off (``narrow=False``, the default), so the
+    columns keep the types ``measurements.db`` gives them.
 
     :param db_path: the run's ``measurements.db``.
     :param settings: the run settings.
@@ -14507,14 +14510,14 @@ def _write_measure_store(db_path, settings):
                             [None] * len(part), dtype='Int64')
                         part.loc[rows_with, 'crop_format'] = [
                             int(f) if f is not None else None for f in formats]
-                store.write_part(project, table, part, plate=plate, well=well,
-                                 sort_by=('condition', 'object_key'),
-                                 key_columns=tuple(c for c in (
-                                     'prcfo', 'rowID', 'columnID', 'fieldID',
-                                     'condition', 'object_key', 'crop_format')
-                                     if c in part.columns),
-                                 crops=stack, crop_rows=rows_with,
-                                 run_id=run_id)
+                store.write_table(project, table, part, plate=plate,
+                                  well=well, run_id=run_id,
+                                  sort_by=('condition', 'object_key'),
+                                  key_columns=tuple(c for c in (
+                                      'prcfo', 'rowID', 'columnID', 'fieldID',
+                                      'condition', 'object_key', 'crop_format')
+                                      if c in part.columns),
+                                  crops=stack, crop_rows=rows_with)
                 counts[f'{plate}/{well}'] = int(len(part))
             report["tables"][table] = counts
         report["registered"] = store.register(project, run={

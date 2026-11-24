@@ -3213,7 +3213,9 @@ def _validated_bmc_paper_items_callables(callables):
     entries = _current_never_api(entries)
     from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
     entries = _current_neighbour_api(entries)
-    assert len(entries) == 171
+    from tests.test_ops_phtables_store import _current_phtables_api
+    entries = _current_phtables_api(entries)
+    assert len(entries) == 170
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert len(found) == 135
@@ -4299,6 +4301,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_never_arrivals(callables)
     from tests.test_ops_neighbour_sources_1013 import _validated_neighbour_arrivals
     callables = _validated_neighbour_arrivals(callables)
+    from tests.test_ops_phtables_store import _validated_phtables_store_arrivals
+    callables = _validated_phtables_store_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -7157,7 +7161,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("751_published_reference_api_arrivals_2026-11-09.json", 8),
         ("865_866_budding_prediction_api_arrivals_2026-11-09.json", 10),
         ("795_moa_benchmark_api_arrivals_2026-11-09.json", 10),
-        ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 171),
+        ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 170),
         ("884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json", 376),
         ("912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json", 54),
         ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 112),
@@ -7226,6 +7230,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         additions = _current_neighbour_api(additions)
         from tests.test_ops_phfields_sources import _current_phfields_api
         additions = _current_phfields_api(additions)
+        from tests.test_ops_phtables_store import _current_phtables_api
+        additions = _current_phtables_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
@@ -7252,6 +7258,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()
         zoo_additions = {**zoo_additions, **additions}
+    from tests.test_ops_phtables_store import _phtables_store_birth_arrivals
+    zoo_additions = {**zoo_additions, **_phtables_store_birth_arrivals(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
@@ -7906,6 +7914,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= help_escape_arrivals.keys()
     assert not approval_callables & contract_callables
     contract_callables |= approval_callables
+    from tests.test_ops_phtables_store import _phtables_store_birth_arrivals
+    contract_callables |= _phtables_store_birth_arrivals().keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -8079,6 +8089,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= help_escape_arrivals.keys()
     assert not approval_callables & arrival_callables
     arrival_callables |= approval_callables
+    from tests.test_ops_phtables_store import _phtables_store_birth_arrivals
+    arrival_callables |= _phtables_store_birth_arrivals().keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background

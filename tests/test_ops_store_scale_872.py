@@ -10,7 +10,6 @@ phase must write the reference columns with exact counts.
 from __future__ import annotations
 
 import os
-import sqlite3
 
 import numpy as np
 import pandas as pd
@@ -33,12 +32,12 @@ def stored(measured):
     return measured, out
 
 
-def _rows(db, sql):
-    """Every row of one query, as a frame."""
-    with sqlite3.connect(db) as conn:
-        cursor = conn.execute(sql)
-        names = [d[0] for d in cursor.description]
-        return pd.DataFrame(cursor.fetchall(), columns=names)
+def _rows(project, sql):
+    """Every row of one query on the run's store, as a frame."""
+    from spacr import store
+
+    with store.open(project) as opened:
+        return opened.sql(sql)
 
 
 def test_the_streaming_loader_reads_every_crop_once_and_pixel_identical(stored):
@@ -73,7 +72,7 @@ def test_the_streaming_loader_reads_every_crop_once_and_pixel_identical(stored):
 
 def test_integer_keys_join_as_prcfo_does_and_the_wide_table_is_the_join(stored):
     _root, out = stored
-    db = out["ph_tables"]["db"]
+    db = out["ph_tables"]["store"]
     assert out["ph_tables"]["integer_keys"] is True
     assert out["ph_tables"]["layout"] == "wide"
     assert out["ph_tables"]["rows"]["cell_wide"] == 8
@@ -92,23 +91,23 @@ def test_integer_keys_join_as_prcfo_does_and_the_wide_table_is_the_join(stored):
     assert first["prcfo"] == "P_1_r1_c1_f0_o1"
     assert first["cell_key"] == ((1 * 100 + 1) * 2 ** 24 + 0) * 2 ** 20 + 1
     wide = _rows(db, "SELECT * FROM cell_wide ORDER BY prcfo")
-    joined = _rows(db, "SELECT * FROM cell JOIN nucleus USING (prcfo) "
-                       "JOIN cytoplasm USING (prcfo) ORDER BY prcfo")
+    cell = _rows(db, "SELECT * FROM cell ORDER BY prcfo")
+    nucleus = _rows(db, "SELECT * FROM nucleus ORDER BY prcfo")
+    cytoplasm = _rows(db, "SELECT * FROM cytoplasm ORDER BY prcfo")
     features = [c for c in wide.columns
                 if c.startswith(("cell_", "nucleus_", "cytoplasm_"))
                 and c != "cell_key"]
     assert len(features) > 30
-    pd.testing.assert_frame_equal(wide[["prcfo", *features]],
-                                  joined[["prcfo", *features]])
-    indexes = set(_rows(db, "SELECT name FROM sqlite_master WHERE "
-                            "type='index'")["name"])
-    assert {"ix_cell_cell_key", "ix_nucleus_cell_key",
-            "ix_cytoplasm_cell_key", "ix_cell_wide_prcfo"} <= indexes
+    for part in (cell, nucleus, cytoplasm):
+        mine = [c for c in features if c in part.columns]
+        pd.testing.assert_frame_equal(wide[["prcfo", *mine]],
+                                      part[["prcfo", *mine]])
+    assert (wide["cell_key"] == wide["object_key"]).all()
 
 
 def test_the_default_tables_carry_no_integer_key(measured):
     out = _run(measured, ("ph_masks", "merge", "aggregate", "ph_tables"))
-    db = out["ph_tables"]["db"]
+    db = out["ph_tables"]["store"]
     columns = list(_rows(db, "SELECT * FROM cell LIMIT 1").columns)
     assert "cell_key" not in columns
     assert out["ph_tables"]["layout"] == "compartments"
