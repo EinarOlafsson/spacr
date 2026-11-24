@@ -72,9 +72,13 @@ def test_settings_switches_choose_the_groups_and_defaults_select_all():
 
 def test_declarations_are_complete_typed_and_render_as_settings_rows():
     declared = _overview_measurement_declarations()
+    from spacr.qt.screens.settings_model import _APP_HIDDEN_KEYS
+
     keys = set(declared['defaults'])
     assert keys == set(declared['expected_types']) == set(declared['tooltips'])
-    assert sorted(sum(declared['categories'].values(), [])) == sorted(keys)
+    hidden = _APP_HIDDEN_KEYS['overview'] & keys
+    assert hidden == {'cytoskeleton_object_support'}
+    assert sorted(sum(declared['categories'].values(), [])) == sorted(keys - hidden)
     assert declared['parents'] == {'Intensity': 'Measurements', 'Texture': 'Measurements',
                                    'Objects': 'Measurements', 'Advanced Measurements': 'Measurements'}
     assert {name.upper() for name in declared['categories']} == set(declared['category_tooltips'])

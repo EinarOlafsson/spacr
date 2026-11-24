@@ -85,6 +85,13 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "External Masks imports labels and promises png_list crops; the shared "
         "tooltip names this exception beside Measure's streaming default.",
     ),
+    # External Masks lists its crops in png_list, so its crops stay PNG
+    # while Measure defaults to OME-Zarr; the tooltip names the exception.
+    ("external_masks", "crop_image_format"): DefaultVariant(
+        "'ome-zarr'", "'png'", ACCURATE_SHARED,
+        "External Masks promises png_list crops, which only the PNG format "
+        "writes; the shared tooltip names this exception before its default.",
+    ),
     # organelle_min_area names its own per-app split in prose: "Default 10 in
     # Mask; Measure and External Masks start at 0 because they consume
     # existing labels rather than segmenting new ones." The parser reads the
@@ -625,7 +632,7 @@ CENTRING_ARRIVALS_995 = {
 FORMAT_ARRIVALS_983 = {
     ("mask", "mask_image_format"),
     ("measure", "mask_image_format"), ("external_masks", "mask_image_format"),
-    ("measure", "crop_image_format"), ("external_masks", "crop_image_format"),
+    ("measure", "crop_image_format"),
     ("measure", "crops_per_shard"), ("measure", "crop_margin_px"),
     ("external_masks", "crops_per_shard"), ("external_masks", "crop_margin_px")}
 
@@ -1588,7 +1595,10 @@ if app_key == "mask":
     assert not merge4 & recognized_arrivals
     assert resolve_default_settings("mask")["size_filter_inclusive"] is True
     recognized_arrivals |= merge4
-    assert comparisons - len(recognized_arrivals) == 1005
+    # 1005 -> 1006, and the final + 1 of the census sum below: External
+    # Masks crop_image_format left the format arrivals for the variants,
+    # since it now starts at 'png'.
+    assert comparisons - len(recognized_arrivals) == 1006
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716
@@ -1651,6 +1661,7 @@ if app_key == "mask":
             + len(item_537_min_division)
             + len(item_548_pool)
             + len(item_685) + len(item_537_rules) + 1
+            + 1
             == comparisons - len(recognized_arrivals))
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs
@@ -1712,7 +1723,9 @@ if app_key == "mask":
     # 45 -> 46 on 2026-11-23, item 0aj: Measure's save_png now defaults to
     # False (crops stream from fov.ome.zarr) while External Masks keeps True
     # for its png_list contract; the tooltip names that exception.
-    assert len(variants) == 46
+    # 46 -> 47: External Masks keeps crop_image_format 'png' for the same
+    # png_list contract.
+    assert len(variants) == 47
     assert variants == expected
     assert {
         classification: sum(
@@ -1728,7 +1741,8 @@ if app_key == "mask":
         # removed the setting and the neighbour both.
         # Plaque's explicit model-scale default adds one named exception.
         # 25 -> 26 on 2026-11-23, item 0aj: External Masks' save_png True.
-        ACCURATE_SHARED: 26,
+        # 26 -> 27: External Masks crop_image_format 'png'.
+        ACCURATE_SHARED: 27,
         # 23 -> 22 on 2026-09-09, and it is the same one variant: the
         # `control_wells` split (357-Q6) took its repaired-tooltip entry
         # with it, because the tooltip it repaired documented two meanings
