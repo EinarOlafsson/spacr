@@ -526,7 +526,7 @@ def _model(ctx: _Context, key: str = "ops_sbs_nucleus_model"):
     """
     from .ops_engine import _cellpose_model
 
-    gpu = bool(ctx.settings.get("ops_gpu", False))
+    gpu = bool(ops_setting(ctx.settings, "ops_gpu"))
     name = (str(ctx.settings.get(key) or ""), gpu,
             ctx.settings.get("mask_inference_precision"))
     held = ctx.cache.setdefault("_models", {})
@@ -690,7 +690,7 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     from .ops_engine import _CHANNEL_REGISTRATION
 
     aligned = align_field(
-        planes, reference=reference, gpu=bool(ctx.settings.get("ops_gpu", False)),
+        planes, reference=reference, gpu=bool(ops_setting(ctx.settings, "ops_gpu")),
         channel_mode=str(ctx.settings.get("ops_channel_registration")
                          or _CHANNEL_REGISTRATION).strip().lower(),
         **registration)
@@ -990,7 +990,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         "centroids": centroids, "areas": areas,
         "ids": labels.astype(np.int64), "owned": np.ones(len(labels), bool),
         "cache_folder": str(cache_folder), **options["task"],
-        "gpu": bool(ctx.settings.get("ops_gpu", False)),
+        "gpu": bool(ops_setting(ctx.settings, "ops_gpu")),
     }
     previous = (engine._LIBRARY, engine._DECOYS)
     try:
