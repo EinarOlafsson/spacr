@@ -9896,9 +9896,10 @@ def _ph_crop_commit(root: str, plate: str, well: str, *, rows: bool = True):
     :returns: the existing commit, or None for incomplete/non-OPS output.
         A streamed well (saving crops off) lists no pools.
     """
-    from .crop_store import class_dir, read_commit
+    from .crop_store import _read_commit_record, class_dir, read_commit
 
-    record = read_commit(root, plate, well, "cell", rows=rows)
+    record = (read_commit(root, plate, well, "cell") if rows
+              else _read_commit_record(root, plate, well, "cell"))
     if not record or record.get("attributes", {}).get("source") != "ops_ph_crops":
         return None
     base = class_dir(root, plate, well, "cell")
@@ -9951,8 +9952,7 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
         root, plate, well, "cell", len(channels), np.uint16,
         mask_dtype=np.uint8, crops_per_shard=cap,
         attributes={"source": "ops_ph_crops", "channel_names": list(channels),
-                    "options": options},
-        keep_rows=False, workers=workers)
+                    "options": options})._streaming(workers=workers)
     if source is not None:
         _atomic_write(writer.path / "cell" / OPS_CROP_SOURCE,
                       json.dumps(source, indent=1, sort_keys=True, default=str) + "\n")
@@ -9963,7 +9963,7 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
             writer._add_index_lines(result["lines"])
             continue
         if "prepared" in result:
-            writer.add(result["prepared"], prepared=True)
+            writer._add_prepared(result["prepared"])
             continue
         for _name, (pixels, mask), record in result["members"]:
             height, width = pixels.shape[1:]
@@ -10320,13 +10320,11 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             pool = ProcessPoolExecutor(
                 workers, mp_context=multiprocessing.get_context("spawn"))
             def ordered_results():
-                """Fields in plan order, at most two per worker cut ahead.
-
-                A field is handed out as soon as an earlier one is taken,
-                so the workers never wait for the slowest field of a batch
-                (item 0ap), and at most ``2 * workers`` fields' crops are
-                held at once.
-                """
+                """Bound native result arrays to two fields per worker."""
+                # Fields come back in plan order, and a field is handed out
+                # as soon as an earlier one is taken, so the workers never
+                # wait for the slowest field of a batch (item 0ap); at most
+                # 2 * workers fields' crops are held at once.
                 ahead = collections.deque()
                 queue = iter(tasks)
                 for task in itertools.islice(queue, 2 * workers):

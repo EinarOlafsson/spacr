@@ -47,7 +47,9 @@ def _write(project, crops, workers, keep_rows, cap=3):
     from spacr.crop_store import CropPoolWriter
 
     writer = CropPoolWriter(project, "P1", "A1", "cell", 2, np.uint16, mask_dtype=np.uint8,
-                            crops_per_shard=cap, keep_rows=keep_rows, workers=workers)
+                            crops_per_shard=cap)
+    if not keep_rows:
+        writer._streaming(workers=workers)
     writer.add(crops)
     return writer.commit()
 
@@ -76,8 +78,8 @@ def _files(root):
 
 
 def test_streamed_threaded_and_prepared_writes_are_byte_identical(tmp_path):
-    """keep_rows=False, writer threads and worker-prepared crops change no byte of the store."""
-    from spacr.crop_store import _prepare_crops, read_commit
+    """Streamed rows, writer threads and worker-prepared crops change no byte of the store."""
+    from spacr.crop_store import _prepare_crops, _read_commit_record, read_commit
 
     crops = _crops()
     reference = _write(tmp_path / "a", crops, 1, True)
@@ -85,9 +87,9 @@ def test_streamed_threaded_and_prepared_writes_are_byte_identical(tmp_path):
     from spacr.crop_store import CropPoolWriter
 
     writer = CropPoolWriter(tmp_path / "c", "P1", "A1", "cell", 2, np.uint16,
-                            mask_dtype=np.uint8, crops_per_shard=3, keep_rows=False, workers=2)
-    writer.add(_prepare_crops("P1", "A1", "cell", crops, channels=2, mask_dtype=np.uint8),
-               prepared=True)
+                            mask_dtype=np.uint8, crops_per_shard=3)._streaming(workers=2)
+    writer._add_prepared(_prepare_crops("P1", "A1", "cell", crops, channels=2,
+                                        mask_dtype=np.uint8))
     record = writer.commit()
     assert "rows" not in record and record["n_rows"] == 10 and len(record["pools"]) == 4
     first = _files(tmp_path / "a")
@@ -95,7 +97,7 @@ def test_streamed_threaded_and_prepared_writes_are_byte_identical(tmp_path):
     assert not any(name.endswith(".tmp") for name in first)
     assert read_commit(tmp_path / "c", "P1", "A1", "cell")["rows"] == json.loads(
         json.dumps(reference["rows"], default=int))
-    assert read_commit(tmp_path / "c", "P1", "A1", "cell", rows=False)["n_rows"] == 10
+    assert _read_commit_record(tmp_path / "c", "P1", "A1", "cell")["n_rows"] == 10
 
 
 def test_an_appending_commit_keeps_the_earlier_rows_unparsed(tmp_path):
@@ -113,14 +115,14 @@ def test_an_appending_commit_keeps_the_earlier_rows_unparsed(tmp_path):
 
 
 def test_record_only_reading_checks_the_row_count(tmp_path):
-    """rows=False refuses a row file that does not hold the committed rows."""
-    from spacr.crop_store import class_dir, read_commit
+    """The record-only read refuses a row file that does not hold the committed rows."""
+    from spacr.crop_store import _read_commit_record, class_dir
 
     _write(tmp_path, _crops(5), 1, False)
     rows = class_dir(tmp_path, "P1", "A1", "cell") / "rows.jsonl"
     rows.write_text("".join(rows.read_text().splitlines(True)[:4]))
     with pytest.raises(ValueError, match="rows.jsonl holds 4"):
-        read_commit(tmp_path, "P1", "A1", "cell", rows=False)
+        _read_commit_record(tmp_path, "P1", "A1", "cell")
 
 
 def _task(tmp_path, monkeypatch, **extra):

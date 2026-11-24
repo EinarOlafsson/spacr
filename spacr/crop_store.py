@@ -189,15 +189,6 @@ class CropPoolWriter:
     :param store_name: the store folder inside ``project``:
         ``crop.ome.zarr`` (Measure), or ``datasets/<name>.ome.zarr`` for a
         training dataset (:func:`write_training_dataset`).
-    :param keep_rows: keep every row in memory and return them from
-        :meth:`close` and :meth:`commit` (the default). False keeps only the
-        counts: the rows stream to the row file shard by shard (item 0ap),
-        so a well of a million crops needs no rows in memory.
-    :param workers: shards written at once on writer threads (item 0ap);
-        1 writes each shard in the calling thread. The shards, pools and
-        rows are the same for every value. zarr already compresses one
-        shard's chunks on several cores, so more threads rarely help: on
-        100,000 crops of 4 x 115 x 115 pixels two took four times as long.
 
     Pools are written whole as they fill. :meth:`commit` then records them,
     with their table rows, as the class's committed set; a stopped run
@@ -211,8 +202,7 @@ class CropPoolWriter:
                  mask_dtype: Any = np.bool_,
                  crops_per_shard: int = DEFAULT_CROPS_PER_SHARD,
                  attributes: Optional[Mapping[str, Any]] = None,
-                 store_name: Any = CROP_STORE_NAME, keep_rows: bool = True,
-                 workers: int = 1):
+                 store_name: Any = CROP_STORE_NAME):
         """Open the well's crop store and start an empty shard buffer."""
         from .ome_zarr import require_zarr
         from .store import _encoded
@@ -248,8 +238,8 @@ class CropPoolWriter:
         self._buffer: List[Dict[str, Any]] = []
         self.rows: List[Dict[str, Any]] = []
         self.pools: List[str] = []
-        self.keep_rows = bool(keep_rows)
-        self.workers = max(1, int(workers))
+        self.keep_rows = True
+        self.workers = 1
         self._threads = None
         self._inflight: "collections.deque" = collections.deque()
         self._groups: set = set()
@@ -303,13 +293,9 @@ class CropPoolWriter:
         The rows go to ``<class>/rows.jsonl`` and the record to
         ``<class>/spacr_commit.json``, each under a temporary name and then
         renamed, record last. Earlier commits of the class are kept: the
-        record lists every committed pool and row. With ``keep_rows=False``
-        the rows were streamed to the temporary row file shard by shard
-        (item 0ap), after the earlier commit's rows, so the commit only
-        renames it; kept rows are written here, after the earlier ones.
+        record lists every committed pool and row.
 
-        :returns: the commit record, with its ``rows`` unless the writer was
-            opened with ``keep_rows=False``.
+        :returns: the commit record, with its ``rows``.
         """
         rows = self.close()
         base = self.path / self.object_type
@@ -338,8 +324,38 @@ class CropPoolWriter:
                  if previous else [])
         return {**record, "rows": prior + rows}
 
-    def add(self, crops: Iterable[Mapping[str, Any]], *, prepared: bool = False,
-            **identity: Any) -> None:
+    def _streaming(self, *, workers: int = 1) -> "CropPoolWriter":
+        """Keep only counts, not rows, and stream each shard's rows to the row file (item 0ap).
+
+        A well of a million crops then needs no rows in memory, and
+        :meth:`commit` only renames the row file it streamed; it returns
+        the record without ``rows`` (:func:`_read_commit_record` reads it
+        back). ``workers`` above 1 writes that many shards at once on writer
+        threads; the shards, pools and rows are the same for every value.
+        zarr already compresses one shard's chunks on several cores, so
+        more threads rarely help: on 100,000 crops of 4 x 115 x 115 pixels
+        two took four times as long as one.
+
+        :param workers: shards written at once.
+        :returns: the writer.
+        """
+        if self._buffer or self.rows or self._streamed:
+            raise RuntimeError("choose streaming before adding crops")
+        self.keep_rows = False
+        self.workers = max(1, int(workers))
+        return self
+
+    def _add_prepared(self, crops: Iterable[Mapping[str, Any]]) -> None:
+        """Queue crops :func:`_prepare_crops` checked and indexed where they were cut (item 0ap).
+
+        :param crops: the prepared crops, in the order they are stored.
+        """
+        for crop in crops:
+            self._buffer.append(crop)
+            if len(self._buffer) >= self.crops_per_shard:
+                self._flush()
+
+    def add(self, crops: Iterable[Mapping[str, Any]], **identity: Any) -> None:
         """Queue crops from :func:`cut_crops`, with their identity columns.
 
         :param identity: ``field``, ``timepoint`` and any other columns every
@@ -347,16 +363,7 @@ class CropPoolWriter:
 
         :param crops: crops from :func:`cut_crops`, in the order they are stored.
             With ``mask_dtype=uint8``, masks must contain integers from 0 to 255.
-        :param prepared: the crops come from :func:`_prepare_crops`, which
-            checked them and built their row where they were cut (a worker
-            process, item 0ap); they are queued as they are.
         """
-        if prepared:
-            for crop in crops:
-                self._buffer.append(crop)
-                if len(self._buffer) >= self.crops_per_shard:
-                    self._flush()
-            return
         for crop in crops:
             _check_crop(crop, self.channels, self.mask_dtype)
             self._buffer.append({**identity, **crop})
@@ -569,8 +576,8 @@ def _prepare_crops(plate: str, well: str, object_type: str, crops: Iterable[Mapp
     The per-crop work of :meth:`CropPoolWriter.add` and of its row builder,
     done in the process that cut the crops (a worker, item 0ap), so the
     writing process only routes finished crops into shards. Pass the result
-    to ``add(..., prepared=True)``; the rows are the same as unprepared
-    crops get.
+    to :meth:`CropPoolWriter._add_prepared`; the rows are the same as
+    :meth:`CropPoolWriter.add` gives the same crops.
 
     :param plate: the plate name.
     :param well: the well name.
@@ -739,21 +746,27 @@ _class_dir = class_dir
 
 
 def read_commit(project: Any, plate: str, well: str,
-                object_type: str, *, rows: bool = True) -> Optional[Dict[str, Any]]:
+                object_type: str) -> Optional[Dict[str, Any]]:
     """What :meth:`CropPoolWriter.commit` recorded for one well and class.
 
     :param project: the project folder.
     :param plate: the plate name.
     :param well: the well name.
     :param object_type: the object class.
-    :param rows: also parse every row of ``rows.jsonl``. False reads the
-        record only (pools, ``n_rows``, attributes) and checks that the row
-        file holds ``n_rows`` lines without parsing them (item 0ap): what a
-        resume or a count needs, in constant memory.
-    :returns: the record with its ``rows`` (when asked for), or None when
-        nothing is committed.
+    :returns: the record with its ``rows``, or None when nothing is committed.
     """
-    return _read_commit_at(_class_dir(project, plate, well, object_type), rows=rows)
+    return _read_commit_at(_class_dir(project, plate, well, object_type))
+
+
+def _read_commit_record(project: Any, plate: str, well: str,
+                        object_type: str) -> Optional[Dict[str, Any]]:
+    """:func:`read_commit` without the rows: the record only (item 0ap).
+
+    Pools, ``n_rows`` and attributes, with the row file checked to hold
+    ``n_rows`` lines without parsing them: what a resume or a count needs,
+    in constant memory.
+    """
+    return _read_commit_at(_class_dir(project, plate, well, object_type), rows=False)
 
 
 def _count_lines(path: Path) -> int:
@@ -869,7 +882,7 @@ def discard_uncommitted(project: Any, plate: str, well: str,
     :returns: the pool names removed.
     """
     base = _class_dir(project, plate, well, object_type)
-    record = read_commit(project, plate, well, object_type, rows=False)
+    record = _read_commit_record(project, plate, well, object_type)
     keep = set(record["pools"]) if record else set()
     removed = []
     stale_rows = base / ".rows.jsonl.tmp"
