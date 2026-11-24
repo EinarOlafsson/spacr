@@ -440,8 +440,14 @@ class CropPoolWriter:
         specs = [(kind, held[index].name, array.shape, array.dtype.str, chunks, shards)
                  for index, (kind, array, chunks, shards) in enumerate(arrays)]
         del arrays
-        future = self._procs.submit(_write_shared_shard, str(self.path / self.object_type),
-                                    name, specs)
+        try:
+            future = self._procs.submit(_write_shared_shard,
+                                        str(self.path / self.object_type), name, specs)
+        except BaseException:
+            for block in held:
+                block.close()
+                block.unlink()
+            raise
         self._inflight.append((future, held, name, crops, offsets))
         self._drain(self.workers)
 
