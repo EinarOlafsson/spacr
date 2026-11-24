@@ -493,7 +493,8 @@ def _rng_for(design: Mapping[str, Any], seed: int) -> np.random.Generator:
 
 
 def _phenotype_base(calibration: Mapping[str, Any], design: Mapping[str, Any], n: int, cell_guide: np.ndarray,
-                    n_guides: int, well: np.ndarray, field: np.ndarray, rng: np.random.Generator) -> np.ndarray:
+                    n_guides: int, well: np.ndarray, field: np.ndarray, rng: np.random.Generator,
+                    guide_offsets: Optional[np.ndarray] = None) -> np.ndarray:
     """The unperturbed phenotype of every simulated cell.
 
     Every simulated guide gets a normal offset with the NT guides'
@@ -526,7 +527,7 @@ def _phenotype_base(calibration: Mapping[str, Any], design: Mapping[str, Any], n
         chol_w = np.linalg.cholesky(within + 1e-9 * np.trace(within) / dims * np.eye(dims))
         pick = rng.integers(0, len(rows), size=n)
         h = float(design["bandwidth"])
-        offsets = rng.standard_normal((n_guides, dims)) * tau
+        offsets = (guide_offsets if guide_offsets is not None else rng.standard_normal((n_guides, dims)) * tau)
         z = rng.standard_normal((n, dims)) @ chol_w.T
         base = mean + offsets[cell_guide] + (residuals[pick] + h * z) / math.sqrt(1.0 + h * h)
         return base.astype(np.float32)
@@ -535,7 +536,8 @@ def _phenotype_base(calibration: Mapping[str, Any], design: Mapping[str, Any], n
     z = rng.standard_normal((n, dims)) @ chol.T * math.sqrt(scale)
     if nu < 1e5:
         z = z / np.sqrt(rng.chisquare(nu, size=n) / nu)[:, None]
-    base = mean + z + (rng.standard_normal((n_guides, dims)) * tau)[cell_guide]
+    base = mean + z + (guide_offsets if guide_offsets is not None
+                       else rng.standard_normal((n_guides, dims)) * tau)[cell_guide]
     for level, keys, count in (("well", well, int(design["wells"])),
                                ("site", field, int(design["wells"]) * max(int(design["fields_per_well"]), 1))):
         var = calibration.get(f"between_{level}_var")
@@ -546,42 +548,13 @@ def _phenotype_base(calibration: Mapping[str, Any], design: Mapping[str, Any], n
     return base.astype(np.float32)
 
 
-def simulate_ops_screen(calibration: Mapping[str, Any], design: Optional[Mapping[str, Any]] = None,
-                        seed: int = 0) -> Dict[str, Any]:
-    """Draw one simulated optical pooled screen with planted effects.
+def _effect_plan(calibration: Mapping[str, Any], d: Mapping[str, Any], rng: np.random.Generator,
+                 n_genes: int, dims: int) -> Dict[str, Any]:
+    """The planted biology of one screen: hit genes, complexes, sizes and directions.
 
-    :param calibration: from :func:`calibrate_from_run` or
-        :func:`load_calibration`; the empirical mode needs its NT pool.
-    :param design: the design (see :func:`resolve_design`).
-    :param seed: the replicate seed; with the design's values it fixes every
-        draw, so the same design and seed give the same simulated screen.
-    :returns: ``{"cells", "labels", "guides", "wells", "truth", "design"}``:
-        the per-cell phenotype (float32), each cell's observed gene and
-        guide (NT cells ``nontargeting``), its well, and one row per gene
-        with ``gene``, ``hit``, ``complex``, ``effect_size`` and ``cells``.
+    The draws are those :func:`simulate_ops_screen` makes after the cells'
+    phenotype, in the same order.
     """
-    d = resolve_design(calibration, design)
-    rng = _rng_for(d, seed)
-    dims = int(calibration["dims"])
-    n_genes, per_gene, n_nt = d["n_genes"], d["guides_per_gene"], d["nt_guides"]
-    n_target_guides = n_genes * per_gene
-    n_guides = n_target_guides + n_nt
-    guide_gene = np.concatenate([np.repeat(np.arange(n_genes), per_gene), np.full(n_nt, -1)])
-    cells_per_gene = float(d["cells_per_gene"]) * float(d["call_rate"]) / float(
-        (calibration.get("call_rate") or {}).get("value", 1.0) or 1.0)
-    n_target = int(round(cells_per_gene * n_genes))
-    screen_genes = int(calibration.get("n_genes") or n_genes)
-    n_ntc = int(round(cells_per_gene * screen_genes * float(calibration.get("nt_ratio", 0.02))))
-    shares = rdirichlet_stable(float(d["guide_alpha"]), n_target_guides, rng=rng)
-    counts = rng.multinomial(n_target, shares)
-    if n_nt:
-        counts = np.concatenate([counts, rng.multinomial(n_ntc, rdirichlet_stable(float(d["guide_alpha"]), n_nt, rng=rng))])
-    cell_guide = np.repeat(np.arange(n_guides), counts)
-    n = len(cell_guide)
-    well = rng.integers(0, int(d["wells"]), size=n)
-    field = well * max(int(d["fields_per_well"]), 1) + rng.integers(0, max(int(d["fields_per_well"]), 1), size=n)
-    cells = _phenotype_base(calibration, d, n, cell_guide, n_guides, well, field, rng)
-
     sd = np.sqrt(np.diag(np.asarray(calibration["nt_cov"], float)))
     mean = np.asarray(calibration["nt_mean"], float)
     n_hits = int(round(float(d["hit_fraction"]) * n_genes))
@@ -622,6 +595,14 @@ def simulate_ops_screen(calibration: Mapping[str, Any], design: Optional[Mapping
         size_of[g] = s
         direction[int(g)] = (touched, np.abs(v), np.sign(v))
 
+    hit_mask = np.zeros(n_genes, bool)
+    hit_mask[hit_genes] = True
+    return {"sd": sd, "mean": mean, "hit_genes": hit_genes, "hit_mask": hit_mask, "complex_of": complex_of,
+            "size_of": size_of, "direction": direction}
+
+
+def _guide_knockout(d: Mapping[str, Any], n_target_guides: int, rng: np.random.Generator) -> np.ndarray:
+    """The knockout penetrance of every targeting guide (0 for inactive guides)."""
     guide_ko = np.ones(n_target_guides)
     inactive = rng.random(n_target_guides) < float(d["inactive_guide_fraction"])
     if float(d["ko_penetrance_sd"]) > 0 and 0 < float(d["ko_penetrance"]) < 1:
@@ -630,9 +611,14 @@ def simulate_ops_screen(calibration: Mapping[str, Any], design: Optional[Mapping
     else:
         guide_ko = guide_ko * float(d["ko_penetrance"])
     guide_ko[inactive] = 0.0
-    true_gene = guide_gene[cell_guide]
-    hit_mask = np.zeros(n_genes, bool)
-    hit_mask[hit_genes] = True
+    return guide_ko
+
+
+def _apply_effects(cells: np.ndarray, d: Mapping[str, Any], plan: Mapping[str, Any], true_gene: np.ndarray,
+                   cell_guide: np.ndarray, guide_ko: np.ndarray, rng: np.random.Generator) -> None:
+    """Shift the responding cells of every hit gene in place, as the plan says."""
+    sd, mean, direction = plan["sd"], plan["mean"], plan["direction"]
+    hit_mask, size_of = plan["hit_mask"], plan["size_of"]
     affected = np.flatnonzero((true_gene >= 0) & hit_mask[np.clip(true_gene, 0, None)])
     p_respond = float(d["penetrance"]) * guide_ko[cell_guide[affected]]
     responders = affected[rng.random(len(affected)) < p_respond]
@@ -649,6 +635,50 @@ def simulate_ops_screen(calibration: Mapping[str, Any], design: Optional[Mapping
             block_rows = mean[touched] + shift + 0.5 * (block_rows - mean[touched])
         cells[np.ix_(rows, touched)] = block_rows.astype(np.float32)
 
+
+def simulate_ops_screen(calibration: Mapping[str, Any], design: Optional[Mapping[str, Any]] = None,
+                        seed: int = 0) -> Dict[str, Any]:
+    """Draw one simulated optical pooled screen with planted effects.
+
+    :param calibration: from :func:`calibrate_from_run` or
+        :func:`load_calibration`; the empirical mode needs its NT pool.
+    :param design: the design (see :func:`resolve_design`).
+    :param seed: the replicate seed; with the design's values it fixes every
+        draw, so the same design and seed give the same simulated screen.
+    :returns: ``{"cells", "labels", "guides", "wells", "truth", "design"}``:
+        the per-cell phenotype (float32), each cell's observed gene and
+        guide (NT cells ``nontargeting``), its well, and one row per gene
+        with ``gene``, ``hit``, ``complex``, ``effect_size`` and ``cells``.
+    """
+    d = resolve_design(calibration, design)
+    rng = _rng_for(d, seed)
+    dims = int(calibration["dims"])
+    n_genes, per_gene, n_nt = d["n_genes"], d["guides_per_gene"], d["nt_guides"]
+    n_target_guides = n_genes * per_gene
+    n_guides = n_target_guides + n_nt
+    guide_gene = np.concatenate([np.repeat(np.arange(n_genes), per_gene), np.full(n_nt, -1)])
+    cells_per_gene = float(d["cells_per_gene"]) * float(d["call_rate"]) / float(
+        (calibration.get("call_rate") or {}).get("value", 1.0) or 1.0)
+    n_target = int(round(cells_per_gene * n_genes))
+    screen_genes = int(calibration.get("n_genes") or n_genes)
+    n_ntc = int(round(cells_per_gene * screen_genes * float(calibration.get("nt_ratio", 0.02))))
+    shares = rdirichlet_stable(float(d["guide_alpha"]), n_target_guides, rng=rng)
+    counts = rng.multinomial(n_target, shares)
+    if n_nt:
+        counts = np.concatenate([counts, rng.multinomial(n_ntc, rdirichlet_stable(float(d["guide_alpha"]), n_nt, rng=rng))])
+    cell_guide = np.repeat(np.arange(n_guides), counts)
+    n = len(cell_guide)
+    well = rng.integers(0, int(d["wells"]), size=n)
+    field = well * max(int(d["fields_per_well"]), 1) + rng.integers(0, max(int(d["fields_per_well"]), 1), size=n)
+    cells = _phenotype_base(calibration, d, n, cell_guide, n_guides, well, field, rng)
+
+    plan = _effect_plan(calibration, d, rng, n_genes, dims)
+    hit_genes, complex_of, size_of = plan["hit_genes"], plan["complex_of"], plan["size_of"]
+    guide_ko = _guide_knockout(d, n_target_guides, rng)
+    true_gene = guide_gene[cell_guide]
+    hit_mask = plan["hit_mask"]
+    _apply_effects(cells, d, plan, true_gene, cell_guide, guide_ko, rng)
+
     observed = cell_guide.copy()
     wrong = rng.random(n) < float(d["fdr_pct"]) / 100.0
     if wrong.any():
@@ -664,6 +694,249 @@ def simulate_ops_screen(calibration: Mapping[str, Any], design: Optional[Mapping
                           "cells": np.bincount(obs_gene[obs_gene >= 0], minlength=n_genes)})
     return {"cells": cells, "labels": labels.astype(str), "guides": guide_names.astype(str), "wells": well,
             "truth": truth, "design": d}
+
+
+def nominal_calibration(dims: int = 24, n_genes: int = 1000, guides_per_gene: int = 4, nt_guides: int = 50,
+                        cells_per_gene: float = 100.0, call_rate: float = 0.8, fdr_pct: float = 2.0,
+                        pool_cells: int = 20000, seed: int = 0) -> Dict[str, Any]:
+    """A calibration that needs no real run, for benchmarks and design scans.
+
+    It has every key :func:`simulate_ops_screen` reads, with nominal values:
+    a correlated NT covariance, a multivariate t, between-guide, between-well
+    and between-field variances, a pool of NT cells drawn from it and a
+    moderately skewed guide library. A real calibration
+    (:func:`calibrate_from_run`) replaces it wherever the numbers matter.
+
+    :param dims: the dimensions of the latent phenotype profile.
+    :param n_genes: the genes of the library.
+    :param guides_per_gene: the guides per gene.
+    :param nt_guides: the NT guides.
+    :param cells_per_gene: the median genotyped cells per gene.
+    :param call_rate: the genotyping call rate.
+    :param fdr_pct: the decoy FDR of the calls, in percent.
+    :param pool_cells: the size of the NT pool of the empirical mode.
+    :param seed: the seed of the covariance and the pool.
+    :returns: the calibration.
+    """
+    rng = np.random.default_rng(np.random.SeedSequence([int(seed), 4242]))
+    a = rng.standard_normal((dims, dims))
+    cov = a @ a.T / dims + 0.5 * np.eye(dims)
+    chol = np.linalg.cholesky(cov)
+    pool = rng.standard_normal((pool_cells, dims)) @ chol.T
+    names = np.array([f"{_CONTROL}_{i % max(nt_guides, 1)}" for i in range(pool_cells)])
+    ones = np.ones(dims)
+    return {"schema": _CALIBRATION_SCHEMA, "source": "nominal", "dims": int(dims), "nt_mean": np.zeros(dims).tolist(),
+            "nt_cov": cov.tolist(), "between_guide_var": (0.05 * ones).tolist(),
+            "between_well_var": (0.03 * ones).tolist(), "between_site_var": (0.02 * ones).tolist(),
+            "t_dof": 8.0, "t_scale_factor": 0.9, "n_genes": int(n_genes),
+            "guides_per_gene": {"median": float(guides_per_gene)}, "nt_guides": int(nt_guides),
+            "cells_per_gene": {"q50": float(cells_per_gene)}, "call_rate": {"value": float(call_rate)},
+            "fdr_pct": {"value": float(fdr_pct)}, "wells": ["A01"], "guide_alpha": 50.0, "nt_ratio": 0.05,
+            "complexes": {"sizes": list(_DEFAULT_COMPLEX_SIZES)}, "_pool": (pool, names)}
+
+
+#: The object tables of a streamed screen and the object class each column name starts with.
+_STREAM_TABLES = ("cell", "nucleus", "cytoplasm")
+
+#: The columns every table of a streamed screen carries beside its features.
+_STREAM_KEYS = ("object_key", "timeID", "fieldID", "object_label", "rowID", "columnID", "gene", "guide",
+                "condition", "prcfo")
+
+#: Cells x features held at once by one batch of the streamed writer.
+_STREAM_CELLS = 40_000_000
+
+
+def _stream_features(n_features: int) -> Dict[str, List[Dict[str, Any]]]:
+    """The feature columns of each table: A1's names and recorded kinds, evenly thinned.
+
+    ``n_features`` columns are taken from the recorded dtype map's 2,798
+    A1 columns, each object class in its A1 share and evenly spaced, so
+    the names, the float16/float32/integer mix and the family structure are
+    those of a real run; beyond 2,798 the classes get ``<class>_extra_<k>``
+    float32 columns.
+    """
+    from . import store
+
+    recorded = store._dtype_map().get("columns") or {}
+    out: Dict[str, List[Dict[str, Any]]] = {}
+    held = {t: sorted(n for n in recorded if n.split("_", 1)[0] == t) for t in _STREAM_TABLES}
+    total = sum(len(v) for v in held.values())
+    left = int(n_features)
+    for position, table in enumerate(_STREAM_TABLES):
+        last = position == len(_STREAM_TABLES) - 1
+        take = left if last else int(round(n_features * len(held[table]) / total))
+        left -= take
+        names = held[table]
+        picked = ([names[int(i)] for i in np.linspace(0, len(names) - 1, min(take, len(names))).round()]
+                  if names else [])
+        picked = list(dict.fromkeys(picked))
+        specs = [{"name": n, "kind": recorded[n]["kind"], "dtype": recorded[n]["dtype"]} for n in picked]
+        specs += [{"name": f"{table}_extra_{k}", "kind": "float", "dtype": "float32"}
+                  for k in range(max(take - len(specs), 0))]
+        out[table] = specs
+    return out
+
+
+def _stream_arrow(name: str, values: np.ndarray, spec: Mapping[str, Any]):
+    """One feature column as Arrow in the type the source holds it in."""
+    import pyarrow as pa
+
+    if spec["kind"] == "int":
+        return pa.array(np.clip(np.rint(values), 0, 200).astype(np.uint8))
+    return pa.array(values.astype(np.float32))
+
+
+def write_ops_screen(calibration: Mapping[str, Any], project: str, design: Optional[Mapping[str, Any]] = None,
+                     seed: int = 0, *, plates: int = 1, wells: int = 8, fields: int = 10,
+                     cells_per_field: int = 125, n_features: int = 300, batch_cells: int = 25_000,
+                     only: Optional[Sequence[str]] = None, run_id: Optional[str] = None,
+                     row_copy: bool = False) -> Dict[str, Any]:
+    """Stream a simulated optical pooled screen into spaCR's store, well by well.
+
+    The cells of :func:`simulate_ops_screen`'s model (guides in genes,
+    planted hit genes and complexes, the genotyping error rate, a latent
+    phenotype from the calibrated NT cells) are generated one well at a
+    time, in batches of at most ``batch_cells`` cells, and appended to
+    :func:`spacr.store.writer` with the recorded dtype map, so a screen of
+    100 million cells needs the memory of one batch. The latent profile is
+    mixed into ``n_features`` columns carrying A1's column names, kinds and
+    dtypes (bounded shape-like features, log-normal intensity-like ones and
+    a few small counts), split into ``cell``, ``nucleus`` and
+    ``cytoplasm`` tables that share ``object_key`` and row order.
+
+    Every table carries ``object_key`` (:func:`spacr.ops_run_infra.integer_cell_key`),
+    ``timeID``, ``fieldID``, ``object_label``, ``rowID``, ``columnID``,
+    ``gene``, ``guide`` (as observed, with the genotyping error),
+    ``condition`` and ``prcfo``; ``nucleus`` and ``cytoplasm`` add
+    ``parent_cell_key``. The library, the planted effects and the feature
+    mixing come from ``seed`` and the design; each well has its own stream
+    from the seed, so the same arguments give the same bytes, and writing a
+    subset of wells with ``only`` gives those wells exactly as writing all
+    of them does. The manifests are left for :func:`spacr.store.register`.
+
+    :param calibration: from :func:`calibrate_from_run`,
+        :func:`load_calibration` or :func:`nominal_calibration`.
+    :param project: the store project folder.
+    :param design: the design (see :func:`resolve_design`).
+    :param seed: the screen seed.
+    :param plates: the plates.
+    :param wells: the wells per plate (24 per row, from A01).
+    :param fields: the fields per well.
+    :param cells_per_field: the cells per field.
+    :param n_features: the feature columns over the three tables.
+    :param batch_cells: the most cells generated at once (lowered so that
+        a batch holds at most 40 million values).
+    :param only: ``"plate01/A01"`` style names of the wells to write; None
+        writes every well.
+    :param run_id: the run id the store records.
+    :param row_copy: also write the row-major copy of the float columns.
+    :returns: ``{"wells": [[plate, well], ...], "cells", "features", "truth"}``
+        with the per-gene truth table (``gene``, ``hit``, ``complex``,
+        ``effect_size``).
+    """
+    import pyarrow as pa
+    from contextlib import ExitStack
+
+    from . import store
+    from .ops_run_infra import integer_cell_key
+
+    d = resolve_design(calibration, design)
+    keyed = {k: v for k, v in d.items() if k not in _ANALYSIS_KEYS}
+    stream = [int(seed), int(_design_key(keyed), 16)]
+    plan_rng = np.random.default_rng(np.random.SeedSequence(stream + [1]))
+    dims = int(calibration["dims"])
+    n_genes, per_gene, n_nt = d["n_genes"], d["guides_per_gene"], d["nt_guides"]
+    n_target_guides = n_genes * per_gene
+    n_guides = n_target_guides + n_nt
+    guide_gene = np.concatenate([np.repeat(np.arange(n_genes), per_gene), np.full(n_nt, -1)])
+    nt_share = float(calibration.get("nt_ratio", 0.02))
+    share = rdirichlet_stable(float(d["guide_alpha"]), n_target_guides, rng=plan_rng) * (1.0 - nt_share)
+    if n_nt:
+        share = np.concatenate([share, rdirichlet_stable(float(d["guide_alpha"]), n_nt, rng=plan_rng) * nt_share])
+    cumulative = np.cumsum(share / share.sum())
+    plan = _effect_plan(calibration, d, plan_rng, n_genes, dims)
+    guide_ko = _guide_knockout(d, n_target_guides, plan_rng)
+    tau = np.sqrt(np.asarray(calibration.get("between_guide_var") or np.zeros(dims), float))
+    offsets = plan_rng.standard_normal((n_guides, dims)) * tau
+    specs = _stream_features(n_features)
+    width = sum(len(v) for v in specs.values())
+    loading = plan_rng.standard_normal((dims, width))
+    loading /= np.linalg.norm(loading, axis=0)
+    kinds = np.array([s["kind"] == "int" for v in specs.values() for s in v])
+    bounded = np.array([s["dtype"] == "float16" for v in specs.values() for s in v])
+    mean_latent = np.asarray(calibration["nt_mean"], float)
+    sd_latent = np.sqrt(np.diag(np.asarray(calibration["nt_cov"], float)))
+    gene_names = np.array([f"G{g:05d}" for g in range(n_genes)])
+    batch = max(1000, min(int(batch_cells), _STREAM_CELLS // max(width, 1)))
+    grid = []
+    for p in range(int(plates)):
+        for i in range(int(wells)):
+            r, c = i // 24 + 1, i % 24 + 1
+            grid.append((p, f"plate{p + 1:02d}", f"{chr(64 + r)}{c:02d}", r, c, i))
+    if only is not None:
+        wanted = set(only)
+        grid = [g for g in grid if f"{g[1]}/{g[2]}" in wanted]
+    ranges = {s["name"]: ((0.0, 200.0) if s["kind"] == "int" else (-0.7, 1.7)) for v in specs.values() for s in v}
+    per_well = int(fields) * int(cells_per_field)
+    chunk_design = dict(d, wells=1, fields_per_well=int(fields))
+    for p, plate, well, r, c, i in grid:
+        rng = np.random.default_rng(np.random.SeedSequence(stream + [2, p, i]))
+        with ExitStack() as stack:
+            writers = {}
+            for start in range(0, per_well, batch):
+                m = min(batch, per_well - start)
+                index = np.arange(start, start + m)
+                field = (index // int(cells_per_field) + 1).astype(np.uint32)
+                label = (index % int(cells_per_field) + 1).astype(np.uint32)
+                key = integer_cell_key(r, c, field, label)
+                cell_guide = np.minimum(np.searchsorted(cumulative, rng.random(m)), n_guides - 1)
+                latent = _phenotype_base(calibration, chunk_design, m, cell_guide, n_guides, np.zeros(m, int),
+                                         field.astype(int) - 1, rng, guide_offsets=offsets)
+                true_gene = guide_gene[cell_guide]
+                _apply_effects(latent, d, plan, true_gene, cell_guide, guide_ko, rng)
+                observed = cell_guide.copy()
+                wrong = rng.random(m) < float(d["fdr_pct"]) / 100.0
+                if wrong.any():
+                    observed[wrong] = np.minimum(np.searchsorted(cumulative, rng.random(int(wrong.sum()))),
+                                                 n_guides - 1)
+                obs_gene = guide_gene[observed]
+                genes = np.where(obs_gene >= 0, gene_names[np.clip(obs_gene, 0, None)], _CONTROL)
+                guides = np.where(obs_gene >= 0, np.char.add(np.char.add(genes.astype("U"), "_"),
+                                                              (observed % max(per_gene, 1)).astype("U")),
+                                  np.char.add("NT", (observed - n_target_guides).astype("U")))
+                z = (latent.astype(np.float32) - mean_latent.astype(np.float32)) / sd_latent.astype(np.float32)
+                mixed = z @ loading.astype(np.float32)
+                noise = rng.standard_normal(mixed.shape, dtype=np.float32)
+                x = (np.sqrt(0.5) * mixed + np.sqrt(0.5) * noise).astype(np.float32)
+                values = np.where(bounded, 0.5 + 0.15 * np.clip(x, -8, 8), np.exp(0.5 * x + 6.0))
+                values = np.where(kinds, np.clip(np.rint(np.exp(0.5 * x + 1.5)), 0, 200), values)
+                base = {"object_key": pa.array(key, pa.int64()), "timeID": pa.array(np.zeros(m, np.uint16)),
+                        "fieldID": pa.array(field), "object_label": pa.array(label),
+                        "rowID": pa.array(np.full(m, r, np.uint8)), "columnID": pa.array(np.full(m, c, np.uint8)),
+                        "gene": pa.array(genes.astype(str), pa.string()),
+                        "guide": pa.array(guides.astype(str), pa.string()),
+                        "condition": pa.array([f"treat{(r * 24 + c) % 4}"] * m, pa.string()),
+                        "prcfo": pa.array([f"{plate}_{r}_{c}_{f}_{lb}"
+                                           for f, lb in zip(field.tolist(), label.tolist())], pa.string())}
+                offset = 0
+                for table in _STREAM_TABLES:
+                    columns = dict(base)
+                    if table != "cell":
+                        columns["parent_cell_key"] = base["object_key"]
+                    for j, spec in enumerate(specs[table]):
+                        columns[spec["name"]] = _stream_arrow(spec["name"], values[:, offset + j], spec)
+                    offset += len(specs[table])
+                    frame = pa.table(columns)
+                    if table not in writers:
+                        writers[table] = stack.enter_context(store.writer(
+                            project, table, plate=plate, well=well, run_id=run_id,
+                            sort_by=("object_key", "timeID"), key_columns=_STREAM_KEYS, row_copy=row_copy,
+                            schema=frame.schema, ranges=ranges, narrow=True))
+                    writers[table].append(frame)
+    truth = pd.DataFrame({"gene": gene_names, "hit": plan["hit_mask"], "complex": plan["complex_of"],
+                          "effect_size": plan["size_of"]})
+    return {"wells": [[g[1], g[2]] for g in grid], "cells": len(grid) * per_well, "features": width,
+            "truth": truth}
 
 
 def _wilson(k: int, n: int) -> tuple:
