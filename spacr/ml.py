@@ -11840,4 +11840,336 @@ def interpret_vision_model(settings=None):
     return merged_df
 
 
+#: Default settings of :func:`complex_membership_importance`.
+COMPLEX_IMPORTANCE_DEFAULTS = {
+    'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1, 'subsample': 0.8,
+    'colsample_bytree': 0.5, 'tree_method': 'hist', 'random_state': 0, 'nthread': 1,
+    'n_shuffles': 500, 'perm_repeats': 3, 'bootstrap': 2000, 'top_k': 200,
+    'random_subsets': 50, 'workers': 1, 'null_gain_fits': 20, 'shuffle_seed': 10000,
+    'min_train_members': 2, 'min_test_members': 2, 'evaluate_check_sets': 0,
+    'output_dir': None,
+}
+
+
+def _cmi_model(settings, y_train):
+    """An unfitted class-balanced XGBoost classifier built through the shared helpers."""
+    positives = max(int(np.sum(y_train)), 1)
+    params = {key: settings[key] for key in (
+        'n_estimators', 'max_depth', 'learning_rate', 'subsample', 'colsample_bytree',
+        'tree_method', 'random_state')}
+    params.update(n_jobs=int(settings['nthread']), eval_metric='logloss', verbosity=0,
+                  scale_pos_weight=float(len(y_train) - positives) / positives)
+    return _xgboost_classifier()(**_xgboost_cpu_safe(params))
+
+
+def _cmi_scores(model, X_test, y_test):
+    """(average precision, AUROC) of ``model`` on the held-out genes, AUROC through ``classifier_metrics``."""
+    from sklearn.metrics import average_precision_score
+
+    score = model.predict_proba(X_test)[:, 1]
+    auroc = classifier_metrics(y_test, (score > 0.5).astype(int), [0, 1], 'x',
+                               np.column_stack([1 - score, score]))['auroc']
+    return float(average_precision_score(y_test, score)), float(auroc)
+
+
+def _cmi_gain(model, n_columns):
+    """Total gain per column as a vector of length ``n_columns``."""
+    scores = model.get_booster().get_score(importance_type='total_gain')
+    out = np.zeros(n_columns)
+    for key, value in scores.items():
+        out[int(str(key)[1:])] = value
+    return out
+
+
+def _cmi_task(X_train, y_train, X_test, y_test, settings, importance, columns):
+    """Fit one label set: real model, shuffled-label refits and (optionally) importances."""
+    from sklearn.metrics import average_precision_score
+
+    settings = dict(settings)
+    n_columns = X_train.shape[1]
+    model = _cmi_model(settings, y_train).fit(X_train, y_train)
+    ap, auroc = _cmi_scores(model, X_test, y_test)
+    out = {'ap': ap, 'auroc': auroc, 'prevalence': float(np.mean(y_test)),
+           'null_ap': np.zeros(int(settings['n_shuffles'])),
+           'null_auroc': np.zeros(int(settings['n_shuffles']))}
+    if importance:
+        gain = _cmi_gain(model, n_columns)
+        shap_values, _ = _shap_values(model, X_train, X_test)
+        shap_values = np.asarray(getattr(shap_values, 'values', shap_values), float)
+        if shap_values.ndim == 3:
+            shap_values = shap_values[..., -1]
+        rng = np.random.default_rng([int(settings['random_state']), 7])
+        permutation = np.zeros(n_columns)
+        used = np.flatnonzero(gain > 0)
+        base = average_precision_score(y_test, model.predict_proba(X_test)[:, 1])
+        work = X_test.copy()
+        for column in used:
+            kept = work[:, column].copy()
+            drops = []
+            for _ in range(int(settings['perm_repeats'])):
+                work[:, column] = rng.permutation(kept)
+                drops.append(base - average_precision_score(
+                    y_test, model.predict_proba(work)[:, 1]))
+            work[:, column] = kept
+            permutation[column] = np.mean(drops)
+        out.update(gain=gain, shap=np.abs(shap_values).mean(axis=0),
+                   permutation=np.clip(permutation, 0, None))
+    null_gain = []
+    for i in range(int(settings['n_shuffles'])):
+        order = np.random.default_rng(int(settings['shuffle_seed']) + i).permutation(len(y_train))
+        shuffled = y_train[order]
+        null_model = _cmi_model(settings, shuffled).fit(X_train, shuffled)
+        out['null_ap'][i], out['null_auroc'][i] = _cmi_scores(null_model, X_test, y_test)
+        if importance and i < int(settings['null_gain_fits']):
+            null_gain.append(_cmi_gain(null_model, n_columns))
+    if null_gain:
+        out['null_gain'] = np.vstack(null_gain)
+    return out
+
+
+def _cmi_topk_task(X_train, y_train, X_test, y_test, settings, subsets, columns):
+    """Average precision of one label set refitted on each column subset of ``subsets``."""
+    from sklearn.metrics import average_precision_score
+
+    out = []
+    for subset in subsets:
+        model = _cmi_model(settings, y_train).fit(X_train[:, subset], y_train)
+        out.append(float(average_precision_score(
+            y_test, model.predict_proba(X_test[:, subset])[:, 1])))
+    return out
+
+
+def _cmi_shares(matrix):
+    """Normalise every row to sum 1; rows that sum to zero become NaN."""
+    total = matrix.sum(axis=1, keepdims=True)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        return np.where(total > 0, matrix / total, np.nan)
+
+
+def _cmi_bootstrap(shares, indicator, n_boot, seed):
+    """Mean share per group over label sets and its 95 % bootstrap CI over label sets."""
+    grouped = shares @ indicator
+    keep = ~np.isnan(grouped).any(axis=1)
+    grouped = grouped[keep]
+    mean = grouped.mean(axis=0)
+    if len(grouped) < 2 or not n_boot:
+        return mean, np.full_like(mean, np.nan), np.full_like(mean, np.nan)
+    rng = np.random.default_rng(seed)
+    draws = np.empty((int(n_boot), grouped.shape[1]))
+    for b in range(int(n_boot)):
+        draws[b] = grouped[rng.integers(0, len(grouped), len(grouped))].mean(axis=0)
+    return mean, np.percentile(draws, 2.5, axis=0), np.percentile(draws, 97.5, axis=0)
+
+
+def complex_membership_importance(profiles, labels, split, groups, settings=None, label_sets=None):
+    """Classify known complex membership of genes and say which columns carry the signal.
+
+    One binary XGBoost model is fitted per label set (a CORUM complex, or the
+    partners of a STRING hub) on the training genes and scores the held-out
+    genes. The models are built by ``_xgboost_classifier`` through
+    ``_xgboost_cpu_safe`` with balanced classes, SHAP comes from
+    ``_shap_values`` and the AUROC from :func:`classifier_metrics`. Each label
+    set is also refitted ``n_shuffles`` times with its training labels
+    permuted (seed ``shuffle_seed + i``, the same hyperparameters), which gives
+    a null for the metrics and, from the first ``null_gain_fits`` refits, for
+    the gain shares. Label sets of half 0 get importances (total gain, mean
+    absolute SHAP on the held-out genes, permutation importance as the drop of
+    average precision on the held-out genes, negative drops clipped to 0);
+    each is normalised to sum 1 within a model and aggregated per column,
+    family and compartment with a bootstrap CI over label sets. Label sets of
+    half 1 are refitted on the ``top_k`` columns of the half-0 SHAP ranking
+    and on ``random_subsets`` random column sets of the same size.
+
+    Everything is seeded, so one input and settings give identical tables.
+    Label sets run in ``workers`` processes with ``nthread`` XGBoost threads
+    each.
+
+    :param profiles: DataFrame, ``gene`` plus one float column per feature.
+    :param labels: long DataFrame, ``label_set`` and ``gene`` (a gene may be in
+        many sets).
+    :param split: DataFrame, ``gene`` and ``is_train``.
+    :param groups: DataFrame, ``column``, ``family`` and ``compartment``.
+    :param settings: overrides of :data:`COMPLEX_IMPORTANCE_DEFAULTS`
+        (``n_estimators``, ``max_depth``, ``learning_rate``, ``subsample``,
+        ``colsample_bytree``, ``random_state``, ``nthread``, ``n_shuffles``,
+        ``perm_repeats``, ``bootstrap``, ``top_k``, ``random_subsets``,
+        ``workers``, ``null_gain_fits``, ``evaluate_check_sets`` and
+        ``output_dir``, where CSV files and ``heldout_topk.json`` are written).
+    :param label_sets: optional DataFrame, ``label_set``, ``kind`` and ``half``
+        (0 = importance sets, 1 = held-out sets); by default every set is
+        kind ``'set'`` and half 0.
+    :returns: a dict of DataFrames: ``label_sets`` (metrics, null range and
+        verdict per set), ``pooled`` (per kind and role), ``importance_columns``,
+        ``importance_groups``, ``heldout_topk`` (dict) and
+        ``evaluate_classifier_check``.
+    :raises ValueError: when ``profiles`` lacks ``gene`` or no label set is usable.
+    """
+    from joblib import Parallel, delayed
+
+    from .qt.i18n import tr
+
+    config = {**COMPLEX_IMPORTANCE_DEFAULTS, **(settings or {})}
+    if 'gene' not in profiles.columns:
+        raise ValueError(tr("profiles needs a 'gene' column."))
+    columns = [c for c in profiles.columns if c != 'gene']
+    X = np.ascontiguousarray(profiles[columns].to_numpy(dtype=np.float32))
+    gene_row = {g: i for i, g in enumerate(profiles['gene'])}
+    is_train = split.drop_duplicates('gene').set_index('gene')['is_train'].astype(bool)
+    train_rows = np.array([gene_row[g] for g in profiles['gene'] if is_train.get(g, False)])
+    test_rows = np.array([gene_row[g] for g in profiles['gene'] if g in is_train.index
+                          and not is_train[g]])
+    if label_sets is None:
+        label_sets = pd.DataFrame({'label_set': sorted(labels['label_set'].unique())})
+    label_sets = label_sets.copy()
+    if 'kind' not in label_sets:
+        label_sets['kind'] = 'set'
+    if 'half' not in label_sets:
+        label_sets['half'] = 0
+    members = labels.groupby('label_set')['gene'].agg(set)
+    prepared, rows = [], []
+    for record in label_sets.sort_values('label_set').to_dict('records'):
+        name = record['label_set']
+        genes = members.get(name, set())
+        y = profiles['gene'].isin(genes).to_numpy(dtype=int)
+        n_train, n_test = int(y[train_rows].sum()), int(y[test_rows].sum())
+        ok = (n_train >= config['min_train_members'] and n_test >= config['min_test_members']
+              and n_train < len(train_rows) and n_test < len(test_rows))
+        row = {'label_set': name, 'kind': record['kind'], 'half': int(record['half']),
+               'members_train': n_train, 'members_test': n_test,
+               'status': 'fitted' if ok else 'skipped'}
+        rows.append(row)
+        if ok:
+            prepared.append((len(rows) - 1, y))
+    if not prepared:
+        raise ValueError(tr("No label set has enough training and held-out members."))
+    table = pd.DataFrame(rows)
+
+    def run(function, tasks):
+        """Run ``tasks`` in ``workers`` processes, in order."""
+        return Parallel(n_jobs=int(config['workers']))(delayed(function)(*t) for t in tasks)
+
+    tasks = [(X[train_rows], y[train_rows], X[test_rows], y[test_rows], config,
+              rows[i]['half'] == 0, columns) for i, y in prepared]
+    results = run(_cmi_task, tasks)
+    n_cols, n_shuf = len(columns), int(config['n_shuffles'])
+    for key in ('ap', 'auroc', 'prevalence', 'excess_ap', 'null_mean_ap_excess',
+                'null_lo', 'null_hi'):
+        table[key] = np.nan
+    table['verdict'] = ''
+    null_excess = {}
+    for (i, _), res in zip(prepared, results):
+        excess = res['ap'] - res['prevalence']
+        null = res['null_ap'] - res['prevalence']
+        lo, hi = (np.percentile(null, [2.5, 97.5]) if n_shuf else (np.nan, np.nan))
+        table.loc[i, ['ap', 'auroc', 'prevalence', 'excess_ap', 'null_mean_ap_excess',
+                      'null_lo', 'null_hi']] = [res['ap'], res['auroc'], res['prevalence'],
+                                                excess, null.mean() if n_shuf else np.nan, lo, hi]
+        table.loc[i, 'verdict'] = ('above' if excess > hi else 'below' if excess < lo
+                                   else 'inside') if n_shuf else ''
+        null_excess[i] = null
+    pooled = []
+    for (kind, half), part in table[table.status == 'fitted'].groupby(['kind', 'half']):
+        idx = list(part.index)
+        pooled_null = np.mean([null_excess[i] for i in idx], axis=0) if n_shuf else np.array([])
+        role = 'training' if half == 0 else 'held-out'
+        pooled.append({'kind': kind, 'role': role, 'n_sets': len(idx),
+                       'mean_excess_ap': part.excess_ap.mean(), 'mean_auroc': part.auroc.mean(),
+                       'null_mean': pooled_null.mean() if n_shuf else np.nan,
+                       'null_lo': np.percentile(pooled_null, 2.5) if n_shuf else np.nan,
+                       'null_hi': np.percentile(pooled_null, 97.5) if n_shuf else np.nan})
+    pooled = pd.DataFrame(pooled)
+    if len(pooled):
+        pooled['verdict'] = np.where(pooled.mean_excess_ap > pooled.null_hi, 'above',
+                                     np.where(pooled.mean_excess_ap < pooled.null_lo,
+                                              'below', 'inside'))
+
+    info = groups.drop_duplicates('column').set_index('column').reindex(columns)
+    column_rows, group_rows = [], []
+    topk = {}
+    for kind in sorted(table.kind.unique()):
+        picks = [(i, res) for (i, _), res in zip(prepared, results)
+                 if rows[i]['kind'] == kind and rows[i]['half'] == 0]
+        if not picks:
+            continue
+        indicators = {'column': (np.eye(n_cols), columns)}
+        for level in ('family', 'compartment'):
+            names = sorted(info[level].dropna().unique()) if level in info else []
+            indicators[level] = (np.column_stack([(info[level] == n).to_numpy(float)
+                                                  for n in names]) if names else None, names)
+        for measure in ('gain', 'shap', 'permutation'):
+            shares = _cmi_shares(np.vstack([res[measure] for _, res in picks]))
+            stacks = [_cmi_shares(res['null_gain']) for _, res in picks if 'null_gain' in res]
+            null_shares = np.nanmean(np.vstack(stacks), axis=0) if stacks else None
+            for level, (indicator, names) in indicators.items():
+                if indicator is None:
+                    continue
+                mean, lo, hi = _cmi_bootstrap(shares, indicator, config['bootstrap'],
+                                              int(config['random_state']) + 11)
+                share_of_columns = indicator.mean(axis=0)
+                shuffled = (null_shares @ indicator) if null_shares is not None \
+                    else np.full(len(names), np.nan)
+                for j, name in enumerate(names):
+                    if level == 'column':
+                        column_rows.append({'kind': kind, 'measure': measure, 'column': name,
+                                            'family': info['family'].iat[j] if 'family' in info else None,
+                                            'compartment': info['compartment'].iat[j] if 'compartment' in info else None,
+                                            'share': mean[j], 'ci_lo': lo[j], 'ci_hi': hi[j],
+                                            'shuffled_share': shuffled[j]})
+                    else:
+                        group_rows.append({'kind': kind, 'measure': measure, 'level': level,
+                                           'group': name, 'share': mean[j], 'ci_lo': lo[j],
+                                           'ci_hi': hi[j], 'shuffled_share': shuffled[j],
+                                           'column_share': share_of_columns[j],
+                                           'enrichment': mean[j] / share_of_columns[j]})
+        shap_share = np.nanmean(_cmi_shares(np.vstack([res['shap'] for _, res in picks])), axis=0)
+        k = min(int(config['top_k']), n_cols)
+        top = np.argsort(-shap_share, kind='stable')[:k]
+        held = [(i, y) for i, y in prepared if rows[i]['kind'] == kind and rows[i]['half'] == 1]
+        if held and k:
+            rng = np.random.default_rng(int(config['random_state']) + 29)
+            subsets = [np.sort(top)] + [np.sort(rng.choice(n_cols, k, replace=False))
+                               for _ in range(int(config['random_subsets']))]
+            out = run(_cmi_topk_task, [(X[train_rows], y[train_rows], X[test_rows], y[test_rows],
+                                        config, subsets, columns) for _, y in held])
+            ap = np.array(out)
+            excess = ap - np.array([[table.loc[i, 'prevalence']] for i, _ in held])
+            real, rand = excess[:, 0].mean(), excess[:, 1:].mean(axis=0)
+            diff = real - rand
+            topk[kind] = {'k': k, 'n_sets': len(held), 'topk_mean_excess_ap': float(real),
+                          'random_mean_excess_ap': float(rand.mean()) if len(rand) else None,
+                          'difference_mean': float(diff.mean()) if len(rand) else None,
+                          'difference_lo': float(np.percentile(diff, 2.5)) if len(rand) else None,
+                          'difference_hi': float(np.percentile(diff, 97.5)) if len(rand) else None}
+    check = pd.DataFrame()
+    if int(config['evaluate_check_sets']):
+        parts = []
+        both = np.concatenate([train_rows, test_rows])
+        for i, y in prepared[:int(config['evaluate_check_sets'])]:
+            frame = pd.DataFrame(X[both], columns=columns)
+            frame['label'] = y[both]
+            result = evaluate_classifier(frame, columns, {
+                'ml_eval_split': 'random', 'ml_model_type': 'hist_gbm', 'n_estimators': 50,
+                'ml_eval_shuffle_seed': int(config['random_state']), 'ml_eval_shuffle_repeats': 3,
+                'ml_eval_controls': 'majority, shuffled'})
+            result.insert(0, 'label_set', rows[i]['label_set'])
+            parts.append(result)
+        check = pd.concat(parts, ignore_index=True) if parts else check
+    result = {'label_sets': table, 'pooled': pooled,
+              'importance_columns': pd.DataFrame(column_rows),
+              'importance_groups': pd.DataFrame(group_rows), 'heldout_topk': topk,
+              'evaluate_classifier_check': check}
+    if config['output_dir']:
+        import json
+
+        os.makedirs(config['output_dir'], exist_ok=True)
+        for name, value in result.items():
+            if name == 'heldout_topk':
+                with open(os.path.join(config['output_dir'], 'heldout_topk.json'), 'w') as handle:
+                    json.dump(value, handle, indent=2)
+            else:
+                tabular.write_table(value, os.path.join(config['output_dir'], f'{name}.csv'),
+                                    canonicalise=False)
+    return result
+
+
 interperate_vision_model = interpret_vision_model

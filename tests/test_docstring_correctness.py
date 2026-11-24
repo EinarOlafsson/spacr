@@ -4314,6 +4314,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_s5_arrivals(callables)
     from tests.cropstore_rule43_api_hooks import _validated_cropstore_rule43_arrivals
     callables = _validated_cropstore_rule43_arrivals(callables)
+    from tests.complex_shap_api_hooks import _validated_complex_shap_arrivals
+    callables = _validated_complex_shap_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -7277,6 +7279,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **_s5_birth_arrivals(zoo_additions)}
     from tests.cropstore_rule43_api_hooks import _current_cropstore_rule43_api
     zoo_additions = {**zoo_additions, **_current_cropstore_rule43_api(zoo_additions)}
+    from tests.complex_shap_api_hooks import _current_complex_shap_api
+    zoo_additions = {**zoo_additions, **_current_complex_shap_api(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
@@ -7944,6 +7948,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= _s5_birth_arrivals().keys()
     from tests.cropstore_rule43_api_hooks import _current_cropstore_rule43_api
     contract_callables |= _current_cropstore_rule43_api().keys()
+    from tests.complex_shap_api_hooks import _current_complex_shap_api
+    contract_callables |= _current_complex_shap_api().keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -8127,6 +8133,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= _s5_birth_arrivals().keys()
     from tests.cropstore_rule43_api_hooks import _current_cropstore_rule43_api
     arrival_callables |= _current_cropstore_rule43_api().keys()
+    from tests.complex_shap_api_hooks import _current_complex_shap_api
+    arrival_callables |= _current_complex_shap_api().keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background
