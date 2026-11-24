@@ -4320,6 +4320,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_s6_arrivals(callables)
     from tests.l3_api_hooks import _validated_l3_arrivals
     callables = _validated_l3_arrivals(callables)
+    from tests.l4_api_hooks import _validated_l4_arrivals
+    callables = _validated_l4_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -6299,7 +6301,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # parameters of the 20 retired Browser handles (ReadOnlyDb, WritableDb,
     # build_update) leave the boundary; with them, the landing L3 stack's
     # optional `n_tests` of spacr.multiple_testing.adjust_p_values.
-) == 'fc34ecb65a3a13789b7135e3763faa5fc9779c4ffeb5332573cb84e4b2ce210b'
+) == '20778323b3bd619da432aafb5380172c2a6e6fd2edc0f01fdd8f70b8e372f7fd'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -7310,6 +7312,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **_s6_docs_arrivals(zoo_additions)}
     from tests.l3_api_hooks import _current_l3_api
     zoo_additions = {**zoo_additions, **_current_l3_api(zoo_additions)}
+    from tests.l4_api_hooks import _current_l4_api
+    zoo_additions = {**zoo_additions, **_current_l4_api(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
@@ -7985,6 +7989,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= _s6_birth_arrivals().keys()
     from tests.l3_api_hooks import _current_l3_api
     contract_callables |= _current_l3_api().keys()
+    from tests.l4_api_hooks import _current_l4_api
+    contract_callables |= _current_l4_api().keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -8176,6 +8182,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= _s6_birth_arrivals().keys()
     from tests.l3_api_hooks import _current_l3_api
     arrival_callables |= _current_l3_api().keys()
+    from tests.l4_api_hooks import _current_l4_api
+    arrival_callables |= _current_l4_api().keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background

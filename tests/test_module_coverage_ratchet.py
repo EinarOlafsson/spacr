@@ -619,6 +619,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 725 -> 726 on 2026-11-24, +1/-0, unified store step S4: Measure's and Make
         # Masks' tables in the spaCR store (spacr/measurement_store.py).
         'spacr/measurement_store.py',
+        # 726 -> 727 on 2026-11-24, +1/-0, unified store step S6: the Database
+        # Browser's store handle (spacr/store_browse.py).
+        'spacr/store_browse.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -643,12 +646,14 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 722)
+            - len(retired_since_608) == 724)
     # 717 -> 718 on 2026-11-20: spacr/cpg_measure.py (item 998).
     # 718 -> 719 on 2026-11-21: spacr/ops_maxproj.py (item 992).
     # 719 -> 720 on 2026-11-21: spacr/ops_cell_cycle.py (item 990).
     # 720 -> 721 on 2026-11-22: spacr/ome_zarr_registration.py (item 1007 lane C, pilot).
     # 721 -> 722 on 2026-11-24: spacr/cli_store.py (item 0aj, the spacr-store command).
+    # 722 -> 724 on 2026-11-24: spacr/measurement_store.py and spacr/store_browse.py
+    # (unified store steps S4 and S6).
     # 711 -> 712 on 2026-11-19: spacr/_mask_batches.py (item 987b).
     # 712 -> 715 on 2026-11-20: spacr/image_store.py, spacr/crop_store.py and
     # spacr/ome_zarr_convert.py (items 983-985).
@@ -1227,8 +1232,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # command; the workflow's --expected-file-count moves to 725 at landing.
     # 725 -> 726 on 2026-11-24 (store step S4): spacr/measurement_store.py; the
     # workflow's --expected-file-count moves to 726 at landing.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 726
-    assert "--expected-file-count 726" in combine_script
+    # 726 -> 727 on 2026-11-24 (store step S6): spacr/store_browse.py; the
+    # workflow's --expected-file-count moves to 727 at landing.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 727
+    assert "--expected-file-count 727" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
