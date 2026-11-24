@@ -3213,7 +3213,7 @@ def _validated_bmc_paper_items_callables(callables):
     entries = _current_never_api(entries)
     from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
     entries = _current_neighbour_api(entries)
-    from tests.test_ops_phtables_store import _current_phtables_api
+    from tests.phtables_store_api_hooks import _current_phtables_api
     entries = _current_phtables_api(entries)
     assert len(entries) == 170
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
@@ -4301,7 +4301,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_never_arrivals(callables)
     from tests.test_ops_neighbour_sources_1013 import _validated_neighbour_arrivals
     callables = _validated_neighbour_arrivals(callables)
-    from tests.test_ops_phtables_store import _validated_phtables_store_arrivals
+    from tests.phtables_store_api_hooks import _validated_phtables_store_arrivals
     callables = _validated_phtables_store_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
@@ -7230,7 +7230,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         additions = _current_neighbour_api(additions)
         from tests.test_ops_phfields_sources import _current_phfields_api
         additions = _current_phfields_api(additions)
-        from tests.test_ops_phtables_store import _current_phtables_api
+        from tests.phtables_store_api_hooks import _current_phtables_api
         additions = _current_phtables_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
@@ -7258,7 +7258,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         assert {key: docs[key] for key in additions} == additions
         assert not additions.keys() & zoo_additions.keys()
         zoo_additions = {**zoo_additions, **additions}
-    from tests.test_ops_phtables_store import _phtables_store_birth_arrivals
+    from tests.phtables_store_api_hooks import _phtables_store_birth_arrivals
     zoo_additions = {**zoo_additions, **_phtables_store_birth_arrivals(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
@@ -7914,7 +7914,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= help_escape_arrivals.keys()
     assert not approval_callables & contract_callables
     contract_callables |= approval_callables
-    from tests.test_ops_phtables_store import _phtables_store_birth_arrivals
+    from tests.phtables_store_api_hooks import _phtables_store_birth_arrivals
     contract_callables |= _phtables_store_birth_arrivals().keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
@@ -8089,7 +8089,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= help_escape_arrivals.keys()
     assert not approval_callables & arrival_callables
     arrival_callables |= approval_callables
-    from tests.test_ops_phtables_store import _phtables_store_birth_arrivals
+    from tests.phtables_store_api_hooks import _phtables_store_birth_arrivals
     arrival_callables |= _phtables_store_birth_arrivals().keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.

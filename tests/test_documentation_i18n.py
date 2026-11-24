@@ -3921,7 +3921,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         arrivals = _current_neighbour_api(arrivals)
         from tests.test_ops_phfields_sources import _current_phfields_api
         arrivals = _current_phfields_api(arrivals)
-        from tests.test_ops_phtables_store import _current_phtables_api
+        from tests.phtables_store_api_hooks import _current_phtables_api
         arrivals = _current_phtables_api(arrivals)
         if filename == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             arrivals = _posix_update_prepared_key_move(arrivals, docs)

@@ -1971,9 +1971,6 @@ def _stored_types(schema, ranges, channels: Sequence[str] = (), *,
         if entry and entry.get("kind") == kind:
             chosen = entry["dtype"]
         elif entry and kind == "int":
-            # Measured as floats elsewhere (a field with NaN made the column
-            # float there), integers here: the narrowest integer type the
-            # table's range fits, which loses nothing.
             chosen = _INT_LADDER[0]
         if np.dtype(chosen).itemsize > np.dtype(source).itemsize:
             chosen = source

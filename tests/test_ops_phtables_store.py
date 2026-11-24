@@ -31,21 +31,14 @@ pytest.importorskip("duckdb")
 
 from spacr import ops_engine, store                                # noqa: E402
 from spacr.ops_store import write_table                            # noqa: E402
+from tests.phtables_store_api_hooks import (                      # noqa: E402,F401
+    RETIRED_SQLITE_HELPER, STORE_ARRIVALS, STORE_BIRTH,
+    _current_phtables_api, _phtables_store_birth_arrivals,
+    _store_source_docstring, _validated_phtables_store_arrivals)
 
 PLATE = "P_1"
 SITES = (3, 7, 12, 40)
 SETTINGS = {"plate": PLATE, "ops_ph_channels": "DAPI,GFP"}
-
-
-#: The nested helper of the ph_tables SQLite writer, retired with it on
-#: 2026-11-23; the frozen 871 arrival contract still names it.
-RETIRED_SQLITE_HELPER = "spacr.ops_engine._ph_insert_rows.declared"
-
-
-def _current_phtables_api(entries):
-    """Drop only the retired SQLite helper from a frozen arrival contract."""
-    return {key: value for key, value in entries.items()
-            if key != RETIRED_SQLITE_HELPER}
 
 
 def test_the_retired_sqlite_helper_is_gone_and_only_it_is_dropped():
@@ -143,7 +136,7 @@ TEST_DTYPES = {"area": ("float", "float32"), "euler_number": ("int", "uint8"),
 
 
 @pytest.fixture(autouse=True)
-def test_map(tmp_path_factory, monkeypatch):
+def shipped_dtype_map(tmp_path_factory, monkeypatch):
     """A per-column dtype map for _field's columns, used as the shipped map."""
     import json
 
@@ -522,64 +515,6 @@ def test_the_shipped_map_is_the_per_column_a1_map_the_writer_applies():
     assert not promoted
     assert {n: np.dtype(t.to_pandas_dtype()).name for n, t in types.items()} \
         == {n: e["dtype"] for n, e in columns.items()}
-
-
-#: The arrival contract of the shared measurement-table writer (2026-11-23):
-#: spacr.store.writer, write_table and WellWriter with its methods, the
-#: public writer Measure uses next.
-STORE_BIRTH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data",
-                           "release_contracts",
-                           "phtables_store_api_arrivals_2026-11-23.json")
-STORE_ARRIVALS = frozenset({
-    "spacr.store.writer", "spacr.store.write_table", "spacr.store.WellWriter",
-    "spacr.store.WellWriter.__enter__", "spacr.store.WellWriter.__exit__",
-    "spacr.store.WellWriter.append", "spacr.store.WellWriter.finish",
-    "spacr.store.WellWriter.abort"})
-
-
-def _store_source_docstring(symbol):
-    """The live docstring of one ``spacr.store`` arrival, as the extractor reads it."""
-    import inspect
-
-    target = store
-    for part in symbol.split(".")[2:]:
-        target = getattr(target, part)
-    body = inspect.cleandoc(target.__doc__)
-    if inspect.isclass(target) and "__init__" in vars(target):
-        # The extractor gives a class its docstring and its constructor's.
-        body += "\n" + inspect.cleandoc(target.__init__.__doc__)
-    return body
-
-
-def _phtables_store_birth_arrivals(existing=None):
-    """The writer's new public symbols, bound to their source docstrings.
-
-    :param existing: earlier arrivals; none of them may be one of these.
-    """
-    import json
-
-    with open(STORE_BIRTH, encoding="utf-8") as handle:
-        entries = json.load(handle)
-    assert set(entries) == STORE_ARRIVALS
-    for symbol, body in entries.items():
-        assert body == _store_source_docstring(symbol), symbol
-    if existing is not None:
-        assert not entries.keys() & existing.keys()
-    return entries
-
-
-def _validated_phtables_store_arrivals(callables):
-    """Remove only the writer's exact new callables from the frozen boundary."""
-    entries = _phtables_store_birth_arrivals()
-    found = {item.symbol: item for item in callables if item.symbol in entries}
-    assert set(found) == {"spacr.store.writer", "spacr.store.write_table",
-                          "spacr.store.WellWriter",
-                          "spacr.store.WellWriter.append",
-                          "spacr.store.WellWriter.finish",
-                          "spacr.store.WellWriter.abort"}
-    for symbol, item in found.items():
-        assert item.docstring == entries[symbol], symbol
-    return [item for item in callables if item.symbol not in entries]
 
 
 def test_the_writer_arrivals_are_exactly_the_new_public_store_api():

@@ -2304,7 +2304,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     paper_item_arrivals = _current_never_api(paper_item_arrivals)
     from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
     paper_item_arrivals = _current_neighbour_api(paper_item_arrivals)
-    from tests.test_ops_phtables_store import _current_phtables_api
+    from tests.phtables_store_api_hooks import _current_phtables_api
     paper_item_arrivals = _current_phtables_api(paper_item_arrivals)
     assert len(paper_item_arrivals) == 170
     assert {key: docs[key] for key in paper_item_arrivals} == paper_item_arrivals
@@ -2543,7 +2543,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **never_arrivals}
     from tests.test_ops_neighbour_sources_1013 import _neighbour_birth_arrivals
     zoo_arrivals = {**zoo_arrivals, **_neighbour_birth_arrivals(zoo_arrivals)}
-    from tests.test_ops_phtables_store import _phtables_store_birth_arrivals
+    from tests.phtables_store_api_hooks import _phtables_store_birth_arrivals
     zoo_arrivals = {**zoo_arrivals, **_phtables_store_birth_arrivals(zoo_arrivals)}
     sweep_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "955_ops_fdr_sweep_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))

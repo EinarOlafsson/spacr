@@ -9091,8 +9091,8 @@ def _ph_stream_well(plate: str, well: str, destination: str,
     The shared writer (:class:`spacr.store.WellWriter`) chooses the stored
     dtypes from the recorded map, guarded by the well table's column
     ranges, and writes one part per table per well.
-    :returns: ``{"rows": n, "owned": n, "source": "fields" | "well_table",
-        "dtypes": {...}, "promoted": [...]}``.
+    :returns: a dict with ``rows``, ``owned``, ``source`` (``"fields"`` or
+        ``"well_table"``), ``dtypes`` and ``promoted``.
     """
     import pyarrow as pa
     import pyarrow.parquet as pq
