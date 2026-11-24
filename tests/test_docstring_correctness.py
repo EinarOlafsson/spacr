@@ -4298,7 +4298,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
             _validated_prior_radius_callables(
                 _validated_prior_worker_callables(
                     list(_public_callables()), replay_dialog_signature=True))))
-    from tests.test_omezarr_api_0aj import _validated_omezarr_native_arrivals
+    from tests.omezarr_native_api_hooks import _validated_omezarr_native_arrivals
     callables = _validated_omezarr_native_arrivals(callables)
     from tests.test_ops_fdr_never_1014 import _validated_never_arrivals
     callables = _validated_never_arrivals(callables)
@@ -7265,7 +7265,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert not s370_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **s370_additions}
     # 2026-11-24: item 0aj, OME-Zarr native storage; one named contract.
-    from tests.test_omezarr_api_0aj import _omezarr_native_birth_arrivals
+    from tests.omezarr_native_api_hooks import _omezarr_native_birth_arrivals
     zoo_additions = {**zoo_additions, **_omezarr_native_birth_arrivals(zoo_additions)}
     # 2026-10-14: the nested journal note helper of _transactional_runtime_update gains a docstring; one named contract.
     note_additions = json.loads((pathlib.Path(__file__).resolve().parent
@@ -7910,7 +7910,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
     contract_callables |= help_arrivals.keys()
-    from tests.test_omezarr_api_0aj import _omezarr_native_birth_arrivals
+    from tests.omezarr_native_api_hooks import _omezarr_native_birth_arrivals
     contract_callables |= _omezarr_native_birth_arrivals().keys()
     assert not help_escape_arrivals.keys() & contract_callables
     contract_callables |= help_escape_arrivals.keys()
@@ -8085,7 +8085,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts"
         / "tutorial_cli_api_changes_2026-10-12.json").read_text(encoding="utf-8"))["added"])
     arrival_callables |= help_arrivals.keys()
-    from tests.test_omezarr_api_0aj import _omezarr_native_birth_arrivals
+    from tests.omezarr_native_api_hooks import _omezarr_native_birth_arrivals
     arrival_callables |= _omezarr_native_birth_arrivals().keys()
     assert not help_escape_arrivals.keys() & arrival_callables
     arrival_callables |= help_escape_arrivals.keys()
