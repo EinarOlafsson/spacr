@@ -600,12 +600,9 @@ def test_the_database_is_byte_identical_after_open_browse_cancel(qtbot, measdb):
 
 def test_the_reader_refuses_a_write_outright(measdb):
     reader = SchemaReader(measdb.path)
-    con = reader._connect()
-    try:
+    with reader._connect() as con:
         with pytest.raises(sqlite3.OperationalError):
             con.execute('ALTER TABLE png_list ADD COLUMN sneaky INTEGER')
-    finally:
-        con.close()
     assert _digest(measdb.path) == _digest(measdb.path)
 
 

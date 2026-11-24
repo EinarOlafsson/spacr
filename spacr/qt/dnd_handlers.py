@@ -51,7 +51,6 @@ from PySide6.QtCore import QEvent, QObject
 
 from .. import chaining as _ch
 from .. import ports as _kinds
-from ..measurement_store import connect as _connect_measurements
 from ..measurement_store import exists as _measurements_exist
 from .dnd import (
     IMAGE_EXTS,
@@ -2293,7 +2292,7 @@ class DatabaseDropHandler(DropHandler):
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
-        return MeasurementsDropHandler().can_accept(path)
+        return MeasurementsDropHandler().can_accept(path) or _is_store_project(path)
 
     def error_message(self, path: Path) -> str:
         """Name all three accepted shapes in the Browser's own words.
@@ -3290,6 +3289,14 @@ def _apply_model_zoo_source(source: Path, screen, is_model: bool) -> None:
 class ResultsDatabaseDropHandler(DatabaseDropHandler):
     """Database input for Plate Viewer and Annotator Agreement."""
 
+    def can_accept(self, path: Path) -> bool:
+        """The measurement screens' own rule, which a store project is not yet part of.
+
+        :param path: the dropped file or folder.
+        :returns: True when this handler can use ``path`` as-is.
+        """
+        return MeasurementsDropHandler().can_accept(path)
+
     def apply(self, path: Path, screen) -> None:
         """Open the database through whichever setter this screen offers.
 
@@ -3428,6 +3435,25 @@ def _resolve_for(handler, app_key: str, path: Path):
     return resolution
 
 
+def _is_store_project(path) -> bool:
+    """Whether ``path`` names a spaCR store project rather than an older file.
+
+    A ``spacr.duckdb`` file, its project folder, or a run folder whose
+    ``measurements`` folder is a store project, as :func:`spacr.store.locate`
+    finds them.
+
+    :param path: the dropped file or folder.
+    :returns: True when the store would open a store project there.
+    """
+    from .. import store
+
+    try:
+        found = store.locate(path)
+    except FileNotFoundError:
+        return False
+    return os.path.isfile(os.path.join(found, store.CATALOG))
+
+
 def table_names(path: Path) -> List[str]:
     """Return the tables in a SQLite file, or ``[]`` for anything else.
 
@@ -3441,22 +3467,15 @@ def table_names(path: Path) -> List[str]:
 
     :param path: candidate SQLite database path to inspect read-only.
     """
-    import sqlite3
+    from .. import store
+    from ..store_browse import READ_ERRORS
 
-    if not str(path).lower().endswith(_ch.DB_SUFFIXES):
+    if not (str(path).lower().endswith(_ch.DB_SUFFIXES) or _is_store_project(path)):
         return []
     try:
-        connection = _connect_measurements(path, readonly=True)
-    except (sqlite3.Error, ValueError):
+        return [str(name) for name in store.shared(path).tables()]
+    except READ_ERRORS:
         return []
-    try:
-        return [str(row[0]) for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "ORDER BY name").fetchall()]
-    except (sqlite3.DatabaseError, ValueError):
-        return []
-    finally:
-        connection.close()
 
 
 class LayoutDropHandler(DropHandler):

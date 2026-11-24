@@ -31,7 +31,6 @@ from __future__ import annotations
 
 import logging
 import os
-import sqlite3
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -42,8 +41,6 @@ from PySide6.QtWidgets import (QComboBox, QFileDialog, QFrame, QHBoxLayout,
                                QLabel, QLineEdit, QPushButton, QSizePolicy,
                                QVBoxLayout, QWidget)
 
-from ...measurement_store import connect as _connect_measurements
-from ...measurement_store import exists as _measurements_exist
 from ...selection import (OBJECT_KEY_COLUMNS, ObjectRequest, match_keys,
                           object_keys, with_object_type)
 from ..crop_thumbs import CropThumbnails, crop_paths_for_keys
@@ -101,29 +98,25 @@ def load_scatter_frame(db_path: str, table: str,
     :raises FileNotFoundError: no such database — said plainly, because an
         empty plot from a wrong path looks exactly like an empty table.
     """
-    if not db_path or not _measurements_exist(db_path):
-        raise FileNotFoundError(f"no measurements database at {db_path!r}")
-    connection = _connect_measurements(db_path, readonly=True)
+    from ... import store
     try:
-        frame = pd.read_sql_query(
-            f'SELECT * FROM "{str(table)}" LIMIT {int(limit)}', connection)
-    finally:
-        connection.close()
+        store.locate(db_path)
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"no measurements database at {db_path!r}") from None
+    from .graph_builder import _store_frame
+    frame = _store_frame(db_path, str(table), int(limit))
     return with_object_type(frame, table)
 
 
 def list_tables(db_path: str) -> List[str]:
     """Every table in ``db_path``, sorted. Worker-thread safe."""
-    if not db_path or not _measurements_exist(db_path):
-        return []
-    connection = _connect_measurements(db_path, readonly=True)
+    from ... import store
     try:
-        rows = connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
-        ).fetchall()
-    finally:
-        connection.close()
-    return [str(row[0]) for row in rows]
+        store.locate(db_path)
+    except FileNotFoundError:
+        return []
+    return [str(name) for name in store.shared(db_path).tables()]
 
 
 def numeric_columns(frame: pd.DataFrame) -> List[str]:

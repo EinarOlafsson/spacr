@@ -26,12 +26,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field as dc_field
 import json
 import os
-import sqlite3
 import time
 from typing import Any, List, Optional, Sequence, Tuple
 
-from ...measurement_store import connect as _connect_measurements
-from ...measurement_store import exists as _measurements_exist
 
 __all__ = [
     "VERDICTS", "VERDICT_ORDER", "QCCard", "Dashboard",
@@ -302,17 +299,42 @@ def _project_root(src: Any) -> str:
 
 
 def _find_measurements_db(root: str) -> Tuple[str, float]:
-    """The project's measurements database, if it has one."""
-    for candidate in (
-        os.path.join(root, "measurements", "measurements.db"),
-        os.path.join(root, "measurements.db"),
-    ):
-        if _measurements_exist(candidate):
-            try:
-                return candidate, float(os.stat(candidate).st_mtime)
-            except OSError:
-                return candidate, 0.0
-    return _newest_under(root, "measurements.db")
+    """The project's measurements, if it has any, and when they last changed.
+
+    :func:`spacr.store.locate` decides first, so a store project
+    (``spacr.duckdb`` in the root or its ``measurements`` folder) wins over
+    an older ``measurements.db`` beside it; its age is the catalog's. A
+    project with neither is searched for a ``measurements.db`` below it.
+
+    :param root: the project folder.
+    :returns: ``(path, mtime)``, or ``("", 0.0)`` when there is none.
+    """
+    from ... import store
+
+    try:
+        found = store.locate(root)
+    except FileNotFoundError:
+        return _newest_under(root, "measurements.db")
+    stamped = os.path.join(found, store.CATALOG) if os.path.isdir(found) else found
+    try:
+        return found, float(os.stat(stamped).st_mtime)
+    except OSError:
+        return found, 0.0
+
+
+def _distinct_stamps(opened, table: str, present: Sequence[str]) -> List[tuple]:
+    """The distinct units stamps of one table, as tuples of plain values.
+
+    :param opened: an open :class:`spacr.store.Store`.
+    :param table: the table.
+    :param present: the stamp columns the table holds.
+    :returns: one tuple per distinct stamp, nulls as ``None``.
+    """
+    selected = ", ".join('"' + c.replace('"', '""') + '"' for c in present)
+    quoted = '"' + table.replace('"', '""') + '"'
+    rows = opened.sql(f"SELECT DISTINCT {selected} FROM {quoted}",
+                      as_="arrow").to_pylist()
+    return [tuple(row[c] for c in present) for row in rows]
 
 
 def _read_units(src: Any) -> QCCard:
@@ -341,38 +363,36 @@ def _read_units(src: Any) -> QCCard:
     except Exception:
         MEASUREMENT_STAMP_COLUMNS = ("measurement_ndim", "measurement_units")
 
+    from ... import store
+    from ...store_browse import READ_ERRORS
+
     try:
-        connection = _connect_measurements(path, readonly=True)
-    except (sqlite3.Error, ValueError) as exc:
+        opened = store.open(path)
+    except (FileNotFoundError, *READ_ERRORS) as exc:
         card.verdict = "error"
         card.headline = f"Could not open {os.path.basename(path)}: {exc}"
         return card
     try:
-        tables = [row[0] for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'").fetchall()]
         checked, mixed, unstamped = [], [], []
-        for table in tables:
+        for table in opened.tables():
             if table in ("settings", "settings_history", "run_status",
                          "object_counts", "png_list"):
                 continue
-            columns = {row[1] for row in
-                       connection.execute(f'PRAGMA table_info("{table}")').fetchall()}
+            columns = set(opened.columns(table)["name"])
             present = [c for c in MEASUREMENT_STAMP_COLUMNS if c in columns]
             if not present:
                 unstamped.append(table)
                 continue
             checked.append(table)
-            selected = ", ".join(f'"{c}"' for c in present)
-            distinct = connection.execute(
-                f'SELECT DISTINCT {selected} FROM "{table}"').fetchall()
+            distinct = _distinct_stamps(opened, table, present)
             if len(distinct) > 1:
                 mixed.append((table, distinct))
-    except (sqlite3.Error, ValueError) as exc:
+    except READ_ERRORS as exc:
         card.verdict = "error"
         card.headline = f"Could not read the units stamp: {exc}"
         return card
     finally:
-        connection.close()
+        opened.close()
 
     if mixed:
         card.verdict = "fail"

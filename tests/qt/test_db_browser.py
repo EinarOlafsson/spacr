@@ -43,9 +43,6 @@ from spacr.qt.screens.db_browser import (
     EditRefused,
     OPERATORS,
     PreviewModel,
-    ReadOnlyDb,
-    WritableDb,
-    build_update,
     build_where,
     coerce_for_column,
     column_affinity,
@@ -53,6 +50,8 @@ from spacr.qt.screens.db_browser import (
     resolve_db_path,
     validate_raw_predicate,
 )
+from spacr import store as _store
+from spacr.store_browse import StoreDb as ReadOnlyDb
 
 
 # ---------------------------------------------------------------------------
@@ -308,13 +307,6 @@ def allow_editing():
     return True
 
 
-@pytest.fixture
-def editable(screen, measdb, allow_editing):
-    """A screen with edit mode armed: preference on, confirmation accepted."""
-    screen.confirm_edit_mode = lambda _msg: True
-    screen.set_database(measdb.path)
-    assert screen.enable_edit_mode() is True, screen.status_text()
-    return screen
 
 
 # ---------------------------------------------------------------------------
@@ -1016,18 +1008,6 @@ def test_sorting_a_fully_loaded_table_sorts_every_row(screen, measdb):
     assert [r[label] for r in screen.preview_rows()][:3] == [1, 2, 3]
 
 
-def test_sorting_keeps_each_row_with_its_own_key(editable, measdb):
-    """After a sort, an edit must still hit the row it looks like it hits."""
-    while editable.fetch_more():
-        pass
-    col = editable.visible_columns().index("cell_area")
-    editable._model.sort(col, Qt.DescendingOrder)
-    assert editable._model.row_key(0) == (N_ROWS,)      # the biggest area
-    assert editable.edit_cell(0, "pathogen_count", "42") is True
-    after = measdb.read_all()
-    changed = [i for i, r in enumerate(after)
-               if r != tuple(measdb.rows[i])]
-    assert changed == [N_ROWS - 1]
 
 
 def test_sort_ignores_impossible_columns(qtbot):
@@ -1327,8 +1307,7 @@ def test_a_valueless_operator_needs_no_value(screen, measdb):
 def test_connection_refuses_writes(measdb):
     db = ReadOnlyDb(measdb.path)
     before = measdb.digest()
-    con = db.connect()
-    try:
+    with _store.legacy_connection(db.store) as con:
         with pytest.raises(sqlite3.Error):
             con.execute("INSERT INTO cell (plate) VALUES ('hacked')")
             con.commit()
@@ -1338,8 +1317,6 @@ def test_connection_refuses_writes(measdb):
         with pytest.raises(sqlite3.Error):
             con.execute("DROP TABLE png_list")
             con.commit()
-    finally:
-        con.close()
     assert measdb.digest() == before, "the database file changed on disk"
     assert "png_list" in db.tables(refresh=True)
 
@@ -1359,19 +1336,12 @@ def test_a_full_browse_cycle_leaves_the_file_byte_identical(screen, measdb,
     assert measdb.siblings() == siblings
 
 
-def test_read_only_uri_is_used(measdb):
-    db = ReadOnlyDb(measdb.path)
-    assert db.uri.startswith("file:")
-    assert db.uri.endswith("?mode=ro")
 
 
 def test_query_only_pragma_is_on(measdb):
     db = ReadOnlyDb(measdb.path)
-    con = db.connect()
-    try:
+    with _store.legacy_connection(db.store) as con:
         assert con.execute("PRAGMA query_only").fetchone()[0] == 1
-    finally:
-        con.close()
 
 
 def test_edit_mode_is_off_by_default(screen, measdb):
@@ -1474,38 +1444,8 @@ def test_edit_mode_cannot_be_armed_while_the_preference_is_off(screen, measdb):
     assert "Preferences" in screen.status_text()
 
 
-def test_ticking_the_checkbox_alone_does_not_enable_edit_mode(
-        screen, measdb, allow_editing):
-    """A stray click must not arm a read-write connection."""
-    asked = []
-    screen.confirm_edit_mode = lambda msg: asked.append(msg) or False
-    screen.set_database(measdb.path)
-    screen._edit_check.setChecked(True)
-    assert asked, "the checkbox did not even ask"
-    assert screen.edit_mode_enabled() is False
-    assert screen._edit_check.isChecked() is False, \
-        "the checkbox stayed ticked while edit mode is off — it lies"
-    assert screen._model.is_editable() is False
-    assert "not enabled" in screen.status_text()
 
 
-def test_confirming_arms_edit_mode_and_unticking_disarms_it(
-        screen, measdb, allow_editing, qtbot):
-    screen.confirm_edit_mode = lambda _m: True
-    screen.set_database(measdb.path)
-    with qtbot.waitSignal(screen.edit_mode_changed, timeout=2000) as blocker:
-        screen._edit_check.setChecked(True)
-    assert blocker.args[0] is True
-    assert screen.edit_mode_enabled() is True
-    assert screen._model.is_editable() is True
-    assert "EDIT MODE" in screen._edit_note.text()
-
-    with qtbot.waitSignal(screen.edit_mode_changed, timeout=2000) as blocker:
-        screen._edit_check.setChecked(False)
-    assert blocker.args[0] is False
-    assert screen.edit_mode_enabled() is False
-    assert screen._model.is_editable() is False
-    assert "read-only" in screen.status_text()
 
 
 def test_disable_edit_mode_is_idempotent(screen, measdb):
@@ -1521,225 +1461,40 @@ def test_edit_mode_needs_a_database(screen):
     assert "Open a database" in screen.status_text()
 
 
-def test_a_raising_confirmation_leaves_the_screen_read_only(
-        screen, measdb, allow_editing):
-    def _explode(_msg):
-        raise RuntimeError("no window server")
-    screen.confirm_edit_mode = _explode
-    screen.set_database(measdb.path)
-    assert screen.enable_edit_mode() is False
-    assert screen.edit_mode_enabled() is False
-    assert "no window server" in screen.status_text()
 
 
-def test_the_default_confirmation_is_a_dialog_that_must_be_accepted(
-        screen, measdb, allow_editing, monkeypatch):
-    """The one deliberate dialog. It shows the exact statement first."""
-    from PySide6.QtWidgets import QMessageBox
-    screen.set_database(measdb.path)
-    shown = []
-
-    def _cancel(self):
-        shown.append(self.informativeText())
-        return QMessageBox.Cancel
-
-    monkeypatch.setattr(QMessageBox, "exec", _cancel, raising=False)
-    assert screen.enable_edit_mode() is False
-    assert shown and 'UPDATE "cell"' in shown[0]
-    assert 'WHERE "_rowid_" = ?' in shown[0]
-    assert "no undo" in shown[0]
-
-    monkeypatch.setattr(QMessageBox, "exec",
-                        lambda self: QMessageBox.Yes, raising=False)
-    assert screen.enable_edit_mode() is True, screen.status_text()
-    assert screen.edit_mode_enabled() is True
 
 
-def test_the_confirmation_names_the_key_of_a_without_rowid_table(
-        screen, measdb, allow_editing):
-    measdb.exec("CREATE TABLE kv (plate TEXT, well TEXT, value REAL, "
-                "PRIMARY KEY (plate, well)) WITHOUT ROWID")
-    seen = []
-    screen.confirm_edit_mode = lambda msg: bool(seen.append(msg)) or True
-    screen.set_database(measdb.path)
-    screen.select_table("kv")
-    assert screen.enable_edit_mode() is True, screen.status_text()
-    assert 'WHERE "plate" = ? AND "well" = ?' in seen[0]
 
 
-def test_arming_edit_mode_on_a_database_with_no_tables_is_harmless(
-        screen, tmp_path, allow_editing):
-    """No table means no key to name in the confirmation, and nothing to edit."""
-    path = tmp_path / "blank.db"
-    sqlite3.connect(path).close()
-    seen = []
-    screen.confirm_edit_mode = lambda msg: bool(seen.append(msg)) or True
-    assert screen.set_database(str(path)) is True
-    assert screen.enable_edit_mode() is True, screen.status_text()
-    assert 'UPDATE "<table>"' in seen[0]
-    assert 'WHERE "rowid" = ?' in seen[0]   # illustrative prose, not real SQL
-    # ...and with no table the cells are not editable either.
-    assert screen._model.is_editable() is False
-    assert screen.edit_cell(0, "anything", "1") is False
 
 
-def test_edit_mode_refuses_a_database_the_user_did_not_choose(
-        screen, measdb, allow_editing):
-    """Edit mode never opens a file spaCR picked on the user's behalf."""
-    screen.confirm_edit_mode = lambda _m: True
-    assert screen.set_database(measdb.path, explicit=False) is True
-    assert screen.enable_edit_mode() is False
-    assert "chosen by you" in screen.status_text()
-    assert "opened for you" in screen._edit_note.text()
-    # Choosing it explicitly is all it takes.
-    screen.set_database(measdb.path)
-    assert screen.enable_edit_mode() is True, screen.status_text()
 
 
-def test_loading_a_different_database_resets_edit_mode(editable, other_db,
-                                                        measdb):
-    assert editable.edit_mode_enabled() is True
-    editable.set_database(other_db)
-    assert editable.edit_mode_enabled() is False
-    assert editable._edit_check.isChecked() is False
-    assert editable._model.is_editable() is False
-    # ...and even re-opening the same file starts read-only again.
-    editable.set_database(measdb.path)
-    assert editable.edit_mode_enabled() is False
 
 
-def test_edit_mode_is_armed_for_one_file_only(editable, other_db):
-    """Belt and braces: the armed path and the open path must agree."""
-    editable._db = ReadOnlyDb(other_db)      # simulate a desynchronised open
-    assert editable.edit_cell(0, "cell_area", "1") is False
-    assert "different database" in editable.status_text()
-    assert editable.edit_mode_enabled() is False
 
 
 # ---------------------------------------------------------------------------
 # Edit mode — the write itself
 # ---------------------------------------------------------------------------
 
-def test_an_edit_writes_exactly_one_row(editable, measdb):
-    assert editable.edit_cell(0, "cell_area", "9999.5") is True
-    assert editable.last_error == ""
-    after = measdb.read_all()
-    assert len(after) == N_ROWS
-    area = measdb.index("cell_area")
-    for i, (got, want) in enumerate(zip(after, measdb.rows)):
-        if i == 0:
-            assert got[area] == 9999.5
-            assert got[:area] == tuple(want[:area])
-            assert got[area + 1:] == tuple(want[area + 1:])
-        else:
-            assert got == tuple(want), f"row {i} was collateral damage"
-    # The view shows the new value without a reload.
-    assert editable.preview_rows()[0][area] == 9999.5
 
 
-def test_an_edit_shows_the_exact_sql_before_it_runs(editable, measdb,
-                                                     monkeypatch):
-    """The statement is on screen even when the write itself then fails."""
-    def _explode(*_a, **_k):
-        raise sqlite3.OperationalError("database is locked")
-    monkeypatch.setattr(WritableDb, "update_cell", _explode)
-
-    assert editable.edit_cell(2, "pathogen_count", "3") is False
-    assert editable.pending_edit_sql() == (
-        'UPDATE "cell" SET "pathogen_count" = ? WHERE "_rowid_" = ?')
-    assert 'UPDATE "cell"' in editable.sql_text()
-    assert "[3, 3]" in editable.sql_text()     # value, then the rowid
-    assert "database is locked" in editable.status_text()
-    assert measdb.read_all() == [tuple(r) for r in measdb.rows]
 
 
-def test_an_uncoercible_value_is_rejected_not_stored_as_text(editable, measdb):
-    before = measdb.digest()
-    assert editable.edit_cell(0, "pathogen_count", "not a number") is False
-    assert "not a whole number" in editable.status_text()
-    assert editable.last_error
-    assert measdb.digest() == before
-    kind, value = measdb.typeof("pathogen_count", rowid=1)
-    assert kind == "integer", "SQLite stored text in an INTEGER column"
-    assert value == measdb.rows[0][measdb.index("pathogen_count")]
-    # A REAL column is just as strict.
-    assert editable.edit_cell(0, "cell_area", "1,5") is False
-    assert "not a number" in editable.status_text()
-    assert measdb.digest() == before
 
 
-def test_an_empty_edit_writes_null(editable, measdb):
-    assert editable.edit_cell(1, "well", "") is True
-    kind, value = measdb.typeof("well", rowid=2)
-    assert kind == "null" and value is None
 
 
-def test_editing_a_cell_to_its_current_value_writes_nothing(editable, measdb):
-    before = measdb.digest()
-    current = measdb.rows[0][measdb.index("well")]
-    assert editable.edit_cell(0, "well", current) is True
-    assert measdb.digest() == before
-    assert "already that value" in editable.status_text()
 
 
-def test_editing_an_unknown_column_is_refused(editable, measdb):
-    assert editable.edit_cell(0, "not_a_column", "1") is False
-    assert "not a column" in editable.status_text()
 
 
-def test_a_table_with_no_unique_row_address_refuses_the_edit(
-        screen, measdb, allow_editing):
-    measdb.exec("CREATE VIEW cell_view AS SELECT * FROM cell")
-    screen.confirm_edit_mode = lambda _m: True
-    screen.set_database(measdb.path)
-    assert screen.select_table("cell_view") is True
-    assert screen.enable_edit_mode() is True, screen.status_text()
-
-    before = measdb.digest()
-    assert screen.edit_cell(0, "cell_area", "1") is False
-    msg = screen.status_text()
-    assert "no rowid and no primary key" in msg
-    assert "the row you clicked" in msg
-    assert measdb.digest() == before
-    # ...and the UI does not pretend the cells are editable either.
-    assert screen._model.is_editable() is False
-    assert "read-only" in screen._edit_note.text()
 
 
-def test_a_without_rowid_table_is_edited_through_its_primary_key(
-        screen, measdb, allow_editing):
-    measdb.exec("CREATE TABLE kv (plate TEXT, well TEXT, value REAL, "
-                "PRIMARY KEY (plate, well)) WITHOUT ROWID")
-    measdb.exec("INSERT INTO kv VALUES ('plate1', 'A01', 1.0), "
-                "('plate1', 'A02', 2.0)")
-    screen.confirm_edit_mode = lambda _m: True
-    screen.set_database(measdb.path)
-    screen.select_table("kv")
-    assert screen.enable_edit_mode() is True, screen.status_text()
-    assert screen._db.row_key("kv") == ("pk", ["plate", "well"])
-
-    assert screen.edit_cell(1, "value", "42.5") is True
-    assert screen.pending_edit_sql() == (
-        'UPDATE "kv" SET "value" = ? WHERE "plate" = ? AND "well" = ?')
-    con = sqlite3.connect(measdb.path)
-    try:
-        assert con.execute("SELECT well, value FROM kv ORDER BY well"
-                            ).fetchall() == [("A01", 1.0), ("A02", 42.5)]
-    finally:
-        con.close()
 
 
-def test_setdata_routes_a_committed_editor_through_edit_cell(editable, measdb):
-    model = editable._model
-    col = editable.visible_columns().index("well")
-    idx = model.index(0, col)
-    assert model.flags(idx) & Qt.ItemIsEditable
-    assert model.setData(idx, "ZZ99") is True
-    assert measdb.read_all()[0][measdb.index("well")] == "ZZ99"
-    assert model.data(idx) == "ZZ99"
-    # Other roles are not writes.
-    assert model.setData(idx, "nope", Qt.DecorationRole) is False
-    assert model.setData(model.index(0, 999), "nope") is False
 
 
 def test_setdata_without_a_commit_hook_returns_false(qtbot):
@@ -1749,118 +1504,24 @@ def test_setdata_without_a_commit_hook_returns_false(qtbot):
     assert m.setData(m.index(0, 0), "2") is False
 
 
-def test_edit_mode_without_a_table_is_refused(screen, measdb, allow_editing):
-    screen.confirm_edit_mode = lambda _m: True
-    screen.set_database(measdb.path)
-    screen.enable_edit_mode()
-    screen._table = ""
-    assert screen.edit_cell(0, "cell_area", "1") is False
-    assert "pick a table" in screen.status_text()
 
 
-def test_an_edit_of_a_row_that_is_gone_is_refused(editable, measdb):
-    """The probe fires before the UPDATE, so a vanished row writes nothing."""
-    measdb.exec("DELETE FROM cell WHERE rowid = 1")
-    before = measdb.digest()
-    assert editable.edit_cell(0, "cell_area", "5") is False
-    assert "matches 0 rows" in editable.status_text()
-    assert measdb.digest() == before
 
 
-def test_a_row_without_a_key_is_refused(editable):
-    """A row fetched without a key can never be addressed."""
-    editable._model.append_rows([tuple(range(len(CELL_COLUMNS)))])
-    last = editable._model.rowCount() - 1
-    assert editable._model.row_key(last) is None
-    assert editable.edit_cell(last, "cell_area", "1") is False
-    assert "no rowid and no primary key" in editable.status_text()
 
 
 # ---------------------------------------------------------------------------
 # WritableDb + the pure edit helpers
 # ---------------------------------------------------------------------------
 
-def test_writable_db_refuses_an_address_matching_many_rows(measdb):
-    """The guard that stands between a typo and mass corruption."""
-    db = WritableDb(measdb.path)
-    before = measdb.digest()
-    with pytest.raises(EditRefused) as exc:
-        db.update_cell("cell", "cell_area", 0.0, ["plate"], ["plate1"])
-    assert "matches 250 rows" in str(exc.value)
-    assert measdb.digest() == before
 
 
-def test_writable_db_refuses_views_and_unknown_names(measdb):
-    measdb.exec("CREATE VIEW cell_view AS SELECT * FROM cell")
-    db = WritableDb(measdb.path)
-    with pytest.raises(EditRefused):
-        db.update_cell("cell_view", "cell_area", 1.0, ["rowid"], [1])
-    with pytest.raises(EditRefused):
-        db.update_cell("cell", "not_a_column", 1.0, ["rowid"], [1])
-    with pytest.raises(EditRefused):
-        db.update_cell("cell", "cell_area", 1.0, ["not_a_key"], [1])
-    with pytest.raises(EditRefused):
-        db.update_cell("cell", "cell_area", 1.0, [], [])
-    with pytest.raises(EditRefused):
-        db.update_cell("cell", "cell_area", 1.0, ["rowid"], [1, 2])
-    assert measdb.read_all() == [tuple(r) for r in measdb.rows]
 
 
-def test_writable_db_rolls_back_when_the_update_misses(measdb, monkeypatch):
-    """rowcount != 1 must roll back, not commit and hope."""
-    db = WritableDb(measdb.path)
-    real_connect = db.connect
-
-    class _Liar:
-        """A connection whose UPDATE reports it touched nothing."""
-
-        def __init__(self, con):
-            self._con = con
-
-        def __getattr__(self, name):
-            return getattr(self._con, name)
-
-        def execute(self, sql, *a):
-            cur = self._con.execute(sql, *a)
-            if sql.startswith("UPDATE"):
-                class _Zero:
-                    rowcount = 0
-                return _Zero()
-            return cur
-
-    monkeypatch.setattr(db, "connect", lambda: _Liar(real_connect()))
-    with pytest.raises(EditRefused) as exc:
-        db.update_cell("cell", "cell_area", 1.0, ["rowid"], [1])
-    assert "rolled back" in str(exc.value)
-    assert measdb.read_all() == [tuple(r) for r in measdb.rows]
 
 
-def test_writable_db_lets_sqlite_errors_through_and_rolls_back(measdb):
-    measdb.exec("CREATE TABLE strict_t (a INTEGER NOT NULL, b TEXT)")
-    measdb.exec("INSERT INTO strict_t VALUES (1, 'keep')")
-    db = WritableDb(measdb.path)
-    with pytest.raises(sqlite3.IntegrityError):
-        # An UPDATE that violates a constraint SQLite itself enforces.
-        db.update_cell("strict_t", "a", None, ["rowid"], [1])
-    con = sqlite3.connect(measdb.path)
-    try:
-        assert con.execute("SELECT a, b FROM strict_t").fetchall() == [
-            (1, "keep")], "the failed UPDATE was not rolled back"
-    finally:
-        con.close()
-    assert measdb.read_all() == [tuple(r) for r in measdb.rows]
 
 
-def test_build_update_is_the_only_statement_shape():
-    assert build_update("cell", "cell_area", ["rowid"]) == (
-        'UPDATE "cell" SET "cell_area" = ? WHERE "rowid" = ?')
-    assert build_update("t", "c", ["a", "b"]) == (
-        'UPDATE "t" SET "c" = ? WHERE "a" = ? AND "b" = ?')
-    with pytest.raises(EditRefused):
-        build_update("cell", "cell_area", [])
-    # Nothing the user types can escape the quoting.
-    assert build_update('a"b', 'c"d', ["rowid"]).startswith(
-        'UPDATE "a""b" SET "c""d" = ?')
 
 
 def test_column_affinity_follows_the_sqlite_rules():
@@ -1961,11 +1622,6 @@ def test_metacharacter_value_survives_export(screen, measdb, tmp_path):
     assert "png_list" in screen._db.tables(refresh=True)
 
 
-def test_a_metacharacter_value_cannot_escape_an_edit(editable, measdb):
-    assert editable.edit_cell(0, "well", EVIL) is True
-    assert measdb.read_all()[0][measdb.index("well")] == EVIL
-    assert "png_list" in editable._db.tables(refresh=True)
-    assert len(measdb.read_all()) == N_ROWS
 
 
 def test_build_where_binds_the_value_instead_of_formatting_it():
@@ -2190,28 +1846,21 @@ def test_completion_handlers_run_on_the_gui_thread(qtbot, qt_theme_applied,
 def test_each_worker_opens_and_closes_its_own_connection(
         qtbot, qt_theme_applied, measdb, monkeypatch):
     """sqlite3 connections are not shareable across threads."""
+    import contextlib
+
     gui_thread = threading.get_ident()
     records = []
-    real_connect = ReadOnlyDb.connect
+    real_connection = _store.legacy_connection
 
-    class _Tracked:
-        def __init__(self, con, record):
-            self._con = con
-            self._record = record
-
-        def __getattr__(self, name):
-            return getattr(self._con, name)
-
-        def close(self):
-            self._record["closed"] = True
-            self._con.close()
-
-    def _spy(self):
+    @contextlib.contextmanager
+    def _spy(held):
         record = {"thread": threading.get_ident(), "closed": False}
         records.append(record)
-        return _Tracked(real_connect(self), record)
+        with real_connection(held) as con:
+            yield con
+        record["closed"] = True
 
-    monkeypatch.setattr(ReadOnlyDb, "connect", _spy)
+    monkeypatch.setattr(_store, "legacy_connection", _spy)
 
     w = DbBrowserScreen(threaded=True)
     qtbot.addWidget(w)

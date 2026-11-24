@@ -4316,6 +4316,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_cropstore_rule43_arrivals(callables)
     from tests.complex_shap_api_hooks import _validated_complex_shap_arrivals
     callables = _validated_complex_shap_arrivals(callables)
+    from tests.test_store_read_side_s6 import _validated_s6_arrivals
+    callables = _validated_s6_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -5243,7 +5245,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # contract 871_911_bmc_paper_items_api_arrivals_2026-11-09.json.
     # 2026-11-21, item 1002: +1, spacr.settings.unknown_setting_keys (arrival
     # contract 1002_settings_unknown_keys_api_arrivals_2026-11-20.json).
-    assert len(callables) == len(by_symbol) == 10063
+    # 2026-11-24, unified-store step S6: -20, ReadOnlyDb (16), WritableDb (3)
+    # and build_update left spacr.qt.screens.db_browser for
+    # spacr.store_browse.StoreDb (retirement contract
+    # s6_db_browser_sqlite_api_retirement_2026-11-24.json).
+    assert len(callables) == len(by_symbol) == 10043
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -5283,6 +5289,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-09-15 (372 PART 14-M): function 3,778 -> 3,783 and
     # dataclass_constructor 472 -> 473, the same +6 as the total; no other
     # bucket moved, so nothing changed category.
+    # 2026-11-24, unified-store step S6: function -1 (build_update), method
+    # -17 and constructor -2 (ReadOnlyDb and WritableDb), the 20 retired
+    # Browser handles; no other bucket moved.
     assert Counter(item.category for item in callables) == {
         # 2026-09-14, +45 total measured per category against 49c1189f7:
         # function +32, method +5, dataclass_constructor +5,
@@ -5340,7 +5349,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # the rest of the BMC paper items' public callables, which the
         # arrival contract 871_911_bmc_paper_items_api_arrivals_2026-11-09.json
         # checks (-32 function, -1 method, -1 constructor).
-        "function": 4525,
+        "function": 4524,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         # Items 591-592: +2 method (the object grid's filter rows and the
@@ -5365,7 +5374,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # (OrganismScreen.refresh_maturity_visibility).
         # 2026-11-03 item 749: +3 method (dock.SectionHeader.set_open, .event and .paintEvent).
         # 2026-11-06 item 773: +1 method (IlluminationField.correct_window).
-        "method": 4318,
+        "method": 4301,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         # Item 600: +1 constructor (OrganizeForMeasureDialog).
@@ -5373,7 +5382,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 690: +1 constructor (spacr.io.MissingTEMReader).
         # Item 700: -2 constructor (CliSetupPanel, ProviderMark).
         # Item 600, 2026-10-19: -2 constructor (ChannelSortDialog, RegexWindow).
-        "constructor": 461,
+        "constructor": 459,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
@@ -5444,7 +5453,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3 autoapi, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17 autoapi, the functions named in the total.
         # 2026-11-06 item 773: +1 autoapi, IlluminationField.correct_window.
-        "autoapi": 10058,
+        "autoapi": 10038,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -5511,7 +5520,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-05 items 791, 770, 771: +17, one variant each: sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, and the fourteen spacr.division_analysis functions.
     # 2026-11-06 item 773: +1, IlluminationField.correct_window.
     # 2026-11-21 item 1002: +1, spacr.settings.unknown_setting_keys.
-    assert sum(item.variant_count for item in callables) == 10070
+    assert sum(item.variant_count for item in callables) == 10050
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -5541,7 +5550,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
         # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-        1: 10056,
+        1: 10036,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -5599,10 +5608,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # __init__.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 461
+    ) == 459
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 461
+    ) == 459
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -5905,7 +5914,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # inventory. The measured public parameter sum stays at 20,273.
     # 20,273 -> 20,276 on 2026-11-22 (pilot on landing train 8): item 1002's `strict` of
     # spacr.cli.resolve_settings and `settings`, `app` of spacr.settings.unknown_setting_keys.
-    assert sum(len(item.parameters) for item in callables) == 20276
+    assert sum(len(item.parameters) for item in callables) == 20227
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5971,7 +5980,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # num_classes, pathogen_channel, use_attention, use_checkpoint and
     # dropout_rate now have defaults (model_type='custom').
     # 10,372 -> 10,373 on 2026-11-21 (item 1002): `settings` of spacr.settings.unknown_setting_keys has no default.
-    assert sum(len(item.required_parameters) for item in callables) == 10373
+    assert sum(len(item.required_parameters) for item in callables) == 10344
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -6276,7 +6285,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-22 for the pilot on landing train 8 (was d2d9fcfe...): item
     # 1002's `strict` of spacr.cli.resolve_settings and spacr.settings.unknown_setting_keys
     # join the 1007 lane A parameters above.
-) == '565ced552919061ecaa98b3dc32e09bc557fbc13c773571df4325b1c95cb27bd'
+    # Moved 2026-11-24 for unified-store step S6 (was 565ced55...): the
+    # parameters of the 20 retired Browser handles (ReadOnlyDb, WritableDb,
+    # build_update) leave the boundary.
+) == 'fc34ecb65a3a13789b7135e3763faa5fc9779c4ffeb5332573cb84e4b2ce210b'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -7281,6 +7293,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **_current_cropstore_rule43_api(zoo_additions)}
     from tests.complex_shap_api_hooks import _current_complex_shap_api
     zoo_additions = {**zoo_additions, **_current_complex_shap_api(zoo_additions)}
+    from tests.test_store_read_side_s6 import _s6_birth_arrivals
+    zoo_additions = {**zoo_additions, **_s6_birth_arrivals(zoo_additions)}
+    from tests.test_store_read_side_s6 import _s6_docs_arrivals
+    zoo_additions = {**zoo_additions, **_s6_docs_arrivals(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
@@ -7397,6 +7413,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     )
     zoo_additions = {**zoo_additions, **current_help_arrivals}
     from tests.test_documentation_i18n import _retired_707_home_api
+    from tests.test_store_read_side_s6 import _retired_s6_browser_api
     retired_home = _retired_707_home_api(docs)
     # 2026-11-01 items 748/749: 13149 -> 13153 for LabelsLayer.{color,contour},
     # GateEditorPanel.run_cluster_in_background and
@@ -7423,7 +7440,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) | retired_home.keys()) == 13183
+               - zoo_additions.keys()) | retired_home.keys()
+               | _retired_s6_browser_api(docs).keys()) == 13183
     # 2026-10-31: 13,138 -> 13,149, +11 documented symbols: the eight public
     # callables above plus the nested helpers _CrampedScroll._fit_content.tallest
     # and MakeMasksScreen._hold_the_title_bar_to_its_text.measure and
@@ -7950,6 +7968,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= _current_cropstore_rule43_api().keys()
     from tests.complex_shap_api_hooks import _current_complex_shap_api
     contract_callables |= _current_complex_shap_api().keys()
+    from tests.test_store_read_side_s6 import _s6_birth_arrivals
+    contract_callables |= _s6_birth_arrivals().keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -7960,7 +7980,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
-    assert len(prior - pipeline_callables) == 9668
+    # 2026-11-24, unified-store step S6: -20, the Browser's SQLite handles
+    # (s6_db_browser_sqlite_api_retirement_2026-11-24.json).
+    assert len(prior - pipeline_callables) == 9648
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
     # Item 690: +10, as above.
     # Item 700: -23, as above.
@@ -7970,7 +7992,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
-    assert len(prior - pipeline_callables - validation_functions) == 9662
+    assert len(prior - pipeline_callables - validation_functions) == 9642
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
@@ -8135,6 +8157,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= _current_cropstore_rule43_api().keys()
     from tests.complex_shap_api_hooks import _current_complex_shap_api
     arrival_callables |= _current_complex_shap_api().keys()
+    from tests.test_store_read_side_s6 import _s6_birth_arrivals
+    arrival_callables |= _s6_birth_arrivals().keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background
@@ -8143,7 +8167,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
     assert len(rendered_documented_callables.keys() - yolo_callables
-               - volume_callables - arrival_callables) == 9991
+               - volume_callables - arrival_callables) == 9971
     # Item 700, 2026-10-15: 9,998 -> 9,975, the 23 retired setup callables.
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)

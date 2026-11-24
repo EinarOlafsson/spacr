@@ -73,22 +73,6 @@ def test_rejected_raw_filter_explains_valid_condition(condition, advice, warning
     warning.assert_not_called()
 
 
-@pytest.mark.parametrize("columns, values, advice", [
-    ([], [], "Choose a table with a rowid or primary key"),
-    (["rowid"], [], "Reload the table, select the row again"),
-])
-def test_unaddressable_edit_stops_before_connecting(columns, values, advice, warning):
-    """Missing row identity retains EditRefused and opens no database connection."""
-    from spacr.qt.screens.db_browser import EditRefused, WritableDb
-
-    database = SimpleNamespace(connect=Mock())
-    with pytest.raises(EditRefused) as caught:
-        WritableDb.update_cell(database, "cell", "area", 2, columns, values)
-    assert advice in str(caught.value)
-    database.connect.assert_not_called()
-    warning.assert_not_called()
-
-
 @pytest.mark.parametrize("name, advice", [
     (" ", "Enter a nonempty name"),
     ("existing", "Enter a different name"),

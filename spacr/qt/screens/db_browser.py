@@ -86,17 +86,23 @@ below has to fail open to *read-only*:
    :func:`coerce_for_column` refuses instead.
 
 Loading a different database always resets edit mode to off.
+
+Since unified-store step S6 every read goes through
+:class:`spacr.store_browse.StoreDb` and :mod:`spacr.store`, and this module
+opens no database itself. A spaCR store project is paged by keyset with
+:meth:`spacr.store.Store.page`, reads only the visible columns of a wide
+table, counts from its registry and sorts and filters in DuckDB; an older
+measurements.db is paged on ``rowid`` as described above but is now never
+written. Edit mode applies to store projects only, whose edits are edit rows
+in the project's edit log (``spacr.store.edit``); until that exists every
+project is read-only.
 """
 from __future__ import annotations
 
-import contextlib
-import csv
 import os
 import re
-import sqlite3
 from functools import partial
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Sequence, Tuple
-from urllib.parse import quote as _urlquote
 
 if TYPE_CHECKING:
     from ..widgets.fold_strip import FoldStrip
@@ -131,8 +137,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from spacr.database_concurrency import connect as connect_database
-from spacr.database_concurrency import transaction
+from spacr import store as _store
+from spacr.store_browse import READ_ERRORS, StoreDb
 
 from ...selection import (
     OBJECT_KEY_COLUMNS,
@@ -161,9 +167,6 @@ __all__ = [
     "EditRefused",
     "OPERATORS",
     "PreviewModel",
-    "ReadOnlyDb",
-    "WritableDb",
-    "build_update",
     "build_where",
     "coerce_for_column",
     "column_affinity",
@@ -209,19 +212,14 @@ def resolve_db_path(path: str) -> str:
             "No database selected — choose a measurements.db or a run folder.")
     p = os.path.abspath(os.path.expanduser(str(path).strip()))
     from spacr.measurement_store import exists as _measurements_exist
-    if os.path.isfile(p):
-        return p
-    if os.path.basename(p) == DB_FILENAME and _measurements_exist(p):
-        return p
+    if os.path.isfile(p) or (os.path.basename(p) == DB_FILENAME
+                             and _measurements_exist(p)):
+        return _store.locate(p)
     if os.path.isdir(p):
-        for candidate in (
-            os.path.join(p, _MEASUREMENTS_SUBDIR, DB_FILENAME),
-            os.path.join(p, DB_FILENAME),
-        ):
-            if os.path.isfile(candidate) or (
-                    os.path.isfile(os.path.join(os.path.dirname(candidate),
-                                                "spacr.duckdb"))):
-                return candidate
+        try:
+            return _store.locate(p)
+        except FileNotFoundError:
+            pass
         raise FileNotFoundError(tr(
             "No {filename} under {folder}; expected {expected}. Choose a "
             "measurements.db file from a completed run, or select the run "
@@ -234,12 +232,6 @@ def resolve_db_path(path: str) -> str:
         "connected, then choose an existing measurements.db file or its "
         "run folder.",
         path=p))
-
-
-def _read_only_uri(path: str) -> str:
-    """Return the ``file:…?mode=ro`` URI SQLite needs for a read-only open."""
-    return "file:" + _urlquote(str(path).replace("\\", "/"), safe="/:") + "?mode=ro"
-
 
 
 def quote_ident(name: str) -> str:
@@ -478,577 +470,6 @@ def coerce_for_column(text: Any, decl_type: Optional[str],
     return s
 
 
-def build_update(table: str, column: str,
-                 key_columns: Sequence[str]) -> str:
-    """Return the single-cell UPDATE statement, the only write this screen runs.
-
-    ``UPDATE "t" SET "c" = ? WHERE "rowid" = ?`` — one column, one row
-    address, everything bound. Exposed so the screen can show the user
-    the exact SQL before it runs, and so tests can assert on it without
-    a database.
-
-    :param table: schema-validated table to update.
-    :param column: schema-validated column whose value will be replaced.
-    :param key_columns: rowid alias or primary-key columns identifying one row.
-    :returns: parameterized single-cell UPDATE statement.
-    :raises EditRefused: when there is no row address at all. An UPDATE
-        without a unique key would match on values and could rewrite
-        thousands of rows.
-    """
-    if not key_columns:
-        raise EditRefused(tr(
-            "{table!r} has no rowid and no primary key, so spaCR cannot limit"
-            " an edit to one row. Choose a table with a rowid or primary key;"
-            " keep this table in read-only mode.",
-            table=table))
-    where = " AND ".join(f"{quote_ident(k)} = ?" for k in key_columns)
-    return (f"UPDATE {quote_ident(table)} SET {quote_ident(column)} = ? "
-            f"WHERE {where}")
-
-
-
-class ReadOnlyDb:
-    """A read-only handle on a sqlite database.
-
-    Every method opens (and closes) its own connection. That costs a few
-    microseconds and buys thread-safety for free: a chunk query runs on a
-    worker thread while the GUI thread may still be listing tables, and
-    ``sqlite3`` objects are not shareable across threads.
-
-    :param path: database file, or a run folder — see :func:`resolve_db_path`.
-    :raises sqlite3.DatabaseError: when the file is not a sqlite database.
-    """
-
-    def __init__(self, path: str):
-        """Open a database for reading only.
-
-        :param path: the database file.
-        """
-        self.path = resolve_db_path(path)
-        self.uri = _read_only_uri(self.path)
-        #: SQL of the most recent statement — handy in tests + bug reports.
-        self.last_sql: str = ""
-        self._tables: Optional[List[str]] = None
-        self._row_keys: Dict[str, Tuple[str, List[str]]] = {}
-        self._types: Dict[str, Dict[str, str]] = {}
-        with self._con() as con:
-            con.execute("SELECT name FROM sqlite_master LIMIT 1").fetchall()
-
-
-    def connect(self) -> sqlite3.Connection:
-        """Return a fresh read-only connection. The caller closes it."""
-        return connect_database(self.path, readonly=True)
-
-    @contextlib.contextmanager
-    def _con(self):
-        """The connection for THIS thread, opened on first use.
-
-        PER-THREAD BECAUSE SQLITE CONNECTIONS ARE NOT SHAREABLE: the browser
-        reads on workers, and one connection handed between them is a crash
-        rather than a slow query.
-
-        :returns: the connection.
-        """
-        con = self.connect()
-        try:
-            yield con
-        finally:
-            con.close()
-
-    def _execute(self, con: sqlite3.Connection, sql: str, params: Sequence = ()):
-        """Run one statement on this thread's connection.
-
-        :param sql: the statement.
-        :param params: its parameters.
-        :returns: the cursor.
-        """
-        self.last_sql = sql
-        return con.execute(sql, tuple(params))
-
-
-    def tables(self, refresh: bool = False) -> List[str]:
-        """Return the user tables and views alphabetically.
-
-        :param refresh: bypass the cached schema inventory when true.
-        """
-        if self._tables is None or refresh:
-            with self._con() as con:
-                rows = self._execute(con,
-                    "SELECT name FROM sqlite_master "
-                    "WHERE type IN ('table', 'view') "
-                    "AND name NOT LIKE 'sqlite_%' ORDER BY name").fetchall()
-            self._tables = [r[0] for r in rows]
-        return list(self._tables)
-
-    def check_table(self, table: str) -> str:
-        """Return ``table`` if the schema really has it, else raise.
-
-        This is the gate that keeps identifiers out of the "user input"
-        category: a name that isn't in ``sqlite_master`` never reaches SQL.
-
-        :param table: candidate user-table or view name.
-        :returns: ``table`` unchanged after validation.
-        :raises ValueError: when the live schema has no such table or view.
-        """
-        if table not in self.tables():
-            raise ValueError(tr(
-                "No table named {table!r} in {database}. Reload the database and "
-                "choose a table from its table list, or open the database that "
-                "contains the required table.",
-                table=table,
-                database=os.path.basename(self.path)))
-        return table
-
-    def table_info(self, table: str) -> List[tuple]:
-        """Return raw ``PRAGMA table_info`` rows for ``table``.
-
-        :param table: validated user-table or view name.
-        """
-        self.check_table(table)
-        with self._con() as con:
-            # PRAGMA takes no bound parameters; `table` is schema-validated
-            return self._execute(
-                con, f"PRAGMA table_info({quote_ident(table)})").fetchall()
-
-    def columns(self, table: str) -> List[str]:
-        """Return the column names of ``table`` in declaration order.
-
-        :param table: validated user-table or view name.
-        """
-        return [r[1] for r in self.table_info(table)]
-
-    def column_types(self, table: str) -> Dict[str, str]:
-        """Return ``{column: declared type}`` — ``''`` for untyped columns.
-
-        Cached: the edit path asks for this on every keystroke-committed
-        cell, and the schema cannot change under a read-only connection.
-
-        :param table: validated user-table or view name.
-        """
-        if table not in self._types:
-            self._types[table] = {r[1]: str(r[2] or "")
-                                  for r in self.table_info(table)}
-        return dict(self._types[table])
-
-    def check_columns(self, table: str, columns: Optional[Sequence[str]]) -> List[str]:
-        """Return the requested columns, validated against the schema.
-
-        ``None`` or an empty sequence means "all of them".
-
-        :param table: validated user-table or view name.
-        :param columns: requested names, or ``None``/an empty sequence for the
-            complete schema.
-        :returns: validated names in requested or declaration order.
-        :raises ValueError: when any requested name is absent.
-        """
-        real = self.columns(table)
-        if columns is None:
-            return real
-        known = set(real)
-        chosen = [c for c in columns if c in known]
-        unknown = [c for c in columns if c not in known]
-        if unknown:
-            raise ValueError(tr(
-                "Unknown column(s) for {table!r}: {columns}. Reload the table and"
-                " select columns shown in its column list.",
-                table=table,
-                columns=', '.join(map(repr, unknown))))
-        return chosen or real
-
-    def row_key(self, table: str) -> Tuple[str, List[str]]:
-        """Return how one row of ``table`` can be addressed uniquely.
-
-        ``("rowid", ["rowid"])`` for an ordinary table, ``("pk", [...])``
-        for a ``WITHOUT ROWID`` table (its declared primary key), and
-        ``("", [])`` for anything with neither — a view, or a table
-        created ``WITHOUT ROWID`` with no primary key.
-
-        Two things hang off this: paging (keyset needs an ordered key)
-        and editing (an UPDATE without a unique address is refused).
-
-        :param table: validated table or view whose identity is inspected.
-        """
-        if table in self._row_keys:
-            return self._row_keys[table]
-        key: Tuple[str, List[str]]
-        self.check_table(table)
-        with self._con() as con:
-            object_row = self._execute(
-                con,
-                "SELECT type FROM sqlite_master WHERE name = ? LIMIT 1",
-                (table,),
-            ).fetchone()
-        if object_row is None or str(object_row[0]).lower() != "table":
-            key = ("", [])
-            self._row_keys[table] = key
-            return key
-        from ...predictions import _rowid_alias
-        alias = _rowid_alias([str(r[1]) for r in self.table_info(table)])
-        try:
-            with self._con() as con:
-                self._execute(
-                    con,
-                    f"SELECT {alias} FROM {quote_ident(table)} LIMIT 1").fetchall()
-            key = ("rowid", [alias])
-        except sqlite3.Error:
-            pk = [r for r in self.table_info(table) if int(r[5] or 0) > 0]
-            pk.sort(key=lambda r: int(r[5]))
-            key = ("pk", [r[1] for r in pk]) if pk else ("", [])
-        self._row_keys[table] = key
-        return key
-
-
-    def select_sql(self, table: str, columns: Sequence[str],
-                   where: Optional[str] = None) -> str:
-        """Build the unbounded SELECT used by the CSV export.
-
-        :param table: schema-validated source table or view.
-        :param columns: schema-validated columns to export.
-        :param where: optional validated predicate without the ``WHERE`` word.
-        :returns: SELECT statement containing no user-formatted values.
-        """
-        col_sql = ", ".join(quote_ident(c) for c in columns)
-        sql = f"SELECT {col_sql} FROM {quote_ident(table)}"
-        if where:
-            sql += f" WHERE {where}"
-        key_kind, key_cols = self.row_key(table)
-        if key_kind == "rowid":
-            sql += f" ORDER BY {quote_ident(key_cols[0])}"
-        return sql
-
-    def chunk_sql(self, table: str, columns: Sequence[str],
-                  key_columns: Sequence[str], where: Optional[str] = None,
-                  after: bool = False, use_offset: bool = False,
-                  order_by: Optional[Tuple[str, bool]] = None) -> str:
-        """Build the paged chunk SELECT. Exposed so tests can read it.
-
-        ``after`` says whether a ``key > ?`` clause is wanted (i.e. this
-        is not the first chunk). ``use_offset`` is the fallback for
-        tables that have no single-column key.
-
-        ``order_by`` is ``(column, descending)`` when the user has clicked a
-        column header. It sorts **in SQL, over the whole table**, which is
-        the only way to sort a table the view has only partly loaded --
-        sorting only the rows fetched so far would present a partial order
-        as the table's order.
-
-        Two requirements:
-
-        * the key column is appended as a **tiebreak**. Without it, rows
-          sharing a value come back in whatever order SQLite happens to
-          produce, and that order is free to differ between two chunks of
-          the same scroll -- so a row could be shown twice and another not
-          at all.
-        * paging falls back to ``OFFSET``. Keyset paging needs the ordering
-          column to be the one being compared, and ``(value, rowid) > (?, ?)``
-          over an arbitrary user-chosen column is a different and much more
-          delicate query. OFFSET makes deep scrolling of a sorted view
-          progressively slower, which is a real cost and the reason it is
-          not the default; it is bounded here because a sort is an explicit
-          act on a table the user is looking at.
-
-        :param table: schema-validated source table or view.
-        :param columns: visible data columns to select after the key columns.
-        :param key_columns: stable row-address columns prepended to each row.
-        :param where: optional validated predicate without ``WHERE``.
-        :param after: whether to add the next-page key comparison.
-        :param use_offset: use OFFSET paging when no single key is available.
-        :param order_by: optional ``(column, descending)`` whole-table order.
-        :returns: parameterized SELECT containing a bounded ``LIMIT`` and,
-            when required, ``OFFSET``.
-        """
-        col_sql = ", ".join(quote_ident(c)
-                            for c in list(key_columns) + list(columns))
-        sql = f"SELECT {col_sql} FROM {quote_ident(table)}"
-        clauses = []
-        if where:
-            clauses.append(f"({where})")
-        if after and not use_offset and order_by is None:
-            clauses.append(f"{quote_ident(key_columns[0])} > ?")
-        if clauses:
-            sql += " WHERE " + " AND ".join(clauses)
-        if order_by is not None:
-            column, descending = order_by
-            terms = [f"{quote_ident(column)} {'DESC' if descending else 'ASC'}"]
-            if key_columns:
-                terms.append(f"{quote_ident(key_columns[0])} ASC")
-            sql += " ORDER BY " + ", ".join(terms)
-        elif key_columns and not use_offset:
-            sql += f" ORDER BY {quote_ident(key_columns[0])}"
-        sql += " LIMIT ?"
-        if use_offset or order_by is not None:
-            sql += " OFFSET ?"
-        return sql
-
-    def chunk(self, table: str, columns: Optional[Sequence[str]] = None,
-              where: Optional[str] = None, params: Sequence = (),
-              limit: int = DEFAULT_PAGE_SIZE,
-              after: Optional[tuple] = None,
-              loaded: int = 0,
-              order_by: Optional[Tuple[str, bool]] = None
-              ) -> Tuple[List[str], List[tuple], List[Optional[tuple]]]:
-        """Return ``(columns, rows, keys)`` for the next ``limit`` rows.
-
-        ``after`` is the key tuple of the last row already loaded;
-        ``None`` asks for the first chunk. ``keys[i]`` addresses
-        ``rows[i]`` uniquely (or is ``None`` when the table has no key,
-        in which case the caller must refuse to edit it).
-
-        :param table: validated user-table name to page through. Its schema
-            determines both the returned columns and each row's stable key.
-        :param columns: requested schema columns, or ``None``/an empty
-            sequence for every column.
-        :param where: optional validated predicate without ``WHERE``.
-        :param params: bound values consumed by predicate placeholders.
-        :param limit: maximum number of rows requested for this chunk.
-        :param after: stable key tuple of the last row already loaded, or
-            ``None`` for the first chunk.
-        :param loaded: only used by the ``OFFSET`` fallback for tables
-            with no single-column key.
-        :param order_by: optional ``(column, descending)`` whole-table order.
-        """
-        self.check_table(table)
-        cols = self.check_columns(table, columns)
-        _kind, key_cols = self.row_key(table)
-        use_offset = len(key_cols) != 1
-        if order_by is not None:
-            self.check_columns(table, [order_by[0]])
-        sql = self.chunk_sql(table, cols, key_cols, where,
-                             after=after is not None, use_offset=use_offset,
-                             order_by=order_by)
-        args: List[Any] = list(params)
-        if after is not None and not use_offset and order_by is None:
-            args.append(after[0])
-        args.append(int(max(1, limit)))
-        if use_offset or order_by is not None:
-            args.append(int(max(0, loaded)))
-        with self._con() as con:
-            raw = self._execute(con, sql, args).fetchall()
-        n = len(key_cols)
-        keys: List[Optional[tuple]] = ([tuple(r[:n]) for r in raw] if n
-                                       else [None] * len(raw))
-        rows = [tuple(r[n:]) for r in raw]
-        return cols, rows, keys
-
-    def estimate_count(self, table: str) -> Optional[int]:
-        """Return an O(1) *estimate* of the row count, or ``None``.
-
-        ``max(rowid)`` is answered from the right-hand edge of the
-        table's b-tree without scanning, which avoids the full scan an
-        exact ``COUNT(*)`` needs; on a 400 k-row measurement table that
-        scan causes a noticeable delay. It is only an estimate — deleted rows
-        leave gaps — so every caller must label it as one.
-
-        ``None`` when the table has no rowid, or is empty.
-
-        :param table: validated table or view to estimate.
-        """
-        self.check_table(table)
-        key_kind, key_cols = self.row_key(table)
-        if key_kind != "rowid":
-            return None
-        with self._con() as con:
-            row = self._execute(
-                con,
-                f"SELECT max({quote_ident(key_cols[0])}) FROM {quote_ident(table)}"
-            ).fetchone()
-        if not row or row[0] is None:
-            return None
-        return int(row[0])
-
-    def validate_where(self, table: str, where: str,
-                       params: Sequence = ()) -> None:
-        """Let SQLite parse ``where`` and raise if it is malformed.
-
-        Prepared with ``LIMIT 0``, which SQLite short-circuits before it
-        touches a single row — so a typo costs a parse, not a full scan
-        of a 400 000-row measurement table.
-
-        :param table: schema-validated table or view used for name resolution.
-        :param where: predicate fragment for SQLite to parse.
-        :param params: bound values consumed by the predicate placeholders.
-        :raises sqlite3.Error: with SQLite's own message (``no such
-            column: cell_are``, ``near ">": syntax error``, …).
-        """
-        self.check_table(table)
-        sql = f"SELECT 1 FROM {quote_ident(table)} WHERE {where} LIMIT 0"
-        with self._con() as con:
-            self._execute(con, sql, params).fetchall()
-
-    def count(self, table: str, where: Optional[str] = None,
-              params: Sequence = ()) -> int:
-        """Return the exact ``COUNT(*)`` under the current filter.
-
-        This one *is* a full scan — never call it on the path that
-        paints the first chunk.
-
-        :param table: schema-validated table or view to count.
-        :param where: optional validated predicate without ``WHERE``.
-        :param params: bound values consumed by the predicate placeholders.
-        """
-        self.check_table(table)
-        sql = f"SELECT COUNT(*) FROM {quote_ident(table)}"
-        if where:
-            sql += f" WHERE {where}"
-        with self._con() as con:
-            row = self._execute(con, sql, params).fetchone()
-        return int(row[0]) if row else 0
-
-    def export_csv(self, out_path: str, table: str,
-                   columns: Optional[Sequence[str]] = None,
-                   where: Optional[str] = None, params: Sequence = (),
-                   chunk: int = 5000) -> int:
-        """Stream the filtered result to ``out_path`` as CSV.
-
-        Rows are pulled in ``chunk``-sized batches and written straight
-        out, so exporting a 400 k-row table costs a constant amount of
-        memory.
-
-        :param out_path: destination CSV path; missing parent folders are made.
-        :param table: schema-validated table or view to export.
-        :param columns: selected columns, or ``None`` for every column.
-        :param where: optional validated predicate without ``WHERE``.
-        :param params: bound values consumed by predicate placeholders.
-        :param chunk: cursor batch size used while streaming rows.
-        :returns: number of data rows written (header excluded).
-        """
-        self.check_table(table)
-        cols = self.check_columns(table, columns)
-        sql = self.select_sql(table, cols, where)
-        written = 0
-        out_dir = os.path.dirname(os.path.abspath(out_path))
-        if out_dir and not os.path.isdir(out_dir):
-            os.makedirs(out_dir, exist_ok=True)
-        with self._con() as con:
-            cur = self._execute(con, sql, params)
-            with open(out_path, "w", newline="", encoding="utf-8") as fh:
-                writer = csv.writer(fh)
-                writer.writerow(cols)
-                step = max(1, min(int(chunk), _CSV_ROWS_PER_WRITE))
-                while True:
-                    batch = cur.fetchmany(step)
-                    if not batch:
-                        break
-                    writer.writerows(batch)
-                    written += len(batch)
-        return written
-
-
-
-class WritableDb:
-    """A read-write handle used only by an armed edit mode.
-
-    It can write **one cell of one row** and nothing else. There is no
-    ``execute()``, no DDL, no multi-row update — the class has no method that
-    could touch more than a single row.
-
-    :param path: database file, or a run folder — see :func:`resolve_db_path`.
-    """
-
-    def __init__(self, path: str):
-        """Open a database for reading and writing.
-
-        :param path: the database file.
-        """
-        self.path = resolve_db_path(path)
-        #: SQL of the last statement that ran (or was about to).
-        self.last_sql: str = ""
-
-    def connect(self) -> sqlite3.Connection:
-        """Return a fresh read-write connection in autocommit mode.
-
-        ``isolation_level = None`` leaves transaction control to this class,
-        so the BEGIN/COMMIT/ROLLBACK in :meth:`update_cell` are the real
-        ones and do not fight Python's implicit transaction handling
-        (which differs between 3.11 and 3.12+).
-        """
-        return connect_database(self.path)
-
-    def update_cell(self, table: str, column: str, value: Any,
-                    key_columns: Sequence[str],
-                    key_values: Sequence[Any]) -> str:
-        """Set one column of one row. Returns the SQL that ran.
-
-        The guards, in order:
-
-        1. ``table`` must be a real table in ``sqlite_master`` — a view
-           has no row to update.
-        2. ``column`` and every key column must exist in its schema.
-        3. the row address must match **exactly one** row (probed with
-           ``COUNT(*)`` before anything is written);
-        4. the UPDATE itself must report ``rowcount == 1``, or the
-           transaction is rolled back.
-
-        :param table: real schema table receiving the change.
-        :param column: existing table column whose value will be replaced.
-        :param value: already-coerced value to bind to the UPDATE.
-        :param key_columns: rowid alias or primary-key columns addressing it.
-        :param key_values: bound address values paired with ``key_columns``.
-        :returns: exact parameterized SQL statement that ran.
-        :raises EditRefused: when any guard fires — nothing was written.
-        :raises sqlite3.Error: when SQLite refuses the write itself
-            (constraint violation, read-only file, locked database).
-        """
-        if not key_columns:
-            raise EditRefused(tr(
-                "{table!r} has no rowid and no primary key, so spaCR cannot limit"
-                " an edit to one row. Choose a table with a rowid or primary key;"
-                " keep this table in read-only mode.",
-                table=table))
-        if len(key_columns) != len(key_values):
-            raise EditRefused(tr(
-                "Row address is incomplete; the edit was refused. Reload the "
-                "table, select the row again, and retry the edit."))
-        sql = build_update(table, column, key_columns)
-        self.last_sql = sql
-        con = self.connect()
-        try:
-            with transaction(con):
-                real = con.execute(
-                    "SELECT name FROM sqlite_master WHERE type = 'table' "
-                    "AND name = ?", (table,)).fetchone()
-                if real is None:
-                    raise EditRefused(
-                        f"{table!r} is not an editable table in "
-                        f"{os.path.basename(self.path)} — views and virtual "
-                        f"tables have no single row to update.")
-                known = {r[1] for r in con.execute(
-                    f"PRAGMA table_info({quote_ident(table)})").fetchall()}
-                if column not in known:
-                    raise EditRefused(
-                        f"{table!r} has no column {column!r}.")
-                implicit = {"rowid", "oid", "_rowid_"}
-                missing = [
-                    key for key in key_columns
-                    if key.lower() not in implicit and key not in known
-                ]
-                if missing:
-                    raise EditRefused(
-                        f"{table!r} has no column(s) "
-                        f"{', '.join(map(repr, missing))} to address a row by.")
-                where = " AND ".join(
-                    f"{quote_ident(key)} = ?" for key in key_columns)
-                n = int(con.execute(
-                    f"SELECT COUNT(*) FROM {quote_ident(table)} WHERE {where}",
-                    tuple(key_values)).fetchone()[0])
-                if n != 1:
-                    raise EditRefused(
-                        f"that row address matches {n} rows, not 1 — refusing "
-                        f"to write. Reload the table and try again.")
-                cur = con.execute(sql, (value,) + tuple(key_values))
-                if cur.rowcount != 1:
-                    raise EditRefused(tr(
-                        "The UPDATE would have touched {rows} rows instead of one; it was"
-                        " rolled back. Reload the table and select the row again before "
-                        "retrying. If this repeats, stop editing and report the table "
-                        "name and this error.",
-                        rows=cur.rowcount))
-        finally:
-            con.close()
-        return sql
-
-
-
 def _capture_result(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
     """Run ``fn`` and leave its return value in ``payload``.
 
@@ -1063,7 +484,6 @@ def _capture_result(fn: Callable[[], Any], payload: Dict[str, Any]) -> None:
 _TEXT_ROLES = frozenset({int(Qt.DisplayRole.value), int(Qt.ToolTipRole.value)})
 _EDIT_ROLE = int(Qt.EditRole.value)
 _COLUMN_SEARCH_DELAY_MS = 150
-_CSV_ROWS_PER_WRITE = 32
 _WIDTH_SAMPLE_ROWS = 500
 _WIDTH_CANDIDATES = 3
 
@@ -1454,6 +874,28 @@ class PreviewModel(QAbstractTableModel):
 
 
 
+def _export_format(path: str, chosen: str = "") -> str:
+    """The export format a chosen file name or dialog filter names.
+
+    :param path: the file name.
+    :param chosen: the file dialog's selected filter, if any.
+    :returns: ``"csv"``, ``"parquet"`` or ``"sqlite"``.
+    """
+    suffix = os.path.splitext(str(path))[1].lower()
+    if suffix in (".parquet", ".pq"):
+        return "parquet"
+    if suffix in (".db", ".sqlite", ".sqlite3"):
+        return "sqlite"
+    if suffix == ".csv":
+        return "csv"
+    text = str(chosen or "").lower()
+    if "parquet" in text:
+        return "parquet"
+    if "sqlite" in text:
+        return "sqlite"
+    return "csv"
+
+
 def _job_lane(kind: str) -> str:
     """Which worker lane a job of ``kind`` runs on.
 
@@ -1519,7 +961,9 @@ class DbBrowserScreen(LinkedView, QWidget):
         super().__init__(parent)
         self.app_key = "db_browser"
         self._threaded = bool(threaded)
-        self._db: Optional[ReadOnlyDb] = None
+        self._db: Optional[StoreDb] = None
+        #: The columns a store table reads per page (None reads them all).
+        self._fetch_columns: Optional[List[str]] = None
         self._table: str = ""
         self._all_columns: List[str] = []
         self._where: Optional[str] = None
@@ -1601,9 +1045,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         outer.addWidget(header)
 
         subtitle = QLabel(
-            "Read-only by default. spaCR opens the file with mode=ro and "
-            "PRAGMA query_only, so nothing here can modify your measurements "
-            "until you deliberately turn on edit mode.")
+            tr("Read-only by default. spaCR reads the project through its "
+               "store, so nothing here can modify your measurements."))
         subtitle.setObjectName("Muted")
         subtitle.setWordWrap(True)
         outer.addWidget(subtitle)
@@ -1758,7 +1201,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._btn_apply.clicked.connect(self.apply_filter)
         self._btn_clear = QPushButton("Clear", self)
         self._btn_clear.clicked.connect(self.clear_filter)
-        self._btn_export = QPushButton("Export filtered CSV…", self)
+        self._btn_export = QPushButton(tr("Export filtered rows…"), self)
         self._btn_export.clicked.connect(self._pick_export_path)
         for w in (self._filter_col, self._filter_op, self._filter_value,
                   self._raw_edit):
@@ -1817,7 +1260,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         """Ask for a database file and open it."""
         path, _ = QFileDialog.getOpenFileName(
             self, "Open measurements database", "",
-            "SQLite databases (*.db *.sqlite *.sqlite3);;All files (*)")
+            "spaCR projects (spacr.duckdb *.db *.sqlite *.sqlite3);;"
+            "All files (*)")
         if path:
             self.set_database(path)
 
@@ -1884,7 +1328,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._filter_col.clear()
         self._sql_label.setText("")
         try:
-            db = ReadOnlyDb(path)
+            db = StoreDb(resolve_db_path(path))
         except Exception as e:
             self._set_status(self._humanise(e, path), error=True)
             self._update_controls()
@@ -1918,12 +1362,13 @@ class DbBrowserScreen(LinkedView, QWidget):
 
     @staticmethod
     def _humanise(exc: Exception, path: str) -> str:
-        """Turn a sqlite/OS error into one line a biologist can act on."""
+        """Turn a store, SQLite or OS error into one line a biologist can act on."""
         msg = str(exc).strip() or exc.__class__.__name__
-        if isinstance(exc, sqlite3.DatabaseError) and "not a database" in msg.lower():
+        kind = type(exc).__name__
+        if kind in ("DatabaseError", "Error") and "not a database" in msg.lower():
             return (f"{path} is not a SQLite database "
                     f"(sqlite said: {msg}).")
-        if isinstance(exc, sqlite3.OperationalError) and "unable to open" in msg.lower():
+        if kind == "OperationalError" and "unable to open" in msg.lower():
             return f"Could not open {path} — {msg}."
         return msg
 
@@ -1953,7 +1398,22 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._set_status("No database open.", error=True)
             return False
         try:
+            known = self._db.tables()
+        except Exception as e:
+            self._set_status(self._humanise(e, name), error=True)
+            return False
+        if name not in known:
+            self._set_status(tr(
+                "No table named {table!r} in {database}. Reload the database and "
+                "choose a table from its table list, or open the database that "
+                "contains the required table.",
+                table=name,
+                database=os.path.basename(self._db.path)), error=True)
+            return False
+        try:
             self._all_columns = self._db.columns(name)
+            self._fetch_columns = self._db.fetch_columns(
+                name, self._col_search.text())
         except Exception as e:
             self._set_status(self._humanise(e, name), error=True)
             return False
@@ -2000,6 +1460,11 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._model.set_column_filter(text)
         self._update_column_count()
         self._autosize_columns()
+        if self._db is not None and self._table and self._db.is_store():
+            wanted = self._db.fetch_columns(self._table, text)
+            if wanted != self._fetch_columns:
+                self._fetch_columns = wanted
+                self.refresh()
 
     def _on_column_search_typed(self, _text: str = "") -> None:
         """Wait for a pause in typing before filtering the columns."""
@@ -2070,6 +1535,8 @@ class DbBrowserScreen(LinkedView, QWidget):
     def _update_column_count(self) -> None:
         """Say how many columns the filter is letting through."""
         total = len(self._model.all_columns())
+        if self._fetch_columns is not None and self._all_columns:
+            total = len(self._all_columns)
         shown = len(self._model.visible_columns())
         if not total:
             self._col_count_label.setText("")
@@ -2185,6 +1652,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         if self._db is None or not self._table:
             return
         self._token += 1
+        self._db.cancel()
+        self._db.sync()
         self._reset_load_state()
         self._model.set_more(False)
         self._model.clear()
@@ -2227,17 +1696,21 @@ class DbBrowserScreen(LinkedView, QWidget):
         after = None if first else self._last_key
         loaded = 0 if first else self._loaded
         order_by = self._sort
+        columns = self._fetch_columns
         want_estimate = first and not where
 
         def _job() -> Dict[str, Any]:
             """Read one chunk of the table. Off the GUI thread."""
-            cols, rows, keys = db.chunk(table, where=where, params=params,
-                                        limit=limit, after=after,
-                                        loaded=loaded, order_by=order_by)
-            estimate = db.estimate_count(table) if want_estimate else None
+            cols, rows, keys = db.chunk(table, columns=columns, where=where,
+                                        params=params, limit=limit,
+                                        after=after, loaded=loaded,
+                                        order_by=order_by)
+            exact = db.registry_count(table) if want_estimate else None
+            estimate = (db.estimate_count(table)
+                        if want_estimate and exact is None else None)
             return {"token": token, "first": first, "columns": cols,
                     "rows": rows, "keys": keys, "limit": limit,
-                    "estimate": estimate}
+                    "estimate": estimate, "exact": exact}
 
         self._model.set_more(False)
         self._run_job(_job, self._apply_chunk, kind="chunk", token=token)
@@ -2254,14 +1727,18 @@ class DbBrowserScreen(LinkedView, QWidget):
         if first:
             self._model.set_page(columns, rows, row_offset=0, keys=keys)
             self._estimate = result.get("estimate")
+            if result.get("exact") is not None:
+                self._exact_count = int(result["exact"])
         else:
             self._model.append_rows(rows, keys)
         self._loaded += len(rows)
         if keys and keys[-1] is not None:
             self._last_key = keys[-1]
-        if len(rows) < limit:
+        if len(rows) < limit or (self._exact_count is not None
+                                 and self._loaded >= self._exact_count):
             self._exhausted = True
-            self._exact_count = self._loaded
+            if len(rows) < limit:
+                self._exact_count = self._loaded
         self._model.set_more(not self._exhausted)
         if first:
             self._update_column_count()
@@ -2272,7 +1749,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._update_rows_label()
         self._update_sort_state()
         self._report_table_status()
-        if first and not self._exhausted and self.auto_count:
+        if (first and not self._exhausted and self.auto_count
+                and self._exact_count is None):
             self._start_count(self._token)
 
     def refresh_count(self) -> None:
@@ -2355,10 +1833,14 @@ class DbBrowserScreen(LinkedView, QWidget):
                 "Click a column header to sort the whole table.")
             return
         column, descending = self._sort
-        self._sort_note.setText(
+        note = (
             f"sorted by {column} {'descending' if descending else 'ascending'}"
             " — whole table, in SQL. Click again to reverse, a third time to "
             "clear.")
+        if self._db is not None and self._db.is_store():
+            note += " " + tr("Rows where this column is empty are left out "
+                             "while it is sorted.")
+        self._sort_note.setText(note)
 
     def _on_header_clicked(self, section: int) -> None:
         """Cycle the clicked column: descending, ascending, unsorted.
@@ -2695,20 +2177,29 @@ class DbBrowserScreen(LinkedView, QWidget):
             return (f"{os.path.basename(self._db.path)} was opened for you, "
                     f"not chosen by you. Pick it with 'Choose database…' "
                     f"before editing it.")
+        if not self._db.can_edit():
+            if not self._db.is_store():
+                return tr(
+                    "{name} is an older measurements.db, which the Database "
+                    "Browser opens read-only. Convert the run to a spaCR store "
+                    "project to record edits.",
+                    name=os.path.basename(self._db.path))
+            return tr(
+                "This spaCR store project is read-only in the Database Browser "
+                "for now: cell edits are recorded in the project's edit log, "
+                "which this version of spaCR does not have yet.")
         return ""
 
     def _confirmation_text(self) -> str:
         """The words the user has to agree to before edit mode arms."""
-        table = self._table or "<table>"
-        key_columns = self._db.row_key(self._table)[1] if self._table else []
-        statement = build_update(table, "<column>", key_columns or ["rowid"])
-        return (
-            f"Edit mode opens {self._db.path} read-write.\n\n"
-            f"Changes are written straight into the file. There is no undo "
-            f"and spaCR keeps no backup.\n\n"
-            f"Every change runs exactly one statement, scoped to one row:\n"
-            f"    {statement}\n\n"
-            f"Turn edit mode on?")
+        return tr(
+            "Edit mode records changes to {path}.\n\n"
+            "Each change is one edit row in the project's edit log, for one "
+            "cell of one row, with your name and the time. The measured "
+            "values in the tables are never overwritten; the newest edit is "
+            "what spaCR shows, and an edit is undone by recording the old "
+            "value again.\n\nTurn edit mode on?",
+            path=self._db.path)
 
     def _default_confirm(self, message: str) -> bool:
         """Ask, out loud, before arming edit mode.
@@ -2776,8 +2267,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._set_edit_check(True)
         self._update_controls()
         self._set_status(
-            f"Edit mode is ON for {self._db.path}. Every change is one "
-            f"UPDATE against one row, and there is no undo.")
+            tr("Edit mode is ON for {path}. Every change is one edit row "
+               "for one cell of one row.", path=self._db.path))
         self.edit_mode_changed.emit(True)
         return True
 
@@ -2827,11 +2318,16 @@ class DbBrowserScreen(LinkedView, QWidget):
         _kind, key_columns = self._db.row_key(self._table)
         key = self._model.row_key(row)
         if not key_columns or key is None:
-            self._set_status(
-                f"Cannot edit {self._table!r}: it has no rowid and no primary "
-                f"key, so an UPDATE could not be limited to the row you "
-                f"clicked. Editing is refused rather than risk rewriting "
-                f"many rows.", error=True)
+            self._set_status(tr(
+                "{table!r} has no rowid and no primary key, so spaCR cannot limit"
+                " an edit to one row. Choose a table with a rowid or primary key;"
+                " keep this table in read-only mode.",
+                table=self._table), error=True)
+            return False
+        if len(key) != len(key_columns):
+            self._set_status(tr(
+                "Row address is incomplete; the edit was refused. Reload the "
+                "table, select the row again, and retry the edit."), error=True)
             return False
         types = self._db.column_types(self._table)
         if column not in types:
@@ -2848,20 +2344,21 @@ class DbBrowserScreen(LinkedView, QWidget):
             self._set_status(f"{column} is already that value — nothing "
                              f"written.")
             return True
-        sql = build_update(self._table, column, key_columns)
-        self._show_pending_sql(sql, (value,) + tuple(key))
+        self._show_pending_sql(
+            f"store.edit {self._table}.{column} where "
+            f"{', '.join(key_columns)} = ?", (value,) + tuple(key))
         try:
-            WritableDb(self._edit_path).update_cell(
-                self._table, column, value, key_columns, key)
+            self._db.edit_cell(self._table, column, value, key)
         except EditRefused as e:
             self._set_status(f"Edit refused: {e}", error=True)
             return False
-        except (sqlite3.Error, OSError, ValueError) as e:
+        except (*READ_ERRORS, ValueError) as e:
             self._set_status(f"Edit failed: {e}", error=True)
             return False
         self._model.set_value(row, column, value)
-        self._set_status(
-            f"Updated 1 row of {self._table} — {column} = {value!r}.")
+        self._set_status(tr(
+            "Recorded 1 edit of {table} — {column} = {value}.",
+            table=self._table, column=column, value=repr(value)))
         return True
 
     def _show_pending_sql(self, sql: str, params: Sequence[Any]) -> None:
@@ -2876,7 +2373,8 @@ class DbBrowserScreen(LinkedView, QWidget):
     def _table_is_editable(self) -> bool:
         """True when the current table offers a unique row address.
 
-        Cheap after the first call — :meth:`ReadOnlyDb.row_key` caches.
+        Cheap after the first call — :meth:`spacr.store_browse.StoreDb.row_key`
+        caches.
         """
         if self._db is None or not self._table:
             return False
@@ -2894,14 +2392,14 @@ class DbBrowserScreen(LinkedView, QWidget):
         if self._edit_mode and not writable:
             self._edit_note.setText(
                 f"EDIT MODE is on, but {self._table or 'this table'} has no "
-                f"rowid and no primary key — spaCR cannot address one row of "
-                f"it, so it stays read-only.")
+                f"row key — spaCR cannot address one row of it, so it stays "
+                f"read-only.")
             return
         if self._edit_mode:
-            self._edit_note.setText(
-                f"EDIT MODE — writes go straight into "
-                f"{os.path.basename(self._edit_path)}. One UPDATE per cell, "
-                f"scoped to one row, no undo.")
+            self._edit_note.setText(tr(
+                "EDIT MODE — each change is recorded as one edit row in the "
+                "edit log of {name}; the measured tables are not overwritten.",
+                name=os.path.basename(self._edit_path)))
             return
         if not allowed:
             self._edit_note.setText(
@@ -2909,6 +2407,10 @@ class DbBrowserScreen(LinkedView, QWidget):
         elif self._db is None:
             self._edit_note.setText(
                 "Read-only. Open a database you choose yourself to edit it.")
+        elif not self._db.can_edit():
+            self._edit_note.setText(tr(
+                "Read-only. This project does not take edits in the Database "
+                "Browser."))
         elif self._explicit_path != self._db.path:
             self._edit_note.setText(
                 "Read-only — this database was opened for you. Re-open it "
@@ -2920,13 +2422,14 @@ class DbBrowserScreen(LinkedView, QWidget):
 
 
     def _pick_export_path(self) -> None:
-        """Ask where to write the exported table."""
+        """Ask where to write the exported rows, and in which format."""
         default = f"{self._table or 'export'}.csv"
-        path, _ = QFileDialog.getSaveFileName(
-            self, "Export filtered rows to CSV", default,
-            "CSV files (*.csv);;All files (*)")
+        path, chosen = QFileDialog.getSaveFileName(
+            self, "Export filtered rows", default,
+            "CSV files (*.csv);;Parquet files (*.parquet);;"
+            "SQLite databases (*.db);;All files (*)")
         if path:
-            self.export_csv(path)
+            self.export_rows(path, _export_format(path, chosen))
 
     def export_csv(self, out_path: str) -> bool:
         """Write the current table + filter + visible columns to ``out_path``.
@@ -2938,27 +2441,59 @@ class DbBrowserScreen(LinkedView, QWidget):
         :param out_path: destination CSV path selected by the user.
         :returns: whether the export job was accepted for execution.
         """
+        return self.export_rows(out_path, "csv")
+
+    def export_rows(self, out_path: str, fmt: str = "csv") -> bool:
+        """Write the current table, filter, sort and visible columns to a file.
+
+        Streamed off the GUI thread through :func:`spacr.store.export`:
+        CSV, Parquet (the stored types kept) or SQLite, where a table of
+        2,000 columns or more is split into one table per feature family,
+        each repeating the row keys. Reports inline on failure.
+
+        :param out_path: the file to write.
+        :param fmt: ``"csv"``, ``"parquet"`` or ``"sqlite"``.
+        :returns: whether the export job was accepted for execution.
+        """
         if self._db is None or not self._table:
             self._set_status("Open a database and pick a table first.",
                              error=True)
+            return False
+        if fmt not in ("csv", "parquet", "sqlite"):
+            self._set_status(tr("Unknown export format {fmt}; choose CSV, "
+                                "Parquet or SQLite.", fmt=fmt), error=True)
             return False
         if self._export_busy:
             self._set_status("An export is already running…", error=True)
             return False
         db, table = self._db, self._table
-        where, params = self._where, self._params
+        where, params, order_by = self._where, self._params, self._sort
         self._flush_column_search()
         columns = self._model.visible_columns() or self._all_columns
+        unknown = [c for c in columns if c not in set(self._all_columns)]
+        if unknown:
+            self._set_status(tr(
+                "Unknown column(s) for {table!r}: {columns}. Reload the table and"
+                " select columns shown in its column list.",
+                table=table,
+                columns=', '.join(map(repr, unknown))), error=True)
+            return False
 
         def _job() -> Dict[str, Any]:
-            """Write the CSV. Off the GUI thread."""
-            n = db.export_csv(out_path, table, columns=columns,
-                              where=where, params=params)
+            """Write the file. Off the GUI thread.
+
+            :returns: the rows written, the path and the column count.
+            """
+            n = db.export(out_path, table, columns=columns, where=where,
+                          params=params, fmt=fmt, order_by=order_by)
             return {"exported": n, "path": out_path,
                     "columns": len(columns)}
 
         def _done(result: Dict[str, Any]) -> None:
-            """Say how many rows were exported, and where."""
+            """Say how many rows were exported, and where.
+
+            :param result: what the export job returned.
+            """
             self._set_status(
                 f"Exported {result['exported']:,} row"
                 f"{'s' if result['exported'] != 1 else ''} × "
@@ -2998,8 +2533,9 @@ class DbBrowserScreen(LinkedView, QWidget):
         :func:`_capture_result` drop the return value in, since the
         worker's ``finished`` signal only carries a success flag.
 
-        ``fn`` runs on a worker thread and must therefore open its own
-        sqlite connection — every :class:`ReadOnlyDb` method does.
+        ``fn`` runs on a worker thread, so it reads through its own store
+        cursor or SQLite connection — every
+        :class:`spacr.store_browse.StoreDb` read does.
 
         **One worker per lane.** Jobs queue here and :meth:`_pump` starts
         them one by one on their lane: page reads, edits and exports on the

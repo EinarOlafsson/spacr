@@ -112,7 +112,8 @@ def test_the_next_page_does_not_wait_for_the_count(qtbot, qt_theme_applied,
                                                    wide_db, tmp_path,
                                                    monkeypatch):
     from spacr import run_journal
-    from spacr.qt.screens.db_browser import DbBrowserScreen, ReadOnlyDb
+    from spacr.qt.screens.db_browser import DbBrowserScreen
+    from spacr.store_browse import StoreDb as ReadOnlyDb
 
     runs = tmp_path / "runs"
     runs.mkdir()

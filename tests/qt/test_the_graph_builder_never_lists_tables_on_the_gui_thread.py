@@ -77,6 +77,7 @@ def test_load_path_returns_before_the_database_opens(
         qtbot, sleeping_database, tmp_path):
     """The property the freeze violated: it dispatches, it does not read."""
     opened, released = sleeping_database
+    (tmp_path / "measurements.db").touch()
     screen = _screen(qtbot)
 
     started = time.monotonic()
@@ -99,6 +100,7 @@ def test_choosing_a_file_from_the_dialog_returns_just_as_fast(
         qtbot, sleeping_database, tmp_path, monkeypatch):
     """The button is a `clicked` slot: that is how the freeze was reached."""
     opened, released = sleeping_database
+    (tmp_path / "measurements.db").touch()
     monkeypatch.setattr(
         "spacr.qt.screens.graph_builder.QFileDialog.getOpenFileName",
         staticmethod(lambda *a, **k: (str(tmp_path / "measurements.db"), "")))
