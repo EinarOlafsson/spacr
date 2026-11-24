@@ -45,6 +45,7 @@ from pathlib import Path
 import tempfile
 
 import numpy as np
+from .image_store import _read_stack
 
 from .point_spread import (PSF, apply_psf, describe_optics, fill_psf_settings,
                            gaussian_psf, load_psf, _spacing)
@@ -1293,14 +1294,14 @@ def _prepare_unmixing(settings, source_dir, channels=None, load=None, *, allow_c
     if requested_calibration and load is None:
         from functools import partial
 
-        load = partial(np.load, mmap_mode='r', allow_pickle=False)
+        load = partial(_read_stack, mmap_mode='r')
     else:
-        load = load or np.load
+        load = load or _read_stack
     wanted = {dye: {parse_well(well, strict=True) for well in wells}
               for dye, wells in controls.items()}
     source = Path(source_dir)
-    names = sorted(path.name for path in source.glob('*.npy')
-                   if not path.name.startswith('.')) if source.is_dir() else []
+    from .image_store import _list_fields
+    names = sorted(_list_fields(source)) if source.is_dir() else []
     stems = {dye: [] for dye in controls}
     if field_identities is not None:
         from .qt.i18n import tr
@@ -1522,9 +1523,9 @@ def _n2v_training_planes(source_dir, channel, load=None,
                          limit=_N2V_TRAIN_FIELDS):
     """One channel's planes from up to ``limit`` raw fields, evenly spaced
     through the sorted field names so every well and plate is sampled."""
-    load = load or np.load
-    names = sorted(path.name for path in Path(source_dir).glob('*.npy')
-                   if not path.name.startswith('.'))
+    load = load or _read_stack
+    from .image_store import _list_fields
+    names = sorted(_list_fields(source_dir))
     if not names:
         raise ValueError(f'n2v_denoise found no field to train on in {source_dir}')
     picks = sorted({int(round(i)) for i in np.linspace(

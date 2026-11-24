@@ -9705,6 +9705,11 @@ class AppScreen(QWidget):
                 and not self._confirm_plaque_model_download(settings)):
             return
 
+        if self.app_key == "mask" and not self._confirm_plate_split(settings):
+            log_button_press(f"{self.app_key}.Run",
+                             {"result": "cancelled_at_plate_split"})
+            return
+
         if not self._claim_the_project(settings):
             log_button_press(f"{self.app_key}.Run",
                              {"result": "project_locked"})
@@ -11308,6 +11313,48 @@ class AppScreen(QWidget):
                 "stores; streaming from the arrays uses the object masks, so "
                 "it can cut to the object itself.")
         return notes
+
+    def _confirm_plate_split(self, settings) -> bool:
+        """Ask before a Mask source of several plates is split into plate folders (item 0aj).
+
+        The plates are read from the file names by the Mask filename
+        pattern (:func:`spacr.io._plate_split_plan`). On Yes the run splits
+        them (``split_plates``) after printing the dry-run list; Cancel
+        stops the run with nothing moved.
+        """
+        from ...io import _describe_plate_split, _plate_split_plan
+        from ...settings import set_default_settings_preprocess_generate_masks
+
+        if settings.get("split_plates"):
+            return True
+        sources = settings.get("src")
+        sources = sources if isinstance(sources, (list, tuple)) else [sources]
+        try:
+            checked = set_default_settings_preprocess_generate_masks(dict(settings))
+            plans = [plan for plan in (_plate_split_plan(str(src), checked)
+                                       for src in sources if isinstance(src, str) and src)
+                     if plan is not None]
+        except Exception:  # noqa: BLE001 - the run reports an unreadable folder
+            return True
+        if not plans:
+            return True
+        box = QMessageBox(self)
+        box.setWindowTitle(tr("Several plates in one folder"))
+        box.setIcon(QMessageBox.Question)
+        box.setText(tr(
+            "Images of several plates were found in the source folder. spaCR "
+            "will move them into one folder per plate inside the source folder, "
+            "never overwriting a file, and check every file after the move. "
+            "Each plate is then analysed on its own, or all of them together "
+            "with the Batch Runner. Split the plates and run?"))
+        box.setDetailedText("\n".join(
+            line for plan in plans for line in _describe_plate_split(plan, limit=200)))
+        box.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+        box.setDefaultButton(QMessageBox.Cancel)
+        if box.exec() != QMessageBox.Yes:
+            return False
+        settings["split_plates"] = True
+        return True
 
     def _confirm_plaque_model_download(self, settings) -> bool:
         """Ask before a Plaque run can fetch its missing selected checkpoint."""

@@ -34,14 +34,16 @@ pytestmark = [
 # The pipeline reliably creates these folders on any successful run.
 # NOTE: per-channel folders ("1".."4") are NOT created — since the
 # in-memory ingest rework, _rename_and_organize_image_files builds the
-# stack/ arrays straight from a channel dict without ever writing
+# per-field stacks straight from a channel dict without ever writing
 # per-channel sub-folders (see
 # test_real_data_image_modules.test_module_ingest_organizes_channels).
-# stack/ and masks/ only survive when keep_intermediate=True, which the
+# Since item 0aj P1c there is no stack/ folder: each field is written into
+# fov.ome.zarr and read back through spacr.image_store._read_stack.
+# masks/ only survives when keep_intermediate=True, which the
 # spacr_pipeline_run fixture sets.
 REQUIRED_TOP_LEVEL_FOLDERS = {
     "orig",         # originals moved out of the flat source dir
-    "stack",        # merged per-FOV .npy stacks
+    "fov.ome.zarr", # the per-field channel stacks (OME-Zarr), no stack/*.npy
     "masks",        # {cell,nucleus,pathogen,organelle}_mask_stack subdirs
     "measurements", # measurements.db lives here
     "settings",     # save_settings() writes into here
@@ -73,23 +75,24 @@ def test_orig_holds_the_raw_input_tiffs(spacr_pipeline_run):
 
 
 def test_stack_holds_one_array_per_field(spacr_pipeline_run):
-    """Replaces the old per-channel-folder check: the ingest step now writes
-    one multi-channel .npy per field directly into stack/."""
+    """The ingest step writes one multi-channel stack per field into
+    fov.ome.zarr (item 0aj P1c); the one stack reader returns it."""
+    from spacr.image_store import _read_stack, _stack_names
+
     stack = Path(spacr_pipeline_run["src"]) / "stack"
-    arrays = sorted(p for p in stack.iterdir() if p.suffix == ".npy")
+    names = sorted(_stack_names(stack))
     n_fields = spacr_pipeline_run["n_input_fields"]
-    assert len(arrays) == n_fields, (
-        f"expected {n_fields} per-field stacks, got {len(arrays)}")
+    assert len(names) == n_fields, (
+        f"expected {n_fields} per-field stacks, got {len(names)}")
     # Each stack carries all 4 acquired channels.
-    import numpy as np
-    arr = np.load(arrays[0])
+    arr = _read_stack(stack / names[0])
     assert arr.ndim == 3 and arr.shape[2] >= 4, f"unexpected stack shape {arr.shape}"
 
 
-def test_stack_folder_contains_npy_arrays(spacr_pipeline_run):
+def test_no_stack_folder_of_npy_arrays_is_written(spacr_pipeline_run):
     src = Path(spacr_pipeline_run["src"])
-    stack = src / "stack"
-    assert stack.exists() and any(stack.iterdir()), "stack/ is empty"
+    assert not (src / "stack").exists(), "stack/ should not be written (fields live in fov.ome.zarr)"
+    assert (src / "fov.ome.zarr").is_dir()
 
 
 # ---------------------------------------------------------------------------

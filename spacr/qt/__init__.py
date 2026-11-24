@@ -827,6 +827,11 @@ def run(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
 
+    if argv and argv[0] == "store":
+        from ..cli_store import main as store_main
+
+        return store_main(list(argv[1:]))
+
     from . import timing as _timing
 
     _timing.begin()

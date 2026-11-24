@@ -269,15 +269,19 @@ def test_module_masks_with_organelle_adjust_and_plot(tmp_path):
     })
     preprocess_generate_masks(settings)
 
-    # Every requested object type produced a mask stack, and merged/ carries
-    # the image channels plus one slice per mask.
+    # Every requested object type produced a mask stack, and each merged
+    # field (in fov.ome.zarr since item 0aj) carries the image channels plus
+    # one slice per mask.
     for obj in ("cell", "nucleus", "pathogen", "organelle"):
         d = plate / "masks" / f"{obj}_mask_stack"
         assert d.is_dir() and any(d.glob("*.npy")), f"no {obj} masks at {d}"
 
-    merged = sorted((plate / "merged").glob("*.npy"))
+    from spacr.image_store import _list_fields, _read_field
+
+    store = plate / "fov.ome.zarr"
+    merged = _list_fields(store)
     assert merged, "no merged arrays written"
-    arr = np.load(merged[0])
+    arr = _read_field(store / merged[0])
     assert arr.ndim == 3 and arr.shape[2] >= 8, (
         f"expected 4 channels + 4 mask slices, got {arr.shape}")
 

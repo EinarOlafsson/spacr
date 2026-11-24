@@ -394,14 +394,15 @@ def _expected_parents(plate, role):
     """
     import json
 
-    merged = plate / "merged"
-    layout = json.loads((merged / ".spacr_plane_layout.json").read_text(encoding="utf-8"))
+    from spacr.crops import read_merged_plane_layout
+    from spacr.image_store import _list_fields, _read_field
+
+    merged = plate / "fov.ome.zarr"   # item 0aj
+    layout = read_merged_plane_layout(str(merged))
     dims = layout["mask_dims"]
     expected = {}
-    for name in sorted(os.listdir(merged)):
-        if not name.endswith(".npy"):
-            continue
-        field = np.load(merged / name)
+    for name in sorted(_list_fields(merged)):
+        field = _read_field(merged / name)
         cells = field[..., dims["cell"]].astype(int)
         left, right = cells[48, 24], cells[48, 72]
         assert left and right and left != right

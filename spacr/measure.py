@@ -2668,7 +2668,8 @@ def _field_tables_for_check(field, settings):
     preprocessing hooks and the PSF step of a full run are not applied,
     because the check compares the two devices, not the run's inputs.
     """
-    data = np.load(field) if isinstance(field, (str, os.PathLike)) else field
+    from .image_store import _read_field
+    data = _read_field(field) if isinstance(field, (str, os.PathLike)) else field
     data = np.asarray(data)
     if data.ndim == 4 and data.shape[0] == 1:
         data = data[0]
@@ -11832,6 +11833,9 @@ def _read_measure_field(path, settings, *, mmap_mode=None):
     :param mmap_mode: legacy NPY mapping mode; native pixels use the shared reader.
     :returns: the unchanged HWC field contract, from native data when committed.
     """
+    from .image_store import _read_field, _store_field
+    if _store_field(path) is not None:
+        return _read_field(path)
     source = _measure_native_source(os.fspath(path), settings)
     if source is None:
         return np.load(path, mmap_mode=mmap_mode)
@@ -11874,8 +11878,10 @@ def _measure_plan_loader(settings):
     """
     from functools import partial
 
+    from .image_store import _is_merged_store
     images = os.path.join(os.path.dirname(os.path.normpath(settings['src'])), 'images')
-    if (str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() == 'ome-zarr'
+    if _is_merged_store(settings['src']) or (
+            str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() == 'ome-zarr'
             and os.path.isdir(images)):
         return {'load_field': partial(_read_measure_field, settings=settings, mmap_mode='r')}
     return {}
@@ -11914,28 +11920,59 @@ def _crops_per_shard(settings):
     return size
 
 
+def _streams_crops_from_store(settings):
+    """Whether this run's crops are streamed from fov.ome.zarr (item 0aj).
+
+    A run that reads a project's ``fov.ome.zarr`` and does not save crops
+    indexes every object's box so the crop reader can cut it on demand. A
+    run over an older ``merged/`` folder writes no index, as before.
+    """
+    from .image_store import _is_merged_store
+
+    return _is_merged_store(settings.get('src') or '')
+
+
 def _record_ragged_crops(settings, file_name, crop_modes, crop_source, masks,
-                         data_type):
+                         data_type, index_only=False):
     """Cut one field's crops of every class in ``crop_modes``; send them in one packet.
 
     Each crop is the object's bounding box plus ``crop_margin_px``, with its
-    own mask beside it and the per-cell relationship columns; outside pixels
-    are zeroed only with ``crop_zero_outside``. Raw intensities: crops are
-    never stretched when written (the network transform normalises).
+    own mask, every object class's labels cut to the same box (item 0aj) and
+    the per-cell relationship columns beside it; outside pixels are zeroed
+    only with ``crop_zero_outside``. Raw intensities: crops are
+    never stretched when written (the network transform normalises), and
+    they are cut from the field's stored channels (item 0aj), so a stored
+    crop equals the crop streamed from ``fov.ome.zarr``.
+
+    With ``index_only`` (saving crops is off) only each object's box enters
+    the crop index; the crop is cut from ``fov.ome.zarr`` when it is read.
     """
     from .crop_store import crop_relationships, cut_crops, record_measure_field_crops
 
     image = np.moveaxis(np.asarray(crop_source)[..., list(settings['channels'])], -1, 0)
     image = image.astype(data_type, copy=False)
+    present = {name: np.asarray(mask) for name, mask in masks.items()
+               if mask is not None and np.ndim(mask) == 2
+               and np.shape(mask) == image.shape[1:]
+               and (settings.get(f'{name}_mask_dim') is not None
+                    or (name == 'cytoplasm' and settings.get('cytoplasm')))}
     classes = []
     for crop_mode in crop_modes:
-        crops = cut_crops(image, np.asarray(masks[crop_mode]),
+        own = np.asarray(masks[crop_mode])
+        crops = cut_crops(None if index_only else image, own,
                           margin=int(settings.get('crop_margin_px') or 0),
-                          zero_outside=bool(settings.get('crop_zero_outside', False)))
+                          zero_outside=bool(settings.get('crop_zero_outside', False)),
+                          all_labels=present)
         for crop in crops:
-            crop.update(crop_relationships(crop, masks))
+            box = (crop['bbox_y0'], crop['bbox_x0'], crop['bbox_y1'], crop['bbox_x1'])
+            if index_only:
+                crop['label_classes'] = ','.join(sorted(present))
+                inside = own[box[0]:box[2], box[1]:box[3]] == crop['object_label']
+                crop.update(crop_relationships(dict(crop, mask=inside), masks))
+            else:
+                crop.update(crop_relationships(crop, masks))
         classes.append((crop_mode, crops, image.shape[0], image.dtype))
-    record_measure_field_crops(settings, file_name, classes)
+    record_measure_field_crops(settings, file_name, classes, index_only=index_only)
 
 
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
@@ -12449,6 +12486,16 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     confluency_plane, confluency_result, file_name)
         _write_image_record(source_folder, file_name, settings, image_values)
 
+        if (not volumetric and not settings['save_png']
+                and _crop_image_format(settings) != 'png'
+                and _streams_crops_from_store(settings)):
+            stream_modes = settings['crop_mode']
+            stream_modes = [stream_modes] if isinstance(stream_modes, str) else list(stream_modes or [])
+            _record_ragged_crops(
+                settings, file_name, [m for m in stream_modes if m in CROP_MODES], data,
+                {'cell': cell_mask, 'nucleus': nucleus_mask,
+                 'pathogen': pathogen_mask, **organelle_masks,
+                 'cytoplasm': cytoplasm_mask}, data_type, index_only=True)
         if volumetric and (settings['save_png'] or settings['save_arrays'] or settings['plot']):
             print(f"3-D field {file_name}: measurements written, but no PNG "
                   f"crops or region arrays. Cropping is 2-D; to get crops from "
@@ -12486,7 +12533,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             if crop_format != 'png' and settings['save_png']:
                 _record_ragged_crops(
                     settings, file_name, [m for m in crop_ls if m in CROP_MODES],
-                    crop_source,
+                    data,
                     {'cell': cell_mask, 'nucleus': nucleus_mask,
                      'pathogen': pathogen_mask, **organelle_masks,
                      'cytoplasm': cytoplasm_mask}, data_type)
@@ -12817,14 +12864,12 @@ def _sample_field_path(src):
         src = src[0] if src else None
     if not src or not os.path.isdir(str(src)):
         return None
+    from .validate import _resolve_measure_src
+    from .image_store import _list_fields
     folder = str(src)
     if not os.path.basename(folder.rstrip(os.sep)).endswith('merged'):
-        folder = os.path.join(folder, 'merged')
-    try:
-        names = sorted(name for name in os.listdir(folder)
-                       if name.endswith('.npy') and not name.startswith('.'))
-    except OSError:
-        return None
+        folder, _note = _resolve_measure_src(folder)
+    names = sorted(_list_fields(folder))
     return os.path.join(folder, names[0]) if names else None
 
 
@@ -12833,8 +12878,10 @@ def _field_nbytes(path):
 
     :returns: ``0`` when the file cannot be read.
     """
+    from .image_store import _field_header
     try:
-        return int(np.load(path, mmap_mode='r').nbytes)
+        shape, dtype = _field_header(path)
+        return int(np.prod(shape)) * int(np.dtype(dtype).itemsize)
     except Exception:
         return 0
 
@@ -13155,6 +13202,9 @@ def _plate_folder_of_merged(src):
     from .validate import _holds_npy
 
     path = os.path.normpath(os.fspath(src))
+    from .image_store import _is_merged_store
+    if _is_merged_store(path):
+        return os.path.dirname(path)
     if os.path.basename(path) == 'merged' and _holds_npy(path):
         parent = os.path.dirname(path)
         print(f"[measure] src is the merged folder; using the plate folder "
@@ -13839,10 +13889,17 @@ def measure_crop(settings):
                 from .database_concurrency import enable_wal_where_safe
                 _measurements_dir = os.path.join(
                     os.path.dirname(settings['src']), 'measurements')
-                files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
-                if _measure_plan_loader(settings):
-                    from .qt.i18n import tr
-
+                from .image_store import _is_merged_store, _list_fields
+                files = _list_fields(settings['src'])
+                from .qt.i18n import tr
+                if _is_merged_store(settings['src']):
+                    print(tr("[measure] Reading {count} fields from the FOV store {path}.",
+                             count=len(files), path=settings['src']))
+                else:
+                    print(tr("[measure] Older project layout: reading the fields in {path} "
+                             "(merged/*.npy). New Mask runs keep them in fov.ome.zarr.",
+                             path=settings['src']))
+                if not _is_merged_store(settings['src']) and _measure_plan_loader(settings):
                     if not files:
                         raise ConfigurationError(tr(
                             "Measure needs the retained merged field files and plane layout beside the OME-Zarr image stores. Restore merged/ from the Mask Generation output."))
@@ -13851,7 +13908,7 @@ def measure_crop(settings):
                 ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
                 files = [name for name in files if name not in rejected_quality]
                 _check_measure_field_names(files, settings)
-                if _measure_plan_loader(settings):
+                if _measure_plan_loader(settings) and not _is_merged_store(settings['src']):
                     native_fields = sum(_measure_native_source(
                         os.path.join(settings['src'], name), settings) is not None for name in files)
                     print(tr("Measure reads {native} committed OME-Zarr fields and {legacy} legacy merged fields.",
@@ -14227,8 +14284,11 @@ def measure_crop(settings):
                     from .crop_store import close_measure_sink
                     written = close_measure_sink(os.path.dirname(settings['src']),
                                                  db_path)
-                    print(f"crops: {written} {crop_format} crops in "
-                          f"crops/ and measurements.db:ssCell_Crops")
+                    from .qt.i18n import tr
+                    print(tr("crops: {count} {fmt} crops indexed in the spacr store "
+                             "(crop_index); saved in crop.ome.zarr when save_png is "
+                             "on, otherwise streamed from fov.ome.zarr",
+                             count=written, fmt=crop_format))
 
                 if str(settings.get('plate_barcode_source') or '').strip():
                     _run_plate_barcode_step(settings)
@@ -16035,7 +16095,12 @@ def _resolve_merged_path(path_name, merged_dir):
     if os.path.isfile(path_name):
         return path_name
     candidate = os.path.join(merged_dir, os.path.basename(path_name))
-    return candidate if os.path.isfile(candidate) else None
+    if os.path.isfile(candidate):
+        return candidate
+    from .image_store import MERGED_STORE_NAME, _store_field
+    stored = os.path.join(os.path.dirname(os.path.normpath(merged_dir)),
+                          MERGED_STORE_NAME, os.path.basename(path_name))
+    return stored if _store_field(stored) is not None else None
 
 
 def _crop_channels(data, y0, y1, x0, x1, channels, region=None):
@@ -16255,7 +16320,8 @@ def generate_object_dataset(
                     print(f"  missing array, skipping: {path_name}")
                 _array_cache[path_name] = None
             else:
-                _array_cache[path_name] = np.load(resolved)
+                from .image_store import _read_field
+                _array_cache[path_name] = _read_field(resolved)
         data = _array_cache[path_name]
         if data is None:
             continue

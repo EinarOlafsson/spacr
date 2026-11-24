@@ -422,14 +422,18 @@ def test_files_copied_in_one_by_one_give_the_batch_runs_results(
 
     assert len(result["done"]) == len(wells) and not result["failed"]
     combined = watched / "spacr_watch"
-    batch_merged = sorted(p for p in os.listdir(batch / "merged")
-                          if p.endswith(".npy"))
+    from spacr.image_store import _list_fields, _read_field
+
+    # Item 0aj: the batch run keeps its fields in fov.ome.zarr; the watch
+    # run assembles merged/*.npy. Both hold the same fields, pixel for pixel.
+    batch_store = batch / "fov.ome.zarr"
+    batch_merged = sorted(_list_fields(batch_store))
     watch_merged = sorted(p for p in os.listdir(combined / "merged")
                           if p.endswith(".npy"))
     assert watch_merged == batch_merged and len(batch_merged) == len(wells)
     for name in batch_merged:
         np.testing.assert_array_equal(np.load(combined / "merged" / name),
-                                      np.load(batch / "merged" / name))
+                                      _read_field(batch_store / name))
     for table in ("cell", "nucleus"):
         batch_rows = _rows(batch / "measurements" / "measurements.db", table)
         watch_rows = _rows(combined / "measurements" / "measurements.db",

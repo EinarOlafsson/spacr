@@ -420,7 +420,9 @@ def test_raw_crop_conversion_preserves_native_pixels_nulls_and_source_database(t
     assert by_object.loc[(2, 7), "n_organelle"] == 3
     assert list(table.columns) == [
         *CROP_COLUMNS, "parent_cell_id", "nucleus_id", "has_nucleus", "n_nuclei",
-        "n_pathogens", "infected", "n_organelle", "annotation", "class", "class_score"]
+        "n_pathogens", "infected", "n_organelle", "annotation", "class", "class_score",
+        # Item 0aj: each converted crop records its 0.6 transform into its field.
+        "coordinate_transformations"]
     assert {"custom_annotation", "n_organelle_1", "mean_intensity"}.isdisjoint(table.columns)
     copied_db = destination / "measurements" / "measurements.db"
     copied_pngs = _read_crop_table(copied_db, "png_list")
@@ -588,7 +590,8 @@ def test_crop_only_selection_writes_no_field_store_and_retains_raw_sources(tmp_p
 
     assert report["status"] == "raw_verified"
     assert report["counts"]["crops"] == 3
-    assert not list(destination.rglob("*.ome.zarr"))
+    # Item 0aj: crop.ome.zarr is the crop store; no field (image) store is written.
+    assert [p.name for p in destination.rglob("*.ome.zarr")] == ["crop.ome.zarr"]
     assert len(_read_crop_table(destination / "measurements" / "measurements.db")) == 3
     assert _tree_contents(source) == before
 
@@ -644,7 +647,7 @@ def test_crop_phase_resumes_after_tree_publication_before_index_publication(tmp_
     def stop_after_crop_tree(old, new):
         """Interrupt only the completed crop-tree rename, after it has happened."""
         result = replace(old, new)
-        if Path(old).name == "crops" and Path(new) == destination / "crops":
+        if Path(old).name == "crop.ome.zarr" and Path(new) == destination / "crop.ome.zarr":
             stopped.append(str(new))
             raise RuntimeError("synthetic stop after crop tree publication")
         return result
