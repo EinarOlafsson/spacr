@@ -9792,6 +9792,7 @@ ALPHA_FEATURES = {
                      'ops_voyager3_cluster_ids', 'ops_voyager3_organism', 'ops_voyager3_context',
                      'ops_voyager3_provider', 'ops_voyager3_model', 'ops_voyager3_timeout',
                      'ops_voyager3_shuffle_control', 'ops_voyager3_resume', 'ops_voyager3_answers_dir'),
+        'widgets': ('MaskVoyager3Switch',),
     },
     980: {
         'settings': ('ops_voyager3_method', 'ops_voyager3_reactome', 'ops_voyager3_corum',
