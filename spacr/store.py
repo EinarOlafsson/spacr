@@ -6067,7 +6067,7 @@ def _export_into(store: Store, path: str, fmt: str, names: List[str], where,
         return rows, counts
     import sqlite3
 
-    conn = sqlite3.connect(path)
+    conn = sqlite3.connect(path, timeout=30.0)
     total = 0
     try:
         conn.execute("CREATE TABLE spacr_export_tables (table_name TEXT, "
