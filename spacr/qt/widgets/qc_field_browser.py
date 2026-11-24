@@ -386,6 +386,13 @@ def load_qc_field(
     """
     merged_dir = target.merged_dir
     path = resolve_field_path(merged_dir, target.field)
+    from ...image_store import _read_field, merged_field_path, merged_source
+    if path is None:
+        # A project whose fields live in fov.ome.zarr (item 0aj): the same
+        # shared reader as Measure, a time-lapse frame or z-stack included.
+        stored = merged_field_path(merged_source(target.plate_root), target.field)
+        if stored is not None:
+            path, merged_dir = Path(stored), merged_source(target.plate_root)
     if path is None:
         return QCFieldImage(error=tr(
             "This field is already gone: no active or quarantined merged "
@@ -394,7 +401,7 @@ def load_qc_field(
 
     warnings: List[str] = []
     try:
-        array = np.load(str(path), mmap_mode="r", allow_pickle=False)
+        array = _read_field(str(path), mmap_mode="r")
     except Exception as exc:
         return QCFieldImage(
             path=str(path),

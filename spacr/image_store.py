@@ -93,6 +93,18 @@ FIELD_CODEC_LEVEL = 5
 DEFAULT_NGFF_VERSION = "0.6"
 
 
+#: NGFF's axis order for images and for labels (item 0aj P3).
+IMAGE_AXIS_ORDER = "tczyx"
+LABEL_AXIS_ORDER = "tzyx"
+
+#: The z reductions the shared reader computes on read (item 0aj P3).
+#: ``'max'`` keeps the stored dtype and is what Mask has always segmented.
+Z_PROJECTIONS: Tuple[str, ...] = ("max", "min", "mean", "sum")
+
+#: The z reduction a reader applies when it names none (item 0aj P3).
+DEFAULT_Z_PROJECTION = "max"
+
+
 def _stored_ngff_version(path: Any) -> Optional[str]:
     """The ``ome`` version a store's root ``zarr.json`` declares, or None."""
     try:
@@ -214,41 +226,51 @@ class PlateWriter:
 
     def write_field(self, well: str, field: Any, image: Optional[np.ndarray],
                     labels: Optional[Mapping[str, np.ndarray]] = None, *,
-                    record: Optional[Mapping[str, Any]] = None) -> str:
+                    record: Optional[Mapping[str, Any]] = None,
+                    axes: Optional[str] = None,
+                    label_axes: Optional[str] = None) -> str:
         """Write one field and its label images, then commit it.
 
-        :param image: the field ``(C, Y, X)`` or ``(Y, X)``, or None to write
-            labels only.
-        :param labels: ``{object class: label image (Y, X)}``.
+        :param image: the field ``(C, Y, X)`` or ``(Y, X)``, or with ``axes``
+            any of NGFF's ``t, c, z, y, x`` in that order (item 0aj P3), or
+            None to write labels only.
+        :param labels: ``{object class: label image}``, ``(Y, X)`` or with
+            ``label_axes`` any of ``t, z, y, x``.
         :param record: extra JSON values kept with the field's ledger entry,
             such as the field's file ``name`` (item 0aj).
+        :param axes: the image's axes, such as ``'tczyx'`` or ``'czyx'``;
+            by default ``'cyx'`` (3-D) or ``'yx'`` (2-D), the layout of every
+            2-D project, which records no axes in the ledger.
+        :param label_axes: the label images' axes, such as ``'tyx'``; by
+            default ``'yx'``.
         :returns: the field's store key.
 
         Each array is written to a temporary group, closed and renamed into
         place, and the field enters the ledger last, so a crash leaves an
         uncommitted field that the next run rewrites.
 
-        Only ``(C, Y, X)`` and ``(Y, X)`` are written. A field with time or
-        depth axes is refused before anything is written, never flattened
-        into channels: the HCS layout here has no ``t`` or ``z`` axis yet.
+        Time and depth are their own NGFF axes, never flattened into
+        channels; a field whose rank does not match its axes is refused
+        before anything is written.
 
         :param well: the well name, e.g. ``'B03'``.
         :param field: the field number.
-        :raises ValueError: the image is not 2-D or 3-D, or a label image is
-            not 2-D.
+        :raises ValueError: the image or a label image does not have the
+            rank of its axes, or the axes are not NGFF's order.
         """
         from .ome_zarr import write_ome_zarr
 
-        if image is not None and np.ndim(image) not in (2, 3):
-            raise ValueError(
-                f"field {well}/{field}: the image has {np.ndim(image)} axes; only "
-                f"(C, Y, X) or (Y, X) are written (time and depth are not "
-                f"flattened into channels)")
-        for name, mask in (labels or {}).items():
-            if np.ndim(mask) != 2:
-                raise ValueError(f"field {well}/{field}: label image {name!r} has "
-                                 f"{np.ndim(mask)} axes; only (Y, X) is written")
+        image_axes = (None if image is None else
+                      field_axes(np.ndim(image), axes, kind="image", where=f"field {well}/{field}"))
+        names_axes = {name: field_axes(np.ndim(mask), label_axes, kind="labels",
+                                       where=f"field {well}/{field}: label image {name!r}")
+                      for name, mask in (labels or {}).items()}
+        layered = (image_axes not in (None, "cyx", "yx")
+                   or any(value != "yx" for value in names_axes.values()))
         metadata, label_metadata = {}, {}
+        if self.registration is not None and layered:
+            raise ValueError(f"field {well}/{field}: stored registration is written for "
+                             f"(C, Y, X) fields only, not {image_axes}")
         if self.registration is not None:
             from .ome_zarr_registration import registration_metadata
             from .qt.i18n import tr
@@ -268,31 +290,59 @@ class PlateWriter:
         target.parent.mkdir(parents=True, exist_ok=True)
         if image is not None:
             data = np.asarray(image)
-            axes = ["c", "y", "x"] if data.ndim == 3 else ["y", "x"]
             self._atomic(target, lambda tmp: write_ome_zarr(
-                tmp, data, axes=axes, spacing=self.spacing,
-                channel_names=self.channel_names if data.ndim == 3 else None,
+                tmp, data, axes=list(image_axes), spacing=self._spacing_for(image_axes),
+                channel_names=self.channel_names if "c" in image_axes else None,
                 ngff_version=self.ngff_version, name=key,
                 shards=None if self.shards else False,
                 compressor=FIELD_CODEC, compression_level=FIELD_CODEC_LEVEL, **metadata))
         else:
             self.zarr.open_group(str(target), mode="w", zarr_format=3)
-        names = self._write_label_arrays(target, labels, label_metadata)
+        names = self._write_label_arrays(target, labels, label_metadata, label_axes)
+        if layered:
+            record = dict(record or {})
+            if image_axes not in (None, "cyx", "yx"):
+                record["axes"] = image_axes
+            if any(value != "yx" for value in names_axes.values()):
+                record["label_axes"] = next(v for v in names_axes.values() if v != "yx")
         self._commit(key, well, field, names, image is not None, record)
         return key
 
+    def _spacing_for(self, axes: str):
+        """The writer's spacing for an image with these axes (item 0aj P3).
+
+        A 2-D field keeps the writer's spacing as before. A field with a
+        ``z`` axis and no spacing is written on a pixel grid over its space
+        axes; a spacing over ``(y, x)`` only gets ``z`` added at 1 pixel.
+        """
+        if axes in ("cyx", "yx"):
+            return self.spacing
+        from .layers import Spacing
+        from .ome_zarr import PIXEL_UNITS
+
+        space = [a for a in axes if a in "zyx"]
+        if self.spacing is None:
+            return Spacing.isotropic(len(space), 1.0, units=PIXEL_UNITS)
+        if len(space) == getattr(self.spacing, "ndim", len(space)):
+            return self.spacing
+        values = {a: 1.0 for a in space}
+        values.update({a: float(v) for a, v in zip(self.spacing.axes, self.spacing.scale)})
+        return Spacing.from_map({a: values[a] for a in space}, units=self.spacing.units)
+
     def _write_label_arrays(self, target: Path, labels: Optional[Mapping[str, np.ndarray]],
-                            label_metadata: Mapping[str, Any]) -> List[str]:
+                            label_metadata: Mapping[str, Any],
+                            label_axes: Optional[str] = None) -> List[str]:
         """Write each label image under ``target/labels`` atomically; returns their names."""
         from .ome_zarr import write_ome_zarr
 
         names = []
         for name, mask in (labels or {}).items():
             mask = np.asarray(mask)
+            axes = field_axes(mask.ndim, label_axes, kind="labels", where=str(name))
             label_dir = target / "labels" / str(name)
             label_dir.parent.mkdir(parents=True, exist_ok=True)
-            self._atomic(label_dir, lambda tmp, m=mask: write_ome_zarr(
-                tmp, m, axes=["y", "x"], spacing=self.spacing,
+            self._atomic(label_dir, lambda tmp, m=mask, a=axes: write_ome_zarr(
+                tmp, m, axes=list(a), spacing=self._spacing_for(a),
                 downsample="stride", ngff_version=self.ngff_version, name=str(name),
                 shards=None if self.shards else False, compressor=FIELD_CODEC,
                 compression_level=FIELD_CODEC_LEVEL, **label_metadata))
@@ -308,7 +358,8 @@ class PlateWriter:
     def write_labels(self, well: str, field: Any, labels: Mapping[str, np.ndarray], *,
                      record: Optional[Mapping[str, Any]] = None,
                      keep_others: bool = False,
-                     unchanged: Iterable[str] = ()) -> str:
+                     unchanged: Iterable[str] = (),
+                     label_axes: Optional[str] = None) -> str:
         """Add label images to a committed field, never touching its channels (item 0aj P1c).
 
         The field's image arrays are left as they are, so their recorded
@@ -324,12 +375,15 @@ class PlateWriter:
 
         :param well: the well name.
         :param field: the field number.
-        :param labels: ``{object class: label image (Y, X)}``.
+        :param labels: ``{object class: label image}``, ``(Y, X)``, or with
+            ``label_axes`` (item 0aj P3) any of ``t, z, y, x``, such as one
+            ``(T, Y, X)`` array for a time-lapse field.
         :param record: ledger values to add, such as the merged ``shape``.
         :param keep_others: keep the other labels and do not commit.
         :param unchanged: classes of ``labels`` the field already holds with
             these exact values (item 0aj P2); their committed label images
             are kept instead of written again.
+        :param label_axes: the label images' axes; ``'yx'`` by default.
         :returns: the field's store key.
         :raises ValueError: the field has no committed image.
         """
@@ -337,13 +391,12 @@ class PlateWriter:
         entry = self._committed.get(key)
         if not entry or not entry.get("image"):
             raise ValueError(f"field {well}/{field} has no committed channels to add labels to")
-        for name, mask in labels.items():
-            if np.ndim(mask) != 2:
-                raise ValueError(f"field {well}/{field}: label image {name!r} has "
-                                 f"{np.ndim(mask)} axes; only (Y, X) is written")
+        axes_seen = {field_axes(np.ndim(mask), label_axes, kind="labels",
+                                where=f"field {well}/{field}: label image {name!r}")
+                     for name, mask in labels.items()}
         target = self.path / key
         if keep_others:
-            self._write_label_arrays(target, labels, {})
+            self._write_label_arrays(target, labels, {}, label_axes)
             present = sorted(group.name for group in (target / "labels").iterdir()
                              if (group / "zarr.json").is_file()
                              and not group.name.startswith("."))
@@ -360,14 +413,17 @@ class PlateWriter:
                        if str(n) in {str(m) for m in labels}
                        and (stale / str(n) / "zarr.json").is_file()}
         names = self._write_label_arrays(
-            target, {n: m for n, m in labels.items() if str(n) not in kept_labels}, {})
+            target, {n: m for n, m in labels.items() if str(n) not in kept_labels}, {},
+            label_axes)
         if kept_labels:
             names = [str(n) for n in labels]
             self.zarr.open_group(str(target / "labels"), mode="a",
                                  zarr_format=3).attrs.update(
                 {"ome": {"version": self.ngff_version, "labels": names}})
         kept = {k: v for k, v in entry.items()
-                if k not in ("key", "well", "field", "labels", "image")}
+                if k not in ("key", "well", "field", "labels", "image", "label_axes")}
+        if axes_seen - {"yx"}:
+            kept["label_axes"] = sorted(axes_seen - {"yx"})[0]
         kept.update(json.loads(json.dumps(dict(record or {}), default=str)))
         self._commit(key, well, field, names, True, kept)
         return key
@@ -658,7 +714,8 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
     The merged ``.npy`` stacks are left in place. Mask Generation itself
     writes the merged store field by field and no stacks (item 0aj); this
     converts an older project's ``merged/`` folder. One store holds one
-    plate, so a folder of several plates is refused.
+    plate, so a folder of several plates is refused. The timepoints of a
+    time-lapse field become one field with a t axis (item 0aj P3).
     """
     fmt = str(fmt or "npy").strip().lower()
     if fmt not in IMAGE_FORMATS:
@@ -689,16 +746,12 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
 
     layout = json.loads((merged / MERGED_LAYOUT_SIDECAR).read_text(encoding="utf-8"))
     by_plate: Dict[str, List[Tuple[str, int, Any]]] = collections.defaultdict(list)
-    seen: Dict[Tuple[str, str, int], str] = {}
+    frames_of: Dict[Tuple[str, str, int], List[str]] = collections.defaultdict(list)
     for name in names:
         plate, well, field = split_field_name(name)
-        if (plate, well, field) in seen:
-            raise ValueError(
-                f"{seen[(plate, well, field)]} and {name} are the same field "
-                f"({plate} {well} {field}) at two timepoints; the plate store "
-                f"has no time axis yet, so time-lapse fields are not exported")
-        seen[(plate, well, field)] = name
-        by_plate[plate].append((well, field, name))
+        if not frames_of[(plate, well, field)]:
+            by_plate[plate].append((well, field, name))
+        frames_of[(plate, well, field)].append(name)
     if len(by_plate) > 1:
         raise ValueError(
             f"{merged} holds fields of {len(by_plate)} plates "
@@ -709,9 +762,16 @@ def export_merged(src: Any, fmt: str, *, workers: int = 1,
         plan.sort(key=lambda item: (item[0], item[1]))
         writer = _merged_writer(src, plate, layout, channel_names=channel_names)
         done = {entry.get("name") for entry in writer._committed.values()}
+        done |= {f for entry in writer._committed.values() for f in entry.get("frames") or ()}
         todo = [name for _w, _f, name in plan if name not in done]
         for name in todo:
-            _write_merged_field(writer, name, np.load(merged / name), layout)
+            series = frames_of[split_field_name(name)]
+            if len(series) > 1:
+                # A time-lapse field (item 0aj P3): its frames on one t axis.
+                _write_merged_series(writer, series, [np.load(merged / f) for f in series],
+                                     layout)
+            else:
+                _write_merged_field(writer, name, np.load(merged / name), layout)
         report[plate] = {"written": len(todo), "skipped": len(plan) - len(todo),
                          "keys": [field_key(w, f) for w, f, n in plan if n in todo]}
     return report
@@ -797,7 +857,8 @@ def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
     :param stored_labels: classes whose label the field already holds with
         exactly these values (item 0aj P2: the merge read them from there);
         they are kept, not written again.
-    :returns: the field's store key.
+    :returns: the field's store key (None for a time-lapse frame whose
+        field still waits for other frames, item 0aj P3).
     """
     stack = np.asarray(stack)
     if stack.ndim != 3:
@@ -814,6 +875,10 @@ def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
     _plate, well, field = split_field_name(name)
     if not str(name).endswith(".npy"):
         name = f"{os.path.splitext(os.path.basename(str(name)))[0]}.npy"
+    series = _layered_entry(writer, name)
+    if series is not None:
+        # A time-lapse field (item 0aj P3): its frames' masks become (T, Y, X) labels.
+        return _write_merged_frame(writer, name, stack, layout, series)
     stored = writer._committed.get(field_key(well, field)) or {}
     if (stored.get("image_planes") == STACK_PLANES
             and stored.get("name") == os.path.basename(str(name))):
@@ -832,12 +897,16 @@ def _write_merged_field(writer: PlateWriter, name: str, stack: np.ndarray,
 def _plane_hashes(image: np.ndarray) -> List[str]:
     """The sha256 of each channel plane's raw bytes (C-order), recorded at write (item 0aj).
 
-    :param image: the field's channels ``(C, Y, X)``.
+    :param image: the field's channels ``(C, Y, X)``; a field with t or z
+        axes (item 0aj P3) is hashed plane by plane over every t, c and z,
+        in C order of its leading axes.
     """
     import hashlib
 
+    image = np.asarray(image)
+    planes = image if image.ndim == 3 else _as_planes(image)
     return [hashlib.sha256(np.ascontiguousarray(plane).tobytes()).hexdigest()
-            for plane in np.asarray(image)]
+            for plane in planes]
 
 
 def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarray]]] = None
@@ -850,7 +919,9 @@ def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarra
 
     :param store: the project's ``fov.ome.zarr`` (or the project folder).
     :param originals: optional ``{field file name: [plane, ...]}`` to compare
-        the stored planes with as well (value, dtype and shape).
+        the stored planes with as well (value, dtype and shape); a field with
+        z planes lists them channel by channel, each channel's planes in z
+        order (item 0aj P3).
     :returns: ``{"fields": n, "planes": n, "mismatches": [...], "unrecorded": [...]}``;
         a field written before hashes were recorded is listed as unrecorded.
     """
@@ -859,10 +930,10 @@ def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarra
         target = _merged_store_path(target)
     report: Dict[str, Any] = {"fields": 0, "planes": 0, "mismatches": [], "unrecorded": []}
     for name, entry in sorted(_image_entries(target).items()):
-        image = read_image(target / entry["key"]) if entry.get("image") else None
-        if image is None:
+        if not entry.get("image"):
             continue
-        image = image if image.ndim == 3 else image[None]
+        # Every stored plane: each frame's channels with their raw z planes (item 0aj P3).
+        image = _as_planes(read_frame_channels(target / entry["key"], entry, z_projection=None))
         report["fields"] += 1
         recorded = entry.get("plane_sha256")
         if not recorded:
@@ -913,9 +984,10 @@ def original_planes(project: Any, settings: Optional[Mapping[str, Any]] = None
     :param settings: Mask settings naming ``metadata_type`` and
         ``custom_regex``; by default the ones the project recorded.
     :returns: ``({field file name: [loader of each plane]}, notes)``. A
-        loader reads its file only when called. A field whose channel was
-        projected from several z slices or files has no single original
-        plane, so it is left out with a note.
+        loader reads its file only when called. A field stored with its z
+        planes (item 0aj P3) lists each channel's slices in z order; a field
+        whose channel was projected from several files (an older store) has
+        no single original plane, so it is left out with a note.
     """
     project = Path(project)
     fields, sorted_channels, notes = _original_files(project, settings)
@@ -924,15 +996,18 @@ def original_planes(project: Any, settings: Optional[Mapping[str, Any]] = None
     entries = _image_entries(store)
     planes: Dict[str, List[Callable[[], np.ndarray]]] = {}
     for name, by_channel in sorted(fields.items()):
-        if any(len(paths) != 1 for paths in by_channel.values()):
+        entry = entries.get(name) or {}
+        depth = _frame_depth(entry)
+        if any(len(paths) != depth for paths in by_channel.values()):
             notes.append(f"{name[:-4]}: a channel is projected from several files; "
                          f"no single original plane to compare")
             continue
-        entry = entries.get(name) or {}
         order = [c for c in _source_channels(store, sorted_channels, entry) if c in by_channel]
         if entry.get("image_planes") != "stack" and layout.get("intensity_channels") is not None:
             order = [order[int(i)] for i in layout["intensity_channels"] if int(i) < len(order)]
-        planes[name] = [functools.partial(read_image, by_channel[c][0]) for c in order]
+        # Raw z planes (item 0aj P3): each channel's files, in z order.
+        planes[name] = [functools.partial(read_image, path)
+                        for c in order for path in by_channel[c]]
     return planes, notes
 
 
@@ -975,7 +1050,8 @@ def _original_files(project: Any, settings: Optional[Mapping[str, Any]] = None,
                                 source_plate=source_plate)
     sorted_channels = [str(c) for c in sorted({key[3] for key in by_key})]
     fields: Dict[str, Dict[str, List[str]]] = collections.defaultdict(dict)
-    for key, paths in by_key.items():
+    # Each channel's files in z order, as Mask stores the planes (item 0aj P3).
+    for key, paths in sorted(by_key.items(), key=lambda item: z_order(item[0])):
         stem = _escaped_field_stem(key[0], key[1], key[2], key[4])
         fields[f"{stem}.npy"].setdefault(str(key[3]), []).extend(paths)
     return dict(fields), sorted_channels, []
@@ -1165,27 +1241,30 @@ def _settle_originals(project: Any, *, keep: bool = True,
         by_channel = files.get(name)
         if not by_channel:
             continue
-        image = read_image(store / entry["key"])
-        image = image if image.ndim == 3 else image[None]
-        problems = _field_checksum_problems(name, entry, image)
+        raw = read_frame_channels(store / entry["key"], entry, z_projection=None)
+        problems = _field_checksum_problems(name, entry, _as_planes(raw))
+        # The stored planes of each channel: one, or its raw z planes (item 0aj P3).
+        image = raw if "z" in _entry_axes(entry) else raw[:, None]
         reason = None
         channels = _source_channels(store, found_channels, entry)
         if not problems:
             for channel, paths in sorted(by_channel.items()):
-                if len(paths) != 1:
-                    reason = tr("channel {channel} was projected from {count} files",
-                                channel=channel, count=len(paths))
-                    continue
                 plane = _stored_plane(entry, layout, channels, channel)
                 if plane is None or plane >= image.shape[0]:
                     reason = tr("channel {channel} is not stored", channel=channel)
                     continue
-                original = np.asarray(read_image(paths[0]))
-                stored = image[plane]
-                if (original.dtype != stored.dtype or original.shape != stored.shape
-                        or not np.array_equal(original, stored)):
-                    problems.append(f"{name} channel {channel}: {paths[0]} differs "
-                                    f"from stored plane {plane}")
+                if len(paths) != image.shape[1]:
+                    reason = tr("channel {channel} was projected from {count} files",
+                                channel=channel, count=len(paths))
+                    continue
+                for depth, path in enumerate(paths):
+                    original = np.asarray(read_image(path))
+                    stored = image[plane, depth]
+                    if (original.dtype != stored.dtype or original.shape != stored.shape
+                            or not np.array_equal(original, stored)):
+                        problems.append(f"{name} channel {channel}: {path} differs "
+                                        f"from stored plane {plane}"
+                                        + (f" z {depth}" if image.shape[1] > 1 else ""))
         if problems:
             report["problems"].extend(problems)
             continue
@@ -1290,7 +1369,10 @@ def _parse_ledger(ledger: str) -> Dict[str, Dict[str, Any]]:
                 entry = json.loads(line)
                 by_key[entry["key"]] = entry
     for entry in by_key.values():
-        if entry.get("name"):
+        if entry.get("frames"):
+            # A time-lapse field (item 0aj P3): one view per frame name.
+            entries.update(_frame_views(entry))
+        elif entry.get("name"):
             entries[str(entry["name"])] = entry
     return entries
 
@@ -1397,15 +1479,21 @@ def _field_header(path: Any) -> Tuple[Tuple[int, ...], np.dtype]:
     return tuple(header.shape), header.dtype
 
 
-def _read_field(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
+def _read_field(path: Any, *, mmap_mode: Optional[str] = None,
+                z_projection: Any = DEFAULT_Z_PROJECTION) -> np.ndarray:
     """One merged field ``(Y, X, planes)``: an ``.npy`` file or a merged-store field.
 
     A store field is rebuilt from its image and labels exactly as
     ``merged/<name>.npy`` held it: same shape, dtype, plane order and values.
+    A time-lapse frame is read by its own name; a field stored with its z
+    planes is reduced on read (item 0aj P3).
 
     :param path: ``merged/<name>.npy``, or ``<project>/fov.ome.zarr/<name>.npy``
         (the field's name inside the store, which is not a file).
     :param mmap_mode: passed to :func:`numpy.load` for an ``.npy`` file.
+    :param z_projection: the z reduction of the channels (see
+        :func:`project_z`); ``'max'``, the default, is the projection Mask
+        segmented, so the merged field equals the one Mask used to store.
     """
     found = _store_field(path)
     if found is None:
@@ -1417,8 +1505,7 @@ def _read_field(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
     n_intensity = len(layout.get("intensity_channels") or ())
     group = store / entry["key"]
     if n_intensity:
-        image = read_image(group)
-        image = image if image.ndim == 3 else image[None]
+        image = read_frame_channels(group, entry, z_projection=z_projection)
         planes = np.moveaxis(image[_image_planes(entry, layout)], 0, -1)
         height, width = planes.shape[:2]
         if (height, width) != shape[:2]:
@@ -1429,7 +1516,7 @@ def _read_field(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
         if int(dim) < shape[-1]:
             if role not in stored:
                 raise ValueError(f"{store}: field {entry['name']} has no {role} labels")
-            data[..., int(dim)] = read_labels(group, role)
+            data[..., int(dim)] = read_frame_labels(group, entry, role)
     return data
 
 
@@ -1521,23 +1608,30 @@ def _stack_entry(path: Any) -> Optional[Tuple[Path, Dict[str, Any]]]:
     return None if entry is None else (_stack_store(target.parent), entry)
 
 
-def _read_stack(path: Any, *, mmap_mode: Optional[str] = None) -> np.ndarray:
+def _read_stack(path: Any, *, mmap_mode: Optional[str] = None,
+                z_projection: Any = DEFAULT_Z_PROJECTION) -> np.ndarray:
     """One field stack ``(Y, X, channels)``: ``stack/<name>.npy`` or its fov.ome.zarr field (item 0aj).
 
     THE reader of field stacks for every Mask stage (normalisation, the
     in-memory batches, image QC, illumination and PSF preparation, the
     merge). A store field is returned exactly as ``stack/<name>.npy`` held
     it: the acquired channels in sorted channel order, same dtype and values.
+    A time-lapse frame is read by its own name, and a field stored with its
+    raw z planes is reduced on read (item 0aj P3), so the stack equals the
+    maximum projection Mask preprocessing used to store.
 
     :param path: ``<project>/stack/<name>.npy`` (the file need not exist).
     :param mmap_mode: passed to :func:`numpy.load` for an ``.npy`` file.
+    :param z_projection: the z reduction (see :func:`project_z`); None
+        returns ``(Y, X, channels, Z)`` for a field with z planes.
     """
     found = _stack_entry(path)
     if found is None:
         return np.load(os.fspath(path), mmap_mode=mmap_mode, allow_pickle=False)
     store, entry = found
-    image = read_image(store / entry["key"])
-    image = image if image.ndim == 3 else image[None]
+    image = read_frame_channels(store / entry["key"], entry, z_projection=z_projection)
+    if image.ndim == 4:
+        return np.ascontiguousarray(np.moveaxis(image, (0, 1), (2, 3)))
     return np.ascontiguousarray(np.moveaxis(image, 0, -1))
 
 
@@ -2112,3 +2206,450 @@ def _mask_sidecar_folder(folder: Any) -> str:
     if os.path.isdir(folder) or not _masks_in_store(folder):
         return folder
     return _mask_run_dir(os.path.dirname(os.path.normpath(folder)))
+
+
+# ---------------------------------------------------------------------------
+# Time and depth (item 0aj P3): TCZYX images, TZYX labels, z reduced on read
+# ---------------------------------------------------------------------------
+#
+# A field with a time or depth axis is ONE NGFF 0.6 image with those axes:
+# the image ``(T, C, Z, Y, X)`` with only the axes it has, its labels
+# ``(T, Z, Y, X)`` likewise. The raw z planes are stored; any z reduction a
+# module needs (the maximum projection Mask segments and Measure measures)
+# is computed when the field is read, here, with a ``z_projection``
+# parameter. Every frame of a time-lapse field keeps its own field file name
+# (``<plate>_<well>_<field>_<time>.npy``) as a view of the one stored field,
+# so each reader asks for one frame by name, as it asked for one ``.npy``.
+# A 2-D, single-time field records no axes and is stored and read exactly
+# as before.
+
+def field_axes(ndim: int, axes: Optional[str] = None, *, kind: str = "image",
+               where: str = "field") -> str:
+    """The checked axes of one stored array, as a string such as ``'tczyx'`` (item 0aj P3).
+
+    :param ndim: the array's rank.
+    :param axes: its axes; by default ``'cyx'`` for a 3-D image and ``'yx'``
+        for a 2-D image or label image, the 2-D project layout.
+    :param kind: ``'image'`` (``t, c, z, y, x``) or ``'labels'`` (``t, z, y, x``).
+    :param where: the array, named in a refusal.
+    :returns: the axes, lower case, in NGFF order.
+    :raises ValueError: the axes are missing for a rank beyond the default,
+        are not in NGFF order, do not end in ``y, x`` or do not match the rank.
+    """
+    order = IMAGE_AXIS_ORDER if kind == "image" else LABEL_AXIS_ORDER
+    if axes is None:
+        if int(ndim) == 2:
+            return "yx"
+        if kind == "image" and int(ndim) == 3:
+            return "cyx"
+        raise ValueError(
+            f"{where} has {ndim} axes; name them (axes such as "
+            f"{order[-int(ndim):]!r}), because time and depth are stored as "
+            f"their own axes and never flattened into channels"
+            if int(ndim) <= len(order) else
+            f"{where} has {ndim} axes; only (Y, X) up to {order!r} is written")
+    axes = str(axes).lower()
+    positions = [order.find(a) for a in axes]
+    if (len(axes) != int(ndim) or -1 in positions or positions != sorted(set(positions))
+            or not axes.endswith("yx")):
+        raise ValueError(f"{where}: axes {axes!r} do not fit a {ndim}-D array in "
+                         f"NGFF order {order!r} ending in y, x")
+    return axes
+
+
+def project_z(array: np.ndarray, axis: int, projection: Any = DEFAULT_Z_PROJECTION
+              ) -> np.ndarray:
+    """Reduce one z axis on read (item 0aj P3).
+
+    :param array: the planes.
+    :param axis: the z axis of ``array``.
+    :param projection: ``'max'`` (the stored dtype; the maximum projection
+        Mask preprocessing used to store), ``'min'`` (the stored dtype),
+        ``'mean'`` (float32), ``'sum'`` (float64 for float input, else
+        int64/uint64), an int (that one plane), or None (keep the axis).
+    :returns: the array without the z axis (or unchanged for None).
+    :raises ValueError: an unknown projection.
+    """
+    array = np.asarray(array)
+    if projection is None:
+        return array
+    if isinstance(projection, (int, np.integer)) and not isinstance(projection, bool):
+        return np.take(array, int(projection), axis=axis)
+    name = str(projection).lower()
+    if name == "max":
+        return array.max(axis=axis)
+    if name == "min":
+        return array.min(axis=axis)
+    if name == "mean":
+        return array.mean(axis=axis, dtype=np.float64).astype(np.float32)
+    if name == "sum":
+        return array.sum(axis=axis)
+    raise ValueError(f"z_projection must be one of {list(Z_PROJECTIONS)}, a plane "
+                     f"index or None; got {projection!r}")
+
+
+def select_planes(array: Any, axes: str, *, t: Optional[int] = None,
+                  z_projection: Any = DEFAULT_Z_PROJECTION,
+                  window: Optional[Tuple[int, int, int, int]] = None
+                  ) -> Tuple[np.ndarray, str]:
+    """One frame of a stored array with z reduced, read lazily (item 0aj P3).
+
+    THE selection every reader of a t/z field shares: the frame and the box
+    are taken from the (zarr or numpy) array before anything is decoded,
+    then z is reduced with :func:`project_z`.
+
+    :param array: a zarr array (or ndarray) with ``axes``.
+    :param axes: its axes, such as ``'tczyx'``.
+    :param t: the frame; None keeps the t axis (or takes the only frame of
+        a one-frame field).
+    :param z_projection: see :func:`project_z`; None keeps z.
+    :param window: ``(y0, y1, x0, x1)``, or None for the whole plane.
+    :returns: ``(array, its remaining axes)``.
+    """
+    index: List[Any] = []
+    left = ""
+    shape = tuple(array.shape)
+    for position, axis in enumerate(axes):
+        if axis == "t" and (t is not None or shape[position] == 1):
+            index.append(int(t or 0))
+            continue
+        if axis == "z" and isinstance(z_projection, (int, np.integer)) \
+                and not isinstance(z_projection, bool):
+            index.append(int(z_projection))
+            continue
+        if axis == "y" and window is not None:
+            index.append(slice(int(window[0]), int(window[1])))
+        elif axis == "x" and window is not None:
+            index.append(slice(int(window[2]), int(window[3])))
+        else:
+            index.append(slice(None))
+        left += axis
+    data = np.asarray(array[tuple(index)])
+    if "z" in left and z_projection is not None:
+        data = project_z(data, left.index("z"), z_projection)
+        left = left.replace("z", "")
+    return data, left
+
+
+def _as_planes(image: np.ndarray) -> np.ndarray:
+    """A stored image as its 2-D planes ``(n, Y, X)``, in C order of its leading axes."""
+    image = np.asarray(image)
+    if image.ndim == 2:
+        return image[None]
+    return image.reshape((-1,) + image.shape[-2:])
+
+
+def _entry_axes(entry: Mapping[str, Any]) -> str:
+    """The stored image axes of a ledger entry; ``'cyx'`` for a 2-D field."""
+    return str(entry.get("axes") or "cyx")
+
+
+def _entry_label_axes(entry: Mapping[str, Any]) -> str:
+    """The stored label axes of a ledger entry; ``'yx'`` for a 2-D field."""
+    return str(entry.get("label_axes") or "yx")
+
+
+def _is_layered(entry: Mapping[str, Any]) -> bool:
+    """Whether a ledger entry is a field with a t or z axis (item 0aj P3)."""
+    return bool(entry.get("axes") or entry.get("label_axes"))
+
+
+def _open_field_array(path: Any):
+    """One stored array of a field, opened (not read) through zarr."""
+    from .ome_zarr import require_zarr
+
+    return require_zarr().open_array(os.fspath(path), mode="r")
+
+
+def _entry_frame(entry: Mapping[str, Any]) -> Optional[int]:
+    """The frame a per-frame ledger view names, or None."""
+    value = entry.get("t")
+    return None if value is None else int(value)
+
+
+def read_frame_channels(group: Any, entry: Mapping[str, Any], *,
+                        z_projection: Any = DEFAULT_Z_PROJECTION,
+                        window: Optional[Tuple[int, int, int, int]] = None) -> np.ndarray:
+    """THE reader of one stored field frame's channels (item 0aj P3).
+
+    :param group: the field group in the store.
+    :param entry: its ledger entry (a frame view for a time-lapse field).
+    :param z_projection: the z reduction (see :func:`project_z`); None
+        keeps the z planes ``(C, Z, Y, X)``.
+    :param window: ``(y0, y1, x0, x1)``.
+    :returns: ``(C, Y, X)`` (``(C, Z, Y, X)`` without projection); a 2-D
+        field is read exactly as :func:`read_image` reads it.
+    """
+    group = Path(os.fspath(group))
+    if not _is_layered(entry):
+        if window is None:
+            image = read_image(group)
+        else:
+            image = np.asarray(_open_field_array(group / "0")[..., window[0]:window[1],
+                                                             window[2]:window[3]])
+        return image if image.ndim == 3 else image[None]
+    axes = _entry_axes(entry)
+    data, left = select_planes(_open_field_array(group / "0"), axes,
+                               t=_entry_frame(entry), z_projection=z_projection,
+                               window=window)
+    if "c" not in left:
+        data, left = data[None], "c" + left
+    return data
+
+
+def read_frame_labels(group: Any, entry: Mapping[str, Any], name: str, *,
+                      z_projection: Any = None,
+                      window: Optional[Tuple[int, int, int, int]] = None) -> np.ndarray:
+    """THE reader of one stored field frame's label image (item 0aj P3).
+
+    :param group: the field group in the store.
+    :param entry: its ledger entry (a frame view for a time-lapse field).
+    :param name: the object class.
+    :param z_projection: for labels with a z axis: a plane index, or
+        ``'max'``; None keeps z (labels are never averaged).
+    :param window: ``(y0, y1, x0, x1)``.
+    :returns: ``(Y, X)`` (``(Z, Y, X)`` for volumetric labels kept whole).
+    """
+    group = Path(os.fspath(group))
+    path = group / "labels" / str(name)
+    if not _is_layered(entry):
+        if window is None:
+            return read_labels(group, name)
+        return np.asarray(_open_field_array(path / "0")[..., window[0]:window[1],
+                                                        window[2]:window[3]])
+    data, _left = select_planes(_open_field_array(path / "0"), _entry_label_axes(entry),
+                                t=_entry_frame(entry), z_projection=z_projection,
+                                window=window)
+    return data
+
+
+def _frame_views(entry: Mapping[str, Any]) -> Dict[str, Dict[str, Any]]:
+    """``{frame file name: ledger view}`` of one time-lapse field entry (item 0aj P3).
+
+    Each frame is listed under its own field file name, with ``t`` its
+    index and ``plane_sha256`` the checksums of its own planes, so the
+    readers, ``verify_store`` and the originals check treat it as one field.
+    """
+    frames = list(entry.get("frames") or ())
+    views: Dict[str, Dict[str, Any]] = {}
+    hashes = list(entry.get("plane_sha256") or ())
+    per = len(hashes) // len(frames) if frames and hashes else 0
+    merged = set(int(t) for t in entry.get("merged_frames") or range(len(frames))) \
+        if "shape" in entry else set()
+    for index, name in enumerate(frames):
+        view = {k: v for k, v in entry.items() if k not in ("frames", "merged_frames")}
+        view["name"] = str(name)
+        view["t"] = index
+        if per:
+            view["plane_sha256"] = hashes[index * per:(index + 1) * per]
+        if "shape" in entry and index not in merged:
+            view.pop("shape", None)
+        views[str(name)] = view
+    return views
+
+
+def _frame_planes_count(entry: Mapping[str, Any]) -> int:
+    """How many stored 2-D planes one frame of an entry has (C x Z)."""
+    shape = entry.get("image_shape")
+    axes = _entry_axes(entry)
+    if not shape:
+        return 0
+    n = 1
+    for axis, size in zip(axes[:-2], shape[:-2]):
+        if axis != "t":
+            n *= int(size)
+    return n
+
+
+def _write_stack_series(writer: PlateWriter, names: Sequence[str], frames: Sequence[np.ndarray],
+                        channels: Sequence[Any], *, z_planes: bool) -> str:
+    """Write one field's frames (and raw z planes) into fov.ome.zarr and commit it (item 0aj P3).
+
+    The one writer of a field with a t or z axis, as :func:`_write_stack_field`
+    is for a 2-D field: the channels are stored exactly as acquired, every
+    plane's sha256 recorded, and the 2-D view each Mask stage reads (the
+    maximum projection over z, ``stack_shape``) is computed on read.
+
+    :param writer: from :func:`_stack_writer`.
+    :param names: the field file name of each frame, in time order.
+    :param frames: each frame ``(C, Z, Y, X)`` when ``z_planes`` else ``(C, Y, X)``.
+    :param channels: the channel id of each plane.
+    :param z_planes: whether the frames carry a z axis.
+    :returns: the field's store key.
+    """
+    if not names or len(names) != len(frames):
+        raise ValueError("a field series needs one name per frame")
+    series = len(names) > 1
+    image = np.stack([np.asarray(f) for f in frames]) if series else np.asarray(frames[0])
+    axes = ("t" if series else "") + ("czyx" if z_planes else "cyx")
+    image = np.ascontiguousarray(image)
+    view, _left = select_planes(image, axes, t=0 if series else None)
+    stack_shape = [int(view.shape[-2]), int(view.shape[-1]), int(view.shape[0])]
+    plates_wells = {split_field_name(n)[1:] for n in names}
+    if len(plates_wells) != 1:
+        raise ValueError(f"the frames {list(names)} are not one field")
+    well, field = next(iter(plates_wells))
+    record: Dict[str, Any] = {
+        "image_planes": STACK_PLANES, "stack_dtype": image.dtype.str,
+        "stack_shape": stack_shape, "image_dtype": image.dtype.str,
+        "image_shape": [int(v) for v in image.shape],
+        "plane_sha256": _plane_hashes(image),
+        "source_channels": [str(c) for c in channels]}
+    if series:
+        record["frames"] = [os.path.basename(str(n)) for n in names]
+    else:
+        record["name"] = os.path.basename(str(names[0]))
+    return writer.write_field(well, field, image, None, record=record, axes=axes)
+
+
+def _write_merged_frame(writer: PlateWriter, name: str, stack: np.ndarray,
+                        layout: Mapping[str, Any], entry: Mapping[str, Any]) -> Optional[str]:
+    """Add one merged frame's masks to a time-lapse field (item 0aj P3).
+
+    The masks of each frame are held until the field's last frame arrives;
+    then every class is written as one ``(T, Y, X)`` label image and the
+    field is committed (the 430 rule: a field counts as merged only once
+    all its frames are on disk). The channels are never touched.
+
+    :param writer: the merged store's writer.
+    :param name: the frame's field file name.
+    :param stack: the merged frame ``(Y, X, planes)``.
+    :param layout: the store's plane layout.
+    :param entry: the field's committed ledger entry (with ``frames``).
+    :returns: the field key once committed, else None.
+    """
+    frames = [str(f) for f in entry["frames"]]
+    index = frames.index(os.path.basename(str(name)))
+    labels = {role: _compact_labels(stack[..., int(dim)])
+              for role, dim in (layout.get("mask_dims") or {}).items()
+              if int(dim) < stack.shape[-1]}
+    # The frames wait on the writer itself, so a new run never sees an old run's frames.
+    waiting = writer.__dict__.setdefault("_pending_frames", {})
+    pending = waiting.setdefault(entry["key"], {})
+    pending[index] = (labels, [int(v) for v in stack.shape], stack.dtype.str)
+    if len(pending) < len(frames):
+        return None
+    del waiting[entry["key"]]
+    roles = list(pending[0][0])
+    series = {}
+    for role in roles:
+        planes = [pending[t][0][role] for t in range(len(frames))]
+        wide = np.result_type(*[p.dtype for p in planes])
+        series[role] = _compact_labels(np.stack([p.astype(wide, copy=False) for p in planes]))
+    _plate, well, field = split_field_name(frames[0])
+    label_axes = "t" + ("zyx" if "z" in _entry_label_axes(entry) else "yx")
+    return writer.write_labels(well, field, series, label_axes=label_axes, record={
+        "dtype": pending[0][2], "shape": pending[0][1],
+        "merged_frames": list(range(len(frames)))})
+
+
+def _layered_entry(writer: PlateWriter, name: str) -> Optional[Dict[str, Any]]:
+    """The committed time-lapse field entry a frame name belongs to, or None."""
+    try:
+        _plate, well, field = split_field_name(name)
+    except ValueError:
+        return None
+    entry = writer._committed.get(field_key(well, field))
+    if entry and os.path.basename(str(name)) in (entry.get("frames") or ()):
+        return entry
+    return None
+
+
+def _frame_depth(entry: Mapping[str, Any]) -> int:
+    """How many z planes each channel of a stored field frame has (1 without a z axis)."""
+    axes = _entry_axes(entry)
+    shape = entry.get("image_shape")
+    if "z" not in axes or not shape:
+        return 1
+    return int(shape[axes.index("z")])
+
+
+def z_order(key: Sequence[Any]) -> Tuple[Any, ...]:
+    """The sort key that puts one channel's raw files in z order (item 0aj P3).
+
+    :param key: a raw-image key ``(plate, well, field, channel, time, slice)``
+        from :func:`spacr.io._raw_images_by_key`.
+    :returns: a key ordering by the slice number (numeric when it is one),
+        the one order Mask stores z planes in and the originals check reads.
+    """
+    value = key[5] if len(key) > 5 else None
+    try:
+        number = int(str(value))
+    except (TypeError, ValueError):
+        return (1, str(value))
+    return (0, number)
+
+
+def merged_source(project: Any, image_format: str = "ome-zarr") -> str:
+    """The merged fields of a project folder: ``fov.ome.zarr`` or ``merged/`` (item 0aj).
+
+    THE one choice every reader of merged fields makes (Mask's overlays,
+    the time-lapse readers, motility); list it with :func:`_list_fields` and
+    read each field with :func:`_read_field`.
+
+    :param project: the project (plate) folder.
+    :param image_format: ``'ome-zarr'`` reads the store when it holds
+        fields; any other format reads ``merged/`` when it exists. Either
+        falls back to the one that is there.
+    :returns: the store or folder path.
+    """
+    store = os.fspath(_merged_store_path(project))
+    folder = os.path.join(os.fspath(project), "merged")
+    if _is_merged_store(store) and (image_format == "ome-zarr" or not os.path.isdir(folder)):
+        return store
+    return folder
+
+
+def merged_field_path(source: Any, name: str) -> Optional[str]:
+    """The path :func:`_read_field` reads one merged field by name from, or None (item 0aj P3).
+
+    :param source: ``merged/`` or the project's ``fov.ome.zarr``.
+    :param name: the field file name, with or without ``.npy``.
+    """
+    base = os.path.splitext(os.path.basename(str(name)))[0]
+    for candidate in (base + ".npy", str(name), str(name) + ".npy"):
+        path = os.path.join(os.fspath(source), candidate)
+        if os.path.isfile(path) or _store_field(path) is not None:
+            return path
+    return None
+
+
+def _time_key(name: str) -> Tuple[Any, ...]:
+    """Sort key of a field file name by its time point (numeric when it is one)."""
+    from .schema import KEY_SEPARATOR
+
+    parts = os.path.splitext(os.path.basename(str(name)))[0].split(KEY_SEPARATOR)
+    token = parts[3] if len(parts) > 3 else ""
+    try:
+        return (0, int(token))
+    except ValueError:
+        return (1, token)
+
+
+def _write_merged_series(writer: PlateWriter, names: Sequence[str],
+                         stacks: Sequence[np.ndarray], layout: Mapping[str, Any]) -> str:
+    """Write an older project's merged time-lapse frames as one field with a t axis (item 0aj P3).
+
+    :param writer: the merged store's writer.
+    :param names: the frames' field file names.
+    :param stacks: each merged frame ``(Y, X, planes)``, same shape and dtype.
+    :param layout: the store's plane layout.
+    :returns: the field's store key.
+    """
+    order = sorted(range(len(names)), key=lambda i: _time_key(names[i]))
+    names = [os.path.basename(str(names[i])) for i in order]
+    stacks = [np.asarray(stacks[i]) for i in order]
+    if len({(s.shape, s.dtype.str) for s in stacks}) != 1:
+        raise ValueError(f"{names[0]}: the time points differ in shape or dtype")
+    n_intensity = len(layout.get("intensity_channels") or ())
+    image = np.ascontiguousarray(np.stack([np.moveaxis(s[..., :n_intensity], -1, 0)
+                                           for s in stacks]))
+    labels = {role: _compact_labels(np.stack([s[..., int(dim)] for s in stacks]))
+              for role, dim in (layout.get("mask_dims") or {}).items()
+              if int(dim) < stacks[0].shape[-1]}
+    _plate, well, field = split_field_name(names[0])
+    return writer.write_field(well, field, image, labels, axes="tcyx", label_axes="tyx", record={
+        "frames": names, "dtype": stacks[0].dtype.str,
+        "shape": [int(v) for v in stacks[0].shape], "image_dtype": image.dtype.str,
+        "image_shape": [int(v) for v in image.shape], "plane_sha256": _plane_hashes(image),
+        "merged_frames": list(range(len(names)))})

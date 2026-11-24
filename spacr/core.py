@@ -187,14 +187,9 @@ def _merged_source(src, image_format='ome-zarr'):
         exists. Either falls back to the one that is there.
     :returns: the store or folder path.
     """
-    from .image_store import _is_merged_store, _merged_store_path
+    from .image_store import merged_source
 
-    store = os.fspath(_merged_store_path(src))
-    folder = os.path.join(src, 'merged')
-    has_store = _is_merged_store(store)
-    if has_store and (image_format == 'ome-zarr' or not os.path.isdir(folder)):
-        return store
-    return folder
+    return merged_source(src, image_format)
 
 
 def _settle_run_originals(src, settings, merge_format, source_plate=None):
@@ -1026,12 +1021,8 @@ def preprocess_generate_masks(settings):
                             _pivot_counts_table(db_path=os.path.join(src,'measurements', 'measurements.db'))
 
                         field_format = str(settings.get('mask_image_format') or 'ome-zarr').strip().lower()
-                        if settings['timelapse'] and field_format == 'ome-zarr':
-                            from .qt.i18n import tr
-
-                            print(tr("Spatial OME-Zarr export cannot represent timepoints. Timelapse processing will use the retained merged NPY files."))
-                        merge_format = ('ome-zarr' if field_format == 'ome-zarr'
-                                        and not settings['timelapse'] else 'npy')
+                        # Item 0aj P3: a time-lapse field is one fov.ome.zarr field with a t axis.
+                        merge_format = 'ome-zarr' if field_format == 'ome-zarr' else 'npy'
                         _load_and_concatenate_arrays(
                             src,
                             settings.get('channels'),

@@ -831,6 +831,7 @@ class _StoreFieldWindows:
         from .image_store import _image_planes, _store_layout
 
         layout = _store_layout(store) or {}
+        self.entry = dict(entry)
         self.group = store / entry["key"]
         self.n_intensity = len(layout.get("intensity_channels") or ())
         self.planes = _image_planes(entry, layout)
@@ -849,16 +850,27 @@ class _StoreFieldWindows:
         """Forget the prefetched region."""
         self._region, self._cache = None, {}
 
+    def _box(self, name: str, array_path: Path, y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
+        """One box of a stored array: ``array[..., y0:y1, x0:x1]`` of a 2-D field, or
+        the field frame with z reduced on read (item 0aj P3, the shared reader)."""
+        from .image_store import _is_layered, read_frame_channels, read_frame_labels
+
+        if not _is_layered(self.entry):
+            return np.asarray(_open_pool(array_path)[..., y0:y1, x0:x1])
+        if name == "0":
+            return read_frame_channels(self.group, self.entry, window=(y0, y1, x0, x1))
+        return read_frame_labels(self.group, self.entry, name.split("/", 1)[1],
+                                 window=(y0, y1, x0, x1))
+
     def _read(self, name: str, array_path: Path, y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
         """``array[..., y0:y1, x0:x1]``, from the prefetched region when it holds the box."""
         region = self._region
         if region is not None and region[0] <= y0 and y1 <= region[1] and region[2] <= x0 and x1 <= region[3]:
             block = self._cache.get(name)
             if block is None:
-                block = self._cache[name] = np.asarray(
-                    _open_pool(array_path)[..., region[0]:region[1], region[2]:region[3]])
+                block = self._cache[name] = self._box(name, array_path, *region)
             return block[..., y0 - region[0]:y1 - region[0], x0 - region[2]:x1 - region[2]]
-        return np.asarray(_open_pool(array_path)[..., y0:y1, x0:x1])
+        return self._box(name, array_path, y0, y1, x0, x1)
 
     def channels(self, channels: Sequence[int], y0: int, y1: int, x0: int, x1: int) -> np.ndarray:
         """``(C, h, w)`` of the given merged planes (intensity planes only)."""
