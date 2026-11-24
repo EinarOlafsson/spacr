@@ -1342,15 +1342,18 @@ def save_settings_csv(path: Path, settings: Dict[str, Any]) -> Path:
 
     :param path: CSV file to write; made absolute, its parent folder is
         created, and an existing file is overwritten.
-    :param settings: settings to write, one ``Key,Value`` row each; ``None`` is
-        written as an empty value and everything else with ``str()``.
+    :param settings: settings to write, one ``Key,Value`` row each, after the
+        ``spacr_settings_version`` stamp; ``None`` is written as an empty
+        value and everything else with ``str()``.
     """
+    from ..settings import _stamp_settings_version
+
     path = Path(path).absolute()
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["Key", "Value"])
-        for k, v in settings.items():
+        for k, v in _stamp_settings_version(settings).items():
             w.writerow([k, "" if v is None else str(v)])
     LOG.info("saved settings CSV → %s (%d keys)", path, len(settings))
     return path
