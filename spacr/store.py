@@ -25,6 +25,7 @@ import os
 import time
 import urllib.parse
 import uuid
+from contextlib import contextmanager
 from typing import Any, Dict, Iterator, List, Mapping, Optional, Sequence
 
 import numpy as np
@@ -1261,6 +1262,7 @@ class Store:
         """Read the registry of ``project``; see :func:`open`."""
         self.project = os.path.abspath(os.fspath(project))
         self.threads = threads
+        self._lazy_legacy: Optional[List[str]] = None
         self._conn = None
         self._files: List[Dict[str, Any]] = []
         self._tables: Dict[str, Dict[str, Any]] = {}
@@ -1280,11 +1282,11 @@ class Store:
         """
         self.close()
         self._arrays = {}
-        self._conn = _connect(threads=self.threads)
         catalog = os.path.join(self.project, CATALOG)
         if os.path.isfile(self.project) or not os.path.isfile(catalog):
             self._attach_legacy()
             return self
+        self._conn = _connect(threads=self.threads)
         source = _connect(catalog, read_only=True)
         try:
             columns = [c[0] for c in source.execute(
@@ -1314,7 +1316,12 @@ class Store:
         return self
 
     def _attach_legacy(self) -> None:
-        """Open an older ``measurements.db`` through DuckDB's sqlite reader."""
+        """Open an older ``measurements.db``, ``.duckdb`` or ``.parquetdb``.
+
+        A SQLite file gets its DuckDB views on first SQL use.
+        """
+        if _legacy_attach(self):
+            return
         path = self.project
         if not os.path.isfile(path):
             path = next((os.path.join(self.project, n) for n in _LEGACY_NAMES
@@ -1325,6 +1332,13 @@ class Store:
                 f"{self.project} has neither {CATALOG} nor measurements.db")
         self.legacy = path
         names = _sqlite_tables(path)
+        self._tables = {name: {"sort_by": [], "key_columns": []}
+                        for name in names}
+        self._lazy_legacy = names
+
+    def _legacy_views(self, names: List[str]) -> None:
+        """One DuckDB view per table of the attached SQLite file."""
+        path = self.legacy
         try:
             for statement in ("LOAD sqlite", "INSTALL sqlite"):
                 try:
@@ -1342,8 +1356,6 @@ class Store:
         except Exception:
             for name in names:
                 self._conn.register(name, _sqlite_arrow(path, name))
-        self._tables = {name: {"sort_by": [], "key_columns": []}
-                        for name in names}
 
     def tables(self) -> List[str]:
         """The tables this store answers queries on."""
@@ -1749,9 +1761,10 @@ class Store:
 
     def close(self) -> None:
         """Close the in-memory connection."""
-        if self._conn is not None:
-            self._conn.close()
-            self._conn = None
+        self._lazy_legacy = None
+        if self._duck is not None:
+            self._duck.close()
+            self._duck = None
 
     def __enter__(self) -> "Store":
         """The store itself, for ``with``."""
@@ -1760,6 +1773,80 @@ class Store:
     def __exit__(self, *exc) -> None:
         """Close on leaving ``with``."""
         self.close()
+
+    @property
+    def _conn(self):
+        """The in-memory DuckDB connection.
+
+        An older SQLite file gets it, and its views, on first use, so a
+        caller that only reads whole tables never starts DuckDB.
+        """
+        if self._duck is None and self._lazy_legacy is not None:
+            names, self._lazy_legacy = self._lazy_legacy, None
+            self._duck = _connect(threads=self.threads)
+            self._legacy_views(names)
+        return self._duck
+
+    @_conn.setter
+    def _conn(self, value) -> None:
+        """Hold ``value`` as the DuckDB connection."""
+        self._duck = value
+
+    def _known(self, table: str) -> None:
+        """Refuse a table this store does not hold."""
+        if table not in self._tables:
+            raise StoreError(f"no table {table!r}; this store holds "
+                             f"{self.tables()}")
+
+    def _table_columns(self, table: str):
+        """The columns of one table, in stored order.
+
+        :param table: the table.
+        :returns: a DataFrame with ``name`` and ``type`` (the stored type).
+        :raises StoreError: when the store has no such table.
+        """
+        import pandas as pd
+
+        self._known(table)
+        if _legacy_is_sqlite(self):
+            rows = _legacy_sqlite_columns(self.legacy, table)
+        else:
+            rows = [(row[0], row[1]) for row in self._conn.execute(
+                f"DESCRIBE SELECT * FROM {_ident(table)}").fetchall()]
+        return pd.DataFrame(rows, columns=["name", "type"])
+
+    def _frames(self, table: str, *, limit: Optional[int] = None,
+                chunksize: int = 100_000, **sqlite_kwargs) -> Iterator[Any]:
+        """One table as stored, in pandas frames of at most ``chunksize`` rows.
+
+        At least one frame is yielded, empty with the table's columns when
+        there are no rows. An older SQLite file is read with SQLite's own
+        value types, as ``pandas.read_sql_query`` gives them.
+
+        :param table: the table.
+        :param limit: read at most this many rows; None reads every row.
+        :param chunksize: rows per frame.
+        :param sqlite_kwargs: passed to ``pandas.read_sql_query`` for an
+            older SQLite file; ignored otherwise.
+        :returns: an iterator over DataFrames.
+        :raises StoreError: when the store has no such table.
+        """
+        self._known(table)
+        if _legacy_is_sqlite(self):
+            yield from _legacy_sqlite_frames(
+                self.legacy, table, limit=limit, chunksize=chunksize,
+                **sqlite_kwargs)
+            return
+        sql = f"SELECT * FROM {_ident(table)}"
+        if limit is not None:
+            sql += f" LIMIT {max(int(limit), 0)}"
+        reader = _reader_of(self._conn, sql, None, int(chunksize))
+        yielded = False
+        for batch in reader:
+            yielded = True
+            yield _table_of([batch]).to_pandas(split_blocks=True)
+        if not yielded:
+            yield reader.schema.empty_table().to_pandas()
 
 
 def _upcast_half(result):
@@ -2081,13 +2168,7 @@ def _read_rows(array, indices: np.ndarray) -> np.ndarray:
 
 def _sqlite_tables(path: str) -> List[str]:
     """The table names of a SQLite file."""
-    import sqlite3
-
-    with sqlite3.connect(f"file:{path}?mode=ro", uri=True,
-                         timeout=30) as conn:
-        return [row[0] for row in conn.execute(
-            "SELECT name FROM sqlite_master WHERE type = 'table' AND name "
-            "NOT LIKE 'sqlite_%' ORDER BY name").fetchall()]
+    return _legacy_sqlite_tables(path)
 
 
 def _sqlite_arrow(path: str, table: str):
@@ -2118,3 +2199,198 @@ def open(project, *, threads: Optional[int] = None,
         changed.
     """
     return Store(project, threads=threads, verify=verify)
+
+
+
+#: Suffixes of a DuckDB measurement copy.
+_LEGACY_DUCKDB_SUFFIXES: tuple[str, ...] = (".duckdb", ".ddb")
+
+#: Suffix of a Parquet-folder measurement copy.
+_LEGACY_PARQUET_SUFFIX = ".parquetdb"
+
+
+def _legacy_kind(path: Any) -> str:
+    """Which older format a path holds: ``'parquet'``, ``'duckdb'`` or
+    ``'sqlite'``.
+
+    :param path: a file or folder path.
+    :returns: the format name; anything that is neither a ``.parquetdb``
+        folder nor a ``.duckdb``/``.ddb`` file is SQLite.
+    """
+    text = os.fspath(path).rstrip("/\\")
+    suffix = os.path.splitext(text)[1].lower()
+    if suffix == _LEGACY_PARQUET_SUFFIX:
+        return "parquet"
+    if (suffix in _LEGACY_DUCKDB_SUFFIXES and os.path.basename(text) != CATALOG
+            and not os.path.isdir(text)):
+        return "duckdb"
+    return "sqlite"
+
+
+def _legacy_is_sqlite(store) -> bool:
+    """Whether an open :class:`spacr.store.Store` reads an older SQLite file.
+
+    :param store: the store.
+    :returns: True for a SQLite file, False for a store project or another
+        older format.
+    """
+    return store.legacy is not None and _legacy_kind(store.legacy) == "sqlite"
+
+
+def _legacy_sqlite_connection(path: Any, *, read_only: bool = True):
+    """Open a SQLite file the way spaCR reads and writes measurements.
+
+    Inside an atomic write packet for the same file, the packet's own
+    connection is returned, so the caller sees its uncommitted rows.
+
+    :param path: the SQLite file.
+    :param read_only: open through ``file:...?mode=ro``.
+    :returns: a :class:`sqlite3.Connection`.
+    """
+    import sqlite3
+
+    from .database_concurrency import _inside_write_packet, connect
+
+    if read_only:
+        return connect(path, readonly=True)
+    if _inside_write_packet(path):
+        return connect(path)
+    return sqlite3.connect(path, timeout=30)
+
+
+@contextmanager
+def _legacy_reading(path: str):
+    """A read-only connection, closed afterwards unless a write packet owns it."""
+    from .database_concurrency import _inside_write_packet
+
+    conn = _legacy_sqlite_connection(path, read_only=True)
+    try:
+        yield conn
+    finally:
+        if not _inside_write_packet(path):
+            conn.close()
+
+
+def _legacy_quoted(name: str) -> str:
+    """A SQLite identifier in double quotes."""
+    return '"' + str(name).replace('"', '""') + '"'
+
+
+def _legacy_sqlite_tables(path: str) -> List[str]:
+    """The table names of a SQLite file, without SQLite's own tables.
+
+    :param path: the SQLite file.
+    :returns: the names, sorted.
+    """
+    with _legacy_reading(path) as conn:
+        return [row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name "
+            "NOT LIKE 'sqlite_%' ORDER BY name").fetchall()]
+
+
+def _legacy_sqlite_columns(path: str, table: str) -> List[tuple[str, str]]:
+    """The columns of one SQLite table, with their declared types.
+
+    :param path: the SQLite file.
+    :param table: the table.
+    :returns: ``(name, declared type)`` pairs in stored order.
+    """
+    with _legacy_reading(path) as conn:
+        return [(str(row[1]), str(row[2] or "")) for row in conn.execute(
+            f"PRAGMA table_info({_legacy_quoted(table)})").fetchall()]
+
+
+def _legacy_sqlite_frames(path: str, table: str, *, limit: Optional[int] = None,
+                  chunksize: int = 100_000, **kwargs) -> Iterator[Any]:
+    """One SQLite table in pandas frames, with SQLite's own value types.
+
+    :param path: the SQLite file.
+    :param table: the table.
+    :param limit: read at most this many rows; None reads every row.
+    :param chunksize: rows per frame.
+    :param kwargs: passed to :func:`pandas.read_sql_query`.
+    :returns: an iterator yielding at least one frame.
+    """
+    import pandas as pd
+
+    quoted = _legacy_quoted(table)
+    query = f"SELECT * FROM {quoted}"
+    if limit is not None:
+        query += f" LIMIT {int(limit)}"
+    with _legacy_reading(path) as conn:
+        yielded = False
+        for chunk in pd.read_sql_query(query, conn, chunksize=chunksize,
+                                       **kwargs):
+            yielded = True
+            yield chunk
+        if not yielded:
+            yield pd.read_sql_query(f"SELECT * FROM {quoted} LIMIT 0", conn,
+                                    **kwargs)
+
+
+def _legacy_parquet_tables(folder: str) -> List[str]:
+    """The tables of a ``.parquetdb`` folder that hold at least one part.
+
+    A folder is read as an escaped table name only when it is exactly the
+    Windows spelling of a name Windows forbids.
+
+    :param folder: the ``.parquetdb`` folder.
+    :returns: the names, sorted.
+    """
+    from .tabular import (_parquet_parts, _parquet_table_name,
+                          _parquet_verbatim_folder)
+
+    if not os.path.isdir(folder):
+        return []
+    names = set()
+    for entry in os.listdir(folder):
+        table = _parquet_table_name(entry)
+        if (table != entry and not _parquet_verbatim_folder(folder, table)
+                and _parquet_parts(folder, table)):
+            names.add(table)
+        elif _parquet_parts(folder, entry):
+            names.add(entry)
+    return sorted(names)
+
+
+def _legacy_attach(store) -> bool:
+    """Give an open store the views of a ``.duckdb`` file or a ``.parquetdb``
+    folder.
+
+    :param store: the :class:`spacr.store.Store` being refreshed.
+    :returns: True when ``store.project`` is one of those formats (attached,
+        or absent and so empty), False for SQLite, which the store attaches
+        itself.
+    """
+    path = store.project
+    found = _legacy_kind(path)
+    if found == "sqlite":
+        return False
+    store.legacy = path
+    names: List[str] = []
+    if found == "parquet":
+        from .tabular import _parquet_parts
+
+        names = _legacy_parquet_tables(path)
+        store._conn = _connect(threads=store.threads)
+        for name in names:
+            files = ", ".join(_literal(part)
+                              for part in _parquet_parts(path, name))
+            store._conn.execute(
+                f"CREATE VIEW {_ident(name)} AS SELECT * FROM "
+                f"read_parquet([{files}], union_by_name = true)")
+    else:
+        store._conn = _connect(threads=store.threads)
+    if found == "duckdb" and os.path.isfile(path):
+        store._conn.execute(f"ATTACH {_literal(path)} AS legacy (READ_ONLY)")
+        names = sorted(row[0] for row in store._conn.execute(
+            "SELECT table_name FROM information_schema.tables "
+            "WHERE table_catalog = 'legacy' AND table_schema = 'main' "
+            "AND table_type = 'BASE TABLE'").fetchall())
+        for name in names:
+            store._conn.execute(
+                f"CREATE VIEW {_ident(name)} AS SELECT * FROM "
+                f"legacy.{_ident(name)}")
+    store._tables = {name: {"sort_by": [], "key_columns": []}
+                     for name in names}
+    return True
