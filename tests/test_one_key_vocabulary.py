@@ -345,7 +345,9 @@ def test_the_sql_column_list_is_canonical_too(tmp_path):
 #: the literal before doubting the move.
 #: 85 -> 73 on 2026-11-24: `io`, `hit_investigation` and `measure` read through
 #: `spacr.store` (unified store S7).
-DIRECT_READER_CEILING = 73
+#: 73 -> 68 on 2026-11-24: `anndata_export`, `cell_montage`, `lineage` and
+#: `notebook_export` read through `spacr.store` (unified store S7b).
+DIRECT_READER_CEILING = 68
 
 _DIRECT_READER = re.compile(r"pd\.read_csv\(|pd\.read_sql")
 

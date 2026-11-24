@@ -67,7 +67,7 @@ def _connect_writable(db_path):
 def _connect_read_only(db_path):
     """A read-only connection that WAITS for Measure rather than failing.
 
-    `sqlite3.connect(..., mode=ro)` takes SQLite's five-second default and
+    A plain read-only SQLite connect takes SQLite's five-second default and
     then raises "database is locked" -- which, against a measurements.db
     a Measure run is still writing, is a report that fails for a reason
     that has nothing to do with the data. `database_concurrency.connect`

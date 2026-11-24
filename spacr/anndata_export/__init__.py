@@ -463,14 +463,15 @@ class ExportResult:
 def _available_tables(db_path: Union[str, os.PathLike]) -> Tuple[str, ...]:
     """Return the tables present in ``db_path``, in ``sqlite_master`` order.
 
-    :param db_path: a ``measurements.db``.
-    :returns: table names; empty when the file does not exist.
+    :param db_path: a ``measurements.db`` or a spaCR store project.
+    :returns: table names; empty when nothing is there.
     """
-    if not os.path.isfile(os.fspath(db_path)):
-        return ()
     from .. import store
 
-    return tuple(store._legacy_sqlite_tables(os.fspath(db_path)))
+    try:
+        return tuple(store.shared(db_path).tables())
+    except (FileNotFoundError, TypeError, ValueError):
+        return ()
 
 
 def _read_frame(db_path: str, tables: Sequence[str],

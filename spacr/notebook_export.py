@@ -114,15 +114,14 @@ def _output_cell_for(app_key: str, run_dir: Path) -> str:
     """Return per-app tabular / plot scaffold reading the run's outputs."""
     if app_key in ("measure", "crop"):
         return (
-            "import pandas as pd\n"
-            "import sqlite3\n"
+            "from spacr import store\n"
             "\n"
-            "# spaCR writes measurements to a SQLite DB under the plate\n"
+            "# spaCR writes measurements to a SQLite (sqlite3) DB under the plate\n"
             "# root. Substitute your `src` if you re-ran the pipeline\n"
             "# somewhere else.\n"
             f"db_path = SETTINGS['src'] + '/measurements/measurements.db'\n"
-            "with sqlite3.connect(db_path) as _conn:\n"
-            "    cell_df = pd.read_sql('select * from cell limit 500', _conn)\n"
+            "cell_df = store._sql_frame(store.shared(db_path),\n"
+            "                           'select * from cell limit 500')\n"
             "cell_df.head()\n"
         )
     if app_key == "mask":

@@ -97,7 +97,9 @@ RAW_CALL = re.compile(r"pd\.read_csv\(|pd\.read_sql\w*\(|\.to_csv\(|\.to_sql\(")
 #: `io` (settings history, crop rows, png_list, table joins), `hit_investigation`
 #: and `measure` take their tables from `spacr.store` instead of
 #: `pandas.read_sql`.
-CEILING = 230
+#: 230 -> 225 on 2026-11-24: `anndata_export`, `cell_montage`, `lineage` and
+#: `notebook_export` read through `spacr.store` (unified store S7b).
+CEILING = 225
 
 #: Files allowed to hold raw calls without argument, and why.
 EXPECTED_HOMES = {

@@ -295,3 +295,30 @@ def test_the_cell_montage_object_frame_matches_on_a_store_project(tmp_path):
     for target in (legacy, project):
         with pytest.raises(cm.MontageError, match="nope"):
             cm.load_montage_objects(str(target), table="nope")
+
+
+def test_anndata_export_reads_a_store_project_like_the_legacy_file(tmp_path):
+    from spacr import anndata_export as ae
+    legacy, project = _legacy(tmp_path), _project(tmp_path)
+    assert set(ae._available_tables(str(legacy))) == {"cell", "png_list"}
+    assert set(ae._available_tables(str(project))) >= {"cell", "png_list"}
+    old, used_old = ae._read_frame(str(legacy), ("cell",), "cell")
+    new, used_new = ae._read_frame(str(project), ("cell",), "cell")
+    assert used_old == used_new == ("cell",)
+    columns = [c for c in old.columns if c in new.columns]
+    assert {"object_label", "cell_area"} <= set(columns)
+    assert_frame_equal(
+        new[columns].sort_values("object_label").reset_index(drop=True),
+        old[columns].sort_values("object_label").reset_index(drop=True),
+        check_dtype=False)
+
+
+def test_lineage_reads_every_table_of_a_store_writer_project_like_the_legacy_file(tmp_path):
+    from spacr import lineage
+    project = _project(tmp_path, "ops")
+    legacy = _legacy(tmp_path, "ops_legacy")
+    for table in ("cell", "png_list"):
+        new = lineage.read_object_tables(str(project), tables=[table]).get(table)
+        old = lineage.read_object_tables(str(legacy), tables=[table]).get(table)
+        assert new is not None and old is not None
+        assert len(new) == len(old) == 3

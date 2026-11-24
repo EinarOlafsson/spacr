@@ -1582,7 +1582,7 @@ def _sqlite_table_counts(path: Path, max_tables: int = 40) -> List[Tuple[str, in
         from . import store
 
         conn = store._legacy_open(store.shared(path))
-    except (sqlite3.Error, store.StoreError):
+    except (sqlite3.Error, store.StoreError, FileNotFoundError):
         return out
     try:
         names = [r[0] for r in conn.execute(
