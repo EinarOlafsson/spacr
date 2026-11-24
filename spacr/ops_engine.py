@@ -8780,8 +8780,8 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
 _PH_TABLE_COMPARTMENTS = ("cell", "nucleus", "cytoplasm")
 
 #: The key columns every ``ph_tables`` row carries, in this order.
-_PH_TABLE_KEYS = ("prcfo", "plateID", "rowID", "columnID", "fieldID",
-                  "object_label", "object_id", "sgRNA", "gene",
+_PH_TABLE_KEYS = ("prcfo", "object_key", "rowID", "columnID", "fieldID",
+                  "timeID", "object_label", "object_id", "sgRNA", "gene",
                   "genotype_rule", "mitotic", "owned")
 
 
@@ -8908,109 +8908,374 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
     return keys, features
 
 
-def _ph_insert_rows(conn, table: str, frame) -> None:
-    """Append ``frame`` to ``table`` in one transaction, creating or widening it.
+#: Rows per batch when a well's cells are streamed from the well table
+#: rather than from the per-field tables.
+_PH_TABLE_BATCH_ROWS = 4096
 
-    :param conn: an open sqlite3 connection.
-    :param table: the table.
-    :param frame: the rows.
 
-    One ``executemany`` per frame inside one ``BEGIN``/``COMMIT`` (item
-    810): an autocommit connection would sync every row.
+def _ph_key_fields(integer_keys: bool):
+    """The Arrow fields of :data:`_PH_TABLE_KEYS`, ``cell_key`` third when asked.
+
+    The keys of every spaCR store object table, as Measure writes them
+    (:func:`spacr.measure._write_measure_store`): ``prcfo``, the integer
+    ``object_key`` (:func:`spacr.ops_run_infra.integer_cell_key` of row,
+    column, field and label), ``rowID``, ``columnID``, ``fieldID`` and
+    ``timeID`` (null: an OPS screen is not a time course); the plate and
+    well are the store's ``plate`` and ``well`` partition columns. Then the
+    OPS keys. Ids and labels are exact integers (``object_label`` uint32):
+    ``object_id`` is null for an unlinked cell, ``mitotic`` is 0, 1 or null
+    and ``owned`` is 1.
     """
-    from .utils import _sqlite_identifier, _sqlite_value
+    import pyarrow as pa
 
-    if frame.empty and len(frame.columns) == 0:
+    text = pa.string()
+    fields = [pa.field("prcfo", text), pa.field("object_key", pa.int64())]
+    if integer_keys:
+        fields.append(pa.field("cell_key", pa.int64()))
+    fields += [pa.field(name, text) for name in
+               ("rowID", "columnID", "fieldID")]
+    fields += [pa.field("timeID", pa.uint16()),
+               pa.field("object_label", pa.uint32()),
+               pa.field("object_id", pa.int64()),
+               pa.field("sgRNA", text), pa.field("gene", text),
+               pa.field("genotype_rule", text), pa.field("mitotic", pa.int8()),
+               pa.field("owned", pa.int8())]
+    return fields
+
+
+def _ph_arrow_keys(keys, fields):
+    """:func:`_ph_table_frames`'s key frame as an Arrow table of ``fields``."""
+    import pandas as pd
+    import pyarrow as pa
+
+    arrays = []
+    for field in fields:
+        values = keys[field.name]
+        if pa.types.is_integer(field.type):
+            if field.name == "mitotic":
+                values = values.map(lambda v: np.nan if pd.isna(v)
+                                    else float(bool(v)))
+            numbers = pd.to_numeric(values, errors="coerce").to_numpy(float)
+            missing = np.isnan(numbers)
+            arrays.append(pa.array(
+                np.where(missing, 0, numbers).astype(field.type.to_pandas_dtype()),
+                field.type, mask=missing if missing.any() else None))
+        else:
+            arrays.append(pa.array([None if pd.isna(v) else str(v)
+                                    for v in values], field.type))
+    return pa.Table.from_arrays(arrays, schema=pa.schema(fields))
+
+
+def _ph_cell_chunks(destination: str, well: str, cell_path: str, sites,
+                    labels):
+    """Yield ``(offset, cells)`` of one well's cell table, a field at a time.
+
+    The well table (``ops_phenotype_cells_<well>.parquet``) is the
+    concatenation of the per-field tables under
+    ``<well>/phenotype_cells/``, so when every field the well table holds
+    has its per-field table with the same number of rows, those are read
+    one at a time and each one's labels are checked against the well
+    table's; otherwise the well table is read in batches of
+    :data:`_PH_TABLE_BATCH_ROWS` rows and handed on a field at a time.
+    Either way each chunk is one field (one run of equal ``site``) and the
+    chunks come in the well table's order, which ``sites`` and ``labels``
+    give.
+
+    :param destination: the run folder.
+    :param well: the well name.
+    :param cell_path: the well table.
+    :param sites: the well table's ``site`` column.
+    :param labels: its ``label`` column.
+    """
+    import pandas as pd
+    import pyarrow.parquet as pq
+
+    from .qt.i18n import tr
+
+    order, counts = [], []
+    if len(sites):
+        breaks = np.flatnonzero(np.diff(sites)) + 1
+        starts = np.concatenate([[0], breaks])
+        order = [int(sites[s]) for s in starts]
+        counts = np.diff(np.concatenate([starts, [len(sites)]])).tolist()
+    folder = os.path.join(destination, well, "phenotype_cells")
+    paths = [os.path.join(folder, f"site-{site}.parquet") for site in order]
+    per_field = len(set(order)) == len(order) and all(
+        os.path.isfile(p) for p in paths)
+    if per_field:
+        per_field = all(int(pq.ParquetFile(p).metadata.num_rows) == count
+                        for p, count in zip(paths, counts))
+    if not per_field:
+        source = pq.ParquetFile(cell_path)
+        offset, held = 0, []
+        for batch in source.iter_batches(batch_size=_PH_TABLE_BATCH_ROWS):
+            frame = batch.to_pandas()
+            site = frame["site"].to_numpy(np.int64)
+            cuts = np.flatnonzero(np.diff(site)) + 1
+            for piece in np.split(np.arange(len(frame)), cuts):
+                part = frame.iloc[piece]
+                if held and int(held[-1]["site"].iloc[0]) != int(
+                        part["site"].iloc[0]):
+                    whole = pd.concat(held, ignore_index=True)
+                    yield offset, whole
+                    offset += len(whole)
+                    held = []
+                held.append(part)
+        if held:
+            yield offset, pd.concat(held, ignore_index=True)
         return
-    quoted = _sqlite_identifier(table)
-    existing = [r[1] for r in conn.execute(f"PRAGMA table_info({quoted})")]
+    offset = 0
+    for path, count in zip(paths, counts):
+        frame = pd.read_parquet(path)
+        if not np.array_equal(frame["label"].to_numpy(np.int64),
+                              labels[offset:offset + count]):
+            raise ValueError(tr(
+                "{path} does not hold the cells the well table {table} "
+                "holds for its field; run ph_measure again",
+                path=path, table=cell_path))
+        yield offset, frame
+        offset += count
 
-    def declared(series) -> str:
-        """The SQLite type of a column."""
-        kind = series.dtype.kind
-        return {"i": "INTEGER", "u": "INTEGER", "b": "INTEGER",
-                "f": "REAL"}.get(kind, "TEXT")
 
-    if not existing:
-        conn.execute(f"CREATE TABLE {quoted} (" + ", ".join(
-            f"{_sqlite_identifier(str(c))} {declared(frame[c])}"
-            for c in frame.columns) + ")")
-    else:
-        for column in frame.columns:
-            if str(column) not in existing:
-                conn.execute(f"ALTER TABLE {quoted} ADD COLUMN "
-                             f"{_sqlite_identifier(str(column))} "
-                             f"{declared(frame[column])}")
-    columns = ", ".join(_sqlite_identifier(str(c)) for c in frame.columns)
-    marks = ", ".join("?" for _ in frame.columns)
-    values = [[_sqlite_value(v) for v in frame[c].tolist()]
-              for c in frame.columns]
-    conn.execute("BEGIN")
+def _ph_arrival_order(sites, labels) -> np.ndarray:
+    """The order :func:`_ph_stream_well` writes rows in, as well-table positions.
+
+    Field by field (each run of equal ``site``) in the well table's order
+    and by label within a field, which is ``object_key`` order there.
+    """
+    sites = np.asarray(sites, dtype=np.int64)
+    run = np.concatenate([[0], np.cumsum(np.diff(sites) != 0)])
+    return np.lexsort((np.asarray(labels, dtype=np.int64), run))
+
+
+def _ph_by_site(frame, well: str):
+    """``site -> rows`` of a per-cell table, for one well; empty when None."""
+    if frame is None or not len(frame):
+        return {}
+    if "well" in frame:
+        frame = frame[frame["well"].astype(str) == str(well)]
+    return {int(site): rows for site, rows in frame.groupby(
+        frame["site"].astype(np.int64), sort=False)}
+
+
+def _ph_stream_well(plate: str, well: str, destination: str,
+                    settings: Mapping[str, Any], links, genotype, rule: str,
+                    integer_keys: bool, project: str, run_id: str,
+                    layouts: Mapping[str, Sequence[str]],
+                    options: Optional[Mapping[str, Mapping[str, Any]]] = None
+                    ) -> Dict[str, Any]:
+    """Stream one well's owned, whole cells into the store, through :func:`spacr.store.writer`.
+
+    The cells are read a field at a time (:func:`_ph_cell_chunks`), each
+    field's rows become :func:`_ph_table_frames`'s keys and compartment
+    features, and every writer gets them field by field in the well table's
+    order and, within a field, by ``object_key``; so the memory a well
+    needs is one field plus one row group per table, not the well.
+
+    :param plate: the plate name.
+    :param well: the well name.
+    :param destination: the run folder.
+    :param settings: the OPS settings.
+    :param links: ``ops_merge`` rows, or None.
+    :param genotype: the aggregate phase's per-cell genotype, or None.
+    :param rule: :func:`_ph_genotype_rule`.
+    :param integer_keys: add ``cell_key``.
+    :param project: the store (the run's ``measurements`` folder).
+    :param run_id: the run.
+    :param layouts: ``table -> compartments`` it holds beside the keys; a
+        table holding only ``nucleus`` or ``cytoplasm`` also gets
+        ``parent_cell_key``, the cell's ``object_key``.
+    :param options: ``table -> extra`` :func:`spacr.store.writer` arguments
+        (crops, row copy).
+
+    The shared writer (:class:`spacr.store.WellWriter`) chooses the stored
+    dtypes from the recorded map, guarded by the well table's column
+    ranges, and writes one part per table per well.
+    :returns: ``{"rows": n, "owned": n, "source": "fields" | "well_table",
+        "dtypes": {...}, "promoted": [...]}``.
+    """
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    from . import schema as names, store
+
+    cell_path = _ph_cells_path(destination, well)
+    meta = pq.ParquetFile(cell_path)
+    source_schema = meta.schema_arrow
+    index = pq.read_table(cell_path, columns=["site", "label"])
+    sites = index.column("site").to_numpy().astype(np.int64)
+    labels = index.column("label").to_numpy().astype(np.int64)
+    del index
+    import pandas as pd
+
+    owned = _ph_owned_cells(destination, well, pd.DataFrame(
+        {"site": sites, "label": labels}), settings)
+    ranges = store._column_ranges(meta.metadata)
+    key_fields = _ph_key_fields(integer_keys)
+    by_compartment = {}
+    for compartment in _PH_TABLE_COMPARTMENTS:
+        by_compartment[compartment] = [
+            source_schema.field(c) for c in source_schema.names
+            if c.startswith(compartment + "_")
+            and not (compartment == "cell" and c.startswith("cell_id"))]
+    parent = pa.field("parent_cell_key", pa.int64())
+    opened = {}
+    key_columns = [f.name for f in key_fields]
+    channels = _ph_channels(settings)
     try:
-        conn.executemany(f"INSERT INTO {quoted} ({columns}) VALUES ({marks})",
-                         zip(*values))
-        conn.execute("COMMIT")
-    except Exception:
-        conn.execute("ROLLBACK")
+        for table, compartments in layouts.items():
+            linked = "cell" not in compartments
+            fields = (key_fields + ([parent] if linked else [])
+                      + [f for c in compartments for f in by_compartment[c]])
+            opened[table] = store.writer(
+                project, table, plate=plate, well=well, run_id=run_id,
+                key_columns=key_columns + (["parent_cell_key"] if linked
+                                           else []),
+                schema=pa.schema(fields), ranges=ranges, narrow=True,
+                channels=channels, **dict((options or {}).get(table) or {}))
+        links_of = _ph_by_site(links, well)
+        genotype_of = _ph_by_site(genotype, well)
+        row, column = names.parse_well(well)
+        source = "fields"
+        rows = 0
+        for offset, cells in _ph_cell_chunks(destination, well, cell_path, sites,
+                                             labels):
+            mine = owned[offset:offset + len(cells)]
+            if "plate" in cells:
+                source = "well_table"
+            if not mine.any():
+                continue
+            here = [int(s) for s in pd.unique(cells["site"].astype(np.int64))]
+            pieces = [links_of[s] for s in here if s in links_of]
+            chunk_links = pd.concat(pieces) if pieces else None
+            pieces = [genotype_of[s] for s in here if s in genotype_of]
+            chunk_genotype = pd.concat(pieces) if pieces else None
+            keys, features = _ph_table_frames(plate, well, cells, chunk_links,
+                                              chunk_genotype, mine, rule,
+                                              integer_keys=integer_keys)
+            del cells
+            from .ops_run_infra import integer_cell_key
+
+            keys["object_key"] = integer_cell_key(
+                int(row[1:]), int(column[1:]),
+                [int(str(f)[1:]) for f in keys["fieldID"]],
+                keys["object_label"].to_numpy())
+            keys["timeID"] = np.nan
+            order = pa.array(np.argsort(keys["object_key"].to_numpy(),
+                                        kind="stable"))
+            arrow_keys = _ph_arrow_keys(keys, key_fields).take(order)
+            arrow_features = {c: pa.Table.from_pandas(
+                f, preserve_index=False).take(order) for c, f in features.items()}
+            for table, compartments in layouts.items():
+                columns = list(arrow_keys.columns)
+                column_names = list(arrow_keys.column_names)
+                if "cell" not in compartments:
+                    columns.append(arrow_keys.column("object_key"))
+                    column_names.append("parent_cell_key")
+                for compartment in compartments:
+                    part = arrow_features[compartment]
+                    columns += list(part.columns)
+                    column_names += list(part.column_names)
+                opened[table].append(pa.Table.from_arrays(columns,
+                                                          names=column_names),
+                                     field=here[0] if len(here) == 1 else None)
+            rows += len(keys)
+        for part in opened.values():
+            part.finish()
+    except BaseException:
+        for part in opened.values():
+            part.abort()
         raise
+    stored = {}
+    promoted = []
+    for part in opened.values():
+        for field in part._schema:
+            stored.setdefault(field.name, str(field.type))
+        promoted += [p for p in part.promoted if p not in promoted]
+    counts = Counter(stored[f.name] for c in _PH_TABLE_COMPARTMENTS
+                     for f in by_compartment[c] if f.name in stored)
+    return {"rows": rows, "owned": int(owned.sum()),
+            "source": source, "dtypes": dict(sorted(counts.items())),
+            "promoted": promoted}
 
 
 def _ph_tables(db: str, plate: str, wells: Sequence[str],
                settings: Mapping[str, Any], destination: str,
                genotype_path: Optional[str] = None) -> Dict[str, Any]:
-    """Write spaCR's standard measurement tables; the ``ph_tables`` phase.
+    """Write spaCR's standard measurement tables to the store; the ``ph_tables`` phase.
 
     :param db: the run's OPS database (``ops_merge`` is read from it).
     :param plate: the plate name.
     :param wells: the wells run.
-    :param settings: read for ``ops_tables_parquet_threshold``,
-        ``ops_genotype_table`` and the ownership settings.
-    :param destination: the run folder; the tables go to
-        ``<dst_root>/measurements/measurements.db``.
+    :param settings: read for ``ops_tables_integer_keys``,
+        ``ops_tables_layout``, ``ops_genotype_table``, ``ops_ph_channels``
+        and the ownership settings.
+    :param destination: the run folder; the tables go to the spaCR store
+        (:mod:`spacr.store`) in ``<dst_root>/measurements/``, which
+        ``spacr.store.open`` reads.
     :param genotype_path: the aggregate phase's per-cell genotype table
         (``ops_cells_<plate>.parquet``); found in ``destination`` when None.
     :returns: the report.
 
-    One row per owned, whole cell (:func:`_ph_owned_cells`) in ``cell``,
-    ``nucleus`` and ``cytoplasm``: the keys of :data:`_PH_TABLE_KEYS` --
-    ``prcfo`` (``plate_rR_cC_fSITE_oLABEL``, :func:`spacr.schema.compose_prcfo`),
-    the plate, row, column and field ids, the cell's label, its sequencing
-    nucleus (``object_id``, empty when unlinked), the guide and gene the
-    aggregate phase pooled it under, which genotype that was, its mitotic
-    call and ``owned`` -- then the compartment's features. ``image`` gets
+    ONE LAYOUT FOR EVERY MODULE: the store, its table names and its keys
+    are the ones Measure's ``spacr_store`` writes
+    (:func:`spacr.measure._write_measure_store`): the project is the
+    measurements folder with one ``spacr.duckdb``, one table per object
+    class, one Parquet part per table per well under
+    ``tables/<class>/plate=<P>/well=<W>/``, the plate and well as the
+    ``plate`` and ``well`` partition columns, and ``prcfo``,
+    ``object_key``, ``rowID``, ``columnID`` and ``fieldID`` on every row.
+
+    One row per owned, whole cell (:func:`_ph_owned_cells`) in the tables
+    ``cell``, ``nucleus`` and ``cytoplasm``: the keys of
+    :data:`_PH_TABLE_KEYS` -- ``prcfo`` (``plate_rR_cC_fSITE_oLABEL``,
+    :func:`spacr.schema.compose_prcfo`), ``object_key``, the row, column
+    and field ids, the cell's label, its sequencing nucleus (``object_id``,
+    null when unlinked), the guide and gene the aggregate phase pooled it
+    under, which genotype that was, its mitotic call and ``owned`` -- then
+    the compartment's features, ordered by ``object_key``. ``image`` gets
     one row per field from ``merged/`` (:func:`_ph_merged`), when that was
     written.
 
     ``ops_tables_integer_keys`` adds ``cell_key``, an integer that joins
-    as ``prcfo`` does (:func:`spacr.ops_run_infra.integer_cell_key`), and
-    indexes it; ``ops_tables_layout`` ``'wide'`` also writes ``cell_wide``,
-    one row per cell with the keys and the cell, nucleus and cytoplasm
-    features side by side, which equals the three tables joined (item 872,
-    B17).
+    as ``prcfo`` does (:func:`spacr.ops_run_infra.integer_cell_key`);
+    ``ops_tables_layout`` ``'wide'`` also writes ``cell_wide``, one row per
+    cell with the keys and the cell, nucleus and cytoplasm features side by
+    side, which equals the three tables joined (item 872, B17).
 
-    The rows are written per well in one transaction per table (item 810),
-    and the join keys are indexed afterwards (item 811). When the plate
-    holds more owned cells than ``ops_tables_parquet_threshold``, the
-    features go to ``measurements/<table>/<plate>_<well>.parquet`` instead
-    and the database keeps the key columns only. The database is rebuilt
-    on every run.
+    STREAMED (:func:`_ph_stream_well`): a well is read one field at a time
+    and written in row groups, so the memory needed is one field, not the
+    well -- plate A's well A1 (1.59 million cells by 2,802 columns) did not
+    fit in 80 GB read whole.
+
+    SMALLEST DTYPES: each feature is stored in the dtype its column family
+    was measured to hold with negligible loss (the store's dtype map,
+    :func:`spacr.store._stored_types`, ``tools/measure_store_dtypes.py``);
+    ``spacr.store.open`` returns
+    float16 columns as float32. The tables are rebuilt on every run: the
+    run's earlier tables (and an older ``measurements.db``) are removed
+    first, so the same inputs give byte-identical parts.
     """
     import pandas as pd
 
-    from .database_concurrency import connect
+    from . import store
     from .qt.i18n import tr
 
     started = time.perf_counter()
     folder = os.path.join(destination, "measurements")
     os.makedirs(folder, exist_ok=True)
-    target = os.path.join(folder, "measurements.db")
-    for suffix in ("", "-wal", "-shm", "-journal"):
-        if os.path.exists(target + suffix):
-            os.remove(target + suffix)
-    threshold = int(_setting_number(settings.get("ops_tables_parquet_threshold"),
-                                    "ops_tables_parquet_threshold", 5_000_000))
     path = genotype_path or _ph_cells_table_path(destination, plate)
-    genotype = pd.read_parquet(path) if os.path.isfile(path) else None
+    genotype = None
+    if os.path.isfile(path):
+        import pyarrow.parquet as pq
+
+        present = set(pq.ParquetFile(path).schema_arrow.names)
+        from .tabular import read_table
+
+        genotype = read_table(path, canonicalise=False, report=None,
+                              columns=[c for c in (
+                                  "well", "site", "label", "sgRNA", "gene",
+                                  "mitotic") if c in present])
     links = _rows_for_wells(db, "ops_merge", plate, wells)
     rule = _ph_genotype_rule(settings)
     integer_keys = bool(settings.get("ops_tables_integer_keys", False))
@@ -9020,108 +9285,82 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
         raise ValueError(tr(
             "ops_tables_layout must be compartments or wide; got {value}",
             value=layout))
-    plans = []
-    total = 0
-    for well in wells:
-        cell_path = _ph_cells_path(destination, well)
-        if not os.path.isfile(cell_path):
-            continue
-        cells = pd.read_parquet(cell_path, columns=["site", "label"])
-        owned = _ph_owned_cells(destination, well, cells, settings)
-        plans.append((well, cell_path, owned))
-        total += int(owned.sum())
-    if not plans:
+    chosen = [w for w in wells if os.path.isfile(_ph_cells_path(destination,
+                                                                w))]
+    if not chosen:
         raise ValueError(tr("no phenotype cell table for wells {wells}",
                             wells=list(wells)))
-    wide_to_parquet = total > threshold
-    counts = Counter()
-    parquet_files: List[str] = []
-    conn = connect(target, timeout=60.0)
-    try:
-        conn.isolation_level = None
-        for pragma in ("journal_mode=WAL", "synchronous=NORMAL",
-                       "temp_store=MEMORY", "cache_size=-262144"):
-            conn.execute(f"PRAGMA {pragma}")
-        for well, cell_path, owned in plans:
-            cells = pd.read_parquet(cell_path)
-            well_links = (links[links["well"].astype(str) == str(well)]
-                          if links is not None else None)
-            well_genotype = (genotype[genotype["well"].astype(str) == str(well)]
-                             if genotype is not None else None)
-            keys, features = _ph_table_frames(plate, well, cells, well_links,
-                                              well_genotype, owned, rule,
-                                              integer_keys=integer_keys)
-            del cells
-            if layout == "wide":
-                frame = pd.concat([keys, *(features[c] for c in
-                                           _PH_TABLE_COMPARTMENTS)], axis=1)
-                _ph_insert_rows(conn, "cell_wide", frame)
-                counts["cell_wide"] += len(frame)
-            for compartment in _PH_TABLE_COMPARTMENTS:
-                if wide_to_parquet:
-                    sub = os.path.join(folder, compartment)
-                    os.makedirs(sub, exist_ok=True)
-                    out = os.path.join(sub, f"{plate}_{well}.parquet")
-                    pd.concat([keys[["prcfo"]], features[compartment]],
-                              axis=1).to_parquet(out + ".part", index=False)
-                    os.replace(out + ".part", out)
-                    parquet_files.append(out)
-                    frame = keys
-                else:
-                    frame = pd.concat([keys, features[compartment]], axis=1)
-                _ph_insert_rows(conn, compartment, frame)
-                counts[compartment] += len(frame)
-        merged_root = _ph_merged_root(settings, destination)
-        image_rows = []
-        for well, _cell_path, _owned in plans:
-            for _site, field_path in sorted(_ph_merged_paths(
-                    merged_root, plate, well, settings).items(),
-                    key=lambda item: f"{item[0]}.npz"):
-                if os.path.isdir(field_path):
-                    with open(os.path.join(field_path, "ops_field.json"), encoding="utf-8") as handle:
-                        meta = json.load(handle)["meta"]
-                else:
-                    with np.load(field_path) as saved:
-                        meta = json.loads(str(saved["meta"]))
-                image_rows.append(_ph_image_record(plate, well,
-                                                   int(meta["site"]),
-                                                   meta.get("image") or {}))
-        tick = time.perf_counter()
-        for compartment in _PH_TABLE_COMPARTMENTS:
-            conn.execute(f"CREATE INDEX IF NOT EXISTS ix_{compartment}_prcfo "
-                         f"ON {compartment}(prcfo)")
-            conn.execute(f"CREATE INDEX IF NOT EXISTS ix_{compartment}_field "
-                         f"ON {compartment}(plateID, rowID, columnID, fieldID)")
-            conn.execute(f"CREATE INDEX IF NOT EXISTS ix_{compartment}_object "
-                         f"ON {compartment}(object_id)")
-            conn.execute(f"CREATE INDEX IF NOT EXISTS ix_{compartment}_gene "
-                         f"ON {compartment}(gene)")
-            if integer_keys:
-                conn.execute(f"CREATE INDEX IF NOT EXISTS "
-                             f"ix_{compartment}_cell_key ON "
-                             f"{compartment}(cell_key)")
-        if layout == "wide":
-            conn.execute("CREATE INDEX IF NOT EXISTS ix_cell_wide_prcfo ON "
-                         "cell_wide(prcfo)")
-        index_seconds = time.perf_counter() - tick
-    finally:
-        conn.close()
-    if image_rows:
-        from .measure import _write_image_rows
+    layouts = {c: (c,) for c in _PH_TABLE_COMPARTMENTS}
+    if layout == "wide":
+        layouts["cell_wide"] = _PH_TABLE_COMPARTMENTS
+    run_id = _ph_tables_run_id(settings, plate, chosen)
+    store._rebuild(folder, [*_PH_TABLE_COMPARTMENTS, "cell_wide", "image"])
+    counts: Dict[str, int] = {}
+    wells_report: Dict[str, Any] = {}
+    total = 0
+    from .measure import _IMAGE_KEY_COLUMNS, _image_sql_value, _image_table_keys
 
-        counts["image"] = _write_image_rows(target, image_rows)
-    report = {"db": target, "rows": dict(counts), "owned_cells": total,
-              "wide_to_parquet": wide_to_parquet,
-              "parquet_threshold": threshold,
-              "parquet_files": len(parquet_files),
+    merged_root = _ph_merged_root(settings, destination)
+    for well in chosen:
+        streamed = _ph_stream_well(plate, well, destination, settings,
+                                   links, genotype, rule, integer_keys,
+                                   folder, run_id, layouts)
+        for table in layouts:
+            counts[table] = counts.get(table, 0) + streamed["rows"]
+        total += streamed["owned"]
+        wells_report[well] = {k: streamed[k] for k in (
+            "rows", "source", "dtypes", "promoted")}
+        image_rows = []
+        for _site, field_path in sorted(_ph_merged_paths(
+                merged_root, plate, well, settings).items(),
+                key=lambda item: f"{item[0]}.npz"):
+            if os.path.isdir(field_path):
+                with open(os.path.join(field_path, "ops_field.json"),
+                          encoding="utf-8") as handle:
+                    meta = json.load(handle)["meta"]
+            else:
+                with np.load(field_path) as saved:
+                    meta = json.loads(str(saved["meta"]))
+            record = _ph_image_record(plate, well, int(meta["site"]),
+                                      meta.get("image") or {})
+            image_rows.append({
+                **_image_table_keys(record["file_name"]),
+                **{str(k): _image_sql_value(v) for k, v in record.items()
+                   if k not in _IMAGE_KEY_COLUMNS}})
+        if image_rows:
+            store.write_table(folder, "image", pd.DataFrame(image_rows),
+                              plate=plate, well=well, run_id=run_id,
+                              sort_by=(),
+                              key_columns=("file_name", "prcf"))
+            counts["image"] = counts.get("image", 0) + len(image_rows)
+    registered = store.register(folder, run={"run_id": run_id,
+                                             "settings": dict(settings)})
+    report = {"store": folder, "tables": sorted(counts),
+              "rows": counts, "owned_cells": total,
+              "wells": wells_report,
               "genotype_table": path if genotype is not None else None,
               "genotype_rule": rule,
               "integer_keys": integer_keys, "layout": layout,
-              "index_seconds": round(index_seconds, 1),
+              "registered": registered,
               "seconds": round(time.perf_counter() - started, 1)}
     _say(tr("{plate} ph_tables: {rows} cells written to {db}", plate=plate,
-            rows=counts["cell"], db=target))
+            rows=counts.get("cell", 0), db=folder))
     return report
+
+
+def _ph_tables_run_id(settings: Mapping[str, Any], plate: str,
+                      wells: Sequence[str]) -> str:
+    """A run id that the same settings, plate and wells always give.
+
+    The parts do not hold it, but the catalog records it, so a rerun with
+    the same settings is recognisable as the same run.
+    """
+    import hashlib
+
+    text = json.dumps({"settings": dict(settings), "plate": str(plate),
+                       "wells": [str(w) for w in wells]}, sort_keys=True,
+                      default=str)
+    return "ph_tables-" + hashlib.sha256(text.encode()).hexdigest()[:24]
 
 
 def _ph_image_record(plate: str, well: str, site: int,
@@ -9524,8 +9763,46 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
     return int(committed["n_rows"]), len(committed["pools"]), unreadable
 
 
+def _ph_store_owned_cells(tables: Optional[Mapping[str, Any]], plate: str,
+                          well: str):
+    """``site`` and ``label`` of a well's owned, whole cells, read from the store.
+
+    The ``cell`` table ``ph_tables`` wrote in this run (its report
+    ``tables``) holds exactly the owned, whole cells (:func:`_ph_owned_cells`
+    with the same settings); it is read through :func:`spacr.store.open`,
+    in ``object_key`` order (field, then label). :func:`_ph_crops` keeps
+    the well table's own order and takes only which cells are owned from
+    it. None when ``tables`` is None or the store has no ``cell`` rows for
+    the well, so the caller works ownership out itself.
+    """
+    import pandas as pd
+
+    if not tables or not tables.get("store"):
+        return None
+    from . import store
+
+    try:
+        opened = store.open(tables["store"], verify="none")
+    except store.StoreError:
+        return None
+    try:
+        if "cell" not in opened.tables():
+            return None
+        keys = opened.sql("SELECT fieldID, object_label FROM cell WHERE "
+                          "plate = ? AND well = ? ORDER BY object_key",
+                          [str(plate), str(well)])
+    finally:
+        opened.close()
+    if not len(keys):
+        return None
+    return pd.DataFrame({
+        "site": [int(str(f)[1:]) for f in keys["fieldID"]],
+        "label": keys["object_label"].to_numpy(np.int64)})
+
+
 def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
-              settings: Mapping[str, Any], destination: str) -> Dict[str, Any]:
+              settings: Mapping[str, Any], destination: str,
+              tables: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
     """Cut raw crops of owned cells into a sharded store; the ``ph_crops`` phase.
 
     :param db: the measurements database.
@@ -9540,6 +9817,9 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
         ``ops_merged_root``, ``ops_design``, ``ops_genotype_table`` and the
         ``ops_ph_secondary_*`` options.
     :param destination: the run folder.
+    :param tables: this run's ``ph_tables`` report; its store's ``cell``
+        table gives the owned cells (:func:`_ph_store_owned_cells`). None
+        reads them from the well table.
     :returns: the report.
 
     Which cells: owned, whole cells (:func:`_ph_owned_cells`) whose link
@@ -9656,7 +9936,12 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             report["wells"][well] = {"skipped": "no cell table or no tiles"}
             continue
         cells = pd.read_parquet(cell_path, columns=["site", "label"])
-        owned = _ph_owned_cells(destination, well, cells, settings)
+        stored = _ph_store_owned_cells(tables, plate, well)
+        if stored is None:
+            owned = _ph_owned_cells(destination, well, cells, settings)
+        else:
+            owned = pd.MultiIndex.from_frame(cells[["site", "label"]]).isin(
+                pd.MultiIndex.from_frame(stored[["site", "label"]]))
         cells = cells[owned]
         link = (links[links["well"].astype(str) == str(well)]
                 if links is not None else pd.DataFrame(
@@ -9869,34 +10154,36 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
     ``ops_store_row_copy`` also writes each well's float features as a
     row-major copy that all-column point lookups read.
 
-    For each well: ``cells``, one row per owned, whole cell with the keys
-    and the cell, nucleus and cytoplasm features of ``ph_tables``, plus
-    ``cell_id`` and, when ``ph_crops`` cut the cell, its crop pointer, the
-    crop copied pixel for pixel from the shard into the well's Zarr store;
-    ``reads`` and ``barcodes``, the well's rows of ``ops_reads`` and
+    The run's one store is the measurements folder ``ph_tables`` writes
+    (``<dst_root>/measurements/``, one ``spacr.duckdb``), laid out as
+    Measure's ``spacr_store`` lays out its object tables. For each well:
+    the ``cell`` table again, the rows and dtypes ``ph_tables`` writes, now
+    with each cut cell's crop pointer (``crop_store``, ``crop_index``) and
+    the crop copied pixel for pixel from the shard into the well's Zarr
+    store; ``reads`` and ``barcodes``, the well's rows of ``ops_reads`` and
     ``ops_barcodes``; and ``cell_cycle``, its rows of ``ops_cell_cycle`` when
-    the cell-cycle option ran. The parts are registered in one catalog transaction
-    with the run's settings.
+    the cell-cycle option ran. The parts are registered in one catalog
+    transaction with the run's settings. The ``cell`` part is streamed a
+    field at a time (:func:`_ph_stream_well`), so a well never has to fit
+    in memory.
 
     :param db: the run's measurements database.
     :param plate: the plate name.
     :param wells: the wells run.
     :param settings: the OPS settings.
-    :param destination: the run folder, which is the store's project.
+    :param destination: the run folder; the store is its ``measurements``.
     :param genotype_path: the aggregate phase's cell table, if it wrote one.
     :returns: the report.
     """
     import uuid
 
-    import pandas as pd
-
-    from . import schema, store
-    from .ops_run_infra import integer_cell_key
+    from . import store
     from .qt.i18n import tr
     from .tabular import read_table
 
     started = time.perf_counter()
     run_id = uuid.uuid4().hex
+    project = os.path.join(destination, "measurements")
     path = genotype_path or _ph_cells_table_path(destination, plate)
     genotype = (read_table(path, canonicalise=False, report=None)
                 if os.path.isfile(path) else None)
@@ -9904,39 +10191,63 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
     rule = _ph_genotype_rule(settings)
     integer_keys = bool(settings.get("ops_tables_integer_keys", False))
     root = _ph_merged_root(settings, destination)
-    report: Dict[str, Any] = {"project": destination, "run_id": run_id,
+    report: Dict[str, Any] = {"project": project, "run_id": run_id,
                               "wells": {}}
+    report["wells"] = _ops_store_wells(db, plate, wells, settings,
+                                       destination, project, run_id, links,
+                                       genotype, rule, integer_keys, root)
+    report["registered"] = store.register(project, run={
+        "run_id": run_id, "settings": dict(settings)})
+    report["seconds"] = round(time.perf_counter() - started, 1)
+    _say(tr("{plate} spaCR store: {count} cells registered in {project}",
+            plate=plate, count=sum(w.get("cell", 0)
+                                   for w in report["wells"].values()),
+            project=project))
+    return report
+
+
+def _ops_store_wells(db: str, plate: str, wells: Sequence[str],
+                     settings: Mapping[str, Any], destination: str,
+                     project: str, run_id: str, links, genotype, rule: str,
+                     integer_keys: bool,
+                     root: str) -> Dict[str, Dict[str, int]]:
+    """Each well's tables of :func:`_ops_store_write`, through the store's writer.
+
+    :returns: ``well -> {table: rows}``.
+    """
+    import pandas as pd
+
+    from . import schema, store
+    from .tabular import read_table
+
+    out: Dict[str, Dict[str, int]] = {}
     for well in wells:
         counts: Dict[str, int] = {}
         cell_path = _ph_cells_path(destination, well)
         if os.path.isfile(cell_path):
-            cells = read_table(cell_path, canonicalise=False, report=None)
-            owned = _ph_owned_cells(destination, well, cells, settings)
-            well_links = (links[links["well"].astype(str) == str(well)]
-                          if links is not None else None)
-            well_genotype = (genotype[genotype["well"].astype(str) == str(well)]
-                             if genotype is not None else None)
-            keys, features = _ph_table_frames(plate, well, cells, well_links,
-                                              well_genotype, owned, rule,
-                                              integer_keys=integer_keys)
-            del cells
-            frame = pd.concat([keys, *(features[c] for c in
-                                       _PH_TABLE_COMPARTMENTS)], axis=1)
+            index = read_table(cell_path, canonicalise=False, report=None,
+                               columns=["site", "label"])
+            owned = _ph_owned_cells(destination, well, index, settings)
+            sites = index["site"].to_numpy(np.int64)[owned]
+            labels = index["label"].to_numpy(np.int64)[owned]
+            del index
+            arrival = _ph_arrival_order(sites, labels)
             row, column = schema.parse_well(well)
-            frame.insert(0, "cell_id", integer_cell_key(
-                int(row[1:]), int(column[1:]),
-                [int(str(f)[1:]) for f in keys["fieldID"]],
-                keys["object_label"].to_numpy()))
-            crops, crop_rows, masks = _ops_store_crops(root, plate, well,
-                                                       keys["prcfo"])
-            store.write_part(
-                destination, "cells", frame, plate=plate, well=well,
-                sort_by=("gene", "cell_id"), key_columns=_PH_TABLE_KEYS,
-                crops=crops, crop_rows=crop_rows, masks=masks, run_id=run_id,
-                row_copy=bool(settings.get("ops_store_row_copy", False)))
-            counts["cells"] = int(len(frame))
+            prcfo = pd.Series([_ph_prcfo(plate, row, column, s, l) for s, l in
+                               zip(sites[arrival], labels[arrival])],
+                              dtype=object)
+            crops, crop_rows, masks = _ops_store_crops(root, plate, well, prcfo)
+            del prcfo
+
+            streamed = _ph_stream_well(
+                plate, well, destination, settings, links, genotype, rule,
+                integer_keys, project, run_id, {"cell": ("cell",)},
+                {"cell": {"crops": crops, "crop_rows": crop_rows,
+                          "masks": masks,
+                          "row_copy": bool(settings.get("ops_store_row_copy",
+                                                        False))}})
+            counts["cell"] = int(streamed["rows"])
             counts["crops"] = 0 if crop_rows is None else int(len(crop_rows))
-            del frame
         for table, name, order, key in (
                 ("ops_reads", "reads", ("object_id",), ("object_id",)),
                 ("ops_barcodes", "barcodes", ("mapped_guide", "object_id"),
@@ -9946,18 +10257,11 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
             rows = _well_rows(db, table, plate, well)
             if rows is None or rows.empty:
                 continue
-            store.write_part(destination, name, rows, plate=plate, well=well,
-                             sort_by=order, key_columns=key, run_id=run_id)
+            store.write_table(project, name, rows, plate=plate, well=well,
+                              run_id=run_id, sort_by=order, key_columns=key)
             counts[name] = int(len(rows))
-        report["wells"][well] = counts
-    report["registered"] = store.register(destination, run={
-        "run_id": run_id, "settings": dict(settings)})
-    report["seconds"] = round(time.perf_counter() - started, 1)
-    _say(tr("{plate} spaCR store: {count} cells registered in {project}",
-            plate=plate, count=sum(w.get("cells", 0)
-                                   for w in report["wells"].values()),
-            project=destination))
-    return report
+        out[well] = counts
+    return out
 
 
 
@@ -11596,8 +11900,8 @@ def run_ops(settings: Mapping[str, Any], *,
         writes ``ops_guides_<plate>`` and ``ops_genes_<plate>``.
         ``"ph_merged"`` (per well, after ``merge``) writes each field to
         ``merged/`` (:func:`_ph_merged`); ``"ph_tables"`` (after
-        ``aggregate``) writes the standard ``measurements/measurements.db``
-        tables (:func:`_ph_tables`); ``"ph_crops"`` cuts raw crops of owned
+        ``aggregate``) writes the standard measurement tables to the spaCR
+        store in ``measurements/`` (:func:`_ph_tables`); ``"ph_crops"`` cuts raw crops of owned
         cells into a sharded store (:func:`_ph_crops`). ``"ph_ownership"`` (per
         well, after ``ph_masks``) finds the copies of each cell across
         overlapping fields (:func:`_ph_cross_field_ownership`).
@@ -12034,7 +12338,8 @@ def run_ops(settings: Mapping[str, Any], *,
                 "cells_parquet"))
     if "ph_crops" in phases:
         out["ph_crops"] = _ph_crops(db, plate, chosen, phenotype_index,
-                                    settings, destination)
+                                    settings, destination,
+                                    tables=out.get("ph_tables"))
     if (_ops_storage(settings) == "spacr_store" and not only_qc
             and "stopped_before" not in out
             and any(p in phases for p in ("decode", "ph_tables", "ph_crops"))):
