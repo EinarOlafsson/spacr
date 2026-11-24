@@ -375,6 +375,9 @@ def test_a_field_measured_again_on_resume_keeps_one_set_of_vacuole_rows(tmp_path
                 vacuole_min_size=5)
     _, _, first_vacuoles, first_hosts = _measure_field(tmp_path, **over)
     db = tmp_path / 'measurements' / 'measurements.db'
+    # Unified store, step S4: a partial field is built by deleting rows, which
+    # an older (SQLite) project allows; the resume then continues it there.
+    store_sql.to_legacy(db)
     with store_sql.connect(db) as con:
         con.execute('DELETE FROM cytoplasm')
     settings = get_measure_crop_settings({})

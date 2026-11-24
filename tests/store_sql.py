@@ -66,9 +66,6 @@ def to_legacy(database) -> str:
     folder = os.path.dirname(os.path.abspath(path))
     names = ms.tables(path)
     frames = {name: ms.read(path, name) for name in names}
-    with sqlite3.connect(path) as conn:
-        for name, frame in frames.items():
-            frame.to_sql(name, conn, index=False)
     for entry in ('spacr.duckdb', 'spacr.duckdb.wal', 'tables', 'rows',
                   '_pending', 'STORE_VERSION'):
         target = os.path.join(folder, entry)
@@ -76,6 +73,23 @@ def to_legacy(database) -> str:
             shutil.rmtree(target)
         elif os.path.exists(target):
             os.remove(target)
+    ms.forget_sessions()
+    # Written the way an older Measure wrote them: through spaCR's SQLite
+    # append (schema migration, widening) and its packet ticket table.
+    from spacr.database_concurrency import _WRITE_TICKETS_TABLE
+    from spacr.utils import _append_to_measurements_db
+    with sqlite3.connect(path) as conn:
+        conn.execute(f'CREATE TABLE IF NOT EXISTS {_WRITE_TICKETS_TABLE} '
+                     '(ticket TEXT PRIMARY KEY, field TEXT NOT NULL)')
+    for name, frame in frames.items():
+        if len(frame):
+            _append_to_measurements_db(path, name, frame)
+        keys = [k for k in ms.UPSERT_KEYS.get(name, ()) if k in frame.columns]
+        if keys:
+            with sqlite3.connect(path) as conn:
+                conn.execute(f'CREATE UNIQUE INDEX IF NOT EXISTS "{name}_key" '
+                             f'ON "{name}" (' + ', '.join(f'"{k}"' for k in keys)
+                             + ')')
     ms.forget_sessions()
     return path
 

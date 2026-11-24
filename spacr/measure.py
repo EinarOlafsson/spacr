@@ -14426,28 +14426,28 @@ def measure_crop(settings):
                               f"measurements.db:{_CONFLUENCY_WELL_TABLE}, "
                               f"{failing} below the monolayer QC threshold.")
 
-                if settings.get('cell_cycle') and os.path.isfile(db_path):
+                if settings.get('cell_cycle') and _measurements_exist(db_path):
                     _run_cell_cycle_step(db_path, settings)
                 if settings.get('wound_closure'):
                     _run_wound_closure(settings['src'], settings)
 
                 if (settings['timelapse']
                         and settings.get('bleach_correction', 'none') != 'none'
-                        and os.path.isfile(db_path)):
+                        and _measurements_exist(db_path)):
                     _run_bleach_correction_step(db_path, settings)
 
-                if settings.get('time_to_event') and os.path.isfile(db_path):
+                if settings.get('time_to_event') and _measurements_exist(db_path):
                     _run_time_to_event_step(db_path, settings)
 
-                if settings.get('viability') and os.path.isfile(db_path):
+                if settings.get('viability') and _measurements_exist(db_path):
                     _run_viability_step(db_path, settings)
 
                 if (str(settings.get('cellprofiler_pipeline') or '').strip()
-                        and os.path.isfile(db_path)):
+                        and _measurements_exist(db_path)):
                     _run_cellprofiler_step(db_path, settings)
 
                 if (settings.get('timelapse_lineage') and settings['timelapse']
-                        and os.path.isfile(db_path)):
+                        and _measurements_exist(db_path)):
                     from ._lineage_measurements import _run_measured_lineage_step
                     _run_measured_lineage_step(db_path, settings)
 
@@ -14475,11 +14475,6 @@ def measure_crop(settings):
 #: Optional post-run steps that still read and write SQLite tables, so they
 #: do not run on a store project yet (unified store, step S4 follow-up).
 _STEPS_NOT_ON_THE_STORE = (
-    ('cell_cycle', 'the cell-cycle calls'),
-    ('time_to_event', 'time to event'),
-    ('viability', 'viability'),
-    ('cellprofiler_pipeline', 'the CellProfiler step'),
-    ('timelapse_lineage', 'the measured lineage'),
     ('feature_qc_drop', 'dropping the flagged feature columns'),
 )
 
@@ -14498,8 +14493,6 @@ def _report_steps_not_on_the_store(settings, db_path):
         return []
     named = [(key, what) for key, what in _STEPS_NOT_ON_THE_STORE
              if settings.get(key) not in (None, False, '', 'none', 0)]
-    if settings.get('bleach_correction', 'none') not in (None, '', 'none'):
-        named.append(('bleach_correction', 'bleach correction'))
     for key, what in named:
         print(tr("[measure] {what} ({key}) does not run on the spaCR store yet; "
                  "the measurements are in the store and this step is skipped.",
@@ -16018,8 +16011,10 @@ def _emit_feature_qc(settings, db_path):
     try:
         from .sp_stats import _feature_qc_report
 
+        from .measurement_store import store_native
         flagged, written, dropped = _feature_qc_report(
-            db_path, drop=bool(settings.get('feature_qc_drop')))
+            db_path, drop=bool(settings.get('feature_qc_drop'))
+            and not store_native(db_path))
     except Exception as exc:                                 # noqa: BLE001
         print(console_safe(f"Feature QC could not run: {exc}"))
         return

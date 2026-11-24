@@ -20,6 +20,13 @@ DEFAULTS = {
 }
 
 
+
+def _measurements_exist_at(database):
+    """Whether a measurements locator holds measurements (file or spaCR store)."""
+    from .measurement_store import exists
+
+    return exists(str(database))
+
 def default_settings(settings=None):
     """Apply Host–Pathogen defaults; replication requires explicit count inputs.
 
@@ -649,7 +656,8 @@ def _titration_objects(config):
         return (read_table(os.path.join(folder, 'cells.csv'), canonicalise=False, report=None),
                 read_table(os.path.join(folder, 'vacuoles.csv'), canonicalise=False, report=None))
     database = os.path.join(str(config.get('src') or ''), 'measurements', 'measurements.db')
-    if not config['titration_merged_folder'] and os.path.isfile(database):
+    from .measurement_store import exists as _measurements_exist
+    if not config['titration_merged_folder'] and _measurements_exist(database):
         from .tabular import database_tables, read_database
 
         if {'vacuole', 'vacuole_host'} <= set(database_tables(database)):
@@ -1501,7 +1509,7 @@ def nuclear_translocation(settings=None):
         reference = None
     database = os.path.join(config['src'], 'measurements', 'measurements.db')
     measured = (translocation_measured_cells(database, config)
-                if os.path.isfile(database) else None)
+                if _measurements_exist_at(database) else None)
     result = translocation_summary(cells, config, reference, measured)
     out = os.path.join(config['src'], 'translocation')
     os.makedirs(out, exist_ok=True)
@@ -1558,7 +1566,7 @@ def analyze_host_pathogen(settings=None):
     for source in sources:
         path = Path(source).expanduser().resolve()
         database = path if path.is_file() else path / 'measurements' / 'measurements.db'
-        if not database.is_file():
+        if not _measurements_exist_at(database):
             raise FileNotFoundError(f'Measurements database not found: {database}')
         if database in databases:
             raise ValueError('The same project database was provided more than once')

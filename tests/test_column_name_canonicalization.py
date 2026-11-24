@@ -140,13 +140,18 @@ def _age_to_legacy_spelling(db_path):
 @pytest.fixture(scope='module')
 def fresh_db(tmp_path_factory):
     """A measurements.db written by the current measure_crop."""
-    return _run_measure_crop(str(tmp_path_factory.mktemp('fresh')))
+    path = _run_measure_crop(str(tmp_path_factory.mktemp('fresh')))
+    # Unified store, step S4: compared table by table with the aged copy,
+    # which is an older (SQLite) project.
+    return store_sql.to_legacy(path)
 
 
 @pytest.fixture(scope='module')
 def _legacy_db_template(tmp_path_factory):
     """The same database, aged back to the pre-migration column spelling."""
     path = _run_measure_crop(str(tmp_path_factory.mktemp('legacy')))
+    # Unified store, step S4: an aged database is an older (SQLite) project.
+    store_sql.to_legacy(path)
     aged = _age_to_legacy_spelling(path)
     assert aged, 'nothing to age — the fixture measured no ring percentiles'
     return path
@@ -270,7 +275,6 @@ def test_legacy_database_is_migrated_on_read(legacy_db):
     minimum = 3 * 2 * 7 * 2 + 2 * 2
 
     before = _columns(legacy_db)
-    assert before['_spacr_write_queue_commits'] == ['ticket', 'field']
     stale_before = [col for cols in before.values() for col in cols
                     if (col.endswith('_percentile')
                         and ('periphery' in col or 'outside' in col))

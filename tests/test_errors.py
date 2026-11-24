@@ -808,7 +808,10 @@ def test_errors_module_only_imports_the_stdlib_database_sibling():
     import spacr.portable_paths as portable_paths_module
 
     for module, allowed_siblings in (
-        (concurrency_module, {'cancellation', 'runctx', 'portable_paths'}),
+        # Unified store, step S4: connect() opens a store project through
+        # measurement_store, imported lazily inside connect().
+        (concurrency_module, {'cancellation', 'runctx', 'portable_paths',
+                              'measurement_store'}),
         (cancellation_module, set()),
         (portable_paths_module, {'qt.i18n'}),
     ):

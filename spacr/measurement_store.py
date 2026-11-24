@@ -702,7 +702,7 @@ def spool_field(db_path: Any, field: str, packet: Mapping[str, List[Any]], *,
                               sort_by=_sort_by(part),
                               key_columns=_key_columns(part))
         written[table] = int(len(frame))
-    mark = pd.DataFrame([{'ticket': str(ticket), 'field': str(field),
+    mark = pd.DataFrame([{'ticket': str(ticket), 'field_file': str(field),
                           'stem': stem, 'tables': ','.join(sorted(written)),
                           'run_id': str(run_id)}])
     store.write_table(spool, FIELDS_TABLE, mark, plate=plate,
@@ -730,8 +730,8 @@ def spooled_fields(db_path: Any) -> List[str]:
     with store.open(spool, verify='none') as opened:
         if FIELDS_TABLE not in opened.tables():
             return []
-        frame = opened.query(table=FIELDS_TABLE, features=['field'])
-    return sorted(set(frame['field'].astype(str)))
+        frame = opened.query(table=FIELDS_TABLE, features=['field_file'])
+    return sorted(set(frame['field_file'].astype(str)))
 
 
 def measured_fields(db_path: Any) -> List[str]:
@@ -747,8 +747,9 @@ def measured_fields(db_path: Any) -> List[str]:
     if os.path.isfile(os.path.join(project, store.CATALOG)):
         with store.open(project, verify='none') as opened:
             if FIELDS_TABLE in opened.tables():
-                frame = opened.query(table=FIELDS_TABLE, features=['field'])
-                done |= set(frame['field'].astype(str))
+                frame = opened.query(table=FIELDS_TABLE,
+                                     features=['field_file'])
+                done |= set(frame['field_file'].astype(str))
     return sorted(done)
 
 
@@ -934,23 +935,28 @@ def _partition_only(frame) -> List[str]:
     """The ``plate``/``well`` columns of a store frame that only repeat its keys.
 
     A table that carried its own ``plate`` or ``well`` (a value other than
-    ``plateID``, or ``rowID`` + ``columnID``) keeps it; the store's partition
-    columns that merely repeat those keys, or name the run partition, go.
+    the one its keys give: ``plateID``, ``rowID`` + ``columnID``, or the
+    field name) keeps it; the store's partition columns that merely repeat
+    those keys, or name the run partition, go.
     """
+    import numpy as np
+
+    present = [c for c in ('plate', 'well') if c in frame.columns]
+    if not present or not len(frame):
+        return present
+    derived_plate = np.empty(len(frame), dtype=object)
+    derived_well = np.empty(len(frame), dtype=object)
+    for plate, well, rows in _partitions(frame.drop(columns=present)):
+        derived_plate[rows] = plate
+        derived_well[rows] = well
     out = []
-    if not len(frame):
-        return [c for c in ('plate', 'well') if c in frame.columns]
-    if 'plate' in frame.columns:
-        plate = frame['plate'].astype(str)
-        if ((plate == RUN_PARTITION[0]).all() or ('plateID' in frame.columns
-                and (plate == frame['plateID'].map(_text)).all())):
-            out.append('plate')
-    if 'well' in frame.columns:
-        well = frame['well'].astype(str)
-        if ((well == RUN_PARTITION[1]).all() or ({'rowID', 'columnID'}
-                <= set(frame.columns) and (well == frame['rowID'].map(_text)
-                                           + frame['columnID'].map(_text)).all())):
-            out.append('well')
+    for name, derived in (('plate', derived_plate), ('well', derived_well)):
+        if name not in present:
+            continue
+        values = frame[name].astype(str).to_numpy()
+        run = RUN_PARTITION[0] if name == 'plate' else RUN_PARTITION[1]
+        if (values == run).all() or (values == derived.astype(str)).all():
+            out.append(name)
     return out
 
 
