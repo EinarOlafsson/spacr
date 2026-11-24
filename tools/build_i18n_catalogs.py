@@ -8855,6 +8855,14 @@ def audit(
                 partial(catalog_audit_failures, dict(sources)), languages,
                 workers=workers):
             failures.extend(outcome.unwrap())
+    if failures and _ALLOW_STALE_REVIEWS:
+        # Translations dropped (maintainer 2026-11-23): missing or stale translations are reported,
+        # and only English catalog problems (real breakage) still fail the audit.
+        report_only = [f for f in failures if not f.startswith("en/")]
+        if report_only:
+            print(f"translation debt (not blocking, SPACR_I18N_ALLOW_STALE=1): {len(report_only)} findings, "
+                  f"first: {report_only[0]}", file=sys.stderr)
+        failures = [f for f in failures if f.startswith("en/")]
     if failures:
         print("\n".join(failures[:200]), file=sys.stderr)
         if len(failures) > 200:
