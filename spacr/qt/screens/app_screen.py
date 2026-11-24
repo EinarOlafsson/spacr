@@ -13347,6 +13347,10 @@ class AppScreen(QWidget):
         if live is not None:
             live.setting_committed(key)
         model = getattr(self, "_settings_model", None)
+        editor = getattr(self.window(), "_batch_job_editor", None)
+        if (editor is not None and model is not None
+                and not getattr(model, "_applying_settings", False)):
+            editor.setting_committed(self, key)
         if (model is None or getattr(model, "_applying_settings", False)
                 or not getattr(self, "_settings_lock_observation_ready", True)):
             return

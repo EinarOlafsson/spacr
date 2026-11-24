@@ -2799,41 +2799,16 @@ def _contains_suffix(folder: Path, suffixes, *, recursive: bool = False) -> bool
 
 def _settings_files(path: Path) -> List[Path]:
     """Settings snapshots directly associated with a dropped plate."""
-    roots = [path / "settings", path] if path.is_dir() else []
-    found: List[Path] = []
-    for root in roots:
-        if not root.is_dir():
-            continue
-        found.extend(sorted(
-            child for child in root.iterdir()
-            if child.is_file() and child.suffix.lower() == ".csv"
-            and "setting" in child.name.lower()
-        ))
-    return list(dict.fromkeys(found))
+    from ..batch import _snapshot_files
+
+    return [Path(p) for p in _snapshot_files(path, suffixes=(".csv",))]
 
 
 def _module_from_settings(path: Path, default: str = "mask") -> str:
     """Infer a runnable GUI module from spaCR's settings snapshot name."""
-    stem = path.stem.lower()
-    aliases = (
-        ("measure_crop", "measure"),
-        ("crop_measure", "measure"),
-        ("gen_masks", "mask"),
-        ("gen_mask", "mask"),
-        ("train_test", "classify"),
-        ("ml_analyze", "ml_analyze"),
-        ("map_barcodes", "map_barcodes"),
-        ("regression", "regression"),
-        ("recruitment", "recruitment"),
-        ("annotate", "annotate"),
-        ("classify", "classify"),
-        ("measure", "measure"),
-        ("mask", "mask"),
-    )
-    for token, module in aliases:
-        if token in stem:
-            return module
-    return default
+    from ..batch import _module_for_snapshot
+
+    return _module_for_snapshot(path, default)
 
 
 class ForeignProjectDropHandler(DropHandler):
@@ -3182,6 +3157,93 @@ class BatchDropHandler(DropHandler):
                 added += 1
         if not added:
             raise ValueError(f"No runnable settings jobs found in {path}.")
+
+
+class _TemplateRunDropHandler(BatchDropHandler):
+    """The Batch Runner template section: a finished run folder to copy."""
+
+    def accepts_multiple(self) -> bool:
+        """No: one template at a time.
+
+        :returns: False.
+        """
+        return False
+
+    def can_accept(self, path: Path) -> bool:
+        """A folder holding settings snapshots, as CSV or JSON.
+
+        :param path: the dropped folder.
+        :returns: True when the folder records module settings.
+        """
+        from ..batch import _snapshot_files
+
+        return path.is_dir() and bool(_snapshot_files(path))
+
+    def error_message(self, path: Path) -> str:
+        """Say which folder a template is.
+
+        :param path: the dropped item.
+        :returns: the sentence shown when the drop is refused.
+        """
+        from .i18n import tr
+
+        return tr("Drop a finished run folder, one whose settings folder holds "
+                  "the module settings, for example settings/gen_mask_settings.json.")
+
+    def apply(self, path: Path, screen) -> None:
+        """Import the run as the template.
+
+        :param path: the finished run folder.
+        :param screen: the Batch Runner.
+        """
+        screen._import_template(str(path))
+
+
+class _TemplateJobsDropHandler(BatchDropHandler):
+    """The Batch Runner jobs section: new image folders for the template."""
+
+    def accepts_multiple(self) -> bool:
+        """Yes: several plates are dropped at once.
+
+        :returns: True.
+        """
+        return True
+
+    def can_accept(self, path: Path) -> bool:
+        """Any folder; the match with the template is checked when it is added.
+
+        :param path: the dropped item.
+        :returns: True for a folder.
+        """
+        return path.is_dir()
+
+    def error_message(self, path: Path) -> str:
+        """Say what the jobs section takes.
+
+        :param path: the dropped item.
+        :returns: the sentence shown when the drop is refused.
+        """
+        from .i18n import tr
+
+        return tr("Drop one or more image folders to add them as jobs.")
+
+    def apply_all(self, paths: Sequence[Path], screen) -> bool:
+        """Add every dropped folder, reporting the ones that do not match.
+
+        :param paths: the dropped folders, in drop order.
+        :param screen: the Batch Runner.
+        :returns: True: the drop is handled here.
+        """
+        screen._add_template_folders([str(p) for p in paths])
+        return True
+
+    def apply(self, path: Path, screen) -> None:
+        """Add one folder as jobs.
+
+        :param path: the dropped folder.
+        :param screen: the Batch Runner.
+        """
+        screen._add_template_folders([str(path)])
 
 
 class ImageFieldsDropHandler(DropHandler):
