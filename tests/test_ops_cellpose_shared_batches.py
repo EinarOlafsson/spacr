@@ -133,3 +133,52 @@ def test_the_retired_ops_tile_key_moves_only_through_the_shared_schema():
     assert ops_settings.ops_defaults({})['mask_inference_precision'] == 'auto'
     assert ops_settings.ops_defaults({'ops_ph_batch_size': 8,
                                       'ops_ph_tile_batch': 16})['ops_ph_tile_batch'] == 16
+
+
+def test_a_streamed_batch_keeps_the_grouping_and_holds_no_packed_copy(memory, monkeypatch, tmp_path):
+    """Streaming hands on the loaded fields, the same groups and plan, and never packs."""
+    images = [np.arange(12, dtype=np.float32).reshape(3, 4) + index for index in range(5)]
+
+    def load(index):
+        """Field 3 is unreadable; the others are distinct small arrays."""
+        return (None if index == 3 else images[index]), f'field-{index}'
+
+    def run(stream, path):
+        """Every yielded field, as bytes, with its count, and the saved plan."""
+        with arrays._array_batches(range(5), load, {'batch_size': 3}, plan_path=path,
+                                   stream=stream) as resident:
+            seen = [(index, None if image is None else image.tobytes(), metadata, fields)
+                    for index, image, metadata, fields in resident]
+        return seen, path.read_text()
+
+    packed = run(False, tmp_path / 'packed.json')
+    monkeypatch.setattr(arrays.np, 'concatenate', lambda *a, **k: pytest.fail('packed'))
+    monkeypatch.setattr(batches, '_store_on_gpu', lambda *a, **k: pytest.fail('device copy'))
+    streamed = run(True, tmp_path / 'streamed.json')
+    assert streamed == packed
+    assert [fields for _index, _image, _metadata, fields in streamed[0]] == [3, 3, 3, 1, 1]
+
+
+def test_a_streamed_field_is_the_loaded_array_and_is_let_go(memory):
+    """The caller gets the loader's own array, and the batch keeps no reference to it."""
+    import gc
+    import weakref
+
+    loaded = {}
+
+    class Field(np.ndarray):
+        """An array type that can be weakly referenced."""
+
+    def load(index):
+        """A fresh array per field, remembered weakly."""
+        image = np.full((3, 4), index, np.float32).view(Field)
+        loaded[index] = weakref.ref(image)
+        return image, None
+
+    with arrays._array_batches(range(2), load, {'batch_size': 2}, stream=True) as resident:
+        index, image, _metadata, _fields = next(resident)
+        assert image is loaded[0]()
+        del image
+        gc.collect()
+        assert loaded[0]() is None
+        next(resident)

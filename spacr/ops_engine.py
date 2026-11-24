@@ -2313,7 +2313,7 @@ def _ops_journal_plan(path, settings, names, field_id):
 
 
 def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
-                      field_id, names, active, context, site, available):
+                      field_id, names, active, context, site, available, stream=False):
     """Journal actual groups produced by the single existing resident batch planner."""
     from . import _mask_batches as batches
     from ._mask_array_batches import _array_batches
@@ -2323,7 +2323,7 @@ def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
 
     order_sha256 = batches._order_sha256(map(str, names))
     with _array_batches(records, load, settings, gpu=gpu, plan_path=plan_path,
-                        max_fields=max_fields) as resident:
+                        max_fields=max_fields, stream=stream) as resident:
         for record, image, metadata, count in resident:
             if active and image is not None:
                 with open(plan_path, encoding='utf-8') as handle:
@@ -2351,8 +2351,15 @@ def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
 
 @contextmanager
 def _ops_array_batches(records, load, settings, *, prepare, site, gpu=False,
-                       plan_path=None, max_fields=None, field_id=str, order=None):
-    """Adapt existing OPS readers to the shared calibrated resident batch planner."""
+                       plan_path=None, max_fields=None, field_id=str, order=None,
+                       stream=False):
+    """Adapt existing OPS readers to the shared calibrated resident batch planner.
+
+    :param stream: pass each field through as loaded, one at a time, without
+        the resident packed or device copy of the whole batch
+        (:func:`spacr._mask_array_batches._array_batches`); the grouping, the
+        tile batch and the journal are the same.
+    """
     from tempfile import TemporaryDirectory
     from . import _mask_batches as batches
     from .object import (_mask_probe_eval, _restore_mask_calibration,
@@ -2407,7 +2414,8 @@ def _ops_array_batches(records, load, settings, *, prepare, site, gpu=False,
         iterator = _ops_batch_fields(
             records, functools.partial(_ops_prefetched_load, prefetched, load, available), settings,
             gpu=gpu, plan_path=plan_path, max_fields=max_fields, field_id=field_id,
-            names=names, active=active, context=context, site=site, available=available)
+            names=names, active=active, context=context, site=site, available=available,
+            stream=stream)
         try:
             yield iterator
         finally:
@@ -6258,7 +6266,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 tick = time.perf_counter()
                 before = len(unreadable)
                 if stager is not None:
-                    stack, lost = stager.load(site)
+                    stack, lost = stager.load(site, mmap=os.name != "nt")
                     unreadable.extend(lost)
                 else:
                     stack = _ph_read_field(files[site], channels, unreadable,
@@ -6277,7 +6285,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                                     field_id=lambda site: f"{plate}_{well}_{site}",
                                     order=processing_order,
                                 max_fields=stager.ahead if stager is not None else None,
-                                plan_path=os.path.join(mask_dir, 'mask_batch_plan.json')) as resident:
+                                plan_path=os.path.join(mask_dir, 'mask_batch_plan.json'),
+                                    stream=True) as resident:
                 for count, (site, stack, _metadata, field_count) in enumerate(resident, start=1):
                     if site not in todo:
                         measure_now(site)
