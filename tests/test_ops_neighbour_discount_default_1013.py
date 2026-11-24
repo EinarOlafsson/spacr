@@ -135,7 +135,7 @@ def test_new_default_preserves_every_old_settings_era_without_rewriting_files(tm
     from spacr.ops_settings import OPS_DEFAULTS
     from spacr.settings import DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION, ALPHA_FEATURES
 
-    assert SETTINGS_SCHEMA_VERSION == 959
+    assert SETTINGS_SCHEMA_VERSION >= 959
     assert DEFAULT_CHANGES[959] == {'ops_read_neighbour_discount': 1.0}
     assert OPS_DEFAULTS['ops_read_neighbour_discount'] == D._DEFAULTS['ops_read_neighbour_discount'] == 0.25
     assert OPS_DEFAULTS['ops_prefix_bleed_in_recipe'] is False

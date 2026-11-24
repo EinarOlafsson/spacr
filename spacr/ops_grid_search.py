@@ -43,6 +43,7 @@ import numpy as np
 import pandas as pd
 
 from .tabular import read_table, write_table
+from .ops_settings import ops_setting
 
 #: The settings a grid may vary, with the type each value is read as.
 _GRID_KEYS: Dict[str, Callable[[Any], Any]] = {
@@ -716,7 +717,7 @@ def _run_grid_search(settings: Mapping[str, Any], *, settings_path: Optional[str
                              & (index["site"] == s)],
               "plate": p, "well": w, "well_id": wid, "site": s,
               "points": points_of[(p, wid)], "loosest": loosest} for p, w, wid, s in tiles]
-    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks)))
+    workers = max(1, min(int(ops_setting(settings, "n_workers")), len(tasks)))
     if workers > 1:
         from .resource_log import _array_file_nbytes, _guard_workers
 
