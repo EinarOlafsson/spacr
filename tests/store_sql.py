@@ -109,3 +109,32 @@ def archived_rows(database, table):
         raise FileNotFoundError(f'no archived measurements.db in {folder}')
     with sqlite3.connect(f'file:{files[-1]}?mode=ro', uri=True) as conn:
         return conn.execute(f'SELECT * FROM "{table}"').fetchall()
+
+
+def fingerprint(database) -> str:
+    """A digest of a project's measurements, to check that nothing changed.
+
+    The bytes of an existing database file; for a store project, the
+    catalog and every table part.
+    """
+    import hashlib
+
+    path = _path(database)
+    digest = hashlib.sha256()
+    if os.path.isfile(path):
+        with open(path, 'rb') as handle:
+            digest.update(handle.read())
+        return digest.hexdigest()
+    folder = os.path.dirname(os.path.abspath(path))
+    for root in ('spacr.duckdb', 'tables'):
+        target = os.path.join(folder, root)
+        if os.path.isfile(target):
+            files = [target]
+        else:
+            files = sorted(os.path.join(d, f) for d, _s, fs in os.walk(target)
+                           for f in fs)
+        for name in files:
+            digest.update(os.path.relpath(name, folder).encode())
+            with open(name, 'rb') as handle:
+                digest.update(handle.read())
+    return digest.hexdigest()
