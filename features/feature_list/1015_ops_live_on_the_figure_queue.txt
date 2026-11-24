@@ -73,3 +73,15 @@ tiles plus every phenotype field placed on it. The test data has one block
 new revision of the Hugging Face OPS test dataset, uploaded only with the
 maintainer OK. OPS live keeps its 5 tabs (spots and genotyping, objects and
 phenotype stay combined).
+2026-11-24 (agent, branch ws-offload-ws-ops-live-queue): the two new blocks
+come from plate LaC024A well A1 (the plate of the existing test data), not
+LaC024E: tiles 95, 96, 132, 133 and 292, 293, 317, 318, each with the 9
+phenotype fields lying fully on it (415-417, 420-422, 493-495 and 1166-1168,
+1172-1174, 1220-1222); about 14,900 called nuclei per block in the
+production run. Fetched from EBI S-BIAD394 by Globus (checksum sync and
+verify; every file size-checked against the EBI listing) into the NAS at
+public_datasets/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A_A1_0at_subset
+(382 files, 6.62 GB), the only path the WS Globus endpoint may write. The
+revision 4 "regions" tier is built locally, not uploaded, at
+/media/carruthers/mnt2/spacr/0at_scratch/dataset_rev4/ops_testdata_funk2022_A1_regions
+(its own folder, so the pinned core and full references do not change).
