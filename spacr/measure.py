@@ -12784,7 +12784,12 @@ def _measure_crop_queued(index, time_ls, file, settings, psf_plan=None,
     return (*result, ticket)
 
 
-def _commit_measure_packet(db_path, packet, *, run_id=None, timelapse=False):
+#: The run id and time-lapse flag of each Measure run in progress, by the
+#: absolute ``measurements.db`` path its packets name.
+_MEASURE_RUNS = {}
+
+
+def _commit_measure_packet(db_path, packet, *, run_id=None, timelapse=None):
     """Dispatch existing scientific helpers inside one atomic field commit.
 
     A store project (every new one) spools the field's tables through
@@ -12795,8 +12800,10 @@ def _commit_measure_packet(db_path, packet, *, run_id=None, timelapse=False):
     :param db_path: the run's ``measurements.db`` path (absent for a store
         project).
     :param packet: ticket, field and scientific operations.
-    :param run_id: the Measure run, recorded on the spooled parts.
-    :param timelapse: parse a timepoint from the field name.
+    :param run_id: the Measure run, recorded on the spooled parts; None
+        takes the one :data:`_MEASURE_RUNS` holds for ``db_path``.
+    :param timelapse: parse a timepoint from the field name; None takes the
+        run's.
     :returns: True for a new commit, False for an already committed one.
     """
     from .database_concurrency import _commit_write_packet
@@ -12832,6 +12839,9 @@ def _commit_measure_packet(db_path, packet, *, run_id=None, timelapse=False):
     if store_native(db_path):
         if packet.get('operations') is None:
             return False
+        recorded = _MEASURE_RUNS.get(os.path.abspath(db_path), (None, False))
+        run_id = recorded[0] if run_id is None else run_id
+        timelapse = recorded[1] if timelapse is None else timelapse
         with field_packet() as collected:
             for operation in packet['operations']:
                 dispatch(operation)
@@ -14284,12 +14294,11 @@ def measure_crop(settings):
                     import uuid as _uuid
 
                     measure_run_id = _uuid.uuid4().hex
-                    measure_timelapse = bool(settings.get('timelapse'))
+                    _MEASURE_RUNS[os.path.abspath(db_path)] = (
+                        measure_run_id, bool(settings.get('timelapse')))
                     writer = _DatabaseWriteQueue(
                         os.path.join(os.path.dirname(db_path), '.write_queue'),
-                        lambda packet: _commit_measure_packet(
-                            db_path, packet, run_id=measure_run_id,
-                            timelapse=measure_timelapse),
+                        lambda packet: _commit_measure_packet(db_path, packet),
                         write_callback, ram_gib=_measure_write_queue_budget(settings),
                         context=ctx)
                     pool_options = {'initializer': _initialize_measure_worker,

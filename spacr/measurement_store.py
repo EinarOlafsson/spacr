@@ -1159,7 +1159,53 @@ class _Session:
                         pass
             self.db.execute(f'CREATE TABLE "__shadow_{name}" AS '
                             f'SELECT * FROM {quoted}')
+        self._run_status()
+        if FIELDS_TABLE in self.tables:
+            from .database_concurrency import _WRITE_TICKETS_TABLE
+
+            self.db.execute(
+                f'CREATE VIEW "{_WRITE_TICKETS_TABLE}" AS SELECT stem AS '
+                f'ticket, field_file AS field FROM "{FIELDS_TABLE}"')
+            self.tables.append(_WRITE_TICKETS_TABLE)
+            self.materialized.add(_WRITE_TICKETS_TABLE)
         self._master()
+
+    def _run_status(self) -> None:
+        """The ledger stamps of the project as a ``run_status`` table.
+
+        A store project's runs are stamped on the catalog's sidecar
+        (:func:`spacr.errors.read_run_status`); readers that ask SQLite's
+        ``run_status`` table get the same rows.
+        """
+        import json
+
+        import pandas as pd
+
+        from . import store
+        from .errors import _STATUS_COLUMNS, read_run_status
+
+        if 'run_status' in self.tables:
+            return
+        try:
+            records = read_run_status(os.path.join(self.project, store.CATALOG))
+        except Exception:
+            return
+        if not records:
+            return
+        rows = []
+        for record in records:
+            row = {c: record.get(c) for c in _STATUS_COLUMNS
+                   if c != 'failures_json'}
+            if 'failures_json' in _STATUS_COLUMNS:
+                row['failures_json'] = json.dumps(record.get('failures') or [])
+            rows.append(row)
+        frame = pd.DataFrame(rows, columns=list(_STATUS_COLUMNS))
+        self.db.register('__run_status_frame', frame)
+        self.db.execute('CREATE TABLE run_status AS SELECT * FROM '
+                        '__run_status_frame')
+        self.db.unregister('__run_status_frame')
+        self.materialized.add('run_status')
+        self.tables.append('run_status')
 
     def materialize(self, name: str) -> None:
         """Hold a view's rows in memory, so SQL may address them by ``rowid``.
