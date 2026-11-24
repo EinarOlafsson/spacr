@@ -10,6 +10,7 @@ can be worked out by hand.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import os
 
@@ -327,7 +328,7 @@ def test_the_measure_archive_leaves_the_mask_stage_tables_in_place():
 
     from spacr.measure import _measurement_archive_tables
 
-    connection = sqlite3.connect(":memory:")
+    connection = store_sql.connect(":memory:")
     for name in ("cell", "spatial_fields", "spatial_objects"):
         connection.execute(f'CREATE TABLE "{name}" (prcfo TEXT)')
         connection.execute(f'INSERT INTO "{name}" VALUES (\'p_A01_1_1\')')
@@ -520,7 +521,7 @@ def test_zero_visium_coverage_replaces_only_current_field_rows(
     current = set(fields.loc[fields["plateID"] == "slide one", "prcf"])
     expected = before[~before["prcfo"].str.rsplit("_o", n=1).str[0].isin(
         current)].reset_index(drop=True)
-    with sqlite3.connect(first["db"]) as connection:
+    with store_sql.connect(first["db"]) as connection:
         schema = connection.execute('PRAGMA table_info("cell_spot_coverage")').fetchall()
     positions = pathlib.Path(source) / "binned_outputs" / "square_002um" /         "spatial" / "tissue_positions.parquet"
     shifted = pd.read_parquet(positions)
@@ -540,7 +541,7 @@ def test_zero_visium_coverage_replaces_only_current_field_rows(
     assert list(actual.columns) == list(expected.columns)
     if keep_other_slide:
         pd.testing.assert_frame_equal(actual, expected)
-    with sqlite3.connect(first["db"]) as connection:
+    with store_sql.connect(first["db"]) as connection:
         assert connection.execute('PRAGMA table_info("cell_spot_coverage")').fetchall() == schema
     assert {name: hashlib.sha256(pathlib.Path(name).read_bytes()).hexdigest()
             for name in originals} == originals
@@ -681,7 +682,7 @@ def test_empty_rerun_retires_only_its_slide_rows(tmp_path, keep_other_slide):
     tables = ("spatial_fields", "spatial_objects")
     before = {table: read_table(db, table=table, canonicalise=False,
                                report=None) for table in tables}
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         schemas = {table: connection.execute(
             f'PRAGMA table_info("{table}")').fetchall() for table in tables}
     own_stems = set(before["spatial_fields"].loc[
@@ -707,7 +708,7 @@ def test_empty_rerun_retires_only_its_slide_rows(tmp_path, keep_other_slide):
         assert len(actual) == len(expected)
         if keep_other_slide:
             pd.testing.assert_frame_equal(actual, expected)
-        with sqlite3.connect(db) as connection:
+        with store_sql.connect(db) as connection:
             assert connection.execute(
                 f'PRAGMA table_info("{table}")').fetchall() == schemas[table]
     assert not any(path.stem in own_stems for path in dst.rglob("*.npy"))

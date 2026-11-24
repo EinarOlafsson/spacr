@@ -1,6 +1,7 @@
 """Item 541: confluency in Measure, for any channel.
 
 Confluency is the fraction of a field covered by cells. Measure computes it
+from tests import store_sql
 from one of three sources -- texture (brightfield, phase), intensity
 (fluorescent cytoplasm or membrane stains) or the cell masks -- writes it per
 field and per well into measurements.db with a monolayer QC flag, and the
@@ -294,7 +295,7 @@ def test_measure_writes_confluency_per_field_and_per_well(tmp_path, source,
         merged, confluency_source=source, confluency_channel=channel))
 
     db = tmp_path / "measurements" / "measurements.db"
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         fields = pd.read_sql_query(f"SELECT * FROM {_CONFLUENCY_TABLE}", conn)
         wells = pd.read_sql_query(
             f"SELECT * FROM {_CONFLUENCY_WELL_TABLE}", conn)
@@ -382,7 +383,7 @@ def test_infection_report_carries_confluency_and_can_drop_thin_monolayers(
         "rowID": ["r1", "r1", "r2"], "columnID": ["c1", "c1", "c2"],
         "fieldID": ["f1"] * 3, "cell_id": [1, 2, 1],
     })
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         cells.to_sql("cell", conn, index=False)
         pathogens.to_sql("pathogen", conn, index=False)
 

@@ -28,6 +28,7 @@ and Measure are the real ones.
 
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -422,7 +423,7 @@ def test_each_slot_reaches_the_database_with_its_containing_cell(
         f"{role}: the segmenter found {len(expected)} objects in two fields, "
         f"{len(SPOTS[role])} were painted in each")
     db = two_organelle_plate / "measurements" / "measurements.db"
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         rows = connection.execute(
             f'SELECT prcf, object_label, cell_id FROM "{role}"').fetchall()
     measured = {(prcf, int(label)): int(cell) for prcf, label, cell in rows}
@@ -461,7 +462,7 @@ def test_masks_own_relationships_table_survives_measure(
     """
     expected = _expected_parents(two_organelle_plate, role)
     db = two_organelle_plate / "measurements" / "measurements.db"
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         rows = connection.execute(
             "SELECT prcf, child_label, parent_label, overlap_fraction "
             "FROM object_relationships WHERE child_type=? "
@@ -475,7 +476,7 @@ def test_masks_own_relationships_table_survives_measure(
 def test_measure_is_given_the_two_slots_the_run_has_and_no_others(
         two_organelle_plate):
     db = two_organelle_plate / "measurements" / "measurements.db"
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         keys = [row[0] for row in connection.execute(
             "SELECT setting_key FROM settings")]
     slot_dims = sorted(key for key in keys

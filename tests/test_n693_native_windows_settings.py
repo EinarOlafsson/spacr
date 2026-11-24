@@ -1,4 +1,5 @@
 """Native NTFS sharing and console encoding around saved pipeline settings."""
+from tests import store_sql
 import ctypes
 from ctypes import wintypes
 import json
@@ -182,7 +183,7 @@ settings = json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
 measure_crop(settings)
 root = Path(settings['src']).parent
 expected_areas = json.loads(sys.argv[2])
-with sqlite3.connect(root / 'measurements/measurements.db') as connection:
+with store_sql.connect(root / 'measurements/measurements.db') as connection:
     connection.row_factory = sqlite3.Row
     for table, count in {'cell': 4, 'nucleus': 4, 'pathogen': 2, 'cytoplasm': 4}.items():
         rows = list(connection.execute('SELECT * FROM "' + table + '"'))

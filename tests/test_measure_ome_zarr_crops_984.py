@@ -1,6 +1,7 @@
 """Item 984: Measure writes ragged OME-Zarr crops through its single writer."""
 from __future__ import annotations
 
+from tests import store_sql
 import sqlite3
 
 import numpy as np
@@ -43,7 +44,7 @@ def _settings(merged, **over):
 
 
 def _crop_table(root):
-    with sqlite3.connect(str(root / "measurements" / "measurements.db")) as conn:
+    with store_sql.connect(str(root / "measurements" / "measurements.db")) as conn:
         return pd.read_sql("SELECT * FROM ssCell_Crops", conn)
 
 
@@ -99,7 +100,7 @@ def test_explicit_legacy_png_writes_no_crop_store(tmp_path):
     measure_crop(_settings(merged, crop_image_format="png", png_size=[16, 16]))
     assert not (tmp_path / "crops").exists()
     assert not (tmp_path / "crop.ome.zarr").exists()
-    with sqlite3.connect(str(tmp_path / "measurements" / "measurements.db")) as conn:
+    with store_sql.connect(str(tmp_path / "measurements" / "measurements.db")) as conn:
         names = {r[0] for r in conn.execute("SELECT name FROM sqlite_master")}
     assert "ssCell_Crops" not in names
 

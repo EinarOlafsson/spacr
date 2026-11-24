@@ -1,5 +1,6 @@
 """A finite mapped acquisition retains exact batch percentile normalization."""
 
+from tests import store_sql
 import json
 import shutil
 import sqlite3
@@ -19,7 +20,7 @@ from tests.test_watch_pipeline_resume_f548 import _bytes, _walkable
 
 def _rows(db, table):
     """Compare every scientific column, including columns measuring pathogens."""
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         columns = [row[1] for row in connection.execute(f'PRAGMA table_info("{table}")')]
         scientific = [name for name in columns if name not in ('file_name', 'path_name')]
         listed = ', '.join(f'"{name}"' for name in scientific)

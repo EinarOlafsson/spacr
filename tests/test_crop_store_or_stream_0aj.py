@@ -8,6 +8,7 @@ labels. The crop index goes through spacr.store.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 
 import numpy as np
@@ -121,7 +122,7 @@ def test_the_crop_index_lives_in_spacr_store_and_ssCell_Crops_mirrors_it(tmp_pat
         frame = opened.query(table=CROP_INDEX_TABLE)
     assert {"plate", "well", "field", "object_type", "object_label",
             "object_id", "bbox_y0", "source_field"} <= set(frame.columns)
-    with sqlite3.connect(str(tmp_path / "measurements" / "measurements.db")) as conn:
+    with store_sql.connect(str(tmp_path / "measurements" / "measurements.db")) as conn:
         mirrored = {r[0] for r in conn.execute("SELECT object_id FROM ssCell_Crops")}
     assert mirrored == set(frame["object_id"])
 

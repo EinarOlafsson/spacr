@@ -1,4 +1,5 @@
 """Issue 134: recover stale forms explicitly, retain wrong-plane refusal."""
+from tests import store_sql
 import json
 from contextlib import nullcontext
 from types import SimpleNamespace
@@ -69,7 +70,7 @@ def test_recovered_no_pathogen_settings_measure_real_cell_rows(tmp_path):
                     test_mode=False, timelapse=False, normalize=False,
                     save_measurements=True, crop_mode=["cell"])
     measure_crop(settings)
-    with sqlite3.connect(tmp_path / "measurements" / "measurements.db") as db:
+    with store_sql.connect(tmp_path / "measurements" / "measurements.db") as db:
         assert db.execute("SELECT COUNT(*) FROM cell").fetchone()[0] == 1
         tables = {row[0] for row in db.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}

@@ -1,6 +1,7 @@
 """Actual calibration inputs distinguish acquisitions and external references."""
 from __future__ import annotations
 
+from tests import store_sql
 import csv
 
 import numpy as np
@@ -277,7 +278,7 @@ def test_real_measurement_sqlite_keeps_session_provenance_and_refuses_changed_re
         save_png=False, save_arrays=False, plot=False, verbose=False, n_jobs=1))
     measure.measure_crop(dict(options))
     database = tmp_path / 'measurements' / 'measurements.db'
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         actual = connection.execute('SELECT cell_channel_0_mean_intensity FROM cell').fetchall()
         records = [json.loads(row[0]) for row in connection.execute(
             'SELECT intensity_calibration FROM intensity_rescale')]

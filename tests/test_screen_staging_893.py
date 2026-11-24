@@ -1,6 +1,7 @@
 """Item 893: one settings file runs a screen plate, and its export and aggregate match the drivers'."""
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import os
 import shutil
@@ -250,7 +251,7 @@ def _toy_database(src: Path, pathogen_column: bool = True) -> Path:
             nuclei.append({**keys, "fieldID": f"f{field}", "prcf": prcf, "file_name": "n",
                            "path_name": "x", "object_label": nucleus, "cell_id": cell,
                            "nucleus_area": area, "nucleus_cell_id": cell})
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         pd.DataFrame(cells).to_sql("cell", con, index=False)
         pd.DataFrame(cyto).to_sql("cytoplasm", con, index=False)
         pd.DataFrame(nuclei).to_sql("nucleus", con, index=False)
@@ -273,7 +274,7 @@ def test_export_joins_objects_and_writes_counts_to_the_image_table(tmp_path):
     first = frame[(frame.site == 1) & (frame.Metadata_cell_id == 1)].iloc[0]
     assert first["nucleus_area"] == 40.0 and first["Metadata_n_nuclei"] == 2
     assert frame["cell_area"].dtype == np.float32
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         image = pd.read_sql("select file_name, n_cells, cells_without_nucleus, "
                             "cells_multi_nucleus from image order by file_name", con)
     assert image["n_cells"].tolist() == [3, 3]
@@ -286,13 +287,13 @@ def test_export_refuses_a_plate_it_cannot_read(tmp_path):
         ss.export_plate_parquet(tmp_path)
     db = tmp_path / "measurements" / "measurements.db"
     db.parent.mkdir()
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         con.execute("create table nucleus (a int)")
     with pytest.raises(ValueError, match="no cell table"):
         ss.export_plate_parquet(tmp_path)
     src = tmp_path / "dup"
     db = _toy_database(src)
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         con.execute("insert into cell select * from cell limit 1")
     with pytest.raises(ValueError, match="twice"):
         ss.export_plate_parquet(src)

@@ -9,6 +9,7 @@ on.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 import sys
@@ -57,7 +58,7 @@ def make_project(root: Path, *, merged: int = 2, planes: int = 3,
                     np.zeros((6, 6, planes), dtype=np.uint16))
     if db_tables is not None:
         (root / "measurements").mkdir(exist_ok=True)
-        connection = sqlite3.connect(root / "measurements" / "measurements.db")
+        connection = store_sql.connect(root / "measurements" / "measurements.db")
         for table in db_tables:
             connection.execute(f'CREATE TABLE "{table}" (value INTEGER)')
             connection.execute(f'INSERT INTO "{table}" VALUES (1)')
@@ -411,7 +412,7 @@ def test_a_database_without_png_list_blocks_classify(tmp_path):
 
 def test_an_empty_png_list_blocks_classify_too(tmp_path):
     root = Path(make_project(tmp_path / "plate", db_tables=()))
-    connection = sqlite3.connect(root / "measurements" / "measurements.db")
+    connection = store_sql.connect(root / "measurements" / "measurements.db")
     connection.execute("CREATE TABLE png_list (value INTEGER)")
     connection.commit()
     connection.close()
@@ -586,7 +587,7 @@ def test_the_registry_table_has_the_declared_schema(tmp_path):
     root = tmp_path / "plate"
     root.mkdir()
     artifacts.open_registry(root)
-    connection = sqlite3.connect(root / artifacts.ARTIFACTS_DB_NAME)
+    connection = store_sql.connect(root / artifacts.ARTIFACTS_DB_NAME)
     try:
         columns = [row[1] for row in connection.execute(
             "PRAGMA table_info(artifacts)")]
@@ -903,7 +904,7 @@ def test_the_registry_uses_wal_on_a_local_filesystem(tmp_path):
     root = tmp_path / "plate"
     root.mkdir()
     artifacts.open_registry(root)
-    connection = sqlite3.connect(root / artifacts.ARTIFACTS_DB_NAME)
+    connection = store_sql.connect(root / artifacts.ARTIFACTS_DB_NAME)
     try:
         mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
     finally:
@@ -916,7 +917,7 @@ def test_a_network_filesystem_keeps_the_default_journal(tmp_path, monkeypatch):
     root = tmp_path / "plate"
     root.mkdir()
     artifacts.open_registry(root)
-    connection = sqlite3.connect(root / artifacts.ARTIFACTS_DB_NAME)
+    connection = store_sql.connect(root / artifacts.ARTIFACTS_DB_NAME)
     try:
         mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
     finally:

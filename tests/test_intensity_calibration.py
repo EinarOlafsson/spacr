@@ -7,6 +7,7 @@ uncalibrated they differ 2.5-fold.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import hashlib
 import json
 import os
@@ -95,7 +96,7 @@ def _settings(merged, **over):
 
 def _cell_means(root):
     db = root / "measurements" / "measurements.db"
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         cells = pd.read_sql_query("SELECT * FROM cell", conn)
         provenance = pd.read_sql_query(
             "SELECT * FROM intensity_rescale", conn)
@@ -204,7 +205,7 @@ def measured_calibration_projects(tmp_path_factory):
         root = tmp_path_factory.mktemp(f"calibration-history-{enabled}")
         merged = _write_sessions(root)
         measure.measure_crop(_settings(merged, intensity_calibration=enabled))
-        with sqlite3.connect(root / "measurements" / "measurements.db") as conn:
+        with store_sql.connect(root / "measurements" / "measurements.db") as conn:
             conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
         projects[enabled] = root
     return projects
@@ -235,7 +236,7 @@ def _assert_refused_before_database_writes(monkeypatch, settings, database):
 def _assert_fresh_run_archives_calibration_history(settings, database):
     """A new item-736 population preserves the complete old calibration history."""
     tables = ("cell", "intensity_rescale", "settings")
-    with sqlite3.connect(database) as conn:
+    with store_sql.connect(database) as conn:
         previous = {table: conn.execute(f'SELECT * FROM "{table}"').fetchall()
                     for table in tables}
         old_records = [json.loads(row[0]) for row in conn.execute(
@@ -244,7 +245,7 @@ def _assert_fresh_run_archives_calibration_history(settings, database):
     assert all(previous.values())
     assert len(old_identities) == 1
     measure.measure_crop(settings)
-    with sqlite3.connect(database) as conn:
+    with store_sql.connect(database) as conn:
         for table, rows in previous.items():
             assert conn.execute(f'SELECT * FROM "{table}_1"').fetchall() == rows
         assert conn.execute("SELECT COUNT(*) FROM cell").fetchone()[0] == len(previous["cell"])
@@ -271,7 +272,7 @@ def test_unchanged_calibration_and_legacy_disabled_projects_resume(
     merged, database = _copy_measured_project(
         measured_calibration_projects, tmp_path / "resume", enabled)
     if not enabled:
-        with sqlite3.connect(database) as conn:
+        with store_sql.connect(database) as conn:
             conn.execute("DELETE FROM settings WHERE setting_key = ?",
                          (measure._CALIBRATION_IDENTITY_KEY,))
     else:
@@ -346,7 +347,7 @@ def test_unverified_calibrated_history_refuses_before_resume_clears_rows(
         tmp_path, monkeypatch, measured_calibration_projects, damage):
     merged, database = _copy_measured_project(
         measured_calibration_projects, tmp_path / "unverified")
-    with sqlite3.connect(database) as conn:
+    with store_sql.connect(database) as conn:
         if damage == "legacy_identity":
             conn.execute("DELETE FROM settings WHERE setting_key = ?",
                          (measure._CALIBRATION_IDENTITY_KEY,))

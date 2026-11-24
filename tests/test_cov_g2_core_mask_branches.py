@@ -1,6 +1,7 @@
 """Mask pipeline branches: cloud sources, robustness, events and relationships."""
 from __future__ import annotations
 
+from tests import store_sql
 import sqlite3
 
 import pytest
@@ -55,7 +56,7 @@ def test_relationship_failures_are_warnings(run_dir, stubs, monkeypatch,  # noqa
 
     meas = run_dir / "measurements"
     meas.mkdir()
-    sqlite3.connect(str(meas / "measurements.db")).close()
+    store_sql.connect(str(meas / "measurements.db")).close()
     monkeypatch.setattr(filters, "_write_object_relationships", broken)
     monkeypatch.setattr(filters, "object_tables", lambda db: ["cell"])
     monkeypatch.setattr(filters, "write_relationships", broken)
@@ -73,7 +74,7 @@ def test_relationships_are_written_when_measure_left_object_tables(
     written = []
     meas = run_dir / "measurements"
     meas.mkdir()
-    sqlite3.connect(str(meas / "measurements.db")).close()
+    store_sql.connect(str(meas / "measurements.db")).close()
     monkeypatch.setattr(filters, "object_tables", lambda db: ["cell"])
     monkeypatch.setattr(filters, "write_relationships", written.append)
     preprocess_generate_masks(_mask_settings(run_dir))

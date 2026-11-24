@@ -15,6 +15,7 @@ Qt-free. The window that drives this table is tested in
 """
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import os
 import sqlite3
@@ -109,7 +110,7 @@ def _tree(root):
 def _tables(db_path):
     """``table -> (row count, column names)`` for every table in ``db_path``."""
     out = {}
-    with sqlite3.connect(db_path) as connection:
+    with store_sql.connect(db_path) as connection:
         names = [row[0] for row in connection.execute(
             "select name from sqlite_master where type='table'")]
         for name in names:
@@ -316,7 +317,7 @@ def test_a_table_run_and_a_measure_run_agree(tmp_path, drawn):
         {path for path in a_tree if path.startswith("merged" + os.sep)}
     assert "measurements" + os.sep + "measurements.db" in a_tree
 
-    with sqlite3.connect(a_db) as first, sqlite3.connect(b_db) as second:
+    with store_sql.connect(a_db) as first, store_sql.connect(b_db) as second:
         query = ('select prcf, object_label, cell_area, '
                  'cell_channel_0_mean_intensity from cell '
                  'order by prcf, object_label')
@@ -351,7 +352,7 @@ def test_one_drawn_mask_can_be_measured_against_several_acquisitions(tmp_path):
     out = measure_from_field_table(
         table, dict(LEAN), dst=str(tmp_path / "project"))
 
-    with sqlite3.connect(out['db_path']) as connection:
+    with store_sql.connect(out['db_path']) as connection:
         rows = connection.execute(
             'select prcf, cell_channel_0_mean_intensity from cell '
             'order by prcf').fetchall()
@@ -555,7 +556,7 @@ def test_cells_drawn_on_one_image_join_nuclei_drawn_on_another(tmp_path):
 
     out = measure_from_field_table(table, dict(LEAN),
                                    dst=str(tmp_path / "project"))
-    with sqlite3.connect(out["db_path"]) as connection:
+    with store_sql.connect(out["db_path"]) as connection:
         columns = [row[1] for row in connection.execute(
             'pragma table_info("nucleus")')]
         parent = next(c for c in ("cell_id", "parent_cell_id") if c in columns)

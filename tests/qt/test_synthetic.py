@@ -16,6 +16,7 @@ being caught, so each is asserted here by running the pre-flight.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import csv
 import os
 import re
@@ -372,7 +373,7 @@ def test_crop_demo_runs_end_to_end_through_measure_crop(tmp_path: Path):
 
     db = layout.src / "measurements" / "measurements.db"
     assert db.is_file(), "measure_crop wrote no measurements.db"
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         tables = {name for (name,) in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
         counts = {t: conn.execute(f'SELECT COUNT(*) FROM "{t}"').fetchone()[0]
@@ -481,7 +482,7 @@ def test_the_measure_demos_organelle_plane_is_summarised_but_not_tabulated(
         run["src"] = str(src)
         run["n_jobs"] = 1
         measure_crop(run)
-        with sqlite3.connect(src / "measurements" / "measurements.db") as conn:
+        with store_sql.connect(src / "measurements" / "measurements.db") as conn:
             names = [n for (n,) in conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")]
             return {n: conn.execute(f'SELECT COUNT(*) FROM "{n}"').fetchone()[0]
@@ -560,7 +561,7 @@ def test_classify_demo_produces_labeled_pngs(tmp_path: Path):
     for p in layout.image_files:
         assert p.suffix == ".png"
     # DB has annotate column with alternating 1/2 labels
-    with sqlite3.connect(layout.db_path) as conn:
+    with store_sql.connect(layout.db_path) as conn:
         rows = conn.execute('SELECT annotate FROM "png_list"').fetchall()
     assert sorted(v for (v,) in rows) == [1, 1, 1, 1, 2, 2, 2, 2]
 
@@ -598,7 +599,7 @@ def test_classify_demo_spans_enough_wells_to_hold_one_out(tmp_path: Path):
     """The classifier's leakage-safe validation split groups folds by well and
     stops on a single-group training half."""
     layout = syn.generate_classify_demo(tmp_path)
-    with sqlite3.connect(layout.db_path) as conn:
+    with store_sql.connect(layout.db_path) as conn:
         wells = {w for (w,) in conn.execute('SELECT DISTINCT wellID FROM "png_list"')}
     assert len(wells) >= 4, wells
 

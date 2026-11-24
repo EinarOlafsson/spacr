@@ -24,6 +24,7 @@ exactly what CPython gives a Windows process whose output is redirected.
 
 from __future__ import annotations
 
+from tests import store_sql
 import io
 import os
 import sqlite3
@@ -203,7 +204,7 @@ def test_measure_crop_completes_with_a_windows_console(tmp_path, monkeypatch):
 
     db = tmp_path / 'measurements' / 'measurements.db'
     assert db.is_file(), 'the run died before it wrote anything'
-    con = sqlite3.connect(db)
+    con = store_sql.connect(db)
     try:
         assert con.execute('SELECT COUNT(*) FROM cell').fetchone()[0] == 3
     finally:

@@ -26,6 +26,7 @@ weights are downloaded and no GPU is touched.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import sqlite3
 import types
 from pathlib import Path
@@ -585,7 +586,7 @@ def test_the_run_still_writes_masks_and_counts(tmp_path, sam_pipeline):
     assert len(masks) == 2
 
     db = Path(src).parent / "measurements" / "measurements.db"
-    con = sqlite3.connect(str(db))
+    con = store_sql.connect(str(db))
     try:
         rows = con.execute(
             "SELECT count_type, object_count FROM object_counts").fetchall()

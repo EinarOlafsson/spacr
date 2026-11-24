@@ -23,6 +23,7 @@ silently becomes one worker turns a loud failure into an overnight one.
 
 from __future__ import annotations
 
+from tests import store_sql
 import multiprocessing as mp
 import sqlite3
 
@@ -292,7 +293,7 @@ def test_the_guard_does_not_silently_degrade_to_a_serial_run(
 
     db = merged_project / 'measurements' / 'measurements.db'
     if db.is_file():
-        con = sqlite3.connect(db)
+        con = store_sql.connect(db)
         try:
             tables = {r[0] for r in con.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")}
@@ -314,7 +315,7 @@ def test_measure_crop_still_measures_when_the_manager_is_fine(merged_project):
 
     db = merged_project / 'measurements' / 'measurements.db'
     assert db.is_file()
-    con = sqlite3.connect(db)
+    con = store_sql.connect(db)
     try:
         assert con.execute('SELECT COUNT(*) FROM cell').fetchone()[0] == 2
     finally:

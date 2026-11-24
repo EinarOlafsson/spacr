@@ -30,6 +30,7 @@ default.
 
 from __future__ import annotations
 
+from tests import store_sql
 import multiprocessing as mp
 import os
 import pickle
@@ -209,7 +210,7 @@ def test_measure_crop_completes_in_a_spawn_pool(merged_project, monkeypatch):
 
     db = merged_project / 'measurements' / 'measurements.db'
     assert db.is_file(), 'the spawn pool wrote no measurements database'
-    con = sqlite3.connect(db)
+    con = store_sql.connect(db)
     try:
         tables = {r[0] for r in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
@@ -271,7 +272,7 @@ def test_writer_failure_is_counted_only_after_its_final_attempt(
     M.measure_crop(_settings(merged_project / 'merged', n_jobs=1,
                              database_write_queue_gib=0))
     database = merged_project / 'measurements' / 'measurements.db'
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         succeeded, failed = connection.execute(
             'SELECT n_succeeded, n_failed FROM run_status').fetchone()
         assert (succeeded, failed) == ((2, 0) if failure == 'once' else (1, 1))

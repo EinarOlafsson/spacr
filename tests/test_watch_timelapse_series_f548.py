@@ -1,4 +1,5 @@
 """A fixed Convert map bounds one complete timelapse field series."""
+from tests import store_sql
 import csv
 import json
 import shutil
@@ -79,7 +80,7 @@ def test_mapped_series_waits_for_final_frame_then_matches_batch(tmp_path, real_p
     for table in ('cell', 'nucleus'):
         assert _rows(batch / 'measurements/measurements.db', table) == _rows(
             combined / 'measurements/measurements.db', table)
-    with sqlite3.connect(combined / 'measurements/measurements.db') as connection:
+    with store_sql.connect(combined / 'measurements/measurements.db') as connection:
         for table in ('cell', 'nucleus'):
             frames = connection.execute(
                 f'SELECT DISTINCT prcf FROM "{table}" ORDER BY prcf').fetchall()
@@ -351,7 +352,7 @@ def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
     if damage == 'none':
         assert resumed['done'] == first['failed']
         assert combined.read_bytes() == original
-        with sqlite3.connect(work / 'measurements/measurements.db') as connection:
+        with store_sql.connect(work / 'measurements/measurements.db') as connection:
             assert connection.execute('SELECT COUNT(*) FROM spacr_watch_fields').fetchone() == (1,)
     else:
         assert resumed['failed'] == first['failed']

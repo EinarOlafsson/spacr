@@ -17,6 +17,7 @@ instead of quietly producing wrong rows.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 import sys
@@ -145,7 +146,7 @@ def _tables(project):
     if not os.path.isfile(db):
         return {}
     frames = {}
-    con = sqlite3.connect(db)
+    con = store_sql.connect(db)
     try:
         names = [row[0] for row in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]

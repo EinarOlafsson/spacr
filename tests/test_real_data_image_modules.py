@@ -45,6 +45,7 @@ pipeline, and on the CPU they cost minutes for no new coverage.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import logging
 import shutil
 import time
@@ -348,7 +349,7 @@ def test_module_measure_crop_writes_measurements_db(tmp_path):
     # apart.
     import sqlite3
 
-    con = sqlite3.connect(str(dbs[0]))
+    con = store_sql.connect(str(dbs[0]))
     try:
         tables = {r[0] for r in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}

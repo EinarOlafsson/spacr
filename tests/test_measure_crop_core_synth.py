@@ -9,6 +9,7 @@ otherwise only runs behind the slow/gpu e2e pipeline.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -97,7 +98,7 @@ def _counts_in(db_path):
     """``{table: rows}`` for the measurement tables that exist."""
     import sqlite3
 
-    con = sqlite3.connect(str(db_path))
+    con = store_sql.connect(str(db_path))
     try:
         present = {r[0] for r in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
@@ -145,7 +146,7 @@ def test_measure_crop_core_writes_measurements_and_pngs(tmp_path, synth_masks_mu
     # measurements.db written one level up from merged/
     db = tmp_path / "measurements" / "measurements.db"
     assert db.is_file()
-    con = sqlite3.connect(db)
+    con = store_sql.connect(db)
     tables = {r[0] for r in con.execute(
         "SELECT name FROM sqlite_master WHERE type='table'")}
     con.close()
@@ -370,7 +371,7 @@ def test_get_object_counts(tmp_path):
     from spacr.measure import get_object_counts
     meas = tmp_path / "measurements"
     meas.mkdir()
-    con = sqlite3.connect(meas / "measurements.db")
+    con = store_sql.connect(meas / "measurements.db")
     con.execute("CREATE TABLE object_counts (file_name TEXT, count_type TEXT, object_count INT)")
     con.executemany(
         "INSERT INTO object_counts VALUES (?,?,?)",

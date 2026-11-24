@@ -13,6 +13,7 @@ Two halves:
 
 CPU-only, offline, no torch needed for the ledger half.
 """
+from tests import store_sql
 import json
 import os
 import sqlite3
@@ -372,7 +373,7 @@ def test_partial_run_error_is_catchable_as_a_data_integrity_error():
 # ---------------------------------------------------------------------------
 
 def _make_db(path):
-    conn = sqlite3.connect(str(path))
+    conn = store_sql.connect(str(path))
     conn.execute('CREATE TABLE measurements (well TEXT)')
     conn.execute("INSERT INTO measurements VALUES ('A01')")
     conn.commit()
@@ -413,7 +414,7 @@ def test_stamping_leaves_the_rest_of_the_database_untouched(tmp_path):
     RunLedger('m').record_failure('x', exc=ValueError('v'))
     RunLedger('m').stamp(db)
 
-    conn = sqlite3.connect(str(db))
+    conn = store_sql.connect(str(db))
     try:
         assert conn.execute('SELECT well FROM measurements').fetchall() == [('A01',)]
         names = {r[0] for r in conn.execute(
@@ -1022,7 +1023,7 @@ def test_measure_crop_marks_measurements_db_partial_when_a_field_fails(tmp_path,
     db = tmp_path / 'measurements' / 'measurements.db'
 
     # (a) the other fields still processed
-    conn = sqlite3.connect(str(db))
+    conn = store_sql.connect(str(db))
     try:
         measured = {row[0] for row in
                     conn.execute('SELECT DISTINCT file_name FROM cell')}

@@ -45,6 +45,7 @@ positive; ``dirname(abspath(...))`` is never empty).
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -314,7 +315,7 @@ class TestTheConversionMapIsAlwaysIndexedOnTarget:
 def _indexes(db_path):
     if not os.path.isfile(db_path):
         return []
-    connection = sqlite3.connect(str(db_path))
+    connection = store_sql.connect(str(db_path))
     try:
         return [row[0] for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='index'")]
@@ -381,7 +382,7 @@ class TestImportingAConversionMapIntoAnExistingProject:
             "target": target, "source": "/old/raw.tif", "plate": "plate0",
             "well": "A01", "field": 1, "channel": 1, "z": 1, "t": 1,
         }])
-        connection = sqlite3.connect(str(db_path))
+        connection = store_sql.connect(str(db_path))
         try:
             frame.to_sql(cv.CONVERSION_TABLE, connection,
                          if_exists="replace", index=False)
@@ -393,7 +394,7 @@ class TestImportingAConversionMapIntoAnExistingProject:
     def _targets(db_path):
         from spacr import convert as cv
 
-        connection = sqlite3.connect(str(db_path))
+        connection = store_sql.connect(str(db_path))
         try:
             return sorted(row[0] for row in connection.execute(
                 f'SELECT target FROM "{cv.CONVERSION_TABLE}"'))
@@ -428,7 +429,7 @@ class TestImportingAConversionMapIntoAnExistingProject:
 
         db = tmp_path / "measurements.db"
         self._seed(db, "old_row.tif")
-        connection = sqlite3.connect(str(db))
+        connection = store_sql.connect(str(db))
         try:
             pd.DataFrame([{"target": "ghost_from_a_crash.tif",
                            "source": "/raw/ghost.tif"}]).to_sql(
@@ -450,7 +451,7 @@ class TestImportingAConversionMapIntoAnExistingProject:
 
 
 def _table_names(db_path):
-    connection = sqlite3.connect(str(db_path))
+    connection = store_sql.connect(str(db_path))
     try:
         return [row[0] for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]

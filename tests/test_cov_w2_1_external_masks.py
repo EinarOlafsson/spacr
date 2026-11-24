@@ -8,6 +8,7 @@ disk so the check being exercised is the real one.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -364,7 +365,7 @@ def _measure_writing(tables):
         project = os.path.dirname(measure_settings["src"])
         db = os.path.join(project, "measurements", "measurements.db")
         os.makedirs(os.path.dirname(db), exist_ok=True)
-        with sqlite3.connect(db) as connection:
+        with store_sql.connect(db) as connection:
             for table in tables:
                 connection.execute(
                     f'CREATE TABLE "{table}" (object_label INTEGER)')

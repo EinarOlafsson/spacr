@@ -12,6 +12,7 @@ the pixel-to-stage transform is right.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import os
 import shutil
@@ -60,7 +61,7 @@ class MeasuredField:
               "cell_channel_0_centroid_weighted-0": row,
               "cell_channel_0_centroid_weighted-1": column}
              for label, area, row, column in self.objects])
-        with sqlite3.connect(os.path.join(field_dir, "measurements",
+        with store_sql.connect(os.path.join(field_dir, "measurements",
                                           "measurements.db")) as connection:
             frame.to_sql("cell", connection, index=False)
 

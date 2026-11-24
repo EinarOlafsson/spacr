@@ -15,6 +15,7 @@ skips with a clear reason so the suite still stays green.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict
@@ -245,7 +246,7 @@ def test_preprocess_generate_masks_runs_on_mask_demo(
     # 2. The counts database.
     db = src / "measurements" / "measurements.db"
     assert db.is_file() and db.stat().st_size > 0
-    con = sqlite3.connect(db)
+    con = store_sql.connect(db)
     try:
         counts = dict(con.execute(
             "SELECT count_type, object_count FROM object_counts").fetchall())
@@ -316,7 +317,7 @@ def test_measure_crop_runs_on_measure_demo(tmp_path: Path):
 
     db = layout.src / "measurements" / "measurements.db"
     assert db.is_file() and db.stat().st_size > 0
-    con = sqlite3.connect(db)
+    con = store_sql.connect(db)
     try:
         tables = {r[0] for r in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
