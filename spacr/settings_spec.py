@@ -284,7 +284,7 @@ def convert_settings_dict_for_gui(settings):
         'ops_never_barcode_sets': ('combo', ['n1_n2', 'n2'], 'n1_n2'),
         'ops_read_mode': ('combo', ['log', 'raw', 'auto', None], None),
         'ops_merge_strategy': ('combo', ['current', 'tile', 'stitch', 'auto'], 'current'),
-        'ops_storage': ('combo', ['current', 'spacr_store'], 'current'),
+        'ops_storage': ('combo', ['spacr_store'], 'spacr_store'),
         'ops_ph_image_format': ('combo', ['ome-zarr', 'npz'], 'ome-zarr'),
         'ome_zarr_ngff_version': ('combo', ['0.5', '0.6'], '0.5'),
         'ops_crop_image_format': ('combo', ['ome-zarr', 'tiff-tar'], 'ome-zarr'),

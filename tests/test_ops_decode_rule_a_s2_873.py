@@ -14,7 +14,7 @@ import json
 import math
 import os
 import shutil
-import sqlite3
+from tests.ops_store_sql import ops_connect
 
 import numpy as np
 import pytest
@@ -335,7 +335,7 @@ def rule_a_run(tmp_path_factory):
     preset = {**settings, "ops_decode_preset": "rule_a_s2",
               "ops_store_field_cache": True}
     result = ops_engine.run_ops(preset, phases=("decode",), library=library)
-    with sqlite3.connect(result["db"]) as conn:
+    with ops_connect(result["db"]) as conn:
         rows = conn.execute("SELECT b.mapped_guide, o.centroid_y, o.centroid_x "
                             "FROM ops_barcodes b JOIN ops_objects o USING "
                             "(plate, well, object_id)").fetchall()

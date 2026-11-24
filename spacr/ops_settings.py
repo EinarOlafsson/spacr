@@ -400,7 +400,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_gpu_ignore_process_patterns": None,
     "ops_tables_integer_keys": False,
     "ops_tables_layout": 'compartments',
-    "ops_storage": "current",
+    "ops_storage": "spacr_store",
     "ops_store_row_copy": False,
     "ops_stress_report": False,
     "ops_modules_runs": 100,
@@ -4037,13 +4037,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "three compartments' features, which needs no join. Default "
         "'compartments'. Alpha.",
     "ops_storage":
-        "(str) - 'current' writes the usual OPS outputs; ph_tables always "
-        "writes the cell, nucleus and cytoplasm tables to the run's spaCR "
-        "store in measurements/. 'spacr_store' also adds the reads and "
-        "barcodes tables there and each cell's raw crop in a Zarr store per "
-        "well, with the crop pointer on the cell table. spacr.store.open "
-        "reads the store through its catalog spacr.duckdb. Default "
-        "'current'. Alpha.",
+        "(str) - Where the OPS run keeps its tables: 'spacr_store', the "
+        "run's spaCR store in measurements/, the only choice. Every OPS "
+        "table goes there (geometry, phenotype, objects, reads, barcodes, "
+        "merge, cell_cycle) beside the cell, nucleus and cytoplasm tables, "
+        "and each cell's raw crop in a Zarr store per well, with the crop "
+        "pointer on the cell table. spacr.store.open reads the store "
+        "through its catalog spacr.duckdb; it also reads an older run's "
+        "measurements.db. An older settings file's 'current' runs as "
+        "'spacr_store'. Default 'spacr_store'. Alpha.",
     "ops_store_row_copy":
         "(bool) - With ops_storage 'spacr_store', also keep each well's "
         "measurements a second time, one cell after another, so that "
@@ -4472,12 +4474,20 @@ OPS_DESCRIPTION = (
 )
 
 
+#: Retired ``ops_storage`` values and the value an older settings file that
+#: names one now runs with (item 0an). ``current`` kept the OPS tables in
+#: ``measurements.db``; they are in the spaCR store now whatever the file
+#: says, so ``spacr_store`` is the one value left.
+_OPS_STORAGE_ALIASES = {"current": "spacr_store"}
+
+
 def ops_defaults(settings=None):
     """The settings the OPS engine reads, with their defaults filled in.
 
     A settings file written before item 969 names the nuclei model
     ``cellpose_model``; it is moved to ``ops_sbs_nucleus_model`` first, so the
-    default does not take its place.
+    default does not take its place. A retired ``ops_storage`` value
+    (``'current'``, item 0an) becomes the value it runs as, ``'spacr_store'``.
 
     :param settings: caller's settings, filled in with the defaults.
     :returns: the completed settings dict.
@@ -4488,6 +4498,9 @@ def ops_defaults(settings=None):
     _fold_renamed_settings(settings)
     for key, value in OPS_DEFAULTS.items():
         settings.setdefault(key, value)
+    stored = str(settings.get("ops_storage") or "").strip().lower()
+    if stored in _OPS_STORAGE_ALIASES:
+        settings["ops_storage"] = _OPS_STORAGE_ALIASES[stored]
     return settings
 
 

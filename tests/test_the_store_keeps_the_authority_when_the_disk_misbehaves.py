@@ -2,16 +2,14 @@
 
 tests/test_the_object_table_is_on_disk_before_phase_c_starts.py holds the
 contract when the disk behaves. These are the paths 372 PART 14-M wrote for
-when it does not -- a frame Arrow cannot hold, a sidecar path taken by a
-directory, a cache that is not parquet, a database that is not SQLite, keys
-SQLite folds together, a table from before the key, and an append SQLite
-itself refuses -- and in each one SQLite stays the authority and the caller
-is told what happened.
+when it does not, as they stand since item 0an moved the OPS tables into the
+run's spaCR store: a frame Arrow cannot hold, a stray file where the
+database was, keys a frame keeps apart but a column cannot, an older
+database holding a duplicate, and an append that adds a cycle. In each one
+nothing half-written becomes visible and the caller is told what happened.
 """
 from __future__ import annotations
 
-import logging
-import os
 import sqlite3
 
 import pandas as pd
@@ -25,58 +23,24 @@ def _db(tmp_path):
     return str(tmp_path / "measurements.db")
 
 
-def _sidecar(tmp_path, table):
-    return str(tmp_path / f"measurements.{table}.parquet")
-
-
-def test_a_frame_parquet_cannot_hold_is_still_written_to_the_authority(
-        tmp_path, caplog):
-    """A column of mixed types is fine in SQLite and refused by Arrow."""
+def test_a_frame_arrow_cannot_hold_is_refused_and_keeps_the_table(tmp_path):
+    """A column of mixed types cannot be one typed column; nothing is written."""
     path = _db(tmp_path)
-    reads = pd.DataFrame({"object_id": [1, 2], "cycle": [1, 1],
+    good = pd.DataFrame({"object_id": [1, 2], "cycle": [1, 1],
+                         "base": ["A", "C"]})
+    assert write_table(path, "ops_reads", good) == 2
+    mixed = pd.DataFrame({"object_id": [1, 2], "cycle": [1, 1],
                           "base": [1, "A"]})
 
-    with caplog.at_level(logging.WARNING, logger="spacr.ops_store"):
-        assert write_table(path, "ops_reads", reads) == 2
+    with pytest.raises(Exception) as caught:
+        write_table(path, "ops_reads", mixed)
 
-    assert not os.path.exists(_sidecar(tmp_path, "ops_reads"))
-    assert "no parquet cache for ops_reads" in caplog.text
-    assert len(read_table(path, "ops_reads")) == 2
-
-
-def test_a_directory_where_the_sidecar_goes_costs_the_cache_not_the_write(
-        tmp_path, caplog):
-    """Neither parquet nor the stale-cache removal can use a directory.
-
-    Both failures are logged, and the table is written and read anyway.
-    """
-    path = _db(tmp_path)
-    os.makedirs(_sidecar(tmp_path, "ops_reads"))
-    reads = pd.DataFrame({"object_id": [1, 2, 3], "cycle": [1, 1, 1],
-                          "base": list("ACG")})
-
-    with caplog.at_level(logging.WARNING, logger="spacr.ops_store"):
-        assert write_table(path, "ops_reads", reads) == 3
-
-    assert "could not remove the stale parquet cache" in caplog.text
-    assert "no parquet cache for ops_reads" in caplog.text
-    assert list(read_table(path, "ops_reads",
-                           prefer_cache=False)["base"]) == list("ACG")
-
-
-def test_an_unreadable_cache_falls_back_to_the_authority(tmp_path):
-    path = _db(tmp_path)
-    write_table(path, "ops_reads",
-                pd.DataFrame({"object_id": [1, 2], "cycle": [1, 1],
-                              "base": list("AC")}))
-    with open(_sidecar(tmp_path, "ops_reads"), "wb") as handle:
-        handle.write(b"not a parquet file")
-
+    assert not isinstance(caught.value, StoreError)
     assert list(read_table(path, "ops_reads")["base"]) == ["A", "C"]
 
 
 def test_a_file_that_is_not_a_database_has_no_object_table(tmp_path):
-    """The gate answers "no table" rather than raising on a stray file."""
+    """The gate answers "no store" rather than raising on a stray file."""
     path = _db(tmp_path)
     with open(path, "wb") as handle:
         handle.write(b"this is not sqlite " * 100)
@@ -84,29 +48,31 @@ def test_a_file_that_is_not_a_database_has_no_object_table(tmp_path):
     assert row_count(path, OBJECTS_TABLE) is None
     verdict = objects_ready(path)
     assert not verdict and verdict.rows is None
-    assert "has no ops_objects table" in verdict.reason
+    assert "no store" in verdict.reason
 
 
-def test_keys_sqlite_treats_as_equal_leave_no_table_behind(tmp_path):
-    """1 and "1" are two keys to a DataFrame and one to a TEXT column.
+def test_keys_a_column_cannot_tell_apart_leave_no_table_behind(tmp_path):
+    """1 and "1" are two keys to a DataFrame but cannot share one column.
 
-    The frame check passes them; the index SQLite builds does not, and the
-    table it was built on is removed rather than left for the gate to pass.
+    The frame check passes them; the store's writer refuses the column, and
+    no table is left for the gate to pass.
     """
     path = _db(tmp_path)
     frame = pd.DataFrame({"object_id": pd.Series([1, "1"], dtype=object),
                           "area": [300, 301]})
 
-    with pytest.raises(StoreError, match="SQLite treats as equal"):
+    with pytest.raises(Exception):
         write_table(path, OBJECTS_TABLE, frame)
 
     assert row_count(path, OBJECTS_TABLE) is None
     assert not objects_ready(path)
 
 
-def test_a_table_written_before_the_key_is_named_before_an_append(tmp_path):
-    """V11c's own case: a table on disk from before the constraint, holding a
-    duplicate. The append is refused and the caller's table is left alone."""
+def test_an_older_table_holding_a_duplicate_is_named_before_an_append(
+        tmp_path):
+    """V11c's own case: a measurements.db from before the constraint, holding
+    a duplicate. The append is refused, nothing is copied into the store and
+    the older table is left alone."""
     path = _db(tmp_path)
     with sqlite3.connect(path) as conn:
         conn.execute("CREATE TABLE ops_objects "
@@ -116,74 +82,60 @@ def test_a_table_written_before_the_key_is_named_before_an_append(tmp_path):
     conn.close()
     new = pd.DataFrame({"plate": ["p1"], "well": ["A1"], "object_id": [3]})
 
-    with pytest.raises(StoreError, match="without the uniqueness constraint"):
+    with pytest.raises(StoreError, match="would hold 2 rows"):
         write_table(path, OBJECTS_TABLE, new, if_exists="append")
 
     assert row_count(path, OBJECTS_TABLE) == 3
 
 
-def test_an_append_with_columns_the_table_lacks_fails_as_what_it_is(tmp_path):
-    """The table on disk has no plate or well to key on, so nothing is
-    constrained before the append, and SQLite's refusal comes back as itself
-    rather than as a collision between objects."""
-    path = _db(tmp_path)
-    write_table(path, OBJECTS_TABLE, pd.DataFrame({"object_id": [1, 2]}))
-    extra = pd.DataFrame({"plate": ["p1"], "well": ["A1"], "object_id": [3]})
-
-    with pytest.raises(Exception) as caught:
-        write_table(path, OBJECTS_TABLE, extra, if_exists="append")
-
-    assert not isinstance(caught.value, StoreError)
-    assert "no column named plate" in (
-        f"{caught.value} {caught.value.__cause__}")
-    assert row_count(path, OBJECTS_TABLE) == 2
-
-
-def test_appending_a_cycle_discards_the_partial_cache_and_keeps_all_reads(
+def test_an_older_table_is_copied_into_the_store_before_one_well_is_rewritten(
         tmp_path):
-    """A newly appended cycle cannot masquerade as the complete read cache."""
+    """Rewriting one well of an older run keeps the other wells it held."""
+    from spacr.ops_engine import _replace_well_rows, _well_rows
+
+    path = _db(tmp_path)
+    with sqlite3.connect(path) as conn:
+        pd.DataFrame({"plate": ["p1"] * 3, "well": ["A1", "A2", "A2"],
+                      "object_id": [1, 1, 2]}).to_sql(OBJECTS_TABLE, conn,
+                                                      index=False)
+    conn.close()
+    _replace_well_rows(path, OBJECTS_TABLE, pd.DataFrame(
+        {"plate": ["p1"], "well": ["A1"], "object_id": [7]}), "p1", "A1")
+
+    assert row_count(path, OBJECTS_TABLE) == 3
+    assert _well_rows(path, OBJECTS_TABLE, "p1", "A1")["object_id"].tolist() == [7]
+    assert _well_rows(path, OBJECTS_TABLE, "p1", "A2")["object_id"].tolist() == [1, 2]
+
+
+def test_appending_a_cycle_keeps_all_reads(tmp_path):
+    """A newly appended cycle joins the reads already stored for the well."""
     path = _db(tmp_path)
     first = pd.DataFrame({"object_id": [11, 12], "cycle": [1, 1],
                           "base": ["A", "C"]})
     second = pd.DataFrame({"object_id": [11, 12], "cycle": [2, 2],
                            "base": ["G", "T"]})
     assert write_table(path, "ops_reads", first) == 2
-    sidecar = _sidecar(tmp_path, "ops_reads")
-    pd.testing.assert_frame_equal(pd.read_parquet(sidecar), first)
+    assert write_table(path, "ops_reads", second, if_exists="append") == 4
 
-    with pytest.raises(StoreError, match=r"cache for ops_reads has 2 rows.*database has 4"):
-        write_table(path, "ops_reads", second, if_exists="append")
-
-    assert not os.path.exists(sidecar)
     expected = [(11, 1, "A"), (12, 1, "C"),
                 (11, 2, "G"), (12, 2, "T")]
-    with sqlite3.connect(path) as connection:
-        actual = connection.execute(
-            "SELECT object_id, cycle, base FROM ops_reads "
-            "ORDER BY cycle, object_id").fetchall()
-    assert actual == expected
-    assert row_count(path, "ops_reads") == 4
     recovered = read_table(path, "ops_reads").sort_values(
         ["cycle", "object_id"]).reset_index(drop=True)
     pd.testing.assert_frame_equal(
         recovered, pd.DataFrame(expected, columns=["object_id", "cycle", "base"]))
 
 
-def test_sqlite_affinity_collision_within_an_append_preserves_prior_objects(
-        tmp_path):
-    """Mixed input keys cannot turn a refused append into lost prior objects."""
+def test_a_refused_append_preserves_prior_objects(tmp_path):
+    """An append whose objects the table already holds loses nothing."""
     path = _db(tmp_path)
     original = pd.DataFrame({"object_id": ["prior"], "area": [307]})
     assert write_table(path, OBJECTS_TABLE, original) == 1
-    incoming = pd.DataFrame({"object_id": pd.Series([1, "1"], dtype=object),
+    incoming = pd.DataFrame({"object_id": ["prior", "next"],
                              "area": [401, 402]})
 
-    with pytest.raises(StoreError, match="broke its uniqueness constraint.*nothing was appended"):
+    with pytest.raises(StoreError, match="already holds 1 of the 2"):
         write_table(path, OBJECTS_TABLE, incoming, if_exists="append")
 
-    with sqlite3.connect(path) as connection:
-        assert connection.execute(
-            "SELECT object_id, area FROM ops_objects").fetchall() == [("prior", 307)]
     assert row_count(path, OBJECTS_TABLE) == 1
     verdict = objects_ready(path)
     assert verdict and verdict.rows == 1

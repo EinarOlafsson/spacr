@@ -31,7 +31,7 @@ validated runs used.
 
 RESUMABLE PER WELL. Each well writes ``<out>/results/<well>.json`` when all
 four phases (stitch, phenotype, objects, decode) finish. A well whose file
-says ``complete`` and whose barcodes are still in ``measurements.db`` is
+says ``complete`` and whose barcodes are still in the run's store is
 skipped; any other well is run again from its stitch, which run_ops allows
 because every phase replaces only that well's rows. A well that raises is
 recorded with its error and the plate goes on to the next one.
@@ -64,7 +64,6 @@ import csv
 import datetime
 import json
 import os
-import sqlite3
 import sys
 import time
 import traceback
@@ -111,17 +110,17 @@ def barcode_rows(db: Path, plate: str, well: str) -> int:
     :param db: the measurements database.
     :param plate: the plate name.
     :param well: the well name.
-    :returns: the count, 0 when the table or file is missing.
+    :returns: the count, 0 when the table or file is missing. Read from
+        the run's spaCR store, or an older run's ``measurements.db``,
+        through :func:`spacr.store.open` (item 0an).
     """
-    if not db.exists():
-        return 0
+    from spacr.ops_store import _read_rows
+
     try:
-        with sqlite3.connect(str(db)) as connection:
-            return int(connection.execute(
-                "SELECT COUNT(*) FROM ops_barcodes WHERE plate = ? AND well = ?",
-                (plate, well)).fetchone()[0])
-    except sqlite3.Error:
+        rows = _read_rows(str(db), "ops_barcodes", plate, [well])
+    except Exception:                                  # noqa: BLE001
         return 0
+    return 0 if rows is None else int(len(rows))
 
 
 def well_row(report: Dict[str, Any]) -> Dict[str, Any]:
@@ -178,14 +177,13 @@ def _stored_reads_match(db: Path, plate: str, well: str, record: Dict[str, Any])
     expected = ((record.get("report") or {}).get("decode") or {}).get("ops_reads_rows")
     if type(expected) is not int or expected < 0:
         return False
+    from spacr.ops_store import _read_rows
+
     try:
-        with sqlite3.connect(db.resolve().as_uri() + "?mode=ro", uri=True) as connection:
-            actual = connection.execute(
-                "SELECT COUNT(*) FROM ops_reads WHERE plate = ? AND well = ?",
-                (plate, well)).fetchone()[0]
-        return actual == expected
-    except sqlite3.Error:
+        rows = _read_rows(str(db), "ops_reads", plate, [well])
+    except Exception:                                  # noqa: BLE001
         return False
+    return rows is not None and int(len(rows)) == expected
 
 
 def plate_totals(rows: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:

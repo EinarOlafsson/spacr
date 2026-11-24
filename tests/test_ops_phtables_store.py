@@ -30,7 +30,7 @@ pq = pytest.importorskip("pyarrow.parquet")
 pytest.importorskip("duckdb")
 
 from spacr import ops_engine, store                                # noqa: E402
-from spacr.ops_store import write_table                            # noqa: E402
+from spacr.ops_store import read_table, write_table                # noqa: E402
 
 PLATE = "P_1"
 SITES = (3, 7, 12, 40)
@@ -174,13 +174,13 @@ def test_the_streamed_tables_hold_the_whole_well_rows_in_their_dtypes(built):
                               "cytoplasm": len(cells) - 2}
     assert report["wells"]["A1"]["source"] == "fields"
     owned = ops_engine._ph_owned_cells(str(run), "A1", cells, SETTINGS)
-    links = pd.read_sql_query("SELECT * FROM ops_merge", sqlite3.connect(
-        str(run / "measurements.db")))
+    links = read_table(str(run / "measurements.db"), "ops_merge")
     keys, features = ops_engine._ph_table_frames(
         PLATE, "A1", cells, links, None, owned,
         ops_engine._ph_genotype_rule(SETTINGS))
     with store.open(folder) as opened:
-        assert opened.tables() == ["cell", "cytoplasm", "nucleus"]
+        # The OPS tables share the store (item 0an): the merge links are here too.
+        assert opened.tables() == ["cell", "cytoplasm", "merge", "nucleus"]
         for compartment in ("cell", "nucleus", "cytoplasm"):
             found = opened.query(table=compartment)
             reference = pd.concat([keys, features[compartment]], axis=1)

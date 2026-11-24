@@ -31,7 +31,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import sqlite3
 from importlib import metadata
 from pathlib import Path
 
@@ -68,10 +67,23 @@ def _settings(root: Path, dst: Path, name: str = "ops_testdata_settings.csv"):
 
 
 def _table(db: Path, name: str) -> pd.DataFrame:
-    """One well's rows of an OPS table."""
-    with sqlite3.connect(str(db)) as con:
-        return pd.read_sql(f"select * from {name} where well = ?", con,
-                           params=(WELL,))
+    """One well's rows of an OPS table, through the store's reader (item 0an).
+
+    The store gives each phenotype-cell row (``ops_merge``) the Measure-style
+    integer ``object_key`` of its row, column, field and label; it is checked
+    here against :func:`spacr.ops_run_infra.integer_cell_key` and dropped, as
+    the references predate it.
+    """
+    from spacr.ops_run_infra import integer_cell_key
+    from spacr.ops_store import _read_rows
+
+    frame = _read_rows(str(db), name, PLATE, [WELL])
+    if "object_key" in frame.columns:
+        expected = integer_cell_key(1, 1, frame["site"].to_numpy(),
+                                    frame["label"].to_numpy())
+        assert frame["object_key"].tolist() == expected.tolist(), name
+        frame = frame.drop(columns=["object_key"])
+    return frame
 
 
 def _run(settings, phases):

@@ -9,11 +9,11 @@ each cell twice.
 
 A duplicate is refused before anything is written, whether it sits inside
 one frame or between a frame and the table it is appended to, and the
-refusal names the keys.
+refusal names the keys. Item 0an: the tables are in the run's spaCR store
+(one part per well), so the key is checked by the OPS writer against the
+frame and against the well it is appended to.
 """
 from __future__ import annotations
-
-import sqlite3
 
 import pandas as pd
 import pytest
@@ -35,10 +35,10 @@ def _objects(n=5, well="A1", plate="p1", start=1):
 
 def _distinct(path, table=OBJECTS_TABLE):
     """How many distinct (plate, well, object_id) keys the table holds."""
-    with sqlite3.connect(path) as conn:
-        return conn.execute(
-            f"SELECT COUNT(*) FROM (SELECT DISTINCT plate, well, object_id "
-            f"FROM {table})").fetchone()[0]
+    from tests.ops_store_sql import ops_sql
+
+    return int(ops_sql(path, f"SELECT COUNT(*) AS n FROM (SELECT DISTINCT "
+                             f"plate, well, object_id FROM {table})")["n"][0])
 
 
 def test_a_frame_with_duplicate_ids_is_refused_and_writes_nothing(tmp_path):
@@ -88,18 +88,13 @@ def test_two_wells_with_overlapping_id_ranges_are_accepted(tmp_path):
     assert objects_ready(path)
 
 
-def test_the_constraint_is_in_the_schema_and_survives_a_rewrite(tmp_path):
-    """A replace drops the table's indexes with it, so the key is rebuilt."""
+def test_the_key_survives_a_rewrite(tmp_path):
+    """A replace writes the well again; an append onto it is still refused."""
     path = str(tmp_path / "measurements.db")
     write_table(path, OBJECTS_TABLE, _objects(5))
     write_table(path, OBJECTS_TABLE, _objects(5))
 
-    with sqlite3.connect(path) as conn:
-        indexes = [sql for (sql,) in conn.execute(
-            "SELECT sql FROM sqlite_master WHERE type='index' "
-            "AND tbl_name=?", (OBJECTS_TABLE,))]
-    assert any("UNIQUE" in sql.upper() and "plate" in sql
-               and "well" in sql and "object_id" in sql for sql in indexes)
+    assert _distinct(path) == 5
     with pytest.raises(StoreError):
         write_table(path, OBJECTS_TABLE, _objects(1), if_exists="append")
 
@@ -151,58 +146,25 @@ def test_reads_may_repeat_an_object(tmp_path):
     assert write_table(path, "ops_reads", reads) == 4
 
 
-@pytest.mark.parametrize("wrapped", [False, True],
-                         ids=["raised-bare", "raised-from-DatabaseError"])
-def test_a_refused_append_names_its_keys_whichever_way_pandas_raises(
-        tmp_path, monkeypatch, wrapped):
-    """pandas 3 raises SQLite's refusal from ``DatabaseError``; pandas 2 bare.
+def test_a_write_that_fails_for_another_reason_is_not_called_a_collision(
+        tmp_path, monkeypatch):
+    """Only a repeated key becomes a StoreError naming keys.
 
-    Both spellings are driven here whatever pandas is installed, because the
-    installed one only ever produces its own: catching only the bare error
-    passed every test on pandas 2 and let each refused append escape as
-    "Execution failed" on CI's pandas 3.0.5.
+    A disk or writer failure reaches the caller as what it is, and the well
+    keeps the rows it had: nothing half-written is registered. Naming object
+    ids for it would send the operator after duplicates that do not exist.
     """
-    import spacr.tabular as tabular
+    import spacr.store as store
 
     path = str(tmp_path / "measurements.db")
     write_table(path, OBJECTS_TABLE, _objects(5))
-    refusal = sqlite3.IntegrityError(
-        "UNIQUE constraint failed: ops_objects.plate, ops_objects.well, "
-        "ops_objects.object_id")
-
-    def refuse(*_args, **_kwargs):
-        if not wrapped:
-            raise refusal
-        raise pd.errors.DatabaseError("Execution failed") from refusal
-
-    monkeypatch.setattr(tabular, "write_database", refuse)
-    with pytest.raises(StoreError, match="already holds 5 of the 5") as caught:
-        write_table(path, OBJECTS_TABLE, _objects(5), if_exists="append")
-
-    assert "object_id=1" in str(caught.value)
-    assert row_count(path, OBJECTS_TABLE) == 5
-
-
-def test_a_write_that_fails_for_another_reason_is_not_called_a_collision(
-        tmp_path, monkeypatch):
-    """Only the constraint refusal becomes a StoreError naming keys.
-
-    A locked or unwritable database reaches the caller as what it is; naming
-    object ids for it would send the operator after duplicates that do not
-    exist.
-    """
-    import spacr.tabular as tabular
-
-    path = str(tmp_path / "measurements.db")
 
     def fail(*_args, **_kwargs):
-        raise pd.errors.DatabaseError("Execution failed") from (
-            sqlite3.OperationalError("database is locked"))
+        raise OSError("No space left on device")
 
-    monkeypatch.setattr(tabular, "write_database", fail)
-    with pytest.raises(pd.errors.DatabaseError) as caught:
+    monkeypatch.setattr(store, "write_table", fail)
+    with pytest.raises(OSError) as caught:
         write_table(path, OBJECTS_TABLE, _objects(3))
 
     assert not isinstance(caught.value, StoreError)
-    assert isinstance(caught.value.__cause__, sqlite3.OperationalError)
-    assert row_count(path, OBJECTS_TABLE) is None
+    assert row_count(path, OBJECTS_TABLE) == 5
