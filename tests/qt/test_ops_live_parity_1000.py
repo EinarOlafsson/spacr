@@ -118,7 +118,8 @@ def test_a_missing_run_is_named_not_raised(tmp_path):
     with pytest.raises(ops_live._NotReady) as raised:
         ops_live._aggregation_inputs(ctx, str(tmp_path / "live" / "m.db"), "P1")
     assert raised.value.reason == "run"
-    assert "measurements.db" in raised.value.detail["missing"]
+    assert "measurements" in raised.value.detail["missing"].split(", "), (
+        "the run store is the measurements folder (spacr-store), not a .db file")
     assert isinstance(raised.value, ValueError)
 
 
