@@ -106,7 +106,7 @@ def _batch_plan(path, settings):
     return path, plan
 
 
-def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields):
+def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields, stream=False):
     """Yield input records from one owned resident batch at a time.
 
     The loader retains the pipeline-specific preparation and normalisation
@@ -120,6 +120,9 @@ def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields):
     :param gpu: whether device staging is enabled.
     :param plan_path: optional persisted grouping beside mask checkpoints.
     :param max_fields: optional upstream staging capacity.
+    :param stream: hand each field on as the loader returned it, without the
+        packed copy or the device copy, and let go of it once the caller moves
+        on; the grouping, the field counts and the plan are unchanged.
     :yields: ``(record, image or None, metadata, batch field count)``.
     """
     plan_path, plan = _batch_plan(plan_path, settings)
@@ -183,6 +186,15 @@ def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields):
             temporary = plan_path.with_name(plan_path.name + '.part')
             temporary.write_text(json.dumps(plan, indent=1), encoding='utf-8')
             os.replace(temporary, plan_path)
+        if stream:
+            del image
+            try:
+                for record, shape, _dtype, metadata, _size in entries:
+                    yield (record, None if shape is None else images.pop(0),
+                           metadata, field_count)
+            finally:
+                images.clear()
+            continue
         packed = np.concatenate([np.ascontiguousarray(value).view(np.uint8).reshape(-1)
                                  for value in images])
         images.clear()
@@ -206,7 +218,7 @@ def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields):
 
 @contextmanager
 def _array_batches(records, load, settings, *, gpu=False, plan_path=None,
-                    max_fields=None):
+                    max_fields=None, stream=False):
     """Own an array batch until every role finishes, including on early exit.
 
     :param records: input identifiers; metadata alone may span many batches.
@@ -215,9 +227,12 @@ def _array_batches(records, load, settings, *, gpu=False, plan_path=None,
     :param gpu: enable the existing GPU-fit check and resident device copy.
     :param plan_path: persist original group sizes for partial-batch resume.
     :param max_fields: cap loading by the capacity of an upstream staging queue.
+    :param stream: yield the loaded fields themselves, one at a time, with no
+        packed or device copy (:func:`_iter_array_batches`).
     :yields: a field iterator; closing it frees the final resident batch.
     """
-    iterator = _iter_array_batches(list(records), load, settings, gpu, plan_path, max_fields)
+    iterator = _iter_array_batches(list(records), load, settings, gpu, plan_path, max_fields,
+                                   stream)
     try:
         yield iterator
     finally:

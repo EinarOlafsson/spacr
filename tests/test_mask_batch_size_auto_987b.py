@@ -191,3 +191,46 @@ def test_a_rerun_with_the_recorded_size_gives_identical_batches(tmp_path):
     for one, two in zip(_batches(masks_a), _batches(masks_b)):
         np.testing.assert_array_equal(one["data"], two["data"])
         assert list(one["filenames"]) == list(two["filenames"])
+
+
+def _cgroup_tree(tmp_path, levels):
+    """A fake cgroup v2 hierarchy: ``levels`` maps a relative folder to (max, current, inactive_file)."""
+    root = tmp_path / 'cg'
+    for folder, (limit, current, cache) in levels.items():
+        here = root / folder if folder else root
+        here.mkdir(parents=True, exist_ok=True)
+        (here / 'memory.max').write_text(f'{limit}\n')
+        (here / 'memory.current').write_text(f'{current}\n')
+        (here / 'memory.stat').write_text(f'anon 1\ninactive_file {cache}\nactive_file 5\n')
+    proc = tmp_path / 'cgroup'
+    proc.write_text('0::/' + max(levels, key=len) + '\n')
+    return str(proc), str(root)
+
+
+def test_the_cgroup_headroom_is_the_tightest_limit_plus_reclaimable_cache(tmp_path):
+    """A capped job is sized by its own scope, the cache it can drop counted as free."""
+    from spacr import _mask_batches as B
+
+    gib = 2**30
+    proc, root = _cgroup_tree(tmp_path, {
+        '': ('max', 50 * gib, 0),
+        'user.slice': (60 * gib, 40 * gib, 2 * gib),
+        'user.slice/sched-1.scope': (24 * gib, 20 * gib, 3 * gib)})
+    assert B._cgroup_headroom_bytes(proc, root) == 7 * gib
+    proc, root = _cgroup_tree(tmp_path / 'b', {'': ('max', 1, 0), 'app.scope': ('max', 1, 0)})
+    assert B._cgroup_headroom_bytes(proc, root) is None
+    assert B._cgroup_headroom_bytes(str(tmp_path / 'absent'), root) is None
+
+
+def test_free_ram_is_the_smaller_of_the_host_and_the_cgroup(monkeypatch):
+    """The batch planners read one number: the host MemAvailable unless a cap is tighter."""
+    from spacr import _mask_batches as B
+
+    monkeypatch.setattr(B, '_host_available_ram_bytes', lambda: 100)
+    monkeypatch.setattr(B, '_cgroup_headroom_bytes', lambda: 30)
+    assert B._available_ram_bytes() == 30
+    monkeypatch.setattr(B, '_cgroup_headroom_bytes', lambda: None)
+    assert B._available_ram_bytes() == 100
+    monkeypatch.setattr(B, '_host_available_ram_bytes', lambda: None)
+    monkeypatch.setattr(B, '_cgroup_headroom_bytes', lambda: 30)
+    assert B._available_ram_bytes() == 30

@@ -1101,11 +1101,8 @@ def _plan_records(plan):
     return records
 
 
-def _available_ram_bytes():
-    """MemAvailable in bytes, or None when the platform does not say.
-
-    :returns: free RAM including reclaimable cache, or None.
-    """
+def _host_available_ram_bytes():
+    """The host MemAvailable in bytes, or None when the platform does not say."""
     try:
         with open('/proc/meminfo', encoding='ascii') as handle:
             for line in handle:
@@ -1119,6 +1116,68 @@ def _available_ram_bytes():
         return int(psutil.virtual_memory().available)
     except Exception:                                       # noqa: BLE001
         return None
+
+
+def _cgroup_headroom_bytes(proc_cgroup='/proc/self/cgroup', root='/sys/fs/cgroup'):
+    """The RAM this process may still take under its cgroup v2 limits, or None.
+
+    Every cgroup from this process's own one up to the root that sets
+    ``memory.max`` is read; its headroom is ``memory.max`` minus
+    ``memory.current`` plus the ``inactive_file`` cache of ``memory.stat``,
+    which the kernel reclaims before it kills. A job started with a hard
+    RAM cap (a systemd scope with ``MemoryMax``, as sched starts it) is thus
+    sized by its cap, not by the free memory of the whole machine.
+
+    :param proc_cgroup: the file naming this process's cgroup.
+    :param root: where the cgroup v2 hierarchy is mounted.
+    :returns: the smallest headroom in bytes, or None when no limit is set
+        or cgroup v2 is not readable.
+    """
+    try:
+        with open(proc_cgroup, encoding='ascii') as handle:
+            entry = next((line.strip().split('::', 1)[1] for line in handle
+                          if line.startswith('0::')), None)
+    except (OSError, IndexError):
+        return None
+    if entry is None:
+        return None
+    parts = [part for part in entry.split('/') if part]
+    smallest = None
+    for depth in range(len(parts), -1, -1):
+        folder = os.path.join(root, *parts[:depth])
+        try:
+            with open(os.path.join(folder, 'memory.max'), encoding='ascii') as handle:
+                limit = handle.read().strip()
+            if limit == 'max':
+                continue
+            with open(os.path.join(folder, 'memory.current'), encoding='ascii') as handle:
+                current = int(handle.read().strip())
+            cache = 0
+            with open(os.path.join(folder, 'memory.stat'), encoding='ascii') as handle:
+                for line in handle:
+                    if line.startswith('inactive_file '):
+                        cache = int(line.split()[1])
+                        break
+        except (OSError, ValueError):
+            continue
+        headroom = max(0, int(limit) - current + cache)
+        smallest = headroom if smallest is None else min(smallest, headroom)
+    return smallest
+
+
+def _available_ram_bytes():
+    """The RAM free for this process: MemAvailable, capped by its cgroup limits.
+
+    :returns: free RAM including reclaimable cache, the smaller of the host
+        MemAvailable and the headroom under any cgroup ``memory.max`` above
+        this process (:func:`_cgroup_headroom_bytes`); None when neither is
+        known.
+    """
+    host = _host_available_ram_bytes()
+    capped = _cgroup_headroom_bytes()
+    if capped is None:
+        return host
+    return capped if host is None else min(host, capped)
 
 
 def _batch_ram_estimate(plan, index):

@@ -281,3 +281,19 @@ def test_measure_workers_follow_the_setting_and_the_vram_cap(monkeypatch):
               "ops_gpu_vram_cap_gb": 22}
     assert ops_engine._ph_measure_workers(capped, 20, True) == 4
     assert ops_engine._ph_measure_workers(capped, 20, False) == 8
+
+
+def test_a_mapped_staged_field_has_the_same_values_and_survives_its_release(tmp_path):
+    stack = np.random.default_rng(0).random((5, 6, 3), dtype=np.float32)
+    stager = FieldStager(str(tmp_path / "s"), [0], lambda s: (stack, []), ahead=1)
+    mapped, lost = stager.load(0, mmap=True)
+    assert lost == [] and isinstance(mapped, np.memmap)
+    assert mapped.dtype == stack.dtype and mapped.tobytes() == stack.tobytes()
+    if os.name != "nt":
+        stager.release(0)
+        assert os.listdir(tmp_path / "s") == []
+        assert mapped.tobytes() == stack.tobytes()
+    mapped[0, 0, 0] = -1.0
+    assert stack[0, 0, 0] != -1.0
+    del mapped
+    stager.close()

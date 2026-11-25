@@ -181,14 +181,21 @@ class FieldStager:
         ready.wait()
         return self._futures[key].result()
 
-    def load(self, site: int) -> Tuple[Optional[np.ndarray], list]:
+    def load(self, site: int, mmap: bool = False) -> Tuple[Optional[np.ndarray], list]:
         """One staged field's stack.
 
         :param site: the site.
+        :param mmap: map the staged copy copy-on-write instead of reading it
+            into memory, so its pages are file cache the system can drop and
+            reread, and a write changes only this process's copy; the values
+            are the same. The mapping stays valid after :meth:`release`
+            deletes the file on POSIX systems, not on Windows.
         :returns: ``(stack or None, unreadable)``.
         """
         path, unreadable = self.path(site)
-        return (np.load(path) if path else None), unreadable
+        if not path:
+            return None, unreadable
+        return np.load(path, mmap_mode="c" if mmap else None), unreadable
 
     def release(self, site: int) -> None:
         """Delete one field's local copy; the next field may be staged.
