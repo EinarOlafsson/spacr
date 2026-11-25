@@ -172,6 +172,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_cytoskeleton_channels": None,
     "ops_ph_profile_optional_families": None,
     "ops_ph_granularity_subsample": 1.0,
+    "ops_ph_profile_outside_rule": "object",
     "ops_drop_failed_fields": False,
     "ops_drop_nonfinite_rows": False,
     "ops_profile_normalisation": "robust_z",
@@ -614,6 +615,7 @@ OPS_TO_MEASURE_KEYS: Dict[str, str] = {
     "ops_ph_cytoskeleton_channels": "cytoskeleton_channels",
     "ops_ph_profile_optional_families": "profile_optional_families",
     "ops_ph_granularity_subsample": "profile_granularity_subsample",
+    "ops_ph_profile_outside_rule": "profile_outside_rule",
 }
 
 #: The ``ops_ph_profile_features`` list of the final Funk runs (item 1008):
@@ -783,6 +785,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_cytoskeleton_channels": (str, list, type(None)),
     "ops_ph_profile_optional_families": (bool, str, list, type(None)),
     "ops_ph_granularity_subsample": (float, int),
+    "ops_ph_profile_outside_rule": str,
     "ops_drop_failed_fields": bool,
     "ops_drop_nonfinite_rows": bool,
     "ops_profile_normalisation": str,
@@ -1384,7 +1387,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Feature families": [
         "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
         "ops_ph_profile_features", "ops_ph_profile_optional_families",
-        "ops_ph_granularity_subsample", "ops_feature_screen_old",
+        "ops_ph_granularity_subsample", "ops_ph_profile_outside_rule",
+        "ops_feature_screen_old",
         "ops_feature_screen_new", "ops_feature_screen_cells",
         "ops_feature_screen_id_columns", "ops_feature_screen_label",
         "ops_feature_screen_guide", "ops_feature_screen_families",
@@ -2079,6 +2083,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "CellProfiler's default, is about 16 times faster than 1.0, which "
         "sieves every pixel. Only read when granularity is measured. "
         "Default 1.0. Alpha.",
+    "ops_ph_profile_outside_rule":
+        "(str) - Which pixels the ring of the outside profiling family "
+        "keeps. 'object': the cell and cytoplasm rings keep only "
+        "background, the nucleus ring keeps the neighbouring nuclei too, as "
+        "the outside ring of Measure, so a nucleus_..._outside_ column means "
+        "the same in Measure and OPS. 'background': every ring keeps only "
+        "pixels outside every object of its own mask, as before settings "
+        "schema 965. Default 'object'. Alpha.",
     "ops_drop_failed_fields":
         "(bool) - Leave out the cells of fields that did not register. The "
         "merge phase compares each field's link rate with the rate an "

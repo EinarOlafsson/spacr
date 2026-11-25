@@ -328,6 +328,7 @@ def _measurement_settings(channels: int, texture: bool,
                           profile_features=None,
                           granularity_subsample: float = 1.0,
                           funk_features: bool = False,
+                          outside_rule: str = "object",
                           cytoskeleton_channels=None,
                           channel_names=None,
                           zernike: bool = False,
@@ -350,6 +351,8 @@ def _measurement_settings(channels: int, texture: bool,
         without the slow ``colocalisation`` family.
     :param granularity_subsample: ``profile_granularity_subsample``, the
         ``subsample`` of :func:`spacr.measure.measure_granularity`.
+    :param outside_rule: ``profile_outside_rule``, the ring of the
+        ``outside`` family (:func:`spacr.measure._outside_excludes_foreground`).
     :param funk_features: ``funk_object_features``: Funk et al. 2022's
         object features from :func:`spacr.measure._add_funk_frames`, for
         every compartment, as Measure writes them.
@@ -371,7 +374,8 @@ def _measurement_settings(channels: int, texture: bool,
            "ops_ph_funk_features": bool(funk_features),
            "ops_ph_zernike": bool(zernike),
            "ops_ph_profile_features": list(families) or None,
-           "ops_ph_granularity_subsample": float(granularity_subsample)}
+           "ops_ph_granularity_subsample": float(granularity_subsample),
+           "ops_ph_profile_outside_rule": str(outside_rule or "object")}
     return {
         "cell_mask_dim": channels, "nucleus_mask_dim": channels + 1,
         "pathogen_mask_dim": None, "cytoplasm": True,
@@ -505,7 +509,8 @@ def _measure_phenotype_field(nuclei, cells, image, channel_names, *,
                              texture=True, funk_features=False,
                              zernike=False, gpu=False, profile_features=None,
                              granularity_subsample=1.0,
-                             cytoskeleton_channels=None, objects=None):
+                             cytoskeleton_channels=None, objects=None,
+                             outside_rule="object"):
     """:func:`measure_phenotype_field` with the field's further objects.
 
     :param nuclei: nucleus labels, nucleus ``k`` in cell ``k``.
@@ -519,6 +524,10 @@ def _measure_phenotype_field(nuclei, cells, image, channel_names, *,
     :param profile_features: as :func:`measure_phenotype_field`.
     :param granularity_subsample: as :func:`measure_phenotype_field`.
     :param cytoskeleton_channels: as :func:`measure_phenotype_field`.
+    :param outside_rule: ``ops_ph_profile_outside_rule``, the ring of the
+        ``outside`` family (:func:`spacr.measure._outside_excludes_foreground`);
+        ``'object'``, the default of :func:`measure_phenotype_field`,
+        measures the nucleus ring as Measure does.
     :param objects: ``{class: labels}`` of the field's further objects
         (``pathogen``, ``organelle``), or None. Their pixels are not
         cytoplasm: the cytoplasm is Measure's
@@ -549,7 +558,8 @@ def _measure_phenotype_field(nuclei, cells, image, channel_names, *,
                                      funk_features=funk_features,
                                      cytoskeleton_channels=cytoskeleton_channels,
                                      channel_names=channel_names,
-                                     zernike=zernike)
+                                     zernike=zernike,
+                                     outside_rule=outside_rule)
     measured = _measure_core(masks, image, settings)
     tables = _field_role_tables(measured["morphology"], measured["intensity"],
                                ("cell", "nucleus", "cytoplasm"))

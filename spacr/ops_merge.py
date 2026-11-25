@@ -942,6 +942,64 @@ def _mutual_pairs(points_a, points_b, radius: float):
     return hit, index_b[hit].astype(np.int64), near_b[hit]
 
 
+def _copy_components(count: int, first, second, sites, rank=None):
+    """Physical cells from the copy edges, never two copies of one field in one.
+
+    The connected components of the undirected copy graph, except that an
+    edge which would put two copies of the same field (two distinct cells
+    of one field image) into one component is refused. Edges are taken in
+    ``rank`` order, so each copy keeps its nearest (or best scoring)
+    partners and a chain of near matches cannot merge two cells of one
+    field.
+
+    :param count: the number of copies.
+    :param first: the first copy of each edge (row index).
+    :param second: the second copy of each edge.
+    :param sites: the field of every copy.
+    :param rank: the order the edges are taken in (best first), or None
+        for the given order.
+    :returns: ``(component, refused)``: a component number per copy,
+        numbered as :func:`scipy.sparse.csgraph.connected_components`
+        numbers them (by the smallest copy in each), and the number of
+        edges refused.
+    """
+    first = np.asarray(first, np.int64)
+    second = np.asarray(second, np.int64)
+    sites = np.asarray(sites, np.int64)
+    parent = np.arange(count, dtype=np.int64)
+    fields = {}
+
+    def root(node: int) -> int:
+        while parent[node] != node:
+            parent[node] = parent[parent[node]]
+            node = parent[node]
+        return int(node)
+
+    refused = 0
+    order = range(len(first)) if rank is None else np.asarray(rank, np.int64)
+    for edge in order:
+        a, b = root(int(first[edge])), root(int(second[edge]))
+        if a == b:
+            continue
+        here = fields.get(a, {int(sites[a])})
+        there = fields.get(b, {int(sites[b])})
+        if here & there:
+            refused += 1
+            continue
+        if len(here) < len(there):
+            a, b, here, there = b, a, there, here
+        parent[b] = a
+        fields[a] = here | there
+        fields.pop(b, None)
+    roots = np.array([root(i) for i in range(count)], np.int64)
+    _unique, first_seen, component = np.unique(roots, return_index=True,
+                                               return_inverse=True)
+    renumber = np.empty(len(first_seen), np.int64)
+    renumber[np.argsort(first_seen, kind="stable")] = np.arange(
+        len(first_seen))
+    return renumber[component.reshape(-1)], refused
+
+
 def _match_copies_by_centroid(cells, neighbours: Mapping[int, Sequence[int]],
                              radius: float, cut_radius: float = None):
     """Edges between the copies of one cell in overlapping fields.
@@ -986,17 +1044,15 @@ def _match_copies_by_centroid(cells, neighbours: Mapping[int, Sequence[int]],
         i, j, distance = _mutual_pairs(points[first], points[second], radius)
         if i.size:
             found.append((first[i], second[j], distance))
-    from scipy.sparse import coo_matrix
-    from scipy.sparse.csgraph import connected_components
-
     if found:
         head = np.concatenate([f for f, _s, _d in found])
         tail = np.concatenate([t for _f, t, _d in found])
+        gap = np.concatenate([d for _f, _s, d in found])
     else:
         head = tail = np.empty(0, np.int64)
-    _n, group = connected_components(coo_matrix(
-        (np.ones(len(head)), (head, tail)), shape=(len(cells), len(cells))),
-        directed=False)
+        gap = np.empty(0, float)
+    group, _refused = _copy_components(len(cells), head, tail, sites,
+                                       np.argsort(gap, kind="stable"))
     group_sites: dict = {}
     for index in np.flatnonzero(whole):
         group_sites.setdefault(int(group[index]), set()).add(int(sites[index]))
@@ -1057,14 +1113,15 @@ def _assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
     :param centres: ``{site: (y, x)}``, the well centre of each field
         (:func:`_field_centre`), for ``'nearest_centre'``.
     :returns: ``cells`` with ``component`` (the connected component of the
-        undirected edge graph), ``n_copies``, ``owner_field``,
+        undirected edge graph, never holding two copies of one field:
+        :func:`_copy_components`, edges taken by ``distance`` ascending or
+        ``score`` descending when the edges have one; ``attrs["refused_edges"]``
+        counts the edges refused), ``n_copies``, ``owner_field``,
         ``owner_label`` (both missing when no copy can own the cell),
         ``is_owner``, ``owned_area_share`` (when ``area`` is given) and,
         for ``'nearest_centre'``, ``centre_distance_px``.
     """
     import pandas as pd
-    from scipy.sparse import coo_matrix
-    from scipy.sparse.csgraph import connected_components
 
     rule = _field_owner_rule(rule)
     cells = cells.reset_index(drop=True).copy()
@@ -1080,12 +1137,19 @@ def _assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
         known = ~(np.isnan(first) | np.isnan(second))
         first, second = first[known].astype(np.int64), second[known].astype(
             np.int64)
+        if "distance" in edges:
+            key = edges["distance"].to_numpy(float)[known]
+        elif "score" in edges:
+            key = -edges["score"].to_numpy(float)[known]
+        else:
+            key = np.zeros(len(first))
     else:
         first = second = np.empty(0, np.int64)
+        key = np.empty(0, float)
     count = len(cells)
-    graph = coo_matrix((np.ones(len(first)), (first, second)),
-                       shape=(count, count))
-    _n, component = connected_components(graph, directed=False)
+    component, refused = _copy_components(
+        count, first, second, cells["site"].to_numpy(np.int64),
+        np.argsort(key, kind="stable"))
     cells["component"] = component
     cells["n_copies"] = cells.groupby("component")["label"].transform("size")
     rank = cells[["component", "site", "label"]].copy()
@@ -1113,6 +1177,7 @@ def _assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
             "area"]
         cells["owned_area_share"] = cells["area"] / cells["component"].map(
             owner_area)
+    cells.attrs["refused_edges"] = int(refused)
     return cells
 
 

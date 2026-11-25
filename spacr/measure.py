@@ -2194,10 +2194,11 @@ def _intensity_measurements(
                     if ('outside', j) not in geometry:
                         geometry['outside', j] = _outside_selections(
                             label, spacing=spacing,
-                            exclude_foreground=(ls[j] == 'cell'))
+                            exclude_foreground=_outside_excludes_foreground(
+                                ls[j]))
                     outside_intensity_stats = _outside_intensity(
                         label, channel, spacing=spacing,
-                        exclude_foreground=(ls[j] == 'cell'),
+                        exclude_foreground=_outside_excludes_foreground(ls[j]),
                         selections=geometry['outside', j])
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
 
@@ -2298,7 +2299,8 @@ def _intensity_measurements(
         _add_profile_frames(
             dfs, ls, labels, channel_arrays, families,
             granularity_subsample=settings.get(
-                'profile_granularity_subsample', 1.0) or 1.0)
+                'profile_granularity_subsample', 1.0) or 1.0,
+            outside_rule=settings.get('profile_outside_rule') or 'object')
     elif families:
         print("3-D mask: skipping the profiling families "
               f"({', '.join(families)}); they are defined for 2-D fields.")
@@ -2335,7 +2337,7 @@ def _whole_field_frames(masks, image, families, options, share=None):
 
 
 def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
-                        granularity_subsample=1.0):
+                        granularity_subsample=1.0, outside_rule='object'):
     """Append the profiling families of every non-empty mask to its frame list.
 
     :param dfs: one list of frames per role, as ``_intensity_measurements``
@@ -2347,6 +2349,8 @@ def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
         morphology block writes it).
     :param granularity_subsample: ``subsample`` of
         :func:`measure_granularity` (``profile_granularity_subsample``).
+    :param outside_rule: ``profile_outside_rule``, the ring of the
+        ``outside`` family (:func:`_outside_excludes_foreground`).
 
     The families that filter the whole field (LBP, Gabor, granularity) run
     once for all masks; the others run per mask through
@@ -2384,8 +2388,9 @@ def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
             with (_thread_share(budget - budget // 2) if background
                   else contextlib.nullcontext()):
                 for m in present:
-                    blocks[m].append(measure_profile_features(
-                        masks[m], image, per_object).drop(columns='label'))
+                    blocks[m].append(_measure_profile_features(
+                        masks[m], image, per_object, role=roles[m],
+                        outside_rule=outside_rule).drop(columns='label'))
         field_frames = (pending.result() if background else
                         _whole_field_frames(checked, image, field_families,
                                             options))
@@ -3651,6 +3656,42 @@ def _periphery_intensity(label_mask, image, selections=None):
                 (region, np.mean(intensities), *quantiles))
     return periphery_intensity_stats
 
+#: The values of ``profile_outside_rule``, the first the default.
+PROFILE_OUTSIDE_RULES = ('object', 'background')
+
+#: The objects whose outside ring keeps only label-zero background under the
+#: ``'object'`` rule: the whole cell and its cytoplasm. Every other object
+#: (nucleus, pathogen, organelle) keeps its neighbours in the ring.
+_BACKGROUND_RING_ROLES = ('cell', 'cytoplasm')
+
+
+def _outside_excludes_foreground(role=None, rule='object'):
+    """Whether the outside ring of a ``role`` object keeps only label-zero pixels.
+
+    The one rule for every ``<object>_channel_<i>_outside_<stat>`` column,
+    whether the outside ring block of Measure or the ``outside`` profiling
+    family writes it, so one column name has one meaning in Measure and OPS.
+
+    :param role: the object type (``'cell'``, ``'nucleus'``, ...), or None
+        for a mask of no known type, whose ring keeps only background.
+    :param rule: ``profile_outside_rule``. ``'object'``: the cell and the
+        cytoplasm rings keep only background, the other rings keep the
+        neighbouring objects too (the meaning in the column docs).
+        ``'background'``: every ring keeps only background, as the
+        ``outside`` profiling family measured before settings schema 965.
+    :returns: the ``exclude_foreground`` of :func:`_outside_selections`.
+    :raises ValueError: for a rule not in :data:`PROFILE_OUTSIDE_RULES`.
+    """
+    rule = str(rule or PROFILE_OUTSIDE_RULES[0]).strip().lower()
+    if rule not in PROFILE_OUTSIDE_RULES:
+        raise ValueError(
+            f"profile_outside_rule must be one of {list(PROFILE_OUTSIDE_RULES)}; "
+            f"got {rule!r}")
+    if rule == 'background' or role is None:
+        return True
+    return str(role) in _BACKGROUND_RING_ROLES
+
+
 def _outside_selections(label_mask, distance=5, spacing=None, *,
                         exclude_foreground=False):
     """``(label, window, ring pixels)`` of every object, as :func:`_outside_intensity` reads them.
@@ -4706,8 +4747,10 @@ def _haralick_kernel(labels, image, boxes, present, levels, distance, out):
     directions of :func:`mahotas.features.haralick` (0 ignored), and the
     statistics as mahotas computes them (``use_x_minus_y_variance`` off,
     13 features), averaged over the directions. A row stays NaN when any
-    direction pairs no pixels, where mahotas raises. Compile with
-    :func:`_compiled`.
+    direction pairs no pixels, where mahotas raises. The correlation of a
+    flat object is NaN, where mahotas gives 1: it is undefined for a
+    constant image, as the skewness, kurtosis and Pearson of a flat object
+    are. Compile with :func:`_compiled`.
 
     :param out: ``(objects, 13)`` float64, filled with NaN by the caller.
     """
@@ -4840,7 +4883,9 @@ def _haralick_kernel(labels, image, boxes, present, levels, distance, out):
             f = feats[d]
             f[0] = energy
             f[1] = contrast
-            if sx == 0.0 or sy == 0.0:
+            if spread == 0.0:
+                f[2] = np.nan
+            elif sx == 0.0 or sy == 0.0:
                 f[2] = 1.0
             else:
                 f[2] = (1.0 / sx / sy) * (cross - ux * uy)
@@ -6635,6 +6680,33 @@ def measure_profile_features(labels, image, families='profiling',
         :data:`PROFILE_FEATURE_FAMILIES` order, one row per label in
         ascending order.
     """
+    return _measure_profile_features(
+        labels, image, families, neighbour_radius=neighbour_radius,
+        granularity_subsample=granularity_subsample)
+
+
+def _measure_profile_features(labels, image, families='profiling',
+                              neighbour_radius=50, granularity_subsample=1.0,
+                              role=None, outside_rule='object'):
+    """:func:`measure_profile_features` of one compartment of a known object type.
+
+    :param labels: 2-D label mask of one compartment.
+    :param image: ``(H, W, C)`` intensities over it.
+    :param families: as :func:`profile_feature_families` reads
+        ``profile_features``; the blocks of :data:`MEASURE_BLOCK_FAMILIES`
+        are measured by :func:`_intensity_measurements`, not here, and add
+        no column.
+    :param neighbour_radius: the radius of ``neighbours``.
+    :param granularity_subsample: ``subsample`` of ``granularity``
+        (:func:`measure_granularity`).
+    :param role: the object type of ``labels`` (``'cell'``, ``'nucleus'``,
+        ...), which decides the ring of ``outside``
+        (:func:`_outside_excludes_foreground`); None keeps only background.
+    :param outside_rule: ``profile_outside_rule``.
+    :returns: ``label`` and the families' columns, in
+        :data:`PROFILE_FEATURE_FAMILIES` order, one row per label in
+        ascending order.
+    """
     chosen = profile_feature_families(families)
     labels, image, present = _profile_inputs(labels, image)
     frames = []
@@ -6661,7 +6733,10 @@ def measure_profile_features(labels, image, families='profiling',
             elif family == 'periphery':
                 frames.append(measure_periphery(labels, image))
             elif family == 'outside':
-                frames.append(measure_outside(labels, image))
+                frames.append(measure_outside(
+                    labels, image,
+                    exclude_foreground=_outside_excludes_foreground(
+                        role, outside_rule)))
             elif family == 'colocalisation':
                 frames.append(measure_colocalisation(labels, image))
             elif family == 'colocalisation_extra':
