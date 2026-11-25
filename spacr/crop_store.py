@@ -2026,7 +2026,10 @@ def ome_zarr_crops_exist(root: Any) -> bool:
     stored = any(any((root / name).glob(f"plate=*/well=*{suffix}"))
                  for name, suffix in _CROP_ROOTS)
     from .measurement_store import connect as _connect_measurements, exists
+    from .measurement_store import tables as _measurement_tables
     if not exists(str(db)) or not (stored or _is_merged_store(_merged_store_path(root))):
+        return False
+    if "ssCell_Crops" not in _measurement_tables(str(db)):
         return False
     with _connect_measurements(str(db), readonly=True) as conn:
         columns = [r[1] for r in conn.execute(

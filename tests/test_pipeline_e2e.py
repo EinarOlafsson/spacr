@@ -13,7 +13,6 @@ tests here just inspect its outputs.
 from __future__ import annotations
 
 import os
-import sqlite3
 from pathlib import Path
 
 import numpy as np
@@ -174,7 +173,7 @@ def test_mask_object_sizes_are_biologically_plausible(spacr_pipeline_run):
     emits a few very small false-positive labels around image edges.)"""
     mask_dir = Path(spacr_pipeline_run["src"]) / "masks" / "cell_mask_stack"
     all_sizes = []
-    for arr in _masks(mask_dir).values():
+    for name, arr in _masks(mask_dir).items():
         total_pixels = arr.size
         for cid in np.unique(arr):
             if cid == 0:
@@ -182,7 +181,7 @@ def test_mask_object_sizes_are_biologically_plausible(spacr_pipeline_run):
             size = int((arr == cid).sum())
             all_sizes.append(size)
             assert size <= 0.5 * total_pixels, (
-                f"{npy.name}: object {cid} covers {size}/{total_pixels} px"
+                f"{name}: object {cid} covers {size}/{total_pixels} px"
             )
     assert all_sizes, "no cell objects found in any FOV"
     median_size = float(np.median(all_sizes))
@@ -202,41 +201,38 @@ def test_mask_object_sizes_are_biologically_plausible(spacr_pipeline_run):
 
 
 def test_measurements_db_created(spacr_measure_run):
-    db = Path(spacr_measure_run["db_path"])
-    assert db.exists(), f"expected {db} to be created by measure_crop"
-    assert db.stat().st_size > 0
+    """measure_crop leaves the project measured: the store (or an older file)."""
+    from spacr import measurement_store
+
+    db = spacr_measure_run["db_path"]
+    assert measurement_store.exists(db), (
+        f"expected measure_crop to write the measurements of {db}")
 
 
 def test_measurements_db_has_object_tables(spacr_measure_run):
-    """The measurements DB should contain at least one of the standard
+    """The measurements should contain at least one of the standard
     per-object tables (cell / nucleus / pathogen / cytoplasm)."""
-    conn = sqlite3.connect(spacr_measure_run["db_path"])
-    try:
-        cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        tables = {row[0] for row in cur.fetchall()}
-    finally:
-        conn.close()
+    from spacr import measurement_store
+
+    tables = set(measurement_store.tables(spacr_measure_run["db_path"]))
     per_object = {"cell", "nucleus", "pathogen", "cytoplasm"}
     intersect = tables & per_object
-    assert intersect, f"measurements.db has no per-object tables (found {tables})"
+    assert intersect, f"the measurements have no per-object tables (found {tables})"
 
 
 def test_measurements_db_rows_are_nonempty(spacr_measure_run):
     """At least one per-object table has rows."""
-    conn = sqlite3.connect(spacr_measure_run["db_path"])
-    try:
-        cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        tables = [row[0] for row in cur.fetchall()]
-        counts = {}
-        for t in tables:
-            try:
-                counts[t] = conn.execute(f'SELECT COUNT(*) FROM "{t}"').fetchone()[0]
-            except sqlite3.OperationalError:
-                counts[t] = 0
-    finally:
-        conn.close()
+    from spacr import measurement_store
+
+    db = spacr_measure_run["db_path"]
+    counts = {}
+    for t in measurement_store.tables(db):
+        try:
+            counts[t] = len(measurement_store.read(db, t))
+        except Exception:
+            counts[t] = 0
     assert any(v > 0 for v in counts.values()), (
-        f"measurements.db has no rows in any table (counts={counts})"
+        f"the measurements have no rows in any table (counts={counts})"
     )
 
 

@@ -31,6 +31,22 @@ def measured(database) -> bool:
     return exists(_path(database))
 
 
+def databases(root) -> list:
+    """The ``measurements.db`` locators under ``root`` that hold measurements.
+
+    A store project has no ``measurements.db`` file, only ``measurements/``
+    with its catalog, so a ``rglob('measurements.db')`` finds nothing there;
+    this lists the file or the store locator of every measured project.
+    """
+    from pathlib import Path
+
+    found = set(Path(root).rglob('measurements.db'))
+    for catalog in Path(root).rglob('spacr.duckdb'):
+        if catalog.parent.name == 'measurements':
+            found.add(catalog.parent / 'measurements.db')
+    return sorted(p for p in found if measured(p))
+
+
 def connect(database, *args, **kwargs):
     """``sqlite3.connect`` for a file, the store's SQL connection for a store."""
     path = _path(database)
