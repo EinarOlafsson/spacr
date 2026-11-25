@@ -11299,9 +11299,10 @@ def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
                            radius: float = 24.0, load=None, log=None):
     """Cross-field ownership over a set of fields.
 
-    :param fields: ``{site: {"transform", "shape", "areas" (label -> px),
-        "cells" (label image or None), "whole" (label -> bool, optional),
-        "centroids" (label -> field ``(row, col)``, optional)}}``. The
+    :param fields: ``{site: record}``; each record holds ``"transform"``,
+        ``"shape"``, ``"areas"`` (label -> px) and ``"cells"`` (label image
+        or None), and optionally ``"whole"`` (label -> bool) and
+        ``"centroids"`` (label -> field ``(row, col)``). The
         ``'nearest_centre'`` rule and the ``'centroid'`` metric need
         ``whole`` and ``centroids``.
     :param metric: ``'centroid'``

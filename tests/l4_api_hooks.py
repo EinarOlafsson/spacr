@@ -7,9 +7,11 @@ spacr.store.read_frame through its own s7c_read_frame_api_arrivals_2026-11-24.js
 which no contract test applied; each body is bound to its source docstring
 (read with ``ast``, nothing imported from spacr).
 
-These are documented names of the API pages; none of them is a callable
-of the frozen inventory (spacr.measurement_store declares ``__all__ = []``),
-which the inventory hook checks.
+These are documented names of the API pages. spacr.measurement_store
+declares ``__all__ = []`` and read_frame is not exported, so the callables
+of the frozen inventory among them are S8's spacr.store.compare and
+spacr.store.migrate_sqlite (both in ``spacr.store.__all__``), which the
+inventory hook checks.
 """
 import ast
 import inspect
@@ -31,8 +33,8 @@ PUBLIC = frozenset("spacr.measurement_store." + name for name in (
 READERS = frozenset({"spacr.store.read_frame", "spacr.store.compare",
                      "spacr.store.migrate_sqlite"})
 ARRIVALS = MODULES | PUBLIC | READERS
-#: The arrivals that are callables of the frozen inventory: none.
-INVENTORY = frozenset()
+#: The arrivals that are callables of the frozen inventory.
+INVENTORY = frozenset({"spacr.store.compare", "spacr.store.migrate_sqlite"})
 
 
 def _source_docstring(symbol):

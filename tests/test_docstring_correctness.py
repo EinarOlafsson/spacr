@@ -3236,6 +3236,8 @@ def _validated_bmc_paper_items_2_callables(callables):
         / "884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json").read_text(encoding="utf-8"))
     from tests.test_ops_phfields_sources import _current_phfields_api
     entries = _current_phfields_api(entries)
+    from tests.l5_api_hooks import _current_l5_api
+    entries = _current_l5_api(entries)
     assert len(entries) == 376
     assert {"spacr.gene_graph", "spacr.ops_run_infra", "spacr.channel_models"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -7279,6 +7281,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         additions = _current_neighbour_api(additions)
         from tests.test_ops_phfields_sources import _current_phfields_api
         additions = _current_phfields_api(additions)
+        from tests.l5_api_hooks import _current_l5_api
+        additions = _current_l5_api(additions)
         from tests.phtables_store_api_hooks import _current_phtables_api
         additions = _current_phtables_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

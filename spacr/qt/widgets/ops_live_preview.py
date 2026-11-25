@@ -573,7 +573,7 @@ def _group_spec(title: str, y_label: str, groups) -> Dict[str, Any]:
 def _draw_merge(result: Mapping[str, Any], colours):
     """Tab 4: how the phenotype cells matched the called nuclei, and how the genes were covered.
 
-    Nine graphs, in the order the maintainer chose: the share matched per
+    Nine graphs, in this order: the share matched per
     field, the map of matched cells, the genes kept at each cells-per-gene
     floor, the matched and unmatched cells per field, the matching distance,
     the cells per gene by rank, the guides per gene, the profiles of the

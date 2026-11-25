@@ -196,7 +196,10 @@ class TileLayoutWidget(QWidget):
         self.setMinimumHeight(max(240, ceil(self._key_rect().height() + 120. + 2 * _PAD)))
 
     def resizeEvent(self, event):
-        """Reflow translated key text without altering the solved tile plan."""
+        """Reflow translated key text without altering the solved tile plan.
+
+        :param event: the resize event, passed on to the base widget.
+        """
         self._fit_layout_key()
         super().resizeEvent(event)
 
