@@ -26,6 +26,8 @@ import inspect
 import json
 import os
 
+from tests.ops_fields_store_api_hooks import _revised_later
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONTRACTS = os.path.join(ROOT, "tests", "data", "release_contracts")
 BIRTH = os.path.join(CONTRACTS, "0aj_omezarr_native_api_arrivals_2026-11-24.json")
@@ -110,8 +112,10 @@ def _omezarr_native_changes():
     assert set(changes) == REVISIONS
     for symbol, change in changes.items():
         assert set(change) == {"before_sha256", "docstring"}, symbol
-        assert change["docstring"] == _source_docstring(symbol), symbol
+        assert (change["docstring"] == _source_docstring(symbol)
+                or _revised_later(symbol, change["docstring"], _source_docstring(symbol))), symbol
         assert hashlib.sha256(change["docstring"].encode()).hexdigest() != change["before_sha256"]
+        change["docstring"] = _source_docstring(symbol)
     return changes
 
 
@@ -141,7 +145,9 @@ def _omezarr_native_birth_arrivals(existing=None):
         entries = json.load(handle)
     assert set(entries) == ARRIVALS
     for symbol, body in entries.items():
-        assert body == _source_docstring(symbol), symbol
+        assert (body == _source_docstring(symbol)
+                or _revised_later(symbol, body, _source_docstring(symbol))), symbol
+    entries = {symbol: _source_docstring(symbol) for symbol in entries}
     if existing is not None:
         assert not entries.keys() & existing.keys()
     return entries

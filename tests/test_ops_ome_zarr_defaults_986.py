@@ -121,14 +121,15 @@ def test_new_ops_defaults_match_old_saved_outputs_and_resume(tmp_path, models, m
     assert index["prcfo"].is_unique and len(index) == count
     # The store step copies no committed crop (item 0ap); the crop index
     # gives them back through the one crop reader. With save_png off (the
-    # default) they are cut from the tiles on read, equal to the stored
-    # legacy crops checked above.
+    # default) they are cut on read from the fields ph_crops wrote to
+    # fov.ome.zarr (item 0aq), equal to the stored legacy crops checked above.
     assert ops_engine._ops_store_crops(
         str(new_root / "nas"), fixture.PLATE, "A1", index["prcfo"].iloc[::-1]) == (None, None, None)
     from spacr.crop_store import read_crops
 
     picked = [index.iloc[i].to_dict() for i in (7, 0, 7)]
-    assert all(row["crop_array"] is None and str(row["source_field"]).startswith("ops:")
+    assert all(row["crop_array"] is None and row["ops_crop"] is True
+               and row["source_field"] == ops_engine._ph_field_name(fixture.PLATE, "A1", row["site"])
                for row in picked)
     for (image, mask), i in zip(read_crops(str(new_root / "nas"), picked), (7, 0, 7)):
         np.testing.assert_array_equal(image, new_crops[i][1])

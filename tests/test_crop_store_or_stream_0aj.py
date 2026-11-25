@@ -108,7 +108,7 @@ def test_stored_crops_are_the_raw_channels_and_all_labels(tmp_path):
         assert np.array_equal(labels["nucleus"], nucleus[box])
 
 
-def test_the_crop_index_lives_in_spacr_store_and_ssCell_Crops_mirrors_it(tmp_path):
+def test_the_crop_index_lives_in_the_one_spacr_store_and_ssCell_Crops_mirrors_it(tmp_path):
     import sqlite3
 
     from spacr import store
@@ -117,7 +117,8 @@ def test_the_crop_index_lives_in_spacr_store_and_ssCell_Crops_mirrors_it(tmp_pat
 
     _project(tmp_path)
     measure_crop(_settings(tmp_path, save_png=False))
-    with store.open(str(tmp_path)) as opened:
+    assert sorted(tmp_path.rglob(store.CATALOG)) == [tmp_path / "measurements" / store.CATALOG]
+    with store.open(str(tmp_path / "measurements")) as opened:
         assert CROP_INDEX_TABLE in opened.tables()
         frame = opened.query(table=CROP_INDEX_TABLE)
     assert {"plate", "well", "field", "object_type", "object_label",

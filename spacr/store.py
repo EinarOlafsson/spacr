@@ -2852,6 +2852,41 @@ def _column_ranges(meta) -> Dict[str, tuple]:
     return ranges
 
 
+def _file_ranges(path, *, dtype_map: Optional[str] = None) -> Dict[str, tuple]:
+    """``column -> (min, max[, evidence])`` of a Parquet file, with value evidence where it narrows.
+
+    The ranges come from the row-group statistics (:func:`_column_ranges`);
+    each float column the recorded dtype map would store narrower than the
+    file holds it is then read, one column at a time, for the value
+    evidence the per-part guard checks (:func:`_float_evidence`: rounding
+    error against the SD, integers exact), so a streamed writer narrows by
+    the values as a frame held whole does, not by the range alone.
+
+    :param path: the Parquet file.
+    :param dtype_map: the recorded dtype map; None is the shipped one.
+    :returns: the ranges, as :class:`WellWriter` takes them.
+    """
+    pa = _require("pyarrow")
+    pq = _require("pyarrow.parquet")
+    parquet = pq.ParquetFile(path)
+    ranges = _column_ranges(parquet.metadata)
+    recorded = _dtype_map(dtype_map).get("columns") or {}
+    for field in parquet.schema_arrow:
+        entry = recorded.get(field.name)
+        if (not pa.types.is_floating(field.type) or not entry
+                or entry.get("kind") != "float"
+                or np.dtype(entry["dtype"]).itemsize
+                >= np.dtype(field.type.to_pandas_dtype()).itemsize):
+            continue
+        low, high = ranges.get(field.name, (None, None))[:2]
+        if low is None:
+            continue
+        values = parquet.read(columns=[field.name]).column(0)
+        values = values.to_numpy().astype("float64")
+        ranges[field.name] = (low, high, _float_evidence(values))
+    return ranges
+
+
 _FLOAT_LADDER = ("float16", "float32", "float64")
 
 
