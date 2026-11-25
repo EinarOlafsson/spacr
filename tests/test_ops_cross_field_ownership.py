@@ -195,15 +195,16 @@ def test_the_phase_writes_the_table_and_leaves_ops_phenotype_alone(tmp_path):
 
 
 def _genotyped():
-    """Genotyped cells: both copies of the shared cell and one lone cell."""
+    """Genotyped cells: both copies of the shared cell, one lone cell and one
+    cell (site 1, label 9) that the ownership table does not list."""
     return pd.DataFrame({"well": "A1", "site": [0, 1, 0, 1],
                          "label": [1, 1, 2, 9],
                          "object_id": [10, 11, 12, 13]})
 
 
 @pytest.mark.parametrize("policy, kept, key", [
-    ("one_per_cell", [(1, 1), (0, 2), (1, 9)], "dropped_extra_copies"),
-    ("owner_only", [(1, 1), (0, 2), (1, 9)], "dropped_non_owner_copies"),
+    ("one_per_cell", [(1, 1), (0, 2)], "dropped_extra_copies"),
+    ("owner_only", [(1, 1), (0, 2)], "dropped_non_owner_copies"),
     ("flag_only", [(0, 1), (1, 1), (0, 2), (1, 9)], None)])
 def test_policies_choose_the_rows_the_aggregate_pools(tmp_path, policy, kept,
                                                       key):
@@ -215,6 +216,7 @@ def test_policies_choose_the_rows_the_aggregate_pools(tmp_path, policy, kept,
     assert sorted(zip(cells.site, cells.label)) == sorted(kept)
     if key:
         assert report[key] == 1
+        assert report["cells_without_ownership_row"] == 1
     del db
 
 

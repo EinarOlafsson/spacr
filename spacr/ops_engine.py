@@ -5891,10 +5891,8 @@ def _ph_measure_table(task: Mapping[str, Any]):
     if task.get("measure_gpu"):
         os.environ.setdefault("CUPY_CACHE_DIR", os.path.join(
             os.path.expanduser("~"), ".spacr", "cupy_cache"))
-    measure = ops_sample.measure_phenotype_field
-    if objects:
-        measure = functools.partial(ops_sample._measure_phenotype_field,
-                                    objects=objects)
+    measure = functools.partial(ops_sample._measure_phenotype_field,
+                                objects=objects or None)
     table = measure(
         nuclei, cells, stack, task["channels"],
         texture=bool(task["texture"]),
@@ -5903,7 +5901,8 @@ def _ph_measure_table(task: Mapping[str, Any]):
         gpu=bool(task.get("measure_gpu", False)),
         profile_features=task.get("profile_features"),
         granularity_subsample=float(task.get("granularity_subsample") or 1.0),
-        cytoskeleton_channels=task.get("cytoskeleton_channels"))
+        cytoskeleton_channels=task.get("cytoskeleton_channels"),
+        outside_rule=task.get("outside_rule") or "object")
     for column, source in (("nucleus_centroid_y", "centroid_row"),
                            ("nucleus_centroid_x", "centroid_col")):
         if column not in table:
@@ -5999,6 +5998,23 @@ def _ph_profile_features(settings: Mapping[str, Any]) -> Optional[List[str]]:
         settings.get("ops_ph_profile_features"),
         settings.get("ops_ph_profile_optional_families"))
     return list(families) or None
+
+
+def _ph_outside_rule_option(settings: Mapping[str, Any]) -> Dict[str, str]:
+    """``{"outside_rule": ...}`` when the ``outside`` family is measured, else ``{}``.
+
+    :param settings: read for ``ops_ph_profile_features`` and
+        ``ops_ph_profile_outside_rule`` (:func:`spacr.measure._outside_excludes_foreground`).
+    :returns: the option the per-field parts record, so a well never mixes
+        fields measured with two meanings of the ``outside`` columns.
+    """
+    from .measure import _outside_excludes_foreground
+
+    if "outside" not in (_ph_profile_features(settings) or []):
+        return {}
+    rule = str(settings.get("ops_ph_profile_outside_rule") or "object")
+    _outside_excludes_foreground("nucleus", rule)
+    return {"outside_rule": rule.strip().lower()}
 
 
 def _ph_granularity_subsample(settings: Mapping[str, Any]
@@ -6197,6 +6213,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "cytoskeleton_channels": settings.get("ops_ph_cytoskeleton_channels"),
             "granularity_subsample": _ph_granularity_subsample(settings),
             "measure_gpu": bool(settings.get("ops_ph_measure_gpu", False)),
+            **_ph_outside_rule_option(settings),
             "secondary": _ph_secondary(settings) if secondary else None}
         if object_roles:
             options["objects"] = _ph_object_options(settings)
@@ -6220,6 +6237,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 "profile_features": options["profile_features"],
                 "cytoskeleton_channels": options["cytoskeleton_channels"],
                 "granularity_subsample": options["granularity_subsample"],
+                "outside_rule": options.get("outside_rule"),
                 "measure_gpu": options["measure_gpu"],
                 "secondary": secondary.get(site),
                 "objects": object_roles}
@@ -6462,6 +6480,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "profile_features": options["profile_features"],
             "cytoskeleton_channels": options["cytoskeleton_channels"],
             "granularity_subsample": options["granularity_subsample"],
+            "outside_rule": options.get("outside_rule"),
             "measure_gpu": options["measure_gpu"],
         }
     if field_shape is not None:
@@ -7391,6 +7410,7 @@ def _ph_called_guides(db: str, plate: str, wells: Sequence[str],
         called = barcodes.loc[
             barcodes["mapped_guide"].fillna("").astype(str) != "",
             ["well", "object_id", "mapped_guide"]]
+        _ph_one_call_per_nucleus(called, "ops_barcodes")
     design_path = settings.get("ops_design")
     if not design_path:
         raise ValueError(tr(
@@ -7427,9 +7447,10 @@ def _ph_link_genotypes(db: str, plate: str, wells: Sequence[str], links,
     except ValueError:
         return None
     joined = links[["well", "site", "label", "object_id"]].merge(
-        called, on=["well", "object_id"], how="inner").merge(
+        called, on=["well", "object_id"], how="inner",
+        validate="many_to_one").merge(
         design.rename(columns={"prefix": "mapped_guide"}),
-        on="mapped_guide", how="inner")
+        on="mapped_guide", how="inner", validate="many_to_one")
     return joined[["well", "site", "label", "sgRNA", "gene"]].reset_index(
         drop=True).assign(mitotic=np.nan)
 
@@ -7580,13 +7601,28 @@ def _ph_genotype_table(path: str, plate: str, wells: Sequence[str]):
     table = table[table["well"].astype(str).isin([str(w) for w in wells])]
     called = table.loc[table["mapped_guide"].fillna("").astype(str) != "",
                        ["well", "object_id", "mapped_guide"]]
-    twice = int(called.duplicated(["well", "object_id"]).sum())
-    if twice:
-        raise ValueError(tr(
-            "the genotype table {path} calls {count} sequencing nuclei more "
-            "than once; give each well and object_id one row", path=path,
-            count=twice))
+    _ph_one_call_per_nucleus(called, str(path))
     return called.reset_index(drop=True)
+
+
+def _ph_one_call_per_nucleus(called, source: str) -> None:
+    """Refuse calls that name one sequencing nucleus twice.
+
+    :param called: ``well, object_id, mapped_guide`` rows.
+    :param source: the table they came from, for the message.
+    :raises ValueError: naming the first repeated ``well:object_id`` ids,
+        since a repeated nucleus would give its cell two guides in a join.
+    """
+    from .qt.i18n import tr
+
+    twice = called.duplicated(["well", "object_id"], keep=False)
+    if twice.any():
+        ids = sorted({f"{w}:{int(o)}" for w, o in zip(
+            called.loc[twice, "well"], called.loc[twice, "object_id"])})
+        raise ValueError(tr(
+            "{source} calls {count} sequencing nuclei more than once "
+            "({ids}); give each well and object_id one row", source=source,
+            count=len(ids), ids=", ".join(ids[:10])))
 
 
 def _ph_read_columns(sources, columns: Sequence[str]):
@@ -8013,7 +8049,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         cells = cells[~inside].reset_index(drop=True)
     cells = cells.merge(merged_rows[["well", "site", "label", "object_id"]],
                         on=["well", "site", "label"], how="inner")
-    cells = cells.merge(called, on=["well", "object_id"], how="left")
+    cells = cells.merge(called, on=["well", "object_id"], how="left",
+                        validate="many_to_one")
     with_guide = cells["mapped_guide"].notna()
     funnel.count("linked", cells)
     funnel.count("linked_no_genotype", cells[~with_guide])
@@ -8620,9 +8657,9 @@ def _ph_owned_flags(destination: str, well: str, settings: Mapping[str, Any]):
         ``'a1'`` or ``'a1b'``, :func:`_ph_merge`); None when no ownership
         was decided, so every cell counts as owned. With
         ``ops_cross_field_ownership`` on and a policy other than
-        ``'flag_only'``, a copy that is not its physical cell's owner
-        (:func:`_ph_cross_field_ownership`) is a 0 as well, so merged/ and
-        the crops hold one copy per cell.
+        ``'flag_only'`` (:func:`_ph_uses_cross_field_table`), a copy that is
+        not the owner of its physical cell (:func:`_ph_cross_field_ownership`) is
+        a 0 as well, so merged/ and the crops hold one copy per cell.
     """
     import pandas as pd
 
@@ -8633,9 +8670,7 @@ def _ph_owned_flags(destination: str, well: str, settings: Mapping[str, Any]):
         flags = {(int(s), int(l)): int(bool(o)) for s, l, o in
                  zip(owned["site"], owned["label"], owned["owned"])}
     cross = _ph_cross_field_path(destination, well)
-    if (bool(settings.get("ops_cross_field_ownership", True))
-            and _ph_cross_field_policy(settings) != "flag_only"
-            and os.path.isfile(cross)):
+    if _ph_uses_cross_field_table(settings) and os.path.isfile(cross):
         table = pd.read_parquet(cross, columns=["site", "label", "is_owner"])
         flags = dict(flags or {})
         for site, label, owner in zip(table["site"], table["label"],
@@ -8997,26 +9032,50 @@ def _ph_prcfo(plate: str, row: str, column: str, site: int, label: int) -> str:
                      schema.object_id(int(label))])
 
 
-def _ph_owned_cells(destination: str, well: str, cells, settings):
+def _ph_owned_cells(destination: str, well: str, cells, settings,
+                    counts: Optional[Dict[str, int]] = None):
     """Which of a well's cells are owned and whole, as a boolean array.
 
     :param destination: the run folder.
     :param well: the well name.
     :param cells: the well's cell table (``site``, ``label``).
     :param settings: the OPS settings.
-    :returns: True for a cell whose field owns it (:func:`_ph_owned_flags`;
-        every cell when no ownership was decided) and that does not touch
-        its field's edge (``ops_maskpass_<well>``, or every cell when the
-        mask pass was not run).
+    :param counts: a dict that gets ``copies_owned_elsewhere`` (cells left
+        out because another field owns them), ``cells_without_ownership_row``
+        (cells the cross-field ownership table does not list, left out by
+        :func:`_ph_listed_owners`) and ``cut_at_field_edge`` (cells left
+        out because they touch their field edge), or None.
+    :returns: True for a cell whose field owns it (``ops_ownership_<well>``
+        and, when :func:`_ph_uses_cross_field_table`, the cross-field
+        ownership table; every cell when no ownership was decided) and that
+        does not touch the edge of its field (``ops_maskpass_<well>``, or every
+        cell when the mask pass was not run).
+    :raises ValueError: when the well needs its cross-field ownership table
+        and has none (:func:`_ph_require_cross_field_table`).
     """
     import pandas as pd
 
+    _ph_require_cross_field_table(destination, well, settings)
     keys = pd.MultiIndex.from_arrays([cells["site"].astype(int),
                                       cells["label"].astype(int)])
     owned = np.ones(len(cells), bool)
-    flags = _ph_owned_flags(destination, well, settings)
-    if flags is not None:
-        owned &= np.array([bool(flags.get(key, 0)) for key in keys], bool)
+    copies = unlisted_cells = cut_cells = 0
+    path = _ph_ownership_path(destination, well)
+    if os.path.isfile(path):
+        table = pd.read_parquet(path, columns=["site", "label", "owned"])
+        flags = {(int(s), int(l)): bool(o) for s, l, o in
+                 zip(table["site"], table["label"], table["owned"])}
+        owned &= np.array([flags.get(key, False) for key in keys], bool)
+    if _ph_uses_cross_field_table(settings):
+        owner, unlisted = _ph_listed_owners(
+            _ph_cross_field_owners(destination, well), [well] * len(cells),
+            cells["site"], cells["label"])
+        unlisted_cells = int((owned & unlisted).sum())
+        owned &= ~unlisted
+        copies = int((owned & ~owner).sum())
+        owned &= owner
+    elif os.path.isfile(path):
+        copies = int((~owned).sum())
     path = _ph_maskpass_path(destination, well)
     if os.path.isfile(path):
         edges = pd.read_parquet(path, columns=["site", "label",
@@ -9025,8 +9084,14 @@ def _ph_owned_cells(destination: str, well: str, cells, settings):
                         index=pd.MultiIndex.from_arrays(
                             [edges["site"].astype(int),
                              edges["label"].astype(int)]))
-        owned &= ~np.array([True if pd.isna(v) else bool(v)
-                            for v in cut.reindex(keys)], bool)
+        whole = ~np.array([True if pd.isna(v) else bool(v)
+                           for v in cut.reindex(keys)], bool)
+        cut_cells = int((owned & ~whole).sum())
+        owned &= whole
+    if counts is not None:
+        counts.update(copies_owned_elsewhere=copies,
+                      cells_without_ownership_row=unlisted_cells,
+                      cut_at_field_edge=cut_cells)
     return owned
 
 
@@ -9068,16 +9133,22 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
     if links is not None and len(links):
         lookup = lookup.merge(links[["site", "label", "object_id"]].astype(
             {"site": np.int64, "label": np.int64}), on=["site", "label"],
-            how="left")
+            how="left", validate="many_to_one")
     else:
         lookup["object_id"] = np.nan
     if genotype is not None and len(genotype):
         lookup = lookup.merge(genotype[["site", "label", "sgRNA", "gene",
                                         "mitotic"]].astype(
             {"site": np.int64, "label": np.int64}), on=["site", "label"],
-            how="left")
+            how="left", validate="many_to_one")
     else:
         lookup = lookup.assign(sgRNA=None, gene=None, mitotic=np.nan)
+    if len(lookup) != len(keys) or not np.array_equal(
+            lookup[["site", "label"]].to_numpy(np.int64),
+            kept[["site", "label"]].to_numpy(np.int64)):
+        raise AssertionError(
+            f"well {well}: {len(lookup)} looked-up rows for {len(keys)} cells; "
+            f"the keys would join the features by position")
     keys["object_id"] = lookup["object_id"].to_numpy()
     keys["sgRNA"] = lookup["sgRNA"].to_numpy()
     keys["gene"] = lookup["gene"].to_numpy()
@@ -9279,8 +9350,9 @@ def _ph_stream_well(plate: str, well: str, destination: str,
     ranges and, for each float column the map narrows, by its values
     (:func:`spacr.store._file_ranges`), and writes one part per table per
     well.
-    :returns: a dict with ``rows``, ``owned``, ``source`` (``"fields"`` or
-        ``"well_table"``), ``dtypes`` and ``promoted``.
+    :returns: a dict with ``rows``, ``owned``, ``copies_owned_elsewhere``
+        and ``cut_at_field_edge`` (:func:`_ph_owned_cells`), ``source``
+        (``"fields"`` or ``"well_table"``), ``dtypes`` and ``promoted``.
     """
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -9296,8 +9368,9 @@ def _ph_stream_well(plate: str, well: str, destination: str,
     del index
     import pandas as pd
 
+    left_out: Dict[str, int] = {}
     owned = _ph_owned_cells(destination, well, pd.DataFrame(
-        {"site": sites, "label": labels}), settings)
+        {"site": sites, "label": labels}), settings, counts=left_out)
     ranges = store._file_ranges(cell_path)
     key_fields = _ph_key_fields(integer_keys)
     by_compartment = {}
@@ -9382,7 +9455,7 @@ def _ph_stream_well(plate: str, well: str, destination: str,
         promoted += [p for p in part.promoted if p not in promoted]
     counts = Counter(stored[f.name] for c in _PH_TABLE_COMPARTMENTS
                      for f in by_compartment[c] if f.name in stored)
-    return {"rows": rows, "owned": int(owned.sum()),
+    return {"rows": rows, "owned": int(owned.sum()), **left_out,
             "source": source, "dtypes": dict(sorted(counts.items())),
             "promoted": promoted}
 
@@ -9440,9 +9513,13 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     was measured to hold with negligible loss (the store's dtype map,
     :func:`spacr.store._stored_types`, ``tools/measure_store_dtypes.py``);
     ``spacr.store.open`` returns
-    float16 columns as float32. The tables are rebuilt on every run: the
-    run's earlier tables (and an older ``measurements.db``) are removed
-    first, so the same inputs give byte-identical parts.
+    float16 columns as float32. The wells of the run are rebuilt on every
+    run: their earlier parts (and an older ``measurements.db``) are removed
+    first, so the same inputs give byte-identical parts. The other wells of
+    the store (the ``plate=`` / ``well=`` partitions) are kept and stay
+    registered, so one ``spacr.duckdb`` holds a whole plate or project
+    written well by well, and wells A1 then A2 into one ``dst_root`` give
+    the parts one run of both gives.
     """
     import pandas as pd
 
@@ -9487,10 +9564,11 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     if layout == "wide":
         layouts["cell_wide"] = _PH_TABLE_COMPARTMENTS
     run_id = _ph_tables_run_id(settings, plate, chosen)
-    store._rebuild(folder, [*_PH_TABLE_COMPARTMENTS, "cell_wide", "image"])
+    store._rebuild(folder, [*_PH_TABLE_COMPARTMENTS, "cell_wide", "image"],
+                   plate=plate, wells=[str(w) for w in wells])
     counts: Dict[str, int] = {}
     wells_report: Dict[str, Any] = {}
-    total = 0
+    total = copies = 0
     from .measure import _IMAGE_KEY_COLUMNS, _image_sql_value, _image_table_keys
 
     merged_root = _ph_merged_root(settings, destination)
@@ -9502,7 +9580,9 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
             counts[table] = counts.get(table, 0) + streamed["rows"]
         total += streamed["owned"]
         wells_report[well] = {k: streamed[k] for k in (
-            "rows", "source", "dtypes", "promoted")}
+            "rows", "copies_owned_elsewhere", "cut_at_field_edge", "source",
+            "dtypes", "promoted")}
+        copies += streamed["copies_owned_elsewhere"]
         image_rows = []
         for _site, field_path in sorted(_ph_merged_paths(
                 merged_root, plate, well, settings).items(),
@@ -9530,6 +9610,7 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
                                              "settings": dict(settings)})
     report = {"store": folder, "tables": sorted(counts),
               "rows": counts, "owned_cells": total,
+              "copies_owned_elsewhere": copies,
               "wells": wells_report,
               "genotype_table": genotype_source,
               "genotype_rule": rule,
@@ -10791,8 +10872,10 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             continue
         cells = pd.read_parquet(cell_path, columns=["site", "label"])
         stored = _ph_store_owned_cells(tables, plate, well)
+        left_out: Dict[str, int] = {}
         if stored is None:
-            owned = _ph_owned_cells(destination, well, cells, settings)
+            owned = _ph_owned_cells(destination, well, cells, settings,
+                                    counts=left_out)
         else:
             owned = pd.MultiIndex.from_frame(cells[["site", "label"]]).isin(
                 pd.MultiIndex.from_frame(stored[["site", "label"]]))
@@ -10912,7 +10995,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
         _atomic_json(done_path, {"options": options, **well_report}, indent=1,
                      sort_keys=False, default=str, normalize=False,
                      ensure_ascii=True, newline=False)
-        report["wells"][well] = {**well_report, "fields": {
+        report["wells"][well] = {**well_report, **left_out, "fields": {
             k: v for k, v in fields.items() if k != "fields"}}
     report["seconds"] = round(time.perf_counter() - started, 1)
     _say(tr("{plate} ph_crops: {count} crops", plate=plate, count=sum(
@@ -11575,6 +11658,7 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
         if column not in cells:
             cells[column] = np.nan
     cells["owner_rule"] = options["rule"]
+    refused = int(cells.attrs.get("refused_edges", 0))
     cells = cells[["site", "label", "area", "touches_field_edge", "component",
                    "n_copies", "owner_field", "owner_label", "is_owner",
                    "owned_area_share", "well_y", "well_x",
@@ -11595,6 +11679,7 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
         "owned_cells": owned, "cells_without_owner": unowned,
         "cells_with_copies": int((cells["n_copies"] > 1).sum()),
         "non_owner_copies": int((~cells["is_owner"]).sum()),
+        "edges_refused_two_copies_in_one_field": refused,
         "components_with_two_copies_in_one_field": int(cells.loc[
             cells.duplicated(["component", "site"]), "component"].nunique()),
         "table": _ph_cross_field_path(destination, well),
@@ -11711,9 +11796,7 @@ def _ph_ownership_before_tables(db: str, plate: str, wells: Sequence[str],
         before it kept the closer match; ``ph_rebuild`` redoes the merge
         with the owner first.
     """
-    if ("ph_ownership" in phases
-            or not bool(settings.get("ops_cross_field_ownership", True))
-            or _ph_cross_field_policy(settings) == "flag_only"):
+    if "ph_ownership" in phases or not _ph_uses_cross_field_table(settings):
         return {}
     out = {}
     for well in wells:
@@ -11722,6 +11805,93 @@ def _ph_ownership_before_tables(db: str, plate: str, wells: Sequence[str],
             out[well] = _ph_cross_field_ownership(db, plate, well, settings,
                                                   destination)
     return out
+
+
+def _ph_uses_cross_field_table(settings: Mapping[str, Any]) -> bool:
+    """Whether the aggregate, ph_tables and the crops read ``ops_cross_field_<well>``.
+
+    True when ``ops_cross_field_ownership`` is on and
+    ``ops_cross_field_policy`` is not ``'flag_only'``: the one rule every
+    reader of the cross-field ownership table follows.
+    """
+    return (bool(settings.get("ops_cross_field_ownership", True))
+            and _ph_cross_field_policy(settings) != "flag_only")
+
+
+def _ph_wells_without_cross_field_table(destination: str,
+                                        wells: Sequence[str],
+                                        settings: Mapping[str, Any]
+                                        ) -> List[str]:
+    """The wells that need ``ops_cross_field_<well>.parquet`` and lack it.
+
+    :param destination: the run folder.
+    :param wells: the wells.
+    :param settings: the OPS settings (:func:`_ph_uses_cross_field_table`).
+    :returns: the wells, in the given order; empty when the table is not
+        read.
+    """
+    if not _ph_uses_cross_field_table(settings):
+        return []
+    return [str(w) for w in wells
+            if not os.path.isfile(_ph_cross_field_path(destination, w))]
+
+
+def _ph_require_cross_field_table(destination: str, well: str,
+                                  settings: Mapping[str, Any]) -> None:
+    """Refuse a well whose copies cannot be told apart.
+
+    ph_tables and the crops keep one copy per physical cell. Without
+    ``ops_cross_field_<well>.parquet`` every copy would count as owned, so
+    a cell cut by a field seam would be written once per field.
+
+    :raises ValueError: when :func:`_ph_wells_without_cross_field_table`
+        names ``well``.
+    """
+    from .qt.i18n import tr
+
+    if _ph_wells_without_cross_field_table(destination, [well], settings):
+        raise ValueError(tr(
+            "well {well} has no cross-field ownership table ({path}), so "
+            "the copies of a cell cut by a field seam cannot be told apart "
+            "and each would be written as its own cell. Run the "
+            "ph_ownership phase first (it needs the mask pass and the "
+            "phenotype cell table of the well), or set "
+            "ops_cross_field_ownership to False to keep every copy.",
+            well=well, path=_ph_cross_field_path(destination, well)))
+
+
+def _ph_listed_owners(owners, wells, sites, labels):
+    """The owner flag of each copy in the cross-field ownership table, and whether it is listed.
+
+    The one rule the aggregate, ph_tables and the crops read the table by:
+    a copy the table lists is kept when it owns its physical cell; a
+    copy it does not list (a field that was not placed, or a cell measured
+    after the ownership pass) is not owned, and the callers count it as
+    ``cells_without_ownership_row`` rather than keep or drop it unseen.
+
+    :param owners: :func:`_ph_cross_field_owners` of one or more wells.
+    :param wells: the well of each copy.
+    :param sites: the field of each copy.
+    :param labels: the label of each copy.
+    :returns: ``(is_owner, unlisted)``, boolean arrays; ``is_owner`` is
+        False for an unlisted copy.
+    """
+    import pandas as pd
+
+    table = pd.Series(
+        owners["is_owner"].astype(bool).to_numpy(),
+        index=pd.MultiIndex.from_arrays([
+            owners["well"].astype(str).to_numpy(),
+            owners["site"].astype(np.int64).to_numpy(),
+            owners["label"].astype(np.int64).to_numpy()]))
+    found = table.reindex(pd.MultiIndex.from_arrays([
+        np.asarray(wells).astype(str),
+        np.asarray(sites).astype(np.int64),
+        np.asarray(labels).astype(np.int64)]))
+    unlisted = found.isna().to_numpy()
+    values = found.to_numpy(dtype=object)
+    values[unlisted] = False
+    return values.astype(bool), unlisted
 
 
 def _ph_cross_field_owners(destination: str, well: str):
@@ -11748,7 +11918,10 @@ def _ph_cross_field_filter(cells, destination: str, wells: Sequence[str],
         copies; ``'one_per_cell'`` keeps one row per physical cell, the
         owner when it is among the rows, else the largest copy (ties to
         the smaller site, then label); ``'flag_only'`` changes nothing.
-        Cells absent from the ownership table keep themselves. A well
+        Cells absent from the ownership table of their well are left out
+        and counted as ``cells_without_ownership_row``
+        (:func:`_ph_listed_owners`, the rule ph_tables and the crops
+        follow). A well
         without an ownership table (no mask pass or no cell table to
         decide it from, :func:`_ph_ownership_before_tables`) keeps every
         row; the report lists it under ``wells_without_ownership``.
@@ -11758,26 +11931,35 @@ def _ph_cross_field_filter(cells, destination: str, wells: Sequence[str],
     from .qt.i18n import tr
 
     policy = _ph_cross_field_policy(settings)
-    if policy == "flag_only":
+    if not _ph_uses_cross_field_table(settings):
         return cells, {"policy": policy}
-    tables, bare = [], []
-    for well in wells:
-        table = _ph_cross_field_owners(destination, well)
-        if table is None:
-            bare.append(str(well))
-            continue
-        tables.append(table)
+    bare = _ph_wells_without_cross_field_table(destination, wells, settings)
+    tables = [_ph_cross_field_owners(destination, well) for well in wells
+              if str(well) not in bare]
     extra = {"wells_without_ownership": bare} if bare else {}
     if not tables:
         return cells, {"policy": policy, "dropped_non_owner_copies": 0,
                        **extra}
     owners = pd.concat(tables, ignore_index=True)
-    joined = cells.reset_index(drop=True).merge(
-        owners, on=["well", "site", "label"], how="left")
+    cells = cells.reset_index(drop=True)
+    checked = ~cells["well"].astype(str).isin(bare).to_numpy()
+    owner, unlisted = _ph_listed_owners(owners, cells["well"], cells["site"],
+                                        cells["label"])
+    unlisted &= checked
+    if unlisted.any():
+        _say(tr("{count} cells are not in the cross-field ownership table of "
+                "their well and are left out (a field that was not placed, "
+                "or cells measured after ph_ownership)",
+                count=int(unlisted.sum())))
+        extra["cells_without_ownership_row"] = int(unlisted.sum())
+        owner = owner[~unlisted]
+        checked = checked[~unlisted]
+        cells = cells[~unlisted].reset_index(drop=True)
+    joined = cells.merge(owners, on=["well", "site", "label"], how="left",
+                         validate="many_to_one")
     if policy == "owner_only":
-        keep = np.array([True if pd.isna(v) else bool(v)
-                         for v in joined["is_owner"]], bool)
-        return (cells.reset_index(drop=True)[keep].reset_index(drop=True),
+        keep = owner | ~checked
+        return (cells[keep].reset_index(drop=True),
                 {"policy": policy,
                  "dropped_non_owner_copies": int((~keep).sum()), **extra})
     key = joined["well"].astype(str) + ":" + joined["component"].map(
@@ -11792,7 +11974,7 @@ def _ph_cross_field_filter(cells, destination: str, wells: Sequence[str],
         ["_key", "_not_owner", "area", "site", "label"],
         ascending=[True, True, False, True, True], kind="mergesort")
     kept = np.sort(order.drop_duplicates("_key")["_position"].to_numpy())
-    return (cells.reset_index(drop=True).iloc[kept].reset_index(drop=True),
+    return (cells.iloc[kept].reset_index(drop=True),
             {"policy": policy,
              "dropped_extra_copies": int(len(joined) - len(kept)), **extra})
 

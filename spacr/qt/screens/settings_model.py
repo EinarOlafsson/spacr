@@ -1441,7 +1441,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Features", (
             "save_measurements", "calculate_correlation",
             "profile_features", "cytoskeleton_channels", "profile_optional_families",
-            "profile_granularity_subsample",
+            "profile_granularity_subsample", "profile_outside_rule",
             "funk_object_features", "zernike", "channel_names",
             "spatial_measurements",
             "spatial_neighbor_radius",
