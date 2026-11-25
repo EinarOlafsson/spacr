@@ -94,8 +94,8 @@ def _the_card_must_not_be_asked():
 
 @pytest.mark.parametrize("name", [None, "", "cpsam", "  cpsam "])
 def test_the_default_model_name_builds_the_librarys_own_default(built, pinned, monkeypatch, name):
-    """Under ``cpsam_v1`` no ``pretrained_model`` is passed, so Cellpose loads the weights the
-    well was validated with; under the default ``cpsam_v2`` the v2 file is passed by full path.
+    """Each pin is passed by its verified full path: ``cpsam_v1`` (the file Cellpose 4.0.x
+    loads as its default, but 4.2 does not) and the default ``cpsam_v2``.
 
     With ``ops_gpu`` off the model is built for the CPU and the accelerator is
     never asked.
@@ -106,7 +106,8 @@ def test_the_default_model_name_builds_the_librarys_own_default(built, pinned, m
                                 "ops_cellpose_model": "cpsam_v1"}, gpu=False)
     ops_engine._cellpose_model({"ops_sbs_nucleus_model": name}, gpu=False)
 
-    assert built == [{"gpu": False, "use_bfloat16": False},
+    assert built == [{"gpu": False, "use_bfloat16": False,
+                      "pretrained_model": pinned["cpsam_v1"]},
                      {"gpu": False, "use_bfloat16": False,
                       "pretrained_model": pinned["cpsam_v2"]}]
 
@@ -144,7 +145,8 @@ def test_on_the_card_the_model_takes_the_machines_accelerator_arguments(built, p
     ops_engine._cellpose_model({"ops_sbs_nucleus_model": str(checkpoint)}, gpu=True)
 
     card = {"gpu": True, "device": device, "use_bfloat16": False}
-    assert built == [card, {**card, "pretrained_model": str(checkpoint)}]
+    assert built == [{**card, "pretrained_model": pinned["cpsam_v1"]},
+                     {**card, "pretrained_model": str(checkpoint)}]
 
 
 class _ThresholdModel:

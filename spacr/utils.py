@@ -7238,8 +7238,8 @@ def build_cellpose_model(model_name, *, settings=None, key=None, object_type=Non
     :param stock_weights: ``'cpsam_v2'`` or ``'cpsam_v1'`` to load the stock
         ``cpsam`` name from those pinned weights (:func:`cpsam_weights`, which
         refuses a missing or different file). ``cpsam_v2`` is passed by its
-        full path; ``cpsam_v1`` with ``library_default`` keeps the call
-        without ``pretrained_model``, after its file is verified. A
+        full path, and so is ``cpsam_v1`` (the library default of Cellpose
+        4.0.x, but not of 4.2), each after its file is verified. A
         checkpoint or other name is not affected.
     :param factory: the model class to construct, ``CellposeModel`` of the
         library when absent; a module passes its own import of it.
@@ -7285,7 +7285,11 @@ def build_cellpose_model(model_name, *, settings=None, key=None, object_type=Non
     library_call = library_default and pretrained == CPSAM_MODEL
     if stock_weights and pretrained == CPSAM_MODEL:
         pretrained = cpsam_weights(stock_weights)
-        library_call = library_default and str(stock_weights).strip() == "cpsam_v1"
+        # Both pins load by their verified full path. Cellpose 4.2 made cpsam_v2
+        # its own default, so the old no-argument call for cpsam_v1 loads the
+        # wrong file there (and is refused below); by path, v1 masks are
+        # byte-identical to the 4.0.9 library call (975 validation, 2026-11-25).
+        library_call = False
 
     def construct():
         """Load the model once the kwargs are settled."""

@@ -125,11 +125,13 @@ def test_an_unknown_choice_is_refused(weights):
 
 
 @pytest.mark.parametrize("name", [None, "", "cpsam"])
-def test_cpsam_v1_builds_exactly_the_old_call(weights, built, name):
-    """v1 passes no ``pretrained_model``, as the validated wells were built."""
+def test_cpsam_v1_loads_by_its_verified_full_path(weights, built, name):
+    """v1 is passed by full path too: Cellpose 4.2 defaults to v2, so a call
+    without ``pretrained_model`` would load the wrong file there."""
     ops_engine._cellpose_model({"ops_sbs_nucleus_model": name,
                                 "ops_cellpose_model": "cpsam_v1"}, gpu=False)
-    assert built == [{"gpu": False, "use_bfloat16": False}]
+    assert built == [{"gpu": False, "use_bfloat16": False,
+                      "pretrained_model": weights["cpsam_v1"]}]
 
 
 @pytest.mark.parametrize("key", ["ops_sbs_nucleus_model", "ops_ph_nucleus_model",
@@ -172,7 +174,8 @@ def test_files_before_975_replay_v1(weights, built):
     applied = _fold_older_defaults(old_file, 965, known=set(OPS_DEFAULTS))
     assert applied["ops_cellpose_model"] == ("cpsam_v1", 975)
     ops_engine._cellpose_model(old_file, gpu=False)
-    assert built == [{"gpu": False, "use_bfloat16": False}]
+    assert built == [{"gpu": False, "use_bfloat16": False,
+                      "pretrained_model": weights["cpsam_v1"]}]
 
     assert "ops_cellpose_model" not in _fold_older_defaults(
         {"ops_sbs_nucleus_model": "cpsam"}, 975, known=set(OPS_DEFAULTS))
@@ -207,28 +210,13 @@ def test_phenotype_masks_of_two_weights_are_not_mixed(tmp_path):
         ops_engine._ph_options_marker(str(tmp_path), {**old, "cellpose_weights": "cpsam_v2"})
 
 
-def test_v1_refuses_a_default_model_cellpose_found_elsewhere(weights, monkeypatch, tmp_path):
-    """Cellpose reads a file named cpsam in the working folder first; that is refused."""
-    stray = tmp_path / "elsewhere" / "cpsam"
+def test_v1_never_reads_a_cpsam_file_in_the_working_folder(weights, built, tmp_path, monkeypatch):
+    """A file named cpsam in the working folder (which Cellpose reads first for a
+    bare name) is never used: the verified v1 file goes in by full path."""
+    work = tmp_path / "work"
+    work.mkdir()
+    (work / "cpsam").write_bytes(b"stray")
+    monkeypatch.chdir(work)
+    ops_engine._cellpose_model({"ops_cellpose_model": "cpsam_v1"}, gpu=False)
+    assert built[-1]["pretrained_model"] == weights["cpsam_v1"]
 
-    class _LoadsElsewhere:
-        """A model that reports loading a file other than the verified one."""
-
-        def __init__(self, **kwargs):
-            """Report the stray file as loaded."""
-            self.pretrained_model = str(stray)
-
-    monkeypatch.setattr(models, "CellposeModel", _LoadsElsewhere)
-    with pytest.raises(ModelUnreadable, match="working folder"):
-        ops_engine._cellpose_model({"ops_cellpose_model": "cpsam_v1"}, gpu=False)
-
-    class _LoadsTheFile(_LoadsElsewhere):
-        """A model that reports loading the verified file."""
-
-        def __init__(self, **kwargs):
-            """Report the verified v1 file as loaded."""
-            self.pretrained_model = weights["cpsam_v1"]
-
-    monkeypatch.setattr(models, "CellposeModel", _LoadsTheFile)
-    model = ops_engine._cellpose_model({"ops_cellpose_model": "cpsam_v1"}, gpu=False)
-    assert model.pretrained_model == weights["cpsam_v1"]
