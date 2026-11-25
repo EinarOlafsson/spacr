@@ -3982,10 +3982,8 @@ def run_compare_calls(db: str, plate: str, wells: Sequence[str],
     :param settings: read for ``ops_compare_tables``,
         ``ops_compare_match_px``, ``ops_compare_fields`` (``well:site``
         pairs separated by commas, or empty for every site of the tables),
-        ``ops_decoy_library_k``, ``ops_fdr_scale``,
-        ``ops_decode_fdr_calibration`` and ``ops_tile_origin``, the tile
-        origin spaCR's nuclei are moved into the tile frame by (item 1031,
-        the decode's own). Never methods read applied scales
+        ``ops_decoy_library_k``, ``ops_fdr_scale`` and
+        ``ops_decode_fdr_calibration``. Never methods read applied scales
         from current per-well decode reports; missing reports keep the
         entered scale. Legacy methods retain their earlier tables.
     :param library: the guide barcodes, for the decoy set.
