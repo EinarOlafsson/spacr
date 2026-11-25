@@ -135,7 +135,12 @@ from .intensity_rescale import (
     resolve_record as _resolve_intensity_rescale_record,
 )
 
-from .figures.style import _figure_axes, figure_style, theme_target, resolve_ink
+from .figures.style import (
+    _figure_axes, figure_style, theme_target, Palette, SERIES,
+    resolve_style, apply_axes_style,
+    reference_line, _legend_note, condition_plot, heatmap_image, heatmap_cmap,
+    attach_colourbar, apply_colourbar_theme, external_legend, ensure_reference_contrast,
+)
 
 
 
@@ -6980,17 +6985,20 @@ def img_list_to_grid(grid, titles=None):
     Returns:
         fig (Figure): The matplotlib figure object containing the image grid.
     """
+    from .qt.i18n import tr
+
     n_images = len(grid)
     grid_size = ceil(sqrt(n_images))
     
     with figure_style(theme_target()):
         fig, axs = plt.subplots(
-            grid_size, grid_size, figsize=(15, 15), facecolor='black',
+            grid_size, grid_size, figsize=(2 * grid_size, 2 * grid_size),
             squeeze=False)
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, None, kind="montage")
     
-        from matplotlib.patches import FancyBboxPatch
+        caption = tr("Prepared crop images in their original order and RGB channel mapping; "
+                     "the supplied display pixels are unchanged.")
         for i, ax in enumerate(axs.flat):
             if i < n_images:
                 image = grid[i]
@@ -6998,24 +7006,25 @@ def img_list_to_grid(grid, titles=None):
                 ax.axis('off')
                 ax.set_facecolor('black')
 
-                h, w = image.shape[:2]
-                r = max(2.0, min(h, w) * 0.08)
-                bbox = FancyBboxPatch(
-                    (0, 0), w - 1, h - 1,
-                    boxstyle=f"round,pad=0,rounding_size={r}",
-                    transform=ax.transData, facecolor='none', edgecolor='none')
-                ax.add_patch(bbox)
-                im.set_clip_path(bbox)
-
                 if titles:
-                    img_height, img_width = image.shape[:2]
-                    text_size = max(min(img_width / (len(titles[i]) * 1.5), img_height / 10), 4)
-                    ax.text(5, 5, titles[i], color='white', fontsize=text_size, ha='left', va='top', fontweight='bold')
+                    ax.set_title(titles[i], fontsize=8)
+                display_range = (tuple(float(v) for v in im.get_clim())
+                                 if np.ndim(image) == 2 else
+                                 (0.0, 255.0) if np.issubdtype(image.dtype, np.integer)
+                                 else (0.0, 1.0))
+                specification = resolve_style(theme_target(), "image",
+                    comparison={"display_range": display_range, "gamma": 1.0,
+                                "processing": tr("Prepared crop pixels; no additional intensity transformation")},
+                    legend={"caption": caption})
+                apply_axes_style(ax, specification, layout=False)
+                _legend_note(ax, caption, "#000000", "caption")
             else:
                 fig.delaxes(ax)
 
         plt.subplots_adjust(wspace=0.08, hspace=0.08)
         plt.tight_layout(pad=0.2)
+        fig._spacr_caption = caption
+        external_legend(fig)
         return fig
 
 
@@ -8015,14 +8024,28 @@ def _confluency_figure(image, result, title):
     :param title: the field name.
     :returns: the figure.
     """
+    from .qt.i18n import tr
+
     with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(6, 6))
+        fig, ax = plt.subplots(figsize=(2, 2))
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, image, kind="overlay", title=str(title))
         ax.imshow(_confluency_overlay(image, result.covered))
         ax.set_title(f"{title}: {result.confluency:.1%} covered "
                      f"({result.source})")
         ax.axis('off')
+        caption = tr("{field}: {fraction:.1%} covered, measured from {source}. "
+                     "Orange marks the measured covered region and its inner boundary; "
+                     "the grey image uses the existing unit-scaled plane or maximum projection.").format(
+                         field=title, fraction=result.confluency, source=result.source)
+        specification = resolve_style(theme_target(), "image",
+            comparison={"display_range": (0.0, 255.0), "gamma": 1.0,
+                        "processing": tr("Unit-scaled greyscale, 35% covered-region tint and inner boundary; unchanged masks")},
+            legend={"caption": caption})
+        apply_axes_style(ax, specification, layout=False)
+        _legend_note(ax, caption, "#000000", "caption")
+        fig._spacr_caption = caption
+        external_legend(fig)
     return fig
 
 
@@ -10285,6 +10308,8 @@ def _dna_histogram_figure(dna_c, fit, title, phases=None):
     :param phases: optional phase per nucleus, to show each phase's share.
     :returns: the figure.
     """
+    from .qt.i18n import tr
+
     values = np.asarray(dna_c, dtype=float)
     values = values[np.isfinite(values)]
     upper = max(6.0, float(np.percentile(values, 99.5)) if values.size else 6)
@@ -10294,14 +10319,14 @@ def _dna_histogram_figure(dna_c, fit, title, phases=None):
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, lambda: pd.DataFrame({"dna_content": np.asarray(values, dtype=float)}), y="dna_content", kind="hist", title=str(title))
         ax.hist(values, bins=120, range=(0, upper), density=True,
-                color='0.7', label='nuclei')
+                color=Palette.BACKGROUND, label='nuclei')
         for column, name in enumerate(('G1', 'S', 'G2')):
-            ax.plot(grid, dens[:, column], label=f'{name} fit')
-        ax.plot(grid, dens.sum(axis=1), color=resolve_ink(theme_target()),
-                lw=1, label='model')
+            ax.plot(grid, dens[:, column], color=SERIES[column], label=f'{name} fit')
+        model_line, = ax.plot(grid, dens.sum(axis=1), color='#000000',
+                              lw=1, label='model')
         for gate in fit.gates:
-            ax.axvline(float(fit.c_value(gate)),
-                       color=resolve_ink(theme_target()), ls='--', lw=1)
+            reference_line(ax, x=float(fit.c_value(gate)),
+                           label=tr("Phase gate at {value:.3g} C").format(value=float(fit.c_value(gate))))
         ax.set_xlabel('DNA content (C, G1 peak = 2)')
         ax.set_ylabel('density')
         if phases is not None:
@@ -10309,7 +10334,25 @@ def _dna_histogram_figure(dna_c, fit, title, phases=None):
             title = title + ': ' + ', '.join(
                 f'{p} {shares.get(p, 0):.0%}' for p in _CELL_CYCLE_PHASES)
         ax.set_title(title)
-        ax.legend(frameon=False, fontsize=8)
+        _legend_note(ax, tr("Nuclei"), Palette.BACKGROUND, "identity")
+        for column, name in enumerate(('G1', 'S', 'G2')):
+            _legend_note(ax, tr("{phase} fitted component").format(phase=name), SERIES[column], "identity")
+        _legend_note(ax, tr("Full fitted model"), '#000000', "identity")
+        caption = tr("{title}. DNA content is in C units with the G1 peak at 2 C. "
+                     "The 120-bin histogram is a probability density; coloured lines are the supplied "
+                     "G1, S and G2 fitted components, the model line includes "
+                     "its flat outlier component, and dashed lines "
+                     "are the supplied phase gates. Fits and phase shares are unchanged.").format(title=title)
+        specification = resolve_style(theme_target(), "histogram",
+            comparison={"reference": tr("Supplied DNA-content model and phase gates")},
+            legend={"caption": caption, "reference": tr("G1 peak at 2 C and supplied phase gates"),
+                    "quantities": {"x": "DNA content", "y": "probability density"},
+                    "units": {"x": "C", "y": "1/C"}})
+        apply_axes_style(ax, specification)
+        ensure_reference_contrast(ax, artists=(model_line,))
+        _legend_note(ax, caption, "#000000", "caption")
+        fig._spacr_caption = caption
+        external_legend(fig)
     return fig
 
 
@@ -11693,7 +11736,12 @@ def _wound_edge_figure(title, panels):
     :param panels: ``[(label, plane, wound)]``.
     :returns: the figure.
     """
-    with _figure_axes(1, len(panels), figsize=(4 * len(panels), 4),
+    from .qt.i18n import tr
+
+    caption = tr("{title}. Cyan marks the measured open wound and its inner boundary. "
+                 "The existing first, middle and last retained frames are shown in time order; "
+                 "each grey image uses its existing unit-scaled display.").format(title=title)
+    with _figure_axes(1, len(panels), figsize=(2 * len(panels), 2),
                       squeeze=False) as (fig, axes):
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, [plane for _label, plane, _wound in panels], kind="overlay", title=str(title))
@@ -11701,7 +11749,14 @@ def _wound_edge_figure(title, panels):
             ax.imshow(_wound_overlay(plane, wound))
             ax.set_title(label)
             ax.axis('off')
-        fig.suptitle(title)
+            specification = resolve_style(theme_target(), "image",
+                comparison={"display_range": (0.0, 255.0), "gamma": 1.0,
+                            "processing": tr("Unit-scaled greyscale with 30% wound-region tint and inner boundary; unchanged masks")},
+                legend={"caption": caption})
+            apply_axes_style(ax, specification, layout=False)
+            _legend_note(ax, caption, "#000000", "caption")
+        fig._spacr_caption = caption
+        external_legend(fig)
     return fig
 
 
@@ -11712,11 +11767,12 @@ def _wound_curve_figure(condition_curves, well_curves):
     :param well_curves: per-well curves, drawn faintly behind their mean.
     :returns: the figure.
     """
+    from .qt.i18n import tr
+
     with _figure_axes(figsize=(7, 5)) as (fig, ax):
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, condition_curves, x="time", y="relative_open_area", hue="condition", kind="line")
-        colours = plt.rcParams['axes.prop_cycle'].by_key().get(
-            'color', ['C0'])
+        colours = SERIES
         for number, (condition, block) in enumerate(
                 condition_curves.groupby('condition', sort=True)):
             colour = colours[number % len(colours)]
@@ -11729,15 +11785,31 @@ def _wound_curve_figure(condition_curves, well_curves):
             spread = 100 * block['relative_open_area_sd'].fillna(0)
             ax.plot(block['time'], mean, color=colour, linewidth=2,
                     marker='o', label=f"{condition} (n={int(block['n_wells'].max())})")
+            _legend_note(ax, tr("{condition} (n={count})").format(
+                condition=condition, count=int(block['n_wells'].max())), colour, "identity")
             ax.fill_between(block['time'], mean - spread, mean + spread,
                             color=colour, alpha=0.15)
-        ax.axhline(50, linestyle='--', linewidth=1, color='grey')
+        reference_line(ax, y=50, label=tr("Half of the initial open wound area"))
         unit = (condition_curves['time_unit'].iloc[0]
                 if len(condition_curves) else 'frame')
         ax.set_xlabel('Time (h)' if unit == 'h' else 'Time (frames)')
         ax.set_ylabel('Open wound area (% of first frame)')
         ax.set_ylim(bottom=0)
-        ax.legend(frameon=False, fontsize='small')
+        caption = tr("Open wound area relative to the first frame of each well. Thin lines show "
+                     "every supplied well curve; marked lines show the existing condition means, "
+                     "and bands show one standard deviation, not a confidence interval. "
+                     "The reference is 50% of initial open area; n is the maximum well count "
+                     "reported for the condition.")
+        specification = resolve_style(theme_target(), "line_std",
+            comparison={"graph_type": "line_std", "reference": tr("50% of initial open area")},
+            legend={"caption": caption, "reference": tr("50% of initial open area"),
+                    "quantities": {"x": "time", "y": "relative open wound area"},
+                    "units": {"x": "h" if unit == 'h' else "frames", "y": "%"}})
+        apply_axes_style(ax, specification)
+        ensure_reference_contrast(ax)
+        _legend_note(ax, caption, "#000000", "caption")
+        fig._spacr_caption = caption
+        external_legend(fig)
     return fig
 
 
@@ -11747,12 +11819,43 @@ def _wound_half_closure_figure(summary):
     :param summary: the per-well summary.
     :returns: the figure.
     """
+    from .qt.i18n import tr
+    from .figures.style import DENSE_N, _status_panel
+
     use = summary[summary['wound_ok'] == 1]
     with _figure_axes(
             figsize=(max(4, 1.2 * use['condition'].nunique() + 2), 5)) as (fig, ax):
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, use, x="condition", y="half_closure_time", kind="strip")
         names = sorted(use['condition'].unique())
+        if not names:
+            _status_panel(ax, tr("No wells passed wound QC"))
+            ax._spacr_measure_means = ()
+            external_legend(fig)
+            return fig
+        groups = [use.loc[use['condition'] == name, 'half_closure_time'].dropna()
+                  for name in names]
+        counts = [int(np.isfinite(values.to_numpy(dtype=float)).sum()) for values in groups]
+        caption = tr("Half-closure time of wells passing wound QC, relative to 50% of their "
+                     "initial open area. Bars retain the original arithmetic means; boxes or "
+                     "violins describe the finite-value distribution and do not replace those means. "
+                     "Points retain the original well order and offsets below one thousand finite "
+                     "values per group; larger groups use a violin without points. Missing times "
+                     "are not replaced by zero.")
+        specification = resolve_style(theme_target(), "categorical",
+            conditions=[str(name) for name in names], sample_counts=counts,
+            comparison={"reference": tr("50% of initial open wound area")},
+            legend={"caption": caption, "reference": tr("50% of initial open wound area"),
+                    "quantities": {"x": "condition", "y": "half-closure time"},
+                    "units": {"y": "h" if len(use) and use['time_unit'].iloc[0] == 'h' else "frames"}})
+        condition_plot(ax, groups, colours=specification.colours, points=False,
+                       labels=names)
+        for position, values in enumerate(groups):
+            if specification.kinds[position] == 'bar':
+                for patch in ax.patches:
+                    if patch.get_gid() == f"spacr-condition:{position}:bar":
+                        patch.set_height(values.mean())
+        mean_lines = []
         for position, condition in enumerate(names):
             values = use.loc[use['condition'] == condition,
                              'half_closure_time'].dropna()
@@ -11760,14 +11863,26 @@ def _wound_half_closure_figure(summary):
                 continue
             jitter = (np.linspace(-0.12, 0.12, len(values))
                       if len(values) > 1 else np.zeros(1))
-            ax.scatter(position + jitter, values, s=24, zorder=3)
-            ax.hlines(values.mean(), position - 0.25, position + 0.25,
-                      linewidth=2, color=resolve_ink(theme_target()))
+            if counts[position] < DENSE_N:
+                finite = np.isfinite(values.to_numpy(dtype=float))
+                marks = ax.scatter((position + jitter)[finite], values.iloc[np.flatnonzero(finite)],
+                                   s=4 if specification.kinds[position] == 'bar' else 1.2, zorder=3,
+                                   color=specification.colours[position])
+                marks.set_gid(f"spacr-condition:{position}:points")
+            mean_lines.append(ax.hlines(values.mean(), position - 0.25, position + 0.25,
+                                        linewidth=2, color='#000000'))
         ax.set_xticks(range(len(names)))
         ax.set_xticklabels(names, rotation=45, ha='right')
         unit = use['time_unit'].iloc[0] if len(use) else 'frame'
         ax.set_ylabel('Half-closure time (h)' if unit == 'h'
                       else 'Half-closure time (frames)')
+        ax._spacr_measure_means = tuple(values.mean() for values in groups)
+        apply_axes_style(ax, specification)
+        ensure_reference_contrast(ax, artists=(*mean_lines, *[
+            line for line in ax.lines if str(line.get_gid()).endswith(':summary')]))
+        _legend_note(ax, caption, "#000000", "caption")
+        fig._spacr_caption = caption
+        external_legend(fig)
     return fig
 
 
@@ -11781,6 +11896,7 @@ def _wound_plate_figure(summary, plate):
     :returns: the figure.
     """
     from .plate_qc import layout_matrix, plate_layout
+    from .qt.i18n import tr
     wells = summary[(summary['plateID'] == plate)]
     wells = wells.assign(value=wells['half_closure_time'].where(
         wells['wound_ok'] == 1))
@@ -11791,14 +11907,30 @@ def _wound_plate_figure(summary, plate):
                               max(3.5, 0.45 * grid.shape[0] + 1.5))) as (fig, ax):
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, grid, kind="heatmap", matrix=True, title=str(plate))
-        image = ax.imshow(np.ma.masked_invalid(grid.to_numpy(dtype=float)),
-                          cmap='viridis')
+        image = heatmap_image(ax, grid.to_numpy(dtype=float), cmap=heatmap_cmap(),
+                              vmin=None, vmax=None)
         ax.set_xticks(range(grid.shape[1]))
         ax.set_xticklabels(grid.columns)
         ax.set_yticks(range(grid.shape[0]))
         ax.set_yticklabels(grid.index)
         ax.set_title(f'{plate}: half-closure time')
-        fig.colorbar(image, ax=ax, shrink=0.8)
+        unit = 'h' if len(wells) and wells['time_unit'].iloc[0] == 'h' else 'frames'
+        attach_colourbar(ax, image, label=tr("Half-closure time"),
+                         unit=unit)
+        caption = tr("{plate}: half-closure time at each well position, relative to 50% of "
+                     "initial open area. Crosses mark unavailable values, including failed QC "
+                     "or wells that did not reach half closure; the underlying missing values "
+                     "and plate layout are unchanged.").format(plate=plate)
+        specification = resolve_style(theme_target(), "heatmap",
+            comparison={"reference": tr("50% of initial open wound area")},
+            legend={"caption": caption, "reference": tr("50% of initial open wound area"),
+                    "quantities": {"x": "plate column", "y": "plate row", "value": "half-closure time"},
+                    "units": {"value": unit}})
+        apply_axes_style(ax, specification)
+        apply_colourbar_theme(ax)
+        _legend_note(ax, caption, "#000000", "caption")
+        fig._spacr_caption = caption
+        external_legend(fig)
     return fig
 
 
@@ -12803,7 +12935,11 @@ def _viability_threshold_figure(table, cuts, name, label):
     :param label: the figure title.
     :returns: the figure.
     """
+    from .qt.i18n import tr
+    from .figures.style import _status_panel
+
     stains = [s for s in ('dead', 'live') if name in cuts.get(s, {})]
+    captions = []
     panels = len(stains) + (1 if len(stains) == 2 else 0)
     with _figure_axes(1, max(panels, 1),
                       figsize=(4.2 * max(panels, 1), 3.6)) as (fig, axes):
@@ -12831,32 +12967,67 @@ def _viability_threshold_figure(table, cuts, name, label):
                 shown = np.arcsinh(values / scale)
                 line = float(np.arcsinh(cut.threshold / scale))
                 ax.set_xlabel(f'{stain} stain, arcsinh(intensity / {scale:.3g})')
-            ax.hist(shown, bins=80, color='0.6')
-            ax.axvline(line, color=resolve_ink(theme_target()), ls='--', lw=1)
+            ax.hist(shown, bins=80, color=Palette.BACKGROUND)
+            reference_line(ax, x=line, label=tr("Supplied {stain} threshold").format(stain=stain))
             ax.set_ylabel('objects')
             ax.set_title(f'{stain}: cut {cut.threshold:.4g} ({cut.source}), '
-                         f'{cut.positive_fraction:.0%} above', fontsize=9)
+                         f'{cut.positive_fraction:.0%} above', fontsize=8)
+            caption = tr("{plate}, {stain}: the existing 80-bin object-signal histogram and "
+                         "supplied threshold {threshold:.4g} from {source}; {fraction:.0%} above "
+                         "the threshold. The existing {transform} display transform, finite-value "
+                         "selection and population fit are unchanged.").format(
+                             plate=label, stain=stain, threshold=cut.threshold, source=cut.source,
+                             fraction=cut.positive_fraction,
+                             transform=tr("base-10 logarithm of condensation") if morphology else tr("scaled inverse hyperbolic sine"))
+            specification = resolve_style(theme_target(), "histogram",
+                comparison={"reference": tr("Supplied stain threshold")},
+                legend={"caption": caption, "reference": tr("Supplied stain threshold"),
+                        "quantities": {"x": "transformed signal", "y": "object count"},
+                        "units": {"x": "dimensionless", "y": "objects"}})
+            apply_axes_style(ax, specification, layout=False)
+            ensure_reference_contrast(ax)
+            _legend_note(ax, caption, "#000000", "caption")
+            captions.append(caption)
         if len(stains) == 2:
             ax = axes[-1]
             dead = plate['dead_signal'].to_numpy(dtype=float)
             live = plate['live_signal'].to_numpy(dtype=float)
             d_scale, l_scale = _stain_scale(dead[np.isfinite(dead)]), \
                 _stain_scale(live[np.isfinite(live)])
-            for state in _VIABILITY_STATES:
+            for index, state in enumerate(_VIABILITY_STATES):
                 pick = (plate['viability_state'] == state).to_numpy()
                 if pick.any():
                     ax.scatter(np.arcsinh(live[pick] / l_scale),
                                np.arcsinh(dead[pick] / d_scale), s=4,
-                               label=f'{state} ({int(pick.sum())})')
-            ax.axvline(np.arcsinh(cuts['live'][name].threshold / l_scale),
-                       color=resolve_ink(theme_target()), ls='--', lw=1)
-            ax.axhline(np.arcsinh(cuts['dead'][name].threshold / d_scale),
-                       color=resolve_ink(theme_target()), ls='--', lw=1)
+                               color=SERIES[index], label=f'{state} ({int(pick.sum())})')
+            reference_line(ax, x=np.arcsinh(cuts['live'][name].threshold / l_scale),
+                           label=tr("Supplied live-stain threshold"))
+            reference_line(ax, y=np.arcsinh(cuts['dead'][name].threshold / d_scale),
+                           label=tr("Supplied dead-stain threshold"))
             ax.set_xlabel('live stain (arcsinh)')
             ax.set_ylabel('dead stain (arcsinh)')
-            ax.legend(frameon=False, fontsize=7)
-        fig.suptitle(label)
-        fig.tight_layout()
+            for index, state in enumerate(_VIABILITY_STATES):
+                count = int((plate['viability_state'] == state).sum())
+                if count:
+                    _legend_note(ax, tr("{state} ({count})").format(state=state, count=count), SERIES[index], "identity")
+            caption = tr("{plate}: each point is one supplied object, coloured by its existing "
+                         "live, dead or unstained classification. Both signals use the original "
+                         "scaled inverse hyperbolic sine display; the reference lines are the "
+                         "supplied live and dead thresholds. No observations are sampled.").format(plate=label)
+            specification = resolve_style(theme_target(), "scatter",
+                comparison={"reference": tr("Supplied live and dead thresholds")},
+                legend={"caption": caption, "reference": tr("Supplied live and dead thresholds"),
+                        "quantities": {"x": "transformed live signal", "y": "transformed dead signal"},
+                        "unit": "dimensionless"})
+            apply_axes_style(ax, specification, layout=False)
+            ensure_reference_contrast(ax)
+            _legend_note(ax, caption, "#000000", "caption")
+            captions.append(caption)
+        if not stains:
+            _status_panel(axes[0], tr("No supplied stain threshold for this plate"))
+            captions.append(tr("{plate}: no supplied stain threshold.").format(plate=label))
+        external_legend(fig, axes=axes)
+        fig._spacr_caption = " ".join(captions)
     return fig
 
 
@@ -12867,7 +13038,11 @@ def _viability_controls_figure(wells, qc):
     :param qc: the per-plate QC frame.
     :returns: the figure.
     """
+    from .qt.i18n import tr
+    from .figures.style import DENSE_N
+
     plates = list(dict.fromkeys(wells['plate_key']))
+    captions = []
     with _figure_axes(len(plates), 2, figsize=(8, 3.2 * len(plates)),
                       squeeze=False) as (fig, axes):
         from .figures.bundle import _register_figure_data
@@ -12878,18 +13053,60 @@ def _viability_controls_figure(wells, qc):
             q = qc[qc['plate_key'] == plate]
             for col, readout in enumerate(('viability', 'cytotoxicity_index')):
                 ax = axes[row, col]
+                groups = [block.loc[block['role'] == role, readout].astype(float)
+                          for role in _VIABILITY_ROLES]
+                counts = [int(np.isfinite(values.to_numpy()).sum()) for values in groups]
+                unit = 'fraction' if readout == 'viability' else '%'
+                caption = tr("{plate}: {readout} in {unit}, one value per well. Negative and "
+                             "positive controls are grey; sample wells are blue. Bars show arithmetic "
+                             "means of the supplied well values; boxes or violins describe finite-value distributions, "
+                             "and points retain the original locally seeded offsets. Groups with "
+                             "at least one thousand finite values have no individual points.").format(
+                                 plate=plate, readout=readout, unit=unit)
+                specification = resolve_style(theme_target(), "categorical",
+                    conditions=_VIABILITY_ROLES, sample_counts=counts,
+                    control=('negative', 'positive'),
+                    identities={'negative': 'control_negative', 'positive': 'control_positive', 'sample': 'primary'},
+                    legend={"caption": caption, "reference": tr("Negative and positive control wells"),
+                            "quantities": {"x": "well role", "y": readout}, "units": {"y": unit}})
+                condition_plot(ax, groups, colours=specification.colours, control=(0, 1),
+                               points=False, labels=_VIABILITY_ROLES)
+                for x, values in enumerate(groups):
+                    if specification.kinds[x] == 'bar':
+                        for patch in ax.patches:
+                            if patch.get_gid() == f"spacr-condition:{x}:bar":
+                                patch.set_height(values.mean())
                 for x, role in enumerate(_VIABILITY_ROLES):
                     values = block.loc[block['role'] == role,
                                        readout].astype(float)
-                    ax.scatter(x + rng.uniform(-0.15, 0.15, len(values)),
-                               values, s=10)
+                    offsets = x + rng.uniform(-0.15, 0.15, len(values))
+                    if counts[x] < DENSE_N:
+                        finite = np.isfinite(values.to_numpy())
+                        marks = ax.scatter(offsets[finite], values.iloc[np.flatnonzero(finite)],
+                                           s=4 if specification.kinds[x] == 'bar' else 1.2,
+                                           color=specification.colours[x])
+                        marks.set_gid(f"spacr-condition:{x}:points")
                 ax.set_xticks(range(len(_VIABILITY_ROLES)))
-                ax.set_xticklabels(_VIABILITY_ROLES)
+                ax.set_xticklabels(_VIABILITY_ROLES, rotation=90, ha='center')
                 z = (q[f'zprime_{readout}'].iloc[0] if len(q)
                      and f'zprime_{readout}' in q else np.nan)
                 shown = f"Z' {z:.2f}" if np.isfinite(z) else "no Z'"
-                ax.set_title(f'{plate}: {readout} ({shown})', fontsize=9)
-        fig.tight_layout()
+                ax.set_title(f'{plate}: {readout} ({shown})', fontsize=8, pad=12)
+                ax.set_ylabel(tr("{readout} ({unit})").format(readout=readout, unit=unit))
+                caption += " " + tr("The existing control-separation statistic is {statistic}.").format(statistic=shown)
+                specification = resolve_style(theme_target(), "categorical",
+                    conditions=_VIABILITY_ROLES, sample_counts=counts, control=('negative', 'positive'),
+                    identities={'negative': 'control_negative', 'positive': 'control_positive', 'sample': 'primary'},
+                    legend={"caption": caption, "reference": tr("Negative and positive control wells"),
+                            "quantities": {"x": "well role", "y": readout}, "units": {"y": unit}})
+                ax._spacr_measure_means = tuple(values.mean() for values in groups)
+                apply_axes_style(ax, specification, layout=False)
+                ensure_reference_contrast(ax, artists=[
+                    line for line in ax.lines if str(line.get_gid()).endswith(':summary')])
+                _legend_note(ax, caption, "#000000", "caption")
+                captions.append(caption)
+        external_legend(fig, axes=axes.flat)
+        fig._spacr_caption = " ".join(captions)
     return fig
 
 
@@ -12899,13 +13116,18 @@ def _viability_dose_figure(fits):
     :param fits: ``{readout: DoseResponseSet}``.
     :returns: the figure, or None when nothing was fitted.
     """
+    from .qt.i18n import tr
+    from .figures.style import _status_panel
+
     compounds = sorted({f.group for s in fits.values() for f in s.fits})
     if not compounds:
         return None
     readouts = list(fits)
+    captions = []
     with _figure_axes(len(compounds), len(readouts),
                       figsize=(3.6 * len(readouts), 3.0 * len(compounds)),
                       squeeze=False) as (fig, axes):
+        figure_ground = fig.get_facecolor()
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, lambda: pd.concat([pd.DataFrame({"dose": np.asarray(g.result.dose, dtype=float), "response": np.asarray(g.result.response, dtype=float), "compound": str(g.group), "readout": str(r)}) for r in readouts for g in fits[r].fits if getattr(g, "result", None) is not None], ignore_index=True), x="dose", y="response", hue="compound", kind="scatter")
         for i, compound in enumerate(compounds):
@@ -12914,21 +13136,42 @@ def _viability_dose_figure(fits):
                 group = next((f for f in fits[readout].fits
                               if f.group == compound), None)
                 ax.set_xscale('log')
-                ax.set_title(f'{compound}: {readout}', fontsize=9)
+                ax.set_title(f'{compound}: {readout}', fontsize=8)
                 if group is None or group.result is None:
-                    ax.text(0.5, 0.5, 'refused', ha='center', va='center',
-                            transform=ax.transAxes)
+                    _status_panel(ax, tr("refused"))
+                    captions.append(tr("{compound}, {readout}: the supplied fit was refused or absent.").format(
+                        compound=compound, readout=readout))
                     continue
                 result = group.result
-                ax.scatter(result.dose, result.response, s=10)
+                observations = ax.scatter(result.dose, result.response, s=4, color=Palette.ACCENT)
                 x, y = result.curve()
-                ax.plot(x, y, color=resolve_ink(theme_target()), lw=1)
+                fitted_line, = ax.plot(x, y, color='#000000', lw=1)
+                observations.set_zorder(fitted_line.get_zorder() + 1)
                 ec50 = result.ec50
                 if ec50 is not None:
-                    ax.axvline(ec50, color=resolve_ink(theme_target()), ls=':', lw=1)
+                    reference_line(ax, x=ec50, label=tr("Half-maximal effective concentration"))
                     ax.set_title(f'{compound}: {readout}, EC50 {ec50:.3g}',
-                                 fontsize=9)
-        fig.tight_layout()
+                                 fontsize=8)
+                unit = str(getattr(result, 'unit', '') or tr("source units; unspecified"))
+                ax.set_xlabel(tr("Concentration ({unit})").format(unit=unit))
+                ax.set_ylabel(tr("{readout} (%)").format(readout=readout))
+                caption = tr("{compound}, {readout}: supplied observed responses in percent and "
+                             "the existing fitted dose-response curve; concentration is logarithmic "
+                             "in {unit}. The curve is the reference, and the half-maximal effective "
+                             "concentration is marked when defined. No model is refitted.").format(
+                                 compound=compound, readout=readout, unit=unit)
+                specification = resolve_style(theme_target(), "response",
+                    comparison={"reference": tr("Supplied fitted dose-response curve")},
+                    legend={"caption": caption, "reference": tr("Supplied fitted dose-response curve"),
+                            "quantities": {"x": "concentration", "y": readout},
+                            "units": {"x": unit, "y": "%"}})
+                apply_axes_style(ax, specification, layout=False)
+                ensure_reference_contrast(ax, artists=(fitted_line,))
+                _legend_note(ax, caption, "#000000", "caption")
+                captions.append(caption)
+        fig.set_facecolor(figure_ground)
+        external_legend(fig, axes=axes.flat)
+        fig._spacr_caption = " ".join(captions)
     return fig
 
 
@@ -17547,7 +17790,7 @@ def _time_to_event_statistics(objects, order, config, *, engine=None):
             'cox': cox, 'engine': engine, 'cox_error': cox_error}
 
 
-def _time_to_event_figure(curves, summary, tests, title):
+def _time_to_event_figure(curves, summary, tests, title, *, reference=None):
     """Kaplan-Meier curves with their confidence bands and censoring ticks.
 
     :param curves: the ``curves`` frame of
@@ -17555,8 +17798,11 @@ def _time_to_event_figure(curves, summary, tests, title):
     :param summary: its ``summary`` frame, for the legend counts.
     :param tests: its ``tests`` frame, for the log-rank p in the title.
     :param title: the figure title.
+    :param reference: explicit reference condition supplied by the analysis caller, if any.
     :returns: the figure.
     """
+    from .qt.i18n import tr
+
     names = list(pd.unique(curves['condition']))
     shown = names[:_TTE_FIGURE_GROUPS]
     counts = summary[summary['level'] == 'condition'].set_index('group')
@@ -17565,12 +17811,14 @@ def _time_to_event_figure(curves, summary, tests, title):
         fig, ax = plt.subplots(figsize=(7, 4.5))
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, curves, x="time", y="survival", hue="condition", kind="line", time_unit=unit)
-        for name in shown:
+        for index, name in enumerate(shown):
             curve = curves[curves['condition'] == name]
             row = counts.loc[name]
             line, = ax.step(curve['time'], curve['survival'], where='post',
+                            color=Palette.CONTROL if name == reference else SERIES[index % len(SERIES)],
                             label=f"{name} (n={int(row['n'])}, "
                                   f"events={int(row['events'])})")
+            _legend_note(ax, line.get_label(), line.get_color(), "identity")
             ax.fill_between(curve['time'], curve['ci_lower'],
                             curve['ci_upper'], step='post', alpha=0.18,
                             color=line.get_color(), linewidth=0)
@@ -17587,20 +17835,39 @@ def _time_to_event_figure(curves, summary, tests, title):
                      f"({len(names)} conditions)")
         if len(shown) < len(names):
             title += f"; first {len(shown)} shown"
-        ax.set_title(title)
-        ax.legend(frameon=False, fontsize=8)
-        fig.tight_layout()
+        ax.set_title(title, pad=12)
+        reference_label = (tr("Analysis reference condition: {condition}").format(condition=reference)
+                           if reference is not None else tr("Initial cohort survival probability of one"))
+        caption = tr("{title}. Kaplan–Meier survival probabilities are dimensionless fractions "
+                     "of the initial cohort. Step lines, existing 95% confidence bands and censoring "
+                     "ticks retain their supplied coordinates; n and event counts are unchanged. "
+                     "{reference}. Only the original first {shown} of {total} conditions are drawn; "
+                     "all supplied rows remain in the source data.").format(
+                         title=title, reference=reference_label, shown=len(shown), total=len(names))
+        specification = resolve_style(theme_target(), "curve",
+            conditions=[str(name) for name in shown],
+            control=[str(reference)] if reference in shown else None,
+            comparison={"reference": reference_label},
+            legend={"caption": caption, "reference": reference_label,
+                    "quantities": {"x": "time", "y": "survival probability"},
+                    "units": {"x": unit, "y": "dimensionless"}})
+        apply_axes_style(ax, specification)
+        _legend_note(ax, caption, "#000000", "caption")
+        fig._spacr_caption = caption
+        external_legend(fig)
     return fig
 
 
 def _hazard_ratio_figure(cox, title):
-    """Hazard ratios with their intervals, on a log axis.
+    """Original hazard-ratio estimates and intervals as bars on a log value axis.
 
     :param cox: the ``cox`` frame of :func:`_time_to_event_statistics`.
     :param title: the figure title.
     :returns: the figure.
     """
-    from matplotlib.ticker import FuncFormatter
+    from matplotlib.ticker import FuncFormatter, LogLocator
+    from .qt.i18n import tr
+    from .figures.style import categorical_slot_defaults
 
     ordered = cox.iloc[::-1]
     y = np.arange(len(ordered))
@@ -17609,20 +17876,37 @@ def _hazard_ratio_figure(cox, title):
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, ordered, y="hazard_ratio", kind="point")
         ratio = ordered['hazard_ratio'].to_numpy()
-        ax.errorbar(ratio, y, xerr=[ratio - ordered['hr_lower'].to_numpy(),
-                                    ordered['hr_upper'].to_numpy() - ratio],
-                    fmt='o', capsize=3)
-        ax.axvline(1.0, linestyle='--', linewidth=1)
-        ax.set_xscale('log')
+        ax.bar(y, np.abs(ratio - 1.0), bottom=np.minimum(ratio, 1.0), color=Palette.ACCENT)
+        categorical_slot_defaults(ax, 'bar', conditions=len(ordered), colours=[Palette.ACCENT] * len(ordered))
+        intervals = ax.errorbar(y, ratio, yerr=[ratio - ordered['hr_lower'].to_numpy(),
+                                               ordered['hr_upper'].to_numpy() - ratio],
+                                fmt='_', capsize=3, color='#000000', ecolor='#000000')
+        reference_line(ax, y=1.0, label=tr("No effect: hazard ratio 1"))
+        ax.set_yscale('log')
         plain = FuncFormatter(lambda value, _position: f'{value:g}')
-        ax.xaxis.set_major_formatter(plain)
-        ax.xaxis.set_minor_formatter(plain)
-        ax.set_yticks(y)
-        ax.set_yticklabels(list(ordered['covariate']))
-        ax.set_ylim(-0.6, len(ordered) - 0.4)
-        ax.set_xlabel('hazard ratio (95% interval)')
+        ax.yaxis.set_major_formatter(plain)
+        ax.yaxis.set_minor_locator(LogLocator(base=10, subs=(2., 5.)))
+        ax.yaxis.set_minor_formatter(plain)
+        ax.set_xticks(y)
+        ax.set_xticklabels(list(ordered['covariate']), rotation=90)
+        ax.set_xlim(-0.5, len(ordered) - 0.5)
+        ax.set_ylabel(tr("Hazard ratio (95% interval)"))
         ax.set_title(title)
-        fig.tight_layout()
+        caption = tr("{title}. Bars extend from the no-effect ratio of one to the supplied "
+                     "Cox hazard-ratio estimates. Black ticks mark the exact supplied estimates "
+                     "with the original 95% confidence intervals in black. The value axis is logarithmic. Covariates retain their existing "
+                     "display order; these are model estimates, not replicate observations.").format(title=title)
+        specification = resolve_style(theme_target(), "categorical",
+            conditions=list(ordered['covariate'].astype(str)),
+            comparison={"representation": "estimates", "reference": tr("Hazard ratio 1")},
+            legend={"caption": caption, "reference": tr("Hazard ratio 1"),
+                    "quantities": {"x": "covariate", "y": "hazard ratio"},
+                    "units": {"y": "dimensionless"}})
+        apply_axes_style(ax, specification)
+        ensure_reference_contrast(ax, artists=(intervals.lines[0], *intervals.lines[1], *intervals.lines[2]))
+        _legend_note(ax, caption, "#000000", "caption")
+        fig._spacr_caption = caption
+        external_legend(fig)
     return fig
 
 
@@ -17686,7 +17970,9 @@ def _time_to_event(db_path, settings, *, plot=True, engine=None):
         label = f"{config['time_to_event_object']}: {config['time_to_event_mode']}"
         figures.append(save_figure(
             _time_to_event_figure(result['curves'], result['summary'],
-                                  result['tests'], label),
+                                  result['tests'], label,
+                                  reference=config['time_to_event_reference'] or
+                                  (order[0] if len(order) > 1 else None)),
             os.path.join(folder, 'kaplan_meier.pdf'), close=True))
         if not result['cox'].empty:
             figures.append(save_figure(

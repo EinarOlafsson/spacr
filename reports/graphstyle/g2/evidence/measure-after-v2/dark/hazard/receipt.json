@@ -1,0 +1,48 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "_hazard_ratio_figure",
+  "data_sha256": "0196b9c7052768b983f8bf4c691747ec8cf2770390137b8429e6243e8bf6d704",
+  "diagnostics": {
+    "checks": [
+      "registered semantics",
+      "text size",
+      "text bounds",
+      "text overlap",
+      "declared reference and quantities",
+      "actual palette and legend identities",
+      "applicable representation and semantic requirements",
+      "condition slots",
+      "effective data opacity",
+      "black error bars",
+      "statistical frame",
+      "font family and size",
+      "composited text contrast",
+      "completed presentation checks"
+    ],
+    "problems": []
+  },
+  "files": {
+    "pdf": {
+      "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/hazard/hazard.pdf",
+      "sha256": "0bfb0dd803e7baf744e0e30236c3bd82102b5f8f481000624f7c7e79367134c7"
+    },
+    "png": {
+      "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/hazard/hazard.png",
+      "sha256": "a0c5c3b995f11c16d5137e38cd0adf6866fce75436613d5199434426bfa0ee23"
+    }
+  },
+  "inputs_sha256": "65174991391138b9250422d21cd61a15366191a2ae3dea90582a64e48fd6df51",
+  "payload_sha256": "526484e50ffa7a1164d88157286cd4e877dbb9234e1ccf8285c472c429623d5d",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

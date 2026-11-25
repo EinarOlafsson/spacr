@@ -1674,7 +1674,7 @@ class _ProbabilityHistogram(QWidget):
         """An empty histogram; :meth:`set_distribution` fills it."""
         super().__init__(parent)
         self.setObjectName("AnnotateSuggestHistogram")
-        self.setMinimumHeight(150)
+        self.setMinimumSize(360, 360)
         self._classes: List[Any] = []
         self._counts: Dict[str, List[int]] = {}
         self._lines: List[float] = []
@@ -1698,11 +1698,13 @@ class _ProbabilityHistogram(QWidget):
             hist, _ = np.histogram(data, bins=self.BINS, range=(0.0, 1.0))
             self._counts[str(value)] = [int(v) for v in hist]
         self._axis = str(axis)
+        self._fit_histogram()
         self.update()
 
     def set_lines(self, lines: Sequence[float]) -> None:
         """Mark the thresholds now in force on the probability axis."""
         self._lines = [float(v) for v in lines]
+        self._fit_histogram()
         self.update()
 
     def counts(self) -> Dict[str, List[int]]:
@@ -1713,52 +1715,39 @@ class _ProbabilityHistogram(QWidget):
         """The threshold positions drawn."""
         return list(self._lines)
 
+    def _histogram_arguments(self):
+        """Describe the existing bins and explicit suggestion thresholds."""
+        return dict(
+            series=[dict(label=tr("Class {value}", value=value),
+                         values=self._counts.get(str(value), [0] * self.BINS))
+                    for value in self._classes],
+            thresholds=[dict(label=tr("Threshold {n}", n=index + 1), value=value)
+                        for index, value in enumerate(self._lines)],
+            xlabel=self._axis or tr("Probability"), ylabel=tr("Crops"),
+            caption=tr("Out-of-fold probabilities by true class."),
+            reference=tr("Dashed lines mark the selected thresholds; no reference class is assigned."))
+
+    def _fit_histogram(self):
+        """Reserve room for the external class and threshold descriptions."""
+        from ...figures.style import native_histogram_geometry
+
+        geometry = native_histogram_geometry(self, **self._histogram_arguments())
+        self.setMinimumHeight(max(360, int(geometry["minimum_height"] + 1)))
+
+    def _spacr_style_observation(self):
+        """Return observations of the current actual widget paint."""
+        self.grab()
+        return deepcopy(self._histogram_paint)
+
     def paintEvent(self, event):
-        """Draw the bars, the threshold lines and the axis."""
+        """Draw the unchanged probability bins through the shared native style."""
+        from ...figures.style import paint_native_histogram
+
         painter = QPainter(self)
         try:
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            palette = tile_palette()
-            text = QColor(palette["fg_muted"])
-            metrics = painter.fontMetrics()
-            bottom = self.height() - 2 * metrics.height() - 4
-            top = 6
-            left, right = 8, self.width() - 8
-            width = max(1, right - left)
-            height = max(1, bottom - top)
-            peak = max([max(v) for v in self._counts.values() if v] or [0])
-            n = max(1, len(self._classes))
-            slot = width / float(self.BINS)
-            bar = max(1.0, (slot - 4.0) / n)
-            for b in range(self.BINS):
-                for i, value in enumerate(self._classes):
-                    count = self._counts.get(str(value), [0] * self.BINS)[b]
-                    if not count or not peak:
-                        continue
-                    h = height * count / float(peak)
-                    colour = label_to_hex(value if isinstance(value, int)
-                                          else None, dark=on_dark_theme())
-                    painter.fillRect(
-                        QRectF(left + b * slot + 2 + i * bar, bottom - h,
-                               bar, h),
-                        QColor(colour or resting_border_color()))
-            painter.setPen(QPen(text, 1))
-            painter.drawLine(left, bottom, right, bottom)
-            dash = QPen(QColor(palette["warning"]), 2)
-            dash.setStyle(Qt.DashLine)
-            painter.setPen(dash)
-            for value in self._lines:
-                x = left + width * min(1.0, max(0.0, value))
-                painter.drawLine(int(x), top, int(x), bottom)
-            painter.setPen(QPen(text, 1))
-            base = bottom + metrics.ascent() + 2
-            painter.drawText(left, base, "0")
-            middle = "0.5"
-            painter.drawText(int(left + width / 2 - metrics.horizontalAdvance(
-                middle) / 2), base, middle)
-            painter.drawText(right - metrics.horizontalAdvance("1"), base, "1")
-            painter.drawText(QRect(left, base + 2, width, metrics.height()),
-                             Qt.AlignHCenter, self._axis)
+            self._histogram_paint = paint_native_histogram(
+                self, painter, edges=[index / self.BINS for index in range(self.BINS + 1)],
+                xunit="probability", theme_colors=tile_palette(), **self._histogram_arguments())
         finally:
             painter.end()
 
@@ -3305,9 +3294,9 @@ class _Thumbnail(QLabel):
         """Draw the count on a dark rounded tag over the crop's top left corner."""
         if not self._count_text:
             return
-        font = QFont(self.font())
-        font.setBold(True)
-        painter.setFont(font)
+        from ...figures.style import native_plot_font
+
+        painter.setFont(native_plot_font())
         metrics = painter.fontMetrics()
         inset = float(TILE_INSET) + 2.0
         box = QRectF(inset, inset,

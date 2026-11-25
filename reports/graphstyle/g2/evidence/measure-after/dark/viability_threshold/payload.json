@@ -1,0 +1,37 @@
+{
+  "images": null,
+  "table": {
+    "arrays": [
+      {
+        "data_base64": "AAAAAAAA8D8AAAAAAAAQQAAAAAAAADRAAAAAAACAUUAAAAAAAABZQAAAAAAAAPh/",
+        "dtype": "float64",
+        "missing": "186128bf8a4d60eb4b51102ae2a2cb6a0b80011977582480395a454454bec7e1",
+        "missing_base64": "AAAAAAAB",
+        "sha256": "136e594e2da953514ef1bf1cbaff873ee1323cfc36f2a59d65788c0d74d7fa7b",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAWUAAAAAAAIBWQAAAAAAAAE5AAAAAAAAAIEAAAAAAAAAAQAAAAAAAABRA",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "8f2cb5091c1e0c4135b5346132650ff7f419bc7db498bdd42f70c1a10ee2593f",
+        "shape": [
+          6
+        ]
+      }
+    ],
+    "columns": [
+      "dead_signal",
+      "live_signal"
+    ],
+    "csv": ",dead_signal,live_signal\n0,1.0,100.0\n1,4.0,90.0\n2,20.0,60.0\n3,70.0,8.0\n4,100.0,2.0\n5,,5.0\n",
+    "dtypes": [
+      "float64",
+      "float64"
+    ],
+    "kind": "dataframe"
+  }
+}

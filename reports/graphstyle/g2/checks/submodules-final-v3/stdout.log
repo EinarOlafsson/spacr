@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.1.1, pluggy-1.6.0 -- /home/olafsson/anaconda3/envs/spacr/bin/python
+cachedir: /mnt/wd4tb/worktrees/codex-graphstyle-g2/.codex-audit/checks/submodules-final-v3/cache
+hypothesis profile 'default'
+Using --randomly-seed=2377597770
+PySide6 6.11.2 -- Qt runtime 6.11.2 -- Qt compiled 6.11.2
+rootdir: /mnt/wd4tb/worktrees/codex-graphstyle-g2-validation
+configfile: pytest.ini
+plugins: hypothesis-6.165.10, napari-plugin-engine-0.2.1, cov-7.1.0, zarr-3.3.0, xdist-3.8.0, anyio-4.14.2, timeout-2.4.0, npe2-0.10.0, randomly-4.1.0, qt-4.5.0
+collecting ... collected 1 item
+
+tests/test_graphstyle_g2_submodules.py::test_default_twelve_well_thresholds_retain_all_data_and_fit_paper PASSED [100%]
+
+- generated xml file: /mnt/wd4tb/worktrees/codex-graphstyle-g2/.codex-audit/checks/submodules-final-v3/junit.xml -
+============================== 1 passed in 20.52s ==============================
+{"report": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/submodules-default12-before/report.json", "themes": ["light", "dark"], "figures": 2}
+{"report": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/submodules-after-width-roles/report.json", "themes": ["light", "dark"], "figures": 8}
+{"report": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/submodules-default12-after/report.json", "themes": ["light", "dark"], "figures": 2}

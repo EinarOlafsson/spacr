@@ -1,0 +1,39 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff",
+      "#ffffffff",
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff",
+      "#000000ff",
+      "#000000ff"
+    ]
+  },
+  "creator": "_viability_threshold_figure",
+  "data_sha256": "00606947b2a86f8afb820be719f47ac1153f6f20f50e8a19ff7bc3ff430bc8cc",
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/viability_threshold/viability_threshold.pdf",
+      "sha256": "06b5977eede4e0b95794e0e6068299670ef9f13c318817edfa1f61c3eb8507d7"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/viability_threshold/viability_threshold.png",
+      "sha256": "e1770f16844bc944b58e8517f42349e38a5624541a335a52e2b18ba50fa50171"
+    }
+  },
+  "inputs_sha256": "1bc846740a933d5f25b7526d78a48fe06e1754908bf5522417dd1f2d46fb17c2",
+  "payload_sha256": "c37b34fed57bc56f37330d1ad4f433cca9ac8dcd19017b50440b36f814dc56c8",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

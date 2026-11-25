@@ -1,0 +1,65 @@
+{
+  "channels": [
+    0,
+    1
+  ],
+  "percentiles": [
+    1,
+    99
+  ],
+  "seed": 17,
+  "field_options": null,
+  "color_mode": "additive",
+  "load_limits": {
+    "max_wells_per_plate": null,
+    "max_fields_per_well": null
+  },
+  "channel_display": {
+    "0": {
+      "percentiles": [
+        1.0,
+        99.0
+      ],
+      "ink_intensity": 1.0
+    },
+    "1": {
+      "percentiles": [
+        1.0,
+        99.0
+      ],
+      "ink_intensity": 1.0
+    }
+  },
+  "fields": [
+    {
+      "plate": "synthetic",
+      "well": "A01",
+      "field": "4",
+      "files": [
+        [
+          "",
+          "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/qc-views-before/light/overview-field.npy"
+        ]
+      ],
+      "field_id": "4",
+      "time_id": "",
+      "z_id": "",
+      "condition": "",
+      "time_index": null,
+      "z_mode": "plane",
+      "z_index": null,
+      "annotations": {}
+    }
+  ],
+  "errors": [],
+  "cancelled": false,
+  "requested_field_count": 1,
+  "written_field_count": 1,
+  "quality_edge": null,
+  "dpi": 96,
+  "advanced_normalization": null,
+  "normalization": null,
+  "time_index": null,
+  "z_mode": "plane",
+  "z_index": null
+}

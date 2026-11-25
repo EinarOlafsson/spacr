@@ -36,6 +36,103 @@ def test_phases_is_a_reviewed_same_spelling_word_in_french():
     assert not builder._translation_rejection_reasons('Phases', 'Phases', 'fr', force=True)
 
 
+def _graphstyle_runtime_store(builder, tmp_path, monkeypatch):
+    """Isolate review inputs while retaining every normal runtime predicate."""
+    def no_module_summaries(language):
+        """Supply an empty unrelated module-summary input for this scope."""
+        return {}
+
+    def unexpected_discovery(*args, **kwargs):
+        """Refuse whole-application discovery or recursive review loading."""
+        raise AssertionError('graphstyle caption checks must remain scoped')
+
+    monkeypatch.setattr(builder, 'REVIEWED_RUNTIME_DIR', tmp_path)
+    monkeypatch.setattr(builder, '_reviewed_module_summary_translations', no_module_summaries)
+    for name in ('canonical_sources', 'extract_static_ui_sources',
+                 'reviewed_runtime_translations'):
+        monkeypatch.setattr(builder, name, unexpected_discovery)
+
+    def write_records(language, targets):
+        """Write only supplied source-bound records into the temporary store."""
+        directory = tmp_path / language
+        directory.mkdir(exist_ok=True)
+        records = [{
+            'table': 'ui', 'key': source, 'source': source,
+            'source_sha256': hashlib.sha256(source.encode()).hexdigest(),
+            'translation': target,
+        } for source, target in targets.items()]
+        (directory / 'reviewed.json').write_text(json.dumps({
+            'schema': 1, 'language': language, 'records': records,
+        }, ensure_ascii=False), encoding='utf-8')
+
+    return write_records
+
+
+def test_graphstyle_runtime_captions_load_with_exact_locale_identities(tmp_path, monkeypatch):
+    """Check 24 scoped reviews and nine authoritative notation identities."""
+    import build_i18n_catalogs as builder
+
+    write_records = _graphstyle_runtime_store(builder, tmp_path, monkeypatch)
+    same_spelling = {
+        'sv': ('Residual',),
+        'de': ('Cluster {cluster}', 'Label {index}', 'Wells (%)'),
+        'pt': ('Cluster {cluster}', 'Pixels'),
+        'fr': ('Cluster {cluster}', 'Concentration ({unit})', 'Image {index}',
+               'Importance', 'Pixels', 'Proportion', 'fraction',
+               'observations', 'parasites'),
+    }
+    mask_targets = {
+        'sv': 'Facitmask', 'de': 'Referenzmaske', 'es': 'Máscara de referencia',
+        'zh_CN': '真实掩膜', 'pt': 'Máscara verdadeira',
+        'hi': 'वास्तविक मास्क', 'ko': '정답 마스크', 'is': 'Rétt gríma',
+        'fr': 'Masque de vérité terrain',
+    }
+    notation = '{well}: n={count}; BC={coefficient}.'
+    assert not builder._looks_translatable(notation)
+    checked = 0
+    for language, mask_target in mask_targets.items():
+        targets = {source: source for source in same_spelling.get(language, ())}
+        targets['Ground-truth mask'] = mask_target
+        write_records(language, targets)
+        assert builder._reviewed_runtime_translations(
+            language, sources={'ui': tuple(targets)},
+        ) == targets
+        assert builder._reviewed_translation(notation, language) == notation
+        assert not builder._translation_rejection_reasons(
+            notation, notation, language, force=True,
+        )
+        checked += len(targets)
+    assert checked == 24
+
+
+def test_graphstyle_runtime_repairs_keep_unrelated_contracts_strict(tmp_path, monkeypatch):
+    """Keep copied prose, Boolean literals and format fields fail-closed."""
+    import pytest
+    import build_i18n_catalogs as builder
+
+    write_records = _graphstyle_runtime_store(builder, tmp_path, monkeypatch)
+    rejected = (
+        ('sv', 'The backdrop contains moving dots.', 'The backdrop contains moving dots.'),
+        ('de', 'Importance', 'Importance'),
+        ('de', 'Return True when enabled.', 'Gibt False zurück, wenn aktiviert.'),
+        ('de', 'Use False when disabled.', 'Verwendet None, wenn deaktiviert.'),
+        ('de', 'Return None when unavailable.', 'Gibt True zurück, wenn nicht verfügbar.'),
+        ('de', 'Label {index}', 'Label {other}'),
+        ('fr', 'Image {index}', 'Image {index} {extra}'),
+    )
+    for language, source, target in rejected:
+        write_records(language, {source: target})
+        with pytest.raises(ValueError, match='(?:rejected|non-idempotent) reviewed runtime target'):
+            builder._reviewed_runtime_translations(language, sources={'ui': (source,)})
+    for source, target in (
+        ('Return True when enabled.', 'Gibt False zurück, wenn aktiviert.'),
+        ('Use False when disabled.', 'Verwendet None, wenn deaktiviert.'),
+        ('Return None when unavailable.', 'Gibt True zurück, wenn nicht verfügbar.'),
+        ('{well}: n={count}; BC={coefficient}.', '{well}: n={count}; BC={other}.'),
+    ):
+        assert not builder._syntax_preserved(source, target)
+
+
 def test_derived_registration_label_uses_exact_reviewed_acronym_without_new_ui_caption(tmp_path, monkeypatch):
     """Load approved label glosses while retaining strict syntax for other wording."""
     import build_i18n_catalogs as builder

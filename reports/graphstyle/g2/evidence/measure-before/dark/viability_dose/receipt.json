@@ -1,0 +1,37 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff",
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff",
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "_viability_dose_figure",
+  "data_sha256": "7d3a4458647dbb8136c3d2c94e37618808e579340364cbf897fc7ced225a2a39",
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_dose/viability_dose.pdf",
+      "sha256": "fea9d0875dae978e9c237c419e1b01c2ecca5af143a9c17ae17ed4e419e7b317"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_dose/viability_dose.png",
+      "sha256": "53e21b808c967e62a6843a0f2a9341f5c0da3f1a58af452e282b1a6ef3837a75"
+    }
+  },
+  "inputs_sha256": "32cff66689792b378942ae86fd131a8a93b15770393ffaac0b2a24f04a3abd8b",
+  "payload_sha256": "6ed4f31531850e8ccf27379e7b5aac79a31fa503e0356509bb23b1130918c9f9",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

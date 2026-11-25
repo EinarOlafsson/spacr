@@ -1,0 +1,4630 @@
+{
+  "cases": {
+    "dark/GradCAMGenerator1": [
+      {
+        "canvas_inches": [
+          15.10208333333333,
+          2.3268663194444446
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            15.10208333333333,
+            2.3268663194444446
+          ],
+          "content_shift_inches": [
+            0.05208333333333322,
+            0.06666666666666662
+          ],
+          "entries": [
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Gradient-weighted class activation maps (Grad-CAM) from the supplied classifier predictions. Image 1: predicted class 0.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Supplied input and attribution values are unchanged; scalar attribution layers share the batch display range.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: ((0.0, 1.0), (0.0, 0.1550000011920929)); gamma: (1.0, 1.0).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Gradient-weighted class activation maps (Grad-CAM) from the supplied classifier predictions. Image 2: predicted class 1.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            12.268749999999999,
+            0.10000000000000024,
+            2.7333333333333316,
+            2.1268663194444444
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.09999999999999994,
+              0.10000000000000002,
+              1.4333333333333333,
+              1.4333333333333331
+            ],
+            [
+              1.595833333333333,
+              0.10000000000000002,
+              1.4333333333333331,
+              1.4333333333333331
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/GradCAMGenerator1/figure0.pdf",
+            "sha256": "c0b5fd3cbef570fbe05d9fdf11fa59638e4ca79d8cb01042e286854c493db8b5"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/GradCAMGenerator1/figure0.png",
+            "rgba_sha256": "82be5cdb871dabf2c8620dc5ffb5ff8b8feb2c7e4885d392bb078df279a407bf",
+            "sha256": "e2658e3bae5d7f3b09cd80b8634491e26fb83ad62e9dae02d3babf1dd4233769",
+            "size": [
+              4530,
+              698
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/SaliencyMapGenerator1": [
+      {
+        "canvas_inches": [
+          14.827083333333329,
+          2.024240451388889
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            14.827083333333329,
+            2.024240451388889
+          ],
+          "content_shift_inches": [
+            0.05208333333333322,
+            0.06666666666666662
+          ],
+          "entries": [
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Saliency maps from the supplied classifier predictions. Image 1: predicted class 0.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Supplied input and attribution values are unchanged; scalar attribution layers share the batch display range.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: ((0.0, 1.0), (0.0, 0.1550000011920929)); gamma: (1.0, 1.0).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Saliency maps from the supplied classifier predictions. Image 2: predicted class 1.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            12.268749999999999,
+            0.1,
+            2.4583333333333313,
+            1.8242404513888892
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.09999999999999992,
+              0.1,
+              1.4333333333333331,
+              1.4333333333333331
+            ],
+            [
+              1.5958333333333328,
+              0.1,
+              1.4333333333333333,
+              1.4333333333333331
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/SaliencyMapGenerator1/figure0.pdf",
+            "sha256": "aa3737129ba0855578db8316f270890d583d6abecef509517327bfd65dd0a2f4"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/SaliencyMapGenerator1/figure0.png",
+            "rgba_sha256": "3f8ed8390731866fbe6ad36ec0a260f54a3966738543d5e645169ae4549bfbdc",
+            "sha256": "c66c9d319f8965a7c05823f4120d1afbd014f9f4add4173370d66ba8f4cc3d9a",
+            "size": [
+              4448,
+              607
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/SaliencyMapGenerator3": [
+      {
+        "canvas_inches": [
+          15.085416666666664,
+          2.326866319444445
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            15.085416666666664,
+            2.326866319444445
+          ],
+          "content_shift_inches": [
+            0.05208333333333322,
+            0.06666666666666662
+          ],
+          "entries": [
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Saliency maps from the supplied classifier predictions. Image 1: predicted class 0.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Supplied input and attribution values are unchanged; scalar attribution layers share the batch display range. The attribution layer preserves the supplied RGB channels; no scalar color map is applied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: ((0.0, 1.0), (0.0, 1.0)); gamma: (1.0, 1.0).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Saliency maps from the supplied classifier predictions. Image 2: predicted class 1.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            12.268749999999995,
+            0.09999999999999977,
+            2.716666666666667,
+            2.126866319444445
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.09999999999999994,
+              0.1,
+              1.433333333333333,
+              1.433333333333333
+            ],
+            [
+              1.5958333333333328,
+              0.1,
+              1.433333333333333,
+              1.433333333333333
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/SaliencyMapGenerator3/figure0.pdf",
+            "sha256": "cc9c96782869b7c751fd3bce17e0910bbf2b1e2afa834af2a0dc3455e22d2e60"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/SaliencyMapGenerator3/figure0.png",
+            "rgba_sha256": "33cc07b49d33724584f71350d1f9ea0ce5486f75c988b1ff48af65921f907957",
+            "sha256": "2dec61ecca248bcc04dee9f7aade2cb474d215d3c07633e9a02ed15699e81983",
+            "size": [
+              4525,
+              698
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/class_exemplar": [
+      {
+        "canvas_inches": [
+          6.514999999999999,
+          4.0
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            6.514999999999999,
+            4.0
+          ],
+          "content_shift_inches": [
+            0.0,
+            0.0
+          ],
+          "entries": [
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Synthetic class exemplar for pc; optimization iteration 1 of 1.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "ImageNet channel normalization is reversed and values are clipped to the display range; this is an optimized input, not an observed specimen.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: ((0.0, 1.0),); gamma: (1.0,).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            3.839999999999999,
+            2.58525390625,
+            2.5749999999999997,
+            1.3147460937500004
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.5099999999999999,
+              0.44,
+              3.0800000000000005,
+              3.0799999999999996
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/class_exemplar/figure0.pdf",
+            "sha256": "3a59418d0e14d516dbf6bb059598f4d039954581d1c63d9872d86b5d67658fff"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/class_exemplar/figure0.png",
+            "rgba_sha256": "97699a383f0136c1dfe225deaf08c590ed13336986752c4f7f42095ec7348e51",
+            "sha256": "5694726828e5913af5dc4284d29bb3fd7781a1378a0a53264601f14a45c2c138",
+            "size": [
+              1954,
+              1200
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/embedding": [
+      {
+        "canvas_inches": [
+          5.897424045138888,
+          3.1837369791666665
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            5.897424045138888,
+            3.1837369791666665
+          ],
+          "content_shift_inches": [
+            0.0,
+            4.163336342344337e-17
+          ],
+          "entries": [
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "caption",
+              "label": "Supplied embedding coordinates grouped by their existing cluster identities.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Embedding method: umap.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "reference_tick",
+              "label": "Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.4666666666666667,
+                0.7215686274509804,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster -1: 1 points.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.596078431372549,
+                0.47058823529411764,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 0: 3 points.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.596078431372549,
+                0.47058823529411764,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 0 outline.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.1568627450980392,
+                0.2196078431372549,
+                0.40784313725490196,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 5: 3 points.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.1568627450980392,
+                0.2196078431372549,
+                0.40784313725490196,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 5 outline.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Thumbnail images include every member up to 2 per non-noise cluster, with random sampling above that limit.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            3.064090711805555,
+            0.2807096354166665,
+            2.733333333333333,
+            2.80302734375
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.5040907118055552,
+              0.5137369791666667,
+              2.3100000000000005,
+              2.3100000000000005
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/embedding/figure0.pdf",
+            "sha256": "bfc24c447dbaec80bb69fadfbd95c3d7c24d283ebbcfc27afa7824d3875380e2"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/embedding/figure0.png",
+            "rgba_sha256": "b65c43761e6b1cd684308a9c486ac4f93c1cfa9938e3cf568cf48c9049064306",
+            "sha256": "495347cdb10c526bf4238a8c5dfc090abb6ce7aa1cc0027cbe42b26cb18b0802",
+            "size": [
+              1769,
+              955
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/gallery": [
+      {
+        "canvas_inches": [
+          6.649999999999999,
+          2.3422200520833334
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": [
+            "text '\u22125' is cut off",
+            "texts overlap: '10' and '\u22125'",
+            "texts overlap: '10' and 'Image examples are s'"
+          ]
+        },
+        "external_legend": {
+          "canvas_inches": [
+            6.649999999999999,
+            2.3422200520833334
+          ],
+          "content_shift_inches": [
+            0.0,
+            0.0
+          ],
+          "entries": [
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Cluster 0: 2 selected source images.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Selected image crops retain their source pixels and order.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: (50.0, 175.0); gamma: 1.0.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.596078431372549,
+                0.47058823529411764,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 0",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Image examples are sampled randomly within each cluster up to the requested cap; smaller clusters show every source row.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Cluster 5: 2 selected source images.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.1568627450980392,
+                0.2196078431372549,
+                0.40784313725490196,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 5",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            3.849999999999999,
+            0.1,
+            2.699999999999999,
+            2.142220052083333
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.49999999999999994,
+              0.21999999999999995,
+              1.4903846153846156,
+              1.5399999999999998
+            ],
+            [
+              2.1096153846153847,
+              0.21999999999999995,
+              1.4903846153846148,
+              1.5399999999999998
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/gallery/figure0.pdf",
+            "sha256": "551138cb0b377ee3bec93a1aeb1dadb4b5821d7acaf790b260ed660353d447ae"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/gallery/figure0.png",
+            "rgba_sha256": "691de557fd89939afca9a22c6d952461028ca9394a0a7f92622286d2dd2a140e",
+            "sha256": "8224b8bf211f58a446b729ace0416bae5f62f5c486474a41a3070670fbdfe312",
+            "size": [
+              1995,
+              702
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/metrics": [
+      {
+        "canvas_inches": [
+          9.938333333333334,
+          7.0
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            9.938333333333334,
+            7.0
+          ],
+          "content_shift_inches": [
+            0.0,
+            0.0
+          ],
+          "entries": [
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residuals against fitted model values.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residuals are differences from the fitted model response.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residual distribution with the original histogram bins and kernel density estimate.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "The fitted model defines the residual reference.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Quantile\u2013quantile comparison of standardized residuals with a fitted normal distribution.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "The dotted black line is the normal quantile identity reference.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Scale\u2013location diagnostic from internally studentized residuals.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residual magnitudes are standardized against the fitted model.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            7.13,
+            4.303841145833333,
+            2.7083333333333326,
+            2.596158854166666
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.5744694996843435,
+              3.977531269728534,
+              2.8986744397095956,
+              2.8986744397095965
+            ],
+            [
+              3.9813255602904047,
+              3.977531269728534,
+              2.8986744397095956,
+              2.8986744397095965
+            ],
+            [
+              0.5744694996843435,
+              0.5375312697285342,
+              2.8986744397095956,
+              2.898674439709596
+            ],
+            [
+              3.9813255602904047,
+              0.5375312697285342,
+              2.8986744397095956,
+              2.898674439709596
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/metrics/figure0.pdf",
+            "sha256": "8fe53920db23c6ab9977d9c71b46eb7cd297fae47bb65eccb46b6a6df652b3ba"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/metrics/figure0.png",
+            "rgba_sha256": "5a5655cc8662d1969ad30f23b8de24c67c1c2c17babb6270bdd7ac6373260c08",
+            "sha256": "1ddfc9cd37e958d80fbad40da4444ef4708caace6ddcd621611db11ea3c5605d",
+            "size": [
+              2981,
+              2100
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/mlr": [
+      {
+        "canvas_inches": [
+          9.938333333333334,
+          7.0
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            9.938333333333334,
+            7.0
+          ],
+          "content_shift_inches": [
+            0.0,
+            0.0
+          ],
+          "entries": [
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residuals against fitted model values.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residuals are differences from the fitted model response.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residual distribution with the original histogram bins and kernel density estimate.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "The fitted model defines the residual reference.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Quantile\u2013quantile comparison of standardized residuals with a fitted normal distribution.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "The dotted black line is the normal quantile identity reference.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Scale\u2013location diagnostic from internally studentized residuals.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residual magnitudes are standardized against the fitted model.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            7.13,
+            4.303841145833333,
+            2.7083333333333326,
+            2.596158854166666
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.5744694996843435,
+              3.992114603061867,
+              2.8695077730429306,
+              2.86950777304293
+            ],
+            [
+              4.01049222695707,
+              3.992114603061867,
+              2.86950777304293,
+              2.86950777304293
+            ],
+            [
+              0.5744694996843435,
+              0.5521146030618671,
+              2.8695077730429306,
+              2.8695077730429306
+            ],
+            [
+              4.01049222695707,
+              0.5521146030618671,
+              2.86950777304293,
+              2.8695077730429306
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/mlr/figure0.pdf",
+            "sha256": "4c80d8adcae8dca11677bbb590e1ac8b1f42fae1aeadcce612a3174b448475f4"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/mlr/figure0.png",
+            "rgba_sha256": "f21f317cc0cb1738410d92840a47730e379001ec2579745a83b30f8284613cd6",
+            "sha256": "19f785a17783c55b44dd45b65b369d298096ecdbef117fcc58574def08cb8d86",
+            "size": [
+              2981,
+              2100
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      },
+      {
+        "canvas_inches": [
+          5.6,
+          4.4
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/mlr/figure1.pdf",
+            "sha256": "d637e0e30c895608c8292bef485746a2335a8b894a1d520a0b0dfd9a83f65a9d"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/mlr/figure1.png",
+            "rgba_sha256": "b59b8a594d5f75806059034d7fbed74039e716aabd7300a4c54b1411c43d35a3",
+            "sha256": "714956e31df01a06980a2868d60ad8091c360a88ae3a38dcd330baf2b99ce6ce",
+            "size": [
+              1680,
+              1320
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/process_masks": [
+      {
+        "canvas_inches": [
+          6.72575737847222,
+          4.073736979166667
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": [
+            "Declare the plotted quantities and units, including dimensionless quantities",
+            "Declare units for every numerical quantity on the displayed axes or heatmap scale"
+          ]
+        },
+        "external_legend": {
+          "canvas_inches": [
+            6.72575737847222,
+            4.073736979166667
+          ],
+          "content_shift_inches": [
+            0.11075737847222225,
+            0.07373697916666673
+          ],
+          "entries": [
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "caption",
+              "label": "Principal component analysis (PCA) of object area, intensity, perimeter and eccentricity; cluster assignments are unchanged.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Embedding method: Principal component analysis (PCA).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+              ],
+              "kind": "reference_tick",
+              "label": "Cluster identities follow the supplied partition.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.4666666666666667,
+                0.7215686274509804,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 0: 4 points.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.596078431372549,
+                0.47058823529411764,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 1: 2 points.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            3.9507573784722214,
+            2.452122395833334,
+            2.6749999999999994,
+            1.5216145833333334
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.6207573784722219,
+              0.5137369791666667,
+              3.08,
+              3.08
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/process_masks/figure0.pdf",
+            "sha256": "87f2573eb9a86de96f4767852128748d478855f4c0c2c0472efcd8f4638af132"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/process_masks/figure0.png",
+            "rgba_sha256": "879bd0360d37bf59e68fb6e823243e122ebabb8d4b59a48db8444cd66a7d2c80",
+            "sha256": "4f8fb40b719fe1d2b8c51d5e68f2f40cad20244b439bca4a03741688be625a53",
+            "size": [
+              2017,
+              1222
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/protected_image_transforms": [],
+    "light/GradCAMGenerator1": [
+      {
+        "canvas_inches": [
+          15.10208333333333,
+          2.3268663194444446
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            15.10208333333333,
+            2.3268663194444446
+          ],
+          "content_shift_inches": [
+            0.05208333333333322,
+            0.06666666666666662
+          ],
+          "entries": [
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Gradient-weighted class activation maps (Grad-CAM) from the supplied classifier predictions. Image 1: predicted class 0.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Supplied input and attribution values are unchanged; scalar attribution layers share the batch display range.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: ((0.0, 1.0), (0.0, 0.1550000011920929)); gamma: (1.0, 1.0).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Gradient-weighted class activation maps (Grad-CAM) from the supplied classifier predictions. Image 2: predicted class 1.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            12.268749999999999,
+            0.10000000000000024,
+            2.7333333333333316,
+            2.1268663194444444
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.09999999999999994,
+              0.10000000000000002,
+              1.4333333333333333,
+              1.4333333333333331
+            ],
+            [
+              1.595833333333333,
+              0.10000000000000002,
+              1.4333333333333331,
+              1.4333333333333331
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/GradCAMGenerator1/figure0.pdf",
+            "sha256": "b98277a0f3c50a6417e09efcadf92e6a3d769d9cfc238998909deeb38f428772"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/GradCAMGenerator1/figure0.png",
+            "rgba_sha256": "18395ef9e51d4c25c7f0830185a34dc606aff9cf8053641c68ecad7cfc0990c2",
+            "sha256": "0c758461a8c1cd278dcd9699cb408104fadc73687dd8184d2ca3a23efa941763",
+            "size": [
+              4530,
+              698
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/SaliencyMapGenerator1": [
+      {
+        "canvas_inches": [
+          14.827083333333329,
+          2.024240451388889
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            14.827083333333329,
+            2.024240451388889
+          ],
+          "content_shift_inches": [
+            0.05208333333333322,
+            0.06666666666666662
+          ],
+          "entries": [
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Saliency maps from the supplied classifier predictions. Image 1: predicted class 0.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Supplied input and attribution values are unchanged; scalar attribution layers share the batch display range.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: ((0.0, 1.0), (0.0, 0.1550000011920929)); gamma: (1.0, 1.0).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Saliency maps from the supplied classifier predictions. Image 2: predicted class 1.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            12.268749999999999,
+            0.1,
+            2.4583333333333313,
+            1.8242404513888892
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.09999999999999992,
+              0.1,
+              1.4333333333333331,
+              1.4333333333333331
+            ],
+            [
+              1.5958333333333328,
+              0.1,
+              1.4333333333333333,
+              1.4333333333333331
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/SaliencyMapGenerator1/figure0.pdf",
+            "sha256": "32f761dfafd3e8a9afff085c4c57e7df609429afea56404326eede507c9f6620"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/SaliencyMapGenerator1/figure0.png",
+            "rgba_sha256": "599b818f222ab561b383f21709b00708072060a8d9e04818e46bd0b40d921f11",
+            "sha256": "92404b206b0abd939c8f4b504323d472c94a471a7c84bf8a5a696e2fa78b0a83",
+            "size": [
+              4448,
+              607
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/SaliencyMapGenerator3": [
+      {
+        "canvas_inches": [
+          15.085416666666664,
+          2.326866319444445
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            15.085416666666664,
+            2.326866319444445
+          ],
+          "content_shift_inches": [
+            0.05208333333333322,
+            0.06666666666666662
+          ],
+          "entries": [
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Saliency maps from the supplied classifier predictions. Image 1: predicted class 0.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Supplied input and attribution values are unchanged; scalar attribution layers share the batch display range. The attribution layer preserves the supplied RGB channels; no scalar color map is applied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: ((0.0, 1.0), (0.0, 1.0)); gamma: (1.0, 1.0).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Saliency maps from the supplied classifier predictions. Image 2: predicted class 1.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            12.268749999999995,
+            0.09999999999999977,
+            2.716666666666667,
+            2.126866319444445
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.09999999999999994,
+              0.1,
+              1.433333333333333,
+              1.433333333333333
+            ],
+            [
+              1.5958333333333328,
+              0.1,
+              1.433333333333333,
+              1.433333333333333
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/SaliencyMapGenerator3/figure0.pdf",
+            "sha256": "3c3a73f7716c338542ce7f5ca8c3feaec7cddaf0fe0ca388364a9f1ff464247a"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/SaliencyMapGenerator3/figure0.png",
+            "rgba_sha256": "120feea3284c88f47bb14c1939ad1541b7c1ca7a3c2e14496ebdd29b2c9a3c14",
+            "sha256": "65b1cf8b98a5cb5b65594811fbf7677cd720ca48ba6cf9a8ef44fa481860d19d",
+            "size": [
+              4525,
+              698
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/class_exemplar": [
+      {
+        "canvas_inches": [
+          6.514999999999999,
+          4.0
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            6.514999999999999,
+            4.0
+          ],
+          "content_shift_inches": [
+            0.0,
+            0.0
+          ],
+          "entries": [
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Synthetic class exemplar for pc; optimization iteration 1 of 1.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "ImageNet channel normalization is reversed and values are clipped to the display range; this is an optimized input, not an observed specimen.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: ((0.0, 1.0),); gamma: (1.0,).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            3.839999999999999,
+            2.58525390625,
+            2.5749999999999997,
+            1.3147460937500004
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.5099999999999999,
+              0.44,
+              3.0800000000000005,
+              3.0799999999999996
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/class_exemplar/figure0.pdf",
+            "sha256": "480df7b66f7f04c6c0663a8c5b43c0ec8172b673170e2db7c913a1098d3b9d54"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/class_exemplar/figure0.png",
+            "rgba_sha256": "6d0d17c047994d4b731638d6836e1ecd4cec15595676e4360c4ff97e40d70085",
+            "sha256": "24568b2999061c04e4469b054fbaf562c69aa7e1b06a5cc815dc6e5ddd73f34d",
+            "size": [
+              1954,
+              1200
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/embedding": [
+      {
+        "canvas_inches": [
+          5.897424045138888,
+          3.1837369791666665
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            5.897424045138888,
+            3.1837369791666665
+          ],
+          "content_shift_inches": [
+            0.0,
+            4.163336342344337e-17
+          ],
+          "entries": [
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "caption",
+              "label": "Supplied embedding coordinates grouped by their existing cluster identities.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Embedding method: umap.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "reference_tick",
+              "label": "Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.4666666666666667,
+                0.7215686274509804,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster -1: 1 points.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.596078431372549,
+                0.47058823529411764,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 0: 3 points.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.596078431372549,
+                0.47058823529411764,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 0 outline.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.1568627450980392,
+                0.2196078431372549,
+                0.40784313725490196,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 5: 3 points.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.1568627450980392,
+                0.2196078431372549,
+                0.40784313725490196,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 5 outline.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Thumbnail images include every member up to 2 per non-noise cluster, with random sampling above that limit.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            3.064090711805555,
+            0.2807096354166665,
+            2.733333333333333,
+            2.80302734375
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.5040907118055552,
+              0.5137369791666667,
+              2.3100000000000005,
+              2.3100000000000005
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/embedding/figure0.pdf",
+            "sha256": "f4c08fe824f51707e89e9bd720acc3bc50c677332d19dde56f307725ef394730"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/embedding/figure0.png",
+            "rgba_sha256": "61cb9965144d2ea3f02d8192badde8bff225b8e2fab2903e944585579255ed3b",
+            "sha256": "02627c4c1a50bfe63bbbf49f6bdc2761ed1b2da146032fdb5dee5f43977695fd",
+            "size": [
+              1769,
+              955
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/gallery": [
+      {
+        "canvas_inches": [
+          6.649999999999999,
+          2.3422200520833334
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": [
+            "text '\u22125' is cut off",
+            "texts overlap: '10' and '\u22125'",
+            "texts overlap: '10' and 'Image examples are s'"
+          ]
+        },
+        "external_legend": {
+          "canvas_inches": [
+            6.649999999999999,
+            2.3422200520833334
+          ],
+          "content_shift_inches": [
+            0.0,
+            0.0
+          ],
+          "entries": [
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Cluster 0: 2 selected source images.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Selected image crops retain their source pixels and order.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Display range: (50.0, 175.0); gamma: 1.0.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Physical scale was not supplied.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.596078431372549,
+                0.47058823529411764,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 0",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Image examples are sampled randomly within each cluster up to the requested cap; smaller clusters show every source row.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Cluster 5: 2 selected source images.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.1568627450980392,
+                0.2196078431372549,
+                0.40784313725490196,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 5",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            3.849999999999999,
+            0.1,
+            2.699999999999999,
+            2.142220052083333
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.49999999999999994,
+              0.21999999999999995,
+              1.4903846153846156,
+              1.5399999999999998
+            ],
+            [
+              2.1096153846153847,
+              0.21999999999999995,
+              1.4903846153846148,
+              1.5399999999999998
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/gallery/figure0.pdf",
+            "sha256": "3ef8de00b1ee0d24da30961a1d2512463a7d03e904c183e97d9c8e94b8814463"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/gallery/figure0.png",
+            "rgba_sha256": "19804363f81318253e0863937c589cfdbe278c7c650b94cc14ab5ef14c4f4cf8",
+            "sha256": "e6b4500fa1daf815b94603e72ba58ba0abeac193625cadc35ad2aea2a47664f2",
+            "size": [
+              1995,
+              702
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/metrics": [
+      {
+        "canvas_inches": [
+          9.938333333333334,
+          7.0
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            9.938333333333334,
+            7.0
+          ],
+          "content_shift_inches": [
+            0.0,
+            0.0
+          ],
+          "entries": [
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residuals against fitted model values.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residuals are differences from the fitted model response.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residual distribution with the original histogram bins and kernel density estimate.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "The fitted model defines the residual reference.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Quantile\u2013quantile comparison of standardized residuals with a fitted normal distribution.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "The dotted black line is the normal quantile identity reference.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Scale\u2013location diagnostic from internally studentized residuals.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residual magnitudes are standardized against the fitted model.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            7.13,
+            4.303841145833333,
+            2.7083333333333326,
+            2.596158854166666
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.5744694996843435,
+              3.977531269728534,
+              2.8986744397095956,
+              2.8986744397095965
+            ],
+            [
+              3.9813255602904047,
+              3.977531269728534,
+              2.8986744397095956,
+              2.8986744397095965
+            ],
+            [
+              0.5744694996843435,
+              0.5375312697285342,
+              2.8986744397095956,
+              2.898674439709596
+            ],
+            [
+              3.9813255602904047,
+              0.5375312697285342,
+              2.8986744397095956,
+              2.898674439709596
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/metrics/figure0.pdf",
+            "sha256": "9febe7c3eb0e13ff7baf254aed4ed0fb014d2468a8fce1fbe5d701ac3094326d"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/metrics/figure0.png",
+            "rgba_sha256": "de826a1bab8497c33466fb6feccc2265d87765dafb0a805b39102c4996fa4fa3",
+            "sha256": "bca559ba9ce5aa3cef1e4837110118fc4fd320214d747ed58c7d3cba5bcc4458",
+            "size": [
+              2981,
+              2100
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/mlr": [
+      {
+        "canvas_inches": [
+          9.938333333333334,
+          7.0
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": []
+        },
+        "external_legend": {
+          "canvas_inches": [
+            9.938333333333334,
+            7.0
+          ],
+          "content_shift_inches": [
+            0.0,
+            0.0
+          ],
+          "entries": [
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residuals against fitted model values.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residuals are differences from the fitted model response.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residual distribution with the original histogram bins and kernel density estimate.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "The fitted model defines the residual reference.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Quantile\u2013quantile comparison of standardized residuals with a fitted normal distribution.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "The dotted black line is the normal quantile identity reference.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Scale\u2013location diagnostic from internally studentized residuals.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Residual magnitudes are standardized against the fitted model.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            7.13,
+            4.303841145833333,
+            2.7083333333333326,
+            2.596158854166666
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.5744694996843435,
+              3.992114603061867,
+              2.8695077730429306,
+              2.86950777304293
+            ],
+            [
+              4.01049222695707,
+              3.992114603061867,
+              2.86950777304293,
+              2.86950777304293
+            ],
+            [
+              0.5744694996843435,
+              0.5521146030618671,
+              2.8695077730429306,
+              2.8695077730429306
+            ],
+            [
+              4.01049222695707,
+              0.5521146030618671,
+              2.86950777304293,
+              2.8695077730429306
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/mlr/figure0.pdf",
+            "sha256": "c42c8b87bd74eb6d2f9ab3819cfd983de8255994f09a18ca9903af8e74560634"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/mlr/figure0.png",
+            "rgba_sha256": "8a2045528aa90c87d10a954d3292e55c7682322e1be21883af5c9614c94e369d",
+            "sha256": "12c18f300399c369ec740ff782e91df76282ea69778a7ca45c2f3c81f8dec3b8",
+            "size": [
+              2981,
+              2100
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      },
+      {
+        "canvas_inches": [
+          5.6,
+          4.4
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/mlr/figure1.pdf",
+            "sha256": "3bf8cb43c1de32ff49520709501f89e8e779952c20de967ba086e60159333f7f"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/mlr/figure1.png",
+            "rgba_sha256": "194c41ec1c138e589d02ac90afc12e744f6dd09a08639519e47d77219f2e4ec0",
+            "sha256": "b5ef3d0dae5f6da38e5cb35260ef87523fd6a864098c2a40175675aba5e65df8",
+            "size": [
+              1680,
+              1320
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/process_masks": [
+      {
+        "canvas_inches": [
+          6.72575737847222,
+          4.073736979166667
+        ],
+        "diagnostics": {
+          "checks": [
+            "registered semantics",
+            "text size",
+            "text bounds",
+            "text overlap",
+            "declared reference and quantities",
+            "actual palette and legend identities",
+            "applicable representation and semantic requirements",
+            "continuous aspect",
+            "effective data opacity",
+            "black error bars",
+            "statistical frame",
+            "font family and size",
+            "composited text contrast",
+            "completed presentation checks"
+          ],
+          "policy_version": "2026-11-20",
+          "problems": [
+            "Declare the plotted quantities and units, including dimensionless quantities",
+            "Declare units for every numerical quantity on the displayed axes or heatmap scale"
+          ]
+        },
+        "external_legend": {
+          "canvas_inches": [
+            6.72575737847222,
+            4.073736979166667
+          ],
+          "content_shift_inches": [
+            0.11075737847222225,
+            0.07373697916666673
+          ],
+          "entries": [
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "caption",
+              "label": "Principal component analysis (PCA) of object area, intensity, perimeter and eccentricity; cluster assignments are unchanged.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "note",
+              "label": "Embedding method: Principal component analysis (PCA).",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "kind": "reference_tick",
+              "label": "Cluster identities follow the supplied partition.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.4666666666666667,
+                0.7215686274509804,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 0: 4 points.",
+              "linestyle": null,
+              "reference_role": null
+            },
+            {
+              "colour": [
+                0.0392156862745098,
+                0.596078431372549,
+                0.47058823529411764,
+                1.0
+              ],
+              "kind": "identity",
+              "label": "Cluster 1: 2 points.",
+              "linestyle": null,
+              "reference_role": null
+            }
+          ],
+          "inside_canvas": true,
+          "legend_bounds_inches": [
+            3.9507573784722214,
+            2.452122395833334,
+            2.6749999999999994,
+            1.5216145833333334
+          ],
+          "maximum_width_inches": null,
+          "outside_panels": true,
+          "panel_bounds_inches": [
+            [
+              0.6207573784722219,
+              0.5137369791666667,
+              3.08,
+              3.08
+            ]
+          ],
+          "placement": "right"
+        },
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/process_masks/figure0.pdf",
+            "sha256": "d2c2e5444b4271e8c07498a981c0175744c96ffae11b59568bef9f3d32be7aff"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/process_masks/figure0.png",
+            "rgba_sha256": "c7f8fb8840a544a4871d5c24ac972f0a219c701f0a99385d2cbe81582f0694d8",
+            "sha256": "732d75522c2d636ff8886ba955f85360eb74b32413fd4c4da38c80e3d9fd561e",
+            "size": [
+              2017,
+              1222
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/protected_image_transforms": []
+  },
+  "inherited_pipeline_flag_removed": null,
+  "resolved_themes": {
+    "dark": {
+      "background": "#000000",
+      "foreground": "#ffffff",
+      "rc_axes_background": "#000000",
+      "rc_figure_background": "#000000",
+      "resolved_preference_colors": [
+        "#000000",
+        "#ffffff"
+      ],
+      "target": "screen"
+    },
+    "light": {
+      "background": "#ffffff",
+      "foreground": "#000000",
+      "rc_axes_background": "#ffffff",
+      "rc_figure_background": "#ffffff",
+      "resolved_preference_colors": [
+        "#ffffff",
+        "#000000"
+      ],
+      "target": "print"
+    }
+  },
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation"
+}

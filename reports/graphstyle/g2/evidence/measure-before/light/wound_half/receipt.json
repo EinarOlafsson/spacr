@@ -1,0 +1,35 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff"
+    ]
+  },
+  "creator": "_wound_half_closure_figure",
+  "data_sha256": "1d8c0cbf0ae3e52a2d13619b165fbf7dde3369a5acb0d791ba790d718add04b3",
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_half/wound_half.pdf",
+      "sha256": "3c4e868d7b6c8c3e5b8cd880ad2f48779c9105c23960fa507f4a1423a74f0b1d"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_half/wound_half.png",
+      "sha256": "26514768b583d04e9149d4fe365e973d04db3739b5313bebf313a2366799cd41"
+    }
+  },
+  "inputs_sha256": "3c41d6546d7d3838c7f134c5b10726bbed2ba2438996346cd9d4f3a881ba8f23",
+  "payload_sha256": "3465ea368ca984eacbf52dde491d0aeffca8e1636965168ba9118d3e2baf09c8",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

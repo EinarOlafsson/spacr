@@ -1,0 +1,969 @@
+{
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before",
+  "source_inputs": {
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/image_quality.py": "956e035c14d4a8da22e80d4a7ea294d1ef5ab4e0da84828b5902c80931d620d4",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/plot.py": "cc48d6ffa3e9c7abf0d6c916db3549d16850f988df59100f51cfa674e4e7e972",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/seg_qc.py": "ba64dff0e7425e0da019d2aa1e192e93b3f70b63e65a3e639331efc20ae18bcb",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/sequencing.py": "0d5fdb3efd84368107cc15b7210bb95d4f4a831774940e292ceb2c154260b0fb",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/figures/style.py": "ce2c1b90591867749b8da5e793e12317024a10bed5ad419dd00560a9ce25e7ed"
+  },
+  "source_head": "9510143823dcc1b984ecc522058a1e3f15e985d8",
+  "synthetic_only": true,
+  "cases": {
+    "light-threshold": {
+      "numerical": [
+        {
+          "xlim": [
+            0.0,
+            0.1
+          ],
+          "ylim": [
+            0.0,
+            20.0
+          ],
+          "xscale": "linear",
+          "yscale": "linear",
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  1000
+                ],
+                "data_sha256": "92b63e32266e8aa1572709e68d5b7e50f7ae47e20d00892938b0e9e5f15d3656",
+                "mask_sha256": "541b3e9daa09b20bf85fa273e5cbd3e80185aa4ec298e765db87742b70138a53"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  1000
+                ],
+                "data_sha256": "ec2068cf03f9612adf2d95aa4454dfc841351404b7997b65e623b24690dbe79a",
+                "mask_sha256": "541b3e9daa09b20bf85fa273e5cbd3e80185aa4ec298e765db87742b70138a53"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "0a66a6b7cd228fee02ba869309d43ef423cf0c944ef18d163ccf2c38cd0b2297",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "814dd7b9784d57c15b9c2972e9b4fd6cf7e164f8162a934bdb2452a413dab1f7",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": []
+        }
+      ],
+      "appearance": [
+        {
+          "title": "unique_count vs fraction_threshold",
+          "xlabel": "fraction_threshold",
+          "ylabel": "unique_count",
+          "texts": [],
+          "images": [],
+          "axes_background": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "size_inches": [
+            9.355909288194443,
+            9.194950086805555
+          ]
+        }
+      ],
+      "legend": [],
+      "diagnostics": {
+        "problems": [
+          "Register the chart kind, reference, quantities, and legend before validation"
+        ],
+        "checks": []
+      },
+      "inputs": {
+        "csv": ",plateID,rowID,columnID,grna,fraction\n0,p,r1,c1,a,0.05\n1,p,r1,c1,b,0.95\n",
+        "attrs": {
+          "origin": "supplied synthetic fractions"
+        }
+      },
+      "selected_threshold": 0.050499499499499494
+    },
+    "light-robustness": {
+      "numerical": [
+        {
+          "xlim": [
+            -0.5,
+            3.5
+          ],
+          "ylim": [
+            2.5,
+            -0.5
+          ],
+          "xscale": "linear",
+          "yscale": "linear",
+          "lines": [],
+          "images": [
+            {
+              "array": {
+                "dtype": "<f8",
+                "shape": [
+                  3,
+                  4
+                ],
+                "data_sha256": "2e7b310f31d51fca4ce89c493491d1ea7e452133efe0c65f4e9905c42144d6ba",
+                "mask_sha256": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b"
+              },
+              "clim": [
+                0.0,
+                0.4
+              ],
+              "extent": [
+                -0.5,
+                3.5,
+                2.5,
+                -0.5
+              ],
+              "origin": "upper",
+              "norm": {
+                "class": "matplotlib.colors.Normalize",
+                "vmin": 0.0,
+                "vmax": 0.4,
+                "clip": false,
+                "vcenter": null,
+                "gamma": null,
+                "probe_values": {
+                  "dtype": "<f8",
+                  "shape": [
+                    9
+                  ],
+                  "data_sha256": "4ceb9f6723adc605ff4fe4dd46fde52971421ef473c0ad74638c758b7d4ce3f3",
+                  "mask_sha256": "3e7077fd2f66d689e0cee6a7cf5b37bf2dca7c979af356d0a31cbc5c85605c7d"
+                },
+                "mapped_values": {
+                  "dtype": "<f8",
+                  "shape": [
+                    9
+                  ],
+                  "data_sha256": "97ccafbe1822d1c82158ec9981f2527fcb218e0a387f7cbf0d103b41a4b9bb91",
+                  "mask_sha256": "3e7077fd2f66d689e0cee6a7cf5b37bf2dca7c979af356d0a31cbc5c85605c7d"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "appearance": [
+        {
+          "title": "cell segmentation robustness (! = over 20%)",
+          "xlabel": "",
+          "ylabel": "",
+          "texts": [
+            "0%",
+            "0%",
+            "0%",
+            "0%",
+            "50%",
+            "10%",
+            "20%",
+            "25%",
+            "-",
+            "all",
+            "30%",
+            "20%"
+          ],
+          "images": [
+            {
+              "alpha": null,
+              "interpolation": "auto",
+              "colormap": {
+                "class": "matplotlib.colors.ListedColormap",
+                "name": "magma_r",
+                "N": 256,
+                "sample_positions": {
+                  "dtype": "<f8",
+                  "shape": [
+                    257
+                  ],
+                  "data_sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69",
+                  "mask_sha256": "6c934d0cdf9dba94b474d6d1929f16739bd9a8ed31d0c3bcaf82c283fb7a3568"
+                },
+                "sampled_rgba": {
+                  "dtype": "<f8",
+                  "shape": [
+                    257,
+                    4
+                  ],
+                  "data_sha256": "6ce3f1d9b0795cd95f7bbaf6532944ad5be2f090862bbcf24b30967329642f0d",
+                  "mask_sha256": "82823076344d2111f1047052202daf8028f30b99b902e4aa20169338762b6ef3"
+                },
+                "bad": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "under": [
+                  0.987053,
+                  0.991438,
+                  0.749504,
+                  1.0
+                ],
+                "over": [
+                  0.001462,
+                  0.000466,
+                  0.013866,
+                  1.0
+                ]
+              }
+            }
+          ],
+          "axes_background": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "size_inches": [
+            3.794666666666667,
+            2.155126681857639
+          ]
+        }
+      ],
+      "legend": [],
+      "diagnostics": {
+        "problems": [
+          "Register the chart kind, reference, quantities, and legend before validation"
+        ],
+        "checks": []
+      },
+      "inputs": {
+        "csv": ",parameter,value,fragile,object_count_change,median_area_change,mean_intensity_change,matched_fraction\n0,baseline,run,False,0.0,0.0,0.0,1.0\n1,flow_threshold,0.8,True,-0.5,0.1,-0.2,0.75\n2,diameter,40,True,,inf,-0.3,0.8\n",
+        "attrs": {
+          "settings": {
+            "tolerance": 0.2
+          }
+        },
+        "tolerance": 0.2
+      }
+    },
+    "light-gallery": {
+      "numerical": {
+        "thumbnail_sha256": [
+          "e4907217de127f92827ce8f7bcba3f95b08aa3de1b788052bf549269980d54f3",
+          "1d476214cfe1659252f642f4571a2279ce30369181909a77db8194d52b3b6ce0"
+        ]
+      },
+      "inputs": {
+        "source_npy": {
+          "plain.npy": "cff49ef512fddaf747dd8e328d2a0df73f52e065cc47866208124a58a504600a",
+          "flagged.npy": "04062d582ec8515ad4c422f0fcd1ad728ef45e874a47bc241ea469a72445537b"
+        },
+        "fields": [
+          {
+            "field": "plain.npy",
+            "status": "accepted",
+            "reasons": [],
+            "channels": [
+              {
+                "channel": 7,
+                "reasons": [],
+                "focus_variance": 1.25,
+                "saturation_fraction": 0.01
+              }
+            ]
+          },
+          {
+            "field": "flagged.npy",
+            "status": "flagged",
+            "reasons": [
+              "focus_below_threshold"
+            ],
+            "channels": [
+              {
+                "channel": 7,
+                "reasons": [
+                  "focus_below_threshold"
+                ],
+                "focus_variance": 1.25,
+                "saturation_fraction": 0.01
+              }
+            ]
+          }
+        ],
+        "channel_ids": [
+          3,
+          7
+        ]
+      },
+      "html_sha256": "5f4333bff4672e278e39c3ce532ee5db23fef3a8720b699c904c412e32ca0990",
+      "appearance_review_required": true
+    },
+    "light-gallery-all_nan": {
+      "numerical": {
+        "thumbnail_sha256": [
+          "604391a2e3edd5d180c8f81a2c00e4b9759f076c32eab444bace5ac4ab8b3446"
+        ]
+      },
+      "inputs": {
+        "source_npy": {
+          "all_nan.npy": "19199481bf65413c48cfd750e6ca261d90f3fa9dad7e517cf4e9d3bfbc483391"
+        },
+        "fields": [
+          {
+            "field": "all_nan.npy",
+            "status": "flagged",
+            "reasons": [
+              "nonfinite"
+            ],
+            "channels": [
+              {
+                "channel": 0,
+                "reasons": [
+                  "nonfinite"
+                ],
+                "focus_variance": 0.0,
+                "saturation_fraction": null
+              }
+            ]
+          }
+        ],
+        "channel_ids": null,
+        "array": {
+          "dtype": "<f4",
+          "shape": [
+            2,
+            3
+          ],
+          "data_sha256": "3fbf182a570eb06706b3baeed428958f3b6b85d6287e297dbc70426f6e116d3e",
+          "mask_sha256": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44"
+        }
+      },
+      "appearance": {
+        "display_metadata": [],
+        "fallback_explanation_present": false
+      },
+      "html_sha256": "1b097dbf416b52c64c7053659ad5ea0b1e7831c6cbda3278f834a89514d6cdf6",
+      "appearance_review_required": true
+    },
+    "light-gallery-mixed_nonfinite": {
+      "numerical": {
+        "thumbnail_sha256": [
+          "c6f78dd2bf5e30163be8d09c84fd9ed4d0f8911036ff0eb9b0abd8d5acdb5f15"
+        ]
+      },
+      "inputs": {
+        "source_npy": {
+          "mixed_nonfinite.npy": "3dba4d7b50d96cd4d2fdcf5ceacf7cd7f8206e167194d3f47aba9c9d8ae1a41d"
+        },
+        "fields": [
+          {
+            "field": "mixed_nonfinite.npy",
+            "status": "flagged",
+            "reasons": [
+              "nonfinite"
+            ],
+            "channels": [
+              {
+                "channel": 0,
+                "reasons": [
+                  "nonfinite"
+                ],
+                "focus_variance": 0.0,
+                "saturation_fraction": null
+              }
+            ]
+          }
+        ],
+        "channel_ids": null,
+        "array": {
+          "dtype": "<f4",
+          "shape": [
+            2,
+            3
+          ],
+          "data_sha256": "d4f2c01a47f0adf65d651574d50b93bc9b5fb8289c3978a0fd331ac5c9140a02",
+          "mask_sha256": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44"
+        }
+      },
+      "appearance": {
+        "display_metadata": [],
+        "fallback_explanation_present": false
+      },
+      "html_sha256": "717d84d3e450badbe013252a1472b57a0a6db8a58021271ce5185b67298eebaa",
+      "appearance_review_required": true
+    },
+    "dark-threshold": {
+      "numerical": [
+        {
+          "xlim": [
+            0.0,
+            0.1
+          ],
+          "ylim": [
+            0.0,
+            20.0
+          ],
+          "xscale": "linear",
+          "yscale": "linear",
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  1000
+                ],
+                "data_sha256": "92b63e32266e8aa1572709e68d5b7e50f7ae47e20d00892938b0e9e5f15d3656",
+                "mask_sha256": "541b3e9daa09b20bf85fa273e5cbd3e80185aa4ec298e765db87742b70138a53"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  1000
+                ],
+                "data_sha256": "ec2068cf03f9612adf2d95aa4454dfc841351404b7997b65e623b24690dbe79a",
+                "mask_sha256": "541b3e9daa09b20bf85fa273e5cbd3e80185aa4ec298e765db87742b70138a53"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "0a66a6b7cd228fee02ba869309d43ef423cf0c944ef18d163ccf2c38cd0b2297",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "814dd7b9784d57c15b9c2972e9b4fd6cf7e164f8162a934bdb2452a413dab1f7",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": []
+        }
+      ],
+      "appearance": [
+        {
+          "title": "unique_count vs fraction_threshold",
+          "xlabel": "fraction_threshold",
+          "ylabel": "unique_count",
+          "texts": [],
+          "images": [],
+          "axes_background": [
+            0.09411764705882353,
+            0.09411764705882353,
+            0.09411764705882353,
+            1.0
+          ],
+          "size_inches": [
+            9.355909288194443,
+            9.194950086805555
+          ]
+        }
+      ],
+      "legend": [],
+      "diagnostics": {
+        "problems": [
+          "Register the chart kind, reference, quantities, and legend before validation"
+        ],
+        "checks": []
+      },
+      "inputs": {
+        "csv": ",plateID,rowID,columnID,grna,fraction\n0,p,r1,c1,a,0.05\n1,p,r1,c1,b,0.95\n",
+        "attrs": {
+          "origin": "supplied synthetic fractions"
+        }
+      },
+      "selected_threshold": 0.050499499499499494
+    },
+    "dark-robustness": {
+      "numerical": [
+        {
+          "xlim": [
+            -0.5,
+            3.5
+          ],
+          "ylim": [
+            2.5,
+            -0.5
+          ],
+          "xscale": "linear",
+          "yscale": "linear",
+          "lines": [],
+          "images": [
+            {
+              "array": {
+                "dtype": "<f8",
+                "shape": [
+                  3,
+                  4
+                ],
+                "data_sha256": "2e7b310f31d51fca4ce89c493491d1ea7e452133efe0c65f4e9905c42144d6ba",
+                "mask_sha256": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b"
+              },
+              "clim": [
+                0.0,
+                0.4
+              ],
+              "extent": [
+                -0.5,
+                3.5,
+                2.5,
+                -0.5
+              ],
+              "origin": "upper",
+              "norm": {
+                "class": "matplotlib.colors.Normalize",
+                "vmin": 0.0,
+                "vmax": 0.4,
+                "clip": false,
+                "vcenter": null,
+                "gamma": null,
+                "probe_values": {
+                  "dtype": "<f8",
+                  "shape": [
+                    9
+                  ],
+                  "data_sha256": "4ceb9f6723adc605ff4fe4dd46fde52971421ef473c0ad74638c758b7d4ce3f3",
+                  "mask_sha256": "3e7077fd2f66d689e0cee6a7cf5b37bf2dca7c979af356d0a31cbc5c85605c7d"
+                },
+                "mapped_values": {
+                  "dtype": "<f8",
+                  "shape": [
+                    9
+                  ],
+                  "data_sha256": "97ccafbe1822d1c82158ec9981f2527fcb218e0a387f7cbf0d103b41a4b9bb91",
+                  "mask_sha256": "3e7077fd2f66d689e0cee6a7cf5b37bf2dca7c979af356d0a31cbc5c85605c7d"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "appearance": [
+        {
+          "title": "cell segmentation robustness (! = over 20%)",
+          "xlabel": "",
+          "ylabel": "",
+          "texts": [
+            "0%",
+            "0%",
+            "0%",
+            "0%",
+            "50%",
+            "10%",
+            "20%",
+            "25%",
+            "-",
+            "all",
+            "30%",
+            "20%"
+          ],
+          "images": [
+            {
+              "alpha": null,
+              "interpolation": "auto",
+              "colormap": {
+                "class": "matplotlib.colors.ListedColormap",
+                "name": "magma_r",
+                "N": 256,
+                "sample_positions": {
+                  "dtype": "<f8",
+                  "shape": [
+                    257
+                  ],
+                  "data_sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69",
+                  "mask_sha256": "6c934d0cdf9dba94b474d6d1929f16739bd9a8ed31d0c3bcaf82c283fb7a3568"
+                },
+                "sampled_rgba": {
+                  "dtype": "<f8",
+                  "shape": [
+                    257,
+                    4
+                  ],
+                  "data_sha256": "6ce3f1d9b0795cd95f7bbaf6532944ad5be2f090862bbcf24b30967329642f0d",
+                  "mask_sha256": "82823076344d2111f1047052202daf8028f30b99b902e4aa20169338762b6ef3"
+                },
+                "bad": [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ],
+                "under": [
+                  0.987053,
+                  0.991438,
+                  0.749504,
+                  1.0
+                ],
+                "over": [
+                  0.001462,
+                  0.000466,
+                  0.013866,
+                  1.0
+                ]
+              }
+            }
+          ],
+          "axes_background": [
+            0.09411764705882353,
+            0.09411764705882353,
+            0.09411764705882353,
+            1.0
+          ],
+          "size_inches": [
+            3.794666666666667,
+            2.155126681857639
+          ]
+        }
+      ],
+      "legend": [],
+      "diagnostics": {
+        "problems": [
+          "Register the chart kind, reference, quantities, and legend before validation"
+        ],
+        "checks": []
+      },
+      "inputs": {
+        "csv": ",parameter,value,fragile,object_count_change,median_area_change,mean_intensity_change,matched_fraction\n0,baseline,run,False,0.0,0.0,0.0,1.0\n1,flow_threshold,0.8,True,-0.5,0.1,-0.2,0.75\n2,diameter,40,True,,inf,-0.3,0.8\n",
+        "attrs": {
+          "settings": {
+            "tolerance": 0.2
+          }
+        },
+        "tolerance": 0.2
+      }
+    },
+    "dark-gallery": {
+      "numerical": {
+        "thumbnail_sha256": [
+          "e4907217de127f92827ce8f7bcba3f95b08aa3de1b788052bf549269980d54f3",
+          "1d476214cfe1659252f642f4571a2279ce30369181909a77db8194d52b3b6ce0"
+        ]
+      },
+      "inputs": {
+        "source_npy": {
+          "plain.npy": "cff49ef512fddaf747dd8e328d2a0df73f52e065cc47866208124a58a504600a",
+          "flagged.npy": "04062d582ec8515ad4c422f0fcd1ad728ef45e874a47bc241ea469a72445537b"
+        },
+        "fields": [
+          {
+            "field": "plain.npy",
+            "status": "accepted",
+            "reasons": [],
+            "channels": [
+              {
+                "channel": 7,
+                "reasons": [],
+                "focus_variance": 1.25,
+                "saturation_fraction": 0.01
+              }
+            ]
+          },
+          {
+            "field": "flagged.npy",
+            "status": "flagged",
+            "reasons": [
+              "focus_below_threshold"
+            ],
+            "channels": [
+              {
+                "channel": 7,
+                "reasons": [
+                  "focus_below_threshold"
+                ],
+                "focus_variance": 1.25,
+                "saturation_fraction": 0.01
+              }
+            ]
+          }
+        ],
+        "channel_ids": [
+          3,
+          7
+        ]
+      },
+      "html_sha256": "5f4333bff4672e278e39c3ce532ee5db23fef3a8720b699c904c412e32ca0990",
+      "appearance_review_required": true
+    },
+    "dark-gallery-all_nan": {
+      "numerical": {
+        "thumbnail_sha256": [
+          "604391a2e3edd5d180c8f81a2c00e4b9759f076c32eab444bace5ac4ab8b3446"
+        ]
+      },
+      "inputs": {
+        "source_npy": {
+          "all_nan.npy": "19199481bf65413c48cfd750e6ca261d90f3fa9dad7e517cf4e9d3bfbc483391"
+        },
+        "fields": [
+          {
+            "field": "all_nan.npy",
+            "status": "flagged",
+            "reasons": [
+              "nonfinite"
+            ],
+            "channels": [
+              {
+                "channel": 0,
+                "reasons": [
+                  "nonfinite"
+                ],
+                "focus_variance": 0.0,
+                "saturation_fraction": null
+              }
+            ]
+          }
+        ],
+        "channel_ids": null,
+        "array": {
+          "dtype": "<f4",
+          "shape": [
+            2,
+            3
+          ],
+          "data_sha256": "3fbf182a570eb06706b3baeed428958f3b6b85d6287e297dbc70426f6e116d3e",
+          "mask_sha256": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44"
+        }
+      },
+      "appearance": {
+        "display_metadata": [],
+        "fallback_explanation_present": false
+      },
+      "html_sha256": "1b097dbf416b52c64c7053659ad5ea0b1e7831c6cbda3278f834a89514d6cdf6",
+      "appearance_review_required": true
+    },
+    "dark-gallery-mixed_nonfinite": {
+      "numerical": {
+        "thumbnail_sha256": [
+          "c6f78dd2bf5e30163be8d09c84fd9ed4d0f8911036ff0eb9b0abd8d5acdb5f15"
+        ]
+      },
+      "inputs": {
+        "source_npy": {
+          "mixed_nonfinite.npy": "3dba4d7b50d96cd4d2fdcf5ceacf7cd7f8206e167194d3f47aba9c9d8ae1a41d"
+        },
+        "fields": [
+          {
+            "field": "mixed_nonfinite.npy",
+            "status": "flagged",
+            "reasons": [
+              "nonfinite"
+            ],
+            "channels": [
+              {
+                "channel": 0,
+                "reasons": [
+                  "nonfinite"
+                ],
+                "focus_variance": 0.0,
+                "saturation_fraction": null
+              }
+            ]
+          }
+        ],
+        "channel_ids": null,
+        "array": {
+          "dtype": "<f4",
+          "shape": [
+            2,
+            3
+          ],
+          "data_sha256": "d4f2c01a47f0adf65d651574d50b93bc9b5fb8289c3978a0fd331ac5c9140a02",
+          "mask_sha256": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44"
+        }
+      },
+      "appearance": {
+        "display_metadata": [],
+        "fallback_explanation_present": false
+      },
+      "html_sha256": "717d84d3e450badbe013252a1472b57a0a6db8a58021271ce5185b67298eebaa",
+      "appearance_review_required": true
+    }
+  },
+  "writes": [
+    {
+      "theme": "light",
+      "path": "light/results/fraction_threshold.png",
+      "normal_writer": "spacr.plot.save_figure",
+      "save_mode": "screen",
+      "requested_dpi": 120,
+      "image_size": [
+        1214,
+        1195
+      ],
+      "stored_dpi": [
+        119.9896,
+        119.9896
+      ],
+      "top_left_rgba": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "theme": "light",
+      "path": "light/robustness.png",
+      "normal_writer": "spacr.plot.save_figure",
+      "save_mode": "screen",
+      "requested_dpi": 120,
+      "image_size": [
+        720,
+        336
+      ],
+      "stored_dpi": [
+        119.9896,
+        119.9896
+      ],
+      "top_left_rgba": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "theme": "dark",
+      "path": "dark/results/fraction_threshold.png",
+      "normal_writer": "spacr.plot.save_figure",
+      "save_mode": "screen",
+      "requested_dpi": 120,
+      "image_size": [
+        1214,
+        1195
+      ],
+      "stored_dpi": [
+        119.9896,
+        119.9896
+      ],
+      "top_left_rgba": [
+        24,
+        24,
+        24,
+        255
+      ]
+    },
+    {
+      "theme": "dark",
+      "path": "dark/robustness.png",
+      "normal_writer": "spacr.plot.save_figure",
+      "save_mode": "screen",
+      "requested_dpi": 120,
+      "image_size": [
+        720,
+        336
+      ],
+      "stored_dpi": [
+        119.9896,
+        119.9896
+      ],
+      "top_left_rgba": [
+        24,
+        24,
+        24,
+        255
+      ]
+    }
+  ],
+  "themes": {
+    "light": {
+      "requested": {
+        "background": "#FFFFFF",
+        "foreground": "#000000"
+      },
+      "stored_colors": [
+        "#FFFFFF",
+        "#000000"
+      ],
+      "creator_target": "print"
+    },
+    "dark": {
+      "requested": {
+        "background": "#181818",
+        "foreground": "#F0F0F0"
+      },
+      "stored_colors": [
+        "#181818",
+        "#F0F0F0"
+      ],
+      "creator_target": "screen"
+    }
+  },
+  "scientific_pipeline_or_inference_run": false,
+  "outputs": {
+    "dark/all_nan-gallery.html": "1b097dbf416b52c64c7053659ad5ea0b1e7831c6cbda3278f834a89514d6cdf6",
+    "dark/all_nan-preview.png": "604391a2e3edd5d180c8f81a2c00e4b9759f076c32eab444bace5ac4ab8b3446",
+    "dark/gallery-preview-0.png": "e4907217de127f92827ce8f7bcba3f95b08aa3de1b788052bf549269980d54f3",
+    "dark/gallery-preview-1.png": "1d476214cfe1659252f642f4571a2279ce30369181909a77db8194d52b3b6ce0",
+    "dark/gallery.html": "5f4333bff4672e278e39c3ce532ee5db23fef3a8720b699c904c412e32ca0990",
+    "dark/mixed_nonfinite-gallery.html": "717d84d3e450badbe013252a1472b57a0a6db8a58021271ce5185b67298eebaa",
+    "dark/mixed_nonfinite-preview.png": "c6f78dd2bf5e30163be8d09c84fd9ed4d0f8911036ff0eb9b0abd8d5acdb5f15",
+    "dark/results/fraction_threshold.pdf": "165e3f4311fc0d52e537a8d82ec719298146dbce09c3d92fb0f45f8c635f59d1",
+    "dark/results/fraction_threshold.png": "047daf83a2c92e8d3b2dac111eb3c32f959623e827db02d5ce7ff8de3e348659",
+    "dark/robustness.pdf": "4849e7dc7f7bfcf2404e649ccec2d2a547bf558ca7f03cd53bd549049902f820",
+    "dark/robustness.png": "acf45f00c7116e4510bf8ca975ea3c2fe30f9c1913eea1b4fc82c904a22148d3",
+    "light/all_nan-gallery.html": "1b097dbf416b52c64c7053659ad5ea0b1e7831c6cbda3278f834a89514d6cdf6",
+    "light/all_nan-preview.png": "604391a2e3edd5d180c8f81a2c00e4b9759f076c32eab444bace5ac4ab8b3446",
+    "light/gallery-preview-0.png": "e4907217de127f92827ce8f7bcba3f95b08aa3de1b788052bf549269980d54f3",
+    "light/gallery-preview-1.png": "1d476214cfe1659252f642f4571a2279ce30369181909a77db8194d52b3b6ce0",
+    "light/gallery.html": "5f4333bff4672e278e39c3ce532ee5db23fef3a8720b699c904c412e32ca0990",
+    "light/mixed_nonfinite-gallery.html": "717d84d3e450badbe013252a1472b57a0a6db8a58021271ce5185b67298eebaa",
+    "light/mixed_nonfinite-preview.png": "c6f78dd2bf5e30163be8d09c84fd9ed4d0f8911036ff0eb9b0abd8d5acdb5f15",
+    "light/results/fraction_threshold.pdf": "4b93eaa85a45b3a951d47607283d7a5a235aba2624a350fc17cf2b1a6c05ed34",
+    "light/results/fraction_threshold.png": "cdad52cdf149240ade7f7fa49158c0f7f7cb05c5e4cdfc3495da5dfef708ea09",
+    "light/robustness.pdf": "58757fc4d3ae56a6d788ca880c7524734172cb9c05094f5bbeeecd435640fe06",
+    "light/robustness.png": "d152fbe9b4b1b65785c629f6123168e24199c40853182f53e3bbd41c3010f5e8"
+  }
+}

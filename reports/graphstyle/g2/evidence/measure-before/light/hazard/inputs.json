@@ -1,0 +1,61 @@
+[
+  {
+    "arrays": [
+      {
+        "data_base64": "WyJ0cmVhdGVkIiwgInNpemUiXQ==",
+        "dtype": "object",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "928ba5f3472bd29e010ccf4afb06bb543e92a2f1082204a9eec215fedcbfd24e",
+        "shape": [
+          2
+        ]
+      },
+      {
+        "data_base64": "zczMzMzM/D9mZmZmZmbmPw==",
+        "dtype": "float64",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "cd906e210cc659bbe3478939d3f0288f4b0c7b62cb8515df26d5735141c9e0c8",
+        "shape": [
+          2
+        ]
+      },
+      {
+        "data_base64": "MzMzMzMz8z8AAAAAAADgPw==",
+        "dtype": "float64",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "c48b7933fc0352116b85b41c607b843779319eee3d7a22b6582e3efc946ec251",
+        "shape": [
+          2
+        ]
+      },
+      {
+        "data_base64": "MzMzMzMzA0DNzMzMzMzsPw==",
+        "dtype": "float64",
+        "missing": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7",
+        "missing_base64": "AAA=",
+        "sha256": "54f0e9fec2d95c724e44b296f354d38421509b9426968a7a6d2050b607b21ac2",
+        "shape": [
+          2
+        ]
+      }
+    ],
+    "columns": [
+      "covariate",
+      "hazard_ratio",
+      "hr_lower",
+      "hr_upper"
+    ],
+    "csv": ",covariate,hazard_ratio,hr_lower,hr_upper\n0,treated,1.8,1.2,2.4\n1,size,0.7,0.5,0.9\n",
+    "dtypes": [
+      "object",
+      "float64",
+      "float64",
+      "float64"
+    ],
+    "kind": "dataframe"
+  },
+  "event"
+]

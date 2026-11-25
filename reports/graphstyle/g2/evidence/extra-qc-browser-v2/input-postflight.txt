@@ -1,0 +1,1 @@
+PASS: all frozen inputs unchanged

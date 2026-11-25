@@ -1,0 +1,52 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff",
+      "#ffffffff",
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff",
+      "#000000ff",
+      "#000000ff"
+    ]
+  },
+  "creator": "_viability_threshold_figure",
+  "data_sha256": "00606947b2a86f8afb820be719f47ac1153f6f20f50e8a19ff7bc3ff430bc8cc",
+  "diagnostics": {
+    "checks": [
+      "registered semantics",
+      "text size",
+      "text bounds",
+      "text overlap",
+      "declared reference and quantities",
+      "actual palette and legend identities",
+      "applicable representation and semantic requirements",
+      "continuous aspect",
+      "effective data opacity",
+      "black error bars",
+      "statistical frame",
+      "font family and size",
+      "composited text contrast",
+      "completed presentation checks"
+    ],
+    "problems": []
+  },
+  "files": {
+    "pdf": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/light/viability_threshold/viability_threshold.pdf",
+      "sha256": "e08612952e0a0c03b896497c25fadd6c9e39f7ab3241535ba3d76123fb1bc832"
+    },
+    "png": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/light/viability_threshold/viability_threshold.png",
+      "sha256": "15bf2474c640997e007ea5ae8af8f589ee4a665d2bcc29d38a052d48b81cedea"
+    }
+  },
+  "inputs_sha256": "1bc846740a933d5f25b7526d78a48fe06e1754908bf5522417dd1f2d46fb17c2",
+  "payload_sha256": "c37b34fed57bc56f37330d1ad4f433cca9ac8dcd19017b50440b36f814dc56c8",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

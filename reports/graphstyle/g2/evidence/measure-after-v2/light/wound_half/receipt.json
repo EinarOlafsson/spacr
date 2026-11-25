@@ -1,0 +1,48 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff"
+    ]
+  },
+  "creator": "_wound_half_closure_figure",
+  "data_sha256": "1d8c0cbf0ae3e52a2d13619b165fbf7dde3369a5acb0d791ba790d718add04b3",
+  "diagnostics": {
+    "checks": [
+      "registered semantics",
+      "text size",
+      "text bounds",
+      "text overlap",
+      "declared reference and quantities",
+      "actual palette and legend identities",
+      "applicable representation and semantic requirements",
+      "condition slots",
+      "effective data opacity",
+      "black error bars",
+      "statistical frame",
+      "font family and size",
+      "composited text contrast",
+      "completed presentation checks"
+    ],
+    "problems": []
+  },
+  "files": {
+    "pdf": {
+      "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/wound_half/wound_half.pdf",
+      "sha256": "3c8a4e3b47b5a147f4b5512c91207ff8cd51b0312e57e020d1358568b0d4ff3f"
+    },
+    "png": {
+      "path": "reports/graphstyle/g2/evidence/measure-after-v2/light/wound_half/wound_half.png",
+      "sha256": "f75edf5c0cf318bc362e20dd74d0adc2941c0eabbe5815cf6f22c5dc771d5cfc"
+    }
+  },
+  "inputs_sha256": "3c41d6546d7d3838c7f134c5b10726bbed2ba2438996346cd9d4f3a881ba8f23",
+  "payload_sha256": "3465ea368ca984eacbf52dde491d0aeffca8e1636965168ba9118d3e2baf09c8",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

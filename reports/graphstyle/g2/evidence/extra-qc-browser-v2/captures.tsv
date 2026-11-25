@@ -1,0 +1,13 @@
+original_html	screenshot	selection
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-before/light/gallery.html	before-shared-normal.png	baseline captured; light/dark byte-identical
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-before/dark/gallery.html	before-shared-normal.png	baseline duplicate skipped after SHA256 and cmp proof
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-before/light/all_nan-gallery.html	before-shared-all_nan.png	baseline captured; light/dark byte-identical
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-before/dark/all_nan-gallery.html	before-shared-all_nan.png	baseline duplicate skipped after SHA256 and cmp proof
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-before/light/mixed_nonfinite-gallery.html	before-shared-mixed_nonfinite.png	baseline captured; light/dark byte-identical
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-before/dark/mixed_nonfinite-gallery.html	before-shared-mixed_nonfinite.png	baseline duplicate skipped after SHA256 and cmp proof
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-after/light/gallery.html	after-light-normal.png	candidate theme captured unchanged
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-after/light/all_nan-gallery.html	after-light-all_nan.png	candidate theme captured unchanged
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-after/light/mixed_nonfinite-gallery.html	after-light-mixed_nonfinite.png	candidate theme captured unchanged
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-after/dark/gallery.html	after-dark-normal.png	candidate theme captured unchanged
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-after/dark/all_nan-gallery.html	after-dark-all_nan.png	candidate theme captured unchanged
+/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/extra-qc-after/dark/mixed_nonfinite-gallery.html	after-dark-mixed_nonfinite.png	candidate theme captured unchanged

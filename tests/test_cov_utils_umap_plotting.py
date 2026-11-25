@@ -187,18 +187,17 @@ def test_remove_noise_drops_noise_rows():
 # colour helpers / setup_plot
 # ---------------------------------------------------------------------------
 
-def test_generate_colors_is_deterministic_viridis_for_every_background():
+def test_generate_colors_is_deterministic_shared_palette_for_every_background():
     from spacr.utils import generate_colors
+    from spacr.figures.style import condition_colours
 
     dark = generate_colors(6, black_background=True)
     light = generate_colors(6, black_background=False)
     assert dark.shape == (6, 4)
     assert light.shape == (6, 4)
     np.testing.assert_allclose(dark, light)
-    np.testing.assert_allclose(
-        dark[0], matplotlib.colormaps["viridis"](0.08))
-    np.testing.assert_allclose(
-        dark[-1], matplotlib.colormaps["viridis"](0.92))
+    np.testing.assert_array_equal(
+        dark, [matplotlib.colors.to_rgba(color) for color in condition_colours(6)])
     assert np.all(dark[:, 3] == 1)
 
 

@@ -38,8 +38,9 @@ def test_cluster_grid_uses_the_panel_color_in_its_legend(monkeypatch):
     try:
         panel_colors = [axis.patches[0].get_facecolor()[:3]
                         for axis in figure.axes[:2]]
-        legend_colors = [patch.get_facecolor()[:3]
-                         for patch in figure.patches]
+        legend_colors = [matplotlib.colors.to_rgb(entry['colour'])
+                         for entry in figure._spacr_external_legend_layout['entries']
+                         if entry['kind'] == 'identity']
         legend_rgb = np.asarray(legend_colors)
         panel_rgb = np.asarray(panel_colors)
         assert legend_rgb.shape == panel_rgb.shape == (2, 3)

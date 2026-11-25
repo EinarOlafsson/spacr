@@ -157,6 +157,8 @@ def _write_gallery(destination, fields, paths, channel_ids):
     from html import escape
     import numpy as np
     from PIL import Image
+    from .figures.style import image_report_css, theme_target
+    from .qt.i18n import tr
 
     by_name = {Path(path).name: Path(path) for path in paths}
     cards = []
@@ -170,6 +172,7 @@ def _write_gallery(destination, fields, paths, channel_ids):
         if image.ndim > 2:
             position = list(channel_ids).index(channel) if channel_ids is not None else channel
             image = image[..., position]
+        projected = image.ndim > 2
         if image.ndim > 2:
             image = np.max(image.reshape((-1, *image.shape[-2:])), axis=0)
         step = max(1, int(math.ceil(max(image.shape) / 512)))
@@ -182,20 +185,32 @@ def _write_gallery(destination, fields, paths, channel_ids):
         buffer = io.BytesIO()
         thumbnail.save(buffer, format='PNG')
         encoded = base64.b64encode(buffer.getvalue()).decode('ascii')
-        details = '; '.join(field['reasons']) or 'No configured criterion failed.'
-        cards.append('<article><img src="data:image/png;base64,' + encoded + '"><div><b>' +
+        details = '; '.join(field['reasons']) or tr('No configured criterion failed.')
+        display_metadata = {"channel": int(channel), "display_range": [float(low), float(high)],
+                            "percentiles": [1, 99] if values.size else None,
+                            "finite_sample_count": int(values.size),
+                            "range_source": "finite_sample_percentiles" if values.size else "no_finite_sample_fallback",
+                            "gamma": 1., "maximum_projection": projected,
+                            "stride": step, "clipped_to": [0, 1], "display_dtype": "uint8",
+                            "maximum_thumbnail_size": [256, 256]}
+        preview = tr('Preview channel {channel}. Focus variance {focus:.5g}; saturated fraction {saturation}.').format(
+            channel=channel, focus=metric["focus_variance"], saturation=str(metric['saturation_fraction']))
+        if values.size:
+            processing = tr('Display range {low:.5g}–{high:.5g} (1st–99th percentiles of the finite sampled preview values); gamma 1; stride {step}.').format(
+                low=low, high=high, step=step)
+        else:
+            processing = tr('Display range {low:.5g}–{high:.5g} is a fallback because the sampled preview has no finite values; no percentiles were measured. Gamma 1; stride {step}.').format(
+                low=low, high=high, step=step)
+        cards.append('<article data-display="' + escape(json.dumps(display_metadata), quote=True) +
+                     '"><img src="data:image/png;base64,' + encoded + '"><div><b>' +
                      escape(field['field']) + '</b> — ' + escape(field['status']) + '. ' +
-                     escape(details) + f' Preview channel {channel}. Focus variance {metric["focus_variance"]:.5g}; ' +
-                     'saturated fraction ' + escape(str(metric['saturation_fraction'])) + '.</div></article>')
-    html = ('<!doctype html><html><meta charset="utf-8"><title>Image Quality</title><style>'
-            'body{background:#14171b;color:#edf0f4;font:16px system-ui;margin:24px}'
-            'main{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}'
-            'article{border:1px solid #43505e;border-radius:12px;padding:12px;background:#20252bcc}'
-            'img{max-width:100%;display:block;margin:0 auto 8px;border-radius:8px}'
-            'header{margin-bottom:18px;line-height:1.5}</style><header><b>Image Quality.</b> '
-            'Flagged fields appear first. Up to 64 previews are shown; the CSV contains every field and channel. '
-            'Preview contrast is stretched for viewing only; metrics use raw intensities. '
-            'Volumes use a maximum projection for this preview. Excluded fields are not zero-object detections.'
+                     escape(details) + ' ' + escape(preview) + ' ' + escape(processing) + '</div></article>')
+    html = ('<!doctype html><html><meta charset="utf-8"><title>' + escape(tr('Image Quality')) +
+            '</title><style>' + image_report_css(theme_target()) + '</style><header><b>' +
+            escape(tr('Image Quality.')) + '</b> ' + escape(tr(
+                'Flagged fields appear first. Up to 64 previews are shown; the CSV contains every field and channel. '
+                'Preview contrast is stretched for viewing only; metrics use raw intensities. '
+                'Volumes use a maximum projection for this preview. Excluded fields are not zero-object detections.')) +
             '</header><main>' + ''.join(cards) + '</main></html>')
     _atomic_text(destination.with_suffix('.html'), html)
 

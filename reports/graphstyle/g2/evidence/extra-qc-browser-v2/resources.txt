@@ -1,0 +1,1 @@
+P2, CPU 1, RAM 2 GiB, swap 0, native threads 1, nice 19, weight 800, VRAM 0; Chrome and graphics never enter GPU compute admission.

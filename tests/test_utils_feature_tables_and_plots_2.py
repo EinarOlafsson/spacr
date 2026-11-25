@@ -54,8 +54,8 @@ def _tiny(val):
     return np.full((4, 4), val, dtype=np.uint8)
 
 
-def test_plot_grid_draws_one_coloured_column_per_cluster_within_the_size_cap(subtests, capsys):
-    """One panel per cluster with an inset per image, its colour, a label, width <= 200 in."""
+def test_plot_grid_draws_coloured_columns_with_a_visible_external_key(subtests, capsys):
+    """Every source pixel and identity remains represented when canvas grows for the key."""
     red, green, blue = (1.0, 0.0, 0.0, 1.0), (0.0, 1.0, 0.0, 1.0), (0.0, 0.0, 1.0, 1.0)
     cases = [
         ("single string cluster", {"alpha": [_tiny(10), _tiny(200)]}, [red], 2, False, True),
@@ -81,7 +81,9 @@ def test_plot_grid_draws_one_coloured_column_per_cluster_within_the_size_cap(sub
             printed = capsys.readouterr().out
             n = len(images)
             per = size if size * n <= 200 else 200 / n
-            assert fig.get_size_inches().tolist() == pytest.approx([per * n, per])
+            assert fig.get_size_inches()[0] >= per * n
+            assert fig._spacr_external_legend_layout['outside_panels']
+            assert fig._spacr_external_legend_layout['inside_canvas']
             assert len(fig.axes) == n
             labels = list(images)
             for idx, (ax, label) in enumerate(zip(fig.axes, labels)):
@@ -91,9 +93,9 @@ def test_plot_grid_draws_one_coloured_column_per_cluster_within_the_size_cap(sub
                 assert ax.axison is False
                 assert all(c.axison is False for c in ax.child_axes)
                 assert tuple(ax.patches[0].get_facecolor()) == pytest.approx(to_rgba(colors[idx]))
-            assert [t.get_text() for t in fig.texts] == [f"Cluster {lab}" for lab in labels]
-            assert len(fig.patches) == n
-            assert all(t.get_color() == ("white" if black else "black") for t in fig.texts)
+            entries = fig._spacr_external_legend_layout['entries']
+            assert [entry['label'] for entry in entries if entry['kind'] == 'identity'] == [
+                f"Cluster {lab}" for lab in labels]
             for idx, label in enumerate(labels):
                 line = f"Lable: {label} index: {idx}"
                 if verbose and isinstance(label, str):
@@ -168,15 +170,17 @@ def test_plot_clusters_draws_points_hulls_centroids_and_a_themed_legend(subtests
             if "line_len" in case:
                 assert ax.lines[0].get_xdata().shape == (case["line_len"],)
             assert len(ax.collections) == n_clusters
-            assert sorted(t.get_text() for t in ax.texts) == [str(c) for c in range(n_clusters)]
-            assert ax.get_xlabel() == "UMAP Dimension 1"
-            assert ax.get_ylabel() == "UMAP Dimension 2"
+            assert not ax.texts
+            assert ax.get_xlabel() == "Embedding coordinate 1"
+            assert ax.get_ylabel() == "Embedding coordinate 2"
+            assert ax.get_box_aspect() == 1
+            for collection, label in zip(ax.collections, np.unique(labels)):
+                np.testing.assert_array_equal(collection.get_offsets(), pts[labels == label])
             if "invisible" in case:
                 assert ax.collections[0].get_alpha() == 0
                 assert ax.collections[0].get_sizes().tolist() == [case["invisible"]]
-            legend = ax.get_legend()
-            assert legend is not None
-            assert legend.get_frame().get_facecolor()[:3] == pytest.approx(ax.get_facecolor()[:3])
+            assert len(ax._spacr_legend_entries) >= n_clusters
+            assert fig._spacr_external_legend_layout['outside_panels']
             plt.close(fig)
 
     with subtests.test(case="legend repainted in theme; missing legend keeps labels"):
@@ -193,13 +197,11 @@ def test_plot_clusters_draws_points_hulls_centroids_and_a_themed_legend(subtests
         for axes in (themed, legendless):
             U.plot_clusters(axes, pts, labels, [(0.3, 0.5, 0.7, 1.0)], [pts.mean(axis=0)],
                             plot_outlines=False, plot_points=True, smooth_lines=False)
-        drawn = themed.get_legend()
-        assert drawn is not None
-        assert drawn.get_frame().get_facecolor()[:3] == pytest.approx(themed.get_facecolor()[:3])
-        assert [t.get_color() for t in drawn.get_texts()] == ["#ff0000"]
+        assert themed.get_facecolor()[:3] == pytest.approx(matplotlib.colors.to_rgb('#202020'))
+        assert matplotlib.colors.to_hex(themed.xaxis.label.get_color()) == '#ff0000'
         assert legendless.get_legend() is None
-        assert legendless.get_xlabel() == "UMAP Dimension 1"
-        assert legendless.get_ylabel() == "UMAP Dimension 2"
+        assert legendless.get_xlabel() == "Embedding coordinate 1"
+        assert legendless.get_ylabel() == "Embedding coordinate 2"
         assert len(legendless.collections) == len(themed.collections) == 1
         plt.close(fig)
         plt.close(empty_fig)
@@ -242,7 +244,8 @@ def test_plot_embedding_draws_clusters_and_optional_images_without_leaking_theme
             ax = fig.axes[0]
             assert len(ax.collections) == 2
             assert _count_annotation_boxes(ax) == case["boxes"]
-            assert sorted(t.get_text() for t in ax.texts) == ["0", "1"]
+            assert not ax.texts
+            assert fig._spacr_external_legend_layout['outside_panels']
             if case["black"]:
                 assert fig.get_facecolor()[:3] == (0.0, 0.0, 0.0)
             assert {k: matplotlib.rcParams[k] for k in _WATCHED_RC} == before

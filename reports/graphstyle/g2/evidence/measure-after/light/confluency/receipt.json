@@ -1,0 +1,44 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff"
+    ]
+  },
+  "creator": "_confluency_figure",
+  "data_sha256": null,
+  "diagnostics": {
+    "checks": [
+      "registered semantics",
+      "text size",
+      "text bounds",
+      "text overlap",
+      "declared reference and quantities",
+      "actual palette and legend identities",
+      "applicable representation and semantic requirements",
+      "font family and size",
+      "composited text contrast",
+      "completed presentation checks"
+    ],
+    "problems": []
+  },
+  "files": {
+    "pdf": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/light/confluency/confluency.pdf",
+      "sha256": "0921cf1d20cdafc9d23727ea4eaafc518cd26f24920a40999f7670c143ee2d74"
+    },
+    "png": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/light/confluency/confluency.png",
+      "sha256": "772cf595bda1edc3d98e7b25736bee7116281a622ac19d894aff957cc2b2efaa"
+    }
+  },
+  "inputs_sha256": "ed1f22904a180b5820c050b23e50202d168285c9aad76248763c6bb27c43f958",
+  "payload_sha256": "e1c809f5c378f2dcb13f518abd056767a06a02d28bbbd76a5a3d4007441c9c93",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

@@ -1,0 +1,881 @@
+{
+  "loaded_measure": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/measure.py",
+  "measure_sha256": "94d814f124e5750699fc83c9d1a2167ab997f4ca9f9796e69ce458a6d247ebc3",
+  "scientific_reruns": false,
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before",
+  "targets": {
+    "dark": {
+      "confluency": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_confluency_figure",
+        "data_sha256": null,
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/confluency/confluency.pdf",
+            "sha256": "8ca99664bcc6116379d6395be126123446f94b6c4dbc807dfa22ec19aa8bdce6"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/confluency/confluency.png",
+            "sha256": "47c8171bad95056e7242b332402afd772e465f0fb8263b1d7cdb6cc5eb976fe0"
+          }
+        },
+        "inputs_sha256": "ed1f22904a180b5820c050b23e50202d168285c9aad76248763c6bb27c43f958",
+        "payload_sha256": "e1c809f5c378f2dcb13f518abd056767a06a02d28bbbd76a5a3d4007441c9c93",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "dna": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_dna_histogram_figure",
+        "data_sha256": "129d98a705bf5692652599dd864028e0ed9d24501b6358eba8a9af31a0b9f78a",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/dna/dna.pdf",
+            "sha256": "6ba564f8bb5b8dc9d390817b66c9ac80a729da3ddf68fd1cf95839c32d9185cf"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/dna/dna.png",
+            "sha256": "5ae69d2e99463271f9c56bbd913f134bddcbc058a1680f53d54ffe393c2acb85"
+          }
+        },
+        "inputs_sha256": "37d570ca42b5c574ec8421ecd13b837391131b9aa54e075b5b615c0012cb6cee",
+        "payload_sha256": "c5abca9a733154201cb5b82e29d7a63dc44f3cf43f9b957aadceac533965ff31",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "hazard": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_hazard_ratio_figure",
+        "data_sha256": "0196b9c7052768b983f8bf4c691747ec8cf2770390137b8429e6243e8bf6d704",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/hazard/hazard.pdf",
+            "sha256": "66e698ebce86d24d96c609bc8875cf1e71e5c8a33ae0ff5224dee3a89b3e5696"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/hazard/hazard.png",
+            "sha256": "783ff12ef413a36da4b81a9dc36130aaa6a3768e111eaf9f42dd54ce9390f346"
+          }
+        },
+        "inputs_sha256": "65174991391138b9250422d21cd61a15366191a2ae3dea90582a64e48fd6df51",
+        "payload_sha256": "526484e50ffa7a1164d88157286cd4e877dbb9234e1ccf8285c472c429623d5d",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "montage": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff",
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff",
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "img_list_to_grid",
+        "data_sha256": null,
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/montage/montage.pdf",
+            "sha256": "f1770e655a122a1c08dcb70c0070a4508c653e5f301f1799161f0bf6b3cb8a87"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/montage/montage.png",
+            "sha256": "f814d19ffda5361ea8362fdac558db11f57833f58d38fd3e2f68c061dd4b17d0"
+          }
+        },
+        "inputs_sha256": "6454f594118e1faec6ebd0231d93d0c956f62e8bad3b201009b5e438674416b7",
+        "payload_sha256": "5ded18fbb29822c105c6294cee4f7f682535a10158db22578ed5b95e19ed1aef",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "survival": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_time_to_event_figure",
+        "data_sha256": "6d153b99e7ad0a28cee7b2fb5f637df5ef378bb24cf81a022a51918aac5c85ff",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/survival/survival.pdf",
+            "sha256": "62273abd50b9cf6ce1f5d05429dc1e0fcd89de118b0847f2e8ebbe80c8cd11aa"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/survival/survival.png",
+            "sha256": "00995ae011065d60d766eded64287cea1212acf8c4e94f1c7a45358760f2de51"
+          }
+        },
+        "inputs_sha256": "8a3ae5503d93a3436b8673a57f55378bab7fc45824c237374ae6b9771ab419be",
+        "payload_sha256": "485661c10d36216eebe9e1f91c4cf397d98f7763ef8505856ab0098e13d3f065",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "viability_controls": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff",
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff",
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_viability_controls_figure",
+        "data_sha256": "6fcf7406818862c118ab59083876e0b4193ab3237635e98a0637fa19db1b066b",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_controls/viability_controls.pdf",
+            "sha256": "fb0dc2c9bfeb1db22753ab0704d76932fbd97346f401b94a8180b2e4fbb0bddb"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_controls/viability_controls.png",
+            "sha256": "e850b4b2cccf9b018b10900b73dd99ca1bff691b3e6369798c7bb39a87d1fa00"
+          }
+        },
+        "inputs_sha256": "93ca3bb290b138895c8f787755ee9c56ef5a77e49bad4dcf4f5b63772090b61d",
+        "payload_sha256": "9f4385c0f539ca6b6fbee78498b2703530e45bc7121c62f6f6705b912a08a538",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "viability_dose": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff",
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff",
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_viability_dose_figure",
+        "data_sha256": "7d3a4458647dbb8136c3d2c94e37618808e579340364cbf897fc7ced225a2a39",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_dose/viability_dose.pdf",
+            "sha256": "fea9d0875dae978e9c237c419e1b01c2ecca5af143a9c17ae17ed4e419e7b317"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_dose/viability_dose.png",
+            "sha256": "53e21b808c967e62a6843a0f2a9341f5c0da3f1a58af452e282b1a6ef3837a75"
+          }
+        },
+        "inputs_sha256": "32cff66689792b378942ae86fd131a8a93b15770393ffaac0b2a24f04a3abd8b",
+        "payload_sha256": "6ed4f31531850e8ccf27379e7b5aac79a31fa503e0356509bb23b1130918c9f9",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "viability_threshold": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff",
+            "#181818ff",
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff",
+            "#f0f0f0ff",
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_viability_threshold_figure",
+        "data_sha256": "00606947b2a86f8afb820be719f47ac1153f6f20f50e8a19ff7bc3ff430bc8cc",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_threshold/viability_threshold.pdf",
+            "sha256": "991d3a5ed726772ab6f645db234846ba7de96c1cdd606fca05d9cfddfbb5c96c"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_threshold/viability_threshold.png",
+            "sha256": "0e2173dde33ae7df78a42b588f688a0f0df345a75746b1cb84f55c438e42109b"
+          }
+        },
+        "inputs_sha256": "1bc846740a933d5f25b7526d78a48fe06e1754908bf5522417dd1f2d46fb17c2",
+        "payload_sha256": "c37b34fed57bc56f37330d1ad4f433cca9ac8dcd19017b50440b36f814dc56c8",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "wound_curve": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_wound_curve_figure",
+        "data_sha256": "a99685d804ee4d4d48e2610b8bcccbf44707cddaf8887e06b242f8acd4fd9309",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_curve/wound_curve.pdf",
+            "sha256": "d925fd550568731dd10444eb735f890ff1d58781f1ed9af826a2d9ba72c6f42a"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_curve/wound_curve.png",
+            "sha256": "0e9f4f1233e0fef3affee8d827a2e71945881c9888004779fdd15557084004e4"
+          }
+        },
+        "inputs_sha256": "f32b252d2e015efbc4421b17c720b1d88d62c84d014a0c92ec2cfad980084813",
+        "payload_sha256": "12513f86c0bbe4910d1ac7721e9cce5df8c50e4e51e6205f9c69dc4f79c28e55",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "wound_edges": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff",
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff",
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_wound_edge_figure",
+        "data_sha256": null,
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_edges/wound_edges.pdf",
+            "sha256": "ef42815634e987b9088ae74fc4b5c6b9e74c8887d4ee6785d7cab9b88d275a09"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_edges/wound_edges.png",
+            "sha256": "b5d86f8d0cc5ab9668ca3c29742d984cd0d9a78279ab02d9215de4bb5b221bdf"
+          }
+        },
+        "inputs_sha256": "70b0d33d7caa70d6118c367d987a06d8a24ecf83a3f07bd1b2cb7a88e54feb7b",
+        "payload_sha256": "723a5af40260019f1ba89851a9970d5b566be95c4a2a5145775299bdb1fc5316",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "wound_half": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_wound_half_closure_figure",
+        "data_sha256": "1d8c0cbf0ae3e52a2d13619b165fbf7dde3369a5acb0d791ba790d718add04b3",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_half/wound_half.pdf",
+            "sha256": "64fb344a274754f36cb8c4d62d5acb81a315132f80b4dee1c614eab50dda086c"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_half/wound_half.png",
+            "sha256": "964b9e427ecd0c3d1aa77aecbb7838133655b07b5546f3897ab9b47836f95c49"
+          }
+        },
+        "inputs_sha256": "3c41d6546d7d3838c7f134c5b10726bbed2ba2438996346cd9d4f3a881ba8f23",
+        "payload_sha256": "3465ea368ca984eacbf52dde491d0aeffca8e1636965168ba9118d3e2baf09c8",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      },
+      "wound_plate": {
+        "actual_theme": {
+          "axes": [
+            "#181818ff",
+            "#181818ff"
+          ],
+          "figure": "#181818ff",
+          "text": [
+            "#f0f0f0ff",
+            "#f0f0f0ff"
+          ]
+        },
+        "creator": "_wound_plate_figure",
+        "data_sha256": "2e01223714741557a35d72d0160b3b158c695c057f5abbf508a73478692ff641",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_plate/wound_plate.pdf",
+            "sha256": "3093ee6ae95678a4f59489656afcd1b1b1cd49df8d6f6a0c0ac9131374db2aea"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_plate/wound_plate.png",
+            "sha256": "079e60563a8b14c67e69e60048f8cdc3db430b5ee58a63e5ba0952a8396d9bd7"
+          }
+        },
+        "inputs_sha256": "eb2dc88540cf2ce96930abd9b9b785a3148b285893df88d7275fc432aa05030a",
+        "payload_sha256": "85d9da7f7d5d03d081371a10094e65641a115a18407af2b8884a4a18dd10e5a2",
+        "requested_theme": {
+          "background": "#181818",
+          "foreground": "#F0F0F0"
+        }
+      }
+    },
+    "light": {
+      "confluency": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_confluency_figure",
+        "data_sha256": null,
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/confluency/confluency.pdf",
+            "sha256": "f03d39afb2da5f4d1c8cb4b5979f2daea1d7e5acbc117a2f2ddd8ffd53435821"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/confluency/confluency.png",
+            "sha256": "3a8e52c2714b62ae2bf3cd1f3772e9a740e8c8a52f28e3a5d3e9c67eb03bf690"
+          }
+        },
+        "inputs_sha256": "ed1f22904a180b5820c050b23e50202d168285c9aad76248763c6bb27c43f958",
+        "payload_sha256": "e1c809f5c378f2dcb13f518abd056767a06a02d28bbbd76a5a3d4007441c9c93",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "dna": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_dna_histogram_figure",
+        "data_sha256": "129d98a705bf5692652599dd864028e0ed9d24501b6358eba8a9af31a0b9f78a",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/dna/dna.pdf",
+            "sha256": "02e7100c6ef8ee0f2fa3665c88d5f97bd3a525fcf84d7912fdcd0730259ef8c5"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/dna/dna.png",
+            "sha256": "f0930b3acbcbdb22a8f216c89456469fd85fcc3e999593f447a0d084b4c9a220"
+          }
+        },
+        "inputs_sha256": "37d570ca42b5c574ec8421ecd13b837391131b9aa54e075b5b615c0012cb6cee",
+        "payload_sha256": "c5abca9a733154201cb5b82e29d7a63dc44f3cf43f9b957aadceac533965ff31",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "hazard": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_hazard_ratio_figure",
+        "data_sha256": "0196b9c7052768b983f8bf4c691747ec8cf2770390137b8429e6243e8bf6d704",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/hazard/hazard.pdf",
+            "sha256": "52853b7b81f061c69fc7747d109bf2f8e63e94255b2c6051a185b498111c05ec"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/hazard/hazard.png",
+            "sha256": "f6c54d489f088b45714cb967466b4101b5cf4ce588da5bc4afe513f8db587341"
+          }
+        },
+        "inputs_sha256": "65174991391138b9250422d21cd61a15366191a2ae3dea90582a64e48fd6df51",
+        "payload_sha256": "526484e50ffa7a1164d88157286cd4e877dbb9234e1ccf8285c472c429623d5d",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "montage": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff",
+            "#000000ff"
+          ]
+        },
+        "creator": "img_list_to_grid",
+        "data_sha256": null,
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/montage/montage.pdf",
+            "sha256": "81295da7400dec75c3a6ac7d287d5f9dd344287e9a1bc601bb72c767f52d9c29"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/montage/montage.png",
+            "sha256": "aed1a0b6c2382dbf7b681551f5a2218b96033d304775824a62403ffb18271183"
+          }
+        },
+        "inputs_sha256": "6454f594118e1faec6ebd0231d93d0c956f62e8bad3b201009b5e438674416b7",
+        "payload_sha256": "5ded18fbb29822c105c6294cee4f7f682535a10158db22578ed5b95e19ed1aef",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "survival": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_time_to_event_figure",
+        "data_sha256": "6d153b99e7ad0a28cee7b2fb5f637df5ef378bb24cf81a022a51918aac5c85ff",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/survival/survival.pdf",
+            "sha256": "13156d6c7247b971d325e0ce9c09207bd843c4cbfb04fc3d7363b8fa8b71333c"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/survival/survival.png",
+            "sha256": "3c4e1d7695a0514a8eab3cce25524d1c9507f0167acdc82f9f34d77d1936483b"
+          }
+        },
+        "inputs_sha256": "8a3ae5503d93a3436b8673a57f55378bab7fc45824c237374ae6b9771ab419be",
+        "payload_sha256": "485661c10d36216eebe9e1f91c4cf397d98f7763ef8505856ab0098e13d3f065",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "viability_controls": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff",
+            "#000000ff"
+          ]
+        },
+        "creator": "_viability_controls_figure",
+        "data_sha256": "6fcf7406818862c118ab59083876e0b4193ab3237635e98a0637fa19db1b066b",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/viability_controls/viability_controls.pdf",
+            "sha256": "e414a7ebd5466ce13d5e53bf35091a54a480a4135fcc63e070293f3fcc094d4d"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/viability_controls/viability_controls.png",
+            "sha256": "11599ba9d516546e45764e9458e8ac19a4e3b74fec8291b2095876e68cb07685"
+          }
+        },
+        "inputs_sha256": "93ca3bb290b138895c8f787755ee9c56ef5a77e49bad4dcf4f5b63772090b61d",
+        "payload_sha256": "9f4385c0f539ca6b6fbee78498b2703530e45bc7121c62f6f6705b912a08a538",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "viability_dose": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff",
+            "#000000ff"
+          ]
+        },
+        "creator": "_viability_dose_figure",
+        "data_sha256": "7d3a4458647dbb8136c3d2c94e37618808e579340364cbf897fc7ced225a2a39",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/viability_dose/viability_dose.pdf",
+            "sha256": "255e7799cabbe4a3e7045de20e5da141641d7cddef4746ded891f44e31e38910"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/viability_dose/viability_dose.png",
+            "sha256": "2245c1d255b6272ccf74742b9e6010fece09363ba0d46342b14a212b88d4b212"
+          }
+        },
+        "inputs_sha256": "32cff66689792b378942ae86fd131a8a93b15770393ffaac0b2a24f04a3abd8b",
+        "payload_sha256": "6ed4f31531850e8ccf27379e7b5aac79a31fa503e0356509bb23b1130918c9f9",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "viability_threshold": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ]
+        },
+        "creator": "_viability_threshold_figure",
+        "data_sha256": "00606947b2a86f8afb820be719f47ac1153f6f20f50e8a19ff7bc3ff430bc8cc",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/viability_threshold/viability_threshold.pdf",
+            "sha256": "06b5977eede4e0b95794e0e6068299670ef9f13c318817edfa1f61c3eb8507d7"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/viability_threshold/viability_threshold.png",
+            "sha256": "e1770f16844bc944b58e8517f42349e38a5624541a335a52e2b18ba50fa50171"
+          }
+        },
+        "inputs_sha256": "1bc846740a933d5f25b7526d78a48fe06e1754908bf5522417dd1f2d46fb17c2",
+        "payload_sha256": "c37b34fed57bc56f37330d1ad4f433cca9ac8dcd19017b50440b36f814dc56c8",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "wound_curve": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_wound_curve_figure",
+        "data_sha256": "a99685d804ee4d4d48e2610b8bcccbf44707cddaf8887e06b242f8acd4fd9309",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_curve/wound_curve.pdf",
+            "sha256": "ffa66ca9cbc2ec1f5afa0a2f5dce65fe264d0d5d2e04cfdf9dc53e9e4fa424eb"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_curve/wound_curve.png",
+            "sha256": "ca8e81d8cadd617070a76ea7c7e378589e7b381ad6edf6964c912f480cd722f6"
+          }
+        },
+        "inputs_sha256": "f32b252d2e015efbc4421b17c720b1d88d62c84d014a0c92ec2cfad980084813",
+        "payload_sha256": "12513f86c0bbe4910d1ac7721e9cce5df8c50e4e51e6205f9c69dc4f79c28e55",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "wound_edges": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff",
+            "#000000ff"
+          ]
+        },
+        "creator": "_wound_edge_figure",
+        "data_sha256": null,
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_edges/wound_edges.pdf",
+            "sha256": "72b1a1d827a146fadf3f7e729ece149ba0d93d7d619f37ab7238557d3cba21ca"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_edges/wound_edges.png",
+            "sha256": "965ce1fa5486d15c5b34e4b393c1f8309d409aee2246e115eb861328cad66bf0"
+          }
+        },
+        "inputs_sha256": "70b0d33d7caa70d6118c367d987a06d8a24ecf83a3f07bd1b2cb7a88e54feb7b",
+        "payload_sha256": "723a5af40260019f1ba89851a9970d5b566be95c4a2a5145775299bdb1fc5316",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "wound_half": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff"
+          ]
+        },
+        "creator": "_wound_half_closure_figure",
+        "data_sha256": "1d8c0cbf0ae3e52a2d13619b165fbf7dde3369a5acb0d791ba790d718add04b3",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_half/wound_half.pdf",
+            "sha256": "3c4e868d7b6c8c3e5b8cd880ad2f48779c9105c23960fa507f4a1423a74f0b1d"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_half/wound_half.png",
+            "sha256": "26514768b583d04e9149d4fe365e973d04db3739b5313bebf313a2366799cd41"
+          }
+        },
+        "inputs_sha256": "3c41d6546d7d3838c7f134c5b10726bbed2ba2438996346cd9d4f3a881ba8f23",
+        "payload_sha256": "3465ea368ca984eacbf52dde491d0aeffca8e1636965168ba9118d3e2baf09c8",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      },
+      "wound_plate": {
+        "actual_theme": {
+          "axes": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure": "#ffffffff",
+          "text": [
+            "#000000ff",
+            "#000000ff"
+          ]
+        },
+        "creator": "_wound_plate_figure",
+        "data_sha256": "2e01223714741557a35d72d0160b3b158c695c057f5abbf508a73478692ff641",
+        "diagnostics": {
+          "checks": [],
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "files": {
+          "pdf": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_plate/wound_plate.pdf",
+            "sha256": "b3a1398162f6fa6049d6c78c72ef24b7101022cbba09e32d21d813a349f09acc"
+          },
+          "png": {
+            "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/wound_plate/wound_plate.png",
+            "sha256": "d847f751d0a7356be7819f2929150b60a7c56fc6a77073466e5cdbdd01f17d57"
+          }
+        },
+        "inputs_sha256": "eb2dc88540cf2ce96930abd9b9b785a3148b285893df88d7275fc432aa05030a",
+        "payload_sha256": "85d9da7f7d5d03d081371a10094e65641a115a18407af2b8884a4a18dd10e5a2",
+        "requested_theme": {
+          "background": "white",
+          "foreground": "black"
+        }
+      }
+    }
+  },
+  "theme_scope": "public saved figure preferences, normal creator and screen-mode writer"
+}
