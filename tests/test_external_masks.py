@@ -94,17 +94,15 @@ def test_run_builds_merged_stacks_then_delegates_to_measure(
         db = os.path.join(project, "measurements", "measurements.db")
         os.makedirs(os.path.dirname(db), exist_ok=True)
         with store_sql.connect(db) as connection:
-            for table in ("cell", "nucleus", "cytoplasm", "png_list"):
+            for table in ("cell", "nucleus", "cytoplasm", "crop_index"):
                 connection.execute(
                     f'CREATE TABLE "{table}" (object_label INTEGER)')
-        data = os.path.join(project, "data", "plate1", "cell_png")
-        os.makedirs(data, exist_ok=True)
 
     monkeypatch.setattr("spacr.measure.measure_crop", fake_measure_crop)
     result = em.run_external_masks(plan, settings)
 
     assert store_sql.measured(result.db_path)
-    assert {"cell", "nucleus", "cytoplasm", "png_list"} <= set(
+    assert {"cell", "nucleus", "cytoplasm", "crop_index"} <= set(
         result.tables)
     assert received["src"] == os.path.join(result.destination, "merged")
     assert received["channels"] == [0, 1]
@@ -140,12 +138,12 @@ def test_only_supplied_object_tables_are_required(tmp_path, monkeypatch):
             connection.execute(
                 "CREATE TABLE cell (object_label INTEGER)")
             connection.execute(
-                "CREATE TABLE png_list (object_label INTEGER)")
+                "CREATE TABLE crop_index (object_label INTEGER)")
 
     monkeypatch.setattr("spacr.measure.measure_crop", fake_measure_crop)
     result = em.run_external_masks(plan, settings)
 
-    assert set(result.tables) == {"cell", "png_list"}
+    assert set(result.tables) == {"cell", "crop_index"}
 
 
 def test_preflight_understands_reviewed_input_groups(tmp_path):

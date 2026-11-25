@@ -78,11 +78,11 @@ CONFIG_DEFECT = "default/config defect"
 DEFAULT_VARIANT_EXPECTATIONS = {
     # Item 0aj (maintainer 2026-11-23): Measure streams crops from
     # fov.ome.zarr by default, so save_png defaults to False; External Masks
-    # keeps saving them, as its import contract lists them in png_list. The
+    # keeps saving them, and its import checks that they were indexed. The
     # tooltip names the exception in the sentence before its default.
     ("external_masks", "save_png"): DefaultVariant(
         "False", "True", ACCURATE_SHARED,
-        "External Masks imports labels and promises png_list crops; the shared "
+        "External Masks imports labels and promises indexed crops; the shared "
         "tooltip names this exception beside Measure's streaming default.",
     ),
     # organelle_min_area names its own per-app split in prose: "Default 10 in
@@ -1711,7 +1711,7 @@ if app_key == "mask":
     # their two old exceptions are now exact comparisons above.
     # 45 -> 46 on 2026-11-23, item 0aj: Measure's save_png now defaults to
     # False (crops stream from fov.ome.zarr) while External Masks keeps True
-    # for its png_list contract; the tooltip names that exception.
+    # for its indexed-crop contract; the tooltip names that exception.
     assert len(variants) == 46
     assert variants == expected
     assert {
