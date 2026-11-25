@@ -225,7 +225,7 @@ def test_real_mask_and_measure_predictions_match_batch_size_one(
     batch = tmp_path / 'batch'
     shutil.copytree(source, watched)
     shutil.copytree(source, batch)
-    measure = {**MEASURE, 'save_png': True}
+    measure = {**MEASURE, 'save_png': True, 'crop_image_format': 'png'}
     measure_file = tmp_path / 'measure.json'
     measure_file.write_text(json.dumps(measure), encoding="utf-8")
     settings = _recipe(watched, model)

@@ -65,6 +65,8 @@ def _minimal_mask_settings(src: str) -> Dict[str, Any]:
     s["denoise"] = False
     s["remove_background_intensity"] = False
     s["skip_extraction"] = False
+    s["batch_size"] = 0
+    s["mask_eval_batch_size"] = 0
     return s
 
 
@@ -223,11 +225,13 @@ def test_preprocess_generate_masks_runs_on_mask_demo(
     src = layout.src
 
     # 1. The merged stack measure_crop consumes.
-    merged = sorted((src / "merged").glob("*.npy"))
-    assert merged, f"no merged stacks under {src / 'merged'}"
-    assert all(p.stat().st_size > 0 for p in merged)
+    from tests.conftest import merged_field_arrays
 
-    stack = np.load(merged[0], allow_pickle=True)
+    merged = merged_field_arrays(src)
+    assert merged, f"no merged stacks under {src}"
+    assert all(array.size > 0 for array in merged.values())
+
+    stack = next(iter(merged.values()))
     assert stack.ndim == 3
     assert stack.shape[-1] == n_channels + len(mask_dims), (
         f"expected {n_channels} image planes + {len(mask_dims)} label "
@@ -287,6 +291,7 @@ def test_measure_crop_runs_on_measure_demo(tmp_path: Path):
     )
     s = syn.demo_settings("measure", str(layout.src))
     s["save_png"] = True
+    s["crop_image_format"] = "png"
     s["png_size"] = [64, 64]        # [width, height], per the setting's contract
     s["png_dims"] = [0]
     s["experiment"] = "synth"
