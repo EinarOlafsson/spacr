@@ -111,6 +111,8 @@ import pandas as pd
 from . import schema
 from .crops import open_merged_field
 from .errors import ConfigurationError, RunLedger
+from .measurement_store import connect as _connect_measurements
+from .measurement_store import exists as _measurements_exist
 from .stitch_core import _WEIGHT_FLOOR, _ramp, feather_weights
 
 __all__ = [
@@ -2862,9 +2864,9 @@ def read_coordinates(db_path: Union[str, os.PathLike],
     :raises ConfigurationError: the database or the table is missing.
     """
     path = os.fspath(db_path)
-    if not os.path.isfile(path):
+    if not _measurements_exist(path):
         raise ConfigurationError(f'align: no such database: {path}')
-    connection = sqlite3.connect(path, timeout=30)
+    connection = _connect_measurements(path, readonly=True)
     try:
         present = connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name=?",

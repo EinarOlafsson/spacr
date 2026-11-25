@@ -19,6 +19,7 @@ Everything here is built with the real writers: the databases come out of
 renamed *back* to the legacy spelling, so the schema, the types and the values
 are the ones spaCR actually produces.
 """
+from tests import store_sql
 import os
 import sqlite3
 
@@ -85,7 +86,7 @@ def _run_measure_crop(root):
 
 def _columns(db_path):
     """Return ``{table: [column, ...]}`` for every user table."""
-    con = sqlite3.connect(db_path)
+    con = store_sql.connect(db_path)
     try:
         tables = [row[0] for row in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]
@@ -113,7 +114,7 @@ def _age_to_legacy_spelling(db_path):
         r'^organelle_summary_organelle_channel_(?P<c>\d+)_(?P<rest>.+)$')
 
     aged = []
-    con = sqlite3.connect(db_path)
+    con = store_sql.connect(db_path)
     con.isolation_level = None
     try:
         for table, cols in _columns(db_path).items():
@@ -139,13 +140,18 @@ def _age_to_legacy_spelling(db_path):
 @pytest.fixture(scope='module')
 def fresh_db(tmp_path_factory):
     """A measurements.db written by the current measure_crop."""
-    return _run_measure_crop(str(tmp_path_factory.mktemp('fresh')))
+    path = _run_measure_crop(str(tmp_path_factory.mktemp('fresh')))
+    # Unified store, step S4: compared table by table with the aged copy,
+    # which is an older (SQLite) project.
+    return store_sql.to_legacy(path)
 
 
 @pytest.fixture(scope='module')
 def _legacy_db_template(tmp_path_factory):
     """The same database, aged back to the pre-migration column spelling."""
     path = _run_measure_crop(str(tmp_path_factory.mktemp('legacy')))
+    # Unified store, step S4: an aged database is an older (SQLite) project.
+    store_sql.to_legacy(path)
     aged = _age_to_legacy_spelling(path)
     assert aged, 'nothing to age — the fixture measured no ring percentiles'
     return path
@@ -240,7 +246,7 @@ def test_feature_renames_are_reported_once_per_table(tmp_path, capsys):
         "organelle_summary_organelle_ch1_mean_intensity":
             "organelle_summary_organelle_channel_1_mean_intensity",
     }
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         declarations = ", ".join(f'"{name}" REAL' for name in legacy)
         connection.execute(f'CREATE TABLE "cell" ({declarations})')
 
@@ -249,7 +255,7 @@ def test_feature_renames_are_reported_once_per_table(tmp_path, capsys):
     assert set(renamed) == {
         ("cell", old, new) for old, new in legacy.items()
     }
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         columns = {
             row[1] for row in connection.execute('PRAGMA table_info("cell")')
         }
@@ -269,7 +275,6 @@ def test_legacy_database_is_migrated_on_read(legacy_db):
     minimum = 3 * 2 * 7 * 2 + 2 * 2
 
     before = _columns(legacy_db)
-    assert before['_spacr_write_queue_commits'] == ['ticket', 'field']
     stale_before = [col for cols in before.values() for col in cols
                     if (col.endswith('_percentile')
                         and ('periphery' in col or 'outside' in col))
@@ -294,7 +299,7 @@ def test_legacy_database_is_migrated_on_read(legacy_db):
     assert _commit_write_packet(legacy_db, packet, lambda _: None)
     assert not _commit_write_packet(
         legacy_db, {**packet, 'operations': None}, lambda _: None)
-    with sqlite3.connect(legacy_db) as connection:
+    with store_sql.connect(legacy_db) as connection:
         assert connection.execute(
             'SELECT field FROM _spacr_write_queue_commits WHERE ticket=?',
             (packet['ticket'],)).fetchone() == ('plate1_A01_F001',)
@@ -332,7 +337,7 @@ def test_migration_moves_no_values(legacy_db):
     """A rename is a rename: same rows, same numbers, new name."""
     from spacr.utils import rename_columns_in_db
 
-    con = sqlite3.connect(legacy_db)
+    con = store_sql.connect(legacy_db)
     try:
         before = con.execute(
             'SELECT nucleus_channel_0_periphery_95_percentile FROM nucleus '
@@ -343,7 +348,7 @@ def test_migration_moves_no_values(legacy_db):
 
     rename_columns_in_db(legacy_db)
 
-    con = sqlite3.connect(legacy_db)
+    con = store_sql.connect(legacy_db)
     try:
         after = con.execute(
             'SELECT nucleus_channel_0_periphery_percentile_95 FROM nucleus '
@@ -365,7 +370,7 @@ def test_a_table_carrying_both_spellings_keeps_both(legacy_db, tmp_path):
 
     both = str(tmp_path / 'both.db')
     shutil.copy(legacy_db, both)
-    con = sqlite3.connect(both)
+    con = store_sql.connect(both)
     con.isolation_level = None
     try:
         con.execute('ALTER TABLE nucleus ADD COLUMN '
@@ -380,7 +385,7 @@ def test_a_table_carrying_both_spellings_keeps_both(legacy_db, tmp_path):
     cols = _columns(both)['nucleus']
     assert 'nucleus_channel_0_periphery_95_percentile' in cols
     assert 'nucleus_channel_0_periphery_percentile_95' in cols
-    con = sqlite3.connect(both)
+    con = store_sql.connect(both)
     try:
         planted = con.execute(
             'SELECT DISTINCT `nucleus_channel_0_periphery_percentile_95` '

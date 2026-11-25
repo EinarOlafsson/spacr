@@ -1217,6 +1217,35 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
 #: user off a setting that works.
 
 
+def _check_retired_values(settings: Dict[str, Any]) -> List[Problem]:
+    """Say so when a settings file names a value spaCR has withdrawn.
+
+    ``measurement_backend`` is ``spacr_store`` only (unified store, step
+    S4); :data:`spacr.settings._RETIRED_MEASUREMENT_BACKENDS` maps each older
+    value and the settings loader applies it, so the file still runs.
+    """
+    from .settings import _RETIRED_MEASUREMENT_BACKENDS
+
+    value = settings.get('measurement_backend')
+    if not isinstance(value, str) or value.strip().lower() not in (
+            _RETIRED_MEASUREMENT_BACKENDS):
+        return []
+    old = value.strip().lower()
+    if old == 'sqlite':
+        detail = ("Measure writes the spaCR store in the measurements folder; "
+                  "measurements.db is no longer written, and every reader "
+                  "opens the store.")
+    else:
+        detail = (f"Measure writes the spaCR store and still copies the "
+                  f"finished tables to {old} as an export "
+                  f"(measurement_backend_target).")
+    return [Problem(
+        WARNING, 'measurement_backend',
+        f"measurement_backend '{value}' was retired; it now means "
+        f"'spacr_store'.",
+        f"Set measurement_backend to 'spacr_store'. {detail}")]
+
+
 def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
     """Say so when a settings file names a setting spaCR has withdrawn.
 
@@ -2263,6 +2292,7 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     problems.extend(_check_types(settings, app))
     problems.extend(_check_unknown_keys(settings, app))
     problems.extend(_check_retired_keys(settings))
+    problems.extend(_check_retired_values(settings))
     problems.extend(_check_numeric_sanity(settings, app))
     problems.extend(_check_object_diameters(settings))
     problems.extend(_check_required_paths(settings, app))

@@ -2158,17 +2158,18 @@ def _database_table_rows(path: Path) -> List[Result]:
     """Warn when a database has none of the tables spaCR writes."""
     import sqlite3
 
+    from .measurement_store import connect as _connect_measurements
     from .schema import OWNED_TABLES
 
     try:
-        with sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=5.0) as conn:
+        with _connect_measurements(path, readonly=True) as conn:
             names = {
                 row[0]
                 for row in conn.execute(
                     "SELECT name FROM sqlite_master WHERE type='table'"
-                )
+                ).fetchall()
             }
-    except sqlite3.Error as exc:
+    except (sqlite3.Error, ValueError) as exc:
         return [
             Result(
                 "database schema",

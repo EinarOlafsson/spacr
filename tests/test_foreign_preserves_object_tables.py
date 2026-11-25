@@ -47,6 +47,7 @@ hand-built ``cell`` table is exactly the fixture that would have hidden
 this.
 """
 from __future__ import annotations
+from tests import store_sql
 
 import contextlib
 import os
@@ -192,7 +193,7 @@ def _real_spacr_project(dst, stems=SPACR_STEMS):
 
 
 def _tables(db_path):
-    connection = sqlite3.connect(db_path)
+    connection = store_sql.connect(db_path)
     try:
         return sorted(str(r[0]) for r in connection.execute(
             "SELECT name FROM sqlite_master WHERE type IN ('table','view')"))
@@ -201,7 +202,7 @@ def _tables(db_path):
 
 
 def _read(db_path, table):
-    connection = sqlite3.connect(db_path)
+    connection = store_sql.connect(db_path)
     try:
         return pd.read_sql_query(f'SELECT * FROM "{table}"', connection)
     finally:
@@ -504,7 +505,7 @@ def test_a_database_from_the_replacing_release_still_re_imports(theirs,
                    "canonical_table_note"]
     runs = _read(db, fg.IMPORT_TABLE)
     assert set(new_columns) <= set(runs.columns)
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:                                       # the old release's own write
         runs.drop(columns=new_columns).to_sql(
             fg.IMPORT_TABLE, connection, if_exists="replace", index=False)
@@ -533,7 +534,7 @@ def test_a_write_that_fails_half_way_leaves_the_old_table_standing(tmp_path):
     """
     db = _real_spacr_project(tmp_path / "project")
     before = _read(db, "cell")
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         # a value sqlite cannot bind: the insert raises after the drop would
         # have happened
@@ -571,7 +572,7 @@ def test_an_empty_object_table_is_not_a_conflict(theirs, tmp_path):
     """A table created and never written to has no experiment to defend."""
     dst = tmp_path / "project"
     db = _real_spacr_project(dst)
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         connection.execute("DELETE FROM cell")
         connection.execute("DELETE FROM nucleus")
@@ -766,7 +767,7 @@ def test_the_column_provenance_survives_a_measure_write(theirs, tmp_path):
     db = result.db_path
     assert result.rows == {"foreign_cell": 4, "cell": 4}
 
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         assert fg._provenance_name_column(connection) == "column"
         assert fg._importer_owns(connection, "cell")
@@ -780,7 +781,7 @@ def test_the_column_provenance_survives_a_measure_write(theirs, tmp_path):
     _merge_and_save_to_database(morphology, intensity, "nucleus", str(dst),
                                 "plate1_A01_1", "exp", False)
 
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         # The repair really did rename it...
         assert fg._provenance_name_column(connection) == "columnID"
@@ -830,7 +831,7 @@ def test_the_object_tables_shadow_sqlites_own_row_identity(theirs, tmp_path):
     which is what :func:`spacr.foreign.release_canonical_copy` does.
     """
     db = fg.run_import(_plan(theirs), str(tmp_path / "imported")).db_path
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         assert "rowID" in {r[1] for r in
                            connection.execute('PRAGMA table_info("cell")')}
@@ -911,7 +912,7 @@ def test_the_measured_rows_that_survive_share_a_row_key_with_the_released(
     assert len(keys) == 6
     assert int(keys.duplicated(keep=False).sum()) == 4   # 2 imported + 2 measured
 
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         # The keyed delete, run for real against a copy of the table, to
         # measure rather than assert the claim above.
@@ -950,7 +951,7 @@ def test_a_delete_that_does_not_match_the_checks_is_refused_and_rolled_back(
     def twin_then_meddle(connection, object_type):
         """Real answer, then somebody else writes — after ``held`` was read."""
         condition = real_twin(connection, object_type)
-        other = sqlite3.connect(db)
+        other = store_sql.connect(db)
         try:
             other.execute('DELETE FROM "cell" WHERE "fieldID" = ? '
                           'AND "foreign_areashape_area" IS NOT NULL', ("f2",))
@@ -1014,7 +1015,7 @@ def test_a_released_table_is_no_longer_claimed_by_anything(theirs, tmp_path):
     """
     dst = tmp_path / "imported"
     db = fg.run_import(_plan(theirs), str(dst)).db_path
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         assert fg._importer_owns(connection, "cell") is True
     finally:
@@ -1026,7 +1027,7 @@ def test_a_released_table_is_no_longer_claimed_by_anything(theirs, tmp_path):
     run = _import_record(db)
     assert int(run["canonical_table_written"]) == 0
     assert "released" in run["canonical_table_note"]
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         assert fg._importer_owns(connection, "cell") is False
         assert fg._importer_owns(connection, "foreign_cell") is True
@@ -1132,7 +1133,7 @@ def test_a_database_with_no_provenance_column_at_all_is_not_ours(theirs,
     """
     dst = tmp_path / "imported"
     db = fg.run_import(_plan(theirs), str(dst)).db_path
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         connection.execute('ALTER TABLE "foreign_columns" '
                            'RENAME COLUMN "column" TO "whatever"')
@@ -1171,7 +1172,7 @@ def test_a_stale_staging_table_from_a_killed_import_is_cleared_first(
     # What a killed import leaves: a staging table holding a row that must
     # never reach the live map.
     staging = fg._CONVERSION_STAGING
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         connection.execute(
             f'CREATE TABLE "{staging}" (target TEXT, source TEXT)')
@@ -1188,7 +1189,7 @@ def test_a_stale_staging_table_from_a_killed_import_is_cleared_first(
     assert "a_cancelled_run.tif" not in set(after["target"]), (
         "a cancelled import's staged rows reached the live conversion map")
 
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         names = {row[0] for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}

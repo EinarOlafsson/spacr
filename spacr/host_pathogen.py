@@ -20,6 +20,13 @@ DEFAULTS = {
 }
 
 
+
+def _measurements_exist_at(database):
+    """Whether a measurements locator holds measurements (file or spaCR store)."""
+    from .measurement_store import exists
+
+    return exists(str(database))
+
 def default_settings(settings=None):
     """Apply Host–Pathogen defaults; replication requires explicit count inputs.
 
@@ -42,16 +49,19 @@ def vacuole_links(child_mask, vacuole_mask):
     """
     import numpy as np
     import pandas as pd
+    from .measure import _best_parent, _label_overlaps
     if child_mask.shape != vacuole_mask.shape:
         raise ValueError('Child and vacuole masks must have matching dimensions')
+    labels, areas = np.unique(child_mask, return_counts=True)
+    keep = labels > 0
+    labels, areas = labels[keep], areas[keep]
+    children, parents, overlap = _best_parent(*_label_overlaps(child_mask, vacuole_mask))
     rows = []
-    for label in np.unique(child_mask):
-        if label <= 0:
-            continue
-        covered = vacuole_mask[child_mask == label]
-        parents, counts = np.unique(covered[covered > 0], return_counts=True)
-        fraction = float(counts.max() / len(covered)) if counts.size else 0.
-        parent = int(parents[counts.argmax()]) if fraction > .5 else np.nan
+    for label, area in zip(labels, areas):
+        index = np.searchsorted(children, int(label))
+        found = index < children.size and children[index] == int(label)
+        fraction = float(overlap[index] / area) if found else 0.
+        parent = int(parents[index]) if fraction > .5 else np.nan
         rows.append((label, parent, fraction))
     return pd.DataFrame(rows, columns=['label', 'pathogen_id', 'pathogen_overlap_fraction'])
 
@@ -649,7 +659,8 @@ def _titration_objects(config):
         return (read_table(os.path.join(folder, 'cells.csv'), canonicalise=False, report=None),
                 read_table(os.path.join(folder, 'vacuoles.csv'), canonicalise=False, report=None))
     database = os.path.join(str(config.get('src') or ''), 'measurements', 'measurements.db')
-    if not config['titration_merged_folder'] and os.path.isfile(database):
+    from .measurement_store import exists as _measurements_exist
+    if not config['titration_merged_folder'] and _measurements_exist(database):
         from .tabular import database_tables, read_database
 
         if {'vacuole', 'vacuole_host'} <= set(database_tables(database)):
@@ -825,27 +836,26 @@ def write_nucleus_territories(mask_src, expand_px, min_nucleus_size=250):
     """
     import os
 
-    from .io import _listdir_visible, _load_array_any, _save_array_atomic
+    from .image_store import (_mask_folder_exists, _mask_names, _prepare_mask_folder,
+                              _read_mask, _write_mask)
 
     if int(expand_px) <= 0:
         raise ValueError('cell_from_nucleus_expand_px must be above 0')
     nucleus_folder = os.path.join(mask_src, 'nucleus_mask_stack')
-    if not os.path.isdir(nucleus_folder):
+    if not _mask_folder_exists(nucleus_folder):
         raise FileNotFoundError(f'No nucleus masks to grow cells from: {nucleus_folder}')
     cell_folder = os.path.join(mask_src, 'cell_mask_stack')
     seed_folder = os.path.join(mask_src, TERRITORY_NUCLEUS_FOLDER)
-    os.makedirs(cell_folder, exist_ok=True)
-    os.makedirs(seed_folder, exist_ok=True)
+    _prepare_mask_folder(cell_folder)
+    _prepare_mask_folder(seed_folder)
     n_fields = 0
-    for name in sorted(_listdir_visible(nucleus_folder)):
-        if not name.lower().endswith(('.npy', '.tif', '.tiff')):
-            continue
-        nuclei = _load_array_any(os.path.join(nucleus_folder, name))
+    for name in _mask_names(nucleus_folder):
+        nuclei = _read_mask(os.path.join(nucleus_folder, name))
         territory, kept = nucleus_territories(nuclei, expand_px, min_nucleus_size)
         stem = os.path.splitext(name)[0]
-        _save_array_atomic(os.path.join(cell_folder, stem + '.npy'),
-                           territory.astype(nuclei.dtype))
-        _save_array_atomic(os.path.join(seed_folder, stem + '.npy'), kept.astype(nuclei.dtype))
+        _write_mask(os.path.join(cell_folder, stem + '.npy'),
+                   territory.astype(nuclei.dtype))
+        _write_mask(os.path.join(seed_folder, stem + '.npy'), kept.astype(nuclei.dtype))
         n_fields += 1
     return cell_folder, seed_folder, n_fields
 
@@ -916,18 +926,18 @@ def measure_vacuoles(cell_mask, parasite_mask, signal=None, settings=None, file_
 
 
 def _majority_parent(labels_a, labels_b, n_a):
-    """For each label 1..n_a of ``labels_a``, the ``labels_b`` label holding most of its pixels."""
-    import numpy as np
-    import pandas as pd
+    """For each label 1..n_a of ``labels_a``, the ``labels_b`` label holding most of its pixels.
 
-    both = (labels_a > 0) & (labels_b > 0)
+    The overlaps are :func:`spacr.measure._label_overlaps` and the choice
+    :func:`spacr.measure._best_parent`: an exact tie goes to the lowest
+    ``labels_b`` label (it used to depend on the sort order).
+    """
+    import numpy as np
+    from .measure import _best_parent, _label_overlaps
+
     out = np.zeros(n_a + 1, dtype=np.int64)
-    if not both.any():
-        return out
-    pairs = pd.DataFrame({'a': labels_a[both], 'b': labels_b[both]})
-    best = (pairs.groupby(['a', 'b']).size().reset_index(name='n').sort_values('n')
-            .drop_duplicates('a', keep='last'))
-    out[best['a'].to_numpy()] = best['b'].to_numpy()
+    children, parents, _ = _best_parent(*_label_overlaps(labels_a, labels_b))
+    out[children] = parents
     return out
 
 
@@ -959,6 +969,8 @@ def translocation_cells(stack, settings=None, well='', field=0):
     import numpy as np
     import pandas as pd
     from scipy import ndimage as ndi
+
+    from .measure import _derive_cytoplasm
 
     config = {**TITRATION_DEFAULTS, **TRANSLOCATION_DEFAULTS, **(settings or {})}
     stack = np.asarray(stack)
@@ -992,7 +1004,7 @@ def translocation_cells(stack, settings=None, well='', field=0):
     nuc_kept = np.where(near, 0, nuc)
     area_kept = ndi.sum(ones, nuc_kept, idx)
     ha_kept = ndi.sum(ha, nuc_kept, idx)
-    cyto = np.where((nuc > 0) | near, 0, cell)
+    cyto = _derive_cytoplasm(cell, [nuc, near])
     area_cyto = ndi.sum(ones, cyto, idx)
     ha_cyto = ndi.sum(ha, cyto, idx)
     if config['translocation_background'] == 'none':
@@ -1499,7 +1511,7 @@ def nuclear_translocation(settings=None):
         reference = None
     database = os.path.join(config['src'], 'measurements', 'measurements.db')
     measured = (translocation_measured_cells(database, config)
-                if os.path.isfile(database) else None)
+                if _measurements_exist_at(database) else None)
     result = translocation_summary(cells, config, reference, measured)
     out = os.path.join(config['src'], 'translocation')
     os.makedirs(out, exist_ok=True)
@@ -1556,7 +1568,7 @@ def analyze_host_pathogen(settings=None):
     for source in sources:
         path = Path(source).expanduser().resolve()
         database = path if path.is_file() else path / 'measurements' / 'measurements.db'
-        if not database.is_file():
+        if not _measurements_exist_at(database):
             raise FileNotFoundError(f'Measurements database not found: {database}')
         if database in databases:
             raise ValueError('The same project database was provided more than once')

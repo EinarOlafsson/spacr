@@ -13,6 +13,7 @@ a fixed one so the row bookkeeping around it can be asserted exactly.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import shutil
 import sqlite3
@@ -40,7 +41,7 @@ def _db(tmp_path, name, tables):
     root = tmp_path / name
     meas = root / "measurements"
     meas.mkdir(parents=True)
-    con = sqlite3.connect(meas / "measurements.db")
+    con = store_sql.connect(meas / "measurements.db")
     try:
         for table, frame in tables.items():
             frame.to_sql(table, con, index=False)

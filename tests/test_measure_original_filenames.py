@@ -9,6 +9,7 @@ resumed run fills the rows it adds as well as the rows written before.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import sqlite3
 
 import numpy as np
@@ -84,7 +85,7 @@ def _write_manifest(root):
 
 def _tables(root):
     db = root / "measurements" / "measurements.db"
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         names = [row[0] for row in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]
         return {name: pd.read_sql_query(f'SELECT * FROM "{name}"', conn)

@@ -6,6 +6,7 @@ raw FileNotFoundError that was then filed automatically as a bug.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 
 import numpy as np
@@ -222,7 +223,7 @@ def test_raw_measurement_keeps_original_statistics_with_or_without_legacy_record
     source = Path(merged) / name
     original = source.read_bytes()
     measure_crop(_settings(merged, unmix=False))
-    with sqlite3.connect(root / 'measurements' / 'measurements.db') as connection:
+    with store_sql.connect(root / 'measurements' / 'measurements.db') as connection:
         means = connection.execute('SELECT cell_channel_0_mean_intensity FROM cell').fetchall()
     assert len(means) == 4
     assert all(row[0] == 1100 for row in means)

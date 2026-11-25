@@ -29,6 +29,7 @@ produces a real project or a plausible-looking wrong one:
 """
 from __future__ import annotations
 
+from tests import store_sql
 from dataclasses import fields
 import os
 import sqlite3
@@ -132,7 +133,7 @@ def _plan(theirs, **kwargs):
 
 
 def _tables(db_path):
-    connection = sqlite3.connect(db_path)
+    connection = store_sql.connect(db_path)
     try:
         return sorted(str(r[0]) for r in connection.execute(
             "SELECT name FROM sqlite_master WHERE type IN ('table','view')"))
@@ -141,7 +142,7 @@ def _tables(db_path):
 
 
 def _read(db_path, table):
-    connection = sqlite3.connect(db_path)
+    connection = store_sql.connect(db_path)
     try:
         return pd.read_sql_query(f'SELECT * FROM "{table}"', connection)
     finally:
@@ -175,7 +176,7 @@ def test_a_full_import_produces_a_working_spacr_project(theirs, tmp_path):
     assert cv.MAP_FILENAME in names
 
     # -- the database ---------------------------------------------------
-    assert os.path.isfile(result.db_path)
+    assert store_sql.measured(result.db_path)
     tables = _tables(result.db_path)
     for name in ("cell", "foreign_cell", cv.CONVERSION_TABLE,
                  fg.FOREIGN_COLUMNS_TABLE, fg.IMPORT_TABLE):
@@ -942,7 +943,7 @@ def test_re_extraction_is_optional_and_keeps_the_two_halves_apart(theirs,
     def fake_measure_crop(settings):
         captured.update(settings)
         # stand in for the real thing: write a spaCR-shaped cell table
-        connection = sqlite3.connect(
+        connection = store_sql.connect(
             os.path.join(settings["src"], "measurements", "measurements.db"))
         try:
             pd.DataFrame([
@@ -996,7 +997,7 @@ def test_read_measurements_handles_the_formats_people_send(theirs, tmp_path):
     assert list(fg.read_measurements(str(tsv)).columns) == list(frame.columns)
 
     db = tmp_path / "t.db"
-    connection = sqlite3.connect(str(db))
+    connection = store_sql.connect(str(db))
     try:
         frame.to_sql("objects", connection, index=False)
     finally:
@@ -1015,7 +1016,7 @@ def test_read_measurements_refuses_what_it_cannot_open(tmp_path):
         fg.read_measurements(str(weird))
 
     two = tmp_path / "two.db"
-    connection = sqlite3.connect(str(two))
+    connection = store_sql.connect(str(two))
     try:
         pd.DataFrame({"a": [1]}).to_sql("one", connection, index=False)
         pd.DataFrame({"a": [1]}).to_sql("other", connection, index=False)
@@ -1078,7 +1079,7 @@ def test_import_project_previews_before_it_writes(theirs, tmp_path, capsys):
 
     result = fg.import_project(settings, preview_only=False)
     assert result.n_fields == 2
-    assert os.path.isfile(result.db_path)
+    assert store_sql.measured(result.db_path)
 
 
 def test_import_project_prints_progress_that_ends_at_the_total(theirs, tmp_path, capsys):
@@ -1515,7 +1516,7 @@ def test_a_field_with_no_merged_array_is_named(theirs, tmp_path, monkeypatch):
 
 def test_the_join_view_is_only_created_when_both_halves_exist(tmp_path):
     db = str(tmp_path / "m.db")
-    connection = sqlite3.connect(db)
+    connection = store_sql.connect(db)
     try:
         pd.DataFrame({"a": [1]}).to_sql("cell", connection, index=False)
     finally:

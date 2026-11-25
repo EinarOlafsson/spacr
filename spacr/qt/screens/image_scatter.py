@@ -31,7 +31,6 @@ from __future__ import annotations
 
 import logging
 import os
-import sqlite3
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -91,7 +90,8 @@ def load_scatter_frame(db_path: str, table: str,
     Deliberately a module-level function taking strings: it must never touch a
     widget, and the surest way to guarantee that is for it not to have one.
 
-    :param db_path: path to the SQLite measurements database.
+    :param db_path: path to the measurements database or store project
+        (anything :func:`spacr.store.locate` accepts).
     :param table: measurement table to read from the database.
     :param limit: a hard row cap. A million-row table plotted at three pixels
         a point is a solid rectangle, so the cap costs no information and
@@ -99,29 +99,25 @@ def load_scatter_frame(db_path: str, table: str,
     :raises FileNotFoundError: no such database — said plainly, because an
         empty plot from a wrong path looks exactly like an empty table.
     """
-    if not db_path or not os.path.isfile(db_path):
-        raise FileNotFoundError(f"no measurements database at {db_path!r}")
-    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30)
+    from ... import store
     try:
-        frame = pd.read_sql_query(
-            f'SELECT * FROM "{str(table)}" LIMIT {int(limit)}', connection)
-    finally:
-        connection.close()
+        store.locate(db_path)
+    except FileNotFoundError:
+        raise FileNotFoundError(
+            f"no measurements database at {db_path!r}") from None
+    from .graph_builder import _store_frame
+    frame = _store_frame(db_path, str(table), int(limit))
     return with_object_type(frame, table)
 
 
 def list_tables(db_path: str) -> List[str]:
     """Every table in ``db_path``, sorted. Worker-thread safe."""
-    if not db_path or not os.path.isfile(db_path):
-        return []
-    connection = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30)
+    from ... import store
     try:
-        rows = connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
-        ).fetchall()
-    finally:
-        connection.close()
-    return [str(row[0]) for row in rows]
+        store.locate(db_path)
+    except FileNotFoundError:
+        return []
+    return [str(name) for name in store.shared(db_path).tables()]
 
 
 def numeric_columns(frame: pd.DataFrame) -> List[str]:

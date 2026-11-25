@@ -61,9 +61,9 @@ empty by default and both entry points return their input unchanged when they
 are, so an ordinary run is byte-identical to one from before they existed.
 """
 
-import os, cv2, time, sqlite3, threading, traceback, shutil, inspect, contextlib
+import os, cv2, time, sqlite3, threading, traceback, shutil, inspect, contextlib, contextvars
 import json
-from functools import lru_cache
+from functools import lru_cache, partial
 import re
 import numpy as np
 import pandas as pd
@@ -741,6 +741,9 @@ def _analyze_cytoskeleton(array, mask, channel, *, object_support=True):
     """Extract per-object skeleton length and branch counts from a cytoskeleton channel.
 
     Skeleton pixels are restricted to the object mask after local thresholding.
+    The skeleton length is its pixel count: the sum of the areas of its
+    connected pieces, as a float (an int 0 for an empty skeleton), which is
+    what it was summed from.
 
     :param array: Multi-channel intensity image ``(H, W, C)``.
     :param mask: Label mask; each non-zero label defines one object.
@@ -750,7 +753,17 @@ def _analyze_cytoskeleton(array, mask, channel, *, object_support=True):
     :returns: DataFrame with ``object_label``, ``skeleton_length`` and
         ``skeleton_branch_points`` columns.
     """
+    return pd.DataFrame(_skeleton_rows(array, mask, channel,
+                                       object_support=object_support))
 
+
+def _skeleton_rows(array, mask, channel, *, object_support=True):
+    """The rows of :func:`_analyze_cytoskeleton` as a list of dicts.
+
+    :func:`measure_cytoskeleton` reads one object's row per call, so it takes
+    the list rather than a frame built and indexed for every cell and
+    channel. The parameters are :func:`_analyze_cytoskeleton`'s.
+    """
     image = array[..., channel]
 
     properties_list = []
@@ -774,8 +787,9 @@ def _analyze_cytoskeleton(array, mask, channel, *, object_support=True):
 
                 skeleton = morphology.skeletonize(img_as_bool(cytoskeleton))
 
-                skeleton_props = measure.regionprops(measure.label(skeleton), intensity_image=image)
-                skeleton_length = sum(prop.area for prop in skeleton_props)
+                skeleton_pixels = int(np.count_nonzero(skeleton))
+                skeleton_length = (np.float64(skeleton_pixels) if skeleton_pixels
+                                   else 0)
                 skel = skeleton.astype(np.uint8)
                 neighbour_count = convolve(
                     skel, np.ones((3, 3), dtype=np.uint8),
@@ -795,7 +809,7 @@ def _analyze_cytoskeleton(array, mask, channel, *, object_support=True):
                     "skeleton_branch_points": 0
                 })
 
-    return pd.DataFrame(properties_list)
+    return properties_list
 
 
 def measure_cytoskeleton(labels, image, channels=None, *, channel_names=None):
@@ -871,10 +885,10 @@ def measure_cytoskeleton(labels, image, channels=None, *, channel_names=None):
         window = _grow_window(box, 24, labels.shape)
         mask = labels[window] == label
         for channel in selected:
-            measured = _analyze_cytoskeleton(image[window], mask, channel)
-            if not measured.empty:
+            measured = _skeleton_rows(image[window], mask, channel)
+            if measured:
                 for statistic in ('skeleton_length', 'skeleton_branch_points'):
-                    columns[f'channel_{channel}_{statistic}'][row] = measured.iloc[0][statistic]
+                    columns[f'channel_{channel}_{statistic}'][row] = measured[0][statistic]
     return pd.DataFrame(columns)
 
 
@@ -1727,27 +1741,222 @@ def _morphological_measurements(
  
     return tuple(df_ls)
 
+def _label_overlaps(child, parent):
+    """Pixel overlap of every child and parent object pair, in one pass.
+
+    THE ONE overlap count of spaCR's ownership and pairing (duplicate audit
+    B14): Measure's nucleus and cell ownership, OPS pairing, the organelle,
+    pathogen and vacuole parents, the time-lapse child summaries, the Mask
+    step's object relationships and OPS mask agreement all count overlaps
+    here, so every module reads the same numbers.
+
+    :param child: a label image; 0 is background.
+    :param parent: a label image of the same shape.
+    :returns: ``(child_ids, parent_ids, overlap)``, three int64 arrays, one
+        entry per pair that shares at least one pixel, sorted by child label
+        and then parent label.
+    :raises ValueError: when the shapes differ.
+
+    The pairs are encoded as ``child * (max parent + 1) + parent`` and
+    counted with one ``np.bincount`` when the codes are dense (at most four
+    per overlapping pixel) and one ``np.unique`` otherwise, so memory grows
+    with the overlapping pixels, never with the square of the largest label.
+    """
+    child = np.asarray(child)
+    parent = np.asarray(parent)
+    if child.shape != parent.shape:
+        raise ValueError(
+            f"label images differ in shape: {child.shape} vs {parent.shape}")
+    c = child.ravel()
+    p = parent.ravel()
+    both = (c > 0) & (p > 0)
+    if not both.any():
+        empty = np.zeros(0, np.int64)
+        return empty, empty.copy(), empty.copy()
+    c = c[both].astype(np.int64)
+    p = p[both].astype(np.int64)
+    width = int(p.max()) + 1
+    keys = c * width + p
+    span = int(c.max()) * width + width
+    if span <= max(4 * keys.size, 1 << 20):
+        counts = np.bincount(keys, minlength=span)
+        keys = np.flatnonzero(counts)
+        overlap = counts[keys]
+    else:
+        keys, overlap = np.unique(keys, return_counts=True)
+    return keys // width, keys % width, overlap.astype(np.int64)
+
+
+def _best_parent(child_ids, parent_ids, overlap):
+    """Each child's parent of largest overlap, from :func:`_label_overlaps`.
+
+    :param child_ids: the child label of each pair.
+    :param parent_ids: the parent label of each pair.
+    :param overlap: the pixels the pair shares.
+    :returns: ``(children, parents, overlap)``: one entry per child, sorted
+        by child label, with its parent and their overlap. Ties go to the
+        lowest parent label, so the result does not depend on pixel order.
+    """
+    child_ids = np.asarray(child_ids, np.int64)
+    parent_ids = np.asarray(parent_ids, np.int64)
+    overlap = np.asarray(overlap, np.int64)
+    if not child_ids.size:
+        return child_ids, parent_ids, overlap
+    order = np.lexsort((parent_ids, -overlap, child_ids))
+    child_ids = child_ids[order]
+    first = np.r_[True, child_ids[1:] != child_ids[:-1]]
+    return child_ids[first], parent_ids[order][first], overlap[order][first]
+
+
+def _merged_into(root, value):
+    """The label ``value`` has been merged into, following ``root`` to its end.
+
+    :param root: ``{label: label it was merged into}``.
+    :param value: a label.
+    :returns: the label that now stands for ``value``.
+    """
+    while root.get(value, value) != value:
+        value = root[value]
+    return value
+
+
+def _merge_spanning_children(mask1, mask2):
+    """THE nucleus and cell ownership rule: a nucleus split between cells merges them.
+
+    For each connected object of ``mask1`` (a nucleus) that touches several
+    objects of ``mask2`` (cells), in label order: when one of them holds at
+    least 90 % of it, its pixels in the others are removed from ``mask1``;
+    otherwise those ``mask2`` objects are merged into the lowest of their
+    labels. A merge is seen by the objects examined after it, exactly as
+    when the merged labels are written into ``mask2`` at once.
+
+    :param mask1: child labels (nuclei), changed in place.
+    :param mask2: parent labels (cells), changed in place.
+    :returns: ``(mask1, mask2, folded)``: ``folded`` is how many ``mask2``
+        labels were merged into another.
+
+    The overlaps come from one :func:`_label_overlaps` pass; only objects
+    over several cells are examined one by one.
+    """
+    from skimage.measure import label
+
+    labeled_1 = label(mask1)
+    comps, parents, overlap = _label_overlaps(labeled_1, mask2)
+    if not comps.size:
+        return mask1, mask2, 0
+    starts = np.flatnonzero(np.r_[True, comps[1:] != comps[:-1]])
+    ends = np.r_[starts[1:], comps.size]
+    spanning = (ends - starts) > 1
+    if not spanning.any():
+        return mask1, mask2, 0
+    size = np.bincount(labeled_1.ravel())
+    root = {}
+
+    trims = []
+    for start, end in zip(starts[spanning], ends[spanning]):
+        comp = int(comps[start])
+        current = np.array([_merged_into(root, int(v)) for v in parents[start:end]], np.int64)
+        labels_now, inverse = np.unique(current, return_inverse=True)
+        if labels_now.size < 2:
+            continue
+        shared = np.bincount(inverse, weights=overlap[start:end]).astype(np.int64)
+        percentages = [int(n) / int(size[comp]) * 100 for n in shared]
+        winner = int(labels_now[int(np.argmax(percentages))])
+        if max(percentages) >= 90:
+            kept = parents[start:end][current == winner]
+            trims.append((comp, kept))
+        else:
+            first = int(labels_now[0])
+            for other in labels_now[1:]:
+                root[int(other)] = first
+    if trims:
+        comp_ids = np.array([comp for comp, _ in trims], np.int64)
+        trimmed = np.zeros(size.size, dtype=bool)
+        trimmed[comp_ids] = True
+        in_trim = trimmed[labeled_1] & (mask2 != 0)
+        width = int(np.max(mask2)) + 1
+        kept_keys = np.concatenate([
+            comp * width + kept.astype(np.int64) for comp, kept in trims])
+        keys = labeled_1[in_trim].astype(np.int64) * width + mask2[in_trim].astype(np.int64)
+        drop = np.zeros(mask1.shape, dtype=bool)
+        drop[in_trim] = ~np.isin(keys, kept_keys)
+        mask1[drop] = 0
+    if root:
+        merged = np.array(sorted(root), np.int64)
+        targets = np.array([_merged_into(root, int(v)) for v in merged], np.int64)
+        lut = np.arange(int(merged.max()) + 1, dtype=np.int64)
+        lut[merged] = targets
+        where = (mask2 > 0) & (mask2 <= merged.max())
+        mask2[where] = lut[mask2[where]]
+    return mask1, mask2, len(root)
+
+
+def _assign_nuclei_to_cells(nucleus_mask, cell_mask):
+    """THE nucleus and cell ownership of every spaCR module, in one call.
+
+    Measure, External Masks (through Measure), OPS
+    (:func:`spacr.ops_sample.pair_nuclei_with_cells`) and the time-lapse
+    tables all give nuclei to cells here:
+
+    1. :func:`_merge_spanning_children`: a nucleus split between several
+       cells with under 90 % in each merges those cells into one; with 90 %
+       or more in one cell, its pixels in the others are removed.
+    2. :func:`_assign_shared_nuclei`: a nucleus label made of disconnected
+       pieces in different cells keeps only the pieces in the cell it
+       overlaps most.
+
+    :param nucleus_mask: nucleus labels, changed in place.
+    :param cell_mask: cell labels, changed in place.
+    :returns: ``(nucleus_mask, cell_mask, shared_nuclei, shared_cells,
+        merged)``: the two label sets of step 2 and how many cell labels
+        step 1 merged into another.
+    """
+    nucleus_mask, cell_mask, merged = _merge_spanning_children(
+        nucleus_mask, cell_mask)
+    nucleus_mask, shared_nuclei, shared_cells = _assign_shared_nuclei(
+        nucleus_mask, cell_mask)
+    return nucleus_mask, cell_mask, shared_nuclei, shared_cells, merged
+
+
+def _derive_cytoplasm(cell, exclude=()):
+    """THE cytoplasm of every spaCR module: the cell labels outside the owned objects.
+
+    Measure, the crop export, the settings check, External Masks, the
+    time-lapse tables, OPS measurement and the OPS field store all derive
+    the cytoplasm here (duplicate audit B16). Each caller passes the
+    objects it has: Measure the nucleus, pathogen and every enabled
+    organelle role; OPS the nucleus and its segmented object classes.
+
+    :param cell: cell labels, any shape.
+    :param exclude: label or boolean masks of the same shape; a pixel that
+        is nonzero in any of them is not cytoplasm. ``None`` entries are
+        skipped.
+    :returns: an array of ``cell``'s dtype holding the cell label on every
+        cytoplasm pixel and 0 elsewhere.
+    """
+    cell = np.asarray(cell)
+    interior = np.zeros(cell.shape, dtype=bool)
+    for mask in exclude:
+        if mask is not None:
+            interior |= np.asarray(mask) != 0
+    return np.where(interior, 0, cell).astype(cell.dtype, copy=False)
+
+
 def _map_child_to_parent(child_mask, parent_mask, child_name='organelle', parent_name='cell'):
-    """Map each child label to its maximum-overlap parent label."""
+    """Map each child label to its maximum-overlap parent label.
+
+    The overlaps are :func:`_label_overlaps`, the choice :func:`_best_parent`
+    (ties to the lowest parent label); a child over no parent gets 0.
+    """
     child_labels = np.unique(child_mask)
     child_labels = child_labels[child_labels != 0]
-    
-    mapping = []
-    boxes = _label_bounding_boxes(child_mask)
-    for child_id in child_labels:
-        box = _box_for(boxes, child_id)
-        if box is None:
-            box = tuple(slice(None) for _ in np.shape(child_mask))
-        region = child_mask[box] == child_id
-        parent_ids = parent_mask[box][region]
-        parent_ids = parent_ids[parent_ids != 0]
-        if len(parent_ids) > 0:
-            parent_id = np.bincount(parent_ids).argmax()
-        else:
-            parent_id = 0
-        mapping.append({child_name: child_id, parent_name: parent_id})
-    
-    return pd.DataFrame(mapping)
+    if not child_labels.size:
+        return pd.DataFrame([])
+    kids, parents, _ = _best_parent(*_label_overlaps(child_mask, parent_mask))
+    parent_ids = np.zeros(child_labels.size, np.int64)
+    found = np.isin(child_labels, kids)
+    parent_ids[found] = parents[np.searchsorted(kids, child_labels[found])]
+    return pd.DataFrame({child_name: child_labels, parent_name: parent_ids})
 
 
 def _summarize_organelles_per_parent(organelle_mask, parent_mask, channel_arrays, parent_name='cell', spacing=None):
@@ -1925,6 +2134,7 @@ def _intensity_measurements(
               *organelle_masks.values(), cytoplasm_mask]
     dfs = [[] for _ in ls]
     
+    geometry = {}
     for i in range(0, channel_arrays.shape[-1]):
         channel = channel_arrays[..., i]
         channel_percentiles = _field_reference_percentiles(channel)
@@ -1968,18 +2178,28 @@ def _intensity_measurements(
 
             if periphery:
                 if ls[j] in ('nucleus', 'pathogen', *ORGANELLE_ROLES):
-                    periphery_intensity_stats = _periphery_intensity(label, channel)
+                    if ('periphery', j) not in geometry:
+                        geometry['periphery', j] = _periphery_selections(label)
+                    periphery_intensity_stats = _periphery_intensity(
+                        label, channel, selections=geometry['periphery', j])
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(periphery_intensity_stats, columns=[f'periphery_{stat}' for stat in col_lables])], axis=1)
 
             if outside:
                 if ls[j] in ('cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES):
+                    if ('outside', j) not in geometry:
+                        geometry['outside', j] = _outside_selections(
+                            label, spacing=spacing,
+                            exclude_foreground=(ls[j] == 'cell'))
                     outside_intensity_stats = _outside_intensity(
                         label, channel, spacing=spacing,
-                        exclude_foreground=(ls[j] == 'cell'))
+                        exclude_foreground=(ls[j] == 'cell'),
+                        selections=geometry['outside', j])
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
 
             label_shape = np.asarray(label).shape
-            label_boxes = _label_bounding_boxes(label)
+            if ('boxes', j) not in geometry:
+                geometry['boxes', j] = _label_bounding_boxes(label)
+            label_boxes = geometry['boxes', j]
             label_field = _whole_field_window(label_shape)
             blur_col = []
             for region_label in mask_intensity_df['label']:
@@ -2045,14 +2265,18 @@ def _intensity_measurements(
 
     if calculate_correlation:
         if channel_arrays.shape[-1] >= 2:
-            for i in range(channel_arrays.shape[-1]):
-                for j in range(i+1, channel_arrays.shape[-1]):
-                    chan_i = channel_arrays[..., i]
-                    chan_j = channel_arrays[..., j]
-                    for m, mask in enumerate(labels):
-                        coloc_df = _calculate_correlation_object_level(chan_i, chan_j, mask, settings)
+            for m, mask in enumerate(labels):
+                correlation_cache = {}
+                for i in range(channel_arrays.shape[-1]):
+                    for j in range(i+1, channel_arrays.shape[-1]):
+                        chan_i = channel_arrays[..., i]
+                        chan_j = channel_arrays[..., j]
+                        coloc_df = _calculate_correlation_object_level(
+                            chan_i, chan_j, mask, settings,
+                            cache=correlation_cache, channels=(i, j))
                         coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
                         dfs[m].append(coloc_df)
+                del correlation_cache
 
     if 'cytoskeleton' in blocks and ndim == 2:
         skeleton = measure_cytoskeleton(
@@ -2089,6 +2313,22 @@ _PROFILE_FIELD_FAMILIES = {
 }
 
 
+def _whole_field_frames(masks, image, families, options, share=None):
+    """The frames of the whole-field profiling families, in family order.
+
+    :param masks: the validated masks of :func:`_add_profile_frames`.
+    :param image: the float64 ``(H, W, C)`` image.
+    :param families: names in :data:`_PROFILE_FIELD_FAMILIES`.
+    :param options: per-family keyword arguments.
+    :param share: the threads these families may use, or None for the
+        whole budget (:func:`_thread_share`).
+    """
+    with (_thread_share(share) if share else contextlib.nullcontext()):
+        return [globals()[_PROFILE_FIELD_FAMILIES[family]](
+            masks, image, **options.get(family, {}))
+            for family in families]
+
+
 def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
                         granularity_subsample=1.0):
     """Append the profiling families of every non-empty mask to its frame list.
@@ -2105,7 +2345,11 @@ def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
 
     The families that filter the whole field (LBP, Gabor, granularity) run
     once for all masks; the others run per mask through
-    :func:`measure_profile_features`.
+    :func:`measure_profile_features`. With more than one thread
+    (:func:`_field_threads`) the whole-field families, whose kernels release
+    the GIL, run on a thread of their own while the per-object families run,
+    the budget split between the two; each frame is computed as in a single
+    thread and the columns keep their order.
     """
     present = [m for m, mask in enumerate(masks)
                if mask is not None and np.max(mask) != 0]
@@ -2118,17 +2362,34 @@ def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
     checked = [_profile_inputs(masks[m], None)[0] for m in present]
     blocks = {m: [pd.DataFrame({'label': np.unique(mask[mask > 0])})]
               for m, mask in zip(present, checked)}
-    if per_object:
-        for m in present:
-            blocks[m].append(measure_profile_features(
-                masks[m], image, per_object).drop(columns='label'))
     options = {'granularity': {'subsample': granularity_subsample}}
-    for family in families:
-        if family in _PROFILE_FIELD_FAMILIES:
-            frames = globals()[_PROFILE_FIELD_FAMILIES[family]](
-                checked, image, **options.get(family, {}))
-            for m, frame in zip(present, frames):
-                blocks[m].append(frame.drop(columns='label'))
+    field_families = [f for f in families if f in _PROFILE_FIELD_FAMILIES]
+
+    budget = _field_threads()
+
+    background = None
+    if field_families and per_object and budget > 1:
+        from concurrent.futures import ThreadPoolExecutor
+
+        background = ThreadPoolExecutor(max_workers=1)
+        pending = background.submit(_whole_field_frames, checked, image,
+                                    field_families, options, budget // 2)
+    try:
+        if per_object:
+            with (_thread_share(budget - budget // 2) if background
+                  else contextlib.nullcontext()):
+                for m in present:
+                    blocks[m].append(measure_profile_features(
+                        masks[m], image, per_object).drop(columns='label'))
+        field_frames = (pending.result() if background else
+                        _whole_field_frames(checked, image, field_families,
+                                            options))
+    finally:
+        if background is not None:
+            background.shutdown(wait=True)
+    for frames in field_frames:
+        for m, frame in zip(present, frames):
+            blocks[m].append(frame.drop(columns='label'))
     for m in present:
         frame = pd.concat([b.reset_index(drop=True) for b in blocks[m]], axis=1)
         frame.columns = [col if col == 'label' else f'{roles[m]}_{col}'
@@ -2309,6 +2570,28 @@ def _field_reference_percentiles(image):
     return float(np.percentile(field, 90)), float(np.percentile(field, 10))
 
 
+#: SciPy's skewness, kurtosis and entropy without their axis and NaN-policy
+#: wrapper. :func:`_extended_regionprops_table` calls each once per object on
+#: a 1-D float array it has already cleared of NaN, where the wrapper does no
+#: more than hand the array on, at about half a millisecond a call; the
+#: arithmetic is the wrapped function's own, so the values are unchanged.
+#: The object's mode and Shannon entropy come from one :func:`numpy.unique`,
+#: the value counts ``scipy.stats.mode`` and ``skimage.measure.shannon_entropy``
+#: each take (the smallest most frequent value; entropy in bits).
+_SCIPY_SKEW = getattr(skew, '__wrapped__', skew)
+_SCIPY_KURTOSIS = getattr(kurtosis, '__wrapped__', kurtosis)
+
+
+def _scipy_entropy():
+    """``scipy.stats.entropy`` without its axis and NaN-policy wrapper."""
+    from scipy.stats import entropy
+
+    return getattr(entropy, '__wrapped__', entropy)
+
+
+_SCIPY_ENTROPY = _scipy_entropy()
+
+
 def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
                                 field_percentiles=None):
     """Return a regionprops table extended with distributional intensity features (mean/std/skew/kurtosis/mode/CV/Gini/entropy/percentiles).
@@ -2331,14 +2614,6 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
         either way.
     """
 
-    def _gini(array):
-        """NaN-safe Gini coefficient of an intensity array."""
-        array = np.abs(array[~np.isnan(array)])
-        n = array.size
-        array = np.sort(array)
-        index = np.arange(1, n + 1)
-        return (np.sum((2 * index - n - 1) * array)) / (n * np.sum(array)) if np.sum(array) else np.nan
-    
     props = regionprops_table(labels, image, properties=intensity_props, spacing=spacing)
     df = pd.DataFrame(props)
     if _ndim_of(labels) == 3:
@@ -2348,87 +2623,270 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
         field_percentiles = _field_reference_percentiles(image)
     field_p90, field_p10 = field_percentiles
 
-    regions = regionprops(labels, intensity_image=image, spacing=spacing)
-    integrated_intensity = []
-    std_intensity = []
-    median_intensity = []
-    skew_intensity = []
-    kurtosis_intensity = []
-    mode_intensity = []
-    range_intensity = []
-    iqr_intensity = []
-    cv_intensity = []
-    gini_intensity = []
-    frac_high90 = []
-    frac_low10 = []
-    entropy_intensity = []
-
-    def _masked_intensity(region):
-        """Pixels inside a region across old and new scikit-image names."""
-        try:
-            intensity = region.image_intensity
-        except AttributeError:
-            intensity = region.intensity_image
-        return intensity[region.image]
-
-    for region in regions:
-        intens = _masked_intensity(region)
-        intens = intens[~np.isnan(intens)]
-        if intens.size == 0:
-            integrated_intensity.append(np.nan)
-            std_intensity.append(np.nan)
-            median_intensity.append(np.nan)
-            skew_intensity.append(np.nan)
-            kurtosis_intensity.append(np.nan)
-            mode_intensity.append(np.nan)
-            range_intensity.append(np.nan)
-            iqr_intensity.append(np.nan)
-            cv_intensity.append(np.nan)
-            gini_intensity.append(np.nan)
-            frac_high90.append(np.nan)
-            frac_low10.append(np.nan)
-            entropy_intensity.append(np.nan)
-        else:
-            has_variation = not np.all(intens == intens[0])
-            integrated_intensity.append(np.sum(intens))
-            std_intensity.append(np.std(intens))
-            median_intensity.append(np.median(intens))
-            wide = intens.astype(np.float64, copy=False)
-            skew_intensity.append(
-                skew(wide) if intens.size > 2 and has_variation else np.nan)
-            kurtosis_intensity.append(
-                kurtosis(wide) if intens.size > 3 and has_variation else np.nan)
-            mode_val = np.atleast_1d(np.asarray(mode(intens, nan_policy='omit').mode))
-            mode_intensity.append(float(mode_val[0]) if mode_val.size else np.nan)
-            range_intensity.append(np.ptp(intens))
-            upper_quartile, lower_quartile = _percentiles_of(intens, [75, 25])
-            iqr_intensity.append(upper_quartile - lower_quartile)
-            cv_intensity.append(np.std(intens) / np.mean(intens) if np.mean(intens) != 0 else np.nan)
-            gini_intensity.append(_gini(intens))
-            frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
-            frac_low10.append(np.mean(intens < field_p10) if np.isfinite(field_p10) else np.nan)
-            entropy_intensity.append(shannon_entropy(intens) if intens.size > 1 else 0.0)
-
-    df['integrated_intensity'] = integrated_intensity
-    df['std_intensity'] = std_intensity
-    df['median_intensity'] = median_intensity
-    df['skew_intensity'] = skew_intensity
-    df['kurtosis_intensity'] = kurtosis_intensity
-    df['mode_intensity'] = mode_intensity
-    df['range_intensity'] = range_intensity
-    df['iqr_intensity'] = iqr_intensity
-    df['cv_intensity'] = cv_intensity
-    df['gini_intensity'] = gini_intensity
-    df['frac_high90'] = frac_high90
-    df['frac_low10'] = frac_low10
-    df['entropy_intensity'] = entropy_intensity
-
-    percentiles = [5, 10, 25, 75, 85, 95]
-    per_region = [_percentiles_of(_masked_intensity(region), percentiles)
-                  for region in regions]
-    for position, p in enumerate(percentiles):
-        df[f'percentile_{p}'] = [values[position] for values in per_region]
+    rows = np.unique(np.asarray(labels)[np.asarray(labels) > 0])
+    for column, values in _label_intensity_statistics(
+            labels, image, rows, field_p90, field_p10).items():
+        df[column] = values
     return df
+
+
+def _percentile_dtypes(dtype):
+    """The dtypes the per-object NumPy calls of :func:`_extended_regionprops_table` return for ``dtype`` pixels.
+
+    ``(sum, std, median, range, percentile, cv)``, read off the calls on a
+    three-pixel probe, so a column keeps the dtype it had when each object
+    was measured by its own call.
+    """
+    probe = np.array([1, 2, 4], dtype=dtype)
+    spread = np.std(probe)
+    return (np.sum(probe).dtype, spread.dtype, np.median(probe).dtype,
+            np.ptp(probe).dtype, _percentiles_of(probe, [75, 25]).dtype,
+            (spread / np.mean(probe)).dtype)
+
+
+def _intensity_statistics_kernel(labels, image, boxes, rows, references,
+                                 out, raster, raster_starts):
+    """Every object's distributional intensity statistics, one object at a time, into ``out``.
+
+    For row ``k`` the pixels of label ``rows[k]`` inside its box
+    ``boxes[k]`` (``z, row, col`` start and stop) are gathered in float64,
+    NaN left out, and sorted. Columns of ``out[k]``: 0 sum, 1 population
+    SD, 2 median, 3 skewness and 4 excess kurtosis (NaN when flat or too
+    small, as ``scipy.stats``), 5 the smallest most frequent value, 6
+    range, 7-12 the 5th, 10th, 25th, 75th, 85th and 95th linear
+    percentiles (NumPy's interpolation), 13 the Gini coefficient of the
+    absolute values, 14 and 15 the shares above ``references[0]`` and
+    below ``references[1]``, 16 the Shannon entropy of the value counts in
+    bits, 19 the number of NaN pixels and 20 the number of other pixels. A
+    row without pixels keeps the NaN it was given. Each row's non-NaN
+    pixels are also copied, unsorted and in the image's dtype, to
+    ``raster`` from ``raster_starts[k]`` in raster order, for
+    :func:`_label_sums_as_numpy`. Compile with :func:`_compiled`.
+
+    :param out: ``(rows, 21)`` float64, filled with NaN by the caller.
+    :param raster: one slot per labelled pixel, in the image's dtype.
+    """
+    points = (5.0, 10.0, 25.0, 75.0, 85.0, 95.0)
+    cursor = 0
+    for index in range(rows.size):
+        label = rows[index]
+        z0, z1 = boxes[index, 0], boxes[index, 1]
+        r0, r1 = boxes[index, 2], boxes[index, 3]
+        c0, c1 = boxes[index, 4], boxes[index, 5]
+        n = 0
+        missing = 0
+        for z in range(z0, z1):
+            for r in range(r0, r1):
+                for c in range(c0, c1):
+                    if labels[z, r, c] == label:
+                        if np.isnan(np.float64(image[z, r, c])):
+                            missing += 1
+                        else:
+                            n += 1
+        out[index, 19] = missing
+        out[index, 20] = n
+        raster_starts[index] = cursor
+        if n == 0:
+            continue
+        values = np.empty(n)
+        k = 0
+        for z in range(z0, z1):
+            for r in range(r0, r1):
+                for c in range(c0, c1):
+                    if labels[z, r, c] == label:
+                        v = np.float64(image[z, r, c])
+                        if not np.isnan(v):
+                            values[k] = v
+                            raster[cursor + k] = image[z, r, c]
+                            k += 1
+        cursor += n
+        values.sort()
+        total = 0.0
+        for k in range(n):
+            total += values[k]
+        mean = total / n
+        m2 = 0.0
+        m3 = 0.0
+        m4 = 0.0
+        for k in range(n):
+            d = values[k] - mean
+            d2 = d * d
+            m2 += d2
+            m3 += d2 * d
+            m4 += d2 * d2
+        m2 /= n
+        m3 /= n
+        m4 /= n
+        out[index, 0] = total
+        out[index, 1] = np.sqrt(m2)
+        out[index, 2] = (values[(n - 1) // 2] + values[n // 2]) / 2
+        varying = values[0] != values[n - 1]
+        flat_moment = m2 <= (2.220446049250313e-16 * mean) ** 2
+        if varying and n > 2 and not flat_moment:
+            out[index, 3] = m3 / m2 ** 1.5
+        if varying and n > 3 and not flat_moment:
+            out[index, 4] = m4 / m2 ** 2.0 - 3
+        best = 0
+        mode = values[0]
+        entropy = 0.0
+        start = 0
+        for k in range(1, n + 1):
+            if k == n or values[k] != values[start]:
+                length = k - start
+                if length > best:
+                    best = length
+                    mode = values[start]
+                share = length / n
+                entropy -= share * np.log(share)
+                start = k
+        out[index, 5] = mode
+        out[index, 6] = values[n - 1] - values[0]
+        for j in range(6):
+            position = (n - 1) * (points[j] / 100.0)
+            below = np.floor(position)
+            gamma = position - below
+            low_index = int(below)
+            high_index = min(low_index + 1, n - 1)
+            low = values[low_index]
+            high = values[high_index]
+            difference = high - low
+            if gamma >= 0.5:
+                out[index, 7 + j] = high - difference * (1 - gamma)
+            else:
+                out[index, 7 + j] = low + difference * gamma
+        magnitude = np.abs(values)
+        if values[0] < 0:
+            magnitude.sort()
+        weighted = 0.0
+        magnitude_sum = 0.0
+        for k in range(n):
+            weighted += (2 * (k + 1) - n - 1) * magnitude[k]
+            magnitude_sum += magnitude[k]
+        if magnitude_sum != 0:
+            out[index, 13] = weighted / (n * magnitude_sum)
+        high_count = 0
+        low_count = 0
+        for k in range(n):
+            if values[k] > references[0]:
+                high_count += 1
+            if values[k] < references[1]:
+                low_count += 1
+        out[index, 14] = high_count / n
+        out[index, 15] = low_count / n
+        out[index, 16] = entropy / np.log(2.0) if n > 1 else 0.0
+
+
+def _cast_rows(values, dtype, measured):
+    """A :func:`_label_intensity_statistics` column in ``dtype``; an integer dtype (no NaN pixels) keeps 0 for unmeasured rows."""
+    if np.issubdtype(dtype, np.integer):
+        return np.where(measured, values, 0).astype(dtype)
+    return values.astype(dtype)
+
+
+def _label_sums_as_numpy(raster, starts, counts, measured, sum_type,
+                         std_type, cv_type):
+    """Each row's ``np.sum``, ``np.std`` and ``std / mean`` of its pixels, by NumPy on the object's own pixels.
+
+    These three keep NumPy's own pairwise summation in the image's
+    precision (a float32 image sums in float32), so they stay the values
+    one ``np.sum`` / ``np.std`` / ``np.mean`` per object gave: each
+    object's non-NaN pixels in raster order, the order its crop held them
+    in, as :func:`_intensity_statistics_kernel` copied them.
+
+    :param raster: the copied pixels; row ``k`` holds ``counts[k]`` from
+        ``starts[k]``.
+    :returns: ``(integrated, spread, cv)`` columns; NaN (0 for an integer
+        dtype) for a row without pixels.
+    """
+    size = len(starts)
+    integrated = _cast_rows(np.full(size, np.nan), sum_type, measured)
+    spread = _cast_rows(np.full(size, np.nan), std_type, measured)
+    cv = _cast_rows(np.full(size, np.nan), cv_type, measured)
+    for index, (start, count) in enumerate(zip(np.asarray(starts).tolist(),
+                                               np.asarray(counts).tolist())):
+        if not count:
+            continue
+        run = raster[start:start + int(count)]
+        level = np.mean(run)
+        deviation = np.std(run)
+        integrated[index] = np.sum(run)
+        spread[index] = deviation
+        cv[index] = deviation / level if level != 0 else np.nan
+    return integrated, spread, cv
+
+
+def _label_intensity_statistics(labels, image, rows, field_p90, field_p10):
+    """The distributional intensity columns of :func:`_extended_regionprops_table`, for every label.
+
+    One compiled pass per object over its bounding box
+    (:func:`_intensity_statistics_kernel`) replaces a dozen NumPy and SciPy
+    calls per object; the sum, SD and CV stay NumPy's own per-object calls
+    (:func:`_label_sums_as_numpy`). The definitions are those calls'
+    (``np.sum``, ``np.std``, ``np.median``, ``np.percentile`` linear, ``scipy.stats``
+    skew and kurtosis with their flat-object NaN, the smallest most
+    frequent value, entropy in bits), summed in float64; each column keeps
+    the dtype its per-object call returned (:func:`_percentile_dtypes`).
+    The field references are compared in the image's own precision, as the
+    per-object comparison did. NaN pixels are left out of every statistic
+    but the percentiles, which are NaN for an object holding one.
+
+    :param rows: the labels of the table's rows, ascending.
+    :returns: ``{column: values}`` in the table's column order.
+    """
+    labels = np.asarray(labels)
+    image = np.asarray(image)
+    if labels.ndim == 2:
+        labels = labels[None]
+        image = image[None]
+    rows = np.asarray(rows, dtype=np.int64)
+    sum_type, std_type, median_type, range_type, pct_type, cv_type = (
+        _percentile_dtypes(image.dtype))
+    precision = np.result_type(image.dtype, 1.0)
+    references = np.array([
+        float(np.asarray(r).astype(precision)) if np.isfinite(r) else np.nan
+        for r in (field_p90, field_p10)])
+    slices = find_objects(labels)
+    boxes = np.zeros((rows.size, 6), dtype=np.int64)
+    for index, label in enumerate(rows.tolist()):
+        box = slices[label - 1]
+        boxes[index] = (box[0].start, box[0].stop, box[1].start, box[1].stop,
+                        box[2].start, box[2].stop)
+    stats = np.full((rows.size, 21), np.nan)
+    raster = np.empty(np.count_nonzero(labels), dtype=image.dtype)
+    raster_starts = np.zeros(rows.size, dtype=np.int64)
+    _compiled(_intensity_statistics_kernel)(
+        np.ascontiguousarray(labels), np.ascontiguousarray(image), boxes,
+        rows, references, stats, raster, raster_starts)
+    measured = stats[:, 20] > 0
+    percentiles = {p: _cast_rows(stats[:, 7 + j], pct_type, measured)
+                   for j, p in enumerate((5, 10, 25, 75, 85, 95))}
+    integrated, spread, cv = _label_sums_as_numpy(
+        raster, raster_starts, stats[:, 20], measured, sum_type, std_type,
+        cv_type)
+    columns = {
+        'integrated_intensity': integrated,
+        'std_intensity': spread,
+        'median_intensity': _cast_rows(stats[:, 2], median_type, measured),
+        'skew_intensity': stats[:, 3],
+        'kurtosis_intensity': stats[:, 4],
+        'mode_intensity': stats[:, 5],
+        'range_intensity': _cast_rows(stats[:, 6], range_type, measured),
+        'iqr_intensity': percentiles[75] - percentiles[25],
+        'cv_intensity': cv,
+        'gini_intensity': stats[:, 13],
+    }
+    for name, column, reference in (('frac_high90', 14, references[0]),
+                                    ('frac_low10', 15, references[1])):
+        columns[name] = (stats[:, column] if np.isfinite(reference)
+                         else np.full(rows.size, np.nan))
+    columns['entropy_intensity'] = stats[:, 16]
+    has_missing = stats[:, 19] > 0
+    for p, values in percentiles.items():
+        if np.issubdtype(values.dtype, np.floating):
+            values = np.where(has_missing, np.nan, values).astype(values.dtype)
+        columns[f'percentile_{p}'] = values
+    return columns
+
 
 def _homogeneity_offset(distance, width):
     """The GLCM offset actually used for ``distance`` on a box ``width`` wide.
@@ -2445,6 +2903,33 @@ def _homogeneity_offset(distance, width):
     :returns: the offset in pixels, ``0 <= offset <= distance``.
     """
     return max(0, min(int(distance), int(width) - 1))
+
+
+def _homogeneity_kernel(image, offsets, out):
+    """GLCM homogeneity of a 2-D uint8 image at each horizontal offset, into ``out``.
+
+    The value of ``graycoprops(graycomatrix(image, [offset], [0],
+    symmetric=True, normed=True), 'homogeneity')``: the mean over every
+    pixel and the one ``offset`` columns to its right of ``1 / (1 + (a -
+    b)^2)`` (the symmetric matrix counts each pair twice, which the
+    normalisation cancels), summed in one pass instead of over a 256 x 256
+    matrix. An offset of 0 gives 1.0; an offset that pairs no pixel gives
+    NaN. Compile with :func:`_compiled`.
+    """
+    rows, cols = image.shape
+    for k in range(offsets.size):
+        offset = offsets[k]
+        if offset == 0:
+            out[k] = 1.0
+            continue
+        total = 0.0
+        pairs = 0
+        for r in range(rows):
+            for c in range(cols - offset):
+                d = np.float64(image[r, c]) - np.float64(image[r, c + offset])
+                total += 1.0 / (1.0 + d * d)
+                pairs += 1
+        out[k] = total / pairs if pairs else np.nan
 
 
 def _calculate_homogeneity(label, channel, distances=None):
@@ -2466,6 +2951,7 @@ def _calculate_homogeneity(label, channel, distances=None):
                 "3-D run writes no homogeneity_distance_* columns.")
         if distances is None:
             distances = [2,4,8,16,32,64]
+        kernel = _compiled(_homogeneity_kernel)
         homogeneity_values = []
         for region in regionprops(label):
             region_image = region.image * channel[region.slice]
@@ -2473,19 +2959,12 @@ def _calculate_homogeneity(label, channel, distances=None):
                 region_image = region_image.astype(int)
             rescaled_image = rescale_intensity(
                 region_image, out_range=(0, 255)).astype('uint8')
-            homogeneity_per_distance = []
-            for d in distances:
-                offset = _homogeneity_offset(d, rescaled_image.shape[1])
-                if offset == 0:
-                    homogeneity_per_distance.append(1.0)
-                    continue
-                glcm = graycomatrix(rescaled_image, [offset], [0], symmetric=True, normed=True)
-                if not np.any(glcm):
-                    homogeneity_per_distance.append(np.nan)
-                else:
-                    homogeneity_per_distance.append(
-                        graycoprops(glcm, 'homogeneity')[0, 0])
-            homogeneity_values.append(homogeneity_per_distance)
+            offsets = np.array([
+                _homogeneity_offset(d, rescaled_image.shape[1])
+                for d in distances], dtype=np.int64)
+            row = np.empty(offsets.size)
+            kernel(np.ascontiguousarray(rescaled_image), offsets, row)
+            homogeneity_values.append(row.tolist())
         columns = [f'homogeneity_distance_{d}' for d in distances]
         homogeneity_df = pd.DataFrame(homogeneity_values, columns=columns)
 
@@ -2666,7 +3145,9 @@ def _field_tables_for_check(field, settings):
 
     The field is measured as it is stored: the size filters, the
     preprocessing hooks and the PSF step of a full run are not applied,
-    because the check compares the two devices, not the run's inputs.
+    because the check compares the two devices, not the run's inputs. The
+    cytoplasm is the run's (:func:`_derive_cytoplasm`): the cell outside the
+    nucleus, the pathogen and every organelle role with a mask plane.
     """
     from .image_store import _read_field
     data = _read_field(field) if isinstance(field, (str, os.PathLike)) else field
@@ -2680,8 +3161,10 @@ def _field_tables_for_check(field, settings):
         for key in ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim'))
     cytoplasm = blank
     if settings.get('cytoplasm') and settings.get('cell_mask_dim') is not None:
-        cytoplasm = np.where((nucleus > 0) | (pathogen > 0), 0, cell)
-        cytoplasm = cytoplasm.astype(np.int32)
+        organelles = [data[..., settings[f'{role}_mask_dim']]
+                      for role in ORGANELLE_ROLES
+                      if settings.get(f'{role}_mask_dim') is not None]
+        cytoplasm = _derive_cytoplasm(cell, [nucleus, pathogen, *organelles])
     channel_arrays = data[..., list(settings['channels'])]
     measured = _measure_field_objects(
         {'cell': cell, 'nucleus': nucleus, 'pathogen': pathogen,
@@ -3120,24 +3603,40 @@ def _torch_zernike(mask, degree, device):
     return torch.stack(moments, dim=1).detach().cpu().numpy()
 
 
-def _periphery_intensity(label_mask, image):
-    """Return per-region intensity stats along each object's outer boundary.
+def _periphery_selections(label_mask):
+    """``(label, window, boundary pixels)`` of every object, as :func:`_periphery_intensity` reads them.
 
-    :param label_mask: Label mask defining the regions.
-    :param image: Intensity image co-aligned with ``label_mask``.
-    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
+    The pixels depend on the mask only, so a caller measuring several
+    channels over one mask takes them once.
     """
-    periphery_intensity_stats = []
+    selections = []
     boundary = find_boundaries(label_mask)
     boxes = _label_bounding_boxes(label_mask)
     whole = _whole_field_window(np.asarray(label_mask).shape)
-    cut_points = [5, 10, 25, 50, 75, 85, 95]
     _labels_0 = np.unique(label_mask)
     _labels_0 = _labels_0[_labels_0 != 0]
     for region in _labels_0:
         box = _box_for(boxes, region)
         window = whole if box is None else box
-        region_boundary = boundary[window] & (label_mask[window] == region)
+        selections.append(
+            (region, window, boundary[window] & (label_mask[window] == region)))
+    return selections
+
+
+def _periphery_intensity(label_mask, image, selections=None):
+    """Return per-region intensity stats along each object's outer boundary.
+
+    :param label_mask: Label mask defining the regions.
+    :param image: Intensity image co-aligned with ``label_mask``.
+    :param selections: :func:`_periphery_selections` of ``label_mask``,
+        when the caller already has them.
+    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
+    """
+    periphery_intensity_stats = []
+    if selections is None:
+        selections = _periphery_selections(label_mask)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
+    for region, window, region_boundary in selections:
         intensities = image[window][region_boundary]
         if intensities.size == 0:
             periphery_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
@@ -3147,39 +3646,21 @@ def _periphery_intensity(label_mask, image):
                 (region, np.mean(intensities), *quantiles))
     return periphery_intensity_stats
 
-def _outside_intensity(label_mask, image, distance=5, spacing=None, *,
-                       exclude_foreground=False):
-    """Return per-region intensity stats within a ``distance``-pixel ring outside each object.
+def _outside_selections(label_mask, distance=5, spacing=None, *,
+                        exclude_foreground=False):
+    """``(label, window, ring pixels)`` of every object, as :func:`_outside_intensity` reads them.
 
-    :param label_mask: Label mask defining the regions.
-    :param image: Intensity image co-aligned with ``label_mask``.
-    :param distance: Ring width, in xy pixels.
-    :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`.
-        ``None`` (2-D) keeps the historical ``binary_dilation`` ring exactly.
-    :param exclude_foreground: Keep only label-zero ring pixels for cell
-        background; an empty background ring yields NaN statistics. False
-        preserves the historical surrounding-object measurements.
-    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
-
-    .. note::
-
-       In 3-D the ring is built from a **sampled** distance transform, not from
-       ``binary_dilation(iterations=distance)``. Iterated dilation counts
-       voxels, so on a stack with dz = 5 dxy it grows the shell 5x further in z
-       than in xy in physical terms -- a 25x thicker slab of neighbouring
-       tissue on one axis than on the others -- and the "outside intensity" it
-       reports is dominated by whatever sits above and below the object. The
-       ring width is converted with the xy spacing so it still means
-       ``distance`` xy pixels.
+    The ring depends on the mask only, so a caller measuring several
+    channels over one mask takes it once. The parameters are
+    :func:`_outside_intensity`'s.
     """
-    outside_intensity_stats = []
+    selections = []
     if spacing is not None:
         ring_width = float(distance) * float(spacing[-1])
     shape = np.asarray(label_mask).shape
     boxes = _label_bounding_boxes(label_mask)
     whole = _whole_field_window(shape)
     pad = _ring_padding(distance, spacing, shape)
-    cut_points = [5, 10, 25, 50, 75, 85, 95]
     for region in np.unique(label_mask):
         if region == 0:
             continue
@@ -3194,6 +3675,45 @@ def _outside_intensity(label_mask, image, distance=5, spacing=None, *,
         outside_mask = dilated_mask & ~region_mask
         if exclude_foreground:
             outside_mask &= label_mask[window] == 0
+        selections.append((region, window, outside_mask))
+    return selections
+
+
+def _outside_intensity(label_mask, image, distance=5, spacing=None, *,
+                       exclude_foreground=False, selections=None):
+    """Return per-region intensity stats within a ``distance``-pixel ring outside each object.
+
+    :param label_mask: Label mask defining the regions.
+    :param image: Intensity image co-aligned with ``label_mask``.
+    :param distance: Ring width, in xy pixels.
+    :param spacing: Voxel spacing from :func:`resolve_measurement_spacing`.
+        ``None`` (2-D) keeps the historical ``binary_dilation`` ring exactly.
+    :param exclude_foreground: Keep only label-zero ring pixels for cell
+        background; an empty background ring yields NaN statistics. False
+        preserves the historical surrounding-object measurements.
+    :param selections: :func:`_outside_selections` of ``label_mask`` with
+        the same ``distance``, ``spacing`` and ``exclude_foreground``, when
+        the caller already has them.
+    :returns: List of ``(label, mean, p5, p10, p25, p50, p75, p85, p95)`` tuples.
+
+    .. note::
+
+       In 3-D the ring is built from a **sampled** distance transform, not from
+       ``binary_dilation(iterations=distance)``. Iterated dilation counts
+       voxels, so on a stack with dz = 5 dxy it grows the shell 5x further in z
+       than in xy in physical terms -- a 25x thicker slab of neighbouring
+       tissue on one axis than on the others -- and the "outside intensity" it
+       reports is dominated by whatever sits above and below the object. The
+       ring width is converted with the xy spacing so it still means
+       ``distance`` xy pixels.
+    """
+    outside_intensity_stats = []
+    if selections is None:
+        selections = _outside_selections(
+            label_mask, distance, spacing,
+            exclude_foreground=exclude_foreground)
+    cut_points = [5, 10, 25, 50, 75, 85, 95]
+    for region, window, outside_mask in selections:
         intensities = image[window][outside_mask]
         if intensities.size == 0:
             outside_intensity_stats.append((region, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan))
@@ -3322,7 +3842,41 @@ def _pearson_r(x, y):
     return float(np.clip((xm * ym).sum() / den, -1.0, 1.0))
 
 
-def _calculate_correlation_object_level(channel_image1, channel_image2, mask, settings):
+def _correlation_objects(mask):
+    """``(label, window, object pixels)`` of every object, in label order, for the correlation block."""
+    boxes = _label_bounding_boxes(mask)
+    whole = _whole_field_window(np.asarray(mask).shape)
+    _labels_1 = np.unique(mask)
+    _labels_1 = _labels_1[_labels_1 != 0]
+    objects = []
+    for i in _labels_1:
+        box = _box_for(boxes, i)
+        window = whole if box is None else box
+        objects.append((i, window, mask[window] == i))
+    return objects
+
+
+def _correlation_channel(image, objects):
+    """Per object of :func:`_correlation_objects`: one channel's pixels and Manders background.
+
+    :returns: one ``(pixels, float64 pixels, threshold, a, sum a, sum a^2)``
+        per object, ``a`` the pixels above the threshold less it, as
+        :func:`_calculate_correlation_object_level` computes them.
+    """
+    rows = []
+    for _label, window, object_mask in objects:
+        pixels = image[window][object_mask]
+        wide = np.asarray(pixels, dtype=np.float64)
+        median = np.median(wide)
+        threshold = median + 3.0 * 1.4826 * np.median(np.abs(wide - median))
+        above = np.clip(wide - threshold, 0, None)
+        rows.append((pixels, wide, threshold, above, above.sum(),
+                     (above * above).sum()))
+    return rows
+
+
+def _calculate_correlation_object_level(channel_image1, channel_image2, mask, settings,
+                                        *, cache=None, channels=None):
         """
         Calculate correlation at the object level between two channel images based on a mask.
 
@@ -3376,18 +3930,28 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
            NaN anywhere deletes the whole column from every model matrix, and
            64.5% of background-only objects would produce one. The cost is that
            "no signal" and "signal that does not colocalise" both read 0.0.
+
+        Args (keyword only):
+            cache (dict, optional): shared by the calls for one mask, so its
+                objects and each channel's pixels and background are taken
+                once rather than once per channel pair; the values are the
+                same either way.
+            channels (tuple, optional): the indices of the two images in the
+                field, the keys of ``cache``; needed with ``cache``.
         """
+        if cache is None or channels is None:
+            cache, channels = {}, (0, 1)
+        if 'objects' not in cache:
+            cache['objects'] = _correlation_objects(mask)
+        objects = cache['objects']
+        for slot, image in zip(channels, (channel_image1, channel_image2)):
+            if slot not in cache:
+                cache[slot] = _correlation_channel(image, objects)
+        first, second = cache[channels[0]], cache[channels[1]]
         corr_data = {}
-        boxes = _label_bounding_boxes(mask)
-        whole = _whole_field_window(np.asarray(mask).shape)
-        _labels_1 = np.unique(mask)
-        _labels_1 = _labels_1[_labels_1 != 0]
-        for i in _labels_1:
-            box = _box_for(boxes, i)
-            window = whole if box is None else box
-            object_mask = (mask[window] == i)
-            object_channel_image1 = channel_image1[window][object_mask]
-            object_channel_image2 = channel_image2[window][object_mask]
+        for (i, _window, _object), one, two in zip(objects, first, second):
+            object_channel_image1, v1, thr1, a, sa, saa = one
+            object_channel_image2, v2, thr2, b, sb, sbb = two
             if len(object_channel_image1) < 2 or len(object_channel_image2) < 2:
                 pearson_corr = np.nan
             else:
@@ -3396,19 +3960,9 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
             corr_data[i] = {f'label_correlation': i,
                             f'Pearson_correlation': pearson_corr}
 
-            v1 = np.asarray(object_channel_image1, dtype=np.float64)
-            v2 = np.asarray(object_channel_image2, dtype=np.float64)
-            med1 = np.median(v1)
-            thr1 = med1 + 3.0 * 1.4826 * np.median(np.abs(v1 - med1))
-            med2 = np.median(v2)
-            thr2 = med2 + 3.0 * 1.4826 * np.median(np.abs(v2 - med2))
-            a = np.clip(v1 - thr1, 0, None)
-            b = np.clip(v2 - thr2, 0, None)
-            sa = a.sum()
-            sb = b.sum()
             M1_true = float(a[v2 > thr2].sum() / sa) if sa > 0 else 0.0
             M2_true = float(b[v1 > thr1].sum() / sb) if sb > 0 else 0.0
-            den = np.sqrt((a * a).sum() * (b * b).sum())
+            den = np.sqrt(saa * sbb)
             MOC = float((a * b).sum() / den) if den > 0 else 0.0
 
             corr_data[i].update({'manders_m1': M1_true,
@@ -3579,7 +4133,14 @@ def _profile_inputs(labels, image):
             raise ValueError(
                 f"the image {image.shape} does not cover the mask "
                 f"{labels.shape}")
+    shared = _FOREGROUNDS.get()
+    if shared is not None:
+        known = shared.get(('present', id(labels)))
+        if known is not None and known[0] is labels:
+            return labels, image, known[1].copy()
     present = np.unique(labels[labels > 0])
+    if shared is not None:
+        shared[('present', id(labels))] = (labels, present.copy())
     return labels, image, present
 
 
@@ -3652,6 +4213,34 @@ def _mass_displacement_columns(flat, rows, cols, size, present, values):
     return out
 
 
+#: The ``(p, q)`` orders of :func:`_central_moments_kernel`, in its row order.
+_CENTRAL_MOMENT_ORDERS = ((2, 0), (0, 2), (1, 1), (3, 0), (0, 3), (2, 1), (1, 2))
+
+
+def _central_moments_kernel(flat, rows, cols, weights, centre_r, centre_c,
+                            sums):
+    """Each label's weighted central moments of orders :data:`_CENTRAL_MOMENT_ORDERS`, in one pass.
+
+    Adds ``w * dr**p * dc**q`` with ``dr``, ``dc`` the offsets from the
+    label's weighted centre into ``sums[k, label]`` in pixel order.
+    Compile with :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        w = weights[k]
+        dr = rows[k] - centre_r[label]
+        dc = cols[k] - centre_c[label]
+        dr2 = dr * dr
+        dc2 = dc * dc
+        sums[0, label] += w * dr2
+        sums[1, label] += w * dc2
+        sums[2, label] += w * dr * dc
+        sums[3, label] += w * (dr2 * dr)
+        sums[4, label] += w * (dc2 * dc)
+        sums[5, label] += w * dr2 * dc
+        sums[6, label] += w * dr * dc2
+
+
 def _weighted_moments(flat, rows, cols, weights, size, present):
     """Centre, ``mu00`` and Hu invariants of each label under ``weights``.
 
@@ -3660,26 +4249,67 @@ def _weighted_moments(flat, rows, cols, weights, size, present):
         gets NaN.
     """
     centre_r, centre_c, mu00 = _weighted_centre(flat, rows, cols, weights, size)
+    sums = np.zeros((7, size))
+    _compiled(_central_moments_kernel)(
+        np.ascontiguousarray(flat), np.ascontiguousarray(rows),
+        np.ascontiguousarray(cols),
+        np.ascontiguousarray(weights, dtype=np.float64), centre_r, centre_c,
+        sums)
     with np.errstate(invalid='ignore', divide='ignore'):
-        dr = rows - centre_r[flat]
-        dc = cols - centre_c[flat]
         m = [[None] * 4 for _ in range(4)]
-        for p, q in ((2, 0), (0, 2), (1, 1), (3, 0), (0, 3), (2, 1), (1, 2)):
-            mu = np.bincount(flat, weights * dr ** p * dc ** q, size)
-            m[p][q] = (mu / mu00 ** ((p + q) / 2 + 1))[present]
+        for k, (p, q) in enumerate(_CENTRAL_MOMENT_ORDERS):
+            m[p][q] = (sums[k] / mu00 ** ((p + q) / 2 + 1))[present]
         hu = _hu_from_moments(m)
     bad = ~(mu00[present] > 0)
     hu = [np.where(bad, np.nan, h) for h in hu]
     return centre_r[present], centre_c[present], mu00[present], hu
 
 
+#: The foregrounds :func:`_foreground` has found inside a
+#: :func:`_shared_foregrounds` scope, by mask: ``{id: (mask, foreground)}``.
+_FOREGROUNDS = contextvars.ContextVar('spacr_measure_foregrounds', default=None)
+
+
+@contextlib.contextmanager
+def _shared_foregrounds():
+    """Within this scope, :func:`_foreground` finds each mask's foreground once.
+
+    The profiling families of one mask each start from the same flat
+    labels, coordinates and foreground index; inside the scope (one
+    :func:`measure_profile_features` call, one :func:`_add_funk_frames`
+    pass) the arrays found for a mask are handed to every later family that
+    asks for the same mask object, and so are its present labels
+    (:func:`_profile_inputs`, a copy each time). Nothing in the scope
+    writes to a mask or to those arrays, so they are the arrays each family
+    would make.
+    """
+    if _FOREGROUNDS.get() is not None:
+        yield
+        return
+    token = _FOREGROUNDS.set({})
+    try:
+        yield
+    finally:
+        _FOREGROUNDS.reset(token)
+
+
 def _foreground(labels):
     """Flat label, row and column of every labelled pixel, and the bincount size."""
+    shared = _FOREGROUNDS.get()
+    if shared is not None:
+        known = shared.get(id(labels))
+        if known is not None and known[0] is labels:
+            return known[1]
     inside = labels.ravel() > 0
     flat = labels.ravel()[inside]
-    rows, cols = np.indices(labels.shape, dtype=np.float64)
-    return (flat, rows.ravel()[inside], cols.ravel()[inside], inside,
-            int(labels.max()) + 1)
+    where = np.flatnonzero(inside)
+    width = labels.shape[-1] if labels.ndim else 1
+    found = (flat, (where // width).astype(np.float64),
+             (where % width).astype(np.float64), inside,
+             int(labels.max()) + 1)
+    if shared is not None:
+        shared[id(labels)] = (labels, found)
+    return found
 
 
 def measure_edge_intensity(labels, image):
@@ -4033,39 +4663,342 @@ def measure_radial_distribution(labels, image, bins=PROFILE_RADIAL_BINS):
     return pd.DataFrame(out)
 
 
-def _quantise_object(values, levels):
-    """Object pixels as grey levels ``1..levels`` from their own minimum to maximum."""
-    low, high = values.min(), values.max()
-    if not high > low:
-        return np.ones(values.shape, dtype=np.uint8)
-    scaled = np.floor((values - low) / (high - low) * levels)
-    return (np.minimum(scaled, levels - 1) + 1).astype(np.uint8)
+def _compiled(function):
+    """``function`` compiled by numba (cached on disk, GIL released), or ``function`` itself without numba.
+
+    For the per-object kernels of the profiling families, which are plain
+    Python loops over arrays: compiled they take a small fraction of the
+    time of one library call per object; uncompiled they give the same
+    values slowly. A kernel compiled here may call no other kernel.
+    """
+    kernel = _COMPILED.get(function)
+    if kernel is None:
+        try:
+            import numba
+
+            kernel = numba.njit(cache=True, nogil=True)(function)
+        except Exception:
+            kernel = function
+        _COMPILED[function] = kernel
+    return kernel
 
 
-def _haralick_row(quantised, distance):
-    """Mahotas' 13 Haralick statistics, mean of four directions, NaN when undefined."""
-    import warnings
-
-    from mahotas.features import haralick
-
-    try:
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            return haralick(quantised, ignore_zeros=True, distance=distance,
-                            return_mean=True)
-    except ValueError:
-        return np.full(len(_HARALICK_NAMES), np.nan)
+#: Kernels compiled by :func:`_compiled`, by their Python function.
+_COMPILED = {}
 
 
-def _pftas_row(quantised):
-    """Mahotas' 54 PFTAS statistics, thresholded at the object's own Otsu level."""
-    from mahotas import otsu
-    from mahotas.features import pftas
+def _object_boxes(labels, present):
+    """``(rows start, rows stop, cols start, cols stop)`` of each present label, as an int64 array."""
+    slices = find_objects(labels)
+    boxes = np.zeros((present.size, 4), dtype=np.int64)
+    for index, label in enumerate(np.asarray(present).tolist()):
+        rows, cols = slices[label - 1]
+        boxes[index] = (rows.start, rows.stop, cols.start, cols.stop)
+    return boxes
 
-    inside = quantised[quantised > 0]
-    if inside.size == 0 or inside.min() == inside.max():
-        return np.full(54, np.nan)
-    return pftas(quantised, T=otsu(quantised, ignore_zeros=True))
+
+def _haralick_kernel(labels, image, boxes, present, levels, distance, out):
+    """Mahotas' 13 Haralick statistics of every object, mean of four directions, into ``out``.
+
+    For each object its bounding box of the 2-D float64 ``image``,
+    quantised to grey levels ``1..levels`` from the object's own minimum to
+    maximum (``floor((value - low) / (high - low) * levels)``, capped at
+    ``levels - 1``, plus one; a flat object all 1) with other pixels set to
+    0, the symmetric co-occurrence matrix at ``distance`` in the four
+    directions of :func:`mahotas.features.haralick` (0 ignored), and the
+    statistics as mahotas computes them (``use_x_minus_y_variance`` off,
+    13 features), averaged over the directions. A row stays NaN when any
+    direction pairs no pixels, where mahotas raises. Compile with
+    :func:`_compiled`.
+
+    :param out: ``(objects, 13)`` float64, filled with NaN by the caller.
+    """
+    for index in range(present.size):
+        label = present[index]
+        r0, r1, c0, c1 = boxes[index, 0], boxes[index, 1], boxes[index, 2], boxes[index, 3]
+        h, w = r1 - r0, c1 - c0
+        low = np.inf
+        high = -np.inf
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                if labels[r, c] == label:
+                    low = min(low, image[r, c])
+                    high = max(high, image[r, c])
+        spread = high - low
+        plane = np.zeros((h, w), dtype=np.int64)
+        n = 1
+        for r in range(h):
+            for c in range(w):
+                if labels[r0 + r, c0 + c] == label:
+                    value = 1
+                    if spread > 0:
+                        scaled = np.floor((image[r0 + r, c0 + c] - low)
+                                          / spread * levels)
+                        value = int(min(scaled, levels - 1.0)) + 1
+                    plane[r, c] = value
+                    if value + 1 > n:
+                        n = value + 1
+        feats = np.zeros((4, 13))
+        cmat = np.zeros((n, n), dtype=np.int64)
+        empty = False
+        for d in range(4):
+            dr = (0, 1, 1, 1)[d] * distance
+            dc = (1, 1, 0, -1)[d] * distance
+            cmat[:, :] = 0
+            total = 0
+            for r in range(h - dr):
+                for c in range(w):
+                    cc = c + dc
+                    if cc < 0 or cc >= w:
+                        continue
+                    i = plane[r, c]
+                    j = plane[r + dr, cc]
+                    if i == 0 or j == 0:
+                        continue
+                    cmat[i, j] += 1
+                    cmat[j, i] += 1
+                    total += 2
+            if total == 0:
+                empty = True
+                break
+            px = np.zeros(n)
+            py = np.zeros(n)
+            plus = np.zeros(2 * n)
+            minus = np.zeros(n)
+            energy = 0.0
+            cross = 0.0
+            inverse = 0.0
+            entropy = 0.0
+            for i in range(n):
+                for j in range(n):
+                    v = cmat[i, j] / total
+                    if v == 0:
+                        continue
+                    px[j] += v
+                    py[i] += v
+                    plus[i + j] += v
+                    minus[abs(i - j)] += v
+                    energy += v * v
+                    cross += i * j * v
+                    inverse += v / (1 + (i - j) * (i - j))
+                    entropy += np.log2(v) * v
+            entropy = -entropy
+            ux = 0.0
+            uy = 0.0
+            x2 = 0.0
+            y2 = 0.0
+            for i in range(n):
+                ux += px[i] * i
+                uy += py[i] * i
+                x2 += px[i] * i * i
+                y2 += py[i] * i * i
+            vx = x2 - ux * ux
+            vy = y2 - uy * uy
+            sx = np.sqrt(vx)
+            sy = np.sqrt(vy)
+            contrast = 0.0
+            mean_minus = 0.0
+            minus_entropy = 0.0
+            for i in range(n):
+                contrast += i * i * minus[i]
+                mean_minus += minus[i]
+                if minus[i] != 0:
+                    minus_entropy += np.log2(minus[i]) * minus[i]
+            mean_minus /= n
+            minus_variance = 0.0
+            for i in range(n):
+                minus_variance += (minus[i] - mean_minus) ** 2
+            sum_average = 0.0
+            sum_square = 0.0
+            sum_entropy = 0.0
+            for t in range(2 * n):
+                sum_average += t * plus[t]
+                sum_square += t * t * plus[t]
+                if plus[t] != 0:
+                    sum_entropy += np.log2(plus[t]) * plus[t]
+            hx = 0.0
+            hy = 0.0
+            for i in range(n):
+                if px[i] != 0:
+                    hx += np.log2(px[i]) * px[i]
+                if py[i] != 0:
+                    hy += np.log2(py[i]) * py[i]
+            hx = -hx
+            hy = -hy
+            hxy1 = 0.0
+            hxy2 = 0.0
+            for i in range(n):
+                if px[i] == 0:
+                    continue
+                for j in range(n):
+                    if py[j] == 0:
+                        continue
+                    product = px[i] * py[j]
+                    logged = np.log2(product)
+                    hxy1 += cmat[i, j] / total * logged
+                    hxy2 += logged * product
+            hxy1 = -hxy1
+            hxy2 = -hxy2
+            f = feats[d]
+            f[0] = energy
+            f[1] = contrast
+            if sx == 0.0 or sy == 0.0:
+                f[2] = 1.0
+            else:
+                f[2] = (1.0 / sx / sy) * (cross - ux * uy)
+            f[3] = vx
+            f[4] = inverse
+            f[5] = sum_average
+            f[6] = sum_square - sum_average * sum_average
+            f[7] = -sum_entropy
+            f[8] = entropy
+            f[9] = minus_variance / n
+            f[10] = -minus_entropy
+            largest = max(hx, hy)
+            f[11] = (entropy - hxy1) if largest == 0.0 else (entropy - hxy1) / largest
+            f[12] = np.sqrt(max(0.0, 1 - np.exp(-2.0 * (hxy2 - entropy))))
+        if empty:
+            continue
+        for t in range(13):
+            out[index, t] = (((feats[0, t] + feats[1, t]) + feats[2, t])
+                             + feats[3, t]) / 4
+
+
+def _pftas_kernel(labels, image, boxes, present, out):
+    """Mahotas' 54 PFTAS statistics of every varying object, at its own Otsu level, into ``out``.
+
+    For each object its bounding box of the 2-D float64 ``image``,
+    quantised as :func:`_haralick_kernel` quantises it but to 255 levels,
+    with other pixels set to 0; the threshold is :func:`mahotas.otsu` with
+    ``ignore_zeros``, and the statistics are :func:`mahotas.features.pftas`
+    at it: the share of pixels outside each of three binarisations (and of
+    their complements) with 0 to 8 neighbours inside, with the 3 x 3 window
+    reflected at the box edge. A flat object's row stays NaN. Compile with
+    :func:`_compiled`.
+
+    :param out: ``(objects, 54)`` float64, filled with NaN by the caller.
+    """
+    for index in range(present.size):
+        label = present[index]
+        r0, r1, c0, c1 = boxes[index, 0], boxes[index, 1], boxes[index, 2], boxes[index, 3]
+        h, w = r1 - r0, c1 - c0
+        low = np.inf
+        high = -np.inf
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                if labels[r, c] == label:
+                    low = min(low, image[r, c])
+                    high = max(high, image[r, c])
+        spread = high - low
+        if not spread > 0:
+            continue
+        plane = np.zeros((h, w), dtype=np.int64)
+        for r in range(h):
+            for c in range(w):
+                if labels[r0 + r, c0 + c] == label:
+                    scaled = np.floor((image[r0 + r, c0 + c] - low)
+                                      / spread * 255)
+                    plane[r, c] = int(min(scaled, 254.0)) + 1
+        n = 256
+        hist = np.zeros(n)
+        for r in range(h):
+            for c in range(w):
+                hist[plane[r, c]] += 1
+        hist[0] = 0
+        below = np.empty(n)
+        below[0] = hist[0]
+        for i in range(1, n):
+            below[i] = hist[i] + below[i - 1]
+        weight = 0.0
+        for i in range(1, n):
+            weight += hist[i]
+        upper_mean = 0.0
+        for i in range(1, n):
+            upper_mean += i * hist[i]
+        upper_mean /= weight
+        lower_mean = 0.0
+        above = below[n - 1] - below[0]
+        best = below[0] * above * (lower_mean - upper_mean) ** 2
+        threshold = 0
+        for t in range(1, n):
+            above_previous = below[n - 1] - below[t - 1]
+            above = below[n - 1] - below[t]
+            if below[t] == 0:
+                continue
+            if above == 0:
+                break
+            lower_mean = (lower_mean * below[t - 1] + t * hist[t]) / below[t]
+            upper_mean = (upper_mean * above_previous - t * hist[t]) / above
+            score = below[t] * above * (lower_mean - upper_mean) ** 2
+            if score > best:
+                best = score
+                threshold = t
+        count = 0
+        total = 0
+        for r in range(h):
+            for c in range(w):
+                if plane[r, c] > threshold:
+                    count += 1
+                    total += plane[r, c]
+        spread = 0.0
+        if count:
+            pixels = np.empty(count)
+            k = 0
+            for r in range(h):
+                for c in range(w):
+                    if plane[r, c] > threshold:
+                        pixels[k] = plane[r, c]
+                        k += 1
+            spread = pixels.std()
+        mean = total / (count + 1e-8)
+        binary = np.empty((h, w), dtype=np.int64)
+        for which in range(6):
+            for r in range(h):
+                for c in range(w):
+                    x = plane[r, c]
+                    if which % 3 == 0:
+                        on = (x > mean - spread) and (x < mean + spread)
+                    elif which % 3 == 1:
+                        on = x > mean - spread
+                    else:
+                        on = x > mean
+                    binary[r, c] = 1 if on != (which >= 3) else 0
+            counts = np.zeros(9)
+            for r in range(h):
+                for c in range(w):
+                    if binary[r, c]:
+                        continue
+                    neighbours = 0
+                    for dr in (-1, 0, 1):
+                        rr = r + dr
+                        if rr < 0:
+                            rr = -rr - 1
+                        elif rr >= h:
+                            rr = 2 * h - rr - 1
+                        for dc in (-1, 0, 1):
+                            if dr == 0 and dc == 0:
+                                continue
+                            cc = c + dc
+                            if cc < 0:
+                                cc = -cc - 1
+                            elif cc >= w:
+                                cc = 2 * w - cc - 1
+                            neighbours += binary[rr, cc]
+                    counts[neighbours] += 1
+            share = counts.sum()
+            for k in range(9):
+                out[index, 9 * which + k] = counts[k] / share if share > 0 else 0.0
+
+
+def _texture_channel(c, *, labels, image, boxes, present, levels, distance,
+                     pftas, har, tas):
+    """Fill channel ``c`` of :func:`measure_texture`'s ``har`` (unless ``levels`` is None) and ``tas`` (if ``pftas``)."""
+    plane = np.ascontiguousarray(image[..., c])
+    if levels is not None:
+        _compiled(_haralick_kernel)(labels, plane, boxes, present, levels,
+                                    distance, har[:, c])
+    if pftas:
+        _compiled(_pftas_kernel)(labels, plane, boxes, present, tas[:, c])
 
 
 def measure_texture(labels, image, haralick=True, pftas=True,
@@ -4097,20 +5030,13 @@ def measure_texture(labels, image, haralick=True, pftas=True,
     n_channels = image.shape[-1]
     har = np.full((present.size, n_channels, len(_HARALICK_NAMES)), np.nan)
     tas = np.full((present.size, n_channels, 54), np.nan)
-    for index, (label, window) in enumerate(
-            _object_windows(labels, present, pad=0)):
-        mask = labels[window] == label
-        crop = image[window]
-        for c in range(n_channels):
-            values = crop[..., c][mask]
-            if haralick:
-                plane = np.zeros(mask.shape, dtype=np.uint8)
-                plane[mask] = _quantise_object(values, int(levels))
-                har[index, c] = _haralick_row(plane, int(distance))
-            if pftas:
-                plane = np.zeros(mask.shape, dtype=np.uint8)
-                plane[mask] = _quantise_object(values, 255)
-                tas[index, c] = _pftas_row(plane)
+    if present.size:
+        boxes = _object_boxes(labels, present)
+        _field_map(partial(
+            _texture_channel, labels=labels, image=image, boxes=boxes,
+            present=present, levels=int(levels) if haralick else None,
+            distance=int(distance), pftas=pftas, har=har, tas=tas),
+            range(n_channels))
     out = {'label': present}
     for c in range(n_channels):
         if haralick:
@@ -4130,14 +5056,52 @@ def _grouped_median(sorted_values, starts, counts):
 
 
 def _sorted_by_label(flat, values):
-    """``values`` sorted within each label: ``(order, sorted values, starts, counts)``."""
-    order = np.lexsort((values, flat))
-    labels_sorted = flat[order]
-    counts = np.bincount(labels_sorted)
+    """``values`` sorted within each label: ``(order, sorted values, starts, counts)``.
+
+    The order is :func:`numpy.lexsort` of ``(values, flat)``, value for
+    value: the pixels are put in label order by a stable counting sort,
+    and each label's run is then sorted by value with a stable merge sort
+    (:func:`_label_sort_kernel`), which keeps equal values in pixel order,
+    exactly lexsort's tie rule (NaN last). Sorting each object's few
+    thousand pixels on its own costs a fraction of sorting the field's
+    millions at once.
+    """
+    counts = np.bincount(flat) if flat.size else np.zeros(1, dtype=np.int64)
     present = np.nonzero(counts)[0]
+    offsets = np.concatenate(([0], np.cumsum(counts)[:-1])).astype(np.int64)
+    order = np.empty(flat.size, dtype=np.int64)
+    _compiled(_label_sort_kernel)(
+        np.ascontiguousarray(flat), np.ascontiguousarray(values), offsets,
+        counts.astype(np.int64), order)
     counts = counts[present]
     starts = np.concatenate(([0], np.cumsum(counts)[:-1]))
     return order, values[order], starts, counts, present
+
+
+def _label_sort_kernel(flat, values, offsets, counts, order):
+    """Fill ``order`` with lexsort's permutation of ``(values, flat)``.
+
+    A stable counting sort by label (``offsets`` and ``counts`` of every
+    label), then a stable merge sort of each label's run by value. Compile
+    with :func:`_compiled`.
+    """
+    fill = offsets.copy()
+    for k in range(flat.size):
+        label = flat[k]
+        order[fill[label]] = k
+        fill[label] += 1
+    for label in range(counts.size):
+        count = counts[label]
+        if count < 2:
+            continue
+        start = offsets[label]
+        run = order[start:start + count].copy()
+        keys = np.empty(count, dtype=values.dtype)
+        for k in range(count):
+            keys[k] = values[run[k]]
+        ranked = np.argsort(keys, kind='mergesort')
+        for k in range(count):
+            order[start + k] = run[ranked[k]]
 
 
 def _robust_threshold(flat, values, presorted=None):
@@ -4150,11 +5114,27 @@ def _robust_threshold(flat, values, presorted=None):
         presorted if presorted is not None else _sorted_by_label(flat, values))
     median = np.zeros(int(flat.max()) + 1)
     median[present] = _grouped_median(ordered, starts, counts)
-    deviation = np.abs(values - median[flat])
-    _order, ordered, starts, counts, present = _sorted_by_label(flat, deviation)
+    deviation = np.abs(ordered - median[flat[_order]])
     mad = np.zeros_like(median)
-    mad[present] = _grouped_median(ordered, starts, counts)
+    mad[present] = _segment_medians(deviation, starts, counts)
     return (median + 3.0 * 1.4826 * mad)[flat]
+
+
+def _segment_medians(values, starts, counts):
+    """Median of each run ``values[start:start + count]``, as :func:`_grouped_median` of it sorted.
+
+    Each run is partitioned at its middle order statistics rather than
+    sorted, which selects the same two values: the absolute deviations of
+    :func:`_robust_threshold` need their median only, and a partition costs a
+    fraction of the sort by label and value it replaces.
+    """
+    out = np.empty(len(starts))
+    for index, (start, count) in enumerate(zip(np.asarray(starts).tolist(),
+                                               np.asarray(counts).tolist())):
+        low, high = (count - 1) // 2, count // 2
+        run = np.partition(values[start:start + count], (low, high))
+        out[index] = (run[low] + run[high]) / 2
+    return out
 
 
 def _within_label_ranks(flat, values, presorted=None):
@@ -4165,42 +5145,213 @@ def _within_label_ranks(flat, values, presorted=None):
     """
     order, ordered, starts, counts, present = (
         presorted if presorted is not None else _sorted_by_label(flat, values))
-    labels_sorted = flat[order]
-    n = ordered.size
-    position = np.arange(n)
-    first = np.zeros(n, dtype=bool)
-    first[starts] = True
-    new_value = first.copy()
-    new_value[1:] |= ordered[1:] != ordered[:-1]
-    run = np.cumsum(new_value) - 1
-    run_first = position[new_value]
-    run_size = np.bincount(run)
-    start_of_label = np.repeat(starts, counts)
-    average = (run_first[run] - start_of_label) + (run_size[run] + 1) / 2
-    dense_all = np.cumsum(new_value)
-    dense = dense_all - dense_all[start_of_label] + 1
-    avg_out = np.empty(n)
-    dense_out = np.empty(n)
-    avg_out[order] = average
-    dense_out[order] = dense
+    avg_out = np.empty(ordered.size)
+    dense_out = np.empty(ordered.size)
     max_dense = np.zeros(int(flat.max()) + 1)
-    np.maximum.at(max_dense, labels_sorted, dense)
+    _compiled(_within_label_ranks_kernel)(
+        np.ascontiguousarray(order), np.ascontiguousarray(ordered),
+        np.asarray(starts, dtype=np.int64), np.asarray(counts, dtype=np.int64),
+        np.asarray(present, dtype=np.int64), avg_out, dense_out, max_dense)
     return avg_out, dense_out, max_dense
 
 
-def _pearson_by_label(flat, x, y, size):
-    """Pearson's r of ``x`` and ``y`` within each label (NaN when either is flat)."""
+def _within_label_ranks_kernel(order, ordered, starts, counts, present,
+                               average, dense, max_dense):
+    """Average and dense ranks along each label's sorted run, written back to pixel order.
+
+    A run of equal values from position ``first`` (counted from the
+    label's start) of length ``m`` takes the average rank ``first + (m +
+    1) / 2``; dense ranks count the distinct values from 1, and
+    ``max_dense[label]`` is the last. Compile with :func:`_compiled`.
+    """
+    for index in range(present.size):
+        start = starts[index]
+        stop = start + counts[index]
+        run = start
+        level = 0
+        while run < stop:
+            end = run + 1
+            while end < stop and ordered[end] == ordered[run]:
+                end += 1
+            level += 1
+            rank = (run - start) + (end - run + 1) / 2
+            for k in range(run, end):
+                average[order[k]] = rank
+                dense[order[k]] = level
+            run = end
+        max_dense[present[index]] = level
+
+
+def _pair_sums_kernel(flat, x, y, mx, my, dx, dy, sums):
+    """Deviations from each label's means and their per-label sums of products, in one pass.
+
+    Writes ``dx = x - mx[label]`` and ``dy = y - my[label]`` and adds
+    ``dx * dy``, ``dx * dx`` and ``dy * dy`` into ``sums[0..2, label]`` in
+    pixel order, the order :func:`numpy.bincount` adds them in, so the sums
+    are the same floats. Compile with :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        a = x[k] - mx[label]
+        b = y[k] - my[label]
+        dx[k] = a
+        dy[k] = b
+        sums[0, label] += a * b
+        sums[1, label] += a * a
+        sums[2, label] += b * b
+
+
+def _pair_sums(flat, x, y, size):
+    """Per-label count, ``sum(dx dy)``, ``sum(dx^2)``, ``sum(dy^2)`` and the deviations ``dx``, ``dy`` from the label means.
+
+    The values ``np.bincount`` gives over ``x - mean`` and ``y - mean``,
+    found in one compiled pass instead of five array passes.
+    """
     count = np.bincount(flat, None, size)
     with np.errstate(invalid='ignore', divide='ignore'):
         mx = np.bincount(flat, x, size) / count
         my = np.bincount(flat, y, size) / count
-        dx = x - mx[flat]
-        dy = y - my[flat]
-        sxy = np.bincount(flat, dx * dy, size)
-        sxx = np.bincount(flat, dx * dx, size)
-        syy = np.bincount(flat, dy * dy, size)
+    x = np.ascontiguousarray(x, dtype=np.float64)
+    y = np.ascontiguousarray(y, dtype=np.float64)
+    dx = np.empty_like(x)
+    dy = np.empty_like(y)
+    sums = np.zeros((3, size))
+    _compiled(_pair_sums_kernel)(np.ascontiguousarray(flat), x, y, mx, my,
+                                 dx, dy, sums)
+    return count, sums[0], sums[1], sums[2], dx, dy
+
+
+def _pearson_by_label(flat, x, y, size, sums=None):
+    """Pearson's r of ``x`` and ``y`` within each label (NaN when either is flat).
+
+    :param sums: :func:`_pair_sums` of ``x`` and ``y``, when the caller
+        already has them.
+    :returns: ``(r, dx, dy)``, with ``dx`` and ``dy`` the deviations from
+        each label's means.
+    """
+    _count, sxy, sxx, syy, dx, dy = (
+        sums if sums is not None else _pair_sums(flat, x, y, size))
+    with np.errstate(invalid='ignore', divide='ignore'):
         r = sxy / np.sqrt(sxx * syy)
     return np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan), dx, dy
+
+
+class _LabelPixels:
+    """One mask's foreground pixels over one image, with per-channel orderings made once.
+
+    :func:`measure_colocalisation`, :func:`measure_colocalisation_extra`
+    and :func:`measure_colocalisation_otsu` each sort every channel within
+    each object, take its robust background and its within-object ranks.
+    Those are the same arrays for the same mask and image, so
+    :func:`measure_profile_features` builds one of these per mask and hands
+    it to every family it runs; each array is computed by the same function
+    on the same input as before, the first time it is asked for.
+
+    :param labels: the int64 label mask of :func:`_profile_inputs`.
+    :param image: the float64 ``(H, W, C)`` image of :func:`_profile_inputs`.
+    """
+
+    def __init__(self, labels, image):
+        """Take the mask's foreground and every channel's values on it."""
+        self.foreground = _foreground(labels)
+        inside = self.foreground[3]
+        self.planes = [image[..., c].ravel()[inside]
+                       for c in range(image.shape[-1])]
+        self._sort_cache = {}
+        self._threshold_cache = {}
+        self._rank_cache = {}
+
+    def _sort(self, channel):
+        """:func:`_sorted_by_label` of one channel."""
+        if channel not in self._sort_cache:
+            self._sort_cache[channel] = _sorted_by_label(
+                self.foreground[0], self.planes[channel])
+        return self._sort_cache[channel]
+
+    def _threshold(self, channel):
+        """:func:`_robust_threshold` of one channel, per pixel."""
+        if channel not in self._threshold_cache:
+            self._threshold_cache[channel] = _robust_threshold(
+                self.foreground[0], self.planes[channel], self._sort(channel))
+        return self._threshold_cache[channel]
+
+    def _ranks(self, channel):
+        """:func:`_within_label_ranks` of one channel."""
+        if channel not in self._rank_cache:
+            self._rank_cache[channel] = _within_label_ranks(
+                self.foreground[0], self.planes[channel], self._sort(channel))
+        return self._rank_cache[channel]
+
+    def _prepare(self):
+        """Make every channel's sort, background and ranks, the channels side by side.
+
+        Nothing is made for an empty mask or a single channel, which the
+        families answer without them.
+
+        The channels are independent, so they are computed on
+        :func:`_field_threads` threads (:func:`_field_map`); each is the same
+        arrays a single thread makes.
+        """
+        if self.foreground[0].size and len(self.planes) > 1:
+            _field_map(self._prepare_channel, range(len(self.planes)))
+        return self
+
+    def _prepare_channel(self, channel):
+        """Make one channel's background and ranks (and so its sort)."""
+        self._threshold(channel)
+        self._ranks(channel)
+
+
+def _label_pixels(labels, image):
+    """The :class:`_LabelPixels` of ``labels`` over ``image``.
+
+    Inside a :func:`_shared_foregrounds` scope one is made per mask and
+    image, with every channel prepared at once, and handed to each
+    colocalisation family that asks; outside it each call makes its own.
+    """
+    shared = _FOREGROUNDS.get()
+    if shared is None:
+        return _LabelPixels(labels, image)
+    key = ('pixels', id(labels), id(image))
+    known = shared.get(key)
+    if known is not None and known[0] is labels and known[1] is image:
+        return known[2]
+    pixels = _LabelPixels(labels, image)._prepare()
+    shared[key] = (labels, image, pixels)
+    return pixels
+
+
+def _overlap_sums_kernel(flat, x, y, threshold_x, threshold_y, dx, dy,
+                         dense_x, dense_y, top, sums):
+    """The per-label sums of :func:`measure_colocalisation` for one channel pair, in one pass.
+
+    Adds, in pixel order (the order of :func:`numpy.bincount`), into
+    ``sums[0..7, label]``: pixels with ``dx * dy > 0``; ``a b``, ``a a``,
+    ``b b``, ``a`` and ``b`` with ``a``, ``b`` the channels above their
+    per-pixel backgrounds (clipped at 0); and ``a w``, ``b w`` over the
+    pixels where both are above background, with the rank weight ``w = (R
+    - |dense_x - dense_y|) / R`` and ``R = top[label]``. Compile with
+    :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        if dx[k] * dy[k] > 0:
+            sums[0, label] += 1.0
+        a = x[k] - threshold_x[k]
+        if a < 0:
+            a = 0.0
+        b = y[k] - threshold_y[k]
+        if b < 0:
+            b = 0.0
+        sums[1, label] += a * b
+        sums[2, label] += a * a
+        sums[3, label] += b * b
+        sums[4, label] += a
+        sums[5, label] += b
+        if x[k] > threshold_x[k] and y[k] > threshold_y[k]:
+            weight = (top[label] - abs(dense_x[k] - dense_y[k])) / top[label]
+            sums[6, label] += a * weight
+            sums[7, label] += b * weight
 
 
 def measure_colocalisation(labels, image):
@@ -4236,18 +5387,16 @@ def measure_colocalisation(labels, image):
     out = {'label': present}
     if image.shape[-1] < 2:
         return pd.DataFrame(out)
-    flat, _rows, _cols, inside, size = _foreground(labels)
+    pixels = _label_pixels(labels, image)
+    flat, _rows, _cols, inside, size = pixels.foreground
     if flat.size == 0:
         for i, j in combinations(range(image.shape[-1]), 2):
             for stat in ('spearman', 'icq', 'k1', 'k2', 'rwc1', 'rwc2'):
                 out[f'channel_{i}_channel_{j}_{stat}'] = np.zeros(0)
         return pd.DataFrame(out)
-    planes = [image[..., c].ravel()[inside] for c in range(image.shape[-1])]
-    sorts = [_sorted_by_label(flat, v) for v in planes]
-    thresholds = [_robust_threshold(flat, v, s)
-                  for v, s in zip(planes, sorts)]
-    ranks = [_within_label_ranks(flat, v, s) for v, s in zip(planes, sorts)]
-    del sorts
+    planes = pixels.planes
+    thresholds = [pixels._threshold(c) for c in range(len(planes))]
+    ranks = [pixels._ranks(c) for c in range(len(planes))]
     for i, j in combinations(range(image.shape[-1]), 2):
         base = f'channel_{i}_channel_{j}_'
         x, y = planes[i], planes[j]
@@ -4255,25 +5404,17 @@ def measure_colocalisation(labels, image):
             flat, ranks[i][0], ranks[j][0], size)
         _r, dx, dy = _pearson_by_label(flat, x, y, size)
         count = np.bincount(flat, None, size)
+        sums = np.zeros((8, size))
+        _compiled(_overlap_sums_kernel)(
+            flat, x, y, thresholds[i], thresholds[j], dx, dy, ranks[i][1],
+            ranks[j][1], np.maximum(ranks[i][2], ranks[j][2]), sums)
+        same_side, sab, saa, sbb, sa, sb, weighted_a, weighted_b = sums
         with np.errstate(invalid='ignore', divide='ignore'):
-            icq = np.bincount(flat, (dx * dy > 0).astype(float), size) / count - 0.5
-        a = np.clip(x - thresholds[i], 0, None)
-        b = np.clip(y - thresholds[j], 0, None)
-        sab = np.bincount(flat, a * b, size)
-        saa = np.bincount(flat, a * a, size)
-        sbb = np.bincount(flat, b * b, size)
-        sa = np.bincount(flat, a, size)
-        sb = np.bincount(flat, b, size)
-        both = (x > thresholds[i]) & (y > thresholds[j])
-        top = np.maximum(ranks[i][2], ranks[j][2])[flat]
-        weight = (top - np.abs(ranks[i][1] - ranks[j][1])) / top
-        with np.errstate(invalid='ignore', divide='ignore'):
+            icq = same_side / count - 0.5
             k1 = np.where(saa > 0, sab / saa, 0.0)
             k2 = np.where(sbb > 0, sab / sbb, 0.0)
-            rwc1 = np.where(sa > 0, np.bincount(
-                flat, np.where(both, a * weight, 0.0), size) / sa, 0.0)
-            rwc2 = np.where(sb > 0, np.bincount(
-                flat, np.where(both, b * weight, 0.0), size) / sb, 0.0)
+            rwc1 = np.where(sa > 0, weighted_a / sa, 0.0)
+            rwc2 = np.where(sb > 0, weighted_b / sb, 0.0)
         out[base + 'spearman'] = spearman[present]
         out[base + 'icq'] = icq[present]
         out[base + 'k1'] = k1[present]
@@ -4359,20 +5500,35 @@ def _costes_manders(flat, x, y, size, steps=PROFILE_COSTES_STEPS):
     return m1, m2
 
 
-def _rank_mutual_information(flat, rank_x, rank_y, count, size, bins):
+def _rank_bins(flat, ranks, count, bins):
+    """Each pixel's equal-count quantile bin ``0..bins-1`` of its within-label rank, as int64."""
+    n = count[flat]
+    return np.minimum(((ranks - 0.5) / n * bins).astype(np.int64), bins - 1)
+
+
+def _joint_bins_kernel(flat, qx, qy, joint):
+    """Count each label's pixels in every ``(qx, qy)`` bin pair into ``joint[label]``. Compile with :func:`_compiled`."""
+    for k in range(flat.size):
+        joint[flat[k], qx[k], qy[k]] += 1
+
+
+def _rank_mutual_information(flat, rank_x, rank_y, count, size, bins,
+                             binned=None):
     """Normalised mutual information of two within-label rank vectors.
 
     Ranks become ``bins`` equal-count quantile bins per label, so each
     channel's marginal is near uniform and the measure sees only how the two
     co-vary, linearly or not. ``MI / log(bins)``: 0 for independence, 1 for
     a one-to-one monotone or non-monotone binned relation.
+
+    :param binned: the two channels' :func:`_rank_bins`, when the caller
+        already has them.
     """
-    n = count[flat]
-    qx = np.minimum(((rank_x - 0.5) / n * bins).astype(np.int64), bins - 1)
-    qy = np.minimum(((rank_y - 0.5) / n * bins).astype(np.int64), bins - 1)
-    cells = bins * bins
-    joint = np.bincount(flat * cells + qx * bins + qy,
-                        minlength=size * cells).reshape(size, bins, bins)
+    qx, qy = binned if binned is not None else (
+        _rank_bins(flat, rank_x, count, bins),
+        _rank_bins(flat, rank_y, count, bins))
+    joint = np.zeros((size, bins, bins), dtype=np.int64)
+    _compiled(_joint_bins_kernel)(np.ascontiguousarray(flat), qx, qy, joint)
     with np.errstate(invalid='ignore', divide='ignore'):
         p = joint / count[:, None, None]
         px = p.sum(axis=2, keepdims=True)
@@ -4441,7 +5597,8 @@ def measure_colocalisation_extra(labels, image, bins=PROFILE_MI_BINS,
     labels, image, present = _profile_inputs(labels, image)
     out = {'label': present}
     n_channels = image.shape[-1]
-    flat, rows, cols, inside, size = _foreground(labels)
+    pixels = _label_pixels(labels, image)
+    flat, rows, cols, inside, size = pixels.foreground
     pairs = list(combinations(range(n_channels), 2))
     stats = (('nmi', 'costes_m1', 'costes_m2') if costes else ('nmi',)) + (
         'puncta_overlap_ij', 'puncta_overlap_ji')
@@ -4454,12 +5611,11 @@ def measure_colocalisation_extra(labels, image, bins=PROFILE_MI_BINS,
                 out[f'channel_{i}_channel_{j}_{stat}'] = np.zeros(0)
         return pd.DataFrame(out)
     count = np.bincount(flat, None, size).astype(float)
-    planes = [image[..., c].ravel()[inside] for c in range(n_channels)]
+    planes = pixels.planes
     above, ranks, spots = [], [], []
-    for v in planes:
-        order = _sorted_by_label(flat, v)
-        above.append(v > _robust_threshold(flat, v, order))
-        ranks.append(_within_label_ranks(flat, v, order)[0])
+    for c, v in enumerate(planes):
+        above.append(v > pixels._threshold(c))
+        ranks.append(pixels._ranks(c)[0])
         spots.append(_puncta(flat, rows, cols, above[-1], size, labels.shape))
     for c in range(n_channels):
         with np.errstate(invalid='ignore', divide='ignore'):
@@ -4467,10 +5623,12 @@ def measure_colocalisation_extra(labels, image, bins=PROFILE_MI_BINS,
         out[f'channel_{c}_puncta_count'] = spots[c][3][present].astype(float)
         out[f'channel_{c}_puncta_area_fraction'] = share[present]
     shape = labels.shape
+    binned = [_rank_bins(flat, r, count, int(bins)) for r in ranks]
     for i, j in pairs:
         base = f'channel_{i}_channel_{j}_'
         nmi = _rank_mutual_information(flat, ranks[i], ranks[j], count,
-                                       size, int(bins))
+                                       size, int(bins),
+                                       binned=(binned[i], binned[j]))
         out[base + 'nmi'] = nmi[present]
         if costes:
             m1, m2 = _costes_manders(flat, planes[i], planes[j], size, steps)
@@ -4522,59 +5680,105 @@ def measure_costes(labels, image, steps=PROFILE_COSTES_STEPS):
     return pd.DataFrame(out)
 
 
+def _otsu_kernel(ordered, starts, counts, present, low, high, thresholds):
+    """Each label's first observed value maximising Otsu's between-class variance, into ``thresholds``.
+
+    One pass along each label's run of ``ordered`` (its values sorted
+    ascending): a split after a value that differs from the next puts that
+    value and everything below it in the lower class, and scores
+    ``(total * lower_count - lower_sum * count) ** 2 / (lower_count *
+    upper_count)``, the between-class variance times a constant of the
+    label. Sums are taken in float64 of the values minus the label's
+    minimum, scaled by the power of two at or above its range, so the
+    score does not depend on the intensity scale. A constant label keeps 0.
+    Compile with :func:`_compiled`.
+    """
+    for index in range(present.size):
+        label = present[index]
+        start = starts[index]
+        count = counts[index]
+        base = low[label]
+        spread = high[label] - base
+        if not spread > 0:
+            continue
+        scale = 1.0
+        while scale < spread:
+            scale *= 2.0
+        while scale / 2.0 >= spread:
+            scale /= 2.0
+        total = 0.0
+        for k in range(count):
+            total += (ordered[start + k] - base) / scale
+        lower_sum = 0.0
+        best = -np.inf
+        winner = -1
+        for k in range(count - 1):
+            value = ordered[start + k]
+            lower_sum += (value - base) / scale
+            if value == ordered[start + k + 1]:
+                continue
+            lower = k + 1.0
+            numerator = total * lower - lower_sum * count
+            score = numerator * numerator / (lower * (count - lower))
+            if score > best:
+                best = score
+                winner = k
+        if winner >= 0:
+            thresholds[label] = ordered[start + winner]
+
+
 def _otsu_by_label(flat, values, presorted=None):
     """Observed-value Otsu thresholds per label, with the first maximum winning.
 
     :param flat: positive integer label index for each foreground pixel.
     :param values: real intensities of those pixels.
     :param presorted: optional :func:`_sorted_by_label` result for ``values``.
-    :returns: one threshold per label index; 0 for a constant object or an
-        absent label. Integer data follow :func:`mahotas.thresholding.otsu`.
+    :returns: one threshold per label index; 0 for a constant object (or
+        one holding NaN) or an absent label. Integer data follow
+        :func:`mahotas.thresholding.otsu`.
 
-    All candidate splits are evaluated together from sorted cumulative sums;
-    a split places values equal to its threshold in the lower class.
-    Centring and power-of-two scaling within each object keep the score
-    stable across intensity scales. A segmented prefix scan keeps sums
-    independent of the intensity and size of earlier labels.
+    Every candidate split of a label is scored in one compiled pass along
+    its sorted values (:func:`_otsu_kernel`); a split places values equal
+    to its threshold in the lower class. Centring and power-of-two scaling
+    within each object keep the score stable across intensity scales.
     """
-    order, ordered, starts, counts, present = (
+    _order, ordered, starts, counts, present = (
         presorted if presorted is not None else _sorted_by_label(flat, values))
     size = int(flat.max()) + 1
     thresholds = np.zeros(size)
-    labels_sorted = flat[order]
-    positions = np.arange(ordered.size)
-    low, high = _label_extremes(flat, values, size)
-    shifted = ordered.astype(np.longdouble) - low[labels_sorted]
-    exponent = np.frexp(high.astype(np.longdouble) - low)[1]
-    shifted = np.ldexp(shifted, -exponent[labels_sorted])
-    lower_sum = shifted.copy()
-    stride = 1
-    while stride < int(counts.max()):
-        same_label = labels_sorted[stride:] == labels_sorted[:-stride]
-        lower_sum[stride:] += np.where(same_label, lower_sum[:-stride], 0.0)
-        stride *= 2
-    total_sum = np.zeros(size, dtype=np.longdouble)
-    total_sum[present] = np.add.reduceat(shifted, starts)
-    total_count = np.bincount(flat, minlength=size)
-    group_starts = np.repeat(starts, counts)
-    lower_count = positions - group_starts + 1
-    upper_count = total_count[labels_sorted] - lower_count
-    candidates = np.zeros(ordered.size, dtype=bool)
-    candidates[:-1] = ((labels_sorted[:-1] == labels_sorted[1:])
-                      & (ordered[:-1] != ordered[1:]))
-    score = np.full(ordered.size, -np.inf, dtype=np.longdouble)
-    numerator = (total_sum[labels_sorted] * lower_count
-                 - lower_sum * total_count[labels_sorted])
-    score[candidates] = numerator[candidates] ** 2 / (
-        lower_count[candidates] * upper_count[candidates])
-    maximum = np.full(size, -np.inf, dtype=np.longdouble)
-    np.maximum.at(maximum, labels_sorted, score)
-    first = np.full(size, ordered.size, dtype=np.int64)
-    winners = candidates & (score == maximum[labels_sorted])
-    np.minimum.at(first, labels_sorted[winners], positions[winners])
-    varying = present[first[present] < ordered.size]
-    thresholds[varying] = ordered[first[varying]]
+    ordered = np.ascontiguousarray(ordered, dtype=np.float64)
+    starts = np.asarray(starts, dtype=np.int64)
+    counts = np.asarray(counts, dtype=np.int64)
+    low = np.zeros(size)
+    high = np.zeros(size)
+    low[present] = ordered[starts]
+    high[present] = ordered[starts + counts - 1]
+    _compiled(_otsu_kernel)(ordered, starts, counts,
+                            np.asarray(present, dtype=np.int64), low, high,
+                            thresholds)
     return thresholds
+
+
+def _otsu_pair_sums_kernel(flat, x, y, above_x, above_y, dense_x, dense_y,
+                           top, sums):
+    """The per-label sums of :func:`measure_colocalisation_otsu` for one channel pair, in one pass.
+
+    Adds, in pixel order (the order of :func:`numpy.bincount`), into
+    ``sums[0..4, label]``: ``x y``; ``x`` where ``y`` is above its Otsu
+    threshold and ``y`` where ``x`` is; and those two weighted by the rank
+    weight ``(R - |dense_x - dense_y|) / R`` with ``R = top[label]``.
+    Compile with :func:`_compiled`.
+    """
+    for k in range(flat.size):
+        label = flat[k]
+        sums[0, label] += x[k] * y[k]
+        weight = (top[label] - abs(dense_x[k] - dense_y[k])) / top[label]
+        if above_y[k]:
+            sums[1, label] += x[k]
+            sums[3, label] += x[k] * weight
+        if above_x[k]:
+            sums[2, label] += y[k]
+            sums[4, label] += y[k] * weight
 
 
 def measure_colocalisation_otsu(labels, image):
@@ -4620,24 +5824,25 @@ def measure_colocalisation_otsu(labels, image):
             for stat in stats:
                 out[f'channel_{i}_channel_{j}_{stat}'] = np.zeros(0)
         return pd.DataFrame(out)
-    flat, _rows, _cols, inside, size = _foreground(labels)
-    planes = [image[..., c].ravel()[inside] for c in range(image.shape[-1])]
+    pixels = _label_pixels(labels, image)
+    flat, _rows, _cols, inside, size = pixels.foreground
+    planes = pixels.planes
     above, ranks, sums, squares = [], [], [], []
-    for values in planes:
-        ordered = _sorted_by_label(flat, values)
+    for c, values in enumerate(planes):
+        ordered = pixels._sort(c)
         above.append(values > _otsu_by_label(flat, values, ordered)[flat])
-        ranks.append(_within_label_ranks(flat, values, ordered))
+        ranks.append(pixels._ranks(c))
         sums.append(np.bincount(flat, values, size))
         squares.append(np.bincount(flat, values * values, size))
     for i, j in pairs:
         x, y = planes[i], planes[j]
-        _r, dx, dy = _pearson_by_label(flat, x, y, size)
-        covariance = np.bincount(flat, dx * dy, size)
-        var_x = np.bincount(flat, dx * dx, size)
-        var_y = np.bincount(flat, dy * dy, size)
-        product = np.bincount(flat, x * y, size)
-        maximum = np.maximum(ranks[i][2], ranks[j][2])[flat]
-        weight = (maximum - np.abs(ranks[i][1] - ranks[j][1])) / maximum
+        _count, covariance, var_x, var_y, _dx, _dy = _pair_sums(
+            flat, x, y, size)
+        pair = np.zeros((5, size))
+        _compiled(_otsu_pair_sums_kernel)(
+            flat, x, y, above[i], above[j], ranks[i][1], ranks[j][1],
+            np.maximum(ranks[i][2], ranks[j][2]), pair)
+        product, overlap_x, overlap_y, weighted_x, weighted_y = pair
         valid = (sums[i] != 0) & (sums[j] != 0)
         varying = (ranks[i][2] > 1) & (ranks[j][2] > 1)
         with np.errstate(divide='ignore', invalid='ignore'):
@@ -4646,10 +5851,8 @@ def measure_colocalisation_otsu(labels, image):
                 np.where(varying & (var_y > 0), covariance / var_y, 0.0),
                 product / np.sqrt(squares[i] * squares[j]),
                 product / squares[i], product / squares[j],
-                np.bincount(flat, x * above[j], size) / sums[i],
-                np.bincount(flat, y * above[i], size) / sums[j],
-                np.bincount(flat, x * weight * above[j], size) / sums[i],
-                np.bincount(flat, y * weight * above[i], size) / sums[j])
+                overlap_x / sums[i], overlap_y / sums[j],
+                weighted_x / sums[i], weighted_y / sums[j])
         for index, (stat, result) in enumerate(zip(stats, values)):
             if index >= 2:
                 result = np.where(valid, result, 0.0)
@@ -4730,6 +5933,349 @@ def _mask_index(masks):
     return index
 
 
+#: The share of :func:`_field_threads` the current thread may use, set while
+#: :func:`_add_profile_frames` splits the budget between its two halves.
+_THREAD_SHARE = contextvars.ContextVar('spacr_measure_thread_share',
+                                       default=None)
+
+
+def _field_threads():
+    """How many threads one field's per-channel steps may use: the process's OpenMP budget.
+
+    ``OMP_NUM_THREADS`` is the compute budget a caller gives the process
+    (Measure's workers set it to 1, the OPS phenotype workers and the job
+    scheduler to their grant), so the per-channel steps of a field use the
+    same budget as the libraries under them. Unset or unreadable, one.
+    While the budget is split (:data:`_THREAD_SHARE`), the current thread's
+    share.
+    """
+    share = _THREAD_SHARE.get()
+    if share is not None:
+        return share
+    try:
+        return max(1, int(os.environ.get('OMP_NUM_THREADS') or 1))
+    except ValueError:
+        return 1
+
+
+@contextlib.contextmanager
+def _thread_share(count):
+    """Within this scope the current thread's steps use ``count`` threads."""
+    token = _THREAD_SHARE.set(max(1, int(count)))
+    try:
+        yield
+    finally:
+        _THREAD_SHARE.reset(token)
+
+
+def _field_map(function, items):
+    """``[function(item) for item in items]``, in order, on :func:`_field_threads` threads.
+
+    For the whole-field steps whose kernels release the GIL (sorting,
+    grey reconstruction, resampling, local binary patterns). Each item is
+    computed by the same code as in a plain loop, so the results do not
+    depend on the thread count; only the wall time does.
+    """
+    items = list(items)
+    workers = min(_field_threads(), len(items))
+    if workers <= 1:
+        return [function(item) for item in items]
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(function, items))
+
+
+def _dilation_reconstruction_kernel():
+    """The compiled grey reconstruction of :func:`_reconstruct_by_dilation`, or None without numba."""
+    global _DILATION_KERNEL
+    if _DILATION_KERNEL is not None:
+        return _DILATION_KERNEL or None
+    try:
+        import numba
+    except Exception:
+        _DILATION_KERNEL = False
+        return None
+    _DILATION_KERNEL = numba.njit(cache=True, nogil=True)(_dilation_reconstruction)
+    return _DILATION_KERNEL
+
+
+def _dilation_reconstruction(seed, mask):
+    """Vincent's (1993) hybrid grey reconstruction by dilation, 8-connected, for numba.
+
+    A forward raster scan, a backward raster scan that queues every pixel
+    that can still raise a neighbour, and a first-in first-out propagation
+    from the queue until nothing changes. Plain Python works too, slowly;
+    :func:`_dilation_reconstruction_kernel` compiles it.
+
+    :param seed: 2-D float64 seed, nowhere above ``mask``.
+    :param mask: 2-D float64 mask of the same shape.
+    :returns: the reconstruction, a new array.
+    """
+    rows, cols = seed.shape
+    out = seed.copy()
+    for r in range(rows):
+        for c in range(cols):
+            value = out[r, c]
+            for dr, dc in ((-1, -1), (-1, 0), (-1, 1), (0, -1)):
+                rr, cc = r + dr, c + dc
+                if 0 <= rr < rows and 0 <= cc < cols and out[rr, cc] > value:
+                    value = out[rr, cc]
+            out[r, c] = min(value, mask[r, c])
+    size = rows * cols + 1
+    queue_r = np.empty(size, np.int64)
+    queue_c = np.empty(size, np.int64)
+    head = 0
+    tail = 0
+    count = 0
+    for r in range(rows - 1, -1, -1):
+        for c in range(cols - 1, -1, -1):
+            value = out[r, c]
+            for dr, dc in ((1, 1), (1, 0), (1, -1), (0, 1)):
+                rr, cc = r + dr, c + dc
+                if 0 <= rr < rows and 0 <= cc < cols and out[rr, cc] > value:
+                    value = out[rr, cc]
+            value = min(value, mask[r, c])
+            out[r, c] = value
+            for dr, dc in ((1, 1), (1, 0), (1, -1), (0, 1)):
+                rr, cc = r + dr, c + dc
+                if (0 <= rr < rows and 0 <= cc < cols
+                        and out[rr, cc] < value
+                        and out[rr, cc] < mask[rr, cc]):
+                    queue_r[tail] = r
+                    queue_c[tail] = c
+                    tail = (tail + 1) % size
+                    count += 1
+                    break
+    while count > 0:
+        r = queue_r[head]
+        c = queue_c[head]
+        head = (head + 1) % size
+        count -= 1
+        value = out[r, c]
+        for dr in (-1, 0, 1):
+            for dc in (-1, 0, 1):
+                if dr == 0 and dc == 0:
+                    continue
+                rr, cc = r + dr, c + dc
+                if (0 <= rr < rows and 0 <= cc < cols
+                        and out[rr, cc] < value
+                        and mask[rr, cc] != out[rr, cc]):
+                    out[rr, cc] = min(value, mask[rr, cc])
+                    if count == size:
+                        grown_r = np.empty(2 * size, np.int64)
+                        grown_c = np.empty(2 * size, np.int64)
+                        for k in range(count):
+                            grown_r[k] = queue_r[(head + k) % size]
+                            grown_c[k] = queue_c[(head + k) % size]
+                        queue_r, queue_c = grown_r, grown_c
+                        head, tail, size = 0, count, 2 * size
+                    queue_r[tail] = rr
+                    queue_c[tail] = cc
+                    tail = (tail + 1) % size
+                    count += 1
+    return out
+
+
+#: The compiled :func:`_dilation_reconstruction`; None until asked for,
+#: False where numba is not installed.
+_DILATION_KERNEL = None
+
+
+def _reconstruct_by_dilation(seed, mask):
+    """Grey reconstruction by dilation of ``seed`` under ``mask``, 8-connected.
+
+    The value of ``skimage.morphology.reconstruction(seed, mask,
+    method='dilation')`` with its default 3 x 3 footprint. Reconstruction
+    only selects values (each output pixel is the largest seed value that
+    reaches it along a path, capped by the mask), so every correct
+    algorithm gives the same floats; this one is Vincent's (1993) hybrid
+    raster-scan and queue algorithm, compiled with numba, which on a
+    granularity plane takes a small fraction of skimage's time, spent there
+    on rank-ordering every pixel. Without numba, or for anything but two
+    finite float64 planes of one shape with the seed nowhere above the mask,
+    skimage answers.
+    """
+    from skimage.morphology import reconstruction
+
+    seed = np.asarray(seed)
+    mask = np.asarray(mask)
+    kernel = _dilation_reconstruction_kernel()
+    if (kernel is None or seed.ndim != 2 or seed.shape != mask.shape
+            or seed.dtype != np.float64 or mask.dtype != np.float64
+            or not seed.size or not np.isfinite(seed).all()
+            or not np.isfinite(mask).all() or (seed > mask).any()):
+        return reconstruction(seed, mask, method='dilation')
+    return kernel(np.ascontiguousarray(seed), np.ascontiguousarray(mask))
+
+
+def _granularity_channel(c, *, image, index, footprint, cross, scale, full,
+                         spectrum_length, weights=None):
+    """One channel's granularity spectrum for every mask of :func:`_granularity_frames`.
+
+    :param weights: per mask, the :func:`_granularity_weights` that take a
+        subsampled plane's object means; None at full size.
+    :returns: per mask, ``[(column, values)]`` in step order.
+    """
+    from scipy import ndimage
+
+    columns = [[] for _ in index]
+    plane = image[..., c]
+    if scale < 1:
+        plane = ndimage.zoom(plane, scale, order=1)
+    background = ndimage.grey_opening(plane, footprint=footprint)
+    pixels = np.clip(plane - background, 0, None)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        starts = _granularity_means(pixels, index, weights)
+        previous = list(starts)
+        eroded = pixels
+        for k in range(1, int(spectrum_length) + 1):
+            eroded = ndimage.grey_erosion(eroded, footprint=cross)
+            means = _granularity_means(
+                _reconstruct_by_dilation(eroded, pixels), index, weights)
+            for m, (_flat, _inside, _size, present, _count) in enumerate(index):
+                current = means[m]
+                step = (previous[m] - current) * 100 / starts[m]
+                columns[m].append((f'channel_{c}_granularity_{k}', np.where(
+                    starts[m][present] > 0, step[present], np.nan)))
+                previous[m] = current
+    return columns
+
+
+def _granularity_means(plane, index, weights):
+    """Each mask's per-label mean of ``plane``, scaled back to the field first when it was subsampled.
+
+    At full size (``weights`` None) the mean of the plane's own pixels. A
+    subsampled plane is scaled back bilinearly (``skimage.transform.resize``,
+    ``order=1``, ``mode='edge'``, no anti-aliasing); that is linear in the
+    plane, so each label's sum over the scaled plane is one sparse product
+    with the label's summed interpolation weights, without making the
+    full-size plane.
+    """
+    if weights is None:
+        return [np.bincount(flat, plane.ravel()[inside], size) / count
+                for flat, inside, size, _p, count in index]
+    flat_plane = np.ascontiguousarray(plane).ravel()
+    return [(w @ flat_plane) / count
+            for w, (_f, _i, _s, _p, count) in zip(weights, index)]
+
+
+def _resize_weights(n_in, n_out):
+    """The two source pixels and weights of every output pixel of a 1-D bilinear resize from ``n_in`` to ``n_out``.
+
+    Read off ``skimage.transform.resize`` (``order=1``, ``mode='edge'``, no
+    anti-aliasing) of the identity, so the weights are the ones it uses.
+    An output pixel read from one source pixel repeats it with weight 0,
+    so both source columns rise with the output pixel.
+    :returns: ``(sources, weights)``, each ``(n_out, 2)``.
+    """
+    from skimage.transform import resize
+
+    table = resize(np.eye(n_in), (n_out, n_in), order=1, mode='edge',
+                   anti_aliasing=False, preserve_range=True)
+    sources = np.zeros((n_out, 2), dtype=np.int64)
+    weights = np.zeros((n_out, 2))
+    for row in range(n_out):
+        nonzero = np.flatnonzero(table[row])[:2]
+        sources[row] = nonzero[0]
+        sources[row, :nonzero.size] = nonzero
+        weights[row, :nonzero.size] = table[row, nonzero]
+    return sources, weights
+
+
+def _granularity_weights_kernel(labels, boxes, present, row_sources,
+                                row_weights, col_sources, col_weights,
+                                small_cols, indptr, indices, data):
+    """Each label's summed bilinear weights on the subsampled plane, as CSR rows.
+
+    For label ``present[k]`` the pixels of its full-size box ``boxes[k]``
+    add ``row_weight * col_weight`` to the two by two subsampled pixels
+    they are read from, in a dense scratch over the box's subsampled
+    footprint; its nonzero sums become row ``present[k]`` of the matrix,
+    columns ascending. ``indices`` and ``data`` must hold every footprint
+    pixel; ``indptr`` (one longer than the label count) is filled. Compile
+    with :func:`_compiled`.
+    :returns: the number of stored entries.
+    """
+    stored = 0
+    previous = 0
+    for k in range(present.size):
+        label = present[k]
+        for row in range(previous, label + 1):
+            indptr[row] = stored
+        previous = label + 1
+        r0, r1, c0, c1 = boxes[k, 0], boxes[k, 1], boxes[k, 2], boxes[k, 3]
+        a0 = row_sources[r0, 0]
+        a1 = a0
+        for r in range(r0, r1):
+            a0 = min(a0, row_sources[r, 0])
+            a1 = max(a1, row_sources[r, 1])
+        b0 = col_sources[c0, 0]
+        b1 = b0
+        for c in range(c0, c1):
+            b0 = min(b0, col_sources[c, 0])
+            b1 = max(b1, col_sources[c, 1])
+        scratch = np.zeros((a1 - a0 + 1, b1 - b0 + 1))
+        for r in range(r0, r1):
+            for c in range(c0, c1):
+                if labels[r, c] != label:
+                    continue
+                for i in range(2):
+                    wr = row_weights[r, i]
+                    if wr == 0:
+                        continue
+                    for j in range(2):
+                        wc = col_weights[c, j]
+                        if wc == 0:
+                            continue
+                        scratch[row_sources[r, i] - a0,
+                                col_sources[c, j] - b0] += wr * wc
+        for i in range(a1 - a0 + 1):
+            for j in range(b1 - b0 + 1):
+                if scratch[i, j] != 0:
+                    indices[stored] = (a0 + i) * small_cols + b0 + j
+                    data[stored] = scratch[i, j]
+                    stored += 1
+    for row in range(previous, indptr.size):
+        indptr[row] = stored
+    return stored
+
+
+def _granularity_weights(masks, index, small, full):
+    """Per mask, the sparse ``(labels, small pixels)`` sums of bilinear weights from ``small`` back to ``full``.
+
+    Row ``l`` of a mask's matrix holds, for every pixel of the subsampled
+    plane, the sum over label ``l``'s full-size pixels of that pixel's
+    bilinear weight (:func:`_resize_weights`), so the matrix times the plane is
+    each label's sum over the scaled-back plane
+    (:func:`_granularity_weights_kernel`).
+    """
+    from scipy import sparse
+
+    row_sources, row_weights = _resize_weights(small[0], full[0])
+    col_sources, col_weights = _resize_weights(small[1], full[1])
+    kernel = _compiled(_granularity_weights_kernel)
+    out = []
+    for labels, (_flat, _inside, size, present, _count) in zip(masks, index):
+        labels = np.ascontiguousarray(labels, dtype=np.int64)
+        present = np.asarray(present, dtype=np.int64)
+        boxes = _object_boxes(labels, present)
+        capacity = 0
+        for r0, r1, c0, c1 in boxes.tolist():
+            capacity += ((int(row_sources[r1 - 1, 1]) - int(row_sources[r0, 0]) + 1)
+                         * (int(col_sources[c1 - 1, 1]) - int(col_sources[c0, 0]) + 1))
+        indptr = np.zeros(size + 1, dtype=np.int64)
+        indices = np.zeros(capacity, dtype=np.int64)
+        data = np.zeros(capacity)
+        stored = kernel(labels, boxes, present, row_sources, row_weights,
+                        col_sources, col_weights, int(small[1]), indptr,
+                        indices, data)
+        out.append(sparse.csr_matrix(
+            (data[:stored], indices[:stored], indptr),
+            shape=(size, small[0] * small[1])))
+    return out
+
+
 def _granularity_frames(masks, image, spectrum_length=16,
                         background_radius=10, subsample=1.0):
     """:func:`measure_granularity` of several masks over one image, sieving once.
@@ -4739,7 +6285,7 @@ def _granularity_frames(masks, image, spectrum_length=16,
     :returns: one frame per mask, as :func:`measure_granularity`.
     """
     from scipy import ndimage
-    from skimage.morphology import disk, reconstruction
+    from skimage.morphology import disk
 
     index = _mask_index(masks)
     outs = [{'label': present} for _f, _i, _s, present, _c in index]
@@ -4754,40 +6300,18 @@ def _granularity_frames(masks, image, spectrum_length=16,
             "profile_granularity_subsample to a number greater than 0 and "
             "at most 1, then rerun Measure.", subsample=subsample))
     full = image.shape[:2]
-    for c in range(image.shape[-1]):
-        plane = image[..., c]
-        if scale < 1:
-            plane = ndimage.zoom(plane, scale, order=1)
-        background = ndimage.grey_opening(plane, footprint=footprint)
-        pixels = np.clip(plane - background, 0, None)
-        with np.errstate(invalid='ignore', divide='ignore'):
-            seen = _granularity_full(pixels, full)
-            starts = [np.bincount(flat, seen.ravel()[inside], size) / count
-                      for flat, inside, size, _p, count in index]
-            previous = list(starts)
-            eroded = pixels
-            for k in range(1, int(spectrum_length) + 1):
-                eroded = ndimage.grey_erosion(eroded, footprint=cross)
-                rebuilt = _granularity_full(
-                    reconstruction(eroded, pixels, method='dilation'), full)
-                for m, (flat, inside, size, present, count) in enumerate(index):
-                    current = np.bincount(flat, rebuilt.ravel()[inside],
-                                          size) / count
-                    step = (previous[m] - current) * 100 / starts[m]
-                    outs[m][f'channel_{c}_granularity_{k}'] = np.where(
-                        starts[m][present] > 0, step[present], np.nan)
-                    previous[m] = current
+    weights = None
+    if scale < 1 and image.shape[-1]:
+        small = tuple(int(round(n * scale)) for n in full)
+        weights = _granularity_weights(masks, index, small, full)
+    sieve = partial(
+        _granularity_channel, image=image, index=index, footprint=footprint,
+        cross=cross, scale=scale, full=full, spectrum_length=spectrum_length,
+        weights=weights)
+    for columns in _field_map(sieve, range(image.shape[-1])):
+        for m, pairs in enumerate(columns):
+            outs[m].update(pairs)
     return [pd.DataFrame(out) for out in outs]
-
-
-def _granularity_full(plane, shape):
-    """A subsampled granularity plane scaled back to the field (bilinear); unchanged at full size."""
-    if plane.shape == tuple(shape):
-        return plane
-    from skimage.transform import resize
-
-    return resize(plane, shape, order=1, mode='edge', anti_aliasing=False,
-                  preserve_range=True)
 
 
 #: LBP radii of :func:`measure_lbp`; each uses ``8 * radius`` sampling points.
@@ -4822,26 +6346,112 @@ def measure_lbp(labels, image, radii=PROFILE_LBP_RADII):
     return _lbp_frames([labels], image, radii)[0]
 
 
+def _lbp_kernel(image, needed, row_offsets, col_offsets, codes):
+    """Rotation-invariant uniform LBP codes at the ``needed`` pixels, into ``codes``.
+
+    The arithmetic of :func:`skimage.feature.local_binary_pattern` with
+    ``method='uniform'``: each of the ``P`` circle points is read by
+    bilinear interpolation from its four neighbours (0 outside the image),
+    set when it is at least the centre, and a pattern with at most two
+    changes between consecutive points (the first ``P - 1`` pairs, as
+    skimage counts them) takes its number of set points, any other ``P +
+    1``. Pixels not ``needed`` keep their value. Compile with
+    :func:`_compiled`.
+    """
+    rows, cols = image.shape
+    points = row_offsets.size
+    bits = np.zeros(points, dtype=np.int64)
+    for r in range(rows):
+        for c in range(cols):
+            if not needed[r, c]:
+                continue
+            centre = image[r, c]
+            for i in range(points):
+                pr = r + row_offsets[i]
+                pc = c + col_offsets[i]
+                minr = int(np.floor(pr))
+                minc = int(np.floor(pc))
+                maxr = int(np.ceil(pr))
+                maxc = int(np.ceil(pc))
+                dr = pr - minr
+                dc = pc - minc
+                top_left = 0.0
+                top_right = 0.0
+                bottom_left = 0.0
+                bottom_right = 0.0
+                if 0 <= minr < rows and 0 <= minc < cols:
+                    top_left = image[minr, minc]
+                if 0 <= minr < rows and 0 <= maxc < cols:
+                    top_right = image[minr, maxc]
+                if 0 <= maxr < rows and 0 <= minc < cols:
+                    bottom_left = image[maxr, minc]
+                if 0 <= maxr < rows and 0 <= maxc < cols:
+                    bottom_right = image[maxr, maxc]
+                top = (1 - dc) * top_left + dc * top_right
+                bottom = (1 - dc) * bottom_left + dc * bottom_right
+                value = (1 - dr) * top + dr * bottom
+                bits[i] = 1 if value - centre >= 0 else 0
+            changes = 0
+            for i in range(points - 1):
+                if bits[i] != bits[i + 1]:
+                    changes += 1
+            if changes <= 2:
+                total = 0
+                for i in range(points):
+                    total += bits[i]
+                codes[r, c] = total
+            else:
+                codes[r, c] = points + 1
+
+
+def _lbp_offsets(points, radius):
+    """The circle offsets of :func:`skimage.feature.local_binary_pattern`: ``(rows, cols)`` rounded to 5 decimals."""
+    angles = 2 * np.pi * np.arange(points, dtype=np.float64) / points
+    return (np.round(-radius * np.sin(angles), 5),
+            np.round(radius * np.cos(angles), 5))
+
+
+def _lbp_channel(item, *, image, index, needed):
+    """One ``(channel, radius)`` of :func:`_lbp_frames` for every mask.
+
+    The codes are :func:`skimage.feature.local_binary_pattern`'s on the
+    whole field, computed by :func:`_lbp_kernel` at the labelled pixels
+    only, the only ones a histogram reads.
+
+    :param needed: the pixels any mask labels; codes elsewhere are unused.
+    :returns: per mask, ``[(column, values)]`` in code order.
+    """
+    c, radius = item
+    columns = [[] for _ in index]
+    points = 8 * int(radius)
+    row_offsets, col_offsets = _lbp_offsets(points, float(radius))
+    codes = np.zeros(needed.shape, dtype=np.int64)
+    _compiled(_lbp_kernel)(np.ascontiguousarray(image[..., c], dtype=np.float64),
+                           needed, row_offsets, col_offsets, codes)
+    for m, (flat, inside, size, present, count) in enumerate(index):
+        bins = points + 2
+        tally = np.bincount(flat * bins + codes.ravel()[inside],
+                            minlength=size * bins).reshape(size, bins)
+        with np.errstate(invalid='ignore', divide='ignore'):
+            for k in range(bins):
+                share = tally[:, k].astype(float) / count
+                columns[m].append(
+                    (f'channel_{c}_lbp_r{int(radius)}_{k}', share[present]))
+    return columns
+
+
 def _lbp_frames(masks, image, radii=PROFILE_LBP_RADII):
     """:func:`measure_lbp` of several masks over one image, coding the field once."""
-    from skimage.feature import local_binary_pattern
-
     index = _mask_index(masks)
     outs = [{'label': present} for _f, _i, _s, present, _c in index]
-    for c in range(image.shape[-1]):
-        plane = image[..., c]
-        for radius in radii:
-            points = 8 * int(radius)
-            codes = local_binary_pattern(plane, points, float(radius),
-                                         method='uniform').astype(np.int64)
-            for m, (flat, inside, size, present, count) in enumerate(index):
-                code = codes.ravel()[inside]
-                with np.errstate(invalid='ignore', divide='ignore'):
-                    for k in range(points + 2):
-                        share = np.bincount(flat, (code == k).astype(float),
-                                            size) / count
-                        outs[m][f'channel_{c}_lbp_r{int(radius)}_{k}'] = \
-                            share[present]
+    items = [(c, radius) for c in range(image.shape[-1]) for radius in radii]
+    needed = np.zeros(image.shape[:2], dtype=bool)
+    for labels in masks:
+        needed |= np.asarray(labels) > 0
+    code = partial(_lbp_channel, image=image, index=index, needed=needed)
+    for columns in _field_map(code, items):
+        for m, pairs in enumerate(columns):
+            outs[m].update(pairs)
     return [pd.DataFrame(out) for out in outs]
 
 
@@ -4933,7 +6543,8 @@ def measure_periphery(labels, image):
         the percentiles are what it adds.
     """
     labels, image, present = _profile_inputs(labels, image)
-    rows = [_periphery_intensity(labels, image[..., c])
+    selections = _periphery_selections(labels)
+    rows = [_periphery_intensity(labels, image[..., c], selections=selections)
             for c in range(image.shape[-1])]
     return _ring_table(rows, present, 'periphery')
 
@@ -4955,8 +6566,11 @@ def measure_outside(labels, image, distance=5, exclude_foreground=True):
         0 otherwise.
     """
     labels, image, present = _profile_inputs(labels, image)
+    selections = _outside_selections(labels, distance,
+                                     exclude_foreground=exclude_foreground)
     rows = [_outside_intensity(labels, image[..., c], distance=distance,
-                               exclude_foreground=exclude_foreground)
+                               exclude_foreground=exclude_foreground,
+                               selections=selections)
             for c in range(image.shape[-1])]
     table = _ring_table(rows, present, 'outside')
     table['enclosed'] = (table['channel_0_outside_mean'].isna()
@@ -4985,43 +6599,44 @@ def measure_profile_features(labels, image, families='profiling',
     chosen = profile_feature_families(families)
     labels, image, present = _profile_inputs(labels, image)
     frames = []
-    for family in chosen:
-        if family == 'edge_intensity':
-            frames.append(measure_edge_intensity(labels, image))
-        elif family == 'intensity_moments':
-            frames.append(measure_intensity_moments(labels, image))
-        elif family == 'radial_distribution':
-            frames.append(measure_radial_distribution(labels, image))
-        elif family == 'shape_extended':
-            frames.append(measure_shape_extended(labels))
-        elif family == 'texture_haralick':
-            frames.append(measure_texture(labels, image, haralick=True,
-                                          pftas=False))
-        elif family == 'texture_pftas':
-            frames.append(measure_texture(labels, image, haralick=False,
-                                          pftas=True))
-        elif family == 'texture_lbp':
-            frames.append(measure_lbp(labels, image))
-        elif family == 'texture_gabor':
-            frames.append(measure_gabor(labels, image))
-        elif family == 'periphery':
-            frames.append(measure_periphery(labels, image))
-        elif family == 'outside':
-            frames.append(measure_outside(labels, image))
-        elif family == 'colocalisation':
-            frames.append(measure_colocalisation(labels, image))
-        elif family == 'colocalisation_extra':
-            frames.append(measure_colocalisation_extra(labels, image,
-                                                       costes=False))
-        elif family == 'colocalisation_costes':
-            frames.append(measure_costes(labels, image))
-        elif family == 'colocalisation_otsu':
-            frames.append(measure_colocalisation_otsu(labels, image))
-        elif family == 'neighbours':
-            frames.append(measure_neighbours(labels, neighbour_radius))
-        elif family == 'granularity':
-            frames.append(measure_granularity(
-                labels, image, subsample=granularity_subsample))
+    with _shared_foregrounds():
+        for family in chosen:
+            if family == 'edge_intensity':
+                frames.append(measure_edge_intensity(labels, image))
+            elif family == 'intensity_moments':
+                frames.append(measure_intensity_moments(labels, image))
+            elif family == 'radial_distribution':
+                frames.append(measure_radial_distribution(labels, image))
+            elif family == 'shape_extended':
+                frames.append(measure_shape_extended(labels))
+            elif family == 'texture_haralick':
+                frames.append(measure_texture(labels, image, haralick=True,
+                                              pftas=False))
+            elif family == 'texture_pftas':
+                frames.append(measure_texture(labels, image, haralick=False,
+                                              pftas=True))
+            elif family == 'texture_lbp':
+                frames.append(measure_lbp(labels, image))
+            elif family == 'texture_gabor':
+                frames.append(measure_gabor(labels, image))
+            elif family == 'periphery':
+                frames.append(measure_periphery(labels, image))
+            elif family == 'outside':
+                frames.append(measure_outside(labels, image))
+            elif family == 'colocalisation':
+                frames.append(measure_colocalisation(labels, image))
+            elif family == 'colocalisation_extra':
+                frames.append(measure_colocalisation_extra(labels, image,
+                                                           costes=False))
+            elif family == 'colocalisation_costes':
+                frames.append(measure_costes(labels, image))
+            elif family == 'colocalisation_otsu':
+                frames.append(measure_colocalisation_otsu(labels, image))
+            elif family == 'neighbours':
+                frames.append(measure_neighbours(labels, neighbour_radius))
+            elif family == 'granularity':
+                frames.append(measure_granularity(
+                    labels, image, subsample=granularity_subsample))
     out = pd.DataFrame({'label': present})
     for frame in frames:
         out = pd.concat([out, frame.drop(columns='label').reset_index(drop=True)],
@@ -5654,7 +7269,7 @@ def _validate_measurement_calibration_history(settings, db_path):
     :raises ValueError: Existing measurements have incompatible or unverified
         calibration or lack the required per-field provenance.
     """
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return
     from .database_concurrency import connect
     from .resume import MEASURE_OWNED_TABLES, measure_rows_clause, read_recorded_settings
@@ -5670,7 +7285,7 @@ def _validate_measurement_calibration_history(settings, db_path):
             "SELECT name FROM sqlite_master WHERE type='table'")}
         occupied = {}
         for table in tables & (MEASURE_OWNED_TABLES - {'png_list', 'intensity_rescale'}):
-            clause = measure_rows_clause(connection, table) or '1'
+            clause = measure_rows_clause(connection, table) or 'TRUE'
             if connection.execute(f'SELECT 1 FROM "{table}" WHERE {clause} LIMIT 1').fetchone():
                 occupied[table] = clause
         if not occupied:
@@ -5791,6 +7406,11 @@ def _write_intensity_rescale_record(source_folder, file_name, settings,
         'intensity_calibration',
     )
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
+    from .measurement_store import append as _store_append, store_native
+    if store_native(db_path):
+        _store_append(db_path, 'intensity_rescale', pd.DataFrame(
+            [{column: values[column] for column in columns}]))
+        return
     conn = connect(db_path, timeout=30)
     try:
         with transaction(conn, attempts=8, busy_timeout=30):
@@ -6511,6 +8131,10 @@ def _write_confluency_record(source_folder, file_name, settings, result):
     columns = tuple(values)
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
     os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    from .measurement_store import append as _store_append, store_native
+    if store_native(db_path):
+        _store_append(db_path, _CONFLUENCY_TABLE, pd.DataFrame([values]))
+        return
     conn = connect(db_path, timeout=30)
     try:
         with transaction(conn, attempts=8, busy_timeout=30):
@@ -6556,7 +8180,7 @@ def _read_confluency(db_path):
     :returns: one row per field.
     """
     from .database_concurrency import connect
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return pd.DataFrame()
     conn = connect(db_path, readonly=True)
     try:
@@ -6665,6 +8289,11 @@ def _write_image_rows(db_path, rows, *, timelapse=False):
     quote = _measure_archive_quote
     columns = list(dict.fromkeys(name for row in prepared for name in row))
     os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
+    from .measurement_store import append as _store_append, store_native
+    if store_native(db_path):
+        _store_append(db_path, _IMAGE_TABLE, pd.DataFrame(prepared,
+                                                          columns=columns))
+        return len(prepared)
     with closing(connect(db_path, timeout=30.0)) as conn:
         with transaction(conn, attempts=8, busy_timeout=30):
             conn.execute(
@@ -6861,7 +8490,7 @@ def _read_image_table(db_path, columns=None):
     from .database_concurrency import connect
     from .tabular import _read_query
 
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return pd.DataFrame()
     with closing(connect(db_path, readonly=True, timeout=30.0)) as conn:
         present = {row[1] for row in conn.execute(f'PRAGMA table_info({_IMAGE_TABLE})')}
@@ -6984,7 +8613,7 @@ def _read_confluency_wells(source):
     if isinstance(source, pd.DataFrame):
         return source
     from .database_concurrency import connect
-    if not source or not os.path.isfile(source):
+    if not source or not _measurements_exist(source):
         return pd.DataFrame()
     conn = connect(source, readonly=True)
     try:
@@ -12375,9 +14004,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         if settings['nucleus_mask_dim'] is not None:
             nucleus_mask = data[..., settings['nucleus_mask_dim']].astype(data_type)
             if settings['cell_mask_dim'] is not None:
-                nucleus_mask, cell_mask = _merge_overlapping_objects(mask1=nucleus_mask, mask2=cell_mask)
-                nucleus_mask, shared_nuclei, shared_cells = _assign_shared_nuclei(
-                    nucleus_mask, cell_mask)
+                (nucleus_mask, cell_mask, shared_nuclei, shared_cells,
+                 _merged) = _assign_nuclei_to_cells(nucleus_mask, cell_mask)
                 shared_labels = {'nucleus': shared_nuclei, 'cell': shared_cells}
                 if shared_nuclei:
                     print(f'{file}: {len(shared_nuclei)} nucleus label(s) shared '
@@ -12446,15 +14074,11 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
 
         if settings['cytoplasm']:
             if settings['cell_mask_dim'] is not None:
-                interior = np.zeros_like(cell_mask, dtype=bool)
-                if settings['nucleus_mask_dim'] is not None:
-                    interior |= (nucleus_mask != 0)
-                if settings['pathogen_mask_dim'] is not None:
-                    interior |= (pathogen_mask != 0)
-                for organelle_role, current_mask in organelle_masks.items():
-                    if settings.get(f'{organelle_role}_mask_dim') is not None:
-                        interior |= (current_mask != 0)
-                cytoplasm_mask = np.where(interior, 0, cell_mask)
+                cytoplasm_mask = _derive_cytoplasm(cell_mask, [
+                    nucleus_mask if settings['nucleus_mask_dim'] is not None else None,
+                    pathogen_mask if settings['pathogen_mask_dim'] is not None else None,
+                    *(current_mask for organelle_role, current_mask in organelle_masks.items()
+                      if settings.get(f'{organelle_role}_mask_dim') is not None)])
         else:
             cytoplasm_mask = np.zeros_like(cell_mask)
 
@@ -12916,8 +14540,28 @@ def _measure_crop_queued(index, time_ls, file, settings, psf_plan=None,
     return (*result, ticket)
 
 
-def _commit_measure_packet(db_path, packet):
-    """Dispatch existing scientific helpers inside one atomic field commit."""
+#: The run id and time-lapse flag of each Measure run in progress, by the
+#: absolute ``measurements.db`` path its packets name.
+_MEASURE_RUNS = {}
+
+
+def _commit_measure_packet(db_path, packet, *, run_id=None, timelapse=None):
+    """Dispatch existing scientific helpers inside one atomic field commit.
+
+    A store project (every new one) spools the field's tables through
+    :func:`spacr.measurement_store.spool_field`; its ``measure_fields`` row,
+    written last, is the commit. A legacy ``measurements.db`` keeps its
+    SQLite packet transaction.
+
+    :param db_path: the run's ``measurements.db`` path (absent for a store
+        project).
+    :param packet: ticket, field and scientific operations.
+    :param run_id: the Measure run, recorded on the spooled parts; None
+        takes the one :data:`_MEASURE_RUNS` holds for ``db_path``.
+    :param timelapse: parse a timepoint from the field name; None takes the
+        run's.
+    :returns: True for a new commit, False for an already committed one.
+    """
     from .database_concurrency import _commit_write_packet
     from .utils import _append_to_measurements_db, _merge_and_save_to_database
 
@@ -12947,6 +14591,20 @@ def _commit_measure_packet(db_path, packet):
             raise ValueError('Measure packet targets a different database')
         handlers[name](*arguments, **keywords)
 
+    from .measurement_store import field_packet, spool_field, store_native
+    if store_native(db_path):
+        if packet.get('operations') is None:
+            return False
+        recorded = _MEASURE_RUNS.get(os.path.abspath(db_path), (None, False))
+        run_id = recorded[0] if run_id is None else run_id
+        timelapse = recorded[1] if timelapse is None else timelapse
+        with field_packet() as collected:
+            for operation in packet['operations']:
+                dispatch(operation)
+        spool_field(db_path, packet['field'], collected,
+                    ticket=packet['ticket'], run_id=run_id,
+                    timelapse=timelapse)
+        return True
     return _commit_write_packet(db_path, packet, dispatch)
 
 
@@ -13381,26 +15039,24 @@ def _assign_shared_nuclei(nucleus_mask, cell_mask):
         the labels of every nucleus that spanned several cells and of the cells
         it touched.
     """
-    from scipy import ndimage
-
-    nuclei, cells = set(), set()
-    for label_value, window in enumerate(ndimage.find_objects(nucleus_mask), start=1):
-        if window is None:
-            continue
-        region = nucleus_mask[window] == label_value
-        found, counts = np.unique(cell_mask[window][region], return_counts=True)
-        keep = found != 0
-        found, counts = found[keep], counts[keep]
-        if len(found) < 2:
-            continue
-        owner = found[int(np.argmax(counts))]
-        others = found[found != owner]
-        trim = region & np.isin(cell_mask[window], others)
-        view = nucleus_mask[window]
-        view[trim] = 0
-        nuclei.add(label_value)
-        cells.update(int(c) for c in found)
-    return nucleus_mask, nuclei, cells
+    kids, parents, overlap = _label_overlaps(nucleus_mask, cell_mask)
+    if not kids.size:
+        return nucleus_mask, set(), set()
+    labels, counts = np.unique(kids, return_counts=True)
+    shared = labels[counts > 1]
+    if not shared.size:
+        return nucleus_mask, set(), set()
+    owners_of, owners, _ = _best_parent(kids, parents, overlap)
+    owner = owners[np.searchsorted(owners_of, shared)]
+    lut = np.zeros(int(shared.max()) + 1, np.int64)
+    lut[shared] = owner
+    inside = (nucleus_mask > 0) & (nucleus_mask <= shared.max()) & (cell_mask != 0)
+    values = np.asarray(nucleus_mask[inside], np.int64)
+    trim = np.zeros(nucleus_mask.shape, dtype=bool)
+    trim[inside] = (lut[values] != 0) & (lut[values] != cell_mask[inside])
+    nucleus_mask[trim] = 0
+    cells = set(int(c) for c in parents[np.isin(kids, shared)])
+    return nucleus_mask, set(int(n) for n in shared), cells
 
 
 def _flag_shared_nuclei(morphology, shared):
@@ -13426,21 +15082,11 @@ def _emit_shared_nucleus_report(db_path, run=None):
     :param run: the :class:`spacr.runctx.RunContext`, or ``None``.
     :returns: the count of flagged nuclei.
     """
-    from .database_concurrency import connect
-    from .tabular import _read_query
+    from .measurement_store import read as _store_read
 
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path:
         return 0
-    conn = connect(db_path, readonly=True)
-    try:
-        present = conn.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name='nucleus'"
-        ).fetchone()
-        if not present:
-            return 0
-        frame = _read_query(conn, 'SELECT * FROM nucleus', canonicalise=False)
-    finally:
-        conn.close()
+    frame = _store_read(db_path, 'nucleus')
     if 'nucleus_shared' not in frame.columns:
         return 0
     count = int(frame['nucleus_shared'].astype(bool).sum())
@@ -13546,6 +15192,72 @@ def _original_filename_map(db_path, src):
     return (csvs or found or [None])[0]
 
 
+def _add_original_filename_columns_store(db_path, src, *, report=print):
+    """:func:`_add_original_filename_columns` for a store project.
+
+    Each table with field identity columns is read through the store, given
+    the manifest's ``original_*`` columns by its identity and written back
+    well by well through :func:`spacr.store.write_table`.
+
+    :param db_path: the project's ``measurements.db`` path (absent).
+    :param src: the measured ``merged`` folder.
+    :param report: called with one summary line per enriched table.
+    :returns: {table: number of matched rows}.
+    """
+    from . import store
+    from .measurement_store import exists, project_of, rewrite_table, tables
+    from .original_filenames import _identity_columns, _original_columns
+
+    if not exists(db_path):
+        return {}
+    map_path = _original_filename_map(project_of(db_path), src)
+    if map_path is None:
+        return {}
+    project = project_of(db_path)
+    done = {}
+    with store.open(project, verify='none') as opened:
+        names = [t for t in tables(db_path) if t != 'conversion_map'
+                 and not re.search(r'_\d+$', t)]
+        frames = {}
+        for table in names:
+            columns = list(opened._table_columns(table)['name'])
+            keys = _identity_columns(columns)
+            if not keys:
+                continue
+            frames[table] = (keys, opened.query(table=table))
+    for table, (keys, frame) in frames.items():
+        distinct = frame[keys].drop_duplicates().reset_index(drop=True)
+        try:
+            enriched, _ = _original_columns(distinct, map_path)
+        except ValueError:
+            continue
+        added = [name for name in enriched.columns if name not in keys]
+        if not added:
+            continue
+        base = frame.drop(columns=[c for c in added if c in frame.columns])
+        merged = base.merge(enriched[keys + added], on=keys, how='left',
+                            sort=False)
+        for column in added:
+            merged[column] = merged[column].map(
+                lambda v: None if v is None or bool(pd.isna(v)) else str(v))
+        merged = merged.drop(columns=[c for c in ('crop_store', 'crop_index')
+                                      if c in merged.columns
+                                      and merged[c].isna().all()])
+        wells = {}
+        for plate, well in sorted(set(zip(merged['plate'].astype(str),
+                                          merged['well'].astype(str)))):
+            wells[(plate, well)] = merged[
+                (merged['plate'].astype(str) == plate)
+                & (merged['well'].astype(str) == well)]
+        rewrite_table(project, table, wells, narrow=True, register=False)
+        done[table] = int(enriched['original_filename'].notna().sum())
+        report(f"Original filenames from {map_path.name}: {table} "
+               f"({done[table]} of {len(enriched)} field(s) matched).")
+    if done:
+        store.register(project)
+    return done
+
+
 def _add_original_filename_columns(db_path, src, *, report=print):
     """Add ``original_*`` columns to every measurement table a manifest covers.
 
@@ -13564,8 +15276,10 @@ def _add_original_filename_columns(db_path, src, *, report=print):
     from .original_filenames import _identity_columns, _original_columns
     from .tabular import _quote_identifier, _read_query
 
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path:
         return {}
+    if not os.path.isfile(db_path):
+        return _add_original_filename_columns_store(db_path, src, report=report)
     map_path = _original_filename_map(db_path, src)
     if map_path is None:
         return {}
@@ -14073,8 +15787,12 @@ def measure_crop(settings):
                     _validate_measurement_calibration_history(
                         settings, os.path.join(_measurements_dir, 'measurements.db'))
                 os.makedirs(_measurements_dir, exist_ok=True)
-                enable_wal_where_safe(
-                    os.path.join(_measurements_dir, 'measurements.db'))
+                from .measurement_store import legacy_database as _legacy_db
+                from .resume import resume_enabled as _resume_enabled
+                if (_legacy_db(_measurements_dir) is not None
+                        and _resume_enabled(settings)):
+                    enable_wal_where_safe(
+                        os.path.join(_measurements_dir, 'measurements.db'))
 
                 from .illumination import (
                     prepare_illumination_correction,
@@ -14168,7 +15886,12 @@ def measure_crop(settings):
                     print(f"Converted crop_mode to list: {settings['crop_mode']}")
             
                 if files:
+                    _archive_measure_store(settings)
                     _archive_measurement_run(settings)
+                elif not settings.get('dry_run'):
+                    from .measurement_store import ensure_store
+                    ensure_store(os.path.join(_measurements_dir,
+                                              'measurements.db'), retire=False)
                 resume_plan = plan_measure_resume(settings)
 
                 _save_settings_to_db(settings)
@@ -14227,9 +15950,8 @@ def measure_crop(settings):
                 verdict_lock = threading.Lock()
                 writer = None
                 writer_started = False
-                queued_sqlite = str(settings.get('measurement_backend') or
-                                    'sqlite').lower() in ('sqlite',
-                                                          'spacr_store')
+                measure_run_id = None
+                queued_sqlite = True
 
                 def record_verdict(item, error=None, stage='measure'):
                     """Count each field once, after its actual final outcome."""
@@ -14301,6 +16023,8 @@ def measure_crop(settings):
                     return _on_error
 
                 ctx = _measure_pool_context(settings)
+                from .measurement_store import forget_sessions
+                forget_sessions()
                 start_method = ctx.get_start_method()
                 warn_if_hooks_will_not_reach_workers(start_method)
                 pool_jobs = resolve_pool_size(n_jobs, len(files),
@@ -14318,6 +16042,11 @@ def measure_crop(settings):
                 if queued_sqlite:
                     from .database_concurrency import _DatabaseWriteQueue
 
+                    import uuid as _uuid
+
+                    measure_run_id = _uuid.uuid4().hex
+                    _MEASURE_RUNS[os.path.abspath(db_path)] = (
+                        measure_run_id, bool(settings.get('timelapse')))
                     writer = _DatabaseWriteQueue(
                         os.path.join(os.path.dirname(db_path), '.write_queue'),
                         lambda packet: _commit_measure_packet(db_path, packet),
@@ -14413,6 +16142,8 @@ def measure_crop(settings):
                             pool.join()
                         if writer is not None:
                             writer.finish()
+                    _compact_measure_store(db_path, settings,
+                                           run_id=measure_run_id)
                 except BaseException:
                     if writer_started:
                         writer.cancel()
@@ -14429,10 +16160,10 @@ def measure_crop(settings):
 
                     db_path = os.path.join(os.path.dirname(settings['src']),
                                            'measurements', 'measurements.db')
-                    ledger.finalize(
-                        artifact=db_path if os.path.isfile(db_path) else None)
+                    ledger.finalize(artifact=_measure_artifact(db_path))
 
                 _add_original_filename_columns(db_path, settings['src'])
+                _report_steps_not_on_the_store(settings, db_path)
                 if crop_format != 'png':
                     from .crop_store import close_measure_sink
                     written = close_measure_sink(os.path.dirname(settings['src']),
@@ -14446,7 +16177,7 @@ def measure_crop(settings):
                 if str(settings.get('plate_barcode_source') or '').strip():
                     _run_plate_barcode_step(settings)
 
-                if settings.get('confluency') and os.path.isfile(db_path):
+                if settings.get('confluency') and _measurements_exist(db_path):
                     wells = _aggregate_confluency_by_well(
                         db_path, settings.get('confluency_qc_threshold'))
                     if not wells.empty:
@@ -14455,28 +16186,28 @@ def measure_crop(settings):
                               f"measurements.db:{_CONFLUENCY_WELL_TABLE}, "
                               f"{failing} below the monolayer QC threshold.")
 
-                if settings.get('cell_cycle') and os.path.isfile(db_path):
+                if settings.get('cell_cycle') and _measurements_exist(db_path):
                     _run_cell_cycle_step(db_path, settings)
                 if settings.get('wound_closure'):
                     _run_wound_closure(settings['src'], settings)
 
                 if (settings['timelapse']
                         and settings.get('bleach_correction', 'none') != 'none'
-                        and os.path.isfile(db_path)):
+                        and _measurements_exist(db_path)):
                     _run_bleach_correction_step(db_path, settings)
 
-                if settings.get('time_to_event') and os.path.isfile(db_path):
+                if settings.get('time_to_event') and _measurements_exist(db_path):
                     _run_time_to_event_step(db_path, settings)
 
-                if settings.get('viability') and os.path.isfile(db_path):
+                if settings.get('viability') and _measurements_exist(db_path):
                     _run_viability_step(db_path, settings)
 
                 if (str(settings.get('cellprofiler_pipeline') or '').strip()
-                        and os.path.isfile(db_path)):
+                        and _measurements_exist(db_path)):
                     _run_cellprofiler_step(db_path, settings)
 
                 if (settings.get('timelapse_lineage') and settings['timelapse']
-                        and os.path.isfile(db_path)):
+                        and _measurements_exist(db_path)):
                     from ._lineage_measurements import _run_measured_lineage_step
                     _run_measured_lineage_step(db_path, settings)
 
@@ -14495,15 +16226,139 @@ def measure_crop(settings):
                         _emit_per_cell_export(settings, db_path)
                     if settings.get('profiling'):
                         _emit_profiles(settings, db_path)
-                    backend = str(settings.get('measurement_backend')
-                                  or 'sqlite').lower()
-                    if backend == 'spacr_store' and os.path.isfile(db_path):
-                        _write_measure_store(db_path, settings)
-                    elif backend != 'sqlite' and os.path.isfile(db_path):
+                    if _measurement_export_backend(settings):
                         _copy_to_measurement_backend(db_path, settings)
                     print("Successfully completed run")
 
             run.register_outputs(settings=settings, roots=source_folders)
+
+#: Optional post-run steps that still read and write SQLite tables, so they
+#: do not run on a store project yet (unified store, step S4 follow-up).
+_STEPS_NOT_ON_THE_STORE = (
+    ('feature_qc_drop', 'dropping the flagged feature columns'),
+)
+
+
+def _report_steps_not_on_the_store(settings, db_path):
+    """Say which enabled optional steps a store project does not run yet.
+
+    :param settings: the run settings.
+    :param db_path: the run's ``measurements.db`` path.
+    :returns: the setting names reported.
+    """
+    from .measurement_store import store_native
+    from .qt.i18n import tr
+
+    if not store_native(db_path):
+        return []
+    named = [(key, what) for key, what in _STEPS_NOT_ON_THE_STORE
+             if settings.get(key) not in (None, False, '', 'none', 0)]
+    for key, what in named:
+        print(tr("[measure] {what} ({key}) does not run on the spaCR store yet; "
+                 "the measurements are in the store and this step is skipped.",
+                 what=what, key=key))
+    return [key for key, _what in named]
+
+
+def _measurements_exist(db_path):
+    """Whether ``db_path`` names measurements: a database file or a store project."""
+    from .measurement_store import exists
+
+    return bool(db_path) and exists(db_path)
+
+
+def _measure_artifact(db_path):
+    """The file a Measure run's ledger stamps: the store catalog or the legacy db.
+
+    :param db_path: the run's ``measurements.db`` path.
+    :returns: the path, or None when the run wrote nothing.
+    """
+    from .measurement_store import legacy_database, project_of
+    from .store import CATALOG
+
+    legacy = legacy_database(db_path)
+    if legacy is not None:
+        return legacy
+    catalog = os.path.join(project_of(db_path), CATALOG)
+    return catalog if os.path.isfile(catalog) else None
+
+
+def _archive_measure_store(settings):
+    """Keep a project's earlier Measure population before a fresh run.
+
+    A legacy ``measurements.db`` is copied into the store (all but the tables
+    Measure rebuilds) and moved to ``measurements/archive/``; the store's
+    earlier Measure tables are copied under ``archive/`` and leave the
+    catalog, and a stale run spool is removed. A resume keeps all of them
+    (a resumed legacy run keeps its ``measurements.db``); otherwise the
+    project is a store project afterwards (:func:`spacr.measurement_store.
+    ensure_store`).
+
+    :param settings: the run settings, with ``src`` the merged folder.
+    :returns: the archived tables, ``{table: folder}``.
+    """
+    from .measurement_store import (FIELDS_TABLE, archive_tables, discard_spool,
+                                    ensure_store, legacy_database,
+                                    retire_legacy_database)
+    from .resume import MEASURE_OWNED_TABLES, resume_enabled
+
+    if settings.get('dry_run'):
+        return {}
+    db_path = os.path.join(os.path.dirname(settings['src']), 'measurements',
+                           'measurements.db')
+    if (resume_enabled(settings)
+            or not (settings.get('save_measurements', True)
+                    or settings.get('save_png'))):
+        if legacy_database(db_path) is None:
+            ensure_store(db_path)
+        return {}
+    owned = set(MEASURE_OWNED_TABLES) | {FIELDS_TABLE, 'ssCell_Crops'}
+    retire_legacy_database(db_path, keep=owned)
+    ensure_store(db_path)
+    discard_spool(db_path)
+    archived = archive_tables(db_path, owned)
+    if archived:
+        print('[measure] Preserved previous tables under archive/: '
+              + ', '.join(sorted(archived)))
+    return archived
+
+
+def _compact_measure_store(db_path, settings, *, run_id=None):
+    """Write a Measure run's spooled fields into the project store.
+
+    :param db_path: the run's ``measurements.db`` path (absent for a store
+        project; nothing happens for a legacy one).
+    :param settings: the run settings, recorded with the run.
+    :param run_id: the run.
+    :returns: the compaction report, or None for a legacy project.
+    """
+    from .measurement_store import compact, store_native
+
+    if not store_native(db_path):
+        return None
+    channels = [str(c) for c in (settings.get('channel_names') or [])]
+    report = compact(db_path, run_id=run_id, settings=settings,
+                     channels=channels)
+    if report.get('tables'):
+        print(f"spaCR store: {len(report['tables'])} table(s) written to "
+              f"{report['project']}.")
+    return report
+
+
+def _measurement_export_backend(settings):
+    """The export a retired ``measurement_backend`` value still asks for.
+
+    ``measurement_backend`` is ``spacr_store`` only; a settings file that
+    still says ``duckdb``, ``parquet`` or ``postgres`` keeps getting that
+    copy of the finished tables as an export.
+
+    :param settings: the run settings.
+    :returns: the backend name, or None.
+    """
+    requested = str(settings.get('_measurement_backend_requested')
+                    or settings.get('measurement_backend') or '').lower()
+    return requested if requested in ('duckdb', 'parquet', 'postgres') else None
+
 
 def _measurement_backend_target(db_path, settings):
     """Where ``measurement_backend`` sends the measurements of ``db_path``.
@@ -14517,7 +16372,7 @@ def _measurement_backend_target(db_path, settings):
     :returns: a path or a PostgreSQL connection string.
     :raises ValueError: for a backend that is not one of the stores.
     """
-    backend = str(settings.get('measurement_backend') or 'sqlite').lower()
+    backend = _measurement_export_backend(settings) or 'spacr_store'
     target = str(settings.get('measurement_backend_target') or '').strip()
     folder = os.path.dirname(db_path)
     if backend == 'duckdb':
@@ -15878,9 +17733,10 @@ def _emit_infection_report(db_path):
 
     :param db_path: the ``measurements.db`` the run produced.
     """
+    from .measurement_store import exists as _measurements_exist
     from .utils import console_safe
 
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path or not _measurements_exist(db_path):
         return
     try:
         from .infection import write_infection_report
@@ -15907,15 +17763,18 @@ def _emit_feature_qc(settings, db_path):
     :param settings: the run's settings, with ``feature_qc_drop``.
     :param db_path: the ``measurements.db`` the run produced.
     """
+    from .measurement_store import exists as _measurements_exist
     from .utils import console_safe
 
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path or not _measurements_exist(db_path):
         return
     try:
         from .sp_stats import _feature_qc_report
 
+        from .measurement_store import store_native
         flagged, written, dropped = _feature_qc_report(
-            db_path, drop=bool(settings.get('feature_qc_drop')))
+            db_path, drop=bool(settings.get('feature_qc_drop'))
+            and not store_native(db_path))
     except Exception as exc:                                 # noqa: BLE001
         print(console_safe(f"Feature QC could not run: {exc}"))
         return
@@ -15952,7 +17811,7 @@ def _emit_per_cell_export(settings, db_path):
     """
     from .utils import console_safe
 
-    if not db_path or not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         return
     try:
         from .sp_stats import export_per_cell
@@ -15990,7 +17849,7 @@ def _emit_profiles(settings, db_path):
     :param settings: the run's settings, with the ``profiling_*`` keys.
     :param db_path: the ``measurements.db`` the run produced.
     """
-    if not db_path or not os.path.isfile(db_path):
+    if not db_path or not _measurements_exist(db_path):
         return
     try:
         from .sp_stats import _profile_measurements
@@ -16124,13 +17983,13 @@ def get_object_counts(src):
         ``avg_object_count_per_file_name``.
     """
     database_path = os.path.join(src, 'measurements/measurements.db')
-    conn = sqlite3.connect(database_path, timeout=30)
-    df = pd.read_sql_query("SELECT * FROM object_counts", conn)
+    from . import store
+    with store.open(store.locate(database_path), verify="none") as opened:
+        df = store._table_frame(opened, 'object_counts')
     grouped_df = df.groupby('count_type').agg(
         total_object_count=('object_count', 'sum'),
         avg_object_count_per_file_name=('object_count', 'mean')
     ).reset_index()
-    conn.close()
     return grouped_df
 
 
@@ -16384,7 +18243,7 @@ def generate_object_dataset(
         root = os.path.dirname(root.rstrip(os.sep))
     if db_path is None:
         db_path = os.path.join(root, 'measurements', 'measurements.db')
-    if not os.path.isfile(db_path):
+    if not _measurements_exist(db_path):
         raise FileNotFoundError(f"measurements database not found: {db_path}")
 
     if mask_dims is None:
@@ -16443,17 +18302,14 @@ def generate_object_dataset(
         clauses.append(f"({where})")
 
     where_sql = (" WHERE " + " AND ".join(clauses)) if clauses else ""
-    limit_sql = f" LIMIT {int(limit)}" if limit else ""
-    query = (
-        "SELECT object_label, path_name, plateID, rowID, columnID, fieldID "
-        f"FROM {object_type}{where_sql}{limit_sql}")
-
-    conn = sqlite3.connect(db_path, timeout=30)
-    try:
-        conn.row_factory = sqlite3.Row
-        selected = conn.execute(query, params).fetchall()
-    finally:
-        conn.close()
+    from . import store as _store
+    names = ("object_label", "path_name", "plateID", "rowID", "columnID",
+             "fieldID")
+    with _store.open(_store.locate(db_path), verify="none") as opened:
+        selected = [dict(zip(names, record)) for record in _store._select_rows(
+            opened, object_type, names,
+            where=" AND ".join(clauses) if clauses else None,
+            params=params, limit=int(limit) if limit else None)]
 
     if verbose:
         print(f"generate_object_dataset({object_type}): {len(selected)} "
@@ -19384,18 +21240,15 @@ def _image_feature_masks(files, plate, well, field, shape, roles=('cell', 'nucle
     for role in roles:
         for folder in folders:
             stack = folder / 'masks' / f'{role}_mask_stack'
-            if not stack.is_dir():
+            from .image_store import _mask_exists, _mask_folder_exists, _read_mask
+            if not _mask_folder_exists(stack):
                 continue
             for stem in sorted(stems):
                 for suffix in ('.npy', '.tif', '.tiff'):
                     candidate = stack / (stem + suffix)
-                    if not candidate.is_file():
+                    if not _mask_exists(candidate):
                         continue
-                    if suffix == '.npy':
-                        labels = np.load(candidate, mmap_mode='r', allow_pickle=False)
-                    else:
-                        import tifffile
-                        labels = tifffile.imread(candidate)
+                    labels = _read_mask(candidate, mmap_mode='r')
                     labels = np.squeeze(np.asarray(labels))
                     if labels.shape == tuple(shape) and np.issubdtype(labels.dtype, np.integer):
                         found[role] = labels

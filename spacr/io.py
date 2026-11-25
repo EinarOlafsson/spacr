@@ -1523,13 +1523,13 @@ def _store_settles_originals(settings):
     """Whether this Mask run's originals wait for fov.ome.zarr before they move (item 0aj).
 
     True for a run that writes the project store (``mask_image_format``
-    'ome-zarr', the default, and not timelapse): each original is moved to
-    ``orig/`` (``keep_original_images``, the default) or deleted only once
-    its field is committed and verified in fov.ome.zarr. Other runs keep
-    their earlier behaviour (``save_original_images``).
+    'ome-zarr', the default; a time-lapse run too since item 0aj P3 stores
+    its frames on a t axis): each original is moved to ``orig/``
+    (``keep_original_images``, the default) or deleted only once its field
+    is committed and verified in fov.ome.zarr. Other runs keep their
+    earlier behaviour (``save_original_images``).
     """
-    return (str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() == 'ome-zarr'
-            and not settings.get('timelapse', False))
+    return str(settings.get('mask_image_format') or 'ome-zarr').strip().lower() == 'ome-zarr'
 
 
 def _keep_originals(settings):
@@ -1590,6 +1590,135 @@ def _plate_sources(sources, settings, printer=print):
         split = _split_plates(src, plan, printer=printer)
         folders.extend(sorted(set(split) | set(recorded)))
     return folders
+
+
+def _fold_max(planes):
+    """The maximum projection of one channel's planes, folded as Mask always folded them.
+
+    The same arithmetic preprocessing used to store (one plane at a time,
+    ``np.maximum`` in place while the dtypes agree), so a field stored as
+    its maximum projection is byte for byte what it was (item 0aj P3).
+    """
+    folded = None
+    for plane in planes:
+        if folded is None:
+            folded = plane
+        elif folded.dtype == plane.dtype:
+            np.maximum(folded, plane, out=folded)
+        else:
+            folded = np.maximum(folded, plane)
+    return folded
+
+
+def _time_order(token):
+    """Sort key of a time-point token: numeric when it is a number (item 0aj P3)."""
+    try:
+        return (0, int(str(token)))
+    except (TypeError, ValueError):
+        return (1, str(token))
+
+
+def _store_field_series(writer, field_keys, image_paths_by_key, sorted_channels,
+                        channels_seen, *, timelapse=False, files_to_process=0):
+    """Write each field into fov.ome.zarr with its raw z planes and its time axis (item 0aj P3).
+
+    The one ingest path of Mask preprocessing into the project store:
+
+    - z: a channel read from several slices is stored with every slice as
+      acquired, a ``z`` axis in the field image ``(C, Z, Y, X)``, and the
+      maximum projection Mask segments is computed on read. Only when the
+      channels have different numbers of slices, or the slices differ in
+      shape or dtype, is the maximum projection stored instead (as before),
+      and that is said.
+    - t: with ``timelapse``, every frame of a field goes into ONE field
+      ``(T, C[, Z], Y, X)``, committed once its last frame is written; each
+      frame keeps its field file name as a view of the field.
+    - A 2-D, single-time field is written exactly as before.
+
+    :param writer: the project store's writer (:func:`spacr.image_store._stack_writer`).
+    :param field_keys: ``{field stem: [raw-image keys]}`` still to build.
+    :param image_paths_by_key: ``{raw-image key: [paths]}``.
+    :param sorted_channels: the plate's channel ids, in stack order.
+    :param channels_seen: set updated with every channel read.
+    :param timelapse: group frames of one field into a t axis.
+    :param files_to_process: for the progress line.
+    :returns: the number of files read.
+    """
+    from .cancellation import checkpoint
+    from .image_store import (_write_stack_field, _write_stack_series, z_order)
+    from .qt.i18n import tr
+    from .utils import print_progress
+
+    groups = defaultdict(list)
+    for stem, keys in field_keys.items():
+        identity = tuple(keys[0][:3]) if timelapse else stem
+        groups[identity].append(stem)
+    files_processed = 0
+    time_ls = []
+    for _identity, stems in groups.items():
+        start = time.time()
+        stems.sort(key=lambda st: _time_order(field_keys[st][0][4]))
+        frames = []
+        for stem in stems:
+            checkpoint()
+            by_channel = {}
+            for key in sorted(field_keys[stem], key=z_order):
+                for path in image_paths_by_key[key]:
+                    checkpoint()
+                    loaded = load_images_from_paths({key: [path]})[key]
+                    if loaded:
+                        by_channel.setdefault(key[3], []).extend(loaded)
+                        channels_seen.add(key[3])
+                    files_processed += 1
+            present = []
+            for channel in sorted_channels:
+                if by_channel.get(channel):
+                    present.append(channel)
+                else:
+                    print(f"Warning: FOV {stem}.tif is missing channel {channel}")
+            if not present:
+                print(f"No valid channels to merge for file {stem}.tif")
+                continue
+            frames.append((stem, present, [by_channel[c] for c in present]))
+        if not frames:
+            continue
+        depths = {len(planes) for _s, _p, chans in frames for planes in chans}
+        kinds = {(plane.shape, plane.dtype.str) for _s, _p, chans in frames
+                 for planes in chans for plane in planes}
+        raw_z = max(depths) > 1 and len(depths) == 1 and len(kinds) == 1
+        if max(depths) > 1 and not raw_z:
+            print(tr("{field}: the channels have different z slices (counts, sizes or "
+                     "types), so their maximum projection is stored, not the slices.",
+                     field=frames[0][0]))
+        if len(frames) > 1 and len({tuple(p) for _s, p, _c in frames}) > 1:
+            raise ValueError(tr(
+                "{field}: the time points do not all have the same channels; a "
+                "time-lapse field is stored as one array with a time axis.",
+                field=frames[0][0]))
+        if raw_z:
+            arrays = [np.stack([np.stack(planes) for planes in chans])
+                      for _s, _p, chans in frames]
+        else:
+            arrays = [np.stack([_fold_max(planes) for planes in chans])
+                      for _s, _p, chans in frames]
+        checkpoint()
+        if len(frames) == 1 and not raw_z:
+            stem, present, _chans = frames[0]
+            _write_stack_field(writer, stem + '.npy', np.moveaxis(arrays[0], 0, -1), present)
+        else:
+            if len({a.shape for a in arrays}) > 1 or len({a.dtype for a in arrays}) > 1:
+                raise ValueError(tr(
+                    "{field}: the time points differ in size or type; a time-lapse "
+                    "field is stored as one array with a time axis.", field=frames[0][0]))
+            _write_stack_series(writer, [s + '.npy' for s, _p, _c in frames], arrays,
+                                frames[0][1], z_planes=raw_z)
+        frames = arrays = None
+        time_ls.append(time.time() - start)
+        print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls,
+                       batch_size=sum(len(image_paths_by_key[k]) for st in stems
+                                      for k in field_keys[st]),
+                       operation_type='Preprocessing filenames')
+    return files_processed
 
 
 def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='', img_format='.tif', timelapse=False, save_original_images=True, metadata_well_map=None, source_plate=None, defer_originals=False, store_fields=False):
@@ -1703,11 +1832,17 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     sorted_channels = sorted({key[3] for key in image_paths_by_key})
     writer = None
     if (store_fields and not _listdir_npy(stack_path)
-            and (plate := _merged_store_plan([stem + '.npy' for stem in sorted(wanted)]))):
+            and (plate := _merged_store_plan([stem + '.npy' for stem in sorted(wanted)],
+                                             series=bool(timelapse)))):
         from .image_store import _stack_writer
         writer = _stack_writer(src, plate)
     files_to_process = sum(len(image_paths_by_key[key]) for key in pending_keys)
     time_ls = []
+    if writer is not None:
+        files_processed = _store_field_series(
+            writer, field_keys, image_paths_by_key, sorted_channels, channels_seen,
+            timelapse=bool(timelapse), files_to_process=files_to_process)
+        field_keys = {}
     for stem, keys in field_keys.items():
         checkpoint()
         start = time.time()
@@ -2716,7 +2851,7 @@ def _normalized_npz_field_ids(src):
     """
     archives = sorted(
         os.path.join(src, name) for name in _listdir_visible(src)
-        if name.endswith('.npz'))
+        if name.endswith('.npz')) if os.path.isdir(src) else []
     if not archives:
         from . import _mask_batches as mask_batches
 
@@ -2797,11 +2932,10 @@ def _invalidate_v1_object_masks(output_dir):
     completeness check and per-batch resume check reuse masks drawn from the
     old, potentially uncorrected pixels.
     """
+    from .image_store import _mask_folders, _remove_mask_folder
     removed = []
-    for name in sorted(os.listdir(output_dir)):
-        path = os.path.join(output_dir, name)
-        if name.endswith('_mask_stack') and os.path.isdir(path):
-            shutil.rmtree(path)
+    for name, path in _mask_folders(output_dir).items():
+        if _remove_mask_folder(path):
             removed.append(name)
     return tuple(removed)
 
@@ -2831,15 +2965,24 @@ def _invalidate_v1_segmentation_outputs(src):
 
 def _preserve_v1_segmentation_outputs(src):
     """Move superseded channel-order evidence outside the active output paths."""
+    from .image_store import _mask_folders, _mask_names, _read_mask, _remove_mask_folder
     masks_dir = os.path.join(src, 'masks')
-    paths = [os.path.join(masks_dir, name) for name in sorted(os.listdir(masks_dir))
-             if name.endswith('_mask_stack') and os.path.isdir(os.path.join(masks_dir, name))]
+    folders = _mask_folders(masks_dir)
+    paths = [path for path in folders.values() if os.path.isdir(path)]
+    in_store = [path for path in folders.values() if not os.path.isdir(path)]
     merged_dir = os.path.join(src, 'merged')
     if os.path.isdir(merged_dir):
         paths.append(merged_dir)
-    if not paths:
+    if not paths and not in_store:
         return None
     backup = tempfile.mkdtemp(prefix='previous_segmentation_channel_order_', dir=src)
+    for path in in_store:
+        destination = os.path.join(backup, os.path.relpath(path, src))
+        os.makedirs(destination, exist_ok=True)
+        for name in _mask_names(path):
+            _save_array_atomic(os.path.join(destination, name),
+                               _read_mask(os.path.join(path, name)))
+        _remove_mask_folder(path)
     moved = []
     try:
         for path in paths:
@@ -2861,10 +3004,17 @@ def _restore_v1_segmentation_outputs(src, backup):
     """Restore evidence when replacement archives could not be published."""
     if backup is None:
         return
+    from .image_store import _masks_in_store, _write_mask
     saved_masks = os.path.join(backup, 'masks')
     if os.path.isdir(saved_masks):
         for name in sorted(os.listdir(saved_masks)):
-            os.replace(os.path.join(saved_masks, name), os.path.join(src, 'masks', name))
+            target = os.path.join(src, 'masks', name)
+            if not os.path.exists(target) and _masks_in_store(target):
+                for field in sorted(os.listdir(os.path.join(saved_masks, name))):
+                    _write_mask(os.path.join(target, field),
+                               np.load(os.path.join(saved_masks, name, field)))
+                continue
+            os.replace(os.path.join(saved_masks, name), target)
     saved_merged = os.path.join(backup, 'merged')
     if os.path.isdir(saved_merged):
         os.replace(saved_merged, os.path.join(src, 'merged'))
@@ -2909,15 +3059,16 @@ def _mask_batches_stay_in_memory(settings, paths):
     """Whether this run builds its normalised batches in memory instead of archiving them.
 
     The batches stay in memory (item 987b) for runs on plain ``(Y, X, C)``
-    fields, single-device or on parallel GPU workers. Plotting the first
-    archive, timelapse and volumetric or native Z/T fields (more than three
+    fields, single-device or on parallel GPU workers. Since item 0aj P4 a
+    plotting run does too: the first batch is plotted when it is built in
+    memory. Timelapse and volumetric or native Z/T fields (more than three
     axes) read real archives, so they keep writing them.
 
     :param settings: the preprocessing settings.
     :param paths: the field ``.npy`` paths that will be batched.
     :returns: True when a batch plan replaces the archives.
     """
-    if settings.get('plot') or settings.get('timelapse') or settings.get('t_stack'):
+    if settings.get('timelapse') or settings.get('t_stack'):
         return False
     from .image_store import _stack_header
     try:
@@ -2998,15 +3149,15 @@ def _concatenate_and_normalize_impl(
     paths = []
     time_ls = []
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
-    os.makedirs(output_fldr, exist_ok=True)
     archive_output_fldr = archive_output_fldr or output_fldr
     ledger = RunLedger('concatenate_and_normalize')
     intended_fields = []
 
     if settings['timelapse']:
+        os.makedirs(archive_output_fldr, exist_ok=True)
         try:
-            source_npy_names = sorted(
-                name for name in _listdir_visible(src) if name.endswith('.npy'))
+            from .image_store import _read_stack, _stack_names
+            source_npy_names = _stack_names(src)
             time_stack_path_lists = _generate_time_lists(source_npy_names)
             grouped_names = sorted(
                 filename for group in time_stack_path_lists
@@ -3030,9 +3181,9 @@ def _concatenate_and_normalize_impl(
                     if idx == 0:
                         parts = file.split('_')
                         name = parts[0] + '_' + parts[1] + '_' + parts[2]
-                    array = np.load(path)
+                    array = _read_stack(path)
                     stack_region.append(array)
-                    filenames_region.append(os.path.basename(path))                    
+                    filenames_region.append(os.path.basename(path))
                 stop = time.time()
                 duration = stop - start
                 time_ls.append(duration)
@@ -3118,8 +3269,18 @@ def _concatenate_and_normalize_impl(
             if moved:
                 print(f'Set {len(moved)} earlier normalised archive(s) aside as '
                       f'<name>.superseded: the batches are now built in memory.')
-            mask_batches._write_plan(output_fldr, src, batches, channels, settings,
-                                    save_dtype, request=request, resolved=False)
+            if settings.get('plot'):
+                legacy = int(settings['batch_size'])
+                batches = [names[i:i + legacy] for i in range(0, len(names), legacy)]
+                mask_batches._write_plan(
+                    output_fldr, src, batches, channels, settings, save_dtype,
+                    request=request, resolved=True,
+                    extra={'archive_equivalent': True, 'batch_size_used': legacy,
+                           'sizes': [len(batch) for batch in batches],
+                           'borrowed': [], 'normalisation': {}})
+            else:
+                mask_batches._write_plan(output_fldr, src, batches, channels, settings,
+                                        save_dtype, request=request, resolved=False)
             print(f'Planned {len(names)} field(s) for in-memory normalised batches '
                   f'({"automatic" if not request else "requested " + str(request)} batch size, '
                   f'fixed when the masks start from the free GPU and RAM); no archive is '
@@ -3127,6 +3288,7 @@ def _concatenate_and_normalize_impl(
             print(f'All files concatenated and normalized. Saved to: {output_fldr}')
             ledger.finalize()
             return output_fldr
+        os.makedirs(archive_output_fldr, exist_ok=True)
         batch_index = first_batch_index
         stack_ls = []
         filenames_batch = []
@@ -3249,7 +3411,7 @@ def concatenate_and_normalize(
     :param psf_session: optional PSF session from ``spacr.psf_pipeline``.
         Uses the same complete-set publication; cancellation leaves its
         provenance incomplete and prevents reuse of partially processed data.
-    :returns: the ``masks/`` folder. An ordinary run leaves a small ``batch_plan.json`` there and builds each normalised batch in memory when an object is segmented; a plotting, timelapse, volumetric, illumination or PSF run writes ``stack_<n>_norm.npz`` archives.
+    :returns: the ``masks/`` folder. An ordinary run (plotting included) leaves a small ``batch_plan.json`` (in ``fov.ome.zarr/.spacr_mask_run`` when the fields live in fov.ome.zarr, so no ``masks/`` folder is created) and builds each normalised batch in memory when an object is segmented; a timelapse, volumetric, illumination or PSF run writes ``stack_<n>_norm.npz`` archives.
     """
     output_fldr = os.path.join(os.path.dirname(src), 'masks')
     replacing_archives = (os.path.isdir(output_fldr) and
@@ -3441,7 +3603,8 @@ def _create_movies_from_npy_per_channel(src, fps=10):
     master_path = os.path.dirname(src)
     save_path = os.path.join(master_path,'movies')
     os.makedirs(save_path, exist_ok=True)
-    files = [f for f in _listdir_visible(src) if f.endswith('.npy')]
+    from .image_store import _read_stack, _stack_names
+    files = _stack_names(src)
     organized_files = {}
     for f in files:
         match = re.match(r'(\w+)_(\w+)_(\w+)_(\d+)\.npy', f)
@@ -3455,7 +3618,7 @@ def _create_movies_from_npy_per_channel(src, fps=10):
         plate, well, field = key
         file_list.sort(key=lambda x: x[0])
         _times, paths = zip(*file_list)
-        arrays = np.stack(tuple(map(np.load, paths)), axis=0)
+        arrays = np.stack(tuple(map(_read_stack, paths)), axis=0)
         filenames = list(map(os.path.basename, paths))
         for channel in range(arrays.shape[-1]):
             channel_arrays = arrays[..., channel]
@@ -3844,10 +4007,13 @@ def _check_normalized_archives(masks_path):
         (the field stems the whole archives list) and ``planes`` (the
         channel counts of the whole archives).
     """
-    _sweep_partial_writes(masks_path)
-    earlier = _set_aside_names(masks_path, '.npz')
-    archives = sorted(name for name in _listdir_visible(masks_path)
-                      if name.endswith('.npz'))
+    if os.path.isdir(masks_path):
+        _sweep_partial_writes(masks_path)
+        earlier = _set_aside_names(masks_path, '.npz')
+        archives = sorted(name for name in _listdir_visible(masks_path)
+                          if name.endswith('.npz'))
+    else:
+        earlier, archives = [], []
     if not archives:
         from . import _mask_batches as mask_batches
 
@@ -4993,11 +5159,13 @@ def preprocess_img_data(settings):
             print('Found existing stack folder.')
         if os.path.exists(os.path.join(src,'channel_stack')):
             print('Found existing channel_stack folder.')
-        if (os.path.exists(os.path.join(src, 'masks')) and
-                settings.get('test_mode', False)):
+        from ._mask_batches import _plan_file
+        earlier_masks = (os.path.exists(os.path.join(src, 'masks')) or
+                         os.path.isfile(_plan_file(os.path.join(src, 'masks'))))
+        if earlier_masks and settings.get('test_mode', False):
             print('Found existing masks folder; test mode works on a sample '
                   'in test/ and does not reuse it.')
-        elif (os.path.exists(os.path.join(src, 'masks')) and
+        elif (earlier_masks and
                 _resume_normalized_archives(settings, src, mask_channels,
                                             metadata_well_map=metadata_well_map)):
             print('Found existing masks folder. Skipping preprocessing')
@@ -5181,7 +5349,7 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
     Returns:
         tuple: A tuple containing the filtered batch (numpy array) and the filtered filenames (list).
     """
-    from .resume import read_npy_header, validate_merged_field
+    from .image_store import _mask_exists, _mask_header, _mask_valid
 
     fields = dict(zip(batch_filenames, batch))
 
@@ -5197,16 +5365,16 @@ def _check_masks(batch, batch_filenames, output_folder, resume=False):
                 generated again.
         """
         path = os.path.join(output_folder, filename)
-        if not os.path.isfile(path):
+        if not _mask_exists(path):
             return True
-        ok, reason = validate_merged_field(path)
+        ok, reason = _mask_valid(path)
         if not ok:
             print(f"{path} is damaged ({reason}); generating it again.")
             return True
         field = getattr(fields.get(filename), "shape", None)
         if field is not None and len(field) >= 3:
             try:
-                shape = tuple(read_npy_header(path)["shape"])
+                shape = tuple(_mask_header(path)[0])
             except Exception:
                 return True
             if len(shape) == 2 and shape not in (tuple(field[-3:-1]),
@@ -5549,17 +5717,16 @@ def _read_and_join_tables(db_path, table_names=None,
                         _time_column)
     ensure_database_schema(db_path)
 
-    from .database_concurrency import connect as _connect_database
+    from . import store as _store
 
-    conn = _connect_database(db_path)
     dataframes = {}
-    for table_name in table_names:
-        try:
-            dataframes[table_name] = pd.read_sql(f"SELECT * FROM {table_name}", conn)
-        except (sqlite3.OperationalError, pd.io.sql.DatabaseError) as e:
-            print(f"Table {table_name} not found in the database.")
-            print(e)
-    conn.close()
+    with _store.open(_store.locate(db_path), verify="none") as opened:
+        for table_name in table_names:
+            try:
+                dataframes[table_name] = _store._table_frame(opened, table_name)
+            except _store.StoreError as e:
+                print(f"Table {table_name} not found in the database.")
+                print(e)
     if 'png_list' in dataframes:
         png_raw = dataframes['png_list']
         id_column = PNG_OBJECT_ID_COLUMNS['cell']
@@ -5750,13 +5917,24 @@ def read_settings_history(db_path):
                 print(run['stamped_utc'], run['stage'],
                       run['settings'].get('crop_mode'))
     """
-    if not os.path.isfile(str(db_path)):
+    from . import store as _store
+    from .measurement_store import exists as _measurements_exist
+
+    if not _measurements_exist(str(db_path)):
         return []
-    conn = sqlite3.connect(str(db_path), timeout=5)
+
     try:
-        rows = _settings_history_rows(conn)
-    finally:
-        conn.close()
+        with _store.open(_store.locate(db_path), verify="none") as opened:
+            if SETTINGS_HISTORY_TABLE not in opened.tables():
+                rows = []
+            elif _store._legacy_is_sqlite(opened):
+                with _store.legacy_connection(opened) as conn:
+                    rows = _settings_history_rows(conn)
+            else:
+                rows = _store._select_rows(
+                    opened, SETTINGS_HISTORY_TABLE, SETTINGS_HISTORY_COLUMNS)
+    except (sqlite3.Error, _store.StoreError):
+        rows = []
     runs = []
     index = {}
     for run_id, stage, stamped, key, value in rows:
@@ -5822,6 +6000,16 @@ def _save_settings_to_db(settings, stage=None):
     src = os.path.dirname(settings['src'])
     directory = f'{src}/measurements'
     os.makedirs(directory, exist_ok=True)
+    from .measurement_store import store_native, write_rows
+    if store_native(f'{directory}/measurements.db'):
+        history = pd.DataFrame(
+            [(run_id, stage, stamped, key, value) for key, value in
+             zip(settings_df['setting_key'], settings_df['setting_value'])],
+            columns=list(SETTINGS_HISTORY_COLUMNS))
+        write_rows(directory, SETTINGS_HISTORY_TABLE, history, narrow=False,
+                   register=False)
+        write_rows(directory, SETTINGS_TABLE, settings_df, narrow=False)
+        return
     conn = sqlite3.connect(f'{directory}/measurements.db', timeout=5)
     try:
         from .database_schema import migrate_connection
@@ -6045,6 +6233,29 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
 
         records.append((file_name, count_type, object_count))
 
+    from .measurement_store import store_native, write_rows
+    if store_native(db_path):
+        if records:
+            write_rows(os.path.dirname(os.path.abspath(db_path)),
+                       'object_counts', pd.DataFrame(
+                           records, columns=['file_name', 'count_type',
+                                             'object_count']), narrow=False)
+    else:
+        _save_object_counts_sqlite(db_path, records)
+    from .measure import _write_image_rows
+    _write_image_rows(
+        db_path,
+        [{'file_name': file_name, f'mask_{count_type}_count': object_count}
+         for file_name, count_type, object_count in records],
+        timelapse='timelapse' in str(added_string))
+
+
+def _save_object_counts_sqlite(db_path, records):
+    """Upsert ``object_counts`` rows into a legacy ``measurements.db``.
+
+    :param db_path: the legacy database.
+    :param records: ``(file_name, count_type, object_count)`` tuples.
+    """
     from .database_concurrency import connect as _connect_database
 
     conn = _connect_database(db_path)
@@ -6071,12 +6282,6 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
         conn.commit()
     finally:
         conn.close()
-    from .measure import _write_image_rows
-    _write_image_rows(
-        db_path,
-        [{'file_name': file_name, f'mask_{count_type}_count': object_count}
-         for file_name, count_type, object_count in records],
-        timelapse='timelapse' in str(added_string))
 
 def _create_database(db_path):
     """Create a SQLite database at the current spaCR schema version.
@@ -6164,7 +6369,9 @@ def _mask_variant_path(folder, ref_filename):
         p = os.path.join(folder, cand)
         if os.path.isfile(p):
             return p
-    return None
+    from .image_store import _mask_exists
+    p = os.path.join(folder, base + '.npy')
+    return p if _mask_exists(p) else None
 
 
 def _listdir_visible(folder):
@@ -6291,16 +6498,14 @@ def _load_and_concatenate_arrays(
     overrides = dict(mask_folders or {})
     if set(overrides) - {'cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES}:
         raise ValueError('Unknown object role in mask folder overrides')
+    from .image_store import _mask_folder_exists, _mask_folders, _read_mask
     for role, folder in overrides.items():
-        if not os.path.isdir(folder):
+        if not _mask_folder_exists(folder):
             raise ValueError(f'Mask folder override for {role} is not a directory: {folder}')
     folder_paths = [os.path.join(src+'/stack')]
     mask_roles = []
 
-    try:
-        _mask_stacks = set(_listdir_visible(os.path.join(src, 'masks')))
-    except OSError:
-        _mask_stacks = set()
+    _mask_stacks = set(_mask_folders(os.path.join(src, 'masks')))
 
     def add_mask_folder(role, enabled):
         """Queue one object's mask stack, if this run has that object.
@@ -6337,7 +6542,7 @@ def _load_and_concatenate_arrays(
     rejected_quality = excluded_fields(src)
     reference_files = [name for name in reference_files if name not in rejected_quality]
     to_store = (str(image_format or 'npy').strip().lower() == 'ome-zarr'
-                and _merged_store_plan(reference_files))
+                and _merged_store_plan(reference_files, series=stacks_in_store))
     first_npy = next((n for n in reference_files if n.endswith('.npy')), None)
     if to_store and first_npy is not None and len(_stack_header(
             os.path.join(reference_folder, first_npy))[0]) != 3:
@@ -6484,9 +6689,16 @@ def _load_and_concatenate_arrays(
 
                 stack_ls.append(concatenated_array)
 
+                from .image_store import _mask_label_name
+                stored_roles = set()
+                for role, folder in zip(mask_roles, folder_paths[1:]):
+                    array_path = _mask_variant_path(folder, filename)
+                    if (not os.path.isfile(array_path)
+                            and _mask_label_name(folder) == role):
+                        stored_roles.add(role)
                 for folder in folder_paths[1:]:
                     array_path = _mask_variant_path(folder, filename)
-                    array = _load_array_any(array_path)
+                    array = _read_mask(array_path)
                     if array.ndim in (2, concatenated_array.ndim - 1):
                         array = np.expand_dims(array, axis=-1)
                     stack_ls.append(array)
@@ -6495,6 +6707,7 @@ def _load_and_concatenate_arrays(
                 stack_ls = [np.expand_dims(arr, axis=-1) if arr.ndim == 2 else arr for arr in stack_ls]
                 unique_shapes = {arr.shape[:-1] for arr in stack_ls}
                 if len(unique_shapes) > 1:
+                    stored_roles = set()
                     max_tuple_length = max(len(shape) for shape in unique_shapes)
                     padded_shapes = [shape + (0,) * (max_tuple_length - len(shape)) for shape in unique_shapes]
                     max_dims = np.max(np.array(padded_shapes), axis=0)
@@ -6515,7 +6728,8 @@ def _load_and_concatenate_arrays(
                         from .image_store import _write_merged_field
                         _write_merged_field(store_writer, filename, stack,
                                             store_layout,
-                                            image_dtype=concatenated_array.dtype)
+                                            image_dtype=concatenated_array.dtype,
+                                            stored_labels=stored_roles)
                     else:
                         output_path = os.path.join(output_folder, filename)
                         _save_array_atomic(output_path, stack)
@@ -6529,15 +6743,18 @@ def _load_and_concatenate_arrays(
 
     return
         
-def _merged_store_plan(names):
+def _merged_store_plan(names, series=False):
     """The plate a merged store can hold these fields as, or None (item 0aj).
 
     One store holds one plate with one entry per well and field. Fields of
     several plates, a name that is not a field name, or two names for one
-    field (time-lapse timepoints) cannot be one store; that is said once and
-    None is returned, so the caller merges to ``merged/*.npy`` instead.
+    field (time-lapse timepoints, unless ``series``) cannot be one store;
+    that is said once and None is returned, so the caller merges to
+    ``merged/*.npy`` instead.
 
     :param names: the field file names to merge.
+    :param series: the names are frames of time-lapse fields, stored as one
+        field with a t axis each (item 0aj P3).
     :returns: the plate name, or None.
     """
     from .image_store import split_field_name
@@ -6552,7 +6769,7 @@ def _merged_store_plan(names):
             print(tr('fov.ome.zarr not written: {name} is not a field name; '
                      'the fields are merged to merged/*.npy instead.', name=name))
             return None
-        if (plate, well, field) in seen:
+        if (plate, well, field) in seen and not series:
             print(tr('fov.ome.zarr not written: two files name the same field '
                      '({plate} {well} {field}), which one plate store cannot hold; '
                      'the fields are merged to merged/*.npy instead.',
@@ -6949,6 +7166,18 @@ def _read_db(db_loc, tables):
     if backend != 'postgres' and isinstance(db_loc, (str, os.PathLike)):
         db_loc = os.path.abspath(
             os.path.expanduser(os.path.expandvars(os.fspath(db_loc))))
+        from .measurement_store import exists as _measurements_exist
+        if (backend == 'sqlite' and not os.path.isfile(db_loc)
+                and _measurements_exist(db_loc)):
+            from .measurement_store import read as _store_read, tables as _store_tables
+            from .utils import correct_metadata
+            present = set(_store_tables(db_loc))
+            frames = []
+            for table in ([tables] if isinstance(tables, str) else list(tables)):
+                if table not in present:
+                    raise ValueError(f"Table not found in database: {table}")
+                frames.append(correct_metadata(_store_read(db_loc, table)))
+            return frames
         if backend == 'sqlite' and not os.path.isfile(db_loc):
             raise FileNotFoundError(
                 f"Measurements database not found: {db_loc}. Set src to the "
@@ -6976,52 +7205,9 @@ def _read_db(db_loc, tables):
     if writable:
         ensure_database_schema(db_loc)
 
-    dfs = []
-    chunksize = 100_000
-
-    if writable:
-        connect_to = db_loc
-        connect_kwargs = {}
-    else:
-        connect_to = f"file:{pathlib.Path(db_loc).as_uri()[7:]}?mode=ro"
-        connect_kwargs = {"uri": True}
-
-    with sqlite3.connect(connect_to, timeout=30, **connect_kwargs) as conn:
-        existing_tables = {
-            row[0]
-            for row in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).fetchall()
-        }
-
-        for table in tables:
-            if table not in existing_tables:
-                raise ValueError(f"Table not found in database: {table}")
-
-            quoted_table = _quote_identifier(table)
-            query = f"SELECT * FROM {quoted_table}"
-
-            chunks = []
-            for chunk in pd.read_sql_query(query, conn, chunksize=chunksize):
-                chunks.append(chunk)
-
-            if len(chunks) == 0:
-                df = pd.read_sql_query(f"SELECT * FROM {quoted_table} LIMIT 0", conn)
-            elif len(chunks) == 1:
-                df = chunks[0]
-            else:
-                df = pd.concat(chunks, ignore_index=True)
-
-            del chunks
-            gc.collect()
-
-            df = correct_metadata(df)
-            dfs.append(df)
-
-            del df
-            gc.collect()
-
-    return dfs
+    frames = read_database(db_loc, tables, canonicalise=False, report=None,
+                           migrate=False, chunksize=100_000)
+    return [correct_metadata(frame) for frame in frames]
 
 def _read_and_merge_data(
         locs, tables, verbose=False, nuclei_limit=10, pathogen_limit=10,
@@ -7949,17 +8135,21 @@ def crop_rows_from_object_table(db_path, object_type='cell', verbose=True):
         return pd.DataFrame()
     select = ('object_label, plateID, rowID, columnID, fieldID, prcf, '
               'file_name, path_name')
-    from .database_concurrency import connect as _connect_database
+    from . import store as _store
 
-    conn = _connect_database(db_path)
     try:
+        opened = _store.open(_store.locate(db_path), verify="none")
+    except (_store.StoreError, FileNotFoundError, sqlite3.Error):
+        return pd.DataFrame()
+    with opened:
+        columns = [c.strip() for c in select.split(',')]
         try:
-            df = pd.read_sql(f'SELECT {select} FROM "{object_type}"', conn)
+            df = _store._select_frame(opened, object_type, columns)
         except Exception:
+            columns = ['object_label', 'plateID', 'rowID', 'columnID',
+                       'fieldID', 'file_name', 'path_name']
             try:
-                df = pd.read_sql(
-                    f'SELECT object_label, plateID, rowID, columnID, fieldID, '
-                    f'file_name, path_name FROM "{object_type}"', conn)
+                df = _store._select_frame(opened, object_type, columns)
             except Exception:
                 if verbose:
                     print(f"crop_rows_from_object_table: no '{object_type}' "
@@ -7968,15 +8158,12 @@ def crop_rows_from_object_table(db_path, object_type='cell', verbose=True):
         parents = {}
         if object_type in ('nucleus', 'pathogen'):
             try:
-                link = pd.read_sql(
-                    f'SELECT object_label, prcf, cell_id FROM "{object_type}"',
-                    conn)
+                link = _store._select_frame(
+                    opened, object_type, ['object_label', 'prcf', 'cell_id'])
                 parents = {(r.prcf, r.object_label): r.cell_id
                            for r in link.itertuples()}
             except Exception:
                 parents = {}
-    finally:
-        conn.close()
     if df.empty:
         return df
     df['object_type'] = object_type
@@ -8357,15 +8544,13 @@ def _dataset_crop_refs(db_path, source, settings, object_type, verbose=True):
         return crop_refs_for_rows(source, rows, object_type)
     png_df = None
     if os.path.isfile(db_path):
-        from .database_concurrency import connect as _connect_database
+        from . import store as _store
 
-        conn = _connect_database(db_path)
         try:
-            png_df = pd.read_sql('SELECT * FROM png_list', conn)
+            with _store.open(_store.locate(db_path), verify="none") as opened:
+                png_df = _store._table_frame(opened, 'png_list')
         except Exception:
             png_df = None
-        finally:
-            conn.close()
 
     def _filter(frame, column):
         """Keep the rows whose ``column`` contains any of the wanted terms.
@@ -9740,8 +9925,6 @@ def _no_training_crops_error(src, db_path, object_type, png_type):
     """
     import sqlite3
 
-    from .database_concurrency import connect as _connect_database
-
     if os.path.isfile(src):
         return FileNotFoundError(
             f"No crops to train on: src is the file {src}, but Classify "
@@ -9755,19 +9938,15 @@ def _no_training_crops_error(src, db_path, object_type, png_type):
             f"folder that holds measurements/, not its parent or a "
             f"sub-folder), or run Measure on this plate first.")
     counts = {}
+    from . import store as _store
+
     try:
-        conn = _connect_database(db_path, readonly=True)
-        try:
-            names = [row[0] for row in conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'")]
+        with _store.open(_store.locate(db_path), verify="none") as opened:
+            names = list(opened.tables())
             for name in ('png_list', object_type):
                 if name in names:
-                    quoted = name.replace('"', '""')
-                    counts[name] = conn.execute(
-                        f'SELECT COUNT(*) FROM "{quoted}"').fetchone()[0]
-        finally:
-            conn.close()
-    except sqlite3.Error:
+                    counts[name] = _store._count_rows(opened, name)
+    except (sqlite3.Error, _store.StoreError, OSError):
         names = []
 
     said = [f"'{name}' has {counts[name]} row(s)" if name in counts
@@ -10323,17 +10502,11 @@ def training_dataset_from_annotation(db_path, dst, annotation_column='test', ann
     all_paths = []
 
     print(f'Reading DataBase: {db_path}')
-    with sqlite3.connect(db_path, timeout=30) as conn:
-        cursor = conn.cursor()
-        query = f"SELECT png_path, {annotation_column} FROM png_list"
-        cursor.execute(query)
-        
-        while True:
-            rows = cursor.fetchmany(1000)
-            if not rows:
-                break
-            for row in rows:
-                all_paths.append(row)
+    from . import store as _store
+
+    with _store.open(_store.locate(db_path), verify="none") as opened:
+        all_paths.extend(_store._select_rows(
+            opened, 'png_list', ['png_path', annotation_column]))
 
     print('Total paths retrieved:', len(all_paths))
     
@@ -10418,17 +10591,11 @@ def training_dataset_from_annotation_metadata(db_path, dst, annotation_column='t
     all_paths = []
 
     print(f'Reading DataBase: {db_path}')
-    with sqlite3.connect(db_path, timeout=30) as conn:
-        cursor = conn.cursor()
-        query = f"SELECT png_path, {annotation_column}, rowID, columnID FROM png_list"
-        cursor.execute(query)
-        
-        while True:
-            rows = cursor.fetchmany(1000)
-            if not rows:
-                break
-            for row in rows:
-                all_paths.append(row)
+    from . import store as _store
+
+    with _store.open(_store.locate(db_path), verify="none") as opened:
+        all_paths.extend(_store._select_rows(
+            opened, 'png_list', ['png_path', annotation_column, 'rowID', 'columnID']))
 
     print('Total paths retrieved:', len(all_paths))
     

@@ -10,6 +10,7 @@ fields, the Cellpose model is a double declaring the installed 4.0.7
 1x1 convolution.  CPU-only and offline.
 """
 from __future__ import annotations
+from tests import store_sql
 
 import os
 import re
@@ -82,9 +83,9 @@ def _n_objects(mask):
 
 
 def _counts(db_path):
-    if not os.path.exists(db_path):
+    if not store_sql.measured(db_path):
         return None
-    con = sqlite3.connect(str(db_path))
+    con = store_sql.connect(str(db_path))
     try:
         tables = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         if "object_counts" not in tables:

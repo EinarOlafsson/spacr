@@ -1129,8 +1129,9 @@ def test_an_interrupted_merge_leaves_the_table_unchanged(tmp_path, monkeypatch):
     before = column_names(db)
     df = vision_results(paths, [i / 100 for i in range(len(paths))])
 
-    def half_then_fail(cursor, sql, updates):
-        cursor.executemany(sql, updates[:len(updates) // 2])
+    # The writes go through the store's transaction (unified-store step S5).
+    def half_then_fail(tx, rows, **edit):
+        tx.edit(rows[:len(rows) // 2], **edit)
         raise RuntimeError("interrupted mid-merge")
 
     monkeypatch.setattr(predictions, "_execute_updates", half_then_fail)
@@ -1162,8 +1163,9 @@ def test_an_interrupted_migration_leaves_the_table_unchanged(tmp_path, monkeypat
     legacy_write(db, prcfos, [0, 1, 0])
     assert read(db, "predictions")["predictions"].tolist() == [2, 1, 2]
 
-    def apply_then_fail(cursor, sql):
-        cursor.execute(sql)
+    # The repair goes through the store's transaction (unified-store step S5).
+    def apply_then_fail(tx, rows, **edit):
+        tx.edit(rows, **edit)
         raise RuntimeError("interrupted mid-migration")
 
     monkeypatch.setattr(predictions, "_execute", apply_then_fail)

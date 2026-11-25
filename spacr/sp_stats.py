@@ -2385,39 +2385,32 @@ def _feature_qc_database(db_path: str, *,
     :param options: passed to :func:`flag_degenerate_features`.
     :returns: the flagged columns with their ``table``, in table order.
     """
-    import sqlite3
-    from contextlib import closing
-    from .tabular import _read_query
     from pathlib import Path
 
-    uri = Path(db_path).resolve().as_uri() + "?mode=ro"
+    from . import store
+
     frames = []
-    with closing(sqlite3.connect(uri, uri=True, timeout=30.0)) as connection:
-        present = {row[0] for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'")}
-        for table in tables:
-            if table not in present:
-                continue
-            quoted = '"' + table.replace('"', '""') + '"'
-            sample = _read_query(
-                connection, f"SELECT * FROM {quoted} LIMIT 1000",
-                canonicalise=False, report=None)
-            if sample.empty:
-                continue
-            empty = [c for c in sample.columns if sample[c].isna().all()]
-            sample[empty] = sample[empty].astype(float)
-            names = _profile_features(sample)
-            for start in range(0, len(names), _FEATURE_QC_CHUNK):
-                chunk = names[start:start + _FEATURE_QC_CHUNK]
-                columns = ", ".join(
-                    '"' + str(c).replace('"', '""') + '"' for c in chunk)
-                values = _read_query(
-                    connection, f"SELECT {columns} FROM {quoted}",
-                    canonicalise=False, report=None)
-                flagged = flag_degenerate_features(values, chunk, **options)
-                if not flagged.empty:
-                    flagged.insert(0, "table", table)
-                    frames.append(flagged)
+    opened = store.shared(Path(db_path).resolve())
+    present = set(opened.tables())
+    for table in tables:
+        if table not in present:
+            continue
+        quoted = '"' + table.replace('"', '""') + '"'
+        sample = store.read_frame(opened, f"SELECT * FROM {quoted} LIMIT 1000")
+        if sample.empty:
+            continue
+        empty = [c for c in sample.columns if sample[c].isna().all()]
+        sample[empty] = sample[empty].astype(float)
+        names = _profile_features(sample)
+        for start in range(0, len(names), _FEATURE_QC_CHUNK):
+            chunk = names[start:start + _FEATURE_QC_CHUNK]
+            columns = ", ".join(
+                '"' + str(c).replace('"', '""') + '"' for c in chunk)
+            values = store.read_frame(opened, f"SELECT {columns} FROM {quoted}")
+            flagged = flag_degenerate_features(values, chunk, **options)
+            if not flagged.empty:
+                flagged.insert(0, "table", table)
+                frames.append(flagged)
     if not frames:
         return pd.DataFrame(columns=list(_FEATURE_QC_COLUMNS))
     return pd.concat(frames, ignore_index=True)

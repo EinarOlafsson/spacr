@@ -810,7 +810,8 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "equally bright, approaching 1 when the signal is concentrated in a "
         "few pixels. A concentration measure for punctate phenotypes.",
         _DIMLESS + ", in [0, 1]",
-        "spacr.measure._extended_regionprops_table._gini",
+        "spacr.measure._intensity_statistics_kernel in "
+        "spacr.measure._extended_regionprops_table",
         "Computed on absolute values with NaNs dropped; NaN when the pixel "
         "values sum to 0.",
     ),

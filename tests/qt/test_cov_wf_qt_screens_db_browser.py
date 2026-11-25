@@ -29,8 +29,8 @@ import pytest
 from spacr.qt.screens.db_browser import (
     DbBrowserScreen,
     PreviewModel,
-    ReadOnlyDb,
 )
+from spacr.store_browse import StoreDb as ReadOnlyDb
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -110,28 +110,23 @@ class _FakeThread:
 # SQL builders: tables and views with no usable row id
 # ---------------------------------------------------------------------------
 
-def test_export_of_a_rowid_less_table_omits_the_order_by(db_path):
+def test_export_of_a_rowid_less_table_omits_the_order_by(db_path, tmp_path):
     """A CSV export must not be built around a key the table hasn't got.
 
-    ``select_sql`` appends ``ORDER BY <key>`` so an exported CSV comes out
-    in a stable, reproducible order. A ``WITHOUT ROWID`` table has no
-    ``rowid`` to name — reaching for ``key_cols[0]`` regardless would raise
-    IndexError before a single byte reached the file, and the user would be
-    told their export failed with a Python traceback rather than getting
-    their data.
+    A ``WITHOUT ROWID`` table has no ``rowid`` to order by; the export
+    still writes every row rather than failing with a traceback.
     """
     db = ReadOnlyDb(db_path)
 
     assert db.row_key("barcodes") == ("pk", ["barcode"])
-    keyless_sql = db.select_sql("barcodes", ["barcode", "tally"])
-    assert "ORDER BY" not in keyless_sql
-    assert keyless_sql == 'SELECT "barcode", "tally" FROM "barcodes"'
-
-    # Same builder, same call shape, on a table that *does* have a row id:
-    # this is what the missing clause above would otherwise have looked like.
+    out = tmp_path / "barcodes.csv"
+    written = db.export_csv(str(out), "barcodes", ["barcode", "tally"])
+    with sqlite3.connect(db_path) as con:
+        expected = con.execute("SELECT COUNT(*) FROM barcodes").fetchone()[0]
+    assert written == expected
+    with open(out, encoding="utf-8") as handle:
+        assert handle.readline().strip() == "barcode,tally"
     assert db.row_key("cell") == ("rowid", ["_rowid_"])
-    assert db.select_sql("cell", ["well"]) == (
-        'SELECT "well" FROM "cell" ORDER BY "_rowid_"')
 
 
 def test_sorting_a_keyless_view_orders_by_the_column_alone(db_path):

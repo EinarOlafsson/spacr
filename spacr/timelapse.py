@@ -3812,7 +3812,8 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
     """
     if bleach_correction not in ('legacy', 'ratio', 'exponential', 'histogram'):
         raise ValueError('bleach_correction must be legacy, ratio, exponential or histogram')
-    conn = sqlite3.connect(db_loc, timeout=30)
+    from .measurement_store import connect as _connect_measurements
+    conn = _connect_measurements(db_loc, readonly=True)
     cell_df = pd.read_sql(f"SELECT * FROM {'cell'}", conn)
     
     merge_keys = _object_group_keys(cell_df, 'object_label')
@@ -4965,38 +4966,38 @@ def _compute_parent_child_overlaps(
     child_label_col,
 ):
     """
-    For each frame, find which child labels overlap which parent labels.
+    For each frame, the parent label of every child label.
 
-    Returns columns: 'frame', parent_label_col, child_label_col
+    A child belongs to the one parent holding most of its pixels, ties to
+    the lowest label, as Measure links a nucleus, pathogen or organelle to
+    its cell (:func:`spacr.measure._map_child_to_parent`); the overlaps are
+    :func:`spacr.measure._label_overlaps`. A child over no parent is left
+    out.
+
+    Returns columns: 'frame', parent_label_col, child_label_col, sorted by
+    frame, then parent, then child.
     """
+    from .measure import _best_parent, _label_overlaps
+
     T = parent_masks.shape[0]
-    records = []
+    frames = []
 
     for frame in range(T):
-        p = parent_masks[frame]
-        c = child_masks[frame]
-        m = (p > 0) & (c > 0)
-        if not np.any(m):
+        children, parents, _ = _best_parent(
+            *_label_overlaps(child_masks[frame], parent_masks[frame]))
+        if not children.size:
             continue
+        order = np.lexsort((children, parents))
+        frames.append(pd.DataFrame({
+            "frame": frame,
+            parent_label_col: parents[order].astype(int),
+            child_label_col: children[order].astype(int),
+        }))
 
-        p_flat = p[m].ravel()
-        c_flat = c[m].ravel()
-        pairs = np.stack([p_flat, c_flat], axis=1)
-        unique_pairs = np.unique(pairs, axis=0)
-
-        for parent_label, child_label in unique_pairs:
-            records.append(
-                {
-                    "frame": frame,
-                    parent_label_col: int(parent_label),
-                    child_label_col: int(child_label),
-                }
-            )
-
-    if not records:
+    if not frames:
         return pd.DataFrame(columns=["frame", parent_label_col, child_label_col])
 
-    return pd.DataFrame.from_records(records)
+    return pd.concat(frames, ignore_index=True)
 
 
 def _summarise_child_features_per_parent(
@@ -5078,7 +5079,9 @@ def _load_intensity_stack_from_merged(
     import os
     import numpy as np
 
-    merged_dir = os.path.join(src, "merged")
+    from .image_store import _read_field, merged_field_path, merged_source
+
+    merged_dir = merged_source(src)
     T = len(filenames)
 
     if not os.path.isdir(merged_dir) or n_channels is None or n_channels <= 0:
@@ -5087,17 +5090,8 @@ def _load_intensity_stack_from_merged(
     stack = np.zeros((T, height, width, n_channels), dtype=dtype)
 
     for t, fn in enumerate(filenames):
-        base = os.path.splitext(os.path.basename(fn))[0]
-        candidates = [
-            os.path.join(merged_dir, base + ".npy"),
-            os.path.join(merged_dir, fn),
-            os.path.join(merged_dir, fn + ".npy"),
-        ]
-        arr = None
-        for path in candidates:
-            if os.path.exists(path):
-                arr = np.load(path)
-                break
+        path = merged_field_path(merged_dir, fn)
+        arr = None if path is None else _read_field(path)
 
         if arr is None or arr.ndim != 3:
             continue
@@ -5159,7 +5153,9 @@ def _load_masks_from_merged(
     if dtype is None:
         dtype = np.int32
 
-    merged_dir = os.path.join(src, "merged")
+    from .image_store import _read_field, merged_field_path, merged_source
+
+    merged_dir = merged_source(src)
     T = len(filenames)
 
     cell_masks = np.zeros((T, height, width), dtype=dtype)
@@ -5170,17 +5166,8 @@ def _load_masks_from_merged(
         return cell_masks, nucleus_masks, pathogen_masks
 
     for t, fn in enumerate(filenames):
-        base = os.path.splitext(os.path.basename(fn))[0]
-        candidates = [
-            os.path.join(merged_dir, base + ".npy"),
-            os.path.join(merged_dir, fn),
-            os.path.join(merged_dir, fn + ".npy"),
-        ]
-        arr = None
-        for path in candidates:
-            if os.path.exists(path):
-                arr = np.load(path)
-                break
+        path = merged_field_path(merged_dir, fn)
+        arr = None if path is None else _read_field(path)
 
         if arr is None or arr.ndim != 3:
             continue
@@ -5434,7 +5421,9 @@ def _process_merged_group(args):
         print("[_process_merged_group] Empty file_basenames list.")
         return pd.DataFrame()
 
-    merged_dir = os.path.join(src, "merged")
+    from .image_store import _read_field, merged_source
+
+    merged_dir = merged_source(src)
 
     metas = []
     for bn in file_basenames:
@@ -5451,7 +5440,7 @@ def _process_merged_group(args):
     print(f"[_process_merged_group] Start group {key}, files={len(sorted_basenames)}")
 
     first_path = os.path.join(merged_dir, sorted_basenames[0])
-    first_arr_raw = np.load(first_path)
+    first_arr_raw = _read_field(first_path)
     if first_arr_raw.ndim != 3:
         print(
             f"[_process_merged_group] First array for group {key} is not 3D, "
@@ -5507,15 +5496,25 @@ def _process_merged_group(args):
         f"any_nucleus={np.any(nucleus_masks)}, any_pathogen={np.any(pathogen_masks)}"
     )
 
+    from .measure import _assign_nuclei_to_cells, _derive_cytoplasm
+
     has_nucleus = np.any(nucleus_masks)
     has_pathogen = np.any(pathogen_masks)
+    if has_nucleus:
+        merged_cells = sum(
+            _assign_nuclei_to_cells(nucleus_masks[frame], cell_masks[frame])[4]
+            for frame in range(T))
+        if merged_cells:
+            print(
+                f"[_process_merged_group] Group {key}: {merged_cells} cell "
+                "label(s) merged into another over all frames, because a "
+                "nucleus lay under 90 % in each of them (Measure's rule)."
+            )
     cytoplasm_masks = None
     if has_nucleus or has_pathogen:
-        cytoplasm_masks = cell_masks.copy()
-        if has_nucleus:
-            cytoplasm_masks[nucleus_masks > 0] = 0
-        if has_pathogen:
-            cytoplasm_masks[pathogen_masks > 0] = 0
+        cytoplasm_masks = _derive_cytoplasm(cell_masks, [
+            nucleus_masks if has_nucleus else None,
+            pathogen_masks if has_pathogen else None])
 
     cell_props_df = _compute_regionprops_stack(
         mask_stack=cell_masks,
@@ -7438,30 +7437,29 @@ def _save_measurements_and_well_summary(
     os.makedirs(measurements_dir, exist_ok=True)
     db_path = os.path.join(measurements_dir, "measurements.db")
 
-    with sqlite3.connect(db_path, timeout=30) as conn:
-        all_df.to_sql(db_table_name, conn, if_exists="replace", index=False)
+    from .measurement_store import ensure_store, legacy_database
+    from .tabular import write_database
+    if legacy_database(db_path) is None:
+        ensure_store(db_path)
+    write_database(all_df, db_path, db_table_name, if_exists="replace",
+                   canonicalise=False)
+    print(
+        f"[summarise_tracks_from_merged] Saved measurements to "
+        f"{db_path} (table='{db_table_name}')"
+    )
+    if not well_summary_df.empty:
+        well_table_name = db_table_name + "_well_motility"
+        write_database(well_summary_df, db_path, well_table_name,
+                       if_exists="replace", canonicalise=False)
         print(
-            f"[summarise_tracks_from_merged] Saved measurements to "
-            f"{db_path} (table='{db_table_name}')"
+            f"[summarise_tracks_from_merged] Saved well-level motility "
+            f"summary to {db_path} (table='{well_table_name}')"
         )
-
-        if not well_summary_df.empty:
-            well_table_name = db_table_name + "_well_motility"
-            well_summary_df.to_sql(
-                well_table_name,
-                conn,
-                if_exists="replace",
-                index=False,
-            )
-            print(
-                f"[summarise_tracks_from_merged] Saved well-level motility "
-                f"summary to {db_path} (table='{well_table_name}')"
-            )
-        else:
-            print(
-                "[summarise_tracks_from_merged] No well-level motility "
-                "summary table was created."
-            )
+    else:
+        print(
+            "[summarise_tracks_from_merged] No well-level motility "
+            "summary table was created."
+        )
 
     return measurements_dir, db_path
 
@@ -9242,9 +9240,10 @@ def automated_motility_assay(settings):
         raise ValueError(f'Unknown motility bleach correction: {bleach_method!r}')
     measurements_dir = os.path.join(src, "measurements")
     db_path = os.path.join(measurements_dir, "measurements.db")
-    if bleach_method != 'none' and reuse_existing and os.path.isfile(db_path):
-        from pathlib import Path
-        with sqlite3.connect(Path(db_path).resolve().as_uri() + '?mode=ro', uri=True, timeout=30.0) as conn:
+    from .measurement_store import connect as _connect_measurements
+    from .measurement_store import exists as _measurements_exist
+    if bleach_method != 'none' and reuse_existing and _measurements_exist(db_path):
+        with _connect_measurements(db_path, readonly=True) as conn:
             exists = conn.execute(
                 'SELECT 1 FROM sqlite_master WHERE type="table" AND name=?',
                 (db_table_name,)).fetchone()
@@ -9260,15 +9259,16 @@ def automated_motility_assay(settings):
     all_df = None
     loaded_from_db = False
 
-    if reuse_existing and os.path.exists(db_path):
+    from .measurement_store import exists as _measurements_exist
+    if reuse_existing and _measurements_exist(db_path):
         try:
             print(
                 f"[summarise_tracks_from_merged] Attempting to reuse existing "
                 f"measurements from {db_path} (table='{db_table_name}')."
             )
 
-            with sqlite3.connect(db_path, timeout=30) as conn:
-                all_df = pd.read_sql_query(f"SELECT * FROM {db_table_name}", conn)
+            from .measurement_store import read as _store_read
+            all_df = _store_read(db_path, db_table_name)
 
             if (
                 all_df is not None
@@ -9303,11 +9303,13 @@ def automated_motility_assay(settings):
             )
             all_df = None
 
-    merged_dir = os.path.join(src, "merged")
+    from .image_store import _list_fields, merged_source
+
+    merged_dir = merged_source(src)
     if not os.path.isdir(merged_dir):
         raise FileNotFoundError(f"No merged directory at: {merged_dir}")
 
-    all_files = [f for f in os.listdir(merged_dir) if f.endswith(".npy")]
+    all_files = _list_fields(merged_dir)
     if not all_files:
         raise FileNotFoundError(f"No .npy files found in {merged_dir}")
 

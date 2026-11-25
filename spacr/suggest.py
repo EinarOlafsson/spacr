@@ -38,6 +38,7 @@ Rules that protect the annotations
 from __future__ import annotations
 
 import sqlite3
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence
 
@@ -48,22 +49,24 @@ from .selection import _PandasOnFirstUse
 pd = _PandasOnFirstUse(globals())
 
 
+@contextmanager
 def _connect_read_only(db_path):
     """A read-only connection that WAITS for Measure rather than failing.
 
-    `sqlite3.connect(..., mode=ro)` takes SQLite's five-second default and
+    A plain read-only SQLite connect takes SQLite's five-second default and
     then raises "database is locked" -- which, against a measurements.db
     a Measure run is still writing, is a report that fails for a reason
     that has nothing to do with the data. `database_concurrency.connect`
     sets `busy_timeout` from its own `timeout` and opens with
-    `query_only=ON`, so a reader waits out a writer's transaction instead
+    `query_only=ON` (the shared store's reader), so a reader waits out a writer's transaction instead
     of racing it.
 
     Pinned by `test_no_connection_relies_on_sqlites_five_second_default`.
     """
-    from .database_concurrency import connect
+    from . import store
 
-    return connect(db_path, readonly=True)
+    with store.legacy_connection(store.shared(db_path)) as connection:
+        yield connection
 
 
 def _has_column(db, table: str, column: str) -> bool:
@@ -159,13 +162,12 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
     """
     from .active_learning import as_probabilities
 
-    with _connect_read_only(db_path) as db:
-        try:
-            from .tabular import _read_query
-            crops = _read_query(db, f'SELECT * FROM "{png_table}"',
-                               report=None)
-        except Exception:                                    # noqa: BLE001
-            return Suggestions(pd.DataFrame(), note="no crop table")
+    try:
+        from .tabular import read_database
+        crops = read_database(db_path, [png_table], report=None,
+                              migrate=False)[0]
+    except Exception:                                        # noqa: BLE001
+        return Suggestions(pd.DataFrame(), note="no crop table")
 
     if crops.empty:
         return Suggestions(pd.DataFrame(), note="the crop table is empty")

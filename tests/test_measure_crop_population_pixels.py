@@ -1,4 +1,5 @@
 """Separate fresh populations keep archived crop paths and pixels immutable."""
+from tests import store_sql
 import sqlite3
 from pathlib import Path
 
@@ -30,7 +31,7 @@ def test_direct_crop_worker_writes_only_its_owned_fresh_population(tmp_path, syn
 
 
 def _paths(database, table='png_list'):
-    with sqlite3.connect(database) as db:
+    with store_sql.connect(database) as db:
         return [Path(row[0]) for row in db.execute(f'SELECT png_path FROM "{table}"')]
 
 
@@ -69,7 +70,7 @@ def test_three_actual_runs_preserve_every_prior_png_and_array_and_resume_reuses_
     assert _paths(database, 'png_list_1') == populations[0]
     assert _paths(database, 'png_list_2') == populations[1]
     assert populations[0][0].read_bytes() != populations[1][0].read_bytes()
-    with sqlite3.connect(database) as db:
+    with store_sql.connect(database) as db:
         before_tables = db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
         for table in ('cell', 'cytoplasm', 'nucleus', 'pathogen', 'png_list', 'intensity_rescale'):
             try:
@@ -79,7 +80,7 @@ def test_three_actual_runs_preserve_every_prior_png_and_array_and_resume_reuses_
     measure.measure_crop(dict(settings, resume=True))
     assert read_recorded_settings(str(database))[KEY] == roots[-1]
     assert _paths(database) == populations[-1]
-    with sqlite3.connect(database) as db:
+    with store_sql.connect(database) as db:
         assert db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall() == before_tables
     assert all(path.read_bytes() == content for path, content in preserved.items())
 

@@ -969,6 +969,7 @@ _RAM_WORKER_MULTIPLIERS: Dict[str, float] = {
     'ml_analyze': 1.0,
     'ops_decode': 6.0,
     'embeddings': 4.0,
+    'crop_writer': 3.0,
 }
 
 _RAM_WORKER_IMPORT_BYTES: Dict[str, int] = {
@@ -1136,6 +1137,10 @@ def _array_file_nbytes(path: Any) -> int:
     try:
         if lower.endswith('.npy'):
             import numpy as np
+            if not os.path.isfile(path):
+                from .image_store import _field_header
+                shape, dtype = _field_header(path)
+                return int(np.prod(shape)) * int(np.dtype(dtype).itemsize)
             return int(np.load(path, mmap_mode='r').nbytes)
         if lower.endswith('.npz'):
             import numpy as np

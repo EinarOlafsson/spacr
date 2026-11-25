@@ -53,6 +53,8 @@ from PySide6.QtWidgets import (
 )
 
 from ..theme import apply_close_mark
+from ...measurement_store import connect as _connect_measurements
+from ...measurement_store import exists as _measurements_exist
 from ...row_exclusions import normalize_row_exclusions
 
 #: How long a keystroke in the editable column combo waits before its
@@ -103,7 +105,7 @@ def source_paths(source) -> list[Path]:
             candidate = path / "measurements.db"
         else:
             candidate = path / "measurements" / "measurements.db"
-        if candidate.is_file():
+        if _measurements_exist(candidate):
             paths.append(candidate)
     return paths
 
@@ -121,22 +123,22 @@ def discover_columns(source, tables=None) -> dict[str, list[tuple[Path, str]]]:
     found: dict[str, list[tuple[Path, str]]] = {}
     for db_path in source_paths(source):
         try:
-            connection = sqlite3.connect(str(db_path), timeout=30)
-        except sqlite3.Error:
+            connection = _connect_measurements(db_path, readonly=True)
+        except (sqlite3.Error, ValueError):
             continue
         try:
             available = [
                 row[0] for row in connection.execute(
                     "SELECT name FROM sqlite_master "
-                    "WHERE type='table' ORDER BY name")
+                    "WHERE type='table' ORDER BY name").fetchall()
             ]
             for table in available:
                 if wanted and table not in wanted:
                     continue
                 for info in connection.execute(
-                        f"PRAGMA table_info({_quote(table)})"):
+                        f"PRAGMA table_info({_quote(table)})").fetchall():
                     found.setdefault(str(info[1]), []).append((db_path, table))
-        except sqlite3.Error:
+        except (sqlite3.Error, ValueError):
             continue
         finally:
             connection.close()
@@ -170,13 +172,13 @@ def distinct_values(sources: Iterable[tuple[Path, str]], column: str,
     quoted_column = _quote(column)
     for db_path, table in sources:
         try:
-            connection = sqlite3.connect(str(db_path), timeout=30)
-        except sqlite3.Error:
+            connection = _connect_measurements(db_path, readonly=True)
+        except (sqlite3.Error, ValueError):
             continue
         try:
             rows = connection.execute(
                 f"SELECT DISTINCT {quoted_column} FROM {_quote(table)} "
-                f"WHERE {quoted_column} IS NOT NULL LIMIT {int(limit) + 1}")
+                f"WHERE {quoted_column} IS NOT NULL LIMIT {int(limit) + 1}").fetchall()
             for (value,) in rows:
                 key = str(value)
                 if key not in seen:
@@ -184,7 +186,7 @@ def distinct_values(sources: Iterable[tuple[Path, str]], column: str,
                     values.append(value)
                 if len(values) >= limit:
                     break
-        except sqlite3.Error:
+        except (sqlite3.Error, ValueError):
             continue
         finally:
             connection.close()

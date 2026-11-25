@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
-import sqlite3
+from tests.ops_store_sql import ops_connect, read_sql
 
 import numpy as np
 import pytest
@@ -55,8 +55,8 @@ def well(tmp_path_factory):
 
 def _rows(db, table):
     """One table, ordered."""
-    with sqlite3.connect(db) as conn:
-        return pd.read_sql_query(f"SELECT * FROM {table}", conn)
+    with ops_connect(db) as conn:
+        return read_sql(f"SELECT * FROM {table}", conn)
 
 
 def _owner(geometry, tile, y, x):
@@ -68,7 +68,7 @@ def _owner(geometry, tile, y, x):
 
 def _calls(db):
     """``(centroid_y, centroid_x, barcode, mapped_guide)`` of every call."""
-    with sqlite3.connect(db) as conn:
+    with ops_connect(db) as conn:
         return conn.execute(
             "SELECT o.centroid_y, o.centroid_x, b.barcode, b.mapped_guide "
             "FROM ops_barcodes b JOIN ops_objects o ON b.object_id = o.object_id "

@@ -8,6 +8,7 @@ disk so the check being exercised is the real one.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -364,12 +365,10 @@ def _measure_writing(tables):
         project = os.path.dirname(measure_settings["src"])
         db = os.path.join(project, "measurements", "measurements.db")
         os.makedirs(os.path.dirname(db), exist_ok=True)
-        with sqlite3.connect(db) as connection:
+        with store_sql.connect(db) as connection:
             for table in tables:
                 connection.execute(
                     f'CREATE TABLE "{table}" (object_label INTEGER)')
-        os.makedirs(os.path.join(project, "data", "plate1", "cell_png"),
-                    exist_ok=True)
 
     return _measure_crop
 
@@ -396,7 +395,7 @@ def test_only_the_fields_the_plan_lists_are_written(tmp_path, monkeypatch):
     dropped = sorted(plan.masks["cell"])[1]
     del plan.masks["cell"][dropped]
     monkeypatch.setattr("spacr.measure.measure_crop",
-                        _measure_writing(("cell", "cytoplasm", "png_list")))
+                        _measure_writing(("cell", "cytoplasm", "crop_index")))
 
     result = em.run_external_masks(plan, settings)
 
@@ -545,7 +544,7 @@ def test_a_single_crop_mode_may_be_written_as_a_string(tmp_path, monkeypatch):
 
     def _record(measure_settings):
         received.update(measure_settings)
-        _measure_writing(("cell", "cytoplasm", "png_list"))(measure_settings)
+        _measure_writing(("cell", "cytoplasm", "crop_index"))(measure_settings)
 
     monkeypatch.setattr("spacr.measure.measure_crop", _record)
     em.run_external_masks(plan, settings)
@@ -560,11 +559,50 @@ def test_measure_finishing_without_its_table_is_an_error(tmp_path,
     settings = _settings(tmp_path, images, cells)
     plan = em.plan_external_masks(settings)
     monkeypatch.setattr("spacr.measure.measure_crop",
-                        _measure_writing(("png_list",)))
+                        _measure_writing(("crop_index",)))
 
     with pytest.raises(ConfigurationError,
                        match="without required output table"):
         em.run_external_masks(plan, settings)
+
+
+def test_saved_crops_must_reach_the_crop_index(tmp_path, monkeypatch):
+    """Object tables without a crop index are an unfinished import.
+
+    Crops are OME-Zarr by default, and Measure lists them in ``crop_index``
+    (mirrored to ``ssCell_Crops``); either name counts.
+    """
+    images, cells = _one_field(tmp_path)
+    settings = _settings(tmp_path, images, cells)
+    plan = em.plan_external_masks(settings)
+    monkeypatch.setattr("spacr.measure.measure_crop",
+                        _measure_writing(("cell", "cytoplasm")))
+    with pytest.raises(ConfigurationError, match="crop_index"):
+        em.run_external_masks(plan, settings)
+
+    mirrored = _settings(tmp_path / "mirrored", images, cells)
+    monkeypatch.setattr("spacr.measure.measure_crop",
+                        _measure_writing(("cell", "cytoplasm", "ssCell_Crops")))
+    result = em.run_external_masks(em.plan_external_masks(mirrored), mirrored)
+    assert "ssCell_Crops" in result.tables
+
+
+def test_png_crops_are_checked_against_png_list(tmp_path, monkeypatch):
+    """With crop_image_format 'png' the import needs png_list instead."""
+    images, cells = _one_field(tmp_path)
+    settings = _settings(tmp_path, images, cells, crop_image_format="png")
+    plan = em.plan_external_masks(settings)
+    monkeypatch.setattr("spacr.measure.measure_crop",
+                        _measure_writing(("cell", "cytoplasm", "crop_index")))
+    with pytest.raises(ConfigurationError, match="png_list"):
+        em.run_external_masks(plan, settings)
+
+
+def test_the_import_defaults_to_ome_zarr_crops():
+    """External Masks crops like every module: OME-Zarr, saved."""
+    defaults = em.default_settings({})
+    assert defaults["crop_image_format"] == "ome-zarr"
+    assert defaults["save_png"] is True
 
 
 def test_the_result_says_what_was_written(tmp_path, monkeypatch):
@@ -573,12 +611,12 @@ def test_the_result_says_what_was_written(tmp_path, monkeypatch):
     settings = _settings(tmp_path, images, cells)
     plan = em.plan_external_masks(settings)
     monkeypatch.setattr("spacr.measure.measure_crop",
-                        _measure_writing(("cell", "cytoplasm", "png_list")))
+                        _measure_writing(("cell", "cytoplasm", "crop_index")))
 
     text = em.run_external_masks(plan, settings).summary()
 
     assert text.startswith("Prepared 1 field(s) in ")
-    assert "cell, cytoplasm, png_list" in text
+    assert "cell, crop_index, cytoplasm" in text
     assert "Annotation crops: " in text
 
 
@@ -604,7 +642,7 @@ def test_a_full_run_prints_both_summaries(tmp_path, monkeypatch, capsys):
     images, cells = _one_field(tmp_path)
     settings = _settings(tmp_path, images, cells)
     monkeypatch.setattr("spacr.measure.measure_crop",
-                        _measure_writing(("cell", "cytoplasm", "png_list")))
+                        _measure_writing(("cell", "cytoplasm", "crop_index")))
 
     result = em.prepare_external_masks(settings)
 
@@ -612,7 +650,7 @@ def test_a_full_run_prints_both_summaries(tmp_path, monkeypatch, capsys):
     assert isinstance(result, em.ExternalMaskResult)
     assert "nothing written" in printed
     assert "Prepared 1 field(s)" in printed
-    assert os.path.isfile(result.db_path)
+    assert store_sql.measured(result.db_path)
 
 
 def test_a_mask_beside_its_images_pairs_on_the_normalised_name(tmp_path):

@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "task": "omezarr-p3",
+  "state": "P3: t and z axes in fov.ome.zarr",
+  "templates": [
+    {
+      "file": "spacr/io.py",
+      "source": "{field}: the channels have different z slices (counts, sizes or types), so their maximum projection is stored, not the slices.",
+      "source_sha256": "2648829afa783bbaa5b04a42db1113e2aebabb8f66b11df048b1e8642fd093eb"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{field}: the time points differ in size or type; a time-lapse field is stored as one array with a time axis.",
+      "source_sha256": "5a73db6b80837d6ef9fd19a90a083234ade404502e5f5ac07210aed675754cd7"
+    },
+    {
+      "file": "spacr/io.py",
+      "source": "{field}: the time points do not all have the same channels; a time-lapse field is stored as one array with a time axis.",
+      "source_sha256": "a6d1637507046b6a61abcf554313f22f937cc2c5cb4e5f0c6ace3f55a08c6aa0"
+    }
+  ],
+  "settings_help": [
+    {
+      "key": "mask_image_format",
+      "source": "(str) - Where Mask Generation keeps the fields Measure reads. 'ome-zarr' stores each field in fov.ome.zarr in the project folder: the acquired channels in their own dtype (no stack/ folder) and the masks of every stage as label images (no masks/ folder); no merged/*.npy is written. 'npy' writes stack/*.npy and merged/*.npy as before; 'tiff' adds merged_tiff/<field>.tif and <field>_<object>_mask.tif. Timelapse frames go on a t axis, z slices on a z axis (projected when read). Older layouts (stack/, masks/, merged/*.npy, images/<plate>.ome.zarr) still read. Default 'ome-zarr'. Alpha.",
+      "source_sha256": "6a8ab61d17463dea2cc7f5d6b1faa452d48eaf29f346bae0b46970f25948559b"
+    },
+    {
+      "key": "keep_intermediate",
+      "source": "(bool) - Keep the run's working masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' runs), which holds the channels and every mask. With fov.ome.zarr no stack/ or masks/ folder is written: the channels and the masks of every stage go straight into the field (the small run records to fov.ome.zarr/.spacr_mask_run); kept, those labels are reused by a rerun, otherwise a rerun segments again. Older projects' stack/ folders are still read, and kept or removed by this setting as before.",
+      "source_sha256": "021ae733a8b69c975ce3108f3f518abe4dde50549ba112344c9944671b1ddd29"
+    },
+    {
+      "key": "keep_original_images",
+      "source": "(bool) - What happens to the original images once their pixels are in fov.ome.zarr. On (the default): after a field is committed and every channel plane is verified byte for byte against its original, its originals are moved into orig/ in the project folder. Off: they are deleted after that check, which cannot be undone; each stored z slice is checked against its own file, and a field whose channels had different z slices is stored projected, so its originals go to orig/. A run cut short never loses an image. With 'npy' or 'tiff' runs, orig/ is deleted at the end only when off. Default True.",
+      "source_sha256": "74383a717cf8c2775becfac419e41169d6b104794f771382caabbb2eb65ebc3a"
+    },
+    {
+      "key": "save_original_images",
+      "source": "(bool) - The older switch for the original images. Off acts as keep_original_images off: with fov.ome.zarr each original is deleted only after its field is committed and verified there; with 'npy' or 'tiff' runs the raw images are deleted once they are in stack/, as before, which is not reversible. Use keep_original_images instead. Default True.",
+      "source_sha256": "0a9c7ffbfb3e821e5d933d11f244fedfb951f465f996ca321463bd4f6a5cde64"
+    },
+    {
+      "key": "z_stack",
+      "source": "(bool) - When True, spaCR requires the array to contain an explicit z dimension and raises an error instead of inferring the axis; this enables z_segmentation_mode, anisotropy and stitch_threshold. Standard ingestion stores every z slice in fov.ome.zarr and segments its maximum-intensity projection, computed on read, so it segments in 2-D; supply volumetric arrays directly to spacr.zstack instead. When False, no z-stack code runs and masks match a two-dimensional run. Default False.",
+      "source_sha256": "0011e81773ada00d61fb9aa9a41c2d6b7ea85f79b92fdfd8c75e3fb5bcffe037"
+    }
+  ]
+}

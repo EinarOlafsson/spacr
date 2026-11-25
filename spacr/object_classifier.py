@@ -735,7 +735,8 @@ def _drop_unreal_objects(src: str, settings: Mapping[str, Any]) -> Dict[str, int
     """
     import pandas as pd
 
-    from .io import _save_array_atomic
+    from .image_store import (_read_stack, _stack_entry, _mask_folder_exists, _mask_names,
+                              _read_mask, _write_mask)
     from .tabular import write_table
 
     from .model_zoo import _resolve_pinned_model_file
@@ -749,7 +750,7 @@ def _drop_unreal_objects(src: str, settings: Mapping[str, Any]) -> Dict[str, int
     for object_type, bundle in bundles.items():
         folder = os.path.join(src, "masks", f"{object_type}_mask_stack")
         planes = [settings.get(f"{role}_channel") for role in bundle["roles"]]
-        if not os.path.isdir(folder):
+        if not _mask_folder_exists(folder):
             print(f"No {object_type} masks; its real / not-real classifier is skipped.")
             continue
         if any(plane is None for plane in planes):
@@ -758,14 +759,14 @@ def _drop_unreal_objects(src: str, settings: Mapping[str, Any]) -> Dict[str, int
             continue
         head = _RealObjectHead(bundle, threshold)
         rows: List[Dict[str, Any]] = []
-        for name in sorted(f for f in os.listdir(folder)
-                           if f.endswith(".npy") and not f.startswith(".")):
+        for name in [f for f in _mask_names(folder) if f.endswith(".npy")]:
             image_path = os.path.join(src, "stack", name)
             mask_path = os.path.join(folder, name)
-            mask = np.load(mask_path)
-            if mask.ndim != 2 or not os.path.isfile(image_path):
+            mask = _read_mask(mask_path)
+            if mask.ndim != 2 or not (os.path.isfile(image_path)
+                                      or _stack_entry(image_path) is not None):
                 continue
-            image = np.load(image_path, mmap_mode="r")
+            image = _read_stack(image_path, mmap_mode="r")
             if image.ndim == 2:
                 image = image[:, :, None]
             labels, areas = np.unique(mask[mask > 0], return_counts=True)
@@ -777,7 +778,7 @@ def _drop_unreal_objects(src: str, settings: Mapping[str, Any]) -> Dict[str, int
             dropped = [int(label) for label, verdict in zip(labels, verdicts)
                        if verdict["class"] == "not real"]
             if dropped:
-                _save_array_atomic(mask_path, remove_labels(mask, dropped))
+                _write_mask(mask_path, remove_labels(mask, dropped))
             rows.extend({"field": os.path.splitext(name)[0],
                          "label": int(label), "class": verdict["class"],
                          "probability": verdict["probability"]}

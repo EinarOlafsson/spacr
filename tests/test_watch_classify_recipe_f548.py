@@ -1,6 +1,7 @@
 """A watched CV inference run uses one model and collects each field once."""
 from __future__ import annotations
 
+from tests import store_sql
 import hashlib
 import json
 import shutil
@@ -35,7 +36,7 @@ def _recipe(folder, model, **extra):
 
 
 def _predictions(database):
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         return sorted(connection.execute(
             'SELECT prcfo, value, pred, cv_predictions FROM png_list').fetchall())
 
@@ -61,7 +62,7 @@ def adapter(monkeypatch):
         value = int(np.load(next(merged.glob('*.npy')))[0, 0, 0])
         output = folder / 'measurements'
         output.mkdir()
-        with sqlite3.connect(output / 'measurements.db') as connection:
+        with store_sql.connect(output / 'measurements.db') as connection:
             connection.execute('CREATE TABLE png_list (prcfo TEXT PRIMARY KEY, value REAL)')
             connection.execute('INSERT INTO png_list VALUES (?, ?)',
                                (folder.name, value))
@@ -71,7 +72,7 @@ def adapter(monkeypatch):
         calls.append((model, json.loads(json.dumps(settings))))
         threshold = float(model.read_text(encoding="utf-8"))
         database = Path(settings['src']) / 'measurements' / 'measurements.db'
-        with sqlite3.connect(database) as connection:
+        with store_sql.connect(database) as connection:
             connection.execute('ALTER TABLE png_list ADD COLUMN pred REAL')
             connection.execute('ALTER TABLE png_list ADD COLUMN cv_predictions INTEGER')
             connection.execute('UPDATE png_list SET pred = value / 10, '
@@ -182,7 +183,7 @@ def test_empty_prediction_columns_do_not_count_as_classification(tmp_path, adapt
 
     def empty_predictions(settings):
         database = Path(settings['src']) / 'measurements' / 'measurements.db'
-        with sqlite3.connect(database) as connection:
+        with store_sql.connect(database) as connection:
             connection.execute('ALTER TABLE png_list ADD COLUMN pred REAL')
             connection.execute('ALTER TABLE png_list ADD COLUMN cv_predictions INTEGER')
 
@@ -203,7 +204,7 @@ def test_real_mask_and_measure_predictions_match_batch_size_one(
 
     def infer(settings):
         database = Path(settings['src']) / 'measurements' / 'measurements.db'
-        with sqlite3.connect(database) as connection:
+        with store_sql.connect(database) as connection:
             connection.execute('ALTER TABLE png_list ADD COLUMN pred REAL')
             connection.execute('ALTER TABLE png_list ADD COLUMN cv_predictions INTEGER')
             keys = [row[0] for row in connection.execute('SELECT prcfo FROM png_list')]

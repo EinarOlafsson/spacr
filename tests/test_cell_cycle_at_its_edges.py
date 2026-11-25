@@ -5,6 +5,7 @@ torch route with Classify's training and prediction stood in for so the
 crop, dataset and model bookkeeping around them is what is exercised."""
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import sqlite3
 
@@ -171,7 +172,7 @@ def test_one_method_with_fucci_writes_no_agreement_table(tmp_path):
     assert report["methods"] == ["measurements"]
     assert set(out["fucci_state"]) <= {"G1", "G1/S", "S/G2/M", "early G1"}
     assert "M" not in set(out["phase_measurements"])
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         names = {r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
     assert "cell_cycle_agreement" not in names and "cell_cycle" in names

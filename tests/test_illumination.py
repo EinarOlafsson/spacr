@@ -25,6 +25,7 @@ reaches nothing, and the control proves the positive test can fail).
 
 from __future__ import annotations
 
+from tests import store_sql
 import hashlib
 import json
 import multiprocessing as mp
@@ -974,7 +975,7 @@ def test_measure_crop_writes_corrected_intensities_under_a_spawn_pool(
 
     measure_crop(settings)
 
-    connection = sqlite3.connect(str(run / 'measurements' / 'measurements.db'))
+    connection = store_sql.connect(str(run / 'measurements' / 'measurements.db'))
     try:
         measured = [row[0] for row in connection.execute(
             'SELECT cell_channel_0_mean_intensity FROM cell')]
@@ -2125,8 +2126,8 @@ def test_measure_sources_keep_requested_scalars_and_save_their_own_models(
             assert restored['psf_fwhm_um'] is None
             assert restored['n2v_model'] == (None if suffix == 'csv' else '')
         database = plate / 'measurements' / 'measurements.db'
-        assert database.is_file()
-        connection = sqlite3.connect(str(database))
+        assert store_sql.measured(database)
+        connection = store_sql.connect(str(database))
         try:
             status = connection.execute(
                 'SELECT status, n_succeeded, n_failed FROM run_status').fetchone()

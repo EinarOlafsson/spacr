@@ -186,8 +186,8 @@ def _v1_settings(plate: Path, rnd: Round) -> dict:
     s.update({
         "channels": [0, 1, 2, 3],
         "consolidate": False,
-        # This test inspects masks/<obj>_mask_stack, which is deleted once
-        # merged/ is built unless keep_intermediate is set (default False).
+        # This test inspects the masks of each class, which are removed
+        # once every field is merged unless keep_intermediate is set.
         "keep_intermediate": True,
         "remove_background": rnd.remove_background,
         "normalize": rnd.normalize,
@@ -261,14 +261,13 @@ def test_mask_matrix_100_rounds(tmp_path_factory, caplog):
             else:
                 settings = _v1_settings(plate, rnd)
                 preprocess_generate_masks(settings)
-                # Each requested object type must have produced a mask
-                # stack folder with content.
+                # Each requested object type must have produced masks,
+                # read through the one mask reader: a mask_stack folder of
+                # an older layout, or the committed fov.ome.zarr labels.
+                from spacr.image_store import _mask_names
                 masks_root = plate / "masks"
-                missing = []
-                for obj in rnd.objects:
-                    d = masks_root / f"{obj}_mask_stack"
-                    if not d.is_dir() or not list(d.glob("*.npy")):
-                        missing.append(obj)
+                missing = [obj for obj in rnd.objects
+                           if not _mask_names(masks_root / f"{obj}_mask_stack")]
                 if missing:
                     failures.append(
                         f"{rnd.label()} — no mask stack for "

@@ -31,7 +31,6 @@ import json
 import os
 import platform
 import shutil
-import sqlite3
 import subprocess
 import sys
 import tarfile
@@ -75,9 +74,11 @@ def _run(settings, phases):
 def _table(db: Path, name: str):
     import pandas as pd
 
-    with sqlite3.connect(str(db)) as con:
-        return pd.read_sql(f"select * from {name} where well = ?", con,
-                           params=(WELL,))
+    from spacr.ops_store import _read_rows
+
+    frame = _read_rows(str(db), name, PLATE, [WELL])
+    # The store's Measure-style object_key is not part of the references.
+    return frame.drop(columns=[c for c in ("object_key",) if c in frame.columns])
 
 
 def _environment():

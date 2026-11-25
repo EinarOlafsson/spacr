@@ -1,23 +1,34 @@
 """Storage of an OPS run's tables, and the check that its objects exist.
 
-The storage contract has two halves. In ``measurements.db``, which is
-authoritative: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``,
-``ops_reads`` and ``ops_barcodes``. Beside it, as a cache: parquet copies of
-``ops_reads`` and ``ops_barcodes``, written in the same step with their row
-counts asserted equal, so the sidecar cannot drift from the authority
-unnoticed.
+THE OPS TABLES LIVE IN THE SPACR STORE (item 0an). Every OPS table --
+``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_reads``,
+``ops_barcodes``, ``ops_merge``, ``ops_cell_cycle`` and
+``ops_cell_cycle_checks`` -- is written through the store's one writer
+(:func:`spacr.store.writer`, one Parquet part per table per well, the
+recorded dtype map applied) into the run's one store, the ``measurements``
+folder beside the ``measurements.db`` path the phases pass around, and
+read back through the store's one reader (:func:`spacr.store.open`). The
+store table is the OPS name without its ``ops_`` prefix (``geometry``,
+``merge``, ``barcodes``, ...), so ``ph_tables``' ``cell``, ``nucleus`` and
+``cytoplasm`` and these tables share one catalog, ``spacr.duckdb``, that
+the Database Browser and every other module read. No OPS table is written
+to SQLite any more.
 
-SQLite is authoritative and Parquet is a cache. The two can disagree, so one of them has to be right by definition --
-otherwise a reader that picked the faster one would sometimes be reading
-yesterday's numbers with no way to tell. :func:`write_table` writes both in
-one call and asserts the counts match before either is visible as complete;
-:func:`read_table` prefers the cache and falls back without complaining,
-because a missing cache is a performance question and not a correctness one.
+The ``measurements.db`` path is still what the phases hand each other: it
+names the run (:func:`_store_project` maps ``<run>/measurements.db`` to
+``<run>/measurements``). An OLDER RUN that kept its tables in that SQLite
+file is read through the same reader, :func:`spacr.store.open` on the file,
+when the store does not hold the table; nothing writes there.
+
+Each well is its own part, so a phase that rewrites one well's rows
+(:func:`_write_well`) writes only that well; the catalog supersedes the
+well's earlier part in one transaction. Rows come back per plate and well,
+in the order each well's rows were written.
 
 Readiness is checked before any channel is read: no sequencing or phenotype
-channel is read until ``ops_objects`` is on disk and its row count checked.
-:func:`objects_ready` performs this check and returns a reason when the
-answer is no, so the operator can see which condition failed.
+channel is read until ``ops_objects`` is in the store and its row count
+checked. :func:`objects_ready` performs this check and returns a reason when
+the answer is no, so the operator can see which condition failed.
 
 Other measurement tables use the same object ids, so later steps need no
 special case. The numbering is deterministic for that reason: those ids join
@@ -27,9 +38,8 @@ from __future__ import annotations
 
 import logging
 import os
-import sqlite3
 from dataclasses import dataclass
-from typing import Any, Iterable, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 LOG = logging.getLogger("spacr.ops_store")
 
@@ -45,7 +55,7 @@ class StoreError(ValueError):
     """Raised for an inconsistent OPS store; the message says how to recover."""
 
 
-#: The authoritative tables, in the order the phases write them.
+#: The OPS tables, in the order the phases write them.
 #:
 #: FIVE, AND 372's PHASE D NAMED FOUR. ``ops_phenotype`` is A4's output --
 #: where each phenotype field's centre lies in the sequencing well frame and
@@ -58,149 +68,396 @@ class StoreError(ValueError):
 OPS_TABLES = ("ops_geometry", "ops_phenotype", "ops_objects", "ops_reads",
               "ops_barcodes", "ops_merge", "ops_cell_cycle", "ops_cell_cycle_checks")
 
-#: The two that also get a parquet sidecar. 372 names these specifically --
-#: they are "the wide numeric tables where a columnar scan is worth an order
-#: of magnitude". The other two are small and read whole, so a cache would be
-#: two things to keep in step for no gain.
+#: The wide tables read back in the types they were written in. Until item
+#: 0an these two had a parquet cache beside the SQLite authority, which
+#: readers preferred, so their readers were written against the written
+#: types (a bool stays a bool). The other tables were read from SQLite,
+#: whose readers were written against its storage classes: integers and
+#: booleans come back as int64 and floats as float64 (:func:`_as_read`).
 CACHED_TABLES = ("ops_reads", "ops_barcodes")
 
 #: The table the readiness gate asks about.
 OBJECTS_TABLE = "ops_objects"
 
+#: The columns each table's queries always return, never narrowed: the
+#: store's key columns (Measure-style ``object_key`` where a row is one
+#: phenotype cell, the sequencing ``object_id`` where it is one nucleus).
+_KEY_COLUMNS: Dict[str, Tuple[str, ...]] = {
+    "ops_geometry": ("cycle", "site"),
+    "ops_phenotype": ("site",),
+    "ops_objects": ("object_id",),
+    "ops_reads": ("object_id",),
+    "ops_barcodes": ("object_id",),
+    "ops_merge": ("object_key", "site", "label", "object_id"),
+    "ops_cell_cycle": ("object_key", "site", "label"),
+    "ops_cell_cycle_checks": (),
+}
+
+#: The partition value of a table (or frame) without a ``plate`` or ``well``
+#: column; it is dropped again on reading.
+_WHOLE = "_all_"
+
 
 def _resolved(db_path) -> str:
     """``db_path`` with ``~`` and ``$VARS`` expanded, as the funnel expands it.
 
-    ONE RESOLUTION PER CALL, and it has to be this one. `write_table` now
-    writes through :func:`spacr.tabular.write_database`, which resolves the
-    path itself -- so a caller passing ``~/run/measurements.db`` had the
-    database written to the expanded path while :func:`row_count` opened the
-    literal one and :func:`_sidecar_path` put the parquet cache beside a
-    directory named ``~``. The row-count check then compared a table that
-    existed against one that did not, and the cache it wrote was never read.
-    Nothing raised; the run simply lost its cache and its verification.
+    ONE RESOLUTION PER CALL, and it has to be this one: a caller passing
+    ``~/run/measurements.db`` must reach the same store whichever function
+    it calls.
     """
     from .tabular import resolve_path
 
     return resolve_path(db_path)
 
 
-def _sidecar_path(db_path: str, table: str) -> str:
-    """Where ``table``'s parquet cache sits, beside the database."""
-    directory = os.path.dirname(os.path.abspath(_resolved(db_path)))
-    stem = os.path.splitext(os.path.basename(_resolved(db_path)))[0]
-    return os.path.join(directory, f"{stem}.{table}.parquet")
+def _store_project(db_path) -> str:
+    """The spaCR store folder of the run whose OPS database path is ``db_path``.
 
-
-def write_table(db_path: str, table: str, frame, *,
-                if_exists: str = "replace") -> int:
-    """Write one OPS table to sqlite, and its parquet cache if it has one.
-
-    Both are written in one call so that their row counts can be asserted
-    equal. With two calls, a caller that wrote the database and then crashed
-    would leave a sidecar describing a different run, which a reader that
-    prefers the cache would then use.
-
-    :param db_path: the measurements database.
-    :param table: one of :data:`OPS_TABLES`.
-    :param frame: a DataFrame.
-    :returns: rows written.
-    :raises StoreError: on an unknown table; when the sidecar it just
-        wrote does not have the same number of rows as the database; or when
-        ``ops_objects`` or ``ops_barcodes`` would hold two rows for one
-        object, inside the frame or between the frame and the table it is
-        appended to. One row per object is a UNIQUE constraint in the schema,
-        and nothing is written when it would be broken.
+    ``<run>/measurements.db`` is ``<run>/measurements``, the store
+    ``ph_tables`` writes the cell tables to; any other ``<dir>/<name>.<ext>``
+    is ``<dir>/<name>``.
     """
-    db_path = _resolved(db_path)
+    resolved = os.path.abspath(_resolved(db_path))
+    stem, suffix = os.path.splitext(resolved)
+    return stem if suffix else resolved + ".store"
+
+
+def _store_name(table: str) -> str:
+    """The store table of an OPS table: its name without ``ops_``."""
+    return table[4:] if table.startswith("ops_") else table
+
+
+def _checked(table: str) -> None:
+    """Refuse a table outside :data:`OPS_TABLES`."""
     if table not in OPS_TABLES:
         raise StoreError(
             f"{table!r} is not an OPS table; the storage contract names "
             f"{', '.join(OPS_TABLES)}. A table outside that list would not be "
             f"read by anything and would look like data that had been kept.")
 
-    rows = int(len(frame))
-    from .tabular import write_database
 
+def _open(project: str):
+    """The store at ``project`` through the shared reader, or None."""
+    from . import store
+
+    if not os.path.isfile(os.path.join(project, store.CATALOG)):
+        return None
+    return store.open(project)
+
+
+def _stored(project: str, name: str) -> Optional[Dict[Tuple[str, str], int]]:
+    """``(plate, well) -> rows`` of ``name`` in the store, or None if absent."""
+    opened = _open(project)
+    if opened is None:
+        return None
+    try:
+        parts = [f for f in opened._files if f["table_name"] == name
+                 and f["kind"] == "parquet"]
+        if name not in opened.tables() or not parts:
+            return None
+        found: Dict[Tuple[str, str], int] = {}
+        for entry in parts:
+            key = (str(entry["plate"]), str(entry["well"]))
+            found[key] = found.get(key, 0) + int(entry["rows"])
+        return found
+    finally:
+        opened.close()
+
+
+def _legacy(db_path) -> Optional[str]:
+    """The older SQLite file at ``db_path`` when it is one, else None."""
+    path = _resolved(db_path)
+    if not os.path.isfile(path):
+        return None
+    with open(path, "rb") as handle:
+        return path if handle.read(16) == b"SQLite format 3\x00" else None
+
+
+def _legacy_tables(path: str) -> List[str]:
+    """The tables of an older SQLite file, through the shared reader."""
+    from . import store
+
+    with store.open(path) as opened:
+        return opened.tables()
+
+
+def _exists(db_path) -> bool:
+    """Whether the run at ``db_path`` has an OPS store, or an older database."""
+    from . import store
+
+    project = _store_project(db_path)
+    return (os.path.isfile(os.path.join(project, store.CATALOG))
+            or _legacy(db_path) is not None)
+
+
+def _object_keys(frame, table: str, well: str):
+    """``frame`` with the Measure-style ``object_key`` of each phenotype cell.
+
+    The integer key of :func:`spacr.ops_run_infra.integer_cell_key` (row,
+    column, field and label), as ``ph_tables`` and Measure key their rows,
+    for the tables whose rows are phenotype cells (``site``, ``label``). A
+    frame that already has it, lacks those columns, or whose well is not a
+    letter and a number is returned as it is.
+    """
+    import numpy as np
+
+    if ("object_key" not in _KEY_COLUMNS.get(table, ()) or "object_key"
+            in frame.columns or not {"site", "label"} <= set(frame.columns)
+            or not len(frame)):
+        return frame
+    from . import schema
+    from .ops_run_infra import integer_cell_key
+
+    try:
+        row, column = schema.parse_well(well, strict=True)
+        site = frame["site"].to_numpy()
+        label = frame["label"].to_numpy()
+        if not (np.issubdtype(site.dtype, np.integer)
+                and np.issubdtype(label.dtype, np.integer)):
+            return frame
+        keys = integer_cell_key(int(row[1:]), int(column[1:]), site, label)
+    except (ValueError, TypeError):
+        return frame
+    return frame.assign(object_key=keys)
+
+
+def _partitions(frame) -> Dict[Tuple[str, str], Any]:
+    """``frame`` split into its ``(plate, well)`` parts, in first-seen order.
+
+    An empty frame is one empty part, so the table exists with no rows.
+    """
+    if not len(frame):
+        return {(_WHOLE, _WHOLE): frame}
+    plates = (frame["plate"].astype(str) if "plate" in frame.columns
+              else None)
+    wells = frame["well"].astype(str) if "well" in frame.columns else None
+    if plates is None and wells is None:
+        return {(_WHOLE, _WHOLE): frame}
+    import pandas as pd
+
+    plate = plates if plates is not None else pd.Series(
+        _WHOLE, index=frame.index)
+    well = wells if wells is not None else pd.Series(_WHOLE, index=frame.index)
+    keys = list(zip(plate, well))
+    order = list(dict.fromkeys(keys))
+    if len(order) == 1:
+        return {order[0]: frame}
+    codes = pd.Series(keys, index=frame.index)
+    return {key: frame[(codes == key).to_numpy()] for key in order}
+
+
+def _write_part(project: str, table: str, frame, plate: str, well: str,
+                schema=None, manifest: bool = False):
+    """Write one well's rows of ``table`` through the store's one writer.
+
+    :func:`spacr.store.write_table` with the recorded dtype map
+    (``narrow``), the table's key columns and no sort: the rows keep the
+    order the phase wrote them in. ``schema`` writes an empty part of that
+    schema, which supersedes the well's earlier rows.
+    """
+    from . import store
+
+    frame = _object_keys(frame, table, well)
+    frame = frame.drop(columns=[c for c in ("plate", "well")
+                                if c in frame.columns])
+    keys = [c for c in _KEY_COLUMNS.get(table, ()) if c in frame.columns]
+    if schema is not None:
+        with store.writer(project, _store_name(table), plate=plate,
+                          well=well, sort_by=(), key_columns=keys,
+                          schema=schema) as part:
+            part.append(schema.empty_table())
+        return part.manifest if manifest else 0
+    written = store.write_table(project, _store_name(table), frame,
+                                plate=plate, well=well, sort_by=(),
+                                key_columns=keys, narrow=True)
+    return written if manifest else int(written["files"][0]["rows"])
+
+
+def _write_parts(project: str, table: str, parts) -> None:
+    """Write ``(plate, well) -> frame`` parts, then register them together.
+
+    A part that fails takes the parts this call already wrote with it:
+    their waiting manifests and files are removed, so a later registration
+    cannot make half of the write visible.
+    """
+    from . import store
+
+    written = []
+    try:
+        for (plate, well), part in parts.items():
+            written.append(_write_part(project, table, part, plate, well,
+                                       manifest=True))
+    except BaseException:
+        for manifest in written:
+            for entry in manifest["files"]:
+                store._remove(os.path.join(project, entry["path"]))
+            store._remove(os.path.join(project, store._PENDING,
+                                       f"{manifest['uuid']}.json"))
+        raise
+    store.register(project)
+
+
+def _empty_schema(project: str, name: str):
+    """The stored schema of ``name`` without its partition columns, or None."""
+    opened = _open(project)
+    if opened is None:
+        return None
+    try:
+        if name not in opened.tables():
+            return None
+        from .store import _arrow_of, _ident
+
+        schema = _arrow_of(opened._conn,
+                           f"SELECT * FROM {_ident(name)} LIMIT 0").schema
+    finally:
+        opened.close()
+    import pyarrow as pa
+
+    return pa.schema([f for f in schema if f.name not in ("plate", "well")])
+
+
+def _adopt_legacy(db_path: str, table: str) -> None:
+    """Move an older run's SQLite rows of ``table`` into the store, once.
+
+    A run from before item 0an kept its OPS tables in ``measurements.db``.
+    The first write of a table to such a run's store copies that table's
+    rows there, every well through the same writer, so a phase that
+    rewrites one well does not hide the other wells the database held. The
+    SQLite file is left as it was.
+
+    :raises StoreError: when the older table holds two rows for one object;
+        nothing is copied.
+    """
+
+    project = _store_project(db_path)
+    if _stored(project, _store_name(table)) is not None:
+        return
+    legacy = _legacy(db_path)
+    if legacy is None or table not in _legacy_tables(legacy):
+        return
+    frame = _read_rows(db_path, table)
     key = _object_key(table, frame.columns)
-    appending = if_exists == "append" and row_count(db_path, table) is not None
     if key:
         _refuse_repeated_keys(table, frame, key)
-        if appending:
-            _constrain(db_path, table, key, created=False)
-    try:
-        write_database(frame, db_path, table, if_exists=if_exists,
-                       canonicalise=False, index=False)
-    except Exception as failure:                       # noqa: BLE001
-        refusal = _uniqueness_refusal(failure)
-        if not key or refusal is None:
-            raise
-        raise StoreError(_collision_message(
-            db_path, table, frame, key, refusal)) from failure
+    os.makedirs(project, exist_ok=True)
+    _write_parts(project, table, _partitions(frame))
+    LOG.info("%s: %d rows of the older %s copied into %s", table, len(frame),
+             legacy, project)
+
+
+def write_table(db_path: str, table: str, frame, *,
+                if_exists: str = "replace") -> int:
+    """Write one OPS table to the run's spaCR store.
+
+    Each ``(plate, well)`` of ``frame`` is written as its own part through
+    :func:`spacr.store.writer` and the parts are registered in one catalog
+    transaction. ``replace`` makes ``frame`` the whole table: a well it
+    does not hold is removed. ``append`` adds its rows to the wells they
+    belong to, which keep their earlier rows.
+
+    :param db_path: the run's OPS database path (:func:`_store_project`).
+    :param table: one of :data:`OPS_TABLES`.
+    :param frame: a DataFrame.
+    :param if_exists: ``"replace"`` or ``"append"``.
+    :returns: the rows the table holds afterwards.
+    :raises StoreError: on an unknown table; or when ``ops_objects``,
+        ``ops_barcodes`` or ``ops_merge`` would hold two rows for one
+        object, inside the frame or between the frame and the well it is
+        appended to. One row per object is a constraint of the storage
+        contract, and nothing is written when it would be broken.
+    """
+    import pandas as pd
+
+
+    _checked(table)
+    if if_exists not in ("replace", "append"):
+        raise StoreError(f"if_exists must be 'replace' or 'append'; got "
+                         f"{if_exists!r}")
+    key = _object_key(table, frame.columns)
     if key:
-        _constrain(db_path, table, key, created=not appending)
+        _refuse_repeated_keys(table, frame, key)
+    if if_exists == "append":
+        _adopt_legacy(db_path, table)
+    project = _store_project(db_path)
+    name = _store_name(table)
+    present = _stored(project, name) or {}
+    parts = _partitions(frame)
+    if if_exists == "append":
+        for where in [w for w in parts if w in present]:
+            existing = _read(project, table, [where])
+            combined = pd.concat([existing, parts[where]], ignore_index=True)
+            if key:
+                _refuse_appended_keys(table, existing, parts[where], key)
+            parts[where] = combined
+    else:
+        for where in [w for w in present if w not in parts]:
+            parts[where] = frame.iloc[:0]
+    os.makedirs(project, exist_ok=True)
+    _write_parts(project, table, parts)
     stored = row_count(db_path, table)
     if stored is None:
         raise StoreError(
-            f"{table} is not in {db_path} after writing it, which means the "
+            f"{table} is not in {project} after writing it, which means the "
             f"write did not land. Nothing downstream should read a table "
             f"that is not there.")
-
-    if table not in CACHED_TABLES:
-        return stored
-
-    path = _sidecar_path(db_path, table)
-    try:
-        frame.to_parquet(path, index=False)
-    except Exception as failure:                       # noqa: BLE001
-        _remove_stale(path)
-        LOG.warning("no parquet cache for %s (%s); sqlite remains "
-                    "authoritative", table, failure)
-        return stored
-
-    cached = _parquet_rows(path)
-    if cached != stored:
-        _remove_stale(path)
-        raise StoreError(
-            f"the parquet cache for {table} has {cached} rows and the "
-            f"database has {stored}. The cache has been removed so reads "
-            f"fall back to the authority rather than to the disagreement.")
     return stored
 
 
-def _uniqueness_refusal(
-        failure: BaseException) -> Optional[sqlite3.IntegrityError]:
-    """SQLite's constraint refusal behind a failed write, or ``None``.
+def _write_well(db_path: str, table: str, frame, plate: str,
+                well: str) -> int:
+    """Write one well's rows of ``table``, replacing that well's earlier rows.
 
-    pandas 2 lets ``to_sql`` raise :class:`sqlite3.IntegrityError` as it is;
-    pandas 3 raises ``pandas.errors.DatabaseError("Execution failed")`` from
-    it. Catching only the first let every refused append on pandas 3 escape
-    as "Execution failed", where the store names the keys the append shared
-    with the table.
+    Only the well's part is written; the catalog supersedes its earlier
+    part, and the other wells are not read or rewritten.
 
-    :param failure: what the write raised.
-    :returns: the IntegrityError itself, the one ``failure`` was raised
-        from, or ``None`` when the write failed for another reason.
+    :param db_path: the run's OPS database path.
+    :param table: an OPS table.
+    :param frame: this well's rows.
+    :param plate: the plate name.
+    :param well: the well name.
+    :returns: the rows the table holds afterwards.
     """
-    if isinstance(failure, sqlite3.IntegrityError):
-        return failure
-    cause = failure.__cause__
-    return cause if isinstance(cause, sqlite3.IntegrityError) else None
+    from . import store
 
-
-_ONE_ROW_PER_OBJECT = ("ops_objects", "ops_barcodes", "ops_merge")
+    _checked(table)
+    key = _object_key(table, frame.columns)
+    if key:
+        _refuse_repeated_keys(table, frame, key)
+    _adopt_legacy(db_path, table)
+    project = _store_project(db_path)
+    name = _store_name(table)
+    if len(frame.columns):
+        plate = str(plate) if "plate" in frame.columns else _WHOLE
+        well = str(well) if "well" in frame.columns else _WHOLE
+    schema = None
+    if not len(frame.columns):
+        schema = _empty_schema(project, name)
+        if schema is None:
+            return row_count(db_path, table) or 0
+    os.makedirs(project, exist_ok=True)
+    parts = {(plate, well): frame}
+    if schema is None and _WHOLE not in (plate, well):
+        for where in (_stored(project, name) or {}):
+            if _WHOLE in where:
+                parts[where] = frame.iloc[:0]
+    if schema is not None:
+        _write_part(project, table, frame, plate, well, schema=schema)
+        store.register(project)
+    else:
+        _write_parts(project, table, parts)
+    return row_count(db_path, table) or 0
 
 
 def _object_key(table: str, columns) -> Tuple[str, ...]:
     """The columns that name one object in ``table``, or ``()`` for none.
 
     372 PART 14-L, V11c: the storage contract says ``UNIQUE(plate, well,
-    object_id)``, and the table on disk had plain columns and no index, so
-    appending a well twice doubled it without an error. ``ops_objects`` and
-    ``ops_barcodes`` hold one row per object; ``ops_reads`` holds many and
-    ``ops_geometry`` none. The key is ``object_id`` together with whichever
-    of ``plate`` and ``well`` the frame carries, because ids are numbered per
-    well and two wells legitimately share them.
+    object_id)``, and appending a well twice must not double it without an
+    error. ``ops_objects`` and ``ops_barcodes`` hold one row per object;
+    ``ops_reads`` holds many and ``ops_geometry`` none. The key is
+    ``object_id`` together with whichever of ``plate`` and ``well`` the
+    frame carries, because ids are numbered per well and two wells
+    legitimately share them.
 
     :param table: the OPS table being written.
     :param columns: the frame's columns.
@@ -214,13 +471,7 @@ def _object_key(table: str, columns) -> Tuple[str, ...]:
         "object_id",)
 
 
-def _quoted(name: str) -> str:
-    """A SQLite identifier in double quotes, embedded quotes doubled.
-
-    :param name: a table, index or column name.
-    :returns: the quoted identifier.
-    """
-    return '"' + str(name).replace('"', '""') + '"'
+_ONE_ROW_PER_OBJECT = ("ops_objects", "ops_barcodes", "ops_merge")
 
 
 def _named(key: Sequence[str], rows: Iterable[Sequence[Any]]) -> str:
@@ -261,180 +512,171 @@ def _refuse_repeated_keys(table: str, frame, key: Sequence[str]) -> None:
         f"once. Nothing was written.")
 
 
-def _constrain(db_path: str, table: str, key: Sequence[str], *,
-               created: bool) -> None:
-    """Put the one-row-per-object key into the schema as a UNIQUE index.
+def _refuse_appended_keys(table: str, existing, frame,
+                          key: Sequence[str]) -> None:
+    """Refuse an append whose objects the well already holds.
 
-    A pandas ``replace`` drops the table and its indexes with it, so this
-    runs after every write; ``IF NOT EXISTS`` makes it free when the index
-    is there. Before an append it runs on the existing table, so the append
-    itself fails inside its transaction and rolls back whole.
-
-    :param db_path: the resolved database path.
-    :param table: the OPS table.
-    :param key: the key columns.
-    :param created: whether this call's write created the table. A table
-        created with keys SQLite considers equal (``1`` and ``1.0``, which a
-        DataFrame keeps apart) is removed, so no table with duplicate ids is
-        left for :func:`objects_ready` to pass; an existing table is the
-        caller's data and is only reported.
-    :raises StoreError: when the table already holds duplicate keys.
+    :raises StoreError: naming how many objects the append shared with the
+        table, and up to five of them; nothing is appended.
     """
-    columns = ", ".join(_quoted(column) for column in key)
-    index = _quoted(f"{table}_unique_{'_'.join(key)}")
-    with sqlite3.connect(str(db_path), timeout=30) as conn:
-        present = {row[1] for row in conn.execute(
-            f"PRAGMA table_info({_quoted(table)})")}
-        if not set(key) <= present:
-            return
-        try:
-            conn.execute(f"CREATE UNIQUE INDEX IF NOT EXISTS {index} ON "
-                         f"{_quoted(table)} ({columns})")
-            return
-        except sqlite3.IntegrityError:
-            duplicates = conn.execute(
-                f"SELECT {columns} FROM {_quoted(table)} GROUP BY {columns} "
-                f"HAVING COUNT(*) > 1 LIMIT 5").fetchall()
-            if created:
-                conn.execute(f"DROP TABLE {_quoted(table)}")
-                conn.commit()
-    if created:
-        _remove_stale(_sidecar_path(db_path, table))
-        raise StoreError(
-            f"{table} was written with more than one row for "
-            f"{_named(key, duplicates)} -- keys the frame kept apart but "
-            f"SQLite treats as equal. The table was removed rather than left "
-            f"with duplicate ids for a later phase to join on.")
+    columns = [c for c in key if c in existing.columns]
+    if not columns or not len(existing):
+        return
+    old = set(existing[columns].astype(str).itertuples(index=False,
+                                                       name=None))
+    new = frame[columns]
+    hit = [tuple(map(str, row)) in old
+           for row in new.itertuples(index=False, name=None)]
+    shared = new[hit]
+    if not len(shared):
+        return
     raise StoreError(
-        f"{table} in {db_path} already holds more than one row for "
-        f"{_named(key, duplicates)}; it was written without the uniqueness "
-        f"constraint. Rewrite it (if_exists='replace') before appending to "
-        f"it.")
+        f"{table} already holds {len(shared)} of the {len(frame)} object(s) "
+        f"being appended, e.g. "
+        f"{_named(columns, shared.head(5).itertuples(index=False, name=None))}"
+        f". One object would have two rows, so nothing was appended and the "
+        f"table is as it was. Write each well once, or replace it.")
 
 
-def _collision_message(db_path: str, table: str, frame, key: Sequence[str],
-                       failure: Exception) -> str:
-    """Name the keys an append shared with the table it was refused by.
+def _as_read(frame, table: str):
+    """``frame`` as the OPS readers were written to receive ``table``.
 
-    :param db_path: the resolved database path.
-    :param table: the OPS table.
-    :param frame: the frame whose append was refused.
-    :param key: the key columns.
-    :param failure: SQLite's own error, quoted when no shared key is found.
-    :returns: the sentence for the :class:`StoreError`.
+    ``plate`` and ``well`` first (the store keeps them as partition
+    columns at the end) and dropped where the table has none; for the
+    tables outside :data:`CACHED_TABLES`, integers and booleans as int64 and
+    floats as float64, the storage classes their SQLite readers received.
+    The stored dtypes stay the compact ones of the dtype map.
     """
-    columns = list(key)
-    incoming = ", ".join(_quoted(column) for column in columns)
-    matched = " AND ".join(
-        f"existing.{_quoted(column)} = incoming.{_quoted(column)}"
-        for column in columns)
-    with sqlite3.connect(str(db_path), timeout=30) as conn:
-        conn.execute(f"CREATE TEMP TABLE incoming_keys ({incoming})")
-        conn.executemany(
-            f"INSERT INTO incoming_keys VALUES "
-            f"({', '.join('?' for _ in columns)})",
-            frame[columns].itertuples(index=False, name=None))
-        joined = (f"FROM {_quoted(table)} AS existing JOIN incoming_keys AS "
-                  f"incoming ON {matched}")
-        shared = conn.execute(f"SELECT COUNT(*) {joined}").fetchone()[0]
-        examples = conn.execute(
-            f"SELECT {', '.join('incoming.' + _quoted(c) for c in columns)} "
-            f"{joined} LIMIT 5").fetchall()
-    if not shared:
-        return (f"appending to {table} broke its uniqueness constraint "
-                f"({failure}); nothing was appended.")
-    return (f"{table} already holds {shared} of the {len(frame)} object(s) "
-            f"being appended, e.g. {_named(columns, examples)}. One object "
-            f"would have two rows, so the append was rolled back and the "
-            f"table is as it was. Write each well once, or replace it.")
+    import numpy as np
+
+    for name in ("plate", "well"):
+        if name in frame.columns and len(frame) and bool(
+                (frame[name].astype(str) == _WHOLE).all()):
+            frame = frame.drop(columns=[name])
+    front = [c for c in ("plate", "well") if c in frame.columns]
+    if front and list(frame.columns[:len(front)]) != front:
+        frame = frame[front + [c for c in frame.columns if c not in front]]
+    if table in CACHED_TABLES:
+        return frame
+    casts = {}
+    for name, dtype in frame.dtypes.items():
+        if dtype == bool or (np.issubdtype(dtype, np.integer)
+                             and dtype != np.int64):
+            casts[name] = np.int64
+        elif np.issubdtype(dtype, np.floating) and dtype != np.float64:
+            casts[name] = np.float64
+    return frame.astype(casts) if casts else frame
 
 
-def _remove_stale(path: str) -> None:
-    """Delete a sidecar that must not be read. Never raises."""
-    try:
-        if os.path.exists(path):
-            os.remove(path)
-    except OSError:
-        LOG.warning("could not remove the stale parquet cache %s", path)
+def _where(wells: Optional[Sequence[Tuple[str, str]]]):
+    """The SQL filter and parameters for ``(plate, well)`` pairs, or ``("", [])``."""
+    if wells is None:
+        return "", []
+    pairs = list(dict.fromkeys((str(p), str(w)) for p, w in wells))
+    if not pairs:
+        return " WHERE FALSE", []
+    clause = " OR ".join("(CAST(plate AS VARCHAR) = ? AND CAST(well AS "
+                         "VARCHAR) = ?)" for _ in pairs)
+    return f" WHERE {clause}", [v for pair in pairs for v in pair]
 
 
-def _parquet_rows(path: str) -> int:
-    """How many rows a parquet sidecar says it holds.
+def _read(project: str, table: str,
+          wells: Optional[Sequence[Tuple[str, str]]] = None):
+    """Rows of ``table`` in the store at ``project``, for ``wells`` or all."""
+    from . import store
+    from .store import _ident
 
-    Read from the file's footer rather than by loading it, because this
-    runs on every write to check the cache against the database before
-    either is trusted.
+    clause, params = _where(wells)
+    with store.open(project) as opened:
+        return opened.sql(f"SELECT * FROM {_ident(_store_name(table))}"
+                          f"{clause}", params or None)
 
-    :param path: the sidecar to count.
-    :returns: the row count recorded in the file's metadata.
+
+def _read_rows(db_path: str, table: str, plate: Optional[str] = None,
+               wells: Optional[Sequence[str]] = None):
+    """Rows of one OPS table, for ``plate`` and ``wells`` or all; None if absent.
+
+    The run's store when it holds the table, else an older run's SQLite
+    file at ``db_path``; both through :func:`spacr.store.open`.
     """
-    import pyarrow.parquet as pq
+    _checked(table)
+    project = _store_project(db_path)
+    present = _stored(project, _store_name(table))
+    if present is not None:
+        chosen = None
+        if plate is not None:
+            asked = {str(w) for w in (wells or ())}
+            chosen = [(p, w) for p, w in present if p == str(plate)
+                      and (wells is None or w in asked)]
+        frame = _read(project, table, chosen)
+        for position, name in enumerate(("plate", "well")):
+            if name in frame.columns and all(key[position] == _WHOLE
+                                             for key in present):
+                frame = frame.drop(columns=[name])
+        return _as_read(frame, table).reset_index(drop=True)
+    legacy = _legacy(db_path)
+    if legacy is None or table not in _legacy_tables(legacy):
+        return None
+    from . import store
+    from .store import _ident
 
-    return int(pq.ParquetFile(path).metadata.num_rows)
+    with store.open(legacy) as opened:
+        sql = f"SELECT * FROM {_ident(table)}"
+        clause, params = "", []
+        if plate is not None:
+            names = set(opened.sql(f"{sql} LIMIT 0").columns)
+            if wells is not None and {"plate", "well"} <= names:
+                clause, params = _where([(plate, w) for w in wells])
+            elif "plate" in names:
+                clause, params = " WHERE CAST(plate AS VARCHAR) = ?", [
+                    str(plate)]
+        frame = opened.sql(sql + clause, params or None)
+    return _as_read(frame, table).reset_index(drop=True)
 
 
 def read_table(db_path: str, table: str, *, prefer_cache: bool = True):
-    """Read one OPS table, preferring its parquet cache.
+    """Read one OPS table whole, from the run's spaCR store.
 
-    A missing or unreadable cache falls back to sqlite silently, because that
-    is a speed question. A cache whose row count disagrees with the database
-    is not silent -- it is removed and the authority is returned, since a
-    disagreement is the one failure this arrangement can produce.
+    An older run whose tables are in the SQLite file at ``db_path`` is read
+    from it, through the same reader.
 
-    :param db_path: the run's sqlite database, which is the authority.
+    :param db_path: the run's OPS database path.
     :param table: which of :data:`OPS_TABLES` to read.
-    :raises StoreError: when the table is not in the database at all.
+    :param prefer_cache: kept for older callers; there is no cache to
+        prefer any more.
+    :raises StoreError: when neither holds the table.
     """
-    import pandas as pd
-
-    db_path = _resolved(db_path)
-
-    if prefer_cache and table in CACHED_TABLES:
-        path = _sidecar_path(db_path, table)
-        if os.path.exists(path):
-            try:
-                cached = pd.read_parquet(path)
-            except Exception:                          # noqa: BLE001
-                cached = None
-            if cached is not None:
-                stored = row_count(db_path, table)
-                if stored is None or len(cached) == stored:
-                    return cached
-                _remove_stale(path)
-                LOG.warning(
-                    "the parquet cache for %s disagreed with the database "
-                    "(%d vs %s) and was removed", table, len(cached), stored)
-
-    from .tabular import _read_query
-
-    with sqlite3.connect(str(db_path), timeout=30) as conn:
-        try:
-            return _read_query(conn, f"SELECT * FROM {table}",
-                               canonicalise=False, report=None)
-        except Exception as failure:                   # noqa: BLE001
-            raise StoreError(
-                f"{table} is not in {db_path}: {failure}") from failure
+    frame = _read_rows(db_path, table)
+    if frame is None:
+        raise StoreError(f"{table} is not in {_store_project(db_path)} or "
+                         f"{_resolved(db_path)}")
+    return frame
 
 
 def row_count(db_path: str, table: str) -> Optional[int]:
-    """Rows in one table, or ``None`` when the table is not there.
+    """Rows in one OPS table, or ``None`` when the table is not there.
 
-    :param db_path: the run's sqlite database.
+    :param db_path: the run's OPS database path.
     :param table: the table to count.
     """
-    db_path = _resolved(db_path)
-    if not os.path.exists(db_path):
+    if table not in OPS_TABLES:
         return None
+    present = _stored(_store_project(db_path), _store_name(table))
+    if present is not None:
+        return int(sum(present.values()))
+    legacy = _legacy(db_path)
+    if legacy is None:
+        return None
+    from . import store
+    from .store import _ident
+
     try:
-        with sqlite3.connect(str(db_path), timeout=30) as conn:
-            present = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-                (table,)).fetchone()
-            if not present:
+        with store.open(legacy) as opened:
+            if table not in opened.tables():
                 return None
-            return int(conn.execute(
-                f"SELECT COUNT(*) FROM {table}").fetchone()[0])
-    except sqlite3.Error:
+            return int(opened.sql(f"SELECT COUNT(*) AS n FROM "
+                                  f"{_ident(table)}")["n"].iloc[0])
+    except Exception:                                  # noqa: BLE001
         return None
 
 
@@ -480,29 +722,29 @@ def objects_ready(db_path: str, *, minimum: int = 1) -> Readiness:
     silently produces nothing while appearing to run.
 
     It returns a reason, not just a verdict. "Not yet" leaves the operator
-    guessing which of three things went wrong: no database, no table, or a
+    guessing which of three things went wrong: no store, no table, or a
     table with nothing in it. Those have different fixes.
 
     :param minimum: the fewest objects a real well can have. One is the
         lowest meaningful value -- a well with a single nucleus is a bad well, not an
         impossible one -- so this exists to be raised by a caller who knows
         their plate, not to encode a guess here.
-    :param db_path: the run's sqlite database. Its absence is one of the
+    :param db_path: the run's OPS database path. Its absence is one of the
         three answers, so this is not required to exist.
     """
-    db_path = _resolved(db_path)
-    if not os.path.exists(str(db_path)):
+    if not _exists(db_path):
         return Readiness(False, None,
-                         f"there is no database at {db_path}. The object "
+                         f"there is no database at {_resolved(db_path)} and "
+                         f"no store at {_store_project(db_path)}. The object "
                          f"pass writes it; run that before reading "
                          f"channels.")
     rows = row_count(db_path, OBJECTS_TABLE)
     if rows is None:
         return Readiness(False, None,
-                         f"{db_path} has no {OBJECTS_TABLE} table. The "
-                         f"numbering pass assigns the object ids and the "
-                         f"storage step writes them; neither has run for "
-                         f"this well.")
+                         f"{_store_project(db_path)} has no {OBJECTS_TABLE} "
+                         f"table. The numbering pass assigns the object ids "
+                         f"and the storage step writes them; neither has run "
+                         f"for this well.")
     if rows < minimum:
         return Readiness(False, rows,
                          f"{OBJECTS_TABLE} has {rows} row(s), below the {minimum} "

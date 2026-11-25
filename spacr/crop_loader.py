@@ -298,28 +298,46 @@ def _require_file(path: str, what: str) -> str:
     if not path:
         raise CropLoadError(f"no {what} was chosen")
     absolute = os.path.abspath(os.path.expanduser(os.fspath(path)))
-    if not os.path.isfile(absolute):
+    if not os.path.exists(absolute):
+        from .measurement_store import exists as _measurements_exist
+        if absolute.endswith("measurements.db") and _measurements_exist(absolute):
+            return absolute
         raise CropLoadError(f"{what} not found: {absolute}")
     return absolute
 
 
 def _connect(db_path: str):
-    """Open ``db_path`` read-only, refusing a path that is not a database."""
-    from .database_concurrency import connect
+    """Open ``db_path`` read-only through the shared store, refusing a path that is not a database."""
+    from . import store
 
-    return connect(_require_file(db_path, "measurements database"),
-                   readonly=True)
+    try:
+        return store.shared(_require_file(db_path, "measurements database"))
+    except FileNotFoundError as exc:
+        raise CropLoadError(str(exc)) from exc
 
 
-def _table_columns(conn, table: str) -> Tuple[str, ...]:
+def _table_columns(opened, table: str) -> Tuple[str, ...]:
     """Column names of ``table``, or ``()`` when there is no such table."""
     import sqlite3
 
+    from . import store
+
     try:
-        rows = conn.execute(f'PRAGMA table_info("{table}")').fetchall()
-    except sqlite3.Error:
+        return tuple(str(name) for name, _ in store._relation_columns(opened, table))
+    except (store.StoreError, sqlite3.Error):
         return ()
-    return tuple(str(row[1]) for row in rows)
+
+
+def _frame(opened, sql: str, values: Sequence[Any] = ()):
+    """Run one SELECT on the project, turning the reader's complaint into a readable refusal."""
+    from . import store
+
+    try:
+        return store.read_frame(opened, sql, params=list(values))
+    except Exception as exc:                                     # noqa: BLE001
+        raise CropLoadError(
+            f"the database refused this selection ({exc}). The query was: "
+            f"{sql}") from exc
 
 
 def object_classes(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
@@ -340,33 +358,27 @@ def object_classes(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
         order, followed by other recorded native classes in sorted order.
         Empty when the database has no crop records.
     """
-    import sqlite3
-
     from .png_list import PNG_LIST_ID_COLUMNS
 
-    conn = _connect(db_path)
-    try:
-        found = set()
-        if table == CROP_TABLE and "object_type" in _table_columns(conn, "ssCell_Crops"):
-            found.update(str(row[0]) for row in conn.execute(
-                'SELECT DISTINCT object_type FROM "ssCell_Crops" '
-                'WHERE object_type IS NOT NULL ORDER BY object_type'))
-        columns = set(_table_columns(conn, table))
-        for name, column in PNG_LIST_ID_COLUMNS.items():
-            if column not in columns:
-                continue
-            try:
-                row = conn.execute(
-                    f'SELECT 1 FROM "{table}" WHERE "{column}" IS NOT NULL '
-                    f'LIMIT 1').fetchone()
-            except sqlite3.Error:
-                continue
-            if row is not None:
-                found.add(name)
-        known = tuple(name for name in PNG_LIST_ID_COLUMNS if name in found)
-        return known + tuple(sorted(found - set(PNG_LIST_ID_COLUMNS)))
-    finally:
-        conn.close()
+    opened = _connect(db_path)
+    found = set()
+    if table == CROP_TABLE and "object_type" in _table_columns(opened, "ssCell_Crops"):
+        found.update(str(v) for v in _frame(
+            opened, 'SELECT DISTINCT object_type FROM "ssCell_Crops" '
+            'WHERE object_type IS NOT NULL ORDER BY object_type').iloc[:, 0])
+    columns = set(_table_columns(opened, table))
+    for name, column in PNG_LIST_ID_COLUMNS.items():
+        if column not in columns:
+            continue
+        try:
+            row = _frame(opened, f'SELECT 1 FROM "{table}" WHERE "{column}" '
+                                 f'IS NOT NULL LIMIT 1')
+        except CropLoadError:
+            continue
+        if len(row):
+            found.add(name)
+    known = tuple(name for name in PNG_LIST_ID_COLUMNS if name in found)
+    return known + tuple(sorted(found - set(PNG_LIST_ID_COLUMNS)))
 
 
 def plates(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
@@ -380,25 +392,20 @@ def plates(db_path: str, table: str = CROP_TABLE) -> Tuple[str, ...]:
     :returns: plate identifiers as strings. Empty when neither the selected
         legacy table nor the default native table records plate identifiers.
     """
-    import sqlite3
-
-    conn = _connect(db_path)
-    try:
-        rows = []
-        if table == CROP_TABLE and "plate" in _table_columns(conn, "ssCell_Crops"):
-            rows.extend(conn.execute(
-                'SELECT DISTINCT plate FROM "ssCell_Crops" '
-                'WHERE plate IS NOT NULL ORDER BY plate'))
-        if "plateID" in _table_columns(conn, table):
-            try:
-                rows.extend(conn.execute(
-                    f'SELECT DISTINCT plateID FROM "{table}" '
-                    f'WHERE plateID IS NOT NULL'))
-            except sqlite3.Error:
-                pass
-    finally:
-        conn.close()
-    return tuple(sorted({str(row[0]) for row in rows}))
+    opened = _connect(db_path)
+    found = []
+    if table == CROP_TABLE and "plate" in _table_columns(opened, "ssCell_Crops"):
+        found.extend(_frame(
+            opened, 'SELECT DISTINCT plate FROM "ssCell_Crops" '
+            'WHERE plate IS NOT NULL ORDER BY plate').iloc[:, 0])
+    if "plateID" in _table_columns(opened, table):
+        try:
+            found.extend(_frame(
+                opened, f'SELECT DISTINCT plateID FROM "{table}" '
+                f'WHERE plateID IS NOT NULL').iloc[:, 0])
+        except CropLoadError:
+            pass
+    return tuple(sorted({str(v) for v in found}))
 
 
 def _checked_predicate(where: str) -> str:
@@ -460,18 +467,6 @@ def _database_conditions(query: CropQuery, columns: Sequence[str]
     return terms, values
 
 
-def _run(conn, sql: str, values: Sequence[Any]):
-    """Execute ``sql``, turning SQLite's complaint into a readable refusal."""
-    import sqlite3
-
-    try:
-        return conn.execute(sql, tuple(values))
-    except sqlite3.Error as exc:
-        raise CropLoadError(
-            f"the database refused this selection ({exc}). The query was: "
-            f"{sql}") from exc
-
-
 def _empty_database_reason(conn, query: CropQuery,
                            columns: Sequence[str]) -> str:
     """Say what was asked for, and what the database does hold instead.
@@ -481,8 +476,7 @@ def _empty_database_reason(conn, query: CropQuery,
     the screen. Collapsing them into "no crops" is what makes a user check
     their install when they have mistyped a plate name.
     """
-    total = int(_run(conn, f'SELECT COUNT(*) FROM "{CROP_TABLE}"',
-                     ()).fetchone()[0])
+    total = int(_frame(conn, f'SELECT COUNT(*) FROM "{CROP_TABLE}"').iloc[0, 0])
     asked = query.describe()
     if total == 0:
         return (f"No crops for {asked}: {CROP_TABLE} in "
@@ -525,38 +519,35 @@ def plan_from_database(query: CropQuery) -> CropPlan:
     """
     import pandas as pd
 
+    from . import store as _store
+
     db_path = _require_file(query.path, "measurements database")
     query = _replace_path(query, db_path)
     source = _pixel_source(query, db_path)
     table = "ssCell_Crops" if source.kind == "ome-zarr" else CROP_TABLE
     conn = _connect(db_path)
-    try:
-        columns = _table_columns(conn, table)
-        if not columns:
-            raise CropLoadError(
-                f"{os.path.basename(db_path)} has no {CROP_TABLE!r} table, so "
-                f"it records no crops. Point this at a crop folder, or at a "
-                f"database written by a Measure run that saved crops.")
-        terms, values = _database_conditions(query, columns)
-        clause = f" WHERE {' AND '.join(terms)}" if terms else ""
-        matched = int(_run(conn, f'SELECT COUNT(*) FROM "{table}"{clause}',
-                           values).fetchone()[0])
-        if matched == 0:
-            if table == "ssCell_Crops":
-                from .qt.i18n import tr
-                return CropPlan(query=query, source_label=source.describe(),
-                                empty_reason=tr("No OME-Zarr crops match the selected object class, plate and filter."))
-            return CropPlan(query=query,
-                            empty_reason=_empty_database_reason(conn, query,
-                                                                columns))
-        limit = int(query.limit or 0)
-        tail = f" LIMIT {max(0, limit)}" if limit > 0 else ""
-        cursor = _run(conn, f'SELECT * FROM "{table}"{clause} ORDER BY rowid{tail}',
-                      values)
-        names = [str(d[0]) for d in cursor.description]
-        frame = pd.DataFrame(cursor.fetchall(), columns=names)
-    finally:
-        conn.close()
+    columns = _table_columns(conn, table)
+    if not columns:
+        raise CropLoadError(
+            f"{os.path.basename(db_path)} has no {CROP_TABLE!r} table, so "
+            f"it records no crops. Point this at a crop folder, or at a "
+            f"database written by a Measure run that saved crops.")
+    terms, values = _database_conditions(query, columns)
+    clause = f" WHERE {' AND '.join(terms)}" if terms else ""
+    matched = int(_frame(conn, f'SELECT COUNT(*) FROM "{table}"{clause}',
+                         values).iloc[0, 0])
+    if matched == 0:
+        if table == "ssCell_Crops":
+            from .qt.i18n import tr
+            return CropPlan(query=query, source_label=source.describe(),
+                            empty_reason=tr("No OME-Zarr crops match the selected object class, plate and filter."))
+        return CropPlan(query=query,
+                        empty_reason=_empty_database_reason(conn, query,
+                                                            columns))
+    limit = int(query.limit or 0)
+    tail = f" LIMIT {max(0, limit)}" if limit > 0 else ""
+    order = " ORDER BY rowid" if _store._legacy_is_sqlite(conn) else ""
+    frame = _frame(conn, f'SELECT * FROM "{table}"{clause}{order}{tail}', values)
 
     if source.kind != "ome-zarr":
         frame = _normalised(frame)

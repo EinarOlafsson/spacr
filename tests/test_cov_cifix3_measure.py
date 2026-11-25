@@ -313,14 +313,16 @@ def test_a_repeated_distance_is_computed_once_and_reported_in_each_column():
                                   table.iloc[:, 1].to_numpy())
 
 
-def test_a_region_with_no_co_occurring_pairs_has_no_homogeneity(monkeypatch):
-    labels, image = _field()
-    monkeypatch.setattr(
-        measure, "graycomatrix",
-        lambda image, *args, **kwargs: np.zeros((256, 256, 1, 1)))
+def test_a_region_with_no_co_occurring_pairs_has_no_homogeneity():
+    image = np.arange(12, dtype=np.uint8).reshape(3, 4)
+    out = np.empty(3)
+    measure._compiled(measure._homogeneity_kernel)(
+        image, np.array([0, 4, 9], dtype=np.int64), out)
+    assert out[0] == 1.0
+    assert np.isnan(out[1:]).all()
+    labels, field = _field()
     table = measure._calculate_homogeneity(
-        labels, (image % 255).astype(np.uint8), distances=[2])
-    assert table["homogeneity_distance_2"].isna().all()
+        labels, (field % 255).astype(np.uint8), distances=[2])
     assert len(table) == 2
 
 

@@ -1947,19 +1947,20 @@ def load_montage_objects(db_path: str, *, object_type: str = "cell",
     :raises MissingScores: the table has no score column, or no finite score
         in it -- i.e. classification has not been merged into this database.
     """
-    if not os.path.isfile(db_path):
-        raise MontageError(f"measurements database not found: {db_path}")
-    from .database_concurrency import connect as _connect
+    from . import store
 
-    conn = _connect(db_path)
     try:
-        frame = pd.read_sql(f'SELECT * FROM "{table}"', conn)
+        located = store.locate(db_path)
+    except (FileNotFoundError, TypeError, ValueError):
+        raise MontageError(f"measurements database not found: {db_path}") from None
+
+    try:
+        with store.open(located, verify="none") as opened:
+            frame = store._sql_frame(opened, f'SELECT * FROM "{table}"')
     except Exception as exc:
         raise MontageError(
             f"{db_path} has no readable {table!r} table ({exc}). Without one "
             "there are no per-object crops to show.") from exc
-    finally:
-        conn.close()
     try:
         from .schema import correct_metadata_column_names
 
@@ -2300,7 +2301,9 @@ def resolve_montage_crop_source(src, *, object_type: str = "cell",
         if os.path.basename(os.path.abspath(root)) == "merged":
             root = os.path.dirname(os.path.abspath(root))
         db = os.path.join(root, "measurements", "measurements.db")
-        if os.path.isfile(db):
+        from .measurement_store import exists as _measurements_exist
+
+        if _measurements_exist(db):
             try:
                 saved = crop_settings_from_db(db)
             except Exception:                               # noqa: BLE001

@@ -1,6 +1,7 @@
 """Normal and defensive edge cases for the item-60 measure sweep."""
 from __future__ import annotations
 
+from tests import store_sql
 from types import SimpleNamespace
 from contextlib import contextmanager
 
@@ -151,18 +152,14 @@ def test_extended_regionprops_all_nan_hits_empty_gini():
     assert np.isnan(out.loc[0, "gini_intensity"])
 
 
-def test_extended_regionprops_legacy_intensity_image_name(monkeypatch):
-    class LegacyRegion:
-        image = np.ones((2, 2), dtype=bool)
-        intensity_image = np.arange(4, dtype=float).reshape(2, 2)
-
-    monkeypatch.setattr(M, "regionprops", lambda *_a, **_k: [LegacyRegion()])
-    monkeypatch.setattr(
-        M, "regionprops_table",
-        lambda *_a, **_k: {"label": np.array([1]), "area": np.array([4.])})
-    out = M._extended_regionprops_table(
-        np.ones((2, 2), dtype=int), np.ones((2, 2)), ["label", "area"])
-    assert out.loc[0, "integrated_intensity"] == 6
+def test_extended_regionprops_sums_each_objects_own_pixels():
+    labels = np.zeros((3, 4), dtype=int)
+    labels[:2, :2] = 1
+    labels[2, 3] = 2
+    image = np.arange(12, dtype=float).reshape(3, 4)
+    out = M._extended_regionprops_table(labels, image, ["label", "area"])
+    assert out.loc[0, "integrated_intensity"] == 0 + 1 + 4 + 5
+    assert out.loc[1, "integrated_intensity"] == 11
 
 
 def test_periphery_and_outside_empty_samples(monkeypatch):
@@ -452,7 +449,7 @@ def test_measure_final_overload_pass_follows_all_fields_and_counts_each_once(
     M.measure_crop(_orchestrator_settings(merged, on_error='stop',
                                           database_write_queue_gib=0))
     assert consumed == [primary, other, final]
-    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as connection:
+    with store_sql.connect(tmp_path / 'measurements' / 'measurements.db') as connection:
         assert connection.execute('SELECT n_succeeded, n_failed FROM run_status').fetchone() == (
             (1, 1) if final_error else (2, 0))
         committed = {row[0] for row in connection.execute(f'SELECT field FROM {_WRITE_TICKETS_TABLE}')}
@@ -471,7 +468,7 @@ def test_invalid_measure_worker_result_is_not_admitted_to_the_final_queue(
     with pytest.raises(ValueError, match='invalid field'):
         M.measure_crop(_orchestrator_settings(merged, on_error='stop',
                                               database_write_queue_gib=0))
-    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as connection:
+    with store_sql.connect(tmp_path / 'measurements' / 'measurements.db') as connection:
         assert connection.execute('SELECT n_succeeded, n_failed FROM run_status').fetchone() == (0, 1)
 
 
@@ -536,7 +533,7 @@ def test_measure_crop_retries_worker_then_succeeds(tmp_path, monkeypatch):
     assert len(consumed) == 2, consumed
     import sqlite3
     from spacr.database_concurrency import _WRITE_TICKETS_TABLE
-    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as db:
+    with store_sql.connect(tmp_path / 'measurements' / 'measurements.db') as db:
         assert db.execute(f'SELECT field FROM {_WRITE_TICKETS_TABLE}').fetchall() == [
             ('plate_A01_f1.npy',)]
 

@@ -239,8 +239,10 @@ def test_documented_parameter_names_match_the_source_signatures():
 def test_public_docstrings_matches_reviewed_visible_coverage():
     """Bind exact source arrivals before comparing the historical API surface."""
     docs = builder.public_docstrings()
-    from tests.test_documentation_i18n import _retired_732_remote_api, _retired_801_mask_worker_api
-    historical_docs = docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
+    from tests.test_documentation_i18n import (
+        _retired_0ab2_measure_api, _retired_732_remote_api, _retired_801_mask_worker_api)
+    historical_docs = (docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
+                       | _retired_0ab2_measure_api(docs))
     dunders = _visible_special_members()
     metal_iterator_arrival = json.loads((ROOT / "tests/data/release_contracts"
         / "718_metal_loader_iterator_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
@@ -2574,8 +2576,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **_current_cropstore_rule43_api(zoo_arrivals)}
     from tests.complex_shap_api_hooks import _current_complex_shap_api
     zoo_arrivals = {**zoo_arrivals, **_current_complex_shap_api(zoo_arrivals)}
+    from tests.store_read_side_s6_api_hooks import _s6_birth_arrivals
+    zoo_arrivals = {**zoo_arrivals, **_s6_birth_arrivals(zoo_arrivals)}
+    from tests.store_read_side_s6_api_hooks import _s6_docs_arrivals
+    zoo_arrivals = {**zoo_arrivals, **_s6_docs_arrivals(zoo_arrivals)}
     from tests.l3_api_hooks import _current_l3_api
     zoo_arrivals = {**zoo_arrivals, **_current_l3_api(zoo_arrivals)}
+    from tests.l4_api_hooks import _current_l4_api
+    zoo_arrivals = {**zoo_arrivals, **_current_l4_api(zoo_arrivals)}
     sweep_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "955_ops_fdr_sweep_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
     assert len(sweep_arrivals) == 1
@@ -2815,8 +2823,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     )
     zoo_arrivals = {**zoo_arrivals, **input_identity_arrival}
     from tests.test_documentation_i18n import _retired_707_home_api
+    from tests.store_read_side_s6_api_hooks import _retired_s6_browser_api
     retired_home = _retired_707_home_api(docs)
-    actual = len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) - len(builder.API_DOC_ALIASES)
+    actual = len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys() | _retired_s6_browser_api(docs).keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
         f"({actual - expected:+d}). A public docstring addition must bump this "
@@ -2866,7 +2875,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
     # 2026-11-03 item 749: 13,190 -> 13,193 with `expected` above.
     # 2026-11-05 items 791, 770, 771: 13,193 -> 13,215 with `expected` above.
-    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_219
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys() | _retired_s6_browser_api(docs).keys()) == expected + len(builder.API_DOC_ALIASES) == 13_219
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

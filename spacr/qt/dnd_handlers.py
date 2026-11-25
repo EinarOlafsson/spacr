@@ -51,6 +51,7 @@ from PySide6.QtCore import QEvent, QObject
 
 from .. import chaining as _ch
 from .. import ports as _kinds
+from ..measurement_store import exists as _measurements_exist
 from .dnd import (
     IMAGE_EXTS,
     DropHandler,
@@ -1407,7 +1408,7 @@ class AnnotateDropHandler(DropHandler):
         if path.is_file() and path.suffix.lower() == ".db":
             return True
         if path.is_dir():
-            return (path / "measurements" / "measurements.db").is_file()
+            return _measurements_exist(path / "measurements" / "measurements.db")
         return False
 
     def error_message(self, path: Path) -> str:
@@ -1458,7 +1459,7 @@ class ClassifyDropHandler(DropHandler):
         """
         if not path.is_dir():
             return False
-        return (path / "measurements" / "measurements.db").is_file() \
+        return _measurements_exist(path / "measurements" / "measurements.db") \
                or (path / "data").is_dir() \
                or (path / "train").is_dir()
 
@@ -2192,8 +2193,8 @@ class MeasurementsDropHandler(DropHandler):
             return path.name == "measurements.db"
         if path.is_dir():
             return (
-                (path / "measurements" / "measurements.db").is_file()
-                or (path / "measurements.db").is_file()
+                _measurements_exist(path / "measurements" / "measurements.db")
+                or _measurements_exist(path / "measurements.db")
             )
         return False
 
@@ -2256,7 +2257,7 @@ class MeasurementsDropHandler(DropHandler):
             return
         if path.is_file():
             path = path.parent
-        if path.name == "measurements" and (path / "measurements.db").is_file():
+        if path.name == "measurements" and _measurements_exist(path / "measurements.db"):
             path = path.parent
         _set_src_on(screen, str(path))
         _log(screen, f"[drop] src = {path}\n")
@@ -2285,13 +2286,16 @@ class DatabaseDropHandler(DropHandler):
     """Open a dropped measurements database in the Database Browser."""
 
     def can_accept(self, path: Path) -> bool:
-        """Delegated, so the Browser and the measurement screens cannot disagree
-        about what counts as a database.
+        """Accept what the measurement screens accept, and a spaCR store project.
+
+        The measurement check is delegated, so the Browser and the measurement
+        screens cannot disagree about what counts as a database; a store
+        project folder (or its ``spacr.duckdb``) is accepted as well.
 
         :param path: the dropped file or folder.
         :returns: True when this handler can use ``path`` as-is.
         """
-        return MeasurementsDropHandler().can_accept(path)
+        return MeasurementsDropHandler().can_accept(path) or _is_store_project(path)
 
     def error_message(self, path: Path) -> str:
         """Name all three accepted shapes in the Browser's own words.
@@ -2388,7 +2392,7 @@ class SourceDropHandler(DropHandler):
             return
         if path.is_file():
             path = path.parent
-        if path.name == "measurements" and (path / "measurements.db").is_file():
+        if path.name == "measurements" and _measurements_exist(path / "measurements.db"):
             path = path.parent
         if not _set_src_on(screen, str(path)):
             raise TypeError("This module has no source field to receive the drop.")
@@ -2405,7 +2409,7 @@ def _measurement_database(path: Path) -> Optional[Path]:
         path / "measurements.db",
         path / "measurements" / "measurements.db",
     ):
-        if candidate.is_file():
+        if _measurements_exist(candidate):
             return candidate
     return None
 
@@ -3288,6 +3292,14 @@ def _apply_model_zoo_source(source: Path, screen, is_model: bool) -> None:
 class ResultsDatabaseDropHandler(DatabaseDropHandler):
     """Database input for Plate Viewer and Annotator Agreement."""
 
+    def can_accept(self, path: Path) -> bool:
+        """The measurement screens' own rule, a store project's folder included.
+
+        :param path: the dropped file or folder.
+        :returns: True when this handler can use ``path`` as-is.
+        """
+        return MeasurementsDropHandler().can_accept(path)
+
     def apply(self, path: Path, screen) -> None:
         """Open the database through whichever setter this screen offers.
 
@@ -3426,37 +3438,46 @@ def _resolve_for(handler, app_key: str, path: Path):
     return resolution
 
 
-def table_names(path: Path) -> List[str]:
-    """Return the tables in a SQLite file, or ``[]`` for anything else.
+def _is_store_project(path) -> bool:
+    """Whether ``path`` names a spaCR store project rather than an older file.
 
-    One ``sqlite_master`` query; the table screens make the same one when they
-    load. Kept here so the drop can *ask* which table rather than let
-    ``load_path`` take the first one silently.
+    A ``spacr.duckdb`` file, its project folder, or a run folder whose
+    ``measurements`` folder is a store project, as :func:`spacr.store.locate`
+    finds them.
 
-    Opened read-only, and through a *quoted* URI: a folder with a ``?`` or a
-    ``#`` in its name would otherwise have everything after it read as query
-    parameters, and the open would fail on a database that is perfectly fine.
-
-    :param path: candidate SQLite database path to inspect read-only.
+    :param path: the dropped file or folder.
+    :returns: True when the store would open a store project there.
     """
-    import sqlite3
-    from urllib.parse import quote
+    from .. import store
 
-    if not str(path).lower().endswith(_ch.DB_SUFFIXES):
+    try:
+        found = store.locate(path)
+    except FileNotFoundError:
+        return False
+    return os.path.isfile(os.path.join(found, store.CATALOG))
+
+
+def table_names(path: Path) -> List[str]:
+    """Return the tables of a measurement database or store project, or ``[]``.
+
+    The tables come from the shared store of ``path``
+    (:func:`spacr.store.shared`), which reads an older SQLite file read-only
+    and a spaCR store project through its catalog; the table screens read
+    the same list when they load. Kept here so the drop can *ask* which
+    table rather than let ``load_path`` take the first one silently.
+    Anything that is neither, or that cannot be read, gives ``[]``.
+
+    :param path: candidate database file or store project to inspect.
+    """
+    from .. import store
+    from ..store_browse import READ_ERRORS
+
+    if not (str(path).lower().endswith(_ch.DB_SUFFIXES) or _is_store_project(path)):
         return []
     try:
-        connection = sqlite3.connect(
-            f"file:{quote(str(path))}?mode=ro", uri=True, timeout=30)
-    except sqlite3.Error:
+        return [str(name) for name in store.shared(path).tables()]
+    except READ_ERRORS:
         return []
-    try:
-        return [str(row[0]) for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' "
-            "ORDER BY name")]
-    except sqlite3.DatabaseError:
-        return []
-    finally:
-        connection.close()
 
 
 class LayoutDropHandler(DropHandler):

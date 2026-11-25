@@ -121,7 +121,7 @@ def test_the_first_filter_runs_before_the_cytoplasm_is_built():
     """
     source = measure_source()
     first_filter = source.index("current_mask = _filter_object(current_mask")
-    cytoplasm_built = source.index("cytoplasm_mask = np.where(interior, 0, cell_mask)")
+    cytoplasm_built = source.index("cytoplasm_mask = _derive_cytoplasm(cell_mask, [")
     second_filter = source.index(
         "organelle_masks[organelle_role] = _filter_object(",
         first_filter + 1)
@@ -132,8 +132,8 @@ def test_the_first_filter_runs_before_the_cytoplasm_is_built():
 def test_the_cytoplasm_subtracts_the_organelle():
     """If it did not, the ordering above would not matter."""
     source = measure_source()
-    interior = source[source.index("interior = np.zeros_like(cell_mask"):]
-    interior = interior[:interior.index("cytoplasm_mask = np.where")]
+    interior = source[source.index("cytoplasm_mask = _derive_cytoplasm(cell_mask, ["):]
+    interior = interior[:interior.index("])")]
     assert "organelle_mask" in interior
     for role in ("nucleus_mask", "pathogen_mask"):
         assert role in interior

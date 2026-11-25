@@ -1,6 +1,7 @@
 """Item 893: one settings file runs a screen plate, and its export and aggregate match the drivers'."""
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import os
 import shutil
@@ -86,6 +87,16 @@ def _arrays(folder: Path):
             for path in sorted(folder.rglob("*.npy")) if not path.name.startswith(".")}
 
 
+def _mask_arrays(masks: Path):
+    """Every object mask of a run, through the one mask reader (item 0aj P2):
+    fov.ome.zarr labels or ``masks/<class>_mask_stack/*.npy``, whichever the run wrote."""
+    from spacr.image_store import _mask_folders, _mask_names, _read_mask
+
+    return {f"{name}/{field}": _read_mask(Path(folder) / field)
+            for name, folder in _mask_folders(masks).items()
+            for field in _mask_names(folder)}
+
+
 def test_one_mask_run_equals_the_two_pass_run(tmp_path, threshold_cellpose):
     from spacr.core import preprocess_generate_masks
 
@@ -104,7 +115,7 @@ def test_one_mask_run_equals_the_two_pass_run(tmp_path, threshold_cellpose):
     assert len(merged_one) == 4 and merged_one.keys() == merged_two.keys()
     for name in merged_one:
         np.testing.assert_array_equal(merged_one[name], merged_two[name])
-    masks_one, masks_two = _arrays(one / "masks"), _arrays(two / "masks")
+    masks_one, masks_two = _mask_arrays(one / "masks"), _mask_arrays(two / "masks")
     assert masks_one.keys() == masks_two.keys() and len(masks_one) == 8
     for name in masks_one:
         np.testing.assert_array_equal(masks_one[name], masks_two[name])
@@ -250,7 +261,7 @@ def _toy_database(src: Path, pathogen_column: bool = True) -> Path:
             nuclei.append({**keys, "fieldID": f"f{field}", "prcf": prcf, "file_name": "n",
                            "path_name": "x", "object_label": nucleus, "cell_id": cell,
                            "nucleus_area": area, "nucleus_cell_id": cell})
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         pd.DataFrame(cells).to_sql("cell", con, index=False)
         pd.DataFrame(cyto).to_sql("cytoplasm", con, index=False)
         pd.DataFrame(nuclei).to_sql("nucleus", con, index=False)
@@ -273,7 +284,7 @@ def test_export_joins_objects_and_writes_counts_to_the_image_table(tmp_path):
     first = frame[(frame.site == 1) & (frame.Metadata_cell_id == 1)].iloc[0]
     assert first["nucleus_area"] == 40.0 and first["Metadata_n_nuclei"] == 2
     assert frame["cell_area"].dtype == np.float32
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         image = pd.read_sql("select file_name, n_cells, cells_without_nucleus, "
                             "cells_multi_nucleus from image order by file_name", con)
     assert image["n_cells"].tolist() == [3, 3]
@@ -286,13 +297,13 @@ def test_export_refuses_a_plate_it_cannot_read(tmp_path):
         ss.export_plate_parquet(tmp_path)
     db = tmp_path / "measurements" / "measurements.db"
     db.parent.mkdir()
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         con.execute("create table nucleus (a int)")
     with pytest.raises(ValueError, match="no cell table"):
         ss.export_plate_parquet(tmp_path)
     src = tmp_path / "dup"
     db = _toy_database(src)
-    with sqlite3.connect(db) as con:
+    with store_sql.connect(db) as con:
         con.execute("insert into cell select * from cell limit 1")
     with pytest.raises(ValueError, match="twice"):
         ss.export_plate_parquet(src)

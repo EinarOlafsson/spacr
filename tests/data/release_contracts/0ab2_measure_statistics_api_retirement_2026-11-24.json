@@ -1,0 +1,9 @@
+{
+  "source_commit": "aa0b4d048fc1ed2a31112bcf30e699cd33c2ad36",
+  "source_blob": "cc496577f31968f9f95a72e93ecb1c6d9d08024a",
+  "source_path": "spacr/measure.py",
+  "retired": {
+    "spacr.measure._extended_regionprops_table._gini": "NaN-safe Gini coefficient of an intensity array.",
+    "spacr.measure._extended_regionprops_table._masked_intensity": "Pixels inside a region across old and new scikit-image names."
+  }
+}

@@ -18,7 +18,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
-import sqlite3
+from tests.ops_store_sql import ops_connect
 import subprocess
 import sys
 
@@ -327,7 +327,7 @@ def decoded(tmp_path_factory):
                         ("default", {})):
         result = ops_engine.run_ops({**settings, **extra}, phases=("decode",),
                                     library=library)
-        with sqlite3.connect(result["db"]) as conn:
+        with ops_connect(result["db"]) as conn:
             rows = conn.execute("SELECT object_id, barcode, mapped_guide, "
                                 "n_reads FROM ops_barcodes ORDER BY object_id"
                                 ).fetchall()

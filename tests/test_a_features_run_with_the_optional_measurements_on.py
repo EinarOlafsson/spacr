@@ -12,6 +12,7 @@ database holds afterwards:
   its organelles, and writes no cell rows.
 """
 from __future__ import annotations
+from tests import store_sql
 
 import sqlite3
 
@@ -25,13 +26,13 @@ from tests.test_features_button_measures_hand_drawn_masks import (  # noqa: F401
 
 
 def _columns(db, table):
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         return {row[1] for row in connection.execute(
             f'pragma table_info("{table}")')}
 
 
 def _count(db, table):
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         return connection.execute(f'select count(*) from "{table}"').fetchone()[0]
 
 
@@ -94,7 +95,7 @@ def test_a_table_without_cells_measures_its_nuclei_and_organelles(
     db = result["db_path"]
     assert _count(db, "nucleus") == 2
     assert _count(db, "organelle") >= 2
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         tables = {row[0] for row in connection.execute(
             "select name from sqlite_master where type='table'")}
     assert "cell" not in tables or _count(db, "cell") == 0

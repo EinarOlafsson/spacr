@@ -1842,7 +1842,8 @@ def _mask_fits_its_field(mask_path, stack_path):
     from .resume import read_npy_header
 
     try:
-        mask = tuple(read_npy_header(mask_path)["shape"])
+        from .image_store import _mask_header
+        mask = tuple(_mask_header(mask_path)[0])
         from .image_store import _stack_header
         field = tuple(_stack_header(stack_path)[0])
     except Exception:
@@ -1871,12 +1872,12 @@ def check_mask_folder(src, mask_fldr, resume=False):
     mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
 
-    if not os.path.exists(mask_folder):
+    from .image_store import _stack_names, _mask_folder_exists, _mask_valid
+    if not _mask_folder_exists(mask_folder):
         return True
-    
-    from .image_store import _stack_names
+
     expected = _stack_names(stack_folder)
-    if all(validate_merged_field(os.path.join(mask_folder, file))[0]
+    if all(_mask_valid(os.path.join(mask_folder, file))[0]
            and _mask_fits_its_field(os.path.join(mask_folder, file),
                                     os.path.join(stack_folder, file))
            for file in expected):
@@ -2461,6 +2462,40 @@ def _existing_measurement_identity(db_path, table):
             attempt += 1
 
 
+def _store_measurement_identity(db_path, table):
+    """The ``(ndim, units)`` pairs of a store project's registered ``table``.
+
+    :param db_path: the project's ``measurements.db`` path (absent).
+    :param table: object table name.
+    :returns: a set of pairs; empty when the store or table does not exist.
+    """
+    from . import store
+    from .measurement_store import project_of
+
+    project = project_of(db_path)
+    if not os.path.isfile(os.path.join(project, store.CATALOG)):
+        return set()
+    with store.open(project, verify='none') as opened:
+        if table not in opened.tables():
+            return set()
+        have = set(opened._table_columns(table)['name'])
+        if not {'measurement_ndim', 'measurement_units'} <= have:
+            rows = opened.sql(f'SELECT 1 FROM "{table}" LIMIT 1',
+                              as_='arrow').num_rows
+            return {_LEGACY_STAMP} if rows else set()
+        rows = opened.sql(
+            'SELECT DISTINCT measurement_ndim, measurement_units '
+            f'FROM "{table}"', as_='arrow').to_pylist()
+    found = set()
+    for row in rows:
+        ndim, units = row['measurement_ndim'], row['measurement_units']
+        if ndim is None or units is None:
+            found.add(_LEGACY_STAMP)
+        else:
+            found.add((int(ndim), str(units)))
+    return found
+
+
 def _existing_measurement_identity_once(db_path, table):
     """Return the ``(ndim, units)`` pairs already present in ``table``.
 
@@ -2469,7 +2504,7 @@ def _existing_measurement_identity_once(db_path, table):
         NULL, count as :data:`_LEGACY_STAMP`.
     """
     if not os.path.isfile(db_path):
-        return set()
+        return _store_measurement_identity(db_path, table)
     from .database_concurrency import connect
 
     conn = connect(db_path, readonly=True, timeout=DB_WRITE_TIMEOUT)
@@ -3067,6 +3102,13 @@ def _append_to_measurements_db(db_path, table, frame, required=True,
                                store=None):
     """Append ``frame`` to ``table``, surviving a lock and a widened schema.
 
+    A store project (every project Measure or Make Masks writes since the
+    unified store, step S4) gets the rows through
+    :func:`spacr.measurement_store.append`: inside a Measure field packet
+    they wait for the field's spool, otherwise each well is rewritten
+    through :func:`spacr.store.write_table`. measurements.db is written only
+    for a legacy project that still has one.
+
     This used to be a bare ``except sqlite3.OperationalError: print(...)``,
     which hid two different data-loss bugs behind one printed line.
 
@@ -3106,6 +3148,10 @@ def _append_to_measurements_db(db_path, table, frame, required=True,
     from .database_concurrency import _capture_write_operation, _inside_write_packet
     if _capture_write_operation('append', (db_path, table, frame, required, store)):
         return
+    from .measurement_store import append as _store_append, store_native
+    if store_native(db_path):
+        _store_append(db_path, table, frame)
+        return
     delay = 0.2
     attempt = 1
     while True:
@@ -3143,19 +3189,19 @@ def _append_to_measurements_db(db_path, table, frame, required=True,
 
 
 def _measurement_store_for(db_path, settings):
-    """The store ``measurement_backend`` names for ``db_path``, or ``None``.
+    """A second store the measurements are streamed to: always ``None``.
 
-    :param db_path: the run's measurements.db.
+    ``measurement_backend`` is ``spacr_store`` only (unified store, step
+    S4): every table goes to the spaCR store in the measurements folder,
+    which readers open through ``db_path``. A retired value (``duckdb``,
+    ``parquet``, ``postgres``) is an export written once the run is
+    complete, not a store the run writes into.
+
+    :param db_path: the run's measurements.db path.
     :param settings: the run settings.
-    :returns: ``None`` for sqlite and spacr_store (which is written from
-        measurements.db once the run is complete), else the DuckDB, Parquet
-        or PostgreSQL locator.
+    :returns: None.
     """
-    backend = str((settings or {}).get('measurement_backend') or 'sqlite')
-    if backend.lower() in ('sqlite', 'spacr_store'):
-        return None
-    from .measure import _measurement_backend_target
-    return _measurement_backend_target(db_path, settings)
+    return None
 
 
 def _append_to_measurement_store(store, table, frame, required):
@@ -3528,6 +3574,19 @@ def _pivot_counts_table(db_path):
         pivoted_df = pivoted_df.fillna(0)
         return pivoted_df
 
+    from .measurement_store import drop_tables, exists, store_native, write_rows
+    if store_native(db_path):
+        if not exists(db_path):
+            return
+        from .measurement_store import read as _store_read
+        df = _store_read(db_path, 'object_counts')
+        if df.empty:
+            return
+        pivoted_df = _pivot_dataframe(df)
+        drop_tables(db_path, ['pivoted_counts'])
+        write_rows(os.path.dirname(os.path.abspath(db_path)), 'pivoted_counts',
+                   pivoted_df, narrow=False)
+        return
     df = _read_table_to_dataframe(db_path, 'object_counts')
     pivoted_df = _pivot_dataframe(df)
     from .foreign import _replace_table_atomically
@@ -6366,34 +6425,43 @@ def _find_similar_sized_images(file_list):
     return largest_group
     
 def _relabel_parent_with_child_labels(parent_mask, child_mask):
-    """Relabel parent objects to match their overlapping child labels."""
+    """Relabel parent objects to match their overlapping child labels.
+
+    Each connected parent object takes the highest child label that
+    overlaps it; children that then share one parent object are merged
+    into the lowest of their labels, transitively. The overlaps are
+    :func:`spacr.measure._label_overlaps`.
+
+    :param parent_mask: parent labels (cells).
+    :param child_mask: child labels (nuclei), changed in place.
+    :returns: ``(parent_mask_new, child_mask)``.
+    """
+    from .measure import _label_overlaps, _merged_into
+
     parent_labels = label(parent_mask, background=0)
-    child_labels = child_mask
-
     parent_mask_new = np.zeros_like(parent_mask)
+    children, comps, _ = _label_overlaps(child_mask, parent_labels)
+    if not children.size:
+        return parent_mask_new, child_mask
+    lut = np.zeros(int(parent_labels.max()) + 1, dtype=np.int64)
+    np.maximum.at(lut, comps, children)
+    parent_mask_new[...] = lut[parent_labels].astype(parent_mask_new.dtype)
 
-    unique_child_labels = np.unique(child_labels)
-    unique_child_labels = unique_child_labels[unique_child_labels != 0]
-    for child_label in unique_child_labels:
-        child_area_mask = (child_labels == child_label)
-        overlapping_parent_label = np.unique(parent_labels[child_area_mask])
+    kids, owners, _ = _label_overlaps(child_mask, parent_mask_new)
+    root = {}
 
-        for parent_label in overlapping_parent_label:
-            if parent_label != 0:
-                parent_mask_new[parent_labels == parent_label] = child_label
-
-    _labels_4 = np.unique(parent_mask_new)
-    _labels_4 = _labels_4[_labels_4 != 0]
-    for parent_label in _labels_4:
-        parent_area_mask = (parent_mask_new == parent_label)
-        child_labels_in_parent = np.unique(child_mask[parent_area_mask])
-        child_labels_in_parent = child_labels_in_parent[child_labels_in_parent != 0]
-
-        if len(child_labels_in_parent) > 1:
-            first_child_label = child_labels_in_parent[0]
-            for child_label in child_labels_in_parent:
-                child_mask[child_mask == child_label] = first_child_label
-
+    order = np.argsort(owners, kind="stable")
+    kids, owners = kids[order], owners[order]
+    starts = np.flatnonzero(np.r_[True, owners[1:] != owners[:-1]]) if owners.size else []
+    for start, end in zip(starts, np.r_[starts[1:], owners.size] if owners.size else []):
+        group = sorted({_merged_into(root, int(k)) for k in kids[start:end]})
+        for other in group[1:]:
+            root[other] = group[0]
+    if root:
+        merged = np.array(sorted(root), np.int64)
+        targets = np.array([_merged_into(root, int(v)) for v in merged], np.int64)
+        where = np.isin(child_mask, merged)
+        child_mask[where] = targets[np.searchsorted(merged, child_mask[where])]
     return parent_mask_new, child_mask
     
 def _exclude_objects(cell_mask, nucleus_mask, pathogen_mask, cytoplasm_mask, uninfected=True):
@@ -6432,33 +6500,12 @@ def _merge_overlapping_objects(mask1, mask2):
     :param mask2: parent labels (cells), changed in place.
     :returns: ``(mask1, mask2)``.
 
-    Each object is examined inside its bounding box (``find_objects``), so
-    the cost grows with the objects' area, not objects times field; the
-    result is the same as examining the whole field per object, because
-    an object's pixels all lie in its box and only a merge, which is
-    applied to the whole of ``mask2``, reaches outside it.
+    A thin call of :func:`spacr.measure._merge_spanning_children`, the one
+    implementation, which counts every overlap in one pass.
     """
-    labeled_1 = label(mask1)
-    for m1_id, window in enumerate(ndimage.find_objects(labeled_1), start=1):
-        if window is None:
-            continue
-        current_1_mask = labeled_1[window] == m1_id
-        region_2 = mask2[window]
-        overlapping_2_labels = np.unique(region_2[current_1_mask])
-        overlapping_2_labels = overlapping_2_labels[overlapping_2_labels != 0]
-        if len(overlapping_2_labels) > 1:
-            size = np.sum(current_1_mask)
-            overlap_percentages = [np.sum(current_1_mask & (region_2 == m2_label)) / size * 100 for m2_label in overlapping_2_labels]
-            max_overlap_label = overlapping_2_labels[np.argmax(overlap_percentages)]
-            max_overlap_percentage = max(overlap_percentages)
-            if max_overlap_percentage >= 90:
-                view_1 = mask1[window]
-                for m2_label in overlapping_2_labels:
-                    if m2_label != max_overlap_label:
-                        view_1[current_1_mask & (region_2 == m2_label)] = 0
-            else:
-                for m2_label in overlapping_2_labels[1:]:
-                    mask2[mask2 == m2_label] = overlapping_2_labels[0]
+    from .measure import _merge_spanning_children
+
+    mask1, mask2, _folded = _merge_spanning_children(mask1, mask2)
     return mask1, mask2
 
 def _filter_object(mask, min_value=None, max_value=None, *, bounds=None,
@@ -8528,29 +8575,21 @@ def generate_path_list_from_db(db_path, file_metadata):
 
     print(f"Reading DataBase: {db_path}")
     try:
-        with sqlite3.connect(db_path, timeout=30) as conn:
-            cursor = conn.cursor()
-
+        from . import store
+        with store.open(store.locate(db_path), verify="none") as opened:
+            like = store._like(opened)
+            where, params = None, None
             if file_metadata:
                 if isinstance(file_metadata, str):
-                    cursor.execute("SELECT png_path FROM png_list WHERE png_path LIKE ?", (f"%{file_metadata}%",))
+                    where = f"png_path {like} ?"
+                    params = [f"%{file_metadata}%"]
                 elif isinstance(file_metadata, list):
-                    query = "SELECT png_path FROM png_list WHERE " + " OR ".join(
-                        ["png_path LIKE ?" for _ in file_metadata])
+                    where = " OR ".join([f"png_path {like} ?" for _ in file_metadata])
                     params = [f"%{meta}%" for meta in file_metadata]
-                    cursor.execute(query, params)
-            else:
-                cursor.execute("SELECT png_path FROM png_list")
+            if not file_metadata or where is not None:
+                all_paths.extend(row[0] for row in store._select_rows(
+                    opened, 'png_list', ['png_path'], where=where, params=params))
 
-            while True:
-                rows = cursor.fetchmany(1000)
-                if not rows:
-                    break
-                all_paths.extend([row[0] for row in rows])
-
-    except sqlite3.Error as e:
-        print(f"Database error: {e}")
-        return
     except Exception as e:
         print(f"Error: {e}")
         return
@@ -9654,28 +9693,26 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
             if folder is not None):
         raise ValueError('The adjusted-mask output folder must differ from all source folders')
 
-    if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
+    from .image_store import _mask_exists, _read_mask, _write_mask
+    if not (_mask_exists(cell_path) and _mask_exists(nuclei_path)):
         raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
 
-    parasite_mask = np.load(parasite_path, allow_pickle=False)
-    cell_mask = np.load(cell_path, allow_pickle=False)
-    nuclei_mask = np.load(nuclei_path, allow_pickle=False)
+    parasite_mask = _read_mask(parasite_path)
+    cell_mask = _read_mask(cell_path)
+    nuclei_mask = _read_mask(nuclei_path)
 
     organelle_mask = None
     if organelle_folder is not None:
         organelle_path = os.path.join(organelle_folder, file_name)
-        if os.path.exists(organelle_path):
-            organelle_mask = np.load(organelle_path, allow_pickle=False)
+        if _mask_exists(organelle_path):
+            organelle_mask = _read_mask(organelle_path)
 
     merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold, perimeter_threshold)
 
-    from .io import _save_array_atomic
-
     output_path = cell_path
     if output_folder is not None:
-        os.makedirs(output_folder, exist_ok=True)
         output_path = os.path.join(output_folder, file_name)
-    _save_array_atomic(output_path, merged_cell_mask)
+    _write_mask(output_path, merged_cell_mask)
 
     end = time.perf_counter()
     return end - start
@@ -9713,7 +9750,8 @@ def _read_adjusted_cells(cell_folder):
     """
     import json
 
-    path = os.path.join(cell_folder, ADJUSTED_CELLS_LEDGER)
+    from .image_store import _mask_sidecar_folder
+    path = os.path.join(_mask_sidecar_folder(cell_folder), ADJUSTED_CELLS_LEDGER)
     try:
         with open(path, encoding='utf-8') as handle:
             record = json.load(handle)
@@ -9733,6 +9771,9 @@ def _write_adjusted_cells(cell_folder, record):
     import json
     import tempfile
 
+    from .image_store import _mask_sidecar_folder
+    cell_folder = _mask_sidecar_folder(cell_folder)
+    os.makedirs(cell_folder, exist_ok=True)
     path = os.path.join(cell_folder, ADJUSTED_CELLS_LEDGER)
     fd, temporary = tempfile.mkstemp(prefix='.spacr_tmp_', suffix='.json',
                                      dir=cell_folder)
@@ -9775,11 +9816,11 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
         An explicit output folder must differ from every source folder and
         must not contain masks outside the selected field set.
     """
-    from .io import _listdir_visible
+    from .image_store import _mask_digest, _mask_folder_exists, _mask_header, _mask_names, _mask_valid
 
-    parasite_files = sorted([f for f in _listdir_visible(parasite_folder) if f.endswith('.npy')])
-    cell_files = sorted([f for f in _listdir_visible(cell_folder) if f.endswith('.npy')])
-    nuclei_files = sorted([f for f in _listdir_visible(nuclei_folder) if f.endswith('.npy')])
+    parasite_files = [f for f in _mask_names(parasite_folder) if f.endswith('.npy')]
+    cell_files = [f for f in _mask_names(cell_folder) if f.endswith('.npy')]
+    nuclei_files = [f for f in _mask_names(nuclei_folder) if f.endswith('.npy')]
 
     if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
         raise ValueError("The number of files in the folders do not match.")
@@ -9791,8 +9832,8 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
             "Mask filenames do not match across parasite, cell and nuclei folders: "
             f"{', '.join(sorted(unmatched)[:5])}. No cell masks were changed.")
 
-    if organelle_folder is not None and os.path.exists(organelle_folder):
-        organelle_files = sorted([f for f in _listdir_visible(organelle_folder) if f.endswith('.npy')])
+    if organelle_folder is not None and _mask_folder_exists(organelle_folder):
+        organelle_files = [f for f in _mask_names(organelle_folder) if f.endswith('.npy')]
         if len(organelle_files) != len(parasite_files):
             print(f'Warning: organelle mask count ({len(organelle_files)}) does not match other masks ({len(parasite_files)}). Organelle masks will be loaded per-file where available.')
     else:
@@ -9803,15 +9844,14 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                for folder in (parasite_folder, cell_folder, nuclei_folder, organelle_folder)
                if folder is not None):
             raise ValueError('The adjusted-mask output folder must differ from all source folders')
-        if os.path.isdir(output_folder):
-            extra = {name for name in _listdir_visible(output_folder)
+        if _mask_folder_exists(output_folder):
+            extra = {name for name in _mask_names(output_folder)
                      if name.endswith('.npy')} - set(parasite_files)
             if extra:
                 raise ValueError(f'Adjusted-mask output folder contains unrelated fields: '
                                  f'{", ".join(sorted(extra)[:5])}')
 
     from .cancellation import checkpoint
-    from .resume import read_npy_header
 
     for name in parasite_files:
         checkpoint()
@@ -9819,15 +9859,16 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                  for folder in (parasite_folder, cell_folder, nuclei_folder)]
         if organelle_folder is not None:
             candidate = os.path.join(organelle_folder, name)
-            if os.path.exists(candidate):
+            if name in organelle_files:
                 paths.append(candidate)
         expected_shape = None
         for path in paths:
-            header = read_npy_header(path)
-            shape = header['shape']
-            if (len(shape) != 2 or min(shape) <= 0
-                    or header['expected_bytes'] is None
-                    or header['actual_bytes'] < header['expected_bytes']):
+            try:
+                ok = _mask_valid(path)[0]
+                shape = tuple(_mask_header(path)[0]) if ok else ()
+            except (OSError, ValueError):
+                ok, shape = False, ()
+            if not ok or len(shape) != 2 or min(shape) <= 0:
                 raise ValueError(f'Invalid or incomplete two-dimensional mask: {path}')
             if expected_shape is not None and shape != expected_shape:
                 raise ValueError(f'Mask dimensions do not match for {name}: '
@@ -9838,7 +9879,7 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     if output_folder is None:
         record = _read_adjusted_cells(cell_folder)
         already = {name for name in parasite_files
-                   if name in record and record[name] == _file_sha256(
+                   if name in record and record[name] == _mask_digest(
                        os.path.join(cell_folder, name))}
         if already:
             print(f'{len(already)} of {len(parasite_files)} cell masks were '
@@ -9854,8 +9895,9 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     else:
         n_jobs = max(1, int(n_jobs))
     from .resource_log import _array_file_nbytes, _guard_workers
-    n_jobs = _guard_workers('adjust_masks', n_jobs, _array_file_nbytes(
-        os.path.join(cell_folder, parasite_files[0])))
+    _first_shape, _first_dtype = _mask_header(os.path.join(cell_folder, parasite_files[0]))
+    n_jobs = _guard_workers('adjust_masks', n_jobs,
+                            int(np.prod(_first_shape)) * np.dtype(_first_dtype).itemsize)
     n_jobs = max(1, min(n_jobs, len(parasite_files)))
 
     time_ls = []
@@ -9874,7 +9916,7 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
         for i, (name, duration) in enumerate(zip(parasite_files, durations), 1):
             time_ls.append(duration)
             if record is not None:
-                record[name] = _file_sha256(os.path.join(cell_folder, name))
+                record[name] = _mask_digest(os.path.join(cell_folder, name))
                 _write_adjusted_cells(cell_folder, record)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type='adjust_cell_masks')
         return
@@ -9884,7 +9926,7 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
                 zip(parasite_files, pool.imap(process_fn, parasite_files)), 1):
             time_ls.append(duration)
             if record is not None:
-                record[name] = _file_sha256(os.path.join(cell_folder, name))
+                record[name] = _mask_digest(os.path.join(cell_folder, name))
                 _write_adjusted_cells(cell_folder, record)
             print_progress(i, files_to_process, n_jobs=n_jobs, time_ls=time_ls,
                            batch_size=None,
@@ -10456,12 +10498,9 @@ def generate_cytoplasm_mask(nucleus_mask, cell_mask):
     :param cell_mask: labeled cell mask copied into the cytoplasm result.
     """
     
-    nucleus_mask = np.array(nucleus_mask)
-    cell_mask = np.array(cell_mask)
-    
-    cytoplasm_mask = np.where(nucleus_mask != 0, 0, cell_mask)
+    from .measure import _derive_cytoplasm
 
-    return cytoplasm_mask
+    return _derive_cytoplasm(np.array(cell_mask), [np.array(nucleus_mask)])
 
 def add_column_to_database(settings):
     """Add a column from a CSV file to an SQLite table, matching rows on a shared column.
@@ -10793,6 +10832,12 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                 print(f"cleanup: keeping stack/ + masks/ — {missing} field(s) "
                       "not present in merged/")
         else:
+            if merged == store:
+                from .image_store import (MASK_RUN_RECORDS, _consume_working_masks,
+                                          _remove_mask_run_records)
+                _consume_working_masks(src)
+                if _remove_mask_run_records(src):
+                    deleted.append(os.path.join(store, MASK_RUN_RECORDS))
             for folder in (stack, masks):
                 if os.path.isdir(folder):
                     shutil.rmtree(folder, ignore_errors=True)

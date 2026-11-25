@@ -757,10 +757,9 @@ def db_object_tables(db_path, skip=("cytoplasm",)):
     :param db_path: path to the ``measurements.db`` SQLite file (opened read-only).
     :returns: list of table names.
     """
-    import sqlite3
-    uri = f"file:{db_path}?mode=ro"
-    with sqlite3.connect(uri, uri=True, timeout=30.0) as con:
-        names = [r[0] for r in con.execute("select name from sqlite_master where type='table'")]
+    from . import store
+    with store.open(str(db_path), verify="none") as opened:
+        names = list(opened.tables())
         out = []
         for t in names:
             base = re.sub(r"_\d+$", "", t)
@@ -768,7 +767,7 @@ def db_object_tables(db_path, skip=("cytoplasm",)):
                 continue
             if base != t and base in names:
                 continue
-            cols = {r[1] for r in con.execute(f'pragma table_info("{t}")')}
+            cols = set(opened._table_columns(t)["name"])
             if set(WELL_KEYS) <= cols:
                 out.append(t)
     core = [o for o in _CORE_OBJECTS if o in out]
@@ -785,8 +784,8 @@ def db_well_counts(db_path, frame, group, tables=None, well_keys=WELL_KEYS):
     :returns: long table with ``group``, well keys, ``object_type``,
         ``objects_per_well`` and ``count_source`` (``measurements.db table <t>``).
     """
-    import sqlite3
     from urllib.parse import unquote
+    from . import store
     tables = list(tables) if tables is not None else db_object_tables(db_path)
     keys = list(well_keys)
     wells = frame[keys + [group]].drop_duplicates(keys).copy()
@@ -794,11 +793,11 @@ def db_well_counts(db_path, frame, group, tables=None, well_keys=WELL_KEYS):
     for k in keys[1:]:
         wells[k] = wells[k].astype(str)
     frames = []
-    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30.0) as con:
+    with store.open(str(db_path), verify="none") as opened:
         for t in tables:
             q = (f'select plateID, rowID, columnID, count(*) as n from "{t}" '
                  f'group by plateID, rowID, columnID')
-            c = _read_query(con, q, canonicalise=False)
+            c = store._sql_frame(opened, q)
             c["_plate"] = c["plateID"].astype(str).map(lambda v: unquote(unquote(v)))
             for k in keys[1:]:
                 c[k] = c[k].astype(str)
@@ -2608,7 +2607,8 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
     counter, folders, figure_blocks, legends = [0], {}, {}, {}
     heat = {}
     db_tables = None
-    if db_path and os.path.exists(db_path):
+    from .measurement_store import exists as _measurements_exist
+    if db_path and _measurements_exist(db_path):
         try:
             db_tables = db_object_tables(db_path) or None
         except Exception:

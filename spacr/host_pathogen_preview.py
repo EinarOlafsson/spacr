@@ -6,6 +6,9 @@ from contextlib import closing
 from pathlib import Path
 import sqlite3
 
+from .measurement_store import connect as _connect_measurements
+from .measurement_store import exists as _measurements_exist
+
 
 def _quote(name):
     """Quote a nonempty SQLite identifier without interpreting SQL."""
@@ -19,7 +22,7 @@ def _columns(connection, table):
     import pandas as pd
     from .utils import correct_metadata_column_names
 
-    names = [row[1] for row in connection.execute(f'PRAGMA table_info({_quote(table)})')]
+    names = [row[1] for row in connection.execute(f'PRAGMA table_info({_quote(table)})').fetchall()]
     if not names:
         raise ValueError(f'Measurement table not found: {table}')
     canonical = correct_metadata_column_names(pd.DataFrame(columns=names)).columns
@@ -46,12 +49,12 @@ def preview_fields(settings, *, limit=50):
     for source in sources:
         path = Path(str(source or '')).expanduser().resolve()
         database = path if path.is_file() else path / 'measurements' / 'measurements.db'
-        if not database.is_file():
+        if not _measurements_exist(database):
             raise FileNotFoundError(f'Measurements database not found: {database}')
         if database in seen:
             raise ValueError('The same project database was provided more than once')
         seen.add(database)
-        with closing(sqlite3.connect(database.as_uri() + '?mode=ro', uri=True, timeout=30)) as connection:
+        with closing(_connect_measurements(database, readonly=True)) as connection:
             columns = _columns(connection, 'cell')
             keys = ['plateID', 'rowID', 'columnID', 'fieldID']
             time = _time_column(columns)
@@ -103,14 +106,14 @@ def preview_field(settings, field, *, planes=None, image_channel=0, row_limit=10
     if config['hp_parasite_table']:
         tables.append(config['hp_parasite_table'])
     frames = []
-    with closing(sqlite3.connect(database.as_uri() + '?mode=ro', uri=True, timeout=30)) as connection:
+    with closing(_connect_measurements(database, readonly=True)) as connection:
         connection.execute('BEGIN')
         for table in tables:
             columns = _columns(connection, table)
             identity = field['identity']
             if not set(identity) <= columns.keys():
                 raise ValueError(f'{table} lacks field/time identities needed for this preview')
-            where = ' AND '.join(f'{_quote(columns[key])} IS ?' for key in identity)
+            where = ' AND '.join(f'{_quote(columns[key])} IS NOT DISTINCT FROM ?' for key in identity)
             frame = _read_query(connection,
                 f'SELECT * FROM {_quote(table)} WHERE {where} LIMIT ?',
                 params=[*identity.values(), row_limit + 1])

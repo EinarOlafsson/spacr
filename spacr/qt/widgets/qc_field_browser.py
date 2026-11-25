@@ -386,6 +386,11 @@ def load_qc_field(
     """
     merged_dir = target.merged_dir
     path = resolve_field_path(merged_dir, target.field)
+    from ...image_store import _read_field, merged_field_path, merged_source
+    if path is None:
+        stored = merged_field_path(merged_source(target.plate_root), target.field)
+        if stored is not None:
+            path, merged_dir = Path(stored), merged_source(target.plate_root)
     if path is None:
         return QCFieldImage(error=tr(
             "This field is already gone: no active or quarantined merged "
@@ -394,7 +399,7 @@ def load_qc_field(
 
     warnings: List[str] = []
     try:
-        array = np.load(str(path), mmap_mode="r", allow_pickle=False)
+        array = _read_field(str(path), mmap_mode="r")
     except Exception as exc:
         return QCFieldImage(
             path=str(path),
@@ -5185,7 +5190,9 @@ def _overview_saved_groups(source):
     """
     candidate = Path(source).expanduser()
     database = candidate if candidate.suffix == ".db" else candidate / "measurements" / "measurements.db"
-    if not database.is_file():
+    from ...measurement_store import exists as _measurements_exist
+
+    if not _measurements_exist(database):
         return [], []
     from ...measure import _read_comparison_groups
 
@@ -9428,13 +9435,15 @@ class _FieldOverview(QWidget):
             import json
 
             values = {}
+            from ...measurement_store import exists as _measurements_exist
+
             candidate = Path(source).expanduser()
-            if candidate.suffix == ".db" or (candidate / "measurements" / "measurements.db").is_file():
+            if candidate.suffix == ".db" or _measurements_exist(candidate / "measurements" / "measurements.db"):
                 from ...measure import _image_annotation_database, _well_image_annotations
                 database = _image_annotation_database(source)
             else:
                 database = None
-            if database is not None and database.is_file():
+            if database is not None and _measurements_exist(database):
                 for address, metadata in _well_image_annotations(database).items():
                     if address in known:
                         values[address] = {str(key): str(value) for key, value in metadata.items()
@@ -17846,7 +17855,9 @@ def _overview_guided_frame(source):
     The measurement database is looked for first, so a source never measured
     does not import the measurement module at all.
     """
-    if not (Path(source) / "measurements" / "measurements.db").is_file():
+    from ...measurement_store import exists as _measurements_exist
+
+    if not _measurements_exist(Path(source) / "measurements" / "measurements.db"):
         return None
     try:
         return _overview_comparison_frame(source)

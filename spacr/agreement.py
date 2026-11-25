@@ -606,43 +606,53 @@ def _read_only_uri(path: str) -> str:
     return "file:" + _urlquote(str(path).replace("\\", "/"), safe="/:") + "?mode=ro"
 
 
-def _connect(db_path: str) -> sqlite3.Connection:
-    """Open ``db_path`` read-only. Never writes, never journals.
+def _project(db_path: str):
+    """The shared store of ``db_path``, a spaCR store project or an older file.
 
-    :raises FileNotFoundError: when the file is not there — sqlite's own
-        "unable to open database file" says nothing about which file.
+    :raises ValueError: when no path was given.
+    :raises FileNotFoundError: when the file or folder is not there — sqlite's
+        own "unable to open database file" says nothing about which file.
     """
     if not db_path or not str(db_path).strip():
         raise ValueError("No database path given.")
     path = os.path.abspath(os.path.expanduser(str(db_path).strip()))
-    if not os.path.isfile(path):
-        raise FileNotFoundError(f"No such database: {path}")
-    from .database_concurrency import connect as _connect_database
+    from .measurement_store import exists as _measurements_exist
 
-    return _connect_database(path, readonly=True)
+    if not (os.path.exists(path) or _measurements_exist(path)):
+        raise FileNotFoundError(f"No such database: {path}")
+    from . import store
+
+    return store.shared(path)
+
+
+def _connect(db_path: str) -> sqlite3.Connection:
+    """Open an older ``db_path`` read-only. Never writes, never journals.
+
+    :raises FileNotFoundError: when the file is not there.
+    :raises spacr.store.StoreError: when the project is not an older SQLite file.
+    """
+    from . import store
+
+    return store._legacy_open(_project(db_path))
 
 
 def table_columns(db_path: str, table: str = PNG_TABLE) -> List[str]:
     """Return the column names of ``table``, in declaration order.
 
-    :param db_path: path to the SQLite database, opened read-only.
+    :param db_path: path to the project, opened read-only: a spaCR store
+        project or an older SQLite database.
     :raises ValueError: when the database has no such table.
     """
-    con = _connect(db_path)
-    try:
-        names = [r[0] for r in con.execute(
-            "SELECT name FROM sqlite_master WHERE type IN ('table','view')"
-        ).fetchall()]
-        if table not in names:
-            raise ValueError(
-                f"{os.path.basename(str(db_path))} has no {table!r} table "
-                f"(found: {', '.join(names) or 'nothing'}). Annotations live "
-                f"in {PNG_TABLE!r}; run Measure with save_png on first.")
-        rows = con.execute(
-            f"PRAGMA table_info({_quote_ident(table)})").fetchall()
-    finally:
-        con.close()
-    return [r[1] for r in rows]
+    from . import store
+
+    opened = _project(db_path)
+    names = store._relations(opened)
+    if table not in names:
+        raise ValueError(
+            f"{os.path.basename(str(db_path))} has no {table!r} table "
+            f"(found: {', '.join(names) or 'nothing'}). Annotations live "
+            f"in {PNG_TABLE!r}; run Measure with save_png on first.")
+    return [name for name, _ in store._relation_columns(opened, table)]
 
 
 def annotation_columns(db_path: str, table: str = PNG_TABLE,
@@ -678,26 +688,26 @@ def annotation_columns(db_path: str, table: str = PNG_TABLE,
         somebody means when they ask for agreement between annotators.
     :returns: candidate column names, in table order.
     """
+    from . import store
+
     columns = table_columns(db_path, table)
-    con = _connect(db_path)
+    opened = _project(db_path)
     out: List[str] = []
-    try:
-        for col in columns:
-            if col == key or col in _METADATA_COLUMNS:
-                continue
-            if not include_model_columns and _is_model_column(col, columns):
-                continue
-            q = _quote_ident(col)
-            n_labelled, n_distinct = con.execute(
-                f"SELECT COUNT({q}), COUNT(DISTINCT {q}) "
-                f"FROM {_quote_ident(table)}").fetchone()
-            if not n_labelled or n_labelled < min_labelled:
-                continue
-            if n_distinct > max_classes:
-                continue
-            out.append(col)
-    finally:
-        con.close()
+    for col in columns:
+        if col == key or col in _METADATA_COLUMNS:
+            continue
+        if not include_model_columns and _is_model_column(col, columns):
+            continue
+        q = _quote_ident(col)
+        counts = store.read_frame(
+            opened, f"SELECT COUNT({q}), COUNT(DISTINCT {q}) "
+            f"FROM {_quote_ident(table)}")
+        n_labelled, n_distinct = (int(v) for v in counts.iloc[0])
+        if not n_labelled or n_labelled < min_labelled:
+            continue
+        if n_distinct > max_classes:
+            continue
+        out.append(col)
     return out
 
 
@@ -729,18 +739,15 @@ def load_annotations(db_path: str, columns: Sequence[str],
             f"{table!r} has no column(s) {', '.join(map(repr, unknown))}. "
             f"Available: {', '.join(c for c in real if c != key)}")
 
-    select = ", ".join(_quote_ident(c) for c in [key] + cols)
-    con = _connect(db_path)
-    try:
-        rows = con.execute(
-            f"SELECT {select} FROM {_quote_ident(table)}").fetchall()
-    finally:
-        con.close()
+    from . import store
+
+    frame = store.read_frame(_project(db_path), table=table,
+                             columns=list(dict.fromkeys([key] + cols)))
 
     data: Dict[str, pd.Series] = {
-        key: pd.Series([r[0] for r in rows], dtype=object)}
-    for i, col in enumerate(cols, start=1):
-        data[col] = pd.Series(_normalise((r[i] for r in rows), missing_values),
+        key: pd.Series(frame[key].tolist(), dtype=object)}
+    for col in cols:
+        data[col] = pd.Series(_normalise(frame[col].tolist(), missing_values),
                               dtype=object)
     return pd.DataFrame(data, columns=[key] + cols)
 

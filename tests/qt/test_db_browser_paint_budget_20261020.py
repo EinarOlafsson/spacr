@@ -128,27 +128,24 @@ def test_a_repaint_formats_nothing_new(qtbot, database, counted):
 
 def test_the_export_writes_small_slices_and_every_row(
         qtbot, database, tmp_path, monkeypatch):
+    """The export streams in bounded batches through the store and keeps every row."""
+    from spacr import store
+
     screen = _screen(qtbot, database)
     sizes = []
-    real_writer = csv.writer
+    real_batches = store._export_batches
 
-    class Recording:
-        def __init__(self, handle):
-            self._writer = real_writer(handle)
+    def _recording(*args, **kwargs):
+        """Pass each streamed batch on, noting its size."""
+        for chunk in real_batches(*args, **kwargs):
+            sizes.append(chunk.num_rows)
+            yield chunk
 
-        def writerow(self, row):
-            return self._writer.writerow(row)
-
-        def writerows(self, rows):
-            rows = list(rows)
-            sizes.append(len(rows))
-            return self._writer.writerows(rows)
-
-    monkeypatch.setattr(db_browser.csv, "writer", Recording)
+    monkeypatch.setattr(store, "_export_batches", _recording)
     out = tmp_path / "out.csv"
     assert screen.export_csv(str(out))
     assert sum(sizes) == ROWS
-    assert max(sizes) <= db_browser._CSV_ROWS_PER_WRITE
+    assert max(sizes) <= 65536
     with open(out, newline="", encoding="utf-8") as handle:
         rows = list(csv.reader(handle))
     assert len(rows) == ROWS + 1

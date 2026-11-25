@@ -1,6 +1,8 @@
 """A fixed Convert map bounds one complete timelapse field series."""
+from tests import store_sql
 import csv
 import json
+import os
 import shutil
 import sqlite3
 from pathlib import Path
@@ -70,16 +72,21 @@ def test_mapped_series_waits_for_final_frame_then_matches_batch(tmp_path, real_p
     second = core._watch_folder_and_analyse(watch_settings)
     assert len(second['done']) == 1 and not second['failed'] and not second['incomplete']
     combined = watched / 'spacr_watch'
-    batch_names = sorted(path.name for path in (batch / 'merged').glob('*.npy'))
+    # Item 0aj P3: the batch run keeps its frames in fov.ome.zarr (one t axis
+    # per field); the watch run assembles merged/*.npy. Read both through the
+    # shared reader.
+    from spacr.image_store import _list_fields, _read_field, merged_source
+    batch_merged = merged_source(batch)
+    batch_names = sorted(_list_fields(batch_merged))
     assert len(batch_names) == 2
     assert sorted(path.name for path in (combined / 'merged').glob('*.npy')) == batch_names
     for name in batch_names:
-        np.testing.assert_array_equal(np.load(batch / 'merged' / name),
+        np.testing.assert_array_equal(_read_field(os.path.join(batch_merged, name)),
                                       np.load(combined / 'merged' / name))
     for table in ('cell', 'nucleus'):
         assert _rows(batch / 'measurements/measurements.db', table) == _rows(
             combined / 'measurements/measurements.db', table)
-    with sqlite3.connect(combined / 'measurements/measurements.db') as connection:
+    with store_sql.connect(combined / 'measurements/measurements.db') as connection:
         for table in ('cell', 'nucleus'):
             frames = connection.execute(
                 f'SELECT DISTINCT prcf FROM "{table}" ORDER BY prcf').fetchall()
@@ -139,10 +146,12 @@ def test_mapped_series_runs_the_batch_iou_tracking_path(tmp_path, fake_model,
     result = core._watch_folder_and_analyse(dict(mask, **_fast(watched)))
     assert len(result['done']) == 1 and not result['failed']
     field = watched / 'spacr_watch/fields' / result['done'][0]
-    batch_names = sorted(path.name for path in (batch / 'merged').glob('*.npy'))
+    from spacr.image_store import _list_fields, _read_field, merged_source
+    batch_merged = merged_source(batch)  # fov.ome.zarr with a t axis (item 0aj P3)
+    batch_names = sorted(_list_fields(batch_merged))
     assert len(batch_names) == 2
     for name in batch_names:
-        np.testing.assert_array_equal(np.load(batch / 'merged' / name),
+        np.testing.assert_array_equal(_read_field(os.path.join(batch_merged, name)),
                                       np.load(field / 'merged' / name))
     batch_tracks = sorted((batch / 'tracks').glob('trackpy_tracks_cell_*.csv'))
     watch_tracks = sorted((field / 'tracks').glob('trackpy_tracks_cell_*.csv'))
@@ -351,7 +360,7 @@ def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
     if damage == 'none':
         assert resumed['done'] == first['failed']
         assert combined.read_bytes() == original
-        with sqlite3.connect(work / 'measurements/measurements.db') as connection:
+        with store_sql.connect(work / 'measurements/measurements.db') as connection:
             assert connection.execute('SELECT COUNT(*) FROM spacr_watch_fields').fetchone() == (1,)
     else:
         assert resumed['failed'] == first['failed']

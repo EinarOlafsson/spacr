@@ -40,6 +40,7 @@ training + repeated Cellpose passes. Skips cleanly when torch.cuda
 """
 from __future__ import annotations
 
+from tests import store_sql
 import shutil
 import sqlite3
 import time
@@ -208,14 +209,15 @@ def test_stage_1_mask_all_four_object_types(_masked_workspace):
     plate = _masked_workspace["plate"]
 
     masks_root = plate / "masks"
-    assert masks_root.is_dir()
     expected = ("cell_mask_stack", "nucleus_mask_stack",
                   "pathogen_mask_stack", "organelle_mask_stack")
+    # Item 0aj P2: the masks are fov.ome.zarr labels, through the one mask reader.
+    from spacr.image_store import _mask_folder_exists, _mask_names
     for sub in expected:
         d = masks_root / sub
-        assert d.is_dir(), f"missing {sub} under {masks_root}"
-        npys = sorted(d.glob("*.npy"))
-        assert npys, f"{sub} has no .npy outputs"
+        assert _mask_folder_exists(d), f"missing {sub} under {masks_root}"
+        npys = _mask_names(d)
+        assert npys, f"{sub} has no masks"
 
 
 # ---------------------------------------------------------------------------
@@ -268,7 +270,7 @@ def test_stage_2_measure_and_crop(_measured_workspace):
     plate = _measured_workspace["plate"]
 
     # measurements DB exists
-    dbs = list(plate.rglob("measurements.db"))
+    dbs = store_sql.databases(plate)
     assert dbs, "no measurements.db under plate"
 
     # At least one PNG under each object-type folder (cell / nucleus /
@@ -294,10 +296,10 @@ def test_stage_2_measure_and_crop(_measured_workspace):
 def _annotated_workspace(_measured_workspace):
     """Populate the annotation column once, after Measure wrote png_list."""
     plate = _measured_workspace["plate"]
-    dbs = list(plate.rglob("measurements.db"))
+    dbs = store_sql.databases(plate)
     assert dbs, "measure_crop from stage 2 did not write measurements.db"
     db_path = dbs[0]
-    with sqlite3.connect(str(db_path)) as conn:
+    with store_sql.connect(str(db_path)) as conn:
         cols = [column[1] for column in conn.execute(
             "PRAGMA table_info(png_list)").fetchall()]
         if "test" not in cols:
@@ -326,9 +328,9 @@ def test_stage_3_programmatic_annotate(_annotated_workspace):
     do exactly this — we can prove downstream stages work without
     driving the interactive UI."""
     plate = _annotated_workspace["plate"]
-    dbs = list(plate.rglob("measurements.db"))
+    dbs = store_sql.databases(plate)
     db_path = dbs[0]
-    with sqlite3.connect(str(db_path)) as conn:
+    with store_sql.connect(str(db_path)) as conn:
         counts = dict(conn.execute(
             "SELECT test, COUNT(*) FROM png_list GROUP BY test"
         ).fetchall())
@@ -350,7 +352,7 @@ def _trained_workspace(_annotated_workspace):
     )
     from spacr.deep_spacr import train_test_model
     plate = _annotated_workspace["plate"]
-    dbs = list(plate.rglob("measurements.db"))
+    dbs = store_sql.databases(plate)
     assert dbs
     db_path = dbs[0]
 
@@ -486,7 +488,7 @@ def test_stage_6_xgboost_per_measurement_category(_measured_workspace):
     import pandas as pd
     from xgboost import XGBClassifier
     plate = _measured_workspace["plate"]
-    dbs = list(plate.rglob("measurements.db"))
+    dbs = store_sql.databases(plate)
     assert dbs
     db_path = dbs[0]
 
@@ -494,7 +496,7 @@ def test_stage_6_xgboost_per_measurement_category(_measured_workspace):
     out_dir.mkdir(parents=True, exist_ok=True)
 
     trained: dict = {}
-    with sqlite3.connect(str(db_path)) as conn:
+    with store_sql.connect(str(db_path)) as conn:
         tables = [r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]
         for cat in MEASUREMENT_CATEGORIES:

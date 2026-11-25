@@ -12,6 +12,7 @@ generator.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import os
 import re
 import sqlite3
@@ -406,7 +407,7 @@ def test_a_plate_map_names_compound_and_concentration(tmp_path):
 
 def test_a_database_without_objects_is_refused(tmp_path):
     db = tmp_path / 'measurements.db'
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         pd.DataFrame({'x': [1]}).to_sql('png_list', conn, index=False)
     with pytest.raises(ValueError, match='no nucleus or cell'):
         _classify_viability(str(db), {'viability': True})
@@ -433,7 +434,7 @@ def test_measure_separates_a_control_plate_with_both_stains(tmp_path):
 
     db = tmp_path / 'measurements' / 'measurements.db'
     _classify_viability(str(db), settings, plot=True)
-    with sqlite3.connect(db) as conn:
+    with store_sql.connect(db) as conn:
         table = pd.read_sql_query(f'SELECT * FROM {_VIABILITY_TABLE}', conn)
         wells = pd.read_sql_query(f'SELECT * FROM {_VIABILITY_WELL_TABLE}',
                                   conn)
@@ -546,9 +547,9 @@ def test_the_real_plate1_nuclei_are_mostly_called_live(tmp_path):
         pytest.skip('plate1 example data not downloaded')
     copy = tmp_path / 'measurements' / 'measurements.db'
     copy.parent.mkdir()
-    with sqlite3.connect(f'file:{source}?mode=ro', uri=True) as conn:
+    with store_sql.connect(f'file:{source}?mode=ro', uri=True) as conn:
         nuclei = pd.read_sql_query('SELECT * FROM nucleus', conn)
-    with sqlite3.connect(copy) as conn:
+    with store_sql.connect(copy) as conn:
         nuclei.to_sql('nucleus', conn, index=False)
     table, report = _classify_viability(
         str(copy), {'channels': [0, 1, 2, 3], 'nucleus_channel': 0})

@@ -98,27 +98,25 @@ def _attach_object_crop_paths(db_path, frame, object_type):
     if ('png_path' in frame
             and frame['png_path'].fillna('').astype(str).str.strip().ne('').all()):
         return frame
-    uri = Path(db_path).resolve().as_uri() + '?mode=ro'
-    with sqlite3.connect(uri, uri=True, timeout=30.0) as db:
-        columns = {row[1] for row in db.execute('PRAGMA table_info("png_list")')}
-        if not columns:
-            return frame
-        required = identity + [id_column, 'png_path']
-        if not set(required).issubset(columns):
-            log.info('Crop review: png_list lacks the complete %s crop identity',
-                     object_type)
-            return frame
-        times = [name for name in ('timeID', 'time_id') if name in columns]
-        mode_ids = [name for name in PNG_LIST_ID_COLUMNS.values()
-                    if name in columns]
-        mode_columns = [name for name in ('crop_mode', 'object_type')
-                        if name in columns]
-        selected = list(dict.fromkeys(required + times + mode_ids + mode_columns))
-        from .tabular import _read_query
+    from . import store
 
-        crops = _read_query(
-            db, 'SELECT ' + ', '.join('"' + name + '"' for name in selected)
-            + ' FROM "png_list"', canonicalise=False, report=None)
+    opened = store.shared(Path(db_path).resolve())
+    try:
+        columns = {name for name, _ in store._relation_columns(opened, 'png_list')}
+    except store.StoreError:
+        return frame
+    required = identity + [id_column, 'png_path']
+    if not set(required).issubset(columns):
+        log.info('Crop review: png_list lacks the complete %s crop identity',
+                 object_type)
+        return frame
+    times = [name for name in ('timeID', 'time_id') if name in columns]
+    mode_ids = [name for name in PNG_LIST_ID_COLUMNS.values()
+                if name in columns]
+    mode_columns = [name for name in ('crop_mode', 'object_type')
+                    if name in columns]
+    selected = list(dict.fromkeys(required + times + mode_ids + mode_columns))
+    crops = store.read_frame(opened, table='png_list', columns=selected)
     populated_ids = (crops[mode_ids].notna()
                      & crops[mode_ids].fillna('').astype(str).ne(''))
     ambiguous_mode = populated_ids.sum(axis=1) > 1
@@ -198,7 +196,8 @@ def _merged_field_paths(db_path, object_type='cell'):
     :returns: field identifiers mapped to merged-array directory and filename.
     """
     out = {}
-    if not os.path.isfile(db_path):
+    from .measurement_store import exists as _measurements_exist
+    if not _measurements_exist(db_path):
         return out
     order = [object_type] + [t for t in ('cell', 'cytoplasm', 'nucleus',
                                          'pathogen', 'organelle')

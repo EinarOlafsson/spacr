@@ -181,10 +181,10 @@ def test_every_predicted_centre_lands_on_the_planted_one(placed):
     fields and 0.5 px over 451; this fixture is smaller and noisier, so the
     bar here is the tile boundary the next test depends on, not that number.
     """
-    import sqlite3
+    from tests.ops_store_sql import ops_connect
 
     result, _tops, centres = placed[0], placed[1], placed[2]
-    with sqlite3.connect(result["db"]) as conn:
+    with ops_connect(result["db"]) as conn:
         rows = conn.execute(
             "SELECT site, centre_y, centre_x, is_anchor FROM ops_phenotype "
             "ORDER BY site").fetchall()
@@ -200,10 +200,10 @@ def test_every_predicted_centre_lands_on_the_planted_one(placed):
 
 def test_each_field_is_given_the_tile_that_actually_covers_it(placed):
     """The tile is chosen by position, which is what halving an index cannot do."""
-    import sqlite3
+    from tests.ops_store_sql import ops_connect
 
     result, tops, centres = placed[0], placed[1], placed[2]
-    with sqlite3.connect(result["db"]) as conn:
+    with ops_connect(result["db"]) as conn:
         mapped = {site: sbs_site for site, sbs_site in conn.execute(
             "SELECT site, sbs_site FROM ops_phenotype")}
 
@@ -220,15 +220,15 @@ def test_each_field_is_given_the_tile_that_actually_covers_it(placed):
 def test_the_placement_is_written_once_however_often_it_runs(placed):
     """Re-running the phase replaces the well's rows rather than doubling them."""
     import pandas as pd
-    import sqlite3
+    from tests.ops_store_sql import ops_connect, read_sql
 
     result, settings = placed[0], placed[3]
-    with sqlite3.connect(result["db"]) as conn:
-        before = pd.read_sql_query(
+    with ops_connect(result["db"]) as conn:
+        before = read_sql(
             "SELECT * FROM ops_phenotype ORDER BY site", conn)
     again = ops_engine.run_ops(settings, wells=["a1"], phases=("phenotype",))
-    with sqlite3.connect(again["db"]) as conn:
-        after = pd.read_sql_query(
+    with ops_connect(again["db"]) as conn:
+        after = read_sql(
             "SELECT * FROM ops_phenotype ORDER BY site", conn)
 
     assert len(after) == PHENOTYPE_FIELDS

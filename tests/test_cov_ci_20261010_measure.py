@@ -1,6 +1,7 @@
 """Overload propagation, write-queue budget, verdict dedupe and writer cleanup in measure."""
 from __future__ import annotations
 
+from tests import store_sql
 import logging
 import sqlite3
 import sys
@@ -226,7 +227,7 @@ def test_a_repeated_writer_verdict_counts_the_field_once(
 
     monkeypatch.setattr(M, '_aggregate_confluency_by_well', no_wells)
     db = merged_project / 'measurements' / 'measurements.db'
-    sqlite3.connect(db).close()
+    store_sql.connect(db).close()
     M.measure_crop(_settings(merged_project / 'merged', confluency=True))
 
     writer, = _Writer.instances
@@ -273,7 +274,7 @@ def test_empty_owned_tables_do_not_count_as_existing_measurements(tmp_path):
 
     db = tmp_path / 'measurements.db'
     owned = sorted(MEASURE_OWNED_TABLES - {'png_list', 'intensity_rescale'})
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         for table in owned[:2]:
             connection.execute(f'CREATE TABLE "{table}" (prcfo TEXT, value REAL)')
     settings = {M._CALIBRATION_IDENTITY_KEY: 'new-identity'}

@@ -7,6 +7,7 @@ labels, the same plane layout, and spaCR's own escaped file names.
 """
 from __future__ import annotations
 
+from tests import store_sql
 import json
 import os
 import sqlite3
@@ -240,7 +241,7 @@ def test_measure_settings_alone_measure_the_imported_labels(tmp_path):
                          verbose=False)
     measure_crop(settings)
     database = os.path.join(settings["src"], "measurements", "measurements.db")
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         cells = connection.execute(
             "SELECT plateID, COUNT(*) FROM cell GROUP BY plateID").fetchall()
         nuclei = connection.execute("SELECT COUNT(*) FROM nucleus").fetchone()

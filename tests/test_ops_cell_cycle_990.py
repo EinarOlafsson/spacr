@@ -488,20 +488,26 @@ def test_telophase_daughters_count_as_mitotic_and_collapse_to_mitotic():
     assert cc.collapse_stage("telophase_daughters", ["telophase_daughters"]) == "mitotic"
 
 
-def test_the_store_gets_a_cell_cycle_part(tmp_path, monkeypatch):
+def test_the_store_gets_a_cell_cycle_part(tmp_path):
+    """Item 0an: ops_cell_cycle is written straight into the run's store."""
     from spacr import store
+    from spacr.ops_run_infra import integer_cell_key
     from spacr.ops_store import write_table
 
     db = str(tmp_path / "measurements.db")
     write_table(db, "ops_cell_cycle", pd.DataFrame({
         "plate": PLATE, "well": "A1", "site": [2, 1], "label": [1, 1],
         "cell_cycle_stage": ["G1", "metaphase"]}))
-    parts = []
-    monkeypatch.setattr(store, "write_table", lambda project, name, rows, **kw: parts.append(
-        (name, list(rows["site"]), kw["key_columns"])))
-    monkeypatch.setattr(store, "register", lambda project, run=None: 1)
-    ops_engine._ops_store_write(db, PLATE, ["A1"], {}, str(tmp_path))
-    assert parts == [("cell_cycle", [2, 1], ("site", "label"))]
+    assert not os.path.exists(db)
+    report = ops_engine._ops_store_write(db, PLATE, ["A1"], {}, str(tmp_path))
+    assert report["wells"]["A1"] == {"cell_cycle": 2}
+    with store.open(str(tmp_path / "measurements")) as opened:
+        rows = opened.query(table="cell_cycle")
+        keys = opened._tables["cell_cycle"]["key_columns"]
+    assert rows["site"].tolist() == [2, 1]
+    assert keys == ["object_key", "site", "label"]
+    assert rows["object_key"].tolist() == integer_cell_key(
+        1, 1, [2, 1], [1, 1]).tolist()
 
 
 def _two_plate_labels(tmp_path):

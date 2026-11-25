@@ -517,10 +517,19 @@ def ensure_database_schema(
     Old spaCR readers performed the non-destructive column repair on every
     open.  Retaining that small safety net matters for databases manually
     edited after migration, while ordinary legacy databases still follow the
-    explicit one-time migration path.
+    explicit one-time migration path. A ``measurements.db`` path that names a
+    spaCR store project (:func:`spacr.measurement_store.store_folder`) is
+    left alone: the store's tables are read-only to SQL and need no
+    migration.
     """
 
     db_path = os.path.abspath(os.path.expanduser(os.fspath(db_path)))
+    from .measurement_store import store_folder
+
+    if store_folder(db_path) is not None:
+        return MigrationReport(path=db_path, from_version=target_version,
+                               to_version=target_version, applied=(),
+                               column_renames=())
     report = migrate_database(
         db_path,
         target_version=target_version,

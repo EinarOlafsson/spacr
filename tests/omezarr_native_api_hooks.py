@@ -4,11 +4,15 @@ Imports no ``spacr`` module: the source docstrings are read with ``ast``, as
 the API extractor reads them, so the docstring-correctness tests can use
 these hooks without loading the package.
 
-* ``0aj_omezarr_native_api_arrivals_2026-11-24.json``: the 14 new public
+* ``0aj_omezarr_native_api_arrivals_2026-11-24.json``: the 22 new public
   symbols (the ``spacr-store`` command, store verification, crop labels,
-  crop transformations and training datasets, ``PlateWriter.write_labels``).
-* ``0aj_omezarr_native_api_changes_2026-11-24.json``: the 14 revised public
-  docstrings, each with the sha256 of the body it replaces.
+  crop transformations and training datasets, ``PlateWriter.write_labels``;
+  from P3 the t and z axes: ``field_axes``, ``z_order``, ``select_planes``,
+  ``project_z``, the frame readers ``read_frame_channels`` and
+  ``read_frame_labels``, ``merged_field_path`` and ``merged_source``).
+* ``0aj_omezarr_native_api_changes_2026-11-24.json``: the 15 revised public
+  docstrings, each with the sha256 of the body it replaces (from P4,
+  ``concatenate_and_normalize``, whose batches no longer need ``masks/``).
 
 The historical contracts stay unchanged: :func:`_current_omezarr_native_api`
 runs after the item 1007 adapter, :func:`_omezarr_native_birth_arrivals`
@@ -35,7 +39,11 @@ ARRIVALS = frozenset({
     "spacr.crop_store.write_training_dataset",
     "spacr.image_store.PlateWriter.write_labels",
     "spacr.image_store.original_planes", "spacr.image_store.verify_project",
-    "spacr.image_store.verify_store"})
+    "spacr.image_store.verify_store",
+    "spacr.image_store.field_axes", "spacr.image_store.merged_field_path",
+    "spacr.image_store.merged_source", "spacr.image_store.project_z",
+    "spacr.image_store.read_frame_channels", "spacr.image_store.read_frame_labels",
+    "spacr.image_store.select_planes", "spacr.image_store.z_order"})
 REVISIONS = frozenset({
     "spacr.crop_store", "spacr.crop_store.CropPoolWriter",
     "spacr.crop_store.class_dir", "spacr.crop_store.committed_rows",
@@ -43,7 +51,8 @@ REVISIONS = frozenset({
     "spacr.crop_store.read_crop", "spacr.crop_store.record_measure_field_crops",
     "spacr.crops.read_merged_plane_layout", "spacr.image_store.PlateWriter",
     "spacr.image_store.PlateWriter.write_field", "spacr.image_store.export_merged",
-    "spacr.utils.cleanup_pipeline_folders", "spacr.utils.measure_test_mode"})
+    "spacr.utils.cleanup_pipeline_folders", "spacr.utils.measure_test_mode",
+    "spacr.io.concatenate_and_normalize"})
 #: The new callables the frozen inventory lists. The crop and image store
 #: functions are bound by the 983 contract chain instead, and a module is
 #: not a callable.
@@ -51,7 +60,7 @@ INVENTORY_ARRIVALS = frozenset({
     "spacr.cli_store.build_parser", "spacr.cli_store.main",
     "spacr.image_store.PlateWriter.write_labels"})
 MODULES = ("spacr.cli_store", "spacr.crop_store", "spacr.crops",
-           "spacr.image_store", "spacr.utils")
+           "spacr.image_store", "spacr.io", "spacr.utils")
 
 
 def _clean(node):

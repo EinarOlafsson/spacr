@@ -214,8 +214,9 @@ _MODULE_LIST: Tuple[Module, ...] = (
         requires=("genotype_source \u2014 the sequencing acquisition: "
                   "10X_c<cycle>_<well>_<channels>_Site-<n>.tif tiles, cycle 1 "
                   "carrying DAPI",),
-        writes=("<dst_root>/measurements.db \u2014 ops_geometry, ops_objects "
-                "and ops_barcodes",
+        writes=("<dst_root>/measurements/ \u2014 the run's spaCR store "
+                "(catalog spacr.duckdb): geometry, objects, reads, barcodes "
+                "and the later phases' tables",
                 "<dst_root>/<well>/ops_report.json \u2014 counts, unreadable "
                 "files and timings per phase"),
         note="ALPHA. Validated on one plate (screenA 20200202_6W-LaC024A, "

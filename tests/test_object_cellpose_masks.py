@@ -20,6 +20,7 @@ helpers are real.  Each case gets its own folder and its own monkeypatch
 context.
 """
 from __future__ import annotations
+from tests import store_sql
 
 import os
 import re
@@ -187,9 +188,9 @@ def _tl(**over):
 
 def _counts(db_path):
     """``[(file_name, count_type, object_count), ...]`` from the run database."""
-    if not Path(db_path).exists():
+    if not store_sql.measured(db_path):
         return None
-    con = sqlite3.connect(str(db_path))
+    con = store_sql.connect(str(db_path))
     try:
         tables = [row[0] for row in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")]

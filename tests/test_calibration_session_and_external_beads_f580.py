@@ -1,6 +1,7 @@
 """Actual calibration inputs distinguish acquisitions and external references."""
 from __future__ import annotations
 
+from tests import store_sql
 import csv
 
 import numpy as np
@@ -277,7 +278,7 @@ def test_real_measurement_sqlite_keeps_session_provenance_and_refuses_changed_re
         save_png=False, save_arrays=False, plot=False, verbose=False, n_jobs=1))
     measure.measure_crop(dict(options))
     database = tmp_path / 'measurements' / 'measurements.db'
-    with sqlite3.connect(database) as connection:
+    with store_sql.connect(database) as connection:
         actual = connection.execute('SELECT cell_channel_0_mean_intensity FROM cell').fetchall()
         records = [json.loads(row[0]) for row in connection.execute(
             'SELECT intensity_calibration FROM intensity_rescale')]
@@ -287,13 +288,13 @@ def test_real_measurement_sqlite_keeps_session_provenance_and_refuses_changed_re
     assert all(set(row['reference_files']) == {'sessions_csv',
         'beads/plate1_A01_1.tif', 'beads/plate1_A01_2.tif'} for row in records)
     measure.measure_crop(dict(options))
-    before = database.read_bytes()
+    before = store_sql.fingerprint(database)
     # Item 736 isolates fresh runs; these guards protect continuation instead.
     options['resume'] = True
     _write_table(sessions, list(reversed(rows)))
     with pytest.raises(ValueError, match='unverified intensity'):
         measure.measure_crop(dict(options))
-    assert database.read_bytes() == before
+    assert store_sql.fingerprint(database) == before
     _write_table(sessions, rows)
     reference = beads / 'plate1_A01_2.tif'
     original = reference.read_bytes()
@@ -302,7 +303,7 @@ def test_real_measurement_sqlite_keeps_session_provenance_and_refuses_changed_re
     tifffile.imwrite(reference, pixels)
     with pytest.raises(ValueError, match='unverified intensity'):
         measure.measure_crop(dict(options))
-    assert database.read_bytes() == before
+    assert store_sql.fingerprint(database) == before
     assert reference.read_bytes() != original
 
 

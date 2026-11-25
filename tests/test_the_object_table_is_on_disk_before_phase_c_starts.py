@@ -1,11 +1,11 @@
 """372 Phase D and the B5 gate: where the tables live, and when C may start.
 
-Phase D's contract has one sentence that decides the whole design -- sqlite is
-authoritative, parquet is a cache, "written in the same step, with the row
-counts asserted equal, so the sidecar cannot silently drift from the
-authority". Two stores that can disagree need one of them to be right BY
-DEFINITION, or a reader that picked the faster one would sometimes return
-yesterday's numbers with no way to tell.
+Item 0an: the OPS tables live in the run's spaCR store (``measurements/``
+beside the ``measurements.db`` path the phases pass), written through the
+store's one writer and read through its one reader. There is ONE copy of
+each table, so the old SQLite authority and its parquet cache -- two stores
+that could disagree -- are gone. An older run's ``measurements.db`` is still
+read, through the same reader.
 
 B5 is the gate that keeps Phase C from starting early: "no sequencing or
 phenotype channel is read until `ops_objects` is on disk and its row count
@@ -13,7 +13,6 @@ checked."
 """
 
 import os
-import sqlite3
 
 import pandas as pd
 import pytest
@@ -55,9 +54,9 @@ def test_no_database_is_refused_with_the_reason(tmp_path):
     assert "no database" in verdict.reason
 
 
-def test_a_database_without_the_table_is_refused_by_name(tmp_path):
+def test_a_store_without_the_table_is_refused_by_name(tmp_path):
     path = _db(tmp_path)
-    sqlite3.connect(path).close()
+    write_table(path, "ops_reads", _reads(2))
     verdict = objects_ready(path)
 
     assert not verdict
@@ -100,66 +99,68 @@ def test_a_caller_who_knows_their_plate_can_raise_the_floor(tmp_path):
     assert not objects_ready(path, minimum=6)
 
 
-# -- Phase D, the two stores ----------------------------------------------
+# -- Phase D, one store (item 0an) ---------------------------------------
 
-def test_a_cached_table_is_written_to_both_stores(tmp_path):
+def test_a_table_is_written_to_the_run_store_and_not_to_sqlite(tmp_path):
+    """The table is a part of the run's spaCR store; no SQLite file is made."""
+    from spacr import store
+
     path = _db(tmp_path)
-    written = write_table(path, "ops_reads", _reads(6))
+    assert write_table(path, "ops_reads", _reads(6)) == 6
 
-    assert written == 6
-    sidecar = str(tmp_path / "measurements.ops_reads.parquet")
-    assert os.path.exists(sidecar), "the parquet cache was not written"
+    assert not os.path.exists(path)
+    assert not os.path.exists(str(tmp_path / "measurements.ops_reads.parquet"))
+    with store.open(str(tmp_path / "measurements")) as opened:
+        assert "reads" in opened.tables()
+        assert len(opened.query(table="reads")) == 6
     assert row_count(path, "ops_reads") == 6
 
 
-def test_an_uncached_table_gets_no_sidecar(tmp_path):
-    """Only the wide numeric tables are cached; the rest are read whole.
+def test_an_older_run_database_is_read_through_the_shared_reader(tmp_path):
+    """A run from before 0an kept its tables in measurements.db; they still read."""
+    import sqlite3
 
-    A cache for a small table is two things to keep in step for no gain.
-    """
     path = _db(tmp_path)
-    write_table(path, OBJECTS_TABLE, _objects(5))
+    with sqlite3.connect(path) as conn:
+        _objects(4).to_sql(OBJECTS_TABLE, conn, index=False)
 
+    assert row_count(path, OBJECTS_TABLE) == 4
+    assert objects_ready(path)
+    back = read_table(path, OBJECTS_TABLE)
+    assert back["object_id"].tolist() == [1, 2, 3, 4]
+    assert row_count(path, "ops_reads") is None
+
+
+def test_the_readers_get_the_types_they_were_written_against(tmp_path):
+    """The cached tables keep their written types; the rest SQLite's classes."""
+    import numpy as np
+
+    path = _db(tmp_path)
+    frame = _objects(3).assign(flag=[True, False, True],
+                               small=np.array([1, 2, 3], np.int16))
+    write_table(path, OBJECTS_TABLE, frame)
+    write_table(path, "ops_reads", _reads(3).assign(flag=[True, False, True]))
+
+    objects = read_table(path, OBJECTS_TABLE)
+    assert objects["flag"].dtype == np.int64 and objects["small"].dtype == np.int64
+    assert objects["flag"].tolist() == [1, 0, 1]
+    assert read_table(path, "ops_reads")["flag"].dtype == bool
     assert OBJECTS_TABLE not in CACHED_TABLES
-    assert not os.path.exists(str(tmp_path / "measurements.ops_objects.parquet"))
 
 
-def test_the_reader_prefers_the_cache_and_gets_the_same_rows(tmp_path):
+def test_rewriting_one_well_leaves_the_other_wells(tmp_path):
+    """A well is its own part: replacing it does not read or touch the others."""
+    from spacr.ops_engine import _replace_well_rows, _well_rows
+
     path = _db(tmp_path)
-    write_table(path, "ops_reads", _reads(6))
+    _replace_well_rows(path, OBJECTS_TABLE, _objects(3), "p1", "A1")
+    _replace_well_rows(path, OBJECTS_TABLE, _objects(4).assign(well="A2"),
+                       "p1", "A2")
+    _replace_well_rows(path, OBJECTS_TABLE, _objects(2), "p1", "A1")
 
-    cached = read_table(path, "ops_reads")
-    authority = read_table(path, "ops_reads", prefer_cache=False)
-
-    assert len(cached) == len(authority) == 6
-    assert set(cached["object_id"]) == set(authority["object_id"])
-
-
-def test_a_missing_cache_falls_back_silently(tmp_path):
-    """A missing sidecar is a speed question, not a correctness one."""
-    path = _db(tmp_path)
-    write_table(path, "ops_reads", _reads(6))
-    os.remove(str(tmp_path / "measurements.ops_reads.parquet"))
-
-    assert len(read_table(path, "ops_reads")) == 6
-
-
-def test_a_cache_that_disagrees_is_removed_rather_than_returned(tmp_path):
-    """The one failure this arrangement can produce, and it must not be quiet.
-
-    A stale sidecar is the only way a reader here can be handed wrong data,
-    so the disagreement is resolved in favour of the authority AND the liar
-    is deleted -- leaving it would mean the next read hits it again.
-    """
-    path = _db(tmp_path)
-    write_table(path, "ops_reads", _reads(6))
-    sidecar = str(tmp_path / "measurements.ops_reads.parquet")
-
-    _reads(3).to_parquet(sidecar, index=False)          # plant the drift
-    frame = read_table(path, "ops_reads")
-
-    assert len(frame) == 6, "the stale cache was returned"
-    assert not os.path.exists(sidecar), "the stale cache was left in place"
+    assert row_count(path, OBJECTS_TABLE) == 6
+    assert len(_well_rows(path, OBJECTS_TABLE, "p1", "A1")) == 2
+    assert len(_well_rows(path, OBJECTS_TABLE, "p1", "A2")) == 4
 
 
 def test_a_table_outside_the_contract_is_refused(tmp_path):
@@ -206,8 +207,8 @@ def test_the_object_ids_survive_the_round_trip(tmp_path):
 
 def test_a_path_with_a_tilde_means_one_file_to_every_entry_point(tmp_path,
                                                                  monkeypatch):
-    """`~/run.db` must name the same file to the writer, the counter and the
-    cache.
+    """`~/run.db` must name the same store to the writer, the counter and
+    the reader.
 
     Found by review. `write_table` writes through
     :func:`spacr.tabular.write_database`, which resolves ``~`` and ``$VARS``
@@ -240,6 +241,6 @@ def test_a_path_with_a_tilde_means_one_file_to_every_entry_point(tmp_path,
     assert list(back.columns) == ["object_id", "centroid_x"]
     assert bool(objects_ready(db)) is True
 
-    # The expanded file is the real one, and no directory named `~` was made.
-    assert (tmp_path / "run" / "measurements.db").is_file()
+    # The expanded store is the real one, and no directory named `~` was made.
+    assert (tmp_path / "run" / "measurements" / "spacr.duckdb").is_file()
     assert not (tmp_path / "~").exists()

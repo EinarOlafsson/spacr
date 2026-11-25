@@ -1,4 +1,5 @@
 """Quantitative PSF selection, durable provenance, and worker delivery."""
+from tests import store_sql
 import json
 from pathlib import Path
 import sqlite3
@@ -22,7 +23,7 @@ def _config(merged, **overrides):
 
 
 def _row(project):
-    with sqlite3.connect(project / 'measurements/measurements.db') as db:
+    with store_sql.connect(project / 'measurements/measurements.db') as db:
         row = db.execute('SELECT psf_measurement_source, psf_signature, psf_provenance '
                          'FROM intensity_rescale').fetchone()
     return row[0], row[1], json.loads(row[2])
@@ -41,7 +42,7 @@ def test_actual_measurements_use_float_processed_intensities_and_preserve_source
     expected = plan.apply(data[..., [0, 1]])
     result = _measure_crop_core(0, [], name, settings, plan)
     assert not result[4], result[4]
-    with sqlite3.connect(project / 'measurements/measurements.db') as db:
+    with store_sql.connect(project / 'measurements/measurements.db') as db:
         rows = db.execute('SELECT object_label, cell_channel_0_mean_intensity '
                           'FROM cell ORDER BY object_label').fetchall()
     assert rows
@@ -67,7 +68,7 @@ def test_original_choice_ignores_dormant_kernel_parameters_and_measures_standard
     assert not result[4]
     kind, signature, provenance = _row(project)
     assert kind == 'original' and signature is None and provenance['processing'] is None
-    with sqlite3.connect(project / 'measurements/measurements.db') as db:
+    with store_sql.connect(project / 'measurements/measurements.db') as db:
         values = db.execute('SELECT cell_channel_0_mean_intensity FROM cell').fetchall()
     assert values and all(value == 1100 for (value,) in values)
 
@@ -133,7 +134,7 @@ def test_existing_database_refuses_changed_processing_even_without_resume(tmp_pa
 
 def test_legacy_database_requires_original_until_a_separate_processed_run(tmp_path):
     db = tmp_path / 'measurements.db'
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         connection.execute('CREATE TABLE cell (object_label INTEGER)')
         connection.execute('INSERT INTO cell VALUES (1)')
     validate_measurement_psf_history({}, db, None)
@@ -144,13 +145,13 @@ def test_legacy_database_requires_original_until_a_separate_processed_run(tmp_pa
 
 def test_crop_only_project_does_not_block_its_first_quantitative_psf_run(tmp_path):
     db = tmp_path / 'measurements.db'
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         connection.execute('CREATE TABLE png_list (png_path TEXT)')
         connection.execute("INSERT INTO png_list VALUES ('cell.png')")
         connection.execute('CREATE TABLE intensity_rescale (rescale_factor REAL)')
         connection.execute('INSERT INTO intensity_rescale VALUES (1)')
     validate_measurement_psf_history({}, db, prepare_measurement_psf(_config(str(tmp_path))))
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         assert connection.execute('SELECT * FROM png_list').fetchall() == [('cell.png',)]
         assert connection.execute('SELECT * FROM intensity_rescale').fetchall() == [(1.,)]
         assert {row[0] for row in connection.execute(
@@ -280,7 +281,7 @@ def test_preprocessing_hooks_run_before_psf_and_are_named_in_provenance(tmp_path
         unregister_preprocessing_hook('test calibrated flat field')
     assert not result[4], result[4]
     processed = plan.apply(half_left(data[..., [0, 1]], None))
-    with sqlite3.connect(project / 'measurements/measurements.db') as db:
+    with store_sql.connect(project / 'measurements/measurements.db') as db:
         rows = db.execute('SELECT object_label, cell_channel_0_mean_intensity FROM cell').fetchall()
     for label, value in rows:
         assert value == pytest.approx(processed[..., 0][data[..., 2] == label].mean(), rel=1e-6)
@@ -297,17 +298,17 @@ def test_full_measure_entry_and_resume_deliver_the_same_captured_configuration(t
     measure.measure_crop(dict(settings))
     assert _row(project)[0] == 'processed'
     db_path = project / 'measurements/measurements.db'
-    with sqlite3.connect(db_path) as connection:
+    with store_sql.connect(db_path) as connection:
         before = connection.execute('SELECT COUNT(*) FROM cell').fetchone()[0]
     settings['resume'] = True
     measure.measure_crop(dict(settings))
-    with sqlite3.connect(db_path) as connection:
+    with store_sql.connect(db_path) as connection:
         assert connection.execute('SELECT COUNT(*) FROM cell').fetchone()[0] == before
     # Keep continuation explicit: a fresh item-736 run archives old results.
     settings['psf_fwhm_um'] = [2., 2.]
     with pytest.raises(ValueError, match='different PSF intensity'):
         measure.measure_crop(dict(settings))
-    with sqlite3.connect(db_path) as connection:
+    with store_sql.connect(db_path) as connection:
         assert connection.execute('SELECT COUNT(*) FROM cell').fetchone()[0] == before
 
 
@@ -347,7 +348,7 @@ def test_legacy_provenance_table_migrates_without_losing_existing_rows(tmp_path)
     result = _measure_crop_core(0, [], name, settings)
     assert not result[4]
     db = project / 'measurements/measurements.db'
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         for column in ('psf_measurement_source', 'psf_signature', 'psf_provenance'):
             connection.execute(f'ALTER TABLE intensity_rescale DROP COLUMN {column}')
         old = connection.execute('SELECT prcf, rescale_factor FROM intensity_rescale').fetchone()
@@ -355,7 +356,7 @@ def test_legacy_provenance_table_migrates_without_losing_existing_rows(tmp_path)
     np.save(Path(merged) / second, np.load(Path(merged) / name))
     result = _measure_crop_core(1, [], second, settings)
     assert not result[4]
-    with sqlite3.connect(db) as connection:
+    with store_sql.connect(db) as connection:
         rows = connection.execute('SELECT prcf, rescale_factor, psf_measurement_source '
                                   'FROM intensity_rescale ORDER BY prcf').fetchall()
     assert len(rows) == 2 and rows[0][:2] == old
@@ -442,5 +443,5 @@ def test_measure_takes_a_list_of_folders_and_measures_each(tmp_path):
     settings['src'] = [merged_first, merged_second]
     measure.measure_crop(settings)
     for project in (first, second):
-        with sqlite3.connect(project / 'measurements/measurements.db') as db:
+        with store_sql.connect(project / 'measurements/measurements.db') as db:
             assert db.execute('SELECT COUNT(*) FROM cell').fetchone()[0] > 0
