@@ -149,7 +149,7 @@ def test_two_segmentations_are_paired_one_nucleus_per_cell():
     # The replay arm 'merge' (schemas 959 to 975) merges cells 3 and 7 (67 %,
     # under 90 %); the merged cell keeps its largest nucleus (1) of three.
     from spacr.ops_sample import _pair_nuclei_with_cells
-    paired_n, paired_c, counts = _pair_nuclei_with_cells(nuclei, cells, "merge")
+    paired_n, paired_c, counts = _pair_nuclei_with_cells(nuclei, cells, spanning="merge")[:3]
     assert counts["merged_cells"] == 1
     assert counts["paired"] == 1
     assert counts["cells_without_nucleus"] == 1

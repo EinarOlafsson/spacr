@@ -230,7 +230,7 @@ def test_ops_pairing_merges_cells_a_nucleus_spans_as_measure_does():
     cells[:, :20], cells[:, 20:] = 1, 2
     nuclei = np.zeros_like(cells)
     nuclei[8:12, 16:24] = 1                       # half in each cell
-    out_n, out_c, counts = ops_sample._pair_nuclei_with_cells(nuclei, cells, "merge")
+    out_n, out_c, counts = ops_sample._pair_nuclei_with_cells(nuclei, cells, spanning="merge")[:3]
     assert np.unique(out_c[out_c > 0]).tolist() == [1]
     assert (out_c > 0).sum() == cells.size and counts["merged_cells"] == 1
     assert (out_n > 0).sum() == 32
@@ -238,7 +238,7 @@ def test_ops_pairing_merges_cells_a_nucleus_spans_as_measure_does():
     nuclei[8:12, 0:19] = 1
     nuclei[8:12, 19:21] = 1                       # 76 px: 72 in cell 1, 4 in cell 2 -> 94.7 %
     nuclei[2:5, 30:33] = 2
-    out_n, out_c, counts = ops_sample._pair_nuclei_with_cells(nuclei, cells, "merge")
+    out_n, out_c, counts = ops_sample._pair_nuclei_with_cells(nuclei, cells, spanning="merge")[:3]
     assert counts["merged_cells"] == 0 and np.unique(out_c[out_c > 0]).size == 2
     assert (out_n[8:12, 20] == 0).all()           # trimmed back into cell 1
     assert (out_n[8:12, :19] > 0).all()
