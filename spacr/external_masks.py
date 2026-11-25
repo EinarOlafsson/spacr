@@ -9,7 +9,8 @@ extraction and crop generation to :func:`spacr.measure.measure_crop`.
 The output is therefore the same contract Annotate expects from Measure::
 
     destination/
-      data/.../<object>_png/*.png
+      crop.ome.zarr/             (object crops, indexed by crop_index)
+      data/.../<object>_png/*.png  (crop_image_format 'png' only)
       images/*.tif
       stack/*.npy
       masks/<object>_mask_stack/*.npy
@@ -265,7 +266,9 @@ class ExternalMaskResult:
     :param merged: paths of generated merged image-and-mask arrays.
     :param db_path: path of the generated measurements database.
     :param tables: measurement-table names written to that database.
-    :param data_dir: generated annotation-crop directory.
+    :param data_dir: the PNG crop directory, used only with
+        ``crop_image_format`` 'png'; other formats index their crops in
+        ``crop_index``.
     :param plan: validated read-only import plan used to produce these outputs.
     """
 
@@ -578,11 +581,7 @@ def _pair_masks(image_plan: cv.ConversionPlan,
 
 def default_settings(settings: Optional[Mapping[str, Any]] = None
                      ) -> Dict[str, Any]:
-    """Return importer settings plus the complete Measure setting contract.
-
-    The import saves its crops as PNG files listed in ``png_list``, which
-    :func:`run_external_masks` checks for when ``save_png`` is on.
-    """
+    """Return importer settings plus the complete Measure setting contract."""
     from .settings import get_measure_crop_settings
 
     resolved = get_measure_crop_settings({})
@@ -603,7 +602,6 @@ def default_settings(settings: Optional[Mapping[str, Any]] = None
         "experiment": "external_masks",
         "save_measurements": True,
         "save_png": True,
-        "crop_image_format": "png",
         "cytoplasm": True,
     })
     resolved.update(dict(settings or {}))
@@ -940,7 +938,13 @@ def run_external_masks(plan: ExternalMaskPlan,
     if "cell" in expected and measure_settings.get("cytoplasm"):
         expected.add("cytoplasm")
     if measure_settings.get("save_png"):
-        expected.add("png_list")
+        from .crop_store import CROP_INDEX_TABLE
+        from .measure import _crop_image_format
+
+        if _crop_image_format(measure_settings) == "png":
+            expected.add("png_list")
+        elif not {CROP_INDEX_TABLE, "ssCell_Crops"} & set(tables):
+            expected.add(CROP_INDEX_TABLE)
     missing = sorted(expected - set(tables))
     if missing:
         raise ConfigurationError(

@@ -89,7 +89,6 @@ from __future__ import annotations
 
 import math
 import os
-import sqlite3
 
 import numpy as np
 import pandas as pd
@@ -202,6 +201,12 @@ PROBE_WEIGHT, PROBE_BIAS = 4.0, 4.0
 #: *input* to the classifier is asserted exactly, as integer pixel counts,
 #: by ``test_the_crops_carry_the_object_areas_as_pixel_counts``.
 SCORE_TOLERANCE = 1e-5
+
+#: The relative error a stored float measurement may carry. The project store
+#: keeps a float column in float16 when its rounding error stays under 1 % of
+#: the column's spread, and the largest relative rounding error of float16 is
+#: half a unit in its last place, 2**-11.
+STORED_FLOAT_REL = 2.0 ** -11
 
 #: Poisson coefficients the count frame is built to reproduce exactly.
 POISSON_B0, POISSON_B1 = -0.75, 1.5
@@ -344,6 +349,9 @@ def project(tmp_path_factory):
         wells=WELLS, cells_per_well=CELLS_PER_WELL,
         extra={
             "save_png": True, "crop_mode": ["cell"],
+            # PNG crops: Stage 3 scores the crop folders with apply_model
+            # and merges the scores into png_list by prcfo.
+            "crop_image_format": "png",
             "png_size": [PNG_SIDE, PNG_SIDE], "png_dims": [0, 1],
             # 0/100 percentiles: min-max over the crop's own object pixels,
             # so the grey level of every crop pixel is a closed form of the
@@ -361,16 +369,35 @@ def project(tmp_path_factory):
 
 @pytest.fixture(scope="module")
 def tables(project):
-    """Every measurement table as a DataFrame, read once."""
-    connection = sqlite3.connect(project["db"])
-    try:
-        names = [row[0] for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")]
-        frames = {name: pd.read_sql(f'SELECT * FROM "{name}"', connection)
-                  for name in names}
-    finally:
-        connection.close()
-    return frames
+    """Every measurement table as a DataFrame, read once from the project store."""
+    from spacr import store
+    from spacr.measurement_store import tables as measured_tables
+
+    return {name: store.read_frame(project["db"], table=name)
+            for name in sorted(measured_tables(project["db"]))}
+
+
+def _undefined_for_constant(frame, column):
+    """Whether every missing value of ``column`` belongs to a constant region.
+
+    Skew, kurtosis and the Pearson correlation are undefined when an
+    object holds one value; ``<object>_channel_<c>_std_intensity`` is zero
+    there for every channel the statistic reads.
+    """
+    import re
+
+    match = re.fullmatch(r"(\w+?)_channel_(\d+)_(?:channel_(\d+)_Pearson_correlation"
+                         r"|skew_intensity|kurtosis_intensity)", column)
+    if match is None:
+        return False
+    stem, first, second = match.groups()
+    channels = [first] + ([second] if second is not None else [])
+    rows = frame[column].isna()
+    for channel in channels:
+        spread = frame.get(f"{stem}_channel_{channel}_std_intensity")
+        if spread is None or not (spread[rows] == 0).all():
+            return False
+    return True
 
 
 def _by_well_label(frame):
@@ -547,7 +574,7 @@ class TestStage2Measure:
         side, area = SIDE[label], CELL_AREA[label]
         assert set(rows["cell_perimeter"]) == {float(4 * (side - 1))}
         assert rows["cell_equivalent_diameter_area"].to_numpy() == pytest.approx(
-            2 * math.sqrt(area / math.pi), rel=1e-12)
+            2 * math.sqrt(area / math.pi), rel=STORED_FLOAT_REL)
         assert set(rows["cell_solidity"]) == {1.0}
         assert set(rows["cell_extent"]) == {1.0}
         assert set(rows["cell_eccentricity"]) == {0.0}
@@ -674,6 +701,12 @@ class TestStage2Measure:
     def test_only_unobservable_measurements_are_missing(self, tables):
         """No numeric measurement is missing for a well-formed object.
 
+        The shape statistics of a region painted at one constant -- skew,
+        kurtosis and the Pearson correlation of its channels -- are undefined,
+        so they may be missing, and only where every channel they read has
+        zero spread in that row. No organelle lies inside a pathogen, so the
+        organelle link to its pathogen (``pathogen_id``) is empty in every row.
+
         The four eight-pixel-wide cells used to be the exception: no
         horizontal pixel pair exists at distance eight, so their
         ``homogeneity_distance_8`` was NaN. Item 792 reads such a distance at
@@ -684,7 +717,11 @@ class TestStage2Measure:
                      "cell_organelle_summary"):
             frame = tables[name].select_dtypes(include=[np.number])
             missing = {column for column in frame.columns
-                       if frame[column].isna().any()}
+                       if frame[column].isna().any()
+                       and not _undefined_for_constant(frame, column)}
+            if name == "organelle" and "pathogen_id" in missing:
+                assert frame["pathogen_id"].isna().all()
+                missing.discard("pathogen_id")
             assert missing == set(), (name, missing)
         assert SIDE[4] == 8
         for name in ("cell", "cytoplasm"):
@@ -1000,12 +1037,10 @@ class TestStage3Classify:
         they are: 36 matches with the values transposed would still be 36.
         """
         assert scores["matched"] == 36
-        connection = sqlite3.connect(project["db"])
-        try:
-            merged = pd.read_sql(
-                'SELECT prcfo, pred, cv_predictions FROM png_list', connection)
-        finally:
-            connection.close()
+        from spacr import store
+
+        merged = store.read_frame(project["db"], table="png_list_labeled",
+                                  columns=["prcfo", "pred", "cv_predictions"])
         assert len(merged) == 36
         assert merged["pred"].notna().all()
         for row in merged.itertuples():
