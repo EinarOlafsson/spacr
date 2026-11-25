@@ -49,6 +49,9 @@ from contextlib import closing
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 from urllib.parse import unquote
 
+from .batch_correction import _center, _scale
+from .sp_stats import mad as _scaled_mad
+
 import numpy as np
 import pandas as pd
 
@@ -67,9 +70,6 @@ __all__ = [
 
 #: Columns that identify one imaged field.
 FIELD_KEYS: Tuple[str, ...] = ("plateID", "rowID", "columnID", "fieldID")
-
-#: Scales a median absolute deviation to a standard deviation for normal data.
-_MAD_SCALE = 1.4826
 
 
 def _field_key_frame(frame: pd.DataFrame) -> pd.DataFrame:
@@ -195,9 +195,8 @@ def _robust_upper(values: pd.Series, k: float) -> float:
     values = values.dropna()
     if values.empty:
         return np.inf
-    med = values.median()
-    mad = (values - med).abs().median() * _MAD_SCALE
-    return med + k * mad if mad > 0 else np.inf
+    spread = _scaled_mad(values.to_numpy(dtype=float))
+    return _center(values, True) + k * spread if spread > 0 else np.inf
 
 
 def flag_crowded_fields(fields: pd.DataFrame, mad_threshold: Optional[float] = 3.5,
@@ -303,7 +302,8 @@ def _design(df: pd.DataFrame, outcome: str, group: str, covariates: Sequence[str
     data = data.replace([np.inf, -np.inf], np.nan).dropna(subset=["_y", group] + [f"_z_{c}" for c in covariates])
     for c in covariates:
         x = data[f"_z_{c}"]
-        mu, sd = float(x.mean()), float(x.std(ddof=0))
+        mu = float(_center(x, False))
+        sd = float(_scale(x, False, ddof=0, zero_scale="keep"))
         scales[c] = (mu, sd)
         data[f"_z_{c}"] = (x - mu) / sd if sd > 0 else 0.0
     return data, data["_y"].to_numpy(), scales
@@ -311,7 +311,7 @@ def _design(df: pd.DataFrame, outcome: str, group: str, covariates: Sequence[str
 
 def _within_ols(data: pd.DataFrame, y: np.ndarray, group: str, zcols: List[str]):
     """OLS of y on group fixed effects + z columns via within-group demeaning."""
-    demean = lambda s: s - s.groupby(data[group]).transform("mean")
+    demean = lambda s: s - _center(s, False, by=data[group])
     yw = demean(pd.Series(y, index=data.index)).to_numpy()
     Xw = np.column_stack([demean(data[z]).to_numpy() for z in zcols]) if zcols else np.empty((len(y), 0))
     beta, *_ = np.linalg.lstsq(Xw, yw, rcond=None)

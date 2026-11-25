@@ -247,7 +247,6 @@
    "spacr/qt/detect_chain.py": 1,
    "spacr/qt/mask_engine.py": 2,
    "spacr/qt/widgets/fast_plots.py": 1,
-   "spacr/recruitment_confounders.py": 1,
    "spacr/seg_qc.py": 1,
    "spacr/volcano_style.py": 2
   },
