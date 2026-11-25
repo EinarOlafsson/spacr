@@ -22,11 +22,6 @@
 - **(b) Cell-less nuclei.** Assign each to the nearest cell whose mask it overlaps or touches within d px. Otherwise keep it as a nucleus-only object (no cytoplasm features), flagged.
 - **(c) Status quo** (drop), as a control arm.
 
-
-## Where the change goes (one operation, one implementation)
-
-spaCR already has ONE nucleus-to-cell routine: `measure._assign_nuclei_to_cells` (the merge-spanning-children rule plus `_assign_shared_nuclei`, unified in merge23), used by Measure and OPS. A fragment merge (option a) and the cell-less rule (option b) go INTO that routine behind alpha settings; no second pairing routine may be added. OPS keeps one nucleus per cell only because its tables are keyed by nucleus, so a merged nucleus keeps the lowest fragment label as its key and records `nucleus_fragment_count`. The SBS link and ownership use the merged object's centroid.
-
 ## Fragment vs true binucleate: the check required before any default
 - **Hand truth:** a stratified sample of multi-nucleus cells (about 300; strata by fragment distance, area ratio and DAPI dip), labelled "one nucleus cut" vs "two nuclei" by the maintainer or an annotator, blinded to the rule.
 - **Candidate rule:** DAPI dip along the line joining the centroids (relative to the fragments' median intensity) + combined area against the cell's nucleus-size distribution + convexity of the union + the contact length between fragments. Thresholds are set on half the sample; accuracy is reported on the other half (balanced accuracy, 95 % CI).
