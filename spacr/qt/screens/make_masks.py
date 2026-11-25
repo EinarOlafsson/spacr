@@ -216,7 +216,7 @@ from ..widgets import Card, Divider, EmptyState
 from shiboken6 import isValid
 
 from ..widgets.collapsible_splitter import CollapsibleSplitter
-from ..widgets.flow import FlowLayout
+from ..widgets.flow import _titled_group
 from ..widgets.eliding import ElidingLabel
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
@@ -1232,30 +1232,6 @@ class _FolderJobWorker(QThread):
         except Exception as exc:
             self.error = exc
             LOG.exception("Make Masks folder job failed")
-
-
-class _GroupFlow(FlowLayout):
-    """A wrapping row of buttons that asks for its one-line width.
-
-    :class:`~spacr.qt.widgets.flow.FlowLayout` reports its narrowest size as
-    its preferred one, which a box layout then honours, so every button would
-    sit on a line of its own. This one prefers the whole row on one line and
-    only wraps when it is given less, so a group keeps its buttons side by
-    side on a wide screen and never forces a narrow window wider.
-    """
-
-    def sizeHint(self) -> QSize:                    # noqa: N802 (Qt override)
-        """Every visible button on one line, plus margins."""
-        width = height = 0
-        shown = [item for item in self._items if not item.isEmpty()]
-        for item in shown:
-            hint = item.sizeHint()
-            width += hint.width()
-            height = max(height, hint.height())
-        width += self._space * max(0, len(shown) - 1)
-        margins = self.contentsMargins()
-        return QSize(width + margins.left() + margins.right(),
-                     height + margins.top() + margins.bottom())
 
 
 class _SystemCard(Card):
@@ -15808,29 +15784,8 @@ class MakeMasksScreen(QWidget):
             its neighbour wraps first (ANNOTATION and NAVIGATION).
         :returns: ``(container, row)``; add the buttons to ``row``.
         """
-        group = QFrame()
-        group.setObjectName(object_name)
-        group.setProperty("makeMasksGroup", True)
-        group.setFrameShape(QFrame.StyledPanel)
-        column = QVBoxLayout(group)
-        column.setContentsMargins(SPACING["sm"], SPACING["xs"],
-                                  SPACING["sm"], SPACING["xs"])
-        column.setSpacing(2)
-        label = QLabel(title, group)
-        label.setObjectName("MakeMasksGroupTitle")
-        label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        column.addWidget(label, 0, Qt.AlignLeft | Qt.AlignTop)
-        row = _GroupFlow(spacing=SPACING["xs"])
-        policy = QSizePolicy(
-            QSizePolicy.Expanding if wrap else QSizePolicy.Preferred,
-            QSizePolicy.Preferred)
-        if keep_one_line:
-            policy.setHorizontalPolicy(QSizePolicy.Minimum)
-        policy.setHeightForWidth(True)
-        group.setSizePolicy(policy)
-        column.addLayout(row)
-        group.title_label = label
-        return group, row
+        return _titled_group(title, object_name, wrap=wrap,
+                             keep_one_line=keep_one_line)
 
     def _build_navigation_bar(self) -> None:
         """Build the ANNOTATION, IO and NAVIGATION groups.

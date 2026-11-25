@@ -180,7 +180,7 @@ from .. import iconset, path_probe, prefs
 from ..theme import SPACING, palette_for, register_widget_qss
 from ..widgets.column_picker import attach_column_picker
 from ..widgets import Divider, EmptyState
-from ..widgets.flow import FlowLayout, _alive
+from ..widgets.flow import FlowLayout, _alive, _titled_group
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from .map_barcodes import FoldOpener, restate_fold_button
@@ -5449,6 +5449,13 @@ _AUTO_ANNOTATE_OPEN_UMAP = 101
 
 
 
+#: The toolbar groups of the Annotate screen, in the order of the work: open
+#: the data, move through it, choose how it is shown, label, review what was
+#: labelled, fit a model on it, and last the commands that remove labels.
+TOOLBAR_GROUP_ORDER = ("source", "navigate", "view", "label", "review",
+                       "model", "danger")
+
+
 class _ToolbarFlow(FlowLayout):
     """The Annotate toolbar's wrapping row of groups, last group at the right.
 
@@ -5596,13 +5603,13 @@ class _ToolbarGroup(QWidget):
         self.setProperty("toolbarGroup", key)
         self.setAccessibleName(caption)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.row = QHBoxLayout(self)
-        self.row.setContentsMargins(0, 0, 0, 0)
-        self.row.setSpacing(SPACING["sm"])
-        self.caption = QLabel(caption, self)
-        self.caption.setObjectName("SubtitleSmall")
+        frame, self.row = _titled_group(caption, "AnnotateToolbarFrame",
+                                        horizontal=True)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(frame)
+        self.caption = frame.title_label
         self.caption.setProperty("toolbarGroupCaption", key)
-        self.row.addWidget(self.caption)
         for widget in self.members:
             self.row.addWidget(widget)
             widget.installEventFilter(self)
@@ -5932,9 +5939,7 @@ class AnnotateScreen(QWidget):
         row = _ToolbarFlow(toolbar, spacing=SPACING["lg"],
                            line_spacing=SPACING["sm"])
         row.setContentsMargins(0, 0, 0, 0)
-        groups = {key: [] for key in ("navigate", "source", "data",
-                                      "view", "similar", "model", "bulk",
-                                      "danger")}
+        groups = {key: [] for key in TOOLBAR_GROUP_ORDER}
         self._btn_open = QPushButton("Open source…")
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
@@ -5949,8 +5954,8 @@ class AnnotateScreen(QWidget):
         groups["source"].append(self._build_setup_menu())
         groups["source"].append(self._btn_settings)
         groups["view"].append(self._build_blind_toggle())
-        groups["similar"].append(self._build_similar_button())
-        groups["similar"].append(self._build_similar_options())
+        groups["label"].append(self._build_similar_button())
+        groups["label"].append(self._build_similar_options())
         groups["view"].append(self._build_field_qc_button())
 
         self._btn_prev = QPushButton("Back")
@@ -5976,7 +5981,7 @@ class AnnotateScreen(QWidget):
         self._btn_count.setIcon(iconset.icon("chart"))
         self._btn_count.setCursor(Qt.PointingHandCursor)
         self._btn_count.clicked.connect(self._on_class_counts)
-        groups["data"].append(self._btn_count)
+        groups["review"].append(self._btn_count)
 
         self._btn_coverage = QPushButton("Coverage")
         self._btn_coverage.setIcon(iconset.icon("chart"))
@@ -5987,7 +5992,7 @@ class AnnotateScreen(QWidget):
             "within a small number of wells or plates."
         )
         self._btn_coverage.clicked.connect(self._on_coverage)
-        groups["data"].append(self._btn_coverage)
+        groups["review"].append(self._btn_coverage)
 
         self._btn_retrain = QPushButton("Retrain")
         self._btn_retrain.setIcon(iconset.icon("classify"))
@@ -6099,7 +6104,14 @@ class AnnotateScreen(QWidget):
         self._train_menu = train_menu
         self._btn_train_cv = self._btn_train
         self._btn_train_xg = self._btn_train
-        groups["bulk"].append(self._btn_train)
+        groups["model"].append(self._btn_train)
+
+        self._btn_annotate_page = QPushButton("Annotate page")
+        self._btn_annotate_page.setCursor(Qt.PointingHandCursor)
+        self._btn_annotate_page.setToolTip(
+            "Give every image on this page the same class. Asks which.")
+        self._btn_annotate_page.clicked.connect(self._on_annotate_page)
+        groups["label"].append(self._btn_annotate_page)
 
         self._btn_auto = QPushButton("Auto-annotate…")
         self._btn_auto.setCursor(Qt.PointingHandCursor)
@@ -6107,7 +6119,7 @@ class AnnotateScreen(QWidget):
             "Label a whole population at once — by metadata, by measurement "
             "thresholds, by a gate, or by UMAP cluster.")
         self._btn_auto.clicked.connect(self._on_auto_annotate)
-        groups["bulk"].append(self._btn_auto)
+        groups["label"].append(self._btn_auto)
 
         self._btn_browse_db = QPushButton("View in database")
         self._btn_browse_db.setCursor(Qt.PointingHandCursor)
@@ -6115,14 +6127,7 @@ class AnnotateScreen(QWidget):
             "Open png_list in the Database Browser to see the annotation "
             "column as it is stored.")
         self._btn_browse_db.clicked.connect(self._on_browse_db)
-        groups["data"].append(self._btn_browse_db)
-
-        self._btn_annotate_page = QPushButton("Annotate page")
-        self._btn_annotate_page.setCursor(Qt.PointingHandCursor)
-        self._btn_annotate_page.setToolTip(
-            "Give every image on this page the same class. Asks which.")
-        self._btn_annotate_page.clicked.connect(self._on_annotate_page)
-        groups["bulk"].append(self._btn_annotate_page)
+        groups["review"].append(self._btn_browse_db)
 
         self._btn_clear_page = QPushButton("Clear page")
         self._btn_clear_page.setCursor(Qt.PointingHandCursor)
@@ -6143,14 +6148,13 @@ class AnnotateScreen(QWidget):
         self._page_label.setProperty("i18nSkipText", True)
         groups["navigate"].append(self._page_label)
         captions = {
-            "navigate": tr("Navigate"),
-            "source": tr("Source"),
-            "model": tr("Label model"),
-            "bulk": tr("Train and apply"),
-            "view": tr("View"),
-            "similar": tr("Find similar"),
-            "data": tr("Data"),
-            "danger": tr("Danger zone"),
+            "source": tr("SOURCE"),
+            "navigate": tr("NAVIGATE"),
+            "view": tr("VIEW"),
+            "label": tr("LABEL"),
+            "review": tr("REVIEW"),
+            "model": tr("MODEL"),
+            "danger": tr("DANGER ZONE"),
         }
         self._toolbar_groups = {
             key: _ToolbarGroup(key, captions[key], members)
