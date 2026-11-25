@@ -97,3 +97,10 @@ against Measure or Mask Generation, and for any other pair.
   count in the same commit (`--write-baseline`, which refuses to raise a count). A new shared
   operation is added to the registry together with its owner.
 - Overlapping nuclei. When a nucleus overlaps two cells, the shared ownership code MERGES the cells (maintainer decision, 2026-11-23).
+
+44. Questions to the maintainer are read on a phone (maintainer, 2026-11-25). Ask every question with the question tool, recommended option first, in a short, information-dense form that can still be understood without the rest of the conversation.
+
+- Question line: one or two short sentences naming the decision and the concrete items it concerns.
+- Below the question: define each abbreviation used and give the minimum context needed (what was found, the numbers that matter, what each choice changes).
+- Options: a short label, then a description in the same style (effect, cost or delay, what stays reversible); abbreviations defined there too.
+- No long paragraphs and no references to earlier messages the maintainer may not see.
