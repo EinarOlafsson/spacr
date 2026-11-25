@@ -7393,7 +7393,10 @@ def _ph_design(path: str, prefix_length: int):
     :param prefix_length: how many leading bases the decoded barcodes keep.
     :returns: ``(frame, ambiguous)``: one row per unambiguous prefix with
         ``prefix``, ``sgRNA`` and ``gene``, and how many prefixes were
-        dropped because two genes share them.
+        dropped because two genes share them. A prefix two guides of one
+        gene share keeps that gene and names every such guide in ``sgRNA``,
+        sorted and joined by ``|``, since a call of that prefix cannot tell
+        them apart; a guide listed twice is named once.
     """
     from .qt.i18n import tr
     from .tabular import read_table
@@ -7413,8 +7416,12 @@ def _ph_design(path: str, prefix_length: int):
     table["prefix"] = table["sgRNA"].str.upper().str[:int(prefix_length)]
     genes = table.groupby("prefix")["gene"].nunique()
     ambiguous = set(genes[genes > 1].index)
-    table = table[~table["prefix"].isin(ambiguous)].drop_duplicates("prefix")
-    return table.reset_index(drop=True), len(ambiguous)
+    table = table[~table["prefix"].isin(ambiguous)]
+    names = table.groupby("prefix", sort=False)["sgRNA"].agg(
+        lambda guides: "|".join(sorted(set(guides))))
+    table = table.drop_duplicates("prefix").assign(
+        sgRNA=lambda frame: frame["prefix"].map(names))
+    return table[["sgRNA", "gene", "prefix"]].reset_index(drop=True), len(ambiguous)
 
 
 def _ph_feature_columns(columns) -> List[str]:

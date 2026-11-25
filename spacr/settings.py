@@ -2654,7 +2654,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 963
+SETTINGS_SCHEMA_VERSION = 964
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2700,6 +2700,7 @@ DEFAULT_CHANGES = {
           'ops_cross_field_metric': 'overlap_fraction',
           'ops_cross_field_policy': 'one_per_cell',
           'ops_cross_field_rule': 'largest'},
+    964: {'ops_pixel_read_gate': False},
 }
 
 
@@ -2857,6 +2858,12 @@ def _fold_older_defaults(settings, version, known=None):
     ``'legacy'``: StandardScaler in the in-memory TVN and single-pass float32
     sums in the embedding profiles. Versions 960 and 961 belong to other
     merges.
+
+    Version 964 gates the OPS pixel fallback by the read vote:
+    ``ops_pixel_read_gate`` is now True, so the fallback assigns only nuclei
+    whose reads named no guide or named its guide alone. Files stamped
+    before keep False, which also lets it assign read ties and read
+    refusals.
 
     :param settings: the file's settings under today's names, edited in
         place.

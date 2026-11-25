@@ -245,6 +245,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_read_distance_min_weight": 0.05,
     "ops_read_neighbour_discount": 0.25,
     "ops_decode_pixel_fallback": False,
+    "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
     "ops_pixel_radius": 10.0,
     "ops_pixel_min_pixels": 2,
@@ -852,6 +853,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_read_distance_min_weight": (float, int),
     "ops_read_neighbour_discount": (float, int),
     "ops_decode_pixel_fallback": bool,
+    "ops_pixel_read_gate": bool,
     "ops_pixel_percentile": (float, int),
     "ops_pixel_radius": (float, int),
     "ops_pixel_min_pixels": int,
@@ -1296,9 +1298,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_read_neighbour_discount",
     ],
     "Pixel fallback": [
-        "ops_decode_pixel_fallback", "ops_pixel_percentile",
-        "ops_pixel_radius", "ops_pixel_min_pixels", "ops_pixel_min_fraction",
-        "ops_pixel_quality",
+        "ops_decode_pixel_fallback", "ops_pixel_read_gate",
+        "ops_pixel_percentile", "ops_pixel_radius", "ops_pixel_min_pixels",
+        "ops_pixel_min_fraction", "ops_pixel_quality",
     ],
     "Decoys & auto thresholds": [
         "ops_decoy_library_k", "ops_fdr_scale", "ops_decode_threshold_mode",
@@ -3543,6 +3545,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "near it like reads and assign the guide at least two of them name "
         "exactly. It recovers nuclei whose spots fell below the read "
         "threshold. Default False.",
+    "ops_pixel_read_gate":
+        "(bool) - Let the pixel fallback assign only nuclei whose reads named "
+        "no guide, or named the same guide alone. Off, it also assigns "
+        "nuclei whose reads tied between guides or split below "
+        "ops_min_fraction, where its calls agree with other pipelines far "
+        "less often. Default True; settings files saved before schema 964 "
+        "keep False.",
     "ops_pixel_percentile":
         "(float) - Which pixels the pixel fallback calls: those above this "
         "percentile of the field's read score. Lower calls more pixels, "

@@ -444,12 +444,13 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Additional settings (2 settings)</summary>
+<summary>Additional settings (3 settings)</summary>
 
 #### Additional settings
 
 - **`export_vvvv`** *(optional)* — (bool) - Also write every processed 2-D field for vvvv gamma, one folder per field and object type: &lt;stem&gt;_labels.png (16-bit labels, 0 is background), &lt;stem&gt;_outlines.png, &lt;stem&gt;_image.png, &lt;stem&gt;_objects.csv (label, centroid, area, bounding box and mean intensity per channel in pixel coordinates; Measure appends its own per-object measurements), manifest.json, README.txt and &lt;stem&gt;.vl, a vvvv gamma project that shows them. Mask Generation writes to &lt;src&gt;/vvvv/mask/&lt;object&gt;, Measure to vvvv/measure/&lt;object&gt; beside merged/. Images and masks are only read. Default False. Default: `False`.
 - **`pathogen_model`** *(optional)* — (str or None) - Path to a custom Cellpose checkpoint used to detect pathogen objects, overriding pathogen_model_name when set. It must be a CPSAM-architecture checkpoint (one your own Train Cellpose run produced); a Cellpose-3 CPnet file cannot load into Cellpose 4. A path that does not exist stops the run rather than falling back to the stock weights silently. Default None. Default: `None`.
+- **`size_filter_inclusive`** *(optional)* — (bool) - Whether an object whose size equals a size bound is kept. True keeps an object of exactly the minimum or maximum size, the rule Measure and the Make Masks window use; False drops it (min &lt; size &lt; max), the rule the legacy post-Cellpose size filter and the plot filter used before schema 961. Settings saved before schema 961 retain False to reproduce their masks. Default True. Default: `True`.
 
 </details>
 

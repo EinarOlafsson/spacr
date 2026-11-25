@@ -58,6 +58,7 @@ RULE_A_S2: Dict[str, Any] = {
     "ops_min_fraction": 0.6,
     "ops_single_read_quality": 0.06,
     "ops_decode_pixel_fallback": True,
+    "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
     "ops_pixel_radius": 10.0,
     "ops_pixel_min_pixels": 2,
@@ -88,6 +89,7 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_decode_quality_weighted": False,
     "ops_vote_weight_floor": 0.05,
     "ops_decode_pixel_fallback": False,
+    "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
     "ops_pixel_radius": 10.0,
     "ops_pixel_min_pixels": 2,
@@ -286,6 +288,7 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "quality_weighted": _flag(settings, "ops_decode_quality_weighted"),
         "weight_floor": _number(settings, "ops_vote_weight_floor"),
         "pixels": _flag(settings, "ops_decode_pixel_fallback"),
+        "pixel_read_gate": _flag(settings, "ops_pixel_read_gate"),
         "pixel_percentile": _number(settings, "ops_pixel_percentile"),
         "pixel_radius": _number(settings, "ops_pixel_radius"),
         "pixel_min_pixels": _number(settings, "ops_pixel_min_pixels", int),
@@ -594,8 +597,9 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         ``source`` (``primary`` or ``pixel_fallback``), ``n_reads``,
         ``n_agreeing``, ``fraction``, ``quality``, ``barcode`` and
         ``n_pixels`` -- for owned objects only; ``nuclei``, the objects this
-        field owns; ``assigned_real`` and ``assigned_decoy``; and read
-        counts for the well report.
+        field owns; ``assigned_real`` and ``assigned_decoy``, and of
+        them the pixel-fallback calls, ``assigned_pixel_real`` and
+        ``assigned_pixel_decoy``; and read counts for the well report.
     """
     votes = _field_votes(evidence, rule, library, matcher, threshold=threshold,
                          footprint=footprint, max_distance=max_distance,
@@ -604,7 +608,8 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
                          pixel_qualities=(rule["pixel_quality"],),
                          crosstalk=crosstalk, evidence_rows=evidence_rows)
     primary = votes["primary"]
-    pixel = votes["pixel"][rule["pixel_quality"]] if rule["pixels"] else {}
+    pixel = (_fallback_pixels(votes["pixel"][rule["pixel_quality"]], votes, primary)
+             if rule["pixels"] else {})
     out = _assemble_calls(primary, pixel, votes, decoys)
     if rule.get("read_stage"):
         out["nuclei_with_read"] = nuclei_with_read(evidence, threshold)
@@ -638,7 +643,10 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
     :returns: ``primary`` (:func:`spacr.ops_sbs.vote_mapped_reads`),
         ``pixel`` (pixel quality -> :func:`spacr.ops_sbs.vote_pixels`),
         ``tallies``, ``owned``, ``objects`` and ``ambiguous`` (of the owned
-        reads), ``reads_per`` and the read counts of the well report.
+        reads), ``reads_per``, ``named`` (object -> the guides its reads
+        voted for, top first; empty with the gate off), ``pixel_gate`` (the
+        rule's ``pixel_read_gate``, kept on when another pass votes the
+        pixels) and the read counts of the well report.
     """
     from collections import Counter
 
@@ -659,6 +667,8 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
     objects = first[rows]
     distance = max(int(max_distance), 1) if rule["runner_up"] else int(max_distance)
     tallies: Optional[dict] = {} if evidence_rows else None
+    gate = bool(rule.get("pixel_read_gate"))
+    tally = tallies if tallies is not None else ({} if gate else None)
     weighting = _vote_weighting(rule, gap[rows, 0])
     primary = vote_mapped_reads(
         objects, [codes[i] for i in rows], quality[rows], data[rows],
@@ -668,7 +678,8 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         weight_floor=float(rule["weight_floor"]), min_fraction=min_fraction,
         single_read_quality=single_read_quality,
         impute_missing=bool(rule["impute"]),
-        strength=strength[selected][rows], evidence=tallies, **weighting)
+        strength=strength[selected][rows], evidence=tally, **weighting)
+    named = _read_guides(tally) if gate else {}
     pixel: Dict[float, Dict[int, dict]] = {q: {} for q in pixel_qualities}
     if rule["pixels"] and "pix_values" in evidence and len(evidence["pix_values"]):
         _, pixel_codes, _, pixel_quality = _call(
@@ -685,12 +696,59 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
                 min_quality=q, min_pixels=int(rule["pixel_min_pixels"]),
                 min_fraction=rule["pixel_min_fraction"])
     return {"primary": primary, "pixel": pixel, "tallies": tallies,
+            "named": named, "pixel_gate": gate,
             "owned": set(np.asarray(evidence["owned_ids"]).tolist()),
             "objects": objects, "ambiguous": ambiguous[rows],
             "reads_per": Counter(objects.tolist()),
             "reads": int(selected.sum()), "reads_owned": int(len(rows)),
             "reads_near": int(near.sum()),
             "reads_ambiguous": int(ambiguous.sum())}
+
+
+def _read_guides(tally: Mapping[str, Any]) -> Dict[int, tuple]:
+    """Each object's read-named guides, top vote first.
+
+    :param tally: the ``evidence`` dict
+        :func:`spacr.ops_sbs.vote_mapped_reads` filled.
+    :returns: object -> the guides its matched reads voted for, for objects
+        assigned or not.
+    """
+    return {owner: tuple(guide for guide, _ in sorted(votes.items(), key=lambda kv: -kv[1]))
+            for owner, votes in tally.get("votes", {}).items()}
+
+
+def _reads_allow(named: Sequence[str], guide: str) -> bool:
+    """Whether an object's reads leave room for a pixel-fallback guide.
+
+    :param named: the guides the object's reads voted for, top first.
+    :param guide: the pixel vote's guide.
+    :returns: True when the reads named no guide, or named this guide
+        alone; False when they named another guide or two or more guides.
+    """
+    return not named or (len(named) == 1 and named[0] == guide)
+
+
+def _fallback_pixels(pixel: Mapping[int, dict], votes: Mapping[str, Any],
+                     called=()) -> Mapping[int, dict]:
+    """The pixel votes the fallback may turn into calls.
+
+    With ``ops_pixel_read_gate`` on, a pixel vote is kept for an object its
+    reads did not call only when :func:`_reads_allow` passes, so the
+    fallback calls objects no read named and confirms a lone read guide; it
+    never overrides a read tie or a read refusal. Off keeps every vote.
+
+    :param pixel: object -> pixel vote (:func:`spacr.ops_sbs.vote_pixels`).
+    :param votes: from :func:`_field_votes`, for ``named`` and
+        ``pixel_gate``.
+    :param called: the objects the reads called; their pixel votes stay,
+        as the pixel support of a read call.
+    :returns: the kept votes.
+    """
+    if not votes.get("pixel_gate"):
+        return pixel
+    named = votes.get("named") or {}
+    return {owner: hit for owner, hit in pixel.items()
+            if owner in called or _reads_allow(named.get(owner, ()), hit["guide"])}
 
 
 def _vote_weighting(rule: Mapping[str, Any], gaps: np.ndarray) -> Dict[str, Any]:
@@ -732,7 +790,9 @@ def _assemble_calls(primary: Mapping[int, dict], pixel: Mapping[int, dict],
     :param votes: from :func:`_field_votes`, for ``owned``, ``reads_per``
         and the read counts.
     :param decoys: the decoy set.
-    :returns: the dict :func:`field_calls` returns, without ``evidence``.
+    :returns: the dict :func:`field_calls` returns, without ``evidence``;
+        ``assigned_pixel_real`` and ``assigned_pixel_decoy`` count the
+        pixel-fallback calls within ``assigned_real`` and ``assigned_decoy``.
     """
     owned = votes["owned"]
     reads_per = votes["reads_per"]
@@ -748,7 +808,7 @@ def _assemble_calls(primary: Mapping[int, dict], pixel: Mapping[int, dict],
                         "quality": hit["quality"], "barcode": hit["barcode"],
                         "n_pixels": pixel[owner]["n_pixels"] if owner in pixel else 0,
                         "n_exact": hit["n_exact"]}
-    real = decoy = 0
+    real = decoy = pixel_real = pixel_decoy = 0
     kept_calls: Dict[int, dict] = {}
     for owner, hit in calls.items():
         if owner not in owned:
@@ -757,9 +817,13 @@ def _assemble_calls(primary: Mapping[int, dict], pixel: Mapping[int, dict],
         hit["n_reads"] = int(reads_per.get(owner, 0))
         decoy += int(hit["decoy"])
         real += int(not hit["decoy"])
+        if hit["source"] == "pixel_fallback":
+            pixel_decoy += int(hit["decoy"])
+            pixel_real += int(not hit["decoy"])
         kept_calls[owner] = hit
     return {"calls": kept_calls, "nuclei": len(owned), "assigned_real": real,
-            "assigned_decoy": decoy, "reads": votes["reads"],
+            "assigned_decoy": decoy, "assigned_pixel_real": pixel_real,
+            "assigned_pixel_decoy": pixel_decoy, "reads": votes["reads"],
             "reads_owned": votes["reads_owned"], "reads_near": votes["reads_near"],
             "reads_ambiguous": votes["reads_ambiguous"]}
 
@@ -1042,6 +1106,7 @@ def _field_candidates(votes: Dict[str, Any], floors: Sequence[float],
     owned = votes["owned"]
     primary = votes["primary"]
     pixel = votes["pixel"] if pixels else {q: {} for q in pixel_qualities}
+    allowed = {q: _fallback_pixels(pixel[q], votes) for q in pixel_qualities}
     mine = [(o, h) for o, h in primary.items() if o in owned]
     support = np.array([h["n_support"] for _, h in mine], np.int64)
     best = np.array([h["quality"] for _, h in mine], float)
@@ -1062,7 +1127,7 @@ def _field_candidates(votes: Dict[str, Any], floors: Sequence[float],
         kept = {o for o, k in zip(owners, keep) if k}
         decoy = sum(is_decoy[o] for o in kept)
         for j, q in enumerate(pixel_qualities):
-            extra = [h for o, h in pixel[q].items() if o in owned and o not in kept]
+            extra = [h for o, h in allowed[q].items() if o in owned and o not in kept]
             extra_decoys = sum(h['guide'] in decoys for h in extra)
             counts[i, j] = (len(kept) - decoy + len(extra) - extra_decoys,
                             decoy + extra_decoys)
@@ -1377,7 +1442,7 @@ def _candidate_calls(candidates: Mapping[str, Any], floor: float,
     votes = candidates["votes"]
     primary = {o: h for o, h in votes["primary"].items()
                if not (h["n_support"] == 1 and h["quality"] < floor)}
-    pixel = votes["pixel"][pixel_quality]
+    pixel = _fallback_pixels(votes["pixel"][pixel_quality], votes, primary)
     out = _assemble_calls(primary, pixel, votes, decoys)
     if votes["tallies"] is not None:
         out["evidence"] = _evidence_rows(primary, pixel, votes["tallies"],
@@ -2347,6 +2412,38 @@ def fdr(real: int, decoy: int, k: float, scale: float) -> float:
     return 100.0 * max(float(scale), 1.0) / float(k) * decoy / max(int(real), 1)
 
 
+def _fdr_by_source(field_stats, real: int, decoy: int, k: int,
+                   scale: float) -> Dict[str, Any]:
+    """The decoy FDR report of the read calls and of the pixel-fallback calls apart.
+
+    The pixel fallback calls nuclei the reads did not, at a decoy rate of
+    its own, so the well report counts it apart from the read calls.
+
+    :param field_stats: the field statistics of :func:`fdr_report`.
+    :param real: their real calls.
+    :param decoy: their decoy calls.
+    :param k: decoys per guide.
+    :param scale: the FDR calibration (:func:`fdr`).
+    :returns: ``assigned_primary``, ``assigned_primary_decoy`` and
+        ``fdr_per_100_primary`` for the read calls, and
+        ``assigned_pixel_fallback``, ``assigned_pixel_fallback_decoy`` and
+        ``fdr_per_100_pixel_fallback`` for the pixel-fallback calls; empty
+        when the statistics have no ``assigned_pixel_real`` and
+        ``assigned_pixel_decoy`` columns, as for the prefix decode.
+    """
+    if not {"assigned_pixel_real", "assigned_pixel_decoy"} <= set(field_stats.columns):
+        return {}
+    pixel_real = int(field_stats["assigned_pixel_real"].sum()) if len(field_stats) else 0
+    pixel_decoy = int(field_stats["assigned_pixel_decoy"].sum()) if len(field_stats) else 0
+    out: Dict[str, Any] = {}
+    for name, part_real, part_decoy in (("primary", real - pixel_real, decoy - pixel_decoy),
+                                        ("pixel_fallback", pixel_real, pixel_decoy)):
+        out[f"assigned_{name}"] = part_real
+        out[f"assigned_{name}_decoy"] = part_decoy
+        out[f"fdr_per_100_{name}"] = round(fdr(part_real, part_decoy, k, scale), 3) if k else None
+    return out
+
+
 def fdr_report(field_stats, *, plate: str, well: str, k: int, scale: float,
                skipped_sites: Sequence[int] = (), calibration=None) -> Dict[str, Any]:
     """The decoy FDR report for one well.
@@ -2375,6 +2472,7 @@ def fdr_report(field_stats, *, plate: str, well: str, k: int, scale: float,
             "fdr_per_100": round(fdr(real, decoy, k, scale), 3) if k else None,
             "decoy_library_k": int(k), "fdr_scale": float(scale),
             "skipped_sites": sorted(int(s) for s in skipped_sites)}
+    report.update(_fdr_by_source(field_stats, real, decoy, k, scale))
 
     if calibration:
         whole = calibration.get('all_fields', {})
@@ -2507,10 +2605,13 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
                            "nuclei": int(r["rule_a"]["nuclei"]),
                            "assigned_real": int(r["rule_a"]["assigned_real"]),
                            "assigned_decoy": int(r["rule_a"]["assigned_decoy"]),
+                           "assigned_pixel_real": int(r["rule_a"].get("assigned_pixel_real", 0)),
+                           "assigned_pixel_decoy": int(r["rule_a"].get("assigned_pixel_decoy", 0)),
                            "nuclei_with_read": int(r["rule_a"].get("nuclei_with_read", 0))}
                           for r in sorted(decoded, key=lambda r: r["site"])],
                          columns=["plate", "well", "site", "nuclei",
                                   "assigned_real", "assigned_decoy",
+                                  "assigned_pixel_real", "assigned_pixel_decoy",
                                   "nuclei_with_read"])
     if not rule.get("read_stage"):
         stats = stats.drop(columns=["nuclei_with_read"])
