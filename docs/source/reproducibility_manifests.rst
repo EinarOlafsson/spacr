@@ -262,21 +262,29 @@ default after a higher-numbered item takes the next free number:
   reports the split-read concordance of each well
   (``split_read_concordance``). Number 965 belongs to another item.
 
-- 968 (spanning-children switch): ``ops_ph_spanning_merge`` (OPS) and
-  ``spanning_merge`` (Measure) choose how a nucleus that lies in several
-  cells is resolved, both through ``spacr.measure._assign_nuclei_to_cells``.
-  ``'merge'``, the default and the behaviour before 968, merges the cells when
-  no cell holds 90 % of the nucleus and otherwise erases its pixels in the
-  other cells; ``'best_parent'`` skips that step, so each nucleus goes to the
-  cell it overlaps most and no cell is merged. OPS pairing has merged only
-  since settings version 959 (commit 1612c53561), so this row reaches only
-  files stamped below 959: an OPS file stamped below 959 (or unstamped), such
-  as the frozen A1 run (commit 26bc722c15, schema 958), gets
-  ``'best_parent'`` and reproduces that run's pairing exactly; a file stamped
-  959 to 967 keeps ``'merge'``. A file stamped 959 before 1612c53561 landed
-  (2026-11-22 to 2026-11-24) also gets ``'merge'``; set the key to replay it.
-  Measure has always merged, so ``spanning_merge`` has no row. Number 967
-  belongs to another item.
+- 976 (spanning-children merge off, maintainer decision 2026-11-25):
+  ``ops_ph_spanning_merge`` (OPS) and ``spanning_merge`` (Measure, External
+  Masks) now default to ``'best_parent'``, both through
+  ``spacr.measure._assign_nuclei_to_cells``: a nucleus that lies in several
+  cells goes to the cell it overlaps most and no cell is merged. The old
+  ``'merge'`` (a nucleus with under 90 % in every cell merged those cells,
+  even cells holding their own nuclei; at 90 % or more its pixels in the
+  other cells were erased) is treated as a bug and kept only for replay. The
+  time-lapse tables use the same kernel and now follow ``'best_parent'``
+  too, with no setting of their own. Files stamped before 976 replay what
+  they ran:
+
+  - Measure and External Masks, every version below 976 and unstamped:
+    ``spanning_merge = 'merge'``.
+  - OPS, stamped below 959 or unstamped (the frozen A1 run, commit
+    26bc722c15, schema 958): ``ops_ph_spanning_merge = 'best_parent'``,
+    which reproduces that pairing exactly.
+  - OPS, stamped 959 to 975: ``'merge'`` (OPS pairing merged from commit
+    1612c53561, schema 959). A file stamped 959 before that commit landed
+    (2026-11-22 to 2026-11-24) also gets ``'merge'``; set the key to
+    replay it.
+
+  Numbers 966 to 975 belong to other items.
 
 Public API
 ----------

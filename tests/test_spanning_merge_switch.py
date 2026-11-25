@@ -1,10 +1,12 @@
-"""The spanning-children switch of the one nucleus and cell ownership (schema 968).
+"""The spanning-children switch of the one nucleus and cell ownership (schema 976).
 
 ``spacr.measure._assign_nuclei_to_cells(..., spanning=)`` is the one routine
 Measure (``spanning_merge``) and OPS (``ops_ph_spanning_merge``) give nuclei
-to cells through. ``'merge'`` (default) is the behaviour before the switch;
-``'best_parent'`` skips ``_merge_spanning_children``, so OPS pairing is the
-pairing of the frozen A1 run (commit 26bc722c15) again, byte for byte.
+to cells through. ``'best_parent'`` (default since 976, maintainer decision
+2026-11-25: the merge is a bug) skips ``_merge_spanning_children``, so OPS
+pairing is the pairing of the frozen A1 run (commit 26bc722c15) again, byte
+for byte -- a functional ratchet. ``'merge'`` is the behaviour before 976,
+kept for replay.
 
 The frozen references below are copies, not imports: ``_pair_26bc722c15`` is
 the body of ``spacr.ops_sample.pair_nuclei_with_cells`` at 26bc722c15 and
@@ -201,28 +203,47 @@ def _random_cases(count=120, seed=20261125):
 CASES = _handmade() + _random_cases()
 
 
-@pytest.mark.parametrize("index", range(len(CASES)))
-def test_merge_default_is_byte_identical_to_the_output_before_the_switch(index):
-    nuclei, cells = CASES[index]
-    want = _pair_before_switch(nuclei, cells)
-    for got in (ops_sample.pair_nuclei_with_cells(nuclei, cells),
-                ops_sample._pair_nuclei_with_cells(nuclei, cells),
-                ops_sample._pair_nuclei_with_cells(nuclei, cells, "merge"),
-                ops_sample._pair_nuclei_with_cells(nuclei, cells, None)):
-        _same(got, want)
-        assert got[2] == want[2]
-    k_want = _kernel_before_switch(nuclei.copy(), cells.copy())
-    k_got = M._assign_nuclei_to_cells(nuclei.copy(), cells.copy())
-    assert [a.tobytes() for a in k_got[:2]] == [a.tobytes() for a in k_want[:2]]
-    assert k_got[2:] == k_want[2:]
+
+
+def _kernel_without_merge(nucleus_mask, cell_mask):
+    """The kernel with the merge step left out: the shared-nucleus trim alone."""
+    nucleus_mask, shared_nuclei, shared_cells = M._assign_shared_nuclei(nucleus_mask, cell_mask)
+    return nucleus_mask, cell_mask, shared_nuclei, shared_cells, 0
 
 
 @pytest.mark.parametrize("index", range(len(CASES)))
-def test_best_parent_is_byte_identical_to_the_frozen_a1_pairing(index):
+def test_default_ops_pairing_is_byte_identical_to_the_frozen_a1_pairing(index):
+    """Functional ratchet: every default OPS pairing is 26bc722c15's."""
     nuclei, cells = CASES[index]
     want = _pair_26bc722c15(nuclei, cells)
-    got = ops_sample._pair_nuclei_with_cells(nuclei.copy(), cells.copy(), "best_parent")
+    for got in (ops_sample.pair_nuclei_with_cells(nuclei, cells),
+                ops_sample._pair_nuclei_with_cells(nuclei, cells),
+                ops_sample._pair_nuclei_with_cells(nuclei, cells, None),
+                ops_sample._pair_nuclei_with_cells(nuclei, cells, "best_parent")):
+        _same(got, want)
+
+
+@pytest.mark.parametrize("index", range(len(CASES)))
+def test_default_measure_kernel_is_the_kernel_without_the_merge(index):
+    nuclei, cells = CASES[index]
+    want = _kernel_without_merge(nuclei.copy(), cells.copy())
+    for got in (M._assign_nuclei_to_cells(nuclei.copy(), cells.copy()),
+                M._assign_nuclei_to_cells(nuclei.copy(), cells.copy(), spanning=None)):
+        assert [a.tobytes() for a in got[:2]] == [a.tobytes() for a in want[:2]]
+        assert got[2:] == want[2:]
+
+
+@pytest.mark.parametrize("index", range(len(CASES)))
+def test_merge_replays_the_output_before_the_switch(index):
+    nuclei, cells = CASES[index]
+    want = _pair_before_switch(nuclei, cells)
+    got = ops_sample._pair_nuclei_with_cells(nuclei, cells, "merge")
     _same(got, want)
+    assert got[2] == want[2]
+    k_want = _kernel_before_switch(nuclei.copy(), cells.copy())
+    k_got = M._assign_nuclei_to_cells(nuclei.copy(), cells.copy(), spanning="merge")
+    assert [a.tobytes() for a in k_got[:2]] == [a.tobytes() for a in k_want[:2]]
+    assert k_got[2:] == k_want[2:]
 
 
 def test_the_cases_really_span_and_the_two_arms_differ():
@@ -230,24 +251,24 @@ def test_the_cases_really_span_and_the_two_arms_differ():
     differ = merged = 0
     for nuclei, cells in CASES:
         a = ops_sample._pair_nuclei_with_cells(nuclei, cells, "merge")
-        b = ops_sample._pair_nuclei_with_cells(nuclei, cells, "best_parent")
+        b = ops_sample._pair_nuclei_with_cells(nuclei, cells)
         merged += a[2]["merged_cells"] > 0
         differ += not (np.array_equal(a[0], b[0]) and np.array_equal(a[1], b[1]))
         assert b[2]["merged_cells"] == 0
     assert merged >= 10 and differ >= 10
 
 
-def test_best_parent_in_the_kernel_merges_nothing_and_gives_each_nucleus_its_best_cell():
+def test_the_default_kernel_merges_nothing_and_gives_each_nucleus_its_best_cell():
     cells = np.zeros((20, 40), np.int32)
     cells[:, :20], cells[:, 20:] = 1, 2
     nuclei = np.zeros_like(cells)
     nuclei[8:12, 14:24] = 1                             # 6 px wide in 1, 4 in 2
-    n, c, shared_n, shared_c, merged = M._assign_nuclei_to_cells(
-        nuclei.copy(), cells.copy(), spanning="best_parent")
+    n, c, shared_n, shared_c, merged = M._assign_nuclei_to_cells(nuclei.copy(), cells.copy())
     assert merged == 0 and np.array_equal(c, cells)
     assert shared_n == {1} and shared_c == {1, 2}
     assert (n[:, 20:] == 0).all() and (n[8:12, 14:20] == 1).all()
-    n, c, *_rest, merged = M._assign_nuclei_to_cells(nuclei.copy(), cells.copy())
+    n, c, *_rest, merged = M._assign_nuclei_to_cells(nuclei.copy(), cells.copy(),
+                                                     spanning="merge")
     assert merged == 1 and np.unique(c[c > 0]).tolist() == [1]
 
 
@@ -265,15 +286,16 @@ def _a1_available():
 
 @pytest.mark.skipif(not _a1_available(), reason="the 4 A1 check fields are WS-local")
 @pytest.mark.parametrize("site", A1_SITES)
-def test_a1_check_fields_best_parent_equals_the_frozen_run(site):
-    """LaC024A A1 check fields 357, 575, 713, 1078 (the raw nucleus and cell
-    masks _ph_segment_field passes to the pairing): 'best_parent' gives the
-    masks and counts of 26bc722c15's pairing, which are the nightly masks
-    stored before 1612c53561; 'merge' gives the pairing before the switch."""
+def test_a1_check_fields_default_pairing_equals_the_frozen_run(site):
+    """A1 check fields 357, 575, 713, 1078 (LaC024E pixels with LaC024A
+    settings; the raw nucleus and cell masks _ph_segment_field passes to the
+    pairing): the default gives the masks and counts of 26bc722c15's
+    pairing, which are the nightly masks stored before 1612c53561; 'merge'
+    gives the pairing of schemas 959 to 975."""
     raw = np.load(A1_RAW / f"site-{site}.npz")
     nuclei, cells = raw["nuclei"], raw["cells"]
     want = _pair_26bc722c15(nuclei, cells)
-    got = ops_sample._pair_nuclei_with_cells(nuclei, cells, "best_parent")
+    got = ops_sample.pair_nuclei_with_cells(nuclei, cells)
     _same(got, want)
     if (A1_OLD / f"site-{site}.npz").is_file():
         stored = np.load(A1_OLD / f"site-{site}.npz")
@@ -304,77 +326,91 @@ def test_measure_and_ops_reach_the_same_kernel_with_their_own_setting():
                                "_assign_nuclei_to_cells", "spanning") == ["spanning"]
     assert _calls_with_keyword("ops_engine.py", "_ph_segment_field", "_pair_nuclei_with_cells",
                                "spanning") == ["settings.get('ops_ph_spanning_merge')"]
+    assert _calls_with_keyword("ops_large_sites.py", "segment_cell_painting_site",
+                               "_pair_nuclei_with_cells", "spanning") == [
+        "settings.get('ops_ph_spanning_merge')"] * 2
 
 
 def test_ops_pairing_calls_the_kernel_with_the_mode(monkeypatch):
     seen = []
     real = M._assign_nuclei_to_cells
 
-    def spy(n, c, spanning="merge"):
+    def spy(n, c, spanning="best_parent"):
         seen.append(spanning)
         return real(n, c, spanning=spanning)
 
     monkeypatch.setattr(M, "_assign_nuclei_to_cells", spy)
     nuclei, cells = CASES[0]
-    ops_sample._pair_nuclei_with_cells(nuclei, cells, "best_parent")
+    ops_sample._pair_nuclei_with_cells(nuclei, cells, "merge")
     ops_sample.pair_nuclei_with_cells(nuclei, cells)
-    assert seen == ["best_parent", "merge"]
+    assert seen == ["merge", "best_parent"]
 
 
-def test_settings_are_registered_with_merge_as_default():
+def test_settings_are_registered_with_best_parent_as_default():
     from spacr.ops_settings import OPS_CATEGORIES, OPS_DEFAULTS, OPS_TOOLTIPS, OPS_TYPES
     from spacr.settings import (ALPHA_FEATURES, categories, expected_types,
                                 get_measure_crop_settings, tooltips)
 
-    assert OPS_DEFAULTS["ops_ph_spanning_merge"] == "merge"
+    assert OPS_DEFAULTS["ops_ph_spanning_merge"] == "best_parent"
     assert OPS_TYPES["ops_ph_spanning_merge"] is str
     assert "ops_ph_spanning_merge" in OPS_CATEGORIES["Phenotype segmentation"]
     assert all(len(keys) <= 20 for name, keys in OPS_CATEGORIES.items()
                if "ops_ph_spanning_merge" in keys)
     assert "ops_ph_spanning_merge" in ALPHA_FEATURES[752]["settings"]
     tip = OPS_TOOLTIPS["ops_ph_spanning_merge"]
-    assert len(tip) <= 600 and tip.endswith("Default 'merge'. Alpha.")
-    assert get_measure_crop_settings({})["spanning_merge"] == "merge"
+    assert len(tip) <= 600 and tip.endswith("Default 'best_parent'. Alpha.")
+    assert get_measure_crop_settings({})["spanning_merge"] == "best_parent"
     assert expected_types["spanning_merge"] is str
     assert "spanning_merge" in categories["Measurements"]
     assert len(tooltips["spanning_merge"]) <= 600
-    assert tooltips["spanning_merge"].endswith("Default 'merge'.")
+    assert tooltips["spanning_merge"].endswith("Default 'best_parent'.")
+    for text in (tip, tooltips["spanning_merge"]):
+        assert "old behaviour" in text and "their own nuclei" in text
 
 
-@pytest.mark.parametrize("version, expected", [
-    (0, "best_parent"), (931, "best_parent"), (958, "best_parent"),
-    (959, None), (965, None), (966, None), (967, None), (968, None),
+@pytest.mark.parametrize("version, ops, measure", [
+    (0, "best_parent", "merge"), (931, "best_parent", "merge"),
+    (958, "best_parent", "merge"), (959, "merge", "merge"),
+    (965, "merge", "merge"), (968, "merge", "merge"), (975, "merge", "merge"),
+    (976, None, None),
 ])
-def test_files_from_the_frozen_run_era_replay_best_parent(version, expected):
-    """Schema 968: only files stamped below 959, where OPS pairing did not
-    merge yet, get 'best_parent'; newer files without the key keep 'merge'."""
+def test_files_replay_what_they_ran(version, ops, measure):
+    """Schema 976: OPS files below 959 (the frozen A1 era) get 'best_parent',
+    959 to 975 'merge'; Measure files below 976 always get 'merge'."""
     from spacr.ops_settings import OPS_DEFAULTS
     from spacr.settings import (DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION,
                                 _fold_older_defaults)
 
-    assert SETTINGS_SCHEMA_VERSION >= 968
-    assert DEFAULT_CHANGES[968] == {"ops_ph_spanning_merge": "best_parent"}
+    assert SETTINGS_SCHEMA_VERSION >= 976
+    assert DEFAULT_CHANGES[976] == {"ops_ph_spanning_merge": "merge", "spanning_merge": "merge"}
     settings = {}
     applied = _fold_older_defaults(settings, version, known=set(OPS_DEFAULTS))
-    assert settings.get("ops_ph_spanning_merge") == expected
-    assert ("ops_ph_spanning_merge" in applied) == (expected is not None)
-    if expected:
-        assert applied["ops_ph_spanning_merge"] == ("best_parent", 968)
-    explicit = {"ops_ph_spanning_merge": "merge"}
+    assert settings.get("ops_ph_spanning_merge") == ops
+    if ops:
+        assert applied["ops_ph_spanning_merge"] == (ops, 976)
+    else:
+        assert "ops_ph_spanning_merge" not in applied
+    explicit = {"ops_ph_spanning_merge": "best_parent"}
     _fold_older_defaults(explicit, version, known=set(OPS_DEFAULTS))
-    assert explicit["ops_ph_spanning_merge"] == "merge"
-    measure = {}
-    _fold_older_defaults(measure, version, known={"spanning_merge"})
-    assert "spanning_merge" not in measure
+    assert explicit["ops_ph_spanning_merge"] == "best_parent"
+    m = {}
+    _fold_older_defaults(m, version, known={"spanning_merge"})
+    assert m.get("spanning_merge") == measure
 
 
-def test_an_old_ops_settings_file_resolves_to_best_parent(tmp_path):
+def test_settings_files_resolve_by_era(tmp_path):
     from spacr.cli import resolve_module, resolve_settings
     from spacr.settings import SETTINGS_SCHEMA_VERSION, SETTINGS_VERSION_KEY
 
     module = resolve_module("ops")
-    for stamp, expected in ((958, "best_parent"), (959, "merge"),
-                            (SETTINGS_SCHEMA_VERSION, "merge")):
+    for stamp, expected in ((958, "best_parent"), (959, "merge"), (975, "merge"),
+                            (SETTINGS_SCHEMA_VERSION, "best_parent")):
         path = tmp_path / f"ops_{stamp}.json"
         path.write_text(json.dumps({SETTINGS_VERSION_KEY: stamp}), encoding="utf-8")
         assert resolve_settings(module, str(path))["ops_ph_spanning_merge"] == expected
+    module = resolve_module("measure")
+    for stamp, expected in ((958, "merge"), (975, "merge"),
+                            (SETTINGS_SCHEMA_VERSION, "best_parent")):
+        path = tmp_path / f"measure_{stamp}.json"
+        path.write_text(json.dumps({SETTINGS_VERSION_KEY: stamp}), encoding="utf-8")
+        assert resolve_settings(module, str(path))["spanning_merge"] == expected

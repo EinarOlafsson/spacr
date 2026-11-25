@@ -1896,7 +1896,7 @@ def _merge_spanning_children(mask1, mask2):
     return mask1, mask2, len(root)
 
 
-_SPANNING_MODES = ('merge', 'best_parent')
+_SPANNING_MODES = ('best_parent', 'merge')
 
 
 def _spanning_mode(value):
@@ -1906,8 +1906,8 @@ def _spanning_mode(value):
     :func:`_assign_nuclei_to_cells` treats a nucleus that spans several
     cells.
 
-    :param value: the setting; None or blank is the default ``'merge'``.
-    :returns: ``'merge'`` or ``'best_parent'``.
+    :param value: the setting; None or blank is the default ``'best_parent'``.
+    :returns: ``'best_parent'`` or ``'merge'``.
     :raises ValueError: for any other value.
     """
     mode = str(value).strip().lower() if value not in (None, '') else _SPANNING_MODES[0]
@@ -1917,18 +1917,19 @@ def _spanning_mode(value):
     return mode
 
 
-def _assign_nuclei_to_cells(nucleus_mask, cell_mask, spanning='merge'):
+def _assign_nuclei_to_cells(nucleus_mask, cell_mask, spanning='best_parent'):
     """THE nucleus and cell ownership of every spaCR module, in one call.
 
     Measure, External Masks (through Measure), OPS
     (:func:`spacr.ops_sample.pair_nuclei_with_cells`) and the time-lapse
     tables all give nuclei to cells here:
 
-    1. :func:`_merge_spanning_children`: a nucleus split between several
-       cells with under 90 % in each merges those cells into one; with 90 %
-       or more in one cell, its pixels in the others are removed.
-       ``spanning='best_parent'`` skips this step entirely: no cell is
-       merged and no nucleus pixel is removed here.
+    1. Only with ``spanning='merge'``, :func:`_merge_spanning_children`: a
+       nucleus split between several cells with under 90 % in each merges
+       those cells into one; with 90 % or more in one cell, its pixels in
+       the others are removed. The default ``'best_parent'`` skips this
+       step: it merged cells that each hold their own nucleus (maintainer
+       decision 2026-11-25, a bug), so it is kept only to replay older runs.
     2. :func:`_assign_shared_nuclei`: a nucleus label that lies in several
        cells keeps only the pixels in the cell it overlaps most (its best
        parent). After step 1 that is only a label made of disconnected
@@ -1936,10 +1937,11 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, spanning='merge'):
 
     :param nucleus_mask: nucleus labels, changed in place.
     :param cell_mask: cell labels, changed in place.
-    :param spanning: ``'merge'`` (default) runs both steps;
-        ``'best_parent'`` runs step 2 only, so every nucleus goes to its
-        largest-overlap cell and cells are never merged -- the OPS pairing
-        of the frozen A1 run (before settings schema 959).
+    :param spanning: ``'best_parent'`` (default) runs step 2 only, so every
+        nucleus goes to its largest-overlap cell and cells are never merged
+        -- the OPS pairing of the frozen A1 run (before settings schema
+        959); ``'merge'`` runs both steps, as every module did before
+        settings schema 976.
     :returns: ``(nucleus_mask, cell_mask, shared_nuclei, shared_cells,
         merged)``: the two label sets of step 2 and how many cell labels
         step 1 merged into another (0 with ``'best_parent'``).

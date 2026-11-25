@@ -60,7 +60,7 @@ def test_a_nucleus_under_90_percent_in_each_cell_merges_them():
     cells = _two_cells()
     nuclei = np.zeros_like(cells)
     nuclei[2:6, 6:14] = 1
-    nuclei, cells, shared_n, shared_c, merged = M._assign_nuclei_to_cells(nuclei, cells)
+    nuclei, cells, shared_n, shared_c, merged = M._assign_nuclei_to_cells(nuclei, cells, spanning="merge")
     assert merged == 1 and set(np.unique(cells)) == {3}
     assert (nuclei == 1).sum() == 32 and not shared_n
 
@@ -70,7 +70,7 @@ def test_a_nucleus_at_90_percent_in_one_cell_loses_its_pixels_in_the_other():
     nuclei = np.zeros_like(cells)
     nuclei[0:10, 0:10] = 1
     nuclei[0, 10] = 1
-    nuclei, cells, _n, _c, merged = M._assign_nuclei_to_cells(nuclei, cells)
+    nuclei, cells, _n, _c, merged = M._assign_nuclei_to_cells(nuclei, cells, spanning="merge")
     assert merged == 0 and set(np.unique(cells)) == {3, 7}
     assert nuclei[0, 10] == 0 and (nuclei == 1).sum() == 100
 
@@ -88,7 +88,7 @@ def test_a_merge_is_seen_by_the_nuclei_examined_after_it():
     nuclei[0:2, 8:12] = 1
     nuclei[10, 0:10] = 2
     nuclei[11, 8:18] = 2
-    nuclei, cells, _n, _c, merged = M._assign_nuclei_to_cells(nuclei, cells)
+    nuclei, cells, _n, _c, merged = M._assign_nuclei_to_cells(nuclei, cells, spanning="merge")
     assert merged == 1 and set(np.unique(cells)) == {3, 7}
     assert nuclei[11, 17] == 0 and (nuclei == 2).sum() == 19
 

@@ -1500,7 +1500,7 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
         ``merged_small_nuclei`` and ``median_nucleus_area_px``.
     :raises ValueError: when a preset channel is not in ``channel_names``.
     """
-    from .ops_sample import pair_nuclei_with_cells
+    from .ops_sample import _pair_nuclei_with_cells
 
     names = list(channel_names)
     wanted = [settings.get("seg_nucleus_channel") or "CorrDNA"] + list(settings["cell_channels"])
@@ -1530,7 +1530,8 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                                                               channel_axis=-1),
                                   tile_px=tile, overlap_px=overlap)
         del body
-        out = pair_nuclei_with_cells(nuclei, cells_from_nucleus_seeds(nuclei, cellprob))
+        out = _pair_nuclei_with_cells(nuclei, cells_from_nucleus_seeds(nuclei, cellprob),
+                                      spanning=settings.get("ops_ph_spanning_merge"))
         return out if merged is None else _with_merge_counts(out, merged)
     cells = segment_tiled(body, lambda x: _eval_labels(cell_model, x, settings, None,
                                                        channel_axis=-1),
@@ -1538,7 +1539,7 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                           flows=lambda x: _eval_flows(cell_model, x, settings, channel_axis=-1),
                           masks=lambda f, p: _cellpose_masks(cell_model, f, p, settings=settings,
                                                              record=mask_log, label="cells"))
-    out = pair_nuclei_with_cells(nuclei, cells)
+    out = _pair_nuclei_with_cells(nuclei, cells, spanning=settings.get("ops_ph_spanning_merge"))
     return out if merged is None else _with_merge_counts(out, merged)
 
 
