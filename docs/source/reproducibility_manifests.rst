@@ -251,6 +251,15 @@ default after a higher-numbered item takes the next free number:
   (``decode_fdr_<well>.json``) now counts the read calls and the
   pixel-fallback calls apart, each with its own FDR.
 
+- 970 (item 1026, the seam owner centroid): ``ops_cross_field_owner_centroid``
+  is now ``'linked'``. A cell imaged in overlapping fields gets one centroid,
+  the mean of its whole copies in stitched coordinates, and is owned by the
+  field whose centre is nearest that centroid; when that field holds no whole
+  copy, the nearest field that does owns it, as before. Files stamped before
+  970 retain ``'per_copy'`` (each copy's own centroid against its own field
+  centre, so registration error between copies could pick a farther field)
+  and reproduce their owners. Numbers 966 to 969 belong to other items.
+
 Public API
 ----------
 

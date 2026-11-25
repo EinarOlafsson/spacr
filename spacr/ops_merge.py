@@ -885,14 +885,23 @@ def _well_similarity(source, target, *, scale: float = 1.0,
 #: centroids in stitched coordinates and :func:`_assign_field_owners` names
 #: one owner per physical cell: the field whose centre is nearest the cell
 #: centroid among the fields that hold it whole, ties to the lower field,
-#: then the lower label. A copy cut by its field edge never owns a cell.
-#: ``'largest'`` (the largest copy, item 874) is deprecated and only
-#: reproduces runs made before settings schema 963. The owner rules, the
-#: first the default; the others are deprecated.
+#: then the lower label (:func:`_nearest_centre_keys`). A copy cut by its
+#: field edge never owns a cell. ``'largest'`` (the largest copy, item 874)
+#: is deprecated and only reproduces runs made before settings schema 963.
+#: The owner rules, the first the default; the others are deprecated.
 _FIELD_OWNER_RULES = ("nearest_centre", "largest")
 
 #: The rules kept only to reproduce outputs of earlier runs.
 _DEPRECATED_FIELD_OWNER_RULES = ("largest",)
+
+#: Which centroid the ``'nearest_centre'`` rule measures from (item 1026),
+#: the first the default. ``'linked'``: one centroid per physical cell, the
+#: mean of its whole copies in stitched coordinates, measured to the centre
+#: of every field that holds a whole copy. ``'per_copy'`` (deprecated): each
+#: copy's own centroid measured to its own field's centre, so registration
+#: error between copies can name a field that is not the nearest; it
+#: reproduces runs made before settings schema 970.
+_FIELD_OWNER_CENTROIDS = ("linked", "per_copy")
 
 
 def _field_owner_rule(value) -> str:
@@ -910,6 +919,95 @@ def _field_owner_rule(value) -> str:
             "the field owner rule must be one of {rules}; got {value}",
             rules=list(_FIELD_OWNER_RULES), value=rule))
     return rule
+
+
+def _field_owner_centroid(value) -> str:
+    """``value`` as one of :data:`_FIELD_OWNER_CENTROIDS`; None is the default.
+
+    :param value: a centroid rule name, or None.
+    :returns: the rule, stripped and in lower case.
+    :raises ValueError: naming the rules, for any other value.
+    """
+    from .qt.i18n import tr
+
+    centroid = str(value or _FIELD_OWNER_CENTROIDS[0]).strip().lower()
+    if centroid not in _FIELD_OWNER_CENTROIDS:
+        raise ValueError(tr(
+            "ops_cross_field_owner_centroid must be one of {rules}; got "
+            "{value}", rules=list(_FIELD_OWNER_CENTROIDS), value=centroid))
+    return centroid
+
+
+def _nearest_centre_keys(cells, component, centres: Mapping[int,
+                         Sequence[float]], centroid: str = "linked"):
+    """The distance each copy is ranked by under the ``'nearest_centre'`` rule.
+
+    The one implementation of "the field whose centre is nearest the cell"
+    (item 1026). The owner of a physical cell is its eligible (whole) copy
+    with the smallest key, ties to the lower field, then the lower label.
+
+    :param cells: one row per copy with ``site``, ``well_y``, ``well_x``
+        (the nucleus centroid in stitched coordinates) and ``whole``.
+    :param component: the physical cell of every copy
+        (:func:`_copy_components`).
+    :param centres: ``{site: (y, x)}``, the well centre of every field
+        (:func:`_field_centre`).
+    :param centroid: one of :data:`_FIELD_OWNER_CENTROIDS`.
+    :returns: ``(key, nearest)``. With ``'linked'`` the cell has one
+        centroid, the mean of its whole copies (of all its copies when none
+        is whole, which then has no owner), and ``key`` is its distance to
+        the centre of each copy's field; ``nearest`` is the field, among
+        all of ``centres``, whose centre is nearest that centroid, ties to
+        the lower field. When that field holds no whole copy (its copy was
+        cut by the field edge, or it has no copy: a missed nucleus or a
+        link that failed), the cell is still owned, by the nearest field
+        that holds it whole, as before item 1026; ``nearest`` then differs
+        from the owner. With ``'per_copy'`` (before settings schema 970)
+        ``key`` is each copy's own centroid to its own field's centre and
+        ``nearest`` is None.
+    """
+    centroid = _field_owner_centroid(centroid)
+    sites = cells["site"].to_numpy(np.int64)
+    points = cells[["well_y", "well_x"]].to_numpy(float).reshape(-1, 2)
+    centre = np.array([centres[int(s)] for s in sites],
+                      float).reshape(-1, 2)
+    if centroid == "per_copy":
+        return np.hypot(points[:, 0] - centre[:, 0],
+                        points[:, 1] - centre[:, 1]), None
+    from scipy.spatial import cKDTree
+
+    component = np.asarray(component, np.int64)
+    whole = np.asarray(cells["whole"], bool)
+    count = int(component.max()) + 1 if component.size else 0
+
+    def mean_of(chosen):
+        """The mean point of the chosen copies of every cell (NaN for none)."""
+        sums = np.zeros((count, 2))
+        np.add.at(sums, component[chosen], points[chosen])
+        size = np.bincount(component[chosen], minlength=count)
+        with np.errstate(invalid="ignore", divide="ignore"):
+            return sums / size[:, None]
+
+    linked = mean_of(whole)
+    none_whole = ~np.isfinite(linked[:, 0])
+    if none_whole.any():
+        linked[none_whole] = mean_of(np.ones(len(whole), bool))[none_whole]
+    mine = linked[component]
+    key = np.hypot(mine[:, 0] - centre[:, 0], mine[:, 1] - centre[:, 1])
+    field_ids = np.array(sorted(int(s) for s in centres), np.int64)
+    nearest = np.full(count, -1, np.int64)
+    if field_ids.size and count:
+        field_xy = np.array([centres[int(s)] for s in field_ids],
+                            float).reshape(-1, 2)
+        k = min(2, len(field_ids))
+        gap, index = cKDTree(field_xy).query(linked, k=k)
+        gap, index = gap.reshape(count, k), index.reshape(count, k)
+        best = index[:, 0]
+        if k == 2:
+            tie = (gap[:, 1] <= gap[:, 0]) & (index[:, 1] < index[:, 0])
+            best = np.where(tie, index[:, 1], best)
+        nearest = field_ids[best]
+    return key, nearest[component]
 
 
 def _field_centre(transform, shape) -> np.ndarray:
@@ -1102,7 +1200,8 @@ def _match_copies_by_centroid(cells, neighbours: Mapping[int, Sequence[int]],
 
 
 def _assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
-                        centres: Mapping[int, Sequence[float]] = None):
+                        centres: Mapping[int, Sequence[float]] = None,
+                        centroid: str = "linked"):
     """Physical cells and the one field that owns each.
 
     :param cells: one row per copy: ``site``, ``label``; ``area`` for
@@ -1113,6 +1212,8 @@ def _assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
     :param rule: one of :data:`_FIELD_OWNER_RULES`.
     :param centres: ``{site: (y, x)}``, the well centre of each field
         (:func:`_field_centre`), for ``'nearest_centre'``.
+    :param centroid: for ``'nearest_centre'``, which centroid is measured
+        (:data:`_FIELD_OWNER_CENTROIDS`, :func:`_nearest_centre_keys`).
     :returns: ``cells`` with ``component`` (the connected component of the
         undirected edge graph, never holding two copies of one field:
         :func:`_copy_components`, edges taken by ``distance`` ascending or
@@ -1120,11 +1221,15 @@ def _assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
         counts the edges refused), ``n_copies``, ``owner_field``,
         ``owner_label`` (both missing when no copy can own the cell),
         ``is_owner``, ``owned_area_share`` (when ``area`` is given) and,
-        for ``'nearest_centre'``, ``centre_distance_px``.
+        for ``'nearest_centre'``, ``centre_distance_px`` (the distance the
+        copy is ranked by) and, with the ``'linked'`` centroid,
+        ``nearest_field`` (the field whose centre is nearest the cell, which
+        is not the owner when that field holds no whole copy).
     """
     import pandas as pd
 
     rule = _field_owner_rule(rule)
+    centroid = _field_owner_centroid(centroid)
     cells = cells.reset_index(drop=True).copy()
     index = pd.Series(np.arange(len(cells)), index=pd.MultiIndex.from_arrays(
         [cells["site"].astype(np.int64), cells["label"].astype(np.int64)]))
@@ -1156,11 +1261,11 @@ def _assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
     rank = cells[["component", "site", "label"]].copy()
     eligible = np.ones(count, bool)
     if rule == "nearest_centre":
-        centre = np.array([centres[int(s)] for s in cells["site"]],
-                          float).reshape(-1, 2)
-        distance = np.hypot(cells["well_y"].to_numpy(float) - centre[:, 0],
-                            cells["well_x"].to_numpy(float) - centre[:, 1])
+        distance, nearest = _nearest_centre_keys(cells, component, centres,
+                                                 centroid)
         cells["centre_distance_px"] = distance
+        if nearest is not None:
+            cells["nearest_field"] = nearest
         rank["key"] = distance
         eligible = np.asarray(cells["whole"], bool)
     else:

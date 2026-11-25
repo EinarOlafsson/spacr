@@ -2655,7 +2655,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 965
+SETTINGS_SCHEMA_VERSION = 970
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2704,6 +2704,7 @@ DEFAULT_CHANGES = {
     964: {'ops_pixel_read_gate': False},
     965: {'profile_outside_rule': 'background',
           'ops_ph_profile_outside_rule': 'background'},
+    970: {'ops_cross_field_owner_centroid': 'per_copy'},
 }
 
 
@@ -2867,6 +2868,13 @@ def _fold_older_defaults(settings, version, known=None):
     whose reads named no guide or named its guide alone. Files stamped
     before keep False, which also lets it assign read ties and read
     refusals.
+
+    Version 970 is item 1026's seam owner centroid:
+    ``ops_cross_field_owner_centroid`` is now ``'linked'`` (one centroid
+    per physical cell, the mean of its whole copies, measured to every
+    field centre). Files stamped before keep ``'per_copy'`` (each copy's
+    own centroid measured to its own field centre) and reproduce their
+    owners. Versions 966 to 969 belong to other items.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9003,6 +9011,9 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 ALPHA_FEATURES = {
     1011: {
         'settings': ('mask_eval_batch_cap', 'mask_batch_seed', 'gpu_vram_budget_gb'),
+    },
+    1026: {
+        'settings': ('ops_cross_field_owner_centroid',),
     },
     372: {
         'widgets': ('MaskOpsSwitch',),

@@ -602,6 +602,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cross_field_policy",
     # Seam ownership: nearest field centre (schema 963).
     "ops_cross_field_rule",
+    # Seam owner: one linked centroid per cell (item 1026, schema 970).
+    "ops_cross_field_owner_centroid",
     "ops_cross_field_radius_px",
     # OPS run report: counts against a published table (875).
     "ops_reference_counts",
