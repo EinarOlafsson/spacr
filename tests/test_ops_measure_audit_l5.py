@@ -288,3 +288,25 @@ def test_ph_crops_refuses_a_well_without_its_cross_field_table(tmp_path):
         str(run / "measurements.db"), PLATE, ["A1"], {},
         {**settings, "ops_cross_field_ownership": False}, str(run))
     assert report["wells"]["A1"] == {"skipped": "no cell table or no tiles"}
+
+
+def test_a_cell_linked_twice_is_refused_where_links_are_read(tmp_path):
+    """R3b: one cell with two object_ids stops ph_tables, the crops and the guard."""
+    from spacr.ops_store import read_table, write_table
+
+    run, _cells = _build(tmp_path)
+    db = str(run / "measurements.db")
+    links = read_table(db, "ops_merge")
+    twice = pd.concat([links, links.iloc[[0]].assign(object_id=10 ** 6)],
+                      ignore_index=True)
+    write_table(db, "ops_merge", twice)
+    cell = ":".join(str(twice.iloc[0][k]) for k in ("plate", "well", "site", "label"))
+    with pytest.raises(ValueError, match="links 1 cells more than once"):
+        ops_engine._ph_one_link_per_cell(twice)
+    with pytest.raises(ValueError, match=cell):
+        _tables(run)
+    with pytest.raises(ValueError, match="more than once"):
+        ops_engine._ph_crops(db, PLATE, ["A1"], {},
+                             {**SETTINGS, "dst_root": str(run)}, str(run))
+    assert ops_engine._ph_one_link_per_cell(links) is links
+    assert ops_engine._ph_one_link_per_cell(None) is None

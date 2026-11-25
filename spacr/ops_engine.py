@@ -8358,6 +8358,7 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                                                  "object_id"]]))).sum()),
             "table": _ph_ownership_path(destination, well),
         }
+    _ph_one_link_per_cell(frame.assign(well=well), "ops_merge")
     _replace_well_rows(db, "ops_merge", frame, plate, well)
     refinements = pd.DataFrame(refined_rows)
     if len(refinements):
@@ -8645,6 +8646,42 @@ def _ph_genotype_table(path: str, plate: str, wells: Sequence[str]):
                        ["well", "object_id", "mapped_guide", "call_source"]]
     _ph_one_call_per_nucleus(called, str(path))
     return called.reset_index(drop=True)
+
+
+def _ph_one_link_per_cell(links, source: str = "ops_merge"):
+    """Refuse links that name one phenotype cell twice; returns ``links``.
+
+    The one rule for the links table, applied where the merge writes it and
+    wherever it is read to join cells to nuclei (:func:`_ph_merge_links`):
+    a cell is the ``plate`` (when present), ``well``, ``site`` and ``label``,
+    and may have only one ``object_id``.
+
+    :param links: ``ops_merge`` rows (``site``, ``label``, and ``well`` /
+        ``plate`` when present), or None.
+    :param source: the table they came from, for the message.
+    :raises ValueError: naming the first repeated cells, since a repeated
+        cell would be joined to two nuclei and its features written twice.
+    """
+    if links is None or not len(links):
+        return links
+    from .qt.i18n import tr
+
+    keys = [c for c in ("plate", "well", "site", "label") if c in links.columns]
+    twice = links.duplicated(keys, keep=False)
+    if twice.any():
+        repeated = links.loc[twice, keys].drop_duplicates()
+        ids = [":".join(str(v) for v in row)
+               for row in repeated.itertuples(index=False)]
+        raise ValueError(tr(
+            "{source} links {count} cells more than once ({ids}); give each "
+            "{keys} one row", source=source, count=len(ids),
+            ids=", ".join(ids[:10]), keys="/".join(keys)))
+    return links
+
+
+def _ph_merge_links(db: str, plate: str, wells: Sequence[str]):
+    """The ``ops_merge`` links of ``wells``, one row per cell (:func:`_ph_one_link_per_cell`)."""
+    return _ph_one_link_per_cell(_rows_for_wells(db, "ops_merge", plate, wells))
 
 
 def _ph_one_call_per_nucleus(called, source: str) -> None:
@@ -8955,7 +8992,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             "have; it has {wells}", unknown=unknown, wells=run_wells))
     pooled = [w for w in run_wells if not asked or w.upper() in asked]
     genotype_path = settings.get("ops_genotype_table") or None
-    merged_rows = _rows_for_wells(db, "ops_merge", plate, pooled)
+    merged_rows = _ph_merge_links(db, plate, pooled)
     if merged_rows is None:
         if genotype_path:
             raise ValueError(tr(
@@ -10592,7 +10629,7 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
                               columns=[c for c in (
                                   "well", "site", "label", "sgRNA", "gene",
                                   "mitotic", "call_source") if c in present])
-    links = _rows_for_wells(db, "ops_merge", plate, wells)
+    links = _ph_merge_links(db, plate, wells)
     genotype_source = path if genotype is not None else None
     if genotype is None and links is not None and len(links):
         genotype = _ph_link_genotypes(db, plate, wells, links, settings)
@@ -11893,7 +11930,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     design_path = settings.get("ops_design")
     sampled = (settings.get("ops_crop_per_guide") not in (None, "")
                and bool(design_path) and os.path.isfile(str(design_path)))
-    links = _rows_for_wells(db, "ops_merge", plate, wells)
+    links = _ph_merge_links(db, plate, wells)
     report: Dict[str, Any] = {"wells": {}, "options": options}
     for well in wells:
         done_path = os.path.join(root, "data", "cell", str(plate), str(well),
@@ -12195,7 +12232,7 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
     path = genotype_path or _ph_cells_table_path(destination, plate)
     genotype = (read_table(path, canonicalise=False, report=None)
                 if os.path.isfile(path) else None)
-    links = _rows_for_wells(db, "ops_merge", plate, wells)
+    links = _ph_merge_links(db, plate, wells)
     rule = _ph_genotype_rule(settings)
     integer_keys = bool(settings.get("ops_tables_integer_keys", False))
     root = _ph_merged_root(settings, destination)
@@ -13353,7 +13390,7 @@ def _ph_overlap_report(db: str, plate: str, wells: Sequence[str],
             parts.append(group.assign(covered_by_others=covered, edge_dist=edge))
         copies = pd.concat(parts, ignore_index=True) if parts else copies.assign(
             covered_by_others=0, edge_dist=0.0)
-        links = _well_rows(db, "ops_merge", plate, well)
+        links = _ph_one_link_per_cell(_well_rows(db, "ops_merge", plate, well))
         linked = set() if links is None else set(zip(
             links["site"].astype(int), links["label"].astype(int)))
         copies["matched"] = [(int(a), int(b)) in linked for a, b in
