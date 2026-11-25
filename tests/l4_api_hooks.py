@@ -18,7 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 BIRTHS = (ROOT / "tests/data/release_contracts/l4_api_arrivals_2026-11-24.json",
-          ROOT / "tests/data/release_contracts/s7c_read_frame_api_arrivals_2026-11-24.json")
+          ROOT / "tests/data/release_contracts/s7c_read_frame_api_arrivals_2026-11-24.json",
+          ROOT / "tests/data/release_contracts/s8_store_cli_api_arrivals_2026-11-24.json")
 MODULES = frozenset({"spacr.measurement_store"})
 PUBLIC = frozenset("spacr.measurement_store." + name for name in (
     "append", "archive_tables", "compact", "connect", "discard_spool",
@@ -27,7 +28,8 @@ PUBLIC = frozenset("spacr.measurement_store." + name for name in (
     "object_keys", "project_of", "read", "retire_legacy_database",
     "rewrite_table", "spool_field", "spool_of", "spooled_fields",
     "store_folder", "store_native", "tables", "write_rows"))
-READERS = frozenset({"spacr.store.read_frame"})
+READERS = frozenset({"spacr.store.read_frame", "spacr.store.compare",
+                     "spacr.store.migrate_sqlite"})
 ARRIVALS = MODULES | PUBLIC | READERS
 #: The arrivals that are callables of the frozen inventory: none.
 INVENTORY = frozenset()
