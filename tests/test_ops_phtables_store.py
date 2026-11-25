@@ -192,13 +192,13 @@ def test_the_streamed_tables_hold_the_whole_well_rows_in_their_dtypes(built):
             found = opened.query(table=compartment)
             reference = pd.concat([keys, features[compartment]], axis=1)
             found = found.set_index("prcfo").loc[reference["prcfo"]].reset_index()
-            assert list(found.columns[:13]) == list(ops_engine._PH_TABLE_KEYS)
+            assert list(found.columns[:len(ops_engine._PH_TABLE_KEYS)]) == list(ops_engine._PH_TABLE_KEYS)
             if compartment != "cell":
                 assert (found["parent_cell_key"] == found["object_key"]).all()
             assert found["timeID"].isna().all()
             assert set(found["plate"]) == {PLATE} and set(found["well"]) == {"A1"}
             assert "plateID" not in found.columns
-            for name in ("rowID", "columnID", "fieldID", "genotype_rule"):
+            for name in ("rowID", "columnID", "fieldID", "genotype_rule", "call_source"):
                 assert found[name].tolist() == reference[name].tolist()
             assert found["object_label"].tolist() == reference["object_label"].tolist()
             linked = reference["object_id"].notna().to_numpy()
@@ -227,7 +227,7 @@ def test_the_streamed_tables_hold_the_whole_well_rows_in_their_dtypes(built):
             assert len(set(object_key)) == len(object_key)
             catalog = opened._tables[compartment]
             assert catalog["sort_by"] == ["object_key", "timeID"]
-            assert catalog["key_columns"][:13] == list(ops_engine._PH_TABLE_KEYS)
+            assert catalog["key_columns"][:len(ops_engine._PH_TABLE_KEYS)] == list(ops_engine._PH_TABLE_KEYS)
     raw = pq.read_table(os.path.join(folder, "tables", "cell", f"plate={PLATE}",
                                      "well=A1", "part-0.parquet"))
     keys_in_order = raw.column("object_key").to_numpy()
