@@ -6050,6 +6050,14 @@ def _ph_fieldcheck_path(destination: str, well: str) -> str:
     return os.path.join(destination, f"ops_fieldcheck_{well}.parquet")
 
 
+def _ph_touches_edge(values) -> np.ndarray:
+    """``touches_field_edge`` as a plain bool array, a missing value counting
+    as touching (a cell without a mask row is not known to be whole). The one
+    convention for every reader and writer of the column."""
+    import pandas as pd
+    return np.array([True if pd.isna(v) else bool(v) for v in values], bool)
+
+
 def _ph_maskpass_path(destination: str, well: str) -> str:
     """Where one well's per-cell mask pass table is written."""
     return os.path.join(destination, f"ops_maskpass_{well}.parquet")
@@ -8912,7 +8920,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         del masks, mask_rows
     funnel = _PhFunnel(cells, destination, pooled)
     if ownership != "closer_match":
-        cut = cells["touches_field_edge"].fillna(True).astype(bool)
+        cut = pd.Series(_ph_touches_edge(cells["touches_field_edge"]),
+                        index=cells.index)
         funnel.cut(cells, cut)
         ownership_counts = {"rule": ownership,
                             "cells_cut_by_field_edge": int(cut.sum())}
@@ -9983,12 +9992,11 @@ def _ph_owned_cells(destination: str, well: str, cells, settings,
     if os.path.isfile(path):
         edges = pd.read_parquet(path, columns=["site", "label",
                                                "touches_field_edge"])
-        cut = pd.Series(edges["touches_field_edge"].astype(bool).to_numpy(),
+        cut = pd.Series(_ph_touches_edge(edges["touches_field_edge"]),
                         index=pd.MultiIndex.from_arrays(
                             [edges["site"].astype(int),
                              edges["label"].astype(int)]))
-        whole = ~np.array([True if pd.isna(v) else bool(v)
-                           for v in cut.reindex(keys)], bool)
+        whole = ~_ph_touches_edge(cut.reindex(keys))
         cut_cells = int((owned & ~whole).sum())
         owned &= whole
     if counts is not None:
@@ -12555,8 +12563,7 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
             "transform": _ph_field_record_transform(record),
             "shape": (int(record["field_height"]), int(record["field_width"])),
             "areas": pd.Series(table["cell_px"].to_numpy(), index=labels),
-            "whole": pd.Series([not (True if pd.isna(v) else bool(v))
-                                for v in table["touches_field_edge"]],
+            "whole": pd.Series(~_ph_touches_edge(table["touches_field_edge"]),
                                index=labels, dtype=bool),
             "centroids": centroids[site] if centroids is not None else None,
             "cells": None}
@@ -12575,9 +12582,8 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
         rule=options["rule"], radius=options["radius"], load=load, log=log,
         centroid=options["centroid"])
     edge = passed.set_index(["site", "label"])["touches_field_edge"]
-    cells["touches_field_edge"] = np.array(
-        [False if pd.isna(v) else bool(v) for v in edge.reindex(
-            pd.MultiIndex.from_arrays([cells["site"], cells["label"]]))], bool)
+    cells["touches_field_edge"] = _ph_touches_edge(edge.reindex(
+        pd.MultiIndex.from_arrays([cells["site"], cells["label"]])))
     for column in ("well_y", "well_x", "centre_distance_px"):
         if column not in cells:
             cells[column] = np.nan
