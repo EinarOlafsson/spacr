@@ -1711,6 +1711,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_report_read_stage',
     'ops_retry_missing',
     'ops_runner_up_margin',
+    'ops_sbs_cellpose_diameter',
     'ops_sbs_cycles',
     'ops_sbs_nucleus_model',
     'ops_sbs_tile_batch',

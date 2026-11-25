@@ -1194,6 +1194,7 @@ SETTING_API_TARGETS = {
     'ops_retry_missing': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_runner_up_margin': ('spacr.ops_decode', 'decode_rule', True),
     'ops_sbs_cycles': ('spacr.ops_prefix', 'prefix_settings', True),
+    'ops_sbs_cellpose_diameter': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_sbs_nucleus_model': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_sbs_tile_batch': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_scoring_benchmark_genes': ('spacr.ops_scoring', 'score_profile_benchmarks', True),

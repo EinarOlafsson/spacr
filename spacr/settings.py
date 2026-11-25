@@ -2655,7 +2655,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 965
+SETTINGS_SCHEMA_VERSION = 973
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2704,6 +2704,7 @@ DEFAULT_CHANGES = {
     964: {'ops_pixel_read_gate': False},
     965: {'profile_outside_rule': 'background',
           'ops_ph_profile_outside_rule': 'background'},
+    973: {'ops_sbs_cellpose_diameter': None},
 }
 
 
@@ -2867,6 +2868,11 @@ def _fold_older_defaults(settings, version, known=None):
     whose reads named no guide or named its guide alone. Files stamped
     before keep False, which also lets it assign read ties and read
     refusals.
+
+    Version 973 gives the OPS sequencing nuclei an expected diameter:
+    ``ops_sbs_cellpose_diameter`` is now 11.0 pixels of the full-resolution
+    cycle DAPI. Files stamped before keep None and segment at native scale.
+    Versions 966 to 972 belong to other merges.
 
     :param settings: the file's settings under today's names, edited in
         place.

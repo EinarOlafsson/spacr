@@ -1137,7 +1137,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         raise ValueError(f"tile {site} has no readable DAPI plane")
     dapi = np.ascontiguousarray(dapi[y0:y0 + size, x0:x0 + size])
     nuclei_key = json.dumps([site, crop, ctx.settings.get("ops_sbs_nucleus_model"),
-                             ctx.settings.get("cellpose_diameter"),
+                             engine._sbs_diameter(ctx.settings),
                              bool(ops_setting(ctx.settings, "ops_gpu")),
                              ctx.settings.get("mask_eval_batch_size"),
                              ctx.settings.get("ops_sbs_tile_batch"),
@@ -1147,8 +1147,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         nuclei = held[1]
     else:
         model = _model(ctx, "ops_sbs_nucleus_model")
-        diameter = ctx.settings.get("cellpose_diameter")
-        extra = {"diameter": float(diameter)} if diameter else {}
+        extra = engine._sbs_diameter(ctx.settings)
         from ._mask_array_batches import _array_batches
 
         def load_dapi(_record):

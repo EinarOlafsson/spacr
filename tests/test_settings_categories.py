@@ -1480,6 +1480,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # 2026-11-20): the per-path Cellpose tile batches of OPS phenotype, OPS
     # sequencing and Spatial Mask Generation, beside each path's diameter.
     "ops_ph_tile_batch", "ops_sbs_tile_batch", "spatial_tile_batch",
+    # NEW SETTING, not a regrouping (item 1036, settings version 973): the
+    # expected diameter of the OPS sequencing nuclei.
+    "ops_sbs_cellpose_diameter",
     # NEW SETTINGS, not a regrouping (item 541, 2026-09-26): Measure's
     # confluency switch, its source, channel, texture window and monolayer
     # QC cut, under their own "Confluency α" heading.
