@@ -45816,7 +45816,7 @@ Read by ``_stitch``, ``ops_defaults``.
 ops_storage
 -----------
 
-'current' writes the usual OPS outputs; ph_tables always writes the cell, nucleus and cytoplasm tables to the run's spaCR store in measurements/. 'spacr_store' also adds the reads and barcodes tables there and each cell's raw crop in a Zarr store per well, with the crop pointer on the cell table. spacr.store.open reads the store through its catalog spacr.duckdb. Default 'current'. Alpha.
+Where the OPS run keeps its tables: 'spacr_store', the run's spaCR store in measurements/, the only choice. Every OPS table goes there (geometry, phenotype, objects, reads, barcodes, merge, cell_cycle) beside the cell, nucleus and cytoplasm tables, and each cell's raw crop in a Zarr store per well, with the crop pointer on the cell table. spacr.store.open reads the store through its catalog spacr.duckdb; it also reads an older run's measurements.db. An older settings file's 'current' runs as 'spacr_store'. Default 'spacr_store'. Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
@@ -55637,7 +55637,7 @@ Read by ``train_cellpose``.
 save_png
 --------
 
-(bool) - Save crops. Off (the default): no crop pixels are saved; Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, and training uses datasets/<name>.ome.zarr. On: Measure also saves every crop in crop.ome.zarr while the field is in memory, so repeated reads are faster and the crops stand alone. The crops are the same either way. With crop_image_format 'png', on writes one PNG per object into <crop_mode>_png/ (png_list table). External Masks still saves crops by default, and its import checks that they were indexed (crop_index, or png_list with 'png'). Default False.
+(bool) - Save crops. Off (the default): no crop pixels are saved; Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, and training uses datasets/<name>.ome.zarr. On: Measure also saves every crop in crop.ome.zarr while the field is in memory, so repeated reads are faster and the crops stand alone. The crops are the same either way. With crop_image_format 'png', on writes one PNG per object into <crop_mode>_png/ (png_list table). External Masks saves crops by default and checks they were indexed. Default False.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

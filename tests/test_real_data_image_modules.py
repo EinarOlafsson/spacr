@@ -347,7 +347,7 @@ def test_module_measure_crop_writes_measurements_db(tmp_path):
     # so measure_crop is being handed the layout it was designed to consume.
     # Failing here is the finding.
     measure_crop(measure_settings)
-    dbs = list(plate.rglob("measurements.db"))
+    dbs = store_sql.databases(plate)
     assert dbs, "measure_crop wrote no measurements.db under plate"
     # AND IT HAS OBJECTS IN IT. A database file on disk is not evidence:
     # `_measure_crop_core` runs its whole body inside `except Exception`, so
