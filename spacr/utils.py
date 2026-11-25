@@ -6966,15 +6966,30 @@ def cpsam_weights(choice, model_dir=None):
         raise ModelUnreadable(
             f"Cellpose-SAM weights {name} at {path} are {stat.st_size} bytes, not the "
             f"pinned {pin['size']}; this is a different file, so it is not loaded.")
-    identity = (path, stat.st_size, stat.st_mtime_ns)
-    if identity not in _CPSAM_MD5_SEEN:
-        _CPSAM_MD5_SEEN[identity] = _file_md5(path)
-    if _CPSAM_MD5_SEEN[identity] != pin["md5"]:
+    digest = weights_md5(path)
+    if digest != pin["md5"]:
         raise ModelUnreadable(
             f"Cellpose-SAM weights {name} at {path} have md5 "
-            f"{_CPSAM_MD5_SEEN[identity]}, not the pinned {pin['md5']}; this is a "
+            f"{digest}, not the pinned {pin['md5']}; this is a "
             f"different file, so it is not loaded.")
     return path
+
+
+def weights_md5(path):
+    """The md5 of a model file, read once per run.
+
+    The digest is kept by ``(path, size, mtime_ns)``, so
+    :func:`cpsam_weights` and the provenance a run records (item 975)
+    share one read of a 1.2 GB file, and a file that changes is read again.
+
+    :param path: the model file.
+    :returns: the hex digest.
+    """
+    stat = os.stat(path)
+    identity = (os.path.abspath(path), stat.st_size, stat.st_mtime_ns)
+    if identity not in _CPSAM_MD5_SEEN:
+        _CPSAM_MD5_SEEN[identity] = _file_md5(path)
+    return _CPSAM_MD5_SEEN[identity]
 
 
 def _installed_cellpose_models():

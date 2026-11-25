@@ -2197,6 +2197,91 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
                                 stock_weights=ops_setting(settings, "ops_cellpose_model"))
 
 
+#: The Cellpose model each segmentation role of a run uses (item 975):
+#: ``{role: (setting naming the model, phase that needs it)}``.
+_PROVENANCE_ROLES = {
+    "ph_nuclei": ("ops_ph_nucleus_model", "ph_segment"),
+    "ph_cells": ("ops_ph_cell_model", "ph_segment"),
+    "sbs_nuclei": ("ops_sbs_nucleus_model", "objects"),
+    "sbs_cells": ("ops_sbs_cell_model", "decode"),
+}
+
+
+def _cellpose_provenance(settings: Mapping[str, Any], key: str) -> Dict[str, Any]:
+    """Which weights the model named by ``key`` loads, as the run records them.
+
+    :param settings: read for ``key``, ``ops_cellpose_model`` and a model
+        file pinned for ``key``.
+    :param key: ``ops_ph_nucleus_model``, ``ops_ph_cell_model``,
+        ``ops_sbs_nucleus_model`` or ``ops_sbs_cell_model``.
+    :returns: ``{"setting", "model", "path", "md5"}``, plus ``"weights"``
+        (``cpsam_v2`` or ``cpsam_v1``) for the stock ``cpsam``, whose path
+        is the verified file of :func:`spacr.utils.cpsam_weights` (a missing
+        or different file gives ``path`` and ``md5`` None and ``unverified``,
+        the reason; the model build refuses it too). A custom
+        checkpoint gives its own absolute path and md5. The md5 comes from
+        :func:`spacr.utils.weights_md5`, so a weight file is read once per
+        run however many roles and fields use it. ``path`` and ``md5`` are
+        None for a stock name that is not a file on this machine.
+    """
+    from .model_zoo import ModelUnreadable, ModelZooError
+    from .utils import (CPSAM_MODEL, _resolve_cellpose_source, cpsam_weights,
+                        weights_md5)
+
+    name = str(settings.get(key) or "cpsam").strip() or "cpsam"
+    record: Dict[str, Any] = {"setting": key, "model": name}
+    try:
+        source = _resolve_cellpose_source(name, settings=settings, key=key)
+    except (ModelZooError, ModelUnreadable) as error:
+        # the model build refuses the same name; the record says why
+        record.update(path=None, md5=None, unverified=str(error))
+        return record
+    if source == CPSAM_MODEL:
+        weights = str(ops_setting(settings, "ops_cellpose_model"))
+        record["weights"] = weights
+        try:
+            path = cpsam_weights(weights)
+        except ModelUnreadable as error:
+            # building the model refuses the same file; the record says why
+            # there is no path rather than stopping a run that builds none
+            record.update(path=None, md5=None, unverified=str(error))
+            return record
+    else:
+        path = os.fspath(source)
+        if not os.path.isfile(path):
+            from cellpose import models as cp_models
+
+            path = os.path.join(os.fspath(getattr(cp_models, "MODEL_DIR", "")), path)
+    if os.path.isfile(path):
+        record.update(path=os.path.abspath(path), md5=weights_md5(path))
+    else:
+        record.update(path=None, md5=None)
+    return record
+
+
+def _run_provenance(settings: Mapping[str, Any],
+                    phases: Sequence[str]) -> Dict[str, Dict[str, Any]]:
+    """The Cellpose weights of every segmentation role the phases run (item 975).
+
+    :param settings: read for the four model settings and
+        ``ops_sbs_cell_method``; the SBS cells are listed only for
+        ``'cellpose'``.
+    :param phases: the phases being run: the phenotype roles need
+        ``ph_segment``, the SBS nuclei ``objects`` and the SBS cells
+        ``decode``.
+    :returns: ``{role: :func:`_cellpose_provenance`}``.
+    """
+    out: Dict[str, Dict[str, Any]] = {}
+    for role, (key, phase) in _PROVENANCE_ROLES.items():
+        if phase not in phases:
+            continue
+        if role == "sbs_cells" and str(ops_setting(
+                settings, "ops_sbs_cell_method") or "off").strip().lower() != "cellpose":
+            continue
+        out[role] = _cellpose_provenance(settings, key)
+    return out
+
+
 def _ops_diameter(value, role, factor=1.0):
     """The Cellpose ``diameter`` keyword for one OPS object, read by the shared rule.
 
@@ -2711,15 +2796,17 @@ def _objects_raw_folder(db: str) -> str:
     return os.path.join(os.path.dirname(os.path.abspath(db)), "sbs_masks")
 
 
-def _objects_raw_writer(db: str, plate: str):
+def _objects_raw_writer(db: str, plate: str, attributes=None):
     """The plate store writer of the SBS raw window masks (item N6).
 
     :param db: the measurements database.
     :param plate: the plate name.
+    :param attributes: store attributes, the Cellpose weights of the run
+        (item 975).
     """
     from .image_store import PlateWriter
 
-    return PlateWriter(_objects_raw_folder(db), plate)
+    return PlateWriter(_objects_raw_folder(db), plate, attributes=attributes)
 
 
 def _objects_raw_save(writer, well: str, index: int, window, canvas, masks) -> None:
@@ -2855,7 +2942,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     folder = _objects_windows_folder(settings, db, well)
     basis = (_objects_window_basis(settings, blend, extra, canvas, shape)
              if folder else None)
-    raw_writer = (_objects_raw_writer(db, plate)
+    raw_writer = (_objects_raw_writer(
+        db, plate, {"cellpose_models": _run_provenance(settings, ("objects",))})
                   if ops_setting(settings, "ops_store_raw_masks") else None)
     kept = Counter()
     seconds = Counter()
@@ -7014,12 +7102,17 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     ngff_version = _ph_ngff_version(settings)
     store_raw = bool(ops_setting(settings, "ops_store_raw_masks"))
     mask_writer = None
+    segment_flat = _ph_segment_flat(settings, destination, channels) if segment else None
+    provenance = ({"cellpose_models": _run_provenance(settings, ("ph_segment",)),
+                   "segment_flatfield_md5": (None if segment_flat is None
+                                             else segment_flat["md5"])}
+                  if segment else None)
     stored_masks = _ph_mask_paths(destination, plate, well, settings, mask_folder)
     if segment and image_format == "ome-zarr":
         from .image_store import PlateWriter
 
         mask_writer = PlateWriter(mask_dir, plate, channel_names=channels,
-                                  ngff_version=ngff_version)
+                                  ngff_version=ngff_version, attributes=provenance)
         stored_masks = _ph_committed_fields(mask_dir, plate, well)
     elif segment:
         stored_masks = {site: path for site, path in stored_masks.items()
@@ -7041,6 +7134,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
 
     unreadable: list = []
     report: Dict[str, Any] = {"fields": len(sites)}
+    if provenance:
+        report["provenance"] = provenance
     field_shape = None
     secondary = _ph_secondary_by_site(db, plate, well, settings)
     object_roles = _ph_object_roles(settings)
@@ -7066,7 +7161,6 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
         weights = str(ops_setting(settings, "ops_cellpose_model"))
         if weights != "cpsam_v1":
             mask_options["cellpose_weights"] = weights
-        segment_flat = _ph_segment_flat(settings, destination, channels)
         if segment_flat is not None:
             mask_options["segment_flatfield"] = segment_flat["md5"]
         elif (mask_folder == "phenotype_masks"
@@ -14534,6 +14628,7 @@ def run_ops(settings: Mapping[str, Any], *,
             report["ph_merged"] = _ph_merged(
                 db, plate, well, phenotype_index.get(well) or {}, settings,
                 destination)
+        report["provenance"] = _well_provenance(settings, phases, report)
         report["seconds"] = round(time.perf_counter() - started, 1)
         report["peak_rss_gb"] = _peak_rss_gb()
         _atomic_json(report_path, report, indent=1, sort_keys=False,
@@ -14628,6 +14723,31 @@ def run_ops(settings: Mapping[str, Any], *,
                       "w", encoding="utf-8") as handle:
                 json.dump(out[phase], handle, indent=1, default=str)
     return out
+
+
+def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
+                     report: Mapping[str, Any]) -> Dict[str, Any]:
+    """The ``provenance`` block of one well's ``ops_report.json`` (item 975).
+
+    :param settings: see :func:`_run_provenance`.
+    :param phases: the phases of this run.
+    :param report: the well's report; the phenotype fields' own record of
+        the weights and the flat-field map they segmented on
+        (``ph_fields.provenance``) is lifted from it.
+    :returns: ``cellpose_models`` (role to path, md5, model name) and
+        ``segment_flatfield_md5`` (channel to md5, or None when the fields
+        were segmented on raw pixels). A phase this run did not run leaves
+        what an earlier run of the well recorded.
+    """
+    block = dict(report.get("provenance") or {})
+    models = dict(block.get("cellpose_models") or {})
+    fields = (report.get("ph_fields") or {}).get("provenance")
+    if fields:
+        models.update(fields["cellpose_models"])
+        block["segment_flatfield_md5"] = fields["segment_flatfield_md5"]
+    models.update(_run_provenance(settings, [p for p in phases if p != "ph_segment"]))
+    block["cellpose_models"] = models
+    return block
 
 
 def _run_phases(settings: Mapping[str, Any],
