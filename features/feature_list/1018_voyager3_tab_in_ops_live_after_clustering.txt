@@ -11,7 +11,7 @@ Owner:     WS "spacr work"
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-Voyager3 (item 973, OPS cluster annotation) runs from the OPS settings; OPS live (item 1015) has no Voyager3 tab.
+Voyager3 (item 973, OPS cluster annotation) runs from the OPS settings; OPS live (item 1022) has no Voyager3 tab.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
@@ -23,7 +23,7 @@ The annotation of clusters cannot be tried and judged live on the preview, like 
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-Add a Voyager3 tab to OPS live, after Clustering, built like the other tabs (item 1015): figure queue, Sample, Settings (only the Voyager3 settings), Run preview, and carrying settings over to the OPS module. It runs on the preview clusters.
+Add a Voyager3 tab to OPS live, after Clustering, built like the other tabs (item 1022): figure queue, Sample, Settings (only the Voyager3 settings), Run preview, and carrying settings over to the OPS module. It runs on the preview clusters.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
