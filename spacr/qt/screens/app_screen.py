@@ -8855,6 +8855,20 @@ class AppScreen(QWidget):
                 queue.figure_clicked.connect(self._on_static_figure_clicked)
             row.addWidget(self._interactive_switch)
 
+        self._voyager3_switch = None
+        if self.app_key == "mask":
+            try:
+                from ..voyager3_panel import (_VOYAGER3_TOGGLE_TEXT,
+                                              _install_voyager3_switch,
+                                              _voyager3_tooltip)
+
+                self._voyager3_switch = AiToggleLabel(
+                    text=_VOYAGER3_TOGGLE_TEXT, tooltip=_voyager3_tooltip())
+                row.addWidget(self._voyager3_switch)
+                _install_voyager3_switch(self, self._voyager3_switch)
+            except Exception:                            # noqa: BLE001
+                LOG.debug("Could not install the Voyager3 switch", exc_info=True)
+
         self._ai_switch = AiToggleLabel()
         self._ai_switch.toggled.connect(self._on_ai_switch)
         row.addWidget(self._ai_switch)
