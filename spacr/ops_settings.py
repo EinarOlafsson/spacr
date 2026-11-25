@@ -2386,8 +2386,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Alpha.",
     "ops_ownership":
         "(str) - Which copy of a cell imaged in two overlapping fields is "
-        "kept. 'closer_match' keeps the closer sequencing match, as before "
-        "spaCR 1.5.1.8; it is often the copy cut by the field's edge. 'a1b' "
+        "kept. 'closer_match' keeps the closer sequencing match; it is "
+        "often the copy cut by the field's edge. 'a1b' "
         "keeps the copy from the field in which the sequencing nucleus "
         "lies deepest, and 'a1' the one whose phenotype nucleus does. Both "
         "also leave out cells that touch a field's edge, which needs the "
