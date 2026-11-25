@@ -282,7 +282,36 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     that cell; a cell keeps its largest such nucleus; cells without a
     nucleus and nuclei without a cell are dropped and counted.
     """
-    from .measure import _assign_nuclei_to_cells, _best_parent, _label_overlaps
+    return _pair_nuclei_with_cells(nuclei, cells)[:3]
+
+
+def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None):
+    """:func:`pair_nuclei_with_cells` with the item-1024 alpha options.
+
+    :param nuclei: a 2-D nucleus label mask.
+    :param cells: a 2-D cell label mask of the same field.
+    :param pairing: :func:`spacr.measure._nucleus_pairing_options` under the
+        Measure names, or None for the pairing of
+        :func:`pair_nuclei_with_cells`. The nuclei go to cells in the one
+        shared :func:`spacr.measure._assign_nuclei_to_cells`, so OPS and
+        Measure pair the same way.
+    :param dna: the field's nucleus stain for the dip of the fragment
+        test, or None.
+    :returns: ``(nuclei, cells, counts, record)``. ``record`` is None
+        without an active option; otherwise ``fragments``, one
+        ``(label, kept_label, merged_label)`` per merged piece, ``label``
+        the output key and the other two the input labels (the merged
+        nucleus keeps the lowest piece label into the pairing), and
+        ``nucleus_only``, the output keys of nuclei kept without a cell.
+
+    With ``cellless_nuclei`` ``'nucleus_only'``, a nucleus without a cell
+    keeps a key after the paired ones, ``K + 1`` onwards, in the same
+    nucleus key space; no cell carries that key, so its cell and cytoplasm
+    columns are empty. ``counts`` then also holds ``merged_fragments``,
+    ``binucleate_cells``, ``attached_cellless`` and ``nucleus_only``.
+    """
+    from .measure import (_assign_nuclei_to_cells, _best_parent,
+                          _label_overlaps, _nucleus_pairing_active)
 
     nuclei = np.asarray(nuclei)
     cells = np.asarray(cells)
@@ -290,19 +319,28 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
         raise SampleError(
             f"nucleus and cell masks differ in shape: {nuclei.shape} and "
             f"{cells.shape}")
+    active = _nucleus_pairing_active(pairing)
+    record = {} if active else None
     before = int(np.unique(cells[cells > 0]).size)
     nuclei, cells, _shared_n, _shared_c, merged = _assign_nuclei_to_cells(
-        nuclei.copy(), cells.copy())
+        nuclei.copy(), cells.copy(), options=pairing if active else None,
+        dna=dna if active else None, record=record)
     n_total = int(np.unique(nuclei[nuclei > 0]).size)
     c_total = int(np.unique(cells[cells > 0]).size)
     pair_n, pair_c, overlap = _label_overlaps(nuclei, cells)
-    if not pair_n.size:
+    keep_only = (record is not None
+                 and pairing.get("cellless_nuclei") == "nucleus_only")
+    alone = np.asarray(record["cellless"] if keep_only else [], np.int64)
+    if not pair_n.size and not alone.size:
+        counts = {"nuclei": n_total, "cells": before, "paired": 0,
+                  "nuclei_without_cell": n_total,
+                  "cells_without_nucleus": c_total,
+                  "extra_nuclei_in_cell": 0, "merged_cells": merged}
+        if record is not None:
+            counts.update(_pairing_counts(record, 0))
+            record = {"fragments": [], "nucleus_only": []}
         return (np.zeros(nuclei.shape, np.int32),
-                np.zeros(cells.shape, np.int32),
-                {"nuclei": n_total, "cells": before, "paired": 0,
-                 "nuclei_without_cell": n_total,
-                 "cells_without_nucleus": c_total,
-                 "extra_nuclei_in_cell": 0, "merged_cells": merged})
+                np.zeros(cells.shape, np.int32), counts, record)
     best_n, best_c, best_o = _best_parent(pair_n, pair_c, overlap)
     keep_c, keep_n, _ = _best_parent(best_c, best_n, best_o)
     labels = np.arange(1, keep_n.size + 1, dtype=np.int32)
@@ -310,9 +348,15 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     c_lut = np.zeros(int(cells.max()) + 1, np.int32)
     n_lut[keep_n] = labels
     c_lut[keep_c] = labels
+    if alone.size:
+        n_lut[alone] = np.arange(keep_n.size + 1,
+                                 keep_n.size + alone.size + 1, dtype=np.int32)
     new_cells = c_lut[cells.astype(np.int64)]
     new_nuclei = n_lut[nuclei.astype(np.int64)]
-    new_nuclei[new_nuclei != new_cells] = 0
+    clip = new_nuclei != new_cells
+    if alone.size:
+        clip &= new_nuclei <= keep_n.size
+    new_nuclei[clip] = 0
     counts = {
         "nuclei": n_total, "cells": before, "paired": int(keep_n.size),
         "nuclei_without_cell": int(n_total - np.unique(pair_n).size),
@@ -320,7 +364,22 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
         "extra_nuclei_in_cell": int(best_n.size - keep_n.size),
         "merged_cells": merged,
     }
-    return new_nuclei, new_cells, counts
+    if record is not None:
+        counts.update(_pairing_counts(record, int(alone.size)))
+        record = {
+            "fragments": [(int(n_lut[kept]), int(kept), int(piece))
+                          for kept, piece in record["fragments"]
+                          if n_lut[kept]],
+            "nucleus_only": [int(v) for v in n_lut[alone]]}
+    return new_nuclei, new_cells, counts, record
+
+
+def _pairing_counts(record, nucleus_only):
+    """The item-1024 counts of one field from the shared pairing's record."""
+    return {"merged_fragments": len(record["fragments"]),
+            "binucleate_cells": len(record["binucleate"]),
+            "attached_cellless": len(record["attached"]),
+            "nucleus_only": int(nucleus_only)}
 
 
 def _measurement_settings(channels: int, texture: bool,

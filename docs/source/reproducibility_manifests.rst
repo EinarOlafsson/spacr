@@ -262,6 +262,12 @@ default after a higher-numbered item takes the next free number:
   reports the split-read concordance of each well
   (``split_read_concordance``). Number 965 belongs to another item.
 
+- 967 (item 1024, nucleus pairing, alpha): ``nucleus_fragment_merge`` and
+  ``ops_ph_nucleus_fragment_merge`` (``'off'``) and ``cellless_nuclei`` and
+  ``ops_ph_cellless_nuclei`` (``'drop'``) are new, with their thresholds.
+  Both are off by default, so a run pairs nuclei with cells exactly as
+  before; the row pins the off values for files stamped before 967.
+
 Public API
 ----------
 

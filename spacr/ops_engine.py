@@ -4857,15 +4857,22 @@ def _ph_segmentation_inputs(stack, channels, settings):
 
 
 def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
-                      settings: Mapping[str, Any], *, field_count=1):
+                      settings: Mapping[str, Any], *, field_count=1,
+                      pairing_record=None):
     """Nuclei and cells of one field, paired so nucleus k is in cell k.
 
     :param stack: the ``(H, W, C)`` field.
     :param channels: channel names in the stack.
     :param models: ``(nucleus_model, cell_model)``.
     :param settings: read for ``ops_ph_cell_channel``, ``ops_ph_downsample``,
-        ``mask_eval_batch_size`` and the two diameters.
+        ``mask_eval_batch_size``, the two diameters and the item-1024 alpha
+        pairing options (``ops_ph_nucleus_fragment_merge``,
+        ``ops_ph_cellless_nuclei`` and their thresholds,
+        :func:`_ph_pairing_options`).
     :param field_count: fields in the current resident batch.
+    :param pairing_record: a dict, or None. With a pairing option on, it is
+        filled with the ``fragments`` and ``nucleus_only`` keys of
+        :func:`spacr.ops_sample._pair_nuclei_with_cells`.
     :returns: ``(nuclei, cells, counts)``.
 
     NUCLEI ON DAPI, CELLS ON THE CELL STAIN WITH DAPI AS THE SECOND
@@ -4887,8 +4894,127 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
                            site='ops_phenotype', field_count=field_count, channel_axis=-1,
                            **extra["cell"])[0]
     shape = stack.shape[:2]
-    return pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
-                                  _ph_upscale(cells, factor, shape))
+    pairing = _ph_pairing_options(settings)
+    if pairing is None:
+        return pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
+                                      _ph_upscale(cells, factor, shape))
+    from .ops_sample import _pair_nuclei_with_cells
+
+    nuclei, cells, counts, record = _pair_nuclei_with_cells(
+        _ph_upscale(nuclei, factor, shape), _ph_upscale(cells, factor, shape),
+        pairing, dna=np.asarray(stack[..., list(channels).index(_NUCLEAR)],
+                                np.float32))
+    if pairing_record is not None:
+        pairing_record.update(record)
+    return nuclei, cells, counts
+
+
+def _ph_pairing_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """The item-1024 alpha pairing options of an OPS run, or None when off.
+
+    :param settings: read for the ``ops_ph_`` names of
+        :func:`spacr.measure._nucleus_pairing_options`.
+    :returns: the options under the Measure names when
+        ``ops_ph_nucleus_fragment_merge`` or ``ops_ph_cellless_nuclei`` is
+        on, else None, so a run with both off pairs, and marks its masks,
+        exactly as before.
+    """
+    from .measure import _nucleus_pairing_active, _nucleus_pairing_options
+
+    options = _nucleus_pairing_options(
+        {key: settings.get(key) for key in _PH_PAIRING_KEYS}, prefix="ops_ph_")
+    return options if _nucleus_pairing_active(options) else None
+
+
+#: The OPS settings of the item-1024 pairing options, read by
+#: :func:`_ph_pairing_options`.
+_PH_PAIRING_KEYS = ("ops_ph_nucleus_fragment_merge",
+                    "ops_ph_nucleus_fragment_max_gap_px",
+                    "ops_ph_nucleus_fragment_min_solidity",
+                    "ops_ph_nucleus_fragment_max_dip",
+                    "ops_ph_cellless_nuclei",
+                    "ops_ph_cellless_nucleus_max_distance_px")
+
+
+def _ph_fragments_path(mask_dir: str, site: int) -> str:
+    """Where one field's merged nucleus pieces are listed (item 1024)."""
+    return os.path.join(mask_dir, f"nucleus_fragments_site-{site}.parquet")
+
+
+def _ph_write_fragments(path: str, well: str, site: int,
+                        record: Mapping[str, Any]) -> None:
+    """Write one field's item-1024 pairing record as a small table.
+
+    :param path: :func:`_ph_fragments_path`.
+    :param well: the well.
+    :param site: the field.
+    :param record: ``fragments`` and ``nucleus_only`` from
+        :func:`spacr.ops_sample._pair_nuclei_with_cells`.
+    :returns: None. One row per merged piece, ``(well, site, label,
+        kept_label, merged_label)``, ``label`` the nucleus key of the
+        tables; a nucleus kept without a cell adds a row with
+        ``kept_label`` and ``merged_label`` -1, so the measure step can tell
+        it apart.
+    """
+    import pandas as pd
+
+    rows = [(well, int(site), label, kept, piece)
+            for label, kept, piece in record.get("fragments") or ()]
+    rows += [(well, int(site), int(label), -1, -1)
+             for label in record.get("nucleus_only") or ()]
+    from .tabular import write_table
+
+    frame = pd.DataFrame(rows, columns=["well", "site", "label", "kept_label",
+                                        "merged_label"])
+    write_table(frame, path, canonicalise=False)
+
+
+def _ph_collect_fragments(mask_dir: str, destination: str, well: str,
+                          sites) -> str:
+    """Gather a well's per-field fragment tables into one (item 1024).
+
+    :param mask_dir: the folder of the field tables.
+    :param destination: the run folder.
+    :param well: the well.
+    :param sites: the well's fields.
+    :returns: the path of ``ops_nucleus_fragments_<well>.parquet``, the
+        mapping table ``(well, site, label, kept_label, merged_label)`` that
+        keeps masks and crops traceable to the pieces they merged.
+    """
+    import pandas as pd
+
+    parts = [_ph_fragments_path(mask_dir, s) for s in sites]
+    frames = [pd.read_parquet(p) for p in parts if os.path.isfile(p)]
+    frame = (pd.concat(frames, ignore_index=True) if frames else
+             pd.DataFrame(columns=["well", "site", "label", "kept_label",
+                                   "merged_label"]))
+    from .tabular import write_table
+
+    path = os.path.join(destination, f"ops_nucleus_fragments_{well}.parquet")
+    write_table(frame, path, canonicalise=False)
+    return path
+
+
+def _ph_pairing_columns(table, cells: np.ndarray, path: str):
+    """Add the item-1024 columns to one field's phenotype table.
+
+    :param table: the field's table, one row per nucleus ``label``.
+    :param cells: the field's paired cell labels.
+    :param path: :func:`_ph_fragments_path` of the field.
+    :returns: ``table`` with ``nucleus_fragment_count`` (1 for a nucleus
+        never merged), ``nucleus_merged`` and ``has_cell``.
+    """
+    import pandas as pd
+
+    pieces = (pd.read_parquet(path) if os.path.isfile(path)
+              else pd.DataFrame(columns=["label", "kept_label"]))
+    merged = pieces[pieces["kept_label"].astype(np.int64) >= 0]
+    extra = merged.groupby("label").size() if len(merged) else pd.Series(dtype=int)
+    labels = table["label"].astype(np.int64)
+    table["nucleus_fragment_count"] = [1 + int(extra.get(v, 0)) for v in labels]
+    table["nucleus_merged"] = table["nucleus_fragment_count"] > 1
+    table["has_cell"] = labels.isin(np.unique(cells[cells > 0]))
+    return table
 
 
 #: The object classes item 970 adds to the phenotype path, in the order
@@ -5917,6 +6043,8 @@ def _ph_measure_table(task: Mapping[str, Any]):
             table[column] = table[source] if source in table else np.nan
     if "nucleus_area" not in table:
         table["nucleus_area"] = np.nan
+    if task.get("fragments_path"):
+        table = _ph_pairing_columns(table, cells, task["fragments_path"])
     if task.get("objects") and len(table):
         from .ops_sample import _cell_object_features
 
@@ -6193,6 +6321,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     secondary = _ph_secondary_by_site(db, plate, well, settings)
     object_roles = _ph_object_roles(settings)
     object_models: Dict[str, Any] = {}
+    pairing_options = _ph_pairing_options(settings)
     if segment:
         from .object import _eval_tile_batch
 
@@ -6208,6 +6337,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "mask_inference_precision": precision}
         if object_roles:
             mask_options["objects"] = _ph_object_options(settings)
+        if pairing_options:
+            mask_options["nucleus_pairing"] = dict(pairing_options)
         _ph_options_marker(mask_dir, mask_options, existing_parts=bool(stored_masks))
     flat_folder = None
     options: Dict[str, Any] = {}
@@ -6248,7 +6379,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 "outside_rule": options.get("outside_rule"),
                 "measure_gpu": options["measure_gpu"],
                 "secondary": secondary.get(site),
-                "objects": object_roles}
+                "objects": object_roles,
+                **({"fragments_path": _ph_fragments_path(mask_dir, site)}
+                   if pairing_options else {})}
 
     check_gpu = bool(measure and options["measure_gpu"]
                      and settings.get("ops_ph_measure_gpu_check", True))
@@ -6368,10 +6501,15 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                     if not models:
                         models.extend(_ph_model_pair(settings, gpu, object_models))
                     tick = time.perf_counter()
+                    pairing_record = {} if pairing_options else None
                     nuclei, cells, paired = _ph_segment_field(
-                        stack, channels, models, settings, field_count=field_count)
+                        stack, channels, models, settings, field_count=field_count,
+                        pairing_record=pairing_record)
                     seconds["segment"] += time.perf_counter() - tick
                     counts.update(paired)
+                    if pairing_record is not None:
+                        _ph_write_fragments(_ph_fragments_path(mask_dir, site),
+                                            well, site, pairing_record)
                     arrays = {"nuclei": nuclei.astype(np.uint32),
                               "cells": cells.astype(np.uint32)}
                     if object_roles:
@@ -6400,6 +6538,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                     del stack
             fresh = sum(1 for s in todo if s in stored_masks)
             _ph_record_missing(plate, well, destination, found)
+            if pairing_options:
+                _ph_collect_fragments(mask_dir, destination, well, sites)
             report["ph_segment"] = {
                 "missing_recorded": sorted(found),
                 "missing_skipped": sorted(

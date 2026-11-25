@@ -1442,6 +1442,9 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "save_measurements", "calculate_correlation",
             "profile_features", "cytoskeleton_channels", "profile_optional_families",
             "profile_granularity_subsample", "profile_outside_rule",
+            "nucleus_fragment_merge", "nucleus_fragment_max_gap_px",
+            "nucleus_fragment_min_solidity", "nucleus_fragment_max_dip",
+            "cellless_nuclei", "cellless_nucleus_max_distance_px",
             "funk_object_features", "zernike", "channel_names",
             "spatial_measurements",
             "spatial_neighbor_radius",
@@ -2358,7 +2361,7 @@ _APP_CATEGORY_PARENTS["ops"] = {
         "Comparison with other pipelines")},
     **{title: "OPS phenotype" for title in (
         "Phenotype segmentation", "Additional phenotype objects",
-        "Phenotype acquisitions",
+        "Nucleus pairing α", "Phenotype acquisitions",
         "Feature families", "Cytoskeleton measurements", "Flat-field correction", "Flat-field map fit",
         "Flat-field validation", "Merged images & tables",
         "Single-cell crops")},
@@ -3113,6 +3116,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "the channel each is found on, the Cellpose model, diameter and "
         "smallest area, and for organelles the morphology and the method "
         "that finds them, as in Mask Generation.",
+    "NUCLEUS PAIRING Α":
+        "Alpha: what happens to a nucleus cut into pieces inside one cell "
+        "and to a nucleus outside every cell, before nuclei are paired with "
+        "cells. Both are off by default, which pairs as before.",
     "PHENOTYPE ACQUISITIONS":
         "For a plate whose phenotype channels were imaged in more than one "
         "acquisition: which acquisition holds which channels, and how a "

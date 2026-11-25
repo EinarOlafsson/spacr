@@ -356,6 +356,14 @@ from spacr.gene_graph import _DEFAULTS as GENE_GRAPH_DEFAULTS  # noqa: E402
 from spacr.gene_knowledge import _DEFAULTS as GENE_KNOWLEDGE_DEFAULTS  # noqa: E402
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # 1024, alpha, schema 967: nucleus fragments and cell-less nuclei, in the
+    # one shared pairing (Measure Features and OPS Nucleus pairing α).
+    "nucleus_fragment_merge", "nucleus_fragment_max_gap_px",
+    "nucleus_fragment_min_solidity", "nucleus_fragment_max_dip",
+    "cellless_nuclei", "cellless_nucleus_max_distance_px",
+    "ops_ph_nucleus_fragment_merge", "ops_ph_nucleus_fragment_max_gap_px",
+    "ops_ph_nucleus_fragment_min_solidity", "ops_ph_nucleus_fragment_max_dip",
+    "ops_ph_cellless_nuclei", "ops_ph_cellless_nucleus_max_distance_px",
     # L5 audit, schema 965: the ring of the outside profiling family.
     "profile_outside_rule", "ops_ph_profile_outside_rule",
     # Merge 4: one size-filter boundary rule; the legacy rule is kept for old files.

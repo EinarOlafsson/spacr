@@ -174,6 +174,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_profile_optional_families": None,
     "ops_ph_granularity_subsample": 1.0,
     "ops_ph_profile_outside_rule": "object",
+    "ops_ph_nucleus_fragment_merge": "off",
+    "ops_ph_nucleus_fragment_max_gap_px": 2.0,
+    "ops_ph_nucleus_fragment_min_solidity": 0.9,
+    "ops_ph_nucleus_fragment_max_dip": 0.2,
+    "ops_ph_cellless_nuclei": "drop",
+    "ops_ph_cellless_nucleus_max_distance_px": 5.0,
     "ops_drop_failed_fields": False,
     "ops_drop_nonfinite_rows": False,
     "ops_profile_normalisation": "robust_z",
@@ -789,6 +795,12 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_profile_optional_families": (bool, str, list, type(None)),
     "ops_ph_granularity_subsample": (float, int),
     "ops_ph_profile_outside_rule": str,
+    "ops_ph_nucleus_fragment_merge": str,
+    "ops_ph_nucleus_fragment_max_gap_px": (float, int),
+    "ops_ph_nucleus_fragment_min_solidity": (float, int),
+    "ops_ph_nucleus_fragment_max_dip": (float, int),
+    "ops_ph_cellless_nuclei": str,
+    "ops_ph_cellless_nucleus_max_distance_px": (float, int),
     "ops_drop_failed_fields": bool,
     "ops_drop_nonfinite_rows": bool,
     "ops_profile_normalisation": str,
@@ -1383,6 +1395,14 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_organelle_channel", "ops_ph_organelle_morphology",
         "ops_ph_organelle_method", "ops_ph_organelle_model",
         "ops_ph_organelle_diameter", "ops_ph_organelle_min_area",
+    ],
+    "Nucleus pairing α": [
+        "ops_ph_nucleus_fragment_merge",
+        "ops_ph_nucleus_fragment_max_gap_px",
+        "ops_ph_nucleus_fragment_min_solidity",
+        "ops_ph_nucleus_fragment_max_dip",
+        "ops_ph_cellless_nuclei",
+        "ops_ph_cellless_nucleus_max_distance_px",
     ],
     "Phenotype acquisitions": [
         "ops_ph_acquisitions", "ops_ph_use_acquisition",
@@ -2104,6 +2124,54 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "the same in Measure and OPS. 'background': every ring keeps only "
         "pixels outside every object of its own mask, as before settings "
         "schema 965. Default 'object'. Alpha.",
+    "ops_ph_nucleus_fragment_merge":
+        "(str) - 'rule' merges the nucleus pieces inside one cell that "
+        "look like one nucleus cut in two, so the nucleus features "
+        "describe the whole nucleus and the cell is no longer paired "
+        "with half of it. Pieces that fail the test stay apart. A "
+        "merged nucleus keeps its lowest piece label, gets "
+        "nucleus_fragment_count and nucleus_merged, and its pieces are "
+        "listed in ops_nucleus_fragments_<well>.parquet. 'off' pairs as "
+        "before. The same rule as nucleus_fragment_merge in Measure. "
+        "Default 'off'. Alpha.",
+    "ops_ph_nucleus_fragment_max_gap_px":
+        "(float) - Wider merges more nucleus pieces but starts joining "
+        "two separate nuclei: the widest background gap, in pixels, "
+        "between two pieces that ops_ph_nucleus_fragment_merge may "
+        "still join. 0 joins only touching pieces. Only read when "
+        "ops_ph_nucleus_fragment_merge is 'rule'. Provisional until "
+        "checked on hand-labelled cells. Default 2.0. Alpha.",
+    "ops_ph_nucleus_fragment_min_solidity":
+        "(float) - Lower joins more pairs, including two nuclei side by "
+        "side: the least solidity (area over the area of the convex "
+        "hull) the union of two nucleus pieces needs for "
+        "ops_ph_nucleus_fragment_merge to join them. Only read when "
+        "ops_ph_nucleus_fragment_merge is 'rule'. Provisional until "
+        "checked on hand-labelled cells. Default 0.9. Alpha.",
+    "ops_ph_nucleus_fragment_max_dip":
+        "(float) - Higher joins more pairs, including two nuclei with a "
+        "dark line between them: the deepest dip of the DAPI signal "
+        "along the line joining two piece centres, as 1 - lowest / "
+        "median of the pieces, for ops_ph_nucleus_fragment_merge to "
+        "join them. Only read when ops_ph_nucleus_fragment_merge is "
+        "'rule'. Provisional until checked on hand-labelled cells. "
+        "Default 0.2. Alpha.",
+    "ops_ph_cellless_nuclei":
+        "(str) - 'nearest_cell' gives a nucleus outside every cell to "
+        "the nearest cell within "
+        "ops_ph_cellless_nucleus_max_distance_px, whose outline grows "
+        "over the nucleus, so the nucleus is genotyped and measured "
+        "with that cell. 'nucleus_only' keeps it as a nucleus without a "
+        "cell, keyed after the paired nuclei, with has_cell False and "
+        "empty cell and cytoplasm columns. 'drop' drops it, as before. "
+        "Default 'drop'. Alpha.",
+    "ops_ph_cellless_nucleus_max_distance_px":
+        "(float) - Farther gives more nuclei a cell but can give one to "
+        "the wrong cell: the farthest, in pixels, a nucleus outside "
+        "every cell may lie from a cell for ops_ph_cellless_nuclei "
+        "'nearest_cell' to give it to that cell; 1 is touching. Nuclei "
+        "farther away are handled as 'drop'. Only read when "
+        "ops_ph_cellless_nuclei is 'nearest_cell'. Default 5.0. Alpha.",
     "ops_drop_failed_fields":
         "(bool) - Leave out the cells of fields that did not register. The "
         "merge phase compares each field's link rate with the rate an "
