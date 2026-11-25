@@ -204,8 +204,11 @@ def test_the_default_run_writes_what_it_wrote_before(tmp_path, models):
     assert set(_saved_masks(tmp_path, SETTINGS)) == {"nuclei", "cells"}
     mask_options = json.loads((tmp_path / "A1" / "phenotype_masks"
                                / "part_options.json").read_text())
+    # Schema 975 (item 1025): the default weights are cpsam_v2, so the
+    # marker names them; only cpsam_v1 masks leave the key out.
     assert mask_options == {"mask_eval_batch_size": 0, "ops_ph_tile_batch": 0,
-                            "mask_inference_precision": "auto"}
+                            "mask_inference_precision": "auto",
+                            "cellpose_weights": "cpsam_v2"}
     marker = json.loads((tmp_path / "A1" / "phenotype_cells"
                          / "part_options.json").read_text())
     assert "objects" not in marker
