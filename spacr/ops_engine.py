@@ -2978,6 +2978,295 @@ def _init_decode_worker(library: frozenset,
     _DECOYS = decoys
 
 
+#: The SBS cell methods ``ops_sbs_cell_method`` may name (item 1025, alpha).
+_SBS_CELL_METHODS = ("off", "cellpose", "watershed")
+
+#: How far the SBS cytoplasm proxy is smoothed, in pixels, so single reads
+#: do not punch holes in the cell foreground (item 1025).
+_SBS_PROXY_SIGMA = 2.0
+
+#: The mask settings a decode worker needs for the SBS Cellpose cells.
+_SBS_CELL_MASK_KEYS = (*_OPS_MASK_SETTINGS, "ops_sbs_cell_model")
+
+#: SBS cell models loaded once per decode process, by model name and card.
+_SBS_CELL_MODELS: Dict[Tuple[str, bool], Any] = {}
+
+
+def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """The item-1025 SBS cell options of a decode, or None when they are off.
+
+    :param settings: read for ``ops_sbs_cell_method``, ``ops_sbs_cell_model``
+        and ``ops_sbs_cell_threshold``.
+    :returns: None with ``ops_sbs_cell_method`` 'off', so a run decodes
+        exactly as before; otherwise ``method``,
+        ``foreground`` (the proxy threshold, None for Otsu) and ``mask_settings``, the shared
+        Cellpose settings a decode worker reads.
+    :raises ValueError: for an unknown method or a threshold that is not a
+        number.
+    """
+    from .qt.i18n import tr
+
+    method = str(ops_setting(settings, "ops_sbs_cell_method") or "off").strip().lower()
+    if method not in _SBS_CELL_METHODS:
+        raise ValueError(tr("ops_sbs_cell_method must be one of {choices}; got {value}",
+                            choices=list(_SBS_CELL_METHODS), value=method))
+    if method == "off":
+        return None
+    value = ops_setting(settings, "ops_sbs_cell_threshold")
+    threshold = None
+    if value not in (None, ""):
+        try:
+            threshold = float(value)
+        except (TypeError, ValueError):
+            raise ValueError(tr("ops_sbs_cell_threshold must be a number or empty; "
+                                "got {value}", value=value)) from None
+    mask_settings = {key: settings.get(key) for key in _SBS_CELL_MASK_KEYS
+                     if settings.get(key) is not None}
+    return {"method": method, "foreground": threshold,
+            "mask_settings": mask_settings}
+
+
+def _sbs_cell_proxy(stack: np.ndarray) -> np.ndarray:
+    """The SBS cytoplasm proxy of one aligned field (item 1025).
+
+    Every base channel of every kept cycle has its median taken off as the
+    background and is clipped at 0; the planes are averaged and smoothed by
+    :data:`_SBS_PROXY_SIGMA`, so the amplicon haze that fills a cell remains
+    and single reads do not stand out. Brieflow segments SBS cells on such
+    an aggregate of the base channels.
+
+    :param stack: ``(kept cycles, channels, H, W)``, the aligned field.
+    :returns: ``(H, W)`` float32.
+    """
+    from scipy import ndimage
+
+    planes = np.asarray(stack, dtype=np.float32)
+    background = np.median(planes, axis=(-2, -1), keepdims=True)
+    proxy = np.clip(planes - background, 0, None).mean(axis=(0, 1))
+    return ndimage.gaussian_filter(proxy, _SBS_PROXY_SIGMA).astype(np.float32)
+
+
+def _sbs_seed_labels(centroids, areas, shape) -> np.ndarray:
+    """The SBS nuclei of one field as label discs, the seeds of its cells.
+
+    Each nucleus is its equivalent disc (its area about its centroid), the
+    nucleus the read assignment of the decode measures from
+    (:func:`spacr.ops_sbs.nearest_boundaries`). Where two discs overlap, a
+    pixel goes to the nearer centre.
+
+    :param centroids: ``(N, 2)`` centroids in the field's frame.
+    :param areas: ``(N,)`` areas in pixels.
+    :param shape: the field's ``(H, W)``.
+    :returns: an int32 label image; nucleus ``i`` of the arrays has label
+        ``i + 1``, and a nucleus whose disc lies outside the field is absent.
+    """
+    height, width = int(shape[0]), int(shape[1])
+    labels = np.zeros((height, width), np.int32)
+    nearest = np.full((height, width), np.inf, np.float32)
+    centres = np.asarray(centroids, dtype=float).reshape(-1, 2)
+    radii = np.sqrt(np.maximum(np.asarray(areas, dtype=float).reshape(-1), 0) / np.pi)
+    for index, ((cy, cx), radius) in enumerate(zip(centres, radii), start=1):
+        top, bottom = max(int(np.floor(cy - radius)), 0), min(int(np.ceil(cy + radius)) + 1, height)
+        left, right = max(int(np.floor(cx - radius)), 0), min(int(np.ceil(cx + radius)) + 1, width)
+        if top >= bottom or left >= right:
+            continue
+        yy, xx = np.mgrid[top:bottom, left:right]
+        distance = np.hypot(yy - cy, xx - cx).astype(np.float32)
+        window = nearest[top:bottom, left:right]
+        take = (distance <= radius) & (distance < window)
+        window[take] = distance[take]
+        labels[top:bottom, left:right][take] = index
+    return labels
+
+
+def _sbs_cell_model(options: Mapping[str, Any], gpu: bool):
+    """The Cellpose model of the SBS cells, loaded once per process.
+
+    :param options: from :func:`_sbs_cell_options`.
+    :param gpu: put it on the card.
+    :returns: the model :func:`_cellpose_model` builds from
+        ``ops_sbs_cell_model``.
+    """
+    settings = options["mask_settings"]
+    key = (str(settings.get("ops_sbs_cell_model") or "cpsam"), bool(gpu))
+    if key not in _SBS_CELL_MODELS:
+        _SBS_CELL_MODELS[key] = _cellpose_model(settings, gpu, "ops_sbs_cell_model")
+    return _SBS_CELL_MODELS[key]
+
+
+def _sbs_segment_cells(stack: np.ndarray, seeds: np.ndarray,
+                       options: Mapping[str, Any], *, model=None,
+                       nuclear: Optional[np.ndarray] = None) -> np.ndarray:
+    """SBS cells grown from the SBS nuclei, through the shared segmentation code.
+
+    Both methods grow one cell from every nucleus with
+    :func:`spacr.ops_large_sites.cells_from_nucleus_seeds`, the seeded
+    watershed of the OPS phenotype path; they differ only in the
+    foreground it floods:
+
+    * ``'cellpose'``: the cell probability of the Cellpose model on the
+      proxy (:func:`_sbs_cell_proxy`) with the nucleus stain as the second
+      channel, run by :func:`spacr.ops_large_sites._eval_flows` through the
+      shared mask evaluation, normalised by
+      :func:`spacr.ops_large_sites.normalize_site`;
+    * ``'watershed'``: the proxy above ``foreground``, or above its Otsu
+      threshold (:func:`spacr.object._otsu_threshold`) when that is empty.
+
+    :param stack: ``(kept cycles, channels, H, W)``, the aligned field.
+    :param seeds: :func:`_sbs_seed_labels`.
+    :param options: from :func:`_sbs_cell_options`.
+    :param model: the Cellpose model for ``'cellpose'``.
+    :param nuclear: the field's nucleus stain, or None to give Cellpose the
+        seed discs instead.
+    :returns: an int32 cell label image in which cell ``k`` holds seed ``k``.
+    """
+    from .ops_large_sites import cells_from_nucleus_seeds
+
+    proxy = _sbs_cell_proxy(stack)
+    if options["method"] == "watershed":
+        threshold = options["foreground"]
+        if threshold is None:
+            from .object import _otsu_threshold
+
+            threshold = _otsu_threshold(proxy)
+        return cells_from_nucleus_seeds(seeds, proxy, cellprob_threshold=float(threshold))
+    from .ops_large_sites import _eval_flows, normalize_site
+
+    second = (np.asarray(nuclear, np.float32) if nuclear is not None
+              and np.shape(nuclear) == proxy.shape else (seeds > 0).astype(np.float32))
+    image = normalize_site(np.stack([proxy, second], axis=-1))
+    cellprob = _eval_flows(model, image, options["mask_settings"], channel_axis=-1)[1]
+    return cells_from_nucleus_seeds(seeds, np.asarray(cellprob, np.float32).reshape(proxy.shape))
+
+
+def _sbs_pair_cells(seeds: np.ndarray, cells: np.ndarray, count: int):
+    """Give every SBS nucleus one cell or none, in the shared pairing.
+
+    The nuclei go to cells in :func:`spacr.measure._assign_nuclei_to_cells`,
+    the one pairing of Measure and OPS phenotype. A cell that ends up
+    holding several nuclei is given to the one it overlaps most (ties to
+    the lowest label); the others have no cell.
+
+    :param seeds: :func:`_sbs_seed_labels`, labels ``1..count``.
+    :param cells: the cells of :func:`_sbs_segment_cells`.
+    :param count: how many nuclei the field's arrays hold.
+    :returns: ``(cells, has_cell, cell_area)``: the cell labels renumbered so
+        the cell of nucleus ``i`` carries ``i + 1``, and per nucleus whether
+        it has a cell and the cell's area in pixels (0 without one).
+    """
+    from .measure import _assign_nuclei_to_cells, _best_parent, _label_overlaps
+
+    nuclei, paired, *_ = _assign_nuclei_to_cells(np.array(seeds, copy=True),
+                                                 np.array(cells, copy=True))
+    kids, parents, overlap = _best_parent(*_label_overlaps(nuclei, paired))
+    order = np.lexsort((kids, -overlap, parents))
+    kids, parents = kids[order], parents[order]
+    first = np.r_[True, parents[1:] != parents[:-1]] if parents.size else np.zeros(0, bool)
+    kids, parents = kids[first], parents[first]
+    lut = np.zeros(int(max(int(paired.max()) if paired.size else 0,
+                           int(parents.max()) if parents.size else 0)) + 1, np.int32)
+    lut[parents] = kids
+    out = lut[paired].astype(np.int32)
+    has_cell = np.zeros(int(count), bool)
+    has_cell[kids[(kids >= 1) & (kids <= count)] - 1] = True
+    area = np.bincount(out.ravel(), minlength=int(count) + 1)[1:int(count) + 1]
+    return out, has_cell, area.astype(np.int64)
+
+
+def _sbs_field_cells(task: Mapping[str, Any], stack: np.ndarray, gpu: bool,
+                     unreadable: list) -> Dict[str, Any]:
+    """Segment and pair the SBS cells of one decode field (item 1025).
+
+    :param task: the field's task with ``sbs_cells`` (:func:`_sbs_cell_options`),
+        the nuclei (``centroids``, ``areas``) and, for ``'cellpose'``,
+        ``sbs_dapi``, the reference cycle's nucleus stain.
+    :param stack: ``(kept cycles, channels, H, W)``, the aligned field.
+    :param gpu: let Cellpose use the card.
+    :param unreadable: the field's unreadable list, extended on a bad file.
+    :returns: ``cells`` and ``seeds`` (labels ``i + 1`` for the task's
+        nucleus ``i``), ``has_cell`` and ``cell_area``.
+    """
+    options = task["sbs_cells"]
+    shape = np.shape(stack)[-2:]
+    seeds = _sbs_seed_labels(task["centroids"], task["areas"], shape)
+    model = nuclear = None
+    if options["method"] == "cellpose":
+        model = _sbs_cell_model(options, gpu)
+        if task.get("sbs_dapi") is not None:
+            nuclear = _read_plane(task["sbs_dapi"], unreadable)
+    cells = _sbs_segment_cells(stack, seeds, options, model=model, nuclear=nuclear)
+    count = len(np.asarray(task["ids"]).reshape(-1))
+    cells, has_cell, area = _sbs_pair_cells(seeds, cells, count)
+    return {"cells": cells, "seeds": seeds, "has_cell": has_cell, "cell_area": area}
+
+
+def _sbs_cells_folder(db: str) -> str:
+    """The project folder whose ``fov.ome.zarr`` holds the SBS cell masks."""
+    return os.path.join(os.path.dirname(os.path.abspath(db)), "sbs")
+
+
+def _sbs_store_cells(db: str, plate: str, well: str, options: Mapping[str, Any],
+                     tasks: Sequence[Mapping[str, Any]],
+                     results: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
+    """Store a well's SBS cells and their pairing (item 1025).
+
+    The masks go into ``<run>/sbs/fov.ome.zarr``
+    (:func:`spacr.image_store._merged_store_path`) through the one plate
+    writer, one field per decoded SBS tile under the store key of its
+    (well, site), as labels ``sbs_cell`` and ``sbs_nucleus`` whose values
+    are the SBS ``object_id``: the (well, site, label) key space of the
+    other OPS labels. The pairing goes to
+    ``ops_sbs_cells_<well>.parquet`` beside the database, one row per
+    nucleus and field: ``plate, well, site, label, has_cell, cell_area_px,
+    owned``.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param options: from :func:`_sbs_cell_options`.
+    :param tasks: the decode tasks, for each field's object ids.
+    :param results: the decoded fields; each loses its ``sbs_cells``.
+    :returns: the report: ``method``, ``store``,
+        ``table``, ``fields``, ``nuclei`` and ``nuclei_with_cell``.
+    """
+    import pandas as pd
+
+    from .image_store import PlateWriter, _compact_labels, _merged_store_path
+    from .tabular import write_table
+
+    folder = _sbs_cells_folder(db)
+    writer = PlateWriter(folder, plate, store_path=_merged_store_path(folder), shards=True)
+    by_site = {int(task["site"]): task for task in tasks}
+    rows, fields = [], 0
+    for result in results:
+        field = result.pop("sbs_cells", None)
+        if field is None:
+            continue
+        site = int(result["site"])
+        task = by_site[site]
+        ids = np.asarray(task["ids"], np.int64).reshape(-1)
+        owned = np.asarray(task["owned"], bool).reshape(-1)
+        lut = np.concatenate([np.zeros(1, np.int64), ids])
+        writer.write_field(well, site, None, {
+            "sbs_cell": _compact_labels(lut[field["cells"]]),
+            "sbs_nucleus": _compact_labels(lut[field["seeds"]])})
+        fields += 1
+        rows.extend((plate, well, site, int(label), bool(has), int(area), bool(own))
+                    for label, has, area, own in zip(ids, field["has_cell"],
+                                                     field["cell_area"], owned))
+    frame = pd.DataFrame(rows, columns=["plate", "well", "site", "label", "has_cell",
+                                        "cell_area_px", "owned"])
+    table = os.path.join(os.path.dirname(os.path.abspath(db)), f"ops_sbs_cells_{well}.parquet")
+    write_table(frame, table, canonicalise=False)
+    kept = frame[frame["owned"]]
+    report = {"method": options["method"],
+              "store": str(writer.path), "table": table, "fields": fields,
+              "nuclei": int(len(kept)), "nuclei_with_cell": int(kept["has_cell"].sum())}
+    _say(f"{well} SBS cells ({options['method']}): {report['nuclei_with_cell']} of "
+         f"{report['nuclei']} owned nuclei have a cell in {fields} fields")
+    return report
+
+
 def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     """Align, detect, call and attribute the reads of one field.
 
@@ -2990,6 +3279,10 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         backend's positions replace the native score's peaks and its
         threshold, and everything after them -- the margin, the bases, the
         calls and the attribution -- is the same code either way).
+        With ``sbs_cells`` (item 1025, :func:`_sbs_cell_options`) the SBS
+        cells are grown from the objects after alignment
+        (:func:`_sbs_field_cells`) and returned under ``sbs_cells``; the
+        reads are still attributed to the nucleus discs.
     :returns: the field's reads attributed to the objects it owns, and its
         counts. With ``store_reads`` it also returns each owned read's
         position in this tile's frame, its per-cycle margin and the
@@ -3058,6 +3351,13 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
             task.get("registration", {}).get("precision", FFT_PRECISION)))
     if len(field.kept) < _MIN_CYCLES:
         return {**base, "skipped": f"{len(field.kept)} usable cycles"}
+
+    sbs_cells = None
+    if task.get("sbs_cells"):
+        tick = time.perf_counter()
+        sbs_cells = _sbs_field_cells(task, field.stack, gpu, unreadable)
+        ticks["sbs_cells"] = time.perf_counter() - tick
+        base["sbs_cells"] = sbs_cells
 
     tick = time.perf_counter()
     stack = field.stack
@@ -3977,11 +4277,16 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         :func:`_cell_rule`), the threshold mode
         (:func:`spacr.ops_decode.threshold_settings`) and ``ops_sites``:
         only the listed fields decode, and each nucleus still belongs to
-        the nearest tile centre of every placed site (item 951).
+        the nearest tile centre of every placed site (item 951). The
+        item-1025 alpha key ``ops_sbs_cell_method``
+        (:func:`_sbs_cell_options`) grows SBS cells in every field and
+        stores them (:func:`_sbs_store_cells`); the reads still go to the
+        nucleus discs. 'off' decodes as before.
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
     :returns: the decode report; in auto threshold mode with the chosen
-        thresholds under ``thresholds``. Its ``ops_barcodes_rows`` and
+        thresholds under ``thresholds``, and with SBS cells their report
+        under ``sbs_cells``. Its ``ops_barcodes_rows`` and
         ``ops_reads_rows`` count this well's rows only, the number a
         ``plate``/``well`` filter on the stored table returns;
         ``ops_reads_rows`` is None when reads were not stored.
@@ -4141,6 +4446,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                  f"the '{rule}' rule instead")
         rule_a = None
         cache_folder = None
+    sbs_options = _sbs_cell_options(settings)
     tasks = []
     for site in order:
         if wanted is not None and site not in wanted:
@@ -4169,6 +4475,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             "cache_folder": cache_folder,
             "diagnostics_folder": diagnostics_folder,
             "dapi": dapi if diagnostics_folder else None,
+            **({"sbs_cells": sbs_options, "sbs_dapi": dapi} if sbs_options else {}),
         })
 
     library_set = frozenset(library)
@@ -4178,6 +4485,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     if detector in _BACKEND_SPOT_DETECTORS and workers > 1:
         _say(f"{well} decode: {detector} runs in one worker of its own, so the "
              f"fields decode one at a time rather than {workers} at once")
+        workers = 1
+    if sbs_options and sbs_options["method"] == "cellpose" and workers > 1:
+        _say(f"{well} decode: the SBS cells of ops_sbs_cell_method 'cellpose' are "
+             "segmented by one Cellpose model, so the fields decode one at a time "
+             f"rather than {workers} at once")
         workers = 1
     if workers > 1 and tasks:
         from .resource_log import _array_file_nbytes, _guard_workers
@@ -4204,14 +4516,19 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                     _say(f"{well} decode: {count} of {len(tasks)} fields")
 
     decoded = [r for r in results if "skipped" not in r]
+    sbs_report = (_sbs_store_cells(db, plate, well, sbs_options, tasks, decoded)
+                  if sbs_options else None)
     if rule_a is not None and rule_a.get("auto"):
         rule_a = _apply_auto_thresholds(db, plate, well, rule_a, thresholds,
                                         decoded, decoys)
     if rule_a is not None:
-        return _decode_rule_a_report(
+        report = _decode_rule_a_report(
             db, plate, well, settings, rule_a, tasks, results, decoded,
             skipped_sites, placements, owner_site, cycles, channels,
             store_reads, detector, crosstalk, channel_mode, workers, started)
+        if sbs_report is not None:
+            report["sbs_cells"] = sbs_report
+        return report
     all_ids = np.concatenate([r["ids"] for r in decoded]) if decoded else np.zeros(0, np.int64)
     all_calls = [code for r in decoded for code in r["calls"]]
     all_quality = (np.concatenate([r["quality"] for r in decoded])
@@ -4327,6 +4644,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     }
     if any(task.get("read_mode") for task in tasks):
         report["read_mode"] = tasks[0]["read_mode"]
+    if sbs_report is not None:
+        report["sbs_cells"] = sbs_report
     if report["containment_below_gate"]:
         _say(f"{well} decode: ONLY {containment:.1%} OF SPOTS LIE WITHIN "
              f"{footprint:g} PX OF A NUCLEUS, below the {_MIN_CONTAINMENT:.0%} "

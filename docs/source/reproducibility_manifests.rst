@@ -268,6 +268,12 @@ default after a higher-numbered item takes the next free number:
   Both are off by default, so a run pairs nuclei with cells exactly as
   before; the row pins the off values for files stamped before 967.
 
+- 969 (item 1025, SBS cell segmentation, alpha): ``ops_sbs_cell_method``
+  (``'off'``) is new, with ``ops_sbs_cell_model`` and
+  ``ops_sbs_cell_threshold``. Off by default, so a run decodes exactly as
+  before; the row pins the off value for files stamped before 969. Number 968
+  belongs to another item.
+
 Public API
 ----------
 

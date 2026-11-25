@@ -2355,7 +2355,7 @@ _APP_CATEGORY_PARENTS["ops"] = {
         "Stitching", "Placement seeds", "Nuclei segmentation")},
     **{title: "OPS decoding" for title in (
         "Spot detection & registration", "Base calling", "Read assignment",
-        "Pixel fallback", "Decoys & auto thresholds",
+        "SBS cells α", "Pixel fallback", "Decoys & auto thresholds",
         "Call quality & confidence", "Spacer-prefix library",
         "Spacer-prefix FDR & tuning", "Prefix FDR sweep", "Grid search",
         "Comparison with other pipelines")},
@@ -3067,6 +3067,10 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How reads become a nucleus's guide: how far a read may lie from a "
         "nucleus, the cell rule, mismatches, read counts and fractions, the "
         "near-miss runner-up, tie handling and quality-weighted votes.",
+    "SBS CELLS Α":
+        "Alpha: SBS cells grown from the SBS nuclei in the decode, by "
+        "Cellpose or a seeded watershed on the base channels, stored with "
+        "the other OPS labels. Off by default, which decodes as before.",
     "PIXEL FALLBACK":
         "For a nucleus no read reached, call the brightest nearby pixels "
         "like reads, with its own percentile, radius, pixel count, share and "

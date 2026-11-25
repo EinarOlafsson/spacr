@@ -136,7 +136,8 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 2026-11-22: the three never-barcode controls (1014), making 178.
     # 2026-11-22: the prefix-bleed recipe switch ops_prefix_bleed_in_recipe (1013) makes 179.
     # 2026-11-25: nucleus fragments and cell-less nuclei in the one pairing (1024) make 180.
-    assert count == 180
+    # 2026-11-25: SBS cell segmentation (1025) makes 181.
+    assert count == 181
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

@@ -2661,7 +2661,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 967
+SETTINGS_SCHEMA_VERSION = 969
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2715,6 +2715,7 @@ DEFAULT_CHANGES = {
     967: {'nucleus_fragment_merge': 'off', 'cellless_nuclei': 'drop',
           'ops_ph_nucleus_fragment_merge': 'off',
           'ops_ph_cellless_nuclei': 'drop'},
+    969: {'ops_sbs_cell_method': 'off'},
 }
 
 
@@ -2893,6 +2894,11 @@ def _fold_older_defaults(settings, version, known=None):
     (``'off'``, ``'drop'``) today; the row pins those values for files
     stamped before, so a later change of their defaults never reaches an
     older file.
+
+    Version 969 is the SBS cell segmentation of item 1025 (alpha):
+    ``ops_sbs_cell_method`` (``'off'``) is new; the row pins the value that
+    decodes as before for files stamped before 969. Number 968 belongs to
+    another item.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9039,6 +9045,10 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 
 
 ALPHA_FEATURES = {
+    1025: {
+        'settings': ('ops_sbs_cell_method', 'ops_sbs_cell_model',
+                     'ops_sbs_cell_threshold'),
+    },
     1024: {
         'settings': ('nucleus_fragment_merge', 'nucleus_fragment_max_gap_px',
                      'nucleus_fragment_min_solidity', 'nucleus_fragment_max_dip',
