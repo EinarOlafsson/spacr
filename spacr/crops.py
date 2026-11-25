@@ -2258,11 +2258,11 @@ def read_db_crop_format(db_path: str, png_path: Optional[str] = None,
     :returns: the format integer, or ``None`` when the column, the table or
         the database is absent, or the answer is ambiguous.
     """
-    from .measurement_store import connect as _connect_measurements, exists
+    from .measurement_store import exists
     if not db_path or not exists(db_path):
         return None
     try:
-        conn = _connect_measurements(db_path, readonly=True)
+        conn = _connect_crop_table(db_path, table)
     except (sqlite3.Error, ValueError):
         return None
     try:
@@ -3947,16 +3947,49 @@ class _StoreCropSource(CropSource):
 
 def _png_paths_to_prcfo(db_path: str) -> Dict[str, str]:
     """``{normalised png_path: prcfo}`` from a run's ``png_list``."""
-    from .measurement_store import connect as _connect_measurements, exists
+    from .measurement_store import exists
     if not exists(db_path):
         return {}
-    with _connect_measurements(db_path, readonly=True) as conn:
-        try:
-            rows = conn.execute(
-                "SELECT png_path, prcfo FROM png_list").fetchall()
-        except sqlite3.Error:
-            return {}
+    conn = _connect_crop_table(db_path, "png_list")
+    try:
+        rows = conn.execute(
+            "SELECT png_path, prcfo FROM png_list").fetchall()
+    except sqlite3.Error:
+        return {}
+    finally:
+        conn.close()
     return {os.path.normpath(str(p)): str(k) for p, k in rows if p and k}
+
+
+def _connect_crop_table(db_path: str, table: str) -> sqlite3.Connection:
+    """A read-only connection to the measurements that hold ``table``.
+
+    The run's measurements come first (the spaCR store, or a legacy
+    ``measurements.db``). When the store does not hold the crop table, the
+    ``measurements.db`` file Measure keeps beside the store is opened
+    instead, since that file is where ``png_list`` lives for such a run.
+
+    :param db_path: the run's ``measurements.db``.
+    :param table: the crop table the caller reads.
+    :returns: the connection; the caller closes it.
+    """
+    from .database_concurrency import _DIRECT_SQLITE
+    from .database_concurrency import connect as _connect_sqlite
+    from .measurement_store import connect as _connect_measurements
+
+    conn = _connect_measurements(db_path, readonly=True)
+    try:
+        held = conn.execute(f'PRAGMA table_info("{table}")').fetchall()
+    except sqlite3.Error:
+        held = []
+    if held or not os.path.isfile(db_path):
+        return conn
+    conn.close()
+    direct = _DIRECT_SQLITE.set(True)
+    try:
+        return _connect_sqlite(db_path, readonly=True)
+    finally:
+        _DIRECT_SQLITE.reset(direct)
 
 
 def _store_crop_source(project: str, object_type: str,
