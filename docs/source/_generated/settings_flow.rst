@@ -23043,7 +23043,7 @@ Read by ``_panel_statistics``, ``set_annotate_default_settings``.
 measurement_backend
 -------------------
 
-(str) - Where Measure, Make Masks and every later step keep the measurement tables: spacr_store, the only value. Each object table goes to the spaCR store in the measurements folder, one Parquet part per table and well in the recorded per-column dtypes, with one DuckDB catalog (spacr.duckdb); spacr.store.open and every spaCR reader open it. measurements.db is no longer written; an older project that has one is still read. The retired values still load: sqlite means spacr_store, and duckdb, parquet or postgres mean spacr_store plus that copy as an export of the finished tables. Default spacr_store.
+(str) - Where Measure, Make Masks and every later step keep the measurement tables: spacr_store, the only value. Each object table goes to the spaCR store in the measurements folder, one Parquet part per table and well in the recorded column dtypes, with one DuckDB catalog (spacr.duckdb) that spacr.store.open and every spaCR reader open. measurements.db is no longer written; an older project that has one is still read. Retired values still load: sqlite means spacr_store, and duckdb, parquet or postgres mean spacr_store plus that copy as an export of the finished tables. Default spacr_store.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -41842,7 +41842,7 @@ Read by ``_ph_aggregate``, ``ops_defaults``.
 ops_profile_nuisance
 --------------------
 
-(list) - Per-cell nuisance sources regressed out of every feature before the profile PCA and TVN: any of cell_cycle (stage probabilities, posterior_S/G2, log2 DNA content; or its parts stage_probs and dna_content), mitotic_binary (interphase vs mitotic, mitotic cells kept), phase_onehot (S, G2, M against G1), size (log cell and nucleus area), density (neighbour count, log nearest-neighbour distance), position (squared distance from the field centre) and field (each field's mean removed). Empty leaves the profiles unchanged. Default []. Alpha.
+Per-cell nuisance sources regressed out of every feature before the profile PCA and TVN: any of cell_cycle (stage probabilities, posterior_S/G2, log2 DNA content; or its parts stage_probs and dna_content), mitotic_binary (interphase vs mitotic, mitotic cells kept), phase_onehot (S, G2, M against G1), size (log cell and nucleus area), density (neighbour count, log nearest-neighbour distance), position (squared distance from the field centre) and field (each field's mean removed). Empty leaves the profiles unchanged. Default []. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -41880,7 +41880,7 @@ Read by ``ops_defaults``, ``profile_cell_tables``.
 ops_profile_nuisance_fit
 ------------------------
 
-(str) - Which cells the nuisance slopes are fitted on: 'controls' (the non-targeting cells, so a gene effect is never removed) or 'all'. Only used when ops_profile_nuisance is not empty. Default 'controls'. Alpha.
+Which cells the nuisance slopes are fitted on: 'controls' (the non-targeting cells, so a gene effect is never removed) or 'all'. Only used when ops_profile_nuisance is not empty. Default 'controls'. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -41918,7 +41918,7 @@ Read by ``ops_defaults``, ``profile_cell_tables``.
 ops_profile_phase_filter
 ------------------------
 
-(str or None) - Build the profiles only from the cells of one cell_cycle_stage (for example G1), taken after the cell-cycle phase has joined its stages to the cell table; a stratified profile, not a regression. Default None (all cells). Alpha.
+Build the profiles only from the cells of one cell_cycle_stage (for example G1), taken after the cell-cycle phase has joined its stages to the cell table; a stratified profile, not a regression. Default None (all cells). Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -45083,7 +45083,7 @@ Read by ``ops_defaults``, ``run_voyager3``.
 ops_well_statistics
 -------------------
 
-(str) - How the per-well mean and standard deviation of every normalisation are computed: 'two_pass' (float64, the mean first and then the squared deviations from it, a feature with no spread scaled by 1) or 'legacy' (single-precision sums and a floored variance, as settings saved before schema 962 used). Settings saved before schema 962 retain 'legacy'. Default two_pass. Alpha.
+How the per-well mean and standard deviation of every normalisation are computed: 'two_pass' (float64, the mean first and then the squared deviations from it, a feature with no spread scaled by 1) or 'legacy' (single-precision sums and a floored variance, as settings saved before schema 962 used). Settings saved before schema 962 retain 'legacy'. Default two_pass. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
