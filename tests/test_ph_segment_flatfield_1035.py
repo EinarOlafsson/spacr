@@ -152,9 +152,9 @@ def flats(monkeypatch):
     seen = []
     real = ops_engine._ph_segment_field
 
-    def spy(stack, channels, models, settings, *, field_count=1, flat=None):
+    def spy(stack, channels, models, settings, *, flat=None, **kwargs):
         seen.append(flat)
-        return real(stack, channels, models, settings, field_count=field_count, flat=flat)
+        return real(stack, channels, models, settings, flat=flat, **kwargs)
 
     monkeypatch.setattr(ops_engine, "_ph_segment_field", spy)
     return seen
