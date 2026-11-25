@@ -464,6 +464,27 @@ def test_a_design_needs_guide_and_gene_columns_and_drops_shared_prefixes(
     assert ambiguous == 1
     assert table["prefix"].tolist() == ["CCCC"]
     assert table["gene"].tolist() == ["G3"]
+    assert table["sgRNA"].tolist() == ["CCCCA|CCCCT"]
+
+
+def test_each_guide_maps_to_its_own_prefix_and_shared_prefixes_name_every_guide(
+        tmp_path):
+    path = tmp_path / "design.csv"
+    pd.DataFrame({"sgRNA": ["GGGGTA", "GGGGCA", "AAAACC", "AAAAGG", "TTTTAA",
+                            "TTTTAA"],
+                  "gene_symbol": ["G1", "G1", "G2", "G2", "G3", "G3"]}).to_csv(
+        path, index=False)
+    table, ambiguous = ops_engine._ph_design(str(path), 5)
+    assert ambiguous == 0
+    assert dict(zip(table["prefix"], table["sgRNA"])) == {
+        "GGGGT": "GGGGTA", "GGGGC": "GGGGCA", "AAAAC": "AAAACC",
+        "AAAAG": "AAAAGG", "TTTTA": "TTTTAA"}
+    short, _ = ops_engine._ph_design(str(path), 4)
+    assert dict(zip(short["prefix"], short["sgRNA"])) == {
+        "GGGG": "GGGGCA|GGGGTA", "AAAA": "AAAACC|AAAAGG", "TTTT": "TTTTAA"}
+    assert dict(zip(short["prefix"], short["gene"])) == {
+        "GGGG": "G1", "AAAA": "G2", "TTTT": "G3"}
+    assert short.columns.tolist() == ["sgRNA", "gene", "prefix"]
 
 
 def _aggregate_inputs(tmp_path, n=120, seed=0):

@@ -1089,6 +1089,7 @@ SETTING_API_TARGETS = {
     'ops_pixel_percentile': ('spacr.ops_decode', 'decode_rule', True),
     'ops_pixel_quality': ('spacr.ops_decode', 'decode_rule', True),
     'ops_pixel_radius': ('spacr.ops_decode', 'decode_rule', True),
+    'ops_pixel_read_gate': ('spacr.ops_decode', 'decode_rule', True),
     'ops_placement_seed': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_placement_seed_check_pixels': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_placement_seed_export': ('spacr.ops_settings', 'ops_defaults', True),

@@ -656,6 +656,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_decode_quality_weighted",
     "ops_vote_weight_floor",
     "ops_decode_pixel_fallback",
+    # The pixel fallback gated by the read vote (schema 964).
+    "ops_pixel_read_gate",
     "ops_pixel_percentile",
     "ops_pixel_radius",
     "ops_pixel_min_pixels",

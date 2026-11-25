@@ -365,8 +365,10 @@ def test_the_preset_decodes_the_well_and_writes_its_fdr_report(rule_a_run):
 
     stats = pd.read_csv(fdr["paths"]["field_stats"])
     assert list(stats.columns) == ["plate", "well", "site", "nuclei",
-                                   "assigned_real", "assigned_decoy"]
+                                   "assigned_real", "assigned_decoy",
+                                   "assigned_pixel_real", "assigned_pixel_decoy"]
     assert stats["assigned_real"].sum() == fdr["assigned"]
+    assert fdr["assigned_primary"] + fdr["assigned_pixel_fallback"] == fdr["assigned"]
     assert len(decode["field_cache"]) == decode["fields_decoded"]
     cached = np.load(decode["field_cache"][0])
     assert {"peaks", "values", "gap", "pix_values"} <= set(cached.files)
