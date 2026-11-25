@@ -2665,8 +2665,8 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 976
-SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
+SETTINGS_SCHEMA_VERSION = 979
+SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
@@ -2738,6 +2738,15 @@ DEFAULT_CHANGES = {
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
+}
+#: Per version, ``{key: {old value: value that replays it}}``: a value whose
+#: meaning that version changed. A file stamped below the version, whether
+#: it sets the value or gets it from ``DEFAULT_CHANGES``, is read with the
+#: replay value, so it measures what it measured (979: A3-BUG2, Measure's
+#: outside ring block now follows ``profile_outside_rule``; before, under
+#: ``'background'`` the block kept the ``'object'`` rings).
+VALUE_MEANING_CHANGES = {
+    979: {'profile_outside_rule': {'background': 'legacy'}},
 }
 
 
@@ -2979,6 +2988,20 @@ def _fold_older_defaults(settings, version, known=None):
     a file stamped below that version gets that value in place of the
     row's. Versions 966 to 975 belong to other items.
 
+    Version 979 (A3-BUG2) changes no default but the meaning of one value:
+    Measure's outside ring block now takes its ring from
+    ``profile_outside_rule`` through
+    :func:`spacr.measure._outside_ring_selections`, as the ``outside``
+    profiling family and the OPS phenotype path do, so the same rule gives
+    the same ``<object>_..._outside_`` columns in Measure and OPS. Before,
+    the block ignored the rule, and under ``'background'`` Measure's
+    nucleus ring kept the neighbouring nuclei while OPS's did not. A file
+    stamped below 979 whose ``profile_outside_rule`` is ``'background'``
+    (set, or from the 965 row) is read as ``'legacy'``
+    (``VALUE_MEANING_CHANGES``), which replays the old split.
+    ``ops_ph_profile_outside_rule`` needs no change: OPS never ran the
+    block. Versions 977 and 978 belong to other items.
+
     :param settings: the file's settings under today's names, edited in
         place.
     :param version: the file's schema version from
@@ -3014,6 +3037,7 @@ def _fold_older_defaults(settings, version, known=None):
             applied[key] = (old, changed)
     for key, (old, _changed) in applied.items():
         settings[key] = old
+    _fold_changed_meanings(settings, version, known)
     if applied:
         era = (f"{SETTINGS_VERSION_KEY} {version}" if version
                else f"no {SETTINGS_VERSION_KEY}")
@@ -3026,6 +3050,44 @@ def _fold_older_defaults(settings, version, known=None):
             "set these keys yourself or add %s = %d to the file.",
             era, listed, SETTINGS_VERSION_KEY, SETTINGS_SCHEMA_VERSION)
     return applied
+
+
+def _fold_changed_meanings(settings, version, known=None):
+    """Read a value whose meaning changed after ``version`` as its replay value.
+
+    :param settings: the file's settings after :func:`_fold_older_defaults`
+        filled its old defaults, edited in place.
+    :param version: the file's schema version; 0 for an unstamped file.
+    :param known: as :func:`_fold_older_defaults`.
+    :returns: ``key -> (old value, replay value, version)`` for every value
+        replaced (``VALUE_MEANING_CHANGES``).
+    """
+    replaced = {}
+    for changed in sorted(VALUE_MEANING_CHANGES):
+        if changed <= int(version):
+            continue
+        for key, values in VALUE_MEANING_CHANGES[changed].items():
+            if key in replaced or key not in settings:
+                continue
+            if known is not None and key not in known:
+                continue
+            value = settings[key]
+            if not isinstance(value, str):
+                continue
+            replay = values.get(value.strip().lower())
+            if replay is not None:
+                settings[key] = replay
+                replaced[key] = (value, replay, changed)
+    if replaced:
+        LOG.warning(
+            "These settings are older than the version that changed the "
+            "meaning of some values, so those values are read as they ran: "
+            "%s. To use today's meaning, add %s = %d to the file.",
+            ", ".join(f"{key}={old!r} read as {new!r} (before settings "
+                      f"version {changed})"
+                      for key, (old, new, changed) in sorted(replaced.items())),
+            SETTINGS_VERSION_KEY, SETTINGS_SCHEMA_VERSION)
+    return replaced
 
 
 def _fold_renamed_settings(settings):

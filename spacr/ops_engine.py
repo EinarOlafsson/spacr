@@ -6867,7 +6867,7 @@ def _ph_measure_table(task: Mapping[str, Any]):
         profile_features=task.get("profile_features"),
         granularity_subsample=float(task.get("granularity_subsample") or 1.0),
         cytoskeleton_channels=task.get("cytoskeleton_channels"),
-        outside_rule=task.get("outside_rule") or "object")
+        outside_rule=task.get("outside_rule"))
     for column, source in (("nucleus_centroid_y", "centroid_row"),
                            ("nucleus_centroid_x", "centroid_col")):
         if column not in table:
@@ -6971,17 +6971,17 @@ def _ph_outside_rule_option(settings: Mapping[str, Any]) -> Dict[str, str]:
     """``{"outside_rule": ...}`` when the ``outside`` family is measured, else ``{}``.
 
     :param settings: read for ``ops_ph_profile_features`` and
-        ``ops_ph_profile_outside_rule`` (:func:`spacr.measure._outside_excludes_foreground`).
+        ``ops_ph_profile_outside_rule`` (:func:`spacr.measure._resolve_outside_rule`).
     :returns: the option the per-field parts record, so a well never mixes
         fields measured with two meanings of the ``outside`` columns.
     """
-    from .measure import _outside_excludes_foreground
+    from .measure import _resolve_outside_rule
 
     if "outside" not in (_ph_profile_features(settings) or []):
         return {}
-    rule = str(settings.get("ops_ph_profile_outside_rule") or "object")
-    _outside_excludes_foreground("nucleus", rule)
-    return {"outside_rule": rule.strip().lower()}
+    return {"outside_rule": _resolve_outside_rule(
+        settings.get("ops_ph_profile_outside_rule"),
+        setting="ops_ph_profile_outside_rule", replay=False)}
 
 
 def _ph_granularity_subsample(settings: Mapping[str, Any]

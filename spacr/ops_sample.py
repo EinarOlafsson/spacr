@@ -476,7 +476,7 @@ def _measurement_settings(channels: int, texture: bool,
     :returns: the settings :func:`spacr.measure._measure_field_objects`
         reads.
     """
-    from .measure import profile_feature_families
+    from .measure import profile_feature_families, _resolve_outside_rule
     from .ops_settings import OPS_TO_MEASURE_KEYS
 
     families = profile_feature_families(profile_features)
@@ -485,7 +485,9 @@ def _measurement_settings(channels: int, texture: bool,
            "ops_ph_zernike": bool(zernike),
            "ops_ph_profile_features": list(families) or None,
            "ops_ph_granularity_subsample": float(granularity_subsample),
-           "ops_ph_profile_outside_rule": str(outside_rule or "object")}
+           "ops_ph_profile_outside_rule": _resolve_outside_rule(
+               outside_rule, setting="ops_ph_profile_outside_rule",
+               replay=False)}
     return {
         "cell_mask_dim": channels, "nucleus_mask_dim": channels + 1,
         "pathogen_mask_dim": None, "cytoplasm": True,
