@@ -598,6 +598,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cross_field_metric",
     "ops_cross_field_min_overlap",
     "ops_cross_field_policy",
+    # Seam ownership: nearest field centre (schema 963).
+    "ops_cross_field_rule",
+    "ops_cross_field_radius_px",
     # OPS run report: counts against a published table (875).
     "ops_reference_counts",
     "ops_reference_counts_level",

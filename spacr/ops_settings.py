@@ -213,10 +213,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_secondary_window": 1024,
     "ops_ph_secondary_fallback": 'well_median',
     "ops_ph_measure_gpu": False,
-    "ops_cross_field_ownership": False,
-    "ops_cross_field_metric": 'overlap_fraction',
+    "ops_cross_field_ownership": True,
+    "ops_cross_field_metric": 'centroid',
     "ops_cross_field_min_overlap": 0.5,
-    "ops_cross_field_policy": 'one_per_cell',
+    "ops_cross_field_policy": 'owner_only',
+    "ops_cross_field_rule": 'nearest_centre',
+    "ops_cross_field_radius_px": 24.0,
     "ops_reference_counts": None,
     "ops_reference_counts_level": 'sbs',
     "ops_reference_shuffles": 1000,
@@ -822,6 +824,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cross_field_metric": str,
     "ops_cross_field_min_overlap": (float, int),
     "ops_cross_field_policy": str,
+    "ops_cross_field_rule": str,
+    "ops_cross_field_radius_px": (float, int),
     "ops_reference_counts": (str, type(None)),
     "ops_reference_counts_level": str,
     "ops_reference_shuffles": int,
@@ -1432,6 +1436,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Cell ownership": [
         "ops_ownership", "ops_cross_field_ownership", "ops_cross_field_metric",
         "ops_cross_field_min_overlap", "ops_cross_field_policy",
+        "ops_cross_field_rule", "ops_cross_field_radius_px",
         "ops_drop_failed_fields",
     ],
     "Yield report": [
@@ -2372,7 +2377,10 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "keeps the copy from the field in which the sequencing nucleus "
         "lies deepest, and 'a1' the one whose phenotype nucleus does. Both "
         "also leave out cells that touch a field's edge, which needs the "
-        "ph_masks phase. Default 'closer_match'. Alpha.",
+        "ph_masks phase. 'a1' and 'a1b' are deprecated: the owner field of "
+        "a cell is decided by ops_cross_field_ownership, and with it on "
+        "'closer_match' only pairs each sequencing nucleus with one cell. "
+        "Default 'closer_match'. Alpha.",
     "ops_align_model":
         "(str) - How the merge phase aligns each phenotype field to the "
         "sequencing nuclei. 'tile_affine' re-solves one scale, rotation and"
@@ -3351,28 +3359,48 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "float precision except skew and kurtosis, which can differ "
         "slightly. Default False. Alpha.",
     "ops_cross_field_ownership":
-        "(bool) - Find every copy of a cell that two or more overlapping "
-        "phenotype fields segmented (phase ph_ownership), by comparing the "
-        "fields' cell masks through their transforms, and keep one copy per "
-        "physical cell in the aggregate, merged/ and the crops. Off: "
-        "outputs are identical to a run without it. Default False. Alpha.",
+        "(bool) - Give every cell that overlapping phenotype fields both "
+        "imaged exactly one owner field (phase ph_ownership, also run with "
+        "the merge), and keep only that copy in the merge, the aggregate, "
+        "the phenotype tables, merged/ and the crops. Off: every copy that "
+        "does not touch its field edge counts, so a cell in the overlap of "
+        "two fields counts twice. Default True (False before settings "
+        "schema 963). Alpha.",
     "ops_cross_field_metric":
-        "(str) - How two masks are scored as copies: 'overlap_fraction' "
-        "divides the shared pixels by the smaller mask, so a copy cut by a "
-        "field's edge still matches the whole one; 'iou' divides by their "
-        "union. Default 'overlap_fraction'. Alpha.",
+        "(str) - How the copies of one cell are found: 'centroid' pairs "
+        "whole copies whose nucleus centroids, in stitched coordinates, are "
+        "mutual nearest neighbours within ops_cross_field_radius_px, and "
+        "needs no label images; 'overlap_fraction' compares the cell masks "
+        "and divides the shared pixels by the smaller mask; 'iou' divides "
+        "them by the union. Default 'centroid' ('overlap_fraction' before "
+        "settings schema 963). Alpha.",
     "ops_cross_field_min_overlap":
         "(float) - Smallest score, in (0, 1], at which two masks of "
-        "overlapping fields count as the same cell. Lower merges more "
-        "neighbours into one cell; higher splits cut copies from their "
-        "whole twin. Default 0.5. Alpha.",
+        "overlapping fields count as the same cell, for the mask metrics. "
+        "Lower merges more neighbours into one cell; higher splits cut "
+        "copies from their whole twin. Default 0.5. Alpha.",
+    "ops_cross_field_radius_px":
+        "(float) - Largest distance, in phenotype pixels, between the "
+        "nucleus centroids of two whole copies of one cell once both are "
+        "placed in the stitched well, for the 'centroid' metric. Copies "
+        "are paired only when each is the nearest of the other, so the "
+        "radius can exceed the registration residual. Default 24.0. "
+        "Alpha.",
+    "ops_cross_field_rule":
+        "(str) - Which copy owns the cell: 'nearest_centre', the copy from "
+        "the field whose centre is nearest the cell centroid among the "
+        "fields that hold the cell whole, ties to the lower field; a cell "
+        "cut by the edge of every field that holds it has no owner. "
+        "'largest', the largest copy, whole or cut, is deprecated and "
+        "reproduces runs made before settings schema 963. Default "
+        "'nearest_centre'. Alpha.",
     "ops_cross_field_policy":
-        "(str) - What the aggregate does with the copies: 'one_per_cell' "
-        "keeps one genotyped row per physical cell, its largest copy; "
-        "'owner_only' drops every copy that is not the owner, which on Funk "
-        "plate A also drops many genotyped cells whose owner was never "
-        "linked; 'flag_only' writes the ownership table and changes nothing "
-        "else. Default 'one_per_cell'. Alpha.",
+        "(str) - What the aggregate does with the copies: 'owner_only' "
+        "keeps the owner copy of each cell and nothing else; 'one_per_cell' "
+        "keeps one genotyped row per physical cell, the owner when it was "
+        "linked, else the largest linked copy; 'flag_only' writes the "
+        "ownership table and changes nothing else. Default 'owner_only' "
+        "('one_per_cell' before settings schema 963). Alpha.",
     "ops_reference_counts":
         "(str or None) - A published per-guide count table (columns guide, "
         "gene, count; CSV, TSV or Excel), for example Funk et al. 2022's "

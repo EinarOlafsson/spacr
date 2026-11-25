@@ -19,6 +19,11 @@ from spacr.ops_store import read_table, write_table
 
 PLATE = "P1"
 
+#: The settings of item 874 before schema 963: mask overlap, largest copy.
+OLD = {"ops_cross_field_ownership": True,
+       "ops_cross_field_metric": "overlap_fraction",
+       "ops_cross_field_rule": "largest"}
+
 
 def _disk(shape, centre, radius, label, out):
     """Paint a disk of ``label`` into ``out``."""
@@ -48,6 +53,7 @@ def _own(images, offsets, **kwargs):
     """Ownership of planted fields, indexed by ``(site, label)``."""
     kwargs.setdefault("metric", "overlap_fraction")
     kwargs.setdefault("min_overlap", 0.5)
+    kwargs.setdefault("rule", "largest")
     cells, edges, pairs = ops_engine._ph_cross_field_fields(
         _fields(images, offsets), **kwargs)
     return cells.set_index(["site", "label"]), edges, pairs
@@ -160,11 +166,11 @@ def test_the_phase_writes_the_table_and_leaves_ops_phenotype_alone(tmp_path):
     db = _run_folder(tmp_path)
     before = read_table(db, "ops_phenotype")
     settings = {"dst_root": str(tmp_path), "plate": PLATE}
-    out = ops_engine.run_ops(settings, phases=("ph_ownership",))
+    out = ops_engine.run_ops({**settings, "ops_cross_field_ownership": False},
+                             phases=("ph_ownership",))
     assert out["wells"]["A1"]["ph_ownership"] == {
         "skipped": "ops_cross_field_ownership is off"}
-    out = ops_engine.run_ops({**settings, "ops_cross_field_ownership": True},
-                             phases=("ph_ownership",))
+    out = ops_engine.run_ops({**settings, **OLD}, phases=("ph_ownership",))
     report = out["wells"]["A1"]["ph_ownership"]
     assert report["fields"] == 2 and report["edges"] == 1
     assert report["physical_cells"] == 3 and report["non_owner_copies"] == 1
@@ -173,7 +179,8 @@ def test_the_phase_writes_the_table_and_leaves_ops_phenotype_alone(tmp_path):
     assert list(table.columns) == [
         "plate", "well", "site", "label", "area", "touches_field_edge",
         "component", "n_copies", "owner_field", "owner_label", "is_owner",
-        "owned_area_share"]
+        "owned_area_share", "well_y", "well_x", "centre_distance_px",
+        "owner_rule"]
     cut = table[(table.site == 0) & (table.label == 1)].iloc[0]
     assert cut.touches_field_edge and not cut.is_owner and cut.owner_field == 1
     edges = pd.read_parquet(ops_engine._ph_cross_field_edges_path(
@@ -182,7 +189,7 @@ def test_the_phase_writes_the_table_and_leaves_ops_phenotype_alone(tmp_path):
         == [[0, 1, 1, 1]]
     pd.testing.assert_frame_equal(read_table(db, "ops_phenotype"), before)
     with pytest.raises(ValueError, match=r"\(0, 1\]"):
-        ops_engine.run_ops({**settings, "ops_cross_field_ownership": True,
+        ops_engine.run_ops({**settings, **OLD,
                             "ops_cross_field_min_overlap": 0},
                            phases=("ph_ownership",))
 
@@ -201,8 +208,7 @@ def _genotyped():
 def test_policies_choose_the_rows_the_aggregate_pools(tmp_path, policy, kept,
                                                       key):
     db = _run_folder(tmp_path)
-    ops_engine.run_ops({"dst_root": str(tmp_path), "plate": PLATE,
-                        "ops_cross_field_ownership": True},
+    ops_engine.run_ops({"dst_root": str(tmp_path), "plate": PLATE, **OLD},
                        phases=("ph_ownership",))
     cells, report = ops_engine._ph_cross_field_filter(
         _genotyped(), str(tmp_path), ["A1"], {"ops_cross_field_policy": policy})
@@ -215,17 +221,19 @@ def test_policies_choose_the_rows_the_aggregate_pools(tmp_path, policy, kept,
 def test_one_per_cell_keeps_the_larger_copy_even_when_the_owner_was_not_linked(
         tmp_path):
     _run_folder(tmp_path)
-    ops_engine.run_ops({"dst_root": str(tmp_path), "plate": PLATE,
-                        "ops_cross_field_ownership": True},
+    ops_engine.run_ops({"dst_root": str(tmp_path), "plate": PLATE, **OLD},
                        phases=("ph_ownership",))
     only_cut = pd.DataFrame({"well": "A1", "site": [0], "label": [1],
                              "object_id": [10]})
     kept, report = ops_engine._ph_cross_field_filter(
-        only_cut, str(tmp_path), ["A1"], {})
+        only_cut, str(tmp_path), ["A1"], {"ops_cross_field_policy":
+                                          "one_per_cell"})
     assert len(kept) == 1 and report["dropped_extra_copies"] == 0
     dropped, report = ops_engine._ph_cross_field_filter(
         only_cut, str(tmp_path), ["A1"], {"ops_cross_field_policy":
                                           "owner_only"})
     assert dropped.empty and report["dropped_non_owner_copies"] == 1
-    with pytest.raises(ValueError, match="ph_ownership"):
-        ops_engine._ph_cross_field_filter(only_cut, str(tmp_path), ["B2"], {})
+    other = only_cut.assign(well="B2")
+    kept, report = ops_engine._ph_cross_field_filter(other, str(tmp_path),
+                                                     ["B2"], {})
+    assert len(kept) == 1 and report["wells_without_ownership"] == ["B2"]
