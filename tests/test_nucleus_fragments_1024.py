@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 NAMES = ("nucleus_fragment_merge", "nucleus_fragment_max_gap_px",
          "nucleus_fragment_min_solidity", "nucleus_fragment_max_dip",
-         "nucleus_fragment_min_contact_px", "nucleus_fragment_max_valley",
+         "nucleus_fragment_min_contact_px", "nucleus_fragment_max_valley_dip",
          "nucleus_fragment_max_area_rel", "cellless_nuclei",
          "cellless_nucleus_max_distance_px")
 
@@ -101,10 +101,10 @@ def test_defaults_are_off_and_the_rule_takes_the_paper_values():
     assert options["nucleus_fragment_merge"] == "off"
     assert options["cellless_nuclei"] == "drop"
     assert options["nucleus_fragment_min_solidity"] == 0.94
-    assert options["nucleus_fragment_max_dip"] == 0.2
+    assert options["nucleus_fragment_max_dip"] is None
     assert options["nucleus_fragment_max_gap_px"] == 2.0
     assert options["nucleus_fragment_min_contact_px"] == 0.0
-    assert options["nucleus_fragment_max_valley"] is None
+    assert options["nucleus_fragment_max_valley_dip"] is None
     assert options["nucleus_fragment_max_area_rel"] is None
     assert options["nucleus_small_piece_frac"] == 0.0
     assert not _nucleus_pairing_active(options)
@@ -112,7 +112,7 @@ def test_defaults_are_off_and_the_rule_takes_the_paper_values():
     assert _nucleus_pairing_options({"ops_ph_cellless_nuclei": "nucleus_only"},
                                     prefix="ops_ph_")["cellless_nuclei"] == "nucleus_only"
     assert _nucleus_pairing_options(
-        {"nucleus_fragment_max_valley": "None"})["nucleus_fragment_max_valley"] is None
+        {"nucleus_fragment_max_valley_dip": "None"})["nucleus_fragment_max_valley_dip"] is None
     assert _nucleus_pairing_options(
         {"nucleus_fragment_max_area_rel": 2.5})["nucleus_fragment_max_area_rel"] == 2.5
     with pytest.raises(ValueError):
@@ -161,10 +161,10 @@ def test_ops_segment_field_default_does_not_take_the_alpha_path():
     picked = ops_engine._ph_pairing_options(
         {"ops_ph_nucleus_fragment_merge": "rule",
          "ops_ph_nucleus_fragment_min_contact_px": 3,
-         "ops_ph_nucleus_fragment_max_valley": 0.3,
+         "ops_ph_nucleus_fragment_max_valley_dip": 0.3,
          "ops_ph_nucleus_fragment_max_area_rel": 2.5})
     assert picked["nucleus_fragment_min_contact_px"] == 3.0
-    assert picked["nucleus_fragment_max_valley"] == 0.3
+    assert picked["nucleus_fragment_max_valley_dip"] == 0.3
     assert picked["nucleus_fragment_max_area_rel"] == 2.5
 
 
@@ -211,12 +211,14 @@ def test_two_round_nuclei_side_by_side_fail_the_solidity_test():
 def test_dip_refuses_two_touching_pieces_with_a_dark_seam():
     nuclei, cells, dna = _field()
     dna[:, 24:27] = 5.0
-    _n, _c, record = _run(_on(nucleus_fragment_merge="rule"), dna=dna)
+    _n, _c, record = _run(_on(nucleus_fragment_merge="rule",
+                              nucleus_fragment_max_dip=0.2), dna=dna)
     assert record["fragments"] == []
     assert 1 in record["binucleate"]
     record = {}
     _assign_nuclei_to_cells(nuclei.copy(), cells.copy(),
-                            options=_on(nucleus_fragment_merge="rule"),
+                            options=_on(nucleus_fragment_merge="rule",
+                                        nucleus_fragment_max_dip=0.2),
                             record=record)
     assert record["fragments"] == [(1, 2)]
 
@@ -256,17 +258,19 @@ def test_smoothed_valley_sits_next_to_the_raw_dip():
     band[:, 13:18] = 60.0
     from scipy.ndimage import uniform_filter
 
-    valley = _on(nucleus_fragment_max_dip=1.0, nucleus_fragment_max_valley=0.2)
+    valley = _on(nucleus_fragment_max_dip=1.0, nucleus_fragment_max_valley_dip=0.2)
     for stain, passes in ((flat, True), (band, False)):
         smoothed = uniform_filter(stain, size=3)
         assert _fragment_pair_test(first, second, stain, valley,
                                    smoothed=smoothed)[0] is passes
-    # off (None) by default: the same band passes on the raw dip of 1.0
+    # the valley off (None, the default): the same band passes on the raw dip of 1.0
     assert _fragment_pair_test(first, second, band,
                                _on(nucleus_fragment_max_dip=1.0),
                                smoothed=uniform_filter(band, size=3))[0]
-    # and the raw dip, kept as built, refuses it at its default 0.2
-    assert not _fragment_pair_test(first, second, band, _on())[0]
+    # the raw dip set to 0.2 refuses it; off (None, the default) it passes
+    assert not _fragment_pair_test(first, second, band,
+                                   _on(nucleus_fragment_max_dip=0.2))[0]
+    assert _fragment_pair_test(first, second, band, _on())[0]
 
 
 def test_merging_is_pairwise_never_by_a_chain():
@@ -567,11 +571,13 @@ def test_settings_registered_off_with_schema_row():
     assert DEFAULT_CHANGES[967] == {
         "nucleus_fragment_merge": "off", "cellless_nuclei": "drop",
         "ops_ph_nucleus_fragment_merge": "off", "ops_ph_cellless_nuclei": "drop",
+        "nucleus_fragment_max_dip": None,
         "nucleus_fragment_min_contact_px": 0.0,
-        "nucleus_fragment_max_valley": None,
+        "nucleus_fragment_max_valley_dip": None,
         "nucleus_fragment_max_area_rel": None,
+        "ops_ph_nucleus_fragment_max_dip": None,
         "ops_ph_nucleus_fragment_min_contact_px": 0.0,
-        "ops_ph_nucleus_fragment_max_valley": None,
+        "ops_ph_nucleus_fragment_max_valley_dip": None,
         "ops_ph_nucleus_fragment_max_area_rel": None}
     assert tuple(measure._NUCLEUS_PAIRING_DEFAULTS) == NAMES
     measure_defaults = get_measure_crop_settings({})

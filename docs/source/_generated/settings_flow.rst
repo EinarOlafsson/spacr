@@ -27284,7 +27284,7 @@ Read by ``_fragment_pair_test``, ``_merge_nucleus_fragments``, ``get_measure_cro
 nucleus_fragment_max_dip
 ------------------------
 
-(float) - Higher joins more pairs, including two nuclei with a dark line between them: the deepest dip of the raw nucleus stain along the line joining the two piece centres, as 1 - lowest pixel / median of the pieces, for nucleus_fragment_merge to join them. Skipped when nucleus_channel is empty. Only read when nucleus_fragment_merge is 'rule'. Provisional (paper session, labels pending review). Default 0.2. Alpha.
+(float or None) - Set, it refuses two pieces with a dark line between them; higher joins more pairs: the deepest dip of the raw nucleus stain along the line joining the two piece centres, as 1 - lowest pixel / median of the pieces, for nucleus_fragment_merge to join them. The single-pixel minimum is noisy; the paper session retunes it. Skipped when nucleus_channel is empty. Only read when nucleus_fragment_merge is 'rule'. Default None (off). Alpha.
 
 | ``_assign_nuclei_to_cells``
 |     ``_merge_nucleus_fragments``
@@ -27327,10 +27327,10 @@ nucleus_fragment_max_gap_px
 
 Read by ``_fragment_pair_test``, ``_merge_nucleus_fragments``, ``get_measure_crop_settings``.
 
-.. _setting-flow-nucleus_fragment_max_valley:
+.. _setting-flow-nucleus_fragment_max_valley_dip:
 
-nucleus_fragment_max_valley
----------------------------
+nucleus_fragment_max_valley_dip
+-------------------------------
 
 (float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the nucleus stain is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for nucleus_fragment_merge to join them (AUC 0.74). Only read when nucleus_fragment_merge is 'rule'. Default None (off). Alpha.
 
@@ -38895,7 +38895,7 @@ Read by ``ops_defaults``.
 ops_ph_nucleus_fragment_max_dip
 -------------------------------
 
-(float) - Higher joins more pairs, including two nuclei with a dark line between them: the deepest dip of the raw DAPI along the line joining the two piece centres, as 1 - lowest pixel / median of the pieces, for ops_ph_nucleus_fragment_merge to join them. Only read when ops_ph_nucleus_fragment_merge is 'rule'. Provisional (paper session, labels pending review). Default 0.2. Alpha.
+(float or None) - Set, it refuses two pieces with a dark line between them; higher joins more pairs: the deepest dip of the raw DAPI along the line joining the two piece centres, as 1 - lowest pixel / median of the pieces, for ops_ph_nucleus_fragment_merge to join them. The single-pixel minimum is noisy; the paper session retunes it. Only read when ops_ph_nucleus_fragment_merge is 'rule'. Default None (off). Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
@@ -38916,10 +38916,10 @@ ops_ph_nucleus_fragment_max_gap_px
 
 Read by ``ops_defaults``.
 
-.. _setting-flow-ops_ph_nucleus_fragment_max_valley:
+.. _setting-flow-ops_ph_nucleus_fragment_max_valley_dip:
 
-ops_ph_nucleus_fragment_max_valley
-----------------------------------
+ops_ph_nucleus_fragment_max_valley_dip
+--------------------------------------
 
 (float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the DAPI is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for ops_ph_nucleus_fragment_merge to join them (AUC 0.74). Only read when ops_ph_nucleus_fragment_merge is 'rule'. Default None (off). Alpha.
 
