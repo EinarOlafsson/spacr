@@ -3138,10 +3138,11 @@ _SBS_CELL_METHODS = ("off", "cellpose", "watershed")
 _SBS_PROXY_SIGMA = 2.0
 
 #: The mask settings a decode worker needs for the SBS Cellpose cells.
-_SBS_CELL_MASK_KEYS = (*_OPS_MASK_SETTINGS, "ops_sbs_cell_model")
+_SBS_CELL_MASK_KEYS = (*_OPS_MASK_SETTINGS, "ops_sbs_cell_model", "ops_cellpose_model")
 
-#: SBS cell models loaded once per decode process, by model name and card.
-_SBS_CELL_MODELS: Dict[Tuple[str, bool], Any] = {}
+#: SBS cell models loaded once per decode process, by model name, stock
+#: Cellpose-SAM weights (``ops_cellpose_model``, item 975) and card.
+_SBS_CELL_MODELS: Dict[Tuple[str, str, bool], Any] = {}
 
 
 def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
@@ -3240,7 +3241,8 @@ def _sbs_cell_model(options: Mapping[str, Any], gpu: bool):
         ``ops_sbs_cell_model``.
     """
     settings = options["mask_settings"]
-    key = (str(settings.get("ops_sbs_cell_model") or "cpsam"), bool(gpu))
+    key = (str(settings.get("ops_sbs_cell_model") or "cpsam"),
+           str(ops_setting(settings, "ops_cellpose_model")), bool(gpu))
     if key not in _SBS_CELL_MODELS:
         _SBS_CELL_MODELS[key] = _cellpose_model(settings, gpu, "ops_sbs_cell_model")
     return _SBS_CELL_MODELS[key]
