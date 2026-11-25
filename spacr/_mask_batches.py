@@ -26,9 +26,11 @@ _CACHE = {}
 #: Batches the batch-first driver holds, by absolute path (see :func:`_batch_first`).
 _RESIDENT = {}
 
-#: Seconds to wait for free RAM before a batch is built anyway, and the poll step.
+#: Seconds to wait for free RAM before giving up on the margin, and the poll step.
 _RAM_WAIT_SECONDS = 900.0
 _RAM_POLL_SECONDS = 1.0
+#: Seconds between the warnings repeated while a wait for RAM goes on (item 1038).
+_RAM_WARN_SECONDS = 30.0
 
 
 def _plan_file(masks_dir):
@@ -1118,11 +1120,121 @@ def _host_available_ram_bytes():
         return None
 
 
+def _cgroup_folders(proc_cgroup='/proc/self/cgroup', root='/sys/fs/cgroup'):
+    """The cgroup v2 folders of this process, its own one first, up to the root.
+
+    :param proc_cgroup: the file naming this process's cgroup.
+    :param root: where the cgroup v2 hierarchy is mounted.
+    :returns: a list of folder paths, empty when cgroup v2 is not readable.
+    """
+    try:
+        with open(proc_cgroup, encoding='ascii') as handle:
+            entry = next((line.strip().split('::', 1)[1] for line in handle
+                          if line.startswith('0::')), None)
+    except (OSError, IndexError):
+        return []
+    if entry is None:
+        return []
+    parts = [part for part in entry.split('/') if part]
+    return [os.path.join(root, *parts[:depth]) for depth in range(len(parts), -1, -1)]
+
+
+def _cgroup_folder_limit(folder):
+    """The RAM limit one cgroup folder sets: the smaller of ``memory.max`` and ``memory.high``.
+
+    :param folder: a cgroup v2 folder.
+    :returns: bytes, or None when neither file sets a number.
+    """
+    limits = []
+    for name in ('memory.max', 'memory.high'):
+        try:
+            with open(os.path.join(folder, name), encoding='ascii') as handle:
+                value = handle.read().strip()
+            if value != 'max':
+                limits.append(int(value))
+        except (OSError, ValueError):
+            continue
+    return min(limits) if limits else None
+
+
+def _cgroup_limit_bytes(proc_cgroup='/proc/self/cgroup', root='/sys/fs/cgroup'):
+    """The tightest cgroup v2 RAM limit above this process, or None when none is set.
+
+    :param proc_cgroup: the file naming this process's cgroup.
+    :param root: where the cgroup v2 hierarchy is mounted.
+    :returns: the smallest ``memory.max`` or ``memory.high`` in bytes.
+    """
+    limits = [limit for limit in map(_cgroup_folder_limit, _cgroup_folders(proc_cgroup, root))
+              if limit is not None]
+    return min(limits) if limits else None
+
+
+def _sched_declared_ram_bytes(environ=None):
+    """The RAM a sched job declared (``SCHED_RAM_GB``, in GiB as sched sets MemoryMax), or None.
+
+    :param environ: the environment to read (``os.environ`` by default).
+    :returns: bytes, or None outside sched or when the value is not a positive number.
+    """
+    value = (os.environ if environ is None else environ).get('SCHED_RAM_GB')
+    try:
+        declared = float(value)
+    except (TypeError, ValueError):
+        return None
+    return int(declared * 2**30) if declared > 0 else None
+
+
+def _host_total_ram_bytes():
+    """The host MemTotal in bytes, or None when the platform does not say."""
+    try:
+        with open('/proc/meminfo', encoding='ascii') as handle:
+            for line in handle:
+                if line.startswith('MemTotal:'):
+                    return int(line.split()[1]) * 1024
+    except (OSError, ValueError, IndexError):
+        pass
+    try:
+        import psutil
+
+        return int(psutil.virtual_memory().total)
+    except Exception:                                       # noqa: BLE001
+        return None
+
+
+def _ram_limit():
+    """The RAM limit this process runs under, and where it comes from.
+
+    The cgroup limit (``memory.max`` or ``memory.high``) and the sched
+    declaration (``SCHED_RAM_GB``) are both hard: the tighter one wins.
+    Without either the host total is the limit, and it is soft.
+
+    :returns: ``(bytes or None, source)``; the source is ``'cgroup'``,
+        ``'sched'``, ``'host'`` or None when nothing is known.
+    """
+    found = [(limit, source) for limit, source in (
+        (_cgroup_limit_bytes(), 'cgroup'), (_sched_declared_ram_bytes(), 'sched'))
+        if limit is not None]
+    if found:
+        return min(found)
+    total = _host_total_ram_bytes()
+    return (total, 'host') if total is not None else (None, None)
+
+
+def _ram_margin_bytes(limit=None):
+    """The free-RAM margin under this process's RAM limit (:func:`spacr.resource_log._free_ram_margin_bytes`).
+
+    :param limit: the limit in bytes; read with :func:`_ram_limit` when None.
+    :returns: bytes.
+    """
+    from .resource_log import _free_ram_margin_bytes
+
+    return _free_ram_margin_bytes(_ram_limit()[0] if limit is None else limit)
+
+
 def _cgroup_headroom_bytes(proc_cgroup='/proc/self/cgroup', root='/sys/fs/cgroup'):
     """The RAM this process may still take under its cgroup v2 limits, or None.
 
     Every cgroup from this process's own one up to the root that sets
-    ``memory.max`` is read; its headroom is ``memory.max`` minus
+    ``memory.max`` or ``memory.high`` is read; its headroom is that limit minus
     ``memory.current`` plus the ``inactive_file`` cache of ``memory.stat``,
     which the kernel reclaims before it kills. A job started with a hard
     RAM cap (a systemd scope with ``MemoryMax``, as sched starts it) is thus
@@ -1133,23 +1245,12 @@ def _cgroup_headroom_bytes(proc_cgroup='/proc/self/cgroup', root='/sys/fs/cgroup
     :returns: the smallest headroom in bytes, or None when no limit is set
         or cgroup v2 is not readable.
     """
-    try:
-        with open(proc_cgroup, encoding='ascii') as handle:
-            entry = next((line.strip().split('::', 1)[1] for line in handle
-                          if line.startswith('0::')), None)
-    except (OSError, IndexError):
-        return None
-    if entry is None:
-        return None
-    parts = [part for part in entry.split('/') if part]
     smallest = None
-    for depth in range(len(parts), -1, -1):
-        folder = os.path.join(root, *parts[:depth])
+    for folder in _cgroup_folders(proc_cgroup, root):
+        limit = _cgroup_folder_limit(folder)
+        if limit is None:
+            continue
         try:
-            with open(os.path.join(folder, 'memory.max'), encoding='ascii') as handle:
-                limit = handle.read().strip()
-            if limit == 'max':
-                continue
             with open(os.path.join(folder, 'memory.current'), encoding='ascii') as handle:
                 current = int(handle.read().strip())
             cache = 0
@@ -1202,33 +1303,106 @@ def _batch_ram_estimate(plan, index):
     return int(len(names) * (raw + full + kept))
 
 
-def _wait_for_ram(estimate, *, margin=2 * 2**30, available=None, sleep=None, checkpoint=None):
+class RamLimitError(MemoryError):
+    """The next batch cannot fit under the RAM limit the job runs under (item 1038)."""
+
+
+def _ram_warning(text, **values):
+    """Log a RAM-guard warning on the spaCR logger and print it to the run console.
+
+    :param text: the English template, translated with ``tr``.
+    :param values: its placeholder values.
+    :returns: the message.
+    """
+    import logging
+
+    from .qt.i18n import tr
+
+    message = tr(text, **values)
+    logging.getLogger('spacr.mask_batches').warning(message)
+    print(f'WARNING: {message}', flush=True)
+    return message
+
+
+def _wait_for_ram(estimate, *, margin=None, available=None, sleep=None, checkpoint=None,
+                  limit=None):
     """Wait, instead of loading, while free RAM is short for the next batch.
 
+    The batch may start once the free RAM (:func:`_available_ram_bytes`)
+    covers ``estimate`` plus a margin of ``min(2 GiB, 10 % of the limit)``
+    (:func:`spacr.resource_log._free_ram_margin_bytes`), where the limit is
+    the cgroup limit or sched declaration, or the host total without one.
+    Every wait is logged when it starts and every :data:`_RAM_WARN_SECONDS`
+    while it lasts, with the free RAM, the margin, the limit and the time.
+
+    After :data:`_RAM_WAIT_SECONDS` the margin is given up: the batch is built
+    with a warning when the free RAM still covers the estimate itself, or
+    when the only limit is the host total (the kernel may still reclaim, as
+    before item 1038). Under a hard limit (cgroup or sched) that the estimate
+    no longer fits, :class:`RamLimitError` is raised and says how much RAM
+    to declare, because building the batch would only get the job killed.
+    Both callers let the error end the run: the batch feeder hands it to
+    the segmenting thread, and the array loader raises it in place.
+
     :param estimate: bytes the batch needs.
-    :param margin: bytes to leave free beyond the estimate.
-    :param available: callable returning MemAvailable (the real one by default).
+    :param margin: bytes to leave free beyond the estimate (from the limit by default).
+    :param available: callable returning free RAM (the real one by default).
     :param sleep: callable taking seconds (``time.sleep`` by default).
     :param checkpoint: callable run each poll so a cancelled run stops waiting.
+    :param limit: callable returning ``(bytes, source)`` (:func:`_ram_limit` by default).
     :returns: seconds waited.
+    :raises RamLimitError: as described above.
     """
     import time
 
     available = available or _available_ram_bytes
     sleep = sleep or time.sleep
+    limit_bytes, source = (limit or _ram_limit)()
+    if margin is None:
+        margin = _ram_margin_bytes(limit_bytes)
+    gib = 2**30
+    limit_text = 'unknown' if limit_bytes is None else f'{limit_bytes / gib:.1f} GiB ({source})'
     waited = 0.0
+    warned_at = None
+    free = None
     while waited < _RAM_WAIT_SECONDS:
         free = available()
         if free is None or free >= estimate + margin:
-            break
+            if warned_at is not None:
+                _ram_warning('RAM guard: {free} GiB free again after {waited} s; '
+                             'building the next batch.',
+                             free=f'{free / gib:.2f}' if free is not None else '?',
+                             waited=f'{waited:.0f}')
+            return waited
+        if warned_at is None or waited - warned_at >= _RAM_WARN_SECONDS:
+            _ram_warning('RAM guard: waiting for RAM before the next batch: {free} GiB free, '
+                         'the batch needs {need} GiB plus a {margin} GiB margin, '
+                         'limit {limit}, waited {waited} of {timeout} s.',
+                         free=f'{free / gib:.2f}', need=f'{estimate / gib:.2f}',
+                         margin=f'{margin / gib:.2f}', limit=limit_text,
+                         waited=f'{waited:.0f}', timeout=f'{_RAM_WAIT_SECONDS:.0f}')
+            warned_at = waited
         if checkpoint is not None:
             checkpoint()
         sleep(_RAM_POLL_SECONDS)
         waited += _RAM_POLL_SECONDS
-    if waited >= _RAM_WAIT_SECONDS:
-        print(f'Free RAM stayed below {(estimate + margin) / 2**30:.1f} GiB for '
-              f'{waited:.0f} s; building the next batch anyway.')
-    return waited
+    free = available()
+    if free is None or free >= estimate or source not in ('cgroup', 'sched'):
+        _ram_warning('RAM guard: free RAM stayed below the {margin} GiB margin for {waited} s '
+                     '({free} GiB free, the batch needs {need} GiB, limit {limit}); '
+                     'building the next batch without the margin.',
+                     margin=f'{margin / gib:.2f}', waited=f'{waited:.0f}',
+                     free=f'{free / gib:.2f}' if free is not None else '?',
+                     need=f'{estimate / gib:.2f}', limit=limit_text)
+        return waited
+    used = max(0, limit_bytes - free)
+    declare = math.ceil((used + estimate + margin) / gib)
+    raise RamLimitError(_ram_warning(
+        'RAM guard: the next batch needs {need} GiB but only {free} GiB is free under the '
+        '{limit} limit after {waited} s. Declare at least {declare} GiB of RAM for this job '
+        '(sched run --ram {declare}) or lower the batch size.',
+        need=f'{estimate / gib:.2f}', free=f'{free / gib:.2f}', limit=limit_text,
+        waited=f'{waited:.0f}', declare=declare))
 
 
 class _GpuBatch:
