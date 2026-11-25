@@ -4461,26 +4461,19 @@ def _pair_names(channel_names, channels):
 def _pearson_pair_columns(flat, size, present, values, names):
     """``correlation_<a>_<b>`` of every channel pair, indexed by ``present``.
 
-    Each channel is centred on its label means once and reused by every
-    pair; the arithmetic is :func:`_pearson_by_label`'s, value for value.
+    Each channel is centred on its label means once
+    (:func:`_label_centring`) and reused by every pair; each pair adds only
+    its cross sum (:func:`_cross_sums`) for :func:`_pearson_by_label`.
     """
     from itertools import combinations
 
-    count = np.bincount(flat, None, size)
-    centred, squares = [], []
-    with np.errstate(invalid='ignore', divide='ignore'):
-        for channel in values:
-            mean = np.bincount(flat, channel, size) / count
-            delta = channel - mean[flat]
-            centred.append(delta)
-            squares.append(np.bincount(flat, delta * delta, size))
-        out = {}
-        for first, second in combinations(range(len(values)), 2):
-            sxx, syy = squares[first], squares[second]
-            sxy = np.bincount(flat, centred[first] * centred[second], size)
-            r = sxy / np.sqrt(sxx * syy)
-            r = np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan)
-            out[f'correlation_{names[first]}_{names[second]}'] = r[present]
+    centring = [_label_centring(flat, channel, size) for channel in values]
+    out = {}
+    for first, second in combinations(range(len(values)), 2):
+        (mx, sxx), (my, syy) = centring[first], centring[second]
+        sxy = _cross_sums(flat, values[first], values[second], mx, my, size)
+        out[f'correlation_{names[first]}_{names[second]}'] = _pearson_by_label(
+            sxy, sxx, syy)[present]
     return out
 
 
@@ -4998,7 +4991,7 @@ def _pftas_kernel(labels, image, boxes, present, out):
 def _texture_channel(c, *, labels, image, boxes, present, levels, distance,
                      pftas, har, tas):
     """Fill channel ``c`` of :func:`measure_texture`'s ``har`` (unless ``levels`` is None) and ``tas`` (if ``pftas``)."""
-    plane = np.ascontiguousarray(image[..., c])
+    plane = image[..., c]
     if levels is not None:
         _compiled(_haralick_kernel)(labels, plane, boxes, present, levels,
                                     distance, har[:, c])
@@ -5187,58 +5180,67 @@ def _within_label_ranks_kernel(order, ordered, starts, counts, present,
         max_dense[present[index]] = level
 
 
-def _pair_sums_kernel(flat, x, y, mx, my, dx, dy, sums):
-    """Deviations from each label's means and their per-label sums of products, in one pass.
+def _centred_squares_kernel(flat, x, mean, out):
+    """Adds ``(x - mean[label])^2`` of every pixel into ``out[label]``, in one pass.
 
-    Writes ``dx = x - mx[label]`` and ``dy = y - my[label]`` and adds
-    ``dx * dy``, ``dx * dx`` and ``dy * dy`` into ``sums[0..2, label]`` in
-    pixel order, the order :func:`numpy.bincount` adds them in, so the sums
-    are the same floats. Compile with :func:`_compiled`.
+    In pixel order, the order :func:`numpy.bincount` adds in, and with the
+    deviation rounded as ``x - mean[flat]`` rounds it, so ``out`` is the
+    bincount of the squared deviations to the bit. Compile with
+    :func:`_compiled`.
     """
     for k in range(flat.size):
         label = flat[k]
-        a = x[k] - mx[label]
-        b = y[k] - my[label]
-        dx[k] = a
-        dy[k] = b
-        sums[0, label] += a * b
-        sums[1, label] += a * a
-        sums[2, label] += b * b
+        a = x[k] - mean[label]
+        out[label] += a * a
 
 
-def _pair_sums(flat, x, y, size):
-    """Per-label count, ``sum(dx dy)``, ``sum(dx^2)``, ``sum(dy^2)`` and the deviations ``dx``, ``dy`` from the label means.
+def _cross_sums_kernel(flat, x, y, mx, my, out):
+    """Adds ``(x - mx[label]) (y - my[label])`` of every pixel into ``out[label]``, in one pass.
 
-    The values ``np.bincount`` gives over ``x - mean`` and ``y - mean``,
-    found in one compiled pass instead of five array passes.
+    In pixel order, so ``out`` is the bincount of the deviation products to
+    the bit. Compile with :func:`_compiled`.
     """
+    for k in range(flat.size):
+        label = flat[k]
+        out[label] += (x[k] - mx[label]) * (y[k] - my[label])
+
+
+def _label_centring(flat, x, size):
+    """The mean of ``x`` in each label and the sum of squared deviations from it: ``(mean, sxx)``.
+
+    The mean is the bincount sum over the pixel count (NaN for an absent
+    label). The Pearson r of a channel pair needs these once per channel and
+    only the cross sum (:func:`_cross_sums`) per pair.
+    """
+    x = np.ascontiguousarray(x, dtype=np.float64)
     count = np.bincount(flat, None, size)
     with np.errstate(invalid='ignore', divide='ignore'):
-        mx = np.bincount(flat, x, size) / count
-        my = np.bincount(flat, y, size) / count
-    x = np.ascontiguousarray(x, dtype=np.float64)
-    y = np.ascontiguousarray(y, dtype=np.float64)
-    dx = np.empty_like(x)
-    dy = np.empty_like(y)
-    sums = np.zeros((3, size))
-    _compiled(_pair_sums_kernel)(np.ascontiguousarray(flat), x, y, mx, my,
-                                 dx, dy, sums)
-    return count, sums[0], sums[1], sums[2], dx, dy
+        mean = np.bincount(flat, x, size) / count
+    squares = np.zeros(size)
+    _compiled(_centred_squares_kernel)(np.ascontiguousarray(flat), x, mean,
+                                       squares)
+    return mean, squares
 
 
-def _pearson_by_label(flat, x, y, size, sums=None):
-    """Pearson's r of ``x`` and ``y`` within each label (NaN when either is flat).
+def _cross_sums(flat, x, y, mx, my, size):
+    """Per-label ``sum((x - mx) (y - my))`` over the pixels, with the means of :func:`_label_centring`."""
+    sums = np.zeros(size)
+    _compiled(_cross_sums_kernel)(
+        np.ascontiguousarray(flat), np.ascontiguousarray(x, dtype=np.float64),
+        np.ascontiguousarray(y, dtype=np.float64), mx, my, sums)
+    return sums
 
-    :param sums: :func:`_pair_sums` of ``x`` and ``y``, when the caller
-        already has them.
-    :returns: ``(r, dx, dy)``, with ``dx`` and ``dy`` the deviations from
-        each label's means.
+
+def _pearson_by_label(sxy, sxx, syy):
+    """The Pearson r within each label from its sums of deviation products (NaN when either channel is flat).
+
+    :param sxy: per-label ``sum(dx dy)`` (:func:`_cross_sums`).
+    :param sxx: per-label ``sum(dx^2)`` (:func:`_label_centring`).
+    :param syy: per-label ``sum(dy^2)``.
     """
-    _count, sxy, sxx, syy, dx, dy = (
-        sums if sums is not None else _pair_sums(flat, x, y, size))
     with np.errstate(invalid='ignore', divide='ignore'):
         r = sxy / np.sqrt(sxx * syy)
-    return np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan), dx, dy
+    return np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan)
 
 
 class _LabelPixels:
@@ -5250,7 +5252,10 @@ class _LabelPixels:
     Those are the same arrays for the same mask and image, so
     :func:`measure_profile_features` builds one of these per mask and hands
     it to every family it runs; each array is computed by the same function
-    on the same input as before, the first time it is asked for.
+    on the same input as before, the first time it is asked for. The
+    per-channel means and squared deviations of the values and of the
+    ranks (:func:`_label_centring`), and the Pearson sums of each channel
+    pair, are kept the same way.
 
     :param labels: the int64 label mask of :func:`_profile_inputs`.
     :param image: the float64 ``(H, W, C)`` image of :func:`_profile_inputs`.
@@ -5260,11 +5265,12 @@ class _LabelPixels:
         """Take the mask's foreground and every channel's values on it."""
         self.foreground = _foreground(labels)
         inside = self.foreground[3]
-        self.planes = [image[..., c].ravel()[inside]
-                       for c in range(image.shape[-1])]
+        self.planes = _channel_values(image, inside)
         self._sort_cache = {}
         self._threshold_cache = {}
         self._rank_cache = {}
+        self._centring_cache = {}
+        self._pair_cache = {}
 
     def _sort(self, channel):
         """:func:`_sorted_by_label` of one channel."""
@@ -5287,6 +5293,32 @@ class _LabelPixels:
                 self.foreground[0], self.planes[channel], self._sort(channel))
         return self._rank_cache[channel]
 
+    def _values(self, channel, ranked):
+        """The values of one channel, or its within-object average ranks."""
+        return self._ranks(channel)[0] if ranked else self.planes[channel]
+
+    def _centring(self, channel, ranked=False):
+        """:func:`_label_centring` of the values of one channel, or of its average ranks."""
+        key = (channel, ranked)
+        if key not in self._centring_cache:
+            self._centring_cache[key] = _label_centring(
+                self.foreground[0], self._values(channel, ranked),
+                self.foreground[4])
+        return self._centring_cache[key]
+
+    def _pair(self, first, second, ranked=False):
+        """``(sxy, sxx, syy)``, the per-label Pearson sums of two channels (or of their ranks)."""
+        key = (first, second, ranked)
+        if key not in self._pair_cache:
+            mx, sxx = self._centring(first, ranked)
+            my, syy = self._centring(second, ranked)
+            sxy = _cross_sums(self.foreground[0],
+                              self._values(first, ranked),
+                              self._values(second, ranked), mx, my,
+                              self.foreground[4])
+            self._pair_cache[key] = (sxy, sxx, syy)
+        return self._pair_cache[key]
+
     def _prepare(self):
         """Make every channel's sort, background and ranks, the channels side by side.
 
@@ -5302,9 +5334,11 @@ class _LabelPixels:
         return self
 
     def _prepare_channel(self, channel):
-        """Make one channel's background and ranks (and so its sort)."""
+        """Make the background, ranks (and so the sort) and centrings of one channel."""
         self._threshold(channel)
         self._ranks(channel)
+        self._centring(channel)
+        self._centring(channel, ranked=True)
 
 
 def _label_pixels(labels, image):
@@ -5326,12 +5360,14 @@ def _label_pixels(labels, image):
     return pixels
 
 
-def _overlap_sums_kernel(flat, x, y, threshold_x, threshold_y, dx, dy,
+def _overlap_sums_kernel(flat, x, y, threshold_x, threshold_y, mx, my,
                          dense_x, dense_y, top, sums):
     """The per-label sums of :func:`measure_colocalisation` for one channel pair, in one pass.
 
     Adds, in pixel order (the order of :func:`numpy.bincount`), into
-    ``sums[0..7, label]``: pixels with ``dx * dy > 0``; ``a b``, ``a a``,
+    ``sums[0..7, label]``: pixels with ``dx * dy > 0``, ``dx = x -
+    mx[label]`` and ``dy = y - my[label]`` the deviations from the label
+    means; ``a b``, ``a a``,
     ``b b``, ``a`` and ``b`` with ``a``, ``b`` the channels above their
     per-pixel backgrounds (clipped at 0); and ``a w``, ``b w`` over the
     pixels where both are above background, with the rank weight ``w = (R
@@ -5340,7 +5376,7 @@ def _overlap_sums_kernel(flat, x, y, threshold_x, threshold_y, dx, dy,
     """
     for k in range(flat.size):
         label = flat[k]
-        if dx[k] * dy[k] > 0:
+        if (x[k] - mx[label]) * (y[k] - my[label]) > 0:
             sums[0, label] += 1.0
         a = x[k] - threshold_x[k]
         if a < 0:
@@ -5405,13 +5441,12 @@ def measure_colocalisation(labels, image):
     for i, j in combinations(range(image.shape[-1]), 2):
         base = f'channel_{i}_channel_{j}_'
         x, y = planes[i], planes[j]
-        spearman, _dx, _dy = _pearson_by_label(
-            flat, ranks[i][0], ranks[j][0], size)
-        _r, dx, dy = _pearson_by_label(flat, x, y, size)
+        spearman = _pearson_by_label(*pixels._pair(i, j, ranked=True))
         count = np.bincount(flat, None, size)
         sums = np.zeros((8, size))
         _compiled(_overlap_sums_kernel)(
-            flat, x, y, thresholds[i], thresholds[j], dx, dy, ranks[i][1],
+            flat, x, y, thresholds[i], thresholds[j],
+            pixels._centring(i)[0], pixels._centring(j)[0], ranks[i][1],
             ranks[j][1], np.maximum(ranks[i][2], ranks[j][2]), sums)
         same_side, sab, saa, sbb, sa, sb, weighted_a, weighted_b = sums
         with np.errstate(invalid='ignore', divide='ignore'):
@@ -5841,8 +5876,7 @@ def measure_colocalisation_otsu(labels, image):
         squares.append(np.bincount(flat, values * values, size))
     for i, j in pairs:
         x, y = planes[i], planes[j]
-        _count, covariance, var_x, var_y, _dx, _dy = _pair_sums(
-            flat, x, y, size)
+        covariance, var_x, var_y = pixels._pair(i, j)
         pair = np.zeros((5, size))
         _compiled(_otsu_pair_sums_kernel)(
             flat, x, y, above[i], above[j], ranks[i][1], ranks[j][1],
