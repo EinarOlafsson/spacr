@@ -2732,6 +2732,7 @@ DEFAULT_CHANGES = {
     971: {'ops_tile_origin': 'float'},
     972: {'ops_store_raw_masks': False, 'ops_read_cache_floor': 100.0},
     973: {'ops_sbs_cellpose_diameter': None},
+    974: {'ops_ph_segment_flatfield': False},
     975: {'ops_cellpose_model': 'cpsam_v1'},
     976: {'ops_ph_spanning_merge': 'merge', 'spanning_merge': 'merge'},
 }
@@ -2951,6 +2952,11 @@ def _fold_older_defaults(settings, version, known=None):
     ``ops_sbs_cellpose_diameter`` is now 11.0 pixels of the full-resolution
     cycle DAPI. Files stamped before keep None and segment at native scale.
     Versions 966 to 972 belong to other merges.
+
+    Version 974 segments OPS phenotype fields on flat-field corrected DNA
+    and cell channels: ``ops_ph_segment_flatfield`` is now True. Files
+    stamped before keep False, the raw-pixel segmentation. Versions 966 to
+    973 belong to other merges.
 
     Version 975 segments OPS with the Cellpose-SAM ``cpsam_v2`` weights:
     ``ops_cellpose_model`` is now ``'cpsam_v2'``, loaded by its full path

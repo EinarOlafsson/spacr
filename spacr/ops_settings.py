@@ -83,6 +83,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_cell_diameter": None,
     "ops_ph_downsample": 2,
     "ops_ph_spanning_merge": "best_parent",
+    "ops_ph_segment_flatfield": True,
     "ops_ph_tile_batch": 0,
     "batch_size": "auto_vram",
     "mask_eval_batch_size": "auto_vram",
@@ -725,6 +726,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_cell_diameter": (float, int, type(None)),
     "ops_ph_downsample": int,
     "ops_ph_spanning_merge": str,
+    "ops_ph_segment_flatfield": bool,
     "ops_ph_tile_batch": (int, type(None)),
     "ops_ph_sites": (str, list, int, type(None)),
     "ops_ph_texture": bool,
@@ -1416,8 +1418,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ome_zarr_upgrade_link",
         "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
-        "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_spanning_merge",
-        "ops_ph_tile_batch",
+        "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_segment_flatfield",
+        "ops_ph_spanning_merge", "ops_ph_tile_batch",
         "ops_ph_sites", "ops_retry_missing", "ops_store_raw_masks",
     ],
     "Additional phenotype objects": [
@@ -2071,6 +2073,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "every cell fuses those cells, even cells that hold their own nuclei, "
         "and with 90 percent or more in one cell its pixels in the others are "
         "erased. Default 'best_parent'. Alpha.",
+    "ops_ph_segment_flatfield":
+        "(bool) - Find more cells near the field edge: divide the DNA and cell "
+        "channels by the plate's flat-field maps before segmenting. On LaC024E "
+        "A1 this kept 62 of 78 edge nuclei that raw pixels lost. Needs complete "
+        "maps (ops_flatfield_maps, or built by ph_flatfield_objects in the same "
+        "run, which then segments twice); without them the fields are segmented "
+        "raw. Measurement is unchanged. Default True; settings files saved "
+        "before schema 974 keep False.",
     "ops_ph_tile_batch":
         "(int) - How many 256-pixel tiles Cellpose passes through the "
         "network at once when it segments phenotype nuclei, cells, pathogens "

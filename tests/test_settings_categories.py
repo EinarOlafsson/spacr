@@ -580,6 +580,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_ph_downsample", "ops_ph_nucleus_diameter", "ops_ph_nucleus_model",
     "ops_ph_sites", "ops_ph_texture", "ops_read_mismatches",
     "ops_single_read_quality",
+    # Flat-field corrected phenotype segmentation (schema 974, item 1035).
+    "ops_ph_segment_flatfield",
     # The OPS aggregate options (items 851 and 858, 2026-11-07): the
     # calibrated gene null, the tested features, a swappable genotype
     # table, well-subset and interphase pooling, and the feature QC.
