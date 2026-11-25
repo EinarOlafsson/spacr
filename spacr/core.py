@@ -3023,6 +3023,8 @@ def _watch_analyse_field(field_dir, settings):
                if 'watch_measure_snapshot' in settings
                else _watch_measure_settings(settings))
     measure['src'] = merged
+    if pipeline == 'mask_measure_classify':
+        measure['save_png'] = True
     measure_crop(measure)
     from .measurement_store import exists as _measurements_exist
     if not _measurements_exist(os.path.join(field_dir, 'measurements',
@@ -3031,21 +3033,17 @@ def _watch_analyse_field(field_dir, settings):
                            'the log above says why.')
     if pipeline == 'mask_measure_classify':
         from .classify import classify
-        from contextlib import closing
-
-        from .database_concurrency import connect
 
         classify_settings = deepcopy(settings['watch_classify_snapshot'])
         classify_settings['src'] = field_dir
         classify(classify_settings)
-        database = os.path.join(field_dir, 'measurements', 'measurements.db')
-        with closing(connect(database, readonly=True)) as connection:
-            columns = {row[1] for row in connection.execute('PRAGMA table_info(png_list)')}
-            if (not {'pred', 'cv_predictions'} <= columns or not connection.execute(
-                    'SELECT 1 FROM png_list WHERE pred IS NOT NULL AND '
-                    'cv_predictions IS NOT NULL LIMIT 1').fetchone()):
-                raise RuntimeError('Classify wrote no CV predictions to this field; '
-                                   'check the model and measured objects.')
+        from .crop_store import crop_predictions
+
+        predicted = crop_predictions(field_dir)
+        if (predicted is None or not {'pred', 'cv_predictions'} <= set(predicted.columns)
+                or not (predicted['pred'].notna() & predicted['cv_predictions'].notna()).any()):
+            raise RuntimeError('Classify wrote no CV predictions to this field; '
+                               'check the model and measured objects.')
 
 
 def _watch_measure_recipe(settings):

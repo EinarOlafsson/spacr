@@ -93,6 +93,10 @@ __all__ = [
 #: Table holding one row per object crop.
 PNG_TABLE = "png_list"
 
+#: Table holding one row per object crop in a project whose crops are OME-Zarr
+#: (no ``png_list``); scores merged into ``png_list`` go here instead.
+CROP_TABLE = "ssCell_Crops"
+
 #: Positive-class probability from the convolutional classifier. Spelled
 #: ``pred`` because that is what it has always been called, and because
 #: ``spacr.settings`` (``dependent_variable='pred'``), ``spacr.submodules``,
@@ -157,7 +161,7 @@ ANNOTATE_ENCODED_COLUMNS: Tuple[str, ...] = (ML_CLASS_COLUMN,)
 
 #: Candidate join keys, best first. Ties in match count are broken by this
 #: order, so ``prcfo`` wins whenever it does as well as the alternatives.
-KEY_PRIORITY: Tuple[str, ...] = ("prcfo", "png_path", "file_name")
+KEY_PRIORITY: Tuple[str, ...] = ("prcfo", "png_path", "file_name", "object_id")
 
 #: Columns a results frame may carry the crop's name in, best first.
 _NAME_COLUMNS: Tuple[str, ...] = ("path", "png_path", "file_name")
@@ -478,6 +482,10 @@ def _db_keys(kind: str, frame: pd.DataFrame) -> Optional[pd.Series]:
             return frame["png_path"].map(
                 lambda v: (lambda c: None if c is None else os.path.basename(c))(_clean_key(v)))
         return None
+    if kind == "object_id":
+        if "object_id" in frame.columns:
+            return frame["object_id"].map(_clean_key)
+        return None
     raise ValueError(f"Unknown join key {kind!r}; expected one of {KEY_PRIORITY}")
 
 
@@ -510,6 +518,14 @@ def _result_keys(kind: str, results: pd.DataFrame, timelapse: bool) -> Optional[
             return None
         return results[name_col].map(
             lambda v: (lambda c: None if c is None else os.path.basename(c))(_clean_key(v)))
+    if kind == "object_id":
+        if "object_id" in results.columns:
+            return results["object_id"].map(_clean_key)
+        name_col = _name_column(results)
+        if name_col is None:
+            return None
+        return results[name_col].map(
+            lambda v: (lambda c: None if c is None else os.path.splitext(os.path.basename(c))[0])(_clean_key(v)))
     raise ValueError(f"Unknown join key {kind!r}; expected one of {KEY_PRIORITY}")
 
 
@@ -904,6 +920,8 @@ def _merge_store_project(results, project, spec, table, key, timelapse):
     from . import store
 
     with store.open(project, verify="none") as reader:
+        if table == PNG_TABLE and table not in reader.tables():
+            table = CROP_TABLE
         table_columns = list(reader.columns(table)["name"])
         identity = store._identity(table)
         wanted = [identity] if identity else ["object_key", "timeID"]
