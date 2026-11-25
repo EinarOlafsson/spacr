@@ -4827,8 +4827,15 @@ def _ph_upscale(mask: np.ndarray, factor: int, shape) -> np.ndarray:
     return np.ascontiguousarray(mask[:shape[0], :shape[1]]).astype(np.int32)
 
 
-def _ph_segmentation_inputs(stack, channels, settings):
-    """Prepare the same downsampled nucleus and cell inputs for probes and segmentation."""
+def _ph_segmentation_inputs(stack, channels, settings, flat=None):
+    """Prepare the same downsampled nucleus and cell inputs for probes and segmentation.
+
+    :param flat: ``(planes, offsets)`` of the plate's flat-field maps
+        (:func:`_ph_segment_flat`), or None. Given, the DNA and cell
+        channels are corrected pixel by pixel with
+        :func:`spacr.ops_flatfield.correct_field` before they are
+        downsampled (item 1035); None segments the raw pixels.
+    """
     from .qt.i18n import tr
 
     factor = max(1, int(_setting_number(settings.get("ops_ph_downsample"),
@@ -4839,6 +4846,14 @@ def _ph_segmentation_inputs(stack, channels, settings):
             "ops_ph_channels {channels} must name {nuclear} and the cell "
             "channel {cell}", channels=list(channels), nuclear=_NUCLEAR,
             cell=cell_channel))
+    if flat is not None:
+        from .ops_flatfield import correct_field
+
+        planes, offsets = flat
+        picked = list(dict.fromkeys((_NUCLEAR, cell_channel)))
+        stack = correct_field(stack[..., [list(channels).index(c) for c in picked]],
+                              planes, offsets, picked)
+        channels = picked
     dna = _ph_downscale(stack[..., channels.index(_NUCLEAR)], factor)
     body = _ph_downscale(stack[..., channels.index(cell_channel)], factor)
     extra = {}
@@ -4849,7 +4864,7 @@ def _ph_segmentation_inputs(stack, channels, settings):
 
 
 def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
-                      settings: Mapping[str, Any], *, field_count=1):
+                      settings: Mapping[str, Any], *, field_count=1, flat=None):
     """Nuclei and cells of one field, paired so nucleus k is in cell k.
 
     :param stack: the ``(H, W, C)`` field.
@@ -4858,6 +4873,9 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
     :param settings: read for ``ops_ph_cell_channel``, ``ops_ph_downsample``,
         ``mask_eval_batch_size`` and the two diameters.
     :param field_count: fields in the current resident batch.
+    :param flat: ``(planes, offsets)`` to segment flat-field corrected
+        inputs (item 1035, :func:`_ph_segmentation_inputs`), or None for the
+        raw pixels.
     :returns: ``(nuclei, cells, counts)``.
 
     NUCLEI ON DAPI, CELLS ON THE CELL STAIN WITH DAPI AS THE SECOND
@@ -4870,7 +4888,7 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
     from .ops_sample import pair_nuclei_with_cells
     from .qt.i18n import tr
 
-    dna, body, extra, factor = _ph_segmentation_inputs(stack, channels, settings)
+    dna, body, extra, factor = _ph_segmentation_inputs(stack, channels, settings, flat)
     nucleus_model, cell_model = models
     nuclei = _ops_mask_eval(nucleus_model, dna, settings, site='ops_phenotype',
                             field_count=field_count,
@@ -5193,7 +5211,8 @@ def _ph_committed_fields(folder: str, plate: str, well: str) -> Dict[int, str]:
 
 
 def _ph_mask_paths(destination: str, plate: str, well: str,
-                   settings: Mapping[str, Any]) -> Dict[int, str]:
+                   settings: Mapping[str, Any],
+                   mask_folder: str = "phenotype_masks") -> Dict[int, str]:
     """Available phenotype masks, preferring the selected format per field.
 
     :param destination: the run folder.
@@ -5201,9 +5220,10 @@ def _ph_mask_paths(destination: str, plate: str, well: str,
     :param well: the well name.
     :param settings: read for ``ops_ph_image_format``; the other format is
         used when the selected format has no committed field.
+    :param mask_folder: the well subfolder of the masks.
     :returns: site to NPZ file or committed OME-Zarr field group.
     """
-    folder = os.path.join(destination, str(well), "phenotype_masks")
+    folder = os.path.join(destination, str(well), mask_folder)
     legacy = {}
     if os.path.isdir(folder):
         legacy = {int(name[5:-4]): os.path.join(folder, name)
@@ -5387,6 +5407,61 @@ def _ph_flat_planes(folder: str, channels: Sequence[str], shape):
         _PH_FLAT_CACHE.clear()
         _PH_FLAT_CACHE[key] = (planes, offsets, inverse)
     return _PH_FLAT_CACHE[key]
+
+
+def _ph_segment_flat(settings: Mapping[str, Any], destination: str,
+                     channels: Sequence[str]) -> Optional[Dict[str, Any]]:
+    """The flat-field maps ``ph_segment`` corrects its inputs with (item 1035).
+
+    :param settings: read for ``ops_ph_segment_flatfield``,
+        ``ops_flatfield_maps`` and ``ops_ph_cell_channel``.
+    :param destination: the run folder, for ``<dst_root>/flatfield``.
+    :param channels: the phenotype channels.
+    :returns: ``{"folder", "md5"}``, the plate's maps folder and the md5 of
+        the DNA and cell-channel maps, when the setting is on and every
+        channel's map is complete; None otherwise, and the field is
+        segmented on its raw pixels.
+
+    THE SAME MAPS AS THE MEASUREMENT. Segmentation divides by the maps the
+    exact correction measures with, so there is one map per plate and
+    channel. When they are still pending (object-median fits built after
+    segmentation), a run that also has ``ph_flatfield_objects`` segments
+    raw into ``phenotype_masks_raw`` first, builds the maps from those
+    objects, then segments on corrected inputs (:func:`run_ops`).
+    """
+    from .ops_flatfield import load_flat_maps
+
+    if not bool(ops_setting(settings, "ops_ph_segment_flatfield")):
+        return None
+    folder = _ph_flat_folder(settings, destination)
+    if not os.path.isfile(os.path.join(folder, "flat_info.json")):
+        return None
+    try:
+        info = load_flat_maps(folder, channels)[2]
+    except (FileNotFoundError, ValueError):
+        return None
+    wanted = {_NUCLEAR, str(settings.get("ops_ph_cell_channel") or "AF750").upper()}
+    return {"folder": folder,
+            "md5": {k: v for k, v in sorted(info["md5"].items()) if str(k).upper() in wanted}}
+
+
+def _ph_segment_flat_pending(settings: Mapping[str, Any], destination: str,
+                             channels: Sequence[str]) -> bool:
+    """Whether ``ph_segment`` must wait for the object-median maps (item 1035).
+
+    True when ``ops_ph_segment_flatfield`` is on and the plate's maps folder
+    holds a pending map (:func:`spacr.ops_flatfield.mark_pending`): the
+    run then segments raw into ``phenotype_masks_raw``, builds the maps and
+    segments again on corrected inputs.
+    """
+    if not bool(ops_setting(settings, "ops_ph_segment_flatfield")):
+        return False
+    path = os.path.join(_ph_flat_folder(settings, destination), "flat_info.json")
+    if not os.path.isfile(path):
+        return False
+    with open(path, encoding="utf-8") as handle:
+        pending = {str(c).upper() for c in json.load(handle).get("pending") or []}
+    return bool(pending & {str(c).upper() for c in channels})
 
 
 def _ph_flat_blocks(task: Mapping[str, Any]) -> Dict[str, Any]:
@@ -5615,7 +5690,8 @@ def _ph_channel_offset(settings: Mapping[str, Any], plate: str, channel: str,
 
 
 def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
-                          settings: Mapping[str, Any], destination: str) -> Dict[str, Any]:
+                          settings: Mapping[str, Any], destination: str,
+                          mask_folder: str = "phenotype_masks") -> Dict[str, Any]:
     """Build the pending object-median flat-field maps; the ``ph_flatfield_objects`` phase.
 
     Item 1006. A channel whose ``ops_flatfield_channel_fit`` is ``'nuclear_median'`` or
@@ -5641,6 +5717,9 @@ def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
         ``ops_flatfield_*`` fit and hold-out settings, ``ops_flatfield_maps`` and
         ``n_workers``.
     :param destination: the run folder holding ``<well>/phenotype_masks``.
+    :param mask_folder: the well subfolder whose masks the objects come from;
+        ``phenotype_masks_raw`` when ``ph_segment`` corrects with these maps
+        (item 1035).
     :returns: the report, per channel: objects, objects per map cell, corner mean, % at floor,
         the largest value (``peak``), md5 and offset.
     :raises ValueError: when the maps folder or the masks are missing, a field is unreadable
@@ -5679,7 +5758,7 @@ def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
         index = phenotype_index.get(well) or {}
         sites = index.get(min(index), {}) if index else {}
         for site in sorted(sites):
-            mask = os.path.join(destination, well, "phenotype_masks", f"site-{site}.npz")
+            mask = os.path.join(destination, well, mask_folder, f"site-{site}.npz")
             if os.path.isfile(mask):
                 available.append((well, int(site)))
                 files[(well, int(site))] = (sites[site], mask)
@@ -6077,7 +6156,8 @@ def _ph_probe_input(stack, *, channels, settings, models, gpu, object_models):
 
 def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                settings: Mapping[str, Any], gpu: bool, destination: str, *,
-               segment: bool, measure: bool) -> Dict[str, Any]:
+               segment: bool, measure: bool,
+               mask_folder: str = "phenotype_masks") -> Dict[str, Any]:
     """Segment and/or measure every placed phenotype field of one well.
 
     :param db: the measurements database.
@@ -6090,7 +6170,16 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     :param destination: the run folder.
     :param segment: run ``ph_segment``.
     :param measure: run ``ph_measure``.
+    :param mask_folder: the well subfolder the masks go to;
+        ``phenotype_masks_raw`` for the raw segmentation the object-median
+        maps are built from before ``ph_segment`` corrects (item 1035).
     :returns: the report.
+
+    FLAT-FIELD CORRECTED SEGMENTATION (item 1035). With
+    ``ops_ph_segment_flatfield`` and complete maps (:func:`_ph_segment_flat`),
+    the DNA and cell channels are divided by the plate's maps before
+    Cellpose sees them; the md5 of those maps goes into the masks' option
+    marker, so raw and corrected masks are never mixed in one folder.
 
     RESUMABLE PER FIELD. Masks for each field go to a committed OME-Zarr
     plate under ``<well>/phenotype_masks/``, or to ``site-<n>.npz`` with
@@ -6147,14 +6236,14 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     files = phenotype_files.get(min(phenotype_files), {}) if phenotype_files else {}
     sites = [int(s) for s in sorted(rows["site"])
              if (wanted is None or int(s) in wanted) and int(s) in files]
-    mask_dir = os.path.join(destination, well, "phenotype_masks")
+    mask_dir = os.path.join(destination, well, mask_folder)
     cell_dir = os.path.join(destination, well, "phenotype_cells")
     os.makedirs(mask_dir, exist_ok=True)
     os.makedirs(cell_dir, exist_ok=True)
     image_format = _ph_image_format(settings)
     ngff_version = _ph_ngff_version(settings)
     mask_writer = None
-    stored_masks = _ph_mask_paths(destination, plate, well, settings)
+    stored_masks = _ph_mask_paths(destination, plate, well, settings, mask_folder)
     if segment and image_format == "ome-zarr":
         from .image_store import PlateWriter
 
@@ -6200,6 +6289,14 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "mask_inference_precision": precision}
         if object_roles:
             mask_options["objects"] = _ph_object_options(settings)
+        segment_flat = _ph_segment_flat(settings, destination, channels)
+        if segment_flat is not None:
+            mask_options["segment_flatfield"] = segment_flat["md5"]
+        elif (mask_folder == "phenotype_masks"
+              and bool(ops_setting(settings, "ops_ph_segment_flatfield"))):
+            _say(tr("{well} ph_segment: no complete flat-field maps in {folder}, so the "
+                    "fields are segmented on raw pixels", well=well,
+                    folder=_ph_flat_folder(settings, destination)))
         _ph_options_marker(mask_dir, mask_options, existing_parts=bool(stored_masks))
     flat_folder = None
     options: Dict[str, Any] = {}
@@ -6360,8 +6457,11 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                     if not models:
                         models.extend(_ph_model_pair(settings, gpu, object_models))
                     tick = time.perf_counter()
+                    flat = (None if segment_flat is None else _ph_flat_planes(
+                        segment_flat["folder"], channels, stack.shape[:2])[:2])
                     nuclei, cells, paired = _ph_segment_field(
-                        stack, channels, models, settings, field_count=field_count)
+                        stack, channels, models, settings, field_count=field_count,
+                        flat=flat)
                     seconds["segment"] += time.perf_counter() - tick
                     counts.update(paired)
                     arrays = {"nuclei": nuclei.astype(np.uint32),
@@ -13463,6 +13563,18 @@ def run_ops(settings: Mapping[str, Any], *,
                   "w", encoding="utf-8") as handle:
             json.dump(out["ph_flatfield"], handle, indent=1, default=str)
     if "ph_flatfield_objects" in phases:
+        mask_folder, segment_settings = "phenotype_masks", settings
+        if _ph_segment_flat_pending(settings, destination, _ph_channels(settings)) and (
+                "ph_segment" in phases or any(
+                    os.path.isdir(os.path.join(destination, w, "phenotype_masks_raw"))
+                    for w in chosen)):
+            from .qt.i18n import tr
+
+            mask_folder = "phenotype_masks_raw"
+            segment_settings = dict(settings, ops_ph_image_format="npz")
+            _say(tr("{plate}: segmenting raw into phenotype_masks_raw to build the "
+                    "flat-field maps; ph_segment then segments on corrected inputs",
+                    plate=plate))
         if "ph_segment" in phases:
             for well in chosen:
                 if well not in phenotype_index:
@@ -13471,10 +13583,12 @@ def run_ops(settings: Mapping[str, Any], *,
                 secondary = _ph_secondary(settings)
                 if secondary and secondary["registration"] != "none":
                     _ph_secondary_shifts(db, plate, well, phenotype_index[well], settings)
-                _ph_fields(db, plate, well, phenotype_index[well], settings, gpu,
-                           destination, segment=True, measure=False)
+                _ph_fields(db, plate, well, phenotype_index[well], segment_settings, gpu,
+                           destination, segment=True, measure=False,
+                           mask_folder=mask_folder)
         out["ph_flatfield_objects"] = _ph_flatfield_objects(plate, chosen, phenotype_index,
-                                                            settings, destination)
+                                                            settings, destination,
+                                                            mask_folder=mask_folder)
         with open(os.path.join(destination, f"ops_flatfield_objects_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["ph_flatfield_objects"], handle, indent=1, default=str)

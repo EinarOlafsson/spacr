@@ -1593,6 +1593,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_ph_secondary_fallback',
     'ops_ph_secondary_registration',
     'ops_ph_secondary_window',
+    'ops_ph_segment_flatfield',
     'ops_ph_sites',
     'ops_ph_stage_ahead',
     'ops_ph_stage_dir',
