@@ -1,0 +1,87 @@
+================================================================================
+OPS LIVE SHOWS ONE FIGURE AT A TIME, WITH SAMPLE, SETTINGS AND RUN PREVIEW PER TAB
+================================================================================
+
+Lifecycle: new
+Status:    in progress
+Requested: 2026-11-24 — "in the OPS live view in the align and stitch, the modual works fine and shows the correct information but needs some work: the first image the stitched tiles is zoomable but is poore quality when zoomed in. please make it so that when this is zoomed it is rebuilt into higher quality (or have some mechanism so i can zoom and get high quality.). the images are all shown on the screen at once and each take up a small portion of the screen relastate. this is not optimal for viewing. please modify this tab so that one image /graph is shown at a time and the viewer can scroll throgh them. like the figure que in the mask module. each tab in the OPS live should work the same way. to be able to evaluate the images we need to be able to view each image so it takes up more screen relastate. also for the align and stitch tab i do not see a settings button. we need a settings button so we can live modify the settings and run the tab until be are happy with the alignment and stitching then propagate the settings to the OPS module so the setings can be used when run. also there should be an option to pick a different region so we can test the settings in different contexts. for the align and stitch module settings only settings that relate to aligning and stitching (but all of theses) settings should be included in the align and stitch settings button. this applies for each tab, only the relevant settings to the tab. put the settings buton to the left of the Run preview buton. the genotyping has not settings, that should be added. objects and phenotype have a settings button. but these settings are minimal and the settings buton should be moved to beside the run preview. for the OPS live in general: in allign and stitch the user should be able to pick between the available regions, in the test data there should be 3 at least. in the spats and genotyping the same region should be used as shown in align and stitch. in the objects and phenotype the same region shown on the genotype should be included, that includes the entire genotyped region not just one phenotype tile. instead of the current structure of showing images and graphs below, use the figure queue like in mask generation, show one at a time and visualize the deck to the left, jsut like in mask generation. this will allow the user to see the data better. the graphs should be in pyqtgraph and should be square not wide rectangles. for each module the module can be run bu hiting Run preview. the settings for the curent OPS live tab is shown and changed by pressing a settings buton to the left of Run preview. like in the mask generation figure container the container is not transparent so the data is easier to see. the merge & aggregation tab graphs are helpfull but could be more helpful the user should be able to choose at each step in live how many images to include in their preview analasys. those settings should be to the left of the setings button in a buton caled sample. tables should also be shown in the figure queue, so at any given time the user is only looking at one table/figure. like in the regression module the user should be able click a spot on the graph in clustering and get a information tlile about the datapoint remove the font scale slider,"
+Owner:     WS "spacr work" (agent on branch ws-offload-ws-ops-live-queue); work item 0at in the WS task list
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr/qt/widgets/ops_live_preview.py shows every figure of a tab at once,
+each small, under the controls. The align and stitch mosaic blurs when zoomed.
+Align and stitch and genotyping have no Settings button; objects and
+phenotype have a short one in another place. There is a font scale slider.
+Work started 2026-11-24 on branch ws-offload-ws-ops-live-queue.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The live view is where the OPS settings are tuned before a long run. When
+each figure takes a small part of the screen, the alignment, stitching, spot
+and genotype calls cannot be judged, and settings cannot be tried out and
+carried over to the run.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Every tab shows its figures, graphs and tables in the Mask generation
+   figure queue (spacr/qt/widgets/figure_queue.py): one at a time, the deck
+   on the left, an opaque container. One implementation, reused.
+2. Graphs in pyqtgraph, with square axes.
+3. The stitched mosaic is drawn again at higher resolution when zoomed.
+4. Controls per tab, left to right: Sample (how many images the preview
+   uses), Settings (all settings of that tab and only those, applied live;
+   an action carries them over to the OPS module run), Run preview.
+   Genotyping gets Settings; objects and phenotype get the full set.
+5. Align and stitch offers the available regions (at least 3 in the test
+   data). Spots and genotyping use that region; objects and phenotype use
+   the whole genotyped region.
+6. Clustering: clicking a point shows an information tile about it, as in
+   the regression results.
+7. Merge and aggregation: more useful graphs; candidate forms are shown to
+   the maintainer before redrawing.
+8. Remove the font scale slider.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Screenshots of the real main window, one per tab, show one figure filling
+the view with the deck on the left and Sample / Settings / Run preview
+beside each other. A changed align setting, applied to the OPS module, is
+the value the OPS run uses. Tests cover the per-tab settings filter, the
+carry-over, the region choice, the click tile, the zoom redraw and that the
+slider is gone.
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+2026-11-24: opened by WS spacr work; agent started on
+ws-offload-ws-ops-live-queue. Lesson 76_ops needs re-recording when
+tutorials resume (on hold). New tr() strings go to the translation debt
+log (translations on hold).
+2026-11-24 (maintainer, asked directly): a region is one block of sequencing
+tiles plus every phenotype field placed on it. The test data has one block
+(tiles 321, 322, 331, 332); two more blocks are prepared from LaC024E A1 as a
+new revision of the Hugging Face OPS test dataset, uploaded only with the
+maintainer OK. OPS live keeps its 5 tabs (spots and genotyping, objects and
+phenotype stay combined).
+2026-11-24 (agent, branch ws-offload-ws-ops-live-queue): the two new blocks
+come from plate LaC024A well A1 (the plate of the existing test data), not
+LaC024E: tiles 95, 96, 132, 133 and 292, 293, 317, 318, each with the 9
+phenotype fields lying fully on it (415-417, 420-422, 493-495 and 1166-1168,
+1172-1174, 1220-1222); about 14,900 called nuclei per block in the
+production run. Fetched from EBI S-BIAD394 by Globus (checksum sync and
+verify; every file size-checked against the EBI listing) into the NAS at
+public_datasets/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A_A1_0at_subset
+(382 files, 6.62 GB), the only path the WS Globus endpoint may write. The
+revision 4 "regions" tier is built locally, not uploaded, at
+/media/carruthers/mnt2/spacr/0at_scratch/dataset_rev4/ops_testdata_funk2022_A1_regions
+(its own folder, so the pinned core and full references do not change).

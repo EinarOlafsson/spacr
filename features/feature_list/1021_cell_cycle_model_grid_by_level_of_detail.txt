@@ -1,0 +1,62 @@
+================================================================================
+THE CELL-CYCLE MODEL GRID COMPARES MODELS AT EACH LEVEL OF DETAIL
+================================================================================
+
+Lifecycle: future
+Status:    not started
+Requested: 2026-11-24 — "was teh cell cycle model done? did we test different models and levels of detail (M vs I or G0, G1, M, I, T)"; then, asked directly: yes, add levels of detail to the model grid, run at Home on Funk plate A.
+Owner:     Home (Funk plate A and its labels are at Home)
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Item 990 (OPS cell-cycle option) is under development; acceptance A1-A4 is
+not all met. Its model-grid card (20261119_cellcycle_model_grid, signed
+2026-11-19) compares tabular HGB, a CNN and SubCell, but its terms fix "the
+4-class scheme now and the 7-class scheme after the enriched labels; the
+granularity test skipped". Until the grid reports, the default is tabular
+HGB. Item 856 (mitotic vs not) and item 535 (G1/S/G2/M three ways, on gate
+labels only) are done behind alpha. G0 is not modelled: DNA content cannot
+separate G0 from G1, and the Funk screen has no quiescence marker.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The paper uses cell-cycle-resolved OPS profiles. Without a comparison across
+levels, nobody knows whether the 7 stages are resolved well enough to use,
+or whether a coarser level (2 or 4 classes) gives more reliable gene calls.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. On Funk plate A, run the model grid (tabular HGB, CNN, SubCell) at three
+   levels: 2 classes (M vs interphase), 4 (G1, S, G2, M), 7 (G1, S, G2,
+   g2_prophase, prometaphase, metaphase, ana_telo_cyto). Fixed settings, no
+   tuning, the same folds by well or field and the same seed for every cell
+   of the grid.
+2. Report per model and level: held-out macro F1 and per-class F1 with
+   field-bootstrap CIs, against the shuffled-label control (500
+   permutations, 20 for image families); the 990 self-checks S1-S6; and how
+   each level changes the gene-level phase profiles (cc-gaps G2-G5: the
+   arrest set, rank agreement of genes between levels).
+3. G0: state what marker would be needed (for example Ki-67 or p27) and
+   leave G0 out of the Funk grid.
+4. Pick the default model and level from the grid; record it in the 990
+   card and READINESS.md.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A signed grid report with every model x level cell filled, each against its
+shuffled control, and a stated default with its reason.
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+2026-11-24: opened by WS spacr work. Depends on cc-gaps (G1-G5), which lands
+in L3.

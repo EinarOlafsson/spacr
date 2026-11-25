@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-774 Lifecycle: new, 185 Lifecycle: future in features/feature_list/.
+779 Lifecycle: new, 186 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -600,6 +600,9 @@ FUTURE FEATURES
 
   995  MEASURE CELL CYCLE: FIELD-CENTRED DNA-CONTENT FIT AND AN EXTERNAL MITOTIC CALL
        995_measure_dna_field_centring.txt
+
+  1021  THE CELL-CYCLE MODEL GRID COMPARES MODELS AT EACH LEVEL OF DETAIL
+       1021_cell_cycle_model_grid_by_level_of_detail.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -2151,5 +2154,15 @@ NEW FEATURES
        987_cellpose_batches_in_memory.txt
   993  CLI PREFLIGHT REFUSALS RETAIN THEIR PROBLEMS WITHOUT AUTOMATIC CRASH REPORTS
        993_cli_preflight_reporting.txt
+  1015  OPS LIVE SHOWS ONE FIGURE AT A TIME, WITH SAMPLE, SETTINGS AND RUN PREVIEW PER TAB
+       1015_ops_live_on_the_figure_queue.txt
   1016  BATCH RUNNER: TEMPLATE RUNS (0ai templaterun)
        1016_batch_runner_template_runs.txt
+  1017  THE DATABASE BROWSER MERGES TABLES, ALSO ACROSS PLATES AND DATABASES
+       1017_database_browser_merges_tables_across_plates.txt
+  1018  VOYAGER3 GETS ITS OWN OPS LIVE TAB, AFTER CLUSTERING
+       1018_voyager3_tab_in_ops_live_after_clustering.txt
+  1019  VOYAGER3 HAS ITS OWN BUTTON AND TAB: RUN IT AND BROWSE THE KNOWLEDGE MAP
+       1019_voyager3_button_and_own_tab.txt
+  1020  THE ANNOTATE BUTTONS ARE GROUPED INTO NAMED CATEGORIES, STILL ALONG THE TOP
+       1020_annotate_buttons_in_named_categories.txt
