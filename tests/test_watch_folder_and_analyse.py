@@ -295,19 +295,22 @@ def _channels(shift):
     return [nucleus, cell]
 
 
-def _label_the_painted_squares(src, settings, object_type, progress_share=None):
+def _label_the_painted_squares(src, settings, object_type, *, batch_paths=None,
+                               on_batch_done=None, run_qc=True,
+                               progress_share=None):
     """Stand-in for the Cellpose pass: label the painted cells or nuclei."""
     from scipy import ndimage
 
+    from spacr._mask_batches import _batch_paths, _open_batch
     from spacr.io import _listdir_visible
 
     out = os.path.join(src, f"{object_type}_mask_stack")
     os.makedirs(out, exist_ok=True)
     position = settings[f"cellpose_{object_type}_channel"]
-    for name in sorted(_listdir_visible(src)):
-        if not name.endswith(".npz"):
-            continue
-        with np.load(os.path.join(src, name), allow_pickle=True) as archive:
+    paths = batch_paths if batch_paths is not None else _batch_paths(
+        src, _listdir_visible)
+    for path in sorted(paths):
+        with _open_batch(path, allow_pickle=True) as archive:
             data, files = archive["data"], archive["filenames"]
         for index, filename in enumerate(files):
             labels, _count = ndimage.label(data[index, :, :, position] > 0.5)

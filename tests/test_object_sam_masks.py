@@ -523,12 +523,16 @@ STILL_CASES = [
         "expect": {
             "returned": None, "model": {"pretrained": "cpsam", "gpu": False, "device": "cpu"},
             "empty_cache": 1, "evals": 1, "qc": True,
-            "eval": {**SAM_EVAL, "batch_size": 3, "resample": True},
+            "eval": {**SAM_EVAL, "batch_size": 8, "resample": True},
             "inputs": [((32, 32, 2), "float32")] * 3, "unit_range": True,
             "files": _names(1, 2, 3), "labels": {n: [0, 1, 2] for n in _names(1, 2, 3)},
             "rows": _rows(_names(1, 2, 3), "cell_before_filtration", 2),
             "out_has": ["Torch GPU is not available, using CPU", "saving to DB",
                         "Found 2.0 cell/FOV. average size: 36.000 px2"]}}),
+    ("mask_eval_batch_size 0 keeps one tile per field on CPU", {
+        "settings": {"mask_eval_batch_size": 0},
+        "expect": {"eval": {**SAM_EVAL, "batch_size": 3, "resample": True},
+                   "files": _names(1, 2, 3)}}),
     ("a CUDA box builds a GPU model; seg_qc off writes no QC report", {
         "npz": {"n": 2}, "patch": _gpu, "settings": {"seg_qc": "off"},
         "expect": {"model": {"pretrained": "cpsam", "gpu": True, "device": "cuda:7"},
