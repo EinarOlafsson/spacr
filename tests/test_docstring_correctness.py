@@ -3215,6 +3215,8 @@ def _validated_bmc_paper_items_callables(callables):
     entries = _current_neighbour_api(entries)
     from tests.phtables_store_api_hooks import _current_phtables_api
     entries = _current_phtables_api(entries)
+    from tests.genotype_1023_api_hooks import _current_1023_api
+    entries = _current_1023_api(entries)
     assert len(entries) == 170
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -4328,6 +4330,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_l4_arrivals(callables)
     from tests.merge_1017_api_hooks import _validated_1017_arrivals
     callables = _validated_1017_arrivals(callables)
+    from tests.genotype_1023_api_hooks import _validated_1023_arrivals
+    callables = _validated_1023_arrivals(callables)
     from tests.l5_api_hooks import _validated_l5_arrivals
     callables = _validated_l5_arrivals(callables)
     callables = _validated_prior_708_callables(
@@ -7295,6 +7299,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         additions = _current_l5_api(additions)
         from tests.phtables_store_api_hooks import _current_phtables_api
         additions = _current_phtables_api(additions)
+        from tests.genotype_1023_api_hooks import _current_1023_api
+        additions = _current_1023_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
@@ -7341,6 +7347,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **_current_l4_api(zoo_additions)}
     from tests.merge_1017_api_hooks import _current_1017_api
     zoo_additions = {**zoo_additions, **_current_1017_api(zoo_additions)}
+    from tests.genotype_1023_api_hooks import _current_1023_arrivals
+    zoo_additions = {**zoo_additions, **_current_1023_arrivals(zoo_additions)}
     from tests.l5_api_hooks import _current_l5_arrivals
     zoo_additions = {**zoo_additions, **_current_l5_arrivals(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
@@ -8025,6 +8033,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= _current_l4_api().keys()
     from tests.merge_1017_api_hooks import _current_1017_api
     contract_callables |= _current_1017_api().keys()
+    from tests.genotype_1023_api_hooks import _current_1023_arrivals
+    contract_callables |= _current_1023_arrivals().keys()
     from tests.l5_api_hooks import _current_l5_arrivals
     contract_callables |= _current_l5_arrivals().keys()
     prior = prior - contract_callables
@@ -8225,6 +8235,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= _current_l4_api().keys()
     from tests.merge_1017_api_hooks import _current_1017_api
     arrival_callables |= _current_1017_api().keys()
+    from tests.genotype_1023_api_hooks import _current_1023_arrivals
+    arrival_callables |= _current_1023_arrivals().keys()
     from tests.l5_api_hooks import _current_l5_arrivals
     arrival_callables |= _current_l5_arrivals().keys()
     arrival_callables &= rendered_documented_callables.keys()

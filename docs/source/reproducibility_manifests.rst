@@ -251,6 +251,17 @@ default after a higher-numbered item takes the next free number:
   (``decode_fdr_<well>.json``) now counts the read calls and the
   pixel-fallback calls apart, each with its own FDR.
 
+- 966 (item 1023, stricter genotype calls): ``ops_min_top_share`` is now
+  ``0.9`` (was ``0.0``), ``ops_footprint`` ``3`` (was ``10``) and
+  ``ops_read_neighbour_reach`` ``10`` (was empty, which follows
+  ``ops_footprint``). A nucleus is called only when its top guide holds at
+  least nine tenths of its weighted read votes, by its reads or by the pixel
+  fallback; reads count within 3 pixels of the nucleus; the neighbour
+  discount keeps its 10-pixel reach. Files stamped before 966 retain the old
+  three values and reproduce their calls. ``decode_fdr_<well>.json`` now
+  reports the split-read concordance of each well
+  (``split_read_concordance``). Number 965 belongs to another item.
+
 Public API
 ----------
 

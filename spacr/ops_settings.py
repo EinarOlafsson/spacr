@@ -53,7 +53,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_objects_resume": True,
     "ops_objects_keep_windows": False,
     "ops_objects_windows_dir": None,
-    "ops_footprint": 10.0,
+    "ops_footprint": 3.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
     "ops_cell_rule": "mapped",
@@ -65,6 +65,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_read_mismatches": 0,
     "ops_min_reads": None,
     "ops_min_fraction": 0.6,
+    "ops_min_top_share": 0.9,
     "ops_single_read_quality": 0.03,
     "ops_ph_channels": "DAPI,GFP,A594,AF750",
     "ops_ph_image_format": "ome-zarr",
@@ -245,6 +246,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_read_distance_interior_px": 0.0,
     "ops_read_distance_min_weight": 0.05,
     "ops_read_neighbour_discount": 0.25,
+    "ops_read_neighbour_reach": 10.0,
     "ops_decode_pixel_fallback": False,
     "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
@@ -686,6 +688,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_read_mismatches": int,
     "ops_min_reads": (int, type(None)),
     "ops_min_fraction": (float, int),
+    "ops_min_top_share": (float, int),
     "ops_single_read_quality": (float, int),
     "ops_ph_channels": str,
     "ops_ph_image_format": str,
@@ -855,6 +858,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_read_distance_interior_px": (float, int),
     "ops_read_distance_min_weight": (float, int),
     "ops_read_neighbour_discount": (float, int),
+    "ops_read_neighbour_reach": (float, int, type(None)),
     "ops_decode_pixel_fallback": bool,
     "ops_pixel_read_gate": bool,
     "ops_pixel_percentile": (float, int),
@@ -1292,13 +1296,14 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "Read assignment": [
         "ops_footprint", "ops_cell_rule", "ops_read_mismatches",
-        "ops_min_reads", "ops_min_fraction", "ops_single_read_quality",
+        "ops_min_reads", "ops_min_fraction", "ops_min_top_share",
+        "ops_single_read_quality",
         "ops_decode_runner_up", "ops_runner_up_margin",
         "ops_decode_impute_missing_cycles", "ops_assign_by_cell_territory",
         "ops_tie", "ops_decode_quality_weighted", "ops_vote_weight_floor",
         "ops_read_distance_weight", "ops_read_distance_decay_px",
         "ops_read_distance_interior_px", "ops_read_distance_min_weight",
-        "ops_read_neighbour_discount",
+        "ops_read_neighbour_discount", "ops_read_neighbour_reach",
     ],
     "Pixel fallback": [
         "ops_decode_pixel_fallback", "ops_pixel_read_gate",
@@ -1653,13 +1658,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "files. Exactly four are required: a shorter list decodes a shorter "
         "barcode than the library holds. Default 'CY3,A594,CY5,CY7'.",
     "ops_footprint":
-        "(float) - How far beyond a nucleus's boundary a read may lie and "
-        "still be counted as that nucleus's read, in pixels. On the "
-        "reference plate 10 pixels held 98 % of the detected spots and 3 "
-        "held 67 %, and the wider setting assigned 28 % more objects a "
-        "barcode at slightly higher purity, because the reads sit around "
-        "the rim rather than inside. Too wide starts giving a read to a "
-        "neighbour. Default 10.",
+        "(float) - How far beyond the boundary of a nucleus a read may lie "
+        "and still be counted as a read of that nucleus, in pixels. Wider assigns "
+        "more nuclei but starts giving a read to a neighbour: on plate A of "
+        "Funk et al. 2022, 3 pixels with ops_min_top_share 0.9 and "
+        "ops_pixel_read_gate called about 9 points fewer nuclei than 10 "
+        "pixels and agreed with an independent second read of the same "
+        "nucleus about 1.5 points more often, on two wells. Default 3; "
+        "settings files saved before schema 966 keep 10.",
     "ops_library":
         "(str or None) - A CSV of guide barcodes, with the column holding "
         "them named prefix, barcode or sequence. Given one, each nucleus's "
@@ -1761,6 +1767,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "hold, with no tie for first. Lower assigns nuclei whose reads are "
         "split between two guides, which is where doublets and reads from a "
         "neighbour end up. Default 0.6.",
+    "ops_min_top_share":
+        "(float) - Under the decode rules, the share of the weighted read "
+        "votes of a nucleus its top guide must hold for the nucleus to be called at "
+        "all, by its reads or by the pixel fallback. Above ops_min_fraction "
+        "it leaves nuclei with mixed reads uncalled, which raised agreement "
+        "with an independent second read of the same nucleus. 0 is off. "
+        "Default 0.9; settings files saved before schema 966 keep 0.",
     "ops_single_read_quality":
         "(float) - Under the 'mapped' rule, the base-call quality a nucleus "
         "needs when ONE library-matched read is all it has: that read's "
@@ -3541,12 +3554,19 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_read_neighbour_discount":
         "(float) - Weighs down a minority guide when the same guide has the "
         "most reads in a neighbouring cell, with ties kept. Neighbours are "
-        "nuclei whose discs come within ops_footprint, or touching cells in "
-        "the spacer-prefix decode. 1 is off and 0 ignores flagged reads. "
+        "nuclei whose discs come within ops_read_neighbour_reach, or touching "
+        "cells in the spacer-prefix decode. 1 is off and 0 ignores flagged reads. "
         "The spacer-prefix decode uses the discount with 'weighted_majority'; "
         "under 'recipe_simple', ops_prefix_bleed_in_recipe enables ignoring "
         "flagged minority barcodes. A notice reports paths where the default "
         "cannot act. Default 0.25.",
+    "ops_read_neighbour_reach":
+        "(float or None) - Under the decode rules, how close two nucleus "
+        "discs must come, in pixels, for ops_read_neighbour_discount to treat "
+        "them as neighbours. It is apart from ops_footprint, so a narrow "
+        "footprint still discounts reads bled from a nucleus farther away. "
+        "Empty uses ops_footprint. Default 10; settings files saved before "
+        "schema 966 keep empty.",
     "ops_prefix_bleed_in_recipe":
         "(bool) - Under ops_prefix_quality_method 'recipe_simple', ignore a "
         "minority barcode that has the most reads in a touching cell when "

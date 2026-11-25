@@ -51,11 +51,12 @@ RULE_A_S2: Dict[str, Any] = {
     "ops_runner_up_margin": 0.1,
     "ops_decode_impute_missing_cycles": True,
     "ops_assign_by_cell_territory": True,
-    "ops_footprint": 10.0,
+    "ops_footprint": 3.0,
     "ops_tie": 1.0,
     "ops_decode_quality_weighted": True,
     "ops_vote_weight_floor": 0.05,
     "ops_min_fraction": 0.6,
+    "ops_min_top_share": 0.9,
     "ops_single_read_quality": 0.06,
     "ops_decode_pixel_fallback": True,
     "ops_pixel_read_gate": True,
@@ -88,6 +89,7 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_tie": 1.0,
     "ops_decode_quality_weighted": False,
     "ops_vote_weight_floor": 0.05,
+    "ops_min_top_share": 0.9,
     "ops_decode_pixel_fallback": False,
     "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
@@ -104,6 +106,7 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_read_distance_interior_px": 0.0,
     "ops_read_distance_min_weight": 0.05,
     "ops_read_neighbour_discount": 0.25,
+    "ops_read_neighbour_reach": 10.0,
 }
 
 #: How far from a nucleus boundary a fallback pixel is kept at all, in
@@ -287,6 +290,8 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "tie": _number(settings, "ops_tie"),
         "quality_weighted": _flag(settings, "ops_decode_quality_weighted"),
         "weight_floor": _number(settings, "ops_vote_weight_floor"),
+        "min_top_share": _number(settings, "ops_min_top_share"),
+        "neighbour_reach": _neighbour_reach_setting(settings),
         "pixels": _flag(settings, "ops_decode_pixel_fallback"),
         "pixel_read_gate": _flag(settings, "ops_pixel_read_gate"),
         "pixel_percentile": _number(settings, "ops_pixel_percentile"),
@@ -311,6 +316,11 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     if not 0 < rule["pixel_min_fraction"] <= 1:
         raise ValueError("ops_pixel_min_fraction must lie in (0, 1]; got "
                          f"{rule['pixel_min_fraction']}")
+    if not 0 <= rule["min_top_share"] <= 1:
+        from .qt.i18n import tr
+
+        raise ValueError(tr("ops_min_top_share must lie in [0, 1]; got {value}",
+                            value=rule["min_top_share"]))
     rule["active"] = bool(rule["decoy_k"] > 0 or any(
         _flag(settings, key) for key in _RULE_SWITCHES))
     weighting = _read_weighting(settings)
@@ -332,6 +342,42 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     if discount != 1.0:
         rule['ops_read_neighbour_discount_applied'] = state
     return rule
+
+
+def _neighbour_reach_setting(settings: Mapping[str, Any]) -> Optional[float]:
+    """``ops_read_neighbour_reach``, or None to follow ``ops_footprint``.
+
+    :param settings: settings after :func:`resolve_settings`.
+    :returns: the reach in pixels; its default when the key is missing, and
+        None when it is present but empty, the reach then being the
+        footprint (:func:`_neighbour_reach`).
+    :raises ValueError: for a negative or non-numeric reach.
+    """
+    if "ops_read_neighbour_reach" not in settings:
+        return float(_DEFAULTS["ops_read_neighbour_reach"])
+    value = settings["ops_read_neighbour_reach"]
+    if value is None or value == "":
+        return None
+    reach = _number(settings, "ops_read_neighbour_reach")
+    if reach < 0:
+        from .qt.i18n import tr
+
+        raise ValueError(tr("ops_read_neighbour_reach must be 0 or more; got {value}",
+                            value=reach))
+    return reach
+
+
+def _neighbour_reach(rule: Mapping[str, Any], footprint: float) -> float:
+    """How far apart two nucleus discs may be and still be neighbours for the discount.
+
+    :param rule: from :func:`decode_rule`, read for ``neighbour_reach`` and
+        ``footprint``.
+    :param footprint: the footprint of the vote, used when the rule has neither.
+    :returns: ``neighbour_reach``, or the footprint of the rule when it is None
+        or missing, as for rules recorded before the reach had a setting.
+    """
+    reach = rule.get("neighbour_reach")
+    return float(reach) if reach is not None else float(rule.get("footprint", footprint))
 
 
 def _read_weighting(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
@@ -599,7 +645,9 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         ``n_pixels`` -- for owned objects only; ``nuclei``, the objects this
         field owns; ``assigned_real`` and ``assigned_decoy``, and of
         them the pixel-fallback calls, ``assigned_pixel_real`` and
-        ``assigned_pixel_decoy``; and read counts for the well report.
+        ``assigned_pixel_decoy``; ``split``, the reads in this field of nuclei
+        other fields own (:func:`split_read_concordance`); and read counts
+        for the well report.
     """
     votes = _field_votes(evidence, rule, library, matcher, threshold=threshold,
                          footprint=footprint, max_distance=max_distance,
@@ -646,7 +694,9 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         reads), ``reads_per``, ``named`` (object -> the guides its reads
         voted for, top first; empty with the gate off), ``pixel_gate`` (the
         rule's ``pixel_read_gate``, kept on when another pass votes the
-        pixels) and the read counts of the well report.
+        pixels), ``short_share`` (the objects whose read call the rule's
+        ``min_top_share`` refused, :func:`_top_share_kept`), ``split``
+        (:func:`_split_reads`) and the read counts of the well report.
     """
     from collections import Counter
 
@@ -668,7 +718,8 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
     distance = max(int(max_distance), 1) if rule["runner_up"] else int(max_distance)
     tallies: Optional[dict] = {} if evidence_rows else None
     gate = bool(rule.get("pixel_read_gate"))
-    tally = tallies if tallies is not None else ({} if gate else None)
+    share = float(rule.get("min_top_share") or 0.0)
+    tally = tallies if tallies is not None else ({} if gate or share > 0 else None)
     weighting = _vote_weighting(rule, gap[rows, 0])
     primary = vote_mapped_reads(
         objects, [codes[i] for i in rows], quality[rows], data[rows],
@@ -679,6 +730,7 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         single_read_quality=single_read_quality,
         impute_missing=bool(rule["impute"]),
         strength=strength[selected][rows], evidence=tally, **weighting)
+    primary, short_share = _top_share_kept(primary, tally, share)
     named = _read_guides(tally) if gate else {}
     pixel: Dict[float, Dict[int, dict]] = {q: {} for q in pixel_qualities}
     if rule["pixels"] and "pix_values" in evidence and len(evidence["pix_values"]):
@@ -695,8 +747,10 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
                 [pixel_codes[i] for i in chosen], pixel_quality[chosen], matcher,
                 min_quality=q, min_pixels=int(rule["pixel_min_pixels"]),
                 min_fraction=rule["pixel_min_fraction"])
+    inside = np.flatnonzero(~owned_first & (gap[:, 0] < 0) & (first >= 0))
     return {"primary": primary, "pixel": pixel, "tallies": tallies,
-            "named": named, "pixel_gate": gate,
+            "named": named, "pixel_gate": gate, "short_share": short_share,
+            "split": _split_reads(first[inside], [codes[i] for i in inside], matcher),
             "owned": set(np.asarray(evidence["owned_ids"]).tolist()),
             "objects": objects, "ambiguous": ambiguous[rows],
             "reads_per": Counter(objects.tolist()),
@@ -715,6 +769,59 @@ def _read_guides(tally: Mapping[str, Any]) -> Dict[int, tuple]:
     """
     return {owner: tuple(guide for guide, _ in sorted(votes.items(), key=lambda kv: -kv[1]))
             for owner, votes in tally.get("votes", {}).items()}
+
+
+#: How far below ``ops_min_top_share`` a top share may fall from float
+#: rounding and still pass, so a share of exactly the cutoff is kept.
+_SHARE_TOLERANCE = 1e-12
+
+
+def _top_share_kept(primary: Mapping[int, dict], tally: Optional[Mapping[str, Any]],
+                    share: float) -> Tuple[Mapping[int, dict], frozenset]:
+    """The read calls whose top guide holds at least ``share`` of the votes.
+
+    The share is the vote of the top guide over the vote total of the
+    nucleus, after the read weighting (``fraction`` of the read call), so a nucleus whose
+    reads named one guide always passes. A nucleus below it stays uncalled:
+    the pixel fallback does not call it either (:func:`_fallback_pixels`),
+    whatever the single-read quality floor did to its read call, so the
+    decode and the auto candidates refuse the same nuclei.
+
+    :param primary: object -> read call (:func:`spacr.ops_sbs.vote_mapped_reads`).
+    :param tally: the vote evidence the read vote filled, read for
+        ``votes``; None only when ``share`` is 0.
+    :param share: ``ops_min_top_share``; 0 keeps every call.
+    :returns: ``(kept calls, objects below the share)``.
+    """
+    if share <= 0:
+        return primary, frozenset()
+    floor = share - _SHARE_TOLERANCE
+    short = frozenset(owner for owner, votes in tally.get("votes", {}).items()
+                      if max(votes.values()) / sum(votes.values()) < floor)
+    return {owner: hit for owner, hit in primary.items() if owner not in short}, short
+
+
+def _split_reads(objects: np.ndarray, codes: Sequence[str], matcher) -> Dict[int, tuple]:
+    """The independent reads a field holds of nuclei another field owns.
+
+    Where two sequencing fields overlap, a nucleus is read in both; the
+    field that does not own it holds a second, independent read of its
+    guide. Counted here are the reads strictly inside such a nucleus (gap
+    below 0) whose called barcode is a library or decoy barcode exactly, with
+    no decoder weighting.
+
+    :param objects: the nucleus of each such read.
+    :param codes: the called barcode of each read.
+    :param matcher: from :func:`matcher_for`; its barcodes are the exact set.
+    :returns: object -> ``(reads, guides named, first guide)``.
+    """
+    known = matcher.known
+    found: Dict[int, list] = {}
+    for owner, code in zip(np.asarray(objects).tolist(), codes):
+        if code in known:
+            found.setdefault(int(owner), []).append(code)
+    return {owner: (len(reads), len(set(reads)), reads[0])
+            for owner, reads in found.items()}
 
 
 def _reads_allow(named: Sequence[str], guide: str) -> bool:
@@ -742,8 +849,12 @@ def _fallback_pixels(pixel: Mapping[int, dict], votes: Mapping[str, Any],
         ``pixel_gate``.
     :param called: the objects the reads called; their pixel votes stay,
         as the pixel support of a read call.
-    :returns: the kept votes.
+    :returns: the kept votes; an object whose read call
+        ``ops_min_top_share`` refused (``short_share``) is never kept.
     """
+    short = votes.get("short_share") or ()
+    if short:
+        pixel = {owner: hit for owner, hit in pixel.items() if owner not in short}
     if not votes.get("pixel_gate"):
         return pixel
     named = votes.get("named") or {}
@@ -792,7 +903,9 @@ def _assemble_calls(primary: Mapping[int, dict], pixel: Mapping[int, dict],
     :param decoys: the decoy set.
     :returns: the dict :func:`field_calls` returns, without ``evidence``;
         ``assigned_pixel_real`` and ``assigned_pixel_decoy`` count the
-        pixel-fallback calls within ``assigned_real`` and ``assigned_decoy``.
+        pixel-fallback calls within ``assigned_real`` and ``assigned_decoy``;
+        ``split`` holds the reads in this field of nuclei other fields own
+        (:func:`_split_reads`).
     """
     owned = votes["owned"]
     reads_per = votes["reads_per"]
@@ -825,7 +938,8 @@ def _assemble_calls(primary: Mapping[int, dict], pixel: Mapping[int, dict],
             "assigned_decoy": decoy, "assigned_pixel_real": pixel_real,
             "assigned_pixel_decoy": pixel_decoy, "reads": votes["reads"],
             "reads_owned": votes["reads_owned"], "reads_near": votes["reads_near"],
-            "reads_ambiguous": votes["reads_ambiguous"]}
+            "reads_ambiguous": votes["reads_ambiguous"],
+            "split": votes.get("split", {})}
 
 
 #: The thresholds auto mode chooses between when ``ops_decode_auto_grid`` is
@@ -2572,6 +2686,189 @@ def results_folder(db: str, name: str = "ops_decode") -> str:
     return folder
 
 
+#: Tile-bootstrap replicates and seed of the split-read concordance.
+SPLIT_READ_REPS = 2000
+SPLIT_READ_SEED = 20261125
+
+
+def split_read_concordance(calls, split, sites: Sequence[int], *,
+                           reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED,
+                           min_reads: Sequence[int] = (1, 2)) -> Dict[str, Any]:
+    """How often the call of a nucleus agrees with an independent read of it in another tile.
+
+    Neighbouring sequencing tiles overlap, so a nucleus near a tile edge is
+    imaged twice: the tile that owns it calls it, and the other holds reads
+    of it that played no part in the call (:func:`_split_reads`). A nucleus
+    whose other-tile reads come from one tile and name one barcode is a
+    reference; its call agrees when it is that guide. The decoy FDR cannot
+    see a wrong call that names a real guide; this can.
+
+    :param calls: one row per real call of the tiles scored, with
+        ``object_id``, ``site`` (the owning tile) and ``mapped_guide``.
+    :param split: the other-tile reads, one row per nucleus and tile, with
+        ``object_id``, ``n`` (reads), ``nguides`` (barcodes named), ``guide``
+        and ``other_site``.
+    :param sites: the tiles scored; the bootstrap resamples them.
+    :param reps: bootstrap replicates.
+    :param seed: the bootstrap seed.
+    :param min_reads: the least other-tile reads a reference needs, one
+        result per value.
+    :returns: ``tiles``, ``reps``, ``seed`` and, per value ``k`` of
+        ``min_reads``, ``min_reads_<k>``: ``nuclei`` (references called),
+        ``agree``, ``pct`` and ``ci95``, the 2.5 and 97.5 percentiles over
+        tiles resampled with replacement (:func:`_bootstrap_rows`, the draws
+        of the FDR interval); ``pct`` is None without references.
+    """
+    import pandas as pd
+
+    sites = sorted(int(s) for s in sites)
+    index = {s: i for i, s in enumerate(sites)}
+    draws = _bootstrap_rows(len(sites), int(reps), int(seed))
+    out: Dict[str, Any] = {"tiles": len(sites), "reps": int(reps), "seed": int(seed)}
+    split = pd.DataFrame(split, columns=["object_id", "n", "nguides", "guide", "other_site"])
+    reference = split.groupby("object_id").agg(
+        n=("n", "sum"), nguides=("nguides", "max"), guide=("guide", "first"),
+        tiles=("other_site", "nunique")).reset_index()
+    calls = pd.DataFrame(calls, columns=["object_id", "site", "mapped_guide"])
+    calls = calls[calls["site"].isin(index)]
+    for k in min_reads:
+        scored = reference[(reference["n"] >= int(k)) & (reference["nguides"] == 1)
+                           & (reference["tiles"] == 1)].merge(calls, on="object_id")
+        position = scored["site"].map(index).to_numpy(int)
+        agree = np.bincount(position, (scored["mapped_guide"] == scored["guide"]).to_numpy(float),
+                            minlength=len(sites))
+        total = np.bincount(position, minlength=len(sites)).astype(float)
+        if len(sites) and total.sum():
+            pct = 100.0 * agree[draws].sum(1) / np.maximum(total[draws].sum(1), 1e-12)
+            ci = [float(np.nanquantile(pct, 0.025)), float(np.nanquantile(pct, 0.975))]
+            point = float(100.0 * agree.sum() / total.sum())
+        else:
+            ci, point = [None, None], None
+        out[f"min_reads_{int(k)}"] = {"nuclei": int(total.sum()), "agree": int(agree.sum()),
+                                      "pct": point, "ci95": ci}
+    return out
+
+
+def _well_split_concordance(decoded: Sequence[Mapping[str, Any]],
+                            rule: Mapping[str, Any]) -> Dict[str, Any]:
+    """The split-read concordance of one decoded well (:func:`split_read_concordance`).
+
+    :param decoded: the decoded fields, each with ``site`` and ``rule_a``.
+    :param rule: the rule of the well; with auto thresholds the tiles scored are
+        the report fields, outside the tuning fields its ``threshold_choice``
+        names, so the thresholds were not chosen on them.
+    :returns: the concordance, with ``tile_set`` ``'report'`` or ``'all'``.
+    """
+    tune = set((rule.get("threshold_choice") or {}).get("tune_sites") or ())
+    sites = [int(r["site"]) for r in decoded
+             if int(r["rule_a"].get("nuclei") or 0) > 0 and int(r["site"]) not in tune]
+    calls = [(int(owner), int(r["site"]), hit["guide"]) for r in decoded
+             for owner, hit in (r["rule_a"].get("calls") or {}).items() if not hit["decoy"]]
+    split = [(int(owner), *row, int(r["site"])) for r in decoded
+             for owner, row in (r["rule_a"].get("split") or {}).items()]
+    out = split_read_concordance(calls, split, sites)
+    out["tile_set"] = "report" if tune else "all"
+    return out
+
+
+def _cached_field(path: str, rule: Mapping[str, Any], library: Sequence[str],
+                  decoys: Sequence[str], crosstalk: str) -> Dict[str, Any]:
+    """One stored field cache decoded under a rule (:func:`decode_cached_well`).
+
+    :param path: the ``site<NNNN>.npz`` field cache.
+    :param rule: the rule with its thresholds.
+    :param library: the guide barcodes.
+    :param decoys: the decoy barcodes.
+    :param crosstalk: the unmixing method.
+    :returns: ``site`` and ``rule_a``, as the decoded fields of the engine carry.
+    """
+    matcher, decoy_set = matcher_for(library, decoys)
+    with np.load(path) as stored:
+        evidence = {key: stored[key] for key in stored.files}
+    calls = field_calls(evidence, rule, library, matcher, decoy_set,
+                        threshold=rule["threshold"], footprint=rule["footprint"],
+                        max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+                        single_read_quality=rule["single_read_quality"], crosstalk=crosstalk)
+    return {"site": int(os.path.basename(path)[4:8]), "rule_a": calls}
+
+
+def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
+                       library: Sequence[str], *, read_threshold: float,
+                       single_read_quality: float, pixel_quality: float,
+                       tune_sites: Sequence[int] = (), sites: Optional[Sequence[int]] = None,
+                       workers: int = 1) -> Dict[str, Any]:
+    """Decode a well again from its stored field caches, without images or objects.
+
+    The fields are decoded by :func:`field_calls` under the rule the
+    settings give (:func:`decode_rule`, with the read assignment of
+    :func:`spacr.ops_engine._cell_rule`) at fixed thresholds, as a run in
+    manual threshold mode would, so a change of the decode rules can be
+    replayed on a stored run: for an auto run, pass the thresholds its
+    ``decode_thresholds_<well>.json`` chose and its ``tune_sites``.
+
+    :param cache_folder: the folder of ``site<NNNN>.npz`` field caches
+        (``ops_store_field_cache``).
+    :param settings: the settings of the run. A ``spacr_settings_version`` stamp
+        gives keys the mapping leaves out the defaults of that version
+        (``spacr.settings.DEFAULT_CHANGES``), as a settings file is read;
+        without one the mapping is taken as today's.
+    :param library: the guide barcodes.
+    :param read_threshold: the read threshold on the spot strength.
+    :param single_read_quality: the quality a one-read guide needs.
+    :param pixel_quality: the pixel quality of the pixel fallback.
+    :param tune_sites: the fields auto thresholds were tuned on; the
+        split-read concordance scores the others.
+    :param sites: only these fields; None decodes every cache.
+    :param workers: processes decoding fields at once.
+    :returns: ``rule`` (the rule decoded under), ``fields`` (one entry per
+        field with ``site`` and ``rule_a``, as :func:`field_calls` returns),
+        ``nuclei``, ``assigned_real``, ``assigned_decoy`` and
+        ``split_read_concordance``.
+    """
+    from multiprocessing import get_context
+
+    from .ops_engine import _cell_rule
+    from .ops_sbs import decoy_library
+    from .ops_settings import ops_defaults
+    from .settings import SETTINGS_VERSION_KEY, _fold_older_defaults, _settings_file_version
+
+    given = dict(settings)
+    if SETTINGS_VERSION_KEY in given:
+        version = _settings_file_version(given)
+        from .ops_settings import OPS_DEFAULTS
+
+        _fold_older_defaults(given, version, known=set(OPS_DEFAULTS))
+    resolved = resolve_settings(ops_defaults(given))
+    rule = decode_rule(resolved)
+    _, mismatches, _, min_fraction = _cell_rule(resolved, library)
+    rule.update({"threshold": float(read_threshold),
+                 "footprint": float(resolved["ops_footprint"]),
+                 "max_distance": mismatches, "min_fraction": min_fraction,
+                 "single_read_quality": float(single_read_quality),
+                 "pixel_quality": float(pixel_quality)})
+    library = sorted(set(library))
+    decoys = decoy_library(library, k=int(rule["decoy_k"])) if rule["decoy_k"] > 0 else []
+    crosstalk = str(resolved.get("ops_crosstalk") or "none")
+    wanted = None if sites is None else {int(s) for s in sites}
+    paths = sorted(os.path.join(cache_folder, name) for name in os.listdir(cache_folder)
+                   if name.startswith("site") and name.endswith(".npz")
+                   and (wanted is None or int(name[4:8]) in wanted))
+    jobs = [(path, rule, library, decoys, crosstalk) for path in paths]
+    if int(workers) > 1:
+        with get_context("fork").Pool(int(workers)) as pool:
+            fields = pool.starmap(_cached_field, jobs, chunksize=1)
+    else:
+        fields = [_cached_field(*job) for job in jobs]
+    fields.sort(key=lambda r: r["site"])
+    concordance = _well_split_concordance(
+        fields, {"threshold_choice": {"tune_sites": list(tune_sites)}})
+    return {"rule": rule, "fields": fields,
+            "nuclei": sum(int(r["rule_a"]["nuclei"]) for r in fields),
+            "assigned_real": sum(int(r["rule_a"]["assigned_real"]) for r in fields),
+            "assigned_decoy": sum(int(r["rule_a"]["assigned_decoy"]) for r in fields),
+            "split_read_concordance": concordance}
+
+
 def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping[str, Any]],
                        rule: Mapping[str, Any], skipped_sites: Sequence[int]
                        ) -> Dict[str, Any]:
@@ -2621,6 +2918,7 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
     report = fdr_report(stats, plate=plate, well=well, k=int(rule['decoy_k']),
                         scale=float(rule['fdr_scale']), skipped_sites=skipped_sites,
                         calibration=calibration)
+    report["split_read_concordance"] = _well_split_concordance(decoded, rule)
     calibration_paths = {}
     if calibration and (str(calibration['method']).startswith('never')
                         or str(calibration.get('requested_method', '')).startswith('never')):
@@ -2727,8 +3025,9 @@ def _rule_with_neighbours(rule: Mapping[str, Any], evidence: Mapping[str, Any],
     :param rule: from :func:`decode_rule`; the engine adds ``neighbours``.
     :param evidence: the field's evidence or its field cache.
     :param footprint: the vote's footprint, the reach used when the rule
-        carries no ``footprint`` of its own (the engine builds the
-        neighbours at the rule's).
+        carries neither ``neighbour_reach`` nor ``footprint``
+        (:func:`_neighbour_reach`; the engine builds the neighbours at the
+        same reach).
     :returns: ``rule`` itself unless its neighbour discount is on and it has
         no ``neighbours``; then a copy with :func:`cached_neighbours`.
         A cache without positions skips only the default discount, records
@@ -2738,7 +3037,7 @@ def _rule_with_neighbours(rule: Mapping[str, Any], evidence: Mapping[str, Any],
     if (not weighting or weighting["neighbour_discount"] == 1.0
             or rule.get("neighbours") is not None):
         return rule
-    reach = float(rule.get("footprint", footprint))
+    reach = _neighbour_reach(rule, footprint)
     if (weighting["neighbour_discount"] == _DEFAULTS["ops_read_neighbour_discount"]
             and any(key not in evidence for key in CACHE_NUCLEUS_KEYS)):
         state = _neighbour_discount_state(None, 'cache_replay', False,

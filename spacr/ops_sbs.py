@@ -1324,7 +1324,7 @@ def _disc_neighbours(ids: np.ndarray, centroids: np.ndarray, areas: np.ndarray,
     :param centroids: ``(M, 2)`` object centroids.
     :param areas: ``(M,)`` object areas in pixels.
     :param reach: the largest gap between two disc edges, in pixels
-        (``ops_footprint``).
+        (``ops_read_neighbour_reach``).
     :returns: object id -> the ids of its neighbours.
     """
     from scipy.spatial import cKDTree
