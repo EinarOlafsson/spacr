@@ -242,6 +242,15 @@ default after a higher-numbered item takes the next free number:
   variance floor of 1e-12 in the embedding profiles) and reproduce their
   earlier output. Numbers 960 and 961 belong to other merges.
 
+- 964 (OPS decode audit, the pixel fallback): ``ops_pixel_read_gate`` is
+  now ``True``. The pixel fallback assigns a nucleus only when its reads
+  named no guide, or named the pixel guide alone; a read tie, a read vote
+  split between two or more guides, or a lone read guide the pixels
+  contradict leaves the nucleus uncalled. Files stamped before 964 retain
+  ``False`` and reproduce their calls. The decoy FDR report of each well
+  (``decode_fdr_<well>.json``) now counts the read calls and the
+  pixel-fallback calls apart, each with its own FDR.
+
 Public API
 ----------
 
