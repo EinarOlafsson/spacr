@@ -3,7 +3,7 @@ spaCR FEATURES -- NEW, AND FUTURE
 Canonical discovery: features/FEATURE_LIST.md
 ================================================================================
 
-Regenerated 2026-11-24 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-11-25 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/feature_list/*.txt
@@ -2154,8 +2154,6 @@ NEW FEATURES
        987_cellpose_batches_in_memory.txt
   993  CLI PREFLIGHT REFUSALS RETAIN THEIR PROBLEMS WITHOUT AUTOMATIC CRASH REPORTS
        993_cli_preflight_reporting.txt
-  1015  OPS LIVE SHOWS ONE FIGURE AT A TIME, WITH SAMPLE, SETTINGS AND RUN PREVIEW PER TAB
-       1015_ops_live_on_the_figure_queue.txt
   1016  BATCH RUNNER: TEMPLATE RUNS (0ai templaterun)
        1016_batch_runner_template_runs.txt
   1017  THE DATABASE BROWSER MERGES TABLES, ALSO ACROSS PLATES AND DATABASES
@@ -2166,3 +2164,5 @@ NEW FEATURES
        1019_voyager3_button_and_own_tab.txt
   1020  THE ANNOTATE BUTTONS ARE GROUPED INTO NAMED CATEGORIES, STILL ALONG THE TOP
        1020_annotate_buttons_in_named_categories.txt
+  1022  OPS LIVE SHOWS ONE FIGURE AT A TIME, WITH SAMPLE, SETTINGS AND RUN PREVIEW PER TAB
+       1022_ops_live_on_the_figure_queue.txt

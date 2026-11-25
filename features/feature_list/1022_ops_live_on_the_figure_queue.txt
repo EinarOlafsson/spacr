@@ -85,3 +85,5 @@ public_datasets/OpticalPooledScreens_data/screenA/20200202_6W-LaC024A_A1_0at_sub
 revision 4 "regions" tier is built locally, not uploaded, at
 /media/carruthers/mnt2/spacr/0at_scratch/dataset_rev4/ops_testdata_funk2022_A1_regions
 (its own folder, so the pinned core and full references do not change).
+
+2026-11-25: renumbered from 1015 to 1022 (the number 1015 belongs to the recovered spec proposals/bmc_paper_items/1015_crop_store_ngff06.md, which predates it).
