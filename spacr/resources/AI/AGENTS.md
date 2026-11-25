@@ -111,3 +111,9 @@ against Measure or Mask Generation, and for any other pair.
 - Reuse agent context: send a follow-up to the agent or session that already holds the context instead of starting a fresh one that must re-read everything.
 - Give each subagent the model that fits the task, neither too strong nor too weak: the smallest model for lookups and status checks, a mid-size model for bounded fixes, merges and scripted analysis, the strongest model only for design, judgement and hard debugging.
 - Do small, known lookups directly instead of delegating them; delegate broad searches and parallel independent work.
+
+47. Never crash the machine or VS Code; RAM is the usual cause (maintainer, 2026-11-25). Use the available resources fully so work does not slow down, but monitor them closely, especially while the maintainer is away.
+- Every job that may use more than a few GB runs through the scheduler or under a memory cap (MemoryMax); never start an uncapped large job in the foreground or inside the editor's process tree.
+- Declare RAM from a measured pilot peak (1.5 x peak, 2 GB floor) and never load a whole large table into memory; read columns, row ranges or LIMIT samples instead.
+- Watch MemAvailable, swap and load while jobs run. When free RAM falls toward the scheduler reserve, stop admitting new work and let running jobs finish; do not add agents or parallel workers.
+- Size the number of parallel agents and workers to the free RAM, not to the number of tasks.
