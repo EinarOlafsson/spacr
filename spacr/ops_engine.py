@@ -7822,8 +7822,12 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     genotype_path = settings.get("ops_genotype_table") or None
     merged_rows = _rows_for_wells(db, "ops_merge", plate, pooled)
     if merged_rows is None:
+        if genotype_path:
+            raise ValueError(tr(
+                "aggregate needs ops_merge; run the merge phase first"))
         raise ValueError(tr(
-            "aggregate needs ops_merge; run the merge phase first"))
+            "aggregate needs ops_merge and ops_barcodes; run the merge "
+            "and decode phases first"))
     called, design, ambiguous = _ph_called_guides(db, plate, pooled, settings)
     sources, schemas = [], []
     for well in pooled:
@@ -12135,7 +12139,7 @@ def _ph_neighbour_effects(settings: Mapping[str, Any], cells, embedding, pcs: Se
                                               canonicalise=False)
         wells[well] = (part.drop(columns="well").reset_index(drop=True), table, pairs)
     result = neighbour_effects(wells, list(pcs), active=active, receivers=receivers,
-                               null_reps=reps, edge_px=float(radius), _field_centre=centre)
+                               null_reps=reps, edge_px=float(radius), field_centre=centre)
     design = "B" if receivers == "inactive" else "A"
     for name in ("tests", "null"):
         table = result["tests" if name == "tests" else "nulls"]
