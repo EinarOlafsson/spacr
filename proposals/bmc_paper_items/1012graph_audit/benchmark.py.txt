@@ -1,0 +1,223 @@
+"""Measure fixed planted fixtures through the unmodified external graph owners."""
+from pathlib import Path
+import hashlib
+import importlib.metadata
+import json
+import os
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+import numpy as np
+from threadpoolctl import threadpool_limits
+from spacr import ops_maxproj as om
+from spacr import ops_clusters as oc
+from spacr import ops_reference as ref
+
+N = 160
+K = 10
+SEED = 20261119
+OUT = ROOT / ".codex-audit/B0"
+OUT.mkdir(exist_ok=False)
+IU = np.triu_indices(N, 1)
+TRUTH = np.zeros((N, N), bool)
+TRUTH[:8, :8] = True
+TRUTH[8:16, 8:16] = True
+np.fill_diagonal(TRUTH, False)
+QUERIES = np.arange(16)
+
+
+def dense(values, diagonal=-np.inf):
+    """Expand production row-major packed pairs solely for small diagnostic reads."""
+    result = np.full((N, N), diagonal, dtype=values.dtype)
+    result[IU] = values
+    result[(IU[1], IU[0])] = values
+    return result
+
+
+def rank_metrics(scores):
+    """Count top-ten partner hits with stable, production and tie-bound choices."""
+    records = []
+    for i in QUERIES:
+        row = np.array(scores[i], dtype=float)
+        row[i] = -np.inf
+        partners = TRUTH[i]
+        best = row[partners].max()
+        above = int(np.count_nonzero(row > best))
+        nonpartner_equal_or_above = int(np.count_nonzero((~partners) & (row >= best)))
+        stable = np.argsort(-row, kind="stable")[:K]
+        actual = np.argpartition(-row, K)[:K]
+        cutoff = np.sort(row)[-K]
+        records.append(dict(gene=int(i), stable=int((partners[stable] & np.isfinite(row[stable])).any()),
+                            argpartition=int((partners[actual] & np.isfinite(row[actual])).any()),
+                            guaranteed=int(np.isfinite(best) and nonpartner_equal_or_above < K),
+                            possible=int(np.isfinite(best) and above < K),
+                            first_partner_rank=above + 1,
+                            cutoff_ties=int(np.count_nonzero(row == cutoff))))
+    return {"queries": len(records),
+            **{key: sum(r[key] for r in records) for key in
+               ("stable", "argpartition", "guaranteed", "possible")},
+            "boundary_tied_queries": sum(r["cutoff_ties"] > 1 for r in records),
+            "per_gene": records}
+
+
+def edge_metrics(mask):
+    """Count direct partner edges separately from rank or partition outcomes."""
+    return dict(member_hits=int(np.any(mask & TRUTH, axis=1)[QUERIES].sum()),
+                partner_pairs=int(np.count_nonzero((mask & TRUTH)[IU])),
+                all_pairs=int(np.count_nonzero(mask[IU])))
+
+
+def graph_mask(graph):
+    """Read the actual undirected production graph without recreating selection."""
+    result = np.zeros((N, N), bool)
+    for a, b in graph.get_edgelist():
+        result[a, b] = result[b, a] = True
+    return result
+
+
+def partition_metrics(labels, resolution=None, adjusted=None):
+    """Keep same-complex co-membership distinct from direct graph connectivity."""
+    same = labels[:, None] == labels[None, :]
+    counts = np.unique(labels, return_counts=True)[1]
+    return dict(member_hits=int(np.any(same & TRUTH, axis=1)[QUERIES].sum()),
+                partner_pairs=int(np.count_nonzero((same & TRUTH)[IU])),
+                clusters=len(counts), largest_cluster=int(counts.max()),
+                median_cluster=float(np.median(counts)), resolution=resolution,
+                adjusted=adjusted, query_labels=labels[:16].tolist())
+
+
+def one_case(view_count, kind, planted):
+    """Run one prespecified arm and observe normal helpers at each stage."""
+    started = time.monotonic()
+    rows = np.random.default_rng(65).normal(size=(N, 12))
+    if view_count == 13:
+        extra = np.random.default_rng(66).normal(size=(N, 66))
+        rows = np.column_stack((rows, extra))
+    if planted:
+        for first, column in ((0, 0), (8, 6)):
+            direction = np.random.default_rng(first + 12).normal(size=6)
+            direction /= np.linalg.norm(direction)
+            rows[first:first + 8, column:column + 6] += 8 * direction
+    views = [np.arange(i * 6, i * 6 + 6) for i in range(view_count)]
+    coverage = np.ones((N, view_count), bool)
+    kwargs = dict(views_ix=views, null_mode="columns", control=None,
+                  variance=.99, bins=3, calibration=50, null=200, seed=SEED,
+                  workers=1, similarity=kind, coverage=coverage, dtype="float32",
+                  packed=True, block_size=32)
+    result = om.maxproj_scores(rows, [f"G{i}" for i in range(N)], **kwargs)
+    target_sim = np.empty((N, N))
+    target_cal = np.empty((N, N))
+    target_raw = np.empty((N, N))
+    components = []
+    for v in range(2):
+        seed = int(np.random.SeedSequence([SEED, v]).generate_state(1)[0])
+        values = rows[:, views[v]]
+        raw_unit = values / np.linalg.norm(values, axis=1, keepdims=True)
+        sim = om.view_similarity(values, None, .99, seed, kind,
+                                 coverage=coverage[:, v], dtype=np.dtype("float32"),
+                                 packed=True, block_size=32, max_missing=1.0)
+        calibrated = om.calibrate_view(sim, result["calibration_counts"][v], result["pair_bins"])
+        assert np.array_equal(calibrated, result["scores"][v])
+        selected, embedded, scales = om._view_arrays(values, None, .99, seed, kind,
+                                                    coverage[:, v], np.dtype("float32"), 1.0)
+        components.append(embedded.shape[1])
+        take = slice(v * 8, (v + 1) * 8)
+        target_raw[take] = (raw_unit @ raw_unit.T)[take]
+        target_sim[take] = dense(sim)[take]
+        target_cal[take] = dense(calibrated)[take]
+    p = dense(result["p"], diagonal=1)
+    strength = -np.log10(np.clip(p, 1e-300, 1))
+    np.fill_diagonal(strength, -np.inf)
+    masked = np.vstack(list(om._projected_strength_rows(result["p"], N, .05, result["view"] >= 0)))
+    graph = om.projected_graph(result["p"], K, .05, n_genes=N, valid=result["view"] >= 0)
+    unpruned = oc._knn_graph(strength, K)
+    threshold = p < .05
+    np.fill_diagonal(threshold, False)
+    candidates = np.isfinite(masked)
+    actual = graph_mask(graph)
+    union = np.zeros((N, N), bool)
+    for i, values, nearest in oc._knn_rows(masked, K, N):
+        for j in nearest:
+            if np.isfinite(values[j]):
+                union[i, j] = union[j, i] = True
+    assert np.array_equal(union, actual)
+    weights = np.asarray(graph.es["weight"])
+    for index, (a, b) in enumerate(graph.get_edgelist()):
+        assert weights[index] == max(masked[a, b], 1e-6)
+    fixed = oc.leiden_partitions(graph, [1.0], [42])[(42, 1.0)]
+    target = round(N * oc.CONSENSUS_K_RATIO[0] / oc.CONSENSUS_K_RATIO[1])
+    matched, resolution = oc.match_resolution(graph, target, 42)
+    post, adjusted = oc.match_count(rows, matched, target, seed=42)
+    uniform = graph.copy()
+    uniform.es["weight"] = [1.] * uniform.ecount()
+    uniform_labels = oc.leiden_partitions(uniform, [1.0], [42])[(42, 1.0)]
+    reverse = np.arange(N - 1, -1, -1)
+    reverse_graph = om.projected_graph(p[np.ix_(reverse, reverse)], K, .05,
+                                       valid=np.ones((N, N), bool))
+    restored = graph_mask(reverse_graph)[np.ix_(reverse, reverse)]
+    intersection = int(np.count_nonzero((restored & actual)[IU]))
+    union_count = int(np.count_nonzero((restored | actual)[IU]))
+    pair_target = np.where(IU[0] < 8, 0, 1)
+    positives = TRUTH[IU]
+    winning = result["view"][positives]
+    edge_positive = np.asarray([TRUTH[a, b] for a, b in graph.get_edgelist()])
+    record = dict(view_count=view_count, similarity=kind, planted=planted,
+                  input_sha256=hashlib.sha256(rows.tobytes()).hexdigest(),
+                  target_components=components, target_clusters=target,
+                  ranks={"raw_target": rank_metrics(target_raw),
+                         "embedded_target": rank_metrics(target_sim),
+                         "calibrated_target": rank_metrics(target_cal),
+                         "maximum": rank_metrics(dense(result["projected"])),
+                         "max_null_strength": rank_metrics(strength),
+                         "retained_candidates": rank_metrics(masked)},
+                  edges={"threshold": edge_metrics(threshold),
+                         "threshold_plus_rescue": edge_metrics(candidates),
+                         "knn": edge_metrics(actual),
+                         "no_pruning_knn": edge_metrics(graph_mask(unpruned)),
+                         "reversed_order_knn": edge_metrics(restored)},
+                  partitions={"resolution_1": partition_metrics(fixed, 1.),
+                              "matched": partition_metrics(matched, resolution),
+                              "post_match_count": partition_metrics(post, resolution, adjusted),
+                              "uniform_resolution_1": partition_metrics(uniform_labels, 1.)},
+                  weights=dict(total=float(weights.sum()), true_pair=float(weights[edge_positive].sum()),
+                               min=float(weights.min()), max=float(weights.max())),
+                  ties=dict(unique_p=len(np.unique(result["p"])), pairs=len(result["p"]),
+                            p_min=float(result["p"].min()), p_max=float(result["p"].max()),
+                            at_min=int(np.count_nonzero(result["p"] == result["p"].min())),
+                            projected_unique=len(np.unique(result["projected"])),
+                            reversal_edge_jaccard=intersection / union_count),
+                  planted_pairs_winning_target=int(np.count_nonzero(winning == pair_target[positives])),
+                  planted_pair_winner_counts=np.bincount(winning, minlength=view_count).tolist(),
+                  p_below_05=int(np.count_nonzero(result["p"] < .05)),
+                  elapsed_seconds=time.monotonic() - started)
+    name = f"v{view_count}-{kind}-{'planted' if planted else 'null'}"
+    (OUT / f"{name}.json").write_text(json.dumps(record, indent=2) + "\n")
+    print(name, json.dumps({"ranks": {k: v["argpartition"] for k, v in record["ranks"].items()},
+                           "edges": record["edges"], "partitions": record["partitions"],
+                           "seconds": record["elapsed_seconds"]}), flush=True)
+    return record
+
+
+def main():
+    """Execute the declared paired arms once and save exact method/source metadata."""
+    modules = [om, oc, ref]
+    assert all(Path(module.__file__).resolve().parent == ROOT / "spacr" for module in modules)
+    manifest = dict(source_head="862ab34810badc4138d0aa55c97509f56652f759",
+                    scheduler_job=os.environ["SCHED_JOB_ID"], queries=16, true_pairs=56,
+                    seed=SEED, calibration=50, null=200, graph_k=K, edge_p=.05,
+                    source={Path(m.__file__).name: hashlib.sha256(Path(m.__file__).read_bytes()).hexdigest()
+                            for m in modules},
+                    versions={name: importlib.metadata.version(name) for name in
+                              ("numpy", "scipy", "scikit-learn", "igraph", "leidenalg")}, cases=[])
+    with threadpool_limits(limits=1):
+        for views, similarity in ((2, "cosine"), (13, "cosine"), (13, "shrunk")):
+            for planted in (False, True):
+                manifest["cases"].append(one_case(views, similarity, planted))
+                (OUT / "report.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    print("PASS: six fixed arms; exact source, calibration and graph observation checks", flush=True)
+
+
+if __name__ == "__main__":
+    main()
