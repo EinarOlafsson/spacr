@@ -79,4 +79,5 @@ settings, pilot tiles 46, 148 and 167; whole-well run of all 333 tiles).
   without a seed; with ops_placement_seed from the whole run the placements
   equal the whole run's exactly. Segmenting without the neighbours' pixels
   then keeps 99.3 to 99.9 % of the whole run's nuclei within 2 px and the
-  same call for 98.6 to 99.6 % of its called nuclei (thresholds pinned).
+  same call for 99.4 to 99.6 % of its called nuclei (thresholds pinned;
+  97.3 to 98.4 % with grid placement instead of the seed).
