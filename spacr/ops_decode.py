@@ -2866,8 +2866,17 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
                    if name.startswith("site") and name.endswith(".npz")
                    and (wanted is None or int(name[4:8]) in wanted))
     jobs = [(path, rule, library, decoys, crosstalk) for path in paths]
-    if int(workers) > 1:
-        with get_context("fork").Pool(int(workers)) as pool:
+    workers = max(1, min(int(workers), len(jobs)))
+    if workers > 1:
+        # The shared worker guard, as every pool site: each worker holds one
+        # field cache, so fewer start when free RAM holds fewer.
+        from .resource_log import _array_file_nbytes, _guard_workers
+
+        workers = max(1, int(_guard_workers(
+            "ops_decode", workers, _array_file_nbytes(paths[0]),
+            settings=resolved)))
+    if workers > 1:
+        with get_context("fork").Pool(workers) as pool:
             fields = pool.starmap(_cached_field, jobs, chunksize=1)
     else:
         fields = [_cached_field(*job) for job in jobs]
