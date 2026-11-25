@@ -78,6 +78,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_nucleus_diameter": None,
     "ops_ph_cell_diameter": None,
     "ops_ph_downsample": 2,
+    "ops_ph_spanning_merge": "merge",
     "ops_ph_tile_batch": 0,
     "batch_size": "auto_vram",
     "mask_eval_batch_size": "auto_vram",
@@ -701,6 +702,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_nucleus_diameter": (float, int, type(None)),
     "ops_ph_cell_diameter": (float, int, type(None)),
     "ops_ph_downsample": int,
+    "ops_ph_spanning_merge": str,
     "ops_ph_tile_batch": (int, type(None)),
     "ops_ph_sites": (str, list, int, type(None)),
     "ops_ph_texture": bool,
@@ -1374,7 +1376,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ome_zarr_upgrade_link",
         "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
-        "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_tile_batch",
+        "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_spanning_merge",
+        "ops_ph_tile_batch",
         "ops_ph_sites", "ops_retry_missing",
     ],
     "Additional phenotype objects": [
@@ -1974,6 +1977,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "across and costs a quarter of full resolution; 1 is full resolution; "
         "4 is about the sequencing resolution and blockier outlines. "
         "Measurement always uses the full-resolution pixels. Default 2. Alpha.",
+    "ops_ph_spanning_merge":
+        "(str) - Whether a nucleus that lies in several cells merges them "
+        "before pairing. 'merge': a nucleus with under 90 percent in every "
+        "cell fuses those cells into one, as Measure does; with 90 percent or "
+        "more in one cell, its pixels in the others are erased. "
+        "'best_parent': no cell is fused; each nucleus goes to the cell it "
+        "overlaps most and each cell keeps one nucleus, the OPS pairing "
+        "before settings schema 959. Default 'merge'. Alpha.",
     "ops_ph_tile_batch":
         "(int) - How many 256-pixel tiles Cellpose passes through the "
         "network at once when it segments phenotype nuclei, cells, pathogens "

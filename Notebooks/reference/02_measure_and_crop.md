@@ -369,7 +369,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Object Filtering (10 settings)</summary>
+<summary>Object Filtering (11 settings)</summary>
 
 #### Object Filtering
 
@@ -383,6 +383,7 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`pathogen_min_size`** *(optional)* — (int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0 or None disables it. Default 500, which suits 40-60x; when pixel_size_um or magnification is set, the 500 default becomes the area of a disc one fifth of Mask's expected pathogen diameter (13 px at 20x or at 0.325 um/px). A field that loses more than half its pathogens prints a warning. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead. Default: `500`.
 - **`pathogen_max_size`** *(optional)* — (int | None) - Drop pathogens larger than this many pixels, counted the same way pathogen_min_size counts them. None -- the default -- disables it and preserves prior behavior. This bound removes a vacuole of tightly packed parasites segmented as one object: it passes every minimum size and inflates both the per-cell burden and the mean parasite area. The run prints how many objects each bound dropped. Default: `None`.
 - **`merge_edge_pathogen_cells`** *(optional)* — (bool) - During measurement, reconcile pathogens straddling two host-cell masks: if 90 percent or more of the pathogen lies in one cell, its pixels in the neighbours are erased; otherwise the overlapping cell labels are fused into a single cell. Switch off to keep the raw cell segmentation when parasites legitimately touch two cells. Default True. Default: `True`.
+- **`spanning_merge`** *(optional)* — (str) - Whether a nucleus that lies in several cells merges them. 'merge': a nucleus with under 90 percent in every cell fuses those cells into one; with 90 percent or more in one cell, its pixels in the others are erased; then a nucleus still in several cells keeps only its pixels in the cell it overlaps most. 'best_parent': no cell is fused and nothing is erased first; every nucleus goes to the cell it overlaps most and is clipped to it. Default 'merge'. Default: `'merge'`.
 
 </details>
 

@@ -282,8 +282,32 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     that cell; a cell keeps its largest such nucleus; cells without a
     nucleus and nuclei without a cell are dropped and counted.
     """
-    from .measure import _assign_nuclei_to_cells, _best_parent, _label_overlaps
+    return _pair_nuclei_with_cells(nuclei, cells)
 
+
+def _pair_nuclei_with_cells(nuclei, cells, spanning="merge"):
+    """:func:`pair_nuclei_with_cells` with the spanning-nucleus rule chosen.
+
+    :param nuclei: a 2-D nucleus label mask.
+    :param cells: a 2-D cell label mask of the same field.
+    :param spanning: ``ops_ph_spanning_merge``, passed to
+        :func:`spacr.measure._assign_nuclei_to_cells`. ``'merge'`` (the
+        default, and what :func:`pair_nuclei_with_cells` uses) first applies
+        Measure's ownership rule: a nucleus split under 90 % between cells
+        merges them, and at 90 % or more its pixels in the other cells are
+        removed; ``counts['merged_cells']`` counts the merges.
+        ``'best_parent'`` skips that rule, so every nucleus goes to the cell
+        it overlaps most and no cell is merged: masks and counts are those
+        of the OPS pairing before settings schema 959 (commit 26bc722c15),
+        with ``merged_cells`` 0. A cell touched only by a piece of a nucleus
+        that belongs to another cell still counts as touched there, as it
+        did then.
+    :returns: ``(nuclei, cells, counts)`` as :func:`pair_nuclei_with_cells`.
+    """
+    from .measure import (_assign_nuclei_to_cells, _best_parent, _label_overlaps,
+                          _spanning_mode)
+
+    spanning = _spanning_mode(spanning)
     nuclei = np.asarray(nuclei)
     cells = np.asarray(cells)
     if nuclei.shape != cells.shape:
@@ -291,11 +315,14 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
             f"nucleus and cell masks differ in shape: {nuclei.shape} and "
             f"{cells.shape}")
     before = int(np.unique(cells[cells > 0]).size)
-    nuclei, cells, _shared_n, _shared_c, merged = _assign_nuclei_to_cells(
-        nuclei.copy(), cells.copy())
+    nuclei, cells, _shared_n, shared_c, merged = _assign_nuclei_to_cells(
+        nuclei.copy(), cells.copy(), spanning=spanning)
     n_total = int(np.unique(nuclei[nuclei > 0]).size)
     c_total = int(np.unique(cells[cells > 0]).size)
     pair_n, pair_c, overlap = _label_overlaps(nuclei, cells)
+    touched = np.unique(pair_c)
+    if spanning == "best_parent" and shared_c:
+        touched = np.union1d(touched, np.fromiter(shared_c, np.int64))
     if not pair_n.size:
         return (np.zeros(nuclei.shape, np.int32),
                 np.zeros(cells.shape, np.int32),
@@ -316,7 +343,7 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     counts = {
         "nuclei": n_total, "cells": before, "paired": int(keep_n.size),
         "nuclei_without_cell": int(n_total - np.unique(pair_n).size),
-        "cells_without_nucleus": int(c_total - np.unique(pair_c).size),
+        "cells_without_nucleus": int(c_total - touched.size),
         "extra_nuclei_in_cell": int(best_n.size - keep_n.size),
         "merged_cells": merged,
     }

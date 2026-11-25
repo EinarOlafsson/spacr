@@ -1475,7 +1475,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "nucleus_min_size", "nucleus_max_size",
             "pathogen_min_size", "pathogen_max_size", "organelle_min_area",
             *(f"{role}_min_area" for role in ALL_ORGANELLE_ROLES[1:]),
-            "merge_edge_pathogen_cells",
+            "merge_edge_pathogen_cells", "spanning_merge",
         )),
         ("Crop Output", (
             "save_png", "save_arrays", "crop_mode", "png_size",
@@ -2960,7 +2960,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
         filter_keys = (
             "uninfected", "cell_min_size", "cytoplasm_min_size",
             "nucleus_min_size", "pathogen_min_size", "organelle_min_area",
-            "merge_edge_pathogen_cells",
+            "merge_edge_pathogen_cells", "spanning_merge",
         )
         for keys in result.values():
             for key in filter_keys:

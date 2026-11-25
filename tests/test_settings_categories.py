@@ -663,6 +663,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # The top-guide share a call needs and the neighbour reach (schema 966).
     "ops_min_top_share",
     "ops_read_neighbour_reach",
+    # The spanning-children switch of the nucleus and cell ownership (schema 968).
+    "ops_ph_spanning_merge",
+    "spanning_merge",
     "ops_pixel_percentile",
     "ops_pixel_radius",
     "ops_pixel_min_pixels",

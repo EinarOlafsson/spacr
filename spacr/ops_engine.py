@@ -4864,6 +4864,8 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
     :param channels: channel names in the stack.
     :param models: ``(nucleus_model, cell_model)``.
     :param settings: read for ``ops_ph_cell_channel``, ``ops_ph_downsample``,
+        ``ops_ph_spanning_merge`` (the pairing rule of
+        :func:`spacr.ops_sample._pair_nuclei_with_cells`),
         ``mask_eval_batch_size`` and the two diameters.
     :param field_count: fields in the current resident batch.
     :returns: ``(nuclei, cells, counts)``.
@@ -4875,7 +4877,7 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
     repeated back up: at 2 a nucleus is still about 20 px across, which is
     what the models are trained on, and the cost falls fourfold.
     """
-    from .ops_sample import pair_nuclei_with_cells
+    from .ops_sample import _pair_nuclei_with_cells
     from .qt.i18n import tr
 
     dna, body, extra, factor = _ph_segmentation_inputs(stack, channels, settings)
@@ -4887,8 +4889,9 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
                            site='ops_phenotype', field_count=field_count, channel_axis=-1,
                            **extra["cell"])[0]
     shape = stack.shape[:2]
-    return pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
-                                  _ph_upscale(cells, factor, shape))
+    return _pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
+                                   _ph_upscale(cells, factor, shape),
+                                   spanning=settings.get("ops_ph_spanning_merge"))
 
 
 #: The object classes item 970 adds to the phenotype path, in the order
