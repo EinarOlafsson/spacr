@@ -2172,10 +2172,14 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
                     key: str = "ops_sbs_nucleus_model"):
     """The Cellpose model the objects are segmented with.
 
-    :param settings: read for ``key``. Empty or ``cpsam`` builds
-        the default library model, which is how the well was validated;
-        any other name goes through :func:`spacr.utils.build_cellpose_model`,
-        which resolves it and refuses a name that matches no model.
+    :param settings: read for ``key`` and ``ops_cellpose_model``. Empty or
+        ``cpsam`` builds the stock Cellpose-SAM weights
+        ``ops_cellpose_model`` pins (item 975): ``cpsam_v2`` by its full
+        path, ``cpsam_v1`` as the library default the well was validated
+        with, each checked against its md5 by
+        :func:`spacr.utils.cpsam_weights` first. Any other name goes through
+        :func:`spacr.utils.build_cellpose_model`, which resolves it and
+        refuses a name that matches no model.
         ``mask_inference_precision`` and a pinned model file are honoured.
     :param gpu: put it on the card on this machine through
         :func:`spacr.accelerator.cellpose_kwargs`, or keep it on the CPU.
@@ -2188,7 +2192,8 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
 
     return build_cellpose_model(settings.get(key) or "cpsam", settings=settings, key=key,
                                 gpu=None if gpu else False, factory=models.CellposeModel,
-                                library_default=True)
+                                library_default=True,
+                                stock_weights=ops_setting(settings, "ops_cellpose_model"))
 
 
 def _ops_diameter(value, role, factor=1.0):
@@ -2273,7 +2278,8 @@ def _ops_calibration_context(settings, site):
     """Identify the site, model and preparation options behind one calibration record."""
     from ._mask_batches import _order_sha256
 
-    keys = (*_OPS_MASK_SETTINGS, *_OPS_TILE_BATCH_KEYS.values(), 'ops_ph_nucleus_model', 'ops_ph_cell_model',
+    keys = (*_OPS_MASK_SETTINGS, *_OPS_TILE_BATCH_KEYS.values(), 'ops_cellpose_model',
+            'ops_ph_nucleus_model', 'ops_ph_cell_model',
             'ops_ph_channels', 'ops_ph_cell_channel', 'ops_ph_downsample',
             'ops_ph_nucleus_diameter', 'ops_ph_cell_diameter',
             'ops_sbs_nucleus_model', 'cellpose_diameter',
@@ -2486,6 +2492,9 @@ def _objects_window_basis(settings: Mapping[str, Any], blend: str,
 
     name = str(ops_setting(settings, "ops_sbs_nucleus_model")).strip()
     model: Dict[str, Any] = {"name": name}
+    weights = str(ops_setting(settings, "ops_cellpose_model"))
+    if name in ("", "cpsam") and weights != "cpsam_v1":
+        model["weights"] = weights
     if os.path.isfile(name):
         stat = os.stat(name)
         model.update({"size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)})
@@ -6098,7 +6107,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     ``<well>/phenotype_cells/site-<n>.parquet``; a committed field
     is not redone, so a run stopped at field 900 resumes at 901. The well
     table, ``ops_phenotype_cells_<well>.parquet``, is the concatenation and
-    is rewritten at the end.
+    is rewritten at the end. Weights other than ``cpsam_v1``
+    (``ops_cellpose_model``, item 975) go into the masks' option marker, so
+    masks of two weights are never mixed in one folder.
 
     SEGMENTATION RUNS IN THIS PROCESS AND MEASUREMENT IN WORKERS: Cellpose
     already uses every core (or the card), while spaCR measurement of a
@@ -6200,6 +6211,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "mask_inference_precision": precision}
         if object_roles:
             mask_options["objects"] = _ph_object_options(settings)
+        weights = str(ops_setting(settings, "ops_cellpose_model"))
+        if weights != "cpsam_v1":
+            mask_options["cellpose_weights"] = weights
         _ph_options_marker(mask_dir, mask_options, existing_parts=bool(stored_masks))
     flat_folder = None
     options: Dict[str, Any] = {}
@@ -15735,7 +15749,9 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
     ``spatial_objects`` in ``measurements/measurements.db``.
 
     :param settings: the Spatial Mask Generation settings
-        (:data:`spacr.ops_settings.SPATIAL_MASK_DEFAULTS`).
+        (:data:`spacr.ops_settings.SPATIAL_MASK_DEFAULTS`). A stock
+        ``cpsam`` model is the pinned ``cpsam_v1`` weights, as before item
+        975; ``ops_cellpose_model`` switches only OPS segmentation.
     :param segment: optional callable taking the stain image and returning
         its nucleus label image, in place of the configured segmenter.
     :returns: the run report, also written as ``spatial_mask_report.json``.
@@ -15856,6 +15872,7 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
                 model = _cellpose_model(
                     {"ops_sbs_nucleus_model": str(pinned) if pinned is not None
                      else settings.get("spatial_cellpose_model"),
+                     "ops_cellpose_model": "cpsam_v1",
                      "mask_inference_precision": settings.get("mask_inference_precision")},
                     bool(settings.get("spatial_gpu", False)))
             extra: Dict[str, Any] = {}

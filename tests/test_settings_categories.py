@@ -660,6 +660,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_decode_pixel_fallback",
     # The pixel fallback gated by the read vote (schema 964).
     "ops_pixel_read_gate",
+    # The stock Cellpose-SAM weights of OPS segmentation (schema 975).
+    "ops_cellpose_model",
     "ops_pixel_percentile",
     "ops_pixel_radius",
     "ops_pixel_min_pixels",

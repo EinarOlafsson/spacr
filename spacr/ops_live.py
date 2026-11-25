@@ -78,6 +78,12 @@ _STEM_STEPS: Tuple[Tuple[str, str], ...] = (
     ("ops_flatfield", "objects"),
 )
 
+_KEY_STEPS: Dict[str, Tuple[str, ...]] = {
+    "ops_cellpose_model": ("spots", "objects"),
+}
+"""Settings more than one tab reads: the stock Cellpose-SAM weights segment
+the sequencing nuclei (spots) and the phenotype objects (item 975)."""
+
 _CATEGORY_STEPS: Tuple[Tuple[str, str], ...] = (
     ("cluster", "cluster"),
     ("profil", "cluster"),
@@ -175,6 +181,8 @@ def _steps_of(key: str, category: str) -> Tuple[str, ...]:
     :returns: one step, or every step for an input or performance setting
         and for a setting no rule places.
     """
+    if key in _KEY_STEPS:
+        return _KEY_STEPS[key]
     name = str(category or "").lower()
     if any(word in name for word in _SHARED_CATEGORY_WORDS):
         return _EVERY_STEP
@@ -609,7 +617,8 @@ def _model(ctx: _Context, key: str = "ops_sbs_nucleus_model"):
 
     gpu = bool(ops_setting(ctx.settings, "ops_gpu"))
     name = (str(ctx.settings.get(key) or ""), gpu,
-            ctx.settings.get("mask_inference_precision"))
+            ctx.settings.get("mask_inference_precision"),
+            str(ops_setting(ctx.settings, "ops_cellpose_model")))
     held = ctx.cache.setdefault("_models", {})
     if name not in held:
         if len(held) > 3:
@@ -1137,6 +1146,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         raise ValueError(f"tile {site} has no readable DAPI plane")
     dapi = np.ascontiguousarray(dapi[y0:y0 + size, x0:x0 + size])
     nuclei_key = json.dumps([site, crop, ctx.settings.get("ops_sbs_nucleus_model"),
+                             ops_setting(ctx.settings, "ops_cellpose_model"),
                              ctx.settings.get("cellpose_diameter"),
                              bool(ops_setting(ctx.settings, "ops_gpu")),
                              ctx.settings.get("mask_eval_batch_size"),

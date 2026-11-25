@@ -63,23 +63,52 @@ def built(monkeypatch):
     return calls
 
 
+@pytest.fixture
+def pinned(monkeypatch, tmp_path):
+    """Small stand-ins for the two pinned Cellpose-SAM files, pinned by their md5 (item 975).
+
+    :returns: ``{choice: path}``.
+    """
+    import hashlib
+
+    from spacr import utils
+
+    folder = tmp_path / "cellpose_models"
+    folder.mkdir()
+    pins, paths = {}, {}
+    for choice, name in (("cpsam_v1", "cpsam"), ("cpsam_v2", "cpsam_v2")):
+        body = choice.encode()
+        (folder / name).write_bytes(body)
+        pins[choice] = {"file": name, "size": len(body), "md5": hashlib.md5(body).hexdigest()}
+        paths[choice] = str(folder / name)
+    monkeypatch.setattr(utils, "CPSAM_WEIGHTS", pins)
+    monkeypatch.setattr(utils, "_CPSAM_MD5_SEEN", {})
+    monkeypatch.setattr(models, "MODEL_DIR", folder)
+    return paths
+
+
 def _the_card_must_not_be_asked():
     """Stand in for :func:`spacr.accelerator.cellpose_kwargs` where it must not run."""
     raise AssertionError("ops_gpu is off, but the accelerator was consulted")
 
 
 @pytest.mark.parametrize("name", [None, "", "cpsam", "  cpsam "])
-def test_the_default_model_name_builds_the_librarys_own_default(built, monkeypatch, name):
-    """No ``pretrained_model`` is passed, so Cellpose loads the weights the well was validated with.
+def test_the_default_model_name_builds_the_librarys_own_default(built, pinned, monkeypatch, name):
+    """Under ``cpsam_v1`` no ``pretrained_model`` is passed, so Cellpose loads the weights the
+    well was validated with; under the default ``cpsam_v2`` the v2 file is passed by full path.
 
     With ``ops_gpu`` off the model is built for the CPU and the accelerator is
     never asked.
     """
     monkeypatch.setattr(spacr.accelerator, "cellpose_kwargs", _the_card_must_not_be_asked)
 
+    ops_engine._cellpose_model({"ops_sbs_nucleus_model": name,
+                                "ops_cellpose_model": "cpsam_v1"}, gpu=False)
     ops_engine._cellpose_model({"ops_sbs_nucleus_model": name}, gpu=False)
 
-    assert built == [{"gpu": False, "use_bfloat16": False}]
+    assert built == [{"gpu": False, "use_bfloat16": False},
+                     {"gpu": False, "use_bfloat16": False,
+                      "pretrained_model": pinned["cpsam_v2"]}]
 
 
 def test_another_model_name_is_loaded_by_that_name(built, monkeypatch, tmp_path):
@@ -97,8 +126,8 @@ def test_another_model_name_is_loaded_by_that_name(built, monkeypatch, tmp_path)
     assert built == [{"gpu": False, "use_bfloat16": False, "pretrained_model": str(checkpoint)}]
 
 
-def test_on_the_card_the_model_takes_the_machines_accelerator_arguments(built, monkeypatch,
-                                                                       tmp_path):
+def test_on_the_card_the_model_takes_the_machines_accelerator_arguments(built, pinned,
+                                                                       monkeypatch, tmp_path):
     """``gpu``, ``device`` and ``use_bfloat16`` come from one resolver, together.
 
     They have to agree (cellpose branches on ``gpu`` before it reads
@@ -111,7 +140,7 @@ def test_on_the_card_the_model_takes_the_machines_accelerator_arguments(built, m
 
     checkpoint = tmp_path / "custom_nuclei"
     checkpoint.write_bytes(b"weights")
-    ops_engine._cellpose_model({}, gpu=True)
+    ops_engine._cellpose_model({"ops_cellpose_model": "cpsam_v1"}, gpu=True)
     ops_engine._cellpose_model({"ops_sbs_nucleus_model": str(checkpoint)}, gpu=True)
 
     card = {"gpu": True, "device": device, "use_bfloat16": False}

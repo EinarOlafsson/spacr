@@ -650,7 +650,7 @@ def test_cellpose_is_driven_through_the_ops_model(tmp_path, monkeypatch, tile_ba
         spatial_cell_expansion_um=0.0, mask_eval_batch_size=tile_batch,
         mask_inference_precision=precision))
     assert report["objects"] == len(_centres())
-    assert calls[0] == ({"ops_sbs_nucleus_model": "cpsam",
+    assert calls[0] == ({"ops_sbs_nucleus_model": "cpsam", "ops_cellpose_model": "cpsam_v1",
                          "mask_inference_precision": precision}, False)
     assert calls[1] == {"batch_size": tile_batch or 1, "diameter": 14.0,
                         "channel_axis": -1}

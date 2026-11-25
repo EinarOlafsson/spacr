@@ -2655,7 +2655,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 965
+SETTINGS_SCHEMA_VERSION = 975
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2704,6 +2704,7 @@ DEFAULT_CHANGES = {
     964: {'ops_pixel_read_gate': False},
     965: {'profile_outside_rule': 'background',
           'ops_ph_profile_outside_rule': 'background'},
+    975: {'ops_cellpose_model': 'cpsam_v1'},
 }
 
 
@@ -2867,6 +2868,12 @@ def _fold_older_defaults(settings, version, known=None):
     whose reads named no guide or named its guide alone. Files stamped
     before keep False, which also lets it assign read ties and read
     refusals.
+
+    Version 975 segments OPS with the Cellpose-SAM ``cpsam_v2`` weights:
+    ``ops_cellpose_model`` is now ``'cpsam_v2'``, loaded by its full path
+    and checked by md5. Files stamped before keep ``'cpsam_v1'``, the
+    installed Cellpose default their wells were segmented with. Versions
+    966 to 974 belong to other merges.
 
     :param settings: the file's settings under today's names, edited in
         place.
