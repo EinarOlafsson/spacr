@@ -11915,6 +11915,9 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                                          "crops": done.get("crops")}
                 continue
         cell_path = _ph_cells_path(destination, well)
+        if os.path.isfile(cell_path):
+            # the same guard ph_tables applies, before any skip
+            _ph_require_cross_field_table(destination, well, settings)
         mask_dir = os.path.join(destination, well, "phenotype_masks")
         files = (phenotype_index.get(well) or {})
         files = files.get(min(files), {}) if files else {}
@@ -12920,14 +12923,22 @@ def _ph_require_cross_field_table(destination: str, well: str,
     from .qt.i18n import tr
 
     if _ph_wells_without_cross_field_table(destination, [well], settings):
+        copies = 0
+        cell_path = _ph_cells_path(destination, well)
+        if os.path.isfile(cell_path):
+            import pyarrow.parquet as pq
+
+            copies = int(pq.ParquetFile(cell_path).metadata.num_rows)
         raise ValueError(tr(
             "well {well} has no cross-field ownership table ({path}), so "
             "the copies of a cell cut by a field seam cannot be told apart "
-            "and each would be written as its own cell. Run the "
+            "and each of its {copies} cell copies would be written as its "
+            "own cell. Run the "
             "ph_ownership phase first (it needs the mask pass and the "
             "phenotype cell table of the well), or set "
             "ops_cross_field_ownership to False to keep every copy.",
-            well=well, path=_ph_cross_field_path(destination, well)))
+            well=well, path=_ph_cross_field_path(destination, well),
+            copies=copies))
 
 
 def _ph_listed_owners(owners, wells, sites, labels):

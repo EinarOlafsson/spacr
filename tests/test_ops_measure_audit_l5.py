@@ -269,3 +269,22 @@ def test_a_sequencing_nucleus_called_twice_is_named(tmp_path):
     with pytest.raises(ValueError, match="ops_barcodes"):
         ops_engine._ph_one_call_per_nucleus(table, "ops_barcodes")
     ops_engine._ph_one_call_per_nucleus(table.iloc[1:], "ops_barcodes")
+
+
+def test_ph_crops_refuses_a_well_without_its_cross_field_table(tmp_path):
+    """A3-BUG1: ph_crops raises as ph_tables does, even with no tiles to cut."""
+    run, cells = _build(tmp_path)
+    os.remove(ops_engine._ph_cross_field_path(str(run), "A1"))
+    settings = {**SETTINGS, "dst_root": str(run)}
+    for index in ({}, {"A1": {1: {1: "tile.tif"}}}):
+        with pytest.raises(ValueError,
+                           match=f"no cross-field ownership table.*{len(cells)} "
+                                 "cell copies"):
+            ops_engine._ph_crops(str(run / "measurements.db"), PLATE, ["A1"],
+                                 index, settings, str(run))
+    with pytest.raises(ValueError, match=f"{len(cells)} cell copies"):
+        _tables(run)
+    report = ops_engine._ph_crops(
+        str(run / "measurements.db"), PLATE, ["A1"], {},
+        {**settings, "ops_cross_field_ownership": False}, str(run))
+    assert report["wells"]["A1"] == {"skipped": "no cell table or no tiles"}
