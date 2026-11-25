@@ -210,6 +210,10 @@ def test_one_truncated_cycle_file_costs_that_cycle_and_not_the_field(
                    for cycle in cycles},
         "centroids": np.array(centres, float), "areas": np.full(3, math.pi * 36),
         "ids": np.array([11, 12, 13]), "owned": np.array([True, True, True]),
+        # The reads sit 3 px outside each nucleus, which the pre-966 10 px
+        # footprint attributes; this test is about the lost cycle, not the
+        # footprint (item 1023 made the default 3 px).
+        "footprint": 10.0,
     }
     ops_engine._init_decode_worker(frozenset(codes))
     result = ops_engine._decode_field(task)

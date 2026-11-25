@@ -35,6 +35,14 @@ CODES = ["GTAC", "CATG", "AAGG"]
 #: The equivalent area of a radius-6 nucleus.
 AREA = math.pi * 36
 
+#: The genotype call settings before schema 966 (item 1023). These synthetic
+#: fields put each read on a nucleus rim, 3 px outside its boundary, so they
+#: were built for the old 10 px footprint. This file tests skipped fields, unreadable files and the containment gate, not the call
+#: thresholds, so it keeps the old three values; the new defaults are tested
+#: in the item-1023 tests.
+OLD_CALL_SETTINGS = {"ops_min_top_share": 0.0, "ops_footprint": 10.0,
+                     "ops_read_neighbour_reach": None}
+
 
 def _rings():
     """Three reads on the rim of each planted nucleus, 3 px outside its boundary.
@@ -98,6 +106,7 @@ def _task(root, site):
                    for cycle in cycles},
         "centroids": np.array(CENTRES, float), "areas": np.full(3, AREA),
         "ids": np.array([1, 2, 3]), "owned": np.ones(3, bool),
+        "footprint": OLD_CALL_SETTINGS["ops_footprint"],
     }
 
 
@@ -117,7 +126,8 @@ def _well(tmp_path, sites, tile):
         "y": float(y), "x": float(x), "origin_y": 0.0, "origin_x": 0.0,
         "tile_height": tile, "tile_width": tile} for site, (y, x) in sites.items()]))
     settings = {"genotype_source": str(tmp_path / "raw"), "dst_root": str(out),
-                "plate": "plate", "ops_gpu": False, "n_workers": 1}
+                "plate": "plate", "ops_gpu": False, "n_workers": 1,
+                **OLD_CALL_SETTINGS}
     return settings, db
 
 

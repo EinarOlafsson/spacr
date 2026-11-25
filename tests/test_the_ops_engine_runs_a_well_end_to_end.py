@@ -42,6 +42,13 @@ OVERLAP = 120
 STEP = TILE - OVERLAP
 CYCLES = 4
 MARGIN = 20
+#: The genotype call settings before schema 966 (item 1023). The planted
+#: reads sit on each nucleus rim, 3 px outside its boundary, which only the
+#: old 10 px footprint attributes. This file tests the run from raw cycles to
+#: barcodes (stitch, objects, the lost cycle), not the call thresholds, so it
+#: keeps the old three values; the item-1023 tests cover the new defaults.
+OLD_CALL_SETTINGS = {"ops_min_top_share": 0.0, "ops_footprint": 10.0,
+                     "ops_read_neighbour_reach": None}
 #: One base channel of cycle 2 sits this far from its cycle's first channel.
 CHANNEL_OFFSET = {(2, 3): (6, -4)}
 
@@ -176,7 +183,8 @@ def engine_run(tmp_path_factory):
     nuclei, codes, centre, tops = _plate(raw)
     settings = {"genotype_source": str(raw), "dst_root": str(root / "out"),
                 "plate": "synthetic", "ops_gpu": False, "n_workers": 1,
-                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none"}
+                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none",
+                **OLD_CALL_SETTINGS}
     library = sorted(set(codes)) + ["TTTT", "GGGG"]
     result = ops_engine.run_ops(settings, library=library)
     yield result, nuclei, codes, centre, tops, settings, library, monkeypatch
