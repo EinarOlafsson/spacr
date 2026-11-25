@@ -31180,7 +31180,7 @@ Read by ``_ph_crops``, ``ops_defaults``.
 ops_cross_field_metric
 ----------------------
 
-How two masks are scored as copies: 'overlap_fraction' divides the shared pixels by the smaller mask, so a copy cut by a field's edge still matches the whole one; 'iou' divides by their union. Default 'overlap_fraction'. Alpha.
+How the copies of one cell are found: 'centroid' pairs whole copies whose nucleus centroids, in stitched coordinates, are mutual nearest neighbours within ops_cross_field_radius_px, and needs no label images; 'overlap_fraction' compares the cell masks and divides the shared pixels by the smaller mask; 'iou' divides them by the union. Default 'centroid' ('overlap_fraction' before settings schema 963). Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -31212,7 +31212,7 @@ Read by ``_ph_cross_field_options``, ``ops_defaults``.
 ops_cross_field_min_overlap
 ---------------------------
 
-Smallest score, in (0, 1], at which two masks of overlapping fields count as the same cell. Lower merges more neighbours into one cell; higher splits cut copies from their whole twin. Default 0.5. Alpha.
+Smallest score, in (0, 1], at which two masks of overlapping fields count as the same cell, for the mask metrics. Lower merges more neighbours into one cell; higher splits cut copies from their whole twin. Default 0.5. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -31244,7 +31244,7 @@ Read by ``_ph_cross_field_options``, ``ops_defaults``.
 ops_cross_field_ownership
 -------------------------
 
-Find every copy of a cell that two or more overlapping phenotype fields segmented (phase ph_ownership), by comparing the fields' cell masks through their transforms, and keep one copy per physical cell in the aggregate, merged/ and the crops. Off: outputs are identical to a run without it. Default False. Alpha.
+Give every cell that overlapping phenotype fields both imaged exactly one owner field (phase ph_ownership, also run with the merge), and keep only that copy in the merge, the aggregate, the phenotype tables, merged/ and the crops. Off: every copy that does not touch its field edge counts, so a cell in the overlap of two fields counts twice. Default True (False before settings schema 963). Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -31366,7 +31366,7 @@ Read by ``_ph_aggregate``, ``_ph_cross_field_ownership``, ``_ph_merged``, ``_ph_
 ops_cross_field_policy
 ----------------------
 
-What the aggregate does with the copies: 'one_per_cell' keeps one genotyped row per physical cell, its largest copy; 'owner_only' drops every copy that is not the owner, which on Funk plate A also drops many genotyped cells whose owner was never linked; 'flag_only' writes the ownership table and changes nothing else. Default 'one_per_cell'. Alpha.
+What the aggregate does with the copies: 'owner_only' keeps the owner copy of each cell and nothing else; 'one_per_cell' keeps one genotyped row per physical cell, the owner when it was linked, else the largest linked copy; 'flag_only' writes the ownership table and changes nothing else. Default 'owner_only' ('one_per_cell' before settings schema 963). Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -31509,7 +31509,7 @@ Read by ``_ph_cross_field_policy``, ``ops_defaults``.
 ops_cross_field_radius_px
 -------------------------
 
-(float) - Largest distance, in phenotype pixels, between the nucleus centroids of two whole copies of one cell once both are placed in the stitched well, for the 'centroid' metric. Copies are paired only when each is the nearest of the other, so the radius can exceed the registration residual. Default 24.0. Alpha.
+Largest distance, in phenotype pixels, between the nucleus centroids of two whole copies of one cell once both are placed in the stitched well, for the 'centroid' metric. Copies are paired only when each is the nearest of the other, so the radius can exceed the registration residual. Default 24.0. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -31541,7 +31541,7 @@ Read by ``_ph_cross_field_options``, ``ops_defaults``.
 ops_cross_field_rule
 --------------------
 
-(str) - Which copy owns the cell: 'nearest_centre', the copy from the field whose centre is nearest the cell centroid among the fields that hold the cell whole, ties to the lower field; a cell cut by the edge of every field that holds it has no owner. 'largest', the largest copy, whole or cut, is deprecated and reproduces runs made before settings schema 963. Default 'nearest_centre'. Alpha.
+Which copy owns the cell: 'nearest_centre', the copy from the field whose centre is nearest the cell centroid among the fields that hold the cell whole, ties to the lower field; a cell cut by the edge of every field that holds it has no owner. 'largest', the largest copy, whole or cut, is deprecated and reproduces runs made before settings schema 963. Default 'nearest_centre'. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -37108,7 +37108,7 @@ Read by ``_objects_windows_folder``, ``ops_defaults``.
 ops_ownership
 -------------
 
-Which copy of a cell imaged in two overlapping fields is kept. 'closer_match' keeps the closer sequencing match; it is often the copy cut by the field's edge. 'a1b' keeps the copy from the field in which the sequencing nucleus lies deepest, and 'a1' the one whose phenotype nucleus does. Both also leave out cells that touch a field's edge, which needs the ph_masks phase. Default 'closer_match'. Alpha.
+Which copy of a cell imaged in two overlapping fields is kept. 'closer_match' keeps the closer sequencing match; it is often the copy cut by the field's edge. 'a1b' keeps the copy from the field in which the sequencing nucleus lies deepest, and 'a1' the one whose phenotype nucleus does. Both also leave out cells that touch a field's edge, which needs the ph_masks phase. 'a1' and 'a1b' are deprecated: the owner field of a cell is decided by ops_cross_field_ownership, and with it on 'closer_match' only pairs each sequencing nucleus with one cell. Default 'closer_match'. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -38492,7 +38492,7 @@ Read by ``measure_settings``, ``_ph_profile_features``, ``ops_defaults``.
 ops_ph_profile_outside_rule
 ---------------------------
 
-(str) - Which pixels the ring of the outside profiling family keeps. 'object': the cell and cytoplasm rings keep only background, the nucleus ring keeps the neighbouring nuclei too, as the outside ring of Measure, so a nucleus\_..._outside\_ column means the same in Measure and OPS. 'background': every ring keeps only pixels outside every object of its own mask, as before settings schema 965. Default 'object'. Alpha.
+Which pixels the ring of the outside profiling family keeps. 'object': the cell and cytoplasm rings keep only background, the nucleus ring keeps the neighbouring nuclei too, as the outside ring of Measure, so a nucleus\_..._outside\_ column means the same in Measure and OPS. 'background': every ring keeps only pixels outside every object of its own mask, as before settings schema 965. Default 'object'. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -39249,7 +39249,7 @@ Read by ``decode_rule``, ``ops_defaults``.
 ops_pixel_read_gate
 -------------------
 
-(bool) - Let the pixel fallback assign only nuclei whose reads named no guide, or named the same guide alone. Off, it also assigns nuclei whose reads tied between guides or split below ops_min_fraction, where its calls agree with other pipelines far less often. Default True; settings files saved before schema 964 keep False.
+Let the pixel fallback assign only nuclei whose reads named no guide, or named the same guide alone. Off, it also assigns nuclei whose reads tied between guides or split below ops_min_fraction, where its calls agree with other pipelines far less often. Default True; settings files saved before schema 964 keep False.
 
 | ``_decode_options``
 |     :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
