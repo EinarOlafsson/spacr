@@ -126,3 +126,13 @@ def test_a_job_declared_at_peak_plus_a_little_no_longer_stalls(monkeypatch):
     assert slept == []
     monkeypatch.setattr(MB, '_RAM_WAIT_SECONDS', 5.0)
     assert MB._wait_for_ram(0, margin=2 * GIB, sleep=slept.append) == 5.0
+
+
+def test_the_batch_planner_uses_the_same_margin(monkeypatch):
+    monkeypatch.setattr(MB, '_ram_limit', lambda: (2 * GIB, 'sched'))   # margin 0.2 GiB
+    size = MB._largest_fitting_size(40, 0, int(0.5 * GIB), free_vram=None, free_ram=int(1.2 * GIB),
+                                    margin_gb=0.0, tile_batch=0, model_loaded=True)
+    assert size == 2
+    assert MB._largest_fitting_size(40, 0, int(0.5 * GIB), free_vram=None, free_ram=12 * GIB,
+                                    margin_gb=0.0, tile_batch=0, model_loaded=True,
+                                    ram_margin=2 * GIB) == 20

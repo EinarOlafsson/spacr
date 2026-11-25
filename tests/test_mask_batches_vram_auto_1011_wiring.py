@@ -15,6 +15,12 @@ from tests.test_object_sam_masks import _install_sam_model
 from tests.test_ops_engine_phenotype_coverage import _ThresholdModel
 
 
+@pytest.fixture(autouse=True)
+def _no_ram_limit(monkeypatch):
+    """Pin the effective RAM limit (item 1038): the 2 GiB margin holds in any sched scope."""
+    monkeypatch.setattr(B, '_ram_limit', lambda: (125 * 2**30, 'host'))
+
+
 def _mask_project(tmp_path, count=7, **overrides):
     """Create a real provisional Mask plan from small uint16 source fields."""
     stack = _plate(tmp_path, count)

@@ -8,6 +8,12 @@ from spacr.settings import (DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION,
                             set_default_settings_preprocess_generate_masks)
 
 GIB = 2**30
+
+
+@pytest.fixture(autouse=True)
+def _no_ram_limit(monkeypatch):
+    """Pin the effective RAM limit (item 1038), so the margin is 2 GiB whatever sched scope runs the test."""
+    monkeypatch.setattr(MB, '_ram_limit', lambda: (125 * GIB, 'host'))
 SETTINGS = {"timelapse": False, "randomize": False, "batch_size": 2,
             "lower_percentile": 2, "nucleus_channel": 0, "cell_channel": 1,
             "pathogen_channel": None, "organelle_channel": None,
