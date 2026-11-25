@@ -285,8 +285,10 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     return _pair_nuclei_with_cells(nuclei, cells)[:3]
 
 
-def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None):
-    """:func:`pair_nuclei_with_cells` with the item-1024 alpha options.
+def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None,
+                            spanning="merge"):
+    """:func:`pair_nuclei_with_cells` with the item-1024 alpha options and
+    the spanning-nucleus rule chosen.
 
     :param nuclei: a 2-D nucleus label mask.
     :param cells: a 2-D cell label mask of the same field.
@@ -297,6 +299,18 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None):
         Measure pair the same way.
     :param dna: the field's nucleus stain for the dip of the fragment
         test, or None.
+    :param spanning: ``ops_ph_spanning_merge``, passed to
+        :func:`spacr.measure._assign_nuclei_to_cells`. ``'merge'`` (the
+        default, and what :func:`pair_nuclei_with_cells` uses) first applies
+        Measure's ownership rule: a nucleus split under 90 % between cells
+        merges them, and at 90 % or more its pixels in the other cells are
+        removed; ``counts['merged_cells']`` counts the merges.
+        ``'best_parent'`` skips that rule, so every nucleus goes to the cell
+        it overlaps most and no cell is merged: masks and counts are those
+        of the OPS pairing before settings schema 959 (commit 26bc722c15),
+        with ``merged_cells`` 0. A cell touched only by a piece of a nucleus
+        that belongs to another cell still counts as touched there, as it
+        did then.
     :returns: ``(nuclei, cells, counts, record)``. ``record`` is None
         without an active option; otherwise ``fragments``, one
         ``(label, kept_label, merged_label)`` per merged piece, ``label``
@@ -321,8 +335,10 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None):
     ``nucleus_only``.
     """
     from .measure import (_assign_nuclei_to_cells, _best_parent,
-                          _label_overlaps, _nucleus_pairing_active)
+                          _label_overlaps, _nucleus_pairing_active,
+                          _spanning_mode)
 
+    spanning = _spanning_mode(spanning)
     nuclei = np.asarray(nuclei)
     cells = np.asarray(cells)
     if nuclei.shape != cells.shape:
@@ -332,12 +348,16 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None):
     active = _nucleus_pairing_active(pairing)
     record = {} if active else None
     before = int(np.unique(cells[cells > 0]).size)
-    nuclei, cells, _shared_n, _shared_c, merged = _assign_nuclei_to_cells(
+    nuclei, cells, _shared_n, shared_c, merged = _assign_nuclei_to_cells(
         nuclei.copy(), cells.copy(), options=pairing if active else None,
-        dna=dna if active else None, record=record)
+        dna=dna if active else None, record=record,
+        spanning=spanning)
     n_total = int(np.unique(nuclei[nuclei > 0]).size)
     c_total = int(np.unique(cells[cells > 0]).size)
     pair_n, pair_c, overlap = _label_overlaps(nuclei, cells)
+    touched = np.unique(pair_c)
+    if spanning == "best_parent" and shared_c:
+        touched = np.union1d(touched, np.fromiter(shared_c, np.int64))
     keep_only = (record is not None
                  and pairing.get("cellless_nuclei") == "nucleus_only")
     alone = np.asarray(record["cellless"] if keep_only else [], np.int64)
@@ -386,7 +406,7 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None):
     counts = {
         "nuclei": n_total, "cells": before, "paired": int(keep_n.size),
         "nuclei_without_cell": int(n_total - np.unique(pair_n).size),
-        "cells_without_nucleus": int(c_total - np.unique(pair_c).size),
+        "cells_without_nucleus": int(c_total - touched.size),
         "extra_nuclei_in_cell": int(best_n.size - keep_n.size),
         "merged_cells": merged,
     }

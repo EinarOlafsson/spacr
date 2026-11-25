@@ -4870,8 +4870,10 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
     :param channels: channel names in the stack.
     :param models: ``(nucleus_model, cell_model)``.
     :param settings: read for ``ops_ph_cell_channel``, ``ops_ph_downsample``,
-        ``mask_eval_batch_size``, the two diameters and the item-1024 alpha
-        pairing options (``ops_ph_nucleus_fragment_merge``,
+        ``mask_eval_batch_size``, the two diameters, ``ops_ph_spanning_merge``
+        (the spanning-nucleus rule of
+        :func:`spacr.ops_sample._pair_nuclei_with_cells`) and the item-1024
+        alpha pairing options (``ops_ph_nucleus_fragment_merge``,
         ``ops_ph_cellless_nuclei`` and their thresholds,
         :func:`_ph_pairing_options`).
     :param field_count: fields in the current resident batch.
@@ -4887,7 +4889,7 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
     repeated back up: at 2 a nucleus is still about 20 px across, which is
     what the models are trained on, and the cost falls fourfold.
     """
-    from .ops_sample import pair_nuclei_with_cells
+    from .ops_sample import _pair_nuclei_with_cells
     from .qt.i18n import tr
 
     dna, body, extra, factor = _ph_segmentation_inputs(stack, channels, settings)
@@ -4899,16 +4901,17 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
                            site='ops_phenotype', field_count=field_count, channel_axis=-1,
                            **extra["cell"])[0]
     shape = stack.shape[:2]
+    spanning = settings.get("ops_ph_spanning_merge")
     pairing = _ph_pairing_options(settings)
     if pairing is None:
-        return pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
-                                      _ph_upscale(cells, factor, shape))
-    from .ops_sample import _pair_nuclei_with_cells
-
+        return _pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
+                                       _ph_upscale(cells, factor, shape),
+                                       spanning=spanning)[:3]
     nuclei, cells, counts, record = _pair_nuclei_with_cells(
         _ph_upscale(nuclei, factor, shape), _ph_upscale(cells, factor, shape),
         pairing, dna=np.asarray(stack[..., list(channels).index(_NUCLEAR)],
-                                np.float32))
+                                np.float32),
+        spanning=spanning)
     if pairing_record is not None:
         pairing_record.update(record)
     return nuclei, cells, counts

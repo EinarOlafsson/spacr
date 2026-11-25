@@ -2369,8 +2369,29 @@ def _nuclei_per_cell(nucleus_mask, cell_mask):
     return {int(c): int(n) for c, n in zip(cells, counts)}
 
 
+_SPANNING_MODES = ('merge', 'best_parent')
+
+
+def _spanning_mode(value):
+    """``spanning_merge`` / ``ops_ph_spanning_merge`` as one of ``_SPANNING_MODES``.
+
+    ``_SPANNING_MODES`` holds the values, the first the default: how
+    :func:`_assign_nuclei_to_cells` treats a nucleus that spans several
+    cells.
+
+    :param value: the setting; None or blank is the default ``'merge'``.
+    :returns: ``'merge'`` or ``'best_parent'``.
+    :raises ValueError: for any other value.
+    """
+    mode = str(value).strip().lower() if value not in (None, '') else _SPANNING_MODES[0]
+    if mode not in _SPANNING_MODES:
+        raise ValueError(f"spanning_merge must be one of {list(_SPANNING_MODES)}; "
+                         f"got {value!r}")
+    return mode
+
+
 def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
-                            record=None):
+                            record=None, spanning='merge'):
     """THE nucleus and cell ownership of every spaCR module, in one call.
 
     Measure, External Masks (through Measure), OPS
@@ -2383,10 +2404,14 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
        large-site preset): small nucleus pieces merge into the nucleus they
        touch (:func:`_merge_small_nucleus_pieces`).
     1. :func:`_merge_spanning_children`: a nucleus split between several
-       cells merges them unless one cell holds 90 % of it.
-    2. :func:`_assign_shared_nuclei`: a nucleus label made of disconnected
-       pieces in different cells keeps only the pieces in the cell it
-       overlaps most.
+       cells with under 90 % in each merges those cells into one; with 90 %
+       or more in one cell, its pixels in the others are removed.
+       ``spanning='best_parent'`` skips this step entirely: no cell is
+       merged and no nucleus pixel is removed here.
+    2. :func:`_assign_shared_nuclei`: a nucleus label that lies in several
+       cells keeps only the pixels in the cell it overlaps most (its best
+       parent). After step 1 that is only a label made of disconnected
+       pieces; with ``'best_parent'`` it is every nucleus over several cells.
     3. Item 1024, alpha, only with ``options``: ``cellless_nuclei``
        ``'nearest_cell'`` gives a nucleus outside every cell to the nearest
        cell within ``cellless_nucleus_max_distance_px`` and fills the
@@ -2417,9 +2442,13 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
         ``bridged`` (background pixels the attachments filled),
         ``cellless`` (nuclei still without a cell) and, when step 0 ran,
         ``small_pieces`` (its ``info``).
+    :param spanning: ``'merge'`` (default) runs steps 1 and 2;
+        ``'best_parent'`` skips step 1, so every nucleus goes to its
+        largest-overlap cell and cells are never merged -- the OPS pairing
+        of the frozen A1 run (before settings schema 959).
     :returns: ``(nucleus_mask, cell_mask, shared_nuclei, shared_cells,
         merged)``: the two label sets of step 2 and how many cell labels
-        step 1 merged into another.
+        step 1 merged into another (0 with ``'best_parent'``).
     """
     active = _nucleus_pairing_active(options)
     if active or record is not None:
@@ -2455,8 +2484,11 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
             nucleus_mask, options['nucleus_small_piece_frac'])
         nucleus_mask[...] = merged_small
         record['small_pieces'] = info
-    nucleus_mask, cell_mask, merged = _merge_spanning_children(
-        nucleus_mask, cell_mask)
+    if _spanning_mode(spanning) == 'merge':
+        nucleus_mask, cell_mask, merged = _merge_spanning_children(
+            nucleus_mask, cell_mask)
+    else:
+        merged = 0
     nucleus_mask, shared_nuclei, shared_cells = _assign_shared_nuclei(
         nucleus_mask, cell_mask)
     if record is not None:
@@ -14946,7 +14978,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     options=pairing if pairing_record is not None else None,
                     dna=(_pairing_stain(data, settings)
                          if pairing_record is not None else None),
-                    record=pairing_record)
+                    record=pairing_record,
+                    spanning=settings.get('spanning_merge'))
                 shared_labels = {'nucleus': shared_nuclei, 'cell': shared_cells}
                 if pairing_record is not None:
                     shared_labels['pairing'] = pairing_record

@@ -271,6 +271,22 @@ default after a higher-numbered item takes the next free number:
   (``nucleus_fragment_min_contact_px`` 0, ``nucleus_fragment_max_valley``
   and ``nucleus_fragment_max_area_rel`` None, and their ``ops_ph_`` twins).
 
+- 968 (spanning-children switch): ``ops_ph_spanning_merge`` (OPS) and
+  ``spanning_merge`` (Measure) choose how a nucleus that lies in several
+  cells is resolved, both through ``spacr.measure._assign_nuclei_to_cells``.
+  ``'merge'``, the default and the behaviour before 968, merges the cells when
+  no cell holds 90 % of the nucleus and otherwise erases its pixels in the
+  other cells; ``'best_parent'`` skips that step, so each nucleus goes to the
+  cell it overlaps most and no cell is merged. OPS pairing has merged only
+  since settings version 959 (commit 1612c53561), so this row reaches only
+  files stamped below 959: an OPS file stamped below 959 (or unstamped), such
+  as the frozen A1 run (commit 26bc722c15, schema 958), gets
+  ``'best_parent'`` and reproduces that run's pairing exactly; a file stamped
+  959 to 967 keeps ``'merge'``. A file stamped 959 before 1612c53561 landed
+  (2026-11-22 to 2026-11-24) also gets ``'merge'``; set the key to replay it.
+  Measure has always merged, so ``spanning_merge`` has no row. Number 967
+  belongs to another item.
+
 Public API
 ----------
 

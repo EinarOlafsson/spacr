@@ -202,6 +202,8 @@ def test_majority_parent_breaks_an_exact_tie_to_the_lowest_label():
     # in the shared pairing, called without cells.
     ("ops_large_sites.py", "_pair_before_cells", "_assign_nuclei_to_cells"),
     ("ops_large_sites.py", "merge_small_nuclei", "_pair_before_cells"),
+    ("ops_sample.py", "pair_nuclei_with_cells", "_pair_nuclei_with_cells"),
+    ("ops_engine.py", "_ph_segment_field", "_pair_nuclei_with_cells"),
     ("ops_sample.py", "_measure_phenotype_field", "_derive_cytoplasm"),
     ("ops_engine.py", "_ph_merged_field", "_derive_cytoplasm"),
     ("ops_flatfield.py", "mask_pass", "_derive_cytoplasm"),

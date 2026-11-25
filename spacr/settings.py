@@ -2259,6 +2259,7 @@ def get_measure_crop_settings(settings=None):
         settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
+    settings.setdefault('spanning_merge', 'merge')
     
     settings.setdefault('distance_gaussian_sigma', 10)
     
@@ -2664,7 +2665,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 967
+SETTINGS_SCHEMA_VERSION = 968
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2724,6 +2725,10 @@ DEFAULT_CHANGES = {
           'ops_ph_nucleus_fragment_min_contact_px': 0.0,
           'ops_ph_nucleus_fragment_max_valley': None,
           'ops_ph_nucleus_fragment_max_area_rel': None},
+    968: {'ops_ph_spanning_merge': 'best_parent'},
+}
+_DEFAULT_CHANGE_FLOORS = {
+    968: {'ops_ph_spanning_merge': 959},
 }
 
 
@@ -2906,6 +2911,17 @@ def _fold_older_defaults(settings, version, known=None):
     files stamped before, so a later change of their defaults never
     reaches an older file.
 
+    Version 968 adds ``ops_ph_spanning_merge`` (OPS) and ``spanning_merge``
+    (Measure), 'merge' or 'best_parent': whether a nucleus over several
+    cells merges them before pairing (:func:`spacr.measure._assign_nuclei_to_cells`).
+    OPS pairing has merged since settings version 959 (commit 1612c53561), so
+    the 968 row reaches only files stamped below 959: ``_DEFAULT_CHANGE_FLOORS``
+    holds, per row and key, the version a file must be stamped below to get
+    the old default. A file stamped below 959 (or unstamped), such as the
+    frozen A1 run at 958, gets 'best_parent'; one stamped 959 to 967 keeps
+    'merge'. Measure has merged since its first release, so
+    ``spanning_merge`` has no row. Version 967 belongs to another item.
+
     :param settings: the file's settings under today's names, edited in
         place.
     :param version: the file's schema version from
@@ -2926,6 +2942,8 @@ def _fold_older_defaults(settings, version, known=None):
             continue
         for key, old in DEFAULT_CHANGES[changed].items():
             if key in settings or key in applied:
+                continue
+            if int(version) >= _DEFAULT_CHANGE_FLOORS.get(changed, {}).get(key, changed):
                 continue
             if known is not None and key not in known:
                 continue
@@ -4789,6 +4807,7 @@ expected_types = {
     "save_arrays": bool,
     "cytoplasm": bool,
     "merge_edge_pathogen_cells": bool,
+    "spanning_merge": str,
     "cells_per_well": int,
     "pathogen_size_range": list,
     "nucleus_size_range": list,
@@ -6145,6 +6164,7 @@ tooltips = {
     "mask": "(bool) - Whether to generate masks for the segmented objects. If True, masks will be generated for the nucleus, cell, and pathogen.",
     "measurement": "(str) - Measurement column(s) from measurements.db used to prefilter which object crops the annotator loads, applied together with threshold and threshold_direction. Accepts a single column, a comma-separated list (each paired with the same-index threshold), or a JSON list-of-lists where an inner pair is filtered as a ratio (first divided by second). Empty (default) loads every crop unfiltered.",
     "merge_edge_pathogen_cells": "(bool) - During measurement, reconcile pathogens straddling two host-cell masks: if 90 percent or more of the pathogen lies in one cell, its pixels in the neighbours are erased; otherwise the overlapping cell labels are fused into a single cell. Switch off to keep the raw cell segmentation when parasites legitimately touch two cells. Default True.",
+    "spanning_merge": "(str) - Whether a nucleus that lies in several cells merges them. 'merge': a nucleus with under 90 percent in every cell fuses those cells into one; with 90 percent or more in one cell, its pixels in the others are erased; then a nucleus still in several cells keeps only its pixels in the cell it overlaps most. 'best_parent': no cell is fused and nothing is erased first; every nucleus goes to the cell it overlaps most and is clipped to it. Default 'merge'.",
     "metric": "(str) - Distance metric used both by the reducer (UMAP or t-SNE) and by DBSCAN clustering, e.g. 'euclidean', 'manhattan', 'cosine' or 'correlation'. Correlation-type metrics compare feature profiles regardless of magnitude and often separate phenotypes better than euclidean on scaled data. Default 'euclidean'.",
     "min_cells_per_well": "(int) - Wells with fewer than this many cells are dropped. In a regression it is scored objects and the well is left out of the fit; in the machine-learning screen it is measured cells and the well is left out of the plate heatmap, whose pivot is then filled with 0, so an excluded well renders at the bottom of the colour scale rather than blank. Raising it removes noisy, sparsely imaged wells at the cost of power. Set 0 to switch it off. Default 100 for a regression, 25 for the screen.",
     "min_dist": "(float) - UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",
@@ -7018,7 +7038,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "cytoskeleton_channels", "profile_optional_families", "profile_granularity_subsample", "profile_outside_rule", "nucleus_fragment_merge", "nucleus_fragment_max_gap_px", "nucleus_fragment_min_solidity", "nucleus_fragment_max_dip", "nucleus_fragment_min_contact_px", "nucleus_fragment_max_valley", "nucleus_fragment_max_area_rel", "cellless_nuclei", "cellless_nucleus_max_distance_px", "funk_object_features", "zernike", "channel_names", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "cytoskeleton_channels", "profile_optional_families", "profile_granularity_subsample", "profile_outside_rule", "nucleus_fragment_merge", "nucleus_fragment_max_gap_px", "nucleus_fragment_min_solidity", "nucleus_fragment_max_dip", "nucleus_fragment_min_contact_px", "nucleus_fragment_max_valley", "nucleus_fragment_max_area_rel", "cellless_nuclei", "cellless_nucleus_max_distance_px", "funk_object_features", "zernike", "channel_names", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "spanning_merge", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map", "illumination_nuclear_channel", "illumination_nuclei", "illumination_dark_per_plate", "illumination_block_px", "illumination_fit", "illumination_sigma_px", "illumination_ridge", "illumination_floor", "illumination_centre_cells", "illumination_lookup", "illumination_map_grid", "illumination_centre_offset", "illumination_holdout_n", "illumination_seed", "illumination_validate"],
 
@@ -9295,7 +9315,7 @@ ALPHA_FEATURES = {
         'settings': ('ops_ph_channels', 'ops_ph_cell_channel',
                      'ops_ph_nucleus_model', 'ops_ph_cell_model',
                      'ops_ph_nucleus_diameter', 'ops_ph_cell_diameter',
-                     'ops_ph_downsample', 'ops_ph_tile_batch',
+                     'ops_ph_downsample', 'ops_ph_spanning_merge', 'ops_ph_tile_batch',
                      'ops_ph_sites', 'ops_ph_texture', 'ops_merge_threshold',
                      'ops_design', 'ops_control_prefix', 'ops_bootstrap',
                      'ops_pvalue_null', 'ops_test_features',
