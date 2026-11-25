@@ -744,9 +744,9 @@ def _fmt(value: Any, pct: bool = False) -> str:
 def object_overlap(mask_a: Any, mask_b: Any) -> Dict[str, Any]:
     """Contingency between the objects of two label images.
 
-    Both masks are relabelled to ``0..n`` first, so arbitrary label values (and
-    gaps in them) are handled, and the pixel-pair counting below can index
-    straight into the table.
+    The pair counts come from :func:`spacr.measure._label_overlaps`, the one
+    overlap count of spaCR; rows and columns are the sorted label values, so
+    arbitrary label values (and gaps in them) are handled.
 
     :param mask_a: a 2-D label image.
     :param mask_b: a second label image of the same shape.
@@ -763,19 +763,14 @@ def object_overlap(mask_a: Any, mask_b: Any) -> Dict[str, Any]:
             f"masks must cover the same field: A is {a.shape}, B is {b.shape}"
         )
 
-    values_a, index_a = np.unique(a.ravel(), return_inverse=True)
-    values_b, index_b = np.unique(b.ravel(), return_inverse=True)
-    n_rows, n_cols = values_a.size, values_b.size
-    table = np.bincount(index_a * n_cols + index_b,
-                        minlength=n_rows * n_cols).reshape(n_rows, n_cols)
+    from .measure import _label_overlaps
 
-    row0 = 1 if (n_rows and values_a[0] == 0) else 0
-    col0 = 1 if (n_cols and values_b[0] == 0) else 0
-    labels_a = values_a[row0:]
-    labels_b = values_b[col0:]
-    areas_a = table[row0:, :].sum(axis=1)
-    areas_b = table[:, col0:].sum(axis=0)
-    overlap = table[row0:, col0:]
+    labels_a, areas_a = np.unique(a[a > 0], return_counts=True)
+    labels_b, areas_b = np.unique(b[b > 0], return_counts=True)
+    areas_a, areas_b = areas_a.astype(np.int64), areas_b.astype(np.int64)
+    pair_a, pair_b, shared = _label_overlaps(a, b)
+    overlap = np.zeros((labels_a.size, labels_b.size), np.int64)
+    overlap[np.searchsorted(labels_a, pair_a), np.searchsorted(labels_b, pair_b)] = shared
 
     return {
         'labels_a': labels_a,

@@ -120,6 +120,9 @@ WELL_STATISTICS = ("two_pass", "legacy")
 #: rounding noise, not spread, and is replaced by 1 (the zero-SD policy).
 ZERO_SD_RELATIVE = 1e-12
 
+#: The zero-SD policies of :func:`batch_mean_sd`.
+_ZERO_SD_POLICIES = ("relative", "exact", "keep")
+
 
 def _check_well_statistics(method: Any) -> str:
     """The well-statistics method, validated."""
@@ -129,8 +132,23 @@ def _check_well_statistics(method: Any) -> str:
     return method
 
 
+def _read_rows(embedding, rows: np.ndarray):
+    """``embedding[rows]``, as a slice when ``rows`` is one ascending run.
+
+    A slice keeps the memory layout of an in-memory array (a column-major
+    table stays column-major, so its column sums are the ones ``x.mean(0)``
+    takes) and does not copy a memory map.
+    """
+    rows = np.asarray(rows)
+    if rows.size and int(rows[-1]) - int(rows[0]) == rows.size - 1 and (
+            rows.size == 1 or bool((np.diff(rows) == 1).all())):
+        return embedding[int(rows[0]):int(rows[-1]) + 1]
+    return embedding[rows]
+
+
 def batch_mean_sd(embedding, rows: np.ndarray, batches: np.ndarray, chunk: int = 262144, *,
-                  visit: Optional[Callable[[int, np.ndarray], None]] = None
+                  visit: Optional[Callable[[int, np.ndarray], None]] = None,
+                  zero_sd: str = "relative"
                   ) -> Tuple[Dict[Any, np.ndarray], Dict[Any, np.ndarray]]:
     """Per-batch mean and population standard deviation, in two float64 passes.
 
@@ -144,10 +162,13 @@ def batch_mean_sd(embedding, rows: np.ndarray, batches: np.ndarray, chunk: int =
     the result differs from an in-memory call only by float64 summation
     order. Non-finite values are ignored, as ``StandardScaler`` ignores NaN.
 
-    Zero-SD policy: a column with no spread (SD zero, or at most
-    :data:`ZERO_SD_RELATIVE` of the size of its mean, which is rounding
-    noise) or with no finite value gets SD 1, so it is centred to 0 and
-    never divided by a vanishing number.
+    Zero-SD policy (``zero_sd``): ``'relative'`` gives SD 1 to a column
+    with no spread (SD zero, or at most :data:`ZERO_SD_RELATIVE` of the
+    size of its mean, which is rounding noise) or with no finite value, so
+    it is centred to 0 and never divided by a vanishing number;
+    ``'exact'`` gives SD 1 only where the SD is exactly zero or not finite;
+    ``'keep'`` returns the SD as computed, zeros included, for a caller
+    that drops constant columns itself.
 
     :param embedding: the rows (an array or a memory map).
     :param rows: the rows used, in order.
@@ -155,15 +176,19 @@ def batch_mean_sd(embedding, rows: np.ndarray, batches: np.ndarray, chunk: int =
     :param chunk: rows read at a time.
     :param visit: called as ``visit(start, block)`` for every block of the
         first pass, so a caller can collect rows without a further read.
+    :param zero_sd: ``'relative'``, ``'exact'`` or ``'keep'``, as above.
     :returns: ``(mean, sd)`` float64 arrays keyed by batch.
+    :raises ValueError: for an unknown ``zero_sd``.
     """
+    if zero_sd not in _ZERO_SD_POLICIES:
+        raise ValueError(f"zero_sd must be one of {list(_ZERO_SD_POLICIES)}; got {zero_sd!r}")
     names = sorted(pd.unique(batches))
     width = np.asarray(embedding[rows[:1]]).shape[1]
     total = {w: np.zeros(width) for w in names}
     count = {w: np.zeros(width) for w in names}
     step = max(int(chunk), 1)
     for start in range(0, len(rows), step):
-        block = np.asarray(embedding[rows[start:start + step]])
+        block = np.asarray(_read_rows(embedding, rows[start:start + step]))
         if visit is not None:
             visit(start, block)
         x = block.astype(np.float64)
@@ -171,29 +196,50 @@ def batch_mean_sd(embedding, rows: np.ndarray, batches: np.ndarray, chunk: int =
         for w in names:
             k = here == w
             if k.any():
-                finite = np.isfinite(x[k])
-                total[w] += np.where(finite, x[k], 0.0).sum(0)
+                xk = x if k.all() else x[k]
+                finite = np.isfinite(xk)
+                total[w] += np.where(finite, xk, 0.0).sum(0)
                 count[w] += finite.sum(0)
     with np.errstate(invalid="ignore", divide="ignore"):
         mean = {w: np.where(count[w] > 0, total[w] / count[w], 0.0) for w in names}
     squares = {w: np.zeros(width) for w in names}
     for start in range(0, len(rows), step):
-        x = np.asarray(embedding[rows[start:start + step]]).astype(np.float64)
+        x = np.asarray(_read_rows(embedding, rows[start:start + step])).astype(np.float64)
         here = batches[start:start + step]
         for w in names:
             k = here == w
             if k.any():
-                deviation = x[k] - mean[w]
+                deviation = (x if k.all() else x[k]) - mean[w]
                 deviation[~np.isfinite(deviation)] = 0.0
                 squares[w] += (deviation ** 2).sum(0)
     sd = {}
     for w in names:
         with np.errstate(invalid="ignore", divide="ignore"):
             spread = np.sqrt(squares[w] / count[w])
-        flat = ~np.isfinite(spread) | (spread <= ZERO_SD_RELATIVE * np.abs(mean[w]))
-        spread[flat | (spread == 0)] = 1.0
+        if zero_sd == "relative":
+            flat = ~np.isfinite(spread) | (spread <= ZERO_SD_RELATIVE * np.abs(mean[w]))
+            spread[flat | (spread == 0)] = 1.0
+        elif zero_sd == "exact":
+            spread[~np.isfinite(spread) | (spread == 0)] = 1.0
         sd[w] = spread
     return mean, sd
+
+
+def _column_mean_sd(values, rows: Optional[np.ndarray] = None, *, zero_sd: str,
+                    chunk: int = 65536) -> Tuple[np.ndarray, np.ndarray]:
+    """Mean and population SD of every column of ``values``: :func:`batch_mean_sd` with one batch.
+
+    The standardisation every profile embedding, TVN batch and
+    ``'c0'`` well shares. ``rows`` picks the rows the statistics are taken
+    on (all when None); ``chunk`` bounds the float64 copy. Below ``chunk``
+    rows the result is bit-identical to ``x.mean(0)`` and ``x.std(0)`` of
+    the float64 values.
+
+    :returns: ``(mean, sd)``, float64, one entry per column.
+    """
+    rows = np.arange(len(values)) if rows is None else np.asarray(rows)
+    mean, sd = batch_mean_sd(values, rows, np.zeros(len(rows), np.int8), chunk, zero_sd=zero_sd)
+    return mean[0], sd[0]
 
 
 def _centerscale_by_batch(values: np.ndarray, batches: np.ndarray, *,
@@ -787,7 +833,7 @@ def _in_memory_embedding(values, batches: np.ndarray, *, pca_variance: float,
         bad = ~np.isfinite(column)
         if bad.any():
             column[bad] = np.median(column[~bad])
-    spread = x.std(0)
+    spread = _column_mean_sd(x, zero_sd="keep")[1]
     kept = np.flatnonzero(keep)
     if (spread == 0).any():
         x = np.ascontiguousarray(x[:, spread > 0])
@@ -853,10 +899,9 @@ class TVNModel:
         bad = ~np.isfinite(x)
         if bad.any():
             x[bad] = np.broadcast_to(self.medians, x.shape)[bad]
-        fit = x if reference is None else x[np.asarray(reference, bool)]
-        mean, spread = fit.mean(0), fit.std(0)
-        spread[spread == 0] = 1
-        return (x - mean) / spread
+        rows = None if reference is None else np.flatnonzero(np.asarray(reference, bool))
+        mean, spread = _column_mean_sd(x, rows, zero_sd="exact")
+        return (x - mean.astype(np.float32)) / spread.astype(np.float32)
 
     def transform(self, values: np.ndarray, batch: Any,
                   reference: Optional[np.ndarray] = None) -> np.ndarray:
@@ -982,18 +1027,17 @@ def _fit_control_stage(model: "TVNModel", nt: np.ndarray, nt_batch: np.ndarray, 
     embedding: fills ``model``'s control centre, control PCA, whitening and
     CORAL, and returns the batches CORAL skipped and the axis count."""
 
-    model.control_mean, model.control_scale = nt.mean(0), nt.std(0)
-    model.control_scale[model.control_scale == 0] = 1
+    mean, scale = _column_mean_sd(nt, zero_sd="exact")
+    model.control_mean, model.control_scale = mean.astype(nt.dtype), scale.astype(nt.dtype)
     if whiten_epsilon > 0:
         model.control_scale = np.sqrt(model.control_scale ** 2 + float(whiten_epsilon))
     nt = (nt - model.control_mean) / model.control_scale
     model.control_pca = _control_rotation(nt, components)
     nt = model.control_pca.transform(nt)
     names = np.unique(nt_batch)
+    centres, spreads = batch_mean_sd(nt, np.arange(len(nt)), nt_batch, zero_sd="exact")
     for name in names:
-        rows = nt_batch == name
-        mean, spread = nt[rows].mean(0), nt[rows].std(0)
-        spread[spread == 0] = 1
+        mean, spread = centres[name].astype(nt.dtype), spreads[name].astype(nt.dtype)
         scale = np.sqrt(spread ** 2 + float(whiten_epsilon)) if whiten_epsilon > 0 else spread
         model.batch_stats[str(name)] = (mean, scale)
     whitened = np.vstack([(nt[nt_batch == n] - model.batch_stats[str(n)][0])
@@ -1463,10 +1507,9 @@ def _profile_embedding(values: List[np.ndarray], metas: List[pd.DataFrame], reci
         take = [min(s, int(round(100000 * s / sum(sizes)))) for s in sizes]
         scaled = []
         for x in values:
-            mu, sd = x.mean(0), x.std(0)
-            sd[sd == 0] = 1
-            x -= mu
-            x /= sd
+            mu, sd = _column_mean_sd(x, zero_sd="exact")
+            x -= mu.astype(x.dtype, copy=False)
+            x /= sd.astype(x.dtype, copy=False)
             scaled.append(x.astype(np.float32, copy=False))
         pca = PCA(n_components=0.99, random_state=0).fit(
             np.vstack([z[rng.choice(len(z), k, replace=False)] for z, k in zip(scaled, take)]))
