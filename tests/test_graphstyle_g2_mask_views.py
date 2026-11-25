@@ -157,7 +157,9 @@ def test_image_view_legends_leave_raw_pixels_labels_and_probability_unchanged(qt
     assert widget._image_display_metadata["display_range"] == (0.0, 1.0)
     assert widget._image_display_metadata["colormap"] == views.CELLPROB_COLORMAP
     assert tuple(array.tobytes() for array in (image, labels, flow, logits)) == before
-    assert widget.display_legend.font().pointSizeF() >= 8
+    font = widget.display_legend.font()
+    points = font.pointSizeF() if font.pointSizeF() > 0 else font.pixelSize() * 72 / 96
+    assert points >= 8
     assert not hasattr(widget, "_spacr_style_diagnostics")
 
 

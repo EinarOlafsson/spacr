@@ -14017,7 +14017,7 @@
     {
       "kind": "runtime",
       "file": "spacr/figures/style.py",
-      "line": 5028,
+      "line": 5026,
       "source": "Native histogram transform must be linear or sqrt",
       "source_sha256": "31d066249e9337fb6bbfd10ac6e5b26c16f220d498bf0049b4f782c78c46c03c",
       "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
@@ -14025,7 +14025,7 @@
     {
       "kind": "runtime",
       "file": "spacr/figures/style.py",
-      "line": 5035,
+      "line": 5033,
       "source": "Native histogram requires finite ordered edges and nonnegative bin counts",
       "source_sha256": "fc3e2dfcbcd36d4613c6f90380cf2e663d11f6c1215bd99bdf12495a700c4c18",
       "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
@@ -14033,7 +14033,7 @@
     {
       "kind": "runtime",
       "file": "spacr/figures/style.py",
-      "line": 5038,
+      "line": 5036,
       "source": "Native histogram thresholds must be finite",
       "source_sha256": "0f04141260ba204ff7bf69b52f584e2edfbb77e932b2e43477fbfb11cf899428",
       "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
@@ -14041,7 +14041,7 @@
     {
       "kind": "runtime",
       "file": "spacr/figures/style.py",
-      "line": 5327,
+      "line": 5325,
       "source": "Identity contrast border width must be positive and finite",
       "source_sha256": "2afb252228a176826bd5109fd42649ab6a31abd3f8a02e0a05b018cfecc31aa2",
       "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
@@ -14049,7 +14049,7 @@
     {
       "kind": "runtime",
       "file": "spacr/figures/style.py",
-      "line": 5384,
+      "line": 5382,
       "source": "Declare one reference coordinate and its explicit role",
       "source_sha256": "88074bd16f3f528150caeb63a99291b849545597029cbe14bfb5c0e3cecf1d28",
       "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."

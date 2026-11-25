@@ -449,7 +449,6 @@ class _Voyager3Page(QWidget):
         if HAVE_PYQTGRAPH:
             from ..figures.style import resolve_style
 
-            # A layout map: positions without data axes, so a schematic panel.
             self._spacr_style_spec = resolve_style("screen", "schematic")
             self.plot.setObjectName("Voyager3Map")
             try:

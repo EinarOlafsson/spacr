@@ -4988,8 +4988,6 @@ def native_histogram_geometry(widget, *, series=(), thresholds=(), xlabel="",
     top = line / 2.0 + 6.0
     available = min(max(1.0, widget.width() - left - 12.0),
                     max(1.0, widget.height() - bottom - top))
-    # The shared 40 mm panel (:func:`_physical_panel_problems`); a widget too
-    # small for it keeps the side that fits, and validation reports it.
     dpi = widget.logicalDpiY()
     standard = axes_geometry(spec).height_inches * dpi
     side = min(standard, available)
