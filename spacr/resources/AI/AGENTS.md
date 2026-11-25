@@ -104,3 +104,5 @@ against Measure or Mask Generation, and for any other pair.
 - Below the question: define each abbreviation used and give the minimum context needed (what was found, the numbers that matter, what each choice changes).
 - Options: a short label, then a description in the same style (effect, cost or delay, what stays reversible); abbreviations defined there too.
 - No long paragraphs and no references to earlier messages the maintainer may not see.
+
+45. Show every figure in the chat (maintainer, 2026-11-25). Whenever a figure, chart, panel, montage or slide image is generated or updated, show it to the maintainer in the conversation in the same turn (send the image file with the tool that delivers files to the maintainer's device, e.g. SendUserFile, or display it inline), with one line saying what it shows and where it is saved. Do not only report a path; the maintainer reviews figures on a phone.
