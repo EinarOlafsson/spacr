@@ -632,6 +632,8 @@ class TestTheApplicabilityRefreshStillLands:
         # of the ordinary form, the control that draws the object's column;
         # while every channel is None only cell, the reference object, has
         # a column. Organelles are not offered while none is counted.
+        # Items 592/0ah (L5): cell follows the same rule as every other
+        # object, so with every channel None no column is offered at all.
         owned = set(scr._object_grid_binding.owned_keys())
         assert owned and owned <= hidden, sorted(owned - hidden)[:5]
         shown = {key for key in model._widgets if key not in hidden}
@@ -640,8 +642,8 @@ class TestTheApplicabilityRefreshStillLands:
             assert f"{role}_channel" not in owned, role
         offered = [role for role in scr._object_grid.objects()
                    if role in roles]
-        assert offered == ["cell"], (
-            f"with every channel None only cell should be offered, "
+        assert offered == [], (
+            f"with every channel None no object should be offered, "
             f"not {offered}")
 
     def test_no_object_detail_row_survives_a_channel_of_none(self, qtbot):
