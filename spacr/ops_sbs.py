@@ -999,6 +999,7 @@ class LibraryMatcher:
         self.known = {entry: i for i, entry in enumerate(self.entries)}
         self.cache: Dict[Tuple[str, int], Tuple[Optional[str], int]] = {}
         self._neighbours: Optional[Dict[str, int]] = None
+        self._packed: Any = None
 
     def match(self, read: str, max_distance: int) -> Tuple[Optional[str], int]:
         """Match one read.
@@ -1023,8 +1024,7 @@ class LibraryMatcher:
             result = ((None, -1) if hit is None or hit == _TIED
                       else (self.entries[hit], 1))
         else:
-            letters = np.frombuffer(read.encode("ascii"), dtype=np.uint8)
-            distance = ((self.table != letters) & (letters != ord("N"))).sum(1)
+            distance = self._scan_distance(read)
             best = int(distance.min())
             if best > max_distance or int((distance == best).sum()) > 1:
                 result = (None, -1)
@@ -1032,6 +1032,46 @@ class LibraryMatcher:
                 result = (self.entries[int(distance.argmin())], best)
         self.cache[key] = result
         return result
+
+    def _scan_distance(self, read: str) -> np.ndarray:
+        """The mismatches of a read against every barcode.
+
+        Item 1041: the same counts as comparing the read letter by letter with
+        every barcode (an ``N`` in the read counts as no mismatch, any other
+        letter as a mismatch against every barcode), taken on barcodes packed
+        two bits per base when they are all A, C, G and T and short enough
+        for one word, which is several times faster for a large library.
+
+        :param read: the called read, as long as the barcodes.
+        :returns: ``(len(entries),)`` integer counts.
+        """
+        packed = self._packed
+        if packed is None:
+            packed = False
+            if hasattr(np, "bitwise_count") and self.width <= 32 and not (set("".join(self.entries)) - _ACGT):
+                shifts = np.arange(self.width, dtype=np.uint64) * np.uint64(2)
+                codes = np.zeros(len(self.entries), np.uint64)
+                lookup = np.zeros(256, np.uint64)
+                for code, base in enumerate("ACGT"):
+                    lookup[ord(base)] = code
+                for column in range(self.width):
+                    codes |= lookup[self.table[:, column]] << shifts[column]
+                packed = (codes, shifts, lookup)
+            self._packed = packed
+        if packed is False:
+            letters = np.frombuffer(read.encode("ascii"), dtype=np.uint8)
+            return ((self.table != letters) & (letters != ord("N"))).sum(1)
+        codes, shifts, lookup = packed
+        letters = np.frombuffer(read.encode("ascii"), dtype=np.uint8)
+        known = np.isin(letters, np.frombuffer(b"ACGT", dtype=np.uint8))
+        other = int(((letters != ord("N")) & ~known).sum())
+        word = np.bitwise_or.reduce(lookup[letters] << shifts) if known.any() \
+            else np.uint64(0)
+        mask = np.bitwise_or.reduce(np.uint64(1) << shifts[known]) if known.any() \
+            else np.uint64(0)
+        difference = codes ^ word
+        difference = (difference | (difference >> np.uint64(1))) & mask
+        return np.bitwise_count(difference).astype(np.int64) + other
 
     def _one_mismatch(self) -> Dict[str, int]:
         """Every string one substitution from a barcode, built on first use.

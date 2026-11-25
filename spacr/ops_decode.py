@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import json
 import os
+import warnings
 from functools import lru_cache
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 from .ops_settings import ops_setting
@@ -512,6 +513,43 @@ def _call(values: np.ndarray, rule: Mapping[str, Any], library: Sequence[str],
     return data, codes, margin, quality
 
 
+def _local_minimum_at(stack: np.ndarray, py: np.ndarray, px: np.ndarray,
+                      size: int, ndimage) -> np.ndarray:
+    """The ``size`` x ``size`` minimum of every cycle and channel image at the peaks.
+
+    Item 1041: the same numbers as ``ndimage.minimum_filter(image, size)[py, px]``
+    for each image, without filtering the whole image: a window of each peak
+    is read and its minimum taken. A minimum is exact in any order, so the
+    values are identical; an image with NaN, or a peak closer to the border
+    than the window reaches, takes the whole-image filter.
+
+    :param stack: ``(cycles, channels, H, W)``.
+    :param py: ``(N,)`` peak rows.
+    :param px: ``(N,)`` peak columns.
+    :param size: the odd window size.
+    :param ndimage: ``scipy.ndimage``.
+    :returns: ``(N, cycles, channels)`` in the stack's dtype.
+    """
+    half = size // 2
+    height, width = stack.shape[-2:]
+    py, px = np.asarray(py), np.asarray(px)
+    inside = (not len(py)) or (py.min() >= half and px.min() >= half
+                               and py.max() < height - half and px.max() < width - half)
+    floating = np.issubdtype(stack.dtype, np.floating)
+    if not inside or (floating and not np.isfinite(stack).all()) or size % 2 == 0:
+        return np.stack([np.stack([
+            ndimage.minimum_filter(stack[i, k], size)[py, px]
+            for k in range(stack.shape[1])], 1) for i in range(stack.shape[0])], 1)
+    from numpy.lib.stride_tricks import sliding_window_view
+
+    out = np.empty((len(py), stack.shape[0], stack.shape[1]), stack.dtype)
+    for i in range(stack.shape[0]):
+        for k in range(stack.shape[1]):
+            windows = sliding_window_view(stack[i, k], (size, size))
+            out[:, i, k] = windows[py - half, px - half].min(axis=(1, 2))
+    return out
+
+
 def field_evidence(stack: np.ndarray, filtered: np.ndarray,
                    score: np.ndarray, peaks: np.ndarray,
                    strength: np.ndarray, kept: Sequence[int],
@@ -579,9 +617,7 @@ def field_evidence(stack: np.ndarray, filtered: np.ndarray,
     if features and len(peaks):
         py, px = peaks[:, 0], peaks[:, 1]
         raw = np.stack([stack[i][:, py, px].T for i in range(stack.shape[0])], 1)
-        background = np.stack([np.stack([
-            ndimage.minimum_filter(stack[i, k], 9)[py, px]
-            for k in range(stack.shape[1])], 1) for i in range(stack.shape[0])], 1)
+        background = _local_minimum_at(stack, py, px, 9, ndimage)
         ring = ndimage.uniform_filter(score, 5)[py, px]
         from .ops_cycles import sbs_mean_target
 
@@ -3474,43 +3510,72 @@ def false_call_tables(fields: Sequence[Mapping[str, Any]],
                          np.asarray(z["owned_areas"]).tolist()))
         n_cycles = np.asarray(z["values"]).shape[1]
         cells = defaultdict(list)
-        for i in np.flatnonzero(near):
+        # Item 1041: every per-read, per-cycle number below is computed once for
+        # the field's reads as arrays (the same reductions, the same dtypes) and
+        # read back per read, instead of ~50 small numpy calls per read.
+        idx = np.flatnonzero(near)
+        margin_rows = np.asarray(margin)[idx]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            finite_margin = np.isfinite(margin_rows).any(1)
+            q_rows = np.nanmin(margin_rows, axis=1)
+            q_mean_rows = np.nanmean(margin_rows, axis=1)
+            margin_out = np.nan_to_num(margin_rows, nan=-1)
+            if spot:
+                raw_rows = np.asarray(spot["f_raw"])[idx]
+                bg_rows = np.asarray(spot["f_bg"])[idx]
+                raw_ok = np.isfinite(raw_rows).any(2)
+                bg_ok = np.isfinite(bg_rows).any(2)
+                raw_max_rows = np.nanmax(raw_rows, axis=2)
+                bg_mean_rows = np.nanmean(bg_rows, axis=2)
+        q_list = np.where(finite_margin, q_rows, 0.0).tolist()
+        q_mean_list = np.where(finite_margin, q_mean_rows, 0.0).tolist()
+        margin_list = margin_out.tolist()
+        if spot:
+            raw_list = np.where(raw_ok, raw_max_rows, -1).tolist()
+            bg_list = np.where(bg_ok, bg_mean_rows, -1).tolist()
+            sharp_list = np.asarray(spot["f_sharp"])[idx].tolist()
+            focus_list = np.asarray(spot["f_focus"])[idx].tolist()
+            density_list = np.asarray(spot["f_density"])[idx].tolist()
+        strength_list = strength[idx].tolist()
+        gap0_list = gap[idx, 0].tolist()
+        gap_diff_list = np.minimum(gap[idx, 1] - gap[idx, 0], 50).tolist()
+        ambiguous_list = ambiguous[idx].tolist()
+        y_list = peaks[idx, 0].astype(np.float64).tolist()
+        x_list = peaks[idx, 1].astype(np.float64).tolist()
+        radius_list = np.hypot(peaks[idx, 0] - tile_centre,
+                               peaks[idx, 1] - tile_centre).tolist()
+        for j, i in enumerate(idx.tolist()):
             guide, d = combined.match(codes[i], rule["max_distance"])
             mismatched = ([c for c, (x, yv) in enumerate(zip(codes[i], guide)) if x != yv]
                           if guide else [])
-            m = margin[i]
-            finite = np.isfinite(m).any()
             row = {"field": fi, "obj": int(first_id[i]), "guide": guide,
                    "d": d if guide else -1,
                    "label_read": "TN" if guide is None else ("FP" if guide in decoy_set else "TP"),
-                   "q": float(np.nanmin(m)) if finite else 0.0,
-                   "q_mean": float(np.nanmean(m)) if finite else 0.0,
-                   "strength": float(strength[i]), "gap0": float(gap[i, 0]),
-                   "gap_diff": float(min(gap[i, 1] - gap[i, 0], 50)),
-                   "ambiguous": bool(ambiguous[i]),
-                   "y": float(peaks[i, 0]), "x": float(peaks[i, 1]),
+                   "q": q_list[j],
+                   "q_mean": q_mean_list[j],
+                   "strength": strength_list[j], "gap0": gap0_list[j],
+                   "gap_diff": gap_diff_list[j],
+                   "ambiguous": bool(ambiguous_list[j]),
+                   "y": y_list[j], "x": x_list[j],
                    "n_mismatch": len(mismatched),
                    "nearest_other_guide": (nearest_other(guide)
                                            if (guide and guide not in decoy_set) else
                                            (int(((table != np.frombuffer(guide.encode(), np.uint8)).sum(1)).min())
                                             if guide else -1))}
+            miss = set(mismatched)
             for c in range(n_cycles):
-                row[f"margin_c{c + 1}"] = float(np.nan_to_num(m[c], nan=-1))
-                row[f"mismatch_c{c + 1}"] = int(c in mismatched)
+                row[f"margin_c{c + 1}"] = margin_list[j][c]
+                row[f"mismatch_c{c + 1}"] = int(c in miss)
                 if spot:
-                    raw = spot["f_raw"][i, c]
-                    background = spot["f_bg"][i, c]
-                    row[f"raw_max_c{c + 1}"] = (float(np.nanmax(raw))
-                                                if np.isfinite(raw).any() else -1)
-                    row[f"bg_c{c + 1}"] = (float(np.nanmean(background))
-                                           if np.isfinite(background).any() else -1)
+                    row[f"raw_max_c{c + 1}"] = raw_list[j][c]
+                    row[f"bg_c{c + 1}"] = bg_list[j][c]
             if spot:
-                row["sharpness"] = float(spot["f_sharp"][i])
-                row["focus_local"] = float(spot["f_focus"][i])
-                row["neighbour_spots"] = int(spot["f_density"][i])
+                row["sharpness"] = sharp_list[j]
+                row["focus_local"] = focus_list[j]
+                row["neighbour_spots"] = int(density_list[j])
             row["field_exact_rate"] = float(exact_rate)
-            row["radius_in_tile"] = float(np.hypot(peaks[i, 0] - tile_centre,
-                                                   peaks[i, 1] - tile_centre))
+            row["radius_in_tile"] = radius_list[j]
             row["nucleus_area"] = float(areas.get(int(first_id[i]), np.nan))
             row["_seq"] = guide or ""
             if keep_reads:
