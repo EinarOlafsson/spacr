@@ -2665,7 +2665,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 972
+SETTINGS_SCHEMA_VERSION = 975
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2732,6 +2732,7 @@ DEFAULT_CHANGES = {
     970: {'ops_cross_field_owner_centroid': 'per_copy'},
     971: {'ops_tile_origin': 'float'},
     972: {'ops_store_raw_masks': False, 'ops_read_cache_floor': 100.0},
+    975: {'ops_cellpose_model': 'cpsam_v1'},
 }
 _DEFAULT_CHANGE_FLOORS = {
     968: {'ops_ph_spanning_merge': 959},
@@ -2954,6 +2955,12 @@ def _fold_older_defaults(settings, version, known=None):
     ``ops_read_cache_floor`` sets the weakest spot the field cache keeps.
     Files stamped before keep False and 100, the behaviour they were run
     with. Versions 966 to 971 belong to other merges.
+
+    Version 975 segments OPS with the Cellpose-SAM ``cpsam_v2`` weights:
+    ``ops_cellpose_model`` is now ``'cpsam_v2'``, loaded by its full path
+    and checked by md5. Files stamped before keep ``'cpsam_v1'``, the
+    installed Cellpose default their wells were segmented with. Versions
+    966 to 974 belong to other merges.
 
     :param settings: the file's settings under today's names, edited in
         place.

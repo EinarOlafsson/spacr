@@ -6898,6 +6898,84 @@ LEGACY_CELLPOSE_MODELS = ('cyto', 'cyto2', 'cyto3', 'cyto_2', 'cyto_3',
 #: plate buried the run log under thousands of identical warnings.
 _REPORTED_CELLPOSE_NOTICES = set()
 
+CPSAM_WEIGHTS = {
+    "cpsam_v1": {"file": "cpsam", "size": 1233587898,
+                 "md5": "aad12e2d04a28eabee0d210ae23d46a3"},
+    "cpsam_v2": {"file": "cpsam_v2", "size": 1233586851,
+                 "md5": "5d43876c953f7ad4a685acc05c959f16"},
+}
+"""The stock Cellpose-SAM weights OPS segments with (item 975), each pinned
+by its file name in the Cellpose model folder, its size and its md5.
+``cpsam_v1`` is the file Cellpose 4.0.9 loads as its own default
+(``MODEL_DIR/cpsam``, July 2025), which the OPS wells were validated with.
+``cpsam_v2`` is loaded by its full path, because Cellpose replaces any bare
+name it does not ship with ``MODEL_DIR/cpsam`` and only logs it."""
+
+_CPSAM_MD5_SEEN = {}
+"""md5 of weight files already read this run, by ``(path, size, mtime_ns)``."""
+
+
+def _file_md5(path):
+    """The md5 of one file, read in 8 MB blocks.
+
+    :param path: the file.
+    :returns: the hex digest.
+    """
+    import hashlib
+
+    digest = hashlib.md5()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 23), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def cpsam_weights(choice, model_dir=None):
+    """The full path of the pinned Cellpose-SAM weights ``choice`` names.
+
+    The file is checked against :data:`CPSAM_WEIGHTS` before it is returned,
+    so a missing file or different bytes are refused here rather than loaded,
+    and no other weights are ever substituted.
+
+    :param choice: ``'cpsam_v2'`` or ``'cpsam_v1'``.
+    :param model_dir: the Cellpose model folder; Cellpose's ``MODEL_DIR``
+        (``~/.cellpose/models`` unless ``CELLPOSE_LOCAL_MODELS_PATH`` is set)
+        when absent.
+    :returns: the absolute path of the verified file.
+    :raises ValueError: for a choice that is not in :data:`CPSAM_WEIGHTS`.
+    :raises ModelUnreadable: when the file is missing, or its size or md5
+        is not the pinned one.
+    """
+    from .model_zoo import ModelUnreadable
+
+    name = str(choice or "").strip()
+    if name not in CPSAM_WEIGHTS:
+        raise ValueError(
+            f"ops_cellpose_model {choice!r} is not one of "
+            f"{', '.join(sorted(CPSAM_WEIGHTS))}.")
+    pin = CPSAM_WEIGHTS[name]
+    folder = model_dir if model_dir is not None else getattr(
+        cp_models, "MODEL_DIR", os.path.join(os.path.expanduser("~"), ".cellpose", "models"))
+    path = os.path.abspath(os.path.join(os.fspath(folder), pin["file"]))
+    if not os.path.isfile(path):
+        raise ModelUnreadable(
+            f"Cellpose-SAM weights {name} are missing: no file at {path}. Put the "
+            f"{name} file there (md5 {pin['md5']}); no other weights are used in its place.")
+    stat = os.stat(path)
+    if stat.st_size != pin["size"]:
+        raise ModelUnreadable(
+            f"Cellpose-SAM weights {name} at {path} are {stat.st_size} bytes, not the "
+            f"pinned {pin['size']}; this is a different file, so it is not loaded.")
+    identity = (path, stat.st_size, stat.st_mtime_ns)
+    if identity not in _CPSAM_MD5_SEEN:
+        _CPSAM_MD5_SEEN[identity] = _file_md5(path)
+    if _CPSAM_MD5_SEEN[identity] != pin["md5"]:
+        raise ModelUnreadable(
+            f"Cellpose-SAM weights {name} at {path} have md5 "
+            f"{_CPSAM_MD5_SEEN[identity]}, not the pinned {pin['md5']}; this is a "
+            f"different file, so it is not loaded.")
+    return path
+
 
 def _installed_cellpose_models():
     """The stock model names the INSTALLED Cellpose advertises.
@@ -7110,7 +7188,7 @@ def _resolve_cellpose_source(model_name, *, settings=None, key=None, object_type
 def build_cellpose_model(model_name, *, settings=None, key=None, object_type=None,
                          restore_type=None, setting=None, device=None, gpu=None,
                          drop_device=False, float32_on_cpu=False, tolerant=False, cache=None,
-                         factory=None, library_default=False):
+                         factory=None, library_default=False, stock_weights=None):
     """Build a Cellpose model the one way every caller builds it.
 
     The steps, in order: a pinned model file recorded for ``key`` replaces
@@ -7142,6 +7220,12 @@ def build_cellpose_model(model_name, *, settings=None, key=None, object_type=Non
     :param library_default: for the stock ``cpsam`` name, leave
         ``pretrained_model`` out so the installed Cellpose picks its own
         default weights, which is how the OPS wells were validated.
+    :param stock_weights: ``'cpsam_v2'`` or ``'cpsam_v1'`` to load the stock
+        ``cpsam`` name from those pinned weights (:func:`cpsam_weights`, which
+        refuses a missing or different file). ``cpsam_v2`` is passed by its
+        full path; ``cpsam_v1`` with ``library_default`` keeps the call
+        without ``pretrained_model``, after its file is verified. A
+        checkpoint or other name is not affected.
     :param factory: the model class to construct, ``CellposeModel`` of the
         library when absent; a module passes its own import of it.
     :returns: a ``cellpose.models.CellposeModel``.
@@ -7183,13 +7267,27 @@ def build_cellpose_model(model_name, *, settings=None, key=None, object_type=Non
     from .object import _with_inference_precision
 
     kwargs = _with_inference_precision(kwargs, settings)
+    library_call = library_default and pretrained == CPSAM_MODEL
+    if stock_weights and pretrained == CPSAM_MODEL:
+        pretrained = cpsam_weights(stock_weights)
+        library_call = library_default and str(stock_weights).strip() == "cpsam_v1"
 
     def construct():
         """Load the model once the kwargs are settled."""
         load = factory or cp_models.CellposeModel
-        if library_default and pretrained == CPSAM_MODEL:
-            return load(**kwargs)
-        return load(pretrained_model=pretrained, **kwargs)
+        if not library_call:
+            return load(pretrained_model=pretrained, **kwargs)
+        model = load(**kwargs)
+        loaded = getattr(model, "pretrained_model", None)
+        if (stock_weights and isinstance(loaded, (str, os.PathLike))
+                and os.path.abspath(os.fspath(loaded)) != pretrained):
+            from .model_zoo import ModelUnreadable
+
+            raise ModelUnreadable(
+                f"Cellpose loaded {os.fspath(loaded)} as its default model, not the "
+                f"verified {stock_weights} file {pretrained}; a file named cpsam in "
+                f"the working folder is read first. Run from another folder.")
+        return model
 
     if cache is not None:
         return cache(("cellpose", pretrained, kwargs), construct)

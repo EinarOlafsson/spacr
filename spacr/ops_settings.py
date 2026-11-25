@@ -31,6 +31,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_gpu": True,
     "n_workers": 26,
     "ops_sbs_nucleus_model": "cpsam",
+    "ops_cellpose_model": "cpsam_v2",
     "cellpose_diameter": None,
     "ops_sbs_tile_batch": 0,
     "ops_library": None,
@@ -669,6 +670,7 @@ OPS_TYPES: Dict[str, object] = {
     "phenotype_source": (str, type(None)),
     "plate": str,
     "ops_sbs_nucleus_model": str,
+    "ops_cellpose_model": str,
     "cellpose_diameter": (float, int, type(None)),
     "ops_sbs_tile_batch": (int, type(None)),
     "n_workers": int,
@@ -1309,8 +1311,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_placement_seed_tolerance", "ops_ph_placement_seed",
     ],
     "Nuclei segmentation": [
-        "ops_sbs_nucleus_model", "cellpose_diameter", "ops_sbs_tile_batch",
-        "ops_window_overlap", "ops_objects_resume", "ops_objects_keep_windows",
+        "ops_sbs_nucleus_model", "ops_cellpose_model", "cellpose_diameter",
+        "ops_sbs_tile_batch", "ops_window_overlap", "ops_objects_resume", "ops_objects_keep_windows",
         "ops_objects_windows_dir",
     ],
     "Spot detection & registration": [
@@ -1679,11 +1681,19 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "always used. Default 0.",
     "ops_sbs_nucleus_model":
         "(str) - Which Cellpose model segments the nuclei of each stitched "
-        "sequencing well. 'cpsam' runs the default model of the installed "
-        "Cellpose; any other name or path, such as one chosen with Model "
+        "sequencing well. 'cpsam' runs the stock weights ops_cellpose_model "
+        "names; any other name or path, such as one chosen with Model "
         "zoo, is loaded as that model. Changing it changes which objects are "
         "found, and so which nuclei the reads are attributed to. Settings "
         "files that name cellpose_model still load into it. Default 'cpsam'.",
+    "ops_cellpose_model":
+        "(str) - Which stock Cellpose-SAM weights segment OPS phenotype "
+        "nuclei and cells and sequencing nuclei when their model is 'cpsam'. "
+        "'cpsam_v2' loads the cpsam_v2 file by its full path; 'cpsam_v1' "
+        "loads the installed Cellpose default (cpsam, July 2025). Each file "
+        "is checked by md5 first; a missing or different file stops the run "
+        "rather than loading other weights. Settings files saved before "
+        "schema 975 keep 'cpsam_v1'. Default 'cpsam_v2'.",
     "dst_root":
         "(str or None) - Where measurements.db and each well's "
         "ops_report.json are written. Empty writes them into the source "
@@ -2022,7 +2032,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "phalloidin on the reference plate. Alpha.",
     "ops_ph_nucleus_model":
         "(str) - The Cellpose model that segments phenotype nuclei on DAPI. "
-        "'cpsam' runs the installed Cellpose's default model; any other name "
+        "'cpsam' runs the stock weights ops_cellpose_model names; any other name "
         "is loaded as that model. Default 'cpsam'. Alpha.",
     "ops_ph_cell_model":
         "(str) - The Cellpose model that segments phenotype cells on the cell "

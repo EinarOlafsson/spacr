@@ -684,6 +684,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # The spanning-children switch of the nucleus and cell ownership (schema 968).
     "ops_ph_spanning_merge",
     "spanning_merge",
+    # The stock Cellpose-SAM weights of OPS segmentation (schema 975).
+    "ops_cellpose_model",
     "ops_pixel_percentile",
     "ops_pixel_radius",
     "ops_pixel_min_pixels",
