@@ -1256,7 +1256,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_stage_threads", "ops_gpu_admission", "ops_gpu_idle_checks",
         "ops_gpu_min_process_mib", "ops_gpu_vram_cap_gb",
         "ops_gpu_ignore_process_patterns", "ops_stress_report",
-        "ops_feature_screen_device",
+        "ops_feature_screen_device", "ops_ph_granularity_subsample",
     ],
     "Archive": [
         "ops_archive_root", "ops_archive_verify", "ops_archive_delete_local",
@@ -1387,8 +1387,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Feature families": [
         "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
         "ops_ph_profile_features", "ops_ph_profile_optional_families",
-        "ops_ph_granularity_subsample", "ops_ph_profile_outside_rule",
-        "ops_feature_screen_old",
+        "ops_ph_profile_outside_rule", "ops_feature_screen_old",
         "ops_feature_screen_new", "ops_feature_screen_cells",
         "ops_feature_screen_id_columns", "ops_feature_screen_label",
         "ops_feature_screen_guide", "ops_feature_screen_families",
