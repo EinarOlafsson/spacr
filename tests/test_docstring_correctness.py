@@ -6313,7 +6313,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # parameters of the 20 retired Browser handles (ReadOnlyDb, WritableDb,
     # build_update) leave the boundary; with them, the landing L3 stack's
     # optional `n_tests` of spacr.multiple_testing.adjust_p_values.
-) == '20778323b3bd619da432aafb5380172c2a6e6fd2edc0f01fdd8f70b8e372f7fd'
+    # Moved 2026-11-24 for landing L5 (was 20778323...): the optional `metric`
+    # of spacr.ops_clusters.gene_graph, `n_iterations` of leiden_partitions,
+    # `zero_sd` of spacr.ops_tvn.batch_mean_sd and `mmap` of
+    # spacr.ops_run_infra.FieldStager.load.
+) == '9da196a8eafb9a5d508ee0d276d9424b9237afd376b7c82ec1561178e77a4f3c'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
