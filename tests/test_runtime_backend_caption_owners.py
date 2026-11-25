@@ -32,7 +32,9 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "ome_zarr_registration.py",
         "ops_cell_cycle.py", "ops_mitotic.py", "ops_flatfield.py", "cpg_measure.py", "cli.py",
         "ops_sbs.py", "ops_run_infra.py",
-        "figures/style.py", "figures/bundle.py",
+        "figures/style.py", "figures/bundle.py", "illumination.py",
+        "image_quality.py", "seg_qc.py", "sequencing.py", "sequencing_qc.py",
+        "submodules.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
