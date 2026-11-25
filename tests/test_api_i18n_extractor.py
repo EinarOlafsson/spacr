@@ -2337,6 +2337,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     paper_item_arrivals = _current_neighbour_api(paper_item_arrivals)
     from tests.phtables_store_api_hooks import _current_phtables_api
     paper_item_arrivals = _current_phtables_api(paper_item_arrivals)
+    from tests.l5_api_hooks import _current_l5_api
+    paper_item_arrivals = _current_l5_api(paper_item_arrivals)
     assert len(paper_item_arrivals) == 170
     assert {key: docs[key] for key in paper_item_arrivals} == paper_item_arrivals
     assert not paper_item_arrivals.keys() & (

@@ -970,6 +970,7 @@ def _copy_components(count: int, first, second, sites, rank=None):
     fields = {}
 
     def root(node: int) -> int:
+        """The representative of ``node``'s group, halving the path on the way."""
         while parent[node] != node:
             parent[node] = parent[parent[node]]
             node = parent[node]

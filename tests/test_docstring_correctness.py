@@ -3215,6 +3215,8 @@ def _validated_bmc_paper_items_callables(callables):
     entries = _current_neighbour_api(entries)
     from tests.phtables_store_api_hooks import _current_phtables_api
     entries = _current_phtables_api(entries)
+    from tests.l5_api_hooks import _current_l5_api
+    entries = _current_l5_api(entries)
     assert len(entries) == 170
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -7295,6 +7297,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         additions = _current_l5_api(additions)
         from tests.phtables_store_api_hooks import _current_phtables_api
         additions = _current_phtables_api(additions)
+        from tests.l5_api_hooks import _current_l5_api
+        additions = _current_l5_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":

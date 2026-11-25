@@ -7,6 +7,11 @@ documented parameter. The reviewed body in
 this projection advances exactly that one method to its current source
 docstring, bound to the current signature (read with ``ast``, nothing
 imported from spacr).
+
+The decode audit (ws-offload-ws-audit-decode) documents the pixel-fallback
+counts that spacr.ops_decode.field_calls now returns; its reviewed body in
+871_911_bmc_paper_items_api_arrivals_2026-11-09.json advances the same way,
+with the signature unchanged.
 """
 import ast
 import inspect
@@ -40,19 +45,44 @@ def _load_source(source=None):
     return doc
 
 
+FIELD_CALLS = "spacr.ops_decode.field_calls"
+FIELD_CALLS_BEFORE = 'Every call of one field under the rule, decoys included.\n\n:param evidence: from :func:`field_evidence`, or a field-cache ``.npz``\n    of the decode-yield study opened with :func:`numpy.load`.\n:param rule: from :func:`decode_rule`.\n:param library: the guide barcodes.\n:param matcher: from :func:`matcher_for`.\n:param decoys: the decoy set from :func:`matcher_for`.\n:param threshold: the read threshold on the spot strength.\n:param footprint: how far beyond a boundary a read may lie, in pixels.\n:param max_distance: the mismatches a read may carry; the runner-up\n    rule raises 0 to 1.\n:param min_fraction: the share of the votes the guide must hold.\n:param single_read_quality: the quality a one-read guide needs.\n:param crosstalk: the unmixing method.\n:param evidence_rows: also return ``evidence``, one row per call --\n    decoys included -- with the read and pixel support behind it\n    (:data:`EVIDENCE_COLUMNS`), which the genotype confidence reads.\n:returns: ``calls`` -- ``{object: {...}}`` with ``guide``, ``decoy``,\n    ``source`` (``primary`` or ``pixel_fallback``), ``n_reads``,\n    ``n_agreeing``, ``fraction``, ``quality``, ``barcode`` and\n    ``n_pixels`` -- for owned objects only; ``nuclei``, the objects this\n    field owns; ``assigned_real`` and ``assigned_decoy``; and read\n    counts for the well report.'
+FIELD_CALLS_SIGNATURE = ("evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any], "
+                         "library: Sequence[str], matcher, decoys, *, threshold: float, "
+                         "footprint: float, max_distance: int, min_fraction: float, "
+                         "single_read_quality: float, crosstalk: str='argmax_median', "
+                         "evidence_rows: bool=False")
+
+
+def _field_calls_source():
+    """The current docstring of field_calls, checked against its unchanged signature.
+
+    :returns: the docstring.
+    """
+    source = (ROOT / "spacr/ops_decode.py").read_text(encoding="utf-8")
+    node = next(node for node in ast.parse(source).body
+                if isinstance(node, ast.FunctionDef) and node.name == "field_calls")
+    assert ast.unparse(node.args) == FIELD_CALLS_SIGNATURE
+    assert ast.unparse(node.returns) == "Dict[str, Any]"
+    doc = ast.get_docstring(node)
+    assert "assigned_pixel_real" in doc
+    return doc
+
+
 def _current_l5_api(entries):
-    """Advance only FieldStager.load; every other body is kept as given.
+    """Advance only FieldStager.load and field_calls; every other body is kept as given.
 
     :param entries: ``symbol -> docstring`` of a reviewed contract.
-    :returns: a copy with the one revised body.
+    :returns: a copy with the revised bodies.
     """
     result = dict(entries)
-    if SYMBOL in result:
-        current = _load_source()
-        assert result[SYMBOL] in (BEFORE, current)
-        result[SYMBOL] = current
+    for symbol, before, current in ((SYMBOL, BEFORE, _load_source),
+                                    (FIELD_CALLS, FIELD_CALLS_BEFORE, _field_calls_source)):
+        if symbol in result:
+            body = current()
+            assert result[symbol] in (before, body), symbol
+            result[symbol] = body
     return result
-
 
 
 # The public names the graph-style rollout (ws-offload-codex-home-graphstyle-g2a-i18n)
