@@ -4981,6 +4981,27 @@ def _activate(project, kind: str, table: str, target: str) -> None:
                                           _now()])
         finally:
             conn.close()
+    _recheck_shared(path)
+
+
+def _recheck_shared(project: str) -> None:
+    """Make the next :func:`shared` call of ``project`` check its catalog again.
+
+    :func:`shared` looks at the catalog at most every two seconds, so a store
+    shared before a write of this process would otherwise go on serving the
+    old tables and active outputs for up to two seconds. The store itself is
+    not closed; a query still running on it finishes.
+
+    :param project: the project folder.
+    """
+    try:
+        key = locate(project)
+    except (FileNotFoundError, StoreError):
+        return
+    with _SHARED_LOCK:
+        held = _SHARED.get(key)
+        if held is not None:
+            held["checked"] = float("-inf")
 
 
 #: Values a legacy ``IN (...)`` carries per statement, under SQLite's limit.
