@@ -342,6 +342,19 @@ default after a higher-numbered item takes the next free number:
   before 978 get ``ops_ph_downsample`` ``2`` and
   ``ops_ph_nucleus_downsample`` ``'same'`` and reproduce their masks.
   Number 977 is reserved for another item.
+- 979 (A3-BUG2, one outside region): no default changes. Measure's outside
+  ring block (``<object>_channel_<i>_outside_<stat>``) now takes its ring
+  from ``profile_outside_rule`` through
+  ``spacr.measure._outside_ring_selections``, the function the ``outside``
+  profiling family and the OPS phenotype path use, so the same rule gives
+  the same outside pixels in Measure and OPS. Before, the block ignored the
+  rule: under ``'background'`` Measure's nucleus ring kept the neighbouring
+  nuclei and OPS's kept background only. A Measure file stamped before 979
+  whose ``profile_outside_rule`` is ``'background'`` (set, or from the 965
+  row) is read as ``'legacy'``, which replays the old split (block
+  ``'object'``, family ``'background'``). ``ops_ph_profile_outside_rule``
+  is unchanged, since OPS never ran the block, and refuses ``'legacy'``.
+  Numbers 977 and 978 belong to other items.
 
 Public API
 ----------

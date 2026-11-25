@@ -2793,14 +2793,14 @@ def _intensity_measurements(
             if outside:
                 if ls[j] in ('cell', 'nucleus', 'pathogen', *ORGANELLE_ROLES):
                     if ('outside', j) not in geometry:
-                        geometry['outside', j] = _outside_selections(
-                            label, spacing=spacing,
-                            exclude_foreground=_outside_excludes_foreground(
-                                ls[j]))
+                        geometry['outside', j] = _outside_ring_selections(
+                            label, ls[j],
+                            settings.get('profile_outside_rule'),
+                            spacing=spacing, block=True)
+                    exclude, ring = geometry['outside', j]
                     outside_intensity_stats = _outside_intensity(
                         label, channel, spacing=spacing,
-                        exclude_foreground=_outside_excludes_foreground(ls[j]),
-                        selections=geometry['outside', j])
+                        exclude_foreground=exclude, selections=ring)
                     mask_intensity_df = pd.concat([mask_intensity_df, pd.DataFrame(outside_intensity_stats, columns=[f'outside_{stat}' for stat in col_lables])], axis=1)
 
             label_shape = np.asarray(label).shape
@@ -2901,7 +2901,8 @@ def _intensity_measurements(
             dfs, ls, labels, channel_arrays, families,
             granularity_subsample=settings.get(
                 'profile_granularity_subsample', 1.0) or 1.0,
-            outside_rule=settings.get('profile_outside_rule') or 'object')
+            outside_rule=_resolve_outside_rule(
+                settings.get('profile_outside_rule')))
     elif families:
         print("3-D mask: skipping the profiling families "
               f"({', '.join(families)}); they are defined for 2-D fields.")
@@ -4260,13 +4261,49 @@ def _periphery_intensity(label_mask, image, selections=None):
 #: The values of ``profile_outside_rule``, the first the default.
 PROFILE_OUTSIDE_RULES = ('object', 'background')
 
+#: The replay-only value of ``profile_outside_rule`` (A3-BUG2, settings
+#: schema 979): what Measure measured under ``'background'`` before 979.
+#: Measure's outside ring block kept the ``'object'`` rings and the
+#: ``outside`` profiling family kept only background, so the two wrote one
+#: column name with two meanings. A Measure file stamped before 979 that
+#: says ``'background'`` (or gets it from the schema 965 row) is read as
+#: this value (:data:`spacr.settings.VALUE_MEANING_CHANGES`) and measures
+#: what it measured. The OPS phenotype path never ran the block, so it
+#: refuses this value: its ``'background'`` already replays.
+PROFILE_OUTSIDE_LEGACY_RULE = 'legacy'
+
 #: The objects whose outside ring keeps only label-zero background under the
 #: ``'object'`` rule: the whole cell and its cytoplasm. Every other object
 #: (nucleus, pathogen, organelle) keeps its neighbours in the ring.
 _BACKGROUND_RING_ROLES = ('cell', 'cytoplasm')
 
 
-def _outside_excludes_foreground(role=None, rule='object'):
+def _resolve_outside_rule(rule=None, *, setting='profile_outside_rule',
+                         replay=True):
+    """The one reading of ``profile_outside_rule`` and ``ops_ph_profile_outside_rule``.
+
+    Measure and the OPS phenotype path both resolve their setting here, so
+    the same value gives the same outside ring in both
+    (:func:`_outside_ring_selections`).
+
+    :param rule: the setting's value; None or empty is ``'object'``, the
+        default of both settings. Case and surrounding spaces are ignored.
+    :param setting: the setting's name, for the error message.
+    :param replay: accept :data:`PROFILE_OUTSIDE_LEGACY_RULE` (Measure);
+        False refuses it (the OPS phenotype path).
+    :returns: the rule, lower case.
+    :raises ValueError: for any other value.
+    """
+    value = str(rule or PROFILE_OUTSIDE_RULES[0]).strip().lower()
+    allowed = (*PROFILE_OUTSIDE_RULES,
+               *((PROFILE_OUTSIDE_LEGACY_RULE,) if replay else ()))
+    if value not in allowed:
+        raise ValueError(
+            f"{setting} must be one of {list(allowed)}; got {rule!r}")
+    return value
+
+
+def _outside_excludes_foreground(role=None, rule='object', *, block=False):
     """Whether the outside ring of a ``role`` object keeps only label-zero pixels.
 
     The one rule for every ``<object>_channel_<i>_outside_<stat>`` column,
@@ -4275,22 +4312,50 @@ def _outside_excludes_foreground(role=None, rule='object'):
 
     :param role: the object type (``'cell'``, ``'nucleus'``, ...), or None
         for a mask of no known type, whose ring keeps only background.
-    :param rule: ``profile_outside_rule``. ``'object'``: the cell and the
-        cytoplasm rings keep only background, the other rings keep the
-        neighbouring objects too (the meaning in the column docs).
-        ``'background'``: every ring keeps only background, as the
-        ``outside`` profiling family measured before settings schema 965.
+    :param rule: ``profile_outside_rule`` (:func:`_resolve_outside_rule`).
+        ``'object'``: the cell and the cytoplasm rings keep only background,
+        the other rings keep the neighbouring objects too (the meaning in
+        the column docs). ``'background'``: every ring keeps only
+        background, as the ``outside`` profiling family measured before
+        settings schema 965. ``'legacy'``: Measure before schema 979, the
+        block's rings as ``'object'``, the family's as ``'background'``.
+    :param block: the ring is for Measure's outside ring block
+        (``_intensity_measurements(outside=True)``), not the family; only
+        ``'legacy'`` reads it.
     :returns: the ``exclude_foreground`` of :func:`_outside_selections`.
-    :raises ValueError: for a rule not in :data:`PROFILE_OUTSIDE_RULES`.
+    :raises ValueError: for a rule :func:`_resolve_outside_rule` refuses.
     """
-    rule = str(rule or PROFILE_OUTSIDE_RULES[0]).strip().lower()
-    if rule not in PROFILE_OUTSIDE_RULES:
-        raise ValueError(
-            f"profile_outside_rule must be one of {list(PROFILE_OUTSIDE_RULES)}; "
-            f"got {rule!r}")
+    rule = _resolve_outside_rule(rule)
+    if rule == PROFILE_OUTSIDE_LEGACY_RULE:
+        rule = 'object' if block else 'background'
     if rule == 'background' or role is None:
         return True
     return str(role) in _BACKGROUND_RING_ROLES
+
+
+def _outside_ring_selections(label_mask, role=None, rule='object', *,
+                            distance=5, spacing=None, block=False):
+    """The outside ring of every object of one mask: the one outside region.
+
+    Measure's outside ring block and the ``outside`` profiling family, in
+    Measure and in the OPS phenotype path, all take their ring here, so
+    one field, one mask and one rule give the same pixels everywhere
+    (A3-BUG2: Measure's block used to ignore the rule).
+
+    :param label_mask: the label mask of one object type.
+    :param role: its object type, which with ``rule`` decides whether
+        neighbouring objects stay in the ring
+        (:func:`_outside_excludes_foreground`).
+    :param rule: ``profile_outside_rule`` or ``ops_ph_profile_outside_rule``.
+    :param distance: the ring width in xy pixels.
+    :param spacing: as :func:`_outside_selections`; None in 2-D.
+    :param block: as :func:`_outside_excludes_foreground`.
+    :returns: ``(exclude_foreground, selections)``, the selections of
+        :func:`_outside_selections`.
+    """
+    exclude = _outside_excludes_foreground(role, rule, block=block)
+    return exclude, _outside_selections(label_mask, distance, spacing,
+                                        exclude_foreground=exclude)
 
 
 def _outside_selections(label_mask, distance=5, spacing=None, *,
@@ -7250,9 +7315,20 @@ def measure_outside(labels, image, distance=5, exclude_foreground=True):
         ``exclude_foreground`` -- and ``enclosed``, 1 for such an object and
         0 otherwise.
     """
+    return _measure_outside(labels, image, distance, exclude_foreground)
+
+
+def _measure_outside(labels, image, distance=5, exclude_foreground=True,
+                     selections=None):
+    """:func:`measure_outside` with the ring already taken.
+
+    :param selections: :func:`_outside_ring_selections` of ``labels`` with
+        the same ``distance`` and ``exclude_foreground``, or None to take it.
+    """
     labels, image, present = _profile_inputs(labels, image)
-    selections = _outside_selections(labels, distance,
-                                     exclude_foreground=exclude_foreground)
+    if selections is None:
+        selections = _outside_selections(
+            labels, distance, exclude_foreground=exclude_foreground)
     rows = [_outside_intensity(labels, image[..., c], distance=distance,
                                exclude_foreground=exclude_foreground,
                                selections=selections)
@@ -7334,10 +7410,11 @@ def _measure_profile_features(labels, image, families='profiling',
             elif family == 'periphery':
                 frames.append(measure_periphery(labels, image))
             elif family == 'outside':
-                frames.append(measure_outside(
-                    labels, image,
-                    exclude_foreground=_outside_excludes_foreground(
-                        role, outside_rule)))
+                exclude, ring = _outside_ring_selections(labels, role,
+                                                        outside_rule)
+                frames.append(_measure_outside(
+                    labels, image, exclude_foreground=exclude,
+                    selections=ring))
             elif family == 'colocalisation':
                 frames.append(measure_colocalisation(labels, image))
             elif family == 'colocalisation_extra':
