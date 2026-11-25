@@ -40,6 +40,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_raster_overlap": 213,
     "ops_window_overlap": 96,
     "ops_compose_blend": "feather",
+    "ops_tile_origin": "paste",
     "ops_stitch_read_threads": 4,
     "ops_stitch_edge_workers": 1,
     "ops_placement_seed": None,
@@ -674,6 +675,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_raster_overlap": int,
     "ops_window_overlap": int,
     "ops_compose_blend": str,
+    "ops_tile_origin": str,
     "ops_stitch_read_threads": int,
     "ops_stitch_edge_workers": int,
     "ops_placement_seed": (str, type(None)),
@@ -1288,8 +1290,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_archive_root", "ops_archive_verify", "ops_archive_delete_local",
     ],
     "Stitching": [
-        "ops_raster_overlap", "ops_compose_blend", "ops_stitch_read_threads",
-        "ops_stitch_edge_workers", "ops_sites",
+        "ops_raster_overlap", "ops_compose_blend", "ops_tile_origin",
+        "ops_stitch_read_threads", "ops_stitch_edge_workers", "ops_sites",
     ],
     "Placement seeds": [
         "ops_placement_seed", "ops_placement_seed_mode",
@@ -1825,6 +1827,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "2022 its seams scored like an unstitched tile. 'average' gives "
         "every tile the same weight, as before, and leaves a step at each "
         "tile edge. Default 'feather'.",
+    "ops_tile_origin":
+        "(str) - Whether the nuclei and the reads of a sequencing tile line "
+        "up to the pixel. 'paste' moves a point between the well and a "
+        "tile's own pixels by the whole pixel the stitched image pasted "
+        "that tile at, the frame the nuclei were found in. 'float' uses the "
+        "fraction of a pixel the stitch stored, which leaves nuclei and "
+        "reads up to half a pixel apart on each axis, as before settings "
+        "schema 971. Read by the decode, the tile-affine merge and the "
+        "alignment preview. Default 'paste'.",
     "ops_stitch_read_threads":
         "(int) - How many threads read the well's nuclear tiles while the "
         "stitch places them. The tiles are read ahead in the order the "

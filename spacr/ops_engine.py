@@ -27,6 +27,8 @@ from collections import Counter
 from .checkpoint import _atomic_json
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
 from .ops_settings import ops_defaults, ops_setting
+from .ops_compose import (paste_origin, tile_centres, tile_origin_rule,
+                          tile_origins, tile_to_well, well_to_tile)
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -1583,7 +1585,7 @@ def _touches(window, placements: Mapping[int, Tuple[float, float]],
     :returns: True when one does, by the rounding ``compose_window`` uses.
     """
     for top, left in placements.values():
-        t_top, t_left = int(round(float(top))), int(round(float(left)))
+        t_top, t_left = paste_origin(top, left)
         if (t_top < window.bottom and t_top + shape[0] > window.top
                 and t_left < window.right and t_left + shape[1] > window.left):
             return True
@@ -1958,7 +1960,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         for site, (top, left) in placements.items():
             if sbs_sources.get(site) is None:
                 continue
-            t_top, t_left = int(round(float(top))), int(round(float(left)))
+            t_top, t_left = paste_origin(top, left)
             if t_top + shape[0] <= window.top or t_top >= window.bottom:
                 continue
             if t_left + shape[1] <= window.left or t_left >= window.right:
@@ -2525,7 +2527,7 @@ def _objects_window_key(basis: Mapping[str, Any], window,
             continue
         path, plane = sources[site]
         stat = os.stat(path)
-        tiles.append([int(site), int(round(float(top))), int(round(float(left))),
+        tiles.append([int(site), *paste_origin(top, left),
                       os.path.abspath(path), plane, int(stat.st_size),
                       int(stat.st_mtime_ns)])
     text = json.dumps({"basis": basis, "window": [window.top, window.left,
@@ -3599,7 +3601,8 @@ _READS_COLUMNS = ("plate", "well", "read_id", "object_id", "site", "y", "x",
                   "cycle", "base", "quality")
 
 
-def _reads_frame(plate: str, well: str, placements, decoded, cycles, bases):
+def _reads_frame(plate: str, well: str, placements, decoded, cycles, bases,
+                 origin_rule: str = "float"):
     """The ``ops_reads`` rows of one well: one per read PER CYCLE.
 
     THE CONTRACT HAD NO READ ID, which is why this table went unwritten
@@ -3620,6 +3623,8 @@ def _reads_frame(plate: str, well: str, placements, decoded, cycles, bases):
         and ``intensities`` from :func:`_decode_field`.
     :param cycles: the cycle numbers, in the order the barcode spells them.
     :param bases: the letter each channel carries.
+    :param origin_rule: ``ops_tile_origin``, where each tile's first pixel
+        sits in the well (:func:`spacr.ops_compose.tile_to_well`).
     :returns: the DataFrame, empty of rows when nothing was stored.
     """
     import pandas as pd
@@ -3631,10 +3636,10 @@ def _reads_frame(plate: str, well: str, placements, decoded, cycles, bases):
         return pd.DataFrame({name: [] for name in columns})
 
     count = len(cycles)
-    y = np.concatenate([r["peaks"][:, 0] + placements[r["site"]][0]
-                        for r in parts])
-    x = np.concatenate([r["peaks"][:, 1] + placements[r["site"]][1]
-                        for r in parts])
+    lifted = [tile_to_well(r["peaks"], placements[r["site"]], origin_rule)
+              for r in parts]
+    y = np.concatenate([points[:, 0] for points in lifted])
+    x = np.concatenate([points[:, 1] for points in lifted])
     owner = np.concatenate([np.asarray(r["ids"], np.int64) for r in parts])
     site = np.concatenate([np.full(len(r["peaks"]), r["site"], np.int32)
                            for r in parts])
@@ -3977,7 +3982,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         :func:`_cell_rule`), the threshold mode
         (:func:`spacr.ops_decode.threshold_settings`) and ``ops_sites``:
         only the listed fields decode, and each nucleus still belongs to
-        the nearest tile centre of every placed site (item 951).
+        the nearest tile centre of every placed site (item 951). And
+        ``ops_tile_origin`` (item 1031): 'paste' moves the nuclei into each
+        tile's pixels, and the reads back into the well, by the whole-pixel
+        origin the composite pasted the tile at; 'float' by the stored
+        fraction, as before.
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
     :returns: the decode report; in auto threshold mode with the chosen
@@ -4009,6 +4018,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     if not gate:
         raise ValueError(gate.reason)
     placements, shape = _placements(db, plate, well)
+    origin_rule = tile_origin_rule(ops_setting(settings, "ops_tile_origin"))
     skipped_sites = unplaced_sites(cycle_files, placements)
     wanted = _ops_sites(settings)
     if wanted is not None:
@@ -4028,8 +4038,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                          "objects phase first")
     cycles = sorted(cycle_files)
     order = sorted(placements)
-    centres = np.array([[placements[s][0] + shape[0] / 2,
-                         placements[s][1] + shape[1] / 2] for s in order])
+    centres = tile_centres([placements[s] for s in order], shape, origin_rule)
     oy = objects["centroid_y"].to_numpy(float)
     ox = objects["centroid_x"].to_numpy(float)
     areas = objects["area"].to_numpy(float)
@@ -4142,10 +4151,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         rule_a = None
         cache_folder = None
     tasks = []
+    origins = tile_origins(placements, origin_rule)
     for site in order:
         if wanted is not None and site not in wanted:
             continue
-        top, left = placements[site]
+        top, left = origins[site]
         near = np.flatnonzero((oy > top - 30) & (oy < top + shape[0] + 30)
                               & (ox > left - 30) & (ox < left + shape[1] + 30))
         planes = {}
@@ -4158,7 +4168,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         tasks.append({
             "site": site, "planes": planes, "cycles": cycles,
             "reference": reference,
-            "centroids": np.column_stack([oy[near] - top, ox[near] - left]),
+            "centroids": well_to_tile(np.column_stack([oy[near], ox[near]]),
+                                      placements[site], origin_rule),
             "areas": areas[near], "ids": ids[near],
             "owned": owner_site[near] == site,
             "threshold": threshold, "footprint": footprint,
@@ -4275,7 +4286,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     reads_rows = None
     if store_reads:
         tick = time.perf_counter()
-        reads = _reads_frame(plate, well, placements, decoded, cycles, _BASES)
+        reads = _reads_frame(plate, well, placements, decoded, cycles, _BASES,
+                             origin_rule)
         table_rows = _replace_well_rows(db, "ops_reads", reads, plate, well)
         reads_rows = int(len(reads))
         _say(f"{well} decode: stored {reads_rows} ops_reads rows for this well, "
@@ -6784,12 +6796,16 @@ def _ph_align_options(settings: Mapping[str, Any]
     return model, min_nuclei, radius, passes
 
 
-def _ph_tile_centres(db: str, plate: str, well: str):
+def _ph_tile_centres(db: str, plate: str, well: str, rule: str = "paste"):
     """The sequencing tile centres of one well, from ``ops_geometry``.
 
     :param db: the measurements database.
     :param plate: the plate name.
     :param well: the well name.
+    :param rule: ``ops_tile_origin``: 'paste' centres each tile on the
+        whole-pixel origin the composite pasted it at, the frame of the
+        sequencing nuclei; 'float' on the stored fraction, as before item
+        1031 (:func:`spacr.ops_compose.tile_centres`).
     :returns: ``(centres, sites)``: ``(T, 2)`` tile centres ``(y, x)`` in
         well pixels, of the first cycle, and each tile's site.
     :raises ValueError: when the well has no ``ops_geometry`` rows.
@@ -6803,9 +6819,9 @@ def _ph_tile_centres(db: str, plate: str, well: str):
             "tile positions (ops_geometry); run the stitch phase first",
             well=well))
     first = geometry[geometry["cycle"] == geometry["cycle"].min()]
-    centres = first[["y", "x"]].to_numpy(float) + np.column_stack(
-        [first["tile_height"].to_numpy(float) / 2.0,
-         first["tile_width"].to_numpy(float) / 2.0])
+    centres = tile_centres(first[["y", "x"]].to_numpy(float), np.column_stack(
+        [first["tile_height"].to_numpy(float),
+         first["tile_width"].to_numpy(float)]), rule)
     return centres, first["site"].to_numpy(np.int64)
 
 
@@ -6942,7 +6958,7 @@ def _merge_stage_positions(settings: Mapping[str, Any], well: str,
 
 
 def _merge_sbs_mosaic(db: str, plate: str, well: str, target,
-                      positions) -> np.ndarray:
+                      positions, rule: str = "paste") -> np.ndarray:
     """The sequencing nuclei re-placed by their tiles' stage positions.
 
     :param db: the measurements database.
@@ -6950,6 +6966,8 @@ def _merge_sbs_mosaic(db: str, plate: str, well: str, target,
     :param well: the well name.
     :param target: ``(M, 2)`` nucleus centroids in the registered well frame.
     :param positions: ``{site: (y, x)}`` sequencing stage positions, px.
+    :param rule: ``ops_tile_origin``, the tile origin a nucleus is moved
+        from (:func:`spacr.ops_compose.tile_origins`).
     :returns: ``(M, 2)``: each nucleus moved with its tile (the tile whose
         centre is nearest) from the tile's registered origin to its stage
         position.
@@ -6960,10 +6978,13 @@ def _merge_sbs_mosaic(db: str, plate: str, well: str, target,
 
     from .qt.i18n import tr
 
-    centres, sites = _ph_tile_centres(db, plate, well)
+    centres, sites = _ph_tile_centres(db, plate, well, rule)
     geometry = _well_rows(db, "ops_geometry", plate, well)
     first = geometry[geometry["cycle"] == geometry["cycle"].min()]
-    origins = first[["y", "x"]].to_numpy(float)
+    stored = tile_origins({index: (y, x) for index, (y, x) in enumerate(
+        first[["y", "x"]].to_numpy(float))}, rule)
+    origins = np.array([stored[index] for index in range(len(stored))],
+                       dtype=np.float64).reshape(-1, 2)
     lost = [int(s) for s in sites if int(s) not in positions]
     if lost:
         raise ValueError(tr(
@@ -7135,7 +7156,8 @@ def _merge_route(db: str, plate: str, well: str, settings: Mapping[str, Any],
     :param plate: the plate name.
     :param well: the well name.
     :param settings: read for ``ops_merge_stage_positions`` (through
-        :func:`_merge_stage_positions`).
+        :func:`_merge_stage_positions`) and ``ops_tile_origin``
+        (:func:`_merge_sbs_mosaic`).
     :param cells: the well's phenotype cells.
     :param by_site: ``site -> ops_phenotype row``.
     :param target: ``(M, 2)`` sequencing nuclei, registered well frame.
@@ -7168,7 +7190,9 @@ def _merge_route(db: str, plate: str, well: str, settings: Mapping[str, Any],
         positions = None
         if options["stitch_source"] == "metadata":
             stage = _merge_stage_positions(settings, well, stage_files)
-            points = _merge_sbs_mosaic(db, plate, well, target, stage["sbs"])
+            points = _merge_sbs_mosaic(
+                db, plate, well, target, stage["sbs"],
+                tile_origin_rule(ops_setting(settings, "ops_tile_origin")))
             positions = stage["phenotype"]
         transforms, summary = _merge_stitch_route(
             cells, by_site, points, positions, options, threshold)
@@ -7234,8 +7258,9 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     :param plate: the plate name.
     :param well: the well name.
     :param settings: read for ``ops_merge_threshold``, ``ops_ownership``,
-        the ``ops_align_*`` settings and the ``ops_merge_*`` route settings
-        (:func:`_merge_strategy_options`).
+        the ``ops_align_*`` settings, the ``ops_merge_*`` route settings
+        (:func:`_merge_strategy_options`) and ``ops_tile_origin``, where
+        the sequencing tile groups are centred (:func:`_ph_tile_centres`).
     :param destination: the run folder.
     :param gpu: let the nearest-neighbour search use the card.
     :param stage_files: :func:`_merge_stage_files` of the well, read for the
@@ -7329,7 +7354,9 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                               target, options, threshold, stage_files)
         target = routed["target"]
     if tiled:
-        tile_centres, tile_sites = _ph_tile_centres(db, plate, well)
+        tile_centres, tile_sites = _ph_tile_centres(
+            db, plate, well,
+            tile_origin_rule(ops_setting(settings, "ops_tile_origin")))
         identity = (1.0, np.eye(2), np.zeros(2))
         align_seconds = 0.0
     rows = []

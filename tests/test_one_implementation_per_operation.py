@@ -115,9 +115,31 @@ def _detect_column_std(call, resolved):
     return isinstance(axis, ast.Constant) and axis.value == 0 and not isinstance(axis.value, bool)
 
 
+def _names_a_tile_edge(node):
+    """A name, attribute or subscript whose identifier says top or left."""
+    if isinstance(node, ast.Call) and (_dotted(node.func) or "") == "float" and node.args:
+        node = node.args[0]
+    if isinstance(node, ast.Subscript):
+        node = node.value
+    name = _dotted(node) or ""
+    tail = name.split(".")[-1].lower()
+    return "top" in tail or "left" in tail
+
+
+def _detect_paste_round(call, resolved):
+    """``int(round(top))`` / ``int(round(float(left)))``: a tile's paste
+    origin rounded in place instead of by ``ops_compose.paste_origin``."""
+    if resolved != "int" or len(call.args) != 1:
+        return False
+    inner = call.args[0]
+    return (isinstance(inner, ast.Call) and (_dotted(inner.func) or "") == "round"
+            and len(inner.args) == 1 and _names_a_tile_edge(inner.args[0]))
+
+
 DETECTORS = {"cytoplasm_where": _detect_cytoplasm_where,
              "label_pair_counts": _detect_label_pair_counts,
-             "column_std": _detect_column_std}
+             "column_std": _detect_column_std,
+             "paste_round": _detect_paste_round}
 
 
 class _Scan(ast.NodeVisitor):

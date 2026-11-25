@@ -667,8 +667,12 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     the decode's registration options.
 
     :returns: the tile placements, the mosaic, the field placements, the
-        crop and its cycle shifts.
+        crop and its cycle shifts. The tile placements are each tile's
+        origin under ``ops_tile_origin`` (:func:`spacr.ops_compose.tile_origins`),
+        so a crop of a tile's own pixels and a well-frame point agree as
+        they do in the decode.
     """
+    from .ops_compose import tile_origin_rule, tile_origins
     from .ops_cycles import align_field
     from .ops_engine import (_base_channels, _NUCLEAR, _plane_sources,
                              _registration_choice, _setting_number, run_ops)
@@ -704,7 +708,10 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     if geometry is None or geometry.empty:
         raise ValueError("the stitch placed no tile of the sample block")
     geometry = geometry[geometry["cycle"] == reference]
-    tiles = {int(r.site): (float(r.y), float(r.x)) for r in geometry.itertuples()}
+    tiles = tile_origins({int(r.site): (float(r.y), float(r.x))
+                          for r in geometry.itertuples()},
+                         tile_origin_rule(ops_setting(ctx.settings,
+                                                      "ops_tile_origin")))
     shape = (int(geometry["tile_height"].iloc[0]),
              int(geometry["tile_width"].iloc[0]))
     top = min(y for y, _x in tiles.values())

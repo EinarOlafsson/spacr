@@ -368,6 +368,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_ph_nucleus_fragment_merge", "ops_ph_nucleus_fragment_max_gap_px",
     "ops_ph_nucleus_fragment_min_solidity", "ops_ph_nucleus_fragment_max_dip",
     "ops_ph_cellless_nuclei", "ops_ph_cellless_nucleus_max_distance_px",
+    # Item 1031, schema 971: the tile origin of every well-tile conversion.
+    "ops_tile_origin",
     # L5 audit, schema 965: the ring of the outside profiling family.
     "profile_outside_rule", "ops_ph_profile_outside_rule",
     # Merge 4: one size-filter boundary rule; the legacy rule is kept for old files.

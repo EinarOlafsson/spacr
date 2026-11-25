@@ -296,6 +296,16 @@ default after a higher-numbered item takes the next free number:
   centre, so registration error between copies could pick a farther field)
   and reproduce their owners. Numbers 966 to 969 belong to other items.
 
+- 971 (item 1031, the tile origin): ``ops_tile_origin`` is now ``'paste'``.
+  The composite pastes each sequencing tile at a whole pixel, so the nuclei
+  found on it, and the tile-affine transforms fitted to them, are in that
+  rounded frame. The decode now moves nuclei into a tile, and reads back
+  into the well, by that whole-pixel origin, and the tile-affine merge
+  centres its tile groups on it. Files stamped before 971 retain
+  ``'float'``, the stored fraction of a pixel (up to half a pixel off on
+  each axis), and reproduce their calls. Numbers 966 to 970 belong to other
+  items.
+
 Public API
 ----------
 

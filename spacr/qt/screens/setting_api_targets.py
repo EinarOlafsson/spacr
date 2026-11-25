@@ -1232,6 +1232,7 @@ SETTING_API_TARGETS = {
     'ops_tables_layout': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_test_features': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_tie': ('spacr.ops_decode', 'decode_rule', True),
+    'ops_tile_origin': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_tvn_components': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_tvn_fit_cells': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_tvn_mode': ('spacr.ops_settings', 'ops_defaults', True),
