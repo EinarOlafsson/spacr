@@ -106,3 +106,8 @@ against Measure or Mask Generation, and for any other pair.
 - No long paragraphs and no references to earlier messages the maintainer may not see.
 
 45. Show every figure in the chat (maintainer, 2026-11-25). Whenever a figure, chart, panel, montage or slide image is generated or updated, show it to the maintainer in the conversation in the same turn (send the image file with the tool that delivers files to the maintainer's device, e.g. SendUserFile, or display it inline), with one line saying what it shows and where it is saved. Do not only report a path; the maintainer reviews figures on a phone.
+
+46. Use tokens intelligently (maintainer, 2026-11-25). Do not slow progress, but do not waste tokens.
+- Reuse agent context: send a follow-up to the agent or session that already holds the context instead of starting a fresh one that must re-read everything.
+- Give each subagent the model that fits the task, neither too strong nor too weak: the smallest model for lookups and status checks, a mid-size model for bounded fixes, merges and scripted analysis, the strongest model only for design, judgement and hard debugging.
+- Do small, known lookups directly instead of delegating them; delegate broad searches and parallel independent work.
