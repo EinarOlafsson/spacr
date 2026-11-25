@@ -19,6 +19,7 @@ from spacr import ops_engine
 from spacr.ops_settings import OPS_DEFAULTS, OPS_TOOLTIPS, ops_defaults
 from spacr.settings import (DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION,
                             _fold_older_defaults)
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 from tests.test_ops_objects_resume_958 import (  # noqa: F401
     _CountingModel, _run, _tables, stitched)
 
@@ -30,8 +31,18 @@ class _RecordingModel(_CountingModel):
         super().__init__()
         self.diameters = []
 
-    def eval(self, image, **kwargs):
-        """Record ``diameter`` and label the window as the threshold model."""
+    def eval(self, image, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        """Record ``diameter`` and label the window as the threshold model.
+
+        ``channel_axis`` is named and checked against the installed
+        cellpose (tests/conftest.py), so this double cannot accept an axis
+        the real ``CellposeModel.eval`` would reject. The SBS windows are
+        2-D DAPI planes, which the OPS call sites leave to Cellpose to
+        auto-detect, as the other OPS doubles allow.
+        """
+        check_cellpose_eval_call(image, channel_axis, require_channel_axis=False)
+        if channel_axis is not MISSING_CHANNEL_AXIS:
+            kwargs["channel_axis"] = channel_axis
         self.diameters.append(kwargs.get("diameter"))
         return super().eval(image, **kwargs)
 
