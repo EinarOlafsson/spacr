@@ -1420,7 +1420,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_segment_flatfield",
         "ops_ph_spanning_merge", "ops_ph_tile_batch",
-        "ops_ph_sites", "ops_retry_missing", "ops_store_raw_masks",
+        "ops_ph_sites", "ops_retry_missing",
     ],
     "Additional phenotype objects": [
         "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
@@ -1439,6 +1439,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_nucleus_fragment_max_area_rel",
         "ops_ph_cellless_nuclei",
         "ops_ph_cellless_nucleus_max_distance_px",
+        # The masks as segmentation made them, before this pairing.
+        "ops_store_raw_masks",
     ],
     "Phenotype acquisitions": [
         "ops_ph_acquisitions", "ops_ph_use_acquisition",
