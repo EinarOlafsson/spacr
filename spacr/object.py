@@ -3825,6 +3825,26 @@ def _normalize_01(img):
     return img_norm
 
 
+def _otsu_threshold(image):
+    """Otsu's threshold of an image's finite values, the one classical threshold of spaCR.
+
+    The SBS cell watershed of item 1025 (alpha) takes its foreground
+    threshold here when ``ops_sbs_cell_threshold`` is empty, so every
+    module that splits an image into foreground and background by Otsu
+    reads the same number.
+
+    :param image: any array of intensities.
+    :returns: the threshold as a float, or the single value of a flat image.
+    """
+    values = np.asarray(image, dtype=np.float64).ravel()
+    values = values[np.isfinite(values)]
+    if values.size == 0:
+        return 0.0
+    if np.ptp(values) == 0:
+        return float(values[0])
+    return float(threshold_otsu(values))
+
+
 def _watershed_split(binary, intensity):
     """Marker-controlled watershed on a binary mask using distance-transform peaks."""
     distance = distance_transform_edt(binary)

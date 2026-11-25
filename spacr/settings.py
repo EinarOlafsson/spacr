@@ -2726,6 +2726,7 @@ DEFAULT_CHANGES = {
           'ops_ph_nucleus_fragment_max_valley': None,
           'ops_ph_nucleus_fragment_max_area_rel': None},
     968: {'ops_ph_spanning_merge': 'best_parent'},
+    969: {'ops_sbs_cell_method': 'off'},
     970: {'ops_cross_field_owner_centroid': 'per_copy'},
     971: {'ops_tile_origin': 'float'},
 }
@@ -2938,6 +2939,11 @@ def _fold_older_defaults(settings, version, known=None):
     stamped before keep ``'float'`` (the stored fraction of a pixel, up to
     half a pixel off the composite) and reproduce their calls. Versions
     966 to 970 belong to other items.
+
+    Version 969 is the SBS cell segmentation of item 1025 (alpha):
+    ``ops_sbs_cell_method`` (``'off'``) is new; the row pins the value that
+    decodes as before for files stamped before 969. Number 968 belongs to
+    another item.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9094,6 +9100,10 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 
 
 ALPHA_FEATURES = {
+    1025: {
+        'settings': ('ops_sbs_cell_method', 'ops_sbs_cell_model',
+                     'ops_sbs_cell_threshold'),
+    },
     1024: {
         'settings': (
             'nucleus_fragment_merge',
