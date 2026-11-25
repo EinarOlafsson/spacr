@@ -128,7 +128,7 @@ def test_a_cell_cut_by_every_field_that_holds_it_has_no_owner():
     owned = _own(offsets, copies)
     assert truth == {0: None} and not owned.is_owner.any()
     assert owned.owner_field.isna().all()
-    assert FO.owner_counts(owned) == (1, 0, 1)
+    assert FO._owner_counts(owned) == (1, 0, 1)
 
 
 @pytest.mark.parametrize("jitter", [0.0, 3.0])
@@ -155,7 +155,7 @@ def test_a_three_by_three_neighbourhood_gives_every_whole_cell_one_owner(jitter)
     assert (edge_only > 1).sum() > 12
     assert int(owned.is_owner.sum()) == sum(v is not None for v in truth.values())
     if not jitter:
-        physical, _owned, unowned = FO.owner_counts(owned)
+        physical, _owned, unowned = FO._owner_counts(owned)
         assert physical == len(truth)
         assert unowned == sum(v is None for v in truth.values()) > 0
 
@@ -164,11 +164,11 @@ def test_the_old_rule_survives_only_as_a_named_deprecated_option():
     assert FO.FIELD_OWNER_RULES[0] == "nearest_centre"
     assert FO.DEPRECATED_FIELD_OWNER_RULES == ("largest",)
     with pytest.raises(ValueError, match="field owner rule"):
-        FO.field_owner_rule("deepest")
+        FO._field_owner_rule("deepest")
     offsets = {1: (0, 0), 2: (0, 60)}
     copies, _ = _plant(offsets, [(50, 80)])
     cells = copies.assign(area=[50.0, 90.0], well_y=0.0, well_x=0.0)
-    owned = FO.assign_field_owners(
+    owned = FO._assign_field_owners(
         cells, pd.DataFrame({"site_a": [1], "label_a": [1], "site_b": [2],
                              "label_b": [1]}), rule="largest")
     assert owned.loc[owned.is_owner, "site"].tolist() == [2]
@@ -232,16 +232,32 @@ def test_the_merge_gives_the_sequencing_link_to_the_owner_not_the_closer_copy(tm
     owners = pd.read_parquet(ops_engine._ph_cross_field_path(str(tmp_path), "A1"))
     shared = owners[owners.n_copies == 2]
     owner = shared[shared.is_owner].iloc[0]
-    other = shared[~shared.is_owner].iloc[0]
+    other = shared[~shared.is_owner & (shared.component == owner.component)].iloc[0]
     links = pd.DataFrame({"site": [int(owner.site), int(other.site)],
                           "label": [int(owner.label), int(other.label)],
                           "object_id": [5, 5], "distance": [2.0, 0.5]})
-    ranked = ops_engine._ph_owner_first_links(links, str(tmp_path), "A1",
-                                              settings)
-    kept, dropped = deduplicate_matches(ranked, by=("_owner_rank", "distance"))
+    kept, dropped = ops_engine._ph_pair_one_link_per_nucleus(
+        links, str(tmp_path), "A1", settings)
     assert dropped == 1 and kept.site.tolist() == [int(owner.site)]
+    assert list(kept.columns) == list(links.columns)
     closer, _ = deduplicate_matches(links)
     assert closer.site.tolist() == [int(other.site)]
+    old, _ = ops_engine._ph_pair_one_link_per_nucleus(
+        links, str(tmp_path), "A1", {**settings, "ops_cross_field_rule": "largest"})
+    pd.testing.assert_frame_equal(old, closer)
+    orphan = links.iloc[[1]].reset_index(drop=True)
+    moved, dropped = ops_engine._ph_pair_one_link_per_nucleus(
+        orphan, str(tmp_path), "A1", settings)
+    assert dropped == 0 and moved[["site", "label", "object_id"]].values.tolist() == [
+        [int(owner.site), int(owner.label), 5]]
+    lone = owners[(owners.n_copies == 1) & ~owners.is_owner]
+    if len(lone):
+        cut = pd.DataFrame({"site": [int(lone.site.iloc[0])],
+                            "label": [int(lone.label.iloc[0])],
+                            "object_id": [9], "distance": [1.0]})
+        same, _ = ops_engine._ph_pair_one_link_per_nucleus(
+            cut, str(tmp_path), "A1", settings)
+        pd.testing.assert_frame_equal(same, cut)
     untouched = ops_engine._ph_owner_first_links(
         links, str(tmp_path), "A1", {**settings, "ops_cross_field_ownership": False})
     assert untouched is links

@@ -5,11 +5,11 @@ is segmented once per field that sees it. Counting every copy weights that
 cell two or more times in its profile and in its gene. This module is the one
 place that decides which copy is the cell:
 
-* :func:`match_copies_by_centroid` finds the copies of one cell from their
+* :func:`_match_copies_by_centroid` finds the copies of one cell from their
   nucleus centroids in stitched (well) coordinates: whole copies in two
   fields whose centroids are mutual nearest neighbours within a radius, and
   each cut copy joined to the nearest whole copy;
-* :func:`assign_field_owners` groups the copies into physical cells (the
+* :func:`_assign_field_owners` groups the copies into physical cells (the
   connected components of the copy edges) and names one owner per cell.
 
 The rule (``'nearest_centre'``, the default): a cell belongs to the field
@@ -35,9 +35,11 @@ FIELD_OWNER_RULES = ("nearest_centre", "largest")
 DEPRECATED_FIELD_OWNER_RULES = ("largest",)
 
 
-def field_owner_rule(value) -> str:
+def _field_owner_rule(value) -> str:
     """``value`` as one of :data:`FIELD_OWNER_RULES`; None is the default.
 
+    :param value: a rule name, or None.
+    :returns: the rule, stripped and in lower case.
     :raises ValueError: naming the rules, for any other value.
     """
     from .qt.i18n import tr
@@ -50,7 +52,7 @@ def field_owner_rule(value) -> str:
     return rule
 
 
-def field_centre(transform, shape) -> np.ndarray:
+def _field_centre(transform, shape) -> np.ndarray:
     """The well ``(y, x)`` of the centre of a field.
 
     :param transform: the field ``(scale, rotation, offset)``; a point moves
@@ -80,7 +82,7 @@ def _mutual_pairs(points_a, points_b, radius: float):
     return hit, index_b[hit].astype(np.int64), near_b[hit]
 
 
-def match_copies_by_centroid(cells, neighbours: Mapping[int, Sequence[int]],
+def _match_copies_by_centroid(cells, neighbours: Mapping[int, Sequence[int]],
                              radius: float, cut_radius: float = None):
     """Edges between the copies of one cell in overlapping fields.
 
@@ -115,19 +117,13 @@ def match_copies_by_centroid(cells, neighbours: Mapping[int, Sequence[int]],
     rows = {int(s): np.flatnonzero(sites == s) for s in np.unique(sites)}
     found = []
 
-    def keep(first, second, distance):
-        found.append(pd.DataFrame({
-            "site_a": sites[first], "label_a": labels[first],
-            "site_b": sites[second], "label_b": labels[second],
-            "distance": distance}))
-
     pairs = [(a, b) for a in sorted(rows) for b in sorted(
         int(s) for s in neighbours.get(a, ())) if b > a and b in rows]
     for a, b in pairs:
         first, second = rows[a][whole[rows[a]]], rows[b][whole[rows[b]]]
         i, j, distance = _mutual_pairs(points[first], points[second], radius)
         if i.size:
-            keep(first[i], second[j], distance)
+            found.append((first[i], second[j], distance))
     lone = []
     for site, members in sorted(rows.items()):
         cut = members[~whole[members]]
@@ -148,7 +144,7 @@ def match_copies_by_centroid(cells, neighbours: Mapping[int, Sequence[int]],
             partner[better] = target[index[better]]
         joined = partner >= 0
         if joined.any():
-            keep(cut[joined], partner[joined], best[joined])
+            found.append((cut[joined], partner[joined], best[joined]))
         lone.append(cut[~joined])
     lone = np.concatenate(lone) if lone else np.empty(0, np.int64)
     alone = np.zeros(len(cells), bool)
@@ -158,14 +154,19 @@ def match_copies_by_centroid(cells, neighbours: Mapping[int, Sequence[int]],
         i, j, distance = _mutual_pairs(points[first], points[second],
                                        cut_radius)
         if i.size:
-            keep(first[i], second[j], distance)
+            found.append((first[i], second[j], distance))
     if not found:
         return pd.DataFrame({c: pd.Series(dtype=float if c == "distance"
                                           else np.int64) for c in columns})
-    return pd.concat(found, ignore_index=True)[columns]
+    first = np.concatenate([f for f, _s, _d in found])
+    second = np.concatenate([s for _f, s, _d in found])
+    return pd.DataFrame({
+        "site_a": sites[first], "label_a": labels[first],
+        "site_b": sites[second], "label_b": labels[second],
+        "distance": np.concatenate([d for _f, _s, d in found])})[columns]
 
 
-def assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
+def _assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
                         centres: Mapping[int, Sequence[float]] = None):
     """Physical cells and the one field that owns each.
 
@@ -173,10 +174,10 @@ def assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
         ``'largest'``; ``whole``, ``well_y`` and ``well_x`` for
         ``'nearest_centre'``.
     :param edges: ``site_a, label_a, site_b, label_b``: two copies of one
-        cell (:func:`match_copies_by_centroid`, or mask overlaps).
+        cell (:func:`_match_copies_by_centroid`, or mask overlaps).
     :param rule: one of :data:`FIELD_OWNER_RULES`.
     :param centres: ``{site: (y, x)}``, the well centre of each field
-        (:func:`field_centre`), for ``'nearest_centre'``.
+        (:func:`_field_centre`), for ``'nearest_centre'``.
     :returns: ``cells`` with ``component`` (the connected component of the
         undirected edge graph), ``n_copies``, ``owner_field``,
         ``owner_label`` (both missing when no copy can own the cell),
@@ -187,7 +188,7 @@ def assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
     from scipy.sparse import coo_matrix
     from scipy.sparse.csgraph import connected_components
 
-    rule = field_owner_rule(rule)
+    rule = _field_owner_rule(rule)
     cells = cells.reset_index(drop=True).copy()
     index = pd.Series(np.arange(len(cells)), index=pd.MultiIndex.from_arrays(
         [cells["site"].astype(np.int64), cells["label"].astype(np.int64)]))
@@ -237,9 +238,12 @@ def assign_field_owners(cells, edges, *, rule: str = "nearest_centre",
     return cells
 
 
-def owner_counts(cells) -> Tuple[int, int, int]:
-    """``(physical cells, owned cells, cells without an owner)`` in a table
-    of :func:`assign_field_owners`."""
+def _owner_counts(cells) -> Tuple[int, int, int]:
+    """``(physical cells, owned cells, cells without an owner)`` in a table.
+
+    :param cells: a table of :func:`_assign_field_owners`.
+    :returns: the three counts.
+    """
     components = cells.drop_duplicates("component")
     owned = int(cells["is_owner"].sum())
     return int(len(components)), owned, int(len(components) - owned)

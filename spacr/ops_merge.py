@@ -356,8 +356,7 @@ def deduplicate_matches(frame, *, key: str = "object_id",
 
     :param frame: merge rows with ``key`` and ``by`` columns.
     :param key: the column that must be unique afterwards.
-    :param by: the column whose smallest value wins, or a sequence of
-        columns compared in order.
+    :param by: the column whose smallest value wins.
     :returns: ``(kept, dropped)`` -- the frame with one row per ``key``,
         and how many rows were dropped.
 
@@ -368,8 +367,7 @@ def deduplicate_matches(frame, *, key: str = "object_id",
     """
     if frame is None or len(frame) == 0:
         return frame, 0
-    ordered = frame.sort_values([by] if isinstance(by, str) else list(by),
-                                kind="mergesort")
+    ordered = frame.sort_values([by], kind="mergesort")
     kept = ordered.drop_duplicates(subset=[key], keep="first")
     return kept.sort_index(), int(len(frame) - len(kept))
 

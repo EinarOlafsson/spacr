@@ -7186,13 +7186,8 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
             "table": _ph_fieldcheck_path(destination, well)}
     owner_report = None
     if ownership == "closer_match":
-        ranked = _ph_owner_first_links(frame, destination, well, settings)
-        if "_owner_rank" in ranked:
-            frame, duplicates = deduplicate_matches(
-                ranked, by=("_owner_rank", "distance"))
-            frame = frame.drop(columns=["_owner_rank"])
-        else:
-            frame, duplicates = deduplicate_matches(frame)
+        frame, duplicates = _ph_pair_one_link_per_nucleus(
+            frame, destination, well, settings)
     else:
         prints = {s: field_footprint(f[0], f[5]) for s, f in fields.items()}
         neighbours = overlapping_fields(prints)
@@ -10804,7 +10799,7 @@ def _ph_pair_edges(label_a, label_b, inter, area_a, area_b, *,
 def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
                            metric: str, min_overlap: float = 0.5,
                            rule: str = "nearest_centre",
-                           radius: float = 8.0, load=None, log=None):
+                           radius: float = 16.0, load=None, log=None):
     """Cross-field ownership over a set of fields.
 
     :param fields: ``{site: {"transform", "shape", "areas" (label -> px),
@@ -10812,10 +10807,12 @@ def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
         "centroids" (label -> field ``(row, col)``, optional)}}``. The
         ``'nearest_centre'`` rule and the ``'centroid'`` metric need
         ``whole`` and ``centroids``.
-    :param metric: ``'centroid'`` (:func:`spacr.field_ownership.match_copies_by_centroid`,
-        no label image is read) or a mask score of :func:`_ph_pair_edges`.
+    :param metric: ``'centroid'``
+        (:func:`spacr.field_ownership._match_copies_by_centroid`, no label
+        image is read) or a mask score of :func:`_ph_pair_edges`.
     :param min_overlap: the mask score threshold.
-    :param rule: the owner rule of :func:`spacr.field_ownership.assign_field_owners`.
+    :param rule: the owner rule of
+        :func:`spacr.field_ownership._assign_field_owners`.
     :param radius: the centroid distance of two copies, for ``'centroid'``,
         in field pixels; it is moved to the well with the median field
         scale.
@@ -10823,18 +10820,19 @@ def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
         ``fields``; at most :data:`_PH_CROSS_FIELD_CACHE` are kept.
     :param log: called with a progress line every 250 field pairs.
     :returns: ``(cells, edges, pairs)``: the table of
-        :func:`spacr.field_ownership.assign_field_owners`, the edges (``site_a, site_b, label_a, label_b`` and ``inter, score``
-        or ``distance``) in pair order, and how many field pairs overlapped.
+        :func:`spacr.field_ownership._assign_field_owners`, the edges
+        (``site_a, site_b, label_a, label_b`` and ``inter, score`` or
+        ``distance``) in pair order, and how many field pairs overlapped.
     """
     from collections import OrderedDict
 
     import pandas as pd
 
-    from .field_ownership import (assign_field_owners, field_centre,
-                                  field_owner_rule, match_copies_by_centroid)
+    from .field_ownership import (_assign_field_owners, _field_centre,
+                                  _field_owner_rule, _match_copies_by_centroid)
     from .ops_merge import field_footprint, overlapping_fields
 
-    rule = field_owner_rule(rule)
+    rule = _field_owner_rule(rule)
     sites = sorted(fields)
     prints = {s: field_footprint(fields[s]["transform"], fields[s]["shape"])
               for s in sites}
@@ -10862,13 +10860,13 @@ def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
     if metric == "centroid":
         scale = float(np.median([abs(float(fields[s]["transform"][0]))
                                  for s in sites])) if sites else 1.0
-        edges = match_copies_by_centroid(cells, neighbours,
+        edges = _match_copies_by_centroid(cells, neighbours,
                                          float(radius) * scale)
     else:
         cache: "OrderedDict[int, np.ndarray]" = OrderedDict()
 
         def image(site: int) -> np.ndarray:
-            """One field label image, from ``fields`` or the cache."""
+            """One field's label image, from ``fields`` or the cache."""
             if fields[site].get("cells") is not None:
                 return fields[site]["cells"]
             if site in cache:
@@ -10899,9 +10897,9 @@ def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
         for column in ("site_a", "site_b", "label_a", "label_b", "inter"):
             edges[column] = edges[column].astype(np.int64)
         edges["score"] = edges["score"].astype(float)
-    centres = {s: field_centre(fields[s]["transform"], fields[s]["shape"])
+    centres = {s: _field_centre(fields[s]["transform"], fields[s]["shape"])
                for s in sites}
-    owned = assign_field_owners(cells, edges, rule=rule, centres=centres)
+    owned = _assign_field_owners(cells, edges, rule=rule, centres=centres)
     return owned, edges, len(pairs)
 
 
@@ -10912,7 +10910,7 @@ def _ph_cross_field_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
         ``policy``.
     :raises ValueError: naming the setting that is out of range.
     """
-    from .field_ownership import field_owner_rule
+    from .field_ownership import _field_owner_rule
     from .qt.i18n import tr
 
     metric = str(settings.get("ops_cross_field_metric")
@@ -10929,13 +10927,13 @@ def _ph_cross_field_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
             "ops_cross_field_min_overlap must lie in (0, 1]; got {value}",
             value=min_overlap))
     radius = float(_setting_number(settings.get("ops_cross_field_radius_px"),
-                                   "ops_cross_field_radius_px", 8.0))
+                                   "ops_cross_field_radius_px", 16.0))
     if not radius > 0.0:
         raise ValueError(tr(
             "ops_cross_field_radius_px must be above 0; got {value}",
             value=radius))
     return {"metric": metric, "min_overlap": min_overlap, "radius": radius,
-            "rule": field_owner_rule(settings.get("ops_cross_field_rule")),
+            "rule": _field_owner_rule(settings.get("ops_cross_field_rule")),
             "policy": _ph_cross_field_policy(settings)}
 
 
@@ -10958,12 +10956,12 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
     and cut in the other. The copies of one cell are found per pair of
     overlapping fields (:func:`spacr.ops_merge.overlapping_fields`): with
     the ``'centroid'`` metric from the nucleus centroids in stitched
-    coordinates (:func:`spacr.field_ownership.match_copies_by_centroid`,
+    coordinates (:func:`spacr.field_ownership._match_copies_by_centroid`,
     no label image is read), with a mask metric by comparing the cell
     labels pixel by pixel through the two transforms
     (:func:`_ph_pair_intersections`, :func:`_ph_pair_edges`). The connected
     copies are one physical cell, and
-    :func:`spacr.field_ownership.assign_field_owners` names its owner:
+    :func:`spacr.field_ownership._assign_field_owners` names its owner:
     with ``'nearest_centre'`` the field whose centre is nearest the cell
     centroid among the fields that hold it whole. A field transform is the
     re-solved one when the merge refined it.
@@ -10978,7 +10976,7 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
     """
     import pandas as pd
 
-    from .field_ownership import owner_counts
+    from .field_ownership import _owner_counts
     from .qt.i18n import tr
     from .tabular import write_table
 
@@ -11042,7 +11040,7 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
             "cells": None}
 
     def load(site: int) -> np.ndarray:
-        """One field cell labels."""
+        """One field's cell labels."""
         return _ph_read_masks(mask_paths[site])["cells"]
 
     def log(count: int, total: int) -> None:
@@ -11071,7 +11069,7 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
                 canonicalise=False)
     write_table(edges, _ph_cross_field_edges_path(destination, well),
                 canonicalise=False)
-    physical, owned, unowned = owner_counts(cells)
+    physical, owned, unowned = _owner_counts(cells)
     report = {
         "metric": options["metric"], "rule": options["rule"],
         "min_overlap": options["min_overlap"], "radius_px": options["radius"],
@@ -11089,6 +11087,60 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
             well=well, cells=report["cells"],
             physical=report["physical_cells"]))
     return report
+
+
+def _ph_pair_one_link_per_nucleus(frame, destination: str, well: str,
+                                  settings: Mapping[str, Any]):
+    """One merge link per sequencing nucleus, held by the owner copy.
+
+    :param frame: the merge rows (``site``, ``label``, ``object_id``,
+        ``distance``).
+    :param destination: the run folder.
+    :param well: the well name.
+    :param settings: the OPS settings.
+    :returns: ``(kept, dropped)`` as
+        :func:`spacr.ops_merge.deduplicate_matches` gives them.
+
+    Pairing allows one cell per sequencing nucleus; which copy of a seam
+    cell holds the link is ownership (:func:`_ph_owner_first_links`). The
+    owner copy wins before the closer match. A link kept on another copy of
+    a cell whose owner has no link of its own moves to the owner, with its
+    distance, because both copies are one physical cell; the owner then
+    carries the genotype into the phenotype tables and the aggregate.
+    Without ownership the closer match wins, as before.
+    """
+    from .ops_merge import deduplicate_matches
+
+    ranked = _ph_owner_first_links(frame, destination, well, settings)
+    if ranked is None or "_owner_rank" not in ranked:
+        return deduplicate_matches(frame)
+    columns = list(frame.columns)
+    order = np.lexsort((ranked["distance"].to_numpy(float),
+                        ranked["_owner_rank"].to_numpy()))
+    rank = np.empty(len(ranked), np.int64)
+    rank[order] = np.arange(len(ranked))
+    kept, dropped = deduplicate_matches(ranked.assign(_order=rank),
+                                        by="_order")
+    owner_site = kept["_owner_site"].to_numpy(float)
+    owner_label = kept["_owner_label"].to_numpy(float)
+    linked = set(zip(kept.loc[kept["_owner_rank"] == 0, "site"].astype(
+        np.int64), kept.loc[kept["_owner_rank"] == 0, "label"].astype(
+        np.int64)))
+    movable = (kept["_owner_rank"].to_numpy() == 1) & np.isfinite(owner_site)
+    if movable.any():
+        candidates = kept[movable].assign(
+            _target=list(zip(owner_site[movable].astype(np.int64),
+                             owner_label[movable].astype(np.int64))))
+        candidates = candidates[[t not in linked
+                                 for t in candidates["_target"]]]
+        candidates = candidates.sort_values("_order", kind="mergesort")
+        candidates = candidates.drop_duplicates("_target")
+        kept = kept.copy()
+        for index, (site, label) in zip(candidates.index,
+                                        candidates["_target"]):
+            kept.loc[index, "site"] = site
+            kept.loc[index, "label"] = label
+    return kept[columns], dropped
 
 
 def _ph_ownership_with_merge(settings: Mapping[str, Any],
@@ -11114,7 +11166,8 @@ def _ph_cross_field_owners(destination: str, well: str):
     if not os.path.isfile(path):
         return None
     return pd.read_parquet(path, columns=["well", "site", "label",
-                                          "component", "area", "is_owner"])
+                                          "component", "area", "is_owner",
+                                          "owner_field", "owner_label"])
 
 
 def _ph_cross_field_filter(cells, destination: str, wells: Sequence[str],
@@ -11185,41 +11238,44 @@ def _ph_cross_field_filter(cells, destination: str, wells: Sequence[str],
 
 def _ph_owner_first_links(frame, destination: str, well: str,
                           settings: Mapping[str, Any]):
-    """The merge rows of one well with an ``owner_rank`` column, or unchanged.
+    """The merge rows of one well with their owner, or unchanged.
 
     :param frame: the merge rows (``site``, ``label``, ...).
     :param destination: the run folder.
     :param well: the well name.
     :param settings: the OPS settings.
-    :returns: ``frame`` with ``_owner_rank`` 0 for an owner copy and 1 for
-        any other copy, when ``ops_cross_field_ownership`` is on with the
-        ``'nearest_centre'`` rule, a policy other than ``'flag_only'`` and
-        the well has an ownership table; else ``frame`` as given, so the
-        deprecated ``'largest'`` rule reproduces its earlier merge. The merge keeps one link per
-        sequencing nucleus, the lowest rank first, then the closer match,
-        so a non-owner copy never takes the link of the owner.
+    :returns: ``frame`` with ``_owner_rank`` (0 for an owner copy or a
+        copy the ownership table does not list, 1 for any other copy) and
+        ``_owner_site``, ``_owner_label`` (the owner copy of its physical
+        cell, missing when it has none), when ``ops_cross_field_ownership``
+        is on with the ``'nearest_centre'`` rule, a policy other than
+        ``'flag_only'`` and the well has an ownership table; else ``frame``
+        as given, so the deprecated ``'largest'`` rule reproduces its
+        earlier merge.
     """
     import pandas as pd
 
-    from .field_ownership import field_owner_rule
+    from .field_ownership import _field_owner_rule
 
     if (not bool(settings.get("ops_cross_field_ownership", True))
             or _ph_cross_field_policy(settings) == "flag_only"
-            or field_owner_rule(settings.get("ops_cross_field_rule"))
+            or _field_owner_rule(settings.get("ops_cross_field_rule"))
             != "nearest_centre"):
         return frame
     owners = _ph_cross_field_owners(destination, well)
     if owners is None or frame is None or not len(frame):
         return frame
-    flags = pd.Series(owners["is_owner"].astype(bool).to_numpy(),
-                      index=pd.MultiIndex.from_arrays(
-                          [owners["site"].astype(np.int64),
-                           owners["label"].astype(np.int64)]))
-    found = flags.reindex(pd.MultiIndex.from_arrays(
-        [frame["site"].astype(np.int64), frame["label"].astype(np.int64)]))
-    rank = np.array([0 if pd.isna(v) or bool(v) else 1 for v in found],
-                    np.int64)
-    return frame.assign(_owner_rank=rank)
+    table = owners.set_index([owners["site"].astype(np.int64),
+                              owners["label"].astype(np.int64)])
+    keys = pd.MultiIndex.from_arrays([frame["site"].astype(np.int64),
+                                      frame["label"].astype(np.int64)])
+    found = table.reindex(keys)
+    rank = np.array([0 if pd.isna(v) or bool(v) else 1
+                     for v in found["is_owner"]], np.int64)
+    return frame.assign(
+        _owner_rank=rank,
+        _owner_site=found["owner_field"].to_numpy(float),
+        _owner_label=found["owner_label"].to_numpy(float))
 
 
 #: The levels ``ops_reference_counts_level`` may name: decoded sequencing
@@ -11957,7 +12013,7 @@ def _ph_neighbour_effects(settings: Mapping[str, Any], cells, embedding, pcs: Se
                                               canonicalise=False)
         wells[well] = (part.drop(columns="well").reset_index(drop=True), table, pairs)
     result = neighbour_effects(wells, list(pcs), active=active, receivers=receivers,
-                               null_reps=reps, edge_px=float(radius), field_centre=centre)
+                               null_reps=reps, edge_px=float(radius), _field_centre=centre)
     design = "B" if receivers == "inactive" else "A"
     for name in ("tests", "null"):
         table = result["tests" if name == "tests" else "nulls"]
