@@ -266,7 +266,10 @@ default after a higher-numbered item takes the next free number:
   ``ops_ph_nucleus_fragment_merge`` (``'off'``) and ``cellless_nuclei`` and
   ``ops_ph_cellless_nuclei`` (``'drop'``) are new, with their thresholds.
   Both are off by default, so a run pairs nuclei with cells exactly as
-  before; the row pins the off values for files stamped before 967.
+  before; the row pins the off values for files stamped before 967, and
+  the three fragment tests that are off unless set
+  (``nucleus_fragment_min_contact_px`` 0, ``nucleus_fragment_max_valley``
+  and ``nucleus_fragment_max_area_rel`` None, and their ``ops_ph_`` twins).
 
 Public API
 ----------

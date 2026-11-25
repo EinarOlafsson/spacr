@@ -176,8 +176,11 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_profile_outside_rule": "object",
     "ops_ph_nucleus_fragment_merge": "off",
     "ops_ph_nucleus_fragment_max_gap_px": 2.0,
-    "ops_ph_nucleus_fragment_min_solidity": 0.9,
+    "ops_ph_nucleus_fragment_min_solidity": 0.94,
     "ops_ph_nucleus_fragment_max_dip": 0.2,
+    "ops_ph_nucleus_fragment_min_contact_px": 0.0,
+    "ops_ph_nucleus_fragment_max_valley": None,
+    "ops_ph_nucleus_fragment_max_area_rel": None,
     "ops_ph_cellless_nuclei": "drop",
     "ops_ph_cellless_nucleus_max_distance_px": 5.0,
     "ops_drop_failed_fields": False,
@@ -799,6 +802,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_nucleus_fragment_max_gap_px": (float, int),
     "ops_ph_nucleus_fragment_min_solidity": (float, int),
     "ops_ph_nucleus_fragment_max_dip": (float, int),
+    "ops_ph_nucleus_fragment_min_contact_px": (float, int),
+    "ops_ph_nucleus_fragment_max_valley": (float, int, type(None)),
+    "ops_ph_nucleus_fragment_max_area_rel": (float, int, type(None)),
     "ops_ph_cellless_nuclei": str,
     "ops_ph_cellless_nucleus_max_distance_px": (float, int),
     "ops_drop_failed_fields": bool,
@@ -1401,6 +1407,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_nucleus_fragment_max_gap_px",
         "ops_ph_nucleus_fragment_min_solidity",
         "ops_ph_nucleus_fragment_max_dip",
+        "ops_ph_nucleus_fragment_min_contact_px",
+        "ops_ph_nucleus_fragment_max_valley",
+        "ops_ph_nucleus_fragment_max_area_rel",
         "ops_ph_cellless_nuclei",
         "ops_ph_cellless_nucleus_max_distance_px",
     ],
@@ -2127,50 +2136,78 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_ph_nucleus_fragment_merge":
         "(str) - 'rule' merges the nucleus pieces inside one cell that "
         "look like one nucleus cut in two, so the nucleus features "
-        "describe the whole nucleus and the cell is no longer paired "
-        "with half of it. Pieces that fail the test stay apart. A "
-        "merged nucleus keeps its lowest piece label, gets "
-        "nucleus_fragment_count and nucleus_merged, and its pieces are "
-        "listed in ops_nucleus_fragments_<well>.parquet. 'off' pairs as "
-        "before. The same rule as nucleus_fragment_merge in Measure. "
+        "describe the whole nucleus. Pieces merge pair by pair, the most "
+        "solid passing pair first, each re-tested against the merged "
+        "nucleus; nothing joins by a chain. Pieces that fail are both "
+        "kept and the cell is flagged binucleate. A merged nucleus keeps "
+        "its lowest piece label. A second nucleus gets its own key, empty"
+        " cell columns and its cell in cell_label; pieces are listed in "
+        "ops_nucleus_fragments_<well>.parquet. 'off' pairs as before. "
         "Default 'off'. Alpha.",
     "ops_ph_nucleus_fragment_max_gap_px":
-        "(float) - Wider merges more nucleus pieces but starts joining "
-        "two separate nuclei: the widest background gap, in pixels, "
-        "between two pieces that ops_ph_nucleus_fragment_merge may "
+        "(float) - Wider lets ops_ph_nucleus_fragment_merge join pieces "
+        "that do not touch, but starts joining two separate nuclei: the "
+        "widest background gap, in pixels, between two pieces it may "
         "still join. 0 joins only touching pieces. Only read when "
-        "ops_ph_nucleus_fragment_merge is 'rule'. Provisional until "
-        "checked on hand-labelled cells. Default 2.0. Alpha.",
+        "ops_ph_nucleus_fragment_merge is 'rule'. Provisional (paper "
+        "session, labels pending review). Default 2.0. Alpha.",
     "ops_ph_nucleus_fragment_min_solidity":
-        "(float) - Lower joins more pairs, including two nuclei side by "
-        "side: the least solidity (area over the area of the convex "
+        "(float) - Lower joins more pairs, including two real nuclei side"
+        " by side, which is what lowered the precision of the first "
+        "build: the least solidity (area over the area of the convex "
         "hull) the union of two nucleus pieces needs for "
-        "ops_ph_nucleus_fragment_merge to join them. Only read when "
-        "ops_ph_nucleus_fragment_merge is 'rule'. Provisional until "
-        "checked on hand-labelled cells. Default 0.9. Alpha.",
+        "ops_ph_nucleus_fragment_merge to join them. The strongest single"
+        " test on hand labels (AUC 0.83). Only read when "
+        "ops_ph_nucleus_fragment_merge is 'rule'. Provisional (paper "
+        "session, labels pending review). Default 0.94. Alpha.",
     "ops_ph_nucleus_fragment_max_dip":
         "(float) - Higher joins more pairs, including two nuclei with a "
-        "dark line between them: the deepest dip of the DAPI signal "
-        "along the line joining two piece centres, as 1 - lowest / "
-        "median of the pieces, for ops_ph_nucleus_fragment_merge to "
-        "join them. Only read when ops_ph_nucleus_fragment_merge is "
-        "'rule'. Provisional until checked on hand-labelled cells. "
-        "Default 0.2. Alpha.",
+        "dark line between them: the deepest dip of the raw DAPI along "
+        "the line joining the two piece centres, as 1 - lowest pixel / "
+        "median of the pieces, for ops_ph_nucleus_fragment_merge to join "
+        "them. Only read when ops_ph_nucleus_fragment_merge is 'rule'. "
+        "Provisional (paper session, labels pending review). Default 0.2."
+        " Alpha.",
+    "ops_ph_nucleus_fragment_min_contact_px":
+        "(float) - Higher refuses two pieces that touch only at a corner,"
+        " as two neighbouring nuclei do, while a cut nucleus touches "
+        "along the cut: the least number of pixels of the smaller piece "
+        "touching the other (4-connected) for "
+        "ops_ph_nucleus_fragment_merge to join them (AUC 0.80 on hand "
+        "labels). 0 turns the test off. Only read when "
+        "ops_ph_nucleus_fragment_merge is 'rule'. Default 0 (off). Alpha.",
+    "ops_ph_nucleus_fragment_max_valley":
+        "(float or None) - Set, it refuses two pieces with a darker band "
+        "between them, less noisy than the raw dip: the DAPI is smoothed "
+        "by a 3 x 3 mean and sampled once per pixel along the line "
+        "joining the piece centres; valley = lowest sample / mean of the "
+        "first 3 and last 3, and 1 - valley must be at most this value "
+        "for ops_ph_nucleus_fragment_merge to join them (AUC 0.74). Only "
+        "read when ops_ph_nucleus_fragment_merge is 'rule'. Default None "
+        "(off). Alpha.",
+    "ops_ph_nucleus_fragment_max_area_rel":
+        "(float or None) - Set, it refuses to merge two pieces whose "
+        "union is too large for one nucleus: the most the combined area "
+        "may be, as a multiple of the median nucleus area of the field, "
+        "for ops_ph_nucleus_fragment_merge to join them. 2.5 is the tuned"
+        " value, but it added nothing on the hand-labelled sample. Only "
+        "read when ops_ph_nucleus_fragment_merge is 'rule'. Default None "
+        "(off). Alpha.",
     "ops_ph_cellless_nuclei":
-        "(str) - 'nearest_cell' gives a nucleus outside every cell to "
-        "the nearest cell within "
-        "ops_ph_cellless_nucleus_max_distance_px, whose outline grows "
-        "over the nucleus, so the nucleus is genotyped and measured "
-        "with that cell. 'nucleus_only' keeps it as a nucleus without a "
-        "cell, keyed after the paired nuclei, with has_cell False and "
-        "empty cell and cytoplasm columns. 'drop' drops it, as before. "
-        "Default 'drop'. Alpha.",
+        "(str) - 'nearest_cell' gives a nucleus outside every cell to the"
+        " nearest cell within ops_ph_cellless_nucleus_max_distance_px: "
+        "the cell grows over the nucleus and over the shortest line "
+        "between them, so it stays one connected object, and the nucleus "
+        "is genotyped and measured with it. 'nucleus_only' keeps it as a "
+        "nucleus without a cell, keyed after the paired nuclei, with "
+        "has_cell False and empty cell and cytoplasm columns. 'drop' "
+        "pairs as before. Default 'drop'. Alpha.",
     "ops_ph_cellless_nucleus_max_distance_px":
         "(float) - Farther gives more nuclei a cell but can give one to "
-        "the wrong cell: the farthest, in pixels, a nucleus outside "
-        "every cell may lie from a cell for ops_ph_cellless_nuclei "
+        "the wrong cell: the farthest, in pixels, a nucleus outside every"
+        " cell may lie from a cell for ops_ph_cellless_nuclei "
         "'nearest_cell' to give it to that cell; 1 is touching. Nuclei "
-        "farther away are handled as 'drop'. Only read when "
+        "farther away stay without a cell. Only read when "
         "ops_ph_cellless_nuclei is 'nearest_cell'. Default 5.0. Alpha.",
     "ops_drop_failed_fields":
         "(bool) - Leave out the cells of fields that did not register. The "

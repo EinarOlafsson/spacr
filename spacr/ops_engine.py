@@ -4932,8 +4932,15 @@ _PH_PAIRING_KEYS = ("ops_ph_nucleus_fragment_merge",
                     "ops_ph_nucleus_fragment_max_gap_px",
                     "ops_ph_nucleus_fragment_min_solidity",
                     "ops_ph_nucleus_fragment_max_dip",
+                    "ops_ph_nucleus_fragment_min_contact_px",
+                    "ops_ph_nucleus_fragment_max_valley",
+                    "ops_ph_nucleus_fragment_max_area_rel",
                     "ops_ph_cellless_nuclei",
                     "ops_ph_cellless_nucleus_max_distance_px")
+
+#: The columns of the item-1024 field and well tables.
+_PH_FRAGMENT_COLUMNS = ["well", "site", "label", "kept_label", "merged_label",
+                        "cell_label"]
 
 
 def _ph_fragments_path(mask_dir: str, site: int) -> str:
@@ -4948,24 +4955,27 @@ def _ph_write_fragments(path: str, well: str, site: int,
     :param path: :func:`_ph_fragments_path`.
     :param well: the well.
     :param site: the field.
-    :param record: ``fragments`` and ``nucleus_only`` from
-        :func:`spacr.ops_sample._pair_nuclei_with_cells`.
+    :param record: ``fragments``, ``second_nuclei`` and ``nucleus_only``
+        from :func:`spacr.ops_sample._pair_nuclei_with_cells`.
     :returns: None. One row per merged piece, ``(well, site, label,
-        kept_label, merged_label)``, ``label`` the nucleus key of the
-        tables; a nucleus kept without a cell adds a row with
-        ``kept_label`` and ``merged_label`` -1, so the measure step can tell
-        it apart.
+        kept_label, merged_label, cell_label)``, ``label`` the nucleus key
+        of the tables and ``cell_label`` its cell; a further nucleus of a
+        binucleate cell adds a row with ``kept_label`` and ``merged_label``
+        -2 and the key of its cell, and a nucleus kept without a cell a row
+        with -1, -1 and ``cell_label`` -1, so the measure step can tell them
+        apart.
     """
     import pandas as pd
 
-    rows = [(well, int(site), label, kept, piece)
+    rows = [(well, int(site), label, kept, piece, label)
             for label, kept, piece in record.get("fragments") or ()]
-    rows += [(well, int(site), int(label), -1, -1)
+    rows += [(well, int(site), int(label), -2, -2, int(cell))
+             for label, cell in record.get("second_nuclei") or ()]
+    rows += [(well, int(site), int(label), -1, -1, -1)
              for label in record.get("nucleus_only") or ()]
     from .tabular import write_table
 
-    frame = pd.DataFrame(rows, columns=["well", "site", "label", "kept_label",
-                                        "merged_label"])
+    frame = pd.DataFrame(rows, columns=_PH_FRAGMENT_COLUMNS)
     write_table(frame, path, canonicalise=False)
 
 
@@ -4978,16 +4988,16 @@ def _ph_collect_fragments(mask_dir: str, destination: str, well: str,
     :param well: the well.
     :param sites: the well's fields.
     :returns: the path of ``ops_nucleus_fragments_<well>.parquet``, the
-        mapping table ``(well, site, label, kept_label, merged_label)`` that
-        keeps masks and crops traceable to the pieces they merged.
+        mapping table ``(well, site, label, kept_label, merged_label,
+        cell_label)`` that keeps masks and crops traceable to the pieces
+        they merged and names the cell of each further nucleus.
     """
     import pandas as pd
 
     parts = [_ph_fragments_path(mask_dir, s) for s in sites]
     frames = [pd.read_parquet(p) for p in parts if os.path.isfile(p)]
     frame = (pd.concat(frames, ignore_index=True) if frames else
-             pd.DataFrame(columns=["well", "site", "label", "kept_label",
-                                   "merged_label"]))
+             pd.DataFrame(columns=_PH_FRAGMENT_COLUMNS))
     from .tabular import write_table
 
     path = os.path.join(destination, f"ops_nucleus_fragments_{well}.parquet")
@@ -5002,18 +5012,34 @@ def _ph_pairing_columns(table, cells: np.ndarray, path: str):
     :param cells: the field's paired cell labels.
     :param path: :func:`_ph_fragments_path` of the field.
     :returns: ``table`` with ``nucleus_fragment_count`` (1 for a nucleus
-        never merged), ``nucleus_merged`` and ``has_cell``.
+        never merged), ``nucleus_merged``, ``has_cell``, ``cell_label`` (the
+        key of the cell holding the nucleus, -1 for none), ``nucleus_count``
+        (the nuclei of that cell, 0 without a cell) and ``binucleate`` (two
+        or more). Only a cell's first nucleus, key = cell key, carries the
+        cell and cytoplasm columns; a further nucleus has them empty and
+        points to its cell through ``cell_label``.
     """
     import pandas as pd
 
     pieces = (pd.read_parquet(path) if os.path.isfile(path)
-              else pd.DataFrame(columns=["label", "kept_label"]))
-    merged = pieces[pieces["kept_label"].astype(np.int64) >= 0]
+              else pd.DataFrame(columns=_PH_FRAGMENT_COLUMNS))
+    kept = pieces["kept_label"].astype(np.int64)
+    merged = pieces[kept >= 0]
     extra = merged.groupby("label").size() if len(merged) else pd.Series(dtype=int)
+    further = pieces[kept == -2]
+    home = ({int(k): int(c) for k, c in zip(further["label"], further["cell_label"])}
+            if "cell_label" in pieces else {})
     labels = table["label"].astype(np.int64)
+    present = set(int(v) for v in np.unique(cells[cells > 0]))
+    cell_of = [v if v in present else home.get(v, -1) for v in labels.astype(int)]
+    per_cell = pd.Series([c for c in cell_of if c > 0], dtype=np.int64).value_counts()
     table["nucleus_fragment_count"] = [1 + int(extra.get(v, 0)) for v in labels]
     table["nucleus_merged"] = table["nucleus_fragment_count"] > 1
-    table["has_cell"] = labels.isin(np.unique(cells[cells > 0]))
+    table["has_cell"] = [c > 0 for c in cell_of]
+    table["cell_label"] = np.asarray(cell_of, np.int64)
+    table["nucleus_count"] = [int(per_cell.get(c, 0)) if c > 0 else 0
+                              for c in cell_of]
+    table["binucleate"] = table["nucleus_count"] > 1
     return table
 
 

@@ -1444,6 +1444,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "profile_granularity_subsample", "profile_outside_rule",
             "nucleus_fragment_merge", "nucleus_fragment_max_gap_px",
             "nucleus_fragment_min_solidity", "nucleus_fragment_max_dip",
+            "nucleus_fragment_min_contact_px", "nucleus_fragment_max_valley",
+            "nucleus_fragment_max_area_rel",
             "cellless_nuclei", "cellless_nucleus_max_distance_px",
             "funk_object_features", "zernike", "channel_names",
             "spatial_measurements",

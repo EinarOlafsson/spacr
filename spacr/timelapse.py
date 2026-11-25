@@ -5387,6 +5387,26 @@ def _motility_smooth_corrected(frame, max_displacement, track_outlier_zscore):
     return result
 
 
+def _pairing_frame_stain(intensity_stack, frame, channel):
+    """The nucleus stain of one time-lapse frame for the item-1024 pairing.
+
+    :param intensity_stack: ``(T, H, W, C)`` intensities.
+    :param frame: the frame.
+    :param channel: the nucleus channel index, or None.
+    :returns: the ``(H, W)`` float32 plane, or None when there is no such
+        channel (the stain tests are then skipped).
+    """
+    if channel is None or intensity_stack is None:
+        return None
+    try:
+        index = int(channel)
+    except (TypeError, ValueError):
+        return None
+    if not 0 <= index < intensity_stack.shape[-1]:
+        return None
+    return np.asarray(intensity_stack[frame, ..., index], np.float32)
+
+
 def _process_merged_group(args):
     """
     Worker: process one (plate, well, field) group of merged .npy files.
@@ -5399,6 +5419,11 @@ def _process_merged_group(args):
 
     An optional seventh argument selects bleach correction. That path returns
     (corrected, raw, fits), correcting individual roles before aggregation.
+    An optional eighth argument carries the item-1024 alpha pairing options
+    (:func:`spacr.measure._nucleus_pairing_options`, given only when one is
+    on); each frame is then paired with them in the one shared
+    :func:`spacr.measure._assign_nuclei_to_cells`, with the nucleus channel
+    of the frame for the stain tests.
     Empty/unusable groups retain the historical empty-DataFrame result.
     """
     import numpy as np
@@ -5414,6 +5439,7 @@ def _process_merged_group(args):
         pathogen_chan,
     ) = args[:6]
     bleach_method = args[6] if len(args) > 6 else 'none'
+    pairing = args[7] if len(args) > 7 else None
     if bleach_method not in _BLEACH_METHODS:
         raise ValueError(f'Unknown motility bleach correction: {bleach_method!r}')
 
@@ -5501,9 +5527,16 @@ def _process_merged_group(args):
     has_nucleus = np.any(nucleus_masks)
     has_pathogen = np.any(pathogen_masks)
     if has_nucleus:
-        merged_cells = sum(
-            _assign_nuclei_to_cells(nucleus_masks[frame], cell_masks[frame])[4]
-            for frame in range(T))
+        if pairing:
+            merged_cells = sum(
+                _assign_nuclei_to_cells(
+                    nucleus_masks[frame], cell_masks[frame], options=pairing,
+                    dna=_pairing_frame_stain(intensity_stack, frame, nucleus_chan))[4]
+                for frame in range(T))
+        else:
+            merged_cells = sum(
+                _assign_nuclei_to_cells(nucleus_masks[frame], cell_masks[frame])[4]
+                for frame in range(T))
         if merged_cells:
             print(
                 f"[_process_merged_group] Group {key}: {merged_cells} cell "
@@ -9332,6 +9365,10 @@ def automated_motility_assay(settings):
     cell_chan = settings.get("cell_channel", None)
     nucleus_chan = settings.get("nucleus_channel", None)
     pathogen_chan = settings.get("pathogen_channel", None)
+    from .measure import _nucleus_pairing_active, _nucleus_pairing_options
+
+    pairing = _nucleus_pairing_options(settings)
+    pairing = pairing if _nucleus_pairing_active(pairing) else None
 
     channels_list = settings.get("channels", [])
 
@@ -9372,7 +9409,11 @@ def automated_motility_assay(settings):
         worker_args = []
         for key, file_basenames in groups.items():
             args = (src, file_basenames, n_channels, cell_chan, nucleus_chan, pathogen_chan)
-            worker_args.append(args if bleach_method == 'none' else args + (bleach_method,))
+            if pairing is not None:
+                args = args + (bleach_method, pairing)
+            elif bleach_method != 'none':
+                args = args + (bleach_method,)
+            worker_args.append(args)
 
         if n_jobs is None:
             n_jobs = max(cpu_count() - 1, 1)
