@@ -313,6 +313,16 @@ default after a higher-numbered item takes the next free number:
   before; the row pins the off value for files stamped before 969. Number 968
   belongs to another item.
 
+- 972 (OPS storage for reruns, items N6 and N7): ``ops_store_raw_masks``
+  (default ``False``) keeps the phenotype nucleus and cell masks before
+  pairing as ``nuclei_raw`` and ``cells_raw`` labels, and each sequencing
+  segmentation window in ``sbs_masks/<plate>.ome.zarr``, so pairing and
+  object numbering can be redone without segmenting.
+  ``ops_read_cache_floor`` (default ``100``) is the weakest spot the
+  decode field cache keeps, until now a fixed 100. Files stamped before
+  972 retain ``False`` and ``100`` and reproduce their outputs. Numbers
+  966 to 971 belong to other merges.
+
 Public API
 ----------
 

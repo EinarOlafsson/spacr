@@ -693,6 +693,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_fdr_scale",
     "ops_decode_skip_unplaced_sites",
     "ops_store_field_cache",
+    # Items N6 and N7 (schema 972): raw pre-pairing masks and the field
+    # cache's spot floor.
+    "ops_store_raw_masks", "ops_read_cache_floor",
     # Items 876 and 877: the false-call model and the genotype confidence.
     "ops_decode_qc",
     "ops_decode_qc_model",

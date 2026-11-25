@@ -2641,6 +2641,129 @@ def _objects_windows_journal(well: str, summary: Mapping[str, Any]) -> None:
                           state="done", metrics=dict(summary))
 
 
+def _objects_number(observations, seconds) -> Tuple[Any, Any, str, Tuple[Dict[str, Any], ...]]:
+    """Sew a well's window observations and number its objects; THE step after segmentation.
+
+    The objects phase (:func:`_objects`) and the rerun from stored raw
+    window masks (:func:`_objects_from_stored`) both number here.
+
+    :param observations: every window's
+        :func:`spacr.ops_objects.objects_in_window` output, in window order.
+    :param seconds: a Counter that receives ``sew`` and ``number``.
+    :returns: ``(groups, objects, refusal, refused)``: the strict numbering,
+        or when it refuses, the message, the refused groups
+        (:func:`spacr.ops_objects.unseen_records`) and the lenient numbering.
+    """
+    from .ops_objects import ObjectsError, number, sew, unseen_records
+
+    tick = time.perf_counter()
+    groups = sew(observations)
+    seconds["sew"] = time.perf_counter() - tick
+    tick = time.perf_counter()
+    refusal = ""
+    refused: Tuple[Dict[str, Any], ...] = ()
+    try:
+        objects = number(groups, strict=True)
+    except ObjectsError as failure:
+        refusal = str(failure)
+        refused = unseen_records(groups)
+        objects = number(groups, strict=False)
+    seconds["number"] = time.perf_counter() - tick
+    return groups, objects, refusal, refused
+
+
+def _objects_raw_folder(db: str) -> str:
+    """Where the SBS raw window masks of every well are kept (item N6).
+
+    :param db: the measurements database; the store is
+        ``sbs_masks/<plate>.ome.zarr`` beside it, a plate store like the
+        phenotype masks, one field per segmentation window.
+    """
+    return os.path.join(os.path.dirname(os.path.abspath(db)), "sbs_masks")
+
+
+def _objects_raw_writer(db: str, plate: str):
+    """The plate store writer of the SBS raw window masks (item N6).
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    """
+    from .image_store import PlateWriter
+
+    return PlateWriter(_objects_raw_folder(db), plate)
+
+
+def _objects_raw_save(writer, well: str, index: int, window, canvas, masks) -> None:
+    """Keep one SBS window's nucleus labels as segmented, before sewing (item N6).
+
+    :param writer: from :func:`_objects_raw_writer`.
+    :param well: the well name.
+    :param index: the window's position in the well's window order, its
+        field number in the store.
+    :param window: the :class:`spacr.ops_compose.Window`.
+    :param canvas: the well frame ``(height, width)``.
+    :param masks: the window's labels, uncovered pixels 0, as the objects
+        phase reads them; stored as ``nuclei_raw`` in the smallest lossless
+        label dtype (:func:`spacr.image_store._compact_labels`). A window
+        already committed with the same placement is not written again.
+    """
+    from .image_store import _compact_labels, field_key
+
+    placed = [int(window.top), int(window.left), int(window.height), int(window.width)]
+    entry = writer._committed.get(field_key(well, index)) or {}
+    if entry.get("window") == placed and entry.get("canvas") == [int(v) for v in canvas]:
+        return
+    writer.write_field(well, index, None, {"nuclei_raw": _compact_labels(masks)},
+                       record={"window": placed, "canvas": [int(v) for v in canvas]})
+
+
+def _objects_from_stored(db: str, plate: str, well: str):
+    """A well's ``ops_objects`` rows rebuilt from its stored raw window masks (item N6).
+
+    Reads every window ``ops_store_raw_masks`` kept, in window order, and
+    sews and numbers them as the objects phase does
+    (:func:`_objects_number`), without composing or segmenting.
+
+    :param db: the measurements database the objects phase wrote.
+    :param plate: the plate name.
+    :param well: the well name.
+    :returns: the rows, as :func:`_objects` stores them.
+    :raises ValueError: when no raw window mask of the well is stored.
+    """
+    from .image_store import read_labels
+    from .ops_compose import Window
+    from .ops_objects import objects_frame, objects_in_window
+    from .qt.i18n import tr
+
+    store = os.path.join(_objects_raw_folder(db), f"{plate}.ome.zarr")
+    ledger = os.path.join(store, "spacr_commits.jsonl")
+    entries: Dict[int, Dict[str, Any]] = {}
+    if os.path.isfile(ledger):
+        with open(ledger, encoding="utf-8") as handle:
+            for line in handle:
+                if line.strip():
+                    record = json.loads(line)
+                    if str(record.get("well")) == str(well):
+                        entries[int(record["field"])] = record
+    if not entries:
+        raise ValueError(tr(
+            "{store} holds no raw window masks of well {well}; run the objects "
+            "phase with ops_store_raw_masks on first", store=store, well=well))
+    observations: list = []
+    for index in sorted(entries):
+        record = entries[index]
+        window = Window(*[int(v) for v in record["window"]])
+        labels = read_labels(store, "nuclei_raw", key=record["key"])
+        observations.extend(objects_in_window(
+            window, np.asarray(labels, np.int32),
+            canvas=tuple(int(v) for v in record["canvas"])))
+    _groups, objects, _refusal, _refused = _objects_number(observations, Counter())
+    frame = objects_frame(objects)
+    frame.insert(0, "well", well)
+    frame.insert(0, "plate", plate)
+    return frame
+
+
 def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
              settings: Mapping[str, Any], gpu: bool) -> Dict[str, Any]:
     """Compose, segment, sew and number the well; store ``ops_objects``.
@@ -2659,7 +2782,11 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         segmentation settings, and a rerun reuses every window whose key
         matches. Objects are still numbered in window order, so a resumed
         well equals an uninterrupted one. The files go once the well is
-        stored unless ``ops_objects_keep_windows`` is on.
+        stored unless ``ops_objects_keep_windows`` is on. With
+        ``ops_store_raw_masks`` (item N6) every window's labels are also
+        kept in ``sbs_masks/<plate>.ome.zarr`` beside ``measurements.db``,
+        so :func:`_objects_from_stored` rebuilds the rows without
+        segmenting.
     :param gpu: segment on the card.
     :returns: the objects report; a run that reused windows adds
         ``windows_resumed``.
@@ -2667,8 +2794,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     import functools
 
     from .ops_compose import compose_window, overlap_gain, windows_over
-    from .ops_objects import (ObjectsError, number, objects_frame,
-                              objects_in_window, sew, unseen_records)
+    from .ops_objects import objects_frame, objects_in_window
     from .ops_store import objects_ready
 
     started = time.perf_counter()
@@ -2700,6 +2826,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     folder = _objects_windows_folder(settings, db, well)
     basis = (_objects_window_basis(settings, blend, extra, canvas, shape)
              if folder else None)
+    raw_writer = (_objects_raw_writer(db, plate)
+                  if ops_setting(settings, "ops_store_raw_masks") else None)
     kept = Counter()
     seconds = Counter()
     observations: list = []
@@ -2754,6 +2882,11 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
                 if folder:
                     _objects_window_save(folder, window, key, masks, *gains[-1])
                     kept["computed"] += 1
+            if raw_writer is not None:
+                tick = time.perf_counter()
+                _objects_raw_save(raw_writer, well, windows.index(window), window,
+                                  canvas, masks)
+                seconds["raw_masks"] += time.perf_counter() - tick
             tick = time.perf_counter()
             observations.extend(objects_in_window(window, masks, canvas=canvas))
             seconds["objects_in_window"] += time.perf_counter() - tick
@@ -2762,19 +2895,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
                      f"{len(observations)} observations")
             del fill
 
-    tick = time.perf_counter()
-    groups = sew(observations)
-    seconds["sew"] = time.perf_counter() - tick
-    tick = time.perf_counter()
-    refusal = ""
-    refused: Tuple[Dict[str, Any], ...] = ()
-    try:
-        objects = number(groups, strict=True)
-    except ObjectsError as failure:
-        refusal = str(failure)
-        refused = unseen_records(groups)
-        objects = number(groups, strict=False)
-    seconds["number"] = time.perf_counter() - tick
+    groups, objects, refusal, refused = _objects_number(observations, seconds)
     if not objects:
         raise ValueError(f"well {well}: segmentation found no nuclei")
     frame = objects_frame(objects)
@@ -3656,7 +3777,9 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         :func:`spacr.ops_decode.field_calls`) -- or, when the rule carries
         ``auto`` (item 939), ``candidates``, the field's calls at every grid
         setting, which the well's chosen thresholds turn into ``rule_a`` --
-        and, when the field cache is stored, ``cache``.
+        and, when the field cache is stored, ``cache``. The cache keeps the
+        spots down to the rule's ``cache_floor`` (``ops_read_cache_floor``,
+        item N7) or the read threshold, whichever is lower.
     """
     from scipy import ndimage
 
@@ -3685,7 +3808,8 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     auto = rule.get("auto")
     spots = list(auto.get("spot_thresholds") or ()) if auto else []
     floor = min([rule["threshold"]] + spots[:1])
-    floor = min(_CACHE_FLOOR, floor) if rule["store_cache"] else floor
+    floor = (min(float(rule.get("cache_floor", _CACHE_FLOOR)), floor)
+             if rule["store_cache"] else floor)
     evidence = field_evidence(
         stack, filtered, score, peaks, strength, field.kept, task, edge=margin,
         floor=floor,
@@ -5197,9 +5321,112 @@ def _ph_segmentation_inputs(stack, channels, settings):
     return dna, np.stack([body, dna], axis=-1), extra, factor
 
 
+def _ph_pair_raw(nuclei: np.ndarray, cells: np.ndarray,
+                 settings: Optional[Mapping[str, Any]] = None, *, dna=None,
+                 pairing_record=None):
+    """THE pairing step of the phenotype path, from the raw pre-pairing masks (item N6).
+
+    The live segmentation (:func:`_ph_segment_field`) and the rerun from
+    stored raw masks (:func:`_ph_pair_stored`) both pair here, so a later
+    change to the pairing changes both, and a rerun from the stored masks
+    gives what a live run with the same code gives.
+
+    :param nuclei: the nucleus labels as segmentation returned them, at
+        field size.
+    :param cells: the cell labels as segmentation returned them, at field
+        size.
+    :param settings: the run settings, or None for the defaults; read for
+        ``ops_ph_spanning_merge`` and the item-1024 alpha pairing options
+        (:func:`_ph_pairing_options`).
+    :param dna: the field's nucleus stain for the dip and the valley of the
+        1024 fragment test (:func:`_ph_pairing_stain`), or None to skip both.
+    :param pairing_record: a dict, or None. With a pairing option on, it is
+        filled with the ``fragments``, ``second_nuclei`` and
+        ``nucleus_only`` keys of
+        :func:`spacr.ops_sample._pair_nuclei_with_cells`.
+    :returns: ``(nuclei, cells, counts)`` of
+        :func:`spacr.ops_sample._pair_nuclei_with_cells`.
+    """
+    from .ops_sample import _pair_nuclei_with_cells
+
+    settings = settings or {}
+    pairing = _ph_pairing_options(settings)
+    nuclei, cells, counts, record = _pair_nuclei_with_cells(
+        nuclei, cells, pairing, dna=dna if pairing is not None else None,
+        spanning=settings.get("ops_ph_spanning_merge"))
+    if pairing_record is not None and record is not None:
+        pairing_record.update(record)
+    return nuclei, cells, counts
+
+
+def _ph_pairing_stain(stack: np.ndarray, channels: Sequence[str],
+                      settings: Mapping[str, Any]) -> Optional[np.ndarray]:
+    """The nucleus stain of one field for the 1024 fragment test, or None.
+
+    :param stack: the ``(H, W, C)`` field.
+    :param channels: channel names in the stack.
+    :param settings: the run settings.
+    :returns: the nuclear channel as float32 when an item-1024 pairing
+        option is on, else None (the pairing then never reads it).
+    """
+    if _ph_pairing_options(settings) is None:
+        return None
+    return np.asarray(stack[..., list(channels).index(_NUCLEAR)], np.float32)
+
+
+#: The label names of the raw pre-pairing phenotype masks (item N6), by
+#: the paired label each one precedes.
+_PH_RAW_LABELS: Dict[str, str] = {"nuclei": "nuclei_raw", "cells": "cells_raw"}
+
+
+def _ph_raw_arrays(raw: Mapping[str, np.ndarray]) -> Dict[str, np.ndarray]:
+    """The raw pre-pairing masks of one field as stored labels (item N6).
+
+    :param raw: ``nuclei`` and ``cells`` as :func:`_ph_segment_field`
+        filled them.
+    :returns: ``nuclei_raw`` and ``cells_raw`` in the smallest lossless
+        label dtype (:func:`spacr.image_store._compact_labels`: uint16 up
+        to label 65535, else uint32).
+    """
+    from .image_store import _compact_labels
+
+    return {name: _compact_labels(raw[role]) for role, name in _PH_RAW_LABELS.items()}
+
+
+def _ph_pair_stored(mask_path: str,
+                    settings: Optional[Mapping[str, Any]] = None):
+    """Pair one field again from its stored raw masks, without segmenting (item N6).
+
+    :param mask_path: the field's committed OME-Zarr group or NPZ bundle,
+        written with ``ops_store_raw_masks`` on.
+    :param settings: the run settings for :func:`_ph_pair_raw`
+        (``ops_ph_spanning_merge`` and the item-1024 options), or None for
+        the defaults. No stain is stored with the masks, so the dip and
+        valley tests of the 1024 fragment rule are skipped here.
+    :returns: ``(nuclei, cells, counts)`` of :func:`_ph_pair_raw`, the same
+        as the live run with the same pairing code; the stored labels are
+        read back as int32, the dtype the live run pairs
+        (:func:`_ph_upscale`).
+    :raises ValueError: when the field was segmented without raw masks.
+    """
+    from .qt.i18n import tr
+
+    saved = _ph_read_masks(mask_path)
+    missing = [name for name in _PH_RAW_LABELS.values() if name not in saved]
+    if missing:
+        raise ValueError(tr(
+            "{path} has no {missing} labels: it was segmented with "
+            "ops_store_raw_masks off. Segment it again with the setting on "
+            "to pair it from stored masks.", path=mask_path, missing=missing))
+    return _ph_pair_raw(saved[_PH_RAW_LABELS["nuclei"]].astype(np.int32),
+                        saved[_PH_RAW_LABELS["cells"]].astype(np.int32),
+                        settings)
+
+
 def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
                       settings: Mapping[str, Any], *, field_count=1,
-                      pairing_record=None):
+                      pairing_record=None,
+                      raw: Optional[Dict[str, np.ndarray]] = None):
     """Nuclei and cells of one field, paired so nucleus k is in cell k.
 
     :param stack: the ``(H, W, C)`` field.
@@ -5216,6 +5443,9 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
     :param pairing_record: a dict, or None. With a pairing option on, it is
         filled with the ``fragments`` and ``nucleus_only`` keys of
         :func:`spacr.ops_sample._pair_nuclei_with_cells`.
+    :param raw: a dict that, when given, receives ``nuclei`` and ``cells``
+        as segmentation returned them at field size, before any pairing
+        (item N6, ``ops_store_raw_masks``).
     :returns: ``(nuclei, cells, counts)``.
 
     NUCLEI ON DAPI, CELLS ON THE CELL STAIN WITH DAPI AS THE SECOND
@@ -5225,9 +5455,6 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
     repeated back up: at 2 a nucleus is still about 20 px across, which is
     what the models are trained on, and the cost falls fourfold.
     """
-    from .ops_sample import _pair_nuclei_with_cells
-    from .qt.i18n import tr
-
     dna, body, extra, factor = _ph_segmentation_inputs(stack, channels, settings)
     nucleus_model, cell_model = models
     nuclei = _ops_mask_eval(nucleus_model, dna, settings, site='ops_phenotype',
@@ -5237,15 +5464,13 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
                            site='ops_phenotype', field_count=field_count, channel_axis=-1,
                            **extra["cell"])[0]
     shape = stack.shape[:2]
-    pairing = _ph_pairing_options(settings)
-    dna = (None if pairing is None else
-           np.asarray(stack[..., list(channels).index(_NUCLEAR)], np.float32))
-    nuclei, cells, counts, record = _pair_nuclei_with_cells(
-        _ph_upscale(nuclei, factor, shape), _ph_upscale(cells, factor, shape),
-        pairing, dna=dna, spanning=settings.get('ops_ph_spanning_merge'))
-    if pairing_record is not None and record is not None:
-        pairing_record.update(record)
-    return nuclei, cells, counts
+    nuclei = _ph_upscale(nuclei, factor, shape)
+    cells = _ph_upscale(cells, factor, shape)
+    if raw is not None:
+        raw.update(nuclei=nuclei, cells=cells)
+    return _ph_pair_raw(nuclei, cells, settings,
+                        dna=_ph_pairing_stain(stack, channels, settings),
+                        pairing_record=pairing_record)
 
 
 def _ph_pairing_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
@@ -6599,7 +6824,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     ``<well>/phenotype_cells/site-<n>.parquet``; a committed field
     is not redone, so a run stopped at field 900 resumes at 901. The well
     table, ``ops_phenotype_cells_<well>.parquet``, is the concatenation and
-    is rewritten at the end.
+    is rewritten at the end. With ``ops_store_raw_masks`` each field also
+    keeps ``nuclei_raw`` and ``cells_raw``, the masks before pairing
+    (item N6), so :func:`_ph_pair_stored` pairs it again without segmenting.
 
     SEGMENTATION RUNS IN THIS PROCESS AND MEASUREMENT IN WORKERS: Cellpose
     already uses every core (or the card), while spaCR measurement of a
@@ -6654,6 +6881,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     os.makedirs(cell_dir, exist_ok=True)
     image_format = _ph_image_format(settings)
     ngff_version = _ph_ngff_version(settings)
+    store_raw = bool(ops_setting(settings, "ops_store_raw_masks"))
     mask_writer = None
     stored_masks = _ph_mask_paths(destination, plate, well, settings)
     if segment and image_format == "ome-zarr":
@@ -6867,9 +7095,10 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                         models.extend(_ph_model_pair(settings, gpu, object_models))
                     tick = time.perf_counter()
                     pairing_record = {} if pairing_options else None
+                    raw = {} if store_raw else None
                     nuclei, cells, paired = _ph_segment_field(
                         stack, channels, models, settings, field_count=field_count,
-                        pairing_record=pairing_record)
+                        pairing_record=pairing_record, raw=raw)
                     seconds["segment"] += time.perf_counter() - tick
                     counts.update(paired)
                     if pairing_record is not None:
@@ -6886,6 +7115,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                         for role, labels in objects.items():
                             counts[role] += int(len(np.unique(labels[labels > 0])))
                             arrays[role] = labels.astype(np.uint32)
+                    if raw:
+                        arrays.update(_ph_raw_arrays(raw))
                     if mask_writer is None:
                         np.savez_compressed(mask_path(site) + ".part.npz", **arrays)
                         os.replace(mask_path(site) + ".part.npz", mask_path(site))

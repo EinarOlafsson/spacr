@@ -531,8 +531,9 @@ def test_measure_ops_and_large_sites_call_the_same_pairing_function():
                                                "_pair_nuclei_with_cells")
     assert "_pair_nuclei_with_cells" in _calls("spacr/ops_sample.py",
                                                "pair_nuclei_with_cells")
+    assert "_ph_pair_raw" in _calls("spacr/ops_engine.py", "_ph_segment_field")
     assert "_pair_nuclei_with_cells" in _calls("spacr/ops_engine.py",
-                                               "_ph_segment_field")
+                                               "_ph_pair_raw")
     assert "_assign_nuclei_to_cells" in _calls("spacr/ops_large_sites.py",
                                                "_pair_before_cells")
     assert "_pair_before_cells" in _calls("spacr/ops_large_sites.py",

@@ -302,7 +302,7 @@ def test_measure_and_ops_reach_the_same_kernel_with_their_own_setting():
                                "spanning") == ["settings.get('spanning_merge')"]
     assert _calls_with_keyword("ops_sample.py", "_pair_nuclei_with_cells",
                                "_assign_nuclei_to_cells", "spanning") == ["spanning"]
-    assert _calls_with_keyword("ops_engine.py", "_ph_segment_field", "_pair_nuclei_with_cells",
+    assert _calls_with_keyword("ops_engine.py", "_ph_pair_raw", "_pair_nuclei_with_cells",
                                "spanning") == ["settings.get('ops_ph_spanning_merge')"]
 
 

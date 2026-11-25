@@ -54,6 +54,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_objects_resume": True,
     "ops_objects_keep_windows": False,
     "ops_objects_windows_dir": None,
+    "ops_store_raw_masks": False,
     "ops_footprint": 3.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
@@ -287,6 +288,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_never_barcode_sets": "n1_n2",
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
+    "ops_read_cache_floor": 100.0,
     "ops_decode_qc": False,
     "ops_decode_qc_model": "xgboost",
     "ops_decode_qc_features": None,
@@ -691,6 +693,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_phases": (str, list, type(None)),
     "ops_objects_resume": bool,
     "ops_objects_keep_windows": bool,
+    "ops_store_raw_masks": bool,
     "ops_objects_windows_dir": (str, type(None)),
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
@@ -914,6 +917,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_never_barcode_sets": str,
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
+    "ops_read_cache_floor": (float, int),
     "ops_decode_qc": bool,
     "ops_decode_qc_model": str,
     "ops_decode_qc_features": (str, type(None)),
@@ -1315,7 +1319,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_channel_registration", "ops_registration_precision",
         "ops_registration_backend", "ops_registration_refine_px",
         "ops_field_diagnostics", "ops_decode_skip_unplaced_sites",
-        "ops_store_field_cache",
+        "ops_store_field_cache", "ops_read_cache_floor",
     ],
     "Base calling": [
         "ops_decode_preset", "ops_read_mode", "ops_crosstalk",
@@ -1409,7 +1413,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_spanning_merge",
         "ops_ph_tile_batch",
-        "ops_ph_sites", "ops_retry_missing",
+        "ops_ph_sites", "ops_retry_missing", "ops_store_raw_masks",
     ],
     "Additional phenotype objects": [
         "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
@@ -1945,6 +1949,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - The folder that holds the objects phase's window "
         "files, one subfolder per well. Empty puts them in objects_windows "
         "beside measurements.db. Default None. Alpha.",
+    "ops_store_raw_masks":
+        "(bool) - Keep the nucleus and cell masks as segmentation made them, "
+        "before nuclei and cells are paired, so the pairing and the object "
+        "numbering can be redone later without segmenting again. Phenotype "
+        "fields gain nuclei_raw and cells_raw labels in phenotype_masks; "
+        "each sequencing window is kept in sbs_masks/<plate>.ome.zarr beside "
+        "measurements.db. Adds about 3 GB per well on the Funk plates "
+        "(2.3 MB per phenotype field, 0.4 MB per sequencing window). "
+        "Default False.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "
@@ -3863,6 +3876,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and the fallback pixels -- to <dst_root>/<well>/decode_cache as "
         "one npz per site. The decode QC reads it. A field takes about 13 "
         "MB. Default False.",
+    "ops_read_cache_floor":
+        "(float) - The field cache keeps every spot at least this strong, so "
+        "a read threshold down to this value can be tried later from the "
+        "cache without decoding the images again. Lower keeps more spots "
+        "and makes the cache larger; the read threshold itself is not "
+        "changed. Used only when the field cache is written. Default 100.",
     "ops_decode_qc":
         "(bool) - After the decode, train a model of what makes a genotype "
         "call a decoy: gradient boosting on a permissive decode of the "
