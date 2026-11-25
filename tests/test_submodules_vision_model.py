@@ -400,8 +400,10 @@ def test_interperate_vision_model_ranks_groups_and_saves_importances(
                 assert out["feature_importance_compartment"][
                     "compartment_importance_sum"].sum() == pytest.approx(
                         fi.loc[fi["compartment"].notna(), "importance"].sum())
-                ax = [a for a in _bar_axes() if a.get_title().endswith("Feature Importance")][0]
-                assert "cell_channel_0_mean_intensity" in [t.get_text() for t in ax.get_yticklabels()]
+                # Graphstyle G2 (L5): the title moved into the figure legend and
+                # the features are the categories along x.
+                ax = [a for a in _bar_axes() if a.get_ylabel() == 'Random-forest importance'][0]
+                assert "cell_channel_0_mean_intensity" in [t.get_text() for t in ax.get_xticklabels()]
             if case_id.startswith("integer"):
                 chan = out["feature_importance_channel"]
                 assert set(chan["channel"]) == {"channel_0", "channel_1", "channel_2-channel_3",

@@ -207,7 +207,9 @@ def test_the_gpu_self_check_reports_the_columns_beyond_the_tolerance(
         tmp_path, models, monkeypatch):
     from spacr import ops_sample
 
-    original = ops_sample.measure_phenotype_field
+    # The L5 audit (schema 965) measures every field through the
+    # objects-aware core, so that is where the card's drift goes.
+    original = ops_sample._measure_phenotype_field
 
     def drifting(*args, gpu=False, **kwargs):
         """The CPU table, with one column moved by 0.1 % on the 'card'."""
@@ -216,7 +218,7 @@ def test_the_gpu_self_check_reports_the_columns_beyond_the_tolerance(
             table["cell_gfp_mean_intensity"] *= 1.001
         return table
 
-    monkeypatch.setattr(ops_sample, "measure_phenotype_field", drifting)
+    monkeypatch.setattr(ops_sample, "_measure_phenotype_field", drifting)
     monkeypatch.setitem(ops_engine._PH_WORKER_FIELDS, "count", 0)
     monkeypatch.delenv("CUPY_CACHE_DIR", raising=False)
     root = _prepared(tmp_path / "check")

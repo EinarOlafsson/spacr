@@ -68,6 +68,14 @@ INVENTORY = {
         "the fit was entitled to it.' Counted here rather than excluded by a "
         "name rule, because a rule that skipped every `_score_*` would hide "
         "the next real renderer that happened to be called one.",
+    # Graphstyle G1 (L5): three helpers of the existing renderers, none of
+    # which draws a volcano of its own.
+    ("plot.py", "_style_legacy_volcano"):
+        "not a renderer: applies the shared style to what volcano_plot drew",
+    ("volcano_style.py", "_present_volcano"):
+        "not a renderer: applies the shared style to what render_volcano drew",
+    ("figures/bundle.py", "_volcano_style_script"):
+        "not a renderer: copies render_volcano's source into a replay script",
 }
 
 #: The two the maintainer asked for, one per job.
@@ -209,9 +217,11 @@ def test_the_saved_survivor_and_the_interactive_one_agree_on_what_is_called():
     # from the same numbers, so agreeing with it proves nothing; the marks
     # are what a reader sees and what a paper reproduces.
     called = 0
+    # Hue only: graphstyle G1 (L5) draws the marks at the shared 60 %
+    # opacity, which changes the alpha but not which colour calls a gene.
     for collection in ax.collections:
-        colour = tuple(collection.get_facecolor()[0])
-        if colour in (to_rgba(ROLES["up"]), to_rgba(ROLES["down"])):
+        colour = tuple(collection.get_facecolor()[0])[:3]
+        if colour in (to_rgba(ROLES["up"])[:3], to_rgba(ROLES["down"])[:3]):
             called += collection.get_offsets().shape[0]
     plt.close(figure)
 
