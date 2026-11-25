@@ -179,9 +179,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_nucleus_fragment_merge": "off",
     "ops_ph_nucleus_fragment_max_gap_px": 2.0,
     "ops_ph_nucleus_fragment_min_solidity": 0.94,
-    "ops_ph_nucleus_fragment_max_dip": 0.2,
+    "ops_ph_nucleus_fragment_max_dip": None,
     "ops_ph_nucleus_fragment_min_contact_px": 0.0,
-    "ops_ph_nucleus_fragment_max_valley": None,
+    "ops_ph_nucleus_fragment_max_valley_dip": None,
     "ops_ph_nucleus_fragment_max_area_rel": None,
     "ops_ph_cellless_nuclei": "drop",
     "ops_ph_cellless_nucleus_max_distance_px": 5.0,
@@ -809,9 +809,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_nucleus_fragment_merge": str,
     "ops_ph_nucleus_fragment_max_gap_px": (float, int),
     "ops_ph_nucleus_fragment_min_solidity": (float, int),
-    "ops_ph_nucleus_fragment_max_dip": (float, int),
+    "ops_ph_nucleus_fragment_max_dip": (float, int, type(None)),
     "ops_ph_nucleus_fragment_min_contact_px": (float, int),
-    "ops_ph_nucleus_fragment_max_valley": (float, int, type(None)),
+    "ops_ph_nucleus_fragment_max_valley_dip": (float, int, type(None)),
     "ops_ph_nucleus_fragment_max_area_rel": (float, int, type(None)),
     "ops_ph_cellless_nuclei": str,
     "ops_ph_cellless_nucleus_max_distance_px": (float, int),
@@ -1424,7 +1424,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_nucleus_fragment_min_solidity",
         "ops_ph_nucleus_fragment_max_dip",
         "ops_ph_nucleus_fragment_min_contact_px",
-        "ops_ph_nucleus_fragment_max_valley",
+        "ops_ph_nucleus_fragment_max_valley_dip",
         "ops_ph_nucleus_fragment_max_area_rel",
         "ops_ph_cellless_nuclei",
         "ops_ph_cellless_nucleus_max_distance_px",
@@ -2194,13 +2194,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ops_ph_nucleus_fragment_merge is 'rule'. Provisional (paper "
         "session, labels pending review). Default 0.94. Alpha.",
     "ops_ph_nucleus_fragment_max_dip":
-        "(float) - Higher joins more pairs, including two nuclei with a "
-        "dark line between them: the deepest dip of the raw DAPI along "
-        "the line joining the two piece centres, as 1 - lowest pixel / "
-        "median of the pieces, for ops_ph_nucleus_fragment_merge to join "
-        "them. Only read when ops_ph_nucleus_fragment_merge is 'rule'. "
-        "Provisional (paper session, labels pending review). Default 0.2."
-        " Alpha.",
+        "(float or None) - Set, it refuses two pieces with a dark line "
+        "between them; higher joins more pairs: the deepest dip of the raw"
+        " DAPI along the line joining the two piece centres, as 1 - "
+        "lowest pixel / median of the pieces, for "
+        "ops_ph_nucleus_fragment_merge to join them. The single-pixel "
+        "minimum is noisy; the paper session retunes it. Only read when "
+        "ops_ph_nucleus_fragment_merge is 'rule'. Default None (off). "
+        "Alpha.",
     "ops_ph_nucleus_fragment_min_contact_px":
         "(float) - Higher refuses two pieces that touch only at a corner,"
         " as two neighbouring nuclei do, while a cut nucleus touches "
@@ -2209,7 +2210,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ops_ph_nucleus_fragment_merge to join them (AUC 0.80 on hand "
         "labels). 0 turns the test off. Only read when "
         "ops_ph_nucleus_fragment_merge is 'rule'. Default 0 (off). Alpha.",
-    "ops_ph_nucleus_fragment_max_valley":
+    "ops_ph_nucleus_fragment_max_valley_dip":
         "(float or None) - Set, it refuses two pieces with a darker band "
         "between them, less noisy than the raw dip: the DAPI is smoothed "
         "by a 3 x 3 mean and sampled once per pixel along the line "

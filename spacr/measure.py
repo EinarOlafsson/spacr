@@ -1902,14 +1902,15 @@ def _merge_spanning_children(mask1, mask2):
 #: reads the same options under ``ops_ph_`` + these names
 #: (:func:`_nucleus_pairing_options`). A default of None means the test is
 #: off. The thresholds are the paper session's provisional values (LaC024A
-#: A1, labels pending review): union solidity 0.94, raw dip 0.20, gap 2 px.
+#: A1, labels pending review): union solidity 0.94 and gap 2 px; the raw dip
+#: is off until the paper session retunes it.
 _NUCLEUS_PAIRING_DEFAULTS = {
     'nucleus_fragment_merge': 'off',
     'nucleus_fragment_max_gap_px': 2.0,
     'nucleus_fragment_min_solidity': 0.94,
-    'nucleus_fragment_max_dip': 0.2,
+    'nucleus_fragment_max_dip': None,
     'nucleus_fragment_min_contact_px': 0.0,
-    'nucleus_fragment_max_valley': None,
+    'nucleus_fragment_max_valley_dip': None,
     'nucleus_fragment_max_area_rel': None,
     'cellless_nuclei': 'drop',
     'cellless_nucleus_max_distance_px': 5.0,
@@ -2066,7 +2067,8 @@ def _fragment_pair_test(first, second, dna, options, smoothed=None,
     """The fragment test of item 1024 for two nucleus pieces in one cell.
 
     Every test must pass; the ones whose threshold is None (or 0 for the
-    contact) are skipped:
+    contact) are skipped, and by default the raw dip, the valley, the
+    contact and the area all are:
 
     - gap: the widest background gap between the pieces is at most
       ``nucleus_fragment_max_gap_px`` (0 is touching);
@@ -2081,7 +2083,7 @@ def _fragment_pair_test(first, second, dna, options, smoothed=None,
     - valley: on the stain smoothed by a 3 x 3 mean, sampled once per pixel
       along that line (linear interpolation), ``valley = min(profile) /
       mean(mean of the first 3 samples, mean of the last 3)``; the depth
-      ``1 - valley`` is at most ``nucleus_fragment_max_valley``.
+      ``1 - valley`` is at most ``nucleus_fragment_max_valley_dip``.
 
     :param first: boolean mask of one piece (a crop around both).
     :param second: boolean mask of the other piece, the same shape.
@@ -2114,11 +2116,14 @@ def _fragment_pair_test(first, second, dna, options, smoothed=None,
     if max_area is not None and median_area:
         if float(union.sum()) / float(median_area) > float(max_area):
             return False, solidity
-    max_valley = options.get('nucleus_fragment_max_valley')
-    if dna is not None or (smoothed is not None and max_valley is not None):
+    max_valley = options.get('nucleus_fragment_max_valley_dip')
+    max_dip = options.get('nucleus_fragment_max_dip')
+    if dna is None:
+        max_dip = None
+    if max_dip is not None or (smoothed is not None and max_valley is not None):
         a = np.argwhere(first).mean(axis=0)
         b = np.argwhere(second).mean(axis=0)
-    if dna is not None:
+    if max_dip is not None:
         steps = int(np.ceil(np.hypot(*(b - a)))) + 1
         line_r = np.clip(np.rint(np.linspace(a[0], b[0], steps)).astype(int),
                          0, dna.shape[0] - 1)
@@ -2127,7 +2132,7 @@ def _fragment_pair_test(first, second, dna, options, smoothed=None,
         level = float(np.median(dna[union]))
         if level > 0:
             dip = 1.0 - float(dna[line_r, line_c].min()) / level
-            if dip > options['nucleus_fragment_max_dip']:
+            if dip > float(max_dip):
                 return False, solidity
     if smoothed is not None and max_valley is not None:
         from scipy.ndimage import map_coordinates
@@ -2226,7 +2231,7 @@ def _merge_nucleus_fragments(nucleus_mask, cell_mask, dna=None, options=None,
     if not groups:
         return [], []
     smoothed = None
-    if dna is not None and options.get('nucleus_fragment_max_valley') is not None:
+    if dna is not None and options.get('nucleus_fragment_max_valley_dip') is not None:
         from scipy.ndimage import uniform_filter
 
         smoothed = uniform_filter(np.asarray(dna, np.float32), size=3)

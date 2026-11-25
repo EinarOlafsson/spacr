@@ -5272,7 +5272,7 @@ _PH_PAIRING_KEYS = ("ops_ph_nucleus_fragment_merge",
                     "ops_ph_nucleus_fragment_min_solidity",
                     "ops_ph_nucleus_fragment_max_dip",
                     "ops_ph_nucleus_fragment_min_contact_px",
-                    "ops_ph_nucleus_fragment_max_valley",
+                    "ops_ph_nucleus_fragment_max_valley_dip",
                     "ops_ph_nucleus_fragment_max_area_rel",
                     "ops_ph_cellless_nuclei",
                     "ops_ph_cellless_nucleus_max_distance_px")
