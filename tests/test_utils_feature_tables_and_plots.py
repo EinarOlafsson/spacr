@@ -698,24 +698,27 @@ def test_generate_path_list_from_db_selects_by_metadata_substring(subtests, tmp_
         with subtests.test(case=name):
             assert sorted(U.generate_path_list_from_db(db, meta)) == expected
 
-    with subtests.test(case="sqlite error -> None"):
+    # The reader goes through spacr.store (S7), so a database without png_list is a
+    # StoreError naming the missing table, and every failure prints "Error: ..." and
+    # returns None.
+    with subtests.test(case="missing table -> None"):
         empty = tmp_path / "empty.db"
         sqlite3.connect(empty).close()
         capsys.readouterr()
         assert U.generate_path_list_from_db(str(empty), None) is None
-        assert "Database error:" in capsys.readouterr().out
+        assert "Error: no table 'png_list'" in capsys.readouterr().out
 
     with subtests.test(case="generic error -> None"):
+        from spacr import store
+
         def boom(*a, **k):
             raise ValueError("connect exploded")
 
         with monkeypatch.context() as m:
-            m.setattr(U.sqlite3, "connect", boom)
+            m.setattr(store, "open", boom)
             capsys.readouterr()
-            assert U.generate_path_list_from_db(str(tmp_path / "nope.db"), "A01") is None
-        out = capsys.readouterr().out
-        assert "Error: connect exploded" in out
-        assert "Database error:" not in out
+            assert U.generate_path_list_from_db(str(db_wells), "A01") is None
+        assert "Error: connect exploded" in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------
