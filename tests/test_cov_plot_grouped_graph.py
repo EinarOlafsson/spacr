@@ -718,6 +718,7 @@ def _case_posthoc_returns_empty_for_two_groups():
 # ===========================================================================
 
 def _case_create_plot_single_data_column_graph_types(graph_type):
+    """Report objective labels, fixed physical data axes and the original statistical result rows."""
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -732,12 +733,11 @@ def _case_create_plot_single_data_column_graph_types(graph_type):
     # (LABEL ONLY: the normality rows say Shapiro-Wilk since 2026-08-17,
     # because that is the test the one engine runs.)
     res = g.get_results()
-    # the violin renderer relabels the y-axis 'Value' after setting the column;
-    # the x label is cleared for non-line graphs;
-    # the plot area is n condition slots wide (spacr-graphs rules,
-    # 2026-11-19), so a three-group figure is one fixed size
+    # The page fits measured eight-point labels; data axes retain fixed
+    # condition slots and the shared forty-millimetre value-axis height.
     return (drew, ax.get_ylabel(), ax.get_xlabel(),
-            tuple(round(float(v), 4) for v in fig.get_size_inches()),
+            (round(ax.get_position().width * fig.get_size_inches()[0], 4),
+             round(ax.get_position().height * fig.get_size_inches()[1], 4)),
             set(res["Test Name"]) >= {"Shapiro-Wilk", "One-way ANOVA"},
             len(res))
 
@@ -795,6 +795,7 @@ def _case_create_plot_y_lim_two_elements():
 
 
 def _case_create_plot_multi_data_column_builds_symbol_table():
+    """Consecutive labelled slots replace the old symbol table; numerical groups remain unchanged."""
     from spacr.plot import spacrGraph
 
     g = spacrGraph(multi_col_df(("a", "b", "c"), n=12), "grp", ["v1", "v2"],
@@ -805,22 +806,20 @@ def _case_create_plot_multi_data_column_builds_symbol_table():
 
     fig = g.get_figure()
     ax = fig.get_axes()[0]
-    # x ticks are removed and replaced by the +/- symbol table
     texts = [t.get_text() for t in ax.texts]
-    # texts[:3] are the row labels; "+" and "-" are the symbol rows; and an
-    # extra axes was added below the plot to host the legend table
     return {
         "hue": g.hue,
         "jitter_bar_dodge": g.jitter_bar_dodge,
         "combined_groups": list(g.summary_df["Combined Group"]),
         "xticks": list(ax.get_xticks()),
-        "row_labels": texts[:3],
+        "slot_labels": [item.get_text() for item in ax.get_xticklabels()],
         "has_symbols": "+" in texts and "-" in texts,
         "n_axes": len(fig.axes),
     }
 
 
 def _case_create_plot_multi_data_column_jitter_bar_places_symbols_per_position():
+    """The automatic mean/point form uses one labelled slot per original group and measurement."""
     from spacr.plot import spacrGraph
 
     g = spacrGraph(multi_col_df(("a", "b", "c"), n=12), "grp", ["v1", "v2"],
@@ -828,10 +827,8 @@ def _case_create_plot_multi_data_column_jitter_bar_places_symbols_per_position()
     g.create_plot()
 
     ax = g.get_figure().get_axes()[0]
-    texts = [t.get_text() for t in ax.texts]
-    # 3 row labels, then one 3-cell column per jitter x-position
-    return (texts[:3], (len(texts) - 3) % 3, len(texts) > 3,
-            texts.count("+") == texts.count("-"))
+    return ([item.get_text() for item in ax.get_xticklabels()],
+            ax._spacr_condition_kinds, len(g.fig.axes))
 
 
 def _case_create_plot_multi_data_column_draws_one_bar_per_combined_group():
@@ -849,6 +846,7 @@ def _case_create_plot_multi_data_column_draws_one_bar_per_combined_group():
 
 
 def _case_create_plot_multi_data_column_graph_types(graph_type):
+    """Every manual or automatic form labels its actual measurement slots without a separate table axes."""
     from spacr.plot import spacrGraph
 
     g = spacrGraph(multi_col_df(("a", "b"), n=12), "grp", ["v1", "v2"],
@@ -856,7 +854,7 @@ def _case_create_plot_multi_data_column_graph_types(graph_type):
     g.create_plot()
     assert g.get_figure() is not None
     ax = g.get_figure().get_axes()[0]
-    return (ax.get_ylabel(), [t.get_text() for t in ax.texts][:3])
+    return (ax.get_ylabel(), [t.get_text() for t in ax.get_xticklabels()])
 
 
 # ===========================================================================
@@ -1289,7 +1287,7 @@ _ALL_SINGLE = ("bar", "jitter", "box", "violin", "jitter_box", "jitter_bar")
 _CREATE_PLOT_ROWS = [
     pytest.param(
         _bind(_case_create_plot_single_data_column_graph_types, kind),
-        (True, "Value" if kind == "violin" else "v1", "", (1.66, 2.9), True,
+        (True, "v1", "grp", (0.66, round(40 / 25.4, 4)), True,
          7),
         id=f"{kind}-single-column-draws-with-stats")
     for kind in _ALL_SINGLE
@@ -1311,28 +1309,28 @@ _CREATE_PLOT_ROWS = [
         {"hue": "Data Column", "jitter_bar_dodge": True,
          "combined_groups": ["a - v1", "a - v2", "b - v1", "b - v2",
                              "c - v1", "c - v2"],
-         "xticks": [], "row_labels": ["grp", "v1", "v2"],
-         "has_symbols": True, "n_axes": 2},
+         "xticks": list(range(6)), "slot_labels": ["a - v1", "a - v2", "b - v1", "b - v2", "c - v1", "c - v2"],
+         "has_symbols": False, "n_axes": 1},
         id="multi-column-bar-builds-symbol-table"),
     pytest.param(
         _case_create_plot_multi_data_column_jitter_bar_places_symbols_per_position,
-        (["grp", "v1", "v2"], 0, True, True),
+        (["a - v1", "a - v2", "b - v1", "b - v2", "c - v1", "c - v2"], ("bar",)*6, 1),
         id="multi-column-jitter-bar-symbols-per-position"),
     pytest.param(
         _case_create_plot_multi_data_column_draws_one_bar_per_combined_group,
         6, id="multi-column-bar-one-bar-per-combined-group"),
     pytest.param(
         _bind(_case_create_plot_multi_data_column_graph_types, "violin"),
-        ("Value", ["grp", "v1", "v2"]), id="multi-column-violin"),
+        ("v1, v2", ["a - v1", "a - v2", "b - v1", "b - v2"]), id="multi-column-violin"),
     pytest.param(
         _bind(_case_create_plot_multi_data_column_graph_types, "jitter"),
-        ("Value", ["grp", "v1", "v2"]), id="multi-column-jitter"),
+        ("v1, v2", ["a - v1", "a - v2", "b - v1", "b - v2"]), id="multi-column-jitter"),
     pytest.param(
         _bind(_case_create_plot_multi_data_column_graph_types, "box"),
-        ("Value", ["grp", "v1", "v2"]), id="snap-multi-column-box"),
+        ("v1, v2", ["a - v1", "a - v2", "b - v1", "b - v2"]), id="snap-multi-column-box"),
     pytest.param(
         _bind(_case_create_plot_multi_data_column_graph_types, "jitter_box"),
-        ("Value", ["grp", "v1", "v2"]), id="snap-multi-column-jitter-box"),
+        ("v1, v2", ["a - v1", "a - v2", "b - v1", "b - v2"]), id="snap-multi-column-jitter-box"),
 ]
 
 

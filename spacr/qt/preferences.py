@@ -1814,26 +1814,16 @@ def figure_color_is_auto(token) -> bool:
 
 
 def auto_figure_colors() -> tuple:
-    """What :data:`AUTO_FIGURE_COLOR` resolves to *right now*, as
-    ``(background, text)``.
+    """Resolve automatic plot colors from the shared readable presentation ground.
 
-    Public because a control that offers "Follow the theme" has to SHOW what
-    that currently means without storing it. Storing what this returns is the
-    bug the section header describes; previewing it is the fix.
-
-    TRANSPARENT, not the theme's window colour. "auto" used to resolve to
-    #000000 on a dark theme, which is where the black slab behind every plot
-    came from: an opaque black rectangle sitting on a container that is a
-    translucent SURFACE. ``bg`` is the window colour and a figure is not a
-    window (INVARIANTS 2).
-
-    Transparent also means the page-opacity preference reaches the plot for
-    free, and one value is right for both themes — baking in a grey would
-    freeze one opacity into every figure while everything around it kept
-    following the preference.
+    Black confidence intervals require a light plot surface in either GUI
+    theme. Explicit stored colors continue through get_figure_colors unchanged.
+    The surrounding window still follows the selected interface theme.
     """
-    dark = resolve_effective_theme() != "light"
-    return TRANSPARENT_FIGURE_BG, ("#ffffff" if dark else "#000000")
+    from ..figures.style import GENERAL_DEFAULTS
+
+    return GENERAL_DEFAULTS["background"], GENERAL_DEFAULTS["foreground"]
+
 
 
 #: Background values that a historical ``"auto"`` preference could persist:

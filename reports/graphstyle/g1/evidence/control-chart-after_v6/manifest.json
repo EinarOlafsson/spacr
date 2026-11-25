@@ -1,0 +1,229 @@
+{
+  "records": [
+    {
+      "case": "normal",
+      "theme": "light",
+      "tables": {
+        "bands.csv": "bac01de6562ec6f044a8baa6af19cb96d576d06bdf76aa82e9c47516b0279526",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "13d8ff39d04968c10b5f9a0f3b435d260e41840d9017f64ad8301fa89f0ed15a",
+        "lines.csv": "d841331d5adcacd44cf5b3285499541620831e17b22fd5224401e41353416716",
+        "points.csv": "495fe0235587e74756a459435de3636a79bc6d0af870cfab8f14d900adfe3f0b",
+        "registered_source.csv": "3a531b5e1a621976a816fe9d8abbe62ad60862229904a7c14273f369105665c0",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "drift",
+      "theme": "light",
+      "tables": {
+        "bands.csv": "bac01de6562ec6f044a8baa6af19cb96d576d06bdf76aa82e9c47516b0279526",
+        "flagged_points.csv": "d46f5113bec2bd73a88bca28aa6fe589cd081f8ff39def0ccaa84237c179bf44",
+        "input.csv": "1c41a7791fa32985290846ed697799d90c311a2d027ec3fc1207028acf787fd8",
+        "lines.csv": "7d89e4c6807330fae4a3335d74b1779000f5923d82a18e53468bd26ba9290932",
+        "points.csv": "3032b08c2d256aed0d3578355af67a5ef7e4f158950a4079bc1c3ee964fc59aa",
+        "registered_source.csv": "4a500c64ff4b135bafc1f78f4b9088b57c5cb0b4ff7026668529c8d94fc63b73",
+        "violations.csv": "7668079cefd6c01cc568e705bb28ec248175cf5d76613e339ba34610d505b0f5"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "unequal",
+      "theme": "light",
+      "tables": {
+        "bands.csv": "2e4d5e1b7ad9166c649a53a18fb03e315c55c9a677a6882b17cb4432f7919251",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "857d469d58a2a62ce71166f6785ebeb211feef33f6b04e613b43387ad9a60a40",
+        "lines.csv": "1a92ea0e9185d90b0cd5bbb5d98153b4ace6c54e89b4f4dc45dc1bcef49c982b",
+        "points.csv": "3ffd53a2dcf431512d277c5ce266ca2044c6335498412ee658e31444ec1e03dc",
+        "registered_source.csv": "dba743606530af210ccda6a7dc83b504e19b89d0626ad5ed39b7c454f4d0ae0b",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "constant",
+      "theme": "light",
+      "tables": {
+        "bands.csv": "8d4193f9a8bb34e4645c826e22cb380241e58e130a1f1dd3c0b881efb25c42bf",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "1152709bc335f98c4feee035df5727f17ae21d30c8a690d3918a7eb1b5f4ff4f",
+        "lines.csv": "5443103cc5b3d7fef13e46a845b8969f038c79588e6c3ced195188b9e003a2ef",
+        "points.csv": "3fa577cae194ad50e0cefddc3481778267efbb7427f9b77a9709f2a5f8cbcf0c",
+        "registered_source.csv": "11192aafa9274f8dbc84a96f94cbf8406ef66bccc317b7ad9367e43667e860a6",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "negative",
+      "theme": "light",
+      "tables": {
+        "bands.csv": "5e65f4d4edbb1f1cbb8d1cce4cb993e1ae0776bea271f0a3cc81f3baae436b33",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "6407ba990d65ebcb265f0f5a37a157de4c4d4398e33153281750ed8eed69a19c",
+        "lines.csv": "e5fe8ac545f7ade8ad6be4e40ef819076f33f61a6e5b5cdfbdb80042e37849bc",
+        "points.csv": "fc55ea2732d44deac7c22c593afe449877456b47eba863282e6faac403ce8026",
+        "registered_source.csv": "842e241d48a55079492b40cfa8492f67c112e1206211c07752994792280b1211",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "zprime",
+      "theme": "light",
+      "tables": {
+        "bands.csv": "559ca475c30cd4fed64939edc304f5358cc2f2026a5974f865501640bb34589d",
+        "flagged_points.csv": "4900468c3691f7a8554f21dd566bafd9294f97bba684f51f1e1f1e40b96d9597",
+        "input.csv": "13d8ff39d04968c10b5f9a0f3b435d260e41840d9017f64ad8301fa89f0ed15a",
+        "lines.csv": "bf315b9215db24f8f0c4f1a0758e57a9e52f323b177a58d07392c483c12a55dc",
+        "points.csv": "71a22126c17b7acaa4e570c339eef4de651943a845d0c9186b2d286e7b13c196",
+        "registered_source.csv": "23d12805d965bb5302433a97492a84a0751a464b42084579a5951708265c3f0e",
+        "violations.csv": "e2b52f4ce829b26ae94280dce04e979d0c66b69de14d2b4d11524a3db6a708f9"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "inferred",
+      "theme": "light",
+      "tables": {
+        "bands.csv": "bac01de6562ec6f044a8baa6af19cb96d576d06bdf76aa82e9c47516b0279526",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "13d8ff39d04968c10b5f9a0f3b435d260e41840d9017f64ad8301fa89f0ed15a",
+        "lines.csv": "d841331d5adcacd44cf5b3285499541620831e17b22fd5224401e41353416716",
+        "points.csv": "0de6af4abdd43e2a8513c86b743bd896af43cf763a91a321ee884da7edbeb85e",
+        "registered_source.csv": "3a531b5e1a621976a816fe9d8abbe62ad60862229904a7c14273f369105665c0",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "empty",
+      "theme": "light",
+      "tables": {
+        "bands.csv": "8d4193f9a8bb34e4645c826e22cb380241e58e130a1f1dd3c0b881efb25c42bf",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "13d8ff39d04968c10b5f9a0f3b435d260e41840d9017f64ad8301fa89f0ed15a",
+        "lines.csv": "7d8abe1dd09d6b2855c24f04e62432d834b73e215701554e90647e1313b2b69f",
+        "points.csv": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "registered_source.csv": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "violations.csv": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "normal",
+      "theme": "dark",
+      "tables": {
+        "bands.csv": "bac01de6562ec6f044a8baa6af19cb96d576d06bdf76aa82e9c47516b0279526",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "13d8ff39d04968c10b5f9a0f3b435d260e41840d9017f64ad8301fa89f0ed15a",
+        "lines.csv": "d841331d5adcacd44cf5b3285499541620831e17b22fd5224401e41353416716",
+        "points.csv": "495fe0235587e74756a459435de3636a79bc6d0af870cfab8f14d900adfe3f0b",
+        "registered_source.csv": "3a531b5e1a621976a816fe9d8abbe62ad60862229904a7c14273f369105665c0",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "drift",
+      "theme": "dark",
+      "tables": {
+        "bands.csv": "bac01de6562ec6f044a8baa6af19cb96d576d06bdf76aa82e9c47516b0279526",
+        "flagged_points.csv": "d46f5113bec2bd73a88bca28aa6fe589cd081f8ff39def0ccaa84237c179bf44",
+        "input.csv": "1c41a7791fa32985290846ed697799d90c311a2d027ec3fc1207028acf787fd8",
+        "lines.csv": "7d89e4c6807330fae4a3335d74b1779000f5923d82a18e53468bd26ba9290932",
+        "points.csv": "3032b08c2d256aed0d3578355af67a5ef7e4f158950a4079bc1c3ee964fc59aa",
+        "registered_source.csv": "4a500c64ff4b135bafc1f78f4b9088b57c5cb0b4ff7026668529c8d94fc63b73",
+        "violations.csv": "7668079cefd6c01cc568e705bb28ec248175cf5d76613e339ba34610d505b0f5"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "unequal",
+      "theme": "dark",
+      "tables": {
+        "bands.csv": "2e4d5e1b7ad9166c649a53a18fb03e315c55c9a677a6882b17cb4432f7919251",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "857d469d58a2a62ce71166f6785ebeb211feef33f6b04e613b43387ad9a60a40",
+        "lines.csv": "1a92ea0e9185d90b0cd5bbb5d98153b4ace6c54e89b4f4dc45dc1bcef49c982b",
+        "points.csv": "3ffd53a2dcf431512d277c5ce266ca2044c6335498412ee658e31444ec1e03dc",
+        "registered_source.csv": "dba743606530af210ccda6a7dc83b504e19b89d0626ad5ed39b7c454f4d0ae0b",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "constant",
+      "theme": "dark",
+      "tables": {
+        "bands.csv": "8d4193f9a8bb34e4645c826e22cb380241e58e130a1f1dd3c0b881efb25c42bf",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "1152709bc335f98c4feee035df5727f17ae21d30c8a690d3918a7eb1b5f4ff4f",
+        "lines.csv": "5443103cc5b3d7fef13e46a845b8969f038c79588e6c3ced195188b9e003a2ef",
+        "points.csv": "3fa577cae194ad50e0cefddc3481778267efbb7427f9b77a9709f2a5f8cbcf0c",
+        "registered_source.csv": "11192aafa9274f8dbc84a96f94cbf8406ef66bccc317b7ad9367e43667e860a6",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "negative",
+      "theme": "dark",
+      "tables": {
+        "bands.csv": "5e65f4d4edbb1f1cbb8d1cce4cb993e1ae0776bea271f0a3cc81f3baae436b33",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "6407ba990d65ebcb265f0f5a37a157de4c4d4398e33153281750ed8eed69a19c",
+        "lines.csv": "e5fe8ac545f7ade8ad6be4e40ef819076f33f61a6e5b5cdfbdb80042e37849bc",
+        "points.csv": "fc55ea2732d44deac7c22c593afe449877456b47eba863282e6faac403ce8026",
+        "registered_source.csv": "842e241d48a55079492b40cfa8492f67c112e1206211c07752994792280b1211",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "zprime",
+      "theme": "dark",
+      "tables": {
+        "bands.csv": "559ca475c30cd4fed64939edc304f5358cc2f2026a5974f865501640bb34589d",
+        "flagged_points.csv": "4900468c3691f7a8554f21dd566bafd9294f97bba684f51f1e1f1e40b96d9597",
+        "input.csv": "13d8ff39d04968c10b5f9a0f3b435d260e41840d9017f64ad8301fa89f0ed15a",
+        "lines.csv": "bf315b9215db24f8f0c4f1a0758e57a9e52f323b177a58d07392c483c12a55dc",
+        "points.csv": "71a22126c17b7acaa4e570c339eef4de651943a845d0c9186b2d286e7b13c196",
+        "registered_source.csv": "23d12805d965bb5302433a97492a84a0751a464b42084579a5951708265c3f0e",
+        "violations.csv": "e2b52f4ce829b26ae94280dce04e979d0c66b69de14d2b4d11524a3db6a708f9"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "inferred",
+      "theme": "dark",
+      "tables": {
+        "bands.csv": "bac01de6562ec6f044a8baa6af19cb96d576d06bdf76aa82e9c47516b0279526",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "13d8ff39d04968c10b5f9a0f3b435d260e41840d9017f64ad8301fa89f0ed15a",
+        "lines.csv": "d841331d5adcacd44cf5b3285499541620831e17b22fd5224401e41353416716",
+        "points.csv": "0de6af4abdd43e2a8513c86b743bd896af43cf763a91a321ee884da7edbeb85e",
+        "registered_source.csv": "3a531b5e1a621976a816fe9d8abbe62ad60862229904a7c14273f369105665c0",
+        "violations.csv": "1e00ec26ac87e0bbc850aea1dc448707b64b5021ef4ee8e90b4daced12f6af98"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "empty",
+      "theme": "dark",
+      "tables": {
+        "bands.csv": "8d4193f9a8bb34e4645c826e22cb380241e58e130a1f1dd3c0b881efb25c42bf",
+        "flagged_points.csv": "caa3a34253177bfcaf560abcbb140f9026d18b3fff5c4db57bb0c58e4b5103cf",
+        "input.csv": "13d8ff39d04968c10b5f9a0f3b435d260e41840d9017f64ad8301fa89f0ed15a",
+        "lines.csv": "7d8abe1dd09d6b2855c24f04e62432d834b73e215701554e90647e1313b2b69f",
+        "points.csv": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "registered_source.csv": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "violations.csv": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      "layout_problems": []
+    }
+  ],
+  "seconds": 4.945218120992649
+}

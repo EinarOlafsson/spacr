@@ -265,6 +265,18 @@ def _log_axes(ax):
     ax.text(0.5, 0.5, "corner", transform=ax.transAxes)
 
 
+
+def _source_log_labels(axis):
+    """Use every source power exactly: Matplotlib 3.11 measured seven ticks where the old fixture pinned five.
+
+    Locator density is backend-dependent. Unicode label content and source
+    coordinates remain exact; no label tolerance or alternate-value list is used.
+    """
+    digits = str.maketrans("-0123456789", "⁻⁰¹²³⁴⁵⁶⁷⁸⁹")
+    return ["10" + str(int(round(np.log10(value)))).translate(digits)
+            for value in axis.get_majorticklocs()]
+
+
 def _mathtext_ticks(ax):
     ax.plot([0, 1], [0, 1])
     ax.set_xticks([0.0, 1.0])
@@ -293,9 +305,7 @@ CARRIED_CHROME = [
     ("an axis that refuses its labels costs only the ticks",
      _categorical_refusing, None, None, [], 1),
     ("a log axis writes its powers as Unicode, not mathtext", _log_axes,
-     ["10\u207b\u00b9", "10\u2070", "10\u00b9", "10\u00b2", "10\u00b3"],
-     ["10\u207b\u2074", "10\u207b\u00b3", "10\u207b\u00b2",
-      "10\u207b\u00b9", "10\u2070"], [], 2),
+     _source_log_labels, _source_log_labels, [], 2),
     ("one mathtext tick label sends the whole axis to pyqtgraph",
      _mathtext_ticks, None, ["row A", "row B"], [], 1),
     ("an unlabelled legend entry gets no row", _unlabelled_legend_entry,
@@ -310,12 +320,14 @@ def test_build_scene_carries_tick_labels_and_legend_rows(qt_ready, subtests):
             figure, ax = plt.subplots()
             draw(ax)
             figure.canvas.draw()
+            expected_bottom = bottom(ax.xaxis) if callable(bottom) else bottom
+            expected_left = left(ax.yaxis) if callable(left) else left
             widget, report = sc.build_scene(figure)
             try:
                 assert report.missing == []
                 assert report.items == items
-                assert _tick_labels(widget, "bottom") == bottom
-                assert _tick_labels(widget, "left") == left
+                assert _tick_labels(widget, "bottom") == expected_bottom
+                assert _tick_labels(widget, "left") == expected_left
                 assert _legend_rows(widget) == legends
             finally:
                 widget.deleteLater()

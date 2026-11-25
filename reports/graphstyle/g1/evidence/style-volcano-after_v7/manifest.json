@@ -1,0 +1,363 @@
+{
+  "records": [
+    {
+      "case": "default",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "295548d85a438809f26367c05e0e8f04e918c3697ff6bf3f11daa598c7ff8b5d",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "threshold",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "10f53587c7a38ea867b2cf14739b3f60dfd0153d48df48f719cef9b9dcef52f7",
+        "effect_cut.csv": "199cad35433af82389a59701969d64958964ead3b3a41606073e07a9e47178aa",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "09be6feea59ffb4e217de8c34f5ce68635ee06cde23ce6af829b24ec018a00b3",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "085c25374eb2db5e4bd2253a6ec09f3047e6b5188f8699c2ea09b7f236593f99",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "control",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "915068b54c4495acba148f827629ac1da48ee9b1ff3e564203ed144a7bb01ef4",
+        "drawn_coordinates.csv": "cf6cbae733823141aef4aeeb85632ebd16c13d610a7d42b36eeef025dc3111df",
+        "effect_cut.csv": "195267504db505d2d7314c7fba797225315946ac6f5d30e894172d79da21f01d",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "37e4ff6474a3b4ec95351b7b59c19e510c273e0ad8d3bcee8f31db486c3c525d",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "1e4ac458abae9dc64e0a99185892becd6e087e83d6530d9e5b8256cbf70d0ae1",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 8.881784197001252e-16,
+      "layout_problems": []
+    },
+    {
+      "case": "numeric",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "cf6cbae733823141aef4aeeb85632ebd16c13d610a7d42b36eeef025dc3111df",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "constant",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "cf6cbae733823141aef4aeeb85632ebd16c13d610a7d42b36eeef025dc3111df",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "d835f940f46363edb17fe0ec0970509e655632a01cd4fa452f8208e669528c76",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "d835f940f46363edb17fe0ec0970509e655632a01cd4fa452f8208e669528c76",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "d835f940f46363edb17fe0ec0970509e655632a01cd4fa452f8208e669528c76"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "categorical_shape",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "3e49a99ca2d5c90f6b55e9c3064a0a84fd01ec041f9bbe7f6c59b46078554c7a",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "localization",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "b3bf0dd225f7e117dfeeaf1dcef6b06cadd0ce7609aec8776c00d5ae43444032",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "split",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "2f873dc180a5dcdc9b4dd27da473cc509d1f99f54137c00a3a567e2f6a3d1e3b",
+        "drawn_coordinates.csv": "dc4680443e424c2b160e4a79a459edbf795b6e769bef15c7856ef396889122be",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "306b70045bdc021b57c840f77e8638b33aceb6187f9ad8a5eecb1c71fda8967d",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 0.0,
+      "layout_problems": []
+    },
+    {
+      "case": "raw_p",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "6ff2f67af99fd4ee5d249dbfcf2e8ad453237e0ad101e3e87f682b1fdd687edf",
+        "drawn_coordinates.csv": "8115bc40e2ade3c5f340204509c39d24ffe86507f965678508f1002480afef68",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "051a21b9adcd15d445ab07aeb1732587c58e0aa85be7492e98ac5e17ce5e92c6",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "dd618e6dd803e0bdaa07fbd5df2e6e718be1a4388ff267a57de8d86dfe5a369e",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 6.938893903907228e-18,
+      "layout_problems": []
+    },
+    {
+      "case": "annotated",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "295548d85a438809f26367c05e0e8f04e918c3697ff6bf3f11daa598c7ff8b5d",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "manual",
+      "theme": "light",
+      "tables": {
+        "axis_limits.csv": "4fd22c0a894b4ea78e043a31e2378336f50fb2949be1fe19d7d81abd8c78c70a",
+        "drawn_coordinates.csv": "295548d85a438809f26367c05e0e8f04e918c3697ff6bf3f11daa598c7ff8b5d",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 0.0,
+      "layout_problems": [
+        "text 'not significant' is cut off",
+        "text 'significant' is cut off"
+      ]
+    },
+    {
+      "case": "default",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "295548d85a438809f26367c05e0e8f04e918c3697ff6bf3f11daa598c7ff8b5d",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "threshold",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "10f53587c7a38ea867b2cf14739b3f60dfd0153d48df48f719cef9b9dcef52f7",
+        "effect_cut.csv": "199cad35433af82389a59701969d64958964ead3b3a41606073e07a9e47178aa",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "09be6feea59ffb4e217de8c34f5ce68635ee06cde23ce6af829b24ec018a00b3",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "085c25374eb2db5e4bd2253a6ec09f3047e6b5188f8699c2ea09b7f236593f99",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "control",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "915068b54c4495acba148f827629ac1da48ee9b1ff3e564203ed144a7bb01ef4",
+        "drawn_coordinates.csv": "cf6cbae733823141aef4aeeb85632ebd16c13d610a7d42b36eeef025dc3111df",
+        "effect_cut.csv": "195267504db505d2d7314c7fba797225315946ac6f5d30e894172d79da21f01d",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "37e4ff6474a3b4ec95351b7b59c19e510c273e0ad8d3bcee8f31db486c3c525d",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "1e4ac458abae9dc64e0a99185892becd6e087e83d6530d9e5b8256cbf70d0ae1",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 8.881784197001252e-16,
+      "layout_problems": []
+    },
+    {
+      "case": "numeric",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "cf6cbae733823141aef4aeeb85632ebd16c13d610a7d42b36eeef025dc3111df",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "constant",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "cf6cbae733823141aef4aeeb85632ebd16c13d610a7d42b36eeef025dc3111df",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "d835f940f46363edb17fe0ec0970509e655632a01cd4fa452f8208e669528c76",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "d835f940f46363edb17fe0ec0970509e655632a01cd4fa452f8208e669528c76",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "d835f940f46363edb17fe0ec0970509e655632a01cd4fa452f8208e669528c76"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "categorical_shape",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "3e49a99ca2d5c90f6b55e9c3064a0a84fd01ec041f9bbe7f6c59b46078554c7a",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "localization",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "b3bf0dd225f7e117dfeeaf1dcef6b06cadd0ce7609aec8776c00d5ae43444032",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "split",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "2f873dc180a5dcdc9b4dd27da473cc509d1f99f54137c00a3a567e2f6a3d1e3b",
+        "drawn_coordinates.csv": "dc4680443e424c2b160e4a79a459edbf795b6e769bef15c7856ef396889122be",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "306b70045bdc021b57c840f77e8638b33aceb6187f9ad8a5eecb1c71fda8967d",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 0.0,
+      "layout_problems": []
+    },
+    {
+      "case": "raw_p",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "6ff2f67af99fd4ee5d249dbfcf2e8ad453237e0ad101e3e87f682b1fdd687edf",
+        "drawn_coordinates.csv": "8115bc40e2ade3c5f340204509c39d24ffe86507f965678508f1002480afef68",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "051a21b9adcd15d445ab07aeb1732587c58e0aa85be7492e98ac5e17ce5e92c6",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "dd618e6dd803e0bdaa07fbd5df2e6e718be1a4388ff267a57de8d86dfe5a369e",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 6.938893903907228e-18,
+      "layout_problems": []
+    },
+    {
+      "case": "annotated",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "f344495c522a1dab0d706fea97a8bc5f57a772826712b9df049fd754d13ed94d",
+        "drawn_coordinates.csv": "295548d85a438809f26367c05e0e8f04e918c3697ff6bf3f11daa598c7ff8b5d",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 2.7755575615628914e-17,
+      "layout_problems": []
+    },
+    {
+      "case": "manual",
+      "theme": "dark",
+      "tables": {
+        "axis_limits.csv": "4fd22c0a894b4ea78e043a31e2378336f50fb2949be1fe19d7d81abd8c78c70a",
+        "drawn_coordinates.csv": "295548d85a438809f26367c05e0e8f04e918c3697ff6bf3f11daa598c7ff8b5d",
+        "effect_cut.csv": "c693bd5bb17fb0a9d2a31a0d0f0438f69256513cf5b22883e5b230466741aeb0",
+        "input.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "prepared_coordinates.csv": "58bfee5f5348038f337eb1df10ea5015b1fc2ecf59f110e6ea7428354da56597",
+        "prepared_frame.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d",
+        "reference_coordinates.csv": "e61fb9500149b9e2fed16b55c5fdbaa27f115fc57e936f64de056cdd3a085448",
+        "registered_source.csv": "bc2bb7b9797c7f45626ce736dab64854b43d640118ba5c37ad0fbb61c6a9a20d"
+      },
+      "maximum_automatic_view_roundoff": 0.0,
+      "layout_problems": [
+        "text 'not significant' is cut off",
+        "text 'significant' is cut off"
+      ]
+    }
+  ],
+  "seconds": 5.905572821997339
+}

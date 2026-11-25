@@ -1,0 +1,213 @@
+{
+  "records": [
+    {
+      "case": "positive",
+      "theme": "light",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "85d609ca203f7c5ef95d67a2cdd02b20e5f0eb3200780eb88f3748db78cb4e2f",
+        "path_vertices.csv": "ceb4e9b1f55c08109063cb8855c2b6f8e9235fd0b7132ccc8195a435b7506672",
+        "regions.csv": "c0bd1bdf58038833daef6852180c3bedf29a41d55465ece1b59332b41aae64ba",
+        "registered_source.csv": "d70eeffacac283a54985975a568958f44ea12e485fd4f9b68710bf4e988f9b1a",
+        "returned_lists.csv": "3d2ce0dc7f38c2f60afd46e2b81454e052703d78cdf5f06a0da891f22d34527e"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "negative",
+      "theme": "light",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "85d609ca203f7c5ef95d67a2cdd02b20e5f0eb3200780eb88f3748db78cb4e2f",
+        "path_vertices.csv": "93e9a46a182563c0afdf7d480122b5e58f702adc5fe3ecdd73b6be072738ec95",
+        "regions.csv": "24182b1d68d129057906d6a8f2a30acbaa4265c472543aada1c486fcc7d7fdf0",
+        "registered_source.csv": "d70eeffacac283a54985975a568958f44ea12e485fd4f9b68710bf4e988f9b1a",
+        "returned_lists.csv": "b1e1aaead313d36f9aae6fa094f6f397d2cdf5ddfbeb227ceb9b385cb8259014"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "unfiltered",
+      "theme": "light",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "85d609ca203f7c5ef95d67a2cdd02b20e5f0eb3200780eb88f3748db78cb4e2f",
+        "path_vertices.csv": "548eee34b969732df941a78fe79f2f7bebc1f73a27c7b1139a53d1191d29c1f2",
+        "regions.csv": "7de7c58346abd26b4205a05cf8b6e1b11a8ab77fb5f075bd30b7135ef921d47b",
+        "registered_source.csv": "d70eeffacac283a54985975a568958f44ea12e485fd4f9b68710bf4e988f9b1a",
+        "returned_lists.csv": "6c7aa2ce45768358728771bd5dba973cc230a8c6cf1393f602e26132b2d1dda0"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "disjoint",
+      "theme": "light",
+      "tables": {
+        "input_left.csv": "8a36625709fa7aa321062b8fb64255f23f7a588a44bc35654021dce902999439",
+        "input_right.csv": "5c4d74339a10c8573d3b8948b7fd094ae6990793df147bd807fd5a8ba3b2e822",
+        "path_vertices.csv": "b24f77fe9f45bb76911126892bb01ca8e0885051560b6e02cac17d6bc64167be",
+        "regions.csv": "f83d0c199d07a6780c9bc08e9b99cd8ce765bfc77e568d69c1d04f921dfd26e3",
+        "registered_source.csv": "05dc2b11fa11a4ed76340f2459be6c4f7d9424a0ce2c965478937a1a0d20f2fa",
+        "returned_lists.csv": "38622a2ea192ec1423c546c91b87492e63481b5a55ea172c42a406ab27372109"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "subset",
+      "theme": "light",
+      "tables": {
+        "input_left.csv": "8bc389d332645501544b2b96ce3a0f138a8ce15fc8b86f35c90a6a1a80397b49",
+        "input_right.csv": "06e9862c1ca4efa7bce67e28bf9ed73f244af39167b5ed8326c0f7428fdc735b",
+        "path_vertices.csv": "93e9a46a182563c0afdf7d480122b5e58f702adc5fe3ecdd73b6be072738ec95",
+        "regions.csv": "24182b1d68d129057906d6a8f2a30acbaa4265c472543aada1c486fcc7d7fdf0",
+        "registered_source.csv": "ea453bad5abdc28eb4697a3d3d65a7a65f7011c80ea7c52b993adac661219664",
+        "returned_lists.csv": "96f35e59fbdece9b24f57cf2ca102992f46bb30a7d3f06202b72cfeb3ad33720"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "identical",
+      "theme": "light",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "path_vertices.csv": "ff6bfb9fb01c6dd0c88db8ab14026bb626885e87cbd8b6f0f7b99d9bd9f5ad5f",
+        "regions.csv": "d5796bec72a7bf441f3bb322c67a4eeadaa1e39415ff7fac0298dd244ed29e25",
+        "registered_source.csv": "033639dd65e1f4e07c2d4b6d81263b0b41944b1f8afbbc5754961d6046c50eff",
+        "returned_lists.csv": "d6c31db5aaa9d1b877f33af72075cb93b9680c5b5fde0eda095461548c303b62"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "empty",
+      "theme": "light",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "85d609ca203f7c5ef95d67a2cdd02b20e5f0eb3200780eb88f3748db78cb4e2f",
+        "path_vertices.csv": "b24f77fe9f45bb76911126892bb01ca8e0885051560b6e02cac17d6bc64167be",
+        "regions.csv": "b089e37898e04515bc3181b2ae1144449d11b4e42a2cbeb6f5f858acf4e9810b",
+        "registered_source.csv": "d70eeffacac283a54985975a568958f44ea12e485fd4f9b68710bf4e988f9b1a",
+        "returned_lists.csv": "6efe522994675967becb4032196ddd1f473cf2411962843f1c31a144fd0bdc23"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "collision",
+      "theme": "light",
+      "tables": {
+        "input_left.csv": "910a76f37970d7a2161490e86027fd84bbfe2eef076b7eb9251e498843294fbd",
+        "input_right.csv": "75fba720f3e2c916e39e7682c4e96ce4f814f1b30fa9d281871ee1d0e6a02657",
+        "path_vertices.csv": "548eee34b969732df941a78fe79f2f7bebc1f73a27c7b1139a53d1191d29c1f2",
+        "regions.csv": "7de7c58346abd26b4205a05cf8b6e1b11a8ab77fb5f075bd30b7135ef921d47b",
+        "registered_source.csv": "bbb1e43539df8e9166d2cc18a0fabc714d939d4e7512613e494d924249b71c78",
+        "returned_lists.csv": "6c7aa2ce45768358728771bd5dba973cc230a8c6cf1393f602e26132b2d1dda0"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "positive",
+      "theme": "dark",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "85d609ca203f7c5ef95d67a2cdd02b20e5f0eb3200780eb88f3748db78cb4e2f",
+        "path_vertices.csv": "ceb4e9b1f55c08109063cb8855c2b6f8e9235fd0b7132ccc8195a435b7506672",
+        "regions.csv": "c0bd1bdf58038833daef6852180c3bedf29a41d55465ece1b59332b41aae64ba",
+        "registered_source.csv": "d70eeffacac283a54985975a568958f44ea12e485fd4f9b68710bf4e988f9b1a",
+        "returned_lists.csv": "3d2ce0dc7f38c2f60afd46e2b81454e052703d78cdf5f06a0da891f22d34527e"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "negative",
+      "theme": "dark",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "85d609ca203f7c5ef95d67a2cdd02b20e5f0eb3200780eb88f3748db78cb4e2f",
+        "path_vertices.csv": "93e9a46a182563c0afdf7d480122b5e58f702adc5fe3ecdd73b6be072738ec95",
+        "regions.csv": "24182b1d68d129057906d6a8f2a30acbaa4265c472543aada1c486fcc7d7fdf0",
+        "registered_source.csv": "d70eeffacac283a54985975a568958f44ea12e485fd4f9b68710bf4e988f9b1a",
+        "returned_lists.csv": "b1e1aaead313d36f9aae6fa094f6f397d2cdf5ddfbeb227ceb9b385cb8259014"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "unfiltered",
+      "theme": "dark",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "85d609ca203f7c5ef95d67a2cdd02b20e5f0eb3200780eb88f3748db78cb4e2f",
+        "path_vertices.csv": "548eee34b969732df941a78fe79f2f7bebc1f73a27c7b1139a53d1191d29c1f2",
+        "regions.csv": "7de7c58346abd26b4205a05cf8b6e1b11a8ab77fb5f075bd30b7135ef921d47b",
+        "registered_source.csv": "d70eeffacac283a54985975a568958f44ea12e485fd4f9b68710bf4e988f9b1a",
+        "returned_lists.csv": "6c7aa2ce45768358728771bd5dba973cc230a8c6cf1393f602e26132b2d1dda0"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "disjoint",
+      "theme": "dark",
+      "tables": {
+        "input_left.csv": "8a36625709fa7aa321062b8fb64255f23f7a588a44bc35654021dce902999439",
+        "input_right.csv": "5c4d74339a10c8573d3b8948b7fd094ae6990793df147bd807fd5a8ba3b2e822",
+        "path_vertices.csv": "b24f77fe9f45bb76911126892bb01ca8e0885051560b6e02cac17d6bc64167be",
+        "regions.csv": "f83d0c199d07a6780c9bc08e9b99cd8ce765bfc77e568d69c1d04f921dfd26e3",
+        "registered_source.csv": "05dc2b11fa11a4ed76340f2459be6c4f7d9424a0ce2c965478937a1a0d20f2fa",
+        "returned_lists.csv": "38622a2ea192ec1423c546c91b87492e63481b5a55ea172c42a406ab27372109"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "subset",
+      "theme": "dark",
+      "tables": {
+        "input_left.csv": "8bc389d332645501544b2b96ce3a0f138a8ce15fc8b86f35c90a6a1a80397b49",
+        "input_right.csv": "06e9862c1ca4efa7bce67e28bf9ed73f244af39167b5ed8326c0f7428fdc735b",
+        "path_vertices.csv": "93e9a46a182563c0afdf7d480122b5e58f702adc5fe3ecdd73b6be072738ec95",
+        "regions.csv": "24182b1d68d129057906d6a8f2a30acbaa4265c472543aada1c486fcc7d7fdf0",
+        "registered_source.csv": "ea453bad5abdc28eb4697a3d3d65a7a65f7011c80ea7c52b993adac661219664",
+        "returned_lists.csv": "96f35e59fbdece9b24f57cf2ca102992f46bb30a7d3f06202b72cfeb3ad33720"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "identical",
+      "theme": "dark",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "path_vertices.csv": "ff6bfb9fb01c6dd0c88db8ab14026bb626885e87cbd8b6f0f7b99d9bd9f5ad5f",
+        "regions.csv": "d5796bec72a7bf441f3bb322c67a4eeadaa1e39415ff7fac0298dd244ed29e25",
+        "registered_source.csv": "033639dd65e1f4e07c2d4b6d81263b0b41944b1f8afbbc5754961d6046c50eff",
+        "returned_lists.csv": "d6c31db5aaa9d1b877f33af72075cb93b9680c5b5fde0eda095461548c303b62"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "empty",
+      "theme": "dark",
+      "tables": {
+        "input_left.csv": "136274bafc0be9e58ffc2008a1a17c899a1f7e45b117ca8067b4bd596d58ca97",
+        "input_right.csv": "85d609ca203f7c5ef95d67a2cdd02b20e5f0eb3200780eb88f3748db78cb4e2f",
+        "path_vertices.csv": "b24f77fe9f45bb76911126892bb01ca8e0885051560b6e02cac17d6bc64167be",
+        "regions.csv": "b089e37898e04515bc3181b2ae1144449d11b4e42a2cbeb6f5f858acf4e9810b",
+        "registered_source.csv": "d70eeffacac283a54985975a568958f44ea12e485fd4f9b68710bf4e988f9b1a",
+        "returned_lists.csv": "6efe522994675967becb4032196ddd1f473cf2411962843f1c31a144fd0bdc23"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "collision",
+      "theme": "dark",
+      "tables": {
+        "input_left.csv": "910a76f37970d7a2161490e86027fd84bbfe2eef076b7eb9251e498843294fbd",
+        "input_right.csv": "75fba720f3e2c916e39e7682c4e96ce4f814f1b30fa9d281871ee1d0e6a02657",
+        "path_vertices.csv": "548eee34b969732df941a78fe79f2f7bebc1f73a27c7b1139a53d1191d29c1f2",
+        "regions.csv": "7de7c58346abd26b4205a05cf8b6e1b11a8ab77fb5f075bd30b7135ef921d47b",
+        "registered_source.csv": "bbb1e43539df8e9166d2cc18a0fabc714d939d4e7512613e494d924249b71c78",
+        "returned_lists.csv": "6c7aa2ce45768358728771bd5dba973cc230a8c6cf1393f602e26132b2d1dda0"
+      },
+      "layout_problems": []
+    }
+  ],
+  "seconds": 1.503329027997097
+}

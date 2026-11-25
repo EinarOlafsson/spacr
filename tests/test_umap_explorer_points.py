@@ -364,4 +364,4 @@ def test_display_settings_colour_the_points_and_ride_with_the_payload(
         settings = _explorer(qtbot, payload).display_settings()
         assert (settings["point_size"], settings["canvas_width"],
                 settings["sidebar_width"], settings["point_alpha"]) == (
-            55, 700, 300, 0.65)
+            55, 700, 300, 0.6)

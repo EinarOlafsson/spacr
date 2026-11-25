@@ -304,8 +304,8 @@ class TestTheVerdictParagraph:
         assert symbols.count(GROUP_SYMBOLS[qc.NEGATIVE]) == CONTROLS // 2
         assert (symbols.count(GROUP_SYMBOLS[ANNOTATED])
                 == CELLS_PER_GUIDE * len(GUIDE_X))
-        assert f"{total:,} cells." in tab.plot.status()
-        assert "Triangles are positive controls" in tab.plot.status()
+        assert f"Source cells: {total:,}; visible finite positions: {total:,}." in tab.plot.status()
+        assert "Triangles identify positive controls" in tab.plot.status()
         assert out["separation"]["trustworthy"] is True
 
     def test_the_purest_guide_is_the_one_at_the_positive_end(
@@ -384,4 +384,4 @@ class TestTheScatterOnItsOwn:
 
         assert self._draw(plot, (1.0, 0.0, 0.5)) == 3
         assert plot._colour_column == ("purity", PURITY_COLORMAP)
-        assert "3 cells." in plot.status()
+        assert "Source cells: 3; visible finite positions: 3." in plot.status()

@@ -225,6 +225,7 @@ def test_clearing_the_order_column_makes_the_chart_say_the_order_was_guessed(
 
 
 def test_the_zprime_toggle_charts_the_assay_window(screen):
+    """Keep the original Z-prime result checks and show the expanded dimensionless quantity on the plotted axis."""
     screen.set_frame(campaign())
     screen._positive.setCurrentText("pos")
     screen._negative.setCurrentText("neg")
@@ -235,7 +236,7 @@ def test_the_zprime_toggle_charts_the_assay_window(screen):
     assert result.value_column == "zprime"
     assert result.estimator == ESTIMATOR_MOVING_RANGE
     assert not result.order_inferred
-    assert screen.canvas.figure.axes[0].get_ylabel() == "zprime"
+    assert screen.canvas.figure.axes[0].get_ylabel() == "Z-prime assay separation (dimensionless)"
 
     screen._zprime.setChecked(False)
     assert screen.result.value_column == "signal"

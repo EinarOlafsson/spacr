@@ -1,0 +1,153 @@
+{
+  "records": [
+    {
+      "case": "constant_dark",
+      "png_reviewed": true,
+      "review": "opened current PNG",
+      "png_sha256": "f5bccf3a0582bc4e52b429a3adf80e147fad19391f784d05e87c3d9eb2b49738",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "constant_light",
+      "png_reviewed": true,
+      "review": "SHA-identical to opened after_v5 PNG",
+      "png_sha256": "f5bccf3a0582bc4e52b429a3adf80e147fad19391f784d05e87c3d9eb2b49738",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "drift_dark",
+      "png_reviewed": true,
+      "review": "opened current PNG",
+      "png_sha256": "feec031799bff6e6724eae8de66bb95cb39467aa77a0f0b4604d8ccb48c7d1cc",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "drift_light",
+      "png_reviewed": true,
+      "review": "SHA-identical to opened after_v5 PNG",
+      "png_sha256": "feec031799bff6e6724eae8de66bb95cb39467aa77a0f0b4604d8ccb48c7d1cc",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "empty_dark",
+      "png_reviewed": true,
+      "review": "opened current PNG",
+      "png_sha256": "f94b704eb1aa962385299a83a7147e0343324a35d09ca26d576e0dbed2387998",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "empty_light",
+      "png_reviewed": true,
+      "review": "SHA-identical to opened after_v5 PNG",
+      "png_sha256": "f94b704eb1aa962385299a83a7147e0343324a35d09ca26d576e0dbed2387998",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "inferred_dark",
+      "png_reviewed": true,
+      "review": "opened current PNG",
+      "png_sha256": "753670c16a45e13c2f27480d4ccf22f66b197a1fd80ff5f2f9c67e4e0f70b479",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "inferred_light",
+      "png_reviewed": true,
+      "review": "SHA-identical to opened after_v5 PNG",
+      "png_sha256": "753670c16a45e13c2f27480d4ccf22f66b197a1fd80ff5f2f9c67e4e0f70b479",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "negative_dark",
+      "png_reviewed": true,
+      "review": "opened current PNG",
+      "png_sha256": "3f050f3d1de32c830f472752e8cdb97facff2a948476a112fa9015e6f3aea94f",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "negative_light",
+      "png_reviewed": true,
+      "review": "SHA-identical to opened after_v5 PNG",
+      "png_sha256": "3f050f3d1de32c830f472752e8cdb97facff2a948476a112fa9015e6f3aea94f",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "normal_dark",
+      "png_reviewed": true,
+      "review": "opened current PNG",
+      "png_sha256": "5c54b83d10ddc301ac9ce47459d8c0570bca5a10ca4b62ebbf2baddae9645997",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "normal_light",
+      "png_reviewed": true,
+      "review": "SHA-identical to opened after_v5 PNG",
+      "png_sha256": "5c54b83d10ddc301ac9ce47459d8c0570bca5a10ca4b62ebbf2baddae9645997",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "unequal_dark",
+      "png_reviewed": true,
+      "review": "opened current PNG",
+      "png_sha256": "38824881cf428279fcb1ba06cbcd38dc3e69947a8c83783123c7e5224a20ec65",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "unequal_light",
+      "png_reviewed": true,
+      "review": "SHA-identical to opened after_v5 PNG",
+      "png_sha256": "38824881cf428279fcb1ba06cbcd38dc3e69947a8c83783123c7e5224a20ec65",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "zprime_dark",
+      "png_reviewed": true,
+      "review": "opened current PNG",
+      "png_sha256": "8e4ae3f47d0765b68a804271fb370770efc743ace4cf362a4c81d7048ac91b74",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    },
+    {
+      "case": "zprime_light",
+      "png_reviewed": true,
+      "review": "opened current PNG",
+      "png_sha256": "8e4ae3f47d0765b68a804271fb370770efc743ace4cf362a4c81d7048ac91b74",
+      "csv_exact": 7,
+      "pdf_raster_objects": 0,
+      "svg_image_elements": 0
+    }
+  ],
+  "pngs_reviewed": 16,
+  "scientific_csv_exact": 112,
+  "vectors_without_images": 32,
+  "live_theme_probes": "../live-status-before and ../live-status-after; both actual Qt captures opened",
+  "corrections": "opaque shared status ground; actual ring-stroke clearance; full long axis-title tight-crop extent with original external legend retained"
+}

@@ -1,0 +1,93 @@
+{
+  "inspected": [
+    {
+      "png": "explorer_dark/plot.png",
+      "sha256": "fc65fc537452a79623aa4e97d181ad445cf4a83375aa2b830fa084a906b5782b",
+      "identical_to_inspected_after_v4": true,
+      "findings": []
+    },
+    {
+      "png": "explorer_light/plot.png",
+      "sha256": "fc65fc537452a79623aa4e97d181ad445cf4a83375aa2b830fa084a906b5782b",
+      "identical_to_inspected_after_v4": true,
+      "findings": []
+    },
+    {
+      "png": "explorer_manual_dark/plot.png",
+      "sha256": "0883323057f31050d8773f52d4ac2dfc34aa41566858ff68ad3f2161eb26080c",
+      "identical_to_inspected_after_v4": true,
+      "findings": [
+        "Use only the shared data palette and black summary marks",
+        "Draw every data mark at sixty percent opacity"
+      ]
+    },
+    {
+      "png": "explorer_manual_light/plot.png",
+      "sha256": "0883323057f31050d8773f52d4ac2dfc34aa41566858ff68ad3f2161eb26080c",
+      "identical_to_inspected_after_v4": true,
+      "findings": [
+        "Use only the shared data palette and black summary marks",
+        "Draw every data mark at sixty percent opacity"
+      ]
+    },
+    {
+      "png": "native_2d_dark/plot.png",
+      "sha256": "c21657040f92ce4204758dee76fc7555192012020d8f973108248b0c28aa9cf6",
+      "identical_to_inspected_after_v4": true,
+      "findings": []
+    },
+    {
+      "png": "native_2d_light/plot.png",
+      "sha256": "c21657040f92ce4204758dee76fc7555192012020d8f973108248b0c28aa9cf6",
+      "identical_to_inspected_after_v4": true,
+      "findings": []
+    },
+    {
+      "png": "native_3d_dark/plot.png",
+      "sha256": "f876a229d0ac078a1be75a99f14372dd589200539faad3b4761072d239d29034",
+      "identical_to_inspected_after_v4": true,
+      "findings": [
+        "Complete projected three-dimensional axis and occlusion observations before certification."
+      ]
+    },
+    {
+      "png": "native_3d_light/plot.png",
+      "sha256": "f876a229d0ac078a1be75a99f14372dd589200539faad3b4761072d239d29034",
+      "identical_to_inspected_after_v4": true,
+      "findings": [
+        "Complete projected three-dimensional axis and occlusion observations before certification."
+      ]
+    },
+    {
+      "png": "redraw_dark/plot.png",
+      "sha256": "168bdcb02adbb572263058435ac34e5c3596122fdaa2f35fccb34be483fa0fcc",
+      "identical_to_inspected_after_v4": true,
+      "findings": []
+    },
+    {
+      "png": "redraw_light/plot.png",
+      "sha256": "168bdcb02adbb572263058435ac34e5c3596122fdaa2f35fccb34be483fa0fcc",
+      "identical_to_inspected_after_v4": true,
+      "findings": []
+    },
+    {
+      "png": "redraw_manual_dark/plot.png",
+      "sha256": "06be34d6eae9dc083dff114085b4ed3abc50a7aeddfab6f4b2641d912e7f1c2e",
+      "identical_to_inspected_after_v4": true,
+      "findings": [
+        "Use only the shared data palette and black summary marks",
+        "Draw every data mark at sixty percent opacity"
+      ]
+    },
+    {
+      "png": "redraw_manual_light/plot.png",
+      "sha256": "06be34d6eae9dc083dff114085b4ed3abc50a7aeddfab6f4b2641d912e7f1c2e",
+      "identical_to_inspected_after_v4": true,
+      "findings": [
+        "Use only the shared data palette and black summary marks",
+        "Draw every data mark at sixty percent opacity"
+      ]
+    }
+  ],
+  "note": "All 12 after_v4 PNGs opened at native resolution; current after_v5 PNGs byte-identical. No clipped labels or in-plot captions; manual purple/.35 and width/page choices retained. 3D full validation explicitly incomplete. Native SVG/PDF contain no raster images."
+}

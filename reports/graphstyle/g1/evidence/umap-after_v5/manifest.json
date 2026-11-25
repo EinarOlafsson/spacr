@@ -1,0 +1,2602 @@
+{
+  "records": [
+    {
+      "case": "explorer",
+      "theme": "light",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "5d2f4c238a30e6edbcc65c0e3a7f8e26ef8802b1ddd97120996cba44e83dcba5",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      }
+    },
+    {
+      "case": "explorer_manual",
+      "theme": "light",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "5d2f4c238a30e6edbcc65c0e3a7f8e26ef8802b1ddd97120996cba44e83dcba5",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [
+          "Use only the shared data palette and black summary marks",
+          "Draw every data mark at sixty percent opacity"
+        ],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      }
+    },
+    {
+      "case": "redraw",
+      "theme": "light",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "928e91b6933f5c219014e48a4e1e6ba1b40d8dd702ed2bd50e4cfa3c3c7c8dfa",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      }
+    },
+    {
+      "case": "redraw_manual",
+      "theme": "light",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "928e91b6933f5c219014e48a4e1e6ba1b40d8dd702ed2bd50e4cfa3c3c7c8dfa",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [
+          "Use only the shared data palette and black summary marks",
+          "Draw every data mark at sixty percent opacity"
+        ],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      }
+    },
+    {
+      "case": "native_2d",
+      "theme": "light",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "f70b8ce381e8829eddb53342a432c45ea72ef8d473a6f915d57a25303b0e360c",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "declared reference and quantities",
+          "actual native plot area",
+          "statistical frame",
+          "actual native font family and size",
+          "composited text contrast",
+          "effective data opacity",
+          "actual native palette",
+          "registered native artist roles",
+          "text bounds",
+          "text overlap",
+          "actual native data limits",
+          "completed presentation checks"
+        ]
+      },
+      "actual_native_observation": {
+        "backend": "QPainter",
+        "specification": {
+          "policy_version": "2026-11-20",
+          "target": "screen",
+          "kind": "continuous",
+          "conditions": null,
+          "condition_labels": [],
+          "sample_counts": [],
+          "controls": [],
+          "kinds": [],
+          "colours": [],
+          "roles": [
+            [
+              "data",
+              "#C8C8C8"
+            ],
+            [
+              "up",
+              "#0A9878"
+            ],
+            [
+              "down",
+              "#C878A8"
+            ],
+            [
+              "highlight",
+              "#0A77B8"
+            ],
+            [
+              "control_negative",
+              "#8C8C8C"
+            ],
+            [
+              "control_positive",
+              "#8C8C8C"
+            ],
+            [
+              "fill",
+              "#78AED2"
+            ],
+            [
+              "reference",
+              "#8C8C8C"
+            ],
+            [
+              "primary",
+              "#0A77B8"
+            ],
+            [
+              "secondary",
+              "#0A9878"
+            ],
+            [
+              "tertiary",
+              "#283868"
+            ],
+            [
+              "control",
+              "#8C8C8C"
+            ],
+            [
+              "background",
+              "#C8C8C8"
+            ]
+          ],
+          "identities": [],
+          "comparison": [
+            [
+              "projection_dimensions",
+              2
+            ]
+          ],
+          "legend": [
+            [
+              "caption",
+              "Fixed synthetic embedding \u00b7 fixture"
+            ],
+            [
+              "reference",
+              "Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition."
+            ],
+            [
+              "quantities",
+              [
+                [
+                  "x",
+                  "UMAP dimension 1"
+                ],
+                [
+                  "y",
+                  "UMAP dimension 2"
+                ]
+              ]
+            ],
+            [
+              "unit",
+              "dimensionless"
+            ]
+          ],
+          "slot_inches": 0.22,
+          "alpha": 0.6,
+          "font_family": "Open Sans",
+          "minimum_font_points": 8.0,
+          "font_weights": [
+            [
+              "body",
+              "light"
+            ],
+            [
+              "title",
+              "regular"
+            ],
+            [
+              "emphasis",
+              "semibold"
+            ],
+            [
+              "panel_letter",
+              "bold"
+            ]
+          ]
+        },
+        "logical_dpi": 96.0,
+        "width_inches": 4.541666666666667,
+        "height_inches": 4.541666666666667,
+        "ranges": [
+          [
+            2.0,
+            438.0
+          ],
+          [
+            2.0,
+            438.0
+          ]
+        ],
+        "background": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "projected_points": [
+          [
+            120.77456965854023,
+            200.2728398784144
+          ],
+          [
+            101.91554023074862,
+            137.5737844513657
+          ],
+          [
+            83.46961413451984,
+            225.24877213263656
+          ],
+          [
+            35.691146353929014,
+            256.32000763488844
+          ],
+          [
+            49.566315328797316,
+            180.39412214791398
+          ],
+          [
+            68.95142862759616,
+            263.33932508170096
+          ],
+          [
+            142.22328342645073,
+            213.39809339858132
+          ],
+          [
+            133.52275836085565,
+            226.96578648006323
+          ],
+          [
+            79.75882954357877,
+            276.05542012813106
+          ],
+          [
+            84.61595587156046,
+            160.36678064377685
+          ],
+          [
+            131.9896031614632,
+            228.24413734383907
+          ],
+          [
+            61.02877952816286,
+            132.174794592492
+          ],
+          [
+            59.02301534395855,
+            179.00266903570832
+          ],
+          [
+            93.51978082008178,
+            223.6621331869189
+          ],
+          [
+            23.866988968580984,
+            181.85390181512594
+          ],
+          [
+            30.89234451386116,
+            188.05816810225141
+          ],
+          [
+            188.54116814435682,
+            271.5672491249101
+          ],
+          [
+            286.50998629311124,
+            260.0188941926182
+          ],
+          [
+            243.25600697667267,
+            291.60280188772106
+          ],
+          [
+            237.78011884173733,
+            308.63104947530627
+          ],
+          [
+            199.97237267654592,
+            291.98386862783275
+          ],
+          [
+            290.3310184465558,
+            258.0595476337528
+          ],
+          [
+            224.71037309157487,
+            287.3690351922844
+          ],
+          [
+            287.40622372463713,
+            285.0096100828877
+          ],
+          [
+            215.49572292333605,
+            364.6728007451575
+          ],
+          [
+            256.48237913296384,
+            280.8704923571361
+          ],
+          [
+            330.20753125668585,
+            282.9430217853505
+          ],
+          [
+            194.07870227493967,
+            241.43614326182
+          ],
+          [
+            211.80805245760322,
+            373.927076644952
+          ],
+          [
+            197.74316248204286,
+            312.8579304859483
+          ],
+          [
+            287.7728426830722,
+            306.1390931290962
+          ],
+          [
+            288.6074936873508,
+            273.39109849961784
+          ],
+          [
+            239.27737545258174,
+            174.66420038825564
+          ],
+          [
+            343.9993809707043,
+            79.8550108569477
+          ],
+          [
+            342.360039529653,
+            246.539314341937
+          ],
+          [
+            302.8228271689187,
+            84.9168870285176
+          ],
+          [
+            341.1934224210515,
+            258.60050629410114
+          ],
+          [
+            344.01236893892667,
+            184.26089377827185
+          ],
+          [
+            409.490715699568,
+            147.19275282732505
+          ],
+          [
+            306.5036752283887,
+            151.47611826720913
+          ],
+          [
+            380.17690244477546,
+            143.13564515589684
+          ],
+          [
+            333.649560681433,
+            120.67725326372796
+          ],
+          [
+            366.1080757371499,
+            116.90875339526647
+          ],
+          [
+            229.71520880563443,
+            180.9360702563682
+          ],
+          [
+            411.066988968581,
+            55.857328480645464
+          ],
+          [
+            280.2683011294719,
+            241.2701848848029
+          ],
+          [
+            356.85512410858234,
+            208.01977016093122
+          ],
+          [
+            330.9869237487079,
+            202.2788614395958
+          ]
+        ],
+        "depth": [
+          0.4764385136196843,
+          0.5669915897612208,
+          0.6555611185743773,
+          0.8849730958676549,
+          0.8183504079149876,
+          0.7252712997201818,
+          0.37345086950999196,
+          0.4152271078764875,
+          0.6733787353767111,
+          0.6500568708082919,
+          0.4225886701477031,
+          0.7633125069779864,
+          0.7729433375352878,
+          0.6073044724623726,
+          0.941747694376265,
+          0.9080149109343116,
+          0.15105199380779746,
+          -0.31935279999602273,
+          -0.11166550105719528,
+          -0.08537260421836794,
+          0.09616418856012257,
+          -0.33769977892486586,
+          -0.022617217648955638,
+          -0.323656152758083,
+          0.02162763182736549,
+          -0.17517294132768751,
+          -0.5291699134076825,
+          0.1244630989930898,
+          0.03933426438483435,
+          0.10686791227248123,
+          -0.3254165018038923,
+          -0.32942414261231445,
+          -0.0925617966635216,
+          -0.5953925375394263,
+          -0.5875211138852093,
+          -0.397680156531928,
+          -0.5819195123676075,
+          -0.5954549002649244,
+          -0.9098542039268941,
+          -0.41535403078249944,
+          -0.7691016814376792,
+          -0.5456970816680609,
+          -0.7015491310291035,
+          -0.04664832016281324,
+          -0.9174228009162202,
+          -0.28938286999307056,
+          -0.6571203741535837,
+          -0.5329122262315976
+        ],
+        "fonts": [
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        ],
+        "frame": [
+          {
+            "edge": "left",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "right",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "top",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "bottom",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          }
+        ],
+        "marks": [
+          {
+            "role": "data",
+            "opacity": 1.0,
+            "colours": [
+              [
+                0.7843137383460999,
+                0.7843137383460999,
+                0.7843137383460999,
+                0.6000000238418579
+              ],
+              [
+                0.03921568766236305,
+                0.46666666865348816,
+                0.7215686440467834,
+                0.6000000238418579
+              ],
+              [
+                0.03921568766236305,
+                0.5960784554481506,
+                0.47058823704719543,
+                0.6000000238418579
+              ]
+            ],
+            "pens": [],
+            "point_count": 48,
+            "bounds": {
+              "checked": true,
+              "x": [
+                22.266988968580982,
+                412.666988968581
+              ],
+              "y": [
+                54.25732848064546,
+                375.52707664495205
+              ]
+            }
+          },
+          {
+            "role": "reference",
+            "opacity": 1.0,
+            "colours": [
+              [
+                0.5490196347236633,
+                0.5490196347236633,
+                0.5490196347236633,
+                0.6000000238418579
+              ]
+            ],
+            "pens": [
+              {
+                "width": 0.7999999999999999,
+                "colour": [
+                  0.5490196347236633,
+                  0.5490196347236633,
+                  0.5490196347236633,
+                  0.6000000238418579
+                ]
+              }
+            ],
+            "point_count": 0,
+            "bounds": {
+              "checked": true,
+              "x": [
+                23.866988968580984,
+                411.066988968581
+              ],
+              "y": [
+                55.857328480645464,
+                373.927076644952
+              ]
+            }
+          }
+        ],
+        "text_bounds_checked": true,
+        "text_geometry": {
+          "outside": [],
+          "overlaps": []
+        },
+        "incomplete_checks": []
+      }
+    },
+    {
+      "case": "native_3d",
+      "theme": "light",
+      "source_hashes": {
+        "input.csv": "2310ef18dcea872f5efd6cf5f129002685063a3fa5c75915ead1651ea58785f6",
+        "numerical.json": "ee0527186555bca1829ecb2fa95c5c034707420d59ec92e84772e326abe0a1a1",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [
+        "Complete projected three-dimensional axis and occlusion observations before certification."
+      ],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [
+          "Complete projected three-dimensional axis and occlusion observations before certification."
+        ],
+        "checks": [
+          "registered semantics",
+          "declared reference and quantities",
+          "actual native plot area",
+          "statistical frame",
+          "actual native font family and size",
+          "composited text contrast",
+          "effective data opacity",
+          "actual native palette",
+          "registered native artist roles",
+          "text bounds",
+          "text overlap",
+          "actual native data limits"
+        ]
+      },
+      "actual_native_observation": {
+        "backend": "QPainter",
+        "specification": {
+          "policy_version": "2026-11-20",
+          "target": "screen",
+          "kind": "continuous",
+          "conditions": null,
+          "condition_labels": [],
+          "sample_counts": [],
+          "controls": [],
+          "kinds": [],
+          "colours": [],
+          "roles": [
+            [
+              "data",
+              "#C8C8C8"
+            ],
+            [
+              "up",
+              "#0A9878"
+            ],
+            [
+              "down",
+              "#C878A8"
+            ],
+            [
+              "highlight",
+              "#0A77B8"
+            ],
+            [
+              "control_negative",
+              "#8C8C8C"
+            ],
+            [
+              "control_positive",
+              "#8C8C8C"
+            ],
+            [
+              "fill",
+              "#78AED2"
+            ],
+            [
+              "reference",
+              "#8C8C8C"
+            ],
+            [
+              "primary",
+              "#0A77B8"
+            ],
+            [
+              "secondary",
+              "#0A9878"
+            ],
+            [
+              "tertiary",
+              "#283868"
+            ],
+            [
+              "control",
+              "#8C8C8C"
+            ],
+            [
+              "background",
+              "#C8C8C8"
+            ]
+          ],
+          "identities": [],
+          "comparison": [
+            [
+              "projection_dimensions",
+              3
+            ]
+          ],
+          "legend": [
+            [
+              "caption",
+              "Fixed synthetic embedding \u00b7 fixture"
+            ],
+            [
+              "reference",
+              "Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition."
+            ],
+            [
+              "quantities",
+              [
+                [
+                  "x",
+                  "UMAP dimension 1"
+                ],
+                [
+                  "y",
+                  "UMAP dimension 2"
+                ]
+              ]
+            ],
+            [
+              "unit",
+              "dimensionless"
+            ]
+          ],
+          "slot_inches": 0.22,
+          "alpha": 0.6,
+          "font_family": "Open Sans",
+          "minimum_font_points": 8.0,
+          "font_weights": [
+            [
+              "body",
+              "light"
+            ],
+            [
+              "title",
+              "regular"
+            ],
+            [
+              "emphasis",
+              "semibold"
+            ],
+            [
+              "panel_letter",
+              "bold"
+            ]
+          ]
+        },
+        "logical_dpi": 96.0,
+        "width_inches": 4.541666666666667,
+        "height_inches": 4.541666666666667,
+        "ranges": [
+          [
+            2.0,
+            438.0
+          ],
+          [
+            2.0,
+            438.0
+          ]
+        ],
+        "background": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "projected_points": [
+          [
+            127.06801277137467,
+            194.63244289636964
+          ],
+          [
+            106.8528327342619,
+            134.75339618383265
+          ],
+          [
+            84.44231225803864,
+            221.82484965527883
+          ],
+          [
+            44.74627017145008,
+            245.1536953502699
+          ],
+          [
+            55.676613732783494,
+            174.25543987159978
+          ],
+          [
+            56.51714414465064,
+            267.85658250141637
+          ],
+          [
+            135.14337827562832,
+            217.22388805173892
+          ],
+          [
+            134.82084461624913,
+            224.18313144386752
+          ],
+          [
+            101.92761110979626,
+            255.6738874730648
+          ],
+          [
+            92.41891131334248,
+            154.38032815510155
+          ],
+          [
+            119.47944727195139,
+            235.22563710342763
+          ],
+          [
+            62.21166914963999,
+            131.4566208339284
+          ],
+          [
+            77.66135373944033,
+            164.16366755654275
+          ],
+          [
+            99.88018248677562,
+            216.6429758625699
+          ],
+          [
+            35.55318789820828,
+            171.2120138227938
+          ],
+          [
+            24.97521268427377,
+            189.87059439840633
+          ],
+          [
+            195.337173581303,
+            264.3247543476758
+          ],
+          [
+            300.80035194441905,
+            249.67037083906354
+          ],
+          [
+            246.67249301468757,
+            287.0837025840305
+          ],
+          [
+            241.3519388037065,
+            303.30016204786176
+          ],
+          [
+            187.800444490815,
+            297.75013025770573
+          ],
+          [
+            284.44471388527165,
+            262.2261277567177
+          ],
+          [
+            218.12333770607836,
+            289.78002308930127
+          ],
+          [
+            297.9445648776527,
+            276.4718535379755
+          ],
+          [
+            204.52951845810895,
+            367.3126059914562
+          ],
+          [
+            248.2061402754229,
+            285.30610067955155
+          ],
+          [
+            332.52302053594366,
+            281.13459482340477
+          ],
+          [
+            192.44990499194833,
+            241.35910297670094
+          ],
+          [
+            227.81493280722106,
+            356.95553289575685
+          ],
+          [
+            202.68423500079632,
+            305.6561405888079
+          ],
+          [
+            305.4016651888907,
+            291.8132809101968
+          ],
+          [
+            280.3674327442047,
+            278.6631634514362
+          ],
+          [
+            238.5971036378483,
+            177.1031410405226
+          ],
+          [
+            335.75857587226625,
+            92.96859415074239
+          ],
+          [
+            344.362822403452,
+            246.46087643962164
+          ],
+          [
+            299.7639836892472,
+            93.3925682039337
+          ],
+          [
+            323.5518067028845,
+            272.0717400134491
+          ],
+          [
+            348.9256203500087,
+            184.33044104042233
+          ],
+          [
+            412.1752126842738,
+            151.3752800486724
+          ],
+          [
+            299.595372765218,
+            160.42167979682662
+          ],
+          [
+            378.4905788283504,
+            150.0281875503717
+          ],
+          [
+            332.63333706027333,
+            127.01465638881005
+          ],
+          [
+            362.28798357082167,
+            125.98169270771486
+          ],
+          [
+            227.840711717668,
+            183.8268827972812
+          ],
+          [
+            397.40097159298386,
+            74.93108207330073
+          ],
+          [
+            270.6583385883899,
+            248.49261670483935
+          ],
+          [
+            346.10312169413885,
+            218.653827813314
+          ],
+          [
+            316.0276061778401,
+            215.62993529232543
+          ]
+        ],
+        "depth": [
+          0.7948903308631067,
+          0.4967472952008783,
+          0.4589620665301325,
+          1.4705244221704332,
+          0.8899253886352836,
+          -0.6742876098536587,
+          -0.5118228733490239,
+          0.3693088523714811,
+          2.6981114450038595,
+          0.8966006961693224,
+          -0.9617616623586327,
+          0.2179320658629742,
+          2.07631685094837,
+          0.9505989584151571,
+          1.5010082327607468,
+          -0.20304809811221947,
+          0.915463592556322,
+          1.3541275479732835,
+          0.517280736828806,
+          0.6045028934456949,
+          -0.8835207408755317,
+          -0.6193218354496618,
+          -0.4204098675545415,
+          1.0734133293652566,
+          -0.5573246050745627,
+          -0.6871568546330604,
+          0.1600894569456853,
+          -0.018839280402770397,
+          2.0999625158049584,
+          0.853430218918833,
+          1.8325085002735058,
+          -0.7908016839798169,
+          -0.27001875020338384,
+          -1.5935840300416753,
+          -0.02563088862575892,
+          -0.9690914052047711,
+          -1.8868256078227097,
+          0.039427947424261645,
+          -0.46981093910140465,
+          -1.1241250951263715,
+          -0.8332098787966982,
+          -0.7269051776562383,
+          -1.0941734830265628,
+          -0.3401187896473041,
+          -2.372187290182669,
+          -1.0123844184989585,
+          -1.4313620420877857,
+          -1.7934104368025792
+        ],
+        "fonts": [
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        ],
+        "frame": [
+          {
+            "edge": "left",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "right",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "top",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "bottom",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          }
+        ],
+        "marks": [
+          {
+            "role": "data",
+            "opacity": 1.0,
+            "colours": [
+              [
+                0.7843137383460999,
+                0.7843137383460999,
+                0.7843137383460999,
+                0.6000000238418579
+              ],
+              [
+                0.03921568766236305,
+                0.46666666865348816,
+                0.7215686440467834,
+                0.6000000238418579
+              ],
+              [
+                0.03921568766236305,
+                0.5960784554481506,
+                0.47058823704719543,
+                0.6000000238418579
+              ]
+            ],
+            "pens": [],
+            "point_count": 48,
+            "bounds": {
+              "checked": true,
+              "x": [
+                23.37521268427377,
+                413.7752126842738
+              ],
+              "y": [
+                73.33108207330073,
+                368.91260599145625
+              ]
+            }
+          },
+          {
+            "role": "reference",
+            "opacity": 1.0,
+            "colours": [
+              [
+                0.5490196347236633,
+                0.5490196347236633,
+                0.5490196347236633,
+                0.6000000238418579
+              ]
+            ],
+            "pens": [
+              {
+                "width": 0.7999999999999999,
+                "colour": [
+                  0.5490196347236633,
+                  0.5490196347236633,
+                  0.5490196347236633,
+                  0.6000000238418579
+                ]
+              }
+            ],
+            "point_count": 0,
+            "bounds": {
+              "checked": true,
+              "x": [
+                12.455836764414357,
+                390.86884015672837
+              ],
+              "y": [
+                68.79964652498302,
+                383.76975100260864
+              ]
+            }
+          }
+        ],
+        "text_bounds_checked": true,
+        "text_geometry": {
+          "outside": [],
+          "overlaps": []
+        },
+        "incomplete_checks": [
+          "Complete projected three-dimensional axis and occlusion observations before certification."
+        ]
+      }
+    },
+    {
+      "case": "explorer",
+      "theme": "dark",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "5d2f4c238a30e6edbcc65c0e3a7f8e26ef8802b1ddd97120996cba44e83dcba5",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      }
+    },
+    {
+      "case": "explorer_manual",
+      "theme": "dark",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "5d2f4c238a30e6edbcc65c0e3a7f8e26ef8802b1ddd97120996cba44e83dcba5",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [
+          "Use only the shared data palette and black summary marks",
+          "Draw every data mark at sixty percent opacity"
+        ],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      }
+    },
+    {
+      "case": "redraw",
+      "theme": "dark",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "928e91b6933f5c219014e48a4e1e6ba1b40d8dd702ed2bd50e4cfa3c3c7c8dfa",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      }
+    },
+    {
+      "case": "redraw_manual",
+      "theme": "dark",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "928e91b6933f5c219014e48a4e1e6ba1b40d8dd702ed2bd50e4cfa3c3c7c8dfa",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [
+          "Use only the shared data palette and black summary marks",
+          "Draw every data mark at sixty percent opacity"
+        ],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      }
+    },
+    {
+      "case": "native_2d",
+      "theme": "dark",
+      "source_hashes": {
+        "input.csv": "15e26237ec5659b2828ac72c207f31d56a052b6a68faedb14a13641ffcc11ef5",
+        "numerical.json": "f70b8ce381e8829eddb53342a432c45ea72ef8d473a6f915d57a25303b0e360c",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "declared reference and quantities",
+          "actual native plot area",
+          "statistical frame",
+          "actual native font family and size",
+          "composited text contrast",
+          "effective data opacity",
+          "actual native palette",
+          "registered native artist roles",
+          "text bounds",
+          "text overlap",
+          "actual native data limits",
+          "completed presentation checks"
+        ]
+      },
+      "actual_native_observation": {
+        "backend": "QPainter",
+        "specification": {
+          "policy_version": "2026-11-20",
+          "target": "screen",
+          "kind": "continuous",
+          "conditions": null,
+          "condition_labels": [],
+          "sample_counts": [],
+          "controls": [],
+          "kinds": [],
+          "colours": [],
+          "roles": [
+            [
+              "data",
+              "#C8C8C8"
+            ],
+            [
+              "up",
+              "#0A9878"
+            ],
+            [
+              "down",
+              "#C878A8"
+            ],
+            [
+              "highlight",
+              "#0A77B8"
+            ],
+            [
+              "control_negative",
+              "#8C8C8C"
+            ],
+            [
+              "control_positive",
+              "#8C8C8C"
+            ],
+            [
+              "fill",
+              "#78AED2"
+            ],
+            [
+              "reference",
+              "#8C8C8C"
+            ],
+            [
+              "primary",
+              "#0A77B8"
+            ],
+            [
+              "secondary",
+              "#0A9878"
+            ],
+            [
+              "tertiary",
+              "#283868"
+            ],
+            [
+              "control",
+              "#8C8C8C"
+            ],
+            [
+              "background",
+              "#C8C8C8"
+            ]
+          ],
+          "identities": [],
+          "comparison": [
+            [
+              "projection_dimensions",
+              2
+            ]
+          ],
+          "legend": [
+            [
+              "caption",
+              "Fixed synthetic embedding \u00b7 fixture"
+            ],
+            [
+              "reference",
+              "Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition."
+            ],
+            [
+              "quantities",
+              [
+                [
+                  "x",
+                  "UMAP dimension 1"
+                ],
+                [
+                  "y",
+                  "UMAP dimension 2"
+                ]
+              ]
+            ],
+            [
+              "unit",
+              "dimensionless"
+            ]
+          ],
+          "slot_inches": 0.22,
+          "alpha": 0.6,
+          "font_family": "Open Sans",
+          "minimum_font_points": 8.0,
+          "font_weights": [
+            [
+              "body",
+              "light"
+            ],
+            [
+              "title",
+              "regular"
+            ],
+            [
+              "emphasis",
+              "semibold"
+            ],
+            [
+              "panel_letter",
+              "bold"
+            ]
+          ]
+        },
+        "logical_dpi": 96.0,
+        "width_inches": 4.541666666666667,
+        "height_inches": 4.541666666666667,
+        "ranges": [
+          [
+            2.0,
+            438.0
+          ],
+          [
+            2.0,
+            438.0
+          ]
+        ],
+        "background": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "projected_points": [
+          [
+            120.77456965854023,
+            200.2728398784144
+          ],
+          [
+            101.91554023074862,
+            137.5737844513657
+          ],
+          [
+            83.46961413451984,
+            225.24877213263656
+          ],
+          [
+            35.691146353929014,
+            256.32000763488844
+          ],
+          [
+            49.566315328797316,
+            180.39412214791398
+          ],
+          [
+            68.95142862759616,
+            263.33932508170096
+          ],
+          [
+            142.22328342645073,
+            213.39809339858132
+          ],
+          [
+            133.52275836085565,
+            226.96578648006323
+          ],
+          [
+            79.75882954357877,
+            276.05542012813106
+          ],
+          [
+            84.61595587156046,
+            160.36678064377685
+          ],
+          [
+            131.9896031614632,
+            228.24413734383907
+          ],
+          [
+            61.02877952816286,
+            132.174794592492
+          ],
+          [
+            59.02301534395855,
+            179.00266903570832
+          ],
+          [
+            93.51978082008178,
+            223.6621331869189
+          ],
+          [
+            23.866988968580984,
+            181.85390181512594
+          ],
+          [
+            30.89234451386116,
+            188.05816810225141
+          ],
+          [
+            188.54116814435682,
+            271.5672491249101
+          ],
+          [
+            286.50998629311124,
+            260.0188941926182
+          ],
+          [
+            243.25600697667267,
+            291.60280188772106
+          ],
+          [
+            237.78011884173733,
+            308.63104947530627
+          ],
+          [
+            199.97237267654592,
+            291.98386862783275
+          ],
+          [
+            290.3310184465558,
+            258.0595476337528
+          ],
+          [
+            224.71037309157487,
+            287.3690351922844
+          ],
+          [
+            287.40622372463713,
+            285.0096100828877
+          ],
+          [
+            215.49572292333605,
+            364.6728007451575
+          ],
+          [
+            256.48237913296384,
+            280.8704923571361
+          ],
+          [
+            330.20753125668585,
+            282.9430217853505
+          ],
+          [
+            194.07870227493967,
+            241.43614326182
+          ],
+          [
+            211.80805245760322,
+            373.927076644952
+          ],
+          [
+            197.74316248204286,
+            312.8579304859483
+          ],
+          [
+            287.7728426830722,
+            306.1390931290962
+          ],
+          [
+            288.6074936873508,
+            273.39109849961784
+          ],
+          [
+            239.27737545258174,
+            174.66420038825564
+          ],
+          [
+            343.9993809707043,
+            79.8550108569477
+          ],
+          [
+            342.360039529653,
+            246.539314341937
+          ],
+          [
+            302.8228271689187,
+            84.9168870285176
+          ],
+          [
+            341.1934224210515,
+            258.60050629410114
+          ],
+          [
+            344.01236893892667,
+            184.26089377827185
+          ],
+          [
+            409.490715699568,
+            147.19275282732505
+          ],
+          [
+            306.5036752283887,
+            151.47611826720913
+          ],
+          [
+            380.17690244477546,
+            143.13564515589684
+          ],
+          [
+            333.649560681433,
+            120.67725326372796
+          ],
+          [
+            366.1080757371499,
+            116.90875339526647
+          ],
+          [
+            229.71520880563443,
+            180.9360702563682
+          ],
+          [
+            411.066988968581,
+            55.857328480645464
+          ],
+          [
+            280.2683011294719,
+            241.2701848848029
+          ],
+          [
+            356.85512410858234,
+            208.01977016093122
+          ],
+          [
+            330.9869237487079,
+            202.2788614395958
+          ]
+        ],
+        "depth": [
+          0.4764385136196843,
+          0.5669915897612208,
+          0.6555611185743773,
+          0.8849730958676549,
+          0.8183504079149876,
+          0.7252712997201818,
+          0.37345086950999196,
+          0.4152271078764875,
+          0.6733787353767111,
+          0.6500568708082919,
+          0.4225886701477031,
+          0.7633125069779864,
+          0.7729433375352878,
+          0.6073044724623726,
+          0.941747694376265,
+          0.9080149109343116,
+          0.15105199380779746,
+          -0.31935279999602273,
+          -0.11166550105719528,
+          -0.08537260421836794,
+          0.09616418856012257,
+          -0.33769977892486586,
+          -0.022617217648955638,
+          -0.323656152758083,
+          0.02162763182736549,
+          -0.17517294132768751,
+          -0.5291699134076825,
+          0.1244630989930898,
+          0.03933426438483435,
+          0.10686791227248123,
+          -0.3254165018038923,
+          -0.32942414261231445,
+          -0.0925617966635216,
+          -0.5953925375394263,
+          -0.5875211138852093,
+          -0.397680156531928,
+          -0.5819195123676075,
+          -0.5954549002649244,
+          -0.9098542039268941,
+          -0.41535403078249944,
+          -0.7691016814376792,
+          -0.5456970816680609,
+          -0.7015491310291035,
+          -0.04664832016281324,
+          -0.9174228009162202,
+          -0.28938286999307056,
+          -0.6571203741535837,
+          -0.5329122262315976
+        ],
+        "fonts": [
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        ],
+        "frame": [
+          {
+            "edge": "left",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "right",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "top",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "bottom",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          }
+        ],
+        "marks": [
+          {
+            "role": "data",
+            "opacity": 1.0,
+            "colours": [
+              [
+                0.7843137383460999,
+                0.7843137383460999,
+                0.7843137383460999,
+                0.6000000238418579
+              ],
+              [
+                0.03921568766236305,
+                0.46666666865348816,
+                0.7215686440467834,
+                0.6000000238418579
+              ],
+              [
+                0.03921568766236305,
+                0.5960784554481506,
+                0.47058823704719543,
+                0.6000000238418579
+              ]
+            ],
+            "pens": [],
+            "point_count": 48,
+            "bounds": {
+              "checked": true,
+              "x": [
+                22.266988968580982,
+                412.666988968581
+              ],
+              "y": [
+                54.25732848064546,
+                375.52707664495205
+              ]
+            }
+          },
+          {
+            "role": "reference",
+            "opacity": 1.0,
+            "colours": [
+              [
+                0.5490196347236633,
+                0.5490196347236633,
+                0.5490196347236633,
+                0.6000000238418579
+              ]
+            ],
+            "pens": [
+              {
+                "width": 0.7999999999999999,
+                "colour": [
+                  0.5490196347236633,
+                  0.5490196347236633,
+                  0.5490196347236633,
+                  0.6000000238418579
+                ]
+              }
+            ],
+            "point_count": 0,
+            "bounds": {
+              "checked": true,
+              "x": [
+                23.866988968580984,
+                411.066988968581
+              ],
+              "y": [
+                55.857328480645464,
+                373.927076644952
+              ]
+            }
+          }
+        ],
+        "text_bounds_checked": true,
+        "text_geometry": {
+          "outside": [],
+          "overlaps": []
+        },
+        "incomplete_checks": []
+      }
+    },
+    {
+      "case": "native_3d",
+      "theme": "dark",
+      "source_hashes": {
+        "input.csv": "2310ef18dcea872f5efd6cf5f129002685063a3fa5c75915ead1651ea58785f6",
+        "numerical.json": "ee0527186555bca1829ecb2fa95c5c034707420d59ec92e84772e326abe0a1a1",
+        "stats.csv": "c05f2a3e8febcdce8a6280ab6c47dcac8e6d9de3f188ddd68d936ca1cb18012f"
+      },
+      "findings": [
+        "Complete projected three-dimensional axis and occlusion observations before certification."
+      ],
+      "presentation": {
+        "policy_version": "2026-11-20",
+        "problems": [
+          "Complete projected three-dimensional axis and occlusion observations before certification."
+        ],
+        "checks": [
+          "registered semantics",
+          "declared reference and quantities",
+          "actual native plot area",
+          "statistical frame",
+          "actual native font family and size",
+          "composited text contrast",
+          "effective data opacity",
+          "actual native palette",
+          "registered native artist roles",
+          "text bounds",
+          "text overlap",
+          "actual native data limits"
+        ]
+      },
+      "actual_native_observation": {
+        "backend": "QPainter",
+        "specification": {
+          "policy_version": "2026-11-20",
+          "target": "screen",
+          "kind": "continuous",
+          "conditions": null,
+          "condition_labels": [],
+          "sample_counts": [],
+          "controls": [],
+          "kinds": [],
+          "colours": [],
+          "roles": [
+            [
+              "data",
+              "#C8C8C8"
+            ],
+            [
+              "up",
+              "#0A9878"
+            ],
+            [
+              "down",
+              "#C878A8"
+            ],
+            [
+              "highlight",
+              "#0A77B8"
+            ],
+            [
+              "control_negative",
+              "#8C8C8C"
+            ],
+            [
+              "control_positive",
+              "#8C8C8C"
+            ],
+            [
+              "fill",
+              "#78AED2"
+            ],
+            [
+              "reference",
+              "#8C8C8C"
+            ],
+            [
+              "primary",
+              "#0A77B8"
+            ],
+            [
+              "secondary",
+              "#0A9878"
+            ],
+            [
+              "tertiary",
+              "#283868"
+            ],
+            [
+              "control",
+              "#8C8C8C"
+            ],
+            [
+              "background",
+              "#C8C8C8"
+            ]
+          ],
+          "identities": [],
+          "comparison": [
+            [
+              "projection_dimensions",
+              3
+            ]
+          ],
+          "legend": [
+            [
+              "caption",
+              "Fixed synthetic embedding \u00b7 fixture"
+            ],
+            [
+              "reference",
+              "Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates; cluster identities follow the supplied partition."
+            ],
+            [
+              "quantities",
+              [
+                [
+                  "x",
+                  "UMAP dimension 1"
+                ],
+                [
+                  "y",
+                  "UMAP dimension 2"
+                ]
+              ]
+            ],
+            [
+              "unit",
+              "dimensionless"
+            ]
+          ],
+          "slot_inches": 0.22,
+          "alpha": 0.6,
+          "font_family": "Open Sans",
+          "minimum_font_points": 8.0,
+          "font_weights": [
+            [
+              "body",
+              "light"
+            ],
+            [
+              "title",
+              "regular"
+            ],
+            [
+              "emphasis",
+              "semibold"
+            ],
+            [
+              "panel_letter",
+              "bold"
+            ]
+          ]
+        },
+        "logical_dpi": 96.0,
+        "width_inches": 4.541666666666667,
+        "height_inches": 4.541666666666667,
+        "ranges": [
+          [
+            2.0,
+            438.0
+          ],
+          [
+            2.0,
+            438.0
+          ]
+        ],
+        "background": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "projected_points": [
+          [
+            127.06801277137467,
+            194.63244289636964
+          ],
+          [
+            106.8528327342619,
+            134.75339618383265
+          ],
+          [
+            84.44231225803864,
+            221.82484965527883
+          ],
+          [
+            44.74627017145008,
+            245.1536953502699
+          ],
+          [
+            55.676613732783494,
+            174.25543987159978
+          ],
+          [
+            56.51714414465064,
+            267.85658250141637
+          ],
+          [
+            135.14337827562832,
+            217.22388805173892
+          ],
+          [
+            134.82084461624913,
+            224.18313144386752
+          ],
+          [
+            101.92761110979626,
+            255.6738874730648
+          ],
+          [
+            92.41891131334248,
+            154.38032815510155
+          ],
+          [
+            119.47944727195139,
+            235.22563710342763
+          ],
+          [
+            62.21166914963999,
+            131.4566208339284
+          ],
+          [
+            77.66135373944033,
+            164.16366755654275
+          ],
+          [
+            99.88018248677562,
+            216.6429758625699
+          ],
+          [
+            35.55318789820828,
+            171.2120138227938
+          ],
+          [
+            24.97521268427377,
+            189.87059439840633
+          ],
+          [
+            195.337173581303,
+            264.3247543476758
+          ],
+          [
+            300.80035194441905,
+            249.67037083906354
+          ],
+          [
+            246.67249301468757,
+            287.0837025840305
+          ],
+          [
+            241.3519388037065,
+            303.30016204786176
+          ],
+          [
+            187.800444490815,
+            297.75013025770573
+          ],
+          [
+            284.44471388527165,
+            262.2261277567177
+          ],
+          [
+            218.12333770607836,
+            289.78002308930127
+          ],
+          [
+            297.9445648776527,
+            276.4718535379755
+          ],
+          [
+            204.52951845810895,
+            367.3126059914562
+          ],
+          [
+            248.2061402754229,
+            285.30610067955155
+          ],
+          [
+            332.52302053594366,
+            281.13459482340477
+          ],
+          [
+            192.44990499194833,
+            241.35910297670094
+          ],
+          [
+            227.81493280722106,
+            356.95553289575685
+          ],
+          [
+            202.68423500079632,
+            305.6561405888079
+          ],
+          [
+            305.4016651888907,
+            291.8132809101968
+          ],
+          [
+            280.3674327442047,
+            278.6631634514362
+          ],
+          [
+            238.5971036378483,
+            177.1031410405226
+          ],
+          [
+            335.75857587226625,
+            92.96859415074239
+          ],
+          [
+            344.362822403452,
+            246.46087643962164
+          ],
+          [
+            299.7639836892472,
+            93.3925682039337
+          ],
+          [
+            323.5518067028845,
+            272.0717400134491
+          ],
+          [
+            348.9256203500087,
+            184.33044104042233
+          ],
+          [
+            412.1752126842738,
+            151.3752800486724
+          ],
+          [
+            299.595372765218,
+            160.42167979682662
+          ],
+          [
+            378.4905788283504,
+            150.0281875503717
+          ],
+          [
+            332.63333706027333,
+            127.01465638881005
+          ],
+          [
+            362.28798357082167,
+            125.98169270771486
+          ],
+          [
+            227.840711717668,
+            183.8268827972812
+          ],
+          [
+            397.40097159298386,
+            74.93108207330073
+          ],
+          [
+            270.6583385883899,
+            248.49261670483935
+          ],
+          [
+            346.10312169413885,
+            218.653827813314
+          ],
+          [
+            316.0276061778401,
+            215.62993529232543
+          ]
+        ],
+        "depth": [
+          0.7948903308631067,
+          0.4967472952008783,
+          0.4589620665301325,
+          1.4705244221704332,
+          0.8899253886352836,
+          -0.6742876098536587,
+          -0.5118228733490239,
+          0.3693088523714811,
+          2.6981114450038595,
+          0.8966006961693224,
+          -0.9617616623586327,
+          0.2179320658629742,
+          2.07631685094837,
+          0.9505989584151571,
+          1.5010082327607468,
+          -0.20304809811221947,
+          0.915463592556322,
+          1.3541275479732835,
+          0.517280736828806,
+          0.6045028934456949,
+          -0.8835207408755317,
+          -0.6193218354496618,
+          -0.4204098675545415,
+          1.0734133293652566,
+          -0.5573246050745627,
+          -0.6871568546330604,
+          0.1600894569456853,
+          -0.018839280402770397,
+          2.0999625158049584,
+          0.853430218918833,
+          1.8325085002735058,
+          -0.7908016839798169,
+          -0.27001875020338384,
+          -1.5935840300416753,
+          -0.02563088862575892,
+          -0.9690914052047711,
+          -1.8868256078227097,
+          0.039427947424261645,
+          -0.46981093910140465,
+          -1.1241250951263715,
+          -0.8332098787966982,
+          -0.7269051776562383,
+          -1.0941734830265628,
+          -0.3401187896473041,
+          -2.372187290182669,
+          -1.0123844184989585,
+          -1.4313620420877857,
+          -1.7934104368025792
+        ],
+        "fonts": [
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          },
+          {
+            "family": "Open Sans",
+            "size": 8.25,
+            "weight": 300,
+            "role": "label",
+            "colour": [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          }
+        ],
+        "frame": [
+          {
+            "edge": "left",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "right",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "top",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          },
+          {
+            "edge": "bottom",
+            "visible": true,
+            "pen": {
+              "width": 0.7999999999999999,
+              "colour": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ]
+            }
+          }
+        ],
+        "marks": [
+          {
+            "role": "data",
+            "opacity": 1.0,
+            "colours": [
+              [
+                0.7843137383460999,
+                0.7843137383460999,
+                0.7843137383460999,
+                0.6000000238418579
+              ],
+              [
+                0.03921568766236305,
+                0.46666666865348816,
+                0.7215686440467834,
+                0.6000000238418579
+              ],
+              [
+                0.03921568766236305,
+                0.5960784554481506,
+                0.47058823704719543,
+                0.6000000238418579
+              ]
+            ],
+            "pens": [],
+            "point_count": 48,
+            "bounds": {
+              "checked": true,
+              "x": [
+                23.37521268427377,
+                413.7752126842738
+              ],
+              "y": [
+                73.33108207330073,
+                368.91260599145625
+              ]
+            }
+          },
+          {
+            "role": "reference",
+            "opacity": 1.0,
+            "colours": [
+              [
+                0.5490196347236633,
+                0.5490196347236633,
+                0.5490196347236633,
+                0.6000000238418579
+              ]
+            ],
+            "pens": [
+              {
+                "width": 0.7999999999999999,
+                "colour": [
+                  0.5490196347236633,
+                  0.5490196347236633,
+                  0.5490196347236633,
+                  0.6000000238418579
+                ]
+              }
+            ],
+            "point_count": 0,
+            "bounds": {
+              "checked": true,
+              "x": [
+                12.455836764414357,
+                390.86884015672837
+              ],
+              "y": [
+                68.79964652498302,
+                383.76975100260864
+              ]
+            }
+          }
+        ],
+        "text_bounds_checked": true,
+        "text_geometry": {
+          "outside": [],
+          "overlaps": []
+        },
+        "incomplete_checks": [
+          "Complete projected three-dimensional axis and occlusion observations before certification."
+        ]
+      }
+    }
+  ],
+  "seconds": 4.5624652080005035,
+  "source_tree": "/media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-graphstyle-g1",
+  "source_sha256": {
+    "spacr/figures/style.py": "6c5431ad88e39b91666098096cdbfc32f4d997d2c8c3c6cec69d31004565688b",
+    "spacr/qt/widgets/umap_explorer.py": "e864413720649df1e2dd3f61b7dadd960da6e048261050a5f8333598fffefafe",
+    "spacr/qt/widgets/umap_figure_settings.py": "5d7097be302db8d01287f3395c7713f5c30ea34e540f902f4bfa6f61b053cf3e",
+    "spacr/qt/widgets/umap_search_viewer.py": "439a18993d17aec65650c34aeb7b424ae284f8c845cd480d056593199f1baf4d"
+  }
+}

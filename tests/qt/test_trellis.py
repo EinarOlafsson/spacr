@@ -390,11 +390,15 @@ def test_free_scales_really_produce_different_drawn_limits(canvas):
     assert axes[(1, 0)].get_xlim() == pytest.approx((29.0, 51.0))
 
 
-def test_panel_titles_carry_n(canvas):
+def test_external_facet_notes_carry_n(canvas):
+    """Keep the exact facet sample counts in the legend while leaving data-panel titles empty."""
     canvas.set_trellis_spec(two_way())
-    titles = {ax.get_title() for ax in canvas.panel_axes().values()}
-    assert "p1 · a  ·  n = 2" in titles
-    assert "p2 · b  ·  n = 0" in titles
+    notes = {entry["label"] for ax in canvas.panel_axes().values()
+             for entry in getattr(ax, "_spacr_legend_entries", ())
+             if entry["kind"] == "sample_count"}
+    assert "p1 · a; n=2" in notes
+    assert "p2 · b; n=0" in notes
+    assert all(not ax.get_title() for ax in canvas.panel_axes().values())
 
 
 def test_blank_wrap_slots_are_hidden_rather_than_drawn_empty(qtbot):

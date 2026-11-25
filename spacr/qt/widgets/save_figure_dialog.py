@@ -316,6 +316,7 @@ def style_for_file(figure, *, ink: str = "", background: str = "",
         return None
     if width and height:
         figure.set_size_inches(float(width), float(height))
+        figure._spacr_live_geometry = None
     if dpi:
         figure.set_dpi(int(dpi))
     if font_scale and font_scale > 0:

@@ -55,7 +55,7 @@ def test_an_untouched_preference_leaves_the_published_look_alone(prefs):
     # no gridlines ever, the measured type scale, a transparent ground.
     assert params["axes.grid"] is False
     assert params["font.size"] == house.TYPE_SCALE["tick"]
-    assert params["figure.facecolor"] == house.TRANSPARENT
+    assert params["figure.facecolor"] == house.GENERAL_DEFAULTS["background"]
 
 
 def test_the_general_preference_reaches_the_house_style(prefs):

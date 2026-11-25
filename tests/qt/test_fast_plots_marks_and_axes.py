@@ -107,8 +107,10 @@ def test_a_group_mark_draws_what_its_values_support(make, subtests):
             assert plot.add_group_mark(1.0, spread, "violin") == len(values)
             assert len(_items(plot, pg.PlotCurveItem)) == 1
             assert plot.add_group_mark(3.0, values, "violin") == len(values)
-            assert len(_items(plot, pg.PlotCurveItem)) == 1
-            assert len(_items(plot, pg.ScatterPlotItem)) == 1
+            assert len(_items(plot, pg.PlotCurveItem)) == 2
+            assert len(_items(plot, pg.ScatterPlotItem)) == 0
+            np.testing.assert_array_equal(_items(plot, pg.PlotCurveItem)[-1].yData,
+                                          np.full(4, values[0]))
     for name in ("swarm", "candlestick"):
         with subtests.test(msg=f"an_unknown_mark_{name}_lists_the_known_ones"):
             plot = make()
@@ -358,12 +360,12 @@ def test_the_print_look_repaints_only_what_it_can_read_and_undo(make, monkeypatc
     print_look = SimpleNamespace(mode="print", ground="#ffffff")
     screen_look = SimpleNamespace(mode="screen", ground="#ffffff")
     stand_downs = [
-        ("a_print_look_repaints", dict(saved_figure_appearance=lambda: print_look,
+        ("a_print_look_repaints", dict(saved_figure_appearance=lambda mode=None: print_look,
                                        export_colour=_black), True),
         ("the_module_lacks_the_names", {}, False),
         ("the_lookup_raises", dict(saved_figure_appearance=_boom, export_colour=_black), False),
-        ("no_look_saved", dict(saved_figure_appearance=lambda: None, export_colour=_black), False),
-        ("a_screen_look", dict(saved_figure_appearance=lambda: screen_look,
+        ("no_look_saved", dict(saved_figure_appearance=lambda mode=None: None, export_colour=_black), False),
+        ("a_screen_look", dict(saved_figure_appearance=lambda mode=None: screen_look,
                                export_colour=_black), False),
     ]
     for case_id, names, repaints in stand_downs:
@@ -385,7 +387,7 @@ def test_the_print_look_repaints_only_what_it_can_read_and_undo(make, monkeypatc
                 return None if edge in ("top", "right") else real.getAxis(edge)
 
         with monkeypatch.context() as mp:
-            _style_stub(mp, saved_figure_appearance=lambda: print_look,
+            _style_stub(mp, saved_figure_appearance=lambda mode=None: print_look,
                         export_colour=lambda c, kind, s: repainted.append(kind) or "#010203")
             assert fp.FastPlot._wear_the_print_look(_HalfDressed()) != []
         assert set(repainted) == {"chrome"}
@@ -394,10 +396,10 @@ def test_the_print_look_repaints_only_what_it_can_read_and_undo(make, monkeypatc
 
         plot = make()
         with monkeypatch.context() as mp:
-            mp.setattr(style, "saved_figure_appearance", lambda: SimpleNamespace(mode="screen"))
+            mp.setattr(style, "saved_figure_appearance", lambda mode=None: SimpleNamespace(mode="screen"))
             plot.plot.getAxis("bottom").setPen(pg.mkPen("#ffffff"))
             assert fp.FastPlot._wear_the_print_look(plot.plot) == []
-            mp.setattr(style, "saved_figure_appearance", lambda: _real_look("print"))
+            mp.setattr(style, "saved_figure_appearance", lambda mode=None: _real_look("print"))
             assert fp.FastPlot._wear_the_print_look(plot.plot) != []
     with subtests.test(msg="old_axes_without_text_pen_are_repainted_and_undone"):
         import spacr.figure_style as style
@@ -405,7 +407,7 @@ def test_the_print_look_repaints_only_what_it_can_read_and_undo(make, monkeypatc
         axes = {"bottom": _PlainAxis("#ffffff"), "left": _PlainAxis("#ffffff")}
         item = SimpleNamespace(getAxis=lambda edge: axes.get(edge), titleLabel=None)
         with monkeypatch.context() as mp:
-            mp.setattr(style, "saved_figure_appearance", lambda: _real_look("print"))
+            mp.setattr(style, "saved_figure_appearance", lambda mode=None: _real_look("print"))
             undo = fp.FastPlot._wear_the_print_look(item)
         assert len(undo) == 2
         assert axes["bottom"].pen().color().name() == "#222222"
@@ -415,7 +417,7 @@ def test_the_print_look_repaints_only_what_it_can_read_and_undo(make, monkeypatc
 
 
 def test_the_violin_profile_is_a_closed_outline_or_nothing(subtests):
-    """``_violin_profile`` peaks at the half-width, closes at both ends, refuses no spread."""
+    """The violin peaks at the selected width; identical values retain zero height and nonfinite endpoints are refused."""
     rng = np.random.default_rng(1)
     shaped = [
         ("two_points", [0.0, 1.0], 0.4),
@@ -442,8 +444,13 @@ def test_the_violin_profile_is_a_closed_outline_or_nothing(subtests):
                             ("all_nan", [np.nan, np.nan]),
                             ("an_infinite_end", [np.inf, 1.0]),
                             ("an_infinite_top", [0.0, np.inf])):
-        with subtests.test(msg=f"refused_{case_id}"):
-            assert fp._violin_profile(values, 0.4) == (None, None)
+        with subtests.test(msg=f"profile_{case_id}"):
+            if np.isfinite(values).all() and min(values) == max(values):
+                centres, widths = fp._violin_profile(values, 0.4)
+                np.testing.assert_array_equal(centres, [values[0], values[0]])
+                np.testing.assert_array_equal(widths, [.4, .4])
+            else:
+                assert fp._violin_profile(values, 0.4) == (None, None)
 
 
 class _Item:

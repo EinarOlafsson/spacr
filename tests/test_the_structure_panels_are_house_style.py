@@ -244,7 +244,8 @@ def test_a_condition_number_of_1e16_is_printed_in_a_form_that_fits(collinear):
 
 @pytest.mark.parametrize("name,expected", [("vif", (5.0, 10.0)),
                                            ("coefficient_forest", (0.0,))])
-def test_the_thresholds_are_thin_grey_dashes(clean, name, expected):
+def test_the_thresholds_are_thin_black_dashes(clean, name, expected):
+    """Shared reference defaults use black; retain every original threshold coordinate, thin width and dash assertion."""
     figure, ax = _axes()
     rq.draw_panel(name, clean, ax)
     rules = {round(float(line.get_xdata()[0]), 6): line for line in ax.lines
@@ -252,7 +253,7 @@ def test_the_thresholds_are_thin_grey_dashes(clean, name, expected):
     for value in expected:
         assert value in rules, f"{name} lost its rule at x = {value}"
         line = rules[value]
-        assert to_hex(line.get_color()).lower() == ROLES["reference"].lower()
+        assert to_hex(line.get_color()).lower() == "#000000"
         assert line.get_linewidth() <= WEIGHTS["reference"] + 1e-9, (
             f"{name}'s rule at {value} is {line.get_linewidth()}pt; a "
             f"reference is not a result")
@@ -424,7 +425,7 @@ def test_the_correlation_caption_names_the_pair_it_found(collinear):
     "between fraction:grna[2130 and fraction:grna[2276" names no pair."""
     figure, ax = _axes()
     stats = rq.draw_panel("predictor_correlation", collinear, ax)
-    caption = " ".join(t.get_text() for t in ax.texts)
+    caption = " ".join(entry["label"] for entry in ax._spacr_legend_entries)
     for name in stats["max_pair"]:
         assert name in caption, (name, caption)
 

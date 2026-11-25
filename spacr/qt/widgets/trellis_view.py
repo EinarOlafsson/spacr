@@ -28,8 +28,8 @@ Two conventions of the grid
 trellis with per-panel scales that hid its inner ticks would misstate the
 scales; if a panel has its own limits it prints its own numbers.
 
-**Every panel's title carries its n**, from
-:meth:`~spacr.qt.widgets.trellis_spec.TrellisPanel.label`. Blank slots at the
+**Every panel retains its n in the external legend**, while the shared
+style keeps counts outside the data area. Blank slots at the
 end of a wrapped grid are hidden entirely — they are not panels with no data,
 they are the remainder of a division.
 """
@@ -213,10 +213,7 @@ class TrellisCanvas(GraphCanvas):
             self._label_trellis_panel(ax, panel, result, palette)
 
         self._draw_legend(kind, palette)
-        try:
-            self._figure.tight_layout(pad=0.7)
-        except (ValueError, np.linalg.LinAlgError):
-            pass
+        self._finish_layout()
         self._canvas.draw_idle()
         self._notice.setText(self._trellis_notice(result))
         self.rendered.emit(result.data)
@@ -230,12 +227,14 @@ class TrellisCanvas(GraphCanvas):
         handed the same numbers, which is what "shared" has to mean if a shift
         between panels is to read as a shift.
         """
+        from ...figures.style import TICK_ROTATION, TYPE_SCALE, _apply_line_origin
+
         counts_on_y = kind in (HISTOGRAM, BAR)
         if scales.x_levels is not None:
             ax.set_xticks(range(len(scales.x_levels)))
-            ax.set_xticklabels(scales.x_levels, rotation=30, ha="right",
-                               fontsize=7)
-            ax.set_xlim(-0.6, len(scales.x_levels) - 0.4)
+            ax.set_xticklabels(scales.x_levels, rotation=TICK_ROTATION, ha="right",
+                               fontsize=TYPE_SCALE["tick"], fontfamily="Open Sans", fontweight="light")
+            ax.set_xlim(-0.5, len(scales.x_levels) - 0.5)
         elif scales.x_limits is not None:
             ax.set_xlim(*scales.x_limits)
         if counts_on_y:
@@ -243,39 +242,44 @@ class TrellisCanvas(GraphCanvas):
                 ax.set_ylim(0, scales.count_limit)
         elif scales.y_levels is not None:
             ax.set_yticks(range(len(scales.y_levels)))
-            ax.set_yticklabels(scales.y_levels, fontsize=7)
-            ax.set_ylim(-0.6, len(scales.y_levels) - 0.4)
+            ax.set_yticklabels(scales.y_levels, fontsize=TYPE_SCALE["tick"],
+                               fontfamily="Open Sans", fontweight="light")
+            ax.set_ylim(-0.5, len(scales.y_levels) - 0.5)
         elif scales.y_limits is not None:
             ax.set_ylim(*scales.y_limits)
+        _apply_line_origin(ax, ax._spacr_style_spec)
 
     def _label_trellis_panel(self, ax, panel, result: Trellis, palette) -> None:
-        """Title with n, axis names on the edges, ticks where they are needed."""
-        spec = self._trellis_spec
-        kind = spec.graph.resolved_kind(self._kinds)
-        x_column, y_column = value_axes(spec.graph, self._kinds)
-        counts_on_y = kind in (HISTOGRAM, BAR)
-        nrows, ncols = result.shape
+        """Retain facet identity, counts and low-sample warnings in external legend metadata.
 
+        Shared axes hide only genuinely redundant inner tick labels. Each
+        free-scale panel retains its own readable ticks and numerical limits.
+
+        :param ax: axes containing this panel and its shared presentation specification.
+        :param panel: existing trellis panel with unchanged row membership and sample count.
+        :param result: existing grid and scale computation.
+        :param palette: active GUI palette; shared graph defaults apply afterwards.
+        """
+        if not panel.occupied:
+            return
+        spec = self._trellis_spec
+        nrows, ncols = result.shape
         below = (result.panel(panel.row + 1, panel.col)
                  if panel.row + 1 < nrows else None)
         is_bottom = below is None or not below.occupied
         is_left = panel.col == 0
-
-        if is_bottom:
-            ax.set_xlabel(x_column or "", color=palette["fg_dim"], fontsize=9)
-        if is_left:
-            ax.set_ylabel("count" if counts_on_y else (y_column or ""),
-                          color=palette["fg_dim"], fontsize=9)
+        self._label_panel(ax, panel, spec, panel.row + 1 if is_bottom else nrows,
+                          ncols, palette)
         if spec.scale_x == SCALE_SHARED and not is_bottom:
             ax.tick_params(labelbottom=False)
         if spec.scale_y == SCALE_SHARED and not is_left:
             ax.tick_params(labelleft=False)
+        if panel.is_low_n:
+            from ...figures.style import _legend_note
+            from ..i18n import tr
 
-        title = panel.label()
-        if title:
-            colour = (palette["warning"] if panel.is_low_n
-                      else palette["fg_dim"])
-            ax.set_title(title, color=colour, fontsize=8, pad=3)
+            _legend_note(ax, tr("Low sample count: {count} observations.").format(count=panel.n),
+                         "#000000", "sample_count")
 
     def _trellis_notice(self, result: Trellis) -> str:
         """Compose the line under the trellis.

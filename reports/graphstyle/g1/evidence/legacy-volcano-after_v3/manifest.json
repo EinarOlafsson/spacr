@@ -1,0 +1,214 @@
+{
+  "records": [
+    {
+      "case": "cloud",
+      "theme": "light",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "46c7c092056d1277feb190ba787e818436cd9157c95401f938361f7ba2cd016e",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "d2ddbf4dc6421d5e9307e9f669b9c43bfad77ea14da4ef588536736dee2795a8"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "thresholds",
+      "theme": "light",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "46c7c092056d1277feb190ba787e818436cd9157c95401f938361f7ba2cd016e",
+        "hits.csv": "1f5172e73ecfd5f35d604611a417d12c9a4deebd11b2b4bfb28b093de0214e99",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "d2ddbf4dc6421d5e9307e9f669b9c43bfad77ea14da4ef588536736dee2795a8"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "log2",
+      "theme": "light",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "7ad9b582dcb9ce0ad915d8eacbebc8455a4ca54f25c18cc1e40b9790486ceeab",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "3179db13f628b354a4b795355804dc5cf3778c59accd7b8ab0805c81b2fd3586",
+        "registered_source.csv": "070084317ec250ab17036fd7ace5ff8c9e2f9a91ccb4995df1f80c7bce5cfc0e"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "raw_p",
+      "theme": "light",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "7a4e10305ecc4e991c2b423210d7c5d45e4709ac69137287ad449cd4ed96e698",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "0ca291953354bb49e5c446c0e8f9c12f778386909f78696009e86c4727d1993a"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "positive_log_p",
+      "theme": "light",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "3845c31b3c2154210507ea04bdcf577cbe375f0979cbbe107f483814b39676fc",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "8ecb12e19b44b1975826dcb6abaee33bf612802ba0f290562e6b919740b660b4"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "manual",
+      "theme": "light",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "46c7c092056d1277feb190ba787e818436cd9157c95401f938361f7ba2cd016e",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "d2ddbf4dc6421d5e9307e9f669b9c43bfad77ea14da4ef588536736dee2795a8"
+      },
+      "layout_problems": [
+        "text 'Selected, effect \u2265 0' is cut off",
+        "text 'Selected, effect < 0' is cut off",
+        "text 'Other observations' is cut off"
+      ]
+    },
+    {
+      "case": "parent",
+      "theme": "light",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "46c7c092056d1277feb190ba787e818436cd9157c95401f938361f7ba2cd016e",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "d5648539238710016ebdff0c079f3f95b443d9c400da028f5dca4d2e5193c782"
+      },
+      "layout_problems": [
+        "text 'effect' is cut off",
+        "text 'Observations' is cut off",
+        "text 'Zero reference' is cut off"
+      ]
+    },
+    {
+      "case": "zero_missing",
+      "theme": "light",
+      "tables": {
+        "drawn_mask.csv": "767e8101ab6cae7f9eb6c5e1b5a8037326a508b31fe1ea8dd03f6ded13436739",
+        "drawn_values.csv": "85c97b3fb92013061451ab0ed4a08769102fe72d87577dee47c0f4a9c36e1230",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "e32341a14e38540ab5283744480e62f7ef9c243e89a109a0a593852c993996e2",
+        "registered_source.csv": "d19603a9859f0161a42e92f0e913962a77465ef9b470313051e07f4b0afeda1f"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "cloud",
+      "theme": "dark",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "46c7c092056d1277feb190ba787e818436cd9157c95401f938361f7ba2cd016e",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "d2ddbf4dc6421d5e9307e9f669b9c43bfad77ea14da4ef588536736dee2795a8"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "thresholds",
+      "theme": "dark",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "46c7c092056d1277feb190ba787e818436cd9157c95401f938361f7ba2cd016e",
+        "hits.csv": "1f5172e73ecfd5f35d604611a417d12c9a4deebd11b2b4bfb28b093de0214e99",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "d2ddbf4dc6421d5e9307e9f669b9c43bfad77ea14da4ef588536736dee2795a8"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "log2",
+      "theme": "dark",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "7ad9b582dcb9ce0ad915d8eacbebc8455a4ca54f25c18cc1e40b9790486ceeab",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "3179db13f628b354a4b795355804dc5cf3778c59accd7b8ab0805c81b2fd3586",
+        "registered_source.csv": "070084317ec250ab17036fd7ace5ff8c9e2f9a91ccb4995df1f80c7bce5cfc0e"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "raw_p",
+      "theme": "dark",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "7a4e10305ecc4e991c2b423210d7c5d45e4709ac69137287ad449cd4ed96e698",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "0ca291953354bb49e5c446c0e8f9c12f778386909f78696009e86c4727d1993a"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "positive_log_p",
+      "theme": "dark",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "3845c31b3c2154210507ea04bdcf577cbe375f0979cbbe107f483814b39676fc",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "8ecb12e19b44b1975826dcb6abaee33bf612802ba0f290562e6b919740b660b4"
+      },
+      "layout_problems": []
+    },
+    {
+      "case": "manual",
+      "theme": "dark",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "46c7c092056d1277feb190ba787e818436cd9157c95401f938361f7ba2cd016e",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "d2ddbf4dc6421d5e9307e9f669b9c43bfad77ea14da4ef588536736dee2795a8"
+      },
+      "layout_problems": [
+        "text 'Selected, effect \u2265 0' is cut off",
+        "text 'Selected, effect < 0' is cut off",
+        "text 'Other observations' is cut off"
+      ]
+    },
+    {
+      "case": "parent",
+      "theme": "dark",
+      "tables": {
+        "drawn_mask.csv": "6f561cae33aa715948e0be14dded25a7928657cb36454096273e1c6efa93feb3",
+        "drawn_values.csv": "46c7c092056d1277feb190ba787e818436cd9157c95401f938361f7ba2cd016e",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "eac9fe6867f90b83c96a8093cbe4146485eba8fd47b420268915613849bcaac8",
+        "registered_source.csv": "d5648539238710016ebdff0c079f3f95b443d9c400da028f5dca4d2e5193c782"
+      },
+      "layout_problems": [
+        "text 'effect' is cut off",
+        "text 'Observations' is cut off",
+        "text 'Zero reference' is cut off"
+      ]
+    },
+    {
+      "case": "zero_missing",
+      "theme": "dark",
+      "tables": {
+        "drawn_mask.csv": "767e8101ab6cae7f9eb6c5e1b5a8037326a508b31fe1ea8dd03f6ded13436739",
+        "drawn_values.csv": "85c97b3fb92013061451ab0ed4a08769102fe72d87577dee47c0f4a9c36e1230",
+        "hits.csv": "360e179ff44cfddab4ee7748a89f8beb88bf59982bed71c0abf242571c733433",
+        "input.csv": "e32341a14e38540ab5283744480e62f7ef9c243e89a109a0a593852c993996e2",
+        "registered_source.csv": "d19603a9859f0161a42e92f0e913962a77465ef9b470313051e07f4b0afeda1f"
+      },
+      "layout_problems": []
+    }
+  ],
+  "seconds": 4.220962046994828,
+  "source_tree": "/media/carruthers/mnt2/spacr/codex-worktrees/spacr-codex-work-graphstyle-g1"
+}

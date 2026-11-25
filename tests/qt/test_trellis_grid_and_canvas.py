@@ -180,7 +180,7 @@ def test_trellis_canvas_draws_messages_limits_and_count_axes(qtbot, subtests):
             x="area", y="gene", facet_row="plateID", roles=NUMERIC)))
         ax = canvas.panel_axes()[(0, 0)]
         assert [t.get_text() for t in ax.get_yticklabels()] == ["a", "b"]
-        assert ax.get_ylim() == pytest.approx((-0.6, 1.6))
+        assert ax.get_ylim() == pytest.approx((-0.5, 1.5))
     seen = pd.DataFrame({"gene": ["a", "a", "a", "b"],
                          "area": [1.0, 2.0, 3.0, 10.0]})
     blind = pd.DataFrame({"gene": ["a", "a", "b", "b"], "area": [np.nan] * 4})

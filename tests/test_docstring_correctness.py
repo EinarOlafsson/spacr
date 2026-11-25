@@ -4294,12 +4294,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     this test's denominator.  The signature digest also catches a required
     parameter becoming optional (or the reverse) without changing counts.
     """
+    from tests.test_graphstyle_api_contract import _validated_graphstyle_callables
+
     before_modules = set(sys.modules)
     callables = _validated_prior_scn_callables(
         _validated_prior_plaque_callables(
             _validated_prior_radius_callables(
                 _validated_prior_worker_callables(
-                    list(_public_callables()), replay_dialog_signature=True))))
+                    _validated_graphstyle_callables(list(_public_callables())), replay_dialog_signature=True))))
     from tests.omezarr_native_api_hooks import _validated_omezarr_native_arrivals
     callables = _validated_omezarr_native_arrivals(callables)
     from tests.test_ops_fdr_never_1014 import _validated_never_arrivals
@@ -6654,6 +6656,8 @@ def test_generated_constructor_ivars_cannot_leak_to_ordinary_callables():
 
 def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     """Require the extractor's keys and content to equal rendered source."""
+    from tests.test_graphstyle_api_contract import _current_graphstyle_api, _retired_graphstyle_api
+
     before_modules = set(sys.modules)
     docs = _documentation_public_docstrings()
     from tests.test_documentation_i18n import _navigator_input_identity_arrival
@@ -6661,7 +6665,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     from tests.test_documentation_i18n import (
         _retired_0ab2_measure_api, _retired_732_remote_api, _retired_801_mask_worker_api)
     historical_docs = (docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
-                       | _retired_0ab2_measure_api(docs))
+                       | _retired_0ab2_measure_api(docs) | _retired_graphstyle_api(docs))
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -7232,6 +7236,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
         ("figprefs_pipeline_figures_api_arrivals_2026-11-19.json", 1),
         ("figstyle_spacr_graphs_api_arrivals_2026-11-19.json", 9),
+        ("graphstyle_g1_api_arrivals_2026-11-23.json", 22),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("cachepos_ops_field_cache_api_arrivals_2026-11-20.json", 1),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
@@ -7264,6 +7269,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "figstyle_spacr_graphs_api_arrivals_2026-11-19.json":
+            additions = _current_graphstyle_api(additions)
         from tests.test_ops_fdr_never_1014 import _current_never_api
         additions = _current_never_api(additions)
         from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
@@ -7929,6 +7936,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "969_ops_settings_layout_api_arrivals_2026-11-17.json",
                      "figprefs_pipeline_figures_api_arrivals_2026-11-19.json",
                      "figstyle_spacr_graphs_api_arrivals_2026-11-19.json",
+                     "graphstyle_g1_api_arrivals_2026-11-23.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",
@@ -7957,6 +7965,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "1013_neighbour_bleed_api_arrivals_2026-11-22.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "figstyle_spacr_graphs_api_arrivals_2026-11-19.json":
+            entries = _current_graphstyle_api(entries)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             entries = _posix_update_prepared_key_move(entries)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
@@ -8129,6 +8139,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "969_ops_settings_layout_api_arrivals_2026-11-17.json",
                      "figprefs_pipeline_figures_api_arrivals_2026-11-19.json",
                      "figstyle_spacr_graphs_api_arrivals_2026-11-19.json",
+                     "graphstyle_g1_api_arrivals_2026-11-23.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",
@@ -8157,6 +8168,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "1013_neighbour_bleed_api_arrivals_2026-11-22.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "figstyle_spacr_graphs_api_arrivals_2026-11-19.json":
+            entries = _current_graphstyle_api(entries)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             entries = _posix_update_prepared_key_move(entries)
         arrival_callables |= set(entries)
