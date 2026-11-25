@@ -998,18 +998,22 @@ class WellWriter:
         _remove(self._temporary)
 
 
-def _rebuild(project, tables: Sequence[str]) -> List[str]:
+def _rebuild(project, tables: Sequence[str], *, plate=None,
+             wells: Optional[Sequence[str]] = None) -> List[str]:
     """Clear ``tables`` and an older ``measurements.db`` before a run rebuilds them.
 
     For a phase that rewrites its tables on every run, so a well this run
     does not write cannot survive from an older one (:func:`_drop_tables`).
+    With ``plate`` and ``wells`` only those wells of those tables are
+    cleared, so the other wells of the project stay registered and one
+    store holds a plate written well by well.
 
     :returns: the paths removed, relative to the project.
     """
     project = os.path.abspath(os.fspath(project))
     for suffix in ("", "-wal", "-shm", "-journal"):
         _remove(os.path.join(project, _LEGACY_NAMES[0] + suffix))
-    return _drop_tables(project, tables)
+    return _drop_tables(project, tables, plate=plate, wells=wells)
 
 
 def _overflows(original, cast) -> bool:
@@ -2690,7 +2694,8 @@ def _upcast_half(result):
     return result.cast(pa.schema(fields, metadata=result.schema.metadata))
 
 
-def _drop_tables(project, tables: Sequence[str]) -> List[str]:
+def _drop_tables(project, tables: Sequence[str], *, plate=None,
+                 wells: Optional[Sequence[str]] = None) -> List[str]:
     """Remove ``tables`` from a store: their catalog rows, views and files.
 
     For a writer that rebuilds its tables on every run, so the rows of a
@@ -2700,27 +2705,50 @@ def _drop_tables(project, tables: Sequence[str]) -> List[str]:
 
     :param project: the project folder.
     :param tables: the table names.
+    :param plate: with ``wells``, remove only these wells of this plate
+        (the ``plate=`` / ``well=`` partitions); the views of a table that
+        keeps other wells are pointed at the files left.
+    :param wells: the wells, or None for every well of every plate.
     :returns: the paths removed, relative to the project.
     """
     project = os.path.abspath(os.fspath(project))
     names = sorted({n for t in tables
                     for n in (t, _keys_name(t), _rows_name(t))})
+    scoped = wells is not None
+    chosen = sorted({str(w) for w in (wells or ())})
+    if scoped and not chosen:
+        return []
     removed: List[str] = []
     catalog = os.path.join(project, CATALOG)
     if os.path.isfile(catalog):
         conn = _connect(catalog)
         try:
             marks = ", ".join("?" for _ in names)
+            where, params = f"table_name IN ({marks})", list(names)
+            if scoped:
+                where += (f" AND plate = ? AND well IN "
+                          f"({', '.join('?' for _ in chosen)})")
+                params += [str(plate), *chosen]
             conn.execute("BEGIN TRANSACTION")
             removed = [row[0] for row in conn.execute(
-                f"SELECT path FROM spacr_files WHERE table_name IN ({marks})",
-                names).fetchall()]
-            conn.execute(f"DELETE FROM spacr_files WHERE table_name IN "
-                         f"({marks})", names)
-            conn.execute(f"DELETE FROM spacr_tables WHERE name IN ({marks})",
-                         names)
-            for name in names:
-                conn.execute(f"DROP VIEW IF EXISTS {_ident(name)}")
+                f"SELECT path FROM spacr_files WHERE {where}",
+                params).fetchall()]
+            conn.execute(f"DELETE FROM spacr_files WHERE {where}", params)
+            if scoped:
+                left = {row[0] for row in conn.execute(
+                    f"SELECT DISTINCT table_name FROM spacr_files WHERE "
+                    f"table_name IN ({marks})", names).fetchall()}
+                empty = [n for n in names if n not in left]
+                if empty:
+                    conn.execute(
+                        f"DELETE FROM spacr_tables WHERE name IN "
+                        f"({', '.join('?' for _ in empty)})", empty)
+                _rebuild_views(conn, project, names)
+            else:
+                conn.execute(f"DELETE FROM spacr_tables WHERE name IN "
+                             f"({marks})", names)
+                for name in names:
+                    conn.execute(f"DROP VIEW IF EXISTS {_ident(name)}")
             conn.execute("COMMIT")
         except BaseException:
             conn.execute("ROLLBACK")
@@ -2731,14 +2759,25 @@ def _drop_tables(project, tables: Sequence[str]) -> List[str]:
                                               "*.json"))):
         with builtins.open(path, encoding="utf-8") as handle:
             manifest = json.load(handle)
-        if manifest.get("table") in names:
+        if manifest.get("table") in names and (
+                not scoped or (str(manifest.get("plate")) == str(plate)
+                               and str(manifest.get("well")) in chosen)):
             removed.extend(entry["path"] for entry in manifest["files"])
             _remove(path)
     for rel in removed:
         _remove(os.path.join(project, rel))
     for name in names:
-        _remove(os.path.join(project, "tables", name))
-        _remove(os.path.join(project, "rows", name))
+        for top in ("tables", "rows"):
+            if not scoped:
+                _remove(os.path.join(project, top, name))
+                continue
+            plate_dir = os.path.join(project, top, name,
+                                     f"plate={_encoded(plate)}")
+            for well in chosen:
+                _remove(os.path.join(plate_dir, f"well={_encoded(well)}"))
+            for folder in (plate_dir, os.path.dirname(plate_dir)):
+                if os.path.isdir(folder) and not os.listdir(folder):
+                    os.rmdir(folder)
     return removed
 
 

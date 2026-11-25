@@ -97,12 +97,26 @@ def _build(root, sites=SITES, seed=0):
     edge["touches_field_edge"] = False
     edge.loc[[2, 30], "touches_field_edge"] = True
     edge.to_parquet(ops_engine._ph_maskpass_path(str(run), "A1"), index=False)
+    _owners(run, "A1", cells)
     links = cells.loc[cells.index % 5 != 0, ["site", "label"]].copy()
     links.insert(0, "well", "A1")
     links.insert(0, "plate", PLATE)
     links["object_id"] = np.arange(1, len(links) + 1, dtype=np.int64)
     write_table(str(run / "measurements.db"), "ops_merge", links)
     return run, cells
+
+
+def _owners(run, well, cells):
+    """An ``ops_cross_field_<well>`` table naming every cell its own owner."""
+    owners = cells[["site", "label"]].astype(np.int64).copy()
+    owners.insert(0, "well", well)
+    owners["component"] = np.arange(len(owners), dtype=np.int64)
+    owners["area"] = cells["cell_area"].to_numpy()
+    owners["is_owner"] = True
+    owners["owner_field"] = owners["site"]
+    owners["owner_label"] = owners["label"]
+    owners.to_parquet(ops_engine._ph_cross_field_path(str(run), well),
+                      index=False)
 
 
 def _tables(run, **extra):
