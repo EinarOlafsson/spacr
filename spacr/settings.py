@@ -2655,7 +2655,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 965
+SETTINGS_SCHEMA_VERSION = 971
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2704,6 +2704,7 @@ DEFAULT_CHANGES = {
     964: {'ops_pixel_read_gate': False},
     965: {'profile_outside_rule': 'background',
           'ops_ph_profile_outside_rule': 'background'},
+    971: {'ops_tile_origin': 'float'},
 }
 
 
@@ -2867,6 +2868,14 @@ def _fold_older_defaults(settings, version, known=None):
     whose reads named no guide or named its guide alone. Files stamped
     before keep False, which also lets it assign read ties and read
     refusals.
+
+    Version 971 is item 1031: ``ops_tile_origin`` is now ``'paste'``, so
+    the decode moves the nuclei into each sequencing tile, and its reads
+    back into the well, by the whole pixel the composite pasted the tile
+    at, and the tile-affine merge centres its tile groups there. Files
+    stamped before keep ``'float'`` (the stored fraction of a pixel, up to
+    half a pixel off the composite) and reproduce their calls. Versions
+    966 to 970 belong to other items.
 
     :param settings: the file's settings under today's names, edited in
         place.

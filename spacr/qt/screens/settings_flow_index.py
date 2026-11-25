@@ -1747,6 +1747,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_tables_layout',
     'ops_test_features',
     'ops_tie',
+    'ops_tile_origin',
     'ops_tvn_components',
     'ops_tvn_fit_cells',
     'ops_tvn_mode',

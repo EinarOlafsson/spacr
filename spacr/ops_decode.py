@@ -3916,7 +3916,8 @@ def compare_region(frame, site: int, origin: Tuple[float, float], centres,
 
     :param frame: cells with ``y`` and ``x`` in the tile frame.
     :param site: the field.
-    :param origin: the tile's ``(y, x)`` placement in the well.
+    :param origin: the tile's ``(y, x)`` origin in the well, as
+        :func:`spacr.ops_compose.tile_origins` gives it.
     :param centres: ``(N, 2)`` every placed tile's centre in the well.
     :param sites: the site of each centre.
     :param tile: the tile ``(height, width)``.
@@ -3925,11 +3926,14 @@ def compare_region(frame, site: int, origin: Tuple[float, float], centres,
     """
     from scipy.spatial import cKDTree
 
+    from .ops_compose import tile_to_well
+
     if not len(frame):
         return frame.reset_index(drop=True)
-    yy = frame["y"].to_numpy() + origin[0]
-    xx = frame["x"].to_numpy() + origin[1]
-    _, nearest = cKDTree(centres).query(np.column_stack([yy, xx]))
+    well = tile_to_well(np.column_stack([frame["y"].to_numpy(),
+                                         frame["x"].to_numpy()]),
+                        origin, "float")
+    _, nearest = cKDTree(centres).query(well)
     inside = ((frame["y"] >= edge) & (frame["y"] < tile[0] - edge)
               & (frame["x"] >= edge) & (frame["x"] < tile[1] - edge)).to_numpy()
     return frame[(np.asarray(sites)[nearest] == site) & inside].reset_index(drop=True)
@@ -3978,8 +3982,10 @@ def run_compare_calls(db: str, plate: str, wells: Sequence[str],
     :param settings: read for ``ops_compare_tables``,
         ``ops_compare_match_px``, ``ops_compare_fields`` (``well:site``
         pairs separated by commas, or empty for every site of the tables),
-        ``ops_decoy_library_k``, ``ops_fdr_scale`` and
-        ``ops_decode_fdr_calibration``. Never methods read applied scales
+        ``ops_decoy_library_k``, ``ops_fdr_scale``,
+        ``ops_decode_fdr_calibration`` and ``ops_tile_origin``, the tile
+        origin spaCR's nuclei are moved into the tile frame by (item 1031,
+        the decode's own). Never methods read applied scales
         from current per-well decode reports; missing reports keep the
         entered scale. Legacy methods retain their earlier tables.
     :param library: the guide barcodes, for the decoy set.
@@ -3990,12 +3996,15 @@ def run_compare_calls(db: str, plate: str, wells: Sequence[str],
     """
     import pandas as pd
 
+    from .ops_compose import (tile_centres, tile_origin_rule, tile_origins,
+                              well_to_tile)
     from .ops_sbs import decoy_library
     from .ops_store import read_table as read_ops_table
     from .tabular import read_table
 
     settings = resolve_settings(settings)
     rule = decode_rule(settings)
+    origin_rule = tile_origin_rule(ops_setting(settings, "ops_tile_origin"))
     paths = _compare_tables_setting(settings.get("ops_compare_tables"))
     max_px = _qc_number(settings, "ops_compare_match_px", COMPARE_MATCH_PX)
     decoys = set(decoy_library(library, k=max(rule["decoy_k"], 1)))
@@ -4039,15 +4048,19 @@ def run_compare_calls(db: str, plate: str, wells: Sequence[str],
         placed = geometry[(geometry["well"].astype(str) == well)
                           & (geometry["cycle"] == geometry["cycle"].min())]
         tile = (int(placed["tile_height"].iloc[0]), int(placed["tile_width"].iloc[0]))
-        centres = np.column_stack([placed["y"] + tile[0] / 2, placed["x"] + tile[1] / 2])
+        centres = tile_centres(placed[["y", "x"]].to_numpy(float), tile,
+                               origin_rule)
         origin_row = placed[placed["site"] == site]
         if origin_row.empty:
             continue
-        origin = (float(origin_row["y"].iloc[0]), float(origin_row["x"].iloc[0]))
+        stored = (float(origin_row["y"].iloc[0]), float(origin_row["x"].iloc[0]))
+        origin = tile_origins({site: stored}, origin_rule)[site]
         cells = objects[objects["well"].astype(str) == well]
+        local = well_to_tile(np.column_stack([cells["centroid_y"].to_numpy(),
+                                              cells["centroid_x"].to_numpy()]),
+                             stored, origin_rule)
         mine = pd.DataFrame({"cell": cells["object_id"].to_numpy(),
-                             "y": cells["centroid_y"].to_numpy() - origin[0],
-                             "x": cells["centroid_x"].to_numpy() - origin[1]})
+                             "y": local[:, 0], "x": local[:, 1]})
         mine = mine[(mine["y"] > -30) & (mine["y"] < tile[0] + 30)
                     & (mine["x"] > -30) & (mine["x"] < tile[1] + 30)]
         tables = {"spaCR": compare_region(mine, site, origin, centres,

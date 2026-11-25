@@ -30,7 +30,8 @@ import numpy as np
 
 __all__ = [
     "ComposeError", "Window", "windows_over", "compose_window",
-    "overlap_gain",
+    "overlap_gain", "TILE_ORIGINS", "paste_origin", "tile_origin_rule",
+    "tile_origins", "tile_centres", "well_to_tile", "tile_to_well",
 ]
 
 LOG = logging.getLogger("spacr.ops_compose")
@@ -39,9 +40,127 @@ LOG = logging.getLogger("spacr.ops_compose")
 #: being the default (``ops_compose_blend``).
 _BLENDS = ("feather", "average")
 
+#: Where a tile's first pixel sits in the well frame when a well point is
+#: moved into that tile's own pixels or back (``ops_tile_origin``, item
+#: 1031), the first being the default.
+TILE_ORIGINS = ("paste", "float")
+
 
 class ComposeError(ValueError):
     """Raised when a window cannot be composed, with the reason."""
+
+
+def paste_origin(top, left):
+    """The whole pixel at which :func:`compose_window` pastes a tile.
+
+    THE ONE ROUNDING (item 1031). The stitch stores each tile's position in
+    the well as a fraction of a pixel, but the composite is built from whole
+    pixels: the tile placed at ``(top, left)`` lands at the nearest whole
+    row and column, halves going to the even one (``numpy.rint``, the same
+    as Python's ``round``). The nuclei segmented on the composite, and every
+    transform fitted to them, therefore live in this rounded frame, and a
+    point moved into a tile's own pixels must subtract this origin, not the
+    stored fraction, or it lands up to half a pixel off on each axis.
+
+    :param top: the tile's stored row in the well, or an array of them.
+    :param left: the tile's stored column in the well, or an array of them.
+    :returns: ``(row, column)`` as Python ints for single values, or as
+        int64 arrays for arrays.
+    """
+    rows = np.rint(np.asarray(top, dtype=np.float64)).astype(np.int64)
+    cols = np.rint(np.asarray(left, dtype=np.float64)).astype(np.int64)
+    if rows.ndim == 0 and cols.ndim == 0:
+        return int(rows), int(cols)
+    return rows, cols
+
+
+def tile_origin_rule(value) -> str:
+    """``ops_tile_origin`` checked: ``'paste'`` or ``'float'``.
+
+    :param value: the setting, or a settings mapping to read it from; empty
+        means ``'paste'``.
+    :returns: the rule, lower case.
+    :raises ComposeError: for any other value.
+    """
+    if isinstance(value, Mapping):
+        value = value.get("ops_tile_origin")
+    rule = str(value or TILE_ORIGINS[0]).strip().lower()
+    if rule not in TILE_ORIGINS:
+        from .qt.i18n import tr
+
+        raise ComposeError(tr(
+            "ops_tile_origin must be one of {rules}; got {value}",
+            rules=list(TILE_ORIGINS), value=repr(value)))
+    return rule
+
+
+def tile_origins(placements: Mapping[int, Tuple[float, float]],
+                 rule="paste") -> dict:
+    """Each tile's first pixel in the well frame, under ``ops_tile_origin``.
+
+    Every conversion between well (composite) coordinates and a tile's own
+    pixels goes through this function, :func:`well_to_tile`,
+    :func:`tile_to_well` or :func:`tile_centres`.
+
+    :param placements: ``site -> (y, x)``, the stored tile positions.
+    :param rule: ``'paste'`` (default) gives :func:`paste_origin`, the
+        frame the composite and its nuclei are in; ``'float'`` gives the
+        stored fractions unchanged, as before item 1031. A settings mapping
+        is read for ``ops_tile_origin``.
+    :returns: ``site -> (y, x)`` as floats.
+    """
+    rule = tile_origin_rule(rule)
+    out = {}
+    for site, (top, left) in placements.items():
+        if rule == "paste":
+            top, left = paste_origin(top, left)
+        out[site] = (float(top), float(left))
+    return out
+
+
+def tile_centres(origins, shape, rule="paste") -> np.ndarray:
+    """The centres of tiles in the well frame, under ``ops_tile_origin``.
+
+    :param origins: ``(T, 2)`` stored tile positions ``(y, x)``.
+    :param shape: ``(height, width)``, one for all tiles, or ``(T, 2)``.
+    :param rule: as :func:`tile_origins`.
+    :returns: ``(T, 2)`` float64 centres: origin plus half the tile.
+    """
+    rule = tile_origin_rule(rule)
+    origins = np.asarray(origins, dtype=np.float64).reshape(-1, 2)
+    if rule == "paste":
+        origins = np.column_stack(paste_origin(origins[:, 0], origins[:, 1])
+                                  ).astype(np.float64).reshape(-1, 2)
+    half = np.asarray(shape, dtype=np.float64) / 2.0
+    return origins + half
+
+
+def well_to_tile(points, placement, rule="paste") -> np.ndarray:
+    """Points of the well frame in one tile's own pixels.
+
+    :param points: ``(N, 2)`` ``(y, x)`` in the well (composite) frame.
+    :param placement: the tile's stored ``(y, x)``.
+    :param rule: as :func:`tile_origins`.
+    :returns: ``(N, 2)``, ``points`` minus the tile's origin, in the dtype
+        NumPy gives an array minus a Python float (float32 stays float32).
+    """
+    top, left = tile_origins({0: placement}, rule)[0]
+    points = np.asarray(points).reshape(-1, 2)
+    return np.column_stack([points[:, 0] - top, points[:, 1] - left])
+
+
+def tile_to_well(points, placement, rule="paste") -> np.ndarray:
+    """Points of one tile's own pixels in the well frame.
+
+    :param points: ``(N, 2)`` ``(row, column)`` in the tile.
+    :param placement: the tile's stored ``(y, x)``.
+    :param rule: as :func:`tile_origins`.
+    :returns: ``(N, 2)``, ``points`` plus the tile's origin, in the dtype
+        NumPy gives an array plus a Python float (integers become float64).
+    """
+    top, left = tile_origins({0: placement}, rule)[0]
+    points = np.asarray(points).reshape(-1, 2)
+    return np.column_stack([points[:, 0] + top, points[:, 1] + left])
 
 
 @dataclass(frozen=True)
@@ -180,7 +299,7 @@ def compose_window(window: Window,
         if shape is None:
             probe = np.asarray(read_tile(site))
             shape = (int(probe.shape[0]), int(probe.shape[1]))
-        t_top, t_left = int(round(float(top))), int(round(float(left)))
+        t_top, t_left = paste_origin(top, left)
         t_bottom, t_right = t_top + shape[0], t_left + shape[1]
         if t_bottom <= window.top or t_top >= window.bottom:
             continue
