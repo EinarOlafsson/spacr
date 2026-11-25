@@ -164,23 +164,50 @@ def _names_a_plane(value) -> bool:
     return True
 
 
-def _object_is_in_the_run(obj: str, settings: Mapping[str, Any]) -> bool:
-    """Whether ``obj`` gets a column: cell always, others once a channel is set.
+def _cell_is_grown_from_the_nuclei(settings: Mapping[str, Any]) -> bool:
+    """Whether the run builds its cell masks from the nuclei.
 
-    2026-09-29 (item 592, "hide unset objects"). Cell is the reference
-    object and is never gated by its channel, the same rule the flat form
-    keeps. An object with no switch in ``settings`` at all (cytoplasm, which
-    is derived) cannot be switched off and keeps its column.
+    The rule of ``spacr.core._cells_from_nuclei``: no cell channel, a
+    nucleus channel naming a plane, a ``cell_from_nucleus_expand_px`` above
+    0, and not a time-lapse run. The cell masks are then nucleus territories
+    and the cell column still has settings that apply to them.
+
+    :param settings: the flat settings the table was read from.
+    """
+    if _names_a_plane(settings.get("cell_channel")):
+        return False
+    if settings.get("timelapse") and str(settings.get("timelapse")).lower() not in (
+            "false", "0", "none"):
+        return False
+    if not _names_a_plane(settings.get("nucleus_channel")):
+        return False
+    try:
+        return int(float(settings.get("cell_from_nucleus_expand_px") or 0)) > 0
+    except (TypeError, ValueError):
+        return False
+
+
+def _object_is_in_the_run(obj: str, settings: Mapping[str, Any]) -> bool:
+    """Whether ``obj`` gets a column: once a channel of its own names a plane.
+
+    Cell follows the same rule as every other object, so a form with no
+    channel set at all draws no column. Cytoplasm has no channel of its own:
+    it is the cell minus the other masks, so it is drawn exactly when the
+    cell is. Cell is also drawn when its masks are grown from the nuclei
+    (:func:`_cell_is_grown_from_the_nuclei`). An object with no switch in ``settings`` at all, other than
+    those two, cannot be switched off and keeps its column.
 
     :param obj: an object column, e.g. ``"nucleus"`` or ``"organelleb"``.
     :param settings: the flat settings the table was read from.
     """
-    if obj == "cell":
+    if obj == "cytoplasm":
+        return _object_is_in_the_run("cell", settings)
+    if obj == "cell" and _cell_is_grown_from_the_nuclei(settings):
         return True
     switches = [f"{obj}_{question}" for question in sorted(_SWITCH_QUESTIONS)
                 if f"{obj}_{question}" in settings]
     if not switches:
-        return True
+        return obj != "cell"
     return any(_names_a_plane(settings.get(key)) for key in switches)
 
 
@@ -1265,7 +1292,7 @@ class ObjectSettingsGrid(QWidget):
 
         2026-09-29 (item 592, the decision "hide unset
         objects"): a column is drawn only for an object whose channel names
-        a plane, and cell always (see :func:`_object_is_in_the_run`). The
+        a plane (see :func:`_object_is_in_the_run`). The
         channel row itself is not drawn -- a hidden object has no column to
         hold it -- so every object's channel stays a row of the ordinary
         form, where it can always be set. HIDDEN, NEVER DELETED: the hidden
@@ -1551,6 +1578,14 @@ class ObjectSettingsGrid(QWidget):
         return tuple(self._model.table())
 
 
+    def _questions_held(self) -> Tuple[str, ...]:
+        """Every question the table holds, drawn or not, in order.
+
+        A table with no object set to a channel draws no column and so no
+        row, but still holds the questions it will ask once one is set.
+        """
+        return tuple(q for q in self._claimed if q not in _SWITCH_QUESTIONS)
+
     def next_organelle(self) -> str:
         """The role the next organelle column would take, or ``''``.
 
@@ -1620,6 +1655,11 @@ class ObjectSettingsGrid(QWidget):
         self._apply_height()
         questions = len(self.questions())
         objects = len(self.objects())
+        if not objects:
+            from ..i18n import tr
+            self._status.setText(
+                tr("Set a channel for an object to show its settings here."))
+            return
         self._status.setText(
             f"{questions} question(s) x {objects} object(s) = "
             f"{sum(len(row) for row in self._model.table().values())} "

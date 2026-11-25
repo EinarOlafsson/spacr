@@ -122,15 +122,18 @@ class ObjectGridBinding(QObject):
         """The channel keys that decide which columns the grid draws.
 
         Followed like the claimed keys, so a channel set on the form shows or
-        hides its object's column (2026-09-29, item 592).
+        hides its object's column. The size nuclei are grown to for cell masks
+        is followed too, because it brings the cell column back.
         """
         claimed = getattr(self._grid, "_claimed_table", None)
         if not callable(claimed):
             return frozenset()
-        return frozenset(
+        keys = {
             _settings_key(obj, question)
             for question, row in claimed().items()
-            if question in _SWITCH_QUESTIONS for obj in row)
+            if question in _SWITCH_QUESTIONS for obj in row}
+        keys.add("cell_from_nucleus_expand_px")
+        return frozenset(keys)
 
     def seed(self) -> None:
         """Show the panel's current answers in the grid.
