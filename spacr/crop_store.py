@@ -164,6 +164,23 @@ def _cut_box(image: np.ndarray, own_labels: np.ndarray, label: int,
     return out
 
 
+def _writer_pool(workers: int, shard_bytes: int):
+    """The writer processes of :meth:`CropPoolWriter._flush`, as many as free RAM holds.
+
+    :param workers: writer processes asked for.
+    :param shard_bytes: bytes of one full shard, which each writer compresses.
+    :returns: a spawn :class:`~concurrent.futures.ProcessPoolExecutor` and
+        its process count.
+    """
+    import multiprocessing
+    from concurrent.futures import ProcessPoolExecutor
+
+    from .resource_log import _guard_workers
+
+    count = max(1, int(_guard_workers('crop_writer', workers, shard_bytes) or 1))
+    return ProcessPoolExecutor(count, mp_context=multiprocessing.get_context("spawn")), count
+
+
 class CropPoolWriter:
     """The one writer of a well's ragged crop pools (item 984).
 
@@ -418,12 +435,6 @@ class CropPoolWriter:
             del arrays
             self._take(self._shard_rows(name, crops, offsets))
             return
-        if self._procs is None:
-            import multiprocessing
-            from concurrent.futures import ProcessPoolExecutor
-
-            self._procs = ProcessPoolExecutor(
-                self.workers, mp_context=multiprocessing.get_context("spawn"))
         held: List[Any] = []
 
         def shared(shape, dtype):
@@ -439,8 +450,11 @@ class CropPoolWriter:
                                         crops, classes, shared)
         specs = [(kind, held[index].name, array.shape, array.dtype.str, chunks, shards)
                  for index, (kind, array, chunks, shards) in enumerate(arrays)]
+        shard_bytes = sum(int(array.nbytes) for _k, array, _c, _s in arrays)
         del arrays
         try:
+            if self._procs is None:
+                self._procs, self.workers = _writer_pool(self.workers, shard_bytes)
             future = self._procs.submit(_write_shared_shard,
                                         str(self.path / self.object_type), name, specs)
         except BaseException:

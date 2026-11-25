@@ -22984,7 +22984,7 @@ Read by ``_panel_statistics``, ``set_annotate_default_settings``.
 measurement_backend
 -------------------
 
-(str) - Where Measure, Make Masks and every later step keep the measurement tables: spacr_store, the only value. Each object table goes to the spaCR store in the measurements folder, one Parquet part per table and well in the recorded per-column dtypes, with one DuckDB catalog (spacr.duckdb); spacr.store.open and every spaCR reader open it. measurements.db is no longer written; an older project that has one is still read. The retired values still load: sqlite means spacr_store, and duckdb, parquet or postgres mean spacr_store plus that copy as an export of the finished tables. Default spacr_store.
+(str) - Where Measure, Make Masks and every later step keep the measurement tables: spacr_store, the only value. Each object table goes to the spaCR store in the measurements folder, one Parquet part per table and well in the recorded column dtypes, with one DuckDB catalog (spacr.duckdb) that spacr.store.open and every spaCR reader open. measurements.db is no longer written; an older project that has one is still read. Retired values still load: sqlite means spacr_store, and duckdb, parquet or postgres mean spacr_store plus that copy as an export of the finished tables. Default spacr_store.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

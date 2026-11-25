@@ -969,6 +969,7 @@ _RAM_WORKER_MULTIPLIERS: Dict[str, float] = {
     'ml_analyze': 1.0,
     'ops_decode': 6.0,
     'embeddings': 4.0,
+    'crop_writer': 3.0,
 }
 
 _RAM_WORKER_IMPORT_BYTES: Dict[str, int] = {

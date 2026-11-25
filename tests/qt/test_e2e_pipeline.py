@@ -321,7 +321,7 @@ def test_measure_crop_runs_on_measure_demo(tmp_path: Path):
     try:
         tables = {r[0] for r in con.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
-        rows = {t: con.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0]
+        rows = {t: con.execute(f'SELECT COUNT(*) FROM "{t}"').fetchone()[0]
                 for t in ("cell", "nucleus", "pathogen", "cytoplasm")
                 if t in tables}
         cell_cols = [r[1] for r in con.execute("PRAGMA table_info(cell)")]
