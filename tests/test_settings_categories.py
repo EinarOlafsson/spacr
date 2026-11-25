@@ -1514,6 +1514,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTING, not a regrouping (item 1036, settings version 973): the
     # expected diameter of the OPS sequencing nuclei.
     "ops_sbs_cellpose_diameter",
+    # NEW SETTING, not a regrouping (item 1039, settings version 978): the
+    # phenotype nucleus segmentation factor, beside ops_ph_downsample.
+    "ops_ph_nucleus_downsample",
     # NEW SETTINGS, not a regrouping (item 541, 2026-09-26): Measure's
     # confluency switch, its source, channel, texture window and monolayer
     # QC cut, under their own "Confluency α" heading.

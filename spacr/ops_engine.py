@@ -2421,6 +2421,7 @@ def _ops_calibration_context(settings, site):
     keys = (*_OPS_MASK_SETTINGS, *_OPS_TILE_BATCH_KEYS.values(), 'ops_cellpose_model',
             'ops_ph_nucleus_model', 'ops_ph_cell_model',
             'ops_ph_channels', 'ops_ph_cell_channel', 'ops_ph_downsample',
+            'ops_ph_nucleus_downsample',
             'ops_ph_nucleus_diameter', 'ops_ph_cell_diameter',
             'ops_sbs_nucleus_model', 'cellpose_diameter',
             'ops_sbs_cellpose_diameter', 'spatial_cellpose_model', 'spatial_stain', 'spatial_level')
@@ -5454,19 +5455,64 @@ def _ph_upscale(mask: np.ndarray, factor: int, shape) -> np.ndarray:
     return np.ascontiguousarray(mask[:shape[0], :shape[1]]).astype(np.int32)
 
 
+def _ph_downsample_factor(settings: Mapping[str, Any], role: str = "cell") -> int:
+    """THE block-average factor of one phenotype object's segmentation (item 1039).
+
+    The one reader of ``ops_ph_downsample`` (the cells) and
+    ``ops_ph_nucleus_downsample`` (the nuclei; ``'same'``, the default,
+    follows ``ops_ph_downsample``): the segmentation inputs, the
+    resident-batch probe and the mask option marker all take the factors
+    from here. Both are 1, full resolution, by default since settings
+    schema 978; files stamped before get 2 for both.
+
+    :param settings: the run settings.
+    :param role: ``'cell'`` or ``'nucleus'``.
+    :returns: a whole factor of at least 1.
+    :raises ValueError: for another role, or a nucleus factor that is
+        neither a number nor ``'same'``.
+    """
+    from .qt.i18n import tr
+
+    if role not in ("cell", "nucleus"):
+        raise ValueError(tr("the segmentation factor role must be 'cell' or "
+                            "'nucleus'; got {role!r}", role=role))
+    key = "ops_ph_downsample"
+    if role == "nucleus":
+        value = ops_setting(settings, "ops_ph_nucleus_downsample")
+        if not (isinstance(value, str) and value.strip().lower() == "same"):
+            key = "ops_ph_nucleus_downsample"
+    return max(1, int(_setting_number(ops_setting(settings, key), key, 1)))
+
+
+def _ph_downsample_factors(settings: Mapping[str, Any]) -> Dict[str, int]:
+    """``{'nucleus': factor, 'cell': factor}`` of :func:`_ph_downsample_factor`."""
+    return {role: _ph_downsample_factor(settings, role) for role in ("nucleus", "cell")}
+
+
 def _ph_segmentation_inputs(stack, channels, settings, flat=None):
-    """Prepare the same downsampled nucleus and cell inputs for probes and segmentation.
+    """Prepare the same nucleus and cell inputs for probes and segmentation.
+
+    The nucleus input is block-averaged by the nucleus factor and the cell
+    input (cell stain with DAPI as its second channel) by the cell factor
+    (:func:`_ph_downsample_factors`, item 1039). A set
+    ``ops_ph_nucleus_diameter`` or ``ops_ph_cell_diameter`` is in
+    full-resolution pixels and is divided by its own object's factor in
+    :func:`_ops_diameter`, the shared rule, so factor 1 with diameter d
+    hands Cellpose d and factor 2 hands it d / 2: no scaling is applied
+    twice.
 
     :param flat: ``(planes, offsets)`` of the plate's flat-field maps
         (:func:`_ph_segment_flat`), or None. Given, the DNA and cell
         channels are corrected pixel by pixel with
         :func:`spacr.ops_flatfield.correct_field` before they are
         downsampled (item 1035); None segments the raw pixels.
+    :returns: ``(dna, body, extra, factors)``: the nucleus input, the
+        two-channel cell input, the Cellpose diameter keywords per object
+        and ``{'nucleus': n, 'cell': c}``.
     """
     from .qt.i18n import tr
 
-    factor = max(1, int(_setting_number(settings.get("ops_ph_downsample"),
-                                        "ops_ph_downsample", 2)))
+    factors = _ph_downsample_factors(settings)
     cell_channel = str(settings.get("ops_ph_cell_channel") or "AF750")
     if _NUCLEAR not in channels or cell_channel not in channels:
         raise ValueError(tr(
@@ -5481,13 +5527,16 @@ def _ph_segmentation_inputs(stack, channels, settings, flat=None):
         stack = correct_field(stack[..., [list(channels).index(c) for c in picked]],
                               planes, offsets, picked)
         channels = picked
-    dna = _ph_downscale(stack[..., channels.index(_NUCLEAR)], factor)
-    body = _ph_downscale(stack[..., channels.index(cell_channel)], factor)
+    plane = stack[..., channels.index(_NUCLEAR)]
+    dna = _ph_downscale(plane, factors["nucleus"])
+    second = (dna if factors["cell"] == factors["nucleus"]
+              else _ph_downscale(plane, factors["cell"]))
+    body = _ph_downscale(stack[..., channels.index(cell_channel)], factors["cell"])
     extra = {}
     for key, name in (("ops_ph_nucleus_diameter", "nucleus"),
                       ("ops_ph_cell_diameter", "cell")):
-        extra[name] = _ops_diameter(settings.get(key), name, factor)
-    return dna, np.stack([body, dna], axis=-1), extra, factor
+        extra[name] = _ops_diameter(settings.get(key), name, factors[name])
+    return dna, np.stack([body, second], axis=-1), extra, factors
 
 
 def _ph_pair_raw(nuclei: np.ndarray, cells: np.ndarray,
@@ -5622,12 +5671,14 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
 
     NUCLEI ON DAPI, CELLS ON THE CELL STAIN WITH DAPI AS THE SECOND
     CHANNEL, as the Cellpose cytoplasm models are trained and as Funk et
-    al. segment cells on phalloidin around their nuclei. Both run on the
-    field block-averaged by ``ops_ph_downsample`` and the masks are
-    repeated back up: at 2 a nucleus is still about 20 px across, which is
-    what the models are trained on, and the cost falls fourfold.
+    al. segment cells on phalloidin around their nuclei. Each runs on the
+    field block-averaged by its own factor (``ops_ph_nucleus_downsample``
+    and ``ops_ph_downsample``, item 1039; both 1, full resolution, by
+    default, the nucleus factor following the cell factor) and its masks
+    are repeated back up to the field; factor 1 is full resolution, where
+    a set diameter makes Cellpose rescale the input itself.
     """
-    dna, body, extra, factor = _ph_segmentation_inputs(stack, channels, settings, flat)
+    dna, body, extra, factors = _ph_segmentation_inputs(stack, channels, settings, flat)
     nucleus_model, cell_model = models
     nuclei = _ops_mask_eval(nucleus_model, dna, settings, site='ops_phenotype',
                             field_count=field_count,
@@ -5636,8 +5687,8 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
                            site='ops_phenotype', field_count=field_count, channel_axis=-1,
                            **extra["cell"])[0]
     shape = stack.shape[:2]
-    nuclei = _ph_upscale(nuclei, factor, shape)
-    cells = _ph_upscale(cells, factor, shape)
+    nuclei = _ph_upscale(nuclei, factors["nucleus"], shape)
+    cells = _ph_upscale(cells, factors["cell"], shape)
     if raw is not None:
         raw.update(nuclei=nuclei, cells=cells)
     return _ph_pair_raw(nuclei, cells, settings,
@@ -5918,8 +5969,9 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
     ``organelle_*`` settings at the Mask Generation defaults) or ``cellpose``
     with ``ops_ph_organelle_model``. Both then go through
     :func:`spacr.object.merge_split_filter_masks` with their minimum area.
-    Nuclei and cells are block-averaged by ``ops_ph_downsample`` first;
-    these are not, since a pathogen or an organelle may be only a few
+    Nuclei and cells are block-averaged by their factors
+    (``ops_ph_nucleus_downsample``, ``ops_ph_downsample``) when above 1;
+    these never are, since a pathogen or an organelle may be only a few
     pixels across.
     """
     import contextlib
@@ -7035,7 +7087,7 @@ def _ph_model_pair(settings, gpu, object_models):
 
 
 def _ph_probe_input(stack, *, channels, settings, models, gpu, object_models):
-    """Use the real downsampled cell input while retaining the complete resident field cost."""
+    """Use the real cell input (at the segmentation factor) while retaining the complete resident field cost."""
     if not models:
         models.extend(_ph_model_pair(settings, gpu, object_models))
     _dna, body, extra, _factor = _ph_segmentation_inputs(stack, channels, settings)
@@ -7080,7 +7132,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     (item N6), so :func:`_ph_pair_stored` pairs it again without segmenting.
     Weights other than ``cpsam_v1`` (``ops_cellpose_model``, item 975) go
     into the masks' option marker, so masks of two weights are never mixed
-    in one folder.
+    in one folder; so does a nucleus or cell segmentation factor other
+    than 2 (item 1039), so masks of another factor are never mixed with
+    masks of the old 2x for both.
 
     SEGMENTATION RUNS IN THIS PROCESS AND MEASUREMENT IN WORKERS: Cellpose
     already uses every core (or the card), while spaCR measurement of a
@@ -7197,6 +7251,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
         weights = str(ops_setting(settings, "ops_cellpose_model"))
         if weights != "cpsam_v1":
             mask_options["cellpose_weights"] = weights
+        for role, factor in _ph_downsample_factors(settings).items():
+            if factor != 2:
+                mask_options[f"{role}_downsample"] = factor
         if segment_flat is not None:
             mask_options["segment_flatfield"] = segment_flat["md5"]
         elif (mask_folder == "phenotype_masks"

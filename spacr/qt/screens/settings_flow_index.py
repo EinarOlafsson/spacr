@@ -1583,6 +1583,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_ph_channels',
     'ops_ph_cytoskeleton_channels',
     'ops_ph_downsample',
+    'ops_ph_nucleus_downsample',
     'ops_ph_funk_features',
     'ops_ph_granularity_subsample',
     'ops_ph_image_format',

@@ -15928,6 +15928,7 @@ SETTING_CONSUMERS = {
     'ops_ph_channels': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_ph_cytoskeleton_channels': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_ph_downsample': (('spacr.ops_settings', 'ops_defaults'),),
+    'ops_ph_nucleus_downsample': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_ph_funk_features': (('spacr.cpg_measure', 'measure_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_ph_granularity_subsample': (('spacr.cpg_measure', 'measure_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_ph_image_format': (('spacr.ops_settings', 'ops_defaults'),),

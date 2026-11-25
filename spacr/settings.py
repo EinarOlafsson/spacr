@@ -2665,7 +2665,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 976
+SETTINGS_SCHEMA_VERSION = 978
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2735,6 +2735,7 @@ DEFAULT_CHANGES = {
     974: {'ops_ph_segment_flatfield': False},
     975: {'ops_cellpose_model': 'cpsam_v1'},
     976: {'ops_ph_spanning_merge': 'merge', 'spanning_merge': 'merge'},
+    978: {'ops_ph_downsample': 2, 'ops_ph_nucleus_downsample': 'same'},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
@@ -2978,6 +2979,19 @@ def _fold_older_defaults(settings, version, known=None):
     ``_DEFAULT_CHANGE_EARLIER`` holds, per row and key, ``(version, value)``:
     a file stamped below that version gets that value in place of the
     row's. Versions 966 to 975 belong to other items.
+
+    Version 978 is item 1039: OPS phenotype nuclei and cells are segmented
+    at full resolution with no resizing (maintainer decision 2026-11-25).
+    ``ops_ph_downsample`` is now the cell factor, 1 (was 2 for both), and
+    the new ``ops_ph_nucleus_downsample`` the nucleus factor; ``'same'``,
+    its default, follows ``ops_ph_downsample``, so the nuclei are at 1
+    too. ``ops_ph_nucleus_diameter`` and ``ops_ph_cell_diameter`` stay
+    None, so Cellpose does not rescale either; a set diameter is in
+    full-resolution pixels at every factor and is divided once, by its
+    object's factor (:func:`spacr.ops_engine._ops_diameter`). Files stamped
+    before 978, the frozen A1 run among them, get ``ops_ph_downsample`` 2
+    and ``ops_ph_nucleus_downsample`` ``'same'``, and reproduce their
+    masks. 977 is reserved for another item.
 
     :param settings: the file's settings under today's names, edited in
         place.

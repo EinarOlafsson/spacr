@@ -332,6 +332,17 @@ default after a higher-numbered item takes the next free number:
 
   Numbers 966 to 975 belong to other items.
 
+- 978 (item 1039, phenotype segmentation at full resolution, maintainer
+  decision 2026-11-25): ``ops_ph_downsample`` is now the cell factor and
+  ``1`` (was ``2`` for nuclei and cells); the new
+  ``ops_ph_nucleus_downsample`` is the nucleus factor, ``'same'`` by
+  default (it follows ``ops_ph_downsample``), so nuclei are at ``1`` too.
+  The nucleus and cell diameters stay empty, so nothing is resized. A set
+  diameter is in full-resolution pixels at every factor. Files stamped
+  before 978 get ``ops_ph_downsample`` ``2`` and
+  ``ops_ph_nucleus_downsample`` ``'same'`` and reproduce their masks.
+  Number 977 is reserved for another item.
+
 Public API
 ----------
 

@@ -81,7 +81,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_cell_model": "cpsam",
     "ops_ph_nucleus_diameter": None,
     "ops_ph_cell_diameter": None,
-    "ops_ph_downsample": 2,
+    "ops_ph_downsample": 1,
+    "ops_ph_nucleus_downsample": "same",
     "ops_ph_spanning_merge": "best_parent",
     "ops_ph_segment_flatfield": True,
     "ops_ph_tile_batch": 0,
@@ -725,6 +726,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_nucleus_diameter": (float, int, type(None)),
     "ops_ph_cell_diameter": (float, int, type(None)),
     "ops_ph_downsample": int,
+    "ops_ph_nucleus_downsample": (int, str),
     "ops_ph_spanning_merge": str,
     "ops_ph_segment_flatfield": bool,
     "ops_ph_tile_batch": (int, type(None)),
@@ -1418,9 +1420,10 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ome_zarr_upgrade_link",
         "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
-        "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_segment_flatfield",
+        "ops_ph_cell_diameter", "ops_ph_downsample",
+        "ops_ph_nucleus_downsample", "ops_ph_segment_flatfield",
         "ops_ph_spanning_merge", "ops_ph_tile_batch",
-        "ops_ph_sites", "ops_retry_missing",
+        "ops_retry_missing",
     ],
     "Additional phenotype objects": [
         "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
@@ -1443,6 +1446,10 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_store_raw_masks",
     ],
     "Phenotype acquisitions": [
+        # ops_ph_sites (which fields run) moved here from "Phenotype
+        # segmentation" when item 1039 added ops_ph_nucleus_downsample
+        # (the 20-row cap of item 969).
+        "ops_ph_sites",
         "ops_ph_acquisitions", "ops_ph_use_acquisition",
         "ops_ph_secondary_channels", "ops_ph_secondary_registration",
         "ops_ph_secondary_window", "ops_ph_secondary_fallback",
@@ -2061,11 +2068,22 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float or None) - Expected cell diameter in full-resolution "
         "phenotype pixels, as for the nucleus diameter. Default None. Alpha.",
     "ops_ph_downsample":
-        "(int) - Segment each phenotype field block-averaged by this factor "
-        "and scale the masks back up. 2 keeps a 20X nucleus about 20 pixels "
-        "across and costs a quarter of full resolution; 1 is full resolution; "
-        "4 is about the sequencing resolution and blockier outlines. "
-        "Measurement always uses the full-resolution pixels. Default 2. Alpha.",
+        "(int) - Segment the phenotype cells on the field block-averaged by "
+        "this factor, then scale the masks back up; the nuclei follow it while "
+        "ops_ph_nucleus_downsample is 'same'. 1 is full resolution, with no "
+        "resizing when the diameters are empty; 2 costs a quarter of the "
+        "time, and settings files saved before schema 978 keep it; 4 is "
+        "about the sequencing resolution. Diameters stay in full-resolution "
+        "pixels, and measurement always uses the full-resolution pixels. "
+        "Default 1. Alpha.",
+    "ops_ph_nucleus_downsample":
+        "(int or str) - Segment the phenotype nuclei on the field "
+        "block-averaged by this factor instead of ops_ph_downsample, then "
+        "scale the masks back up, so nuclei and cells can differ. 1 is full "
+        "resolution, where a set nucleus diameter makes Cellpose rescale the "
+        "field itself. 'same' uses ops_ph_downsample, as settings files "
+        "saved before schema 978 do. Diameters stay in full-resolution "
+        "pixels. Default 'same'. Alpha.",
     "ops_ph_spanning_merge":
         "(str) - How a nucleus that lies in several cells is paired. "
         "'best_parent': each nucleus goes to the cell it overlaps most and "
