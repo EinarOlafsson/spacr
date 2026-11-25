@@ -15,7 +15,7 @@ This is a larger release than usual, and it changes how a project is laid out on
 - **The outside_* measurements are unified (965, 966).** TODO(965/966): replace with the wording of the branch that unified the outside_* measurements; state which columns were renamed or recomputed and how an old settings file replays them.
 - **Some numbers change slightly, on purpose.** Measurements of a flat (constant) object, one with no variation, now give NaN for skewness, kurtosis, the Pearson correlation and `haralick_correlation`, because the real value does not exist (before, a number that depended on rounding was written). Four nucleus entropy columns can differ by at most 6.5e-13 from earlier runs because of how ties are broken; their ranks agree (Spearman 0.9999996). Everything else in Measure is identical to the earlier output.
 - **Old OPS settings stream crops with no migration.** An OPS settings file from before this release that streams crops keeps working: the crops are cut from the fields in `fov.ome.zarr` when they are written, and runs made earlier still read their `rows.jsonl` crop index and their streamed crops.
-- **Tutorials and translations lag behind this release.** New screens and settings are documented in English first; the tutorial lessons and translations will follow (see TRANSLATION_DEBT.md).
+- **Translations and the video tutorials have not been updated for the changes in this release.** New and changed text appears in English until they are.
 
 Upgrade an existing Python environment with:
 
