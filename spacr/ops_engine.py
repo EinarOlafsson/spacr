@@ -2212,6 +2212,26 @@ def _ops_diameter(value, role, factor=1.0):
     return {"diameter": float(diameter) / factor} if diameter else {}
 
 
+def _sbs_diameter(settings):
+    """The Cellpose ``diameter`` keyword for the sequencing (SBS) nuclei.
+
+    The stitched-well windows and the live spot preview both segment the
+    cycle DAPI at full resolution, so the diameter is used as given, in
+    pixels of that image. A ``cellpose_diameter`` the file sets wins;
+    otherwise ``ops_sbs_cellpose_diameter`` (item 1036, default 11.0;
+    settings files stamped before schema 973 get None and segment at
+    native scale, as before).
+
+    :param settings: the run settings.
+    :returns: ``{"diameter": pixels}`` or ``{}``.
+    """
+    shared = _ops_diameter(settings.get("cellpose_diameter"), "cellpose")
+    if shared:
+        return shared
+    return _ops_diameter(settings.get("ops_sbs_cellpose_diameter"),
+                         "ops_sbs_cellpose_diameter")
+
+
 _OPS_MASK_SETTINGS = ("batch_size", "mask_eval_batch_size",
                       "mask_inference_precision", "gpu_memory_margin_gb",
                       "ops_sbs_tile_batch", "randomize", "mask_batch_seed",
@@ -2284,7 +2304,7 @@ def _ops_calibration_context(settings, site):
             'ops_ph_channels', 'ops_ph_cell_channel', 'ops_ph_downsample',
             'ops_ph_nucleus_diameter', 'ops_ph_cell_diameter',
             'ops_sbs_nucleus_model', 'cellpose_diameter',
-            'spatial_cellpose_model', 'spatial_stain', 'spatial_level')
+            'ops_sbs_cellpose_diameter', 'spatial_cellpose_model', 'spatial_stain', 'spatial_level')
     basis = {key: settings.get(key) for key in keys}
     return _order_sha256([site, json.dumps(basis, sort_keys=True, default=str)])
 
@@ -2823,7 +2843,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     canvas = seeded[0] if seeded else _compose_canvas(usable, shape)
     blend = _compose_blend(settings)
     model = _cellpose_model(settings, gpu)
-    extra = _ops_diameter(settings.get("cellpose_diameter"), "cellpose")
+    extra = _sbs_diameter(settings)
 
     window_overlap = int(_setting_number(settings.get("ops_window_overlap"),
                                          "ops_window_overlap",

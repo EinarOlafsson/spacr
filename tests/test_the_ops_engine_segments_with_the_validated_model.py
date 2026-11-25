@@ -262,8 +262,8 @@ def test_an_object_no_window_saw_whole_is_dropped_and_the_refusal_is_reported(
     Strict numbering refuses it; the engine numbers the well without it, so a
     fragment is never counted as a nucleus, and the refusal and the count of
     such groups go into the report. The nucleus that one window saw whole is
-    the well's only object. No diameter is set, so Cellpose is left to
-    choose one.
+    the well's only object. No diameter is set, so Cellpose gets the
+    default ops_sbs_cellpose_diameter (11.0, item 1036).
     """
     monkeypatch.setattr(ops_engine, "_WINDOW", 64)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 8)
@@ -280,7 +280,7 @@ def test_an_object_no_window_saw_whole_is_dropped_and_the_refusal_is_reported(
     assert objects["objects"] == 1 and objects["all_clipped_groups"] == 1
     assert objects["strict_refusal"].startswith(
         "1 group(s) of observations were clipped by every window that saw them")
-    assert model.diameters == [None, None]
+    assert model.diameters == [11.0, 11.0]
     stored = read_table(db, "ops_objects")
     assert list(stored["object_id"]) == [1]
     assert (stored["centroid_y"].iloc[0], stored["centroid_x"].iloc[0]) == (12.5, 12.5)

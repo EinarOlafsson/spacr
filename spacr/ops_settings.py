@@ -33,6 +33,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_sbs_nucleus_model": "cpsam",
     "ops_cellpose_model": "cpsam_v2",
     "cellpose_diameter": None,
+    "ops_sbs_cellpose_diameter": 11.0,
     "ops_sbs_tile_batch": 0,
     "ops_library": None,
     "ops_base_channels": "CY3,A594,CY5,CY7",
@@ -672,6 +673,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_sbs_nucleus_model": str,
     "ops_cellpose_model": str,
     "cellpose_diameter": (float, int, type(None)),
+    "ops_sbs_cellpose_diameter": (float, int, type(None)),
     "ops_sbs_tile_batch": (int, type(None)),
     "n_workers": int,
     "ops_gpu": bool,
@@ -1312,7 +1314,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "Nuclei segmentation": [
         "ops_sbs_nucleus_model", "ops_cellpose_model", "cellpose_diameter",
-        "ops_sbs_tile_batch", "ops_window_overlap", "ops_objects_resume", "ops_objects_keep_windows",
+        "ops_sbs_cellpose_diameter", "ops_sbs_tile_batch",
+        "ops_window_overlap", "ops_objects_resume", "ops_objects_keep_windows",
         "ops_objects_windows_dir",
     ],
     "Spot detection & registration": [
@@ -1670,6 +1673,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "rescaled so that this diameter becomes the 30 pixels the model "
         "expects; empty segments the windows at their own scale. "
         "Default None.",
+    "ops_sbs_cellpose_diameter":
+        "(float or None) - Finds more sequencing nuclei: on LaC024E well A1 "
+        "an expected diameter raised objects by 0.8 % and left 5 to 7 DAPI "
+        "peaks unlabelled instead of 62, with no extra merges or splits; "
+        "9.4 to 13 gave the same result. Pixels of the full-resolution "
+        "cycle DAPI, used for the stitched wells and the live spot "
+        "preview. A set cellpose_diameter wins. None segments at native "
+        "scale, as files saved before schema 973 do. Default 11.0.",
     "ops_sbs_tile_batch":
         "(int) - How many 256-pixel tiles Cellpose passes through the "
         "network at once when it segments the sequencing nuclei of each "
