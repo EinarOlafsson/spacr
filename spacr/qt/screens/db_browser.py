@@ -120,6 +120,7 @@ from PySide6.QtCore import (
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
+    QDialog,
     QFileDialog,
     QHBoxLayout,
     QHeaderView,
@@ -129,10 +130,13 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMessageBox,
     QPushButton,
+    QRadioButton,
     QSizePolicy,
     QSpinBox,
     QStyle,
     QTableView,
+    QTableWidget,
+    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -1210,6 +1214,12 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._btn_clear.clicked.connect(self.clear_filter)
         self._btn_export = QPushButton(tr("Export filtered rows…"), self)
         self._btn_export.clicked.connect(self._pick_export_path)
+        self._btn_merge = QPushButton(tr("Merge tables…"), self)
+        self._btn_merge.setToolTip(tr(
+            "Stack or join tables from this and other projects, and save "
+            "the result as a new table."))
+        self._btn_merge.clicked.connect(self.open_merge)
+        self._merge_dialog: Optional[_MergeDialog] = None
         for w in (self._filter_col, self._filter_op, self._filter_value,
                   self._raw_edit):
             w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -1224,7 +1234,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         action_host = FlowHost(self)
         action_row = FlowLayout(action_host, spacing=SPACING["sm"])
         for w in (self._raw_toggle, self._btn_apply, self._btn_clear,
-                  self._btn_export):
+                  self._btn_export, self._btn_merge):
             action_row.addWidget(w)
         outer.addWidget(action_host)
 
@@ -2442,6 +2452,20 @@ class DbBrowserScreen(LinkedView, QWidget):
         if path:
             self.export_rows(path, _export_format(path, chosen))
 
+    def open_merge(self) -> "_MergeDialog":
+        """Show the Merge tables window, with the open project listed first.
+
+        :returns: the window.
+        """
+        if self._merge_dialog is None:
+            self._merge_dialog = _MergeDialog(self)
+        elif self.database_path() and not self._merge_dialog.holds(
+                self.database_path()):
+            self._merge_dialog.add_source(self.database_path())
+        self._merge_dialog.show()
+        self._merge_dialog.raise_()
+        return self._merge_dialog
+
     def export_csv(self, out_path: str) -> bool:
         """Write the current table + filter + visible columns to ``out_path``.
 
@@ -2793,6 +2817,589 @@ class DbBrowserScreen(LinkedView, QWidget):
                 pass
         super().closeEvent(event)
 
+
+
+_MERGE_PREVIEW_ROWS = 200
+
+
+class _MergeDialog(QDialog):
+    """Merge tables from one or more projects into a new table.
+
+    Pick the projects (the open one is listed first), stack one table from
+    each or join object tables on their keys, preview, then save the result
+    as a new table in a store project. The work is
+    :func:`spacr.plate_measurements.merge_projects` and
+    :func:`spacr.plate_measurements.save_merge`, run on the browser job
+    queue; a project label keeps apart two projects that hold a plate of
+    the same name.
+
+    :param screen: the Database Browser that owns the dialog.
+    """
+
+    def __init__(self, screen: "DbBrowserScreen"):
+        """Lay out the projects, the way to merge, the preview and saving."""
+        super().__init__(screen)
+        self._screen = screen
+        self._paths: List[str] = []
+        self._preview: Optional[pd.DataFrame] = None
+        self._previewed: Optional[tuple] = None
+        self.last_result: Optional[Dict[str, Any]] = None
+        self.setWindowTitle(tr("Merge tables"))
+        self.setObjectName("DbMergeDialog")
+        self.resize(900, 760)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
+                                 SPACING["lg"], SPACING["lg"])
+        outer.setSpacing(SPACING["sm"])
+
+        intro = QLabel(tr(
+            "Put tables from one or more projects together. Each row keeps "
+            "the label of its project, so two projects with a plate of the "
+            "same name stay apart."), self)
+        intro.setObjectName("Muted")
+        intro.setWordWrap(True)
+        outer.addWidget(intro)
+
+        outer.addWidget(QLabel(tr("Projects"), self))
+        self._sources = QTableWidget(0, 2, self)
+        self._sources.setHorizontalHeaderLabels([tr("Label"), tr("Project")])
+        self._sources.horizontalHeader().setStretchLastSection(True)
+        self._sources.horizontalHeader().setSectionResizeMode(
+            0, QHeaderView.Interactive)
+        self._sources.setColumnWidth(0, 160)
+        self._sources.verticalHeader().setVisible(False)
+        self._sources.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self._sources.setMaximumHeight(150)
+        self._sources.itemChanged.connect(self._on_settings_changed)
+        outer.addWidget(self._sources)
+
+        source_row = QHBoxLayout()
+        source_row.setSpacing(SPACING["sm"])
+        self._btn_add = QPushButton(tr("Add project…"), self)
+        self._btn_add.setToolTip(tr(
+            "A store project folder, a run folder, or a measurements.db."))
+        self._btn_add.clicked.connect(self._pick_source)
+        self._btn_remove = QPushButton(tr("Remove"), self)
+        self._btn_remove.clicked.connect(self._remove_selected)
+        source_row.addWidget(self._btn_add)
+        source_row.addWidget(self._btn_remove)
+        source_row.addStretch(1)
+        outer.addLayout(source_row)
+
+        way_row = QHBoxLayout()
+        way_row.setSpacing(SPACING["md"])
+        self._stack = QRadioButton(tr("Stack rows: one table from each project"), self)
+        self._join = QRadioButton(tr("Join on object keys: one row per cell"), self)
+        self._stack.setChecked(True)
+        self._stack.toggled.connect(self._on_way_changed)
+        way_row.addWidget(self._stack)
+        way_row.addWidget(self._join)
+        way_row.addStretch(1)
+        outer.addLayout(way_row)
+
+        table_row = QHBoxLayout()
+        table_row.setSpacing(SPACING["sm"])
+        self._table_label = QLabel(tr("Table"), self)
+        self._table_box = QComboBox(self)
+        self._table_box.setMinimumWidth(200)
+        self._table_box.currentTextChanged.connect(self._on_settings_changed)
+        self._anchor_label = QLabel(tr("One row per"), self)
+        self._anchor_box = QComboBox(self)
+        self._anchor_box.currentTextChanged.connect(self._on_settings_changed)
+        table_row.addWidget(self._table_label)
+        table_row.addWidget(self._table_box)
+        table_row.addWidget(self._anchor_label)
+        table_row.addWidget(self._anchor_box)
+        table_row.addStretch(1)
+        outer.addLayout(table_row)
+        self._join_tables = QListWidget(self)
+        self._join_tables.setMaximumHeight(110)
+        self._join_tables.itemChanged.connect(self._on_settings_changed)
+        outer.addWidget(self._join_tables)
+
+        column_row = QHBoxLayout()
+        column_row.setSpacing(SPACING["sm"])
+        self._union = Toggle(tr("Keep columns only some projects have"), self)
+        self._union.setChecked(True)
+        self._union.toggled.connect(self._on_settings_changed)
+        self._columns_edit = QLineEdit(self)
+        self._columns_edit.setPlaceholderText(
+            tr("Only columns containing…  e.g. 'area' (keys always stay)"))
+        self._columns_edit.setClearButtonEnabled(True)
+        self._columns_edit.textChanged.connect(self._on_columns_typed)
+        column_row.addWidget(self._union)
+        column_row.addWidget(self._columns_edit, 1)
+        outer.addLayout(column_row)
+
+        preview_row = QHBoxLayout()
+        self._btn_preview = QPushButton(tr("Preview"), self)
+        self._btn_preview.clicked.connect(self.preview)
+        preview_row.addWidget(self._btn_preview)
+        preview_row.addStretch(1)
+        outer.addLayout(preview_row)
+
+        self._notes = QLabel("", self)
+        self._notes.setObjectName("MergeNotes")
+        self._notes.setWordWrap(True)
+        self._notes.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        outer.addWidget(self._notes)
+
+        self._model = PreviewModel(self)
+        self._view = QTableView(self)
+        self._view.setObjectName("DbMergePreview")
+        self._view.setModel(self._model)
+        self._view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._view.setAlternatingRowColors(True)
+        self._view.horizontalHeader().setDefaultSectionSize(130)
+        outer.addWidget(self._view, 1)
+
+        save_row = QHBoxLayout()
+        save_row.setSpacing(SPACING["sm"])
+        save_row.addWidget(QLabel(tr("Save as"), self))
+        self._name_edit = QLineEdit(self)
+        self._name_edit.setPlaceholderText(tr("new table name"))
+        self._name_edit.textChanged.connect(lambda *_: self._update_controls())
+        save_row.addWidget(self._name_edit, 1)
+        save_row.addWidget(QLabel(tr("in"), self))
+        self._target_box = QComboBox(self)
+        self._target_box.setMinimumWidth(260)
+        self._target_box.activated.connect(self._on_target_chosen)
+        save_row.addWidget(self._target_box, 2)
+        self._btn_save = QPushButton(tr("Save merged table"), self)
+        self._btn_save.clicked.connect(self.save)
+        save_row.addWidget(self._btn_save)
+        outer.addLayout(save_row)
+
+        self._status = QLabel("", self)
+        self._status.setObjectName("Muted")
+        self._status.setWordWrap(True)
+        self._status.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        outer.addWidget(self._status)
+
+        if screen.database_path():
+            self.add_source(screen.database_path())
+        self._on_way_changed()
+
+    def add_source(self, path: str, label: str = "") -> bool:
+        """Add a project to the merge.
+
+        :param path: a store project, a run folder or a measurements.db.
+        :param label: the label its rows carry; blank takes the default.
+        :returns: True when the project opened and was added.
+        """
+        from spacr.multi_database import source_labels
+
+        try:
+            located = _store.locate(resolve_db_path(str(path)))
+        except Exception as e:
+            self._say(tr("Could not open {path}: {error}", path=path, error=e),
+                      error=True)
+            return False
+        if os.path.realpath(located) in {os.path.realpath(p) for p in self._paths}:
+            self._say(tr("{path} is already in the merge.", path=located),
+                      error=True)
+            return False
+        before = source_labels(self._paths) if self._paths else ()
+        self._paths.append(located)
+        defaults = source_labels(self._paths)
+        self._sources.blockSignals(True)
+        for index, old in enumerate(before):
+            item = self._sources.item(index, 0)
+            if item is not None and item.text().strip() == old:
+                item.setText(defaults[index])
+        row = self._sources.rowCount()
+        self._sources.insertRow(row)
+        self._sources.setItem(row, 0, QTableWidgetItem(label or defaults[-1]))
+        place = QTableWidgetItem(located)
+        place.setFlags(place.flags() & ~Qt.ItemIsEditable)
+        place.setToolTip(located)
+        self._sources.setItem(row, 1, place)
+        self._sources.blockSignals(False)
+        self._refresh_tables()
+        self._say(tr("{count} project(s) in the merge.", count=len(self._paths)))
+        return True
+
+    def set_label(self, row: int, label: str) -> None:
+        """Set the label of the project in ``row``.
+
+        :param row: the project row, from 0.
+        :param label: the label its rows carry.
+        """
+        self._sources.item(row, 0).setText(label)
+
+    def labels(self) -> List[str]:
+        """The label of each project, in order."""
+        return [self._sources.item(row, 0).text().strip()
+                for row in range(self._sources.rowCount())]
+
+    def sources(self) -> List[str]:
+        """The projects in the merge, in order."""
+        return list(self._paths)
+
+    def holds(self, path: str) -> bool:
+        """Whether the project at ``path`` is already in the merge.
+
+        :param path: what :meth:`add_source` accepts.
+        """
+        try:
+            located = _store.locate(resolve_db_path(str(path)))
+        except Exception:
+            return False
+        return os.path.realpath(located) in {os.path.realpath(p)
+                                             for p in self._paths}
+
+    def set_way(self, how: str) -> None:
+        """Choose how to merge.
+
+        :param how: ``'stack'`` or ``'join'``.
+        """
+        (self._join if how == "join" else self._stack).setChecked(True)
+
+    def way(self) -> str:
+        """``'stack'`` or ``'join'``."""
+        return "join" if self._join.isChecked() else "stack"
+
+    def set_tables(self, tables: Sequence[str], anchor: str = "") -> None:
+        """Choose the table to stack, or the tables to join.
+
+        :param tables: one table for a stack; the object tables for a join.
+        :param anchor: for a join, the table one row stands for.
+        """
+        if self.way() == "stack":
+            self._table_box.setCurrentText(str(tables[0]))
+            return
+        wanted = set(tables)
+        for index in range(self._join_tables.count()):
+            item = self._join_tables.item(index)
+            item.setCheckState(Qt.Checked if item.text() in wanted
+                               else Qt.Unchecked)
+        if anchor:
+            self._anchor_box.setCurrentText(anchor)
+
+    def set_column_filter(self, text: str) -> None:
+        """Keep only columns whose name contains ``text`` (keys always stay).
+
+        :param text: the search text; empty keeps every column.
+        """
+        self._columns_edit.setText(text)
+
+    def set_target(self, path: str) -> None:
+        """Choose the store project the merged table is saved in.
+
+        :param path: a store project folder, or a new or empty folder.
+        """
+        index = self._target_box.findData(path)
+        if index < 0:
+            self._target_box.insertItem(self._target_box.count() - 1, path, path)
+            index = self._target_box.findData(path)
+        self._target_box.setCurrentIndex(index)
+        self._update_controls()
+
+    def set_name(self, name: str) -> None:
+        """Name the new table.
+
+        :param name: letters, digits and _.
+        """
+        self._name_edit.setText(name)
+
+    def notes(self) -> str:
+        """What the last preview or save said, as shown."""
+        return self._notes.text()
+
+    def status_text(self) -> str:
+        """The status line."""
+        return self._status.text()
+
+    def preview_frame(self) -> Optional[pd.DataFrame]:
+        """The rows of the last preview, or None."""
+        return self._preview
+
+    def preview_columns(self) -> List[str]:
+        """The preview columns the column search shows."""
+        return self._model.visible_columns()
+
+    def _say(self, text: str, error: bool = False) -> None:
+        """Show ``text`` on the status line."""
+        self._status.setText(text)
+        self._status.setProperty("error", bool(error))
+        self._status.style().unpolish(self._status)
+        self._status.style().polish(self._status)
+
+    def _pick_source(self) -> None:
+        """Ask for a project folder or a measurements.db and add it."""
+        path = QFileDialog.getExistingDirectory(
+            self, tr("Choose a project or run folder"), "")
+        if path:
+            self.add_source(path)
+
+    def _remove_selected(self) -> None:
+        """Drop the selected projects from the merge."""
+        rows = sorted({index.row() for index in
+                       self._sources.selectionModel().selectedRows()},
+                      reverse=True)
+        for row in rows:
+            self._sources.removeRow(row)
+            del self._paths[row]
+        self._refresh_tables()
+
+    def _tables_of(self, path: str) -> List[str]:
+        """The tables of one project, without the key tables of the store."""
+        from spacr import measurement_store
+
+        return measurement_store.tables(path)
+
+    def _refresh_tables(self) -> None:
+        """List the tables every project holds, for stacking and for joining."""
+        from spacr.merge_tables import OBJECT_TABLES
+        from spacr.object_roles import ONE_ROW_PER_CELL
+
+        shared: Optional[set] = None
+        for path in self._paths:
+            try:
+                found = set(self._tables_of(path))
+            except Exception:
+                found = set()
+            shared = found if shared is None else shared & found
+        shared = shared or set()
+        current = self._table_box.currentText()
+        self._table_box.blockSignals(True)
+        self._table_box.clear()
+        self._table_box.addItems(sorted(shared))
+        if current in shared:
+            self._table_box.setCurrentText(current)
+        elif "cell" in shared:
+            self._table_box.setCurrentText("cell")
+        self._table_box.blockSignals(False)
+        objects = [t for t in OBJECT_TABLES if t in shared]
+        ticked = {self._join_tables.item(i).text()
+                  for i in range(self._join_tables.count())
+                  if self._join_tables.item(i).checkState() == Qt.Checked}
+        self._join_tables.blockSignals(True)
+        self._join_tables.clear()
+        for name in objects:
+            item = QListWidgetItem(name, self._join_tables)
+            item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+            item.setCheckState(Qt.Checked if (name in ticked or not ticked)
+                               else Qt.Unchecked)
+        self._join_tables.blockSignals(False)
+        anchor = self._anchor_box.currentText()
+        self._anchor_box.blockSignals(True)
+        self._anchor_box.clear()
+        self._anchor_box.addItems([t for t in ONE_ROW_PER_CELL if t in shared])
+        if anchor:
+            self._anchor_box.setCurrentText(anchor)
+        self._anchor_box.blockSignals(False)
+        self._refresh_targets()
+        self._on_settings_changed()
+
+    def _refresh_targets(self) -> None:
+        """Offer the store projects of the merge, and another folder."""
+        chosen = self._target_box.currentData()
+        extra = [self._target_box.itemData(i)
+                 for i in range(self._target_box.count())
+                 if self._target_box.itemData(i)
+                 and self._target_box.itemData(i) not in self._paths]
+        self._target_box.blockSignals(True)
+        self._target_box.clear()
+        for path in self._paths:
+            if os.path.isdir(path):
+                self._target_box.addItem(path, path)
+        for path in extra:
+            self._target_box.addItem(path, path)
+        self._target_box.addItem(tr("Another folder…"), "")
+        index = self._target_box.findData(chosen) if chosen else 0
+        self._target_box.setCurrentIndex(max(0, index))
+        self._target_box.blockSignals(False)
+
+    def _on_target_chosen(self, index: int) -> None:
+        """Ask for a folder when "Another folder…" is chosen."""
+        if self._target_box.itemData(index):
+            self._update_controls()
+            return
+        path = QFileDialog.getExistingDirectory(
+            self, tr("Choose a store project or an empty folder"), "")
+        if path:
+            self.set_target(path)
+
+    def _on_way_changed(self, *_args) -> None:
+        """Show the table picker that fits the chosen way of merging."""
+        join = self.way() == "join"
+        self._table_label.setVisible(not join)
+        self._table_box.setVisible(not join)
+        self._anchor_label.setVisible(join)
+        self._anchor_box.setVisible(join)
+        self._join_tables.setVisible(join)
+        self._on_settings_changed()
+
+    def _on_columns_typed(self, text: str) -> None:
+        """Narrow the preview columns as the user types."""
+        self._model.set_column_filter(text)
+        self._update_controls()
+
+    def _on_settings_changed(self, *_args) -> None:
+        """A changed setting needs a new preview before saving."""
+        if self._previewed is not None and self._previewed != self._settings():
+            self._say(tr("The settings changed; preview again before saving."))
+        self._update_controls()
+
+    def _chosen_tables(self) -> Tuple[List[str], str]:
+        """The tables to merge, and the anchor of a join."""
+        if self.way() == "stack":
+            name = self._table_box.currentText()
+            return ([name] if name else []), ""
+        anchor = self._anchor_box.currentText()
+        ticked = [self._join_tables.item(i).text()
+                  for i in range(self._join_tables.count())
+                  if self._join_tables.item(i).checkState() == Qt.Checked]
+        return [t for t in dict.fromkeys([anchor, *ticked]) if t], anchor
+
+    def _settings(self) -> tuple:
+        """Everything a preview depends on, to tell when it is out of date."""
+        tables, anchor = self._chosen_tables()
+        return (tuple(self._paths), tuple(self.labels()), self.way(),
+                tuple(tables), anchor, self._union.isChecked())
+
+    def _keep(self) -> Optional[List[str]]:
+        """The columns the column search keeps, or None for all of them."""
+        if not self._columns_edit.text().strip():
+            return None
+        return self._model.visible_columns()
+
+    def _update_controls(self) -> None:
+        """Enable each action when it has what it needs."""
+        busy = self._screen._export_busy
+        tables, _anchor = self._chosen_tables()
+        ready = bool(self._paths) and bool(tables) and not busy
+        self._btn_preview.setEnabled(ready)
+        fresh = self._previewed is not None and self._previewed == self._settings()
+        self._btn_save.setEnabled(
+            ready and fresh and bool(self._name_edit.text().strip())
+            and bool(self._target_box.currentData()))
+        self._btn_remove.setEnabled(bool(self._paths) and not busy)
+
+    def preview(self) -> bool:
+        """Merge the first rows of each project and show them.
+
+        A stack reads the first rows of each project; a join merges the
+        tables whole, because a child row cannot be rolled up without all
+        of its siblings. Runs on the browser job queue.
+
+        :returns: whether the preview job was accepted.
+        """
+        from spacr.multi_database import MergeRefused, describe_merge
+        from spacr.plate_measurements import merge_projects
+
+        tables, anchor = self._chosen_tables()
+        if not self._paths or not tables:
+            self._say(tr("Add a project and choose a table first."), error=True)
+            return False
+        settings = self._settings()
+        paths, labels, how = list(self._paths), self.labels(), self.way()
+        columns = "union" if self._union.isChecked() else "common"
+
+        def _job() -> Dict[str, Any]:
+            """Merge the preview rows. Off the GUI thread."""
+            try:
+                frame = merge_projects(
+                    paths, tables if how == "join" else tables[0], how=how,
+                    anchor=anchor or None, labels=labels, columns=columns,
+                    limit_per_source=_MERGE_PREVIEW_ROWS if how == "stack" else None)
+            except MergeRefused as e:
+                return {"refused": str(e)}
+            held = None
+            if how == "stack":
+                plan = describe_merge([_store.locate(p) for p in paths], tables[0])
+                held = {label: source.rows
+                        for label, source in zip(labels, plan.sources)}
+            return {"frame": frame, "held": held}
+
+        def _done(result: Dict[str, Any]) -> None:
+            """Show the preview and what the merge will do."""
+            if "refused" in result:
+                self._preview, self._previewed = None, None
+                self._model.clear()
+                self._notes.setText("")
+                self._say(result["refused"], error=True)
+                self._update_controls()
+                return
+            from spacr.multi_database import SCREEN_COLUMN, SOURCE_COLUMN
+
+            frame = result["frame"]
+            self._preview, self._previewed = frame, settings
+            shown = frame.groupby(SOURCE_COLUMN, sort=False).head(
+                _MERGE_PREVIEW_ROWS) if SOURCE_COLUMN in frame.columns else frame
+            first = [c for c in (SOURCE_COLUMN, SCREEN_COLUMN) if c in shown.columns]
+            shown = shown[first + [c for c in shown.columns if c not in first]]
+            self._model.set_page(list(shown.columns),
+                                 list(shown.itertuples(index=False, name=None)))
+            self._model.set_column_filter(self._columns_edit.text())
+            lines = list(frame.attrs.get("summary", ()))
+            if result["held"] is not None and lines:
+                per = ", ".join(f"{label} {count:,}"
+                                for label, count in result["held"].items())
+                lines[0] = tr(
+                    "Showing the first {shown} rows of each project. The "
+                    "merged table will hold {total:,} rows: {per}.",
+                    shown=_MERGE_PREVIEW_ROWS,
+                    total=sum(result["held"].values()), per=per)
+            keys = ", ".join(frame.attrs.get("key_columns", ()))
+            if keys:
+                lines.append(tr("Each row is named by {keys}.", keys=keys))
+            self._notes.setText("\n".join(lines))
+            self._say(tr("Preview ready. Name the table and save it."))
+            self._update_controls()
+
+        self._say(tr("Merging the preview…"))
+        return self._screen._run_job(_job, _done, kind="export")
+
+    def save(self) -> bool:
+        """Save the previewed merge as a new table in the chosen store project.
+
+        The browser then opens that project at the new table.
+
+        :returns: whether the save job was accepted.
+        """
+        from spacr.multi_database import MergeRefused
+        from spacr.plate_measurements import save_merge
+
+        if self._previewed is None or self._previewed != self._settings():
+            self._say(tr("Preview the merge before saving it."), error=True)
+            return False
+        target = self._target_box.currentData()
+        name = self._name_edit.text().strip()
+        if not target or not name:
+            self._say(tr("Name the table and choose where to save it."),
+                      error=True)
+            return False
+        tables, anchor = self._chosen_tables()
+        paths, labels, how = list(self._paths), self.labels(), self.way()
+        columns = "union" if self._union.isChecked() else "common"
+        keep = self._keep()
+
+        def _job() -> Dict[str, Any]:
+            """Write the merged table. Off the GUI thread."""
+            try:
+                return save_merge(target, name, paths,
+                                  tables if how == "join" else tables[0],
+                                  how=how, anchor=anchor or None,
+                                  labels=labels, columns=columns, keep=keep)
+            except MergeRefused as e:
+                return {"refused": str(e)}
+
+        def _done(result: Dict[str, Any]) -> None:
+            """Say what was saved and open it in the browser."""
+            if "refused" in result:
+                self._say(result["refused"], error=True)
+                return
+            self.last_result = result
+            self._notes.setText("\n".join(result["summary"]))
+            self._say(tr("Saved {rows:,} rows as {table}.",
+                         rows=result["rows"], table=result["table"]))
+            if self._screen.set_database(result["project"]):
+                self._screen.select_table(result["table"])
+
+        self._say(tr("Saving {name}…", name=name))
+        return self._screen._run_job(_job, _done, kind="export")
 
 
 HOST_KEY = "db_browser"

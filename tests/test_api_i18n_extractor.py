@@ -2594,6 +2594,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **_current_l3_api(zoo_arrivals)}
     from tests.l4_api_hooks import _current_l4_api
     zoo_arrivals = {**zoo_arrivals, **_current_l4_api(zoo_arrivals)}
+    from tests.merge_1017_api_hooks import _current_1017_api
+    zoo_arrivals = {**zoo_arrivals, **_current_1017_api(zoo_arrivals)}
     sweep_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "955_ops_fdr_sweep_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
     assert len(sweep_arrivals) == 1
