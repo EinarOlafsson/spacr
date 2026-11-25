@@ -14,6 +14,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
     builder = import_module("build_i18n_catalogs")
     source_root = tmp_path / "spacr"
     (source_root / "qt").mkdir(parents=True)
+    (source_root / "figures").mkdir()
     for filename in (
         "model_compare.py", "embeddings.py", "plot.py", "model_zoo.py",
         "install_cleanup.py", "data_manager.py", "doctor.py", "updater.py",
@@ -31,6 +32,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "ome_zarr_registration.py",
         "ops_cell_cycle.py", "ops_mitotic.py", "ops_flatfield.py", "cpg_measure.py", "cli.py",
         "ops_sbs.py", "ops_run_infra.py",
+        "figures/style.py", "figures/bundle.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
