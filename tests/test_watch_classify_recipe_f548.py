@@ -302,3 +302,39 @@ def test_classify_snapshot_clears_stale_partial_and_a_failed_copy(tmp_path,
     assert not unexpected_partial.exists()
     assert not unexpected_partial.with_suffix('').exists()
     assert source.read_bytes() == b'fixed checkpoint'
+
+
+def test_default_ome_zarr_crops_give_watch_predictions(tmp_path, real_pipeline, monkeypatch):
+    from spacr import deep_spacr
+    from spacr.crop_store import _read_crop_index, crop_predictions
+    from spacr.deep_spacr import merge_predictions_into_db
+    from tests.test_watch_folder_and_analyse import MASK, MEASURE, _channels
+    import pandas as pd
+
+    def infer(settings):
+        project = Path(settings['src'])
+        crops = _read_crop_index(project)
+        scores = pd.DataFrame({'path': [f'{name}.png' for name in crops['object_id']],
+                               'pred': 0.8, 'cv_predictions': 1})
+        merge_predictions_into_db(
+            scores, str(project / 'measurements' / 'measurements.db'))
+
+    monkeypatch.setattr(deep_spacr, 'deep_spacr', infer)
+    source = tmp_path / 'source'
+    source.mkdir()
+    for channel, image in enumerate(_channels(0), start=1):
+        tifffile.imwrite(source / _name('A01', channel), image)
+    model = tmp_path / 'model.pt'
+    model.write_text('2', encoding='utf-8')
+    measure = {key: value for key, value in MEASURE.items() if key != 'crop_image_format'}
+    measure_file = tmp_path / 'measure.json'
+    measure_file.write_text(json.dumps(measure), encoding='utf-8')
+    settings = _recipe(source, model)
+    settings.update(MASK, src=str(source), watch_folder=True,
+                    watch_pipeline='mask_measure_classify',
+                    watch_measure_settings=str(measure_file))
+    result = core._watch_folder_and_analyse(settings)
+    assert len(result['done']) == 1 and not result['failed']
+    predicted = crop_predictions(source / 'spacr_watch')
+    assert predicted is not None and len(predicted)
+    assert predicted['cv_predictions'].notna().all()

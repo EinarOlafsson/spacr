@@ -2156,6 +2156,49 @@ def _read_crop_index(project: Any) -> Optional[Any]:
                          report=None, migrate=False, read_only=True)[0]
 
 
+def crop_predictions(project: Any, columns: Sequence[str] = ("pred", "cv_predictions")
+                     ) -> Optional[Any]:
+    """The crop rows of a project with the classifier columns merged onto them.
+
+    A project whose crops are OME-Zarr keeps its predictions in the active
+    score table that joins ``ssCell_Crops``; a project with a ``png_list``
+    keeps them on that table. Both are read through the shared table reader,
+    so a caller asks one question whichever crop format the project has.
+
+    :param project: the project folder (holding ``measurements/``).
+    :param columns: the prediction columns to keep.
+    :returns: a DataFrame of the rows with every column of ``columns`` present
+        in the table, or None when the project has no crop table.
+    """
+    from . import store
+    from .measurement_store import exists as _measurements_exist, read as _store_read
+    from .measurement_store import store_folder, tables as _store_tables
+
+    keep = set(columns) | {"object_id", "prcfo", "png_path"}
+    db = measurements_db_path(project)
+    if not _measurements_exist(str(db)):
+        return None
+    folder = store_folder(str(db))
+    if folder is not None:
+        with store.open(folder) as opened:
+            held = set(opened.tables())
+            for table in ("png_list", "ssCell_Crops"):
+                if table not in held:
+                    continue
+                name = f"{table}_labeled"
+                try:
+                    found = opened.query(table=name)
+                except store.StoreError:
+                    found = opened.query(table=table)
+                return found[[c for c in found.columns if c in keep]]
+        return None
+    for table in ("png_list", "ssCell_Crops"):
+        if table in _store_tables(str(db)):
+            found = _store_read(str(db), table)
+            return found[[c for c in found.columns if c in keep]]
+    return None
+
+
 def record_measure_crops(settings: Mapping[str, Any], file_name: str,
                          object_type: str, crops: Sequence[Mapping[str, Any]],
                          channels: int, dtype: Any) -> None:
