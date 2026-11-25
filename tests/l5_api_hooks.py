@@ -9,6 +9,8 @@ docstring, bound to the current signature (read with ``ast``, nothing
 imported from spacr).
 """
 import ast
+import inspect
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,3 +53,70 @@ def _current_l5_api(entries):
         result[SYMBOL] = current
     return result
 
+
+
+# The public names the graph-style rollout (ws-offload-codex-home-graphstyle-g2a-i18n)
+# adds beyond graphstyle_g1_api_arrivals_2026-11-23.json: eleven
+# spacr.figures.style helpers for the Measure and quality-control views, and
+# TileLayoutWidget.resizeEvent, which reflows the tile-layout key. They arrive
+# through tests/data/release_contracts/l5_api_arrivals_2026-11-24.json, each
+# body bound to its source docstring.
+BIRTH = ROOT / "tests/data/release_contracts/l5_api_arrivals_2026-11-24.json"
+ARRIVALS = frozenset({
+    "spacr.figures.style." + name for name in (
+        "apply_colourbar_theme", "apply_embedding_style",
+        "ensure_identity_contrast", "ensure_reference_contrast",
+        "external_legend", "image_report_css", "native_histogram_geometry",
+        "native_plot_font", "paint_native_histogram", "resolve_plot_theme",
+        "styled_reference_line")} | {
+    "spacr.qt.screens.align.TileLayoutWidget.resizeEvent"})
+#: The arrivals that are callables of the frozen inventory.
+INVENTORY = frozenset({"spacr.qt.screens.align.TileLayoutWidget.resizeEvent"})
+
+
+def _source_docstring(symbol):
+    """The cleaned docstring of a function or method, read from its source file.
+
+    :param symbol: the dotted name, ``spacr.<module path>.<name>[.<method>]``.
+    :returns: the docstring.
+    """
+    parts = symbol.split(".")
+    for split in range(len(parts), 1, -1):
+        path = ROOT.joinpath(*parts[:split]).with_suffix(".py")
+        if path.is_file():
+            break
+    node = ast.parse(path.read_text(encoding="utf-8"))
+    for name in parts[split:]:
+        node = next(item for item in node.body
+                    if isinstance(item, (ast.FunctionDef, ast.ClassDef))
+                    and item.name == name)
+    return inspect.cleandoc(ast.get_docstring(node, clean=False))
+
+
+def _current_l5_arrivals(existing=None):
+    """The new public names bound to their source docstrings.
+
+    :param existing: earlier arrivals; none of them may be one of these.
+    :returns: ``symbol -> docstring``.
+    """
+    entries = json.loads(BIRTH.read_text(encoding="utf-8"))
+    assert set(entries) == ARRIVALS
+    for symbol, body in entries.items():
+        assert body == _source_docstring(symbol), symbol
+    if existing is not None:
+        assert not entries.keys() & existing.keys()
+    return entries
+
+
+def _validated_l5_arrivals(callables):
+    """Remove only the exact new public callables from the frozen boundary.
+
+    :param callables: the inventory of public callables.
+    :returns: the inventory without the arrivals.
+    """
+    entries = _current_l5_arrivals()
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert set(found) == INVENTORY, sorted(found)
+    for symbol, item in found.items():
+        assert item.docstring == entries[symbol], symbol
+    return [item for item in callables if item.symbol not in entries]

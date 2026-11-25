@@ -4328,6 +4328,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_l4_arrivals(callables)
     from tests.merge_1017_api_hooks import _validated_1017_arrivals
     callables = _validated_1017_arrivals(callables)
+    from tests.l5_api_hooks import _validated_l5_arrivals
+    callables = _validated_l5_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -5928,7 +5930,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # the 20 retired Browser handles (ReadOnlyDb, WritableDb, build_update).
     # 20,227 -> 20,228 on 2026-11-24 (landing L3, merge 8): the optional `n_tests`
     # of spacr.multiple_testing.adjust_p_values, the one FDR/Holm adjustment.
-    assert sum(len(item.parameters) for item in callables) == 20228
+    # 20,228 -> 20,232 on 2026-11-24 (landing L5), all defaulted: `metric` of
+    # spacr.ops_clusters.gene_graph, `n_iterations` of leiden_partitions and
+    # `zero_sd` of spacr.ops_tvn.batch_mean_sd (merges 6, 10 and B19), and
+    # `mmap` of spacr.ops_run_infra.FieldStager.load (ph_segment streaming).
+    assert sum(len(item.parameters) for item in callables) == 20232
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -7331,6 +7337,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **_current_l4_api(zoo_additions)}
     from tests.merge_1017_api_hooks import _current_1017_api
     zoo_additions = {**zoo_additions, **_current_1017_api(zoo_additions)}
+    from tests.l5_api_hooks import _current_l5_arrivals
+    zoo_additions = {**zoo_additions, **_current_l5_arrivals(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
@@ -8013,6 +8021,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= _current_l4_api().keys()
     from tests.merge_1017_api_hooks import _current_1017_api
     contract_callables |= _current_1017_api().keys()
+    from tests.l5_api_hooks import _current_l5_arrivals
+    contract_callables |= _current_l5_arrivals().keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -8211,6 +8221,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= _current_l4_api().keys()
     from tests.merge_1017_api_hooks import _current_1017_api
     arrival_callables |= _current_1017_api().keys()
+    from tests.l5_api_hooks import _current_l5_arrivals
+    arrival_callables |= _current_l5_arrivals().keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background
