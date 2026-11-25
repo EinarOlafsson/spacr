@@ -226,7 +226,6 @@
    "spacr/qt/detect_chain.py": 1,
    "spacr/qt/mask_engine.py": 2,
    "spacr/qt/widgets/fast_plots.py": 1,
-   "spacr/recruitment_confounders.py": 1,
    "spacr/seg_qc.py": 1,
    "spacr/volcano_style.py": 2
   },
@@ -339,7 +338,7 @@
   "phate_leiden": 0,
   "process_pool": 4,
   "raster_decode": 117,
-  "robust_scale_constant": 25,
+  "robust_scale_constant": 24,
   "small_object_removal": 0,
   "sqlite_connect": 99,
   "texture_haralick": 0,
