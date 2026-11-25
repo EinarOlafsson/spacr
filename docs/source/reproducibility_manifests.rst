@@ -219,6 +219,28 @@ default after a higher-numbered item takes the next free number:
   Files stamped before 959 retain ``1.0`` (off), including files from
   schemas 957 and 958. The recipe-specific prefix bleed switch stays
   off by default until its separate acceptance is complete.
+- 960 (OPS default table): ``run_ops`` now fills every OPS default itself, so
+  a direct call of the Python function resolves the same values as the
+  command line and the GUI (for example ``ops_decode_threshold_mode``
+  ``'auto'``, ``randomize`` True). Files stamped before 960 keep
+  ``ops_feature_screen_permutations`` 0 and ``ops_feature_screen_ridge`` 0.0;
+  the other keys that differed already have rows (940, 944, 947, 955, 957).
+
+- 961 (merge 4, one size filter): ``size_filter_inclusive`` is now ``True``.
+  An object whose size equals the minimum or maximum is kept everywhere, as
+  Measure and the Make Masks window already did. The legacy Make Masks
+  post-Cellpose size filter (``filter=True``) and the plot filter dropped it.
+  Files stamped before 961 retain ``False`` and reproduce their masks.
+
+- 962 (merge 9b, one per-well centre-scale routine): ``ops_well_statistics``
+  is now ``'two_pass'``. The TVN's per-well centre-scale of its PCA input and
+  the embedding profiles' per-well mean and standard deviation share one
+  routine (``spacr.ops_tvn.batch_mean_sd``): float64, the mean first and then
+  the squared deviations from it, read in bounded chunks, and a feature
+  with no spread scaled by 1. Files stamped before 962 retain ``'legacy'``
+  (StandardScaler in the in-memory TVN; single-pass float32 sums with a
+  variance floor of 1e-12 in the embedding profiles) and reproduce their
+  earlier output. Numbers 960 and 961 belong to other merges.
 
 Public API
 ----------

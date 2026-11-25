@@ -24,16 +24,10 @@ _SUFFIX = '.lineage_sources.json'
 
 def _atomic_json(path, data):
     """Replace one complete JSON artifact without exposing a partial file."""
-    path = Path(path)
-    descriptor, temporary = tempfile.mkstemp(prefix='.' + path.name, dir=path.parent)
-    try:
-        with os.fdopen(descriptor, 'w', encoding='utf-8') as stream:
-            json.dump(data, stream, ensure_ascii=False, allow_nan=False, indent=2)
-            stream.write('\n')
-        os.replace(temporary, path)
-    finally:
-        if os.path.exists(temporary):
-            os.unlink(temporary)
+    from .checkpoint import _atomic_json as _shared_atomic_json
+
+    _shared_atomic_json(path, data, sort_keys=False, normalize=False,
+                        allow_nan=False)
 
 
 def _tracks_snapshot(path):

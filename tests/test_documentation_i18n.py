@@ -3916,6 +3916,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("1007b_ome_zarr_upgrade_api_arrivals_2026-11-21.json", 1),
         ("1007b_convert_upgrade_api_arrivals_2026-11-22.json", 1),
         ("1013_neighbour_bleed_api_arrivals_2026-11-22.json", 1),
+        ("complex_shap_api_arrivals_2026-11-24.json", 2),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

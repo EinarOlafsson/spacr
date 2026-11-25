@@ -89,8 +89,8 @@ def _insitu_options(settings: Mapping[str, Any], chosen: Mapping[str, Any]) -> D
     from .ops_prefix import _CALL_SORTS
 
     call_sort = _choice(settings, "ops_call_sort", _CALL_SORTS, values.get("ops_call_sort"))
-    compartment = _choice(settings, "ops_read_compartment", _COMPARTMENTS,
-                          values.get("ops_read_compartment", "cell"))
+    compartment = (_choice(settings, "ops_read_compartment", _COMPARTMENTS,
+                           values.get("ops_read_compartment")) or "cell")
     q = settings.get("ops_recomb_min_quality")
     recomb_q = 0.0 if q is None or q == "" else float(q)
     min_reads = None

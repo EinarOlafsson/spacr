@@ -42,6 +42,7 @@ from __future__ import annotations
 import json
 import os
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Set, Tuple
+from .ops_settings import ops_setting
 
 import numpy as np
 import pandas as pd
@@ -253,7 +254,7 @@ def anchor_clusters(clusters: np.ndarray, names: np.ndarray, controls: np.ndarra
         is given p = 1.
     """
     from scipy.stats import fisher_exact
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     out: Dict[int, Dict[str, Any]] = {}
     group_names = list(groups)
@@ -265,7 +266,7 @@ def anchor_clusters(clusters: np.ndarray, names: np.ndarray, controls: np.ndarra
         p = [fisher_exact([[k, len(groups[g]) - k],
                            [len(members) - k, n_background - len(groups[g]) - len(members) + k]],
                           alternative="greater")[1] if k >= 2 else 1.0 for g, k in overlap]
-        q = multipletests(p, method="fdr_bh")[1]
+        q = adjust_p_values(p, "fdr_bh")[0]
         enriched = [(g, k, pi, qi) for (g, k), pi, qi in zip(overlap, p, q) if qi < 0.05 and k >= 3]
         if enriched:
             enriched.sort(key=lambda x: (x[3], x[2]))
@@ -651,7 +652,7 @@ def run_module_phase(settings: Mapping[str, Any],
 
     settings = ops_defaults(dict(settings))
     say = report or (lambda text: None)
-    runs = int(settings.get("ops_modules_runs") or 0)
+    runs = int(ops_setting(settings, "ops_modules_runs"))
     if runs < 1:
         raise ValueError(f"ops_modules_runs must be 1 or more for the modules phase; got {runs}")
     precomputed = bool(settings.get("ops_modules_precomputed_embedding"))

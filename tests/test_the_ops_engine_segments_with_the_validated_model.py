@@ -30,6 +30,7 @@ from scipy import ndimage
 
 import spacr.accelerator
 from spacr import ops_engine
+from spacr import ops_settings  # noqa: E402
 from spacr.ops_store import read_table, row_count, write_table
 
 
@@ -81,16 +82,23 @@ def test_the_default_model_name_builds_the_librarys_own_default(built, monkeypat
     assert built == [{"gpu": False, "use_bfloat16": False}]
 
 
-def test_another_model_name_is_loaded_by_that_name(built, monkeypatch):
-    """A custom model, named by path in the settings, is what Cellpose is asked to load."""
+def test_another_model_name_is_loaded_by_that_name(built, monkeypatch, tmp_path):
+    """A custom model, named by path in the settings, is what Cellpose is asked to load.
+
+    The path names an existing checkpoint: the one Cellpose builder (merge 5)
+    refuses a name that matches no model rather than handing it to Cellpose.
+    """
     monkeypatch.setattr(spacr.accelerator, "cellpose_kwargs", _the_card_must_not_be_asked)
+    checkpoint = tmp_path / "ops_nuclei"
+    checkpoint.write_bytes(b"weights")
 
-    ops_engine._cellpose_model({"ops_sbs_nucleus_model": " /models/ops_nuclei "}, gpu=False)
+    ops_engine._cellpose_model({"ops_sbs_nucleus_model": f" {checkpoint} "}, gpu=False)
 
-    assert built == [{"gpu": False, "use_bfloat16": False, "pretrained_model": "/models/ops_nuclei"}]
+    assert built == [{"gpu": False, "use_bfloat16": False, "pretrained_model": str(checkpoint)}]
 
 
-def test_on_the_card_the_model_takes_the_machines_accelerator_arguments(built, monkeypatch):
+def test_on_the_card_the_model_takes_the_machines_accelerator_arguments(built, monkeypatch,
+                                                                       tmp_path):
     """``gpu``, ``device`` and ``use_bfloat16`` come from one resolver, together.
 
     They have to agree (cellpose branches on ``gpu`` before it reads
@@ -101,11 +109,13 @@ def test_on_the_card_the_model_takes_the_machines_accelerator_arguments(built, m
     monkeypatch.setattr(spacr.accelerator, "cellpose_kwargs",
                         lambda: {"gpu": True, "device": device, "use_bfloat16": False})
 
+    checkpoint = tmp_path / "custom_nuclei"
+    checkpoint.write_bytes(b"weights")
     ops_engine._cellpose_model({}, gpu=True)
-    ops_engine._cellpose_model({"ops_sbs_nucleus_model": "cyto3"}, gpu=True)
+    ops_engine._cellpose_model({"ops_sbs_nucleus_model": str(checkpoint)}, gpu=True)
 
     card = {"gpu": True, "device": device, "use_bfloat16": False}
-    assert built == [card, {**card, "pretrained_model": "cyto3"}]
+    assert built == [card, {**card, "pretrained_model": str(checkpoint)}]
 
 
 class _ThresholdModel:
@@ -191,6 +201,7 @@ def test_the_diameter_setting_reaches_cellpose_and_the_windows_are_counted_out(
     """
     monkeypatch.setattr(ops_engine, "_WINDOW", 16)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 4)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_window_overlap", 4)
     canvas = np.full((96, 176), 500.0)
     nuclei = [(y, x) for y in range(10, 90, 20) for x in range(10, 170, 20)]
     for y, x in nuclei:
@@ -227,6 +238,7 @@ def test_an_object_no_window_saw_whole_is_dropped_and_the_refusal_is_reported(
     """
     monkeypatch.setattr(ops_engine, "_WINDOW", 64)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 8)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_window_overlap", 8)
     canvas = np.full((64, 112), 500.0)
     canvas[10:16, 10:16] = 8000.0
     canvas[30:38, 40:100] = 8000.0
@@ -253,6 +265,7 @@ def test_a_well_in_which_segmentation_finds_no_nuclei_is_refused(tmp_path, monke
     """
     monkeypatch.setattr(ops_engine, "_WINDOW", 64)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 8)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_window_overlap", 8)
     canvas = np.full((64, 112), 500.0)
     settings, db = _lay_well(tmp_path, monkeypatch, canvas, tile=64, step=48,
                              model=_ThresholdModel())

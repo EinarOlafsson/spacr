@@ -60,6 +60,7 @@ class _LazyConvert:
 
 cv = _LazyConvert()
 from . import crops
+from .checkpoint import _atomic_json
 from .errors import ConfigurationError
 from .object_roles import ORGANELLE_ROLES
 
@@ -888,9 +889,8 @@ def run_external_masks(plan: ExternalMaskPlan,
         "groups": [group.to_dict() for group in plan.groups],
         "merged": [os.path.basename(path) for path in merged_paths],
     }
-    with open(os.path.join(dst, "external_mask_import.json"), "w",
-              encoding="utf-8") as handle:
-        json.dump(manifest, handle, indent=2, sort_keys=True)
+    _atomic_json(os.path.join(dst, "external_mask_import.json"), manifest,
+                 normalize=False, ensure_ascii=True, newline=False)
 
     measure_settings = dict(resolved)
     for key in (

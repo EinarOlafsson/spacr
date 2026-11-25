@@ -220,19 +220,9 @@ def bh(p: Sequence[float]) -> np.ndarray:
     :param p: p values.
     :returns: the q values, capped at 1.
     """
-    p = np.asarray(p, float)
-    out = np.full_like(p, np.nan)
-    m = np.isfinite(p)
-    if m.sum() == 0:
-        return out
-    pv = p[m]
-    order = np.argsort(pv)
-    ranked = pv[order] * m.sum() / (np.arange(m.sum()) + 1)
-    ranked = np.minimum.accumulate(ranked[::-1])[::-1]
-    q = np.empty_like(pv)
-    q[order] = np.minimum(ranked, 1)
-    out[m] = q
-    return out
+    from .multiple_testing import adjust_p_values
+
+    return adjust_p_values(p, "fdr_bh")[0]
 
 
 def screen_table(path: Any) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -955,11 +945,9 @@ def _discovery(G, classes, P, cm, ct, cset, g2c, decoy_sets, funk_pos):
     D = pd.DataFrame(disc, columns=["type", "class_id", "source", "name", "gene", "funk_positive", "score", "z",
                                     "p_vs_decoys", "n_matched_decoys", "passes_specificity"])
     if len(D):
-        from statsmodels.stats.multitest import multipletests
-
         D["q"] = np.nan
         for _, gidx in D.groupby("type").groups.items():
-            D.loc[gidx, "q"] = multipletests(D.loc[gidx, "p_vs_decoys"], method="fdr_bh")[1]
+            D.loc[gidx, "q"] = bh(D.loc[gidx, "p_vs_decoys"].to_numpy())
         D = D[(D["q"] < 0.05) & D["passes_specificity"]].sort_values(["type", "q", "z"],
                                                                       ascending=[True, True, False])
     return D, dsize

@@ -697,7 +697,7 @@ def stream_masks_from_stack(
             if sum(field_values[start:start + batch_fields]) > _CALIBRATED_BATCH_VALUES:
                 raise ValueError(tr("Calibrated segmentation exceeds the supported aggregate batch-pixel budget; reduce the field batch size."))
 
-    from .utils import _resolve_cellpose_pretrained, _validated_intensity_bounds
+    from .utils import _validated_intensity_bounds
 
     intensity_settings = postprocess_settings or {}
     minimum, maximum = _validated_intensity_bounds(
@@ -736,13 +736,10 @@ def stream_masks_from_stack(
                 "cellpose is required for v2 mask streaming"
             ) from e
 
-        from .accelerator import cellpose_kwargs
-        pretrained = _resolve_cellpose_pretrained(
-            model_name, object_type=object_type)
-        model = cp_models.CellposeModel(
-            pretrained_model=pretrained,
-            **cellpose_kwargs(),
-        )
+        from .utils import build_cellpose_model
+
+        model = build_cellpose_model(model_name, object_type=object_type,
+                                     factory=cp_models.CellposeModel)
 
         _record_cellpose_hash(model, model_name)
 

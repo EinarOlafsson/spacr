@@ -737,7 +737,7 @@ def proportion_tests(counts: pd.DataFrame, order: Sequence, reference=None,
         significance) and a DataFrame with one row per group against the
         reference, with Holm-corrected ``p_holm`` and ``significance``.
     """
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     if method not in ("chi2", "fisher"):
         raise ValueError(f"method must be 'chi2' or 'fisher', got {method!r}")
@@ -763,7 +763,7 @@ def proportion_tests(counts: pd.DataFrame, order: Sequence, reference=None,
         ok = np.isfinite(p)
         holm = np.full(len(p), np.nan)
         if ok.any():
-            holm[ok] = multipletests(p[ok], method="holm")[1]
+            holm[ok] = adjust_p_values(p[ok], "holm")[0]
         pair["p_holm"] = holm
         pair["significance"] = pair["p_holm"].map(stars)
     else:

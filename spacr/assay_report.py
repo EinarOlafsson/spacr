@@ -40,6 +40,7 @@ from typing import Callable, Dict, List, Mapping, Optional, Sequence
 import numpy as np
 import pandas as pd
 
+from .batch_correction import MAD_SCALE_ROUNDED
 from .tabular import _read_query, write_table
 from .assay_panels import (ALPHA, STYLE, axis_layout, draw_stacked_panel, save_panel, WELL_KEYS, _DEFAULT_COLORS, _despine, _set_xticks, shade,
                            style_axes,
@@ -813,7 +814,7 @@ def db_well_counts(db_path, frame, group, tables=None, well_keys=WELL_KEYS):
 
 
 QC_MEASURES = ("count", "area", "intensity")
-_MAD_K = 1.4826
+_MAD_K = MAD_SCALE_ROUNDED
 
 
 def _object_count_column(df, obj, row_object):
@@ -866,9 +867,11 @@ def _robust_z(v, ref):
     :param ref: reference-set key of each value, aligned to ``v``.
     :returns: Series of z scores; NaN where the MAD is 0.
     """
-    med = v.groupby(ref).transform("median")
-    dev = (v - med).abs().groupby(ref).transform("median")
-    return (v - med) / (_MAD_K * dev.replace(0, np.nan))
+    from .batch_correction import _center, _scale
+
+    med = _center(v, True, by=ref)
+    return (v - med) / _scale(v, True, centre=med, by=ref, constant=_MAD_K,
+                              zero_scale="nan")
 
 
 def well_qc_table(df, channels=None, measures=None, mad=3.5, row_object="cell",

@@ -372,7 +372,7 @@ def _posthoc_dunn(data, val_col, group_col, p_adjust=None):
     return pd.DataFrame(values, index=raw.index, columns=raw.columns)
 
 
-def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
+def adjust_p_values(p_values, method="fdr_bh", alpha=0.05, n_tests=None):
     """Return ``(adjusted, rejected)`` for one multiple-testing family.
 
     :param p_values: P values for every test in the family. Non-finite entries
@@ -381,6 +381,9 @@ def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
     :param method: any key, statsmodels name or alias accepted by
         :func:`canonical_method`.
     :param alpha: the level the correction targets, strictly inside (0, 1).
+    :param n_tests: the family size when it is larger than the number of
+        finite P values; the tests that were not run count as ``p = 1``.
+        ``None`` uses the number of finite P values.
     :returns: ``adjusted`` (same shape as the input) and ``rejected``, a
         boolean array.
     """
@@ -411,11 +414,15 @@ def adjust_p_values(p_values, method="fdr_bh", alpha=0.05):
         rejected[finite] = q < alpha
         return adjusted, rejected
 
+    extra = max(int(n_tests or 0) - observed.size, 0)
+    if extra:
+        observed = np.concatenate([observed, np.ones(extra)])
     call, corrected = _multipletests(
         observed, spec.statsmodels_name, alpha=alpha
     )
-    adjusted[finite] = corrected
-    rejected[finite] = call
+    count = int(finite.sum())
+    adjusted[finite] = corrected[:count]
+    rejected[finite] = call[:count]
     return adjusted, rejected
 
 

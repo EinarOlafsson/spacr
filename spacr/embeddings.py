@@ -1101,7 +1101,7 @@ def _normalise_to_controls(frame: Any, features: List[str], controls: Any,
     """Normalise profile rows to the control rows, per plate when one is named."""
     import pandas as pd
 
-    from .batch_correction import spherize_features
+    from .batch_correction import MAD_SCALE_ROUNDED, _center, _scale, spherize_features
 
     values = frame[features].astype(float)
     groups = (frame[plate_column] if plate_column
@@ -1115,18 +1115,16 @@ def _normalise_to_controls(frame: Any, features: List[str], controls: Any,
             raise EmbeddingError(
                 "a plate has no control rows to normalise to"
                 if plate_column else "the table has no control rows")
-        if how == "robust_zscore":
-            centre = reference.median()
-            spread = (reference - centre).abs().median() * 1.4826
-        else:
-            centre = reference.mean()
-            spread = reference.std(ddof=1)
+        robust = how == "robust_zscore"
+        centre = _center(reference, robust)
         if how in ("center", "tvn"):
             out.loc[index] = block - centre
             continue
-        flat = ~(spread > 0)
+        spread, flat = _scale(reference, robust, centre=centre, ddof=1,
+                              constant=MAD_SCALE_ROUNDED, zero_scale="unit",
+                              return_flat=True)
         dropped.update(spread.index[flat])
-        out.loc[index] = (block - centre) / spread.where(~flat, 1.0)
+        out.loc[index] = (block - centre) / spread
     kept = [column for column in features if column not in dropped]
     if how == "tvn":
         whitened, _ = spherize_features(out[kept], controls, method=whitening,

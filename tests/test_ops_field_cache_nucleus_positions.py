@@ -18,6 +18,7 @@ import pytest
 pytest.importorskip("scipy")
 
 from spacr import ops_decode
+from spacr import ops_settings  # noqa: E402
 from spacr.ops_sbs import _disc_neighbours
 
 GUIDES = ["GTACGT", "CATGCA", "TGCATG"]
@@ -138,6 +139,7 @@ def synthetic_runs(tmp_path_factory):
 
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", base.OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", base.OVERLAP)
     monkeypatch.setattr(ops_engine, "_WINDOW", 256)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 48)
     monkeypatch.setattr(ops_engine, "_cellpose_model",
@@ -148,7 +150,8 @@ def synthetic_runs(tmp_path_factory):
     _nuclei, codes, _centre, _tops = base._plate(raw)
     library = sorted(set(codes)) + ["TTTT", "GGGG"]
     settings = {"genotype_source": str(raw), "dst_root": str(root / "out"),
-                "plate": "synthetic", "ops_gpu": False, "n_workers": 1}
+                "plate": "synthetic", "ops_gpu": False, "n_workers": 1,
+                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none"}
     ops_engine.run_ops(settings, library=library)
     captured = []
     real = ops_engine._decode_field
@@ -163,6 +166,7 @@ def synthetic_runs(tmp_path_factory):
     for name, cache in (("off", False), ("on", True)):
         captured.clear()
         preset = {**settings, "ops_decode_preset": "rule_a_s2",
+                  "ops_decode_fdr_calibration": "none",
                   "ops_read_neighbour_discount": 0.5, "ops_store_field_cache": cache}
         result = ops_engine.run_ops(preset, phases=("decode",), library=library)
         with sqlite3.connect(result["db"]) as conn:

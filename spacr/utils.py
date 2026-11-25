@@ -102,7 +102,7 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.stattools import durbin_watson
 import statsmodels.formula.api as smf
 import statsmodels.api as sm
-from statsmodels.stats.multitest import multipletests
+from .multiple_testing import adjust_p_values
 from itertools import combinations
 from functools import reduce
 
@@ -542,15 +542,22 @@ def _compute_label_perimeters(label_img):
 
 
 def _compute_shared_boundaries(label_img):
-    """Return dict {(min_label, max_label): shared_pixel_count}."""
+    """Return dict {(min_label, max_label): shared_pixel_count}.
+
+    Each touching pixel pair is counted once and nothing wraps around the field
+    edges: only the down and right neighbours are compared, on sliced views.
+    """
     shared = {}
-    for dy, dx in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-        shifted = np.roll(np.roll(label_img, dy, axis=0), dx, axis=1)
-        mask = (label_img > 0) & (shifted > 0) & (label_img != shifted)
+    pairs = (
+        (label_img[:-1, :], label_img[1:, :]),
+        (label_img[:, :-1], label_img[:, 1:]),
+    )
+    for here, there in pairs:
+        mask = (here > 0) & (there > 0) & (here != there)
         if not np.any(mask):
             continue
-        a = label_img[mask].astype(int)
-        b = shifted[mask].astype(int)
+        a = here[mask].astype(int)
+        b = there[mask].astype(int)
         for la, lb in zip(a, b):
             pair = (min(la, lb), max(la, lb))
             shared[pair] = shared.get(pair, 0) + 1
@@ -5619,7 +5626,7 @@ def fishers_odds(df, threshold=0.5, phenotyp_col='mean_pred'):
     pvalues = filtered_results_df['PValue'].values
 
     if len(pvalues) > 0:
-        adjusted_pvalues = multipletests(pvalues, method='fdr_bh')[1]
+        adjusted_pvalues = adjust_p_values(pvalues, 'fdr_bh')[0]
         filtered_results_df.loc[:, 'AdjustedPValue'] = adjusted_pvalues
     else:
         print("No p-values to adjust. Check your data filtering steps.")
@@ -6454,13 +6461,29 @@ def _merge_overlapping_objects(mask1, mask2):
                     mask2[mask2 == m2_label] = overlapping_2_labels[0]
     return mask1, mask2
 
-def _filter_object(mask, min_value, max_value=None):
+def _filter_object(mask, min_value=None, max_value=None, *, bounds=None,
+                   inclusive=True):
     """Zero out label values outside the allowed pixel-count range.
+
+    THE ONE SIZE FILTER. Measure, Make Masks' legacy filter, the plot filter,
+    the segmentation backends and the nucleus territories all call this, so
+    an object of exactly the minimum or the maximum size is treated the same
+    everywhere: it is KEPT (``min <= size <= max``). Small objects go
+    through :func:`spacr.qt.mask_engine._drop_small_labels`, the label-
+    preserving kernel the Make Masks window uses. Labels keep their ids;
+    nothing is renumbered, and touching objects are never merged.
 
     :param min_value: drop objects smaller than this. 0 or None disables it.
     :param max_value: drop objects LARGER than this. None -- the default,
         and what every existing run does -- disables it.
-    :returns: ``mask``, filtered in place.
+    :param bounds: ``(min, max)`` in place of the two arguments above.
+    :param inclusive: True (the default) keeps an object whose size equals a
+        bound. False restores the earlier Make Masks rule, which dropped it
+        (``min < size < max``); only settings written before schema 961 ask
+        for it, through ``size_filter_inclusive``.
+    :returns: ``mask``, filtered in place. A strict bound is the inclusive
+        one moved by one, because an object's size is a whole number of
+        pixels.
 
     THE UPPER BOUND EXISTS BECAUSE THE LOWER ONE IS NOT ENOUGH. A
     segmentation blow-up -- one "cell" covering a quarter of the field, two
@@ -6472,18 +6495,26 @@ def _filter_object(mask, min_value, max_value=None):
         counts them, because it is the caller that knows which object type
         this is and can say so.
     """
-    count = np.bincount(mask.ravel())
-    too_small = count < (min_value or 0)
-    if max_value:
-        too_big = count > max_value
-    else:
-        too_big = np.zeros_like(too_small)
-    remove = np.where(too_small | too_big)[0]
-    remove = remove[remove != 0]
-    mask[np.isin(mask, remove)] = 0
+    from .qt.mask_engine import _drop_small_labels
+
+    if bounds is not None:
+        min_value, max_value = bounds
+    labels = np.asarray(mask)
+    if not labels.size:
+        return mask
+    low = float(min_value or 0)
+    high = float(max_value) if max_value else None
+    smallest = int(np.floor(low)) + 1 if (low > 0 and not inclusive) else int(np.ceil(low))
+    result = _drop_small_labels(labels, smallest, relabel=False) if smallest > 0 else labels
+    if high is not None:
+        largest = high if inclusive else np.ceil(high) - 1
+        too_big = np.bincount(result.ravel()) > largest
+        too_big[0] = False
+        result = np.where(too_big[result], 0, result)
+    mask[...] = result
     return mask
 
-def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize):
+def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, maximum_size, remove_border_objects, merge, batch, plot, figuresize, size_filter_inclusive=True):
     """Post-process Cellpose masks: optional merge, size filter, intensity filter, border removal."""
     
     from .plot import plot_masks
@@ -6504,12 +6535,11 @@ def _filter_cp_masks(masks, flows, filter_size, filter_intensity, minimum_size, 
                 plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
 
         if filter_size:
-            props = measure.regionprops_table(mask, properties=['label', 'area'])
-            valid_labels = props['label'][np.logical_and(props['area'] > minimum_size, props['area'] < maximum_size)] 
-            mask = np.isin(mask, valid_labels) * mask
+            mask = _filter_object(mask, bounds=(minimum_size, maximum_size),
+                                  inclusive=size_filter_inclusive)
             if plot and idx == 0:
                 num_objects = mask_object_count(mask)
-                print(f'Number of objects after size filtration >{minimum_size} and <{maximum_size} : {num_objects}')
+                print(f'Number of objects after size filtration >={minimum_size} and <={maximum_size} : {num_objects}')
                 plot_masks(batch=image, masks=mask, flows=flow, cmap='inferno', figuresize=figuresize, nr=1, file_type='.npz', print_object_number=True)
 
         if filter_intensity:
@@ -6911,15 +6941,93 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
     :raises ModelUnreadable: if automatic downloads are disabled and a stock
         model has no existing local file or regular native cache entry.
     """
-    if object_settings is None:
-        object_settings = {}
+    return build_cellpose_model(model_name, device=device, object_type=object_type,
+                                restore_type=restore_type)
 
-    pretrained = _resolve_cellpose_pretrained(
-        model_name, object_type=object_type, restore_type=restore_type)
 
-    from .accelerator import cellpose_kwargs
+def _resolve_cellpose_source(model_name, *, settings=None, key=None, object_type=None,
+                             restore_type=None, setting=None):
+    """The ``pretrained_model`` a Cellpose model is loaded from.
 
-    kwargs = cellpose_kwargs()
+    A model file pinned for ``key`` in ``settings`` replaces ``model_name``;
+    the result goes through :func:`_resolve_cellpose_pretrained`.
+
+    :returns: the stock name or checkpoint path.
+    """
+    name = model_name
+    if key is not None and settings is not None:
+        from .model_zoo import _resolve_pinned_model_file
+
+        pinned = _resolve_pinned_model_file(settings, key, kinds=("cellpose",))
+        if pinned is not None:
+            name = str(pinned)
+    named = {"object_type": object_type, "restore_type": restore_type,
+             "setting": setting if setting is not None else key}
+    return _resolve_cellpose_pretrained(
+        name, **{field: value for field, value in named.items() if value is not None})
+
+
+def build_cellpose_model(model_name, *, settings=None, key=None, object_type=None,
+                         restore_type=None, setting=None, device=None, gpu=None,
+                         drop_device=False, float32_on_cpu=False, tolerant=False, cache=None,
+                         factory=None, library_default=False):
+    """Build a Cellpose model the one way every caller builds it.
+
+    The steps, in order: a pinned model file recorded for ``key`` replaces
+    the name, the name is resolved by :func:`_resolve_cellpose_pretrained`,
+    the device and weight format come from
+    :func:`spacr.accelerator.cellpose_kwargs`, an explicit ``gpu`` or
+    ``device`` overrides them, weights are float32 off the GPU, and
+    ``mask_inference_precision`` in ``settings`` has the last word.
+
+    :param model_name: a stock or legacy name, a checkpoint path or a
+        model-zoo name; blank is ``cpsam``.
+    :param settings: read for ``mask_inference_precision`` (``auto``,
+        ``bf16`` or ``fp32``) and, with ``key``, for the pinned model file.
+    :param key: the setting that names the model; when ``settings`` pins a
+        file for it, the file is loaded instead of ``model_name``.
+    :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle' for
+        the messages.
+    :param restore_type: unsupported under Cellpose 4; reported and ignored.
+    :param setting: the field name the messages use, ``key`` when absent.
+    :param device: an explicit torch device overriding the accelerator's.
+    :param gpu: ``False`` builds on the CPU without asking the accelerator,
+        ``True`` forces the card, ``None`` takes the accelerator's choice.
+    :param drop_device: leave the device to Cellpose, which follows ``gpu``.
+    :param float32_on_cpu: load float32 weights whenever the model runs off
+        the card, whatever the accelerator reported.
+    :param tolerant: when the accelerator cannot be read, build on the CPU.
+    :param cache: ``cache(identity, factory)``, which returns a model kept
+        for the session; ``identity`` names the resolved model and kwargs.
+    :param library_default: for the stock ``cpsam`` name, leave
+        ``pretrained_model`` out so the installed Cellpose picks its own
+        default weights, which is how the OPS wells were validated.
+    :param factory: the model class to construct, ``CellposeModel`` of the
+        library when absent; a module passes its own import of it.
+    :returns: a ``cellpose.models.CellposeModel``.
+    :raises ModelZooError: if the name cannot be resolved exactly.
+    :raises ModelUnreadable: if downloads are disabled and the stock model
+        is not cached.
+    """
+    pretrained = _resolve_cellpose_source(
+        model_name, settings=settings, key=key, object_type=object_type,
+        restore_type=restore_type, setting=setting)
+
+    if gpu is False:
+        kwargs = {"gpu": False}
+    elif tolerant:
+        try:
+            from .accelerator import cellpose_kwargs
+
+            kwargs = cellpose_kwargs()
+        except Exception:
+            kwargs = {"gpu": False}
+    else:
+        from .accelerator import cellpose_kwargs
+
+        kwargs = cellpose_kwargs()
+    if gpu is True:
+        kwargs["gpu"] = True
     if device is not None:
         resolved_cpu = str(kwargs.get("device")).split(":", 1)[0] == "cpu"
         kwargs["device"] = device
@@ -6928,7 +7036,24 @@ def _choose_model(model_name, device, object_type=None, restore_type=None, objec
         elif resolved_cpu:
             kwargs["gpu"] = True
             kwargs.pop("use_bfloat16", None)
-    return cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
+    if drop_device:
+        kwargs["device"] = None
+    if (gpu is False or float32_on_cpu) and not kwargs["gpu"]:
+        kwargs["use_bfloat16"] = False
+    from .object import _with_inference_precision
+
+    kwargs = _with_inference_precision(kwargs, settings)
+
+    def construct():
+        """Load the model once the kwargs are settled."""
+        load = factory or cp_models.CellposeModel
+        if library_default and pretrained == CPSAM_MODEL:
+            return load(**kwargs)
+        return load(pretrained_model=pretrained, **kwargs)
+
+    if cache is not None:
+        return cache(("cellpose", pretrained, kwargs), construct)
+    return construct()
 
 class SelectChannels:
     """Callable transform that zeroes out image channels not present in ``channels``.

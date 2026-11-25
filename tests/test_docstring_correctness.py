@@ -4314,6 +4314,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_s5_arrivals(callables)
     from tests.cropstore_rule43_api_hooks import _validated_cropstore_rule43_arrivals
     callables = _validated_cropstore_rule43_arrivals(callables)
+    from tests.complex_shap_api_hooks import _validated_complex_shap_arrivals
+    callables = _validated_complex_shap_arrivals(callables)
+    from tests.l3_api_hooks import _validated_l3_arrivals
+    callables = _validated_l3_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -5903,7 +5907,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # inventory. The measured public parameter sum stays at 20,273.
     # 20,273 -> 20,276 on 2026-11-22 (pilot on landing train 8): item 1002's `strict` of
     # spacr.cli.resolve_settings and `settings`, `app` of spacr.settings.unknown_setting_keys.
-    assert sum(len(item.parameters) for item in callables) == 20276
+    # 20,276 -> 20,277 on 2026-11-24 (landing L3, merge 8): the optional `n_tests`
+    # of spacr.multiple_testing.adjust_p_values, the one FDR/Holm adjustment.
+    assert sum(len(item.parameters) for item in callables) == 20277
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -6018,6 +6024,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # ignored optional parameters under rule 41, the parameter total above
     # moves by the same three and the required total does not.
     # Moved 2026-11-21 (was 361a1012...): item 1002 adds spacr.settings.unknown_setting_keys and the optional `strict` of spacr.cli.resolve_settings.
+    # Moved 2026-11-24 on the landing L3 stack (was 565ced55...): merge 8's optional
+    # `n_tests` of spacr.multiple_testing.adjust_p_values, counted in the
+    # parameter total above; the new L3 callables are projected out by
+    # tests/l3_api_hooks.py.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -6274,7 +6284,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-22 for the pilot on landing train 8 (was d2d9fcfe...): item
     # 1002's `strict` of spacr.cli.resolve_settings and spacr.settings.unknown_setting_keys
     # join the 1007 lane A parameters above.
-) == '565ced552919061ecaa98b3dc32e09bc557fbc13c773571df4325b1c95cb27bd'
+) == 'aa055359269046c00bceb52ad29759aa2152107962d0a89e2ff06aebd4cda4f6'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -7277,6 +7287,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **_s5_birth_arrivals(zoo_additions)}
     from tests.cropstore_rule43_api_hooks import _current_cropstore_rule43_api
     zoo_additions = {**zoo_additions, **_current_cropstore_rule43_api(zoo_additions)}
+    from tests.complex_shap_api_hooks import _current_complex_shap_api
+    zoo_additions = {**zoo_additions, **_current_complex_shap_api(zoo_additions)}
+    from tests.l3_api_hooks import _current_l3_api
+    zoo_additions = {**zoo_additions, **_current_l3_api(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
@@ -7944,6 +7958,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= _s5_birth_arrivals().keys()
     from tests.cropstore_rule43_api_hooks import _current_cropstore_rule43_api
     contract_callables |= _current_cropstore_rule43_api().keys()
+    from tests.complex_shap_api_hooks import _current_complex_shap_api
+    contract_callables |= _current_complex_shap_api().keys()
+    from tests.l3_api_hooks import _current_l3_api
+    contract_callables |= _current_l3_api().keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -8127,6 +8145,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= _s5_birth_arrivals().keys()
     from tests.cropstore_rule43_api_hooks import _current_cropstore_rule43_api
     arrival_callables |= _current_cropstore_rule43_api().keys()
+    from tests.complex_shap_api_hooks import _current_complex_shap_api
+    arrival_callables |= _current_complex_shap_api().keys()
+    from tests.l3_api_hooks import _current_l3_api
+    arrival_callables |= _current_l3_api().keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background

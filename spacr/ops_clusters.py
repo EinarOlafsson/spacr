@@ -236,7 +236,7 @@ def group_enrichment(groups: pd.DataFrame, genes: Sequence[str], clusters: np.nd
     :returns: ``(share, table)``; the table has one row per cluster with
         its size, the number of enriched groups and up to ten of them.
     """
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     background = set(genes)
     keep = ~_is_control(genes, control_prefix)
@@ -256,7 +256,7 @@ def group_enrichment(groups: pd.DataFrame, genes: Sequence[str], clusters: np.nd
         n = len(in_cluster)
         overlap = [len(in_cluster & members[name]) for name in names]
         p = np.array([fisher(int(a), int(k), n) for a, k in zip(overlap, sizes)])
-        q = multipletests(p, method="fdr_bh")[1] if len(p) else p
+        q = adjust_p_values(p, "fdr_bh")[0]
         enriched = [names[i] for i in np.flatnonzero(q < 0.05)]
         table.append({"cluster": int(cluster), "n_genes": n, "n_enriched": len(enriched),
                       "enriched": "; ".join(enriched[:10])})
@@ -474,7 +474,7 @@ def benchmark_clusters(table: pd.DataFrame, features: Sequence[str], *,
         km = KMeans(k, n_init=4, random_state=0).fit_predict(components)
         rows.append(dict(score_clusters(f"{label} k-means baseline", names, km, **kwargs),
                          resolution=None, method=f"k-means k={k}"))
-        km = KMeans(k, n_init=2, random_state=0).fit_predict(shuffled)
+        km = KMeans(k, n_init=4, random_state=0).fit_predict(shuffled)
         rows.append(dict(score_clusters(f"{label} k-means shuffled PCs (control)", names, km,
                                         **kwargs), resolution=None, method=f"k-means k={k}"))
     summary: Dict[str, Any] = {"rows_clustered": int(len(table)), "genes": int(targeting.sum()),
@@ -834,7 +834,7 @@ def mitocarta_enrichment(assignments: Mapping[str, Any], mitocarta: Set[str]) ->
         recovered.
     """
     from scipy.stats import fisher_exact
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     g = pd.Series(assignments)
     background = set(g.index)
@@ -847,7 +847,7 @@ def mitocarta_enrichment(assignments: Mapping[str, Any], mitocarta: Set[str]) ->
                          alternative="greater")[1]
         rows.append((cluster, len(genes), a, p))
     table = pd.DataFrame(rows, columns=["cluster", "size", "mito", "p"])
-    table["q"] = multipletests(table.p, method="fdr_bh")[1]
+    table["q"] = adjust_p_values(table.p.to_numpy(), "fdr_bh")[0]
     enriched = table[table.q < 0.05]
     return {"genes": len(background), "mitocarta_genes": len(mito), "clusters": int(len(table)),
             "mito_enriched_clusters": int(len(enriched)),
@@ -2444,9 +2444,12 @@ def phase_view(names: Sequence[str], mask: np.ndarray, guides: Mapping[str, Sequ
     controls = (~np.asarray(mask, bool)) & has
     if not controls.any():
         return np.where(has[:, None], view, 0)
-    centre = np.median(view[controls], 0)
-    spread = 1.4826 * np.median(np.abs(view[controls] - centre), 0)
-    return np.where(has[:, None], (view - centre) / np.where(spread > 0, spread, 1), 0)
+    from .batch_correction import MAD_SCALE_ROUNDED, _center, _scale
+
+    centre = _center(view[controls], True, skipna=False)
+    spread = _scale(view[controls], True, centre=centre, skipna=False,
+                    constant=MAD_SCALE_ROUNDED, zero_scale="unit")
+    return np.where(has[:, None], (view - centre) / spread, 0)
 
 
 def fused_phate_graph(fused: np.ndarray, seed: int, *, knn: int = 10):

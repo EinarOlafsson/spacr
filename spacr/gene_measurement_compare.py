@@ -13,8 +13,10 @@ import numpy as np
 import pandas as pd
 
 from .figures.style import figure_style, theme_target
+from .multiple_testing import adjust_p_values
 from .object_roles import ORGANELLE_ROLES
 from .style_base import SHARED_CHOICES, FigureStyle
+from .batch_correction import MAD_SCALE_ROUNDED, _center, _scale
 
 #: Explanations for the controls in the measurement-comparison panel.
 #: Entries are keyed by control field rather than by the displayed heading.
@@ -1225,7 +1227,7 @@ def render_comparison(comparison: Comparison, style: "ComparisonStyle" = None,
 
 #: The constant that makes a median absolute deviation estimate a normal
 #: standard deviation, so a robust z of 1 means what a z of 1 means.
-MAD_TO_SD: float = 1.4826
+MAD_TO_SD: float = MAD_SCALE_ROUNDED
 
 
 def robust_z_to_controls(cells: pd.DataFrame, features: Sequence[str], *,
@@ -1256,9 +1258,9 @@ def robust_z_to_controls(cells: pd.DataFrame, features: Sequence[str], *,
         reference = values.loc[rows[control.loc[rows].to_numpy()]]
         if reference.empty:
             continue
-        centre = reference.median()
-        spread = (reference - centre).abs().median() * MAD_TO_SD
-        spread = spread.where(spread > 0)
+        centre = _center(reference, True)
+        spread = _scale(reference, True, centre=centre, constant=MAD_TO_SD,
+                        zero_scale="nan")
         out.loc[rows] = ((values.loc[rows] - centre) / spread).to_numpy()
     return out
 
@@ -1612,8 +1614,6 @@ def bootstrap_gene_pvalues(control_values: pd.DataFrame,
     the non-targeting guides hits. It is kept only to rerun analyses made
     before spaCR 1.5.1.8.
     """
-    from .multiple_testing import _multipletests
-
     null = str(null or "calibrated").strip().lower()
     if null not in _GENE_PVALUE_NULLS:
         raise ValueError(f"null must be one of {list(_GENE_PVALUE_NULLS)}; "
@@ -1689,8 +1689,8 @@ def bootstrap_gene_pvalues(control_values: pd.DataFrame,
         fdr = pd.Series(np.nan, index=out.index)
         finite = out[column].notna()
         if finite.any():
-            fdr[finite] = _multipletests(out.loc[finite, column].to_numpy(),
-                                         "fdr_bh")[1]
+            fdr[finite] = adjust_p_values(out.loc[finite, column].to_numpy(),
+                                          "fdr_bh")[0]
         out[f"{feature}_fdr"] = fdr
     if null == "calibrated":
         out.attrs["null"] = params
@@ -2832,8 +2832,8 @@ def _phase_profile_tests(name: str, medians: pd.DataFrame,
     frame = pd.DataFrame(rows)
     tested = ~frame.gene.str.startswith(("NTpseudo", "RANDSET"))
     frame["q"] = np.nan
-    frame.loc[tested, "q"] = stats.false_discovery_control(
-        frame.p[tested].to_numpy())
+    frame.loc[tested, "q"] = adjust_p_values(
+        frame.p[tested].to_numpy(), "fdr_bh")[0]
     frame["null_scale_c"], frame["null_df_nu"] = scale, df
     return frame
 
@@ -3205,8 +3205,6 @@ def neighbour_effects(wells: Mapping[str, Tuple[pd.DataFrame, pd.DataFrame,
     empirical against the pooled null genes of the same exposure-count
     quintile, ``q`` Benjamini-Hochberg across genes.
     """
-    from scipy.stats import false_discovery_control
-
     receivers = str(receivers or "inactive").strip().lower()
     if receivers not in NEIGHBOUR_RECEIVERS:
         raise ValueError(f"receivers must be one of {list(NEIGHBOUR_RECEIVERS)}; "
@@ -3295,7 +3293,7 @@ def neighbour_effects(wells: Mapping[str, Tuple[pd.DataFrame, pd.DataFrame,
         tests[f"p_{kind}"] = p
         genes_rows = (tests.kind == "gene").to_numpy() & np.isfinite(p)
         q = np.full(len(tests), np.nan)
-        q[genes_rows] = false_discovery_control(p[genes_rows])
+        q[genes_rows] = adjust_p_values(p[genes_rows], "fdr_bh")[0]
         tests[f"q_{kind}"] = q
     return {"tests": tests, "nulls": nulls, "d": d, "V": v,
             "names": np.array(names)}
@@ -4012,8 +4010,8 @@ EMBEDDING_NORMS: Tuple[str, ...] = ("tvn", "robustz")
 
 
 def _well_statistics(embedding, rows: np.ndarray, wells: np.ndarray,
-                     control: np.ndarray, chunk: int
-                     ) -> Tuple[Dict[Any, np.ndarray], ...]:
+                     control: np.ndarray, chunk: int,
+                     method: str = "two_pass") -> Tuple[Dict[Any, np.ndarray], ...]:
     """Per-well mean, standard deviation, control median and control MAD.
 
     :param embedding: the embedding rows (an array or a memory map).
@@ -4021,36 +4019,14 @@ def _well_statistics(embedding, rows: np.ndarray, wells: np.ndarray,
     :param wells: the well of each used row.
     :param control: True for a control row.
     :param chunk: rows read at a time.
-    :returns: ``(mean, sd, median, mad)`` keyed by well; a zero MAD is 1.
+    :param method: ``'two_pass'`` or ``'legacy'``, as in
+        :func:`spacr.ops_tvn.batch_mean_sd`.
+    :returns: ``(mean, sd, median, mad)`` keyed by well; a zero SD or MAD is 1.
     """
-    names = sorted(pd.unique(wells))
-    width = np.asarray(embedding[rows[:1]]).shape[1]
-    first = {w: np.zeros(width) for w in names}
-    second = {w: np.zeros(width) for w in names}
-    count = {w: 0 for w in names}
-    controls: Dict[Any, List[np.ndarray]] = {w: [] for w in names}
-    for start in range(0, len(rows), int(chunk)):
-        x = np.asarray(embedding[rows[start:start + int(chunk)]], dtype=np.float32)
-        here = wells[start:start + int(chunk)]
-        for w in names:
-            k = here == w
-            if k.any():
-                first[w] += x[k].sum(0)
-                second[w] += (x[k].astype(np.float64) ** 2).sum(0)
-                count[w] += int(k.sum())
-                kc = k & control[start:start + int(chunk)]
-                if kc.any():
-                    controls[w].append(x[kc])
-    mean = {w: first[w] / count[w] for w in names}
-    sd = {w: np.sqrt(np.clip(second[w] / count[w] - mean[w] ** 2, 1e-12, None))
-          for w in names}
-    median, mad = {}, {}
-    for w in names:
-        values = np.vstack(controls[w])
-        median[w] = np.median(values, 0)
-        mad[w] = MAD_TO_SD * np.median(np.abs(values - median[w]), 0)
-        mad[w][mad[w] == 0] = 1
-    return mean, sd, median, mad
+    from .ops_tvn import _streamed_batch_statistics
+
+    return _streamed_batch_statistics(embedding, rows, wells, control, chunk,
+                                      constant=MAD_TO_SD, method=method)
 
 
 def _scaled_by_well(x: np.ndarray, wells: np.ndarray, centre: Mapping,
@@ -4075,7 +4051,8 @@ def embedding_profiles(embedding, cells: pd.DataFrame, *,
                        guide: str = "sgRNA", gene: str = "gene",
                        well: str = "well", norm: str = "tvn",
                        sample: int = 100000, seed: int = 0,
-                       chunk: int = 200000, whiten_epsilon: float = 0.0
+                       chunk: int = 200000, whiten_epsilon: float = 0.0,
+                       well_statistics: str = "two_pass"
                        ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """Gene profiles from frozen single-cell embeddings.
 
@@ -4099,6 +4076,9 @@ def embedding_profiles(embedding, cells: pd.DataFrame, *,
     :param seed: the sample and PCA seed.
     :param chunk: embedding rows read at a time.
     :param whiten_epsilon: the TVN whitening epsilon; 0 is Brieflow's TVN.
+    :param well_statistics: ``'two_pass'`` (float64 two-pass per-well mean
+        and SD) or ``'legacy'`` (the single-pass float32 sums of settings
+        saved before schema 962).
     :returns: ``(genes, info)``: ``gene, n_guides, n_cells, emb_0 ...``
         (a guide is the median of its cells, a gene the median of its
         guides) and ``components`` and ``cells``.
@@ -4117,7 +4097,8 @@ def embedding_profiles(embedding, cells: pd.DataFrame, *,
     wells = cells[well].to_numpy()
     control = pd.Series(control, index=cells.index).fillna(False
                                                            ).astype(bool).to_numpy()
-    mean, sd, median, mad = _well_statistics(embedding, rows, wells, control, chunk)
+    mean, sd, median, mad = _well_statistics(embedding, rows, wells, control, chunk,
+                                                  well_statistics)
     centre, scale = (mean, sd) if norm == "tvn" else (median, mad)
     rng = np.random.default_rng(int(seed))
     picked = np.sort(rng.choice(len(rows), min(int(sample), len(rows)), replace=False))
@@ -4199,13 +4180,8 @@ def _squared_distances(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 
 
 def _bh(p: np.ndarray) -> np.ndarray:
-    """Benjamini-Hochberg q-values, clipped to [0, 1]."""
-    p = np.asarray(p, float)
-    n = len(p)
-    order = np.argsort(p)
-    q = np.empty(n)
-    q[order] = np.minimum.accumulate((p[order] * n / np.arange(1, n + 1))[::-1])[::-1]
-    return np.clip(q, 0, 1)
+    """Benjamini-Hochberg q-values, clipped to [0, 1]; NaN p stay NaN."""
+    return adjust_p_values(p, "fdr_bh")[0]
 
 
 def _upper_p(null: np.ndarray, values: np.ndarray) -> np.ndarray:

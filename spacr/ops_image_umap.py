@@ -347,16 +347,9 @@ def label_sets(sources: Sequence[str], reference_dir: Any) -> Tuple[pd.DataFrame
 
 def _bh(p: np.ndarray, m: Optional[int] = None) -> np.ndarray:
     """Benjamini-Hochberg q-values over ``m`` tests (the untested ones count as p = 1)."""
-    p = np.asarray(p, float)
-    if not p.size:
-        return p
-    m = max(int(m or p.size), p.size)
-    order = np.argsort(p, kind="stable")
-    ranked = p[order] * m / np.arange(1, p.size + 1)
-    q = np.minimum.accumulate(ranked[::-1])[::-1]
-    out = np.empty_like(q)
-    out[order] = np.minimum(q, 1.0)
-    return out
+    from .multiple_testing import adjust_p_values
+
+    return adjust_p_values(p, "fdr_bh", n_tests=m)[0]
 
 
 def enrich_clusters(genes: Sequence[str], labels: np.ndarray, sets: pd.DataFrame, *,

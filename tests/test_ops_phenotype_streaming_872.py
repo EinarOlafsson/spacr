@@ -245,7 +245,7 @@ def test_the_gpu_self_check_runs_on_the_first_streamed_field(
     monkeypatch.setattr(ops_engine, "_ph_gpu_check",
                         lambda task: calls.append(task) or {"site": task["site"]})
     root = _prepared(tmp_path / "streamed")
-    out = _run(root, ops_ph_measure_gpu=True,
+    out = _run(root, ops_ph_measure_gpu=True, randomize=False,
                ops_ph_stage_dir=str(tmp_path / "stage"))
     assert len(calls) == 1 and calls[0]["staged"].endswith("site-0.npy")
     assert out["wells"]["A1"]["ph_fields"]["ph_measure_gpu_check"] == {"site": 0}

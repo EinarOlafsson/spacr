@@ -23,7 +23,9 @@ import os
 import re
 import time
 from collections import Counter
+from .checkpoint import _atomic_json
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
+from .ops_settings import ops_defaults, ops_setting
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -2137,8 +2139,9 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
 
     :param settings: read for ``key``. Empty or ``cpsam`` builds
         the default library model, which is how the well was validated;
-        any other name is passed to Cellpose as the model to load.
-        ``mask_inference_precision`` uses the shared auto/bf16/fp32 policy.
+        any other name goes through :func:`spacr.utils.build_cellpose_model`,
+        which resolves it and refuses a name that matches no model.
+        ``mask_inference_precision`` and a pinned model file are honoured.
     :param gpu: put it on the card on this machine through
         :func:`spacr.accelerator.cellpose_kwargs`, or keep it on the CPU.
     :param key: the setting naming the model; the phenotype phases pass
@@ -2146,23 +2149,26 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
     :returns: a ``cellpose.models.CellposeModel``.
     """
     from cellpose import models
+    from .utils import build_cellpose_model
 
-    kwargs: Dict[str, Any] = {"gpu": False, "use_bfloat16": False}
-    if gpu:
-        from .accelerator import cellpose_kwargs
+    return build_cellpose_model(settings.get(key) or "cpsam", settings=settings, key=key,
+                                gpu=None if gpu else False, factory=models.CellposeModel,
+                                library_default=True)
 
-        kwargs = cellpose_kwargs()
-    from .model_zoo import _resolve_pinned_model_file
-    from .object import _with_inference_precision
 
-    kwargs = _with_inference_precision(kwargs, settings)
+def _ops_diameter(value, role, factor=1.0):
+    """The Cellpose ``diameter`` keyword for one OPS object, read by the shared rule.
 
-    pinned = _resolve_pinned_model_file(settings, key, kinds=("cellpose",))
-    name = (str(pinned) if pinned is not None
-            else str(settings.get(key) or "").strip())
-    if name in ("", "cpsam"):
-        return models.CellposeModel(**kwargs)
-    return models.CellposeModel(pretrained_model=name, **kwargs)
+    :param value: the OPS diameter setting: a number, text, 0, ``auto`` or blank.
+    :param role: the object, for the message when the value cannot be read.
+    :param factor: the downscale the image went through before segmentation.
+    :returns: ``{"diameter": pixels}`` for a positive diameter, else ``{}``
+        so Cellpose-SAM segments at native scale.
+    """
+    from .object import _eval_diameter
+
+    diameter = _eval_diameter(value, role)
+    return {"diameter": float(diameter) / factor} if diameter else {}
 
 
 _OPS_MASK_SETTINGS = ("batch_size", "mask_eval_batch_size",
@@ -2173,6 +2179,11 @@ _OPS_MASK_SETTINGS = ("batch_size", "mask_eval_batch_size",
 #: The per-path tile batch override each OPS segmentation site reads.
 _OPS_TILE_BATCH_KEYS = {"ops_phenotype": "ops_ph_tile_batch",
                         "ops_spatial": "spatial_tile_batch"}
+
+
+#: Sites whose tile batch is fixed at the value they always ran at, so their
+#: masks do not move: the large-site presets used 8.
+_OPS_LEGACY_TILE_BATCH = {"ops_large_sites": 8}
 
 
 def _ops_tile_batch(settings, site, field_count):
@@ -2195,6 +2206,8 @@ def _ops_tile_batch(settings, site, field_count):
     from ._mask_array_batches import _tile_override
     from .object import _eval_tile_batch
 
+    if site in _OPS_LEGACY_TILE_BATCH:
+        return _OPS_LEGACY_TILE_BATCH[site]
     key = _OPS_TILE_BATCH_KEYS.get(site, "ops_sbs_tile_batch")
     return _tile_override(settings, key) or _eval_tile_batch(settings, field_count)
 
@@ -2428,7 +2441,7 @@ def _objects_window_basis(settings: Mapping[str, Any], blend: str,
 
     from . import __version__
 
-    name = str(settings.get("ops_sbs_nucleus_model") or "").strip() or "cpsam"
+    name = str(ops_setting(settings, "ops_sbs_nucleus_model")).strip()
     model: Dict[str, Any] = {"name": name}
     if os.path.isfile(name):
         stat = os.stat(name)
@@ -2631,8 +2644,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     canvas = seeded[0] if seeded else _compose_canvas(usable, shape)
     blend = _compose_blend(settings)
     model = _cellpose_model(settings, gpu)
-    diameter = settings.get("cellpose_diameter")
-    extra = {"diameter": float(diameter)} if diameter else {}
+    extra = _ops_diameter(settings.get("cellpose_diameter"), "cellpose")
 
     window_overlap = int(_setting_number(settings.get("ops_window_overlap"),
                                          "ops_window_overlap",
@@ -4010,7 +4022,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                           else None)
     decoys: List[str] = []
     rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
-    mode = str(settings.get("ops_decode_threshold_mode") or "manual").strip().lower()
+    mode = str(ops_setting(settings, "ops_decode_threshold_mode")).strip().lower()
     if mode == "auto" and not (rule_a["active"] and rule == "mapped"
                                and int(rule_a.get("decoy_k") or 0) > 0):
         _say(f"{well} decode: ops_decode_threshold_mode 'auto' tunes the "
@@ -4110,7 +4122,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
 
     library_set = frozenset(library)
     decoy_set = frozenset(decoys)
-    workers = max(1, min(int(settings.get("n_workers") or 1),
+    workers = max(1, min(int(ops_setting(settings, "n_workers")),
                          _DECODE_WORKERS_CAP, len(tasks)))
     if detector in _BACKEND_SPOT_DETECTORS and workers > 1:
         _say(f"{well} decode: {detector} runs in one worker of its own, so the "
@@ -4749,8 +4761,7 @@ def _ph_segmentation_inputs(stack, channels, settings):
     extra = {}
     for key, name in (("ops_ph_nucleus_diameter", "nucleus"),
                       ("ops_ph_cell_diameter", "cell")):
-        value = settings.get(key)
-        extra[name] = {"diameter": float(value) / factor} if value else {}
+        extra[name] = _ops_diameter(settings.get(key), name, factor)
     return dna, np.stack([body, dna], axis=-1), extra, factor
 
 
@@ -4949,8 +4960,7 @@ def _ph_segment_objects(stack: np.ndarray, channels: Sequence[str],
                 channel=given["channel"], channels=list(channels)))
         plane = np.asarray(stack[..., list(channels).index(given["channel"])],
                            np.float32)
-        extra = ({"diameter": float(given["diameter"])}
-                 if given["diameter"] else {})
+        extra = _ops_diameter(given["diameter"], role)
         if role == "pathogen":
             labels = _ph_object_cellpose(
                 _ph_object_model(settings, gpu, role, given["model"], cache),
@@ -5377,7 +5387,7 @@ def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
         raise ValueError(tr("no phenotype field to build flat-field maps from"))
     tasks = [{"well": w, "site": site, "files": files[w][site],
               "channels": channels} for w, site in chosen]
-    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks)))
+    workers = max(1, min(int(ops_setting(settings, "n_workers")), len(tasks)))
     if workers == 1:
         results = [_ph_flat_blocks(task) for task in tasks]
     else:
@@ -5595,7 +5605,7 @@ def _ph_flatfield_objects(plate: str, wells: Sequence[str], phenotype_index,
         raise ValueError(tr("ph_flatfield_objects found no segmented field; run ph_segment first"))
     tasks = [{"well": w, "site": s, "files": files[(w, s)][0], "mask_path": files[(w, s)][1],
               "fits": fits} for w, s in chosen]
-    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks)))
+    workers = max(1, min(int(ops_setting(settings, "n_workers")), len(tasks)))
     if workers == 1:
         results = [_ph_object_means(task) for task in tasks]
     else:
@@ -5716,7 +5726,7 @@ def _ph_masks(plate: str, well: str, settings: Mapping[str, Any],
               "part_path": parts[s], "flat_folder": flat_folder,
               "channels": channels}
              for s in sites if not os.path.isfile(parts[s])]
-    workers = max(1, min(int(settings.get("n_workers") or 1),
+    workers = max(1, min(int(ops_setting(settings, "n_workers")),
                          len(tasks) or 1))
     if workers == 1:
         for task in tasks:
@@ -6148,7 +6158,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                   if measure else set())
     from ._mask_batches import _field_order
 
-    processing_order = _field_order(sites, dict(settings, randomize=settings.get('randomize', False)))
+    processing_order = _field_order(sites, dict(settings, randomize=ops_setting(settings, 'randomize')))
     stager = None
     if stage_dir:
         from .ops_run_infra import FieldStager
@@ -7290,7 +7300,7 @@ def _ph_design(path: str, prefix_length: int):
 
 def _ph_feature_columns(columns) -> List[str]:
     """The per-cell feature columns: compartment-prefixed, not positions."""
-    skip = ("centroid", "bbox", "coords", "orientation", "label")
+    skip = ("centroid", "bbox", "coords", "orientation", "label", "cell_cycle_")
     return [c for c in columns
             if str(c).startswith(("nucleus_", "cell_", "cytoplasm_"))
             and not any(s in str(c) for s in skip)]
@@ -7876,7 +7886,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
 
         cells[dna_column] = correct_features(
             cells, cells, [dna_column], flat_offsets)[dna_column].to_numpy()
-    if str(settings.get("ops_mitotic_source") or "").strip().lower() == "cell_cycle":
+    if str(ops_setting(settings, "ops_mitotic_source")).strip().lower() == "cell_cycle":
         from .ops_cell_cycle import MITOTIC_STAGES
 
         staged = _rows_for_wells(db, "ops_cell_cycle", plate, pooled)
@@ -8040,7 +8050,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         tvn_settings = {key: settings.get(key) for key in (
             "ops_tvn_mode", "ops_tvn_pca_sample", "ops_tvn_seed",
             "ops_tvn_components", "ops_tvn_whiten_epsilon",
-            "ops_aggregate_level")}
+            "ops_well_statistics", "ops_aggregate_level")}
         extra: List[str] = []
         if wants_profiles:
             tvn_settings["_keep_embedding"] = True
@@ -8692,16 +8702,18 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
     _ph_options_marker(out_dir, options, existing_parts=bool(completed))
     os.makedirs(os.path.join(root, "merged"), exist_ok=True)
     layout_path = os.path.join(root, "merged", "LAYOUT.json")
-    with open(layout_path + ".part", "w", encoding="utf-8") as handle:
-        json.dump({"layout": _PH_MERGED_LAYOUT, "channels": list(channels),
-                   "masks": ["nuclei", "cells", "cytoplasm"],
-                   "flags": {"owned": {"0": "copy owned by another field",
-                                       "1": "owned by this field",
-                                       "2": "touches the field edge"}},
-                   "dtype": dtype, "axes": "CYX",
-                   **({"image_format": "ome-zarr", "field_metadata": "ops_field.json"}
-                      if image_format == "ome-zarr" else {})}, handle, indent=1)
-    os.replace(layout_path + ".part", layout_path)
+    _atomic_json(
+        layout_path,
+        {"layout": _PH_MERGED_LAYOUT, "channels": list(channels),
+         "masks": ["nuclei", "cells", "cytoplasm"],
+         "flags": {"owned": {"0": "copy owned by another field",
+                             "1": "owned by this field",
+                             "2": "touches the field edge"}},
+         "dtype": dtype, "axes": "CYX",
+         **({"image_format": "ome-zarr", "field_metadata": "ops_field.json"}
+            if image_format == "ome-zarr" else {})},
+        indent=1, sort_keys=False, normalize=False, ensure_ascii=True,
+        newline=False)
     placed = _ph_transforms(db, plate, well, destination)
     by_site = {int(r["site"]): r for r in placed.to_dict("records")}
     owned = _ph_owned_flags(destination, well, settings)
@@ -8737,7 +8749,7 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
             "meta": {"plate": plate, "well": well, "site": site,
                      "transform": transform, "spacr_version": __version__,
                      "spacr_commit": commit}})
-    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks) or 1))
+    workers = max(1, min(int(ops_setting(settings, "n_workers")), len(tasks) or 1))
     results = []
 
     def persist(result):
@@ -8747,10 +8759,11 @@ def _ph_merged(db: str, plate: str, well: str, phenotype_files,
             key = writer.write_field(well, result["site"], payload["channels"],
                                       payload["labels"])
             record_path = os.path.join(str(writer.path), key, "ops_field.json")
-            with open(record_path + ".part", "w", encoding="utf-8") as handle:
-                json.dump({"owned": payload["owned"].tolist(), "meta": payload["meta"]},
-                          handle, default=str)
-            os.replace(record_path + ".part", record_path)
+            _atomic_json(
+                record_path,
+                {"owned": payload["owned"].tolist(), "meta": payload["meta"]},
+                indent=None, sort_keys=False, default=str, normalize=False,
+                ensure_ascii=True, newline=False)
         results.append(result)
 
     if workers == 1:
@@ -9993,7 +10006,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                   "plate": plate, "well": well}
                  for site, labels in sorted(chosen.items())
                  if site in files and site in mask_paths]
-        workers = max(1, min(int(settings.get("n_workers") or 1),
+        workers = max(1, min(int(ops_setting(settings, "n_workers")),
                              len(tasks) or 1))
         if workers == 1:
             results = map(_ph_crop_field, tasks)
@@ -10040,10 +10053,9 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
         well_report = {"crops": crops, "shards": shard,
                        "reasons": dict(reasons), "unreadable": unreadable,
                        "owned_cells": int(len(cells))}
-        os.makedirs(os.path.dirname(done_path), exist_ok=True)
-        with open(done_path, "w", encoding="utf-8") as handle:
-            json.dump({"options": options, **well_report}, handle, indent=1,
-                      default=str)
+        _atomic_json(done_path, {"options": options, **well_report}, indent=1,
+                     sort_keys=False, default=str, normalize=False,
+                     ensure_ascii=True, newline=False)
         report["wells"][well] = well_report
     report["seconds"] = round(time.perf_counter() - started, 1)
     _say(tr("{plate} ph_crops: {count} crops", plate=plate, count=sum(
@@ -11544,7 +11556,7 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
     if cycle_method not in ("", "measure_fc"):
         raise ValueError(tr("ops_profile_cell_cycle_method must be empty or "
                             "measure_fc; got {value}", value=cycle_method))
-    source = str(settings.get("ops_mitotic_source") or "rule").strip().lower()
+    source = str(ops_setting(settings, "ops_mitotic_source")).strip().lower()
     if source not in ("rule", "classifier", "cell_cycle"):
         raise ValueError(tr("ops_mitotic_source must be rule, classifier or cell_cycle; "
                             "got {value}", value=source))
@@ -11809,7 +11821,8 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
             exported, matched, control=matched_control,
             rows=matched["row"].to_numpy(),
             whiten_epsilon=float(_setting_number(
-                settings.get("ops_tvn_whiten_epsilon"), "ops_tvn_whiten_epsilon", 3.0)))
+                settings.get("ops_tvn_whiten_epsilon"), "ops_tvn_whiten_epsilon", 3.0)),
+            well_statistics=settings.get("ops_well_statistics") or "two_pass")
         _ph_profile_tables("genes_embedding", embedded, destination, label,
                            outputs)
         report["embedding"] = {"folder": folder, "cells_matched": int(len(matched)),
@@ -11982,7 +11995,7 @@ def run_ops(settings: Mapping[str, Any], *,
     from . import ops_settings  # noqa: F401
     from .settings import _fold_renamed_settings
 
-    settings = _fold_renamed_settings(dict(settings or {}))
+    settings = ops_defaults(_fold_renamed_settings(dict(settings or {})))
     phases = _run_phases(settings, phases)
     if settings.get("ops_gpu_admission") and not _OPS_ADMITTED.get():
         return _ops_admitted_run(settings, wells=wells, phases=phases,
@@ -12259,8 +12272,9 @@ def run_ops(settings: Mapping[str, Any], *,
             else:
                 os.makedirs(folder, exist_ok=True)
                 if not os.path.isfile(report_path) and "phenotype" in report:
-                    with open(report_path, "w", encoding="utf-8") as handle:
-                        json.dump(report, handle, indent=1, default=str)
+                    _atomic_json(report_path, report, indent=1,
+                                 sort_keys=False, default=str,
+                                 normalize=False, ensure_ascii=True, newline=False)
                 report["ph_fields"] = _ph_fields(
                     db, plate, well, phenotype_index[well], settings, gpu,
                     destination, segment=segment, measure=measure)
@@ -12280,9 +12294,8 @@ def run_ops(settings: Mapping[str, Any], *,
                 destination)
         report["seconds"] = round(time.perf_counter() - started, 1)
         report["peak_rss_gb"] = _peak_rss_gb()
-        os.makedirs(folder, exist_ok=True)
-        with open(report_path, "w", encoding="utf-8") as handle:
-            json.dump(report, handle, indent=1, default=str)
+        _atomic_json(report_path, report, indent=1, sort_keys=False,
+                     default=str, normalize=False, ensure_ascii=True, newline=False)
         if archive_root:
             from .ops_run_infra import archive_well
 
@@ -13552,7 +13565,7 @@ def _st_compare_groups(matrix, genes, in_group, *, labels=("infected",
     """
     import pandas as pd
     from scipy.stats import mannwhitneyu
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     in_group = np.asarray(in_group, dtype=bool)
     if in_group.all() or not in_group.any():
@@ -13565,7 +13578,7 @@ def _st_compare_groups(matrix, genes, in_group, *, labels=("infected",
     a, b = normal[in_group], normal[~in_group]
     _u, p = mannwhitneyu(a, b, axis=0, alternative="two-sided")
     p = np.nan_to_num(np.asarray(p, dtype=float), nan=1.0)
-    q = multipletests(p, method="fdr_bh")[1] if len(p) else p
+    q = adjust_p_values(p, "fdr_bh")[0]
     mean_a = counts[in_group].mean(axis=0)
     mean_b = counts[~in_group].mean(axis=0)
     first, second = labels
@@ -13600,7 +13613,7 @@ def _st_distance_trend(matrix, genes, distance, *, min_objects: int = 5):
     """
     import pandas as pd
     from scipy.stats import rankdata, t as student
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     distance = np.asarray(distance, dtype=float)
     finite = np.isfinite(distance)
@@ -13619,7 +13632,7 @@ def _st_distance_trend(matrix, genes, distance, *, min_objects: int = 5):
     n = int(finite.sum())
     stat = rho * np.sqrt((n - 2) / np.clip(1 - rho ** 2, 1e-12, None))
     p = 2 * student.sf(np.abs(stat), n - 2)
-    q = multipletests(p, method="fdr_bh")[1] if len(p) else p
+    q = adjust_p_values(p, "fdr_bh")[0]
     frame = pd.DataFrame({"gene": np.asarray(genes, dtype=object)[columns],
                           "spearman_rho": rho, "p_value": p, "q_value": q,
                           "objects": n})
@@ -14688,9 +14701,9 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
         "total_seconds": round(time.perf_counter() - started, 1),
         "peak_rss_gb": _peak_rss_gb(),
     }
-    with open(os.path.join(dst, "spatial_mask_report.json"), "w",
-              encoding="utf-8") as handle:
-        json.dump(report, handle, indent=1, default=str)
+    _atomic_json(os.path.join(dst, "spatial_mask_report.json"), report,
+                 indent=1, sort_keys=False, default=str, normalize=False,
+                 ensure_ascii=True, newline=False)
     _say(f"spatial masks: {len(objects)} objects in {len(field_rows)} fields "
          f"from {len(windows)} windows in {report['total_seconds']} s")
     return report
@@ -15067,15 +15080,8 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
         owned["files"][name] = digest.hexdigest()
     summary["analysis_output_ownership"] = {"version": 1, "runs": runs}
     report = {key: value for key, value in summary.items()}
-    descriptor, pending_report = tempfile.mkstemp(
-        prefix=".spatial_map_report-", suffix=".json", dir=output)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-            json.dump(report, handle, indent=1, default=str)
-        os.replace(pending_report, report_path)
-    finally:
-        if os.path.exists(pending_report):
-            os.remove(pending_report)
+    _atomic_json(report_path, report, indent=1, sort_keys=False,
+                 default=str, normalize=False, ensure_ascii=True, newline=False)
     if not len(obs):
         retired = []
         for name, expected in owned["files"].items():
@@ -15094,15 +15100,8 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
         if retired:
             for name in retired:
                 del owned["files"][name]
-            descriptor, pending_report = tempfile.mkstemp(
-                prefix=".spatial_map_report-", suffix=".json", dir=output)
-            try:
-                with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-                    json.dump(report, handle, indent=1, default=str)
-                os.replace(pending_report, report_path)
-            finally:
-                if os.path.exists(pending_report):
-                    os.remove(pending_report)
+            _atomic_json(report_path, report, indent=1, sort_keys=False,
+                         default=str, normalize=False, ensure_ascii=True, newline=False)
     _say(f"spatial map: {summary['objects'][host]['objects']} {host} objects "
          f"counted from {summary['points_in_fields']} of {total} points")
     summary["obs"] = obs

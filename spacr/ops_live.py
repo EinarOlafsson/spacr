@@ -17,6 +17,7 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
+from .ops_settings import ops_setting
 
 import numpy as np
 
@@ -525,7 +526,7 @@ def _model(ctx: _Context, key: str = "ops_sbs_nucleus_model"):
     """
     from .ops_engine import _cellpose_model
 
-    gpu = bool(ctx.settings.get("ops_gpu", False))
+    gpu = bool(ops_setting(ctx.settings, "ops_gpu"))
     name = (str(ctx.settings.get(key) or ""), gpu,
             ctx.settings.get("mask_inference_precision"))
     held = ctx.cache.setdefault("_models", {})
@@ -689,7 +690,7 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     from .ops_engine import _CHANNEL_REGISTRATION
 
     aligned = align_field(
-        planes, reference=reference, gpu=bool(ctx.settings.get("ops_gpu", False)),
+        planes, reference=reference, gpu=bool(ops_setting(ctx.settings, "ops_gpu")),
         channel_mode=str(ctx.settings.get("ops_channel_registration")
                          or _CHANNEL_REGISTRATION).strip().lower(),
         **registration)
@@ -890,7 +891,7 @@ def _decode_options(settings: Mapping[str, Any], library: Sequence[str], *,
         if well is not None and settings.get("dst_root"):
             rule_a["fdr_scale"] = _reported_fdr_scale(
                 os.path.join(str(settings["dst_root"]), "measurements.db"), well,
-                rule_a["fdr_scale"], str(settings.get("ops_decode_fdr_calibration") or "none"))
+                rule_a["fdr_scale"], str(ops_setting(settings, "ops_decode_fdr_calibration")))
         if rule_a["decoy_k"] > 0:
             decoys = decoy_library(library, k=rule_a["decoy_k"])
         if read_mode != "log":
@@ -937,7 +938,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     dapi = np.ascontiguousarray(dapi[y0:y0 + size, x0:x0 + size])
     nuclei_key = json.dumps([site, align["crop"], ctx.settings.get("ops_sbs_nucleus_model"),
                              ctx.settings.get("cellpose_diameter"),
-                             ctx.settings.get("ops_gpu"),
+                             bool(ops_setting(ctx.settings, "ops_gpu")),
                              ctx.settings.get("mask_eval_batch_size"),
                              ctx.settings.get("ops_sbs_tile_batch"),
                              ctx.settings.get("mask_inference_precision")], default=str)
@@ -955,7 +956,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
             return dapi, None
 
         with _array_batches([site], load_dapi, ctx.settings,
-                            gpu=bool(ctx.settings.get("ops_gpu"))) as resident:
+                            gpu=bool(ops_setting(ctx.settings, "ops_gpu"))) as resident:
             for _site, image, _metadata, field_count in resident:
                 nuclei = np.asarray(engine._ops_mask_eval(
                     model, image, ctx.settings, site="ops_stitched",
@@ -989,7 +990,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         "centroids": centroids, "areas": areas,
         "ids": labels.astype(np.int64), "owned": np.ones(len(labels), bool),
         "cache_folder": str(cache_folder), **options["task"],
-        "gpu": bool(ctx.settings.get("ops_gpu", False)),
+        "gpu": bool(ops_setting(ctx.settings, "ops_gpu")),
     }
     previous = (engine._LIBRARY, engine._DECOYS)
     try:
@@ -1101,7 +1102,7 @@ def _run_objects(ctx: _Context, cancelled=None) -> Dict[str, Any]:
             return crop, None
 
         with _array_batches([field_info['site']], load_crop, ctx.settings,
-                            gpu=bool(ctx.settings.get("ops_gpu"))) as resident:
+                            gpu=bool(ops_setting(ctx.settings, "ops_gpu"))) as resident:
             for _site, image, _metadata, field_count in resident:
                 nuclei, cells, _paired = engine._ph_segment_field(
                     image, channels, models, ctx.settings, field_count=field_count)

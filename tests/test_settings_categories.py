@@ -356,6 +356,8 @@ from spacr.gene_graph import _DEFAULTS as GENE_GRAPH_DEFAULTS  # noqa: E402
 from spacr.gene_knowledge import _DEFAULTS as GENE_KNOWLEDGE_DEFAULTS  # noqa: E402
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # Merge 4: one size-filter boundary rule; the legacy rule is kept for old files.
+    "size_filter_inclusive",
     # 0aj P1b: split a source of several plates into plate folders (Mask).
     "split_plates",
     # 977, alpha: ops_phases, a settings file names its own OPS phases (OPS input).
@@ -371,6 +373,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_reference_dir", "ops_eval_references", "ops_eval_split",
     "ops_eval_null_size", "ops_eval_heldout_folds", "ops_eval_decoys",
     "ops_eval_time_split", "ops_eval_covariates", "ops_deterministic_blas", "ops_blas_threads",
+    # Per-cell nuisance regression of the profile features (alpha, off).
+    "ops_profile_nuisance", "ops_profile_nuisance_fit", "ops_profile_phase_filter",
     # NEW SETTINGS (2026-11-09, BMC paper items 898-901 and 909-911, lane E).
     *PREDICTION_DEFAULTS, *TITRATION_DEFAULTS, *TRANSLOCATION_DEFAULTS,
     "timelapse_division_onset", "timelapse_division_onset_ci",
@@ -626,6 +630,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # TVN profiles for the OPS aggregate phase (item 854, 2026-11-07).
     "ops_profile_normalisation", "ops_tvn_mode", "ops_tvn_pca_sample",
     "ops_tvn_seed", "ops_tvn_components", "ops_tvn_whiten_epsilon",
+    "ops_well_statistics",
     # Cluster benchmarks and consensus clustering (item 855, 2026-11-07).
     "ops_cluster_benchmark", "ops_benchmark_corum", "ops_benchmark_kegg",
     "ops_benchmark_string", "ops_reference_clusters", "ops_cluster_target",

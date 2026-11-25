@@ -27,6 +27,7 @@ from scipy import ndimage
 
 from spacr import ops_decode as D
 from spacr import ops_engine
+from spacr import ops_settings  # noqa: E402
 from spacr import ops_prefix as P
 from spacr import ops_sbs as S
 from spacr.tabular import read_table
@@ -138,6 +139,13 @@ def test_the_choice_reads_decoy_counts_only():
     assert first["chosen"] == again["chosen"] and first["report"] == again["report"]
 
 
+#: What a direct run_prefix_decode call fell back to before one OPS default
+#: table (merge 1): these tests were written against it, so they pass it
+#: explicitly now that an unset key takes OPS_DEFAULTS.
+DIRECT_CALL_FALLBACKS = {"ops_prefix_decoy_k": 0, "ops_prefix_fdr_target_pct": 0.1,
+                         "ops_prefix_minority_min_reads": 0}
+
+
 def _prefix(tmp_path, name, **extra):
     stack, labels = synthetic_site()
     root = tmp_path / "data"
@@ -150,7 +158,7 @@ def _prefix(tmp_path, name, **extra):
                 "cpg_phenotype_channels": ["CorrDNA"], "ops_library": str(tmp_path / "Barcodes.csv"),
                 "ops_prefix_masks": str(root / "masks" / "{plate}_{well}_{site}_cells.tiff"),
                 "ops_read_threshold": 10.0, "n_workers": 1,
-                "dst_root": str(tmp_path / name), **extra}
+                "dst_root": str(tmp_path / name), **DIRECT_CALL_FALLBACKS, **extra}
     return P.run_prefix_decode(settings)
 
 
@@ -211,6 +219,7 @@ def engine_well(tmp_path_factory):
 
     monkeypatch = pytest.MonkeyPatch()
     monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", base.OVERLAP)
+    monkeypatch.setitem(ops_settings.OPS_DEFAULTS, "ops_raster_overlap", base.OVERLAP)
     monkeypatch.setattr(ops_engine, "_WINDOW", 256)
     monkeypatch.setattr(ops_engine, "_WINDOW_OVERLAP", 48)
     monkeypatch.setattr(ops_engine, "_cellpose_model",

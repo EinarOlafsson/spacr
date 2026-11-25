@@ -324,7 +324,7 @@ def pair_ap(features: np.ndarray, positives: np.ndarray, tag: str, seed: int = 0
         genes with at least one partner; ties keep row order.
     """
     compute = _require("copairs.compute")
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     candidates = np.flatnonzero(positives.any(1))
     x = features[candidates].astype(np.float64)
@@ -344,7 +344,7 @@ def pair_ap(features: np.ndarray, positives: np.ndarray, tag: str, seed: int = 0
     p = np.array([(null_size - np.searchsorted(nulls[j], a) + 1) / (null_size + 1)
                   for a, j in zip(ap, inverse.ravel())])
     random_ap = np.array([u / t for u, t in configs])
-    q = multipletests(p, method="fdr_bh")[1]
+    q = adjust_p_values(p, "fdr_bh")[0]
     return pd.DataFrame({"gene_idx": candidates, "ap": ap, "n_pos": configs[:, 0], "n_total": configs[:, 1],
                          "random_ap": random_ap, "p": p, "q": q, "rep": tag})
 
@@ -585,10 +585,10 @@ def score_efaar(data: Mapping[str, Any], *, shuffle_seeds: Sequence[int] = (70, 
 
 def _holm(pvalues: Mapping[str, float]) -> Dict[str, float]:
     """Holm-corrected p within one panel."""
-    from statsmodels.stats.multitest import multipletests
+    from .multiple_testing import adjust_p_values
 
     keys = list(pvalues)
-    q = multipletests([pvalues[k] for k in keys], method="holm")[1] if keys else []
+    q = adjust_p_values([pvalues[k] for k in keys], "holm")[0]
     return dict(zip(keys, map(float, q)))
 
 

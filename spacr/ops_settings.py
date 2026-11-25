@@ -180,6 +180,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_tvn_seed": 0,
     "ops_tvn_components": None,
     "ops_tvn_whiten_epsilon": 3.0,
+    "ops_well_statistics": "two_pass",
     "ops_cluster_benchmark": False,
     "ops_benchmark_corum": None,
     "ops_benchmark_kegg": None,
@@ -342,6 +343,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_run": "",
     "ops_profile_recipe": None,
     "ops_profile_min_cells": 10,
+    "ops_profile_nuisance": [],
+    "ops_profile_nuisance_fit": "controls",
+    "ops_profile_phase_filter": None,
     "ops_profile_active_filter": None,
     "ops_profile_cell_state": None,
     "ops_profile_gene_universe": None,
@@ -783,6 +787,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_tvn_seed": int,
     "ops_tvn_components": (float, int, type(None)),
     "ops_tvn_whiten_epsilon": (float, int),
+    "ops_well_statistics": str,
     "ops_cluster_benchmark": bool,
     "ops_benchmark_corum": (str, type(None)),
     "ops_benchmark_kegg": (str, type(None)),
@@ -943,6 +948,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_run": str,
     "ops_profile_recipe": (dict, type(None)),
     "ops_profile_min_cells": int,
+    "ops_profile_nuisance": (list, str, type(None)),
+    "ops_profile_nuisance_fit": str,
+    "ops_profile_phase_filter": (str, type(None)),
     "ops_profile_active_filter": (dict, type(None)),
     "ops_profile_cell_state": (str, list, type(None)),
     "ops_profile_gene_universe": (str, list, type(None)),
@@ -1437,7 +1445,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_feature_qc", "ops_profile_normalisation", "ops_aggregate_level",
         "ops_nt_rows", "ops_tvn_mode", "ops_tvn_fit_cells",
         "ops_tvn_pca_sample", "ops_tvn_seed", "ops_tvn_components",
-        "ops_tvn_whiten_epsilon",
+        "ops_tvn_whiten_epsilon", "ops_well_statistics",
     ],
     "Gene tests & hits": [
         "ops_bootstrap", "ops_pvalue_null", "ops_test_features",
@@ -1484,6 +1492,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Profile run": [
         "ops_profile_cells", "ops_profile_wells", "ops_profile_run",
         "ops_profile_recipe", "ops_profile_min_cells",
+        "ops_profile_nuisance", "ops_profile_nuisance_fit", "ops_profile_phase_filter",
         "ops_profile_active_filter", "ops_profile_cell_state",
         "ops_profile_gene_universe", "ops_profile_space", "ops_fusion_blocks",
         "ops_reference_dir",
@@ -2498,6 +2507,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "weight, so a different sample changes those directions and the "
         "gene similarities they carry. A larger sample makes them steadier "
         "and costs memory. Default 100000. Alpha.",
+    "ops_well_statistics":
+        "(str) - How the per-well mean and standard deviation of every "
+        "normalisation are computed: 'two_pass' (float64, the mean first and "
+        "then the squared deviations from it, a feature with no spread "
+        "scaled by 1) or 'legacy' (single-precision sums and a floored "
+        "variance, as settings saved before schema 962 used). Settings saved "
+        "before schema 962 retain 'legacy'. Default two_pass. Alpha.",
     "ops_tvn_seed":
         "(int) - The seed of the TVN PCA sample. Change it to see how much "
         "the profiles depend on the sample. Default 0. Alpha.",
@@ -2594,6 +2610,26 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - Genes and pseudo-genes with this many cells or fewer are left "
         "out of the profile table and the metrics; raising it drops weakly "
         "sampled genes whose profiles are noisy. Default 10. Alpha.",
+    "ops_profile_nuisance":
+        "(list) - Per-cell nuisance sources regressed out of every feature "
+        "before the profile PCA and TVN: any of cell_cycle (stage "
+        "probabilities, posterior_S/G2, log2 DNA content; or its parts "
+        "stage_probs and dna_content), mitotic_binary (interphase vs mitotic, "
+        "mitotic cells kept), phase_onehot (S, G2, M against G1), size (log cell and "
+        "nucleus area), density (neighbour count, log nearest-neighbour "
+        "distance), position (squared distance from the field centre) and "
+        "field (each field's mean removed). Empty leaves the profiles "
+        "unchanged. Default []. Alpha.",
+    "ops_profile_phase_filter":
+        "(str or None) - Build the profiles only from the cells of one "
+        "cell_cycle_stage (for example G1), taken after the cell-cycle phase "
+        "has joined its stages to the cell table; a stratified profile, not a "
+        "regression. Default None (all cells). Alpha.",
+    "ops_profile_nuisance_fit":
+        "(str) - Which cells the nuisance slopes are fitted on: 'controls' "
+        "(the non-targeting cells, so a gene effect is never removed) or "
+        "'all'. Only used when ops_profile_nuisance is not empty. Default "
+        "'controls'. Alpha.",
     "ops_profile_active_filter":
         "(dict or None) - Keep only active genes: {'hits_table': path, 'fdr': "
         "0.05} keeps the genes with any *_fdr column of the hits table below "
@@ -4490,6 +4526,22 @@ def ops_defaults(settings=None):
     for key, value in OPS_DEFAULTS.items():
         settings.setdefault(key, value)
     return settings
+
+
+def ops_setting(settings, key):
+    """One setting's value, ``OPS_DEFAULTS[key]`` when it is unset.
+
+    The one place a reader that may run without :func:`ops_defaults` having
+    filled the dict (an internal helper called on its own) takes the default
+    from, so no module carries a second default table. ``None`` and ``""``
+    count as unset.
+
+    :param settings: the settings mapping.
+    :param key: a key of ``OPS_DEFAULTS``.
+    :returns: the set value, or the declared default.
+    """
+    value = settings.get(key)
+    return OPS_DEFAULTS[key] if value is None or value == "" else value
 
 
 def register(replace: bool = False) -> bool:

@@ -43,6 +43,8 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence
 
 import numpy as np
 import pandas as pd
+from .checkpoint import _atomic_json
+
 
 #: The painting channels in the order item 919 stacks them by default.
 DEFAULT_PHENOTYPE_CHANNELS = ("CorrDNA", "CorrPhalloidin", "CorrMito",
@@ -717,9 +719,8 @@ def cpg_site_index(settings: Mapping[str, Any], *, md5: Optional[bool] = None
 
 def _write_json(path: str, record: Mapping[str, Any]) -> None:
     """Write ``record`` as indented JSON through a ``.part`` rename."""
-    with open(path + ".part", "w", encoding="utf-8") as handle:
-        json.dump(record, handle, indent=1, default=str)
-    os.replace(path + ".part", path)
+    _atomic_json(path, record, indent=1, sort_keys=False, default=str,
+                 normalize=False, ensure_ascii=True, newline=False)
 
 
 def merged_path(root: str, plate: str, well_id: str, site: int) -> str:

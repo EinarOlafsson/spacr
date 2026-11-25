@@ -35,6 +35,7 @@ import os
 import time
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
+from .ops_settings import ops_setting
 
 import numpy as np
 import pandas as pd
@@ -2089,22 +2090,19 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
                                 or "periscope_logged").strip().lower(),
         "cpg_align_table": settings.get("cpg_align_table") or None,
         "ops_read_threshold": float(settings.get("ops_read_threshold", 315.0)),
-        "ops_prefix_decoy_k": int(settings.get("ops_prefix_decoy_k") or 0),
-        "ops_prefix_decoy_seed": int(settings.get("ops_prefix_decoy_seed", 1) or 0),
+        "ops_prefix_decoy_k": int(ops_setting(settings, "ops_prefix_decoy_k")),
+        "ops_prefix_decoy_seed": int(ops_setting(settings, "ops_prefix_decoy_seed")),
         "ops_prefix_fdr_scale": float(settings.get("ops_prefix_fdr_scale") or 1.0),
         "ops_prefix_min_read_quality": float(settings.get("ops_prefix_min_read_quality")
                                              or 0.0),
         "ops_prefix_threshold_tuning": str(settings.get("ops_prefix_threshold_tuning")
                                            or PREFIX_TUNING_MODES[0]),
-        "ops_prefix_fdr_target_pct": float(settings.get("ops_prefix_fdr_target_pct", 0.1)
-                                           if settings.get("ops_prefix_fdr_target_pct")
-                                           not in (None, "") else 0.1),
+        "ops_prefix_fdr_target_pct": float(ops_setting(settings, "ops_prefix_fdr_target_pct")),
         "ops_prefix_tuning_grid": settings.get("ops_prefix_tuning_grid") or None,
         "ops_prefix_nearmiss_decoy_k": int(settings.get("ops_prefix_nearmiss_decoy_k") or 0),
         "ops_prefix_fdr_calibration": str(settings.get("ops_prefix_fdr_calibration")
                                           or FDR_CALIBRATIONS[0]).strip().lower(),
-        "ops_prefix_minority_min_reads": int(settings.get("ops_prefix_minority_min_reads")
-                                             or 0),
+        "ops_prefix_minority_min_reads": int(ops_setting(settings, "ops_prefix_minority_min_reads")),
         "ops_prefix_distance_weight": str(settings.get("ops_prefix_distance_weight")
                                           or READ_WEIGHT_MODES[0]).strip().lower(),
         "ops_prefix_distance_decay_px": _setting_float(settings, "ops_prefix_distance_decay_px",
@@ -3669,8 +3667,8 @@ def _sweep_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "ops_fdr_sweep_bootstrap": int(value["ops_fdr_sweep_bootstrap"]),
         "ops_fdr_sweep_seed": int(value["ops_fdr_sweep_seed"]),
         "ops_fdr_sweep_shuffle_seeds": _sweep_list(value["ops_fdr_sweep_shuffle_seeds"], int),
-        "ops_prefix_decoy_k": int(settings.get("ops_prefix_decoy_k") or 0),
-        "ops_prefix_decoy_seed": int(settings.get("ops_prefix_decoy_seed", 1) or 0),
+        "ops_prefix_decoy_k": int(ops_setting(settings, "ops_prefix_decoy_k")),
+        "ops_prefix_decoy_seed": int(ops_setting(settings, "ops_prefix_decoy_seed")),
         "ops_prefix_metric": str(settings.get("ops_prefix_metric") or "hamming"),
     }
     if not all(out[key] for key in ("ops_fdr_sweep_targets", "ops_fdr_sweep_max_distance",

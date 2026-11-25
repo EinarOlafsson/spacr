@@ -4706,26 +4706,27 @@ def invert_mask(mask: np.ndarray) -> np.ndarray:
 
 
 def remove_small_objects(mask: np.ndarray, min_area: int) -> np.ndarray:
-    """Drop connected components with area < min_area (in pixels).
+    """Drop objects with area < min_area (in pixels); an object of exactly
+    ``min_area`` is kept.
 
-    :param mask: label or binary mask; every pixel above 0 is foreground. The
-        survivors are relabelled 1..N in the input's dtype.
+    :param mask: label or binary mask; every pixel above 0 is foreground. A
+        label mask keeps the id of every survivor and never merges touching
+        objects; a binary mask is split into connected components that are
+        numbered 1..N. The result has the input's dtype.
     :param min_area: smallest component to keep, in pixels; 0 or less
         returns a copy unchanged.
     """
     if min_area <= 0:
         return mask.copy()
-    labeled, n = _ndimage().label(mask > 0)
-    if n == 0:
+    foreground = mask > 0
+    if not foreground.any():
         return mask.copy()
-    counts = np.bincount(labeled.ravel())
-    keep = np.zeros_like(counts, dtype=bool)
-    for i in range(1, len(counts)):
-        if counts[i] >= min_area:
-            keep[i] = True
-    filtered = keep[labeled]
-    out = np.where(filtered, mask, 0)
-    labeled, _ = _ndimage().label(out > 0)
+    if np.unique(mask[foreground]).size > 1:
+        return _drop_small_labels(mask, int(np.ceil(min_area)),
+                                  relabel=False).astype(mask.dtype)
+    labeled, _ = _ndimage().label(foreground)
+    kept = _drop_small_labels(labeled, int(np.ceil(min_area)), relabel=False)
+    labeled, _ = _ndimage().label(kept > 0)
     return labeled.astype(mask.dtype)
 
 
@@ -5618,12 +5619,7 @@ def connected_instances(binary: np.ndarray, min_area: int = 0) -> np.ndarray:
     """
     foreground = np.asarray(binary, dtype=bool)
     components, _count = _ndimage().label(foreground, structure=_full_connectivity(foreground.ndim))
-    sizes = np.bincount(components.ravel(), minlength=1)
-    keep = sizes >= int(min_area)
-    keep[0] = False
-    lookup = np.zeros(sizes.size, dtype=np.int32)
-    lookup[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
-    return lookup[components]
+    return _drop_small_labels(components, int(min_area))
 
 
 def otsu_instances(image: np.ndarray, *, bright: bool = True,
@@ -6249,12 +6245,7 @@ def _split_touching_objects(binary: np.ndarray, min_area: int = 0) -> np.ndarray
         markers.flat[where] = next_marker
         next_marker += 1
     labels = watershed(-distance, markers, mask=mask)
-    areas = np.bincount(labels.ravel())
-    keep = areas >= max(1, int(min_area))
-    keep[0] = False
-    lookup = np.zeros(areas.size, dtype=np.int32)
-    lookup[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
-    return lookup[labels]
+    return _drop_small_labels(labels, max(1, int(min_area)))
 
 
 def _drop_border_objects(labels: np.ndarray) -> np.ndarray:
@@ -6733,6 +6724,8 @@ def _drop_small_labels(labels: np.ndarray, min_area: int, *,
     them one again.
     """
     out = np.asarray(labels, dtype=np.int32)
+    if not out.size:
+        return out
     counts = np.bincount(out.ravel())
     if int(min_area) > 0:
         small = counts < int(min_area)
@@ -7070,10 +7063,7 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
             kept = _largest_piece_of_each(kept)
     floor = max(1, int(min_area))
     if floor > 1 and kept.any():
-        areas = np.bincount(kept.ravel())
-        big = areas >= floor
-        big[0] = False
-        kept = np.where(big[kept], kept, 0)
+        kept = _drop_small_labels(kept, floor, relabel=False).astype(kept.dtype)
     return kept
 
 

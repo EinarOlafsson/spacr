@@ -889,7 +889,6 @@ def _robustness_segmenter(settings, object_type):
         environment the report does not start.
     """
     from .settings import _get_object_settings
-    from .utils import _resolve_cellpose_pretrained
     from ._segmentation_backends import (_backend_name, _cellpose3_choice,
                                          _cellpose_dino_choice, _prefixed_backend)
 
@@ -906,10 +905,10 @@ def _robustness_segmenter(settings, object_type):
     model_name = _pinned_object_model(settings, object_type, model_name, 'cellpose')
     model_key = ('pathogen_model' if object_type == 'pathogen'
                  and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
-    model = cp_models.CellposeModel(
-        pretrained_model=_resolve_cellpose_pretrained(
-            model_name, object_type=object_type, setting=model_key),
-        **accelerator.cellpose_kwargs())
+    from .utils import build_cellpose_model
+
+    model = build_cellpose_model(model_name, settings=settings, object_type=object_type,
+                                 setting=model_key, factory=cp_models.CellposeModel)
     return partial(_robustness_segment, model, object_settings, object_type)
 
 
@@ -1777,7 +1776,7 @@ def _mask_model_setup(settings, object_type, *, z_plan=None, t_plan=None,
                       channel_configuration=None):
     """Reuse the segmentation model, precision, backend and channel configuration."""
     from .settings import _get_object_settings
-    from .utils import _get_cellpose_channels, _resolve_cellpose_pretrained
+    from .utils import _get_cellpose_channels, build_cellpose_model
 
     if channel_configuration is None:
         _fill_cellpose_channel_positions(settings)
@@ -1805,12 +1804,10 @@ def _mask_model_setup(settings, object_type, *, z_plan=None, t_plan=None,
     if segmentation_backend == 'cellpose':
         model_key = ('pathogen_model' if object_type == 'pathogen'
                      and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
-        pretrained = _resolve_cellpose_pretrained(
-            model_name, object_type=object_type, setting=model_key)
-        model_kwargs = _with_inference_precision(accelerator.cellpose_kwargs(), settings)
-        model = _session_cached_mask_model(
-            ('cellpose', pretrained, model_kwargs),
-            lambda: cp_models.CellposeModel(pretrained_model=pretrained, **model_kwargs))
+        model = build_cellpose_model(
+            model_name, settings=settings, object_type=object_type,
+            setting=model_key, cache=_session_cached_mask_model,
+            factory=cp_models.CellposeModel)
     else:
         model = _load_backend(segmentation_backend, z_plan=z_plan,
                               t_plan=t_plan, model_name=model_name,
@@ -2837,7 +2834,8 @@ def generate_cellpose_masks(src, settings, object_type):
                                                 merge=object_settings['merge'],
                                                 batch=batch,
                                                 plot=settings['plot'],
-                                                figuresize=figuresize)
+                                                figuresize=figuresize,
+                                                size_filter_inclusive=settings.get('size_filter_inclusive', True))
                     
                     _save_object_counts_to_database(mask_stack, object_type, batch_filenames, count_loc, added_string='_after_filtration')
                 elif not object_settings['merge']:

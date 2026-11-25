@@ -110,26 +110,63 @@ def fingerprint(value: Any) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
-def _atomic_json(path: Path, payload: Mapping[str, Any]) -> None:
+def _atomic_json(path: Any, payload: Any, *, indent: Optional[int] = 2,
+                 sort_keys: bool = True, default: Any = None,
+                 separators: Any = None, ensure_ascii: bool = False,
+                 allow_nan: bool = True, normalize: bool = True,
+                 newline: bool = True, newline_style: Optional[str] = None,
+                 sync_directory: bool = False) -> None:
     """Atomically replace one JSON document through a sibling temporary.
 
+    This is the one atomic JSON writer of the package: every JSON state or
+    report file that a resume reads goes through it, so a crash leaves either
+    the old complete file or the new complete file.  The keyword arguments let
+    a caller keep the exact bytes its own file format already had.
+
     :param path: destination JSON path whose parent is created when absent.
-    :param payload: JSON-like mapping to normalize and write.
+    :param payload: JSON-like value to write.
+    :param indent: ``json.dump`` indent.
+    :param sort_keys: ``json.dump`` key sorting.
+    :param default: ``json.dump`` fallback serializer.
+    :param separators: ``json.dump`` separators.
+    :param ensure_ascii: ``json.dump`` ASCII escaping.
+    :param allow_nan: ``json.dump`` NaN policy.
+    :param normalize: pass ``payload`` through :func:`json_safe` first.
+    :param newline: end the file with a newline.
+    :param newline_style: text-mode newline translation of the stream.
+    :param sync_directory: also fsync the parent directory after the rename.
     :returns: ``None`` after the flushed temporary has replaced ``path``.
     Normalization and filesystem failures propagate after best-effort
     temporary cleanup.
     """
+    path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     handle, temp_name = tempfile.mkstemp(
         prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent))
     try:
-        with os.fdopen(handle, "w", encoding="utf-8") as stream:
-            json.dump(json_safe(payload), stream, indent=2, sort_keys=True,
-                      ensure_ascii=False)
-            stream.write("\n")
+        with os.fdopen(handle, "w", encoding="utf-8",
+                       newline=newline_style) as stream:
+            json.dump(json_safe(payload) if normalize else payload, stream,
+                      indent=indent, sort_keys=sort_keys, default=default,
+                      separators=separators, ensure_ascii=ensure_ascii,
+                      allow_nan=allow_nan)
+            if newline:
+                stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
         os.replace(temp_name, path)
+        if sync_directory and os.name != "nt":
+            try:
+                descriptor = os.open(str(path.parent), os.O_RDONLY)
+            except OSError:
+                descriptor = None
+            if descriptor is not None:
+                try:
+                    os.fsync(descriptor)
+                except OSError:
+                    pass
+                finally:
+                    os.close(descriptor)
     except BaseException:
         try:
             os.unlink(temp_name)
