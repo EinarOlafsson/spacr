@@ -4984,8 +4984,11 @@ def native_histogram_geometry(widget, *, series=(), thresholds=(), xlabel="",
     top = line / 2.0 + 6.0
     available = min(max(1.0, widget.width() - left - 12.0),
                     max(1.0, widget.height() - bottom - top))
-    geometry = axes_geometry(spec, panel_height=available / widget.logicalDpiY())
-    side = geometry.height_inches * widget.logicalDpiY()
+    # The shared 40 mm panel (:func:`_physical_panel_problems`); a widget too
+    # small for it keeps the side that fits, and validation reports it.
+    dpi = widget.logicalDpiY()
+    standard = axes_geometry(spec).height_inches * dpi
+    side = min(standard, available)
     plot = QRectF(left + max(0.0, (widget.width() - left - 12.0 - side) / 2.0),
                   top, side, side)
     y = plot.bottom() + 2.0 * line + 8.0
@@ -4995,7 +4998,7 @@ def native_histogram_geometry(widget, *, series=(), thresholds=(), xlabel="",
         y += height
     return dict(plot_rect=plot, font=font, line_height=line,
                 legend_rects=rects, legend_texts=texts, entries=entries,
-                minimum_height=160.0 + bottom)
+                minimum_height=max(160.0, top + standard) + bottom)
 
 
 def paint_native_histogram(widget, painter, *, series, edges, xlabel, ylabel,

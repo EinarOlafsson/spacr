@@ -13885,6 +13885,174 @@
       "source": "Cluster {cluster} outline.",
       "source_sha256": "22d20e187a27e0db816a09cf63dbc07e24fc70bc0c78eb05874b2dadb6c4b865",
       "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4524,
+      "source": "Declare the embedding method and one-dimensional labels on non-image axes",
+      "source_sha256": "ba819a64d287b44343036f435c8e748dd4fa5e15ce9ced81c8a251e15c493d22",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4527,
+      "source": "Declare both embedding coordinate labels",
+      "source_sha256": "65b0350a8b440c23d8020b826be3baf0f6c2b98526e00712cda6ade45efa18b1",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4535,
+      "source": "Centroid labels must belong to the embedding axes",
+      "source_sha256": "16bbcb98a83b8c5326e89aa34b47927cf16e7675358178543879bd079afe8942",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4541,
+      "source": "t-distributed stochastic neighbor embedding (t-SNE) uses dimensionless embedding coordinates; cluster identities follow the supplied partition.",
+      "source_sha256": "bedfbd54c3c23444588d6aec39047d076ba2fdf0cc9c93d209c0034d6f1b7038",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4542,
+      "source": "Cluster identities follow the supplied partition.",
+      "source_sha256": "228513af5a858dd4349df3e87245ad45a3b88c34d8f621aaca1dfd504b144974",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4543,
+      "source": "Principal component analysis (PCA)",
+      "source_sha256": "2d37bcd521f0dfbe668e0048689e62989cbcbbfa37741275493800ae5301f3f3",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4544,
+      "source": "Embedding method: {method}.",
+      "source_sha256": "8669c1e1815c39712ead31c85ed8558d64e87f1332000a28f8e042845bb6327a",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4614,
+      "source": "Cluster {cluster}: {count} points.",
+      "source_sha256": "eadf2f7d4339b613d5100e6006d8f183e1873c1ed0d52ab01fdf882182170b47",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4617,
+      "source": "Cluster {cluster} outline.",
+      "source_sha256": "22d20e187a27e0db816a09cf63dbc07e24fc70bc0c78eb05874b2dadb6c4b865",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4696,
+      "source": "Legend layout requires positive widths, columns and padding",
+      "source_sha256": "8d79a998a12e081a9d2fc0886eabcd202be938525e8701b16d2f9f3bbfd1af40",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4698,
+      "source": "Below-panel legends require pack=False; placement must be right or below",
+      "source_sha256": "8e5b8a800fa2812945bbb26465e57aaa3afea5a7360ec46532fbcf16af754535",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4703,
+      "source": "Legend axes must belong to the supplied figure",
+      "source_sha256": "c822fe5768c540c105b8597b3d34757908fd064f0425e79c8048205bb5a6eaef",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4705,
+      "source": "Declare each panel before packing its physical geometry",
+      "source_sha256": "c4b381667eaa778269386552235e16c67ff01993d96e8e99bda2a508d87948d9",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4765,
+      "source": "Legend text cannot fit the declared canvas width at its required font size",
+      "source_sha256": "e3cf9775e4f793370847ef43e1fd77607238473c4b3b19aee11d099b96b83bdc",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4773,
+      "source": "Legend text cannot fit the declared canvas width at its required font size",
+      "source_sha256": "e3cf9775e4f793370847ef43e1fd77607238473c4b3b19aee11d099b96b83bdc",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 4797,
+      "source": "Panel content cannot fit the declared canvas width without changing its physical size",
+      "source_sha256": "1ebc74a8e62aea10d40cc3ba100f2b63aff5017d71e55f11b4704c861f3cebd1",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 5024,
+      "source": "Native histogram transform must be linear or sqrt",
+      "source_sha256": "31d066249e9337fb6bbfd10ac6e5b26c16f220d498bf0049b4f782c78c46c03c",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 5031,
+      "source": "Native histogram requires finite ordered edges and nonnegative bin counts",
+      "source_sha256": "fc3e2dfcbcd36d4613c6f90380cf2e663d11f6c1215bd99bdf12495a700c4c18",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 5034,
+      "source": "Native histogram thresholds must be finite",
+      "source_sha256": "0f04141260ba204ff7bf69b52f584e2edfbb77e932b2e43477fbfb11cf899428",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 5323,
+      "source": "Identity contrast border width must be positive and finite",
+      "source_sha256": "2afb252228a176826bd5109fd42649ab6a31abd3f8a02e0a05b018cfecc31aa2",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
+    },
+    {
+      "kind": "runtime",
+      "file": "spacr/figures/style.py",
+      "line": 5380,
+      "source": "Declare one reference coordinate and its explicit role",
+      "source_sha256": "88074bd16f3f528150caeb63a99291b849545597029cbe14bfb5c0e3cecf1d28",
+      "admission": "Normal runtime collector: explicit shared/replay owner or normal Qt source; literal translation template."
     }
   ],
   "bundle_replay_runtime": [
