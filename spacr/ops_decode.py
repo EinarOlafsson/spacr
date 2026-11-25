@@ -2868,8 +2868,6 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
     jobs = [(path, rule, library, decoys, crosstalk) for path in paths]
     workers = max(1, min(int(workers), len(jobs)))
     if workers > 1:
-        # The shared worker guard, as every pool site: each worker holds one
-        # field cache, so fewer start when free RAM holds fewer.
         from .resource_log import _array_file_nbytes, _guard_workers
 
         workers = max(1, int(_guard_workers(

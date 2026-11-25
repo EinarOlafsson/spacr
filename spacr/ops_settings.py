@@ -1442,13 +1442,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_nucleus_fragment_max_area_rel",
         "ops_ph_cellless_nuclei",
         "ops_ph_cellless_nucleus_max_distance_px",
-        # The masks as segmentation made them, before this pairing.
         "ops_store_raw_masks",
     ],
     "Phenotype acquisitions": [
-        # ops_ph_sites (which fields run) moved here from "Phenotype
-        # segmentation" when item 1039 added ops_ph_nucleus_downsample
-        # (the 20-row cap of item 969).
         "ops_ph_sites",
         "ops_ph_acquisitions", "ops_ph_use_acquisition",
         "ops_ph_secondary_channels", "ops_ph_secondary_registration",

@@ -7285,10 +7285,6 @@ def build_cellpose_model(model_name, *, settings=None, key=None, object_type=Non
     library_call = library_default and pretrained == CPSAM_MODEL
     if stock_weights and pretrained == CPSAM_MODEL:
         pretrained = cpsam_weights(stock_weights)
-        # Both pins load by their verified full path. Cellpose 4.2 made cpsam_v2
-        # its own default, so the old no-argument call for cpsam_v1 loads the
-        # wrong file there (and is refused below); by path, v1 masks are
-        # byte-identical to the 4.0.9 library call (975 validation, 2026-11-25).
         library_call = False
 
     def construct():

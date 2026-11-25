@@ -2233,7 +2233,6 @@ def _cellpose_provenance(settings: Mapping[str, Any], key: str) -> Dict[str, Any
     try:
         source = _resolve_cellpose_source(name, settings=settings, key=key)
     except (ModelZooError, ModelUnreadable) as error:
-        # the model build refuses the same name; the record says why
         record.update(path=None, md5=None, unverified=str(error))
         return record
     if source == CPSAM_MODEL:
@@ -2242,8 +2241,6 @@ def _cellpose_provenance(settings: Mapping[str, Any], key: str) -> Dict[str, Any
         try:
             path = cpsam_weights(weights)
         except ModelUnreadable as error:
-            # building the model refuses the same file; the record says why
-            # there is no path rather than stopping a run that builds none
             record.update(path=None, md5=None, unverified=str(error))
             return record
     else:
@@ -12010,7 +12007,6 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                 continue
         cell_path = _ph_cells_path(destination, well)
         if os.path.isfile(cell_path):
-            # the same guard ph_tables applies, before any skip
             _ph_require_cross_field_table(destination, well, settings)
         mask_dir = os.path.join(destination, well, "phenotype_masks")
         files = (phenotype_index.get(well) or {})
