@@ -101,7 +101,8 @@ def test_wait_for_ram_gives_up_after_the_limit(monkeypatch):
     """A card of RAM that never frees does not block the run for ever."""
     monkeypatch.setattr(MB, '_RAM_WAIT_SECONDS', 3.0)
     slept = []
-    waited = MB._wait_for_ram(10 * 2**30, available=lambda: 0, sleep=slept.append)
+    waited = MB._wait_for_ram(10 * 2**30, available=lambda: 0, sleep=slept.append,
+                              limit=lambda: (64 * 2**30, 'host'))
     assert waited == 3.0 and len(slept) == 3
 
 

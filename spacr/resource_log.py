@@ -1096,6 +1096,30 @@ def _ram_reserve_bytes(total_bytes: int) -> int:
     return int(total_bytes * _RAM_RESERVE_FRACTION)
 
 
+#: The free-RAM margin a batch loader keeps: this many bytes at most ...
+_RAM_MARGIN_CAP_BYTES = 2 * 1024 ** 3
+#: ... and never more than this share of the RAM limit it runs under (item 1038).
+_RAM_MARGIN_FRACTION = 0.10
+
+
+def _free_ram_margin_bytes(limit_bytes: Optional[int]) -> int:
+    """Bytes a loader leaves free beyond its estimate before it builds the next batch.
+
+    The margin is ``min(2 GiB, 10 % of limit_bytes)``. A fixed 2 GiB margin
+    cannot be met under a small RAM limit (a job declared at 2 GB to sched
+    never has 2 GiB free inside its own scope), so the margin shrinks with
+    the limit; on any machine or job with 20 GiB or more it stays 2 GiB.
+
+    :param limit_bytes: the RAM limit the process runs under: its cgroup
+        limit or sched declaration, or the total RAM of the host when it has
+        no limit. ``None`` or not positive keeps the 2 GiB cap.
+    :returns: the margin in bytes.
+    """
+    if not limit_bytes or limit_bytes <= 0:
+        return _RAM_MARGIN_CAP_BYTES
+    return int(min(_RAM_MARGIN_CAP_BYTES, _RAM_MARGIN_FRACTION * limit_bytes))
+
+
 def _max_safe_workers(available_bytes: int, total_bytes: int,
                       per_worker_bytes: int) -> Optional[int]:
     """How many workers fit in available RAM while keeping the reserve free.
