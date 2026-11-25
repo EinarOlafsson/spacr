@@ -134,6 +134,7 @@ def test_ph_fields_report_the_weights_and_the_flat_field_md5(tmp_path, weights, 
                             mode="r")
     assert json.loads(json.dumps(dict(store.attrs["spacr"]))) == {
         "cellpose_models": block["cellpose_models"],
+        "software": block["software"],
         "segment_flatfield_md5": block["segment_flatfield_md5"]}
 
 
@@ -154,6 +155,7 @@ def test_run_ops_writes_provenance_to_ops_report_json(tmp_path, weights, thresho
     assert saved["cellpose_models"]["ph_cells"]["path"] == weights["v2"]
     assert saved["cellpose_models"]["ph_cells"]["md5"] == hashlib.md5(V2).hexdigest()
     assert set(saved["segment_flatfield_md5"]) == {"DAPI", "AF750"}
+    assert saved["software"] == ops_engine._software_versions()
     assert "sbs_nuclei" not in saved["cellpose_models"]
 
 
@@ -169,11 +171,13 @@ def test_well_provenance_keeps_what_an_earlier_phase_recorded(weights):
 def test_sbs_raw_mask_store_carries_the_weights(tmp_path, weights):
     """The SBS raw window store's root attributes hold the SBS weights."""
     zarr = pytest.importorskip("zarr")
-    attrs = {"cellpose_models": ops_engine._run_provenance({}, ("objects",))}
+    attrs = {"cellpose_models": ops_engine._run_provenance({}, ("objects",)),
+             "software": ops_engine._software_versions()}
     writer = ops_engine._objects_raw_writer(str(tmp_path / "measurements.db"), PLATE, attrs)
     stored = zarr.open_group(str(writer.path), mode="r").attrs["spacr"]
     assert stored["cellpose_models"]["sbs_nuclei"]["path"] == weights["v2"]
     assert stored["cellpose_models"]["sbs_nuclei"]["md5"] == hashlib.md5(V2).hexdigest()
+    assert stored["software"]["cellpose"]
 
 
 def test_an_unresolvable_model_name_is_recorded_as_unverified(weights):
@@ -182,3 +186,50 @@ def test_an_unresolvable_model_name_is_recorded_as_unverified(weights):
                                              "ops_ph_cell_model")
     assert record["path"] is None and record["md5"] is None
     assert "no-such-model" in record["unverified"]
+
+
+def test_software_versions_are_the_installed_ones():
+    """spacr, cellpose and torch versions come from the packages themselves."""
+    from importlib import metadata
+
+    import torch
+
+    import spacr
+
+    found = ops_engine._software_versions()
+    assert found["spacr"] == spacr.__version__
+    assert found["cellpose"] == metadata.version("cellpose")
+    assert found["torch"] == torch.__version__
+    assert found["torch_cuda"] == (torch.version.cuda or None)
+    cudnn = torch.backends.cudnn.version() if torch.backends.cudnn.is_available() else None
+    assert found["cudnn"] == (None if cudnn is None else str(cudnn))
+
+
+def test_software_versions_are_read_once_per_run(monkeypatch):
+    """Many wells and stores share one read of the metadata."""
+    from importlib import metadata
+
+    ops_engine._software_versions.cache_clear()
+    reads = []
+    real = metadata.version
+    monkeypatch.setattr(metadata, "version", lambda name: (reads.append(name), real(name))[1])
+    first = ops_engine._software_versions()
+    for _ in range(5):
+        assert ops_engine._well_provenance({}, ("stitch",), {})["software"] == first
+    assert reads == ["cellpose"]
+    ops_engine._software_versions.cache_clear()
+
+
+def test_missing_packages_give_none_not_an_error(monkeypatch):
+    """A cellpose that is not installed is recorded as None."""
+    from importlib import metadata
+
+    def absent(name):
+        raise metadata.PackageNotFoundError(name)
+
+    ops_engine._software_versions.cache_clear()
+    monkeypatch.setattr(metadata, "version", absent)
+    try:
+        assert ops_engine._software_versions()["cellpose"] is None
+    finally:
+        ops_engine._software_versions.cache_clear()

@@ -2259,6 +2259,40 @@ def _cellpose_provenance(settings: Mapping[str, Any], key: str) -> Dict[str, Any
     return record
 
 
+@functools.lru_cache(maxsize=1)
+def _software_versions() -> Dict[str, Optional[str]]:
+    """The versions a run segments with, read once per process (item 975).
+
+    :returns: ``spacr``, ``cellpose``, ``torch``, ``torch_cuda`` and
+        ``cudnn``; None for one that is not installed or not built with CUDA.
+    """
+    from importlib import metadata
+
+    from . import __version__
+
+    def installed(name):
+        """The version of an installed distribution, or None."""
+        try:
+            return metadata.version(name)
+        except metadata.PackageNotFoundError:
+            return None
+
+    out: Dict[str, Optional[str]] = {"spacr": str(__version__),
+                                     "cellpose": installed("cellpose"),
+                                     "torch": None, "torch_cuda": None, "cudnn": None}
+    try:
+        import torch
+
+        out["torch"] = str(torch.__version__)
+        out["torch_cuda"] = (str(torch.version.cuda)
+                             if getattr(torch.version, "cuda", None) else None)
+        cudnn = torch.backends.cudnn.version() if torch.backends.cudnn.is_available() else None
+        out["cudnn"] = None if cudnn is None else str(cudnn)
+    except Exception:
+        pass
+    return out
+
+
 def _run_provenance(settings: Mapping[str, Any],
                     phases: Sequence[str]) -> Dict[str, Dict[str, Any]]:
     """The Cellpose weights of every segmentation role the phases run (item 975).
@@ -2943,7 +2977,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     basis = (_objects_window_basis(settings, blend, extra, canvas, shape)
              if folder else None)
     raw_writer = (_objects_raw_writer(
-        db, plate, {"cellpose_models": _run_provenance(settings, ("objects",))})
+        db, plate, {"cellpose_models": _run_provenance(settings, ("objects",)),
+         "software": _software_versions()})
                   if ops_setting(settings, "ops_store_raw_masks") else None)
     kept = Counter()
     seconds = Counter()
@@ -7104,6 +7139,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     mask_writer = None
     segment_flat = _ph_segment_flat(settings, destination, channels) if segment else None
     provenance = ({"cellpose_models": _run_provenance(settings, ("ph_segment",)),
+                   "software": _software_versions(),
                    "segment_flatfield_md5": (None if segment_flat is None
                                              else segment_flat["md5"])}
                   if segment else None)
@@ -14734,7 +14770,7 @@ def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
     :param report: the well's report; the phenotype fields' own record of
         the weights and the flat-field map they segmented on
         (``ph_fields.provenance``) is lifted from it.
-    :returns: ``cellpose_models`` (role to path, md5, model name) and
+    :returns: ``software`` (:func:`_software_versions`), ``cellpose_models`` (role to path, md5, model name) and
         ``segment_flatfield_md5`` (channel to md5, or None when the fields
         were segmented on raw pixels). A phase this run did not run leaves
         what an earlier run of the well recorded.
@@ -14747,6 +14783,7 @@ def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
         block["segment_flatfield_md5"] = fields["segment_flatfield_md5"]
     models.update(_run_provenance(settings, [p for p in phases if p != "ph_segment"]))
     block["cellpose_models"] = models
+    block["software"] = _software_versions()
     return block
 
 
