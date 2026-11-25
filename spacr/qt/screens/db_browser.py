@@ -136,7 +136,6 @@ from PySide6.QtWidgets import (
     QStyle,
     QTableView,
     QTableWidget,
-    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -160,7 +159,7 @@ from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.measurements_example import (
     EXAMPLE_TABLE, install_test_data_button,
 )
-from ..widgets.sortable_table import _reuse_list_items
+from ..widgets.sortable_table import _reuse_list_items, install_sorting, table_item
 from ..widgets.toggle import Toggle
 from .app_screen import ModuleHeader
 
@@ -2840,7 +2839,6 @@ class _MergeDialog(QDialog):
         """Lay out the projects, the way to merge, the preview and saving."""
         super().__init__(screen)
         self._screen = screen
-        self._paths: List[str] = []
         self._preview: Optional[pd.DataFrame] = None
         self._previewed: Optional[tuple] = None
         self.last_result: Optional[Dict[str, Any]] = None
@@ -2871,6 +2869,7 @@ class _MergeDialog(QDialog):
         self._sources.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._sources.setMaximumHeight(150)
         self._sources.itemChanged.connect(self._on_settings_changed)
+        install_sorting(self._sources)
         outer.addWidget(self._sources)
 
         source_row = QHBoxLayout()
@@ -2999,9 +2998,9 @@ class _MergeDialog(QDialog):
             self._say(tr("{path} is already in the merge.", path=located),
                       error=True)
             return False
-        before = source_labels(self._paths) if self._paths else ()
-        self._paths.append(located)
-        defaults = source_labels(self._paths)
+        current = self._paths
+        before = source_labels(current) if current else ()
+        defaults = source_labels(current + [located])
         self._sources.blockSignals(True)
         for index, old in enumerate(before):
             item = self._sources.item(index, 0)
@@ -3009,8 +3008,8 @@ class _MergeDialog(QDialog):
                 item.setText(defaults[index])
         row = self._sources.rowCount()
         self._sources.insertRow(row)
-        self._sources.setItem(row, 0, QTableWidgetItem(label or defaults[-1]))
-        place = QTableWidgetItem(located)
+        self._sources.setItem(row, 0, table_item(label or defaults[-1]))
+        place = table_item(located)
         place.setFlags(place.flags() & ~Qt.ItemIsEditable)
         place.setToolTip(located)
         self._sources.setItem(row, 1, place)
@@ -3018,6 +3017,19 @@ class _MergeDialog(QDialog):
         self._refresh_tables()
         self._say(tr("{count} project(s) in the merge.", count=len(self._paths)))
         return True
+
+    @property
+    def _paths(self) -> List[str]:
+        """The projects in the merge, in the order the table shows them.
+
+        Read from the rows, so a header sort reorders the projects and their
+        labels together.
+        """
+        table = getattr(self, "_sources", None)
+        if table is None:
+            return []
+        items = (table.item(row, 1) for row in range(table.rowCount()))
+        return [item.text() for item in items if item is not None]
 
     def set_label(self, row: int, label: str) -> None:
         """Set the label of the project in ``row``.
@@ -3139,7 +3151,6 @@ class _MergeDialog(QDialog):
                       reverse=True)
         for row in rows:
             self._sources.removeRow(row)
-            del self._paths[row]
         self._refresh_tables()
 
     def _tables_of(self, path: str) -> List[str]:
