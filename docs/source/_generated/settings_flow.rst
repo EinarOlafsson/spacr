@@ -43791,7 +43791,7 @@ Read by ``_stitch``, ``ops_defaults``.
 ops_storage
 -----------
 
-'current' writes the usual OPS outputs; ph_tables always writes the cell, nucleus and cytoplasm tables to the run's spaCR store in measurements/. 'spacr_store' also adds the reads and barcodes tables there and each cell's raw crop in a Zarr store per well, with the crop pointer on the cell table. spacr.store.open reads the store through its catalog spacr.duckdb. Default 'current'. Alpha.
+Where the OPS run keeps its tables: 'spacr_store', the run's spaCR store in measurements/, the only choice. Every OPS table goes there (geometry, phenotype, objects, reads, barcodes, merge, cell_cycle) beside the cell, nucleus and cytoplasm tables, and each cell's raw crop in a Zarr store per well, with the crop pointer on the cell table. spacr.store.open reads the store through its catalog spacr.duckdb; it also reads an older run's measurements.db. An older settings file's 'current' runs as 'spacr_store'. Default 'spacr_store'. Alpha.
 
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
