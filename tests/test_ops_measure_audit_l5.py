@@ -76,7 +76,7 @@ def test_a_repeated_link_cannot_shift_the_keys(tmp_path):
     links["object_id"] = np.arange(len(links))
     links = pd.concat([links, links.iloc[:1]], ignore_index=True)
     owned = np.ones(len(cells), bool)
-    with pytest.raises(pd.errors.MergeError):
+    with pytest.raises(ValueError, match="more than once"):
         ops_engine._ph_table_frames(PLATE, "A1", cells, links, None, owned,
                                     "rule")
     keys, features = ops_engine._ph_table_frames(
@@ -310,3 +310,16 @@ def test_a_cell_linked_twice_is_refused_where_links_are_read(tmp_path):
                              {**SETTINGS, "dst_root": str(run)}, str(run))
     assert ops_engine._ph_one_link_per_cell(links) is links
     assert ops_engine._ph_one_link_per_cell(None) is None
+
+
+def test_link_genotypes_refuses_one_cell_repeated_across_links(tmp_path):
+    """R3b2: links whose every row is label 1 of one field name one cell many times."""
+    run, _cells = _build(tmp_path)
+    db = str(run / "measurements.db")
+    links = pd.DataFrame({"plate": PLATE, "well": "A1", "site": 3, "label": 1,
+                          "object_id": np.arange(1, 6, dtype=np.int64)})
+    with pytest.raises(ValueError, match="more than once"):
+        ops_engine._ph_link_genotypes(db, PLATE, ["A1"], links, SETTINGS)
+    with pytest.raises(ValueError, match="more than once"):
+        ops_engine._ph_table_frames(PLATE, "A1", _cells, links, None,
+                                    np.ones(len(_cells), bool), "x")

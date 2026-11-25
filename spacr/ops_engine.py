@@ -8530,6 +8530,7 @@ def _ph_link_genotypes(db: str, plate: str, wells: Sequence[str], links,
         when no aggregate cell table of the run is there, so the gene
         column of the phenotype keys is filled either way.
     """
+    links = _ph_one_link_per_cell(links)
     design_path = settings.get("ops_design")
     if not design_path or not os.path.isfile(str(design_path)):
         return None
@@ -10245,6 +10246,7 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
         :func:`spacr.ops_run_infra.integer_cell_key` (item 872, B17).
     :returns: ``(keys, {compartment: features})``, row-aligned.
     """
+    links = _ph_one_link_per_cell(links)
     import pandas as pd
 
     from . import schema
@@ -10494,6 +10496,7 @@ def _ph_stream_well(plate: str, well: str, destination: str,
         and ``cut_at_field_edge`` (:func:`_ph_owned_cells`), ``source``
         (``"fields"`` or ``"well_table"``), ``dtypes`` and ``promoted``.
     """
+    links = _ph_one_link_per_cell(links)
     import pyarrow as pa
     import pyarrow.parquet as pq
 
@@ -12313,6 +12316,7 @@ def _ops_store_wells(db: str, plate: str, wells: Sequence[str],
 
     :returns: ``well -> {table: rows}``.
     """
+    links = _ph_one_link_per_cell(links)
     import pandas as pd
 
     from . import schema, store
