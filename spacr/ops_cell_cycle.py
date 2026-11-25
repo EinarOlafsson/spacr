@@ -1145,8 +1145,10 @@ def final_stages(stages: pd.DataFrame, dna: pd.DataFrame, failed: Sequence[str]
             prob[i] = p["interphase"][i]
     out = pd.DataFrame({"cell_cycle_stage": final, "cell_cycle_probability": prob,
                         "cell_cycle_flag": flag}, index=stages.index)
+    from .ops_tvn import dna_posterior_column
+
     for ph in PHASES:
-        out[f"dna_phase_posterior_{ph}"] = post[ph]
+        out[dna_posterior_column(ph)] = post[ph]
     return out
 
 
