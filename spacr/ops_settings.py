@@ -230,6 +230,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cross_field_min_overlap": 0.5,
     "ops_cross_field_policy": 'owner_only',
     "ops_cross_field_rule": 'nearest_centre',
+    "ops_cross_field_owner_centroid": 'linked',
     "ops_cross_field_radius_px": 24.0,
     "ops_reference_counts": None,
     "ops_reference_counts_level": 'sbs',
@@ -852,6 +853,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cross_field_min_overlap": (float, int),
     "ops_cross_field_policy": str,
     "ops_cross_field_rule": str,
+    "ops_cross_field_owner_centroid": str,
     "ops_cross_field_radius_px": (float, int),
     "ops_reference_counts": (str, type(None)),
     "ops_reference_counts_level": str,
@@ -1478,7 +1480,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Cell ownership": [
         "ops_ownership", "ops_cross_field_ownership", "ops_cross_field_metric",
         "ops_cross_field_min_overlap", "ops_cross_field_policy",
-        "ops_cross_field_rule", "ops_cross_field_radius_px",
+        "ops_cross_field_rule", "ops_cross_field_owner_centroid",
+        "ops_cross_field_radius_px",
         "ops_drop_failed_fields",
     ],
     "Yield report": [
@@ -3536,6 +3539,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "'largest', the largest copy, whole or cut, is deprecated and "
         "reproduces runs made before settings schema 963. Default "
         "'nearest_centre'. Alpha.",
+    "ops_cross_field_owner_centroid":
+        "(str) - Decides which field owns a cell seen in two or more "
+        "fields, for 'nearest_centre'. 'linked': one centroid per cell, the "
+        "mean of its whole copies, and the owner is the field whose centre "
+        "is nearest it; if that field has no whole copy, the nearest field "
+        "that has one owns the cell. 'per_copy': each copy's centroid is "
+        "compared with its own field centre, so a few pixels of "
+        "registration error can pick a farther field; it reproduces runs "
+        "made before settings schema 970. Default 'linked'. Alpha.",
     "ops_cross_field_policy":
         "(str) - What the aggregate does with the copies: 'owner_only' "
         "keeps the owner copy of each cell and nothing else; 'one_per_cell' "

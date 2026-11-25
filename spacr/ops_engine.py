@@ -11568,7 +11568,8 @@ def _ph_pair_edges(label_a, label_b, inter, area_a, area_b, *,
 def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
                            metric: str, min_overlap: float = 0.5,
                            rule: str = "nearest_centre",
-                           radius: float = 24.0, load=None, log=None):
+                           radius: float = 24.0, load=None, log=None,
+                           centroid: str = "linked"):
     """Cross-field ownership over a set of fields.
 
     :param fields: ``{site: record}``; each record holds ``"transform"``,
@@ -11589,6 +11590,8 @@ def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
     :param load: ``load(site)`` returns a label image not held in
         ``fields``; at most :data:`_PH_CROSS_FIELD_CACHE` are kept.
     :param log: called with a progress line every 250 field pairs.
+    :param centroid: the centroid the ``'nearest_centre'`` rule measures
+        from (:data:`spacr.ops_merge._FIELD_OWNER_CENTROIDS`).
     :returns: ``(cells, edges, pairs)``: the table of
         :func:`spacr.ops_merge._assign_field_owners`, the edges
         (``site_a, site_b, label_a, label_b`` and ``inter, score`` or
@@ -11669,18 +11672,19 @@ def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
         edges["score"] = edges["score"].astype(float)
     centres = {s: _field_centre(fields[s]["transform"], fields[s]["shape"])
                for s in sites}
-    owned = _assign_field_owners(cells, edges, rule=rule, centres=centres)
+    owned = _assign_field_owners(cells, edges, rule=rule, centres=centres,
+                                 centroid=centroid)
     return owned, edges, len(pairs)
 
 
 def _ph_cross_field_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """The checked ``ops_cross_field_*`` settings of a ph_ownership pass.
 
-    :returns: ``metric``, ``min_overlap``, ``rule``, ``radius`` and
-        ``policy``.
+    :returns: ``metric``, ``min_overlap``, ``rule``, ``centroid``,
+        ``radius`` and ``policy``.
     :raises ValueError: naming the setting that is out of range.
     """
-    from .ops_merge import _field_owner_rule
+    from .ops_merge import _field_owner_centroid, _field_owner_rule
     from .qt.i18n import tr
 
     metric = str(settings.get("ops_cross_field_metric")
@@ -11704,6 +11708,8 @@ def _ph_cross_field_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
             value=radius))
     return {"metric": metric, "min_overlap": min_overlap, "radius": radius,
             "rule": _field_owner_rule(settings.get("ops_cross_field_rule")),
+            "centroid": _field_owner_centroid(
+                settings.get("ops_cross_field_owner_centroid")),
             "policy": _ph_cross_field_policy(settings)}
 
 
@@ -11733,14 +11739,20 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
     copies are one physical cell, and
     :func:`spacr.ops_merge._assign_field_owners` names its owner:
     with ``'nearest_centre'`` the field whose centre is nearest the cell
-    centroid among the fields that hold it whole. A field transform is the
-    re-solved one when the merge refined it.
+    centroid among the fields that hold it whole. With
+    ``ops_cross_field_owner_centroid`` ``'linked'`` (the default) the cell
+    centroid is one point, the mean of its whole copies, measured to every
+    field centre (:func:`spacr.ops_merge._nearest_centre_keys`); with
+    ``'per_copy'`` (before settings schema 970) each copy's own centroid is
+    measured to its own field. A field transform is the re-solved one when
+    the merge refined it.
 
     Writes ``ops_cross_field_<well>.parquet`` (``plate``, ``well``,
     ``site``, ``label``, ``area`` = ``cell_px``, ``touches_field_edge``,
     ``component``, ``n_copies``, ``owner_field``, ``owner_label``,
     ``is_owner``, ``owned_area_share``, ``well_y``, ``well_x``,
-    ``centre_distance_px``, ``owner_rule``) and
+    ``centre_distance_px``, ``owner_rule``, and with the ``'linked'``
+    centroid ``nearest_field``) and
     ``ops_cross_field_edges_<well>.parquet``. Only sites with mask-pass
     rows and a placement take part, and with a mask metric a label image.
     """
@@ -11831,7 +11843,8 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
 
     cells, edges, pairs = _ph_cross_field_fields(
         fields, metric=options["metric"], min_overlap=options["min_overlap"],
-        rule=options["rule"], radius=options["radius"], load=load, log=log)
+        rule=options["rule"], radius=options["radius"], load=load, log=log,
+        centroid=options["centroid"])
     edge = passed.set_index(["site", "label"])["touches_field_edge"]
     cells["touches_field_edge"] = np.array(
         [False if pd.isna(v) else bool(v) for v in edge.reindex(
@@ -11841,10 +11854,13 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
             cells[column] = np.nan
     cells["owner_rule"] = options["rule"]
     refused = int(cells.attrs.get("refused_edges", 0))
-    cells = cells[["site", "label", "area", "touches_field_edge", "component",
-                   "n_copies", "owner_field", "owner_label", "is_owner",
-                   "owned_area_share", "well_y", "well_x",
-                   "centre_distance_px", "owner_rule"]]
+    columns = ["site", "label", "area", "touches_field_edge", "component",
+               "n_copies", "owner_field", "owner_label", "is_owner",
+               "owned_area_share", "well_y", "well_x", "centre_distance_px",
+               "owner_rule"]
+    if "nearest_field" in cells:
+        columns.append("nearest_field")
+    cells = cells[columns]
     cells.insert(0, "well", well)
     cells.insert(0, "plate", plate)
     write_table(cells, _ph_cross_field_path(destination, well),
@@ -11854,6 +11870,7 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
     physical, owned, unowned = _owner_counts(cells)
     report = {
         "metric": options["metric"], "rule": options["rule"],
+        "owner_centroid": options["centroid"],
         "min_overlap": options["min_overlap"], "radius_px": options["radius"],
         "policy": options["policy"],
         "fields": len(fields), "field_pairs": pairs, "edges": int(len(edges)),
@@ -11861,6 +11878,10 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
         "owned_cells": owned, "cells_without_owner": unowned,
         "cells_with_copies": int((cells["n_copies"] > 1).sum()),
         "non_owner_copies": int((~cells["is_owner"]).sum()),
+        "cells_owned_by_a_farther_field": (int(cells.loc[
+            cells["is_owner"]
+            & (cells["owner_field"] != cells["nearest_field"])].shape[0])
+            if "nearest_field" in cells else None),
         "edges_refused_two_copies_in_one_field": refused,
         "components_with_two_copies_in_one_field": int(cells.loc[
             cells.duplicated(["component", "site"]), "component"].nunique()),
