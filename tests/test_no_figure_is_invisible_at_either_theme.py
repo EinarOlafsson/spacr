@@ -151,20 +151,17 @@ def test_every_exception_still_exists(name):
 
 class TestTheTwoFaultsThisFound:
 
-    def test_a_verdict_box_follows_the_theme(self, monkeypatch):
+    def test_a_verdict_box_follows_the_theme(self):
         """It was white while its text is the theme ink -- which on the dark
         theme IS white. The verdict was drawn, was there, unreadable.
 
         Graphstyle G1 (L5) draws black ink on a white page for screen and
-        print alike, so the box now follows the ink rather than the target:
-        a light ink still gets a dark box."""
-        from spacr.figures import style
+        print alike, so the box is the figure page on both targets, not a
+        dark box on screen."""
+        from spacr.figures.style import GENERAL_DEFAULTS, resolve_label_ground
 
-        for chosen, ground in (("#E8EDEE", style.LABEL_GROUND_SCREEN),
-                               ("#000000", style.LABEL_GROUND_PRINT)):
-            monkeypatch.setattr(style, "chosen_ink", lambda chosen=chosen: chosen)
-            for target in ("screen", "print"):
-                assert style.resolve_label_ground(target) == ground, (chosen, target)
+        for target in ("screen", "print"):
+            assert resolve_label_ground(target) == GENERAL_DEFAULTS["background"]
 
     def test_the_label_ground_is_the_inks_opposite_number(self):
         from spacr.figures.style import resolve_ink, resolve_label_ground
