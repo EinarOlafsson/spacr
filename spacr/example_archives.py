@@ -60,6 +60,8 @@ __all__ = [
     "OPS_E2E_EXAMPLE_REPO",
     "OPS_E2E_FULL_ARCHIVE",
     "OPS_E2E_FULL_FOLDER",
+    "OPS_E2E_REGIONS_ARCHIVE",
+    "OPS_E2E_REGIONS_FOLDER",
     "OPS_E2E_REFERENCE_ARCHIVES",
     "OPS_E2E_REVISION",
     "OPS_EXAMPLE_REPO",
@@ -162,6 +164,16 @@ OPS_E2E_FULL_ARCHIVE = "ops_testdata_funk2022_A1_full.tar"
 
 #: Where the full tier unpacks, beside the core tier's ``ops_e2e`` folder.
 OPS_E2E_FULL_FOLDER = "ops_e2e_full"
+
+#: The regions tier of :data:`OPS_E2E_EXAMPLE_REPO` (revision 4, item 0at):
+#: three 2 x 2 blocks of well A1, the full tier's block and two more, each
+#: with every phenotype field lying on it and its own references under
+#: ``reference/regions/``. Opt-in, about 6 GB, published in the repository's
+#: ``regions`` folder; the other tiers are unchanged.
+OPS_E2E_REGIONS_ARCHIVE = "regions/ops_testdata_funk2022_A1_regions.tar"
+
+#: Where the regions tier unpacks, beside the core tier's ``ops_e2e`` folder.
+OPS_E2E_REGIONS_FOLDER = "ops_e2e_regions"
 
 #: The phenotype and merge references of each tier, keyed by tier. Each
 #: unpacks over its tier's folder and adds or replaces paths under
@@ -302,6 +314,7 @@ EXAMPLE_OPT_IN_ARCHIVES: Dict[str, str] = {
     "ops_testdata_funk2022_A1_rev2_core.tar": OPS_E2E_EXAMPLE_REPO,
     "ops_testdata_funk2022_A1_rev2_full.tar": OPS_E2E_EXAMPLE_REPO,
     "ops_testdata_funk2022_A1_rev3_core.tar": OPS_E2E_EXAMPLE_REPO,
+    OPS_E2E_REGIONS_ARCHIVE: OPS_E2E_EXAMPLE_REPO,
 }
 
 #: The SHA-256 each pinned archive must have, keyed by archive name.
@@ -321,6 +334,7 @@ EXAMPLE_ARCHIVE_SHA256: Dict[str, str] = {
     "ops_testdata_funk2022_A1_rev2_full.tar": "2bb52bdb85a5e3441e863bc4050327c900af5b02570f8b77a6fb89dcc2c8ef58",
     "ops_testdata_funk2022_A1_rev3_core.tar": "36d159e88b05f8e77a34e6aa347c41e7219b4a0386ed3f787e7ea24edbcb1c6b",
     "ops_testdata_funk2022_A1_profiles.tar": "42a29cc33211f6e37b3b0980eb6164551438c40932c025311162e5bf0541beef",
+    OPS_E2E_REGIONS_ARCHIVE: "0af70e297b754b54e9b8a9010bcf0c598f9c2dc99594b17616ef4e9cdf2ed821",
 }
 
 
@@ -332,6 +346,7 @@ EXAMPLE_ARCHIVE_REVISIONS: Dict[str, str] = {
     "ops_testdata_funk2022_A1_rev2_full.tar": OPS_E2E_REVISION,
     "ops_testdata_funk2022_A1_rev3_core.tar": "d05cae1344b7ca237867b9a010e834f5d4358bcb",
     "ops_testdata_funk2022_A1_profiles.tar": "8cbaab5c7a68f14ee46a7996d054246541c88705",
+    "ops_testdata_funk2022_A1_regions.tar": "5cba0b26939136d5d5476f552217d00420914f9e",
 }
 
 

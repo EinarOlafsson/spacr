@@ -816,10 +816,10 @@ class _ChosenArchivesWorker(_TarExampleWorker):
         import requests
         import tempfile
 
-        revision = EXAMPLE_ARCHIVE_REVISIONS.get(archive, 'main')
+        revision = EXAMPLE_ARCHIVE_REVISIONS.get(Path(archive).name, 'main')
         url = (f"https://huggingface.co/datasets/{self.repo}/resolve/{revision}/"
                f"{archive}?download=true")
-        target = self._dest / archive
+        target = self._dest / Path(archive).name
         self._dest.mkdir(parents=True, exist_ok=True)
         response = requests.get(url, stream=True, timeout=30)
         response.raise_for_status()
