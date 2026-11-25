@@ -398,6 +398,30 @@ def _mitotic_indicator(cells: pd.DataFrame) -> np.ndarray:
     return pd.to_numeric(cells["mitotic"], errors="coerce").to_numpy(np.float64)
 
 
+#: The DNA-fit posterior columns of the cell-cycle phase: the one name list its writer
+#: (:func:`spacr.ops_cell_cycle.final_stages`) and the nuisance reader share. The second name
+#: of each is an alias that older outputs used and is accepted on read.
+DNA_POSTERIOR_COLUMNS: Dict[str, Tuple[str, ...]] = {
+    "G1": ("dna_phase_posterior_G1", "posterior_G1"),
+    "S": ("dna_phase_posterior_S", "posterior_S"),
+    "G2": ("dna_phase_posterior_G2", "posterior_G2")}
+
+
+def dna_posterior_column(phase: str, columns: Optional[Sequence[str]] = None) -> Optional[str]:
+    """The cell-table column of one phase's DNA-fit posterior.
+
+    :param phase: ``'G1'``, ``'S'`` or ``'G2'``.
+    :param columns: the columns of a cell table; with None the name to write is returned.
+    :returns: the name to write, or with ``columns`` the first of the name and its alias that
+        the table has, None when it has neither.
+    """
+    names = DNA_POSTERIOR_COLUMNS[phase]
+    if columns is None:
+        return names[0]
+    have = set(columns)
+    return next((n for n in names if n in have), None)
+
+
 def nuisance_kinds(value: Any) -> Tuple[str, ...]:
     """The checked nuisance sources of ``ops_profile_nuisance``, in canonical order.
 
@@ -428,7 +452,7 @@ def nuisance_source_columns(cells_columns: Sequence[str], kinds: Sequence[str]) 
     for kind in kinds:
         if kind in ("cell_cycle", "stage_probs", "dna_content"):
             found = ([c for c in have if str(c).startswith("p_")]
-                     + [c for c in ("posterior_S", "posterior_G2") if c in have]
+                     + [c for c in (dna_posterior_column(ph, have) for ph in ("S", "G2")) if c]
                      if kind != "dna_content" else []) + (
                 [c for c in ("dna_log2_fc",) if c in have] if kind != "stage_probs" else [])
         elif kind in ("mitotic_binary", "phase_onehot"):
@@ -454,11 +478,23 @@ def nuisance_source_columns(cells_columns: Sequence[str], kinds: Sequence[str]) 
     return wanted
 
 
+def _missing_covariate(kind: str, names: Sequence[str]) -> None:
+    """Raise the error of a requested nuisance covariate whose column the cell table lacks.
+
+    :param kind: the nuisance source that needs it.
+    :param names: the accepted column names.
+    :raises ValueError: always.
+    """
+    raise ValueError(f"ops_profile_nuisance asks for '{kind}', but the cell table lacks the column "
+                     f"{' or '.join(map(repr, names))}; join it from the cell-cycle phase or "
+                     f"measure it, or drop '{kind}' from the nuisance sources")
+
+
 def nuisance_covariates(cells: pd.DataFrame, kinds: Sequence[str]) -> pd.DataFrame:
     """The per-cell covariates of the nuisance sources, one ``nz_*`` column each.
 
     ``cell_cycle`` is ``stage_probs`` (``p_<class>``, the first class
-    dropped, since the set sums to 1, with ``posterior_S`` and ``posterior_G2``)
+    dropped, since the set sums to 1, with the ``dna_phase_posterior_S`` and ``_G2`` columns, or their older names ``posterior_S`` and ``posterior_G2``)
     plus ``dna_content`` (``dna_log2_fc`` and its square). ``mitotic_binary`` is one
     interphase-versus-mitotic indicator, the mitotic cells kept, and ``phase_onehot`` the
     S, G2 and M indicators of ``cell_cycle_stage`` against G1. ``size`` is the log cell and nucleus
@@ -470,6 +506,7 @@ def nuisance_covariates(cells: pd.DataFrame, kinds: Sequence[str]) -> pd.DataFra
     :param cells: the cell table.
     :param kinds: the sources, from :func:`nuisance_kinds`.
     :returns: a frame row for row with ``cells``, float64 with gaps as NaN.
+    :raises ValueError: when a requested source lacks a column in ``cells``.
     """
     out: Dict[str, Any] = {}
     num = lambda name: pd.to_numeric(cells[name], errors="coerce").to_numpy(np.float64)  # noqa: E731
@@ -478,10 +515,14 @@ def nuisance_covariates(cells: pd.DataFrame, kinds: Sequence[str]) -> pd.DataFra
         if kind in ("cell_cycle", "stage_probs"):
             for c in [c for c in cells.columns if str(c).startswith("p_")][1:]:
                 out[f"cc_{c}"] = num(c)
-            for c in ("posterior_S", "posterior_G2"):
-                if c in cells:
-                    out[f"cc_{c}"] = num(c)
-        if kind in ("cell_cycle", "dna_content") and "dna_log2_fc" in cells:
+            for ph in ("S", "G2"):
+                c = dna_posterior_column(ph, cells.columns)
+                if c is None:
+                    _missing_covariate(kind, DNA_POSTERIOR_COLUMNS[ph])
+                out[f"cc_posterior_{ph}"] = num(c)
+        if kind in ("cell_cycle", "dna_content"):
+            if "dna_log2_fc" not in cells:
+                _missing_covariate(kind, ("dna_log2_fc",))
             out["cc_dna"], out["cc_dna_sq"] = num("dna_log2_fc"), num("dna_log2_fc") ** 2
         if kind == "mitotic_binary":
             out["mitotic"] = _mitotic_indicator(cells)
@@ -493,13 +534,15 @@ def nuisance_covariates(cells: pd.DataFrame, kinds: Sequence[str]) -> pd.DataFra
                 out[f"phase_{phase}"] = np.where(known, hit.astype(np.float64), np.nan)
         elif kind == "size":
             for c in NUISANCE_COLUMNS["size"]:
-                if c in cells:
-                    out[f"size_{c}"] = logs(num(c))
+                if c not in cells:
+                    _missing_covariate(kind, (c,))
+                out[f"size_{c}"] = logs(num(c))
         elif kind == "density":
-            if "cell_neighbors_within_50" in cells:
-                out["density_n"] = num("cell_neighbors_within_50")
-            if "cell_nearest_neighbor_distance" in cells:
-                out["density_nn"] = logs(num("cell_nearest_neighbor_distance"))
+            for c in ("cell_neighbors_within_50", "cell_nearest_neighbor_distance"):
+                if c not in cells:
+                    _missing_covariate(kind, (c,))
+            out["density_n"] = num("cell_neighbors_within_50")
+            out["density_nn"] = logs(num("cell_nearest_neighbor_distance"))
         elif kind == "position":
             y, x = num("nucleus_centroid_y"), num("nucleus_centroid_x")
             field = (cells["well"].astype(str) + "_" + cells["site"].astype(str)
