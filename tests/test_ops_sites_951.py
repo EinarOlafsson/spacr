@@ -186,14 +186,21 @@ def test_empty_runs_every_site(value):
         46, 148, 160, 161, 162}
 
 
-def test_the_fdr_report_names_the_sites(tmp_path):
-    """The decode report, its FDR report and decode_fdr_<well>.json."""
+def test_the_fdr_and_threshold_reports_name_the_sites(tmp_path):
+    """The decode report, its FDR and thresholds reports and their files."""
     path = tmp_path / "decode_fdr_A1.json"
     path.write_text(json.dumps({"pct": 1.0}), encoding="utf-8")
-    decode = {"fdr": {"pct": 1.0, "paths": {"fdr": str(path)}}}
-    ops_engine._name_sites_in_fdr(decode, [46, 148])
+    tuned = tmp_path / "decode_thresholds_A1.json"
+    tuned.write_text(json.dumps({"auto_met": False}), encoding="utf-8")
+    decode = {"fdr": {"pct": 1.0, "paths": {"fdr": str(path)}},
+              "thresholds": {"paths": {"thresholds": str(tuned)}}}
+    ops_engine._name_sites_in_reports(decode, [46, 148])
     assert decode["ops_sites"] == decode["fdr"]["ops_sites"] == [46, 148]
+    assert decode["thresholds"]["ops_sites"] == [46, 148]
     assert json.loads(path.read_text())["ops_sites"] == [46, 148]
+    assert json.loads(tuned.read_text()) == {"auto_met": False,
+                                             "ops_sites": [46, 148]}
+    ops_engine._name_sites_in_reports({"fdr": None}, [3])
 
 
 def test_a_library_without_a_barcode_column_names_its_columns(tmp_path):
