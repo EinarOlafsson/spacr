@@ -53371,7 +53371,7 @@ Read by ``train_cellpose``.
 save_png
 --------
 
-(bool) - Save crops. Off (the default): no crop pixels are saved; Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, and training uses datasets/<name>.ome.zarr. On: Measure also saves every crop in crop.ome.zarr while the field is in memory, so repeated reads are faster and the crops stand alone. The crops are the same either way. With crop_image_format 'png', on writes one PNG per object into <crop_mode>_png/ (png_list table). External Masks still saves crops by default, and its import checks that they were indexed (crop_index, or png_list with 'png'). Default False.
+(bool) - Save crops. Off (the default): no crop pixels are saved; Annotate, Classify, the image UMAP and the crop views cut each crop on the fly from fov.ome.zarr, and training uses datasets/<name>.ome.zarr. On: Measure also saves every crop in crop.ome.zarr while the field is in memory, so repeated reads are faster and the crops stand alone. The crops are the same either way. With crop_image_format 'png', on writes one PNG per object into <crop_mode>_png/ (png_list table). External Masks saves crops by default and checks they were indexed. Default False.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
