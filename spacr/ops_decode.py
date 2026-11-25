@@ -2638,11 +2638,19 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
     return report
 
 
+#: ``call_source`` of an ``ops_barcodes`` row, by the call's ``source``
+#: (:func:`_assemble_calls`): ``read`` for a call the reads made, ``pixel``
+#: for a pixel-fallback call, so a strict analysis can drop the latter.
+CALL_SOURCES = {"primary": "read", "pixel_fallback": "pixel"}
+
+
 def barcode_rows(plate: str, well: str, decoded: Sequence[Mapping[str, Any]]
                  ) -> List[Dict[str, Any]]:
     """The ``ops_barcodes`` rows of a well decoded by :func:`field_calls`.
 
-    Decoy calls are counted for the FDR and never stored.
+    Decoy calls are counted for the FDR and never stored. ``call_source``
+    says whether the reads or the pixel fallback made the call
+    (:data:`CALL_SOURCES`).
 
     :param plate: the plate.
     :param well: the well.
@@ -2660,7 +2668,8 @@ def barcode_rows(plate: str, well: str, decoded: Sequence[Mapping[str, Any]]
                          "n_reads": hit["n_reads"], "n_agreeing": hit["n_agreeing"],
                          "fraction": hit["fraction"],
                          "n_cycles": int(result["n_cycles"]),
-                         "mapped_guide": hit["guide"]})
+                         "mapped_guide": hit["guide"],
+                         "call_source": CALL_SOURCES[hit["source"]]})
     return sorted(rows, key=lambda row: row["object_id"])
 
 

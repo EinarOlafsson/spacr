@@ -32,6 +32,14 @@ WHAT WAS BUILT
 - ops_ph_secondary_channels / _registration / _window / _fallback: per-field
   phase-correlation shift, stored as secondary_dy/dx/fallback in ops_phenotype
   and applied by every reader of the field.
+- call_source (2026-11-25): the pixel-fallback calls are kept after the B1
+  pixel read gate, so every per-cell table that carries the genotype call says
+  where it came from: 'read' (the reads made the call) or 'pixel' (the pixel
+  fallback did), null for a cell without a call or a genotype table without the
+  column. ops_barcodes gets it from the decode (spacr.ops_decode.CALL_SOURCES,
+  from each call's source 'primary' / 'pixel_fallback'); ops_cells_<plate>.parquet
+  and the ph_tables keys (last, after owned) carry it on. Additive: no call,
+  count or other column changes; no setting. tests/test_call_source_column.py.
 - ops_ph_measure_gpu passes measure_gpu to the measurement (872 Part A).
 
 NOT BUILT HERE

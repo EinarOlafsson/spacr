@@ -3744,7 +3744,8 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
     from .ops_decode import barcode_rows, write_well_calls, write_well_reports
 
     columns = ["plate", "well", "object_id", "barcode", "quality", "n_reads",
-               "n_agreeing", "fraction", "n_cycles", "mapped_guide"]
+               "n_agreeing", "fraction", "n_cycles", "mapped_guide",
+               "call_source"]
     frame = pd.DataFrame(barcode_rows(plate, well, decoded), columns=columns)
     _replace_well_rows(db, "ops_barcodes", frame, plate, well)
     fdr = write_well_reports(db, plate, well, decoded, rule_a, skipped_sites)
@@ -3956,7 +3957,10 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     A stored ``barcode`` is what was read, not the guide it matched: the
     commonest raw string among the reads behind the guide, so an N from a
     lost cycle still shows. ``n_reads`` counts every read the nucleus owns,
-    matched to the library or not.
+    matched to the library or not. ``call_source`` is ``read`` or, for a
+    pixel-fallback call of the rule (a) decode, ``pixel``
+    (:data:`spacr.ops_decode.CALL_SOURCES`); the other cell rules call from
+    reads only.
 
     :param db: the measurements database.
     :param plate: the plate name.
@@ -4259,10 +4263,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         "barcode": row["barcode"], "quality": row["quality"],
         "n_reads": row["reads"], "n_agreeing": row["agreeing"],
         "fraction": row["fraction"], "n_cycles": cycles_of.get(object_id, 0),
-        "mapped_guide": mapped.get(object_id) or "",
+        "mapped_guide": mapped.get(object_id) or "", "call_source": "read",
     } for object_id, row in sorted(assigned.items())],
         columns=["plate", "well", "object_id", "barcode", "quality", "n_reads",
-                 "n_agreeing", "fraction", "n_cycles", "mapped_guide"])
+                 "n_agreeing", "fraction", "n_cycles", "mapped_guide",
+                 "call_source"])
     _replace_well_rows(db, "ops_barcodes", frame, plate, well)
     reads_rows = None
     if store_reads:
@@ -7389,8 +7394,10 @@ def _ph_called_guides(db: str, plate: str, wells: Sequence[str],
     :param wells: the wells.
     :param settings: read for ``ops_genotype_table`` and ``ops_design``.
     :returns: ``(called, design, ambiguous)``: ``well, object_id,
-        mapped_guide`` per called nucleus (from ``ops_genotype_table`` when
-        set, else the non-empty ``ops_barcodes`` calls), the design of
+        mapped_guide, call_source`` per called nucleus (from
+        ``ops_genotype_table`` when set, else the non-empty ``ops_barcodes``
+        calls; ``call_source`` is missing where the table has no such
+        column), the design of
         :func:`_ph_design` at the prefix length of the calls, and how many
         prefixes it dropped as ambiguous. The aggregate and ph_tables both
         map a link to its guide and gene through this one function.
@@ -7407,9 +7414,11 @@ def _ph_called_guides(db: str, plate: str, wells: Sequence[str],
             raise ValueError(tr(
                 "aggregate needs ops_merge and ops_barcodes; run the merge "
                 "and decode phases first"))
+        if "call_source" not in barcodes.columns:
+            barcodes = barcodes.assign(call_source=None)
         called = barcodes.loc[
             barcodes["mapped_guide"].fillna("").astype(str) != "",
-            ["well", "object_id", "mapped_guide"]]
+            ["well", "object_id", "mapped_guide", "call_source"]]
         _ph_one_call_per_nucleus(called, "ops_barcodes")
     design_path = settings.get("ops_design")
     if not design_path:
@@ -7423,7 +7432,7 @@ def _ph_called_guides(db: str, plate: str, wells: Sequence[str],
 
 def _ph_link_genotypes(db: str, plate: str, wells: Sequence[str], links,
                        settings: Mapping[str, Any]):
-    """``well, site, label, sgRNA, gene, mitotic`` of every linked cell, or None.
+    """``well, site, label, sgRNA, gene, mitotic, call_source`` of every linked cell, or None.
 
     :param db: the measurements database.
     :param plate: the plate name.
@@ -7452,7 +7461,8 @@ def _ph_link_genotypes(db: str, plate: str, wells: Sequence[str], links,
         design.rename(columns={"prefix": "mapped_guide"}),
         on="mapped_guide", how="inner", validate="many_to_one")
     return joined[["well", "site", "label", "sgRNA", "gene"]].reset_index(
-        drop=True).assign(mitotic=np.nan)
+        drop=True).assign(mitotic=np.nan,
+                          call_source=joined["call_source"].to_numpy())
 
 
 def _ph_design(path: str, prefix_length: int):
@@ -7562,12 +7572,14 @@ def _ph_genotype_table(path: str, plate: str, wells: Sequence[str]):
     """The called sequencing nuclei of ``wells`` from a genotype table.
 
     :param path: a Parquet, CSV, TSV or Excel table with ``well``,
-        ``object_id`` and ``mapped_guide`` columns, and optionally ``plate``.
+        ``object_id`` and ``mapped_guide`` columns, and optionally ``plate``
+        and ``call_source`` (``read`` or ``pixel``).
     :param plate: rows of another plate are left out when ``plate`` is a
         column.
     :param wells: the wells to keep.
-    :returns: ``well, object_id, mapped_guide`` for every nucleus with a
-        guide.
+    :returns: ``well, object_id, mapped_guide, call_source`` for every
+        nucleus with a guide; ``call_source`` is missing when the table has
+        none.
     :raises ValueError: when the file is missing, lacks a column, or calls
         one nucleus twice.
     """
@@ -7579,7 +7591,7 @@ def _ph_genotype_table(path: str, plate: str, wells: Sequence[str]):
         raise ValueError(tr(
             "ops_genotype_table must be a table with well, object_id and "
             "mapped_guide columns; got {path}", path=path))
-    wanted = ["plate", "well", "object_id", "mapped_guide"]
+    wanted = ["plate", "well", "object_id", "mapped_guide", "call_source"]
     if str(path).lower().endswith(".parquet"):
         import pyarrow.parquet as pq
 
@@ -7590,7 +7602,7 @@ def _ph_genotype_table(path: str, plate: str, wells: Sequence[str]):
         from .tabular import read_table
 
         table = read_table(str(path), canonicalise=False, report=None)
-    missing = [c for c in wanted[1:] if c not in table.columns]
+    missing = [c for c in wanted[1:4] if c not in table.columns]
     if missing:
         raise ValueError(tr(
             "the genotype table {path} needs well, object_id and "
@@ -7599,8 +7611,10 @@ def _ph_genotype_table(path: str, plate: str, wells: Sequence[str]):
     if "plate" in table.columns:
         table = table[table["plate"].astype(str) == str(plate)]
     table = table[table["well"].astype(str).isin([str(w) for w in wells])]
+    if "call_source" not in table.columns:
+        table = table.assign(call_source=None)
     called = table.loc[table["mapped_guide"].fillna("").astype(str) != "",
-                       ["well", "object_id", "mapped_guide"]]
+                       ["well", "object_id", "mapped_guide", "call_source"]]
     _ph_one_call_per_nucleus(called, str(path))
     return called.reset_index(drop=True)
 
@@ -7802,8 +7816,9 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         tables.
     :param keep_cells: also write ``ops_cells_<plate>[tag].parquet``: each
         pooled cell's ``plate``, ``well``, ``site``, ``label``,
-        ``object_id``, ``mapped_guide``, ``sgRNA``, ``gene`` and
-        ``mitotic``, which the ``ph_tables`` phase puts on every row.
+        ``object_id``, ``mapped_guide``, ``sgRNA``, ``gene``, ``mitotic``
+        and ``call_source`` (``read`` or ``pixel``, null when the calls do
+        not say), which the ``ph_tables`` phase puts on every row.
     :returns: the aggregate report.
 
     FUNK ET AL. 2022's REDUCTION: every feature is a robust z against the
@@ -8229,7 +8244,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     if keep_cells:
         target = _ph_cells_table_path(destination, plate, tag)
         kept = cells[["well", "site", "label", "object_id", "mapped_guide",
-                      "sgRNA", "gene", "mitotic"]].copy()
+                      "sgRNA", "gene", "mitotic", "call_source"]].copy()
         kept.insert(0, "plate", plate)
         kept["mitotic"] = kept["mitotic"].astype(bool)
         kept.to_parquet(target + ".part", index=False)
@@ -9003,7 +9018,7 @@ _PH_TABLE_COMPARTMENTS = ("cell", "nucleus", "cytoplasm")
 #: The key columns every ``ph_tables`` row carries, in this order.
 _PH_TABLE_KEYS = ("prcfo", "object_key", "rowID", "columnID", "fieldID",
                   "timeID", "object_label", "object_id", "sgRNA", "gene",
-                  "genotype_rule", "mitotic", "owned")
+                  "genotype_rule", "mitotic", "owned", "call_source")
 
 
 def _ph_cells_table_path(destination: str, plate: str, tag: str = "") -> str:
@@ -9104,7 +9119,7 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
     :param cells: the well's phenotype cell table.
     :param links: ``site, label, object_id`` from ``ops_merge``.
     :param genotype: ``site, label, sgRNA, gene, mitotic`` per pooled cell,
-        or None.
+        and ``call_source`` (``read`` or ``pixel``) when known, or None.
     :param owned: :func:`_ph_owned_cells`.
     :param rule: :func:`_ph_genotype_rule`.
     :param integer_keys: also key each cell by ``cell_key``, the integer
@@ -9137,12 +9152,15 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
     else:
         lookup["object_id"] = np.nan
     if genotype is not None and len(genotype):
+        if "call_source" not in genotype.columns:
+            genotype = genotype.assign(call_source=None)
         lookup = lookup.merge(genotype[["site", "label", "sgRNA", "gene",
-                                        "mitotic"]].astype(
+                                        "mitotic", "call_source"]].astype(
             {"site": np.int64, "label": np.int64}), on=["site", "label"],
             how="left", validate="many_to_one")
     else:
-        lookup = lookup.assign(sgRNA=None, gene=None, mitotic=np.nan)
+        lookup = lookup.assign(sgRNA=None, gene=None, mitotic=np.nan,
+                               call_source=None)
     if len(lookup) != len(keys) or not np.array_equal(
             lookup[["site", "label"]].to_numpy(np.int64),
             kept[["site", "label"]].to_numpy(np.int64)):
@@ -9155,6 +9173,7 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
     keys["genotype_rule"] = rule
     keys["mitotic"] = lookup["mitotic"].to_numpy()
     keys["owned"] = 1
+    keys["call_source"] = lookup["call_source"].to_numpy()
     features = {}
     for compartment in _PH_TABLE_COMPARTMENTS:
         names = [c for c in kept.columns
@@ -9181,7 +9200,9 @@ def _ph_key_fields(integer_keys: bool):
     well are the store's ``plate`` and ``well`` partition columns. Then the
     OPS keys. Ids and labels are exact integers (``object_label`` uint32):
     ``object_id`` is null for an unlinked cell, ``mitotic`` is 0, 1 or null
-    and ``owned`` is 1.
+    and ``owned`` is 1. Last, ``call_source``: ``read`` or ``pixel`` for
+    the genotype call (:data:`spacr.ops_decode.CALL_SOURCES`), null for a
+    cell without a call or a genotype table without the column.
     """
     import pyarrow as pa
 
@@ -9196,7 +9217,7 @@ def _ph_key_fields(integer_keys: bool):
                pa.field("object_id", pa.int64()),
                pa.field("sgRNA", text), pa.field("gene", text),
                pa.field("genotype_rule", text), pa.field("mitotic", pa.int8()),
-               pa.field("owned", pa.int8())]
+               pa.field("owned", pa.int8()), pa.field("call_source", text)]
     return fields
 
 
@@ -9493,7 +9514,9 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     :func:`spacr.schema.compose_prcfo`), ``object_key``, the row, column
     and field ids, the cell's label, its sequencing nucleus (``object_id``,
     null when unlinked), the guide and gene the aggregate phase pooled it
-    under, which genotype that was, its mitotic call and ``owned`` -- then
+    under, which genotype that was, its mitotic call, ``owned`` and
+    ``call_source`` (``read`` or ``pixel``: whether the reads or the pixel
+    fallback made the genotype call, null without one) -- then
     the compartment's features, ordered by ``object_key``. ``image`` gets
     one row per field from ``merged/`` (:func:`_ph_merged`), when that was
     written.
@@ -9540,7 +9563,7 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
         genotype = read_table(path, canonicalise=False, report=None,
                               columns=[c for c in (
                                   "well", "site", "label", "sgRNA", "gene",
-                                  "mitotic") if c in present])
+                                  "mitotic", "call_source") if c in present])
     links = _rows_for_wells(db, "ops_merge", plate, wells)
     genotype_source = path if genotype is not None else None
     if genotype is None and links is not None and len(links):
