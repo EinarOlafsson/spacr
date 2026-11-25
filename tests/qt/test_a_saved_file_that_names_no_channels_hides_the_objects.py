@@ -14,10 +14,11 @@ reads as absent to anything written ``if not channel``.
 Both are driven the whole way here: written with :func:`spacr.utils.
 save_settings`, read back with the screen's own CSV loader, and applied
 through the bulk apply an Import lands in -- with the event loop running,
-because the panel answers on the next turn of it.  Cell is the deliberate
-reference-object exception: instruction 300 keeps its controls available
-even when no cell channel is named, while every optional object still follows
-its own saved channel.
+because the panel answers on the next turn of it.  2026-11-24
+(maintainer: "in mask generation if nothing is in cell channel there should
+be no per object settings cell column"): the per-object table follows the
+saved channel for every object, cell and cytoplasm included, so a file that
+names no channel opens with no column at all.
 """
 from __future__ import annotations
 
@@ -106,21 +107,20 @@ def test_a_file_that_names_no_channel_leaves_optional_objects_off_the_form(
                 "number_of_organelles") is True
         else:
             # The switch stays -- there would be nothing left to turn the
-            # object back on with. 2026-09-29 (item 592, "hide unset objects"):
-            # it is a row of the form, and only cell keeps its column.
+            # object back on with. It is a row of the form, and no object
+            # has a column while its channel is unset.
             assert reopened.setting_row_is_visible(
                 f"{role}_channel") is True
-            assert (role in reopened._object_grid.objects()) is (
-                role == "cell")
+            assert role not in reopened._object_grid.objects()
+    assert reopened._object_grid.objects() == ()
     assert reopened_model.collect()["cell_channel"] is None
 
 
-def test_a_file_that_omits_channels_keeps_only_the_reference_object(
+def test_a_file_that_omits_channels_shows_no_object_column(
         qtbot, tmp_path):
-    """Absence is not a channel; cell alone remains available by design.
+    """Absence is not a channel: an omitted channel hides its object column.
 
-    2026-09-29 (item 592): the objects are table columns, and an omitted
-    channel hides its object's column (cell's excepted).
+    2026-11-24: cell is no longer excepted, so the table has no column.
     """
     screen, model = _screen(qtbot)
     settings = {k: v for k, v in model.collect().items()
@@ -132,9 +132,7 @@ def test_a_file_that_omits_channels_keeps_only_the_reference_object(
     reopened.apply_settings_dict(loaded)
     qtbot.wait(1)
 
-    # 2026-09-29 (item 592, "hide unset objects"): only the
-    # reference object keeps its column; the channels stay on the form.
-    assert the_table_answers(reopened, "cell_diameter") is True
+    assert reopened._object_grid.objects() == ()
     assert reopened_model.collect()["nucleus_channel"] is None
     assert "nucleus" not in reopened._object_grid.objects()
     assert reopened.setting_row_is_visible("nucleus_channel") is True
@@ -212,7 +210,7 @@ def test_the_rule_reads_a_saved_none_as_absent_and_a_saved_zero_as_present():
         assert keys_hidden_by_their_object(
             panel, {"nucleus_channel": present}) == set(), present
 
-    # Cell is the reference-object exception and therefore is never gated.
+    # The flat form keeps cell available; the per-object table does not.
     assert keys_hidden_by_their_object(
         ("cell_channel", "cell_diameter"),
         {"cell_channel": None},
@@ -225,8 +223,7 @@ def test_timelapse_mirrors_the_hidden_columns(qtbot):
     screen, model = _screen(qtbot, "timelapse")
     grid = screen._object_grid
     assert model.collect()["nucleus_channel"] is None
-    assert "cell" in grid.objects()
-    assert "nucleus" not in grid.objects()
+    assert grid.objects() == ()
     assert screen.setting_row_is_visible("nucleus_channel") is True
 
     assert model.set_value_for_key("nucleus_channel", 1)
@@ -237,3 +234,92 @@ def test_timelapse_mirrors_the_hidden_columns(qtbot):
     assert model.collect()["nucleus_diameter"] == 31
     assert model.set_value_for_key("nucleus_channel", 2)
     assert table_value(screen, "nucleus_diameter") == 31
+
+
+def test_no_cell_channel_means_no_cell_or_cytoplasm_column(qtbot):
+    """2026-11-24 (maintainer: "in mask generation if nothing is in cell
+    channel there should be no per object settings cell column")."""
+    screen, model = _screen(qtbot)
+    grid = screen._object_grid
+    assert model.collect()["cell_channel"] is None
+    assert "cell" not in grid.objects()
+    assert "cytoplasm" not in grid.objects()
+    assert grid.objects() == ()
+    assert "Set a channel" in grid.status_text()
+
+
+def test_setting_the_cell_channel_brings_the_cell_column_back_with_its_values(
+        qtbot):
+    """2026-11-24: hide, never delete, for the cell as for every object."""
+    screen, model = _screen(qtbot)
+    grid = screen._object_grid
+    assert model.set_value_for_key("cell_channel", 1)
+    assert "cell" in grid.objects()
+    assert grid.set_value("diameter", "cell", "88")
+    assert model.set_value_for_key("cell_channel", None)
+    assert grid.objects() == ()
+    assert model.collect()["cell_diameter"] == 88
+    assert model.set_value_for_key("cell_channel", 2)
+    assert "cell" in grid.objects()
+    assert table_value(screen, "cell_diameter") == 88
+
+
+def test_a_hidden_cell_columns_values_survive_save_and_reload(qtbot, tmp_path):
+    """2026-11-24: a cell answer typed while the channel was set, then hidden
+    by clearing the channel, is saved, reloaded and back once it is set."""
+    screen, model = _screen(qtbot)
+    assert model.set_value_for_key("cell_channel", 1)
+    assert screen._object_grid.set_value("diameter", "cell", "91")
+    assert model.set_value_for_key("cell_channel", None)
+    assert screen._object_grid.objects() == ()
+
+    loaded = _write_and_read_back(tmp_path, dict(model.collect()))
+    assert loaded["cell_channel"] is None
+    assert loaded["cell_diameter"] == 91
+
+    reopened, reopened_model = _screen(qtbot)
+    reopened.apply_settings_dict(loaded)
+    qtbot.wait(1)
+    assert reopened._object_grid.objects() == ()
+    assert reopened_model.collect()["cell_diameter"] == 91
+
+    assert reopened_model.set_value_for_key("cell_channel", 0)
+    assert "cell" in reopened._object_grid.objects()
+    assert table_value(reopened, "cell_diameter") == 91
+
+
+def test_cell_unset_with_nucleus_territory_keeps_the_cell_column(
+        qtbot, monkeypatch, tmp_path):
+    """2026-11-24 (item 0ah): cell masks grown from the nuclei are still
+    cell masks, so the column stays while that source is on."""
+    from PySide6.QtCore import QSettings
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(preferences, '_settings', lambda: QSettings(
+        str(tmp_path / 'alpha.ini'), QSettings.IniFormat))
+    preferences.set_show_alpha(True)
+    preferences._set_show_alpha_features(True)
+    screen, model = _screen(qtbot)
+    grid = screen._object_grid
+    assert model.set_value_for_key("nucleus_channel", 1)
+    assert "cell" not in grid.objects()
+    assert model.set_value_for_key("cell_from_nucleus_expand_px", 20)
+    assert grid.objects() == ("cell", "nucleus")
+    assert model.set_value_for_key("cell_from_nucleus_expand_px", 0)
+    assert grid.objects() == ("nucleus",)
+
+
+def test_cell_set_shows_the_cell_column(qtbot):
+    """2026-11-24 (item 0ah): a cell channel shows the column."""
+    screen, model = _screen(qtbot)
+    assert model.set_value_for_key("cell_channel", 3)
+    assert screen._object_grid.objects() == ("cell",)
+
+
+def test_timelapse_follows_the_cell_channel_too(qtbot):
+    """2026-11-24 (item 0ah): Timelapse draws the same table, same rule."""
+    screen, model = _screen(qtbot, "timelapse")
+    grid = screen._object_grid
+    assert "cell" not in grid.objects()
+    assert model.set_value_for_key("cell_channel", 1)
+    assert "cell" in grid.objects()

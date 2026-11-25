@@ -998,18 +998,22 @@ class WellWriter:
         _remove(self._temporary)
 
 
-def _rebuild(project, tables: Sequence[str]) -> List[str]:
+def _rebuild(project, tables: Sequence[str], *, plate=None,
+             wells: Optional[Sequence[str]] = None) -> List[str]:
     """Clear ``tables`` and an older ``measurements.db`` before a run rebuilds them.
 
     For a phase that rewrites its tables on every run, so a well this run
     does not write cannot survive from an older one (:func:`_drop_tables`).
+    With ``plate`` and ``wells`` only those wells of those tables are
+    cleared, so the other wells of the project stay registered and one
+    store holds a plate written well by well.
 
     :returns: the paths removed, relative to the project.
     """
     project = os.path.abspath(os.fspath(project))
     for suffix in ("", "-wal", "-shm", "-journal"):
         _remove(os.path.join(project, _LEGACY_NAMES[0] + suffix))
-    return _drop_tables(project, tables)
+    return _drop_tables(project, tables, plate=plate, wells=wells)
 
 
 def _overflows(original, cast) -> bool:
@@ -2690,7 +2694,8 @@ def _upcast_half(result):
     return result.cast(pa.schema(fields, metadata=result.schema.metadata))
 
 
-def _drop_tables(project, tables: Sequence[str]) -> List[str]:
+def _drop_tables(project, tables: Sequence[str], *, plate=None,
+                 wells: Optional[Sequence[str]] = None) -> List[str]:
     """Remove ``tables`` from a store: their catalog rows, views and files.
 
     For a writer that rebuilds its tables on every run, so the rows of a
@@ -2700,27 +2705,50 @@ def _drop_tables(project, tables: Sequence[str]) -> List[str]:
 
     :param project: the project folder.
     :param tables: the table names.
+    :param plate: with ``wells``, remove only these wells of this plate
+        (the ``plate=`` / ``well=`` partitions); the views of a table that
+        keeps other wells are pointed at the files left.
+    :param wells: the wells, or None for every well of every plate.
     :returns: the paths removed, relative to the project.
     """
     project = os.path.abspath(os.fspath(project))
     names = sorted({n for t in tables
                     for n in (t, _keys_name(t), _rows_name(t))})
+    scoped = wells is not None
+    chosen = sorted({str(w) for w in (wells or ())})
+    if scoped and not chosen:
+        return []
     removed: List[str] = []
     catalog = os.path.join(project, CATALOG)
     if os.path.isfile(catalog):
         conn = _connect(catalog)
         try:
             marks = ", ".join("?" for _ in names)
+            where, params = f"table_name IN ({marks})", list(names)
+            if scoped:
+                where += (f" AND plate = ? AND well IN "
+                          f"({', '.join('?' for _ in chosen)})")
+                params += [str(plate), *chosen]
             conn.execute("BEGIN TRANSACTION")
             removed = [row[0] for row in conn.execute(
-                f"SELECT path FROM spacr_files WHERE table_name IN ({marks})",
-                names).fetchall()]
-            conn.execute(f"DELETE FROM spacr_files WHERE table_name IN "
-                         f"({marks})", names)
-            conn.execute(f"DELETE FROM spacr_tables WHERE name IN ({marks})",
-                         names)
-            for name in names:
-                conn.execute(f"DROP VIEW IF EXISTS {_ident(name)}")
+                f"SELECT path FROM spacr_files WHERE {where}",
+                params).fetchall()]
+            conn.execute(f"DELETE FROM spacr_files WHERE {where}", params)
+            if scoped:
+                left = {row[0] for row in conn.execute(
+                    f"SELECT DISTINCT table_name FROM spacr_files WHERE "
+                    f"table_name IN ({marks})", names).fetchall()}
+                empty = [n for n in names if n not in left]
+                if empty:
+                    conn.execute(
+                        f"DELETE FROM spacr_tables WHERE name IN "
+                        f"({', '.join('?' for _ in empty)})", empty)
+                _rebuild_views(conn, project, names)
+            else:
+                conn.execute(f"DELETE FROM spacr_tables WHERE name IN "
+                             f"({marks})", names)
+                for name in names:
+                    conn.execute(f"DROP VIEW IF EXISTS {_ident(name)}")
             conn.execute("COMMIT")
         except BaseException:
             conn.execute("ROLLBACK")
@@ -2731,14 +2759,25 @@ def _drop_tables(project, tables: Sequence[str]) -> List[str]:
                                               "*.json"))):
         with builtins.open(path, encoding="utf-8") as handle:
             manifest = json.load(handle)
-        if manifest.get("table") in names:
+        if manifest.get("table") in names and (
+                not scoped or (str(manifest.get("plate")) == str(plate)
+                               and str(manifest.get("well")) in chosen)):
             removed.extend(entry["path"] for entry in manifest["files"])
             _remove(path)
     for rel in removed:
         _remove(os.path.join(project, rel))
     for name in names:
-        _remove(os.path.join(project, "tables", name))
-        _remove(os.path.join(project, "rows", name))
+        for top in ("tables", "rows"):
+            if not scoped:
+                _remove(os.path.join(project, top, name))
+                continue
+            plate_dir = os.path.join(project, top, name,
+                                     f"plate={_encoded(plate)}")
+            for well in chosen:
+                _remove(os.path.join(plate_dir, f"well={_encoded(well)}"))
+            for folder in (plate_dir, os.path.dirname(plate_dir)):
+                if os.path.isdir(folder) and not os.listdir(folder):
+                    os.rmdir(folder)
     return removed
 
 
@@ -2849,6 +2888,41 @@ def _column_ranges(meta) -> Dict[str, tuple]:
                 low = float(np.fmin(low, float(stats.min)))
                 high = float(np.fmax(high, float(stats.max)))
             ranges[name] = (low, high)
+    return ranges
+
+
+def _file_ranges(path, *, dtype_map: Optional[str] = None) -> Dict[str, tuple]:
+    """``column -> (min, max[, evidence])`` of a Parquet file, with value evidence where it narrows.
+
+    The ranges come from the row-group statistics (:func:`_column_ranges`);
+    each float column the recorded dtype map would store narrower than the
+    file holds it is then read, one column at a time, for the value
+    evidence the per-part guard checks (:func:`_float_evidence`: rounding
+    error against the SD, integers exact), so a streamed writer narrows by
+    the values as a frame held whole does, not by the range alone.
+
+    :param path: the Parquet file.
+    :param dtype_map: the recorded dtype map; None is the shipped one.
+    :returns: the ranges, as :class:`WellWriter` takes them.
+    """
+    pa = _require("pyarrow")
+    pq = _require("pyarrow.parquet")
+    parquet = pq.ParquetFile(path)
+    ranges = _column_ranges(parquet.metadata)
+    recorded = _dtype_map(dtype_map).get("columns") or {}
+    for field in parquet.schema_arrow:
+        entry = recorded.get(field.name)
+        if (not pa.types.is_floating(field.type) or not entry
+                or entry.get("kind") != "float"
+                or np.dtype(entry["dtype"]).itemsize
+                >= np.dtype(field.type.to_pandas_dtype()).itemsize):
+            continue
+        low, high = ranges.get(field.name, (None, None))[:2]
+        if low is None:
+            continue
+        values = parquet.read(columns=[field.name]).column(0)
+        values = values.to_numpy().astype("float64")
+        ranges[field.name] = (low, high, _float_evidence(values))
     return ranges
 
 
@@ -6271,6 +6345,8 @@ def _relation_columns(store: Store, name: str) -> List[tuple]:
     :raises StoreError: when there is no such table or view.
     """
     if not _legacy_is_sqlite(store):
+        if name.endswith("_labeled"):
+            store._labels()
         return [tuple(row) for row in store._table_columns(name).itertuples(
             index=False, name=None)]
     with _legacy_reading(store.legacy, store.busy_timeout) as conn:
@@ -6367,3 +6443,165 @@ def _count_rows(store: Store, table: str, where=None) -> int:
         return int(conn.execute(
             f"SELECT COUNT(*) FROM {_legacy_quoted(table)}{clause}",
             params).fetchone()[0])
+
+
+#: The relative error each stored float width may differ by when two stores
+#: hold the same values (:func:`compare`): half the width of the type's own
+#: step, so a value rounded to float16 or float32 still counts as equal.
+_COMPARE_RELATIVE = {"16": 2.0 ** -10, "half": 2.0 ** -10, "float": 2.0 ** -23,
+                     "real": 2.0 ** -23, "32": 2.0 ** -23}
+
+
+def _compare_tolerance(*stored: str) -> float:
+    """The relative tolerance for columns stored as the given types."""
+    best = 0.0
+    for kind in stored:
+        text = str(kind).lower()
+        if "double" in text or "64" in text:
+            continue
+        for key, relative in _COMPARE_RELATIVE.items():
+            if key in text:
+                best = max(best, relative)
+                break
+    return best
+
+
+def compare(first, second, *, tables=None) -> Dict[str, Any]:
+    """Compare the tables of two projects: rows, columns and values.
+
+    Tables found in both projects are compared; rows are paired in the
+    order of ``plate``, ``well``, ``object_key`` and ``timeID`` (those the
+    table has). For each column both hold, the report gives the largest
+    absolute difference of a numeric column and the tolerance allowed by
+    its stored type (zero for integers, text and double; the type's own
+    rounding step, relative to the column's largest value, for float32 and
+    float16), or the number of differing values for any other column.
+
+    :param first: an open :class:`Store`, or anything :func:`locate`
+        accepts.
+    :param second: the same, for the project to compare with.
+    :param tables: one table name or a list; None compares every table
+        both hold.
+    :returns: ``{"ok", "only_first", "only_second", "tables"}``; each entry
+        of ``tables`` holds ``rows`` (a pair), ``only_first`` and
+        ``only_second`` columns, ``columns`` (``max_diff``, ``tolerance``,
+        ``differing`` and ``ok`` per column) and ``ok``.
+    :raises StoreError: when a named table is not in both projects.
+    """
+    stores = [p if isinstance(p, Store) else Store(locate(p))
+              for p in (first, second)]
+    try:
+        held = [set(s.tables()) for s in stores]
+        if tables is None:
+            names = sorted(held[0] & held[1])
+        else:
+            names = [tables] if isinstance(tables, str) else list(tables)
+            for name in names:
+                if name not in held[0] or name not in held[1]:
+                    raise StoreError(_message(
+                        "table {table} is not in both projects", table=name))
+        report: Dict[str, Any] = {
+            "only_first": sorted(held[0] - held[1]),
+            "only_second": sorted(held[1] - held[0]), "tables": {}}
+        for name in names:
+            report["tables"][name] = _compare_table(stores[0], stores[1], name)
+        report["ok"] = (not report["only_first"] and not report["only_second"]
+                        and all(t["ok"] for t in report["tables"].values()))
+        return report
+    finally:
+        for s, given in zip(stores, (first, second)):
+            if s is not given:
+                s.close()
+
+
+def _compare_table(first: Store, second: Store, table: str) -> Dict[str, Any]:
+    """One table's part of :func:`compare`."""
+    cols = [s.columns(table).set_index("name")["stored_type"].to_dict()
+            for s in (first, second)]
+    common = [c for c in cols[0] if c in cols[1]]
+    order = [c for c in ("plate", "well", "object_key", "timeID") if c in common]
+    clause = (" ORDER BY " + ", ".join(f'"{c}"' for c in order)) if order else ""
+    rows = (first.count(table), second.count(table))
+    out: Dict[str, Any] = {
+        "rows": rows, "columns": {},
+        "only_first": [c for c in cols[0] if c not in cols[1]],
+        "only_second": [c for c in cols[1] if c not in cols[0]]}
+    for column in common:
+        if rows[0] != rows[1]:
+            break
+        pair = [s.sql(f'SELECT "{column}" AS v FROM "{table}"{clause}')["v"]
+                .reset_index(drop=True) for s in (first, second)]
+        numeric = all(p.dtype.kind in "iuf" for p in pair)
+        if numeric:
+            a, b = (p.astype("float64") for p in pair)
+            same_null = a.isna() & b.isna()
+            diff = (a - b).abs().where(~same_null)
+            bad_null = int((a.isna() != b.isna()).sum())
+            top = float(np.nanmax(np.abs(np.concatenate(
+                [a.to_numpy(), b.to_numpy()])))) if len(a) and not (
+                    a.isna().all() and b.isna().all()) else 0.0
+            tol = _compare_tolerance(cols[0][column], cols[1][column]) * top
+            worst = float(diff.max()) if diff.notna().any() else 0.0
+            differing = bad_null + int((diff > tol).sum())
+            out["columns"][column] = {"max_diff": worst, "tolerance": tol,
+                                      "differing": differing,
+                                      "ok": differing == 0}
+        else:
+            a, b = (p.astype(object).where(p.notna(), None) for p in pair)
+            differing = int(sum(1 for x, y in zip(a, b) if x != y))
+            out["columns"][column] = {"max_diff": None, "tolerance": 0.0,
+                                      "differing": differing,
+                                      "ok": differing == 0}
+    out["ok"] = (rows[0] == rows[1] and not out["only_first"]
+                 and not out["only_second"]
+                 and all(c["ok"] for c in out["columns"].values()))
+    return out
+
+
+def migrate_sqlite(db, *, settings: Optional[Mapping[str, Any]] = None
+                   ) -> Dict[str, Any]:
+    """Convert a classic ``measurements.db`` into a store project beside it.
+
+    Every per-object table Measure owns is written, well by well, through
+    :func:`write_table` (the same writer Measure itself saves with, so the
+    result equals what a run of today would have written), then registered.
+    The ``.db`` is only read and is kept. Afterwards each table's rows in
+    the store are counted and checked against the rows of the ``.db``.
+
+    :param db: the ``measurements.db`` file, or the folder holding it.
+    :param settings: the run settings to record with the run; ``{}`` when
+        None.
+    :returns: ``{"project", "tables"}``; ``tables`` maps each migrated table
+        to ``{"source", "store"}`` row counts.
+    :raises StoreError: when no ``measurements.db`` is found, nothing could
+        be written, or a table's row count differs afterwards.
+    """
+    found = _legacy_file(os.path.abspath(os.path.expanduser(os.fspath(db))),
+                         os.fspath(db) if os.path.isfile(os.fspath(db)) else None)
+    from .measure import _measure_store_tables, _write_measure_store
+    from .tabular import read_table
+
+    names = _measure_store_tables(found)
+    wanted = {}
+    for name in names:
+        frame = read_table(found, table=name, canonicalise=False, report=None)
+        if not frame.empty and "prcfo" in frame.columns:
+            wanted[name] = int(len(frame))
+    report = _write_measure_store(found, dict(settings or {}))
+    if report is None:
+        raise StoreError(_message("could not write a store project from {path}",
+                                  path=found))
+    project = report["project"]
+    held = Store(project, verify="none")
+    try:
+        counts = {name: {"source": rows, "store": held.count(name)}
+                  for name, rows in wanted.items()}
+    finally:
+        held.close()
+    wrong = [f"{n}: {c['source']} rows in the .db, {c['store']} in the store"
+             for n, c in counts.items() if c["source"] != c["store"]]
+    if wrong:
+        raise StoreError(_message("row counts differ after migrating: {what}",
+                                  what="; ".join(wrong)))
+    return {"project": project, "tables": counts}
+__all__ += ["compare", "migrate_sqlite"]

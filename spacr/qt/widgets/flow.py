@@ -14,7 +14,8 @@ from typing import Any, List
 
 from PySide6.QtCore import QEvent, QObject, QPoint, QRect, QSize, Qt
 from shiboken6 import Shiboken, isValid
-from PySide6.QtWidgets import QHBoxLayout, QLayout, QSizePolicy, QWidget, QWidgetItem
+from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QLayout,
+                               QSizePolicy, QVBoxLayout, QWidget, QWidgetItem)
 
 
 def _alive(layout) -> bool:
@@ -435,3 +436,81 @@ def keep_wrapped_height(label) -> None:
         watcher = _WrappedHeight(label)
         label._spacr_wrapped_height = watcher
         label.installEventFilter(watcher)
+
+
+class _GroupFlow(FlowLayout):
+    """A wrapping row of buttons that asks for its one-line width.
+
+    :class:`FlowLayout` reports its narrowest size as its preferred one,
+    which a box layout then honours, so every button would sit on a line of
+    its own. This one prefers the whole row on one line and only wraps when
+    it is given less, so a group keeps its buttons side by side on a wide
+    screen and never forces a narrow window wider.
+    """
+
+    def sizeHint(self) -> QSize:                    # noqa: N802 (Qt override)
+        """Every visible button on one line, plus margins."""
+        width = height = 0
+        shown = [item for item in self._items if not item.isEmpty()]
+        for item in shown:
+            hint = item.sizeHint()
+            width += hint.width()
+            height = max(height, hint.height())
+        width += self._space * max(0, len(shown) - 1)
+        margins = self.contentsMargins()
+        return QSize(width + margins.left() + margins.right(),
+                     height + margins.top() + margins.bottom())
+
+
+def _titled_group(title: str, object_name: str, wrap: bool = False,
+                  keep_one_line: bool = False, horizontal: bool = False):
+    """A titled container for one group of buttons.
+
+    The title is the group name, in the container top left corner; the
+    buttons go in one row below it. Make Masks stacks its groups around the
+    image; with ``horizontal`` the same container serves a toolbar along the
+    top, where a group never wraps its own buttons.
+
+    :param title: the title, already translated.
+    :param object_name: the container object name.
+    :param wrap: let the group take every width it is offered; otherwise it
+        asks for its one-line width. Either way the buttons wrap onto
+        another line rather than scroll or force the window wider
+        (:class:`_GroupFlow`).
+    :param keep_one_line: never narrower than its one-line width, so its
+        neighbour wraps first.
+    :param horizontal: a plain left-to-right row of fixed size, with no
+        wrapping inside the group.
+    :returns: ``(container, row)``; add the buttons to ``row``.
+    """
+    from ..theme import SPACING
+
+    group = QFrame()
+    group.setObjectName(object_name)
+    group.setProperty("makeMasksGroup", True)
+    group.setFrameShape(QFrame.StyledPanel)
+    column = QVBoxLayout(group)
+    column.setContentsMargins(SPACING["sm"], SPACING["xs"],
+                              SPACING["sm"], SPACING["xs"])
+    column.setSpacing(2)
+    label = QLabel(title, group)
+    label.setObjectName("MakeMasksGroupTitle")
+    label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+    column.addWidget(label, 0, Qt.AlignLeft | Qt.AlignTop)
+    if horizontal:
+        row = QHBoxLayout()
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["xs"])
+        group.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+    else:
+        row = _GroupFlow(spacing=SPACING["xs"])
+        policy = QSizePolicy(
+            QSizePolicy.Expanding if wrap else QSizePolicy.Preferred,
+            QSizePolicy.Preferred)
+        if keep_one_line:
+            policy.setHorizontalPolicy(QSizePolicy.Minimum)
+        policy.setHeightForWidth(True)
+        group.setSizePolicy(policy)
+    column.addLayout(row)
+    group.title_label = label
+    return group, row

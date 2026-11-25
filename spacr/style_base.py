@@ -13,6 +13,7 @@ from typing import Any, ClassVar, Dict, List, Optional, Tuple
 
 from .figure_font import FAMILY as FONT_FAMILY
 from .figure_font import use_open_sans_for_figures
+from .figures.style import GENERAL_DEFAULTS, TYPE_SCALE
 
 #: Axis scales any figure may use.
 SCALES: Tuple[str, ...] = ("linear", "log", "symlog", "logit")
@@ -34,6 +35,8 @@ class FigureStyle:
     Plot-specific options, such as an effect-size threshold or a colour-by
     column, belong on the corresponding subclass. Keeping only portable
     values here allows a saved house style to be applied across plot types.
+    Default typography, grid visibility, frame and raster resolution follow
+    the shared figure policy; saved explicit values remain unchanged.
 
     :param x_label: horizontal-axis label supplied to the renderer; empty
         permits renderer-specific or default behavior.
@@ -84,20 +87,20 @@ class FigureStyle:
     invert_y: bool = False
 
     font_family: str = FONT_FAMILY
-    font_size: float = 10.0
-    title_font_size: float = 12.0
+    font_size: float = GENERAL_DEFAULTS["font_size"]
+    title_font_size: float = TYPE_SCALE["label"]
     label_font_size: float = 8.0
-    tick_font_size: float = 9.0
-    font_weight: str = "normal"
+    tick_font_size: float = TYPE_SCALE["tick"]
+    font_weight: str = "light"
 
     figure_width: float = 6.2
     figure_height: float = 4.8
-    dpi: int = 200
-    grid: bool = True
+    dpi: int = GENERAL_DEFAULTS["dpi"]
+    grid: bool = GENERAL_DEFAULTS["grid"]
     grid_axis: str = "y"
     grid_color: str = "#E6E6E6"
     grid_width: float = 0.6
-    hide_top_right_spines: bool = True
+    hide_top_right_spines: bool = False
     legend: bool = True
     legend_location: str = "best"
     background_color: str = "none"

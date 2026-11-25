@@ -180,7 +180,7 @@ from .. import iconset, path_probe, prefs
 from ..theme import SPACING, palette_for, register_widget_qss
 from ..widgets.column_picker import attach_column_picker
 from ..widgets import Divider, EmptyState
-from ..widgets.flow import FlowLayout, _alive
+from ..widgets.flow import FlowLayout, _alive, _titled_group
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from .map_barcodes import FoldOpener, restate_fold_button
@@ -1674,7 +1674,7 @@ class _ProbabilityHistogram(QWidget):
         """An empty histogram; :meth:`set_distribution` fills it."""
         super().__init__(parent)
         self.setObjectName("AnnotateSuggestHistogram")
-        self.setMinimumHeight(150)
+        self.setMinimumSize(360, 360)
         self._classes: List[Any] = []
         self._counts: Dict[str, List[int]] = {}
         self._lines: List[float] = []
@@ -1698,11 +1698,13 @@ class _ProbabilityHistogram(QWidget):
             hist, _ = np.histogram(data, bins=self.BINS, range=(0.0, 1.0))
             self._counts[str(value)] = [int(v) for v in hist]
         self._axis = str(axis)
+        self._fit_histogram()
         self.update()
 
     def set_lines(self, lines: Sequence[float]) -> None:
         """Mark the thresholds now in force on the probability axis."""
         self._lines = [float(v) for v in lines]
+        self._fit_histogram()
         self.update()
 
     def counts(self) -> Dict[str, List[int]]:
@@ -1713,52 +1715,39 @@ class _ProbabilityHistogram(QWidget):
         """The threshold positions drawn."""
         return list(self._lines)
 
+    def _histogram_arguments(self):
+        """Describe the existing bins and explicit suggestion thresholds."""
+        return dict(
+            series=[dict(label=tr("Class {value}", value=value),
+                         values=self._counts.get(str(value), [0] * self.BINS))
+                    for value in self._classes],
+            thresholds=[dict(label=tr("Threshold {n}", n=index + 1), value=value)
+                        for index, value in enumerate(self._lines)],
+            xlabel=self._axis or tr("Probability"), ylabel=tr("Crops"),
+            caption=tr("Out-of-fold probabilities by true class."),
+            reference=tr("Dashed lines mark the selected thresholds; no reference class is assigned."))
+
+    def _fit_histogram(self):
+        """Reserve room for the external class and threshold descriptions."""
+        from ...figures.style import native_histogram_geometry
+
+        geometry = native_histogram_geometry(self, **self._histogram_arguments())
+        self.setMinimumHeight(max(360, int(geometry["minimum_height"] + 1)))
+
+    def _spacr_style_observation(self):
+        """Return observations of the current actual widget paint."""
+        self.grab()
+        return deepcopy(self._histogram_paint)
+
     def paintEvent(self, event):
-        """Draw the bars, the threshold lines and the axis."""
+        """Draw the unchanged probability bins through the shared native style."""
+        from ...figures.style import paint_native_histogram
+
         painter = QPainter(self)
         try:
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            palette = tile_palette()
-            text = QColor(palette["fg_muted"])
-            metrics = painter.fontMetrics()
-            bottom = self.height() - 2 * metrics.height() - 4
-            top = 6
-            left, right = 8, self.width() - 8
-            width = max(1, right - left)
-            height = max(1, bottom - top)
-            peak = max([max(v) for v in self._counts.values() if v] or [0])
-            n = max(1, len(self._classes))
-            slot = width / float(self.BINS)
-            bar = max(1.0, (slot - 4.0) / n)
-            for b in range(self.BINS):
-                for i, value in enumerate(self._classes):
-                    count = self._counts.get(str(value), [0] * self.BINS)[b]
-                    if not count or not peak:
-                        continue
-                    h = height * count / float(peak)
-                    colour = label_to_hex(value if isinstance(value, int)
-                                          else None, dark=on_dark_theme())
-                    painter.fillRect(
-                        QRectF(left + b * slot + 2 + i * bar, bottom - h,
-                               bar, h),
-                        QColor(colour or resting_border_color()))
-            painter.setPen(QPen(text, 1))
-            painter.drawLine(left, bottom, right, bottom)
-            dash = QPen(QColor(palette["warning"]), 2)
-            dash.setStyle(Qt.DashLine)
-            painter.setPen(dash)
-            for value in self._lines:
-                x = left + width * min(1.0, max(0.0, value))
-                painter.drawLine(int(x), top, int(x), bottom)
-            painter.setPen(QPen(text, 1))
-            base = bottom + metrics.ascent() + 2
-            painter.drawText(left, base, "0")
-            middle = "0.5"
-            painter.drawText(int(left + width / 2 - metrics.horizontalAdvance(
-                middle) / 2), base, middle)
-            painter.drawText(right - metrics.horizontalAdvance("1"), base, "1")
-            painter.drawText(QRect(left, base + 2, width, metrics.height()),
-                             Qt.AlignHCenter, self._axis)
+            self._histogram_paint = paint_native_histogram(
+                self, painter, edges=[index / self.BINS for index in range(self.BINS + 1)],
+                xunit="probability", theme_colors=tile_palette(), **self._histogram_arguments())
         finally:
             painter.end()
 
@@ -3305,9 +3294,9 @@ class _Thumbnail(QLabel):
         """Draw the count on a dark rounded tag over the crop's top left corner."""
         if not self._count_text:
             return
-        font = QFont(self.font())
-        font.setBold(True)
-        painter.setFont(font)
+        from ...figures.style import native_plot_font
+
+        painter.setFont(native_plot_font())
         metrics = painter.fontMetrics()
         inset = float(TILE_INSET) + 2.0
         box = QRectF(inset, inset,
@@ -5460,6 +5449,13 @@ _AUTO_ANNOTATE_OPEN_UMAP = 101
 
 
 
+#: The toolbar groups of the Annotate screen, in the order of the work: open
+#: the data, move through it, choose how it is shown, label, review what was
+#: labelled, fit a model on it, and last the commands that remove labels.
+TOOLBAR_GROUP_ORDER = ("source", "navigate", "view", "label", "review",
+                       "model", "danger")
+
+
 class _ToolbarFlow(FlowLayout):
     """The Annotate toolbar's wrapping row of groups, last group at the right.
 
@@ -5607,13 +5603,13 @@ class _ToolbarGroup(QWidget):
         self.setProperty("toolbarGroup", key)
         self.setAccessibleName(caption)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.row = QHBoxLayout(self)
-        self.row.setContentsMargins(0, 0, 0, 0)
-        self.row.setSpacing(SPACING["sm"])
-        self.caption = QLabel(caption, self)
-        self.caption.setObjectName("SubtitleSmall")
+        frame, self.row = _titled_group(caption, "AnnotateToolbarFrame",
+                                        horizontal=True)
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        outer.addWidget(frame)
+        self.caption = frame.title_label
         self.caption.setProperty("toolbarGroupCaption", key)
-        self.row.addWidget(self.caption)
         for widget in self.members:
             self.row.addWidget(widget)
             widget.installEventFilter(self)
@@ -5943,9 +5939,7 @@ class AnnotateScreen(QWidget):
         row = _ToolbarFlow(toolbar, spacing=SPACING["lg"],
                            line_spacing=SPACING["sm"])
         row.setContentsMargins(0, 0, 0, 0)
-        groups = {key: [] for key in ("navigate", "source", "data",
-                                      "view", "similar", "model", "bulk",
-                                      "danger")}
+        groups = {key: [] for key in TOOLBAR_GROUP_ORDER}
         self._btn_open = QPushButton("Open source…")
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
@@ -5960,8 +5954,8 @@ class AnnotateScreen(QWidget):
         groups["source"].append(self._build_setup_menu())
         groups["source"].append(self._btn_settings)
         groups["view"].append(self._build_blind_toggle())
-        groups["similar"].append(self._build_similar_button())
-        groups["similar"].append(self._build_similar_options())
+        groups["label"].append(self._build_similar_button())
+        groups["label"].append(self._build_similar_options())
         groups["view"].append(self._build_field_qc_button())
 
         self._btn_prev = QPushButton("Back")
@@ -5987,7 +5981,7 @@ class AnnotateScreen(QWidget):
         self._btn_count.setIcon(iconset.icon("chart"))
         self._btn_count.setCursor(Qt.PointingHandCursor)
         self._btn_count.clicked.connect(self._on_class_counts)
-        groups["data"].append(self._btn_count)
+        groups["review"].append(self._btn_count)
 
         self._btn_coverage = QPushButton("Coverage")
         self._btn_coverage.setIcon(iconset.icon("chart"))
@@ -5998,7 +5992,7 @@ class AnnotateScreen(QWidget):
             "within a small number of wells or plates."
         )
         self._btn_coverage.clicked.connect(self._on_coverage)
-        groups["data"].append(self._btn_coverage)
+        groups["review"].append(self._btn_coverage)
 
         self._btn_retrain = QPushButton("Retrain")
         self._btn_retrain.setIcon(iconset.icon("classify"))
@@ -6110,7 +6104,14 @@ class AnnotateScreen(QWidget):
         self._train_menu = train_menu
         self._btn_train_cv = self._btn_train
         self._btn_train_xg = self._btn_train
-        groups["bulk"].append(self._btn_train)
+        groups["model"].append(self._btn_train)
+
+        self._btn_annotate_page = QPushButton("Annotate page")
+        self._btn_annotate_page.setCursor(Qt.PointingHandCursor)
+        self._btn_annotate_page.setToolTip(
+            "Give every image on this page the same class. Asks which.")
+        self._btn_annotate_page.clicked.connect(self._on_annotate_page)
+        groups["label"].append(self._btn_annotate_page)
 
         self._btn_auto = QPushButton("Auto-annotate…")
         self._btn_auto.setCursor(Qt.PointingHandCursor)
@@ -6118,7 +6119,7 @@ class AnnotateScreen(QWidget):
             "Label a whole population at once — by metadata, by measurement "
             "thresholds, by a gate, or by UMAP cluster.")
         self._btn_auto.clicked.connect(self._on_auto_annotate)
-        groups["bulk"].append(self._btn_auto)
+        groups["label"].append(self._btn_auto)
 
         self._btn_browse_db = QPushButton("View in database")
         self._btn_browse_db.setCursor(Qt.PointingHandCursor)
@@ -6126,14 +6127,7 @@ class AnnotateScreen(QWidget):
             "Open png_list in the Database Browser to see the annotation "
             "column as it is stored.")
         self._btn_browse_db.clicked.connect(self._on_browse_db)
-        groups["data"].append(self._btn_browse_db)
-
-        self._btn_annotate_page = QPushButton("Annotate page")
-        self._btn_annotate_page.setCursor(Qt.PointingHandCursor)
-        self._btn_annotate_page.setToolTip(
-            "Give every image on this page the same class. Asks which.")
-        self._btn_annotate_page.clicked.connect(self._on_annotate_page)
-        groups["bulk"].append(self._btn_annotate_page)
+        groups["review"].append(self._btn_browse_db)
 
         self._btn_clear_page = QPushButton("Clear page")
         self._btn_clear_page.setCursor(Qt.PointingHandCursor)
@@ -6154,14 +6148,13 @@ class AnnotateScreen(QWidget):
         self._page_label.setProperty("i18nSkipText", True)
         groups["navigate"].append(self._page_label)
         captions = {
-            "navigate": tr("Navigate"),
-            "source": tr("Source"),
-            "model": tr("Label model"),
-            "bulk": tr("Train and apply"),
-            "view": tr("View"),
-            "similar": tr("Find similar"),
-            "data": tr("Data"),
-            "danger": tr("Danger zone"),
+            "source": tr("SOURCE"),
+            "navigate": tr("NAVIGATE"),
+            "view": tr("VIEW"),
+            "label": tr("LABEL"),
+            "review": tr("REVIEW"),
+            "model": tr("MODEL"),
+            "danger": tr("DANGER ZONE"),
         }
         self._toolbar_groups = {
             key: _ToolbarGroup(key, captions[key], members)

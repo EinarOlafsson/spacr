@@ -190,10 +190,10 @@ def test_the_effect_ranking_states_its_intervals_and_calls(make, subtests):
         assert "No coefficients to rank" in ranked._status.text()
         assert not ranked.plot.getAxis("left")._tickLevels
         assert ranked.set_results(_coefficients(1)) == 1
-        levels = ranked.plot.getAxis("left")._tickLevels
+        levels = ranked.plot.getAxis("bottom")._tickLevels
         assert len(levels[0]) == 1
-        low, high = ranked.plot.getViewBox().viewRange()[1]
-        assert low < -0.5 and high > 0.5
+        low, high = ranked.plot.getViewBox().viewRange()[0]
+        assert (low, high) == (-0.5, 0.5)
 
 
 @dataclasses.dataclass

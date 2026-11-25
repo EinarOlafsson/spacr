@@ -1,0 +1,43 @@
+================================================================================
+THE DATABASE BROWSER MERGES TABLES, ALSO ACROSS PLATES AND DATABASES
+================================================================================
+
+Lifecycle: new
+Status:    not started
+Requested: 2026-11-24 — "the database browser should be able to merge tables, and merge tables from multiple plates. even when 2 databases have the same plate name their  tables should be able to be merged in the database browser."
+Owner:     WS "spacr work"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The Database Browser (S6, StoreDb on spacr-store) opens one project at a time and has no merge. spacr.merge_tables merges tables in code; two databases that carry the same plate name collide on the plate key.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Comparing or pooling plates means leaving the app for a script, and two runs of a plate that kept its name cannot be put side by side at all.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A Merge action in the Database Browser: pick tables from one or more open projects (old .db or spacr-store), choose the join (stack rows, or join on object keys), preview, then save the result as a new table in a project store.
+2. Reuse spacr.merge_tables and the shared Store reader (store.read_frame); no second merge implementation.
+3. When two sources share a plate name, the merge keeps them apart with a source column (project path or a label the user gives) and shows the user that it did so; keys stay unique.
+4. Large tables stream (keyset paging, column pruning) as the browser already does.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+Two example projects, including two with the same plate name, merge in the browser into one table whose rows count and keys check out; the same merge in code gives the same table; tests cover stack, join and the same-name case.
+
+--------------------------------------------------------------------------------
+NOTES
+--------------------------------------------------------------------------------
+
+2026-11-24: opened by WS spacr work from the maintainer request above.
+
+2026-11-24: built by WS on ws-offload-ws-dbbrowser-merge (base L4 ws-offload-ws-l4-int). The Database Browser has a "Merge tables…" button. Its window lists the open project first, takes more projects (older measurements.db files and store projects alike), stacks one table from each or joins object tables on their keys (one row per cell), previews, and saves the result as a new table in a store project. The browser then opens the new table. In code the same merge is spacr.plate_measurements.merge_projects (preview, in memory) and save_merge (saved table). Both reuse multi_database.read_merged / describe_merge and plate_measurements.merge_plate_databases (merge_tables roll-up); there is no second merge. Same plate name in two projects: each row carries the project label in source_database, and the label is also written to screenID, so every key stays unique. The window and the summary say "Plate X is in A and B. Their rows stay apart…". A stack save streams: each project is paged by key (Store.page, or rowid through store.read_frame), only the kept columns are read, and each part is written per plate and well through store.writer, with a merge_row key that the Browser pages on. A join holds the tables while it rolls children up. Tests: tests/test_merge_projects_1017.py (stack, join, same plate name, mixed .db plus store, a 120k-row streaming stack, saved equals in code, refusals, cancel) and tests/qt/test_db_browser_merge_1017.py. Screenshots light/dark: mnt2/spacr/1017_scratch/. Translations on hold: new tr() strings are in db_browser.py _MergeDialog. Lesson 34_database needs re-recording for the new button and window.

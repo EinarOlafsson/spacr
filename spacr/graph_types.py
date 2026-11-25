@@ -26,6 +26,7 @@ _READ_THE_PREFERENCE_STORE = ContextVar(
 
 #: Available graph types represented as ``(value, display description)``.
 GRAPH_TYPES: Tuple[Tuple[str, str], ...] = (
+    ("auto", "automatic comparison from finite observation counts"),
     ("bar", "one value per group"),
     ("bar_jitter", "the summary AND the observations"),
     ("box_jitter", "the five numbers AND the observations"),
@@ -41,6 +42,7 @@ GRAPH_TYPES: Tuple[Tuple[str, str], ...] = (
 #: Descriptions remain available for explanatory tooltips, while these names
 #: keep graph-selection menus compact and scannable.
 GRAPH_NAMES: Dict[str, str] = {
+    "auto": "Automatic",
     "bar": "Bar",
     "bar_jitter": "Bar with jitter",
     "box_jitter": "Box with jitter",
@@ -68,6 +70,7 @@ GRAPH_NAMES: Dict[str, str] = {
 #: (TestTheTablesAgree) so the copy cannot drift in silence. Collapsing it
 #: into this one is left to whoever owns that file.
 MARKS: Dict[str, str] = {
+    "auto": "auto",
     "bar": "bar",
     "bar_jitter": "jitter_bar",
     "box_jitter": "jitter_box",
@@ -116,7 +119,7 @@ DATA_SHAPES: Tuple[Tuple[str, str], ...] = (
 
 #: Which types FIT each shape.
 FITS: Dict[str, Tuple[str, ...]] = {
-    "categorical_continuous": ("box_jitter", "bar_jitter", "bar", "jitter",
+    "categorical_continuous": ("auto", "box_jitter", "bar_jitter", "bar", "jitter",
                                "box", "violin"),
     "continuous_continuous": ("scatter",),
     "ordered_continuous": ("line", "scatter", "jitter"),
@@ -134,7 +137,7 @@ FITS: Dict[str, Tuple[str, ...]] = {
 #: the same reason; this table disagreeing with them was a second answer
 #: to one question.
 DEFAULTS: Dict[str, str] = {
-    "categorical_continuous": "box_jitter",
+    "categorical_continuous": "auto",
     "continuous_continuous": "scatter",
     "ordered_continuous": "line",
     "continuous_only": "jitter",

@@ -147,22 +147,22 @@ def test_there_are_no_gridlines_ever():
     assert rc()["axes.grid"] is False
 
 
-def test_the_ground_is_transparent_by_default():
-    """"not black not white just transparent" -- instruction 118."""
+def test_the_ground_is_readable_by_default_and_explicit_transparency_remains_available():
+    """Dark v1 previews hid black CI ink; automatic white surfaces keep it readable while explicit transparency is retained."""
     params = rc()
-    assert params["figure.facecolor"] == TRANSPARENT
-    assert params["axes.facecolor"] == TRANSPARENT
-    assert params["savefig.transparent"] is True
+    assert params["figure.facecolor"] == "#FFFFFF"
+    assert params["axes.facecolor"] == "#FFFFFF"
+    assert params["savefig.transparent"] is False
+    transparent = rc(ground=TRANSPARENT)
+    assert transparent["figure.facecolor"] == TRANSPARENT
+    assert transparent["savefig.transparent"] is True
 
 
 def test_the_ink_follows_where_the_figure_is_going():
-    """The published palette is near-black on white. On spaCR's dark theme
-    that is invisible axes, so screen and print resolve differently -- while
-    the HUES stay fixed, because a strain colour that moves between panels
-    is worse than no colour at all."""
+    """Both automatic output targets use readable black text on the shared white plot ground; data hues stay fixed."""
     assert rc("print")["text.color"] == INK_PRINT
     assert rc("screen")["text.color"] == INK_SCREEN
-    assert ROLES["up"] == "#2E7D4F" and ROLES["down"] == "#C4441C"
+    assert ROLES["up"] == "#0A9878" and ROLES["down"] == "#C878A8"
 
 
 def test_the_frame_is_l_or_box_and_nothing_else():

@@ -356,6 +356,8 @@ from spacr.gene_graph import _DEFAULTS as GENE_GRAPH_DEFAULTS  # noqa: E402
 from spacr.gene_knowledge import _DEFAULTS as GENE_KNOWLEDGE_DEFAULTS  # noqa: E402
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # L5 audit, schema 965: the ring of the outside profiling family.
+    "profile_outside_rule", "ops_ph_profile_outside_rule",
     # Merge 4: one size-filter boundary rule; the legacy rule is kept for old files.
     "size_filter_inclusive",
     # 0aj P1b: split a source of several plates into plate folders (Mask).
@@ -598,6 +600,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cross_field_metric",
     "ops_cross_field_min_overlap",
     "ops_cross_field_policy",
+    # Seam ownership: nearest field centre (schema 963).
+    "ops_cross_field_rule",
+    "ops_cross_field_radius_px",
     # OPS run report: counts against a published table (875).
     "ops_reference_counts",
     "ops_reference_counts_level",
@@ -653,6 +658,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_decode_quality_weighted",
     "ops_vote_weight_floor",
     "ops_decode_pixel_fallback",
+    # The pixel fallback gated by the read vote (schema 964).
+    "ops_pixel_read_gate",
     "ops_pixel_percentile",
     "ops_pixel_radius",
     "ops_pixel_min_pixels",

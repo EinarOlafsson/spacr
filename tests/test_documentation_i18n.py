@@ -3618,8 +3618,9 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     import build_documentation_i18n as builder
 
     docs, source_contracts = current_documentation_api_contracts
+    from tests.test_graphstyle_api_contract import _current_graphstyle_api, _retired_graphstyle_api
     historical_docs = (docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
-                       | _retired_0ab2_measure_api(docs))
+                       | _retired_0ab2_measure_api(docs) | _retired_graphstyle_api(docs))
     assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
@@ -3905,6 +3906,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
         ("figprefs_pipeline_figures_api_arrivals_2026-11-19.json", 1),
         ("figstyle_spacr_graphs_api_arrivals_2026-11-19.json", 9),
+        ("graphstyle_g1_api_arrivals_2026-11-23.json", 22),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("cachepos_ops_field_cache_api_arrivals_2026-11-20.json", 1),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
@@ -3938,14 +3940,20 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
+        if filename == "figstyle_spacr_graphs_api_arrivals_2026-11-19.json":
+            arrivals = _current_graphstyle_api(arrivals)
         from tests.test_ops_fdr_never_1014 import _current_never_api
         arrivals = _current_never_api(arrivals)
         from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
         arrivals = _current_neighbour_api(arrivals)
         from tests.test_ops_phfields_sources import _current_phfields_api
         arrivals = _current_phfields_api(arrivals)
+        from tests.l5_api_hooks import _current_l5_api
+        arrivals = _current_l5_api(arrivals)
         from tests.phtables_store_api_hooks import _current_phtables_api
         arrivals = _current_phtables_api(arrivals)
+        from tests.l5_api_hooks import _current_l5_api
+        arrivals = _current_l5_api(arrivals)
         if filename == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             arrivals = _posix_update_prepared_key_move(arrivals, docs)
         if filename == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":

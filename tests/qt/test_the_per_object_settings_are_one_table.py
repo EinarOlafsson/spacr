@@ -931,7 +931,8 @@ class TestTheHelpSitsAboveTheTable:
 
 # ---------------------------------------------------------------------------
 # 2026-09-29 (item 592, the maintainer's decision "hide unset objects"): a
-# column is drawn only for an object whose channel is set; cell always.
+# column is drawn only for an object whose channel is set, cell included
+# (2026-11-24).
 # ---------------------------------------------------------------------------
 
 class TestAnUnsetObjectIsHidden:
@@ -953,11 +954,19 @@ class TestAnUnsetObjectIsHidden:
         assert "pathogen" not in grid.objects()
         assert "organelle" not in grid.objects()
 
-    def test_cell_always_shows(self, qtbot, qt_theme_applied):
+    def test_cell_and_cytoplasm_follow_the_cell_channel(self, qtbot,
+                                                        qt_theme_applied):
+        """2026-11-24 (maintainer: "in mask generation if nothing is in
+        cell channel there should be no per object settings cell column"),
+        replacing the 2026-09-29 rule that cell always shows."""
         grid = self._grid(qtbot)
         assert grid.settings()["cell_channel"] is None
-        assert grid.objects() == ("cell",)
-        assert grid.questions(), "the cell column still asks its questions"
+        assert grid.objects() == ()
+        assert grid.questions() == ()
+        assert grid._questions_held(), "the hidden table keeps its questions"
+        assert "Set a channel" in grid.status_text()
+        grid.set_settings(dict(grid.settings(), cell_channel=1))
+        assert "cell" in grid.objects()
 
     def test_setting_the_channel_shows_the_old_values(self, qtbot,
                                                       qt_theme_applied):

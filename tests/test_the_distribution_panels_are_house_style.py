@@ -141,11 +141,11 @@ def test_the_kde_is_the_claim_and_the_normal_fit_is_only_a_reference():
         f"the reference is heavier than the data: {normal.get_linewidth()}")
 
 
-def test_the_uniform_expectation_is_a_grey_dashed_reference():
-    """It was crimson at lw=1.2 — louder than the bars it was a guide to."""
+def test_the_uniform_expectation_is_a_black_dashed_reference():
+    """The shared reference uses black at its original uniform-expectation value, with the same thin dashed geometry."""
     _figure, ax, stats = _draw("p_value_histogram")
     lines = [line for line in ax.lines
-             if to_hex(line.get_color()) == ROLES["reference"].lower()]
+             if to_hex(line.get_color()) == "#000000"]
     assert lines, "the uniform expectation is not drawn as a reference"
     assert all(line.get_linewidth() <= WEIGHTS["reference"] for line in lines)
     assert all(line.get_linestyle() != "-" for line in lines)
@@ -201,7 +201,9 @@ def test_the_residual_legend_is_coloured_text_matching_its_curves():
     """The legend entry has to be the same hue as the thing it names, or it
     is a caption rather than a legend."""
     _figure, ax, _stats = _draw("residual_distribution")
-    entries = {t.get_text(): to_hex(t.get_color()) for t in ax.texts}
+    entries = {entry["label"]: to_hex(entry["colour"])
+               for entry in getattr(ax, "_spacr_legend_entries", ())
+               if entry["kind"] == "identity"}
     assert entries.get("KDE") == ROLES["highlight"].lower(), entries
     assert entries.get("normal fit") == ROLES["reference"].lower(), entries
 
@@ -221,11 +223,13 @@ def test_the_title_is_a_descriptor_and_not_a_sentence(name):
 @pytest.mark.parametrize("name,unit", [("residual_distribution", "wells"),
                                        ("response_distribution", "wells"),
                                        ("p_value_histogram", "coefficients")])
-def test_the_n_is_still_stated_on_the_panel_face(name, unit):
+def test_the_n_is_still_stated_in_the_external_legend(name, unit):
     """Moving it out of the title must not lose it: a distribution without
     its n cannot be read at all."""
     _figure, ax, stats = _draw(name)
-    drawn = " ".join(t.get_text() for t in ax.texts)
+    drawn = " ".join(entry["label"]
+                     for entry in getattr(ax, "_spacr_legend_entries", ())
+                     if entry["kind"] == "note")
     expected = stats.get("n_points", stats.get("n"))
     assert f"n = {expected:,} {unit}" in drawn, drawn
 
@@ -371,9 +375,14 @@ def test_repointing_the_report_target_moves_the_chrome_too(monkeypatch, name):
     tests above derive their expected ink from ``rq._REPORT_TARGET``, so the
     split would have surfaced as a panel failure rather than as its cause.
     """
+    def target_ink(target):
+        """Distinguish targets independently of their current default colours."""
+        return {"screen": "#0A77B8", "print": "#283868"}[target]
+
+    monkeypatch.setattr(rq, "resolve_ink", target_ink)
     monkeypatch.setattr(rq, "_REPORT_TARGET", "screen")
-    expected = to_hex(resolve_ink("screen")).lower()
-    assert expected != to_hex(resolve_ink("print")).lower()
+    expected = to_hex(target_ink("screen")).lower()
+    assert expected != to_hex(target_ink("print")).lower()
 
     _figure, ax, _stats = _draw(name)
 

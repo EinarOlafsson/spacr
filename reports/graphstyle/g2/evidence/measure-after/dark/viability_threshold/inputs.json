@@ -1,0 +1,106 @@
+[
+  {
+    "arrays": [
+      {
+        "data_base64": "WyJwIiwgInAiLCAicCIsICJwIiwgInAiLCAicCJd",
+        "dtype": "object",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "557b80b363615a788f5ba4e135833e5cf09fbef50a84e871fe22801143665a58",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "WyJzdGFpbiIsICJzdGFpbiIsICJzdGFpbiIsICJzdGFpbiIsICJzdGFpbiIsICJzdGFpbiJd",
+        "dtype": "object",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "d11e7b46ae6395cb91564dee250e4e3c6be710af121297574d5303d0564fb435",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA8D8AAAAAAAAQQAAAAAAAADRAAAAAAACAUUAAAAAAAABZQAAAAAAAAPh/",
+        "dtype": "float64",
+        "missing": "186128bf8a4d60eb4b51102ae2a2cb6a0b80011977582480395a454454bec7e1",
+        "missing_base64": "AAAAAAAB",
+        "sha256": "136e594e2da953514ef1bf1cbaff873ee1323cfc36f2a59d65788c0d74d7fa7b",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAWUAAAAAAAIBWQAAAAAAAAE5AAAAAAAAAIEAAAAAAAAAAQAAAAAAAABRA",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "8f2cb5091c1e0c4135b5346132650ff7f419bc7db498bdd42f70c1a10ee2593f",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "WyJsaXZlIiwgImxpdmUiLCAibGl2ZSIsICJkZWFkIiwgImRlYWQiLCAidW5zdGFpbmVkIl0=",
+        "dtype": "object",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "ef38a211b71712f02d0e286ce6f303a43567f89c199b40b54f687ac1e8112988",
+        "shape": [
+          6
+        ]
+      }
+    ],
+    "columns": [
+      "plateID",
+      "viability_method",
+      "dead_signal",
+      "live_signal",
+      "viability_state"
+    ],
+    "csv": ",plateID,viability_method,dead_signal,live_signal,viability_state\n0,p,stain,1.0,100.0,live\n1,p,stain,4.0,90.0,live\n2,p,stain,20.0,60.0,live\n3,p,stain,70.0,8.0,dead\n4,p,stain,100.0,2.0,dead\n5,p,stain,,5.0,unstained\n",
+    "dtypes": [
+      "object",
+      "object",
+      "float64",
+      "float64",
+      "object"
+    ],
+    "kind": "dataframe"
+  },
+  [
+    [
+      "dead",
+      [
+        [
+          "p",
+          {
+            "n": 6,
+            "positive_fraction": 0.4,
+            "separation": 3.0,
+            "source": "manual",
+            "threshold": 25.0
+          }
+        ]
+      ]
+    ],
+    [
+      "live",
+      [
+        [
+          "p",
+          {
+            "n": 6,
+            "positive_fraction": 0.4,
+            "separation": 3.0,
+            "source": "manual",
+            "threshold": 25.0
+          }
+        ]
+      ]
+    ]
+  ],
+  "p",
+  "p"
+]

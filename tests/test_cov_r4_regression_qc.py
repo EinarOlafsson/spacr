@@ -122,7 +122,11 @@ def test_the_edge_statistic_needs_both_an_edge_and_an_interior_to_exist():
     assert len(plate_ax.collections) == 4
     assert len(column_ax.collections) == 3
     # And the edge verdict reached the figure, not just the stats dict.
-    row_text = "\n".join(t.get_text() for t in row_ax.texts)
-    plate_text = "\n".join(t.get_text() for t in plate_ax.texts)
+    # Graphstyle G1 (L5): annotate() keeps the note for the figure legend
+    # instead of drawing it over the data.
+    def notes(ax):
+        return "\n".join([t.get_text() for t in ax.texts]
+                         + [e["label"] for e in getattr(ax, "_spacr_legend_entries", ())])
+    row_text, plate_text = notes(row_ax), notes(plate_ax)
     assert "edge - interior median" in row_text
     assert "edge - interior median" not in plate_text

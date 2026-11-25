@@ -11,9 +11,10 @@ by the shard's largest label), one pool array per shard of
 ``crops_per_shard`` crops, written whole by the one writer. The crop table
 gives each crop its pool, offset, height and width, so a crop is one
 contiguous read; its ``object_label`` with ``labels/<own class>`` rebuilds
-the own-object mask exactly. The table is written through one adapter,
-:func:`_write_crop_index` (today ``measurements.db:ssCell_Crops``), so the
-unified measurement store can take it without changing any caller.
+the own-object mask exactly. The table is the ``crop_index`` table of the
+one store of the project, ``<project>/measurements`` (:func:`_write_crop_index`
+and :func:`_crop_index_writer` write it, :func:`_read_crop_index` and
+:func:`crop_rows` read it); the root catalog of an older project is still read.
 
 This is spaCR's own crop format, not an OME-Zarr image: viewers open the
 images, not the pools. :func:`export_crops` writes crops out as TIFF, PNG
@@ -268,6 +269,7 @@ class CropPoolWriter:
         self._stream_path = base / ".rows.jsonl.tmp"
         self._stream = None
         self._streamed = 0
+        self._index: Optional["_IndexStream"] = None
 
     def _set_attributes(self, attributes: Dict[str, Any]) -> None:
         """Store the class's pool attributes; refuse a conflicting value."""
@@ -319,6 +321,8 @@ class CropPoolWriter:
         previous = self._previous
         pools = list(previous["pools"]) if previous else []
         pools += [p for p in self.pools if p not in pools]
+        if self._index is not None:
+            return self._commit_to_index(base, pools)
         if self.keep_rows:
             stream = self._open_stream()
             for row in rows:
@@ -341,7 +345,31 @@ class CropPoolWriter:
                  if previous else [])
         return {**record, "rows": prior + rows}
 
-    def _streaming(self, *, workers: int = 1) -> "CropPoolWriter":
+    def _commit_to_index(self, base: Path, pools: List[str]) -> Dict[str, Any]:
+        """Commit with the rows in the crop index of the store, not ``rows.jsonl``.
+
+        The index part is finished and registered first, then the record
+        is written, naming the store of the index; so a record on disk always
+        has its rows in the catalog.
+        """
+        index = self._index
+        index.finish()
+        stale = base / "rows.jsonl"
+        if stale.is_file():
+            stale.unlink()
+        record = {"version": 1, "plate": self.plate, "well": self.well,
+                  "object_type": self.object_type, "pools": pools,
+                  "n_rows": index.rows, "attributes": self.attributes,
+                  "index": {"table": CROP_INDEX_TABLE,
+                            "store": _relative_to(index.project, base)}}
+        _atomic_write(base / "spacr_commit.json",
+                      json.dumps(record, indent=1, default=_json_default) + "\n")
+        self.rows, self.pools, self._previous = [], [], record
+        self._index = None
+        return record
+
+    def _streaming(self, *, workers: int = 1, index: Any = None,
+                   index_schema: Any = None) -> "CropPoolWriter":
         """Keep only counts, not rows, and stream each shard's rows to the row file (item 0ap).
 
         A well of a million crops then needs no rows in memory, and
@@ -353,12 +381,22 @@ class CropPoolWriter:
         and rows are the same for every value.
 
         :param workers: shards written at once.
+        :param index: a store folder: the rows go to its ``crop_index``
+            table (:class:`_IndexStream`) instead of the row file.
+        :param index_schema: the Arrow schema of the index part (see
+            :class:`_IndexStream`).
         :returns: the writer.
         """
         if self._buffer or self.rows or self._streamed:
             raise RuntimeError("choose streaming before adding crops")
         self.keep_rows = False
         self.workers = max(1, int(workers))
+        if index is not None:
+            if self._previous:
+                raise ValueError(f"{self.path / self.object_type}: a committed class "
+                                 f"cannot take more crops through the store index; "
+                                 f"remove it first")
+            self._index = _IndexStream(index, self.plate, self.well, schema=index_schema)
         return self
 
     def _add_prepared(self, crops: Iterable[Mapping[str, Any]]) -> None:
@@ -398,6 +436,9 @@ class CropPoolWriter:
         self._drain(0)
         if self.keep_rows:
             self.rows.extend(json.loads(line) for line in lines)
+            return
+        if self._index is not None:
+            self._index.add(lines)
             return
         stream = self._open_stream()
         for line in lines:
@@ -485,6 +526,9 @@ class CropPoolWriter:
         text, count, rows = written
         if self.keep_rows:
             self.rows.extend(rows)
+            return
+        if self._index is not None:
+            self._index.add(text.splitlines(True))
             return
         self._open_stream().write(text)
         self._streamed += count
@@ -875,6 +919,15 @@ def _read_commit_at(base: Path, *, rows: bool = True) -> Optional[Dict[str, Any]
     if not record_path.is_file():
         return None
     record = json.loads(record_path.read_text(encoding="utf-8"))
+    if record.get("index"):
+        if not rows:
+            return record
+        folder = Path(os.path.normpath(base / str(record["index"]["store"])))
+        found = _index_rows(folder, record["plate"], record["well"], record["object_type"])
+        if len(found) != int(record["n_rows"]):
+            raise ValueError(f"{base}: the commit lists {record['n_rows']} rows, "
+                             f"the crop index of {folder} holds {len(found)}")
+        return {**record, "rows": found}
     if not rows:
         held = _count_lines(base / "rows.jsonl")
         if held != int(record["n_rows"]):
@@ -1301,16 +1354,20 @@ def _stream_crop(project: Any, row: Mapping[str, Any], *, labels: bool = False
                     all_labels=planes)
 
 
-#: ``source_field`` of a streamed OPS crop: ``ops:<site>`` (item 0ap). The
-#: reader cuts it from that site's phenotype tiles
-#: (:func:`spacr.ops_engine._ph_stream_crop`), not from ``fov.ome.zarr``.
+#: ``source_field`` of a streamed OPS crop of an older run:
+#: ``ops:<site>``, cut from the phenotype tiles of that site. Newer OPS rows name
+#: their field in ``fov.ome.zarr``, like Measure rows, and carry ``ops_crop``.
+#: The reader cuts both through :func:`spacr.ops_engine._ph_stream_crop`.
 OPS_SOURCE_PREFIX = "ops:"
 
 
 def _is_ops_source(row: Mapping[str, Any]) -> bool:
-    """Whether a streamed crop is cut from OPS phenotype tiles (:data:`OPS_SOURCE_PREFIX`, item 0ap)."""
+    """Whether a streamed crop is an OPS crop: ``ops_crop`` set, or an older ``ops:<site>`` row."""
     value = _row_field(row, "source_field")
-    return isinstance(value, str) and value.startswith(OPS_SOURCE_PREFIX)
+    if isinstance(value, str) and value.startswith(OPS_SOURCE_PREFIX):
+        return True
+    flag = _row_field(row, "ops_crop")
+    return isinstance(flag, (bool, np.bool_)) and bool(flag)
 
 
 def _mask_is_absent(row: Mapping[str, Any]) -> bool:
@@ -1382,8 +1439,17 @@ def read_crops(project: Any, rows: Iterable[Mapping[str, Any]], *, context: bool
         else:
             streamed[str(_row_field(row, "source_field"))].append(index)
     for _name, members in streamed.items():
+        if _is_ops_source(rows[members[0]]):
+            from .ops_engine import _PH_WHOLE_FIELD_CROPS, _ph_stream_crop
+
+            whole = len(members) >= _PH_WHOLE_FIELD_CROPS
+            for index in members:
+                pixels, mask = _ph_stream_crop(project, rows[index], whole=whole)
+                out[index] = _finish_crop(pixels, mask, context or _mask_is_absent(rows[index]),
+                                          size)
+            continue
         windows = None
-        if len(members) > 1 and not _is_ops_source(rows[members[0]]):
+        if len(members) > 1:
             from .image_store import _store_field
 
             path = _source_field_path(project, rows[members[0]])
@@ -1796,17 +1862,174 @@ def read_training_dataset(project: Any, name: str) -> List[Dict[str, Any]]:
     return rows
 
 
+#: The key columns of every crop-index part, and the order its rows are kept in.
+_INDEX_KEYS = ("object_id", "object_type", "field", "object_label")
+_INDEX_ORDER = ("object_type", "field", "object_label")
+
+#: Index columns held as nullable integers.
+_INDEX_INTEGERS = ("field", "pool_index", "offset", "mask_offset", "column", "timepoint")
+
+
+def _index_frame(frame: Any) -> Any:
+    """Crop rows as the crop index stores them: pool columns renamed, integers nullable."""
+    index = frame.rename(columns=_INDEX_RENAMES)
+    for column in _INDEX_INTEGERS:
+        if column in index.columns:
+            index[column] = index[column].astype("Int64")
+    return index
+
+
+def _index_folder(project: Any, *, write: bool = False) -> Path:
+    """The store folder that holds the crop index of a project.
+
+    New projects keep it in their one store, ``<project>/measurements``;
+    an older project whose root catalog ``<project>/spacr.duckdb`` lists
+    ``crop_index`` (and whose measurements store does not) is read there,
+    and never rewritten. A ``measurements`` folder is its own index folder.
+
+    :param project: the project folder (or its measurements store).
+    :param write: the folder a new index is written to: always the
+        measurements store.
+    """
+    project = Path(project)
+    if project.name == "measurements":
+        return project
+    new = project / "measurements"
+    if write:
+        return new
+    for folder in (new, project):
+        if _lists_index(folder):
+            return folder
+    return new
+
+
+def _lists_index(folder: Path) -> bool:
+    """Whether the catalog of a store folder lists the crop-index table."""
+    from . import store
+
+    catalog = Path(folder) / store.CATALOG
+    try:
+        stat = os.stat(catalog)
+    except OSError:
+        return False
+    return _catalog_lists_index(os.path.abspath(catalog), stat.st_mtime_ns, stat.st_size)
+
+
+@functools.lru_cache(maxsize=64)
+def _catalog_lists_index(catalog: str, modified: int, size: int) -> bool:
+    """:func:`_lists_index` for one catalog file, read once while it is unchanged."""
+    from . import store
+
+    try:
+        with store.open(os.path.dirname(catalog), verify="none") as opened:
+            return CROP_INDEX_TABLE in opened.tables()
+    except store.StoreError:
+        return False
+
+
+def _relative_to(path: Any, base: Any) -> str:
+    """``path`` relative to the folder ``base`` (``..`` allowed), posix; absolute on another drive."""
+    try:
+        return Path(os.path.relpath(os.path.abspath(path), os.path.abspath(base))).as_posix()
+    except ValueError:
+        return Path(os.path.abspath(path)).as_posix()
+
+
+def _crop_index_writer(folder: Any, plate: str, well: str, *, schema: Any = None):
+    """THE writer of the crop-index part of one well, for Measure and OPS alike.
+
+    :param folder: the store folder (:func:`_index_folder` with ``write``).
+    :param plate: the plate name.
+    :param well: the well name.
+    :param schema: the Arrow schema of the part; None takes that of the first batch.
+    :returns: a :class:`spacr.store.WellWriter`; append frames made by
+        :func:`_index_frame`, then finish it and register the folder.
+    """
+    from . import store
+
+    return store.writer(str(folder), CROP_INDEX_TABLE, plate=plate, well=well,
+                        sort_by=_INDEX_ORDER, key_columns=_INDEX_KEYS, schema=schema)
+
+
+class _IndexStream:
+    """Crop-index rows streamed into the part of one well, a batch at a time.
+
+    :param folder: the store folder the index goes to.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param schema: the Arrow schema of the part (without ``plate``, ``well``),
+        so a batch whose optional column is all empty still has its type.
+    :param batch: rows per appended batch.
+
+    The rows arrive as the JSON lines the pool writer builds (in their
+    stored order), so the rows of a well are never all held at once.
+    """
+
+    def __init__(self, folder: Any, plate: str, well: str, *, schema: Any = None,
+                 batch: int = 8192):
+        """Open the part of the well; nothing is visible before :meth:`finish`."""
+        self.project = Path(folder)
+        self.plate, self.well = str(plate), str(well)
+        self.writer = _crop_index_writer(folder, plate, well, schema=schema)
+        self.batch = int(batch)
+        self.lines: List[str] = []
+        self.rows = 0
+
+    def add(self, lines: Iterable[str]) -> None:
+        """Queue rows (JSON lines), appending each full batch."""
+        for line in lines:
+            if line.strip():
+                self.lines.append(line)
+        while len(self.lines) >= self.batch:
+            self._append(self.lines[:self.batch])
+            self.lines = self.lines[self.batch:]
+
+    def _append(self, lines: Sequence[str]) -> None:
+        """Append one batch of rows to the part."""
+        import pandas as pd
+
+        frame = _index_frame(pd.DataFrame([json.loads(line) for line in lines]))
+        self.writer.append(frame)
+        self.rows += len(lines)
+
+    def finish(self) -> Dict[str, Any]:
+        """Append the last rows, finish the part and register it in the store."""
+        from . import store
+
+        if self.lines:
+            self._append(self.lines)
+            self.lines = []
+        manifest = self.writer.finish()
+        store.register(str(self.project))
+        return manifest
+
+
+def _index_rows(folder: Any, plate: str, well: str, object_type: str) -> List[Dict[str, Any]]:
+    """One well and class of the crop index of a store folder, in stored order."""
+    from . import store
+
+    with store.open(str(folder), verify="none") as opened:
+        if CROP_INDEX_TABLE not in opened.tables():
+            return []
+        found = opened.sql(
+            f"SELECT * FROM {CROP_INDEX_TABLE} WHERE plate = ? AND well = ? AND "
+            f"object_type = ? ORDER BY {', '.join(_INDEX_ORDER)}",
+            [str(plate), str(well), str(object_type)])
+    found = found.rename(columns={v: k for k, v in _INDEX_RENAMES.items()})
+    return found.astype(object).where(found.notna(), None).to_dict("records")
+
+
 def _write_crop_index(db_path: Any, frame: Any, *, project: Any = None) -> None:
     """The crop-index adapter's writer (item 0aj): one place that stores the crop rows.
 
-    The index goes through spacr.store: one
-    ``crop_index`` part per plate and well, keyed like every table
+    The index goes through spacr.store, into the one store of the project
+    (``<project>/measurements``): one ``crop_index`` part per
+    plate and well (:func:`_crop_index_writer`), keyed like every table
     (``plate``, ``well``, ``field``, ``object_type``, ``object_label``,
-    ``object_id``), registered in the project's catalog. The same rows are
-    mirrored to ``measurements.db:ssCell_Crops``, because Annotate and
-    Classify write their annotation columns into that table by
-    ``object_id`` and old readers read it; it is the annotation table, not
-    a second index.
+    ``object_id``), registered in its catalog. The same rows are mirrored
+    to ``measurements.db:ssCell_Crops``, because Annotate and Classify write
+    their annotation columns into that table by ``object_id`` and old
+    readers read it; it is the annotation table, not a second index.
 
     :param db_path: the run's ``measurements.db``.
     :param frame: the crop rows, as :func:`committed_rows` gives them.
@@ -1817,16 +2040,13 @@ def _write_crop_index(db_path: Any, frame: Any, *, project: Any = None) -> None:
     from .tabular import write_database
 
     project = Path(project) if project is not None else Path(db_path).parent.parent
-    index = frame.rename(columns=_INDEX_RENAMES)
-    for column in ("field", "pool_index", "offset", "mask_offset", "column", "timepoint"):
-        if column in index.columns:
-            index[column] = index[column].astype("Int64")
+    folder = _index_folder(project, write=True)
+    index = _index_frame(frame)
     for (plate, well), part in index.groupby(["plate", "well"], sort=True):
-        store.write_part(str(project), CROP_INDEX_TABLE, part.reset_index(drop=True),
-                         plate=plate, well=well,
-                         sort_by=("object_type", "field", "object_label"),
-                         key_columns=("object_id", "object_type", "field", "object_label"))
-    store.register(str(project))
+        part = part.sort_values(list(_INDEX_ORDER), kind="stable", na_position="last")
+        with _crop_index_writer(folder, plate, well) as writer:
+            writer.append(part.reset_index(drop=True))
+    store.register(str(folder))
     from .measurement_store import drop_tables, store_native, write_rows
     if store_native(db_path):
         drop_tables(db_path, ["ssCell_Crops"])
@@ -1842,10 +2062,11 @@ _INDEX_STORES: "collections.OrderedDict[Tuple[str, int, int], Any]" = collection
 
 
 def _index_store(project: Any):
-    """The project's opened spacr store when it lists ``crop_index``; kept while the catalog is unchanged."""
+    """The opened store holding the ``crop_index`` of the project; kept while its catalog is unchanged."""
     from . import store
 
-    catalog = Path(project) / store.CATALOG
+    folder = _index_folder(project)
+    catalog = folder / store.CATALOG
     try:
         stat = os.stat(catalog)
     except OSError:
@@ -1854,7 +2075,7 @@ def _index_store(project: Any):
     opened = _INDEX_STORES.get(key)
     if opened is None:
         try:
-            opened = store.open(str(project))
+            opened = store.open(str(folder))
         except store.StoreError:
             return None
         if CROP_INDEX_TABLE not in opened.tables():
@@ -1901,7 +2122,9 @@ def _read_crop_index(project: Any) -> Optional[Any]:
     """The crop-index adapter's reader (item 0aj): the project's crop rows.
 
     Reads the ``crop_index`` table through the shared spaCR data reader,
-    :func:`spacr.store.open`. An older project without it is read from
+    :func:`spacr.store.open`, from the store that holds it
+    (:func:`_index_folder`: the measurements store of the project, or the
+    root catalog of an older project). An older project without it is read from
     ``measurements.db:ssCell_Crops`` (through the same reader, or directly
     when its catalog does not list the table).
 
@@ -1912,13 +2135,13 @@ def _read_crop_index(project: Any) -> Optional[Any]:
     from .tabular import read_database
 
     db = Path(measurements_db_path(project))
-    if (Path(project) / store.CATALOG).is_file():
+    folder = _index_folder(project)
+    if _lists_index(folder):
         try:
-            with store.open(str(project)) as opened:
-                if CROP_INDEX_TABLE in opened.tables():
-                    found = opened.query(table=CROP_INDEX_TABLE)
-                    found = found.rename(columns={v: k for k, v in _INDEX_RENAMES.items()})
-                    return found.astype(object).where(found.notna(), None)
+            with store.open(str(folder)) as opened:
+                found = opened.query(table=CROP_INDEX_TABLE)
+                found = found.rename(columns={v: k for k, v in _INDEX_RENAMES.items()})
+                return found.astype(object).where(found.notna(), None)
         except store.StoreError:
             pass
     from .measurement_store import exists as _measurements_exist

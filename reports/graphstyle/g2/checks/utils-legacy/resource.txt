@@ -1,0 +1,1 @@
+Job 1682; scope /user.slice/user-1000.slice/user@1000.service/app.slice/sched-home-1682-1272147.scope; RAM 2147483648; CPU 100000/100000; swap0; weight800; nice19; native1; VRAM0

@@ -1,0 +1,39 @@
+{
+  "all22PNGsreviewed": true,
+  "new_native_PNG_opened": [
+    "constant_dark",
+    "constant_light",
+    "numeric_dark",
+    "numeric_light"
+  ],
+  "remaining18hash_identical_to_inspected_after_v6": true,
+  "png_sha256": {
+    "manual_light": "3223ead3ab3d64f91c1cdba1ff1c11db2df2d1dab7dda96a0f9d5e6d0c949870",
+    "default_dark": "715718451c914815984caa021494631947b4bc684fe06e037336f7f06a13034a",
+    "control_light": "be2e75956b1a39eb8d9bf66c6a5f02363c2cef9a5325fe0a9943d05a14d9ec46",
+    "numeric_light": "f6f9ee4f3b866a33e9f6baf4bd6ac35e79a951abff65c9b2ef9a4bbb42be4c9e",
+    "constant_light": "536da24061cabb31cf86cc3e6393cb845a263e565ea3bfdc798d86aec437d27a",
+    "categorical_shape_dark": "ca0b4f3cc2a01c23f5f720e5dc544a7c7406ec3ed723a427c2012a6852ea9341",
+    "threshold_dark": "782ff3b2e8c29331f229471ea4d92e9e073bccdcc45d03658427d59b4f3e4949",
+    "annotated_light": "da7afc08d5fc238962e68319857d86891d41de98d2f5a70d8a563d635cbc1b2b",
+    "split_light": "31d68c4ce5e3f2d2f3e2e3c7a20d318b22796e1996b9105aa45e69d9a8c80a8c",
+    "localization_dark": "abc2fc0131e2b362658a3200b95baeef1e0205b6c56873853f5bcbe9535f52f9",
+    "manual_dark": "3223ead3ab3d64f91c1cdba1ff1c11db2df2d1dab7dda96a0f9d5e6d0c949870",
+    "control_dark": "be2e75956b1a39eb8d9bf66c6a5f02363c2cef9a5325fe0a9943d05a14d9ec46",
+    "split_dark": "31d68c4ce5e3f2d2f3e2e3c7a20d318b22796e1996b9105aa45e69d9a8c80a8c",
+    "categorical_shape_light": "ca0b4f3cc2a01c23f5f720e5dc544a7c7406ec3ed723a427c2012a6852ea9341",
+    "constant_dark": "536da24061cabb31cf86cc3e6393cb845a263e565ea3bfdc798d86aec437d27a",
+    "default_light": "715718451c914815984caa021494631947b4bc684fe06e037336f7f06a13034a",
+    "raw_p_light": "14a5591dcd4e16a4b62f96611c9c4aea17f3a154efeee50307b1893825a43787",
+    "numeric_dark": "f6f9ee4f3b866a33e9f6baf4bd6ac35e79a951abff65c9b2ef9a4bbb42be4c9e",
+    "threshold_light": "782ff3b2e8c29331f229471ea4d92e9e073bccdcc45d03658427d59b4f3e4949",
+    "localization_light": "abc2fc0131e2b362658a3200b95baeef1e0205b6c56873853f5bcbe9535f52f9",
+    "annotated_dark": "da7afc08d5fc238962e68319857d86891d41de98d2f5a70d8a563d635cbc1b2b",
+    "raw_p_dark": "14a5591dcd4e16a4b62f96611c9c4aea17f3a154efeee50307b1893825a43787"
+  },
+  "scientific_reference_CSV_byte_exact": 154,
+  "view_receipts": 22,
+  "maximum_automatic_view_roundoff": 8.881784197001252e-16,
+  "manual_bounds_exact": true,
+  "observations": "Constant points and key are one visible shared blue with one0.5tick and exact sourceclim(.5,.5); numeric/collapsed keys show explicitly declared dimensionless units. Fourchanged/new300dpiPNGs opened; remaining18exactSHAidentity toallinspectedafter_v6; manualfixedcanvaswarnings expected with savedtightPNGsunclipped."
+}

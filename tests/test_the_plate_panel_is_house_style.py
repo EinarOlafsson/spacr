@@ -334,8 +334,7 @@ def test_the_legacy_viridis_literal_becomes_the_house_ramp():
 
     figure = plot_plates(_screen(n_plates=1), "pred", "mean", "allq",
                          "viridis", min_count=0, verbose=False, dst=None)
-    assert _plate_axes(figure)[0].images[0].get_cmap().name.startswith(
-        "spacr_plate")
+    assert _plate_axes(figure)[0].images[0].get_cmap().name == "Blues"
 
     plt.close(figure)
     figure = plot_plates(_screen(n_plates=1), "pred", "mean", "allq",
@@ -343,17 +342,14 @@ def test_the_legacy_viridis_literal_becomes_the_house_ramp():
     assert _plate_axes(figure)[0].images[0].get_cmap().name == "magma"
 
 
-def test_the_ramp_is_a_single_blue_hue_and_ends_short_of_black_on_screen():
-    """"Sequential encodings use a single-hue blue ramp, light→dark." On the
-    dark theme the print ramp's NAVY end is within a hair of the ground, and
-    a well at the top of the scale must not be confusable with a well that
-    has no measurement."""
-    from matplotlib.colors import to_rgb
+def test_the_ramp_uses_the_shared_blue_scale_in_both_themes():
+    """A readable white graph ground permits the same full blue scale in both themes."""
+    from matplotlib import colormaps
 
     printed = plate_ramp("print")(1.0)[:3]
     screen = plate_ramp("screen")(1.0)[:3]
-    assert printed == pytest.approx(to_rgb(Palette.NAVY), abs=0.01)
-    assert screen == pytest.approx(to_rgb(Palette.BLUE), abs=0.01)
+    assert printed == colormaps["Blues"](1.0)[:3]
+    assert screen == colormaps["Blues"](1.0)[:3]
     # Light to dark, monotonically, at both ends of both ramps.
     for ramp in (plate_ramp("print"), plate_ramp("screen")):
         levels = [sum(ramp(value)[:3]) for value in np.linspace(0, 1, 9)]

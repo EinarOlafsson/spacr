@@ -882,16 +882,11 @@ def _plane_iou(prev_plane: np.ndarray, cur_plane: np.ndarray):
     if prev_ids.size == 0 or cur_ids.size == 0:
         return prev_ids, cur_ids, np.zeros((prev_ids.size, cur_ids.size), float)
 
+    from .measure import _label_overlaps
+
     overlap = np.zeros((prev_ids.size, cur_ids.size), dtype=np.int64)
-    both = (prev_plane > 0) & (cur_plane > 0)
-    if np.any(both):
-        rows = np.searchsorted(prev_ids, prev_plane[both])
-        cols = np.searchsorted(cur_ids, cur_plane[both])
-        counts = np.bincount(
-            rows * cur_ids.size + cols,
-            minlength=prev_ids.size * cur_ids.size,
-        )
-        overlap = counts.reshape(prev_ids.size, cur_ids.size)
+    pair_prev, pair_cur, shared = _label_overlaps(prev_plane, cur_plane)
+    overlap[np.searchsorted(prev_ids, pair_prev), np.searchsorted(cur_ids, pair_cur)] = shared
 
     prev_counts = np.bincount(prev_plane.ravel())
     cur_counts = np.bincount(cur_plane.ravel())

@@ -19,12 +19,19 @@ pytest.importorskip("PySide6")
 
 
 def _screen(qtbot, app_key="mask"):
+    """A screen with the cell channel set.
+
+    2026-11-24: the cell column is drawn only once cell_channel names a
+    plane, so a mask screen is given one before the grid is looked at.
+    """
     from PySide6.QtWidgets import QApplication
 
     from spacr.qt.screens.app_screen import AppScreen
 
     screen = AppScreen(app_key)
     qtbot.addWidget(screen)
+    if app_key == "mask":
+        assert screen._settings_model.set_value_for_key("cell_channel", 1)
     QApplication.processEvents()
     return screen
 

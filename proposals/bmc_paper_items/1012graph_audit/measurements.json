@@ -1,0 +1,6645 @@
+{
+  "source_head": "862ab34810badc4138d0aa55c97509f56652f759",
+  "scheduler_job": "1607",
+  "queries": 16,
+  "true_pairs": 56,
+  "seed": 20261119,
+  "calibration": 50,
+  "null": 200,
+  "graph_k": 10,
+  "edge_p": 0.05,
+  "source": {
+    "ops_maxproj.py": "476e5d6c8a5fede3f85237eb0561d606131c86bc5de18a7fe170437381fb95fb",
+    "ops_clusters.py": "5908af267176ca4cf389f2870e5c8c566a0aeedfaf7de84a656a52d52eeb4512",
+    "ops_reference.py": "3ff3f6e8ca0698496d5bf80859ecbf9189da78f0a34b3ed8eb8521c41439e785"
+  },
+  "versions": {
+    "numpy": "2.5.2",
+    "scipy": "1.18.0",
+    "scikit-learn": "1.9.0",
+    "igraph": "1.0.0",
+    "leidenalg": "0.12.0"
+  },
+  "cases": [
+    {
+      "view_count": 2,
+      "similarity": "cosine",
+      "planted": false,
+      "input_sha256": "2c29c562c3fec80b3f7e22b5e8b42761299f65fac3637f7463ebb4c0e3f58d6a",
+      "target_components": [
+        6,
+        6
+      ],
+      "target_clusters": 13,
+      "ranks": {
+        "raw_target": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 25,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 7,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 45,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 29,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 22,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 22,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "embedded_target": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 26,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 8,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 43,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 5,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 16,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 16,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "calibrated_target": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 1,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 26,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 8,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 43,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 5,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 16,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 16,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 2
+            }
+          ]
+        },
+        "maximum": {
+          "queries": 16,
+          "stable": 6,
+          "argpartition": 6,
+          "guaranteed": 6,
+          "possible": 6,
+          "boundary_tied_queries": 1,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 8,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 12,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 35,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 25,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 35,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 36,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 33,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 34,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 34,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "max_null_strength": {
+          "queries": 16,
+          "stable": 6,
+          "argpartition": 6,
+          "guaranteed": 6,
+          "possible": 6,
+          "boundary_tied_queries": 2,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 8,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 12,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 35,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 25,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 35,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 36,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 33,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 34,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 34,
+              "cutoff_ties": 2
+            }
+          ]
+        },
+        "retained_candidates": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 11,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 8,
+              "cutoff_ties": 153
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 151
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 154
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 12,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 155
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 11,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 12,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 6,
+              "cutoff_ties": 155
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 10,
+              "cutoff_ties": 151
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 6,
+              "cutoff_ties": 155
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 9,
+              "cutoff_ties": 152
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 9,
+              "cutoff_ties": 152
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 11,
+              "cutoff_ties": 2
+            }
+          ]
+        }
+      },
+      "edges": {
+        "threshold": {
+          "member_hits": 6,
+          "partner_pairs": 4,
+          "all_pairs": 650
+        },
+        "threshold_plus_rescue": {
+          "member_hits": 6,
+          "partner_pairs": 4,
+          "all_pairs": 650
+        },
+        "knn": {
+          "member_hits": 6,
+          "partner_pairs": 4,
+          "all_pairs": 648
+        },
+        "no_pruning_knn": {
+          "member_hits": 7,
+          "partner_pairs": 5,
+          "all_pairs": 922
+        },
+        "reversed_order_knn": {
+          "member_hits": 6,
+          "partner_pairs": 4,
+          "all_pairs": 647
+        }
+      },
+      "partitions": {
+        "resolution_1": {
+          "member_hits": 10,
+          "partner_pairs": 8,
+          "clusters": 10,
+          "largest_cluster": 24,
+          "median_cluster": 16.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            3,
+            4,
+            6,
+            1,
+            6,
+            3,
+            6,
+            0,
+            7,
+            1,
+            9,
+            1,
+            1,
+            4,
+            0,
+            0
+          ]
+        },
+        "matched": {
+          "member_hits": 10,
+          "partner_pairs": 8,
+          "clusters": 12,
+          "largest_cluster": 21,
+          "median_cluster": 12.0,
+          "resolution": 1.539926526059492,
+          "adjusted": null,
+          "query_labels": [
+            3,
+            2,
+            9,
+            1,
+            9,
+            3,
+            9,
+            6,
+            2,
+            1,
+            0,
+            1,
+            1,
+            6,
+            6,
+            5
+          ]
+        },
+        "post_match_count": {
+          "member_hits": 10,
+          "partner_pairs": 8,
+          "clusters": 12,
+          "largest_cluster": 21,
+          "median_cluster": 12.0,
+          "resolution": 1.539926526059492,
+          "adjusted": false,
+          "query_labels": [
+            0,
+            1,
+            2,
+            3,
+            2,
+            0,
+            2,
+            4,
+            1,
+            3,
+            5,
+            3,
+            3,
+            4,
+            4,
+            6
+          ]
+        },
+        "uniform_resolution_1": {
+          "member_hits": 11,
+          "partner_pairs": 7,
+          "clusters": 9,
+          "largest_cluster": 30,
+          "median_cluster": 18.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            6,
+            1,
+            3,
+            2,
+            3,
+            0,
+            3,
+            0,
+            1,
+            3,
+            3,
+            2,
+            2,
+            1,
+            0,
+            5
+          ]
+        }
+      },
+      "weights": {
+        "total": 1108.8773245811462,
+        "true_pair": 6.145298719406128,
+        "min": 1.3033615350723267,
+        "max": 4.502427101135254
+      },
+      "ties": {
+        "unique_p": 916,
+        "pairs": 12720,
+        "p_min": 3.1446528737433255e-05,
+        "p_max": 0.9999410510063171,
+        "at_min": 1,
+        "projected_unique": 4857,
+        "reversal_edge_jaccard": 0.9984567901234568
+      },
+      "planted_pairs_winning_target": 23,
+      "planted_pair_winner_counts": [
+        25,
+        31
+      ],
+      "p_below_05": 650,
+      "elapsed_seconds": 5.347129489062354
+    },
+    {
+      "view_count": 2,
+      "similarity": "cosine",
+      "planted": true,
+      "input_sha256": "b10bffadfa9c93588d63ebdcffb17387289c0629e82218f46e8b9dd18bdf92d4",
+      "target_components": [
+        6,
+        6
+      ],
+      "target_clusters": 13,
+      "ranks": {
+        "raw_target": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "embedded_target": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "calibrated_target": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 1,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "maximum": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "max_null_strength": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 1,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "retained_candidates": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 2,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 153
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 154
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        }
+      },
+      "edges": {
+        "threshold": {
+          "member_hits": 16,
+          "partner_pairs": 51,
+          "all_pairs": 725
+        },
+        "threshold_plus_rescue": {
+          "member_hits": 16,
+          "partner_pairs": 51,
+          "all_pairs": 725
+        },
+        "knn": {
+          "member_hits": 16,
+          "partner_pairs": 49,
+          "all_pairs": 706
+        },
+        "no_pruning_knn": {
+          "member_hits": 16,
+          "partner_pairs": 50,
+          "all_pairs": 940
+        },
+        "reversed_order_knn": {
+          "member_hits": 16,
+          "partner_pairs": 49,
+          "all_pairs": 706
+        }
+      },
+      "partitions": {
+        "resolution_1": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "clusters": 8,
+          "largest_cluster": 34,
+          "median_cluster": 18.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            6,
+            6,
+            6,
+            6,
+            6,
+            6,
+            6,
+            6
+          ]
+        },
+        "matched": {
+          "member_hits": 15,
+          "partner_pairs": 49,
+          "clusters": 13,
+          "largest_cluster": 17,
+          "median_cluster": 13.0,
+          "resolution": 1.3455698580999509,
+          "adjusted": null,
+          "query_labels": [
+            11,
+            11,
+            11,
+            11,
+            11,
+            9,
+            11,
+            11,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ]
+        },
+        "post_match_count": {
+          "member_hits": 15,
+          "partner_pairs": 49,
+          "clusters": 13,
+          "largest_cluster": 17,
+          "median_cluster": 13.0,
+          "resolution": 1.3455698580999509,
+          "adjusted": false,
+          "query_labels": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "uniform_resolution_1": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "clusters": 9,
+          "largest_cluster": 25,
+          "median_cluster": 16.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3
+          ]
+        }
+      },
+      "weights": {
+        "total": 1238.1117511987686,
+        "true_pair": 118.54442250728607,
+        "min": 1.3015016317367554,
+        "max": 4.206860065460205
+      },
+      "ties": {
+        "unique_p": 941,
+        "pairs": 12720,
+        "p_min": 6.210689025465399e-05,
+        "p_max": 0.9999209642410278,
+        "at_min": 1,
+        "projected_unique": 4950,
+        "reversal_edge_jaccard": 1.0
+      },
+      "planted_pairs_winning_target": 56,
+      "planted_pair_winner_counts": [
+        28,
+        28
+      ],
+      "p_below_05": 725,
+      "elapsed_seconds": 3.201075072051026
+    },
+    {
+      "view_count": 13,
+      "similarity": "cosine",
+      "planted": false,
+      "input_sha256": "bfd3b8eef3665f710a2128ec25cf6edd258b3781cd144fd6cc88aa38775cdc5d",
+      "target_components": [
+        6,
+        6
+      ],
+      "target_clusters": 13,
+      "ranks": {
+        "raw_target": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 25,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 7,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 45,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 29,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 22,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 22,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "embedded_target": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 26,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 8,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 43,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 5,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 16,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 16,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "calibrated_target": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 1,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 26,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 8,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 43,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 5,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 16,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 16,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 2
+            }
+          ]
+        },
+        "maximum": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 1,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 10,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 20,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 23,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 34,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 20,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 63,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 9,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 10,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "max_null_strength": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 1,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 10,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 23,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 34,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 20,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 15,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 63,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 9,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 10,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "retained_candidates": {
+          "queries": 16,
+          "stable": 2,
+          "argpartition": 2,
+          "guaranteed": 2,
+          "possible": 2,
+          "boundary_tied_queries": 9,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 8,
+              "cutoff_ties": 153
+            },
+            {
+              "gene": 1,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 6,
+              "cutoff_ties": 155
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 151
+            },
+            {
+              "gene": 3,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 9,
+              "cutoff_ties": 152
+            },
+            {
+              "gene": 4,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 12,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 151
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 11,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 5,
+              "cutoff_ties": 156
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 6,
+              "cutoff_ties": 155
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 7,
+              "cutoff_ties": 154
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            }
+          ]
+        }
+      },
+      "edges": {
+        "threshold": {
+          "member_hits": 2,
+          "partner_pairs": 1,
+          "all_pairs": 628
+        },
+        "threshold_plus_rescue": {
+          "member_hits": 2,
+          "partner_pairs": 1,
+          "all_pairs": 628
+        },
+        "knn": {
+          "member_hits": 2,
+          "partner_pairs": 1,
+          "all_pairs": 622
+        },
+        "no_pruning_knn": {
+          "member_hits": 7,
+          "partner_pairs": 4,
+          "all_pairs": 938
+        },
+        "reversed_order_knn": {
+          "member_hits": 2,
+          "partner_pairs": 1,
+          "all_pairs": 622
+        }
+      },
+      "partitions": {
+        "resolution_1": {
+          "member_hits": 10,
+          "partner_pairs": 5,
+          "clusters": 9,
+          "largest_cluster": 32,
+          "median_cluster": 15.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            6,
+            2,
+            8,
+            3,
+            0,
+            3,
+            0,
+            8,
+            8,
+            3,
+            0,
+            3,
+            4,
+            5,
+            0,
+            1
+          ]
+        },
+        "matched": {
+          "member_hits": 4,
+          "partner_pairs": 2,
+          "clusters": 13,
+          "largest_cluster": 21,
+          "median_cluster": 12.0,
+          "resolution": 1.3823722273578996,
+          "adjusted": null,
+          "query_labels": [
+            0,
+            2,
+            3,
+            4,
+            0,
+            1,
+            5,
+            1,
+            0,
+            1,
+            7,
+            4,
+            10,
+            2,
+            5,
+            9
+          ]
+        },
+        "post_match_count": {
+          "member_hits": 4,
+          "partner_pairs": 2,
+          "clusters": 13,
+          "largest_cluster": 21,
+          "median_cluster": 12.0,
+          "resolution": 1.3823722273578996,
+          "adjusted": false,
+          "query_labels": [
+            0,
+            1,
+            2,
+            3,
+            0,
+            4,
+            5,
+            4,
+            0,
+            4,
+            6,
+            3,
+            7,
+            1,
+            5,
+            8
+          ]
+        },
+        "uniform_resolution_1": {
+          "member_hits": 9,
+          "partner_pairs": 6,
+          "clusters": 8,
+          "largest_cluster": 29,
+          "median_cluster": 19.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            6,
+            0,
+            7,
+            4,
+            2,
+            5,
+            0,
+            7,
+            2,
+            4,
+            2,
+            4,
+            6,
+            3,
+            2,
+            1
+          ]
+        }
+      },
+      "weights": {
+        "total": 1085.5105311870575,
+        "true_pair": 2.319584846496582,
+        "min": 1.3038870096206665,
+        "max": 4.627366065979004
+      },
+      "ties": {
+        "unique_p": 660,
+        "pairs": 12720,
+        "p_min": 2.358489655307494e-05,
+        "p_max": 0.9996206760406494,
+        "at_min": 1,
+        "projected_unique": 8273,
+        "reversal_edge_jaccard": 1.0
+      },
+      "planted_pairs_winning_target": 2,
+      "planted_pair_winner_counts": [
+        5,
+        7,
+        3,
+        6,
+        3,
+        3,
+        4,
+        4,
+        8,
+        2,
+        6,
+        3,
+        2
+      ],
+      "p_below_05": 628,
+      "elapsed_seconds": 19.35444025392644
+    },
+    {
+      "view_count": 13,
+      "similarity": "cosine",
+      "planted": true,
+      "input_sha256": "5d3063a5b4e91d8cba62d9d24c10841bdea3943039fc1b8cf46253968300df02",
+      "target_components": [
+        6,
+        6
+      ],
+      "target_clusters": 13,
+      "ranks": {
+        "raw_target": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "embedded_target": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "calibrated_target": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 1,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "maximum": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 8,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "max_null_strength": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 3,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 7,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "retained_candidates": {
+          "queries": 16,
+          "stable": 15,
+          "argpartition": 15,
+          "guaranteed": 15,
+          "possible": 15,
+          "boundary_tied_queries": 5,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 5,
+              "cutoff_ties": 156
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 153
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 151
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        }
+      },
+      "edges": {
+        "threshold": {
+          "member_hits": 15,
+          "partner_pairs": 29,
+          "all_pairs": 656
+        },
+        "threshold_plus_rescue": {
+          "member_hits": 15,
+          "partner_pairs": 29,
+          "all_pairs": 656
+        },
+        "knn": {
+          "member_hits": 15,
+          "partner_pairs": 27,
+          "all_pairs": 642
+        },
+        "no_pruning_knn": {
+          "member_hits": 16,
+          "partner_pairs": 29,
+          "all_pairs": 939
+        },
+        "reversed_order_knn": {
+          "member_hits": 15,
+          "partner_pairs": 27,
+          "all_pairs": 642
+        }
+      },
+      "partitions": {
+        "resolution_1": {
+          "member_hits": 13,
+          "partner_pairs": 26,
+          "clusters": 9,
+          "largest_cluster": 27,
+          "median_cluster": 17.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            7,
+            7,
+            7,
+            2,
+            7,
+            5,
+            7,
+            7,
+            4,
+            2,
+            2,
+            2,
+            8,
+            4,
+            2,
+            2
+          ]
+        },
+        "matched": {
+          "member_hits": 11,
+          "partner_pairs": 25,
+          "clusters": 13,
+          "largest_cluster": 18,
+          "median_cluster": 14.0,
+          "resolution": 1.4590242156305606,
+          "adjusted": null,
+          "query_labels": [
+            6,
+            6,
+            6,
+            3,
+            6,
+            1,
+            6,
+            6,
+            6,
+            5,
+            5,
+            3,
+            2,
+            5,
+            5,
+            5
+          ]
+        },
+        "post_match_count": {
+          "member_hits": 11,
+          "partner_pairs": 25,
+          "clusters": 13,
+          "largest_cluster": 18,
+          "median_cluster": 14.0,
+          "resolution": 1.4590242156305606,
+          "adjusted": false,
+          "query_labels": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            2,
+            0,
+            0,
+            0,
+            3,
+            3,
+            1,
+            4,
+            3,
+            3,
+            3
+          ]
+        },
+        "uniform_resolution_1": {
+          "member_hits": 7,
+          "partner_pairs": 11,
+          "clusters": 8,
+          "largest_cluster": 27,
+          "median_cluster": 22.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            3,
+            3,
+            3,
+            7,
+            3,
+            1,
+            2,
+            3,
+            3,
+            1,
+            5,
+            7,
+            0,
+            6,
+            5,
+            2
+          ]
+        }
+      },
+      "weights": {
+        "total": 1128.6800673007965,
+        "true_pair": 56.488216042518616,
+        "min": 1.3056986331939697,
+        "max": 4.606176853179932
+      },
+      "ties": {
+        "unique_p": 664,
+        "pairs": 12720,
+        "p_min": 2.476414192642551e-05,
+        "p_max": 0.999601423740387,
+        "at_min": 1,
+        "projected_unique": 8289,
+        "reversal_edge_jaccard": 1.0
+      },
+      "planted_pairs_winning_target": 54,
+      "planted_pair_winner_counts": [
+        27,
+        27,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "p_below_05": 656,
+      "elapsed_seconds": 19.33691007399466
+    },
+    {
+      "view_count": 13,
+      "similarity": "shrunk",
+      "planted": false,
+      "input_sha256": "bfd3b8eef3665f710a2128ec25cf6edd258b3781cd144fd6cc88aa38775cdc5d",
+      "target_components": [
+        6,
+        6
+      ],
+      "target_clusters": 13,
+      "ranks": {
+        "raw_target": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 25,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 7,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 45,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 29,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 22,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 21,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 22,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "embedded_target": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 28,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 5,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 24,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 42,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 5,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 30,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 11,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 29,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 12,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 10,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 11,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 24,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "calibrated_target": {
+          "queries": 16,
+          "stable": 5,
+          "argpartition": 5,
+          "guaranteed": 5,
+          "possible": 5,
+          "boundary_tied_queries": 1,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 28,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 5,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 24,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 2
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 41,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 5,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 30,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 11,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 29,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 12,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 17,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 10,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 11,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 32,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 24,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "maximum": {
+          "queries": 16,
+          "stable": 7,
+          "argpartition": 7,
+          "guaranteed": 7,
+          "possible": 7,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 47,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 30,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 12,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 65,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 29,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 34,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 4,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 35,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "max_null_strength": {
+          "queries": 16,
+          "stable": 7,
+          "argpartition": 7,
+          "guaranteed": 7,
+          "possible": 7,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 13,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 19,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 47,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 30,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 12,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 65,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 28,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 34,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 4,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 35,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "retained_candidates": {
+          "queries": 16,
+          "stable": 7,
+          "argpartition": 7,
+          "guaranteed": 7,
+          "possible": 7,
+          "boundary_tied_queries": 13,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 7,
+              "cutoff_ties": 154
+            },
+            {
+              "gene": 1,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 8,
+              "cutoff_ties": 153
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 3,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 4,
+              "cutoff_ties": 157
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 2,
+              "cutoff_ties": 152
+            },
+            {
+              "gene": 5,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 20,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 7,
+              "cutoff_ties": 154
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 151
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 152
+            },
+            {
+              "gene": 9,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 11,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 8,
+              "cutoff_ties": 153
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 154
+            },
+            {
+              "gene": 12,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 5,
+              "cutoff_ties": 156
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 6,
+              "cutoff_ties": 153
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 4,
+              "cutoff_ties": 156
+            },
+            {
+              "gene": 15,
+              "stable": 0,
+              "argpartition": 0,
+              "guaranteed": 0,
+              "possible": 0,
+              "first_partner_rank": 8,
+              "cutoff_ties": 153
+            }
+          ]
+        }
+      },
+      "edges": {
+        "threshold": {
+          "member_hits": 7,
+          "partner_pairs": 4,
+          "all_pairs": 633
+        },
+        "threshold_plus_rescue": {
+          "member_hits": 7,
+          "partner_pairs": 4,
+          "all_pairs": 633
+        },
+        "knn": {
+          "member_hits": 7,
+          "partner_pairs": 4,
+          "all_pairs": 622
+        },
+        "no_pruning_knn": {
+          "member_hits": 7,
+          "partner_pairs": 5,
+          "all_pairs": 985
+        },
+        "reversed_order_knn": {
+          "member_hits": 7,
+          "partner_pairs": 4,
+          "all_pairs": 623
+        }
+      },
+      "partitions": {
+        "resolution_1": {
+          "member_hits": 7,
+          "partner_pairs": 5,
+          "clusters": 10,
+          "largest_cluster": 20,
+          "median_cluster": 15.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            9,
+            6,
+            0,
+            7,
+            9,
+            7,
+            2,
+            4,
+            0,
+            7,
+            8,
+            1,
+            2,
+            1,
+            1,
+            4
+          ]
+        },
+        "matched": {
+          "member_hits": 7,
+          "partner_pairs": 5,
+          "clusters": 13,
+          "largest_cluster": 16,
+          "median_cluster": 12.0,
+          "resolution": 1.3823722273578996,
+          "adjusted": null,
+          "query_labels": [
+            3,
+            4,
+            6,
+            11,
+            6,
+            10,
+            5,
+            6,
+            0,
+            11,
+            8,
+            4,
+            0,
+            7,
+            4,
+            6
+          ]
+        },
+        "post_match_count": {
+          "member_hits": 7,
+          "partner_pairs": 5,
+          "clusters": 13,
+          "largest_cluster": 16,
+          "median_cluster": 12.0,
+          "resolution": 1.3823722273578996,
+          "adjusted": false,
+          "query_labels": [
+            0,
+            1,
+            2,
+            3,
+            2,
+            4,
+            5,
+            2,
+            6,
+            3,
+            7,
+            1,
+            6,
+            8,
+            1,
+            2
+          ]
+        },
+        "uniform_resolution_1": {
+          "member_hits": 9,
+          "partner_pairs": 10,
+          "clusters": 8,
+          "largest_cluster": 25,
+          "median_cluster": 21.0,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            7,
+            0,
+            5,
+            7,
+            4,
+            2,
+            5,
+            5,
+            0,
+            7,
+            1,
+            4,
+            6,
+            4,
+            4,
+            4
+          ]
+        }
+      },
+      "weights": {
+        "total": 1083.375681400299,
+        "true_pair": 6.814945220947266,
+        "min": 1.3069531917572021,
+        "max": 4.481237888336182
+      },
+      "ties": {
+        "unique_p": 655,
+        "pairs": 12720,
+        "p_min": 3.301885590190068e-05,
+        "p_max": 0.999771237373352,
+        "at_min": 1,
+        "projected_unique": 6712,
+        "reversal_edge_jaccard": 0.9983948635634029
+      },
+      "planted_pairs_winning_target": 4,
+      "planted_pair_winner_counts": [
+        6,
+        7,
+        5,
+        6,
+        3,
+        2,
+        3,
+        4,
+        5,
+        3,
+        4,
+        6,
+        2
+      ],
+      "p_below_05": 633,
+      "elapsed_seconds": 19.306062474031933
+    },
+    {
+      "view_count": 13,
+      "similarity": "shrunk",
+      "planted": true,
+      "input_sha256": "5d3063a5b4e91d8cba62d9d24c10841bdea3943039fc1b8cf46253968300df02",
+      "target_components": [
+        6,
+        6
+      ],
+      "target_clusters": 13,
+      "ranks": {
+        "raw_target": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "embedded_target": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "calibrated_target": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "maximum": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "max_null_strength": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        },
+        "retained_candidates": {
+          "queries": 16,
+          "stable": 16,
+          "argpartition": 16,
+          "guaranteed": 16,
+          "possible": 16,
+          "boundary_tied_queries": 0,
+          "per_gene": [
+            {
+              "gene": 0,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 1,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 2,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 3,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 4,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 5,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 6,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 7,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 8,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 9,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 10,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 11,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 12,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 13,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 14,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            },
+            {
+              "gene": 15,
+              "stable": 1,
+              "argpartition": 1,
+              "guaranteed": 1,
+              "possible": 1,
+              "first_partner_rank": 1,
+              "cutoff_ties": 1
+            }
+          ]
+        }
+      },
+      "edges": {
+        "threshold": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "all_pairs": 641
+        },
+        "threshold_plus_rescue": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "all_pairs": 641
+        },
+        "knn": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "all_pairs": 615
+        },
+        "no_pruning_knn": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "all_pairs": 1004
+        },
+        "reversed_order_knn": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "all_pairs": 615
+        }
+      },
+      "partitions": {
+        "resolution_1": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "clusters": 8,
+          "largest_cluster": 36,
+          "median_cluster": 20.5,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            6,
+            6,
+            6,
+            6,
+            6,
+            6,
+            6,
+            6,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+          ]
+        },
+        "matched": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "clusters": 13,
+          "largest_cluster": 16,
+          "median_cluster": 13.0,
+          "resolution": 1.9109529749704406,
+          "adjusted": null,
+          "query_labels": [
+            9,
+            9,
+            9,
+            9,
+            9,
+            9,
+            9,
+            9,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11,
+            11
+          ]
+        },
+        "post_match_count": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "clusters": 13,
+          "largest_cluster": 16,
+          "median_cluster": 13.0,
+          "resolution": 1.9109529749704406,
+          "adjusted": false,
+          "query_labels": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        "uniform_resolution_1": {
+          "member_hits": 16,
+          "partner_pairs": 56,
+          "clusters": 8,
+          "largest_cluster": 28,
+          "median_cluster": 18.5,
+          "resolution": 1.0,
+          "adjusted": null,
+          "query_labels": [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7,
+            7
+          ]
+        }
+      },
+      "weights": {
+        "total": 1200.033364057541,
+        "true_pair": 232.17279767990112,
+        "min": 1.3011599779129028,
+        "max": 5.007577419281006
+      },
+      "ties": {
+        "unique_p": 663,
+        "pairs": 12720,
+        "p_min": 9.827040230447892e-06,
+        "p_max": 0.9996234178543091,
+        "at_min": 18,
+        "projected_unique": 6692,
+        "reversal_edge_jaccard": 1.0
+      },
+      "planted_pairs_winning_target": 56,
+      "planted_pair_winner_counts": [
+        28,
+        28,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "p_below_05": 641,
+      "elapsed_seconds": 19.38180802599527
+    }
+  ]
+}

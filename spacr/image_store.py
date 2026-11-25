@@ -907,8 +907,8 @@ def _plane_hashes(image: np.ndarray) -> List[str]:
             for plane in planes]
 
 
-def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarray]]] = None
-                 ) -> Dict[str, Any]:
+def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarray]]] = None,
+                 *, names: Optional[Iterable[str]] = None) -> Dict[str, Any]:
     """Re-hash every committed field's channel planes against what was recorded (item 0aj).
 
     The channels of ``fov.ome.zarr`` are the acquired pixels, byte for byte;
@@ -920,6 +920,8 @@ def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarra
         the stored planes with as well (value, dtype and shape); a field with
         z planes lists them channel by channel, each channel's planes in z
         order (item 0aj P3).
+    :param names: check only these field file names (the fields a run
+        just wrote); every committed field when None.
     :returns: ``{"fields": n, "planes": n, "mismatches": [...], "unrecorded": [...]}``;
         a field written before hashes were recorded is listed as unrecorded.
     """
@@ -927,8 +929,9 @@ def verify_store(store: Any, originals: Optional[Mapping[str, Sequence[np.ndarra
     if not (target.name.endswith(".ome.zarr") and _image_entries(target)):
         target = _merged_store_path(target)
     report: Dict[str, Any] = {"fields": 0, "planes": 0, "mismatches": [], "unrecorded": []}
+    wanted = None if names is None else {str(n) for n in names}
     for name, entry in sorted(_image_entries(target).items()):
-        if not entry.get("image"):
+        if not entry.get("image") or (wanted is not None and name not in wanted):
             continue
         image = _as_planes(read_frame_channels(target / entry["key"], entry, z_projection=None))
         report["fields"] += 1

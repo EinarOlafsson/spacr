@@ -1,0 +1,202 @@
+[
+  {
+    "arrays": [
+      {
+        "data_base64": "WyJzbG93IiwgInNsb3ciLCAic2xvdyIsICJmYXN0IiwgImZhc3QiLCAiZmFzdCJd",
+        "dtype": "object",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "a626aaf5b58f38efa185a7ed88a03e2b2e5bc1388626446431d1dbb79b423488",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAAAAAAAAAAAAAQAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAQAAAAAAAABBA",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "462d602d1f53b6ccf684a47828741613255bdb7b673fab3f7cf8665a69542f99",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA8D+amZmZmZnpPzMzMzMzM+M/AAAAAAAA8D8AAAAAAADgP5qZmZmZmck/",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "8abec44a944ea89d3c0662b377b69c424eee8b2489ee2cde4a43bcaa31c85e4d",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "exSuR+F6pD8AAAAAAAD4f3sUrkfherQ/uB6F61G4nj+4HoXrUbiuP5qZmZmZmak/",
+        "dtype": "float64",
+        "missing": "01cf85cfeb36d628ca2e6f583fa2331be029b6b28e877e1008fb3f862306c086",
+        "missing_base64": "AAEAAAAA",
+        "sha256": "417a3d954c50bb0ab30adba2877fdfeec829ccb5c560c1580bb4b7d8302b72fc",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AgAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAIAAAAAAAAA",
+        "dtype": "int64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "af9ecbe177721660da15f82901d733ec169d867cd5f1455cdac1533c6f8f85a8",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "WyJoIiwgImgiLCAiaCIsICJoIiwgImgiLCAiaCJd",
+        "dtype": "object",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "bdd148e0daf21a06125e5bb9f72ece034b682ac07d3627992d28ef78a9852b4a",
+        "shape": [
+          6
+        ]
+      }
+    ],
+    "columns": [
+      "condition",
+      "time",
+      "relative_open_area",
+      "relative_open_area_sd",
+      "n_wells",
+      "time_unit"
+    ],
+    "csv": ",condition,time,relative_open_area,relative_open_area_sd,n_wells,time_unit\n0,slow,0.0,1.0,0.04,2,h\n1,slow,2.0,0.8,,2,h\n2,slow,4.0,0.6,0.08,2,h\n3,fast,0.0,1.0,0.03,2,h\n4,fast,2.0,0.5,0.06,2,h\n5,fast,4.0,0.2,0.05,2,h\n",
+    "dtypes": [
+      "object",
+      "float64",
+      "float64",
+      "float64",
+      "int64",
+      "object"
+    ],
+    "kind": "dataframe"
+  },
+  {
+    "arrays": [
+      {
+        "data_base64": "WyJzbG93IiwgInNsb3ciLCAic2xvdyIsICJmYXN0IiwgImZhc3QiLCAiZmFzdCIsICJzbG93IiwgInNsb3ciLCAic2xvdyIsICJmYXN0IiwgImZhc3QiLCAiZmFzdCJd",
+        "dtype": "object",
+        "missing": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b",
+        "missing_base64": "AAAAAAAAAAAAAAAA",
+        "sha256": "c0d804a04f4a46eec344869e88319e54caf9eeffe00d53a84356978a03791ac0",
+        "shape": [
+          12
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAAAAAAAAAAAAAQAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAQAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAQAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAQAAAAAAAABBA",
+        "dtype": "float64",
+        "missing": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b",
+        "missing_base64": "AAAAAAAAAAAAAAAA",
+        "sha256": "0ff193c9b36b3f908395284eea2a2602104b75bf73be1955a89aeb0d756f5d7f",
+        "shape": [
+          12
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA8D+amZmZmZnpPzMzMzMzM+M/AAAAAAAA8D8AAAAAAADgP5qZmZmZmck/AAAAAAAA8D+amZmZmZnpPzMzMzMzM+M/AAAAAAAA8D8AAAAAAADgP5qZmZmZmck/",
+        "dtype": "float64",
+        "missing": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b",
+        "missing_base64": "AAAAAAAAAAAAAAAA",
+        "sha256": "b785cb7eaa72093674e464b5b560b0a723f7c83003f8e3c081718e365fb1348c",
+        "shape": [
+          12
+        ]
+      },
+      {
+        "data_base64": "exSuR+F6pD8AAAAAAAD4f3sUrkfherQ/uB6F61G4nj+4HoXrUbiuP5qZmZmZmak/exSuR+F6pD8AAAAAAAD4f3sUrkfherQ/uB6F61G4nj+4HoXrUbiuP5qZmZmZmak/",
+        "dtype": "float64",
+        "missing": "6d973ce90d0dd4df7f513b287c675240d02d54a77f37bf00574f9c72a6891224",
+        "missing_base64": "AAEAAAAAAAEAAAAA",
+        "sha256": "e3d37c39efa58dbdcc4e43b9fc2a736e86d2d98d22722ffa449677e2ed836cd8",
+        "shape": [
+          12
+        ]
+      },
+      {
+        "data_base64": "AgAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAIAAAAAAAAA",
+        "dtype": "int64",
+        "missing": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b",
+        "missing_base64": "AAAAAAAAAAAAAAAA",
+        "sha256": "1b0eee0c40f33085cdccf93e8990104120af02378b0186ed1652dd18b3da9569",
+        "shape": [
+          12
+        ]
+      },
+      {
+        "data_base64": "WyJoIiwgImgiLCAiaCIsICJoIiwgImgiLCAiaCIsICJoIiwgImgiLCAiaCIsICJoIiwgImgiLCAiaCJd",
+        "dtype": "object",
+        "missing": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b",
+        "missing_base64": "AAAAAAAAAAAAAAAA",
+        "sha256": "45d7ff92da004b47f8df4e5f0e12bac0e1dae6b87324956aca72fae92d65f738",
+        "shape": [
+          12
+        ]
+      },
+      {
+        "data_base64": "WyJwIiwgInAiLCAicCIsICJwIiwgInAiLCAicCIsICJwIiwgInAiLCAicCIsICJwIiwgInAiLCAicCJd",
+        "dtype": "object",
+        "missing": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b",
+        "missing_base64": "AAAAAAAAAAAAAAAA",
+        "sha256": "ce8364c5c3ebdb8f39c1ba553a8796be33ed94adab965e634e1dc2327213f229",
+        "shape": [
+          12
+        ]
+      },
+      {
+        "data_base64": "WyJyMSIsICJyMSIsICJyMSIsICJyMSIsICJyMSIsICJyMSIsICJyMSIsICJyMSIsICJyMSIsICJyMSIsICJyMSIsICJyMSJd",
+        "dtype": "object",
+        "missing": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b",
+        "missing_base64": "AAAAAAAAAAAAAAAA",
+        "sha256": "338cae9700ea9ee39cbc8678aca8677b9cf8f716452f6246fdc610108280a523",
+        "shape": [
+          12
+        ]
+      },
+      {
+        "data_base64": "WyJjMSIsICJjMSIsICJjMSIsICJjMSIsICJjMSIsICJjMSIsICJjMiIsICJjMiIsICJjMiIsICJjMiIsICJjMiIsICJjMiJd",
+        "dtype": "object",
+        "missing": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b",
+        "missing_base64": "AAAAAAAAAAAAAAAA",
+        "sha256": "cd794bd522a5e553b02ed65a0c37c70a71b33220af2b87883cede7a98922d235",
+        "shape": [
+          12
+        ]
+      }
+    ],
+    "columns": [
+      "condition",
+      "time",
+      "relative_open_area",
+      "relative_open_area_sd",
+      "n_wells",
+      "time_unit",
+      "plateID",
+      "rowID",
+      "columnID"
+    ],
+    "csv": ",condition,time,relative_open_area,relative_open_area_sd,n_wells,time_unit,plateID,rowID,columnID\n0,slow,0.0,1.0,0.04,2,h,p,r1,c1\n1,slow,2.0,0.8,,2,h,p,r1,c1\n2,slow,4.0,0.6,0.08,2,h,p,r1,c1\n3,fast,0.0,1.0,0.03,2,h,p,r1,c1\n4,fast,2.0,0.5,0.06,2,h,p,r1,c1\n5,fast,4.0,0.2,0.05,2,h,p,r1,c1\n6,slow,0.0,1.0,0.04,2,h,p,r1,c2\n7,slow,2.0,0.8,,2,h,p,r1,c2\n8,slow,4.0,0.6,0.08,2,h,p,r1,c2\n9,fast,0.0,1.0,0.03,2,h,p,r1,c2\n10,fast,2.0,0.5,0.06,2,h,p,r1,c2\n11,fast,4.0,0.2,0.05,2,h,p,r1,c2\n",
+    "dtypes": [
+      "object",
+      "float64",
+      "float64",
+      "float64",
+      "int64",
+      "object",
+      "object",
+      "object",
+      "object"
+    ],
+    "kind": "dataframe"
+  }
+]

@@ -1,0 +1,732 @@
+{
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation",
+  "source_inputs": {
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/image_quality.py": "e2dcbe15deec32b9fa3be2fc2d51d8fed40b6f658467df705d7f75a1ff7fa7af",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/plot.py": "cc48d6ffa3e9c7abf0d6c916db3549d16850f988df59100f51cfa674e4e7e972",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/seg_qc.py": "824d10df886f9a16521f4cb67c409bad84ba9d0d932576848bde3d91a3a4c0ac",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/sequencing.py": "c656464ab9a4b207d200218f17ff8ca743d0a0100c9387b13a33c830684eac93",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figures/style.py": "706cc90e1ef35b9e8ceba77f4d8aad1703fddfd4b01e7566dd3d5d681b2c371d"
+  },
+  "source_head": "9510143823dcc1b984ecc522058a1e3f15e985d8",
+  "synthetic_only": true,
+  "requested_cases": [
+    "dark-robustness",
+    "dark-threshold",
+    "light-robustness",
+    "light-threshold"
+  ],
+  "cases": {
+    "light-threshold": {
+      "numerical": [
+        {
+          "xlim": [
+            0.0,
+            0.1
+          ],
+          "ylim": [
+            0.0,
+            20.0
+          ],
+          "xscale": "linear",
+          "yscale": "linear",
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  1000
+                ],
+                "data_sha256": "92b63e32266e8aa1572709e68d5b7e50f7ae47e20d00892938b0e9e5f15d3656",
+                "mask_sha256": "541b3e9daa09b20bf85fa273e5cbd3e80185aa4ec298e765db87742b70138a53"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  1000
+                ],
+                "data_sha256": "ec2068cf03f9612adf2d95aa4454dfc841351404b7997b65e623b24690dbe79a",
+                "mask_sha256": "541b3e9daa09b20bf85fa273e5cbd3e80185aa4ec298e765db87742b70138a53"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "0a66a6b7cd228fee02ba869309d43ef423cf0c944ef18d163ccf2c38cd0b2297",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "814dd7b9784d57c15b9c2972e9b4fd6cf7e164f8162a934bdb2452a413dab1f7",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": []
+        }
+      ],
+      "appearance": [
+        {
+          "title": "",
+          "xlabel": "Read fraction threshold",
+          "ylabel": "Mean unique gRNAs per well",
+          "texts": [],
+          "images": [],
+          "axes_background": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "size_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ]
+        }
+      ],
+      "legend": [
+        "Mean unique gRNAs per well",
+        "gRNA means guide RNA; the threshold is a fraction\nof reads in each well.",
+        "Closest threshold (0.0505)",
+        "Target unique count (1)",
+        "The retained view is limited to thresholds up to 0.1\nand counts up to 20; the returned threshold can lie\noutside it."
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "csv": ",plateID,rowID,columnID,grna,fraction\n0,p,r1,c1,a,0.05\n1,p,r1,c1,b,0.95\n",
+        "attrs": {
+          "origin": "supplied synthetic fractions"
+        }
+      },
+      "selected_threshold": 0.050499499499499494
+    },
+    "light-robustness": {
+      "numerical": [
+        {
+          "xlim": [
+            -0.5,
+            3.5
+          ],
+          "ylim": [
+            2.5,
+            -0.5
+          ],
+          "xscale": "linear",
+          "yscale": "linear",
+          "lines": [],
+          "images": [
+            {
+              "array": {
+                "dtype": "<f8",
+                "shape": [
+                  3,
+                  4
+                ],
+                "data_sha256": "2e7b310f31d51fca4ce89c493491d1ea7e452133efe0c65f4e9905c42144d6ba",
+                "mask_sha256": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b"
+              },
+              "clim": [
+                0.0,
+                0.4
+              ],
+              "extent": [
+                -0.5,
+                3.5,
+                2.5,
+                -0.5
+              ],
+              "origin": "upper",
+              "norm": {
+                "class": "matplotlib.colors.Normalize",
+                "vmin": 0.0,
+                "vmax": 0.4,
+                "clip": false,
+                "vcenter": null,
+                "gamma": null,
+                "probe_values": {
+                  "dtype": "<f8",
+                  "shape": [
+                    9
+                  ],
+                  "data_sha256": "4ceb9f6723adc605ff4fe4dd46fde52971421ef473c0ad74638c758b7d4ce3f3",
+                  "mask_sha256": "3e7077fd2f66d689e0cee6a7cf5b37bf2dca7c979af356d0a31cbc5c85605c7d"
+                },
+                "mapped_values": {
+                  "dtype": "<f8",
+                  "shape": [
+                    9
+                  ],
+                  "data_sha256": "97ccafbe1822d1c82158ec9981f2527fcb218e0a387f7cbf0d103b41a4b9bb91",
+                  "mask_sha256": "3e7077fd2f66d689e0cee6a7cf5b37bf2dca7c979af356d0a31cbc5c85605c7d"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "appearance": [
+        {
+          "title": "",
+          "xlabel": "",
+          "ylabel": "",
+          "texts": [],
+          "images": [
+            {
+              "alpha": 0.6,
+              "interpolation": "nearest",
+              "colormap": {
+                "class": "matplotlib.colors.LinearSegmentedColormap",
+                "name": "Blues",
+                "N": 256,
+                "sample_positions": {
+                  "dtype": "<f8",
+                  "shape": [
+                    257
+                  ],
+                  "data_sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69",
+                  "mask_sha256": "6c934d0cdf9dba94b474d6d1929f16739bd9a8ed31d0c3bcaf82c283fb7a3568"
+                },
+                "sampled_rgba": {
+                  "dtype": "<f8",
+                  "shape": [
+                    257,
+                    4
+                  ],
+                  "data_sha256": "b5a10ba5474c46e31ceeade0710b38b57d649219253faf42e8b51c0eb03d836d",
+                  "mask_sha256": "82823076344d2111f1047052202daf8028f30b99b902e4aa20169338762b6ef3"
+                },
+                "bad": [
+                  0.9686274509803922,
+                  0.984313725490196,
+                  1.0,
+                  1.0
+                ],
+                "under": [
+                  0.9686274509803922,
+                  0.984313725490196,
+                  1.0,
+                  1.0
+                ],
+                "over": [
+                  0.03137254901960784,
+                  0.18823529411764706,
+                  0.4196078431372549,
+                  1.0
+                ]
+              }
+            }
+          ],
+          "axes_background": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "size_inches": [
+            2.099737532808399,
+            1.5748031496062986
+          ]
+        }
+      ],
+      "legend": [
+        "cell segmentation robustness (! = over 20%)",
+        "Columns show absolute changes in count, median\narea and mean intensity, then the unmatched\nobject fraction.",
+        "Nonfinite results retain the display value twice the\ntolerance; they are not measured changes.",
+        "baseline run: 0%; 0%; 0%; 0%",
+        "! flow_threshold 0.8: 50%; 10%; 20%; 25%",
+        "! diameter 40: -; all; 30%; 20%"
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "heatmap cell aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "csv": ",parameter,value,fragile,object_count_change,median_area_change,mean_intensity_change,matched_fraction\n0,baseline,run,False,0.0,0.0,0.0,1.0\n1,flow_threshold,0.8,True,-0.5,0.1,-0.2,0.75\n2,diameter,40,True,,inf,-0.3,0.8\n",
+        "attrs": {
+          "settings": {
+            "tolerance": 0.2
+          }
+        },
+        "tolerance": 0.2
+      }
+    },
+    "dark-threshold": {
+      "numerical": [
+        {
+          "xlim": [
+            0.0,
+            0.1
+          ],
+          "ylim": [
+            0.0,
+            20.0
+          ],
+          "xscale": "linear",
+          "yscale": "linear",
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  1000
+                ],
+                "data_sha256": "92b63e32266e8aa1572709e68d5b7e50f7ae47e20d00892938b0e9e5f15d3656",
+                "mask_sha256": "541b3e9daa09b20bf85fa273e5cbd3e80185aa4ec298e765db87742b70138a53"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  1000
+                ],
+                "data_sha256": "ec2068cf03f9612adf2d95aa4454dfc841351404b7997b65e623b24690dbe79a",
+                "mask_sha256": "541b3e9daa09b20bf85fa273e5cbd3e80185aa4ec298e765db87742b70138a53"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "0a66a6b7cd228fee02ba869309d43ef423cf0c944ef18d163ccf2c38cd0b2297",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "814dd7b9784d57c15b9c2972e9b4fd6cf7e164f8162a934bdb2452a413dab1f7",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": []
+        }
+      ],
+      "appearance": [
+        {
+          "title": "",
+          "xlabel": "Read fraction threshold",
+          "ylabel": "Mean unique gRNAs per well",
+          "texts": [],
+          "images": [],
+          "axes_background": [
+            0.09411764705882353,
+            0.09411764705882353,
+            0.09411764705882353,
+            1.0
+          ],
+          "size_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ]
+        }
+      ],
+      "legend": [
+        "Mean unique gRNAs per well",
+        "gRNA means guide RNA; the threshold is a fraction\nof reads in each well.",
+        "Closest threshold (0.0505)",
+        "Target unique count (1)",
+        "The retained view is limited to thresholds up to 0.1\nand counts up to 20; the returned threshold can lie\noutside it."
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "csv": ",plateID,rowID,columnID,grna,fraction\n0,p,r1,c1,a,0.05\n1,p,r1,c1,b,0.95\n",
+        "attrs": {
+          "origin": "supplied synthetic fractions"
+        }
+      },
+      "selected_threshold": 0.050499499499499494
+    },
+    "dark-robustness": {
+      "numerical": [
+        {
+          "xlim": [
+            -0.5,
+            3.5
+          ],
+          "ylim": [
+            2.5,
+            -0.5
+          ],
+          "xscale": "linear",
+          "yscale": "linear",
+          "lines": [],
+          "images": [
+            {
+              "array": {
+                "dtype": "<f8",
+                "shape": [
+                  3,
+                  4
+                ],
+                "data_sha256": "2e7b310f31d51fca4ce89c493491d1ea7e452133efe0c65f4e9905c42144d6ba",
+                "mask_sha256": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b"
+              },
+              "clim": [
+                0.0,
+                0.4
+              ],
+              "extent": [
+                -0.5,
+                3.5,
+                2.5,
+                -0.5
+              ],
+              "origin": "upper",
+              "norm": {
+                "class": "matplotlib.colors.Normalize",
+                "vmin": 0.0,
+                "vmax": 0.4,
+                "clip": false,
+                "vcenter": null,
+                "gamma": null,
+                "probe_values": {
+                  "dtype": "<f8",
+                  "shape": [
+                    9
+                  ],
+                  "data_sha256": "4ceb9f6723adc605ff4fe4dd46fde52971421ef473c0ad74638c758b7d4ce3f3",
+                  "mask_sha256": "3e7077fd2f66d689e0cee6a7cf5b37bf2dca7c979af356d0a31cbc5c85605c7d"
+                },
+                "mapped_values": {
+                  "dtype": "<f8",
+                  "shape": [
+                    9
+                  ],
+                  "data_sha256": "97ccafbe1822d1c82158ec9981f2527fcb218e0a387f7cbf0d103b41a4b9bb91",
+                  "mask_sha256": "3e7077fd2f66d689e0cee6a7cf5b37bf2dca7c979af356d0a31cbc5c85605c7d"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "appearance": [
+        {
+          "title": "",
+          "xlabel": "",
+          "ylabel": "",
+          "texts": [],
+          "images": [
+            {
+              "alpha": 0.6,
+              "interpolation": "nearest",
+              "colormap": {
+                "class": "matplotlib.colors.LinearSegmentedColormap",
+                "name": "Blues",
+                "N": 256,
+                "sample_positions": {
+                  "dtype": "<f8",
+                  "shape": [
+                    257
+                  ],
+                  "data_sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69",
+                  "mask_sha256": "6c934d0cdf9dba94b474d6d1929f16739bd9a8ed31d0c3bcaf82c283fb7a3568"
+                },
+                "sampled_rgba": {
+                  "dtype": "<f8",
+                  "shape": [
+                    257,
+                    4
+                  ],
+                  "data_sha256": "b5a10ba5474c46e31ceeade0710b38b57d649219253faf42e8b51c0eb03d836d",
+                  "mask_sha256": "82823076344d2111f1047052202daf8028f30b99b902e4aa20169338762b6ef3"
+                },
+                "bad": [
+                  0.9686274509803922,
+                  0.984313725490196,
+                  1.0,
+                  1.0
+                ],
+                "under": [
+                  0.9686274509803922,
+                  0.984313725490196,
+                  1.0,
+                  1.0
+                ],
+                "over": [
+                  0.03137254901960784,
+                  0.18823529411764706,
+                  0.4196078431372549,
+                  1.0
+                ]
+              }
+            }
+          ],
+          "axes_background": [
+            0.09411764705882353,
+            0.09411764705882353,
+            0.09411764705882353,
+            1.0
+          ],
+          "size_inches": [
+            2.099737532808399,
+            1.5748031496062986
+          ]
+        }
+      ],
+      "legend": [
+        "cell segmentation robustness (! = over 20%)",
+        "Columns show absolute changes in count, median\narea and mean intensity, then the unmatched\nobject fraction.",
+        "Nonfinite results retain the display value twice the\ntolerance; they are not measured changes.",
+        "baseline run: 0%; 0%; 0%; 0%",
+        "! flow_threshold 0.8: 50%; 10%; 20%; 25%",
+        "! diameter 40: -; all; 30%; 20%"
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "heatmap cell aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "csv": ",parameter,value,fragile,object_count_change,median_area_change,mean_intensity_change,matched_fraction\n0,baseline,run,False,0.0,0.0,0.0,1.0\n1,flow_threshold,0.8,True,-0.5,0.1,-0.2,0.75\n2,diameter,40,True,,inf,-0.3,0.8\n",
+        "attrs": {
+          "settings": {
+            "tolerance": 0.2
+          }
+        },
+        "tolerance": 0.2
+      }
+    }
+  },
+  "writes": [
+    {
+      "theme": "light",
+      "path": "light/results/fraction_threshold.png",
+      "normal_writer": "spacr.plot.save_figure",
+      "save_mode": "screen",
+      "requested_dpi": 120,
+      "image_size": [
+        648,
+        285
+      ],
+      "stored_dpi": [
+        119.9896,
+        119.9896
+      ],
+      "top_left_rgba": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "theme": "light",
+      "path": "light/robustness.png",
+      "normal_writer": "spacr.plot.save_figure",
+      "save_mode": "screen",
+      "requested_dpi": 120,
+      "image_size": [
+        840,
+        375
+      ],
+      "stored_dpi": [
+        119.9896,
+        119.9896
+      ],
+      "top_left_rgba": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "theme": "dark",
+      "path": "dark/results/fraction_threshold.png",
+      "normal_writer": "spacr.plot.save_figure",
+      "save_mode": "screen",
+      "requested_dpi": 120,
+      "image_size": [
+        648,
+        285
+      ],
+      "stored_dpi": [
+        119.9896,
+        119.9896
+      ],
+      "top_left_rgba": [
+        24,
+        24,
+        24,
+        255
+      ]
+    },
+    {
+      "theme": "dark",
+      "path": "dark/robustness.png",
+      "normal_writer": "spacr.plot.save_figure",
+      "save_mode": "screen",
+      "requested_dpi": 120,
+      "image_size": [
+        840,
+        375
+      ],
+      "stored_dpi": [
+        119.9896,
+        119.9896
+      ],
+      "top_left_rgba": [
+        24,
+        24,
+        24,
+        255
+      ]
+    }
+  ],
+  "themes": {
+    "light": {
+      "requested": {
+        "background": "#FFFFFF",
+        "foreground": "#000000"
+      },
+      "stored_colors": [
+        "#FFFFFF",
+        "#000000"
+      ],
+      "creator_target": "print"
+    },
+    "dark": {
+      "requested": {
+        "background": "#181818",
+        "foreground": "#F0F0F0"
+      },
+      "stored_colors": [
+        "#181818",
+        "#F0F0F0"
+      ],
+      "creator_target": "screen"
+    }
+  },
+  "scientific_pipeline_or_inference_run": false,
+  "baseline_comparison": {
+    "report_sha256": "cd5a0b4456bd0d064a7b8ae9fdc92b3fc1f7c5945377ac6e0697d68abbcae8c1",
+    "compared_cases": [
+      "dark-robustness",
+      "dark-threshold",
+      "light-robustness",
+      "light-threshold"
+    ],
+    "numerical_and_input_identity": true,
+    "differences": []
+  },
+  "outputs": {
+    "dark/results/fraction_threshold.pdf": "9253ea435eca647f864dd53bebcee8de55ef19334bc43271384af949c318fb13",
+    "dark/results/fraction_threshold.png": "2910ddbc0434958bee01c390a0e358365be27075aa9a94ef53e0fa6d5f608226",
+    "dark/robustness.pdf": "052a93285140b6abb73086fdc96233e1430421f97e043904f6a3dce8cdfd25a2",
+    "dark/robustness.png": "95942452c01005b5ac2f9ab7e44ab318bc5416c365d08c56fa8cc2a096da83f8",
+    "light/results/fraction_threshold.pdf": "4ea53c76d3bb7eb5be1bffa554c22e31405638638acc896796de3c2b9b9cf6c2",
+    "light/results/fraction_threshold.png": "8861db9e686012fb09e85ae8522abc62c39509a4d8a07b89ab7511c32aa25bec",
+    "light/robustness.pdf": "523019ba3d2848534f33874f2c9282f836b290ceceed144a827c1b62e119d8f7",
+    "light/robustness.png": "764aaf774e87ebfb42a03d082c82fb71a2e280036d5a2ae33c0c6cd35fd8a7c4"
+  }
+}

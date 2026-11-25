@@ -58,7 +58,7 @@ class Sheet:
         lines = []
         for letter, panel in zip(string.ascii_uppercase, self.panels):
             if panel.caption:
-                lines.append(f"({letter}) {panel.caption}")
+                lines.append(f"({letter}) {panel.caption}" if len(self.panels) > 1 else panel.caption)
         if self.skipped:
             lines.append(
                 "Not shown: "
@@ -140,24 +140,73 @@ def build_sheet(frame, *, width: str = "double", target: Optional[str] = None,
                 kwargs = dict(alpha=alpha, effect_threshold=effect_threshold,
                               highlight=highlight)
             panel = REGISTRY[key](ax, frame, **kwargs)
-            panel_letter(ax, string.ascii_uppercase[len(drawn)])
+            if len(supported) > 1:
+                panel_letter(ax, string.ascii_uppercase[len(drawn)])
             drawn.append(panel)
 
         hide_unused(axes[len(drawn):])
         figure.subplots_adjust(left=.09, right=.98, top=.93, bottom=.09,
                                wspace=.42, hspace=.52)
+        for index, panel in enumerate(drawn):
+            _style_panel(axes[index], panel, frame, target or theme_target(), layout=False)
+        from .style import pack_axes_geometry
+
+        pack_axes_geometry(axes[:len(drawn)], maximum_width=WIDTHS[width])
         recipes = [dict(slot=index, regression=panel.key,
                         regression_options=dict(alpha=alpha, effect_threshold=effect_threshold,
                                                 highlight=highlight) if panel.key == "volcano" else {},
-                        measurement=panel.title, letter=string.ascii_uppercase[index],
+                        measurement=panel.title, letter=string.ascii_uppercase[index] if len(drawn) > 1 else "",
                         rect=list(axes[index].get_position().bounds))
                    for index, panel in enumerate(drawn)]
         if recipes:
             _register_figure_data(figure, frame, kind="regression_panel",
-                                  grid=[rows, columns], panels=recipes)
+                                  grid=[rows, columns], panels=recipes, keep_limits=True)
         else:
             _register_figure_data(figure, frame, kind="sheet")
         return Sheet(figure=figure, panels=drawn, skipped=skipped)
+
+
+def _style_panel(ax, panel, frame, target, *, layout=True):
+    """Apply the shared policy to a registered regression panel with explicit scientific reference.
+
+    Unrecorded model-response units remain an actionable diagnostic. Known
+    probability, count and agreement quantities carry their actual units.
+    Existing numerical annotation values move intact into the figure legend.
+    """
+    from .style import apply_axes_style, resolve_style
+    from ..qt.i18n import tr
+
+    if not panel.drawn:
+        return
+    entries = tuple(getattr(ax, "_spacr_legend_entries", ()))
+    notes = " ".join(str(entry["label"]).replace("\n", "; ") for entry in entries)
+    if notes:
+        panel.caption = panel.caption + " " + notes
+    references = {
+        "volcano": tr("Declared significance threshold and zero regression coefficient"),
+        "effect_rank": tr("Zero regression coefficient"),
+        "effect_distribution": tr("Zero regression coefficient"),
+        "controls": tr("The explicitly classified control conditions"),
+        "agreement": tr("Chance guide-sign agreement of 0.5"),
+        "p_histogram": tr("Uniform null p-values"),
+        "qq": tr("Expected p-values under the uniform null"),
+    }
+    known_units = {
+        "agreement": {"x": "guide count", "y": "fraction"},
+        "p_histogram": {"x": "dimensionless probability", "y": "coefficient count"},
+        "qq": {"x": "dimensionless", "y": "dimensionless"},
+    }
+    units = getattr(frame, "attrs", {}).get("units") or known_units.get(panel.key, {})
+    specification = resolve_style(target, panel.key,
+        conditions=getattr(ax, "_spacr_condition_labels", None),
+        sample_counts=getattr(ax, "_spacr_condition_counts", None),
+        control=getattr(ax, "_spacr_controls", None),
+        comparison={"reference": references.get(panel.key), "graph_type": panel.key,
+                    "representation": "estimates" if panel.key == "effect_rank" else "observations"},
+        legend={"caption": panel.caption, "reference": references.get(panel.key),
+                "quantities": {"x": ax.get_xlabel(), "y": ax.get_ylabel()},
+                "units": units, "entries": entries})
+    apply_axes_style(ax, specification, layout=layout)
 
 
 def build_panel(key: str, frame, *, target: Optional[str] = None,
@@ -176,8 +225,9 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
         panel = REGISTRY[key](ax, frame, **kwargs)
         from .bundle import _register_figure_data
         figure.subplots_adjust(left=.16, right=.97, top=.92, bottom=.16)
+        _style_panel(ax, panel, frame, target or theme_target())
         attach(figure, panel)
-        recipe = dict(regression=key, regression_options=dict(kwargs),
+        recipe = dict(regression=key, regression_options=dict(kwargs), keep_limits=True,
                       rect=list(ax.get_position().bounds))
         if kwargs.get("compartment"):
             from ..localisation import table

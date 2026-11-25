@@ -3245,54 +3245,95 @@ def _write_qc_figure(plate, item, channels, panels, metrics, save_dir,
     registry is a leak in both.
     """
     from matplotlib.figure import Figure
+    from .figures.style import (
+        ROLES, apply_axes_style, apply_colourbar_theme, attach_colourbar,
+        ensure_reference_contrast, figure_style, heatmap_cmap,
+        heatmap_image, pack_axes_geometry, reference_line, resolve_style,
+        theme_target,
+    )
+    from .qt.i18n import tr
 
     os.makedirs(save_dir, exist_ok=True)
     rows = max(len(channels), 1)
-    figure = Figure(figsize=(13, 3.4 * rows), dpi=120)
-    from .figures.bundle import _register_figure_data
-    _register_figure_data(figure, lambda: [np.asarray(panels[int(c)][0]) for c in channels], kind="image", title=str(stage or "Illumination correction"))
-    if stage:
-        figure.suptitle(f'Illumination correction — {stage.replace("_", " ")}')
-    for index, channel in enumerate(channels):
-        plane, observed, corrected = panels[int(channel)]
-        stats = metrics[int(channel)]
+    target = theme_target()
+    with figure_style(target):
+        figure = Figure(figsize=(13, 3.4 * rows), dpi=120)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, lambda: [np.asarray(panels[int(c)][0]) for c in channels], kind="image", title=str(stage or tr("Illumination correction")))
+        data_axes = []
+        for index, channel in enumerate(channels):
+            plane, observed, corrected = panels[int(channel)]
+            stats = metrics[int(channel)]
+            context = tr("Plate {plate}, channel {channel}").format(
+                plate=plate, channel=channel)
+            if stage:
+                context += "\n" + stage.replace("_", " ")
 
-        axis = figure.add_subplot(rows, 3, index * 3 + 1)
-        image = axis.imshow(plane, cmap='viridis')
-        axis.set_title(f'plate {plate} ch{channel}: estimated field\n'
-                       f'gain {stats["gain_min"]:.2f}-{stats["gain_max"]:.2f}, '
-                       f'non-uniformity {stats["nonuniformity_pct"]:.1f}%',
-                       fontsize=9)
-        axis.set_xticks([])
-        axis.set_yticks([])
-        figure.colorbar(image, ax=axis, fraction=0.046)
+            axis = figure.add_subplot(rows, 3, index * 3 + 1)
+            data_axes.append(axis)
+            image = heatmap_image(axis, plane, cmap=heatmap_cmap(),
+                                  vmin=None, vmax=None)
+            axis.set_xticks([])
+            axis.set_yticks([])
+            attach_colourbar(axis, image, label=tr("Flat field"), unit=tr("relative intensity"))
+            axis.legend([], [], title=context + "\n" + tr(
+                "Flat field {low:.2f}–{high:.2f}\nNon-uniformity {spread:.1f}%").format(
+                    low=stats["gain_min"], high=stats["gain_max"],
+                    spread=stats["nonuniformity_pct"]),
+                loc="lower left", bbox_to_anchor=(0, 1.02), borderaxespad=0)
+            apply_axes_style(axis, resolve_style(target, "heatmap", comparison={
+                "display_range": image.get_clim(), "gamma": 1.0,
+                "processing": tr("Estimated multiplicative flat field; displayed values unchanged"),
+                "centre": None}, legend={
+                    "caption": tr("Estimated flat field, not its reciprocal correction gain"),
+                    "reference": tr("A flat field of one leaves intensity unchanged"),
+                    "quantities": {"value": tr("Flat field")},
+                    "unit": tr("relative intensity")}), layout=False)
 
-        axis = figure.add_subplot(rows, 3, index * 3 + 2)
-        radius, before = _radial_profile(observed, factor, item.shape)
-        _, after = _radial_profile(corrected, factor, item.shape)
-        axis.plot(radius, before, 'o-', ms=3, label='before')
-        axis.plot(radius, after, 's-', ms=3, label='after')
-        axis.axhline(1.0, color='0.6', lw=0.8, ls='--')
-        axis.set_xlabel('distance from field centre (0 = centre, 1 = corner)',
-                        fontsize=8)
-        axis.set_ylabel('mean intensity / field mean', fontsize=8)
-        axis.set_title(f'position-intensity trend\nslope '
-                       f'{stats["slope_before"]:+.3f} -> '
-                       f'{stats["slope_after"]:+.3f} '
-                       f'({stats["bias_removed_pct"]:.1f}% removed)',
-                       fontsize=9)
-        axis.legend(fontsize=8)
+            axis = figure.add_subplot(rows, 3, index * 3 + 2)
+            data_axes.append(axis)
+            radius, before = _radial_profile(observed, factor, item.shape)
+            _, after = _radial_profile(corrected, factor, item.shape)
+            axis.plot(radius, before, 'o-', ms=3, color=ROLES["control"], label=tr("Before"))
+            axis.plot(radius, after, 's-', ms=3, color=ROLES["primary"], label=tr("After"))
+            reference_line(axis, y=1.0, label=tr("Uniform profile = 1"))
+            axis.set_xlabel(tr("Distance from field centre\n(0 = centre, 1 = corner)"))
+            axis.set_ylabel(tr("Mean intensity / field mean"))
+            axis.legend(title=tr(
+                "Position–intensity trend\nSlope before {before:+.3f}\nSlope after {after:+.3f}\nBias removed: {removed:.1f}%").format(
+                    before=stats["slope_before"], after=stats["slope_after"],
+                    removed=stats["bias_removed_pct"]),
+                loc="lower left", bbox_to_anchor=(0, 1.02), borderaxespad=0)
+            apply_axes_style(axis, resolve_style(target, "curve", legend={
+                "caption": tr("Radial means; each profile is divided by its own field mean"),
+                "reference": tr("Before correction and a uniform profile of one"),
+                "quantities": {"x": tr("Normalized radius"), "y": tr("Relative radial intensity")},
+                "unit": tr("dimensionless")}), layout=False)
 
-        axis = figure.add_subplot(rows, 3, index * 3 + 3)
-        span = float(np.max(np.abs(observed - 1.0))) or 0.1
-        image = axis.imshow(corrected, cmap='coolwarm', vmin=1 - span,
-                            vmax=1 + span)
-        axis.set_title('after correction (same scale as the\nobserved '
-                       'deviation before it)', fontsize=9)
-        axis.set_xticks([])
-        axis.set_yticks([])
-        figure.colorbar(image, ax=axis, fraction=0.046)
-    figure.tight_layout(rect=(0, 0, 1, 0.97) if stage else None)
+            axis = figure.add_subplot(rows, 3, index * 3 + 3)
+            data_axes.append(axis)
+            span = float(np.max(np.abs(observed - 1.0))) or 0.1
+            image = heatmap_image(axis, corrected, cmap=heatmap_cmap(signed=True),
+                                  vmin=1 - span, vmax=1 + span, centre=1.0)
+            axis.set_xticks([])
+            axis.set_yticks([])
+            attach_colourbar(axis, image, label=tr("Corrected profile"), unit=tr("relative intensity"))
+            axis.legend([], [], title=tr(
+                "After correction\nColour limits use the maximum\nabsolute deviation before correction"),
+                loc="lower left", bbox_to_anchor=(0, 1.02), borderaxespad=0)
+            apply_axes_style(axis, resolve_style(target, "heatmap", comparison={
+                "display_range": (1 - span, 1 + span), "gamma": 1.0, "centre": 1.0,
+                "processing": tr("Observed relative profile multiplied by the binned reciprocal flat field")},
+                legend={"caption": tr("Corrected relative profile with the unchanged before-derived colour limits"),
+                        "reference": tr("Relative intensity of one"),
+                        "quantities": {"value": tr("Corrected profile")},
+                        "unit": tr("relative intensity")}), layout=False)
+        if data_axes:
+            figure.set_facecolor(data_axes[0].get_facecolor())
+        for axis in data_axes:
+            apply_colourbar_theme(axis)
+            ensure_reference_contrast(axis)
+        pack_axes_geometry(data_axes, maximum_width=12.0)
     safe_stage = (''.join(character if character.isalnum() else '_'
                           for character in stage).strip('_')
                   if stage else '')

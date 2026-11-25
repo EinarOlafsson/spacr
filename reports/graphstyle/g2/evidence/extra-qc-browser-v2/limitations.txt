@@ -1,0 +1,1 @@
+Fixed 1440x1000 viewport; original HTML/CSS only. No restyling, full-page overflow certification, or claim that fallback fonts equal Open Sans.

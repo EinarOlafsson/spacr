@@ -831,6 +831,39 @@ def _qualified_plate(plate: Any, label: str) -> str:
             f"-{schema.escape_filename_component(str(plate))}")
 
 
+def _stamped(frame: pd.DataFrame, source: SourceSummary, plan: MergePlan,
+             keep: Optional[set], on_collision: str) -> pd.DataFrame:
+    """The rows of one source, as a merged frame carries them.
+
+    The screen column is filled in, the columns outside ``keep`` go, a plate
+    id that collides is qualified when ``on_collision`` is ``'qualify'``,
+    and every row is stamped with the source label in
+    :data:`SOURCE_COLUMN`. Whole tables and streamed chunks pass through
+    here alike, so both carry the same columns and values.
+
+    :param frame: rows read from ``source``, with canonical column names.
+    :param source: the source the rows came from.
+    :param plan: the merge plan the source belongs to.
+    :param keep: the column names to keep, or None to keep every column.
+    :param on_collision: ``'refuse'`` or ``'qualify'``.
+    :returns: the stamped rows.
+    """
+    frame = schema.add_screen_column(
+        frame, source.screen, overwrite=source.screen is not None)
+    if keep is not None:
+        frame = frame[[c for c in frame.columns if c in keep]]
+    if (on_collision == "qualify" and plan.colliding_plates
+            and schema.PLATE_KEY in frame.columns):
+        colliding = set(plan.colliding_plates)
+        frame[schema.PLATE_KEY] = [
+            _qualified_plate(value, source.label)
+            if str(value) in colliding else value
+            for value in frame[schema.PLATE_KEY]
+        ]
+    frame[SOURCE_COLUMN] = source.label
+    return frame
+
+
 def read_merged(paths: Sequence[str],
                 table: str,
                 *,
@@ -931,19 +964,7 @@ def read_merged(paths: Sequence[str],
             migrate=False, read_only=True,
             limit=int(limit_per_source) if limit_per_source else None,
         )[0]
-        frame = schema.add_screen_column(
-            frame, source.screen, overwrite=source.screen is not None)
-        if keep is not None:
-            frame = frame[[c for c in frame.columns if c in keep]]
-        if (on_collision == "qualify" and plan.colliding_plates
-                and schema.PLATE_KEY in frame.columns):
-            colliding = set(plan.colliding_plates)
-            frame[schema.PLATE_KEY] = [
-                _qualified_plate(value, source.label)
-                if str(value) in colliding else value
-                for value in frame[schema.PLATE_KEY]
-            ]
-        frame[SOURCE_COLUMN] = source.label
+        frame = _stamped(frame, source, plan, keep, on_collision)
         frames.append(frame)
         source_rows[source.label] = len(frame)
         done += len(frame)

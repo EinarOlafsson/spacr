@@ -354,66 +354,102 @@ class ScreePlot(QWidget):
         self.render_now()
 
     def render_now(self) -> None:
-        """Draw immediately rather than on the next idle turn.
+        """Draw component and cumulative variance on physically linked shared-style axes.
 
-        For a caller that is about to read pixels -- an export, or a test --
-        and cannot wait for the event loop to get round to it.
+        Both percentage calculations, component ordering, selection and the
+        exported component/variance columns remain unchanged. The secondary
+        axis keeps its original 0-to-105-percent range.
         """
-        palette = active_palette()
-        self._figure.clear()
-        self._figure.patch.set_alpha(0.0)
-        ax = self._figure.add_subplot(111)
-        _page_surface_axes(ax, palette)
-        for side in ("top", "right"):
-            ax.spines[side].set_visible(False)
-        for side in ("left", "bottom"):
-            ax.spines[side].set_color(palette["border"])
-            ax.spines[side].set_linewidth(0.8)
-        ax.tick_params(colors=palette["fg_muted"], labelsize=7, length=3)
+        from ...figures.style import (DATA_ALPHA, GENERAL_DEFAULTS, Palette,
+            TICK_ROTATION, WEIGHTS, _apply_user_style, _legend_note,
+            _retain_live_axes_geometry, apply_axes_style, pack_axes_geometry,
+            resolve_style)
+        from ..i18n import tr
 
+        viewport = tuple(self._figure.get_size_inches())
+        self._figure.clear()
+        self._figure._spacr_live_geometry = None
+        self._figure.set_facecolor(GENERAL_DEFAULTS["background"])
+        self._figure.patch.set_alpha(1.0)
+        ax = self._figure.add_subplot(111)
+        ax.set_facecolor(GENERAL_DEFAULTS["background"])
+        ink = GENERAL_DEFAULTS["foreground"]
         result = self._result
         if result is None or not result.n_components:
             ax.set_xticks([])
             ax.set_yticks([])
-            ax.text(0.5, 0.5, "no components yet", ha="center", va="center",
-                    color=palette["fg_muted"], fontsize=9,
-                    transform=ax.transAxes)
+            for spine in ax.spines.values():
+                spine.set_visible(False)
+            message = tr("no components yet")
+            ax.text(0.5, 0.5, message, ha="center", va="center", color=ink,
+                    fontsize=8, transform=ax.transAxes, gid="spacr-status")
+            apply_axes_style(ax, resolve_style("screen", "schematic",
+                             legend={"caption": message}), layout=False)
             self._canvas.draw_idle()
             return
 
         k = min(result.n_components, SCREE_COMPONENTS)
         ratio = np.asarray(result.explained_variance_ratio[:k], dtype=float)
-        series = categorical_colours()
         chosen = set(self._highlight)
-        colours = [series[0] if i in chosen else palette["border"]
-                   for i in range(k)]
-        ax.bar(range(k), ratio * 100.0, width=0.7, color=colours,
-               linewidth=0.0)
-        ax.set_ylabel("% of variance", color=palette["fg_dim"], fontsize=8)
+        labels = [component_name(i) for i in range(k)]
+        colours = [Palette.ACCENT if i in chosen else Palette.BACKGROUND for i in range(k)]
+        bars = ax.bar(range(k), ratio * 100.0, width=0.6, color=colours,
+                      linewidth=0.0, alpha=DATA_ALPHA)
+        for index, bar in enumerate(bars):
+            bar.set_gid(f"spacr-condition:{index}:bar")
+        ax.set_xlabel(tr("Principal component"), color=ink, fontsize=8)
+        ax.set_ylabel(tr("Explained variance (%)"), color=ink, fontsize=8)
         ax.set_xticks(range(k))
-        ax.set_xticklabels([component_name(i) for i in range(k)],
-                           rotation=45, ha="right", fontsize=7)
-        ax.grid(True, axis="y", color=palette["border_soft"], linewidth=0.6,
-                alpha=0.5)
-        ax.set_axisbelow(True)
+        ax.set_xticklabels(labels, rotation=TICK_ROTATION, ha="right", fontsize=8)
+        ax.set_xlim(-0.5, k - 0.5)
+        reference = tr("Total variance (100%)")
+        caption = tr("Bars show explained variance per principal component; the line shows cumulative "
+                     "explained variance. The full decomposition accounts for 100% of the variance.")
+        primary_spec = resolve_style("screen", "categorical", conditions=labels,
+            identities={label: "highlight" if index in chosen else "background"
+                        for index, label in enumerate(labels)},
+            comparison={"representation": "estimates", "graph_type": "pca_scree"},
+            legend={"caption": caption, "reference": reference,
+                    "quantities": {"x": "principal component", "y": "explained variance"},
+                    "units": {"x": "dimensionless", "y": "%"}})
+        apply_axes_style(ax, primary_spec, layout=False)
 
         twin = ax.twinx()
-        twin.plot(range(k), np.cumsum(ratio[:k]) * 100.0, color=series[1],
-                  marker="o", markersize=3, linewidth=1.4)
+        twin.set_facecolor(GENERAL_DEFAULTS["background"])
+        twin.plot(range(k), np.cumsum(ratio[:k]) * 100.0, color=Palette.TEAL,
+                  marker="o", markersize=2, linewidth=WEIGHTS["data"], alpha=DATA_ALPHA)
         twin.set_ylim(0, 105)
-        twin.set_ylabel("cumulative %", color=series[1], fontsize=8)
-        twin.tick_params(colors=palette["fg_muted"], labelsize=7, length=3)
-        for side in ("top", "left"):
-            twin.spines[side].set_visible(False)
-        twin.spines["right"].set_color(palette["border"])
+        twin.set_ylabel(tr("Cumulative explained variance (%)"), color=ink, fontsize=8)
+        overlay_spec = resolve_style("screen", "axis_overlay",
+            comparison={"overlay_of": self._figure.axes.index(ax), "shared_axis": "x"},
+            legend={"caption": caption, "reference": reference,
+                    "quantities": {"x": "principal component", "y": "cumulative explained variance"},
+                    "units": {"x": "dimensionless", "y": "%"}})
+        apply_axes_style(twin, overlay_spec, layout=False)
+        selected = [label for index, label in enumerate(labels) if index in chosen]
+        if selected:
+            _legend_note(ax, tr("Selected components: {components}.").format(components=", ".join(selected)),
+                         Palette.ACCENT, "identity")
+        if len(selected) < k:
+            _legend_note(ax, tr("Other components"), Palette.BACKGROUND, "identity")
+        _legend_note(twin, tr("Cumulative explained variance"), Palette.TEAL, "identity")
+        _legend_note(twin, reference, ink, "reference_tick")
+        _legend_note(ax, tr("Principal component analysis of {observations} observations and {features} features.").format(
+            observations=len(result.rows), features=len(result.features)), ink, "sample_count")
         from ...figures.bundle import _register_figure_data
-        _register_figure_data(
-            self._figure, lambda: {
-                "component": [component_name(i) for i in range(k)],
-                "variance_percent": ratio * 100.0},
-            x="component", y="variance_percent", kind="bar")
 
-        self._figure.tight_layout(pad=0.5)
+        _register_figure_data(self._figure, {
+            "component": [component_name(i) for i in range(k)],
+            "variance_percent": ratio * 100.0},
+            x="component", y="variance_percent", kind="bar")
+        _apply_user_style(self._figure, force=True)
+        pack_axes_geometry([ax], legend_space=True)
+        required = tuple(self._figure.get_size_inches())
+        viewport = tuple(max(current, minimum) for current, minimum in zip(viewport, required))
+        _retain_live_axes_geometry(self._figure, viewport)
+        logical_dpi = self._figure.dpi / self._canvas.device_pixel_ratio
+        self._canvas.setMinimumSize(int(np.ceil(required[0] * logical_dpi)),
+                                    int(np.ceil(required[1] * logical_dpi)))
         self._canvas.draw_idle()
 
     def _on_click(self, event) -> None:
@@ -540,11 +576,64 @@ class PCAScoresCanvas(GraphCanvas):
         except Exception:
             LOG.debug("could not draw the loading arrows", exc_info=True)
 
+    def _register_presentation(self, ax, rows, kind) -> None:
+        """Retain base chart semantics and derive score units from the actual PCA result.
+
+        Standardised feature scores are dimensionless. Raw feature scores
+        receive a common unit only when every retained feature declares the
+        same unit; otherwise missing units remain an explicit diagnostic.
+        Source frames, decomposition arrays and user-supplied units are unchanged.
+
+        :param ax: axes being registered by the existing GraphCanvas renderer.
+        :param rows: unchanged observations drawn in this panel.
+        :param kind: resolved graph kind selected by the existing graph specification.
+        """
+        from dataclasses import replace
+        from ...figures.style import _legend_note
+        from ..i18n import tr
+
+        super()._register_presentation(ax, rows, kind)
+        result = self._result
+        if result is None:
+            return
+        spec = ax._spacr_style_spec
+        legend = dict(spec.legend)
+        units = dict(legend.get("units") or ())
+        comparison = dict(spec.comparison)
+        score_unit = None
+        if result.scaling == SCALE_ZSCORE:
+            score_unit = "dimensionless"
+        elif result.scaling == SCALE_NONE:
+            declared = [units.get(feature) for feature in result.features]
+            if declared and all(declared) and len(set(declared)) == 1:
+                score_unit = declared[0]
+        components = []
+        for column in (self._spec.x, self._spec.y):
+            index = component_index(column or "")
+            if index is not None and index < result.n_components:
+                components.append(column)
+                if not units.get(column) and score_unit is not None:
+                    units[column] = score_unit
+        if not components:
+            return
+        legend["units"] = units
+        if not legend.get("reference"):
+            legend["reference"] = tr("Centred principal component score origin")
+        if result.scaling == SCALE_ZSCORE:
+            legend["caption"] += " " + tr("Principal component scores are dimensionless after standardisation.")
+        comparison["pca_scaling"] = result.scaling
+        if score_unit is not None:
+            comparison["expected_units"] = {column: score_unit for column in components}
+        ax._spacr_style_spec = replace(spec, legend=legend, comparison=comparison)
+        _legend_note(ax, legend["caption"], "#000000", "caption")
+
     def _draw_arrows(self) -> None:
         """Draw the loading arrows over the scores.
 
-        THE ARROWS ARE WHAT MAKES A PCA READABLE: the scores say which objects
-        are alike, and only the loadings say what the axes mean.
+        Every finite correlation vector and its original display scale is
+        retained, including zero-length projections. Feature identities and
+        component correlations appear in external legend metadata so labels
+        do not cover score observations.
         """
         if not self._biplot or not self._arrow_count:
             return
@@ -553,7 +642,6 @@ class PCAScoresCanvas(GraphCanvas):
             return
         result = self._result
         kx, ky = plane
-        palette = active_palette()
         axes = self.panel_axes()
         if not axes:
             return
@@ -565,17 +653,23 @@ class PCAScoresCanvas(GraphCanvas):
             return
         self._arrow_scale = scale
         picked = result.plane_features(kx, ky, self._arrow_count)
-        ink = palette["fg"]
+        from ...figures.style import DATA_ALPHA, Palette, WEIGHTS, _legend_note, reference_line
+        from ..i18n import tr
+
+        ink = Palette.ACCENT
 
         from matplotlib.patches import Circle
         for ax in axes.values():
+            circle_label = tr("Pearson correlation magnitude 1")
             ax.add_patch(Circle(
                 (0.0, 0.0), scale, fill=False, linestyle=(0, (3, 3)),
-                edgecolor=palette["border"], linewidth=0.8, zorder=4))
-            ax.axhline(0.0, color=palette["border_soft"], linewidth=0.7,
-                       zorder=3)
-            ax.axvline(0.0, color=palette["border_soft"], linewidth=0.7,
-                       zorder=3)
+                edgecolor="#000000", linewidth=WEIGHTS["reference"],
+                alpha=DATA_ALPHA, label=circle_label, zorder=4, gid="spacr-reference"))
+            _legend_note(ax, circle_label, "#000000", "reference")
+            reference_line(ax, y=0.0, label=tr("Centred score origin"))
+            reference_line(ax, x=0.0, label=tr("Centred score origin"))
+            _legend_note(ax, tr("Correlation vectors and the unit circle share display scale {scale}.").format(
+                scale=f"{scale:.4g}"), Palette.CONTROL, "note")
             for i in picked:
                 dx = float(result.correlations[i, kx]) * scale
                 dy = float(result.correlations[i, ky]) * scale
@@ -584,14 +678,12 @@ class PCAScoresCanvas(GraphCanvas):
                 ax.annotate(
                     "", xy=(dx, dy), xytext=(0.0, 0.0), zorder=7,
                     arrowprops={"arrowstyle": "-|>", "color": ink,
-                                "linewidth": 1.2, "alpha": 0.85,
+                                "linewidth": WEIGHTS["data"], "alpha": DATA_ALPHA,
                                 "shrinkA": 0, "shrinkB": 0})
-                ax.annotate(
-                    result.features[i], xy=(dx, dy), zorder=8,
-                    xytext=(3 if dx >= 0 else -3, 3 if dy >= 0 else -3),
-                    textcoords="offset points", fontsize=7, color=ink,
-                    ha="left" if dx >= 0 else "right",
-                    va="bottom" if dy >= 0 else "top")
+                _legend_note(ax, tr("{feature}: Pearson r with {x_component} = {x}; with {y_component} = {y}.").format(
+                    feature=result.features[i], x_component=component_name(kx), y_component=component_name(ky),
+                    x=f"{float(result.correlations[i, kx]):.4g}",
+                    y=f"{float(result.correlations[i, ky]):.4g}"), ink, "identity")
         self._canvas.draw_idle()
 
 

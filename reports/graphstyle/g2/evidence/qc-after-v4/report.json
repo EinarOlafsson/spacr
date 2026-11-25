@@ -1,0 +1,840 @@
+{
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation",
+  "source_head": "9510143823dcc1b984ecc522058a1e3f15e985d8",
+  "source_inputs": {
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/sequencing_qc.py": "11372ef9c092e02f8240890eec6c6c9096b8135bf622310e1a116e54a71798a2",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/illumination.py": "ecd1725a188ed6ee0aa8b02f8559437419247b6eefc60ff8957865803ff7fa27",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figures/style.py": "706cc90e1ef35b9e8ceba77f4d8aad1703fddfd4b01e7566dd3d5d681b2c371d",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figures/bundle.py": "36b6bbb2c0cdafbb87bfd14ae0188db6f82305311ce405e11174acdc95f66cae",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figure_sink.py": "8d0ee98963995bcb2705747089303e62f6804c0c3877e44d8de015b1a0885ff0",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/figure_font.py": "b2413fac203e5f48d11507f73980c5e88b857fbc095ecf40e5eb3b2e23eeef88",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/spacr/plot.py": "cc48d6ffa3e9c7abf0d6c916db3549d16850f988df59100f51cfa674e4e7e972"
+  },
+  "synthetic_only": true,
+  "numerical_fit_performed": false,
+  "requested_cases": [
+    "dark-sweep",
+    "light-sweep"
+  ],
+  "cases": {
+    "light-sweep": {
+      "numerical": [
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "90be0c17c1048d5714b0b497cb7e1e3b121b10a2451ecc0ef20b9e69b7ce67f3",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "6e2d890f37937b4211c61bbb972c4fca797e03f4bb5221b66bc8ec35edf8086d",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "50f862ecafeed1139e872ba840f6746c8741694dff1e3f6478bef009a1a4e350",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "c5e1f4c71c3d389d29391287c19eaf39177d2480d44005da232ffacac7b6b001",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        },
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "a98671080812a7465387559205effee8da0b0470066d95c255fc1b454ab896dd",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "b569e29baf906515deb9f0e025f0d070e637ba74f0e8a33c8cf4ddfc3ffb057a",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "c5e1f4c71c3d389d29391287c19eaf39177d2480d44005da232ffacac7b6b001",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        }
+      ],
+      "appearance": [
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "print",
+            "comparison": {
+              "graph_type": "sweep",
+              "manual_limits": [
+                0.0,
+                33.55
+              ]
+            },
+            "legend": {
+              "caption": "Threshold sweep; gRNA means guide RNA.",
+              "reference": "Target guide count and derived threshold",
+              "quantities": [
+                [
+                  "x",
+                  "Abundance threshold"
+                ],
+                [
+                  "y",
+                  "gRNAs per well"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "fraction"
+                ],
+                [
+                  "y",
+                  "gRNAs per well"
+                ]
+              ]
+            }
+          },
+          "xlabel": "",
+          "ylabel": "gRNAs per well",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "gRNAs per well (median, all wells)",
+              "gRNAs per well (retained wells only)",
+              "Target: 5 gRNAs per well",
+              "Derived threshold: 0.0100"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "print",
+            "comparison": {
+              "graph_type": "sweep",
+              "manual_limits": [
+                -2.0,
+                102.0
+              ]
+            },
+            "legend": {
+              "caption": "Threshold sweep; gRNA means guide RNA.",
+              "reference": "Target guide count and derived threshold",
+              "quantities": [
+                [
+                  "x",
+                  "Abundance threshold"
+                ],
+                [
+                  "y",
+                  "Wells (%)"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "fraction"
+                ],
+                [
+                  "y",
+                  "%"
+                ]
+              ]
+            }
+          },
+          "xlabel": "Abundance threshold\n(gRNA share of reads in a well)",
+          "ylabel": "Wells (%)",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "Wells retained (%)",
+              "Wells over 5 gRNAs (%)",
+              "Derived threshold: 0.0100"
+            ]
+          },
+          "display_normalization": []
+        }
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "csv": ",threshold,grnas_per_well,grnas_per_well_retained,well_retention,collision_rate\n0,0.001,30.0,32.0,1.0,0.9\n1,0.003,10.0,11.0,0.95,0.6\n2,0.01,5.0,6.0,0.8,0.2\n3,0.03,3.0,4.0,0.7,0.1\n4,0.1,1.0,2.0,0.5,0.0\n",
+        "dtypes": [
+          "float64",
+          "float64",
+          "float64",
+          "float64",
+          "float64"
+        ],
+        "attrs": {
+          "units": "fractions before percent conversion"
+        }
+      },
+      "saved_png": {
+        "file": "light/threshold_sweep.png",
+        "file_sha256": "e82608c7032a414c87ceb70cf6447b12925caec2d2e15703e5a37a3e70e117be",
+        "size": [
+          310,
+          724
+        ],
+        "sample_size": [
+          3,
+          3
+        ],
+        "requested_ground_rgba": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "figure_ground_after_writer": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "savefig_facecolor_before_writer": "auto",
+        "corners": {
+          "top_left": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "top_right": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_left": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_right": {
+            "rgba_values": [
+              [
+                255,
+                255,
+                255,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          }
+        }
+      },
+      "baseline_appearance": [
+        {
+          "kind": null,
+          "axes_inches": [
+            6.9750000000000005,
+            3.0509433962264154
+          ],
+          "spec": null,
+          "xlabel": "",
+          "ylabel": "gRNAs per well",
+          "title": "Threshold sweep around the target of 5 gRNAs/well",
+          "legend": {
+            "title": "",
+            "entries": [
+              "gRNAs per well (median, all wells)",
+              "gRNAs per well (retained wells only)",
+              "target (5)"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            6.9750000000000005,
+            2.033962264150943
+          ],
+          "spec": null,
+          "xlabel": "abundance threshold (gRNA share of a well's reads)",
+          "ylabel": "% of wells",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "wells retained (%)",
+              "wells over 5 gRNAs (%)"
+            ]
+          },
+          "display_normalization": []
+        }
+      ]
+    },
+    "dark-sweep": {
+      "numerical": [
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "90be0c17c1048d5714b0b497cb7e1e3b121b10a2451ecc0ef20b9e69b7ce67f3",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "6e2d890f37937b4211c61bbb972c4fca797e03f4bb5221b66bc8ec35edf8086d",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "50f862ecafeed1139e872ba840f6746c8741694dff1e3f6478bef009a1a4e350",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "c5e1f4c71c3d389d29391287c19eaf39177d2480d44005da232ffacac7b6b001",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        },
+        {
+          "lines": [
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "a98671080812a7465387559205effee8da0b0470066d95c255fc1b454ab896dd",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "061d00754dddaeeeb58cad0e70afcd42e8e24e014c7298b351036a9321737395",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              },
+              "y": {
+                "dtype": "<f8",
+                "shape": [
+                  5
+                ],
+                "data_sha256": "b569e29baf906515deb9f0e025f0d070e637ba74f0e8a33c8cf4ddfc3ffb057a",
+                "mask_sha256": "8855508aade16ec573d21e6a485dfd0a7624085c1a14b5ecdd6485de0c6839a4"
+              }
+            },
+            {
+              "x": {
+                "dtype": "<f8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "c5e1f4c71c3d389d29391287c19eaf39177d2480d44005da232ffacac7b6b001",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              },
+              "y": {
+                "dtype": "<i8",
+                "shape": [
+                  2
+                ],
+                "data_sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+                "mask_sha256": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+              }
+            }
+          ],
+          "images": [],
+          "bars": []
+        }
+      ],
+      "appearance": [
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "screen",
+            "comparison": {
+              "graph_type": "sweep",
+              "manual_limits": [
+                0.0,
+                33.55
+              ]
+            },
+            "legend": {
+              "caption": "Threshold sweep; gRNA means guide RNA.",
+              "reference": "Target guide count and derived threshold",
+              "quantities": [
+                [
+                  "x",
+                  "Abundance threshold"
+                ],
+                [
+                  "y",
+                  "gRNAs per well"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "fraction"
+                ],
+                [
+                  "y",
+                  "gRNAs per well"
+                ]
+              ]
+            }
+          },
+          "xlabel": "",
+          "ylabel": "gRNAs per well",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "gRNAs per well (median, all wells)",
+              "gRNAs per well (retained wells only)",
+              "Target: 5 gRNAs per well",
+              "Derived threshold: 0.0100"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": "continuous",
+          "axes_inches": [
+            1.5748031496062995,
+            1.5748031496062993
+          ],
+          "spec": {
+            "target": "screen",
+            "comparison": {
+              "graph_type": "sweep",
+              "manual_limits": [
+                -2.0,
+                102.0
+              ]
+            },
+            "legend": {
+              "caption": "Threshold sweep; gRNA means guide RNA.",
+              "reference": "Target guide count and derived threshold",
+              "quantities": [
+                [
+                  "x",
+                  "Abundance threshold"
+                ],
+                [
+                  "y",
+                  "Wells (%)"
+                ]
+              ],
+              "units": [
+                [
+                  "x",
+                  "fraction"
+                ],
+                [
+                  "y",
+                  "%"
+                ]
+              ]
+            }
+          },
+          "xlabel": "Abundance threshold\n(gRNA share of reads in a well)",
+          "ylabel": "Wells (%)",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "Wells retained (%)",
+              "Wells over 5 gRNAs (%)",
+              "Derived threshold: 0.0100"
+            ]
+          },
+          "display_normalization": []
+        }
+      ],
+      "diagnostics": {
+        "problems": [],
+        "checks": [
+          "registered semantics",
+          "text size",
+          "text bounds",
+          "text overlap",
+          "declared reference and quantities",
+          "actual palette and legend identities",
+          "applicable representation and semantic requirements",
+          "continuous aspect",
+          "effective data opacity",
+          "black error bars",
+          "statistical frame",
+          "font family and size",
+          "composited text contrast",
+          "completed presentation checks"
+        ]
+      },
+      "inputs": {
+        "csv": ",threshold,grnas_per_well,grnas_per_well_retained,well_retention,collision_rate\n0,0.001,30.0,32.0,1.0,0.9\n1,0.003,10.0,11.0,0.95,0.6\n2,0.01,5.0,6.0,0.8,0.2\n3,0.03,3.0,4.0,0.7,0.1\n4,0.1,1.0,2.0,0.5,0.0\n",
+        "dtypes": [
+          "float64",
+          "float64",
+          "float64",
+          "float64",
+          "float64"
+        ],
+        "attrs": {
+          "units": "fractions before percent conversion"
+        }
+      },
+      "saved_png": {
+        "file": "dark/threshold_sweep.png",
+        "file_sha256": "06a222f1d58256e88ec3c483246906054b65a5c1e15991ba420a0296f0922918",
+        "size": [
+          310,
+          724
+        ],
+        "sample_size": [
+          3,
+          3
+        ],
+        "requested_ground_rgba": [
+          24,
+          24,
+          24,
+          255
+        ],
+        "figure_ground_after_writer": [
+          0.09411764705882353,
+          0.09411764705882353,
+          0.09411764705882353,
+          1.0
+        ],
+        "savefig_facecolor_before_writer": "auto",
+        "corners": {
+          "top_left": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "top_right": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_left": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          },
+          "bottom_right": {
+            "rgba_values": [
+              [
+                24,
+                24,
+                24,
+                255
+              ]
+            ],
+            "opaque": true,
+            "matches_requested_ground": true
+          }
+        }
+      },
+      "baseline_appearance": [
+        {
+          "kind": null,
+          "axes_inches": [
+            6.9750000000000005,
+            3.0509433962264154
+          ],
+          "spec": null,
+          "xlabel": "",
+          "ylabel": "gRNAs per well",
+          "title": "Threshold sweep around the target of 5 gRNAs/well",
+          "legend": {
+            "title": "",
+            "entries": [
+              "gRNAs per well (median, all wells)",
+              "gRNAs per well (retained wells only)",
+              "target (5)"
+            ]
+          },
+          "display_normalization": []
+        },
+        {
+          "kind": null,
+          "axes_inches": [
+            6.9750000000000005,
+            2.033962264150943
+          ],
+          "spec": null,
+          "xlabel": "abundance threshold (gRNA share of a well's reads)",
+          "ylabel": "% of wells",
+          "title": "",
+          "legend": {
+            "title": "",
+            "entries": [
+              "wells retained (%)",
+              "wells over 5 gRNAs (%)"
+            ]
+          },
+          "display_normalization": []
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Synthetic presentation evidence; no plate, fit, segmentation or GPU execution.",
+    "Saved PNG corner checks are separate from plot metadata and do not replace visual inspection."
+  ],
+  "baseline_comparison": {
+    "report_sha256": "626a5cc7fe52147afa97aa1725f757c1979ac228d9eef70a326187a4d0c9ea86",
+    "compared_cases": [
+      "dark-sweep",
+      "light-sweep"
+    ],
+    "numerical_and_input_identity": true,
+    "differences": [],
+    "display_changes": "Shared palette, alpha, labels, legends and geometry may differ; raw data, masks, histogram bins and colour limits must agree exactly."
+  },
+  "outputs": {
+    "dark/threshold_sweep.pdf": "2cf843e5063e05d7ffdedbec6ee81f2fa7103007dcda37538cabb03337502699",
+    "dark/threshold_sweep.png": "06a222f1d58256e88ec3c483246906054b65a5c1e15991ba420a0296f0922918",
+    "light/threshold_sweep.pdf": "6a25b5e4333554317d9145fe40786e2b5c92bd7b7ad30dfa2a7702c5ded1931b",
+    "light/threshold_sweep.png": "e82608c7032a414c87ceb70cf6447b12925caec2d2e15703e5a37a3e70e117be"
+  },
+  "saved_canvas_mismatches": []
+}

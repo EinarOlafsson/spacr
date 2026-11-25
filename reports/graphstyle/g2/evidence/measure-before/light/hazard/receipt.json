@@ -1,0 +1,35 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff"
+    ]
+  },
+  "creator": "_hazard_ratio_figure",
+  "data_sha256": "0196b9c7052768b983f8bf4c691747ec8cf2770390137b8429e6243e8bf6d704",
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/hazard/hazard.pdf",
+      "sha256": "52853b7b81f061c69fc7747d109bf2f8e63e94255b2c6051a185b498111c05ec"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/hazard/hazard.png",
+      "sha256": "f6c54d489f088b45714cb967466b4101b5cf4ce588da5bc4afe513f8db587341"
+    }
+  },
+  "inputs_sha256": "65174991391138b9250422d21cd61a15366191a2ae3dea90582a64e48fd6df51",
+  "payload_sha256": "526484e50ffa7a1164d88157286cd4e877dbb9234e1ccf8285c472c429623d5d",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

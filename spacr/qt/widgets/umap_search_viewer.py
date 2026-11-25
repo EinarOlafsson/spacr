@@ -27,16 +27,18 @@ from PySide6.QtWidgets import (
     QMenu, QPushButton, QVBoxLayout, QWidget,
 )
 
-BACKGROUND = QColor(8, 10, 14)
-FOREGROUND = QColor(226, 232, 240)
-MUTED = QColor(148, 163, 184)
-POINT = QColor(94, 194, 255, 205)
-NOISE = QColor(115, 123, 135, 125)
-CLUSTER_COLORS: Tuple[Tuple[int, int, int], ...] = (
-    (255, 190, 64), (83, 190, 255), (102, 224, 139), (255, 102, 132),
-    (183, 132, 255), (67, 222, 211), (255, 139, 72), (162, 213, 87),
-    (240, 102, 218), (78, 151, 255), (239, 220, 91), (126, 231, 190),
-)
+from ...figures.style import DATA_ALPHA, GENERAL_DEFAULTS, Palette, SERIES, WEIGHTS
+from ..i18n import tr
+
+BACKGROUND = QColor(GENERAL_DEFAULTS["background"])
+FOREGROUND = QColor(GENERAL_DEFAULTS["foreground"])
+MUTED = QColor(GENERAL_DEFAULTS["foreground"])
+POINT = QColor(Palette.ACCENT)
+POINT.setAlphaF(DATA_ALPHA)
+NOISE = QColor(Palette.BACKGROUND)
+NOISE.setAlphaF(DATA_ALPHA)
+CLUSTER_COLORS: Tuple[Tuple[int, int, int], ...] = tuple(
+    QColor(value).getRgb()[:3] for value in SERIES)
 
 
 def _coordinates(value: Any) -> np.ndarray:
@@ -91,7 +93,7 @@ def available_colormaps() -> List[str]:
 
 
 def colors_for_labels(labels: Optional[Sequence[int]], count: int, *,
-                      cmap: str = "spaCR", alpha: float = 0.86) -> List[QColor]:
+                      cmap: str = "spaCR", alpha: float = DATA_ALPHA) -> List[QColor]:
     """One readable colour per point, with HDBSCAN noise in grey.
 
     :param labels: one cluster label per point, or ``None`` for no clusters
@@ -271,7 +273,7 @@ class UmapAppearanceDialog(QDialog):
         self.alpha.setRange(0.05, 1.0)
         self.alpha.setSingleStep(0.05)
         self.alpha.setDecimals(2)
-        self.alpha.setValue(float(appearance.get("alpha", 0.86)))
+        self.alpha.setValue(float(appearance.get("alpha", DATA_ALPHA)))
         form.addRow("Opacity", self.alpha)
         self.cmap = QComboBox(self)
         self.cmap.addItems(available_colormaps())
@@ -306,7 +308,7 @@ class UmapAppearanceDialog(QDialog):
 
 def thumbnail_image(coords: Any, labels: Optional[Sequence[int]] = None,
                     *, size: int = 170) -> QImage:
-    """Deterministic black-background thumbnail used by the all-map grid.
+    """Deterministic shared-style thumbnail used by the all-map grid.
 
     :param coords: the embedding, an array of shape (n, 2) or (n, 3); a 2-D map
         gets a zero third axis, and an empty, NaN-holding or otherwise shaped
@@ -336,10 +338,12 @@ def thumbnail_image(coords: Any, labels: Optional[Sequence[int]] = None,
 
 
 class UmapEmbeddingView(QWidget):
-    """A black-background 2-D/3-D point view; drag a 3-D map to spin it.
+    """A shared-style 2-D/3-D point view; drag a 3-D map to spin it.
 
     :param parent: parent widget.
     """
+
+    presentation_changed = Signal(str)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Create an empty embedding view.
@@ -361,9 +365,19 @@ class UmapEmbeddingView(QWidget):
         self._drag_at = None
         self._point_size = 3.2
         self._marker = "circle"
-        self._point_alpha = 0.86
+        self._point_alpha = DATA_ALPHA
         self._cmap = "spaCR"
         self._appearance_dialog: Optional[UmapAppearanceDialog] = None
+        from PySide6.QtGui import QFont
+        from ...figure_font import use_open_sans_for_qt
+
+        use_open_sans_for_qt()
+        font = QFont(GENERAL_DEFAULTS["font_family"])
+        font.setPointSizeF(float(GENERAL_DEFAULTS["font_size"]))
+        font.setWeight(QFont.Light)
+        self.setFont(font)
+        self._last_paint = None
+        self._spacr_legend_entries = ()
 
     @property
     def coordinates(self) -> Optional[np.ndarray]:
@@ -425,6 +439,7 @@ class UmapEmbeddingView(QWidget):
             values.get("alpha", self._point_alpha), 0.05, 1.0))
         cmap = str(values.get("cmap", self._cmap))
         self._cmap = cmap if cmap in available_colormaps() else "spaCR"
+        self._refresh_presentation()
         self.update()
 
     def open_appearance_editor(self) -> UmapAppearanceDialog:
@@ -473,6 +488,8 @@ class UmapEmbeddingView(QWidget):
         self._labels = None
         self._caption = str(message)
         self._backend = ""
+        self._last_paint = None
+        self._refresh_presentation()
         self.update()
 
     def set_embedding(self, coords: Any, *, labels: Optional[Sequence[int]] = None,
@@ -493,6 +510,7 @@ class UmapEmbeddingView(QWidget):
             raise ValueError("Cluster labels must contain one value per UMAP point.")
         self._caption = str(caption or f"{dimensions}D UMAP")
         self._backend = str(backend or "")
+        self._refresh_presentation()
         self.reset_view()
 
     def set_labels(self, labels: Optional[Sequence[int]]) -> None:
@@ -509,6 +527,7 @@ class UmapEmbeddingView(QWidget):
         if values is not None and values.shape != (len(self._coords),):
             raise ValueError("Cluster labels must contain one value per UMAP point.")
         self._labels = values
+        self._refresh_presentation()
         self.update()
 
     def reset_view(self) -> None:
@@ -571,12 +590,60 @@ class UmapEmbeddingView(QWidget):
         self.update()
         event.accept()
 
+    def _refresh_presentation(self) -> None:
+        """Declare the supplied partition and put captions and camera help outside the data area."""
+        from ...figures.style import embedding_reference, resolve_style
+
+        caption = self._caption + (f" · {self._backend}" if self._backend else "")
+        hint = (tr("drag to spin · wheel to zoom · right-click appearance")
+                if self.dimensions == 3 else tr("wheel to zoom · right-click appearance"))
+        reference = embedding_reference()
+        self._spacr_style_spec = resolve_style("screen", "scatter",
+            comparison={"projection_dimensions":self.dimensions},
+            legend={"caption":caption, "reference":reference,
+                "quantities":{"x":tr("UMAP dimension 1"), "y":tr("UMAP dimension 2")},
+                "unit":"dimensionless"})
+        entries = [{"label":caption, "colour":FOREGROUND.name(), "kind":"caption"},
+                   {"label":reference, "colour":FOREGROUND.name(), "kind":"reference_tick"}]
+        if self._coords is not None and self._labels is not None:
+            colours = colors_for_labels(self._labels, len(self._coords), cmap=self._cmap, alpha=self._point_alpha)
+            identities, positions, counts = np.unique(self._labels, return_index=True, return_counts=True)
+            for label, position, count in zip(identities, positions, counts):
+                entries.append({"label":tr("Cluster {cluster}: {count} points.").format(
+                    cluster=label, count=int(count)), "colour":colours[int(position)].name(), "kind":"identity"})
+        entries.append({"label":hint, "colour":FOREGROUND.name(), "kind":"note"})
+        self._spacr_legend_entries = tuple(entries)
+        legend = "\n".join(entry["label"] for entry in entries)
+        if self.toolTip() != legend:
+            self.setToolTip(legend)
+            self.presentation_changed.emit(legend)
+
+    def _spacr_style_observation(self) -> dict:
+        """Observe the actual QPainter pass, keeping 3D occlusion checks explicitly incomplete."""
+        import copy
+
+        self.grab()
+        if self._last_paint is None:
+            return {"backend":"QPainter", "specification":None}
+        observed = copy.deepcopy(self._last_paint)
+        observed["projected_points"] = observed["projected_points"].tolist()
+        observed["depth"] = observed["depth"].tolist()
+        return observed
+
     def paintEvent(self, _event) -> None:  # noqa: N802
         """Draw the points, or the empty-state message.
 
+        The projected coordinate grid is recorded as grid chrome rather
+        than as an analytical reference line. Its original geometry,
+        grey pen and opacity remain unchanged.
+
         :param _event: the Qt paint event; unused.
         """
+        from dataclasses import asdict
+        from PySide6.QtGui import QFontInfo, QFontMetricsF, QTransform
+
         painter = QPainter(self)
+        painter.setFont(self.font())
         painter.fillRect(self.rect(), BACKGROUND)
         painter.setRenderHint(QPainter.Antialiasing, True)
         if self._coords is None:
@@ -593,18 +660,46 @@ class UmapEmbeddingView(QWidget):
             self._coords[:, :self.dimensions], self.width(), self.height(),
             yaw=self._yaw, pitch=self._pitch if self.dimensions == 3 else 0.0,
             zoom=self._zoom)
-        grid_pen = QPen(QColor(71, 85, 105, 105))
-        grid_pen.setWidthF(0.8)
+        dpi = float(self.logicalDpiX())
+        grid_colour = QColor(Palette.CONTROL)
+        grid_colour.setAlphaF(DATA_ALPHA)
+        grid_pen = QPen(grid_colour)
+        grid_pen.setWidthF(WEIGHTS["spine"] * dpi/72.)
+        grid_pen.setStyle(Qt.DotLine)
         painter.setPen(grid_pen)
         for start, end in frame["grid"]:
             painter.drawLine(QPointF(*start), QPointF(*end))
-        axis_pen = QPen(QColor(148, 163, 184, 205))
-        axis_pen.setWidthF(1.35)
+        axis_pen = QPen(FOREGROUND)
+        axis_pen.setWidthF(WEIGHTS["spine"] * dpi/72.)
         painter.setPen(axis_pen)
-        for start, end, label in frame["axes"]:
-            painter.drawLine(QPointF(*start), QPointF(*end))
-            painter.drawText(QPointF(float(end[0]) + 4.0,
-                                     float(end[1]) - 4.0), label)
+        side = min(self.width(), self.height()) - 4.
+        border = QRectF((self.width()-side)/2., (self.height()-side)/2., side, side)
+        painter.drawRect(border)
+        metrics = QFontMetricsF(painter.font())
+        text_bounds = []
+        for index, (start, end, label) in enumerate(frame["axes"]):
+            bounds = metrics.boundingRect(label)
+            if self.dimensions == 2:
+                if index == 0:
+                    x = (self.width()-bounds.width())/2.-bounds.left()
+                    y = self.height()-6.-bounds.bottom()
+                    painter.drawText(QPointF(x,y), label)
+                    text_bounds.append(bounds.translated(x,y))
+                else:
+                    transform = QTransform()
+                    transform.translate(6.-bounds.top(), (self.height()+bounds.width())/2.+bounds.left())
+                    transform.rotate(-90.)
+                    painter.save()
+                    painter.setWorldTransform(transform, combine=True)
+                    painter.drawText(QPointF(), label)
+                    painter.restore()
+                    text_bounds.append(transform.mapRect(bounds))
+            else:
+                painter.drawLine(QPointF(*start), QPointF(*end))
+                x = max(4.-bounds.left(), min(float(end[0])+4., self.width()-4.-bounds.right()))
+                y = max(4.-bounds.top(), min(float(end[1])-4., self.height()-4.-bounds.bottom()))
+                painter.drawText(QPointF(x,y), label)
+                text_bounds.append(bounds.translated(x,y))
 
         colours = colors_for_labels(
             self._labels, len(self._coords), cmap=self._cmap,
@@ -637,17 +732,35 @@ class UmapEmbeddingView(QWidget):
                                  QPointF(float(x) + radius, float(y)))
                 painter.drawLine(QPointF(float(x), float(y) - radius),
                                  QPointF(float(x), float(y) + radius))
-        painter.setPen(FOREGROUND)
-        title = self._caption
-        if self._backend:
-            title += f"  ·  {self._backend}"
-        painter.drawText(12, 22, title)
-        painter.setPen(MUTED)
-        hint = ("drag to spin · wheel to zoom · right-click appearance"
-                if self.dimensions == 3
-                else "wheel to zoom · right-click appearance")
-        painter.drawText(12, self.height() - 12, hint)
+        actual = QFontInfo(painter.font())
+        font = dict(family=actual.family(), size=actual.pointSizeF(), weight=int(actual.weight()),
+                    role="label", colour=list(FOREGROUND.getRgbF()))
+        outside = [list(rect.getRect()) for rect in text_bounds if not QRectF(self.rect()).contains(rect)]
+        overlaps = [(a,b) for a, first in enumerate(text_bounds)
+                    for b, second in enumerate(text_bounds) if a < b and first.intersects(second)]
+        incomplete = ([tr("Complete projected three-dimensional axis and occlusion observations before certification.")]
+                      if self.dimensions == 3 else [])
+        self._last_paint = dict(backend="QPainter", specification=asdict(self._spacr_style_spec),
+            logical_dpi=dpi, width_inches=border.width()/dpi, height_inches=border.height()/dpi,
+            ranges=[[border.left(),border.right()],[border.top(),border.bottom()]],
+            background=list(BACKGROUND.getRgbF()), projected_points=points.copy(), depth=depth.copy(),
+            fonts=[dict(font) for _ in text_bounds],
+            frame=[dict(edge=edge, visible=True, pen=dict(width=axis_pen.widthF(), colour=list(axis_pen.color().getRgbF())))
+                   for edge in ("left","right","top","bottom")],
+            marks=[dict(role="data", opacity=1., colours=[list(colour.getRgbF()) for colour in {value.rgba():value for value in colours}.values()],
+                pens=[], point_count=len(points), bounds=dict(checked=True,
+                    x=[float(points[:,0].min()-radius),float(points[:,0].max()+radius)],
+                    y=[float(points[:,1].min()-radius),float(points[:,1].max()+radius)]))],
+            text_bounds_checked=True, text_geometry=dict(outside=outside, overlaps=overlaps),
+            incomplete_checks=incomplete)
+        grid_points = np.asarray(frame["grid"]).reshape(-1,2)
+        self._last_paint["marks"].append(dict(type="coordinate_grid", role="grid", opacity=1.,
+            colours=[list(grid_pen.color().getRgbF())], pens=[dict(width=grid_pen.widthF(),
+                colour=list(grid_pen.color().getRgbF()))], point_count=0,
+            bounds=dict(checked=True, x=[float(grid_points[:,0].min()),float(grid_points[:,0].max())],
+                        y=[float(grid_points[:,1].min()),float(grid_points[:,1].max())])))
         painter.end()
+
 
 
 class UmapExplorer(QWidget):
@@ -677,6 +790,11 @@ class UmapExplorer(QWidget):
         layout.addLayout(bar)
         self.view = UmapEmbeddingView(self)
         layout.addWidget(self.view, 1)
+        self.legend = QLabel(self)
+        self.legend.setTextFormat(Qt.PlainText)
+        self.legend.setWordWrap(True)
+        self.view.presentation_changed.connect(self.legend.setText)
+        layout.addWidget(self.legend)
 
     def _reset(self) -> None:
         """Return the embedding to its default rotation and zoom."""

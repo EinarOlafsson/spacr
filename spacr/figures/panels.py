@@ -16,7 +16,8 @@ import numpy as np
 from .style import (ROLES, TYPE_SCALE, Palette, annotate, descriptor,
                     panel_letter, reference_line, rotate_ticks, text_legend)
 
-from ..figures.style import figure_style, theme_target
+from ..figures.style import figure_style, theme_target, condition_plot, _legend_note, DATA_ALPHA
+from ..qt.i18n import tr
 
 
 @dataclass
@@ -295,18 +296,17 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
 
     if in_compartment is not None and in_compartment.any():
         ax.scatter(x[~in_compartment], y[~in_compartment], s=4.0,
-                   c=ROLES["data"], linewidths=0, rasterized=True, zorder=1)
+                   c=ROLES["data"], linewidths=0, rasterized=True, zorder=1, alpha=DATA_ALPHA)
         ax.scatter(x[in_compartment], y[in_compartment], s=9.0,
-                   c=ROLES["highlight"], linewidths=0, zorder=2)
+                   c=ROLES["highlight"], linewidths=0, zorder=2, alpha=DATA_ALPHA)
     else:
         ax.scatter(x[rest], y[rest], s=4.0, c=ROLES["data"], linewidths=0,
-                   rasterized=True, zorder=1)
-        ax.scatter(x[up], y[up], s=7.0, c=ROLES["up"], linewidths=0, zorder=2)
+                   rasterized=True, zorder=1, alpha=DATA_ALPHA)
+        ax.scatter(x[up], y[up], s=7.0, c=ROLES["up"], linewidths=0, zorder=2, alpha=DATA_ALPHA)
         ax.scatter(x[down], y[down], s=7.0, c=ROLES["down"], linewidths=0,
-                   zorder=2)
+                   zorder=2, alpha=DATA_ALPHA)
 
-    reference_line(ax, y=-np.log10(alpha), label=f"q = {alpha:g}" if q
-                   else f"p = {alpha:g}")
+    reference_line(ax, y=-np.log10(alpha), label=f"p = {alpha:g}")
     if effect_threshold:
         for sign in (-1, 1):
             reference_line(ax, x=sign * abs(effect_threshold),
@@ -326,20 +326,21 @@ def volcano(ax, frame, *, alpha=0.05, effect_threshold="auto",
                    for px, py in placed):
                 continue
             placed.append((x[index], y[index]))
-            ax.annotate(name, (x[index], y[index]),
-                        fontsize=TYPE_SCALE["annotation"],
-                        xytext=(3, 2), textcoords="offset points",
-                        color=ax.xaxis.label.get_color())
+            if in_compartment is not None and in_compartment.any():
+                colour = ROLES["highlight"] if in_compartment[index] else ROLES["data"]
+            else:
+                colour = ROLES["up"] if x[index] > 0 else ROLES["down"]
+            _legend_note(ax, name, colour, "identity")
 
     if highlight is not None:
         mask = names.astype(str) == str(highlight)
         if mask.any():
             ax.scatter(x[mask.to_numpy()], y[mask.to_numpy()], s=44,
                        facecolors="none", edgecolors=ROLES["highlight"],
-                       linewidths=1.4, zorder=3)
+                       linewidths=1.4, zorder=3, alpha=DATA_ALPHA)
 
-    ax.set_xlabel("effect size")
-    ax.set_ylabel("$-$log$_{10}$ " + ("q" if q else "p"))
+    ax.set_xlabel(tr("Regression coefficient"))
+    ax.set_ylabel(tr("−log₁₀(p-value)"))
     if in_compartment is not None and in_compartment.any():
         text_legend(ax, [
             (f"{compartment} ({int(in_compartment.sum())})",
@@ -401,35 +402,33 @@ def effect_rank(ax, frame, *, alpha=0.05, top=14) -> Panel:
     sub = sub.sort_values("_abs", ascending=False).head(top).iloc[::-1]
 
     names = label_series(sub)
-    y = np.arange(len(sub))
-    x = _finite(sub[effect])
+    positions = np.arange(len(sub))
+    estimates = _finite(sub[effect])
 
     q = q_column(frame)
     called = (_finite(sub[q]) <= alpha) if q else np.zeros(len(sub), bool)
     called = np.nan_to_num(called, nan=False).astype(bool)
-    colours = np.where(called, np.where(x > 0, ROLES["up"], ROLES["down"]),
+    colours = np.where(called, np.where(estimates > 0, ROLES["up"], ROLES["down"]),
                        ROLES["data"])
-
+    bars = ax.bar(positions, estimates, width=0.6, color=colours, alpha=0.6,
+                  linewidth=0, zorder=2)
+    for index, bar in enumerate(bars):
+        bar.set_gid(f"spacr-condition:{index}:bar")
     se = _column(frame, "std_err", "std err", "se", "bse")
     if se:
         half = 1.96 * _finite(sub[se])
-        ax.hlines(y, x - half, x + half, colors=colours,
-                  linewidth=1.0, zorder=1)
-    ax.scatter(x, y, s=14, c=colours, linewidths=0, zorder=2)
-    reference_line(ax, x=0.0)
-
-    ax.set_yticks([])
-    span = float(np.nanmax(np.abs(x))) or 1.0
-    for row, (value, name) in enumerate(zip(x, names)):
-        ax.text(0.04 * span if value < 0 else -0.04 * span, row,
-                str(name)[:20],
-                ha="left" if value < 0 else "right", va="center",
-                fontsize=TYPE_SCALE["annotation"],
-                color=ax.xaxis.label.get_color())
-    ax.set_ylim(-0.8, len(sub) - 0.2)
-    ax.set_xlim(-1.35 * span, 1.35 * span)
-    ax.set_xlabel("effect size")
-    ax.set_ylabel("")
+        ax.errorbar(positions, estimates, yerr=half, fmt="none",
+                    ecolor="black", alpha=0.6, linewidth=0.6,
+                    capsize=1.5, zorder=3)
+    ax.axhline(0.0, color=Palette.CONTROL, alpha=0.6,
+               linewidth=0.6, linestyle=":", zorder=1)
+    ax._spacr_condition_labels = tuple(names.astype(str))
+    ax.set_xticks(positions, names.astype(str))
+    rotate_ticks(ax)
+    ax.set_xlim(-0.5, max(1, len(sub)) - 0.5)
+    ax.margins(y=0.12)
+    ax.set_xlabel("Gene")
+    ax.set_ylabel("Regression coefficient")
     return Panel("effect_rank", "strongest effects",
                  caption=(f"The {len(sub)} coefficients with the largest "
                           f"absolute effect"
@@ -460,11 +459,11 @@ def p_histogram(ax, frame, *, bins=40) -> Panel:
                      reason="no finite p-values", needs=(p,))
 
     ax.hist(values, bins=bins, range=(0, 1), color=ROLES["fill"],
-            edgecolor="none")
+            edgecolor="none", alpha=DATA_ALPHA)
     expected = values.size / bins
     reference_line(ax, y=expected, label="uniform")
-    ax.set_xlabel("p")
-    ax.set_ylabel("coefficients")
+    ax.set_xlabel(tr("p-value"))
+    ax.set_ylabel(tr("Coefficients"))
 
     upper = float(np.mean(values > 0.5)) * 2.0
     annotate(ax, f"n = {values.size}\nπ₀ ≈ {min(upper, 1):.2f}")
@@ -501,18 +500,18 @@ def qq_plot(ax, frame) -> Panel:
     expected = -np.log10((np.arange(1, n + 1) - 0.5) / n)
     observed = -np.log10(values)
     ax.scatter(expected, observed, s=3.5, c=ROLES["data"], linewidths=0,
-               rasterized=True)
+               rasterized=True, alpha=DATA_ALPHA)
     limit = float(max(expected.max(), observed.max()))
     ax.plot([0, limit], [0, limit], color=ROLES["reference"],
-            lw=0.6, ls=(0, (4, 3)), zorder=0)
+            lw=0.6, ls=(0, (4, 3)), zorder=0, alpha=DATA_ALPHA)
 
     from scipy.stats import chi2
 
     chi = chi2.isf(values, 1)
     lam = float(np.median(chi) / chi2.ppf(0.5, 1))
     annotate(ax, f"λ = {lam:.2f}")
-    ax.set_xlabel("expected $-$log$_{10}$ p")
-    ax.set_ylabel("observed $-$log$_{10}$ p")
+    ax.set_xlabel(tr("Expected −log₁₀(p-value)"))
+    ax.set_ylabel(tr("Observed −log₁₀(p-value)"))
     return Panel("qq", "q-q of p-values",
                  caption=(f"Observed against expected p-values on the "
                           f"−log₁₀ scale. λ = {lam:.2f}; "
@@ -549,7 +548,7 @@ def control_separation(ax, frame) -> Panel:
              "other": "screen"}
     colours = {"negative": ROLES["control_negative"],
                "positive": ROLES["control_positive"],
-               "control": Palette.GREY_DARK, "screen": ROLES["data"]}
+               "control": Palette.CONTROL, "screen": ROLES["primary"]}
     groups, labels, shades = [], [], []
     for key, label in names.items():
         rows = frame[frame[condition].astype(str) == key]
@@ -562,28 +561,31 @@ def control_separation(ax, frame) -> Panel:
                      reason="fewer than two conditions present",
                      needs=(condition,))
 
-    rng = np.random.default_rng(0)
-    for index, (values, colour) in enumerate(zip(groups, shades)):
-        values = values[np.isfinite(values)]
-        jitter = rng.uniform(-0.09, 0.09, values.size)
-        ax.scatter(np.full(values.size, index) + jitter, values, s=5,
-                   c=colour, linewidths=0, alpha=.75, zorder=1)
-        ax.hlines(np.median(values), index - 0.22, index + 0.22,
-                  colors=colour, linewidth=1.4, zorder=2)
+    controls = [index for index, label in enumerate(labels)
+                if label in ("negative", "positive", "control")]
+    condition_plot(ax, groups, colours=shades, control=controls)
+    for index, values in enumerate(groups):
+        finite = values[np.isfinite(values)]
+        if 0 < len(finite) <= 20:
+            ax.hlines(np.median(finite), index - 0.3, index + 0.3,
+                      colors="black", linewidth=0.9, alpha=0.6, zorder=4)
+    ax._spacr_condition_labels = tuple(labels)
+    ax._spacr_controls = tuple(controls)
     reference_line(ax, y=0.0)
-    ax.set_xticks(range(len(labels)))
-    ax.set_xticklabels([f"{label}\n(n={len(g)})"
-                        for label, g in zip(labels, groups)])
-    ax.set_ylabel("effect size")
+    ax.set_xticks(range(len(labels)), labels)
+    rotate_ticks(ax)
+    ax.set_ylabel(tr("Regression coefficient"))
+    annotate(ax, " ".join(tr("{condition}: n = {count}.").format(
+        condition=label, count=len(group)) for label, group in zip(labels, groups)))
     annotate(ax, "  ".join(
         f"{label} median={float(np.median(g[np.isfinite(g)])):.3g}"
         for label, g in zip(labels, groups)
         if np.isfinite(g).any()))
     return Panel("controls", "control separation",
-                 caption=("Effect size by control class. Points are "
-                          "individual coefficients, the bar is the median. "
-                          "The screen works only if the positive controls "
-                          "separate from the negative ones."),
+                 caption=tr("Regression coefficients by control class. Up to twenty finite coefficients, "
+                            "bars show means and every coefficient is shown; larger groups use boxes, "
+                            "or violins without points from one thousand coefficients. Black lines show medians. "
+                            "Control classes are grey and screen coefficients are blue."),
                  needs=(effect, condition),
                  data=frame.loc[frame[condition].astype(str).isin(names)],
                  groups={label: values for label, values
@@ -627,14 +629,14 @@ def guide_agreement(ax, frame) -> Panel:
     jitter = rng.uniform(-0.22, 0.22, len(counts))
     ax.scatter(counts[multi] + jitter[multi.to_numpy()],
                concordance[multi], s=7, c=ROLES["data"], linewidths=0,
-               alpha=.55, zorder=1, rasterized=True)
+               alpha=.6, zorder=1, rasterized=True)
     if (~multi).any():
         ax.scatter(counts[~multi] + jitter[(~multi).to_numpy()],
                    concordance[~multi], s=11, c=ROLES["down"],
-                   linewidths=0, zorder=2)
+                   linewidths=0, zorder=2, alpha=DATA_ALPHA)
     reference_line(ax, y=0.5, label="chance")
-    ax.set_xlabel("guides per gene")
-    ax.set_ylabel("fraction agreeing in sign")
+    ax.set_xlabel(tr("Guides per gene"))
+    ax.set_ylabel(tr("Guide-sign agreement (fraction)"))
     ax.set_ylim(0.28, 1.08)
     single = int((~multi).sum())
     entries = [(f"{len(counts)} genes", ROLES["data"])]
@@ -666,14 +668,14 @@ def effect_distribution(ax, frame) -> Panel:
         return Panel("effect_distribution", "effect distribution", drawn=False,
                      reason="no finite effects", needs=(effect,))
 
-    ax.hist(values, bins=50, color=ROLES["fill"], edgecolor="none")
+    ax.hist(values, bins=50, color=ROLES["fill"], edgecolor="none", alpha=DATA_ALPHA)
     reference_line(ax, x=0.0)
     mad = float(np.median(np.abs(values - np.median(values))) * 1.4826)
     for sign in (-1, 1):
         reference_line(ax, x=sign * 3 * mad,
                        label="3σ" if sign > 0 else "")
-    ax.set_xlabel("effect size")
-    ax.set_ylabel("coefficients")
+    ax.set_xlabel(tr("Regression coefficient"))
+    ax.set_ylabel(tr("Coefficients"))
     annotate(ax, f"n = {values.size}\nσ (MAD) = {mad:.3g}")
     return Panel("effect_distribution", "effect distribution",
                  caption=("Distribution of fitted effects for the tested "

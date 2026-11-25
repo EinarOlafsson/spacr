@@ -1,0 +1,37 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff",
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff",
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "_wound_edge_figure",
+  "data_sha256": null,
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_edges/wound_edges.pdf",
+      "sha256": "ef42815634e987b9088ae74fc4b5c6b9e74c8887d4ee6785d7cab9b88d275a09"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/wound_edges/wound_edges.png",
+      "sha256": "b5d86f8d0cc5ab9668ca3c29742d984cd0d9a78279ab02d9215de4bb5b221bdf"
+    }
+  },
+  "inputs_sha256": "70b0d33d7caa70d6118c367d987a06d8a24ecf83a3f07bd1b2cb7a88e54feb7b",
+  "payload_sha256": "723a5af40260019f1ba89851a9970d5b566be95c4a2a5145775299bdb1fc5316",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

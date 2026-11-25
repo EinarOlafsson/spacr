@@ -1,0 +1,46 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff",
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff",
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "_wound_edge_figure",
+  "data_sha256": null,
+  "diagnostics": {
+    "checks": [
+      "registered semantics",
+      "text size",
+      "text bounds",
+      "text overlap",
+      "declared reference and quantities",
+      "actual palette and legend identities",
+      "applicable representation and semantic requirements",
+      "font family and size",
+      "composited text contrast",
+      "completed presentation checks"
+    ],
+    "problems": []
+  },
+  "files": {
+    "pdf": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/dark/wound_edges/wound_edges.pdf",
+      "sha256": "8701085895b369692aa3625e3bf7d8c492292572308a9ee9bb1ef5e1610faa48"
+    },
+    "png": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/dark/wound_edges/wound_edges.png",
+      "sha256": "0d22babaeed746510fd5027fc39cb9c5bc12236ec9941ce0f25d315846319cd6"
+    }
+  },
+  "inputs_sha256": "70b0d33d7caa70d6118c367d987a06d8a24ecf83a3f07bd1b2cb7a88e54feb7b",
+  "payload_sha256": "723a5af40260019f1ba89851a9970d5b566be95c4a2a5145775299bdb1fc5316",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

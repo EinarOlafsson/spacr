@@ -286,7 +286,13 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
     black_background = bool(_get("black_background", True))
     figuresize = float(_get("figuresize", 10))
     unique_labels = np.unique(labels)
-    colors = generate_colors(len(unique_labels), black_background)
+    from ...figures.style import DATA_ALPHA, GENERAL_DEFAULTS, embedding_axes, embedding_colours
+    from matplotlib.colors import to_rgba
+
+    colours = embedding_colours(labels, noise_label=-1)
+    requested_color = str(_get("point_color", "cluster")).strip().lower()
+    colors = (generate_colors(len(unique_labels), black_background) if requested_color == "viridis"
+              else [to_rgba(colours[label]) for label in unique_labels])
     colors, _index = assign_colors(unique_labels, colors)
     centers = [np.mean(embedding[labels == label], axis=0)
                for label in unique_labels]
@@ -303,9 +309,9 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
         axes, embedding, labels, colors, centers,
         bool(_get("plot_outlines", True)), bool(_get("plot_points", True)),
         bool(_get("smooth_lines", True)), figuresize,
-        float(_get("dot_size", 50)), False,
+        float(_get("dot_size", GENERAL_DEFAULTS["marker_size"])), False,
         point_color=_get("point_color", "cluster"),
-        point_alpha=float(_get("point_alpha", 0.65)),
+        point_alpha=float(_get("point_alpha", DATA_ALPHA)),
         outline_width=float(_get("outline_width", 1.0)),
     )
     records = payload.get("records") or []
@@ -320,6 +326,12 @@ def redraw_umap_figure(fig, payload: Dict[str, Any],
                 bool(_get("remove_image_canvas", False)), False)
         except Exception:
             LOG.debug("could not redraw the image overlay", exc_info=True)
+    colours = {label:mark.get_facecolors()[0] for label, mark in zip(unique_labels, axes.collections)
+               if len(mark.get_facecolors())}
+    embedding_axes(axes, labels, caption=tr("Embedding of the supplied observations and cluster labels."),
+        colours=colours, centroid_labels=tuple(axes.texts),
+        theme_colors=theme if payload.get("theme_colors") else None, layout=values.get("figuresize") is None,
+        outline_colours=dict(zip(unique_labels, colors)) if axes.lines else None)
     fig._spacr_umap_payload = payload
     return True
 

@@ -100,8 +100,9 @@ def test_rejects_misaligned_payload(qtbot):
         })
 
 
-def test_embedding_matches_container_theme_and_uses_viridis(
+def test_embedding_uses_readable_shared_ground_and_cluster_palette(
         qtbot, tmp_path, monkeypatch):
+    """Both GUI themes use the shared figure ground, ink and discrete cluster palette."""
     from matplotlib.colors import to_rgba
     from spacr.qt import theme
 
@@ -117,11 +118,11 @@ def test_embedding_matches_container_theme_and_uses_viridis(
 
     explorer.set_payload(payload)
 
-    assert explorer._figure.get_facecolor() == to_rgba("#24272b")
-    assert explorer._axes.get_facecolor() == to_rgba("#24272b")
+    assert explorer._figure.get_facecolor() == to_rgba("#FFFFFF")
+    assert explorer._axes.get_facecolor() == to_rgba("#FFFFFF")
     assert explorer._axes.spines["left"].get_edgecolor() == to_rgba(
-        "#ffffff")
-    assert explorer._scatter.get_cmap().name == "viridis"
+        "#000000")
+    assert explorer._scatter.get_cmap().name == "spacr_clusters"
 
 
 def test_display_settings_control_points_lines_and_splitter(qtbot, tmp_path):

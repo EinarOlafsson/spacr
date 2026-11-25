@@ -1,0 +1,46 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff",
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff",
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "img_list_to_grid",
+  "data_sha256": null,
+  "diagnostics": {
+    "checks": [
+      "registered semantics",
+      "text size",
+      "text bounds",
+      "text overlap",
+      "declared reference and quantities",
+      "actual palette and legend identities",
+      "applicable representation and semantic requirements",
+      "font family and size",
+      "composited text contrast",
+      "completed presentation checks"
+    ],
+    "problems": []
+  },
+  "files": {
+    "pdf": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/dark/montage/montage.pdf",
+      "sha256": "d1908426d4bbfc31d8318c1eb49842227066a281d5e029ce1ed23b1afb370968"
+    },
+    "png": {
+      "path": "reports/graphstyle/g2/evidence/measure-after/dark/montage/montage.png",
+      "sha256": "25d3a07dd428315b7302f92773f4a5698c350c924dba9dc90ad557b0fdddaec6"
+    }
+  },
+  "inputs_sha256": "6454f594118e1faec6ebd0231d93d0c956f62e8bad3b201009b5e438674416b7",
+  "payload_sha256": "5ded18fbb29822c105c6294cee4f7f682535a10158db22578ed5b95e19ed1aef",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

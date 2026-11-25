@@ -594,7 +594,7 @@ def _kind_and_note(spec: "GraphSpec", kinds: Mapping[str, str]):
     except Exception:                                        # noqa: BLE001
         return inferred, ""
     chosen = chosen_for(shape)
-    if not chosen or chosen == inferred:
+    if not chosen or chosen == "auto" or chosen == inferred:
         return inferred, ""
     if chosen in _DRAWABLE_KINDS:
         return chosen, ""

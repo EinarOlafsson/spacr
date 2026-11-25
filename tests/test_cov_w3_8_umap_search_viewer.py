@@ -115,7 +115,7 @@ def test_apply_publishes_the_values_without_closing_the_dialog(qtbot):
     buttons = dialog.findChild(QDialogButtonBox)
     buttons.button(QDialogButtonBox.Apply).click()
     assert seen == [{"marker": "square", "size": 6.5,
-                     "alpha": 0.86, "cmap": "spaCR"}]
+                     "alpha": 0.6, "cmap": "spaCR"}]
     assert dialog.isVisible()
 
 
@@ -219,12 +219,7 @@ def _ink(widget, top, bottom) -> int:
 
 
 def test_the_backend_is_named_beside_the_caption(qtbot):
-    """The header strip gains ink when a backend is supplied; nothing else does.
-
-    Measured rather than intercepted: ``QPainter.drawText`` is a Shiboken
-    method and cannot be replaced, so the two renders are made identical in
-    every respect except the backend string and the pixels are counted.
-    """
+    """Backend identity belongs in the external caption; adding it leaves every plotted pixel unchanged."""
     view = UmapEmbeddingView()
     qtbot.addWidget(view)
     view.resize(320, 280)
@@ -233,7 +228,8 @@ def test_the_backend_is_named_beside_the_caption(qtbot):
     plain_header = _ink(view, 6, 28)
     plain_body = _ink(view, 40, 240)
     view.set_embedding(coords, caption="map A", backend="cuml")
-    assert _ink(view, 6, 28) > plain_header
+    assert _ink(view, 6, 28) == plain_header
+    assert "map A · cuml" in view.toolTip()
     assert _ink(view, 40, 240) == plain_body
 
 

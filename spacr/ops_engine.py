@@ -333,6 +333,11 @@ _CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode", "prefix_fdr_sweep",
                "prefix_grid_search", "cpg_measure")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
+#: ``ph_rebuild``: the phases that rebuild the cell ownership, the links,
+#: the gene tables and the phenotype tables of a finished run from its
+#: stored masks and cell tables, without segmenting or measuring again.
+_PH_REBUILD_PHASES = ("ph_ownership", "merge", "aggregate", "ph_tables")
+
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
                + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES + _CPG_PHASES
                + _POWER_PHASES
@@ -2313,7 +2318,7 @@ def _ops_journal_plan(path, settings, names, field_id):
 
 
 def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
-                      field_id, names, active, context, site, available):
+                      field_id, names, active, context, site, available, stream=False):
     """Journal actual groups produced by the single existing resident batch planner."""
     from . import _mask_batches as batches
     from ._mask_array_batches import _array_batches
@@ -2323,7 +2328,7 @@ def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
 
     order_sha256 = batches._order_sha256(map(str, names))
     with _array_batches(records, load, settings, gpu=gpu, plan_path=plan_path,
-                        max_fields=max_fields) as resident:
+                        max_fields=max_fields, stream=stream) as resident:
         for record, image, metadata, count in resident:
             if active and image is not None:
                 with open(plan_path, encoding='utf-8') as handle:
@@ -2351,8 +2356,15 @@ def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
 
 @contextmanager
 def _ops_array_batches(records, load, settings, *, prepare, site, gpu=False,
-                       plan_path=None, max_fields=None, field_id=str, order=None):
-    """Adapt existing OPS readers to the shared calibrated resident batch planner."""
+                       plan_path=None, max_fields=None, field_id=str, order=None,
+                       stream=False):
+    """Adapt existing OPS readers to the shared calibrated resident batch planner.
+
+    :param stream: pass each field through as loaded, one at a time, without
+        the resident packed or device copy of the whole batch
+        (:func:`spacr._mask_array_batches._array_batches`); the grouping, the
+        tile batch and the journal are the same.
+    """
     from tempfile import TemporaryDirectory
     from . import _mask_batches as batches
     from .object import (_mask_probe_eval, _restore_mask_calibration,
@@ -2407,7 +2419,8 @@ def _ops_array_batches(records, load, settings, *, prepare, site, gpu=False,
         iterator = _ops_batch_fields(
             records, functools.partial(_ops_prefetched_load, prefetched, load, available), settings,
             gpu=gpu, plan_path=plan_path, max_fields=max_fields, field_id=field_id,
-            names=names, active=active, context=context, site=site, available=available)
+            names=names, active=active, context=context, site=site, available=available,
+            stream=stream)
         try:
             yield iterator
         finally:
@@ -4683,24 +4696,23 @@ def _ph_shift_plane(plane: np.ndarray, dy: int, dx: int) -> np.ndarray:
     return out
 
 
-def _ph_read_field(files: Mapping[str, str], channels: Sequence[str],
-                   unreadable: list, secondary: Optional[Mapping[str, Any]] = None
-                   ) -> Optional[np.ndarray]:
-    """One phenotype field as ``(H, W, C)`` float32, focal planes maxed.
+def _ph_field_planes(files: Mapping[str, str], channels: Sequence[str],
+                     unreadable: list, secondary: Optional[Mapping[str, Any]] = None
+                     ) -> Optional[Tuple[List[np.ndarray], set, Tuple[int, int]]]:
+    """The acquired planes of one phenotype field per channel, as the tiles hold them.
+
+    The one choice of which file and plane each channel is read from, for
+    :func:`_ph_read_field` and for the field written to ``fov.ome.zarr``
+    (:func:`_ph_store_fields`).
 
     :param files: ``channel token -> path`` for the site.
     :param channels: which channels, in order.
     :param unreadable: ``(path, reason)`` is appended for a file that fails.
-    :param secondary: for a plate imaged in two acquisitions,
-        ``{"channels": [...], "dy": int, "dx": int}``: those channels are
-        read from the second acquisition's file and moved by the field's
-        registration shift (:func:`_ph_secondary_shifts`); every other
-        channel only from the primary acquisition's files.
-    :returns: the stack, or None when any channel is missing or unreadable.
-
-    THE FOCAL PLANES ARE MAXIMUM-PROJECTED, which is what Funk et al.'s
-    ``apply_illumination_correction(zproject=True)`` does before their
-    segmentation: the reference plate's phenotype files hold four.
+    :param secondary: as for :func:`_ph_read_field`.
+    :returns: ``(planes, moved, shift)``: the array of each channel ``(..., Y, X)``
+        exactly as stored (every leading plane, no projection, no shift),
+        the channels taken from the second acquisition and their
+        ``(dy, dx)``; None when any channel is missing or unreadable.
     """
     import tifffile
 
@@ -4746,12 +4758,53 @@ def _ph_read_field(files: Mapping[str, str], channels: Sequence[str],
                 unreadable.append((path, f"has no plane {plane}"))
                 return None
             array = np.take(array, plane, axis=axis)
+        planes.append(array)
+    return planes, moved, shift
+
+
+def _ph_projected(planes: Sequence[np.ndarray], channels: Sequence[str],
+                  moved: set, shift: Tuple[int, int]) -> np.ndarray:
+    """The channel planes of a field as ``(H, W, C)`` float32: z maxed, then the second acquisition moved.
+
+    :param planes: each channel ``(..., Y, X)`` (or already projected ``(Y, X)``).
+    :param channels: the channel of each.
+    :param moved: the channels the shift applies to.
+    :param shift: ``(dy, dx)``.
+    """
+    out = []
+    for channel, array in zip(channels, planes):
         while array.ndim > 2:
             array = array.max(axis=0)
-        if channel.upper() in moved and shift != (0, 0):
+        if channel.upper() in moved and tuple(shift) != (0, 0):
             array = _ph_shift_plane(array, *shift)
-        planes.append(array.astype(np.float32))
-    return np.stack(planes, axis=-1)
+        out.append(array.astype(np.float32))
+    return np.stack(out, axis=-1)
+
+
+def _ph_read_field(files: Mapping[str, str], channels: Sequence[str],
+                   unreadable: list, secondary: Optional[Mapping[str, Any]] = None
+                   ) -> Optional[np.ndarray]:
+    """One phenotype field as ``(H, W, C)`` float32, focal planes maxed.
+
+    :param files: ``channel token -> path`` for the site.
+    :param channels: which channels, in order.
+    :param unreadable: ``(path, reason)`` is appended for a file that fails.
+    :param secondary: for a plate imaged in two acquisitions,
+        ``{"channels": [...], "dy": int, "dx": int}``: those channels are
+        read from the second acquisition's file and moved by the field's
+        registration shift (:func:`_ph_secondary_shifts`); every other
+        channel only from the primary acquisition's files.
+    :returns: the stack, or None when any channel is missing or unreadable.
+
+    THE FOCAL PLANES ARE MAXIMUM-PROJECTED, which is what Funk et al.'s
+    ``apply_illumination_correction(zproject=True)`` does before their
+    segmentation: the reference plate's phenotype files hold four.
+    """
+    found = _ph_field_planes(files, channels, unreadable, secondary)
+    if found is None:
+        return None
+    planes, moved, shift = found
+    return _ph_projected(planes, channels, moved, shift)
 
 
 def _ph_downscale(plane: np.ndarray, factor: int) -> np.ndarray:
@@ -5838,10 +5891,8 @@ def _ph_measure_table(task: Mapping[str, Any]):
     if task.get("measure_gpu"):
         os.environ.setdefault("CUPY_CACHE_DIR", os.path.join(
             os.path.expanduser("~"), ".spacr", "cupy_cache"))
-    measure = ops_sample.measure_phenotype_field
-    if objects:
-        measure = functools.partial(ops_sample._measure_phenotype_field,
-                                    objects=objects)
+    measure = functools.partial(ops_sample._measure_phenotype_field,
+                                objects=objects or None)
     table = measure(
         nuclei, cells, stack, task["channels"],
         texture=bool(task["texture"]),
@@ -5850,7 +5901,8 @@ def _ph_measure_table(task: Mapping[str, Any]):
         gpu=bool(task.get("measure_gpu", False)),
         profile_features=task.get("profile_features"),
         granularity_subsample=float(task.get("granularity_subsample") or 1.0),
-        cytoskeleton_channels=task.get("cytoskeleton_channels"))
+        cytoskeleton_channels=task.get("cytoskeleton_channels"),
+        outside_rule=task.get("outside_rule") or "object")
     for column, source in (("nucleus_centroid_y", "centroid_row"),
                            ("nucleus_centroid_x", "centroid_col")):
         if column not in table:
@@ -5946,6 +5998,23 @@ def _ph_profile_features(settings: Mapping[str, Any]) -> Optional[List[str]]:
         settings.get("ops_ph_profile_features"),
         settings.get("ops_ph_profile_optional_families"))
     return list(families) or None
+
+
+def _ph_outside_rule_option(settings: Mapping[str, Any]) -> Dict[str, str]:
+    """``{"outside_rule": ...}`` when the ``outside`` family is measured, else ``{}``.
+
+    :param settings: read for ``ops_ph_profile_features`` and
+        ``ops_ph_profile_outside_rule`` (:func:`spacr.measure._outside_excludes_foreground`).
+    :returns: the option the per-field parts record, so a well never mixes
+        fields measured with two meanings of the ``outside`` columns.
+    """
+    from .measure import _outside_excludes_foreground
+
+    if "outside" not in (_ph_profile_features(settings) or []):
+        return {}
+    rule = str(settings.get("ops_ph_profile_outside_rule") or "object")
+    _outside_excludes_foreground("nucleus", rule)
+    return {"outside_rule": rule.strip().lower()}
 
 
 def _ph_granularity_subsample(settings: Mapping[str, Any]
@@ -6144,6 +6213,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "cytoskeleton_channels": settings.get("ops_ph_cytoskeleton_channels"),
             "granularity_subsample": _ph_granularity_subsample(settings),
             "measure_gpu": bool(settings.get("ops_ph_measure_gpu", False)),
+            **_ph_outside_rule_option(settings),
             "secondary": _ph_secondary(settings) if secondary else None}
         if object_roles:
             options["objects"] = _ph_object_options(settings)
@@ -6167,6 +6237,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 "profile_features": options["profile_features"],
                 "cytoskeleton_channels": options["cytoskeleton_channels"],
                 "granularity_subsample": options["granularity_subsample"],
+                "outside_rule": options.get("outside_rule"),
                 "measure_gpu": options["measure_gpu"],
                 "secondary": secondary.get(site),
                 "objects": object_roles}
@@ -6258,7 +6329,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 tick = time.perf_counter()
                 before = len(unreadable)
                 if stager is not None:
-                    stack, lost = stager.load(site)
+                    stack, lost = stager.load(site, mmap=os.name != "nt")
                     unreadable.extend(lost)
                 else:
                     stack = _ph_read_field(files[site], channels, unreadable,
@@ -6277,7 +6348,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                                     field_id=lambda site: f"{plate}_{well}_{site}",
                                     order=processing_order,
                                 max_fields=stager.ahead if stager is not None else None,
-                                plan_path=os.path.join(mask_dir, 'mask_batch_plan.json')) as resident:
+                                plan_path=os.path.join(mask_dir, 'mask_batch_plan.json'),
+                                    stream=True) as resident:
                 for count, (site, stack, _metadata, field_count) in enumerate(resident, start=1):
                     if site not in todo:
                         measure_now(site)
@@ -6408,6 +6480,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "profile_features": options["profile_features"],
             "cytoskeleton_channels": options["cytoskeleton_channels"],
             "granularity_subsample": options["granularity_subsample"],
+            "outside_rule": options.get("outside_rule"),
             "measure_gpu": options["measure_gpu"],
         }
     if field_shape is not None:
@@ -7003,12 +7076,16 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     nucleus claimed by two fields -- an overlap -- keeps one copy, chosen by
     ``ops_ownership``:
 
-    - ``'closer_match'`` (default) keeps the closer match
-      (:func:`spacr.ops_merge.deduplicate_matches`), as before 1.5.1.8;
-    - ``'a1b'`` keeps the copy from the field in which the sequencing
-      centroid lies deepest (:func:`spacr.ops_merge.deepest_field_matches`);
-    - ``'a1'`` keeps only cells whose phenotype nucleus centroid lies
-      deepest in their own field, then the closer match.
+    - ``'closer_match'`` (default) keeps one link per sequencing nucleus
+      (:func:`spacr.ops_merge.deduplicate_matches`): with
+      ``ops_cross_field_ownership`` on and a ph_ownership table, the copy
+      that owns its cell first (:func:`_ph_owner_first_links`), then the
+      closer match; without one the closer match, as before 1.5.1.8;
+    - ``'a1b'`` (deprecated) keeps the copy from the field in which the
+      sequencing centroid lies deepest
+      (:func:`spacr.ops_merge.deepest_field_matches`);
+    - ``'a1'`` (deprecated) keeps only cells whose phenotype nucleus
+      centroid lies deepest in their own field, then the closer match.
 
     ``ops_merge_strategy`` (item 962) chooses where each field's transform
     comes from. ``'current'`` (default) is the above. ``'tile'`` hashes each
@@ -7177,7 +7254,8 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
             "table": _ph_fieldcheck_path(destination, well)}
     owner_report = None
     if ownership == "closer_match":
-        frame, duplicates = deduplicate_matches(frame)
+        frame, duplicates = _ph_pair_one_link_per_nucleus(
+            frame, destination, well, settings)
     else:
         prints = {s: field_footprint(f[0], f[5]) for s, f in fields.items()}
         neighbours = overlapping_fields(prints)
@@ -7302,6 +7380,81 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     return report
 
 
+def _ph_called_guides(db: str, plate: str, wells: Sequence[str],
+                      settings: Mapping[str, Any]):
+    """The guide called for each sequencing nucleus, and the design it maps to.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param wells: the wells.
+    :param settings: read for ``ops_genotype_table`` and ``ops_design``.
+    :returns: ``(called, design, ambiguous)``: ``well, object_id,
+        mapped_guide`` per called nucleus (from ``ops_genotype_table`` when
+        set, else the non-empty ``ops_barcodes`` calls), the design of
+        :func:`_ph_design` at the prefix length of the calls, and how many
+        prefixes it dropped as ambiguous. The aggregate and ph_tables both
+        map a link to its guide and gene through this one function.
+    :raises ValueError: when the calls or the design table are missing.
+    """
+    from .qt.i18n import tr
+
+    genotype_path = settings.get("ops_genotype_table") or None
+    if genotype_path:
+        called = _ph_genotype_table(str(genotype_path), plate, wells)
+    else:
+        barcodes = _rows_for_wells(db, "ops_barcodes", plate, wells)
+        if barcodes is None:
+            raise ValueError(tr(
+                "aggregate needs ops_merge and ops_barcodes; run the merge "
+                "and decode phases first"))
+        called = barcodes.loc[
+            barcodes["mapped_guide"].fillna("").astype(str) != "",
+            ["well", "object_id", "mapped_guide"]]
+        _ph_one_call_per_nucleus(called, "ops_barcodes")
+    design_path = settings.get("ops_design")
+    if not design_path:
+        raise ValueError(tr(
+            "ops_design must be the guide design table with sgRNA and "
+            "gene_symbol columns; got {path}", path=design_path))
+    length = int(called["mapped_guide"].str.len().mode().iloc[0]) if len(called) else 11
+    design, ambiguous = _ph_design(str(design_path), length)
+    return called, design, ambiguous
+
+
+def _ph_link_genotypes(db: str, plate: str, wells: Sequence[str], links,
+                       settings: Mapping[str, Any]):
+    """``well, site, label, sgRNA, gene, mitotic`` of every linked cell, or None.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param wells: the wells.
+    :param links: the ``ops_merge`` rows (``well``, ``site``, ``label``,
+        ``object_id``).
+    :param settings: read for ``ops_design`` and ``ops_genotype_table``.
+    :returns: the guide and gene of each link through
+        :func:`_ph_called_guides`, the mapping the aggregate pools with,
+        and ``mitotic`` missing (only the aggregate calls it); None when
+        there is no design table or no calls. ph_tables uses it
+        when no aggregate cell table of the run is there, so the gene
+        column of the phenotype keys is filled either way.
+    """
+    design_path = settings.get("ops_design")
+    if not design_path or not os.path.isfile(str(design_path)):
+        return None
+    try:
+        called, design, _ambiguous = _ph_called_guides(db, plate, wells,
+                                                       settings)
+    except ValueError:
+        return None
+    joined = links[["well", "site", "label", "object_id"]].merge(
+        called, on=["well", "object_id"], how="inner",
+        validate="many_to_one").merge(
+        design.rename(columns={"prefix": "mapped_guide"}),
+        on="mapped_guide", how="inner", validate="many_to_one")
+    return joined[["well", "site", "label", "sgRNA", "gene"]].reset_index(
+        drop=True).assign(mitotic=np.nan)
+
+
 def _ph_design(path: str, prefix_length: int):
     """``prefix -> (guide, gene)`` from a guide design table.
 
@@ -7310,7 +7463,10 @@ def _ph_design(path: str, prefix_length: int):
     :param prefix_length: how many leading bases the decoded barcodes keep.
     :returns: ``(frame, ambiguous)``: one row per unambiguous prefix with
         ``prefix``, ``sgRNA`` and ``gene``, and how many prefixes were
-        dropped because two genes share them.
+        dropped because two genes share them. A prefix two guides of one
+        gene share keeps that gene and names every such guide in ``sgRNA``,
+        sorted and joined by ``|``, since a call of that prefix cannot tell
+        them apart; a guide listed twice is named once.
     """
     from .qt.i18n import tr
     from .tabular import read_table
@@ -7330,8 +7486,12 @@ def _ph_design(path: str, prefix_length: int):
     table["prefix"] = table["sgRNA"].str.upper().str[:int(prefix_length)]
     genes = table.groupby("prefix")["gene"].nunique()
     ambiguous = set(genes[genes > 1].index)
-    table = table[~table["prefix"].isin(ambiguous)].drop_duplicates("prefix")
-    return table.reset_index(drop=True), len(ambiguous)
+    table = table[~table["prefix"].isin(ambiguous)]
+    names = table.groupby("prefix", sort=False)["sgRNA"].agg(
+        lambda guides: "|".join(sorted(set(guides))))
+    table = table.drop_duplicates("prefix").assign(
+        sgRNA=lambda frame: frame["prefix"].map(names))
+    return table[["sgRNA", "gene", "prefix"]].reset_index(drop=True), len(ambiguous)
 
 
 def _ph_feature_columns(columns) -> List[str]:
@@ -7441,13 +7601,28 @@ def _ph_genotype_table(path: str, plate: str, wells: Sequence[str]):
     table = table[table["well"].astype(str).isin([str(w) for w in wells])]
     called = table.loc[table["mapped_guide"].fillna("").astype(str) != "",
                        ["well", "object_id", "mapped_guide"]]
-    twice = int(called.duplicated(["well", "object_id"]).sum())
-    if twice:
-        raise ValueError(tr(
-            "the genotype table {path} calls {count} sequencing nuclei more "
-            "than once; give each well and object_id one row", path=path,
-            count=twice))
+    _ph_one_call_per_nucleus(called, str(path))
     return called.reset_index(drop=True)
+
+
+def _ph_one_call_per_nucleus(called, source: str) -> None:
+    """Refuse calls that name one sequencing nucleus twice.
+
+    :param called: ``well, object_id, mapped_guide`` rows.
+    :param source: the table they came from, for the message.
+    :raises ValueError: naming the first repeated ``well:object_id`` ids,
+        since a repeated nucleus would give its cell two guides in a join.
+    """
+    from .qt.i18n import tr
+
+    twice = called.duplicated(["well", "object_id"], keep=False)
+    if twice.any():
+        ids = sorted({f"{w}:{int(o)}" for w, o in zip(
+            called.loc[twice, "well"], called.loc[twice, "object_id"])})
+        raise ValueError(tr(
+            "{source} calls {count} sequencing nuclei more than once "
+            "({ids}); give each well and object_id one row", source=source,
+            count=len(ids), ids=", ".join(ids[:10])))
 
 
 def _ph_read_columns(sources, columns: Sequence[str]):
@@ -7666,10 +7841,10 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     the mitotic call included; with ``'exact'`` the measurement already
     corrected the pixels and nothing more is done here.
 
-    With ``ops_cross_field_ownership`` the genotyped cells are reduced by
-    ``ops_cross_field_policy`` (:func:`_ph_cross_field_filter`): one row per
-    physical cell by default; the report's ``cross_field`` says how many
-    went.
+    With ``ops_cross_field_ownership`` (the default) the genotyped cells
+    are reduced by ``ops_cross_field_policy`` (:func:`_ph_cross_field_filter`):
+    the owner copy of each physical cell only by default; ``cross_field``
+    in the report says how many went.
 
     With ``ops_drop_failed_fields`` the cells of a field whose transform
     re-solve failed and which links under three times chance, or which links
@@ -7738,22 +7913,14 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     pooled = [w for w in run_wells if not asked or w.upper() in asked]
     genotype_path = settings.get("ops_genotype_table") or None
     merged_rows = _rows_for_wells(db, "ops_merge", plate, pooled)
-    if genotype_path:
-        if merged_rows is None:
+    if merged_rows is None:
+        if genotype_path:
             raise ValueError(tr(
                 "aggregate needs ops_merge; run the merge phase first"))
-        called = _ph_genotype_table(str(genotype_path), plate, pooled)
-    else:
-        barcodes = _rows_for_wells(db, "ops_barcodes", plate, pooled)
-        if merged_rows is None or barcodes is None:
-            raise ValueError(tr(
-                "aggregate needs ops_merge and ops_barcodes; run the merge "
-                "and decode phases first"))
-        called = barcodes.loc[
-            barcodes["mapped_guide"].fillna("").astype(str) != "",
-            ["well", "object_id", "mapped_guide"]]
-    length = int(called["mapped_guide"].str.len().mode().iloc[0]) if len(called) else 11
-    design, ambiguous = _ph_design(str(design_path), length)
+        raise ValueError(tr(
+            "aggregate needs ops_merge and ops_barcodes; run the merge "
+            "and decode phases first"))
+    called, design, ambiguous = _ph_called_guides(db, plate, pooled, settings)
     sources, schemas = [], []
     for well in pooled:
         path = _ph_cells_path(destination, well)
@@ -7882,7 +8049,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         cells = cells[~inside].reset_index(drop=True)
     cells = cells.merge(merged_rows[["well", "site", "label", "object_id"]],
                         on=["well", "site", "label"], how="inner")
-    cells = cells.merge(called, on=["well", "object_id"], how="left")
+    cells = cells.merge(called, on=["well", "object_id"], how="left",
+                        validate="many_to_one")
     with_guide = cells["mapped_guide"].notna()
     funnel.count("linked", cells)
     funnel.count("linked_no_genotype", cells[~with_guide])
@@ -7891,7 +8059,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         on="mapped_guide", how="inner")
     funnel.count("with_guide", cells)
     cross_field_report = None
-    if bool(settings.get("ops_cross_field_ownership", False)):
+    if bool(settings.get("ops_cross_field_ownership", True)):
         cells, cross_field_report = _ph_cross_field_filter(
             cells, destination, pooled, settings)
         funnel.count("one_copy_per_cell", cells)
@@ -8489,9 +8657,9 @@ def _ph_owned_flags(destination: str, well: str, settings: Mapping[str, Any]):
         ``'a1'`` or ``'a1b'``, :func:`_ph_merge`); None when no ownership
         was decided, so every cell counts as owned. With
         ``ops_cross_field_ownership`` on and a policy other than
-        ``'flag_only'``, a copy that is not its physical cell's owner
-        (:func:`_ph_cross_field_ownership`) is a 0 as well, so merged/ and
-        the crops hold one copy per cell.
+        ``'flag_only'`` (:func:`_ph_uses_cross_field_table`), a copy that is
+        not the owner of its physical cell (:func:`_ph_cross_field_ownership`) is
+        a 0 as well, so merged/ and the crops hold one copy per cell.
     """
     import pandas as pd
 
@@ -8502,9 +8670,7 @@ def _ph_owned_flags(destination: str, well: str, settings: Mapping[str, Any]):
         flags = {(int(s), int(l)): int(bool(o)) for s, l, o in
                  zip(owned["site"], owned["label"], owned["owned"])}
     cross = _ph_cross_field_path(destination, well)
-    if (bool(settings.get("ops_cross_field_ownership", False))
-            and _ph_cross_field_policy(settings) != "flag_only"
-            and os.path.isfile(cross)):
+    if _ph_uses_cross_field_table(settings) and os.path.isfile(cross):
         table = pd.read_parquet(cross, columns=["site", "label", "is_owner"])
         flags = dict(flags or {})
         for site, label, owner in zip(table["site"], table["label"],
@@ -8866,26 +9032,50 @@ def _ph_prcfo(plate: str, row: str, column: str, site: int, label: int) -> str:
                      schema.object_id(int(label))])
 
 
-def _ph_owned_cells(destination: str, well: str, cells, settings):
+def _ph_owned_cells(destination: str, well: str, cells, settings,
+                    counts: Optional[Dict[str, int]] = None):
     """Which of a well's cells are owned and whole, as a boolean array.
 
     :param destination: the run folder.
     :param well: the well name.
     :param cells: the well's cell table (``site``, ``label``).
     :param settings: the OPS settings.
-    :returns: True for a cell whose field owns it (:func:`_ph_owned_flags`;
-        every cell when no ownership was decided) and that does not touch
-        its field's edge (``ops_maskpass_<well>``, or every cell when the
-        mask pass was not run).
+    :param counts: a dict that gets ``copies_owned_elsewhere`` (cells left
+        out because another field owns them), ``cells_without_ownership_row``
+        (cells the cross-field ownership table does not list, left out by
+        :func:`_ph_listed_owners`) and ``cut_at_field_edge`` (cells left
+        out because they touch their field edge), or None.
+    :returns: True for a cell whose field owns it (``ops_ownership_<well>``
+        and, when :func:`_ph_uses_cross_field_table`, the cross-field
+        ownership table; every cell when no ownership was decided) and that
+        does not touch the edge of its field (``ops_maskpass_<well>``, or every
+        cell when the mask pass was not run).
+    :raises ValueError: when the well needs its cross-field ownership table
+        and has none (:func:`_ph_require_cross_field_table`).
     """
     import pandas as pd
 
+    _ph_require_cross_field_table(destination, well, settings)
     keys = pd.MultiIndex.from_arrays([cells["site"].astype(int),
                                       cells["label"].astype(int)])
     owned = np.ones(len(cells), bool)
-    flags = _ph_owned_flags(destination, well, settings)
-    if flags is not None:
-        owned &= np.array([bool(flags.get(key, 0)) for key in keys], bool)
+    copies = unlisted_cells = cut_cells = 0
+    path = _ph_ownership_path(destination, well)
+    if os.path.isfile(path):
+        table = pd.read_parquet(path, columns=["site", "label", "owned"])
+        flags = {(int(s), int(l)): bool(o) for s, l, o in
+                 zip(table["site"], table["label"], table["owned"])}
+        owned &= np.array([flags.get(key, False) for key in keys], bool)
+    if _ph_uses_cross_field_table(settings):
+        owner, unlisted = _ph_listed_owners(
+            _ph_cross_field_owners(destination, well), [well] * len(cells),
+            cells["site"], cells["label"])
+        unlisted_cells = int((owned & unlisted).sum())
+        owned &= ~unlisted
+        copies = int((owned & ~owner).sum())
+        owned &= owner
+    elif os.path.isfile(path):
+        copies = int((~owned).sum())
     path = _ph_maskpass_path(destination, well)
     if os.path.isfile(path):
         edges = pd.read_parquet(path, columns=["site", "label",
@@ -8894,8 +9084,14 @@ def _ph_owned_cells(destination: str, well: str, cells, settings):
                         index=pd.MultiIndex.from_arrays(
                             [edges["site"].astype(int),
                              edges["label"].astype(int)]))
-        owned &= ~np.array([True if pd.isna(v) else bool(v)
-                            for v in cut.reindex(keys)], bool)
+        whole = ~np.array([True if pd.isna(v) else bool(v)
+                           for v in cut.reindex(keys)], bool)
+        cut_cells = int((owned & ~whole).sum())
+        owned &= whole
+    if counts is not None:
+        counts.update(copies_owned_elsewhere=copies,
+                      cells_without_ownership_row=unlisted_cells,
+                      cut_at_field_edge=cut_cells)
     return owned
 
 
@@ -8937,16 +9133,22 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
     if links is not None and len(links):
         lookup = lookup.merge(links[["site", "label", "object_id"]].astype(
             {"site": np.int64, "label": np.int64}), on=["site", "label"],
-            how="left")
+            how="left", validate="many_to_one")
     else:
         lookup["object_id"] = np.nan
     if genotype is not None and len(genotype):
         lookup = lookup.merge(genotype[["site", "label", "sgRNA", "gene",
                                         "mitotic"]].astype(
             {"site": np.int64, "label": np.int64}), on=["site", "label"],
-            how="left")
+            how="left", validate="many_to_one")
     else:
         lookup = lookup.assign(sgRNA=None, gene=None, mitotic=np.nan)
+    if len(lookup) != len(keys) or not np.array_equal(
+            lookup[["site", "label"]].to_numpy(np.int64),
+            kept[["site", "label"]].to_numpy(np.int64)):
+        raise AssertionError(
+            f"well {well}: {len(lookup)} looked-up rows for {len(keys)} cells; "
+            f"the keys would join the features by position")
     keys["object_id"] = lookup["object_id"].to_numpy()
     keys["sgRNA"] = lookup["sgRNA"].to_numpy()
     keys["gene"] = lookup["gene"].to_numpy()
@@ -9145,9 +9347,12 @@ def _ph_stream_well(plate: str, well: str, destination: str,
 
     The shared writer (:class:`spacr.store.WellWriter`) chooses the stored
     dtypes from the recorded map, guarded by the well table's column
-    ranges, and writes one part per table per well.
-    :returns: a dict with ``rows``, ``owned``, ``source`` (``"fields"`` or
-        ``"well_table"``), ``dtypes`` and ``promoted``.
+    ranges and, for each float column the map narrows, by its values
+    (:func:`spacr.store._file_ranges`), and writes one part per table per
+    well.
+    :returns: a dict with ``rows``, ``owned``, ``copies_owned_elsewhere``
+        and ``cut_at_field_edge`` (:func:`_ph_owned_cells`), ``source``
+        (``"fields"`` or ``"well_table"``), ``dtypes`` and ``promoted``.
     """
     import pyarrow as pa
     import pyarrow.parquet as pq
@@ -9163,9 +9368,10 @@ def _ph_stream_well(plate: str, well: str, destination: str,
     del index
     import pandas as pd
 
+    left_out: Dict[str, int] = {}
     owned = _ph_owned_cells(destination, well, pd.DataFrame(
-        {"site": sites, "label": labels}), settings)
-    ranges = store._column_ranges(meta.metadata)
+        {"site": sites, "label": labels}), settings, counts=left_out)
+    ranges = store._file_ranges(cell_path)
     key_fields = _ph_key_fields(integer_keys)
     by_compartment = {}
     for compartment in _PH_TABLE_COMPARTMENTS:
@@ -9249,7 +9455,7 @@ def _ph_stream_well(plate: str, well: str, destination: str,
         promoted += [p for p in part.promoted if p not in promoted]
     counts = Counter(stored[f.name] for c in _PH_TABLE_COMPARTMENTS
                      for f in by_compartment[c] if f.name in stored)
-    return {"rows": rows, "owned": int(owned.sum()),
+    return {"rows": rows, "owned": int(owned.sum()), **left_out,
             "source": source, "dtypes": dict(sorted(counts.items())),
             "promoted": promoted}
 
@@ -9307,9 +9513,13 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     was measured to hold with negligible loss (the store's dtype map,
     :func:`spacr.store._stored_types`, ``tools/measure_store_dtypes.py``);
     ``spacr.store.open`` returns
-    float16 columns as float32. The tables are rebuilt on every run: the
-    run's earlier tables (and an older ``measurements.db``) are removed
-    first, so the same inputs give byte-identical parts.
+    float16 columns as float32. The wells of the run are rebuilt on every
+    run: their earlier parts (and an older ``measurements.db``) are removed
+    first, so the same inputs give byte-identical parts. The other wells of
+    the store (the ``plate=`` / ``well=`` partitions) are kept and stay
+    registered, so one ``spacr.duckdb`` holds a whole plate or project
+    written well by well, and wells A1 then A2 into one ``dst_root`` give
+    the parts one run of both gives.
     """
     import pandas as pd
 
@@ -9332,6 +9542,11 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
                                   "well", "site", "label", "sgRNA", "gene",
                                   "mitotic") if c in present])
     links = _rows_for_wells(db, "ops_merge", plate, wells)
+    genotype_source = path if genotype is not None else None
+    if genotype is None and links is not None and len(links):
+        genotype = _ph_link_genotypes(db, plate, wells, links, settings)
+        genotype_source = "ops_merge+ops_barcodes+ops_design" if (
+            genotype is not None) else None
     rule = _ph_genotype_rule(settings)
     integer_keys = bool(settings.get("ops_tables_integer_keys", False))
     layout = str(settings.get("ops_tables_layout") or "compartments").strip(
@@ -9349,10 +9564,11 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     if layout == "wide":
         layouts["cell_wide"] = _PH_TABLE_COMPARTMENTS
     run_id = _ph_tables_run_id(settings, plate, chosen)
-    store._rebuild(folder, [*_PH_TABLE_COMPARTMENTS, "cell_wide", "image"])
+    store._rebuild(folder, [*_PH_TABLE_COMPARTMENTS, "cell_wide", "image"],
+                   plate=plate, wells=[str(w) for w in wells])
     counts: Dict[str, int] = {}
     wells_report: Dict[str, Any] = {}
-    total = 0
+    total = copies = 0
     from .measure import _IMAGE_KEY_COLUMNS, _image_sql_value, _image_table_keys
 
     merged_root = _ph_merged_root(settings, destination)
@@ -9364,7 +9580,9 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
             counts[table] = counts.get(table, 0) + streamed["rows"]
         total += streamed["owned"]
         wells_report[well] = {k: streamed[k] for k in (
-            "rows", "source", "dtypes", "promoted")}
+            "rows", "copies_owned_elsewhere", "cut_at_field_edge", "source",
+            "dtypes", "promoted")}
+        copies += streamed["copies_owned_elsewhere"]
         image_rows = []
         for _site, field_path in sorted(_ph_merged_paths(
                 merged_root, plate, well, settings).items(),
@@ -9392,8 +9610,9 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
                                              "settings": dict(settings)})
     report = {"store": folder, "tables": sorted(counts),
               "rows": counts, "owned_cells": total,
+              "copies_owned_elsewhere": copies,
               "wells": wells_report,
-              "genotype_table": path if genotype is not None else None,
+              "genotype_table": genotype_source,
               "genotype_rule": rule,
               "integer_keys": integer_keys, "layout": layout,
               "registered": registered,
@@ -9667,34 +9886,288 @@ def _ph_write_shard(path: str, members) -> "Any":
     return index
 
 
+def _ph_field_name(plate: str, well: str, site: Any) -> str:
+    """The name of a phenotype field in ``fov.ome.zarr``: ``<plate>_<well>_<field>.npy``, as spaCR names fields."""
+    from .io import _escaped_field_stem
+
+    return f"{_escaped_field_stem(plate, well, int(site), None)}.npy"
+
+
+def _ph_field_frame(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """Read the acquired planes of one field for ``fov.ome.zarr``; the field-store worker.
+
+    :param task: ``site``, ``files``, ``channels`` and ``secondary``.
+    :returns: ``site``, ``unreadable`` and ``frame``: the channels as
+        ``(C, Z, Y, X)`` (``z`` True) or ``(C, Y, X)``, every plane exactly
+        as the tiles hold it (no projection, no shift); None when a
+        channel is missing or unreadable. Channels whose files hold
+        different numbers or sizes of planes are stored as their maximum
+        projection (``projected`` True), as Mask stores such a field.
+    """
+    unreadable: list = []
+    found = _ph_field_planes(task["files"], task["channels"], unreadable,
+                             task.get("secondary"))
+    if found is None:
+        return {"site": task["site"], "frame": None, "unreadable": unreadable}
+    planes = [np.ascontiguousarray(p).reshape((-1,) + p.shape[-2:]) for p in found[0]]
+    depths = {p.shape[0] for p in planes}
+    kinds = {(p.shape[1:], p.dtype.str) for p in planes}
+    if len(depths) == 1 and len(kinds) == 1:
+        frame = np.stack(planes)
+        z = frame.shape[1] > 1
+        if not z:
+            frame = frame[:, 0]
+        return {"site": task["site"], "frame": frame, "z": z, "projected": False,
+                "unreadable": unreadable}
+    if len({k[0] for k in kinds}) != 1:
+        unreadable.append((str(task["files"]), "channels differ in size"))
+        return {"site": task["site"], "frame": None, "unreadable": unreadable}
+    frame = np.stack([p.max(axis=0) for p in planes])
+    return {"site": task["site"], "frame": frame, "z": False, "projected": True,
+            "unreadable": unreadable}
+
+
+def _ph_ordered(pool, function, tasks: Sequence[Any], ahead: int):
+    """``function`` over ``tasks`` in a process pool, results in task order.
+
+    At most ``ahead`` tasks are in flight, so the results held at once are
+    bounded whatever their size.
+    """
+    import collections
+    import itertools
+
+    pending = collections.deque()
+    queue = iter(tasks)
+    for task in itertools.islice(queue, max(1, int(ahead))):
+        pending.append(pool.submit(function, task))
+    while pending:
+        result = pending.popleft().result()
+        task = next(queue, None)
+        if task is not None:
+            pending.append(pool.submit(function, task))
+        yield result
+
+
+#: Fields read ahead of the one the store writes next. The writing process
+#: holds each read field whole (a Funk phenotype field is 4 channels x 4
+#: planes x 2960 x 2960 uint16, 280 MB) and writes about one a second, so
+#: four readers keep it busy and bound its memory to about 1.1 GB.
+_PH_FIELDS_AHEAD = 4
+
+
+def _ph_store_fields(root: str, plate: str, well: str, files: Mapping[int, Any],
+                     channels: Sequence[str], secondary: Mapping[int, Any],
+                     workers: int = 1) -> Dict[str, Any]:
+    """Write the phenotype fields of a well into ``<root>/fov.ome.zarr``, the field store of the project.
+
+    Through the writer Mask uses (:func:`spacr.image_store._stack_writer`,
+    :func:`spacr.image_store._write_stack_series`): every channel stored
+    exactly as acquired (values, dtype, z planes, plane order), the
+    sha256 of each plane recorded, the channel names kept as ``source_channels``.
+    Workers read the tiles; this process is the one writer of the store and
+    commits each field whole, in site order, so a stopped run resumes and
+    a repeated run writes the same bytes. A field already committed with
+    the same channels is not read again. Each field written is checked
+    against its recorded checksums (:func:`spacr.image_store.verify_store`),
+    in the reading processes while the next fields are written.
+
+    :param root: the project folder (``ops_merged_root`` or ``dst_root``).
+    :param plate: the plate name.
+    :param well: the well name.
+    :param files: ``site -> {channel token: path}``.
+    :param channels: ``ops_ph_channels``.
+    :param secondary: ``site -> secondary acquisition`` (see
+        :func:`_ph_read_field`); the planes of the second acquisition are stored
+        unshifted, and the shift is applied on read.
+    :param workers: tile-reading processes.
+    :returns: ``store``, ``fields`` (``site -> field name``), ``written``,
+        ``skipped``, ``projected``, ``unreadable`` and ``seconds``.
+    :raises ValueError: when a written field does not match its checksums.
+    """
+    import multiprocessing
+
+    from .image_store import (_merged_store_path, _stack_writer, _write_stack_field,
+                              _write_stack_series, field_key, verify_store)
+    from .qt.i18n import tr
+    from .resource_log import _parallel_process_executor as ProcessPoolExecutor
+
+    started = time.perf_counter()
+    writer = _stack_writer(root, plate)
+    names = {int(site): _ph_field_name(plate, well, site) for site in files}
+    todo = []
+    for site in sorted(names):
+        entry = writer._committed.get(field_key(well, site)) or {}
+        if (entry.get("image") and entry.get("name") == names[site]
+                and entry.get("source_channels") == [str(c) for c in channels]):
+            continue
+        todo.append({"site": site, "files": files[site], "channels": list(channels),
+                     "secondary": secondary.get(site)})
+    report: Dict[str, Any] = {"store": str(_merged_store_path(root)), "fields": {},
+                              "written": 0, "skipped": len(names) - len(todo),
+                              "projected": [], "unreadable": []}
+    workers = max(1, min(int(workers), len(todo) or 1))
+    pool = None
+    if workers == 1:
+        results = map(_ph_field_frame, todo)
+    else:
+        pool = ProcessPoolExecutor(workers, mp_context=multiprocessing.get_context("spawn"))
+        results = _ph_ordered(pool, _ph_field_frame, todo, min(workers, _PH_FIELDS_AHEAD))
+    written, checks = [], []
+    store_path = str(_merged_store_path(root))
+    try:
+        for result in results:
+            report["unreadable"].extend(result["unreadable"])
+            frame = result.pop("frame")
+            if frame is None:
+                continue
+            name = names[int(result["site"])]
+            if result["z"]:
+                _write_stack_series(writer, [name], [frame], channels, z_planes=True)
+            else:
+                _write_stack_field(writer, name, np.moveaxis(frame, 0, -1), channels)
+            if result["projected"]:
+                report["projected"].append(int(result["site"]))
+            written.append(name)
+            del frame
+            if pool is not None:
+                checks.append(pool.submit(_ph_verify_field, (store_path, name)))
+        if pool is None and written:
+            checks = [verify_store(store_path, names=written)]
+        else:
+            checks = [check.result() for check in checks]
+    finally:
+        if pool is not None:
+            pool.shutdown()
+    report["written"] = len(written)
+    problems = [p for check in checks for p in check["mismatches"] + check["unrecorded"]]
+    if problems:
+        raise ValueError(tr(
+            "{store}: the phenotype fields written do not match their checksums: "
+            "{problems}", store=report["store"], problems=problems[:5]))
+    committed = {int(e["field"]): e for e in writer._committed.values()
+                 if str(e.get("well")) == str(well)}
+    report["fields"] = {site: name for site, name in names.items()
+                        if committed.get(site, {}).get("name") == name}
+    report["seconds"] = round(time.perf_counter() - started, 1)
+    return report
+
+
+def _ph_verify_field(task: Tuple[str, str]) -> Dict[str, Any]:
+    """:func:`spacr.image_store.verify_store` of one written field; the field-store check worker.
+
+    :param task: ``(store, field name)``.
+    """
+    from .image_store import verify_store
+
+    store, name = task
+    return verify_store(store, names=[name])
+
+
+def _ph_stored_field(field: Mapping[str, Any], channels: Sequence[str],
+                     secondary: Optional[Mapping[str, Any]], unreadable: list,
+                     window: Optional[Tuple[int, int, int, int]] = None
+                     ) -> Optional[Tuple[np.ndarray, Tuple[int, int]]]:
+    """One phenotype field read back from ``fov.ome.zarr`` as :func:`_ph_read_field` reads its tiles.
+
+    The shared reader (:func:`spacr.image_store.read_frame_channels`)
+    gives the channels with z maximum-projected; the channels of the
+    second acquisition are then moved by their shift (:func:`_ph_projected`),
+    so the stack equals the one read from the tiles, value for value.
+    With ``window`` only the chunks under it are read: a moved channel
+    reads the region its shift brings into the window, and the part of the
+    window it leaves uncovered is 0, as the whole-field shift leaves it.
+
+    :param field: ``store`` (the ``fov.ome.zarr`` folder) and ``name``.
+    :param channels: the channels, in order.
+    :param secondary: as for :func:`_ph_read_field`.
+    :param unreadable: ``(field, reason)`` is appended when it is missing.
+    :param window: ``(y0, y1, x0, x1)`` inside the field; the whole field
+        when None.
+    :returns: ``((H, W, C) float32, (field height, field width))``, or None.
+    """
+    from pathlib import Path
+
+    from .image_store import _image_entries, read_frame_channels
+
+    store = Path(field["store"])
+    entry = _image_entries(store).get(str(field["name"]))
+    stored = [str(c) for c in (entry or {}).get("source_channels") or ()]
+    if entry is None or any(c not in stored for c in channels):
+        unreadable.append((f"{store}/{field['name']}", "not in fov.ome.zarr"))
+        return None
+    group = store / entry["key"]
+    moved: set = set()
+    shift = (0, 0)
+    if secondary and secondary.get("channels"):
+        moved = {str(c).upper() for c in secondary["channels"]}
+        shift = (int(secondary.get("dy") or 0), int(secondary.get("dx") or 0))
+    height, width = (int(v) for v in entry["stack_shape"][:2])
+    if window is None:
+        image = read_frame_channels(group, entry, z_projection="max")
+        planes = [image[stored.index(c)] for c in channels]
+        return _ph_projected(planes, channels, moved, shift), (height, width)
+    y0, y1, x0, x1 = (int(v) for v in window)
+    image = read_frame_channels(group, entry, z_projection="max", window=(y0, y1, x0, x1))
+    planes = []
+    for channel in channels:
+        if channel.upper() not in moved or shift == (0, 0):
+            planes.append(image[stored.index(channel)])
+            continue
+        dy = int(max(-height, min(height, shift[0])))
+        dx = int(max(-width, min(width, shift[1])))
+        sy0, sy1 = max(y0 - dy, 0), min(y1 - dy, height)
+        sx0, sx1 = max(x0 - dx, 0), min(x1 - dx, width)
+        plane = np.zeros((y1 - y0, x1 - x0), image.dtype)
+        if sy1 > sy0 and sx1 > sx0:
+            source = read_frame_channels(group, entry, z_projection="max",
+                                         window=(sy0, sy1, sx0, sx1))[stored.index(channel)]
+            plane[sy0 + dy - y0:sy1 + dy - y0, sx0 + dx - x0:sx1 + dx - x0] = source
+        planes.append(plane)
+    return _ph_projected(planes, channels, set(), (0, 0)), (height, width)
+
+
 def _ph_crop_stack(task: Mapping[str, Any], unreadable: list) -> Optional[np.ndarray]:
     """One field's crop channels as ``(H, W, C)`` uint16, as ``ph_crops`` cuts from them.
 
     The one field read of the stored crops (:func:`_ph_crop_field`) and of
-    the crops streamed when saving crops is off (:func:`_ph_source_field`,
-    item 0ap): the phenotype tiles through :func:`_ph_read_field`, the
-    flat-field correction when ``flat_folder`` is set (scaled to mean 1
-    with ``flat_mean_one``), then the crop channels, rounded and clipped
-    to uint16.
+    the crops streamed when saving crops is off (:func:`_ph_stream_crop`):
+    the field from ``fov.ome.zarr`` (``field``; :func:`_ph_stored_field`),
+    or for the crops of an older run its phenotype tiles (``files``,
+    :func:`_ph_read_field`), then the flat-field correction when
+    ``flat_folder`` is set (scaled to mean 1 with ``flat_mean_one``), then
+    the crop channels, rounded and clipped to uint16. Every step works
+    pixel by pixel, so a ``window`` of the stored field gives exactly that
+    window of the whole stack.
 
-    :param task: ``files``, ``channels``, ``crop_channels``, ``secondary``,
-        ``flat_folder`` and ``flat_mean_one``.
+    :param task: ``field`` or ``files``, ``channels``, ``crop_channels``,
+        ``secondary``, ``flat_folder``, ``flat_mean_one`` and, with
+        ``field``, optionally ``window`` ``(y0, y1, x0, x1)``.
     :param unreadable: ``(path, reason)`` is appended for a file that fails.
     :returns: the stack, or None when a channel is missing or unreadable.
     """
-    stack = _ph_read_field(task["files"], task["channels"], unreadable,
-                           task.get("secondary"))
+    window = task.get("window") if task.get("field") else None
+    if task.get("field"):
+        found = _ph_stored_field(task["field"], task["channels"], task.get("secondary"),
+                                 unreadable, window=window)
+        stack, shape = found if found is not None else (None, None)
+    else:
+        stack = _ph_read_field(task["files"], task["channels"], unreadable,
+                               task.get("secondary"))
+        shape = None if stack is None else stack.shape[:2]
     if stack is None:
         return None
     if task.get("flat_folder"):
         from .ops_flatfield import correct_field
 
         planes, offsets, _inverse = _ph_flat_planes(
-            task["flat_folder"], task["channels"], stack.shape[:2])
+            task["flat_folder"], task["channels"], tuple(shape))
         if task.get("flat_mean_one"):
             planes = {c: (p.astype(np.float64) / p.astype(np.float64).mean()
                           ).astype(np.float32) for c, p in planes.items()}
             offsets = {c: float(np.float32(v)) for c, v in offsets.items()}
+        if window is not None:
+            y0, y1, x0, x1 = (int(v) for v in window)
+            planes = {c: p[y0:y1, x0:x1] for c, p in planes.items()}
         stack = correct_field(stack, planes, offsets, task["channels"])
     keep = [list(task["channels"]).index(c) for c in task["crop_channels"]]
     return np.clip(np.rint(stack[..., keep]), 0, 65535).astype(np.uint16)
@@ -9799,7 +10272,9 @@ OPS_CROP_SOURCE = "ops_crop_source.json"
 def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     """Cut one field's chosen cells; the ``ph_crops`` worker.
 
-    :param task: ``site``, ``files``, ``channels``, ``crop_channels``,
+    :param task: ``site``, ``field`` (the field in ``fov.ome.zarr``,
+        ``{"store", "name"}``; the tasks of an older run name the tiles,
+        ``files``, instead), ``channels``, ``crop_channels``,
         ``mask_path``, ``labels`` (``{label: (reason, object_id)}``),
         ``size``, ``flat_folder``, ``masks``, ``secondary``, ``plate``,
         ``well``; optionally ``flat_mean_one``, which scales each flat to
@@ -9822,6 +10297,8 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     from .crop_store import OPS_SOURCE_PREFIX
 
     unreadable: list = []
+    source_field = (str(task["field"]["name"]) if task.get("field")
+                    else f"{OPS_SOURCE_PREFIX}{int(task['site'])}")
     save = bool(task.get("save", True))
     native = task.get("crop_format") == "ome-zarr"
     stack = None
@@ -9880,8 +10357,7 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
             record.update(cut_box)
         if not save and native:
             crops.append({**_ph_pool_crop(record, box, with_mask),
-                          "source_field": f"{OPS_SOURCE_PREFIX}{int(task['site'])}",
-                          "zero_outside": bool(zero)})
+                          "source_field": source_field, "zero_outside": bool(zero)})
             continue
         crop, mask = _ph_cut(stack, cells, nuclei, label, box, zero, with_mask)
         payload = ((crop, mask) if native
@@ -9890,6 +10366,7 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         if native:
             height, width = crop.shape[1:]
             crops.append({**_ph_pool_crop(record, box, mask is not None),
+                          "source_field": source_field, "zero_outside": bool(zero),
                           "pixels": crop,
                           "mask": mask if mask is not None
                           else np.zeros((height, width), np.uint8)})
@@ -9931,10 +10408,34 @@ def _ph_crop_commit(root: str, plate: str, well: str, *, rows: bool = True):
     return record
 
 
+#: The Arrow type of each OPS crop-index column: keys and boxes
+#: are int32 (fields are far below 2**31 pixels and labels), pool offsets
+#: and the sequencing object id int64, flags bool, the rest text.
+_PH_CROP_INDEX_TYPES: Dict[str, str] = {
+    **{name: "int32" for name in (
+        "bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1", "height", "width", "margin_px",
+        "cx", "cy", "label", "object_label", "site", "field", "column", "window_edge")},
+    **{name: "int64" for name in ("pool_index", "offset", "mask_offset", "ops_object_id",
+                                  "timepoint")},
+    **{name: "bool" for name in ("clipped_at_edge", "has_mask", "ops_crop", "zero_outside")},
+    **{name: "string" for name in (
+        "coordinate_transformations", "pool_store", "crop_array", "object_id",
+        "object_type", "png_path", "prcfo", "reason", "row", "source_field")}}
+
+
+def _ph_crop_index_schema():
+    """The Arrow schema of the crop-index part of an OPS well (:data:`_PH_CROP_INDEX_TYPES`)."""
+    import pyarrow as pa
+
+    return pa.schema([pa.field(name, getattr(pa, kind)() if kind != "bool" else pa.bool_())
+                      for name, kind in sorted(_PH_CROP_INDEX_TYPES.items())])
+
+
 def _ph_write_crop_pool(root: str, plate: str, well: str, results,
                         channels: Sequence[str], cap: int, options, *,
                         workers: int = 1,
-                        source: Optional[Mapping[str, Any]] = None):
+                        source: Optional[Mapping[str, Any]] = None,
+                        index: Any = None):
     """Commit native OPS crops in plan order without appending a previous run.
 
     :param root: the crop project root.
@@ -9948,14 +10449,18 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
         while this process fills the next (item 0ap); 1 writes each shard
         here.
     :param source: for a well whose crops are streamed (saving crops off),
-        each site's tiles and masks and the read options, written beside
-        the crop index as :data:`OPS_CROP_SOURCE` for the crop reader.
+        the field of each site in ``fov.ome.zarr``, its masks and the read
+        options, written beside the pools' commit as :data:`OPS_CROP_SOURCE`
+        for the crop reader.
+    :param index: the store folder whose ``crop_index`` table receives the
+        rows (the measurements store of the project); None keeps the
+        older ``rows.jsonl``.
     :returns: crop count, pool count and unreadable inputs.
 
     The workers checked each crop and built its row (``prepared``), or
     built the rows of streamed crops (``lines``); here they are only routed
-    into shards, and the rows stream to the row file, so neither the crops
-    nor the rows of a well are held in memory (item 0ap).
+    into shards, and the rows stream to the crop index a batch at a time,
+    so neither the crops nor the rows of a well are held in memory.
     """
     import shutil
 
@@ -9973,7 +10478,9 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
         root, plate, well, "cell", len(channels), np.uint16,
         mask_dtype=np.uint8, crops_per_shard=cap,
         attributes={"source": "ops_ph_crops", "channel_names": list(channels),
-                    "options": options})._streaming(workers=workers)
+                    "options": options})._streaming(
+                        workers=workers, index=index,
+                        index_schema=None if index is None else _ph_crop_index_schema())
     if source is not None:
         _atomic_write(writer.path / "cell" / OPS_CROP_SOURCE,
                       json.dumps(source, indent=1, sort_keys=True, default=str) + "\n")
@@ -10002,70 +10509,155 @@ def _ph_write_crop_pool(root: str, plate: str, well: str, results,
 #: Fields the streamed-crop reader keeps read, by source file, site and stamp.
 _PH_SOURCE_FIELDS: "Dict[Any, Any]" = {}
 
+#: Masks the streamed-crop reader keeps read, by mask path and stamp.
+_PH_SOURCE_MASKS: "Dict[Any, Any]" = {}
 
-def _ph_source_field(project: Any, row: Mapping[str, Any]):
-    """The field a streamed OPS crop is cut from: ``(stack (C, H, W), cells, nuclei)``.
+#: From this many crops of one field on, the streamed reader reads the whole
+#: field once instead of each crop's window. On the A1 check fields a whole
+#: field (4 channels x 4 planes, 2960 x 2960) read in about 0.4 s and a
+#: crop window in about 10 to 30 ms.
+_PH_WHOLE_FIELD_CROPS = 16
 
-    The crop reader's OPS field source (item 0ap): the site's phenotype
-    tiles read as ``ph_crops`` reads them (:func:`_ph_crop_stack`, with
-    the same flat-field correction) and its saved masks, named by the
-    well's :data:`OPS_CROP_SOURCE` file. The last two fields are kept, so a
-    batch of one field's crops reads its tiles once.
 
-    :param project: the crop project root.
-    :param row: the crop's index row (``plate``, ``well``, ``object_type``,
-        ``source_field``).
-    :raises ValueError: when the tiles cannot be read.
+def _ph_source_spec(project: Any, row: Mapping[str, Any]):
+    """Where a streamed OPS crop comes from: ``(read options, mask path, site, stamp)``.
+
+    From the :data:`OPS_CROP_SOURCE` file of the well: for a run that
+    stored its fields, the read options name the field in ``fov.ome.zarr``
+    (``field``); an older run (``source_field`` ``ops:<site>``) named the
+    tiles of the site (``files``), which are still read, as the one
+    fallback.
     """
     from .crop_store import OPS_SOURCE_PREFIX, _row_field, class_dir
-    from .qt.i18n import tr
 
     base = class_dir(project, str(_row_field(row, "plate")), str(_row_field(row, "well")),
                      str(_row_field(row, "object_type")))
     path = base / OPS_CROP_SOURCE
-    site = str(_row_field(row, "source_field"))[len(OPS_SOURCE_PREFIX):]
-    key = (os.fspath(path), os.stat(path).st_mtime_ns, site)
-    found = _PH_SOURCE_FIELDS.get(key)
-    if found is not None:
-        return found
-    with open(path, encoding="utf-8") as handle:
-        source = json.load(handle)
+    named = str(_row_field(row, "source_field"))
+    if named.startswith(OPS_SOURCE_PREFIX):
+        site = named[len(OPS_SOURCE_PREFIX):]
+    else:
+        site = str(int(_row_field(row, "site") if _row_field(row, "site") is not None
+                       else _row_field(row, "field")))
+    stamp = (os.fspath(path), os.stat(path).st_mtime_ns)
+    source = _ph_source_record(*stamp)
     spec = source["sites"][site]
     mask_path = spec["mask_path"]
     if not os.path.isabs(mask_path):
         mask_path = os.path.join(os.fspath(project), mask_path)
+    read = {**source["read"], "secondary": spec.get("secondary")}
+    if "field" in spec:
+        store = source.get("store") or "fov.ome.zarr"
+        if not os.path.isabs(store):
+            store = os.path.join(os.fspath(project), store)
+        read["field"] = {"store": store, "name": spec["field"]}
+    else:
+        read["files"] = spec["files"]
+    return read, mask_path, site, stamp
+
+
+@functools.lru_cache(maxsize=8)
+def _ph_source_record(path: str, modified: int) -> Dict[str, Any]:
+    """One :data:`OPS_CROP_SOURCE` file, parsed once while it is unchanged."""
+    with open(path, encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def _ph_source_masks(mask_path: str):
+    """The cell and nucleus labels of one field, ``(cells, nuclei)`` int32; the last two kept."""
+    key = (mask_path, _ph_path_stamp(mask_path))
+    found = _PH_SOURCE_MASKS.get(key)
+    if found is None:
+        saved = _ph_read_masks(mask_path)
+        found = (saved["cells"].astype(np.int32), saved["nuclei"].astype(np.int32))
+        while len(_PH_SOURCE_MASKS) >= 2:
+            _PH_SOURCE_MASKS.pop(next(iter(_PH_SOURCE_MASKS)))
+        _PH_SOURCE_MASKS[key] = found
+    return found
+
+
+def _ph_path_stamp(path: str):
+    """``(mtime_ns, size)`` of a file, or of a folder's ``zarr.json`` (a mask field group)."""
+    target = path if os.path.isfile(path) else os.path.join(path, "zarr.json")
+    found = os.stat(target)
+    return found.st_mtime_ns, found.st_size
+
+
+def _ph_source_field(project: Any, row: Mapping[str, Any]):
+    """The whole field a streamed OPS crop is cut from: ``(stack (C, H, W), cells, nuclei)``.
+
+    The site's field (:func:`_ph_source_spec`) read as ``ph_crops`` reads
+    it (:func:`_ph_crop_stack`, with the same flat-field correction), and
+    its saved masks. The last two fields are kept, so a batch of crops of
+    one field reads it once.
+
+    :param project: the crop project root.
+    :param row: the crop's index row (``plate``, ``well``, ``object_type``,
+        ``site`` or ``field``, ``source_field``).
+    :raises ValueError: when the field cannot be read.
+    """
+    from .crop_store import _row_field
+    from .qt.i18n import tr
+
+    read, mask_path, site, stamp = _ph_source_spec(project, row)
+    key = stamp + (site,)
+    found = _PH_SOURCE_FIELDS.get(key)
+    if found is not None:
+        return found
     unreadable: list = []
-    stack = _ph_crop_stack({**source["read"], "files": spec["files"],
-                            "secondary": spec.get("secondary")}, unreadable)
+    stack = _ph_crop_stack(read, unreadable)
     if stack is None:
         raise ValueError(tr("OPS crop {object_id} cannot be cut: {reasons}",
                             object_id=_row_field(row, "object_id"),
                             reasons=unreadable))
-    saved = _ph_read_masks(mask_path)
-    found = (np.moveaxis(stack, -1, 0), saved["cells"].astype(np.int32),
-             saved["nuclei"].astype(np.int32))
+    found = (np.moveaxis(stack, -1, 0), *_ph_source_masks(mask_path))
     while len(_PH_SOURCE_FIELDS) >= 2:
         _PH_SOURCE_FIELDS.pop(next(iter(_PH_SOURCE_FIELDS)))
     _PH_SOURCE_FIELDS[key] = found
     return found
 
 
-def _ph_stream_crop(project: Any, row: Mapping[str, Any]):
+def _ph_stream_crop(project: Any, row: Mapping[str, Any], *, whole: bool = False):
     """One streamed OPS crop, ``(crop (C, h, w), mask (h, w) uint8)``, as it would be stored.
 
-    The crop reader calls this for a row whose ``source_field`` starts with
-    :data:`spacr.crop_store.OPS_SOURCE_PREFIX`; :func:`_ph_cut` cuts it, the cut the stored
+    The crop reader calls this for a streamed OPS row (``ops_crop``, or an
+    ``source_field`` of an older run starting with
+    :data:`spacr.crop_store.OPS_SOURCE_PREFIX`); :func:`_ph_cut` cuts it, the cut the stored
     crops get. A crop without the cell mask gets the stored zero mask.
+
+    A field stored in ``fov.ome.zarr`` is read only under the crop's box
+    (clipped to the field; :func:`_ph_crop_stack` with a ``window``), unless
+    ``whole`` asks for the whole field, which a batch of many crops of one
+    field reads once (:func:`_ph_source_field`). Both give the same bytes.
     """
     from .crop_store import _row_field
+    from .qt.i18n import tr
 
-    stack, cells, nuclei = _ph_source_field(project, row)
     box = tuple(int(_row_field(row, k)) for k in ("bbox_y0", "bbox_x0", "bbox_y1", "bbox_x1"))
     has_mask = _row_field(row, "has_mask")
     with_mask = bool(has_mask) and str(has_mask) not in ("0", "False")
     zero = _row_field(row, "zero_outside")
-    crop, mask = _ph_cut(stack, cells, nuclei, int(_row_field(row, "object_label")), box,
-                         bool(zero) and str(zero) not in ("0", "False", "nan"), with_mask)
+    zero = bool(zero) and str(zero) not in ("0", "False", "nan")
+    label = int(_row_field(row, "object_label"))
+    read, mask_path, _site, _stamp = _ph_source_spec(project, row)
+    if whole or "field" not in read:
+        stack, cells, nuclei = _ph_source_field(project, row)
+    else:
+        cells, nuclei = _ph_source_masks(mask_path)
+        height, width = cells.shape
+        y0, x0 = max(box[0], 0), max(box[1], 0)
+        y1, x1 = min(box[2], height), min(box[3], width)
+        y1, x1 = max(y1, y0), max(x1, x0)
+        unreadable: list = []
+        window = _ph_crop_stack({**read, "window": (y0, y1, x0, x1)}, unreadable)
+        if window is None:
+            raise ValueError(tr("OPS crop {object_id} cannot be cut: {reasons}",
+                                object_id=_row_field(row, "object_id"),
+                                reasons=unreadable))
+        stack = np.moveaxis(window, -1, 0)
+        cells, nuclei = cells[y0:y1, x0:x1], nuclei[y0:y1, x0:x1]
+        box = (box[0] - y0, box[1] - x0, box[2] - y0, box[3] - x0)
+    crop, mask = _ph_cut(stack, cells, nuclei, label, box, zero, with_mask)
     if mask is None:
         mask = np.zeros(crop.shape[1:], np.uint8)
     return crop, mask
@@ -10170,11 +10762,16 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     optional uint8 masks (0 background, 1 cell, 2 nucleus), when
     ``save_png`` (spaCR's "save crops" switch) is on. With it off, the
     default, nothing is cut: the well's crop index lists the chosen crops
-    with their boxes, and :func:`spacr.crop_store.read_crop` cuts each from
-    its tiles when it is read, the same pixels a saved crop holds (item
-    0ap). The workers cut, check and index the crops; this process only
-    routes them into shards, which writer processes compress. A crop commit
-    and matching options are required for resume. The explicit legacy
+    with their boxes, and :func:`spacr.crop_store.read_crop` cuts each when
+    it is read, the same pixels a saved crop holds. Either way the
+    phenotype fields are first written to ``<root>/fov.ome.zarr``
+    (:func:`_ph_store_fields`, exactly as acquired), and every crop is cut
+    from there, never from the tiles again. The crop index is the
+    ``crop_index`` table of the store of the run (the one ``ph_tables``
+    writes, by default ``<dst_root>/measurements``). The workers cut, check and index
+    the crops; this process only routes them into shards, which writer
+    processes compress. A crop commit and matching options are required
+    for resume. The explicit legacy
     ``ops_crop_image_format='tiff-tar'`` keeps each crop as a TIFF member
     (``site-<n>/<prcfo>.tif``; page 0 the
     ``(C, H, W)`` uint16 crop, page 1 the mask when ``ops_crop_masks``) of a
@@ -10187,8 +10784,6 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     files (item 809). A well with ``CROPS_DONE.json`` for the same options
     is not cut again.
     """
-    import collections
-    import itertools
     import multiprocessing
 
     import pandas as pd
@@ -10277,8 +10872,10 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             continue
         cells = pd.read_parquet(cell_path, columns=["site", "label"])
         stored = _ph_store_owned_cells(tables, plate, well)
+        left_out: Dict[str, int] = {}
         if stored is None:
-            owned = _ph_owned_cells(destination, well, cells, settings)
+            owned = _ph_owned_cells(destination, well, cells, settings,
+                                    counts=left_out)
         else:
             owned = pd.MultiIndex.from_frame(cells[["site", "label"]]).isin(
                 pd.MultiIndex.from_frame(stored[["site", "label"]]))
@@ -10320,7 +10917,12 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                 chosen.setdefault(site, {})[label] = (reason, object_id)
         secondary = _ph_secondary_by_site(db, plate, well, settings)
         mask_paths = _ph_mask_paths(destination, plate, well, settings)
-        tasks = [{"site": site, "files": files[site], "channels": channels,
+        fields = _ph_store_fields(
+            root, plate, well, {site: files[site] for site in files if site in mask_paths},
+            channels, secondary, workers=int(ops_setting(settings, "n_workers")))
+        store_path = fields["store"]
+        tasks = [{"site": site, "channels": channels,
+                  "field": {"store": store_path, "name": fields["fields"][site]},
                   "crop_channels": crop_channels,
                   "mask_path": mask_paths[site], "crop_format": crop_format,
                   "labels": labels, "size": size, "flat_folder": flat_folder,
@@ -10329,15 +10931,16 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                   "margin": margin, "zero_outside": zero_outside,
                   "plate": plate, "well": well, "save": save}
                  for site, labels in sorted(chosen.items())
-                 if site in files and site in mask_paths]
+                 if site in fields["fields"] and site in mask_paths]
         source = None
         if not save:
             source = {"read": {"channels": list(channels),
                                "crop_channels": list(crop_channels),
                                "flat_folder": flat_folder,
                                "flat_mean_one": options["flat_mean_one"]},
+                      "store": _ph_relative(store_path, root),
                       "sites": {str(task["site"]): {
-                          "files": task["files"], "secondary": task["secondary"],
+                          "field": task["field"]["name"], "secondary": task["secondary"],
                           "mask_path": _ph_relative(task["mask_path"], root)}
                           for task in tasks}}
         workers = max(1, min(int(ops_setting(settings, "n_workers")),
@@ -10350,16 +10953,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                 workers, mp_context=multiprocessing.get_context("spawn"))
             def ordered_results():
                 """Bound native result arrays to two fields per worker."""
-                ahead = collections.deque()
-                queue = iter(tasks)
-                for task in itertools.islice(queue, 2 * workers):
-                    ahead.append(pool.submit(_ph_crop_field, task))
-                while ahead:
-                    result = ahead.popleft().result()
-                    task = next(queue, None)
-                    if task is not None:
-                        ahead.append(pool.submit(_ph_crop_field, task))
-                    yield result
+                return _ph_ordered(pool, _ph_crop_field, tasks, 2 * workers)
 
             results = ordered_results() if crop_format == "ome-zarr" else pool.map(_ph_crop_field, tasks)
         shard, pending, crops, unreadable, indexes = 0, [], 0, [], []
@@ -10367,7 +10961,9 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
             if crop_format == "ome-zarr":
                 crops, shard, unreadable = _ph_write_crop_pool(
                     root, plate, well, results, crop_channels, cap, options,
-                    workers=_ph_crop_writers(settings), source=source)
+                    workers=_ph_crop_writers(settings), source=source,
+                    index=(tables or {}).get("store") or os.path.join(destination,
+                                                                      "measurements"))
                 results = ()
             for result in results:
                 unreadable.extend(result["unreadable"])
@@ -10399,7 +10995,8 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
         _atomic_json(done_path, {"options": options, **well_report}, indent=1,
                      sort_keys=False, default=str, normalize=False,
                      ensure_ascii=True, newline=False)
-        report["wells"][well] = well_report
+        report["wells"][well] = {**well_report, **left_out, "fields": {
+            k: v for k, v in fields.items() if k != "fields"}}
     report["seconds"] = round(time.perf_counter() - started, 1)
     _say(tr("{plate} ph_crops: {count} crops", plate=plate, count=sum(
         w.get("crops") or 0 for w in report["wells"].values())))
@@ -10623,10 +11220,13 @@ def _ops_store_wells(db: str, plate: str, wells: Sequence[str],
 
 
 #: The scores ``ops_cross_field_metric`` may name, the first the default.
-_PH_CROSS_FIELD_METRICS = ("overlap_fraction", "iou")
+_PH_CROSS_FIELD_METRICS = ("centroid", "overlap_fraction", "iou")
+
+#: The scores that compare cell masks pixel by pixel.
+_PH_CROSS_FIELD_MASK_METRICS = ("overlap_fraction", "iou")
 
 #: The policies ``ops_cross_field_policy`` may name, the first the default.
-_PH_CROSS_FIELD_POLICIES = ("one_per_cell", "owner_only", "flag_only")
+_PH_CROSS_FIELD_POLICIES = ("owner_only", "one_per_cell", "flag_only")
 
 #: How many label images the ownership pass keeps in memory at once: 160
 #: uint32 fields of 2,960 px are about 5.6 GB.
@@ -10648,7 +11248,7 @@ def _ph_cross_field_policy(settings: Mapping[str, Any]) -> str:
     from .qt.i18n import tr
 
     policy = str(settings.get("ops_cross_field_policy")
-                 or "one_per_cell").strip().lower()
+                 or "owner_only").strip().lower()
     if policy not in _PH_CROSS_FIELD_POLICIES:
         raise ValueError(tr(
             "ops_cross_field_policy must be one of {policies}; got {value}",
@@ -10757,10 +11357,10 @@ def _ph_pair_edges(label_a, label_b, inter, area_a, area_b, *,
 
     from .qt.i18n import tr
 
-    if metric not in _PH_CROSS_FIELD_METRICS:
+    if metric not in _PH_CROSS_FIELD_MASK_METRICS:
         raise ValueError(tr(
             "ops_cross_field_metric must be one of {metrics}; got {value}",
-            metrics=list(_PH_CROSS_FIELD_METRICS), value=metric))
+            metrics=list(_PH_CROSS_FIELD_MASK_METRICS), value=metric))
     if len(label_a) == 0:
         return pd.DataFrame(columns=["label_a", "label_b", "inter", "score"])
     frame = pd.DataFrame({"label_a": label_a, "label_b": label_b,
@@ -10783,164 +11383,126 @@ def _ph_pair_edges(label_a, label_b, inter, area_a, area_b, *,
     return mutual[mutual["score"] >= float(min_overlap)].reset_index(drop=True)
 
 
-def _ph_assign_ownership(cells, edges):
-    """Physical cells and their owners from the copies and their edges.
-
-    :param cells: ``site, label, area`` per segmented copy.
-    :param edges: ``site_a, label_a, site_b, label_b``.
-    :returns: ``cells`` with ``component`` (the connected component of the
-        undirected edge graph), ``n_copies``, ``owner_field``,
-        ``owner_label``, ``is_owner`` and ``owned_area_share``. The owner is
-        the largest copy, ties to the smaller site, then the smaller label.
-    """
-    import pandas as pd
-    from scipy.sparse import coo_matrix
-    from scipy.sparse.csgraph import connected_components
-
-    cells = cells.reset_index(drop=True).copy()
-    index = pd.Series(np.arange(len(cells)), index=pd.MultiIndex.from_arrays(
-        [cells["site"], cells["label"]]))
-    if len(edges):
-        first = index.reindex(pd.MultiIndex.from_arrays(
-            [edges["site_a"], edges["label_a"]])).to_numpy()
-        second = index.reindex(pd.MultiIndex.from_arrays(
-            [edges["site_b"], edges["label_b"]])).to_numpy()
-        known = ~(np.isnan(first.astype(float)) | np.isnan(second.astype(float)))
-        first = first[known].astype(np.int64)
-        second = second[known].astype(np.int64)
-    else:
-        first = second = np.empty(0, np.int64)
-    count = len(cells)
-    graph = coo_matrix((np.ones(len(first)), (first, second)),
-                       shape=(count, count))
-    _n, component = connected_components(graph, directed=False)
-    cells["component"] = component
-    cells["n_copies"] = cells.groupby("component")["label"].transform("size")
-    order = cells.sort_values(["component", "area", "site", "label"],
-                              ascending=[True, False, True, True],
-                              kind="mergesort")
-    owners = order.drop_duplicates("component")[["component", "site", "label",
-                                                 "area"]]
-    owners.columns = ["component", "owner_field", "owner_label", "owner_area"]
-    cells = cells.merge(owners, on="component", how="left")
-    cells["is_owner"] = ((cells["site"] == cells["owner_field"])
-                         & (cells["label"] == cells["owner_label"]))
-    cells["owned_area_share"] = cells["area"] / cells["owner_area"]
-    return cells.drop(columns=["owner_area"])
-
-
 def _ph_cross_field_fields(fields: Mapping[int, Mapping[str, Any]], *,
-                           metric: str, min_overlap: float, load=None,
-                           log=None):
+                           metric: str, min_overlap: float = 0.5,
+                           rule: str = "nearest_centre",
+                           radius: float = 24.0, load=None, log=None):
     """Cross-field ownership over a set of fields.
 
-    :param fields: ``{site: {"transform", "shape", "areas" (label -> px),
-        "cells" (label image or None)}}``.
-    :param metric: :func:`_ph_pair_edges`'s score.
-    :param min_overlap: its threshold.
+    :param fields: ``{site: record}``; each record holds ``"transform"``,
+        ``"shape"``, ``"areas"`` (label -> px) and ``"cells"`` (label image
+        or None), and optionally ``"whole"`` (label -> bool) and
+        ``"centroids"`` (label -> field ``(row, col)``). The
+        ``'nearest_centre'`` rule and the ``'centroid'`` metric need
+        ``whole`` and ``centroids``.
+    :param metric: ``'centroid'``
+        (:func:`spacr.ops_merge._match_copies_by_centroid`, no label
+        image is read) or a mask score of :func:`_ph_pair_edges`.
+    :param min_overlap: the mask score threshold.
+    :param rule: the owner rule of
+        :func:`spacr.ops_merge._assign_field_owners`.
+    :param radius: the centroid distance of two copies, for ``'centroid'``,
+        in field pixels; it is moved to the well with the median field
+        scale.
     :param load: ``load(site)`` returns a label image not held in
         ``fields``; at most :data:`_PH_CROSS_FIELD_CACHE` are kept.
     :param log: called with a progress line every 250 field pairs.
-    :returns: ``(cells, edges, pairs)``: :func:`_ph_assign_ownership`'s
-        table, the edges (``site_a, site_b, label_a, label_b, inter,
-        score``) in pair order, and how many field pairs overlapped.
+    :returns: ``(cells, edges, pairs)``: the table of
+        :func:`spacr.ops_merge._assign_field_owners`, the edges
+        (``site_a, site_b, label_a, label_b`` and ``inter, score`` or
+        ``distance``) in pair order, and how many field pairs overlapped.
     """
     from collections import OrderedDict
 
     import pandas as pd
 
+    from .ops_merge import (_assign_field_owners, _field_centre,
+                                  _field_owner_rule, _match_copies_by_centroid)
     from .ops_merge import field_footprint, overlapping_fields
 
+    rule = _field_owner_rule(rule)
     sites = sorted(fields)
     prints = {s: field_footprint(fields[s]["transform"], fields[s]["shape"])
               for s in sites}
     neighbours = overlapping_fields(prints)
     pairs = [(a, b) for a in sites for b in neighbours[a] if b > a]
     pairs.sort()
-    cache: "OrderedDict[int, np.ndarray]" = OrderedDict()
+    frames = []
+    for s in sites:
+        areas = fields[s]["areas"]
+        labels = areas.index.astype(np.int64)
+        frame = pd.DataFrame({"site": s, "label": labels,
+                              "area": areas.to_numpy(float)})
+        if fields[s].get("centroids") is not None:
+            points = np.array([fields[s]["centroids"][int(v)] for v in labels],
+                              float).reshape(-1, 2)
+            moved = _ph_to_well(points, fields[s]["transform"])
+            frame["well_y"], frame["well_x"] = moved[:, 0], moved[:, 1]
+        if fields[s].get("whole") is not None:
+            frame["whole"] = [bool(fields[s]["whole"].get(int(v), False))
+                              for v in labels]
+        frames.append(frame)
+    cells = (pd.concat(frames, ignore_index=True) if frames else
+             pd.DataFrame(columns=["site", "label", "area", "well_y",
+                                   "well_x", "whole"]))
+    if metric == "centroid":
+        scale = float(np.median([abs(float(fields[s]["transform"][0]))
+                                 for s in sites])) if sites else 1.0
+        edges = _match_copies_by_centroid(cells, neighbours,
+                                         float(radius) * scale)
+    else:
+        cache: "OrderedDict[int, np.ndarray]" = OrderedDict()
 
-    def image(site: int) -> np.ndarray:
-        """One field's label image, from ``fields`` or the cache."""
-        if fields[site].get("cells") is not None:
-            return fields[site]["cells"]
-        if site in cache:
-            cache.move_to_end(site)
+        def image(site: int) -> np.ndarray:
+            """One field's label image, from ``fields`` or the cache."""
+            if fields[site].get("cells") is not None:
+                return fields[site]["cells"]
+            if site in cache:
+                cache.move_to_end(site)
+                return cache[site]
+            cache[site] = load(site)
+            while len(cache) > _PH_CROSS_FIELD_CACHE:
+                cache.popitem(last=False)
             return cache[site]
-        cache[site] = load(site)
-        while len(cache) > _PH_CROSS_FIELD_CACHE:
-            cache.popitem(last=False)
-        return cache[site]
 
-    found = []
-    for count, (a, b) in enumerate(pairs, start=1):
-        label_a, label_b, inter = _ph_pair_intersections(
-            image(a), fields[a]["transform"], image(b), fields[b]["transform"])
-        edges = _ph_pair_edges(label_a, label_b, inter, fields[a]["areas"],
-                               fields[b]["areas"], metric=metric,
-                               min_overlap=min_overlap)
-        if len(edges):
-            edges.insert(0, "site_b", b)
-            edges.insert(0, "site_a", a)
-            found.append(edges)
-        if log and count % 250 == 0:
-            log(count, len(pairs))
-    edges = (pd.concat(found, ignore_index=True) if found else
-             pd.DataFrame(columns=["site_a", "site_b", "label_a", "label_b",
-                                   "inter", "score"]))
-    for column in ("site_a", "site_b", "label_a", "label_b", "inter"):
-        edges[column] = edges[column].astype(np.int64)
-    edges["score"] = edges["score"].astype(float)
-    cells = pd.concat([pd.DataFrame({
-        "site": s, "label": fields[s]["areas"].index.astype(np.int64),
-        "area": fields[s]["areas"].to_numpy(float)}) for s in sites],
-        ignore_index=True) if sites else pd.DataFrame(
-        columns=["site", "label", "area"])
-    return _ph_assign_ownership(cells, edges), edges, len(pairs)
+        found = []
+        for count, (a, b) in enumerate(pairs, start=1):
+            label_a, label_b, inter = _ph_pair_intersections(
+                image(a), fields[a]["transform"], image(b),
+                fields[b]["transform"])
+            edges = _ph_pair_edges(label_a, label_b, inter, fields[a]["areas"],
+                                   fields[b]["areas"], metric=metric,
+                                   min_overlap=min_overlap)
+            if len(edges):
+                edges.insert(0, "site_b", b)
+                edges.insert(0, "site_a", a)
+                found.append(edges)
+            if log and count % 250 == 0:
+                log(count, len(pairs))
+        edges = (pd.concat(found, ignore_index=True) if found else
+                 pd.DataFrame(columns=["site_a", "site_b", "label_a",
+                                       "label_b", "inter", "score"]))
+        for column in ("site_a", "site_b", "label_a", "label_b", "inter"):
+            edges[column] = edges[column].astype(np.int64)
+        edges["score"] = edges["score"].astype(float)
+    centres = {s: _field_centre(fields[s]["transform"], fields[s]["shape"])
+               for s in sites}
+    owned = _assign_field_owners(cells, edges, rule=rule, centres=centres)
+    return owned, edges, len(pairs)
 
 
-def _ph_cross_field_ownership(db: str, plate: str, well: str,
-                              settings: Mapping[str, Any], destination: str
-                              ) -> Dict[str, Any]:
-    """Find every copy of a cell across overlapping fields; the ``ph_ownership`` phase.
+def _ph_cross_field_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The checked ``ops_cross_field_*`` settings of a ph_ownership pass.
 
-    :param db: the measurements database (``ops_phenotype`` is read, never
-        written).
-    :param plate: the plate name.
-    :param well: the well name.
-    :param settings: read for ``ops_cross_field_ownership``,
-        ``ops_cross_field_metric``, ``ops_cross_field_min_overlap`` and
-        ``ops_cross_field_policy``.
-    :param destination: the run folder.
-    :returns: the report.
-
-    Funk et al.'s fields overlap their neighbours by about 430 px, so a cell
-    there is segmented in two fields or more, often whole in one and cut in
-    the other. For every pair of overlapping fields
-    (:func:`spacr.ops_merge.overlapping_fields`) the cell labels are
-    compared pixel by pixel through the two fields' transforms
-    (:func:`_ph_pair_intersections`); mutual best partners whose score
-    reaches ``ops_cross_field_min_overlap`` are copies of one cell
-    (:func:`_ph_pair_edges`), the connected copies are one physical cell,
-    and its largest copy owns it (:func:`_ph_assign_ownership`). A field's
-    transform is the re-solved one when the merge refined it.
-
-    Writes ``ops_cross_field_<well>.parquet`` (``plate``, ``well``,
-    ``site``, ``label``, ``area`` = ``cell_px``, ``touches_field_edge``,
-    ``component``, ``n_copies``, ``owner_field``, ``owner_label``,
-    ``is_owner``, ``owned_area_share``) and
-    ``ops_cross_field_edges_<well>.parquet``. Only sites with both a label
-    image and mask-pass rows take part.
+    :returns: ``metric``, ``min_overlap``, ``rule``, ``radius`` and
+        ``policy``.
+    :raises ValueError: naming the setting that is out of range.
     """
-    import pandas as pd
-
+    from .ops_merge import _field_owner_rule
     from .qt.i18n import tr
-    from .tabular import write_table
 
-    if not bool(settings.get("ops_cross_field_ownership", False)):
-        return {"skipped": "ops_cross_field_ownership is off"}
-    started = time.perf_counter()
     metric = str(settings.get("ops_cross_field_metric")
-                 or "overlap_fraction").strip().lower()
+                 or "centroid").strip().lower()
     if metric not in _PH_CROSS_FIELD_METRICS:
         raise ValueError(tr(
             "ops_cross_field_metric must be one of {metrics}; got {value}",
@@ -10952,33 +11514,128 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
         raise ValueError(tr(
             "ops_cross_field_min_overlap must lie in (0, 1]; got {value}",
             value=min_overlap))
-    policy = _ph_cross_field_policy(settings)
-    mask_dir = os.path.join(destination, well, "phenotype_masks")
+    radius = float(_setting_number(settings.get("ops_cross_field_radius_px"),
+                                   "ops_cross_field_radius_px", 24.0))
+    if not radius > 0.0:
+        raise ValueError(tr(
+            "ops_cross_field_radius_px must be above 0; got {value}",
+            value=radius))
+    return {"metric": metric, "min_overlap": min_overlap, "radius": radius,
+            "rule": _field_owner_rule(settings.get("ops_cross_field_rule")),
+            "policy": _ph_cross_field_policy(settings)}
+
+
+def _ph_cross_field_ownership(db: str, plate: str, well: str,
+                              settings: Mapping[str, Any], destination: str
+                              ) -> Dict[str, Any]:
+    """Name one owner field for every cell that overlapping fields imaged; the ``ph_ownership`` phase.
+
+    :param db: the measurements database (``ops_phenotype`` is read, never
+        written).
+    :param plate: the plate name.
+    :param well: the well name.
+    :param settings: read for the ``ops_cross_field_*`` settings
+        (:func:`_ph_cross_field_options`).
+    :param destination: the run folder.
+    :returns: the report.
+
+    Neighbouring fields overlap (by about 430 px on Funk et al. plates), so
+    a cell there is segmented in two fields or more, often whole in one
+    and cut in the other. The copies of one cell are found per pair of
+    overlapping fields (:func:`spacr.ops_merge.overlapping_fields`): with
+    the ``'centroid'`` metric from the nucleus centroids in stitched
+    coordinates (:func:`spacr.ops_merge._match_copies_by_centroid`,
+    no label image is read), with a mask metric by comparing the cell
+    labels pixel by pixel through the two transforms
+    (:func:`_ph_pair_intersections`, :func:`_ph_pair_edges`). The connected
+    copies are one physical cell, and
+    :func:`spacr.ops_merge._assign_field_owners` names its owner:
+    with ``'nearest_centre'`` the field whose centre is nearest the cell
+    centroid among the fields that hold it whole. A field transform is the
+    re-solved one when the merge refined it.
+
+    Writes ``ops_cross_field_<well>.parquet`` (``plate``, ``well``,
+    ``site``, ``label``, ``area`` = ``cell_px``, ``touches_field_edge``,
+    ``component``, ``n_copies``, ``owner_field``, ``owner_label``,
+    ``is_owner``, ``owned_area_share``, ``well_y``, ``well_x``,
+    ``centre_distance_px``, ``owner_rule``) and
+    ``ops_cross_field_edges_<well>.parquet``. Only sites with mask-pass
+    rows and a placement take part, and with a mask metric a label image.
+    """
+    import pandas as pd
+
+    from .ops_merge import _owner_counts
+    from .qt.i18n import tr
+    from .tabular import write_table
+
+    if not bool(settings.get("ops_cross_field_ownership", True)):
+        return {"skipped": "ops_cross_field_ownership is off"}
+    started = time.perf_counter()
+    options = _ph_cross_field_options(settings)
     maskpass = _ph_maskpass_path(destination, well)
     if not os.path.isfile(maskpass):
         raise ValueError(tr(
             "cross-field ownership needs the mask pass of well {well} at "
             "{path}; run the ph_masks phase first", well=well, path=maskpass))
-    passed = pd.read_parquet(maskpass, columns=["site", "label", "cell_px",
-                                                "touches_field_edge"])
+    import pyarrow.parquet as pq
+
+    names = set(pq.ParquetFile(maskpass).schema_arrow.names)
+    passed = pd.read_parquet(maskpass, columns=[
+        c for c in ("site", "label", "cell_px", "touches_field_edge")
+        if c in names])
+    if "cell_px" not in passed:
+        if options["rule"] == "largest":
+            raise ValueError(tr(
+                "the 'largest' owner rule needs cell_px in the mask pass of "
+                "well {well} at {path}; rerun the ph_masks phase",
+                well=well, path=maskpass))
+        passed["cell_px"] = 0
     placed = _well_rows(db, "ops_phenotype", plate, well)
     if placed is None or placed.empty:
         raise ValueError(tr(
             "well {well} has no ops_phenotype rows in {db}; run the "
             "phenotype phase first", well=well, db=db))
+    centroids = None
+    if options["metric"] == "centroid" or options["rule"] == "nearest_centre":
+        path = _ph_cells_path(destination, well)
+        if not os.path.isfile(path):
+            raise ValueError(tr(
+                "cross-field ownership needs the phenotype cell table of "
+                "well {well} at {path}; run the ph_measure phase first",
+                well=well, path=path))
+        table = pd.read_parquet(path, columns=["site", "label",
+                                               "centroid_row",
+                                               "centroid_col"])
+        centroids = {int(site): {int(l): (float(r), float(c)) for l, r, c in
+                                 zip(group["label"], group["centroid_row"],
+                                     group["centroid_col"])}
+                     for site, group in table.groupby("site")}
+        del table
     by_site = {site: group for site, group in passed.groupby("site")}
-    mask_paths = _ph_mask_paths(destination, plate, well, settings)
+    masked = options["metric"] in _PH_CROSS_FIELD_MASK_METRICS
+    mask_paths = (_ph_mask_paths(destination, plate, well, settings)
+                  if masked else {})
     fields: Dict[int, Dict[str, Any]] = {}
     for record in placed.to_dict("records"):
         site = int(record["site"])
-        if site not in by_site or site not in mask_paths:
+        if site not in by_site or (masked and site not in mask_paths):
+            continue
+        if centroids is not None and site not in centroids:
             continue
         table = by_site[site]
+        if centroids is not None:
+            known = table["label"].astype(np.int64).isin(
+                list(centroids[site])).to_numpy()
+            table = table[known]
+        labels = table["label"].to_numpy(np.int64)
         fields[site] = {
             "transform": _ph_field_record_transform(record),
             "shape": (int(record["field_height"]), int(record["field_width"])),
-            "areas": pd.Series(table["cell_px"].to_numpy(),
-                               index=table["label"].to_numpy(np.int64)),
+            "areas": pd.Series(table["cell_px"].to_numpy(), index=labels),
+            "whole": pd.Series([not (True if pd.isna(v) else bool(v))
+                                for v in table["touches_field_edge"]],
+                               index=labels, dtype=bool),
+            "centroids": centroids[site] if centroids is not None else None,
             "cells": None}
 
     def load(site: int) -> np.ndarray:
@@ -10991,27 +11648,38 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
                 well=well, count=count, total=total))
 
     cells, edges, pairs = _ph_cross_field_fields(
-        fields, metric=metric, min_overlap=min_overlap, load=load, log=log)
+        fields, metric=options["metric"], min_overlap=options["min_overlap"],
+        rule=options["rule"], radius=options["radius"], load=load, log=log)
     edge = passed.set_index(["site", "label"])["touches_field_edge"]
     cells["touches_field_edge"] = np.array(
         [False if pd.isna(v) else bool(v) for v in edge.reindex(
             pd.MultiIndex.from_arrays([cells["site"], cells["label"]]))], bool)
+    for column in ("well_y", "well_x", "centre_distance_px"):
+        if column not in cells:
+            cells[column] = np.nan
+    cells["owner_rule"] = options["rule"]
+    refused = int(cells.attrs.get("refused_edges", 0))
     cells = cells[["site", "label", "area", "touches_field_edge", "component",
                    "n_copies", "owner_field", "owner_label", "is_owner",
-                   "owned_area_share"]]
+                   "owned_area_share", "well_y", "well_x",
+                   "centre_distance_px", "owner_rule"]]
     cells.insert(0, "well", well)
     cells.insert(0, "plate", plate)
     write_table(cells, _ph_cross_field_path(destination, well),
                 canonicalise=False)
     write_table(edges, _ph_cross_field_edges_path(destination, well),
                 canonicalise=False)
-    components = cells.drop_duplicates("component")
+    physical, owned, unowned = _owner_counts(cells)
     report = {
-        "metric": metric, "min_overlap": min_overlap, "policy": policy,
+        "metric": options["metric"], "rule": options["rule"],
+        "min_overlap": options["min_overlap"], "radius_px": options["radius"],
+        "policy": options["policy"],
         "fields": len(fields), "field_pairs": pairs, "edges": int(len(edges)),
-        "cells": int(len(cells)), "physical_cells": int(len(components)),
+        "cells": int(len(cells)), "physical_cells": physical,
+        "owned_cells": owned, "cells_without_owner": unowned,
         "cells_with_copies": int((cells["n_copies"] > 1).sum()),
         "non_owner_copies": int((~cells["is_owner"]).sum()),
+        "edges_refused_two_copies_in_one_field": refused,
         "components_with_two_copies_in_one_field": int(cells.loc[
             cells.duplicated(["component", "site"]), "component"].nunique()),
         "table": _ph_cross_field_path(destination, well),
@@ -11022,58 +11690,335 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
     return report
 
 
+def _ph_pair_one_link_per_nucleus(frame, destination: str, well: str,
+                                  settings: Mapping[str, Any]):
+    """One merge link per sequencing nucleus, held by the owner copy.
+
+    :param frame: the merge rows (``site``, ``label``, ``object_id``,
+        ``distance``).
+    :param destination: the run folder.
+    :param well: the well name.
+    :param settings: the OPS settings.
+    :returns: ``(kept, dropped)`` as
+        :func:`spacr.ops_merge.deduplicate_matches` gives them.
+
+    Pairing allows one cell per sequencing nucleus; which copy of a seam
+    cell holds the link is ownership (:func:`_ph_owner_first_links`). The
+    owner copy wins before the closer match. A link kept on another copy of
+    a cell whose owner has no link of its own moves to the owner, with its
+    distance, because both copies are one physical cell; the owner then
+    carries the genotype into the phenotype tables and the aggregate.
+    Without ownership the closer match wins, as before.
+    """
+    from .ops_merge import deduplicate_matches
+
+    ranked = _ph_owner_first_links(frame, destination, well, settings)
+    if ranked is None or "_owner_rank" not in ranked:
+        return deduplicate_matches(frame)
+    columns = list(frame.columns)
+    order = np.lexsort((ranked["distance"].to_numpy(float),
+                        ranked["_owner_rank"].to_numpy()))
+    rank = np.empty(len(ranked), np.int64)
+    rank[order] = np.arange(len(ranked))
+    kept, dropped = deduplicate_matches(ranked.assign(_order=rank),
+                                        by="_order")
+    owner_site = kept["_owner_site"].to_numpy(float)
+    owner_label = kept["_owner_label"].to_numpy(float)
+    linked = set(zip(kept.loc[kept["_owner_rank"] == 0, "site"].astype(
+        np.int64), kept.loc[kept["_owner_rank"] == 0, "label"].astype(
+        np.int64)))
+    movable = (kept["_owner_rank"].to_numpy() == 1) & np.isfinite(owner_site)
+    if movable.any():
+        candidates = kept[movable].assign(
+            _target=list(zip(owner_site[movable].astype(np.int64),
+                             owner_label[movable].astype(np.int64))))
+        candidates = candidates[[t not in linked
+                                 for t in candidates["_target"]]]
+        candidates = candidates.sort_values("_order", kind="mergesort")
+        candidates = candidates.drop_duplicates("_target")
+        kept = kept.copy()
+        for index, (site, label) in zip(candidates.index,
+                                        candidates["_target"]):
+            kept.loc[index, "site"] = site
+            kept.loc[index, "label"] = label
+    return kept[columns], dropped
+
+
+def _ph_ownership_with_merge(settings: Mapping[str, Any],
+                             phases: Sequence[str], destination: str,
+                             well: str) -> bool:
+    """Whether the merge of a well runs ph_ownership first, unasked.
+
+    True when ``ops_cross_field_ownership`` is on, the merge runs without
+    ``ph_ownership`` named, the well has a mask pass and no ownership table
+    yet, so a run that names ``merge`` keeps one copy per cell.
+    """
+    return ("merge" in phases and "ph_ownership" not in phases
+            and bool(settings.get("ops_cross_field_ownership", True))
+            and _ph_can_decide_ownership(destination, well)
+            and not os.path.isfile(_ph_cross_field_path(destination, well)))
+
+
+def _ph_can_decide_ownership(destination: str, well: str) -> bool:
+    """Whether a well has what the centroid ownership pass reads.
+
+    True when the mask pass (``touches_field_edge``) and the phenotype cell
+    table (``centroid_row``, ``centroid_col``) of the well are both there.
+    """
+    import pyarrow.parquet as pq
+
+    maskpass = _ph_maskpass_path(destination, well)
+    cells = _ph_cells_path(destination, well)
+    if not (os.path.isfile(maskpass) and os.path.isfile(cells)):
+        return False
+    names = set(pq.ParquetFile(cells).schema_arrow.names)
+    edge = set(pq.ParquetFile(maskpass).schema_arrow.names)
+    return ({"centroid_row", "centroid_col"} <= names
+            and "touches_field_edge" in edge)
+
+
+def _ph_ownership_before_tables(db: str, plate: str, wells: Sequence[str],
+                                settings: Mapping[str, Any],
+                                destination: str,
+                                phases: Sequence[str]) -> Dict[str, Any]:
+    """Run ph_ownership for wells the tables need it for and lack it.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param wells: the wells of the run.
+    :param settings: the OPS settings.
+    :param destination: the run folder.
+    :param phases: the phases of the run.
+    :returns: ``{well: report}`` for the wells it ran on. With
+        ``ops_cross_field_ownership`` on, a well with a mask pass and no
+        ownership table gets one before the aggregate, ph_tables and the
+        crops read it, so they keep one copy per cell. A merge that ran
+        before it kept the closer match; ``ph_rebuild`` redoes the merge
+        with the owner first.
+    """
+    if "ph_ownership" in phases or not _ph_uses_cross_field_table(settings):
+        return {}
+    out = {}
+    for well in wells:
+        if (_ph_can_decide_ownership(destination, well)
+                and not os.path.isfile(_ph_cross_field_path(destination, well))):
+            out[well] = _ph_cross_field_ownership(db, plate, well, settings,
+                                                  destination)
+    return out
+
+
+def _ph_uses_cross_field_table(settings: Mapping[str, Any]) -> bool:
+    """Whether the aggregate, ph_tables and the crops read ``ops_cross_field_<well>``.
+
+    True when ``ops_cross_field_ownership`` is on and
+    ``ops_cross_field_policy`` is not ``'flag_only'``: the one rule every
+    reader of the cross-field ownership table follows.
+    """
+    return (bool(settings.get("ops_cross_field_ownership", True))
+            and _ph_cross_field_policy(settings) != "flag_only")
+
+
+def _ph_wells_without_cross_field_table(destination: str,
+                                        wells: Sequence[str],
+                                        settings: Mapping[str, Any]
+                                        ) -> List[str]:
+    """The wells that need ``ops_cross_field_<well>.parquet`` and lack it.
+
+    :param destination: the run folder.
+    :param wells: the wells.
+    :param settings: the OPS settings (:func:`_ph_uses_cross_field_table`).
+    :returns: the wells, in the given order; empty when the table is not
+        read.
+    """
+    if not _ph_uses_cross_field_table(settings):
+        return []
+    return [str(w) for w in wells
+            if not os.path.isfile(_ph_cross_field_path(destination, w))]
+
+
+def _ph_require_cross_field_table(destination: str, well: str,
+                                  settings: Mapping[str, Any]) -> None:
+    """Refuse a well whose copies cannot be told apart.
+
+    ph_tables and the crops keep one copy per physical cell. Without
+    ``ops_cross_field_<well>.parquet`` every copy would count as owned, so
+    a cell cut by a field seam would be written once per field.
+
+    :raises ValueError: when :func:`_ph_wells_without_cross_field_table`
+        names ``well``.
+    """
+    from .qt.i18n import tr
+
+    if _ph_wells_without_cross_field_table(destination, [well], settings):
+        raise ValueError(tr(
+            "well {well} has no cross-field ownership table ({path}), so "
+            "the copies of a cell cut by a field seam cannot be told apart "
+            "and each would be written as its own cell. Run the "
+            "ph_ownership phase first (it needs the mask pass and the "
+            "phenotype cell table of the well), or set "
+            "ops_cross_field_ownership to False to keep every copy.",
+            well=well, path=_ph_cross_field_path(destination, well)))
+
+
+def _ph_listed_owners(owners, wells, sites, labels):
+    """The owner flag of each copy in the cross-field ownership table, and whether it is listed.
+
+    The one rule the aggregate, ph_tables and the crops read the table by:
+    a copy the table lists is kept when it owns its physical cell; a
+    copy it does not list (a field that was not placed, or a cell measured
+    after the ownership pass) is not owned, and the callers count it as
+    ``cells_without_ownership_row`` rather than keep or drop it unseen.
+
+    :param owners: :func:`_ph_cross_field_owners` of one or more wells.
+    :param wells: the well of each copy.
+    :param sites: the field of each copy.
+    :param labels: the label of each copy.
+    :returns: ``(is_owner, unlisted)``, boolean arrays; ``is_owner`` is
+        False for an unlisted copy.
+    """
+    import pandas as pd
+
+    table = pd.Series(
+        owners["is_owner"].astype(bool).to_numpy(),
+        index=pd.MultiIndex.from_arrays([
+            owners["well"].astype(str).to_numpy(),
+            owners["site"].astype(np.int64).to_numpy(),
+            owners["label"].astype(np.int64).to_numpy()]))
+    found = table.reindex(pd.MultiIndex.from_arrays([
+        np.asarray(wells).astype(str),
+        np.asarray(sites).astype(np.int64),
+        np.asarray(labels).astype(np.int64)]))
+    unlisted = found.isna().to_numpy()
+    values = found.to_numpy(dtype=object)
+    values[unlisted] = False
+    return values.astype(bool), unlisted
+
+
+def _ph_cross_field_owners(destination: str, well: str):
+    """The well ownership table, or None when ph_ownership has not run."""
+    import pandas as pd
+
+    path = _ph_cross_field_path(destination, well)
+    if not os.path.isfile(path):
+        return None
+    return pd.read_parquet(path, columns=["well", "site", "label",
+                                          "component", "area", "is_owner",
+                                          "owner_field", "owner_label"])
+
+
 def _ph_cross_field_filter(cells, destination: str, wells: Sequence[str],
                            settings: Mapping[str, Any]):
-    """Apply ``ops_cross_field_policy`` to the aggregate's genotyped cells.
+    """Apply ``ops_cross_field_policy`` to the aggregate genotyped cells.
 
     :param cells: the genotyped cells (``well``, ``site``, ``label``).
     :param destination: the run folder.
     :param wells: the pooled wells.
     :param settings: the OPS settings.
-    :returns: ``(cells, report)``. ``'one_per_cell'`` keeps one row per
-        physical cell, its largest copy (ties to the smaller site, then
-        label); ``'owner_only'`` drops every non-owner copy; ``'flag_only'``
-        changes nothing. Cells absent from the ownership table keep
-        themselves.
+    :returns: ``(cells, report)``. ``'owner_only'`` keeps only owner
+        copies; ``'one_per_cell'`` keeps one row per physical cell, the
+        owner when it is among the rows, else the largest copy (ties to
+        the smaller site, then label); ``'flag_only'`` changes nothing.
+        Cells absent from the ownership table of their well are left out
+        and counted as ``cells_without_ownership_row``
+        (:func:`_ph_listed_owners`, the rule ph_tables and the crops
+        follow). A well
+        without an ownership table (no mask pass or no cell table to
+        decide it from, :func:`_ph_ownership_before_tables`) keeps every
+        row; the report lists it under ``wells_without_ownership``.
     """
     import pandas as pd
 
     from .qt.i18n import tr
 
     policy = _ph_cross_field_policy(settings)
-    if policy == "flag_only":
+    if not _ph_uses_cross_field_table(settings):
         return cells, {"policy": policy}
-    tables = []
-    for well in wells:
-        path = _ph_cross_field_path(destination, well)
-        if not os.path.isfile(path):
-            raise ValueError(tr(
-                "ops_cross_field_ownership needs {path}; run the "
-                "ph_ownership phase first", path=path))
-        tables.append(pd.read_parquet(path, columns=[
-            "well", "site", "label", "component", "area", "is_owner"]))
+    bare = _ph_wells_without_cross_field_table(destination, wells, settings)
+    tables = [_ph_cross_field_owners(destination, well) for well in wells
+              if str(well) not in bare]
+    extra = {"wells_without_ownership": bare} if bare else {}
+    if not tables:
+        return cells, {"policy": policy, "dropped_non_owner_copies": 0,
+                       **extra}
     owners = pd.concat(tables, ignore_index=True)
-    joined = cells.reset_index(drop=True).merge(
-        owners, on=["well", "site", "label"], how="left")
+    cells = cells.reset_index(drop=True)
+    checked = ~cells["well"].astype(str).isin(bare).to_numpy()
+    owner, unlisted = _ph_listed_owners(owners, cells["well"], cells["site"],
+                                        cells["label"])
+    unlisted &= checked
+    if unlisted.any():
+        _say(tr("{count} cells are not in the cross-field ownership table of "
+                "their well and are left out (a field that was not placed, "
+                "or cells measured after ph_ownership)",
+                count=int(unlisted.sum())))
+        extra["cells_without_ownership_row"] = int(unlisted.sum())
+        owner = owner[~unlisted]
+        checked = checked[~unlisted]
+        cells = cells[~unlisted].reset_index(drop=True)
+    joined = cells.merge(owners, on=["well", "site", "label"], how="left",
+                         validate="many_to_one")
     if policy == "owner_only":
-        keep = np.array([True if pd.isna(v) else bool(v)
-                         for v in joined["is_owner"]], bool)
-        return (cells.reset_index(drop=True)[keep].reset_index(drop=True),
+        keep = owner | ~checked
+        return (cells[keep].reset_index(drop=True),
                 {"policy": policy,
-                 "dropped_non_owner_copies": int((~keep).sum())})
+                 "dropped_non_owner_copies": int((~keep).sum()), **extra})
     key = joined["well"].astype(str) + ":" + joined["component"].map(
         lambda v: "" if pd.isna(v) else str(int(v)))
     lone = joined["component"].isna()
     key[lone] = "lone:" + pd.Series(np.arange(int(lone.sum())),
                                     index=key[lone].index).astype(str)
-    order = joined.assign(_key=key, _position=np.arange(len(joined))).sort_values(
-        ["_key", "area", "site", "label"], ascending=[True, False, True, True],
-        kind="mergesort")
+    owner_first = np.array([not (False if pd.isna(v) else bool(v))
+                            for v in joined["is_owner"]], bool)
+    order = joined.assign(_key=key, _position=np.arange(len(joined)),
+                          _not_owner=owner_first).sort_values(
+        ["_key", "_not_owner", "area", "site", "label"],
+        ascending=[True, True, False, True, True], kind="mergesort")
     kept = np.sort(order.drop_duplicates("_key")["_position"].to_numpy())
-    return (cells.reset_index(drop=True).iloc[kept].reset_index(drop=True),
+    return (cells.iloc[kept].reset_index(drop=True),
             {"policy": policy,
-             "dropped_extra_copies": int(len(joined) - len(kept))})
+             "dropped_extra_copies": int(len(joined) - len(kept)), **extra})
 
+
+def _ph_owner_first_links(frame, destination: str, well: str,
+                          settings: Mapping[str, Any]):
+    """The merge rows of one well with their owner, or unchanged.
+
+    :param frame: the merge rows (``site``, ``label``, ...).
+    :param destination: the run folder.
+    :param well: the well name.
+    :param settings: the OPS settings.
+    :returns: ``frame`` with ``_owner_rank`` (0 for an owner copy or a
+        copy the ownership table does not list, 1 for any other copy) and
+        ``_owner_site``, ``_owner_label`` (the owner copy of its physical
+        cell, missing when it has none), when ``ops_cross_field_ownership``
+        is on with the ``'nearest_centre'`` rule, a policy other than
+        ``'flag_only'`` and the well has an ownership table; else ``frame``
+        as given, so the deprecated ``'largest'`` rule reproduces its
+        earlier merge.
+    """
+    import pandas as pd
+
+    from .ops_merge import _field_owner_rule
+
+    if (not bool(settings.get("ops_cross_field_ownership", True))
+            or _ph_cross_field_policy(settings) == "flag_only"
+            or _field_owner_rule(settings.get("ops_cross_field_rule"))
+            != "nearest_centre"):
+        return frame
+    owners = _ph_cross_field_owners(destination, well)
+    if owners is None or frame is None or not len(frame):
+        return frame
+    table = owners.set_index([owners["site"].astype(np.int64),
+                              owners["label"].astype(np.int64)])
+    keys = pd.MultiIndex.from_arrays([frame["site"].astype(np.int64),
+                                      frame["label"].astype(np.int64)])
+    found = table.reindex(keys)
+    rank = np.array([0 if pd.isna(v) or bool(v) else 1
+                     for v in found["is_owner"]], np.int64)
+    return frame.assign(
+        _owner_rank=rank,
+        _owner_site=found["owner_field"].to_numpy(float),
+        _owner_label=found["owner_label"].to_numpy(float))
 
 
 #: The levels ``ops_reference_counts_level`` may name: decoded sequencing
@@ -12622,7 +13567,8 @@ def run_ops(settings: Mapping[str, Any], *,
                     destination, segment=segment, measure=measure)
         if "ph_masks" in phases:
             report["ph_masks"] = _ph_masks(plate, well, settings, destination)
-        if "ph_ownership" in phases:
+        if "ph_ownership" in phases or _ph_ownership_with_merge(
+                settings, phases, destination, well):
             report["ph_ownership"] = _ph_cross_field_ownership(
                 db, plate, well, settings, destination)
         if "merge" in phases:
@@ -12672,6 +13618,11 @@ def run_ops(settings: Mapping[str, Any], *,
 
         out["archive_plate_done"] = mark_plate_done(str(archive_root), plate,
                                                     chosen)
+    if any(p in phases for p in ("aggregate", "ph_tables", "ph_crops")):
+        owned_now = _ph_ownership_before_tables(db, plate, chosen, settings,
+                                                destination, phases)
+        if owned_now:
+            out["ph_ownership"] = owned_now
     if "ph_cell_cycle" in phases or (settings.get("ops_cell_cycle")
                                       and "aggregate" in phases):
         from .ops_cell_cycle import run_cell_cycle_phase
@@ -12741,19 +13692,35 @@ def _run_phases(settings: Mapping[str, Any],
         ``_ALL_PHASES``.
     """
     if phases is not None:
-        return tuple(phases)
+        return _expand_rebuild(tuple(phases))
     value = settings.get("ops_phases")
     if isinstance(value, str):
         value = [part.strip() for part in value.replace(";", ",").split(",")]
     names = tuple(str(part).strip() for part in (value or ()) if str(part).strip())
     if not names:
         return _PHASES
-    unknown = [name for name in names if name not in _ALL_PHASES]
+    unknown = [name for name in names
+               if name not in _ALL_PHASES and name != "ph_rebuild"]
     if unknown:
         raise ValueError(
             f"ops_phases names phases spaCR does not know: {unknown}; "
-            f"choose from {list(_ALL_PHASES)}")
-    return names
+            f"choose from {list(_ALL_PHASES) + ['ph_rebuild']}")
+    return _expand_rebuild(names)
+
+
+def _expand_rebuild(names: Tuple[str, ...]) -> Tuple[str, ...]:
+    """``names`` with ``ph_rebuild`` replaced by :data:`_PH_REBUILD_PHASES`.
+
+    Each phase appears once, in the order of the first mention.
+    """
+    if "ph_rebuild" not in names:
+        return names
+    out: List[str] = []
+    for name in names:
+        for part in (_PH_REBUILD_PHASES if name == "ph_rebuild" else (name,)):
+            if part not in out:
+                out.append(part)
+    return tuple(out)
 
 
 def _wants_decode_qc(settings: Mapping[str, Any], phases: Sequence[str]) -> bool:

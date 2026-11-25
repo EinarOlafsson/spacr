@@ -1588,6 +1588,15 @@ if app_key == "mask":
     assert not merge4 & recognized_arrivals
     assert resolve_default_settings("mask")["size_filter_inclusive"] is True
     recognized_arrivals |= merge4
+    # OPS/Measure audit (schema 965): profile_outside_rule ("Default 'object'."),
+    # resolved by Measure and External Masks; the claim is the resolved default.
+    outside_965 = {("measure", "profile_outside_rule"),
+                   ("external_masks", "profile_outside_rule")}
+    assert outside_965 <= compared_pairs
+    assert not outside_965 & recognized_arrivals
+    for app, key in outside_965:
+        assert resolve_default_settings(app)[key] == "object"
+    recognized_arrivals |= outside_965
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

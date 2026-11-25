@@ -1,0 +1,37 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff",
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff",
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "_viability_controls_figure",
+  "data_sha256": "6fcf7406818862c118ab59083876e0b4193ab3237635e98a0637fa19db1b066b",
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_controls/viability_controls.pdf",
+      "sha256": "fb0dc2c9bfeb1db22753ab0704d76932fbd97346f401b94a8180b2e4fbb0bddb"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/dark/viability_controls/viability_controls.png",
+      "sha256": "e850b4b2cccf9b018b10900b73dd99ca1bff691b3e6369798c7bb39a87d1fa00"
+    }
+  },
+  "inputs_sha256": "93ca3bb290b138895c8f787755ee9c56ef5a77e49bad4dcf4f5b63772090b61d",
+  "payload_sha256": "9f4385c0f539ca6b6fbee78498b2703530e45bc7121c62f6f6705b912a08a538",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

@@ -21,7 +21,8 @@ from .ops_settings import ops_setting
 
 import numpy as np
 
-_STEPS: Tuple[str, ...] = ("align", "spots", "objects", "merge", "cluster")
+_STEPS: Tuple[str, ...] = ("align", "spots", "objects", "merge", "cluster",
+                           "voyager3")
 
 _STEP_NEEDS: Dict[str, Tuple[str, ...]] = {
     "align": (),
@@ -29,6 +30,7 @@ _STEP_NEEDS: Dict[str, Tuple[str, ...]] = {
     "objects": ("align",),
     "merge": ("align",),
     "cluster": ("merge",),
+    "voyager3": ("cluster",),
 }
 
 _EVERY_STEP = _STEPS
@@ -36,6 +38,7 @@ _EVERY_STEP = _STEPS
 _SHARED_CATEGORY_WORDS: Tuple[str, ...] = ("input", "performance")
 
 _STEM_STEPS: Tuple[Tuple[str, str], ...] = (
+    ("ops_voyager3_", "voyager3"),
     ("ops_registration_", "align"),
     ("ops_channel_registration", "align"),
     ("ops_spot_min_peak", "align"),
@@ -90,6 +93,10 @@ _CATEGORY_STEPS: Tuple[Tuple[str, str], ...] = (
     ("crop", "objects"),
     ("phenotyp", "objects"),
     ("decod", "spots"),
+    ("decoy", "spots"),
+    ("prefix", "spots"),
+    ("pixel fallback", "spots"),
+    ("call quality", "spots"),
     ("genotyp", "spots"),
     ("spot", "spots"),
     ("barcode", "spots"),
@@ -104,6 +111,22 @@ _CATEGORY_STEPS: Tuple[Tuple[str, str], ...] = (
 _PATH_KEYS: Tuple[str, ...] = ("genotype_source", "phenotype_source",
                                "ops_library", "ops_flatfield_maps",
                                "ops_ph_placement_seed", "ops_design")
+
+_LIVE_STEPS: Dict[str, Tuple[str, ...]] = {
+    "ops_live_well": _STEPS,
+    "ops_live_region": ("align",),
+    "ops_live_block": ("align",),
+    "ops_live_field": ("align",),
+    "ops_live_sbs_crop": ("spots", "objects"),
+    "ops_live_ph_fields": ("objects",),
+    "ops_live_merge_fields": ("merge",),
+    "ops_live_genes": ("cluster",),
+    "ops_live_voyager3_clusters": ("voyager3",),
+}
+"""The preview-only settings (the region and the Sample of each tab) and
+the steps each one changes. They are never written into the OPS run."""
+
+_MAX_REGIONS = 24
 
 _TEST_FOLDER = "ops_testdata_funk2022_A1"
 
@@ -200,8 +223,10 @@ def _step_map(app_key: str = "ops") -> Dict[str, Tuple[str, ...]]:
     from .ops_settings import OPS_DEFAULTS
 
     categories = _registry_categories(app_key)
-    return {key: _steps_of(key, categories.get(key, ""))
-            for key in OPS_DEFAULTS}
+    out = {key: _steps_of(key, categories.get(key, ""))
+           for key in OPS_DEFAULTS}
+    out.update(_LIVE_STEPS)
+    return out
 
 
 def _closure(step: str) -> Tuple[str, ...]:
@@ -241,15 +266,32 @@ def _signature(settings: Mapping[str, Any], step: str,
     return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
 
+_REGIONS_TEST_FOLDER = "ops_testdata_funk2022_A1_regions"
+
+_PROVENANCE_FILES: Tuple[str, ...] = ("PROVENANCE_rev2_addendum.json",
+                                      "PROVENANCE_regions.json")
+
+
+def _is_test_root(folder: Path) -> bool:
+    """Whether ``folder`` is an unpacked tier of the OPS end-to-end test data."""
+    return (folder / "settings" / "ops_testdata_settings.json").is_file() and any(
+        (folder / "reference" / name).is_file() for name in _PROVENANCE_FILES)
+
+
 def _test_data_root() -> Optional[Path]:
-    """The unpacked OPS end-to-end test data, full tier first, or None."""
-    from .example_archives import OPS_E2E_FULL_FOLDER, example_set_folder
+    """The unpacked OPS end-to-end test data, or None.
+
+    The regions tier first (three regions to choose between), then the full
+    tier, then the core tier.
+    """
+    from .example_archives import (OPS_E2E_FULL_FOLDER, OPS_E2E_REGIONS_FOLDER,
+                                   example_set_folder)
 
     core = example_set_folder("ops_e2e")
-    for folder in (core.parent / OPS_E2E_FULL_FOLDER, core):
-        root = folder / _TEST_FOLDER
-        if (root / "settings" / "ops_testdata_settings.json").is_file() and (
-                root / "reference" / "PROVENANCE_rev2_addendum.json").is_file():
+    for root in (core.parent / OPS_E2E_REGIONS_FOLDER / _REGIONS_TEST_FOLDER,
+                 core.parent / OPS_E2E_FULL_FOLDER / _TEST_FOLDER,
+                 core / _TEST_FOLDER):
+        if _is_test_root(root):
             return root
     return None
 
@@ -268,8 +310,7 @@ def _test_root_of(source: Any) -> Optional[Path]:
     except (OSError, RuntimeError, ValueError):
         return None
     for candidate in (folder, *folder.parents):
-        if (candidate / "settings" / "ops_testdata_settings.json").is_file() and (
-                candidate / "reference" / "PROVENANCE_rev2_addendum.json").is_file():
+        if _is_test_root(candidate):
             return candidate
     return None
 
@@ -347,11 +388,19 @@ def _effective_settings(form: Mapping[str, Any]
 def _workspace(settings: Mapping[str, Any]) -> Path:
     """The preview's own folder for these inputs.
 
-    :param settings: read for the two image folders and the plate.
+    Each region of a well gets its own folder, so one region's run tables
+    and masks never stand in for another's.
+
+    :param settings: read for the two image folders, the plate and the
+        region (``ops_live_region``, ``ops_live_block``).
     :returns: ``~/.cache/spacr/ops_live/<digest>``, created.
     """
     text = "|".join(str(settings.get(key) or "") for key in
                     ("genotype_source", "phenotype_source", "plate"))
+    region = _live_int(settings, "ops_live_region", 0)
+    side = _live_int(settings, "ops_live_block", 2)
+    if region != 0 or side != 2:
+        text += f"|region={region}|side={side}"
     digest = hashlib.sha1(text.encode("utf-8")).hexdigest()[:16]
     folder = Path.home() / ".cache" / "spacr" / "ops_live" / digest
     folder.mkdir(parents=True, exist_ok=True)
@@ -413,6 +462,45 @@ def _well_of(settings: Mapping[str, Any], cache: dict) -> str:
     return asked if asked in index else sorted(index)[0]
 
 
+def _sample_blocks(index_well: Mapping[int, Mapping[int, Any]],
+                   reference: int, side: int = 2,
+                   limit: int = _MAX_REGIONS) -> List[List[int]]:
+    """The regions of a well: square blocks of sequencing tiles, middle first.
+
+    Blocks do not share a tile. A well with no more tiles than one block
+    holds is one region of all its tiles.
+
+    :param index_well: ``cycle -> site -> files`` of the well.
+    :param reference: the cycle holding the nuclear stain.
+    :param side: tiles along each side of a block.
+    :param limit: the most regions returned.
+    :returns: each region as its sorted sites, every one in the reference cycle.
+    """
+    from .ops_layout import round_well_layout
+
+    side = max(1, int(side))
+    sites = sorted(int(s) for s in index_well[reference])
+    if len(sites) <= side * side:
+        return [sites]
+    layout = round_well_layout(max(sites) + 1)
+    where = {site: layout.position(site) for site in sites}
+    centre = np.mean(np.array(list(where.values()), float), axis=0)
+    by_place = {place: site for site, place in where.items()}
+    ranked = sorted(sites, key=lambda s: float(np.hypot(*(np.array(where[s]) - centre))))
+    used: set = set()
+    blocks: List[List[int]] = []
+    for site in ranked:
+        column, row = where[site]
+        block = [by_place.get((column + dc, row + dr))
+                 for dc in range(side) for dr in range(side)]
+        if all(b is not None and b not in used for b in block):
+            blocks.append(sorted(int(b) for b in block))
+            used.update(block)
+            if len(blocks) >= limit:
+                break
+    return blocks or [ranked[:side * side]]
+
+
 def _sample_block(index_well: Mapping[int, Mapping[int, Any]],
                   reference: int) -> List[int]:
     """A 2 x 2 block of sequencing tiles near the middle of the well.
@@ -421,23 +509,16 @@ def _sample_block(index_well: Mapping[int, Mapping[int, Any]],
     :param reference: the cycle holding the nuclear stain.
     :returns: the sites, every one in the reference cycle.
     """
-    from .ops_layout import round_well_layout
+    return _sample_blocks(index_well, reference)[0]
 
-    sites = sorted(index_well[reference])
-    if len(sites) <= 4:
-        return sites
-    layout = round_well_layout(max(sites) + 1)
-    where = {site: layout.position(site) for site in sites}
-    centre = np.mean(np.array(list(where.values()), float), axis=0)
-    by_place = {place: site for site, place in where.items()}
-    ranked = sorted(sites, key=lambda s: float(np.hypot(*(np.array(where[s]) - centre))))
-    for site in ranked:
-        column, row = where[site]
-        block = [by_place.get((column + dc, row + dr))
-                 for dc in (0, 1) for dr in (0, 1)]
-        if all(b is not None for b in block):
-            return sorted(int(b) for b in block)
-    return ranked[:4]
+
+def _live_int(settings: Mapping[str, Any], key: str, fallback: int) -> int:
+    """A preview-only whole-number setting, or ``fallback`` when unset or unreadable."""
+    try:
+        value = settings.get(key)
+        return int(value) if value not in (None, "") else int(fallback)
+    except (TypeError, ValueError):
+        return int(fallback)
 
 
 @dataclass
@@ -596,7 +677,11 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
 
     index, reference = _sbs_index(ctx)
     asked = _ops_sites(ctx.settings)
-    block = (sorted(asked)[:16] if asked else _sample_block(index, reference))
+    regions = _sample_blocks(index, reference,
+                             side=_live_int(ctx.settings, "ops_live_block", 2))
+    region = min(max(0, _live_int(ctx.settings, "ops_live_region", 0)),
+                 len(regions) - 1)
+    block = (sorted(asked)[:16] if asked else regions[region])
     settings = _preview_settings(ctx.settings, ctx.folder)
     whole = set(block) == set(int(s) for s in index[reference])
     settings["ops_sites"] = None if whole else ",".join(str(s) for s in block)
@@ -658,6 +743,8 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     sample_field = _sample_field(ctx, fields)
     crop_site, crop = _sbs_crop(tiles, shape, sample_field,
                                 ctx.test_root is not None)
+    tile_sources = {site: _plane_sources(index[reference][site]).get(_NUCLEAR)
+                    for site in tiles}
     channels = _base_channels(ctx.settings)
     planes: Dict[int, Optional[list]] = {}
     raw: Dict[int, Optional[list]] = {}
@@ -718,6 +805,8 @@ def _run_align(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         "before": before, "after": after, "notes": notes,
         "seam": seam, "placement": placement, "placed_after": placed_after,
         "phases": phases, "sample_block": settings["ops_sites"],
+        "regions": [list(r) for r in regions], "region": region,
+        "tile_sources": tile_sources,
     }
 
 
@@ -771,19 +860,20 @@ def _ph_to_well(field_info: Mapping[str, Any], points: np.ndarray) -> np.ndarray
 
 
 def _sbs_crop(tiles: Mapping[int, Tuple[float, float]], shape: Tuple[int, int],
-              field_info: Optional[Mapping[str, Any]], test: bool = False
-              ) -> Tuple[int, Tuple[int, int, int]]:
+              field_info: Optional[Mapping[str, Any]], test: bool = False,
+              size: int = _SBS_CROP) -> Tuple[int, Tuple[int, int, int]]:
     """The sequencing tile and crop under the sampled phenotype crop.
 
     :param tiles: ``site -> (y, x)`` placements of the reference cycle.
     :param shape: the tile shape.
     :param field_info: the sampled phenotype field, or None.
     :param test: the input is the test data (see :func:`_ph_crop_window`).
+    :param size: the side of the crop in sequencing pixels.
 
     :returns: ``(site, (row, column, size))`` in the tile's own pixels; the
         middle of the most central tile when no field is placed.
     """
-    size = min(_SBS_CROP, shape[0], shape[1])
+    size = int(min(max(16, int(size)), shape[0], shape[1]))
     if field_info is not None:
         row, column, ph_size = _ph_crop_window(field_info, test)
         target = _ph_to_well(field_info, [[row + ph_size / 2,
@@ -803,6 +893,115 @@ def _sbs_crop(tiles: Mapping[int, Tuple[float, float]], shape: Tuple[int, int],
     row = int(np.clip(target[0] - y - size / 2, 0, shape[0] - size))
     column = int(np.clip(target[1] - x - size / 2, 0, shape[1] - size))
     return int(site), (row, column, size)
+
+
+def _genotyped_crop(ctx: _Context, align: Mapping[str, Any]
+                    ) -> Tuple[int, Tuple[int, int, int]]:
+    """The sequencing crop Spots & genotyping reads: the tile and ``(row, column, size)``.
+
+    Centred where the Align & stitch crop is, at the side the Spots Sample
+    asks for (``ops_live_sbs_crop``).
+    """
+    size = _live_int(ctx.settings, "ops_live_sbs_crop", _SBS_CROP)
+    if size == int(align["crop"][2]):
+        return int(align["crop_site"]), tuple(align["crop"])
+    return _sbs_crop(align["tiles"], align["tile_shape"], align["sample_field"],
+                     ctx.test_root is not None, size=size)
+
+
+def _well_to_field(field_info: Mapping[str, Any], points) -> np.ndarray:
+    """Well-frame ``(y, x)`` points in a phenotype field, the inverse of :func:`_ph_to_well`."""
+    from .ops_merge import field_transform
+
+    scale, rotation, translation = field_transform(
+        field_info["scale"], field_info["rotation"], field_info["centre"],
+        field_info["shape"])
+    well = np.asarray(points, float).reshape(-1, 2) - np.asarray(translation, float)
+    return (np.asarray(rotation, float).T @ well.T).T / float(scale)
+
+
+def _region_windows(align: Mapping[str, Any], site: int,
+                    crop: Tuple[int, int, int], limit: int = 9
+                    ) -> List[Tuple[Dict[str, Any], Tuple[int, int, int, int]]]:
+    """Every placed phenotype field over a sequencing crop, and the part of it the crop covers.
+
+    :param align: the Align & stitch result.
+    :param site: the crop tile.
+    :param crop: ``(row, column, size)`` in the tile.
+    :param limit: the most fields returned, largest part first.
+    :returns: ``(field, (row, column, height, width))`` in field pixels.
+    """
+    ty, tx = align["tiles"][site]
+    row, column, size = crop
+    corners = np.array([[ty + row, tx + column], [ty + row, tx + column + size],
+                        [ty + row + size, tx + column + size],
+                        [ty + row + size, tx + column]], float)
+    out = []
+    for info in align["fields"]:
+        if not info.get("files"):
+            continue
+        height, width = info["shape"]
+        inside = _well_to_field(info, corners)
+        top = int(np.clip(np.floor(inside[:, 0].min()), 0, height))
+        bottom = int(np.clip(np.ceil(inside[:, 0].max()), 0, height))
+        left = int(np.clip(np.floor(inside[:, 1].min()), 0, width))
+        right = int(np.clip(np.ceil(inside[:, 1].max()), 0, width))
+        if bottom - top >= 32 and right - left >= 32:
+            out.append((dict(info), (top, left, bottom - top, right - left)))
+    out.sort(key=lambda pair: -pair[1][2] * pair[1][3])
+    return out[:max(1, int(limit))]
+
+
+_PLANES: Dict[str, np.ndarray] = {}
+
+
+def _mosaic_window(result: Mapping[str, Any], window: Tuple[float, float, float, float],
+                   step: int) -> np.ndarray:
+    """The stitched nuclear stain over part of the block, at a chosen resolution.
+
+    Read from the tiles themselves, so a zoomed view stays sharp where the
+    whole-block mosaic, drawn every ``result['step']`` pixels, is coarse.
+
+    :param result: the Align & stitch result; its ``tile_sources``,
+        ``tiles`` and ``tile_shape`` are read.
+    :param window: ``(top, left, bottom, right)`` in the well frame.
+    :param step: well pixels per output pixel, 1 or more.
+    :returns: the window as float32, ``ceil(height / step)`` by
+        ``ceil(width / step)``.
+    """
+    from .ops_engine import _read_plane
+
+    step = max(1, int(step))
+    top, left, bottom, right = (float(v) for v in window)
+    out = np.zeros((max(1, int(np.ceil((bottom - top) / step))),
+                    max(1, int(np.ceil((right - left) / step)))), np.float32)
+    height, width = result["tile_shape"]
+    for site, (y, x) in result["tiles"].items():
+        y0, x0 = max(top, y), max(left, x)
+        y1, x1 = min(bottom, y + height), min(right, x + width)
+        if y1 <= y0 or x1 <= x0:
+            continue
+        source = result.get("tile_sources", {}).get(site)
+        if not source:
+            continue
+        key = f"{source[0]}|{source[1]}"
+        plane = _PLANES.get(key)
+        if plane is None:
+            plane = _read_plane(source, [])
+            if plane is None:
+                continue
+            if len(_PLANES) >= 8:
+                _PLANES.pop(next(iter(_PLANES)))
+            _PLANES[key] = plane
+        part = plane[int(y0 - y):int(y1 - y), int(x0 - x):int(x1 - x)]
+        small = _downsample(part, step) if step > 1 else np.asarray(part, np.float32)
+        oy, ox = int((y0 - top) // step), int((x0 - left) // step)
+        h = min(small.shape[0], out.shape[0] - oy)
+        w = min(small.shape[1], out.shape[1] - ox)
+        if h > 0 and w > 0:
+            out[oy:oy + h, ox:ox + w] = np.maximum(out[oy:oy + h, ox:ox + w],
+                                                   small[:h, :w])
+    return out
 
 
 def _write_crop(folder: Path, planes: Mapping[Tuple[int, str], np.ndarray]
@@ -930,14 +1129,14 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
 
     align = _result(ctx, "align", cancelled)
     index, reference = _sbs_index(ctx)
-    site = align["crop_site"]
-    y0, x0, size = align["crop"]
+    site, crop = _genotyped_crop(ctx, align)
+    y0, x0, size = crop
     sources = engine._plane_sources(index[reference][site])
     dapi = _read(ctx, sources.get(engine._NUCLEAR))
     if dapi is None:
         raise ValueError(f"tile {site} has no readable DAPI plane")
     dapi = np.ascontiguousarray(dapi[y0:y0 + size, x0:x0 + size])
-    nuclei_key = json.dumps([site, align["crop"], ctx.settings.get("ops_sbs_nucleus_model"),
+    nuclei_key = json.dumps([site, crop, ctx.settings.get("ops_sbs_nucleus_model"),
                              ctx.settings.get("cellpose_diameter"),
                              bool(ops_setting(ctx.settings, "ops_gpu")),
                              ctx.settings.get("mask_eval_batch_size"),
@@ -1046,7 +1245,7 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
                                    **_crosstalk_arguments(task))
                         if len(values) else ([], np.zeros(0)))
     return {
-        "site": site, "crop": align["crop"], "dapi": dapi, "nuclei": nuclei,
+        "site": site, "crop": crop, "dapi": dapi, "nuclei": nuclei,
         "peaks": peaks, "strength": strength, "reads": list(letters),
         "read_quality": np.asarray(quality, float), "cells": rows,
         "n_nuclei": int(len(labels)), "n_cycles": int(result.get("n_cycles") or 0),
@@ -1057,74 +1256,121 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
 
 
 def _run_objects(ctx: _Context, cancelled=None) -> Dict[str, Any]:
-    """Segment and measure one phenotype crop as the ``ph_segment`` and ``ph_measure`` phases do.
+    """Segment and measure the genotyped region on every phenotype field over it.
 
-    :returns: the crop, its nuclei and cells, any extra object layers and
-        the measured cell table.
+    The region is the sequencing crop Spots & genotyping reads
+    (:func:`_genotyped_crop`); each placed phenotype field over it is cut to
+    the part the crop covers (:func:`_region_windows`), up to the Objects
+    Sample (``ops_live_ph_fields``), and segmented and measured as the
+    ``ph_segment`` and ``ph_measure`` phases do. Without a placed field the
+    first phenotype field is cropped at its middle.
+
+    :returns: one part per field, each with its crop, nuclei, cells, extra
+        object layers and cell table; the first part's keys are repeated at
+        the top level, and ``table`` holds every part's cells with a
+        ``site`` column.
     """
+    import pandas as pd
+
     from . import ops_engine as engine
     from .ops_sample import measure_phenotype_field
 
     align = _result(ctx, "align", cancelled)
-    field_info = align["sample_field"]
-    if field_info is None:
-        files = _ph_index(ctx)
-        if not files:
-            raise _NotReady("phenotype")
-        site = sorted(files)[0]
-        field_info = {"site": site, "files": files[site], "shape": None}
     channels = engine._ph_channels(ctx.settings)
-    stack, key = _ph_stack(ctx, field_info, channels)
-    _check(cancelled)
-    info = dict(field_info)
-    info["shape"] = stack.shape[:2]
-    row, column, size = _ph_crop_window(info, bool(ctx.test_root))
-    crop = np.ascontiguousarray(stack[row:row + size, column:column + size])
-    masks_key = json.dumps([key, info["shape"], (row, column, size)] + [
+    site, crop = _genotyped_crop(ctx, align)
+    windows = _region_windows(align, site, crop,
+                              _live_int(ctx.settings, "ops_live_ph_fields", 9))
+    if not windows:
+        field_info = align["sample_field"]
+        if field_info is None:
+            files = _ph_index(ctx)
+            if not files:
+                raise _NotReady("phenotype")
+            first = sorted(files)[0]
+            field_info = {"site": first, "files": files[first], "shape": None}
+        windows = [(dict(field_info), None)]
+    parts: List[Dict[str, Any]] = []
+    for field_info, window in windows:
+        stack, key = _ph_stack(ctx, field_info, channels)
+        _check(cancelled)
+        info = dict(field_info)
+        info["shape"] = stack.shape[:2]
+        if window is None:
+            row, column, size = _ph_crop_window(info, bool(ctx.test_root))
+            window = (row, column, size, size)
+        row, column, height, width = window
+        part_crop = np.ascontiguousarray(stack[row:row + height, column:column + width])
+        nuclei, cells = _ph_masks(ctx, field_info, key, info["shape"], window,
+                                  part_crop, channels, cancelled)
+        layers: Dict[str, np.ndarray] = {}
+        for layer in _OBJECT_LAYERS:
+            layers.update(layer(ctx.settings, part_crop, channels, nuclei, cells) or {})
+        table = measure_phenotype_field(
+            nuclei, cells, part_crop, channels,
+            texture=bool(ctx.settings.get("ops_ph_texture", True)),
+            funk_features=bool(ctx.settings.get("ops_ph_funk_features", False)),
+            zernike=bool(ctx.settings.get("ops_ph_zernike", False)),
+            gpu=bool(ctx.settings.get("ops_ph_measure_gpu", False)),
+            profile_features=engine._ph_profile_features(ctx.settings),
+            granularity_subsample=float(
+                engine._ph_granularity_subsample(ctx.settings) or 1.0))
+        _check(cancelled)
+        if "site" not in table.columns:
+            table.insert(0, "site", int(field_info["site"]))
+        else:
+            table["site"] = int(field_info["site"])
+        parts.append({"site": int(field_info["site"]),
+                      "window": (row, column, height, width),
+                      "stack": part_crop, "nuclei": nuclei, "cells": cells,
+                      "layers": layers, "table": table})
+    first = parts[0]
+    joined = pd.concat([p["table"] for p in parts], ignore_index=True)
+    return {"site": first["site"], "window": first["window"], "stack": first["stack"],
+            "channels": list(channels), "nuclei": first["nuclei"],
+            "cells": first["cells"], "layers": first["layers"], "table": joined,
+            "parts": parts, "sbs_site": int(site), "sbs_crop": tuple(crop),
+            "cell_channel": str(ctx.settings.get("ops_ph_cell_channel") or "AF750")}
+
+
+def _ph_masks(ctx: _Context, field_info: Mapping[str, Any], key: tuple,
+              shape: Tuple[int, int], window: Tuple[int, int, int, int],
+              crop: np.ndarray, channels: Sequence[str], cancelled=None
+              ) -> Tuple[np.ndarray, np.ndarray]:
+    """The nuclei and cells of one phenotype crop, kept until a segmentation setting changes."""
+    from . import ops_engine as engine
+
+    masks_key = json.dumps([key, shape, window] + [
         ctx.settings.get(name) for name in (
             "ops_ph_nucleus_model", "ops_ph_cell_model", "ops_ph_nucleus_diameter",
             "ops_ph_cell_diameter", "ops_ph_downsample", "mask_eval_batch_size",
             "ops_ph_tile_batch", "mask_inference_precision", "batch_size",
             "ops_ph_cell_channel", "ops_gpu")], default=str)
-    held = ctx.cache.get("_ph_masks")
-    if held is not None and held[0] == masks_key:
-        nuclei, cells = held[1]
-    else:
-        nucleus_model = _model(ctx, "ops_ph_nucleus_model")
-        same = (str(ctx.settings.get("ops_ph_cell_model") or "cpsam")
-                == str(ctx.settings.get("ops_ph_nucleus_model") or "cpsam"))
-        models = (nucleus_model, nucleus_model if same else
-                  _model(ctx, "ops_ph_cell_model"))
-        _check(cancelled)
-        from ._mask_array_batches import _array_batches
-
-        def load_crop(_record):
-            """Keep the same prepared phenotype crop for its two mask roles."""
-            return crop, None
-
-        with _array_batches([field_info['site']], load_crop, ctx.settings,
-                            gpu=bool(ops_setting(ctx.settings, "ops_gpu"))) as resident:
-            for _site, image, _metadata, field_count in resident:
-                nuclei, cells, _paired = engine._ph_segment_field(
-                    image, channels, models, ctx.settings, field_count=field_count)
-        ctx.cache["_ph_masks"] = (masks_key, (nuclei, cells))
+    held = ctx.cache.setdefault("_ph_masks", {})
+    if not isinstance(held, dict):
+        held = ctx.cache["_ph_masks"] = {}
+    if masks_key in held:
+        return held[masks_key]
+    nucleus_model = _model(ctx, "ops_ph_nucleus_model")
+    same = (str(ctx.settings.get("ops_ph_cell_model") or "cpsam")
+            == str(ctx.settings.get("ops_ph_nucleus_model") or "cpsam"))
+    models = (nucleus_model, nucleus_model if same else
+              _model(ctx, "ops_ph_cell_model"))
     _check(cancelled)
-    layers: Dict[str, np.ndarray] = {}
-    for layer in _OBJECT_LAYERS:
-        layers.update(layer(ctx.settings, crop, channels, nuclei, cells) or {})
-    table = measure_phenotype_field(
-        nuclei, cells, crop, channels,
-        texture=bool(ctx.settings.get("ops_ph_texture", True)),
-        funk_features=bool(ctx.settings.get("ops_ph_funk_features", False)),
-        zernike=bool(ctx.settings.get("ops_ph_zernike", False)),
-        gpu=bool(ctx.settings.get("ops_ph_measure_gpu", False)),
-        profile_features=engine._ph_profile_features(ctx.settings),
-        granularity_subsample=float(
-            engine._ph_granularity_subsample(ctx.settings) or 1.0))
-    return {"site": int(field_info["site"]), "window": (row, column, size),
-            "stack": crop, "channels": list(channels), "nuclei": nuclei,
-            "cells": cells, "layers": layers, "table": table,
-            "cell_channel": str(ctx.settings.get("ops_ph_cell_channel") or "AF750")}
+    from ._mask_array_batches import _array_batches
+
+    def load_crop(_record):
+        """Keep the same prepared phenotype crop for its two mask roles."""
+        return crop, None
+
+    with _array_batches([field_info['site']], load_crop, ctx.settings,
+                        gpu=bool(ops_setting(ctx.settings, "ops_gpu"))) as resident:
+        for _site, image, _metadata, field_count in resident:
+            nuclei, cells, _paired = engine._ph_segment_field(
+                image, channels, models, ctx.settings, field_count=field_count)
+    if len(held) >= 9:
+        held.pop(next(iter(held)))
+    held[masks_key] = (nuclei, cells)
+    return nuclei, cells
 
 
 def _ph_stack(ctx: _Context, field_info: Mapping[str, Any],
@@ -1140,16 +1386,18 @@ def _ph_stack(ctx: _Context, field_info: Mapping[str, Any],
     from . import ops_engine as engine
 
     key = ("_ph_stack", int(field_info["site"]), tuple(channels))
-    held = ctx.cache.get("_ph_stack")
-    if held is not None and held[0] == key:
-        return held[1], key
+    held = ctx.cache.setdefault("_ph_stacks", {})
+    if key in held:
+        return held[key], key
     unreadable: list = []
     stack = engine._ph_read_field(field_info["files"], list(channels), unreadable,
                                   None)
     if stack is None:
         raise ValueError(f"phenotype field {field_info['site']} could not be "
                          f"read: {unreadable[:1]}")
-    ctx.cache["_ph_stack"] = (key, stack)
+    if len(held) >= 4:
+        held.pop(next(iter(held)))
+    held[key] = stack
     return stack, key
 
 
@@ -1390,14 +1638,16 @@ def _tile_affine_placement(ctx: _Context, plate: str,
             "sbs": np.asarray(sbs, np.float32), "phenotype": sampled}
 
 
-def _aggregation_inputs(ctx: _Context, db: str, plate: str
-                        ) -> Dict[str, Any]:
+def _aggregation_inputs(ctx: _Context, db: str, plate: str,
+                        block: Optional[Sequence[int]] = None) -> Dict[str, Any]:
     """Put the aggregation set's nuclei, calls and cells in the workspace.
 
     For the test data these are its stored step outputs (``reference/``);
     for a user's data, the same tables of the user's finished run
     (``dst_root``), read and copied, never written.
 
+    :param block: the sequencing tiles of the region shown; the regions
+        tier keeps one reference set per block under ``reference/regions``.
     :returns: what was used, for the tab to say.
     :raises _NotReady: when there is no finished run to read.
     """
@@ -1410,6 +1660,11 @@ def _aggregation_inputs(ctx: _Context, db: str, plate: str
     target = _ph_cells_path(str(ctx.folder), ctx.well)
     if ctx.test_root is not None:
         ref = ctx.test_root / "reference"
+        regions = ref / "regions"
+        if regions.is_dir():
+            name = "block_" + "-".join(str(int(t)) for t in sorted(block or ()))
+            blocks = sorted(p for p in regions.iterdir() if p.is_dir())
+            ref = regions / name if (regions / name).is_dir() else blocks[0]
         for table, path in (("ops_objects", "objects/ops_objects.parquet"),
                             ("ops_barcodes", "genotype/ops_barcodes.parquet")):
             _replace_well_rows(db, table, pd.read_parquet(ref / path), plate,
@@ -1418,8 +1673,12 @@ def _aggregation_inputs(ctx: _Context, db: str, plate: str
                     target)
         masks = ctx.folder / ctx.well / "phenotype_masks"
         masks.mkdir(parents=True, exist_ok=True)
-        for path in sorted((ref / "phenotype" / "phenotype_masks").glob("site-*.npz")):
-            if not (masks / path.name).is_file():
+        for path in sorted((ref / "phenotype" / "phenotype_masks").iterdir()):
+            if (masks / path.name).exists():
+                continue
+            if path.is_dir():
+                shutil.copytree(path, masks / path.name)
+            elif path.suffix == ".npz" or path.name.endswith(".json"):
                 shutil.copy(path, masks / path.name)
         return {"kind": "test", "path": str(ref), "masks": True}
     run = str(ctx.settings.get("dst_root") or "")
@@ -1464,7 +1723,7 @@ def _run_merge(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     if not align["fields"]:
         raise _NotReady("fields")
     db, plate = align["db"], align["plate"]
-    used = _aggregation_inputs(ctx, db, plate)
+    used = _aggregation_inputs(ctx, db, plate, align.get("block"))
     settings = _preview_settings(ctx.settings, ctx.folder)
     settings["ops_sites"] = align["sample_block"]
     phases = ["ph_masks", "merge"] if used.get("masks") else ["merge"]
@@ -1496,6 +1755,9 @@ def _run_merge(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         per_field.append({"site": int(site), "cells": int(len(group)),
                           "matched": int(matched)})
     placed = pd.concat(points, ignore_index=True) if points else pd.DataFrame()
+    shown = _live_int(ctx.settings, "ops_live_merge_fields", 0)
+    if shown > 0:
+        per_field = sorted(per_field, key=lambda f: -f["cells"])[:shown]
     profiles = _profiles_root() if ctx.test_root is not None else None
     if profiles is not None:
         genes, used = _profile_genes(ctx.settings, profiles), {
@@ -1503,6 +1765,7 @@ def _run_merge(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     return {"report": merge_report, "used": used, "genes": genes,
             "merged": merged, "objects": objects, "cells": placed,
             "per_field": per_field, "align": align,
+            "control_prefix": str(ctx.settings.get("ops_control_prefix") or "nontargeting"),
             "aggregate": {k: v for k, v in (aggregate.get("aggregate") or {}).items()
                           if not isinstance(v, (dict, list))}}
 
@@ -1605,6 +1868,10 @@ def _run_cluster(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     prefix = str(ctx.settings.get("ops_control_prefix") or "nontargeting").lower()
     names = kept["gene"].astype(str)
     kept = kept[~names.str.lower().str.startswith(prefix)].reset_index(drop=True)
+    most = _live_int(ctx.settings, "ops_live_genes", 0)
+    if most > 0 and len(kept) > most and "n_cells" in kept.columns:
+        kept = kept.sort_values("n_cells", ascending=False, kind="stable"
+                                ).head(most).reset_index(drop=True)
     numeric = [c for c in kept.columns
                if c not in ("gene", "n_cells", "n_guides", "sgRNA")
                and np.issubdtype(kept[c].dtype, np.number)
@@ -1628,11 +1895,71 @@ def _run_cluster(ctx: _Context, cancelled=None) -> Dict[str, Any]:
     except ImportError:
         note = "install the clustering extra (pip install spacr[clustering]) to see the clusters"
     return {"genes": kept["gene"].astype(str).tolist(), "components": components,
+            "n_cells": (kept["n_cells"].to_numpy(float).tolist()
+                        if "n_cells" in kept.columns else None),
             "string": _string_score(kept["gene"].astype(str).tolist(), labels, prefix),
             "n_components": n_components, "n_features": n_features,
             "labels": labels, "kind": kind, "k": k, "resolution": resolution,
             "seed": seed, "floor": floor, "note": note,
             "total_genes": int(len(genes))}
+
+
+def _run_voyager3(ctx: _Context, cancelled=None) -> Dict[str, Any]:
+    """Name the role of the preview clusters with Voyager3, as the ``voyager3`` phase does.
+
+    The Clustering tab clusters are written as a cluster table in the
+    preview workspace and :func:`spacr.voyager3.run_voyager3` reads it with
+    the form's ``ops_voyager3_*`` settings, writing into the workspace. The
+    largest clusters are annotated, as many as the Voyager3 Sample
+    (``ops_live_voyager3_clusters``, 0 for all) asks.
+
+    :returns: the cluster and candidate tables Voyager3 wrote, the method
+        and provider, and the progress lines.
+    :raises _NotReady: when the Clustering tab made no clusters.
+    """
+    import pandas as pd
+
+    from .tabular import read_table
+    from .voyager3 import run_voyager3
+
+    clustered = _result(ctx, "cluster", cancelled)
+    labels = clustered.get("labels")
+    if labels is None:
+        raise _NotReady("clusters")
+    folder = ctx.folder / "voyager3"
+    folder.mkdir(parents=True, exist_ok=True)
+    table = pd.DataFrame({"gene": list(clustered["genes"]),
+                          "cluster": [int(c) for c in labels]})
+    source = folder / "live_clusters.csv"
+    table.to_csv(source, index=False)
+    sizes = table.groupby("cluster")["gene"].nunique().sort_values(ascending=False, kind="stable")
+    sizes = sizes[sizes >= 2]
+    if sizes.empty:
+        raise _NotReady("clusters")
+    most = _live_int(ctx.settings, "ops_live_voyager3_clusters", 3)
+    chosen = [str(c) for c in (sizes.index[:most] if most > 0 else sizes.index)]
+    settings = _preview_settings(ctx.settings, ctx.folder)
+    settings.update({"ops_voyager3_clusters": str(source),
+                     "ops_voyager3_cluster_column": "cluster",
+                     "ops_voyager3_cluster_ids": ",".join(chosen)})
+    lines: List[str] = []
+
+    def say(text: str) -> None:
+        """Keep the progress line and stop here when the pass was cancelled."""
+        lines.append(str(text))
+        _check(cancelled)
+
+    run = run_voyager3(settings, report=say, out_dir=str(folder / "out"))
+    outputs = run["outputs"]
+    clusters = read_table(outputs["clusters"], canonicalise=False, report=None)
+    candidates = read_table(outputs["candidates"], canonicalise=False, report=None)
+    with open(run["provenance"], encoding="utf-8") as handle:
+        provenance = json.load(handle)
+    return {"clusters": clusters, "candidates": candidates,
+            "method": str(provenance.get("method") or "ai"),
+            "provider": str(provenance.get("provider_label") or provenance.get("provider") or ""),
+            "model": str(provenance.get("model") or ""), "lines": lines,
+            "annotated": len(chosen), "total_clusters": int(len(sizes))}
 
 
 _RUNNERS: Dict[str, Callable[..., Dict[str, Any]]] = {
@@ -1641,6 +1968,7 @@ _RUNNERS: Dict[str, Callable[..., Dict[str, Any]]] = {
     "objects": _run_objects,
     "merge": _run_merge,
     "cluster": _run_cluster,
+    "voyager3": _run_voyager3,
 }
 
 
@@ -1651,7 +1979,7 @@ def _run_step(form: Mapping[str, Any], step: str, cache: dict,
     """Run one tab's step with the form's settings, reusing the cache.
 
     :param form: the settings on the OPS form.
-    :param step: one of the five steps.
+    :param step: one of the steps in ``_STEPS``.
     :param cache: kept by the panel between passes.
     :param cancelled: answers whether the pass was cancelled.
     :param steps: the setting-to-step map, when the caller holds it.

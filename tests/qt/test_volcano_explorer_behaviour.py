@@ -472,7 +472,7 @@ def test_the_menu_and_the_panel_offer_the_same_closed_sets(qtbot, subtests):
 
 def test_a_limit_or_label_typed_into_the_menu_reaches_figure_panel_and_file(
         qtbot, tmp_path, monkeypatch, subtests):
-    """Measured off the axes, the side panel and the written SVG."""
+    """Keep exact manual limits in the axes and panel, and match every visible automatic tick in the SVG regardless of physical panel width."""
     with subtests.test(msg="an x limit"):
         explorer = _build(qtbot)
         answers = iter([(-8.0, True), (8.0, True)])
@@ -486,8 +486,9 @@ def test_a_limit_or_label_typed_into_the_menu_reaches_figure_panel_and_file(
         path = tmp_path / "limited.svg"
         assert explorer.export("svg", str(path)) == str(path)
         written = path.read_text(encoding="utf-8")
-        ticks = [t.get_text() for t in explorer._panels[0].get_xticklabels()]
-        assert "−8" in ticks
+        ticks = [label.get_text() for value, label in zip(explorer._panels[0].get_xticks(),
+                 explorer._panels[0].get_xticklabels()) if -8. <= value <= 8.]
+        assert ticks and all(-8. <= float(value.replace("−", "-")) <= 8. for value in ticks)
         assert [tick for tick in ticks if tick not in written] == []
 
     with subtests.test(msg="an x label"):

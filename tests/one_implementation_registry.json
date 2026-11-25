@@ -170,12 +170,29 @@
     },
     "phate_leiden": {
       "description": "PHATE graph and Leiden/Louvain clustering.",
-      "owners": ["spacr/ops_clusters.py"],
-      "owner_function": "spacr.ops_clusters.leiden_partitions(gene_graph(...))",
+      "owners": [],
+      "owner_functions": {"spacr/ops_clusters.py": ["_phate_graph", "leiden_partitions"]},
+      "owner_function": "spacr.ops_clusters._phate_graph (the PHATE graph) / leiden_partitions (every Leiden call)",
       "calls": ["phate.PHATE", "leidenalg.find_partition", "igraph.Graph.community_leiden",
                 "community.best_partition", "scanpy.tl.leiden", "scanpy.tl.louvain",
                 "networkx.algorithms.community.louvain_communities",
-                "networkx.community.louvain_communities"]
+                "networkx.community.louvain_communities"],
+      "covered_by": "phate_leiden, gene_graph, fused_phate_graph and leiden_short: audit D10"
+    },
+    "label_pair_contingency": {
+      "description": "Pixel overlap counts of every object pair of two label images (agreement, IoU, pairing).",
+      "owners": ["spacr/measure.py"],
+      "owner_function": "spacr.measure._label_overlaps",
+      "detector": "label_pair_counts",
+      "covered_by": "ops_large_sites agreement (mask_agreement, _split_merge, tiling_control) and model_compare.object_overlap: audit B19"
+    },
+    "column_standardise": {
+      "description": "Column mean and SD for centring and scaling profiles (x.std(0) written in place).",
+      "owners": [],
+      "owner_functions": {"spacr/ops_tvn.py": ["batch_mean_sd"]},
+      "owner_function": "spacr.ops_tvn.batch_mean_sd (one batch: ops_tvn._column_mean_sd)",
+      "detector": "column_std",
+      "covered_by": "the profile embedders, TVNModel.standardise and the c0 recipe: audit D6 and D8"
     },
     "fdr_adjust": {
       "description": "Multiple-testing correction (BH and friends).",
@@ -226,6 +243,14 @@
       "owners": ["spacr/ops_flatfield.py"],
       "owner_function": "spacr.ops_flatfield (item 1009)",
       "delegated_to": "item 1009 (no AST signature: the estimators use generic numpy)"
+    },
+    "field_seam_ownership": {
+      "description": "Which overlapping field owns a cell imaged in two or more fields (seam ownership): the copies matched across fields and one owner per physical cell, the field whose centre is nearest the cell centroid among the fields that hold it whole.",
+      "owners": ["spacr/ops_merge.py"],
+      "owner_function": "spacr.ops_merge._match_copies_by_centroid / _assign_field_owners",
+      "covered_by": "OPS ph_ownership (ops_cross_field_ownership, the item 874 rule corrected), the merge pairing (owner copy first), aggregate, ph_tables and the crops: ws-offload-ws-ops-seam-ownership",
+      "no_signature": "nearest-centre and edge tests are generic numpy, so no AST signature; callers call the owner functions",
+      "remaining": "ops_ownership 'a1'/'a1b' in ops_engine._ph_merge (deprecated, deepest in the footprint) and the large-site tile stitch in ops_large_sites (deepest from an inner tile edge, painted into one label image)"
     }
   }
 }

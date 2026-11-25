@@ -1300,8 +1300,8 @@ def test_figures_are_created_and_closed(tmp_path):
 
     per_well = out["figures"]["per_well"]
     by_condition = out["figures"]["by_condition"]
-    assert per_well.axes[0].get_title() == "Invasion — per well"
-    assert by_condition.axes[0].get_title() == "Invasion — by condition"
+    assert per_well._spacr_caption == "Invasion — per well"
+    assert by_condition._spacr_caption == "Invasion — by condition"
     for figure in (per_well, by_condition):
         assert figure.axes[0].get_legend().get_title().get_text() == \
             "Parasite class"
@@ -1312,7 +1312,7 @@ def test_figures_are_created_and_closed(tmp_path):
 
 def test_every_bar_is_annotated_with_its_denominator(tmp_path):
     """A stacked proportion bar hides its n; the assay's whole point is that
-    the n matters, so it is written on the bar."""
+    the n matters, so it is retained with its well identity in the legend."""
     from spacr.submodules import analyze_invasion
 
     src = write_db(tmp_path / "p", [
@@ -1320,8 +1320,9 @@ def test_every_bar_is_annotated_with_its_denominator(tmp_path):
         {"row": "r1", "column": "c2", "outside": split(300, 300)},
     ])
     out = analyze_invasion(settings_for(src))
-    texts = {t.get_text() for t in out["figures"]["per_well"].axes[0].texts}
-    assert {"n=10", "n=600"} <= texts
+    entries = out['figures']['per_well'].axes[0]._spacr_legend_entries
+    texts = {entry['label'] for entry in entries}
+    assert {'plate1_r1_c1: n=10', 'plate1_r1_c2: n=600'} <= texts
 
 
 def test_the_threshold_figure_shows_the_distribution_it_was_taken_from(tmp_path):
@@ -1337,7 +1338,9 @@ def test_the_threshold_figure_shows_the_distribution_it_was_taken_from(tmp_path)
     drawn = [axis for axis in figure.axes if axis.get_title()]
     assert len(drawn) == 2
     titles = " ".join(axis.get_title() for axis in drawn)
-    assert "plate1_r1_c1" in titles and "n=60" in titles and "BC=1.00" in titles
+    assert "plate1_r1_c1" in titles
+    notes = ' '.join(entry['label'] for axis in drawn for entry in axis._spacr_legend_entries)
+    assert 'n=60' in notes and 'bimodality coefficient=1.00' in notes
     # A vertical line at the threshold each panel used.
     for axis in drawn:
         positions = [line.get_xdata()[0] for line in axis.lines]
@@ -1355,7 +1358,8 @@ def test_the_threshold_figure_caps_how_many_panels_it_draws(tmp_path):
 
     drawn = [axis for axis in figure.axes if axis.get_title()]
     assert len(drawn) == 2
-    assert "first 2 wells" in figure._suptitle.get_text()
+    assert "first 2 wells" in figure._spacr_caption
+    assert [axis.get_title() for axis in drawn] == ['plate1_r1_c1', 'plate1_r2_c1']
 
 
 def test_a_single_condition_still_draws_bars_with_empty_stats(tmp_path):
@@ -1370,7 +1374,7 @@ def test_a_single_condition_still_draws_bars_with_empty_stats(tmp_path):
 
     assert np.isnan(out["chi_squared"]["p_value"].iloc[0])
     assert len(out["chi_squared_pairwise"]) == 0
-    assert out["figures"]["by_condition"].axes[0].get_title() == \
+    assert out["figures"]["by_condition"]._spacr_caption == \
         "Invasion — by condition"
 
 

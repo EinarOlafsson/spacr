@@ -1,0 +1,3330 @@
+{
+  "dark/GradCAMGenerator1": {
+    "figure0_axes0_image0": {
+      "dtype": "<f4",
+      "sha256": "4bd1a01568eb222952d83eccca920c399eb5092a721e3043def1bacfd444b5b7",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes0_image1": {
+      "dtype": "<f4",
+      "sha256": "bc6192c6efeedad18925f585b2926e337736274b96ed39e2a4152f7a889bdd85",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "figure0_axes1_image0": {
+      "dtype": "<f4",
+      "sha256": "01c97a1882864fd919bceb2a9391bdb684717047e43d951f2ef24056714a1ec8",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes1_image1": {
+      "dtype": "<f4",
+      "sha256": "96d6a1a8c16c291381f00c21536d7bfdd682569266773c73c20f90660b3fbc66",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "input": {
+      "dtype": "<f4",
+      "sha256": "26e822a5ccc4e034a3e9581edf692391d2adc0906b1d3b142fa4a554e4517d98",
+      "shape": [
+        2,
+        3,
+        4,
+        4
+      ]
+    },
+    "maps": {
+      "dtype": "<f4",
+      "sha256": "79969a081f47019cd3f704c10648d6021a76af508a85516c480f8e6e0cf0dbea",
+      "shape": [
+        2,
+        1,
+        4,
+        4
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "prediction": {
+      "dtype": "<i8",
+      "sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+      "shape": [
+        2
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "dark/SaliencyMapGenerator1": {
+    "figure0_axes0_image0": {
+      "dtype": "<f4",
+      "sha256": "4bd1a01568eb222952d83eccca920c399eb5092a721e3043def1bacfd444b5b7",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes0_image1": {
+      "dtype": "<f4",
+      "sha256": "bc6192c6efeedad18925f585b2926e337736274b96ed39e2a4152f7a889bdd85",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "figure0_axes1_image0": {
+      "dtype": "<f4",
+      "sha256": "01c97a1882864fd919bceb2a9391bdb684717047e43d951f2ef24056714a1ec8",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes1_image1": {
+      "dtype": "<f4",
+      "sha256": "96d6a1a8c16c291381f00c21536d7bfdd682569266773c73c20f90660b3fbc66",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "input": {
+      "dtype": "<f4",
+      "sha256": "26e822a5ccc4e034a3e9581edf692391d2adc0906b1d3b142fa4a554e4517d98",
+      "shape": [
+        2,
+        3,
+        4,
+        4
+      ]
+    },
+    "maps": {
+      "dtype": "<f4",
+      "sha256": "79969a081f47019cd3f704c10648d6021a76af508a85516c480f8e6e0cf0dbea",
+      "shape": [
+        2,
+        1,
+        4,
+        4
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "prediction": {
+      "dtype": "<i8",
+      "sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+      "shape": [
+        2
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "dark/SaliencyMapGenerator3": {
+    "figure0_axes0_image0": {
+      "dtype": "<f4",
+      "sha256": "4bd1a01568eb222952d83eccca920c399eb5092a721e3043def1bacfd444b5b7",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes0_image1": {
+      "dtype": "<f4",
+      "sha256": "1ca2c5dfa671d4bf51a00d6d3e1c991231545c78a4520aaddc7ce266ce0bc3a2",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes1_image0": {
+      "dtype": "<f4",
+      "sha256": "01c97a1882864fd919bceb2a9391bdb684717047e43d951f2ef24056714a1ec8",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes1_image1": {
+      "dtype": "<f4",
+      "sha256": "10f0b90e10ac8e71211d08c6e0570559d599cbdb547f19b501c426a5f221e6b1",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "input": {
+      "dtype": "<f4",
+      "sha256": "26e822a5ccc4e034a3e9581edf692391d2adc0906b1d3b142fa4a554e4517d98",
+      "shape": [
+        2,
+        3,
+        4,
+        4
+      ]
+    },
+    "maps": {
+      "dtype": "<f4",
+      "sha256": "c1e3886dfa86454670dcab7898e6c464689832e5c77acbb10d8b1a5bbc459660",
+      "shape": [
+        2,
+        3,
+        4,
+        4
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "prediction": {
+      "dtype": "<i8",
+      "sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+      "shape": [
+        2
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "dark/class_exemplar": {
+    "figure0_axes0_image0": {
+      "dtype": "<f4",
+      "sha256": "996138c984658c6ab811ea10d1e81387c6ba9c26c0f3488c051562a1b2486d65",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "model_1.bias": {
+      "dtype": "<f4",
+      "sha256": "8904eef47d32c242aa0f7a3bb747a1ab0fb501de860be81d63165a31471d3f6e",
+      "shape": [
+        1
+      ]
+    },
+    "model_1.weight": {
+      "dtype": "<f4",
+      "sha256": "88e9dcbf9bf9e3ca407551c6adf7cbc9de3ce8eb225d9a042bdd6fc74f7be13e",
+      "shape": [
+        1,
+        48
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "python_rng_after": "ca1796abf84ee2b85763ebd272d002fae6db148f9c823df5355fc1c1fda4b558",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "returned_image": {
+      "dtype": "<f4",
+      "sha256": "996138c984658c6ab811ea10d1e81387c6ba9c26c0f3488c051562a1b2486d65",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "43d14e858b4ecbfde1d1c6066b4afb754fa02d156f4d46025cbfa3dc9ea36b33",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "dark/embedding": {
+    "embedding": {
+      "dtype": "<f8",
+      "sha256": "fc156642b2c7e0e221216afcfc92317b02968753f4b2f3a0615592fbbc855a39",
+      "shape": [
+        7,
+        2
+      ]
+    },
+    "figure0_axes0_line0_x": {
+      "dtype": "<f8",
+      "sha256": "3e5c4bf6e06464f0ef840ab250e3b5b81f080140bb5d5fd3478f9dd0b0839872",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line0_y": {
+      "dtype": "<f8",
+      "sha256": "40a9acda3875e9f843c7faec3ba189b166561c10f4a14a5489d5d2bf9340104a",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line1_x": {
+      "dtype": "<f8",
+      "sha256": "9268b051ba6a96aea257eeb250cd5b236571933b55ff8fde1d3e3370b4cb243b",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line1_y": {
+      "dtype": "<f8",
+      "sha256": "3393d543775c396f4858870c00f209afa11a1299a928c957f6cbbc3ff85657c5",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line2_x": {
+      "dtype": "<f8",
+      "sha256": "842e2b371ec3e5f2e07b2d38a3d7158c5acd1d8feffc7b729b1a83e9ffc82dee",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line2_y": {
+      "dtype": "<f8",
+      "sha256": "3393d543775c396f4858870c00f209afa11a1299a928c957f6cbbc3ff85657c5",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line3_x": {
+      "dtype": "<f8",
+      "sha256": "6c47ec4ff0afc721fa5830c132237adc278de5a1b2dc86ad21bb7771b0e30d78",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line3_y": {
+      "dtype": "<f8",
+      "sha256": "821daf72547e3f9d53b1032686f5a145ebebe0131a03a8cc1afd5fb403ad6870",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line4_x": {
+      "dtype": "<f8",
+      "sha256": "57bb4c356352543df89d647d86cd2d507a1bf82bc79cc7c7adc3199b0966534a",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line4_y": {
+      "dtype": "<f8",
+      "sha256": "7533016c67528436030131572c2f7454602466e847abda4b552586f6ce6ccd1f",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line5_x": {
+      "dtype": "<f8",
+      "sha256": "1e177eb7a4affe4f635e56be99c0478062ee28388ad92b9d3740f80a1149727c",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line5_y": {
+      "dtype": "<f8",
+      "sha256": "3393d543775c396f4858870c00f209afa11a1299a928c957f6cbbc3ff85657c5",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+      "shape": [
+        1,
+        2
+      ]
+    },
+    "figure0_axes0_scatter1": {
+      "dtype": "<f8",
+      "sha256": "6ed59cb69526c234170225101be9d0b60f6b8896bad1657cdf527c82d2e62b9c",
+      "shape": [
+        3,
+        2
+      ]
+    },
+    "figure0_axes0_scatter2": {
+      "dtype": "<f8",
+      "sha256": "f1c0fa40510fdc94f7f01d6ed0d1ebaa9b4eb111d26fb77b8381500d4d0012f6",
+      "shape": [
+        3,
+        2
+      ]
+    },
+    "figure0_axes0_thumbnail0": {
+      "dtype": "|u1",
+      "sha256": "dc439a7f3f7e57e89f27caf59fde0239a3ce73150cca6feedec7ab3a8cf71c54",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_thumbnail0_xy": {
+      "dtype": "<f8",
+      "sha256": "af7a901f0a85ce6dfc0c772b288b49d12a18a42d95b22dd4e2dfa15370eaf493",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_thumbnail1": {
+      "dtype": "|u1",
+      "sha256": "cc92489db4ce20bd8359b7f35e2247010dbd974d78db9c0aeb3e3065cae3d2b0",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_thumbnail1_xy": {
+      "dtype": "<f8",
+      "sha256": "df05c72cdcfe99ccd882da2c3bc3baa09f168f62109ccac2298e4a99a086828f",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_thumbnail2": {
+      "dtype": "|u1",
+      "sha256": "ed407e756bc05e7a9398d075ed92f824a1efe1f1a53e958cb27cd0478f14932c",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_thumbnail2_xy": {
+      "dtype": "<f8",
+      "sha256": "fa0d50489515175d6a6f92759e2638a75a78f4ac5169762d1bd0492bfb8175ff",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_thumbnail3": {
+      "dtype": "|u1",
+      "sha256": "dce9a0585906f51ad781aadac81845ad70f5ff29c44955c8608ae7c625bcdcec",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_thumbnail3_xy": {
+      "dtype": "<f8",
+      "sha256": "255762239056cf1447c9742534ad7622b6acfe2ba2a4984088dbfe44aca896bd",
+      "shape": [
+        2
+      ]
+    },
+    "labels": {
+      "dtype": "<i8",
+      "sha256": "ac43ad0035c0bd7a6e0eed95b4cfce85536458f67ea169c81e246903d40f71a0",
+      "shape": [
+        7
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "python_rng_after": "741c1d7eb4626d67761aef77ead4824eb9ba431d088ab2f4ca5fdec159559d33",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "source_ids": [
+      "crop0.png",
+      "crop1.png",
+      "crop2.png",
+      "crop3.png",
+      "crop4.png",
+      "crop5.png",
+      "crop6.png"
+    ],
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "dark/gallery": {
+    "embedding": {
+      "dtype": "<f8",
+      "sha256": "fc156642b2c7e0e221216afcfc92317b02968753f4b2f3a0615592fbbc855a39",
+      "shape": [
+        7,
+        2
+      ]
+    },
+    "figure0_axes0_inset0_image0": {
+      "dtype": "|u1",
+      "sha256": "dc439a7f3f7e57e89f27caf59fde0239a3ce73150cca6feedec7ab3a8cf71c54",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_inset1_image0": {
+      "dtype": "|u1",
+      "sha256": "cc92489db4ce20bd8359b7f35e2247010dbd974d78db9c0aeb3e3065cae3d2b0",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes1_inset0_image0": {
+      "dtype": "|u1",
+      "sha256": "ed407e756bc05e7a9398d075ed92f824a1efe1f1a53e958cb27cd0478f14932c",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes1_inset1_image0": {
+      "dtype": "|u1",
+      "sha256": "dce9a0585906f51ad781aadac81845ad70f5ff29c44955c8608ae7c625bcdcec",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "labels": {
+      "dtype": "<i8",
+      "sha256": "ac43ad0035c0bd7a6e0eed95b4cfce85536458f67ea169c81e246903d40f71a0",
+      "shape": [
+        7
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "python_rng_after": "741c1d7eb4626d67761aef77ead4824eb9ba431d088ab2f4ca5fdec159559d33",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "source_ids": [
+      "crop0.png",
+      "crop1.png",
+      "crop2.png",
+      "crop3.png",
+      "crop4.png",
+      "crop5.png",
+      "crop6.png"
+    ],
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "dark/metrics": {
+    "figure0_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "9b4eb0296460ee408da15ba5d0fd3fab3495ed245d19c296d117cd53fbbb4585",
+      "shape": [
+        32,
+        2
+      ]
+    },
+    "figure0_axes1_line0_x": {
+      "dtype": "<f8",
+      "sha256": "809945c83bd18ed7ca551ec79ec291608657ab9e93fed397f7257d9b66dfe9d7",
+      "shape": [
+        200
+      ]
+    },
+    "figure0_axes1_line0_y": {
+      "dtype": "<f8",
+      "sha256": "218597084bd6e0d14eaae667d6d4733fc16d67f8b015a9ada8cf01636a994f41",
+      "shape": [
+        200
+      ]
+    },
+    "figure0_axes1_patch_geometry": {
+      "dtype": "<f8",
+      "sha256": "fd4dbe63c8a72c5ab741470142abd08689defbfc1a7bb948008bbffbfc15a87f",
+      "shape": [
+        6,
+        3
+      ]
+    },
+    "figure0_axes2_line0_x": {
+      "dtype": "<f8",
+      "sha256": "c0ccf29d75423f340487f73cb5c3e84c1e59f2ffc5dbc043e3b0fe6686f76ee8",
+      "shape": [
+        32
+      ]
+    },
+    "figure0_axes2_line0_y": {
+      "dtype": "<f8",
+      "sha256": "d4e6b5e541e5f4c4ef8b9217dd01ef8ced111a40703aefca95dfca8d83b88e87",
+      "shape": [
+        32
+      ]
+    },
+    "figure0_axes2_line1_x": {
+      "dtype": "<f8",
+      "sha256": "ccf542f9a0f05e329a3d8ed875b0c493b7c585fb8185d16848d6466d3bc53a6b",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes2_line1_y": {
+      "dtype": "<f8",
+      "sha256": "ccf542f9a0f05e329a3d8ed875b0c493b7c585fb8185d16848d6466d3bc53a6b",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes3_scatter0": {
+      "dtype": "<f8",
+      "sha256": "9079a4392fad1908cae44a2be6a92cc9fa2e742cf4ae317f2f453976aa90aa60",
+      "shape": [
+        32,
+        2
+      ]
+    },
+    "fitted": {
+      "dtype": "<f8",
+      "sha256": "075a4f18d7e207717916ed5908fbc54005d46abb9468118b97e23183fad5390e",
+      "shape": [
+        32
+      ]
+    },
+    "metrics": [
+      "0x1.3d1a4d0505d98p-2",
+      "0x1.e89facd2a2474p-3",
+      "0x1.daae768c9945dp+0"
+    ],
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "parameters": {
+      "dtype": "<f8",
+      "sha256": "7a95dcaa170ab7c5fb56921113dd8778396d0a955e546dbb048550af726af214",
+      "shape": [
+        2
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "residuals": {
+      "dtype": "<f8",
+      "sha256": "3b40167b8bc8a2b989cc48e57dc73e43ae2278f50025d025c548aca8694143c9",
+      "shape": [
+        32
+      ]
+    },
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "x": {
+      "dtype": "<f8",
+      "sha256": "1febf6bbd61a67ab3581eb1f6dbce394773ba2ba8e8b56619b43fd3e3a24b5cc",
+      "shape": [
+        32
+      ]
+    },
+    "y": {
+      "dtype": "<f8",
+      "sha256": "796c005c20af27719382b07af4056b87001d561628d8f0050543432f8b3d37f0",
+      "shape": [
+        32
+      ]
+    }
+  },
+  "dark/mlr": {
+    "effect_items": [
+      [
+        "g2",
+        "0x1.68d94e21e51dap+0"
+      ],
+      [
+        "g3",
+        "-0x1.8f7eef375961fp-1"
+      ]
+    ],
+    "figure0_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "94237200a79d7a1553b6bd212d0ab1ce168185b16d02e416f6f171f746532b96",
+      "shape": [
+        90,
+        2
+      ]
+    },
+    "figure0_axes1_line0_x": {
+      "dtype": "<f8",
+      "sha256": "a7ff3409c09047ba59ab071a8c6a8fc7dd94d364798233b327d57ce82d31aabc",
+      "shape": [
+        200
+      ]
+    },
+    "figure0_axes1_line0_y": {
+      "dtype": "<f8",
+      "sha256": "e199f9bab5eb51e3c458b0ce85654de834742903c64b969002eb04aad361325f",
+      "shape": [
+        200
+      ]
+    },
+    "figure0_axes1_patch_geometry": {
+      "dtype": "<f8",
+      "sha256": "207c0fae3c60aac8ac73c2b4d0f8c4e834e3d89ea82daf8f784ff6103782554c",
+      "shape": [
+        9,
+        3
+      ]
+    },
+    "figure0_axes2_line0_x": {
+      "dtype": "<f8",
+      "sha256": "26ed7310cbe787a05e551e698641f5a33f3523808c214cf18522caf4921e4ac3",
+      "shape": [
+        90
+      ]
+    },
+    "figure0_axes2_line0_y": {
+      "dtype": "<f8",
+      "sha256": "f0007f26c7a6a7c22b3836e55b3eaff656364d62a09663e5f7d94d0def44ea34",
+      "shape": [
+        90
+      ]
+    },
+    "figure0_axes2_line1_x": {
+      "dtype": "<f8",
+      "sha256": "a6882906612a116dc943695caf38e0fd6ce1e2e11ab5490030467514cc42eb67",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes2_line1_y": {
+      "dtype": "<f8",
+      "sha256": "a6882906612a116dc943695caf38e0fd6ce1e2e11ab5490030467514cc42eb67",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes3_scatter0": {
+      "dtype": "<f8",
+      "sha256": "283989a01173fdc8be6f8991d8ee88d0fd3f20eb1c85bdf62b62c86e674b16df",
+      "shape": [
+        90,
+        2
+      ]
+    },
+    "figure1_axes0_line0_x": {
+      "dtype": "<i8",
+      "sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+      "shape": [
+        2
+      ]
+    },
+    "figure1_axes0_line0_y": {
+      "dtype": "<f8",
+      "sha256": "659352c5a6a6f61219512187781a3e50cf8d145bae27ac15be1b883ce4bbb387",
+      "shape": [
+        2
+      ]
+    },
+    "figure1_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "c7552c55ab525c1af6789a4e94523f73a3557e05298976df92fb525a90265a02",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    "input_response": {
+      "dtype": "<f8",
+      "sha256": "1142c076d9b927577ade57c76f33b42e6cb27bf961e8a08ab569b3d9e578e87b",
+      "shape": [
+        90
+      ]
+    },
+    "input_row_order": [
+      [
+        "g3",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "B",
+        "2"
+      ]
+    ],
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "parameters": {
+      "dtype": "<f8",
+      "sha256": "2d7b1a72177926bd7542fddd7bab1db48b27a5e1d6d01b7719d116a6dc1f7f02",
+      "shape": [
+        9
+      ]
+    },
+    "pvalue_items": [
+      [
+        "g2",
+        "0x1.1649505d9ea5cp-52"
+      ],
+      [
+        "g3",
+        "0x1.859ff2cf5a37ap-23"
+      ]
+    ],
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "returned_table": {
+      "dtype": "<f8",
+      "sha256": "c55e9208b698283f334d2aa84645fd02d5f1bcbc2623ae7660f088388f165a49",
+      "shape": [
+        2,
+        3
+      ]
+    },
+    "schema": {
+      "columns": [
+        "effect",
+        "p",
+        "-log10(p)"
+      ],
+      "index": [
+        "g2",
+        "g3"
+      ]
+    },
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "dark/process_masks": {
+    "figure0_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "56feb25ce0139a316d234b972b4f289bff1a8e3bb88b1e684d659a71e7d1bc7d",
+      "shape": [
+        6,
+        2
+      ]
+    },
+    "input_image0": {
+      "dtype": "<f4",
+      "sha256": "fbab2845dc3ac7eeb8dfd9e65795da87d79d441a821057b02f12c33d53247f1a",
+      "shape": [
+        24,
+        24,
+        2
+      ]
+    },
+    "input_image1": {
+      "dtype": "<f4",
+      "sha256": "fbab2845dc3ac7eeb8dfd9e65795da87d79d441a821057b02f12c33d53247f1a",
+      "shape": [
+        24,
+        24,
+        2
+      ]
+    },
+    "input_mask0": {
+      "dtype": "<i4",
+      "sha256": "f85e833f4beb78a119cec2652e4779d84b1ec281a612e6afe6ead6d5687855de",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    "input_mask1": {
+      "dtype": "<i4",
+      "sha256": "f85e833f4beb78a119cec2652e4779d84b1ec281a612e6afe6ead6d5687855de",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "output_mask0": {
+      "dtype": "<i4",
+      "sha256": "ff7277eecf3d3717fb0c259cb3c6e5435d0c4b37cde1a330e49993edbe1f0636",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    "output_mask1": {
+      "dtype": "<i4",
+      "sha256": "ff7277eecf3d3717fb0c259cb3c6e5435d0c4b37cde1a330e49993edbe1f0636",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "dark/protected_image_transforms": {
+    "GradCAMGenerator_normalized": {
+      "dtype": "<f4",
+      "sha256": "39a4ed74348b5c325c135eb340c4e774d6c2f35dc647630ed22573e3139b2853",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "SaliencyMapGenerator_normalized": {
+      "dtype": "<f4",
+      "sha256": "39a4ed74348b5c325c135eb340c4e774d6c2f35dc647630ed22573e3139b2853",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "bgr_cam": {
+      "dtype": "|u1",
+      "sha256": "259ed09ff6257e2d586251dbf628fd149f7b713bd8c9f55dd265d27811cbf6fb",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "input_cam": {
+      "dtype": "<f4",
+      "sha256": "fe2c378962118dff1b9b78dcdb81f5f4a190b62ec2d7a80ddd0f132c25931910",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "input_rgb": {
+      "dtype": "<f4",
+      "sha256": "7690522f0ddb80a5dce50ad7131599c0b42c9e275d84d8d1b79952857264e1bd",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "instance_mask_palette": {
+      "dtype": "<f8",
+      "sha256": "b9f9422104d48aa7381316d927111d8bfbe6d14962e48921f033974cffca9c28",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "numpy_rng_after": "bd52702ce59c6582018e1e9bc7fe01a9e0f81824a237ed89da1814a2b92c70fc",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "transparent_crop": {
+      "dtype": "<f8",
+      "sha256": "7a3d379743cc51a903682699981b326c31adf8e9933a87a4f4ca5a58ccd57396",
+      "shape": [
+        6,
+        6,
+        4
+      ]
+    }
+  },
+  "light/GradCAMGenerator1": {
+    "figure0_axes0_image0": {
+      "dtype": "<f4",
+      "sha256": "4bd1a01568eb222952d83eccca920c399eb5092a721e3043def1bacfd444b5b7",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes0_image1": {
+      "dtype": "<f4",
+      "sha256": "bc6192c6efeedad18925f585b2926e337736274b96ed39e2a4152f7a889bdd85",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "figure0_axes1_image0": {
+      "dtype": "<f4",
+      "sha256": "01c97a1882864fd919bceb2a9391bdb684717047e43d951f2ef24056714a1ec8",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes1_image1": {
+      "dtype": "<f4",
+      "sha256": "96d6a1a8c16c291381f00c21536d7bfdd682569266773c73c20f90660b3fbc66",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "input": {
+      "dtype": "<f4",
+      "sha256": "26e822a5ccc4e034a3e9581edf692391d2adc0906b1d3b142fa4a554e4517d98",
+      "shape": [
+        2,
+        3,
+        4,
+        4
+      ]
+    },
+    "maps": {
+      "dtype": "<f4",
+      "sha256": "79969a081f47019cd3f704c10648d6021a76af508a85516c480f8e6e0cf0dbea",
+      "shape": [
+        2,
+        1,
+        4,
+        4
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "prediction": {
+      "dtype": "<i8",
+      "sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+      "shape": [
+        2
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "light/SaliencyMapGenerator1": {
+    "figure0_axes0_image0": {
+      "dtype": "<f4",
+      "sha256": "4bd1a01568eb222952d83eccca920c399eb5092a721e3043def1bacfd444b5b7",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes0_image1": {
+      "dtype": "<f4",
+      "sha256": "bc6192c6efeedad18925f585b2926e337736274b96ed39e2a4152f7a889bdd85",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "figure0_axes1_image0": {
+      "dtype": "<f4",
+      "sha256": "01c97a1882864fd919bceb2a9391bdb684717047e43d951f2ef24056714a1ec8",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes1_image1": {
+      "dtype": "<f4",
+      "sha256": "96d6a1a8c16c291381f00c21536d7bfdd682569266773c73c20f90660b3fbc66",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "input": {
+      "dtype": "<f4",
+      "sha256": "26e822a5ccc4e034a3e9581edf692391d2adc0906b1d3b142fa4a554e4517d98",
+      "shape": [
+        2,
+        3,
+        4,
+        4
+      ]
+    },
+    "maps": {
+      "dtype": "<f4",
+      "sha256": "79969a081f47019cd3f704c10648d6021a76af508a85516c480f8e6e0cf0dbea",
+      "shape": [
+        2,
+        1,
+        4,
+        4
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "prediction": {
+      "dtype": "<i8",
+      "sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+      "shape": [
+        2
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "light/SaliencyMapGenerator3": {
+    "figure0_axes0_image0": {
+      "dtype": "<f4",
+      "sha256": "4bd1a01568eb222952d83eccca920c399eb5092a721e3043def1bacfd444b5b7",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes0_image1": {
+      "dtype": "<f4",
+      "sha256": "1ca2c5dfa671d4bf51a00d6d3e1c991231545c78a4520aaddc7ce266ce0bc3a2",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes1_image0": {
+      "dtype": "<f4",
+      "sha256": "01c97a1882864fd919bceb2a9391bdb684717047e43d951f2ef24056714a1ec8",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "figure0_axes1_image1": {
+      "dtype": "<f4",
+      "sha256": "10f0b90e10ac8e71211d08c6e0570559d599cbdb547f19b501c426a5f221e6b1",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "input": {
+      "dtype": "<f4",
+      "sha256": "26e822a5ccc4e034a3e9581edf692391d2adc0906b1d3b142fa4a554e4517d98",
+      "shape": [
+        2,
+        3,
+        4,
+        4
+      ]
+    },
+    "maps": {
+      "dtype": "<f4",
+      "sha256": "c1e3886dfa86454670dcab7898e6c464689832e5c77acbb10d8b1a5bbc459660",
+      "shape": [
+        2,
+        3,
+        4,
+        4
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "prediction": {
+      "dtype": "<i8",
+      "sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+      "shape": [
+        2
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "light/class_exemplar": {
+    "figure0_axes0_image0": {
+      "dtype": "<f4",
+      "sha256": "996138c984658c6ab811ea10d1e81387c6ba9c26c0f3488c051562a1b2486d65",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "model_1.bias": {
+      "dtype": "<f4",
+      "sha256": "8904eef47d32c242aa0f7a3bb747a1ab0fb501de860be81d63165a31471d3f6e",
+      "shape": [
+        1
+      ]
+    },
+    "model_1.weight": {
+      "dtype": "<f4",
+      "sha256": "88e9dcbf9bf9e3ca407551c6adf7cbc9de3ce8eb225d9a042bdd6fc74f7be13e",
+      "shape": [
+        1,
+        48
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "python_rng_after": "ca1796abf84ee2b85763ebd272d002fae6db148f9c823df5355fc1c1fda4b558",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "returned_image": {
+      "dtype": "<f4",
+      "sha256": "996138c984658c6ab811ea10d1e81387c6ba9c26c0f3488c051562a1b2486d65",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "43d14e858b4ecbfde1d1c6066b4afb754fa02d156f4d46025cbfa3dc9ea36b33",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "light/embedding": {
+    "embedding": {
+      "dtype": "<f8",
+      "sha256": "fc156642b2c7e0e221216afcfc92317b02968753f4b2f3a0615592fbbc855a39",
+      "shape": [
+        7,
+        2
+      ]
+    },
+    "figure0_axes0_line0_x": {
+      "dtype": "<f8",
+      "sha256": "3e5c4bf6e06464f0ef840ab250e3b5b81f080140bb5d5fd3478f9dd0b0839872",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line0_y": {
+      "dtype": "<f8",
+      "sha256": "40a9acda3875e9f843c7faec3ba189b166561c10f4a14a5489d5d2bf9340104a",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line1_x": {
+      "dtype": "<f8",
+      "sha256": "9268b051ba6a96aea257eeb250cd5b236571933b55ff8fde1d3e3370b4cb243b",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line1_y": {
+      "dtype": "<f8",
+      "sha256": "3393d543775c396f4858870c00f209afa11a1299a928c957f6cbbc3ff85657c5",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line2_x": {
+      "dtype": "<f8",
+      "sha256": "842e2b371ec3e5f2e07b2d38a3d7158c5acd1d8feffc7b729b1a83e9ffc82dee",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line2_y": {
+      "dtype": "<f8",
+      "sha256": "3393d543775c396f4858870c00f209afa11a1299a928c957f6cbbc3ff85657c5",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line3_x": {
+      "dtype": "<f8",
+      "sha256": "6c47ec4ff0afc721fa5830c132237adc278de5a1b2dc86ad21bb7771b0e30d78",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line3_y": {
+      "dtype": "<f8",
+      "sha256": "821daf72547e3f9d53b1032686f5a145ebebe0131a03a8cc1afd5fb403ad6870",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line4_x": {
+      "dtype": "<f8",
+      "sha256": "57bb4c356352543df89d647d86cd2d507a1bf82bc79cc7c7adc3199b0966534a",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line4_y": {
+      "dtype": "<f8",
+      "sha256": "7533016c67528436030131572c2f7454602466e847abda4b552586f6ce6ccd1f",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line5_x": {
+      "dtype": "<f8",
+      "sha256": "1e177eb7a4affe4f635e56be99c0478062ee28388ad92b9d3740f80a1149727c",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_line5_y": {
+      "dtype": "<f8",
+      "sha256": "3393d543775c396f4858870c00f209afa11a1299a928c957f6cbbc3ff85657c5",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "374708fff7719dd5979ec875d56cd2286f6d3cf7ec317a3b25632aab28ec37bb",
+      "shape": [
+        1,
+        2
+      ]
+    },
+    "figure0_axes0_scatter1": {
+      "dtype": "<f8",
+      "sha256": "6ed59cb69526c234170225101be9d0b60f6b8896bad1657cdf527c82d2e62b9c",
+      "shape": [
+        3,
+        2
+      ]
+    },
+    "figure0_axes0_scatter2": {
+      "dtype": "<f8",
+      "sha256": "f1c0fa40510fdc94f7f01d6ed0d1ebaa9b4eb111d26fb77b8381500d4d0012f6",
+      "shape": [
+        3,
+        2
+      ]
+    },
+    "figure0_axes0_thumbnail0": {
+      "dtype": "|u1",
+      "sha256": "dc439a7f3f7e57e89f27caf59fde0239a3ce73150cca6feedec7ab3a8cf71c54",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_thumbnail0_xy": {
+      "dtype": "<f8",
+      "sha256": "af7a901f0a85ce6dfc0c772b288b49d12a18a42d95b22dd4e2dfa15370eaf493",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_thumbnail1": {
+      "dtype": "|u1",
+      "sha256": "cc92489db4ce20bd8359b7f35e2247010dbd974d78db9c0aeb3e3065cae3d2b0",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_thumbnail1_xy": {
+      "dtype": "<f8",
+      "sha256": "df05c72cdcfe99ccd882da2c3bc3baa09f168f62109ccac2298e4a99a086828f",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_thumbnail2": {
+      "dtype": "|u1",
+      "sha256": "ed407e756bc05e7a9398d075ed92f824a1efe1f1a53e958cb27cd0478f14932c",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_thumbnail2_xy": {
+      "dtype": "<f8",
+      "sha256": "fa0d50489515175d6a6f92759e2638a75a78f4ac5169762d1bd0492bfb8175ff",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes0_thumbnail3": {
+      "dtype": "|u1",
+      "sha256": "dce9a0585906f51ad781aadac81845ad70f5ff29c44955c8608ae7c625bcdcec",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_thumbnail3_xy": {
+      "dtype": "<f8",
+      "sha256": "255762239056cf1447c9742534ad7622b6acfe2ba2a4984088dbfe44aca896bd",
+      "shape": [
+        2
+      ]
+    },
+    "labels": {
+      "dtype": "<i8",
+      "sha256": "ac43ad0035c0bd7a6e0eed95b4cfce85536458f67ea169c81e246903d40f71a0",
+      "shape": [
+        7
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "python_rng_after": "741c1d7eb4626d67761aef77ead4824eb9ba431d088ab2f4ca5fdec159559d33",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "source_ids": [
+      "crop0.png",
+      "crop1.png",
+      "crop2.png",
+      "crop3.png",
+      "crop4.png",
+      "crop5.png",
+      "crop6.png"
+    ],
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "light/gallery": {
+    "embedding": {
+      "dtype": "<f8",
+      "sha256": "fc156642b2c7e0e221216afcfc92317b02968753f4b2f3a0615592fbbc855a39",
+      "shape": [
+        7,
+        2
+      ]
+    },
+    "figure0_axes0_inset0_image0": {
+      "dtype": "|u1",
+      "sha256": "dc439a7f3f7e57e89f27caf59fde0239a3ce73150cca6feedec7ab3a8cf71c54",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes0_inset1_image0": {
+      "dtype": "|u1",
+      "sha256": "cc92489db4ce20bd8359b7f35e2247010dbd974d78db9c0aeb3e3065cae3d2b0",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes1_inset0_image0": {
+      "dtype": "|u1",
+      "sha256": "ed407e756bc05e7a9398d075ed92f824a1efe1f1a53e958cb27cd0478f14932c",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "figure0_axes1_inset1_image0": {
+      "dtype": "|u1",
+      "sha256": "dce9a0585906f51ad781aadac81845ad70f5ff29c44955c8608ae7c625bcdcec",
+      "shape": [
+        6,
+        6
+      ]
+    },
+    "labels": {
+      "dtype": "<i8",
+      "sha256": "ac43ad0035c0bd7a6e0eed95b4cfce85536458f67ea169c81e246903d40f71a0",
+      "shape": [
+        7
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "python_rng_after": "741c1d7eb4626d67761aef77ead4824eb9ba431d088ab2f4ca5fdec159559d33",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "source_ids": [
+      "crop0.png",
+      "crop1.png",
+      "crop2.png",
+      "crop3.png",
+      "crop4.png",
+      "crop5.png",
+      "crop6.png"
+    ],
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "light/metrics": {
+    "figure0_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "9b4eb0296460ee408da15ba5d0fd3fab3495ed245d19c296d117cd53fbbb4585",
+      "shape": [
+        32,
+        2
+      ]
+    },
+    "figure0_axes1_line0_x": {
+      "dtype": "<f8",
+      "sha256": "809945c83bd18ed7ca551ec79ec291608657ab9e93fed397f7257d9b66dfe9d7",
+      "shape": [
+        200
+      ]
+    },
+    "figure0_axes1_line0_y": {
+      "dtype": "<f8",
+      "sha256": "218597084bd6e0d14eaae667d6d4733fc16d67f8b015a9ada8cf01636a994f41",
+      "shape": [
+        200
+      ]
+    },
+    "figure0_axes1_patch_geometry": {
+      "dtype": "<f8",
+      "sha256": "fd4dbe63c8a72c5ab741470142abd08689defbfc1a7bb948008bbffbfc15a87f",
+      "shape": [
+        6,
+        3
+      ]
+    },
+    "figure0_axes2_line0_x": {
+      "dtype": "<f8",
+      "sha256": "c0ccf29d75423f340487f73cb5c3e84c1e59f2ffc5dbc043e3b0fe6686f76ee8",
+      "shape": [
+        32
+      ]
+    },
+    "figure0_axes2_line0_y": {
+      "dtype": "<f8",
+      "sha256": "d4e6b5e541e5f4c4ef8b9217dd01ef8ced111a40703aefca95dfca8d83b88e87",
+      "shape": [
+        32
+      ]
+    },
+    "figure0_axes2_line1_x": {
+      "dtype": "<f8",
+      "sha256": "ccf542f9a0f05e329a3d8ed875b0c493b7c585fb8185d16848d6466d3bc53a6b",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes2_line1_y": {
+      "dtype": "<f8",
+      "sha256": "ccf542f9a0f05e329a3d8ed875b0c493b7c585fb8185d16848d6466d3bc53a6b",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes3_scatter0": {
+      "dtype": "<f8",
+      "sha256": "9079a4392fad1908cae44a2be6a92cc9fa2e742cf4ae317f2f453976aa90aa60",
+      "shape": [
+        32,
+        2
+      ]
+    },
+    "fitted": {
+      "dtype": "<f8",
+      "sha256": "075a4f18d7e207717916ed5908fbc54005d46abb9468118b97e23183fad5390e",
+      "shape": [
+        32
+      ]
+    },
+    "metrics": [
+      "0x1.3d1a4d0505d98p-2",
+      "0x1.e89facd2a2474p-3",
+      "0x1.daae768c9945dp+0"
+    ],
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "parameters": {
+      "dtype": "<f8",
+      "sha256": "7a95dcaa170ab7c5fb56921113dd8778396d0a955e546dbb048550af726af214",
+      "shape": [
+        2
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "residuals": {
+      "dtype": "<f8",
+      "sha256": "3b40167b8bc8a2b989cc48e57dc73e43ae2278f50025d025c548aca8694143c9",
+      "shape": [
+        32
+      ]
+    },
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "x": {
+      "dtype": "<f8",
+      "sha256": "1febf6bbd61a67ab3581eb1f6dbce394773ba2ba8e8b56619b43fd3e3a24b5cc",
+      "shape": [
+        32
+      ]
+    },
+    "y": {
+      "dtype": "<f8",
+      "sha256": "796c005c20af27719382b07af4056b87001d561628d8f0050543432f8b3d37f0",
+      "shape": [
+        32
+      ]
+    }
+  },
+  "light/mlr": {
+    "effect_items": [
+      [
+        "g2",
+        "0x1.68d94e21e51dap+0"
+      ],
+      [
+        "g3",
+        "-0x1.8f7eef375961fp-1"
+      ]
+    ],
+    "figure0_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "94237200a79d7a1553b6bd212d0ab1ce168185b16d02e416f6f171f746532b96",
+      "shape": [
+        90,
+        2
+      ]
+    },
+    "figure0_axes1_line0_x": {
+      "dtype": "<f8",
+      "sha256": "a7ff3409c09047ba59ab071a8c6a8fc7dd94d364798233b327d57ce82d31aabc",
+      "shape": [
+        200
+      ]
+    },
+    "figure0_axes1_line0_y": {
+      "dtype": "<f8",
+      "sha256": "e199f9bab5eb51e3c458b0ce85654de834742903c64b969002eb04aad361325f",
+      "shape": [
+        200
+      ]
+    },
+    "figure0_axes1_patch_geometry": {
+      "dtype": "<f8",
+      "sha256": "207c0fae3c60aac8ac73c2b4d0f8c4e834e3d89ea82daf8f784ff6103782554c",
+      "shape": [
+        9,
+        3
+      ]
+    },
+    "figure0_axes2_line0_x": {
+      "dtype": "<f8",
+      "sha256": "26ed7310cbe787a05e551e698641f5a33f3523808c214cf18522caf4921e4ac3",
+      "shape": [
+        90
+      ]
+    },
+    "figure0_axes2_line0_y": {
+      "dtype": "<f8",
+      "sha256": "f0007f26c7a6a7c22b3836e55b3eaff656364d62a09663e5f7d94d0def44ea34",
+      "shape": [
+        90
+      ]
+    },
+    "figure0_axes2_line1_x": {
+      "dtype": "<f8",
+      "sha256": "a6882906612a116dc943695caf38e0fd6ce1e2e11ab5490030467514cc42eb67",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes2_line1_y": {
+      "dtype": "<f8",
+      "sha256": "a6882906612a116dc943695caf38e0fd6ce1e2e11ab5490030467514cc42eb67",
+      "shape": [
+        2
+      ]
+    },
+    "figure0_axes3_scatter0": {
+      "dtype": "<f8",
+      "sha256": "283989a01173fdc8be6f8991d8ee88d0fd3f20eb1c85bdf62b62c86e674b16df",
+      "shape": [
+        90,
+        2
+      ]
+    },
+    "figure1_axes0_line0_x": {
+      "dtype": "<i8",
+      "sha256": "9d34149fbd1fe777eb238799054c8cbfbce372255f219f8740838def9bfd02db",
+      "shape": [
+        2
+      ]
+    },
+    "figure1_axes0_line0_y": {
+      "dtype": "<f8",
+      "sha256": "659352c5a6a6f61219512187781a3e50cf8d145bae27ac15be1b883ce4bbb387",
+      "shape": [
+        2
+      ]
+    },
+    "figure1_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "c7552c55ab525c1af6789a4e94523f73a3557e05298976df92fb525a90265a02",
+      "shape": [
+        2,
+        2
+      ]
+    },
+    "input_response": {
+      "dtype": "<f8",
+      "sha256": "1142c076d9b927577ade57c76f33b42e6cb27bf961e8a08ab569b3d9e578e87b",
+      "shape": [
+        90
+      ]
+    },
+    "input_row_order": [
+      [
+        "g3",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g3",
+        "r1",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r1",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r2",
+        "p1",
+        "B",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r1",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p1",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "B",
+        "1"
+      ],
+      [
+        "g1",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g3",
+        "r2",
+        "p1",
+        "A",
+        "2"
+      ],
+      [
+        "g3",
+        "r2",
+        "p2",
+        "A",
+        "1"
+      ],
+      [
+        "g2",
+        "r1",
+        "p1",
+        "B",
+        "2"
+      ]
+    ],
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "parameters": {
+      "dtype": "<f8",
+      "sha256": "2d7b1a72177926bd7542fddd7bab1db48b27a5e1d6d01b7719d116a6dc1f7f02",
+      "shape": [
+        9
+      ]
+    },
+    "pvalue_items": [
+      [
+        "g2",
+        "0x1.1649505d9ea5cp-52"
+      ],
+      [
+        "g3",
+        "0x1.859ff2cf5a37ap-23"
+      ]
+    ],
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "returned_table": {
+      "dtype": "<f8",
+      "sha256": "c55e9208b698283f334d2aa84645fd02d5f1bcbc2623ae7660f088388f165a49",
+      "shape": [
+        2,
+        3
+      ]
+    },
+    "schema": {
+      "columns": [
+        "effect",
+        "p",
+        "-log10(p)"
+      ],
+      "index": [
+        "g2",
+        "g3"
+      ]
+    },
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "light/process_masks": {
+    "figure0_axes0_scatter0": {
+      "dtype": "<f8",
+      "sha256": "56feb25ce0139a316d234b972b4f289bff1a8e3bb88b1e684d659a71e7d1bc7d",
+      "shape": [
+        6,
+        2
+      ]
+    },
+    "input_image0": {
+      "dtype": "<f4",
+      "sha256": "fbab2845dc3ac7eeb8dfd9e65795da87d79d441a821057b02f12c33d53247f1a",
+      "shape": [
+        24,
+        24,
+        2
+      ]
+    },
+    "input_image1": {
+      "dtype": "<f4",
+      "sha256": "fbab2845dc3ac7eeb8dfd9e65795da87d79d441a821057b02f12c33d53247f1a",
+      "shape": [
+        24,
+        24,
+        2
+      ]
+    },
+    "input_mask0": {
+      "dtype": "<i4",
+      "sha256": "f85e833f4beb78a119cec2652e4779d84b1ec281a612e6afe6ead6d5687855de",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    "input_mask1": {
+      "dtype": "<i4",
+      "sha256": "f85e833f4beb78a119cec2652e4779d84b1ec281a612e6afe6ead6d5687855de",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    "numpy_rng_after": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "output_mask0": {
+      "dtype": "<i4",
+      "sha256": "ff7277eecf3d3717fb0c259cb3c6e5435d0c4b37cde1a330e49993edbe1f0636",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    "output_mask1": {
+      "dtype": "<i4",
+      "sha256": "ff7277eecf3d3717fb0c259cb3c6e5435d0c4b37cde1a330e49993edbe1f0636",
+      "shape": [
+        24,
+        24
+      ]
+    },
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    }
+  },
+  "light/protected_image_transforms": {
+    "GradCAMGenerator_normalized": {
+      "dtype": "<f4",
+      "sha256": "39a4ed74348b5c325c135eb340c4e774d6c2f35dc647630ed22573e3139b2853",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "SaliencyMapGenerator_normalized": {
+      "dtype": "<f4",
+      "sha256": "39a4ed74348b5c325c135eb340c4e774d6c2f35dc647630ed22573e3139b2853",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "bgr_cam": {
+      "dtype": "|u1",
+      "sha256": "259ed09ff6257e2d586251dbf628fd149f7b713bd8c9f55dd265d27811cbf6fb",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "input_cam": {
+      "dtype": "<f4",
+      "sha256": "fe2c378962118dff1b9b78dcdb81f5f4a190b62ec2d7a80ddd0f132c25931910",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "input_rgb": {
+      "dtype": "<f4",
+      "sha256": "7690522f0ddb80a5dce50ad7131599c0b42c9e275d84d8d1b79952857264e1bd",
+      "shape": [
+        4,
+        4,
+        3
+      ]
+    },
+    "instance_mask_palette": {
+      "dtype": "<f8",
+      "sha256": "b9f9422104d48aa7381316d927111d8bfbe6d14962e48921f033974cffca9c28",
+      "shape": [
+        4,
+        4
+      ]
+    },
+    "numpy_rng_after": "bd52702ce59c6582018e1e9bc7fe01a9e0f81824a237ed89da1814a2b92c70fc",
+    "numpy_rng_before": "43bc1bfd17731bece633e931d0d5d75adaf6b85807ba31ca43ad9dc3cdcc0c53",
+    "python_rng_after": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "python_rng_before": "277ca8bc3d2e4e2a45b1aae1e8354f5bfaf15eaad6ef24e4c5aa8db932f584e6",
+    "torch_rng_after": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "torch_rng_before": {
+      "dtype": "|u1",
+      "sha256": "b680f629e648a9d6963e57c4720c122b7e188cfbd7212027a1024885b385d88f",
+      "shape": [
+        5056
+      ]
+    },
+    "transparent_crop": {
+      "dtype": "<f8",
+      "sha256": "7a3d379743cc51a903682699981b326c31adf8e9933a87a4f4ca5a58ccd57396",
+      "shape": [
+        6,
+        6,
+        4
+      ]
+    }
+  }
+}

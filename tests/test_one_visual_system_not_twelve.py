@@ -64,7 +64,11 @@ GLOBAL_RC = re.compile(r"(?:plt|mpl|matplotlib)\.rcParams\s*(?:\.update\(|\[)")
 # 147 -> 148 for ``ops_feature_info._plot`` (item 964). The ranked bar chart
 # creates its axes inside ``figure_style("print")``; the unstyled ceiling
 # remains zero.
-CEILING = 148
+# 148 -> 149 for graphstyle G2 (L5): utils.py's activation grid, class
+# exemplar and object-cluster PCA now create their own axes, each inside
+# ``figure_style(theme_target())`` (the PCA used pyplot's implicit figure);
+# the unstyled ceiling remains zero.
+CEILING = 149
 
 #: The ceiling on figure creations that are NOT inside the house style.
 #:

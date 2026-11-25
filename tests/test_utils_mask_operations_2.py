@@ -599,8 +599,8 @@ def test_process_masks_keeps_each_fields_majority_cluster(subtests, tmp_path, mo
             if case.get("readme"):
                 assert (mask_dir / "README.md").read_text(encoding="utf-8") == "not a mask"
             if "plot_points" in case:
-                assert captured == dict(calls=1, title="Object Clustering",
-                                        xlabel="PCA Component 1", ylabel="PCA Component 2",
+                assert captured == dict(calls=1, title="",
+                                        xlabel="Principal component 1", ylabel="Principal component 2",
                                         n_points=case["plot_points"])
             else:
                 assert captured == {}

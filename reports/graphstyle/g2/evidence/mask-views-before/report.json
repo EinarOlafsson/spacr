@@ -1,0 +1,1163 @@
+{
+  "purpose": "actual creator evidence; not native tutorial acceptance",
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before",
+  "source_inputs": {
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/figures/style.py": "ce2c1b90591867749b8da5e793e12317024a10bed5ad419dd00560a9ce25e7ed",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/preferences.py": "031b785dfe5bfb4945f0a6ae956a703b4eb2fdd21d878333ddc35974c5211ece",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/theme.py": "40d7db4d02ebcd75c2c53fa188287bf2ed5365b8ec673518608fbc73342bb1f0",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/screens/annotate.py": "2734163b2227261a27fa15ff12adaf632df75f7df8c4895812b5ef952fa1dc3a",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/screens/make_masks.py": "a97a7589b82d539cc40f2480bb4e01b838c3a5f7a3b575b9a8ec0115b4f870f5",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/mask_engine.py": "ef306e3ca213e1b6525d25eee0a779e1ecf9cdd683cae5505134b32824742c58",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/widgets/segmentation_views.py": "6539ef4490cd7f3f510eb27c69581c040733f1b1c48913200ab3e9f9bbc91162"
+  },
+  "source_head": "9510143823dcc1b984ecc522058a1e3f15e985d8",
+  "inputs": {
+    "pixels": {
+      "shape": [
+        48,
+        64,
+        3
+      ],
+      "dtype": "|u1",
+      "sha256": "2d055e16e3bb8f92a630212461b5c8caa9c784f25be4b4826982e06dc8386816"
+    },
+    "labels": {
+      "shape": [
+        48,
+        64
+      ],
+      "dtype": "<u2",
+      "sha256": "9a4eabd64d55ac20e5dbaa8be5b9b091ba1ff60dfe8f9b200e211e096d0bdff8"
+    },
+    "flows": {
+      "shape": [
+        48,
+        64,
+        3
+      ],
+      "dtype": "|u1",
+      "sha256": "ffa6fa5214702e5bb20dfa88bb261cdc4a9af18ea03e29445b408e414b10a873"
+    },
+    "logits": {
+      "shape": [
+        48,
+        64
+      ],
+      "dtype": "<f4",
+      "sha256": "e7bc537371235962ff0cfc70488a4911722a32a369a4fc6dab7bd3a94fd5e2e6"
+    },
+    "field": {
+      "shape": [
+        64,
+        64
+      ],
+      "dtype": "<u2",
+      "sha256": "8500f04e6b29f9697ab60beb608e81ed0022a0613bc1d636e494029307697d08"
+    },
+    "mask": {
+      "shape": [
+        64,
+        64
+      ],
+      "dtype": "<u2",
+      "sha256": "9193f328ab9fffd2fbefc1c07497ca50eb64b477e526280fb0b474b2df1e63ab"
+    }
+  },
+  "cases": {
+    "light-probability": {
+      "numerical": {
+        "classes": [
+          1,
+          2
+        ],
+        "counts": {
+          "1": [
+            2,
+            2,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            2
+          ],
+          "2": [
+            0,
+            1,
+            2,
+            0,
+            0,
+            0,
+            1,
+            1,
+            0,
+            1
+          ]
+        },
+        "thresholds": [
+          0.2,
+          0.8
+        ],
+        "edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ]
+      },
+      "appearance": {
+        "observation_available": false,
+        "reason": "Selected baseline creator has no native style observation API."
+      }
+    },
+    "light-probability_nine_classes": {
+      "numerical": {
+        "classes": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "counts": {
+          "1": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "2": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "3": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "4": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "5": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "6": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "7": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "8": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "9": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "thresholds": [
+          0.2,
+          0.8
+        ],
+        "edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ]
+      },
+      "appearance": {
+        "observation_available": false,
+        "reason": "Selected baseline creator has no native style observation API."
+      }
+    },
+    "light-otsu": {
+      "numerical": {
+        "counts": [
+          2.0,
+          5.0,
+          8.0,
+          7.0,
+          4.0,
+          1.0
+        ],
+        "thresholds": [
+          1.3,
+          6.8
+        ],
+        "edges": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0
+        ]
+      },
+      "appearance": {
+        "observation_available": false,
+        "reason": "Selected baseline creator has no native style observation API."
+      }
+    },
+    "light-normalization": {
+      "numerical": {
+        "counts": [
+          2.0,
+          5.0,
+          8.0,
+          7.0,
+          4.0,
+          1.0
+        ],
+        "thresholds": [
+          1.0,
+          5.0
+        ],
+        "edges": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0
+        ]
+      },
+      "appearance": {
+        "observation_available": false,
+        "reason": "Selected baseline creator has no native style observation API."
+      }
+    },
+    "light-overlay": {
+      "numerical": {
+        "shape": [
+          48,
+          64,
+          3
+        ],
+        "dtype": "|u1",
+        "sha256": "5cfecce219983df8248b993a2c437c9c9b5136213cdcde3f6e49f5bf78cb428c"
+      },
+      "appearance": {
+        "display_metadata_available": false,
+        "display": null,
+        "certified": false
+      }
+    },
+    "light-masks": {
+      "numerical": {
+        "shape": [
+          48,
+          64,
+          3
+        ],
+        "dtype": "|u1",
+        "sha256": "0b2e43e445e0e558db96759d7b2f5575ea886905245366978a62e82a7e1b0f44"
+      },
+      "appearance": {
+        "display_metadata_available": false,
+        "display": null,
+        "certified": false
+      }
+    },
+    "light-flows": {
+      "numerical": {
+        "shape": [
+          48,
+          64,
+          3
+        ],
+        "dtype": "|u1",
+        "sha256": "ffa6fa5214702e5bb20dfa88bb261cdc4a9af18ea03e29445b408e414b10a873"
+      },
+      "appearance": {
+        "display_metadata_available": false,
+        "display": null,
+        "certified": false
+      }
+    },
+    "light-cell_probability": {
+      "numerical": {
+        "shape": [
+          48,
+          64,
+          3
+        ],
+        "dtype": "|u1",
+        "sha256": "00c8ecdd9d0d7026ed4273e44995147ee798af8fca52ef6cf0b587baea589b31"
+      },
+      "appearance": {
+        "display_metadata_available": false,
+        "display": null,
+        "certified": false
+      }
+    },
+    "light-annotation_count": {
+      "numerical": {
+        "crop": {
+          "size": [
+            64,
+            48
+          ],
+          "rgba_sha256": "eb7b2075ba9126471d2e753045c97a851653fdc5fd494f7478a73bb136176540"
+        },
+        "count": "39"
+      },
+      "appearance": {
+        "certified": false
+      }
+    },
+    "light-boxes_zoomed": {
+      "numerical": {
+        "base_pixels": {
+          "size": [
+            400,
+            400
+          ],
+          "rgba_sha256": "352db37aec0b54195cca523e6150951cd5031bd59727724fea32e1ae9e07c3d2"
+        },
+        "boxes": [
+          [
+            0,
+            27,
+            27,
+            31,
+            31
+          ],
+          [
+            1,
+            16,
+            16,
+            20,
+            20
+          ],
+          [
+            2,
+            21,
+            32,
+            27,
+            36
+          ]
+        ],
+        "class_names": [
+          "Inside annotation",
+          "Offscreen annotation",
+          "Partial annotation"
+        ],
+        "viewport": [
+          24,
+          24,
+          40,
+          40
+        ]
+      },
+      "appearance": {
+        "certified": false
+      }
+    },
+    "light-recrops_zoomed": {
+      "numerical": {
+        "base_pixels": {
+          "size": [
+            400,
+            400
+          ],
+          "rgba_sha256": "352db37aec0b54195cca523e6150951cd5031bd59727724fea32e1ae9e07c3d2"
+        },
+        "recrops": [
+          [
+            27,
+            27,
+            31,
+            31,
+            "Inside annotation"
+          ],
+          [
+            16,
+            16,
+            20,
+            20,
+            "Offscreen annotation"
+          ],
+          [
+            21,
+            32,
+            27,
+            36,
+            "Partial annotation"
+          ]
+        ],
+        "viewport": [
+          24,
+          24,
+          40,
+          40
+        ]
+      },
+      "appearance": {
+        "certified": false
+      }
+    },
+    "light-magnifier_locked_updating": {
+      "numerical": {
+        "base_pixels": {
+          "size": [
+            400,
+            400
+          ],
+          "rgba_sha256": "352db37aec0b54195cca523e6150951cd5031bd59727724fea32e1ae9e07c3d2"
+        },
+        "magnified_pixels": {
+          "shape": [
+            8,
+            8
+          ],
+          "dtype": "<u4",
+          "sha256": "b52a9e51ab50bec51dbc7e397324fd9f792405033e4e0e63f43fcd91a26ff26d"
+        },
+        "source_box": [
+          28,
+          28,
+          36,
+          36
+        ],
+        "visible_part": [
+          28,
+          28,
+          36,
+          36
+        ],
+        "lens": [
+          143.25,
+          43.25,
+          300.0,
+          300.0
+        ],
+        "scale": 37.5,
+        "sampling_step": 1
+      },
+      "appearance": {
+        "state": "Prepared locked/updating preview; both detector queues closed before enabling.",
+        "detector_threads_started": false,
+        "certified": false
+      }
+    },
+    "dark-probability": {
+      "numerical": {
+        "classes": [
+          1,
+          2
+        ],
+        "counts": {
+          "1": [
+            2,
+            2,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            2
+          ],
+          "2": [
+            0,
+            1,
+            2,
+            0,
+            0,
+            0,
+            1,
+            1,
+            0,
+            1
+          ]
+        },
+        "thresholds": [
+          0.2,
+          0.8
+        ],
+        "edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ]
+      },
+      "appearance": {
+        "observation_available": false,
+        "reason": "Selected baseline creator has no native style observation API."
+      }
+    },
+    "dark-probability_nine_classes": {
+      "numerical": {
+        "classes": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "counts": {
+          "1": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "2": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "3": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "4": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "5": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "6": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "7": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "8": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "9": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ]
+        },
+        "thresholds": [
+          0.2,
+          0.8
+        ],
+        "edges": [
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ]
+      },
+      "appearance": {
+        "observation_available": false,
+        "reason": "Selected baseline creator has no native style observation API."
+      }
+    },
+    "dark-otsu": {
+      "numerical": {
+        "counts": [
+          2.0,
+          5.0,
+          8.0,
+          7.0,
+          4.0,
+          1.0
+        ],
+        "thresholds": [
+          1.3,
+          6.8
+        ],
+        "edges": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0
+        ]
+      },
+      "appearance": {
+        "observation_available": false,
+        "reason": "Selected baseline creator has no native style observation API."
+      }
+    },
+    "dark-normalization": {
+      "numerical": {
+        "counts": [
+          2.0,
+          5.0,
+          8.0,
+          7.0,
+          4.0,
+          1.0
+        ],
+        "thresholds": [
+          1.0,
+          5.0
+        ],
+        "edges": [
+          0.0,
+          1.0,
+          2.0,
+          3.0,
+          4.0,
+          5.0,
+          6.0
+        ]
+      },
+      "appearance": {
+        "observation_available": false,
+        "reason": "Selected baseline creator has no native style observation API."
+      }
+    },
+    "dark-overlay": {
+      "numerical": {
+        "shape": [
+          48,
+          64,
+          3
+        ],
+        "dtype": "|u1",
+        "sha256": "5cfecce219983df8248b993a2c437c9c9b5136213cdcde3f6e49f5bf78cb428c"
+      },
+      "appearance": {
+        "display_metadata_available": false,
+        "display": null,
+        "certified": false
+      }
+    },
+    "dark-masks": {
+      "numerical": {
+        "shape": [
+          48,
+          64,
+          3
+        ],
+        "dtype": "|u1",
+        "sha256": "0b2e43e445e0e558db96759d7b2f5575ea886905245366978a62e82a7e1b0f44"
+      },
+      "appearance": {
+        "display_metadata_available": false,
+        "display": null,
+        "certified": false
+      }
+    },
+    "dark-flows": {
+      "numerical": {
+        "shape": [
+          48,
+          64,
+          3
+        ],
+        "dtype": "|u1",
+        "sha256": "ffa6fa5214702e5bb20dfa88bb261cdc4a9af18ea03e29445b408e414b10a873"
+      },
+      "appearance": {
+        "display_metadata_available": false,
+        "display": null,
+        "certified": false
+      }
+    },
+    "dark-cell_probability": {
+      "numerical": {
+        "shape": [
+          48,
+          64,
+          3
+        ],
+        "dtype": "|u1",
+        "sha256": "00c8ecdd9d0d7026ed4273e44995147ee798af8fca52ef6cf0b587baea589b31"
+      },
+      "appearance": {
+        "display_metadata_available": false,
+        "display": null,
+        "certified": false
+      }
+    },
+    "dark-annotation_count": {
+      "numerical": {
+        "crop": {
+          "size": [
+            64,
+            48
+          ],
+          "rgba_sha256": "eb7b2075ba9126471d2e753045c97a851653fdc5fd494f7478a73bb136176540"
+        },
+        "count": "39"
+      },
+      "appearance": {
+        "certified": false
+      }
+    },
+    "dark-boxes_zoomed": {
+      "numerical": {
+        "base_pixels": {
+          "size": [
+            400,
+            400
+          ],
+          "rgba_sha256": "352db37aec0b54195cca523e6150951cd5031bd59727724fea32e1ae9e07c3d2"
+        },
+        "boxes": [
+          [
+            0,
+            27,
+            27,
+            31,
+            31
+          ],
+          [
+            1,
+            16,
+            16,
+            20,
+            20
+          ],
+          [
+            2,
+            21,
+            32,
+            27,
+            36
+          ]
+        ],
+        "class_names": [
+          "Inside annotation",
+          "Offscreen annotation",
+          "Partial annotation"
+        ],
+        "viewport": [
+          24,
+          24,
+          40,
+          40
+        ]
+      },
+      "appearance": {
+        "certified": false
+      }
+    },
+    "dark-recrops_zoomed": {
+      "numerical": {
+        "base_pixels": {
+          "size": [
+            400,
+            400
+          ],
+          "rgba_sha256": "352db37aec0b54195cca523e6150951cd5031bd59727724fea32e1ae9e07c3d2"
+        },
+        "recrops": [
+          [
+            27,
+            27,
+            31,
+            31,
+            "Inside annotation"
+          ],
+          [
+            16,
+            16,
+            20,
+            20,
+            "Offscreen annotation"
+          ],
+          [
+            21,
+            32,
+            27,
+            36,
+            "Partial annotation"
+          ]
+        ],
+        "viewport": [
+          24,
+          24,
+          40,
+          40
+        ]
+      },
+      "appearance": {
+        "certified": false
+      }
+    },
+    "dark-magnifier_locked_updating": {
+      "numerical": {
+        "base_pixels": {
+          "size": [
+            400,
+            400
+          ],
+          "rgba_sha256": "352db37aec0b54195cca523e6150951cd5031bd59727724fea32e1ae9e07c3d2"
+        },
+        "magnified_pixels": {
+          "shape": [
+            8,
+            8
+          ],
+          "dtype": "<u4",
+          "sha256": "b52a9e51ab50bec51dbc7e397324fd9f792405033e4e0e63f43fcd91a26ff26d"
+        },
+        "source_box": [
+          28,
+          28,
+          36,
+          36
+        ],
+        "visible_part": [
+          28,
+          28,
+          36,
+          36
+        ],
+        "lens": [
+          143.25,
+          43.25,
+          300.0,
+          300.0
+        ],
+        "scale": 37.5,
+        "sampling_step": 1
+      },
+      "appearance": {
+        "state": "Prepared locked/updating preview; both detector queues closed before enabling.",
+        "detector_threads_started": false,
+        "certified": false
+      }
+    }
+  },
+  "themes": {
+    "light": {
+      "resolved": "light",
+      "palette": {
+        "bg": "#fafafa",
+        "page": "#e1e4e6",
+        "surface": "#ffffff",
+        "surface_alt": "#f2f4f7",
+        "surface_hi": "#e6e9ee",
+        "border": "#7c7e81",
+        "border_soft": "#e5e8ec",
+        "fg": "#0d0e10",
+        "fg_muted": "#4b5460",
+        "fg_dim": "#596170",
+        "accent": "#0a63c4",
+        "accent_hi": "#0851a3",
+        "accent_lo": "#063d7a",
+        "accent_soft": "#dbe8fb",
+        "success": "#0f7030",
+        "chip_class": "#0a6f6a",
+        "chip_value": "#0f7030",
+        "warning": "#8f4e00",
+        "error": "#b81d1a",
+        "info": "#0a63c4",
+        "button_accent": "#4A9EFF",
+        "button_accent_hi": "#66B2FF",
+        "button_accent_lo": "#2F80D9",
+        "button_accent_ink": "#04101c",
+        "splash_bg": "#fafafa",
+        "splash_ink": "#0d0e10",
+        "splash_ink_dim": "#555658",
+        "splash_track": "#d0d0d1",
+        "splash_fill": "#404142"
+      }
+    },
+    "dark": {
+      "resolved": "dark",
+      "palette": {
+        "bg": "#000000",
+        "page": "#23252a",
+        "surface": "#0d0e10",
+        "surface_alt": "#161719",
+        "surface_hi": "#1f2124",
+        "border": "#707276",
+        "border_soft": "#1c1e22",
+        "fg": "#ffffff",
+        "fg_muted": "#a1a6ad",
+        "fg_dim": "#858a92",
+        "accent": "#4A9EFF",
+        "accent_hi": "#66B2FF",
+        "accent_lo": "#2F80D9",
+        "accent_soft": "#1e3550",
+        "success": "#3fb950",
+        "chip_class": "#1fb6ad",
+        "chip_value": "#3fb950",
+        "warning": "#d29922",
+        "error": "#f85149",
+        "info": "#4A9EFF",
+        "button_accent": "#4A9EFF",
+        "button_accent_hi": "#66B2FF",
+        "button_accent_lo": "#2F80D9",
+        "button_accent_ink": "#04101c",
+        "splash_bg": "#000000",
+        "splash_ink": "#ffffff",
+        "splash_ink_dim": "#959595",
+        "splash_track": "#2d2d2d",
+        "splash_fill": "#c8c8c8"
+      }
+    }
+  },
+  "scientific_pipeline_or_inference_run": false,
+  "inputs_after": {
+    "pixels": {
+      "shape": [
+        48,
+        64,
+        3
+      ],
+      "dtype": "|u1",
+      "sha256": "2d055e16e3bb8f92a630212461b5c8caa9c784f25be4b4826982e06dc8386816"
+    },
+    "labels": {
+      "shape": [
+        48,
+        64
+      ],
+      "dtype": "<u2",
+      "sha256": "9a4eabd64d55ac20e5dbaa8be5b9b091ba1ff60dfe8f9b200e211e096d0bdff8"
+    },
+    "flows": {
+      "shape": [
+        48,
+        64,
+        3
+      ],
+      "dtype": "|u1",
+      "sha256": "ffa6fa5214702e5bb20dfa88bb261cdc4a9af18ea03e29445b408e414b10a873"
+    },
+    "logits": {
+      "shape": [
+        48,
+        64
+      ],
+      "dtype": "<f4",
+      "sha256": "e7bc537371235962ff0cfc70488a4911722a32a369a4fc6dab7bd3a94fd5e2e6"
+    },
+    "field": {
+      "shape": [
+        64,
+        64
+      ],
+      "dtype": "<u2",
+      "sha256": "8500f04e6b29f9697ab60beb608e81ed0022a0613bc1d636e494029307697d08"
+    },
+    "mask": {
+      "shape": [
+        64,
+        64
+      ],
+      "dtype": "<u2",
+      "sha256": "9193f328ab9fffd2fbefc1c07497ca50eb64b477e526280fb0b474b2df1e63ab"
+    }
+  },
+  "outputs": {
+    "dark/annotation_count.png": "32958a21b098faf9dd01a9f3b806f4a50c2547487e761e3e4fee70593b610e25",
+    "dark/boxes_zoomed.png": "79750484be0ea97a026385a560da42e3eaad007d07a120052212eda7cb5498e9",
+    "dark/cell_probability.png": "ddd7aad4cfdab4c53da8fdc3f830a47f611aebdcc1613e064b0d99dd9b53a58a",
+    "dark/flows.png": "d7fb3c228327c615d8519dd44e5f7af9a6abf88161b4e5ce1ce0752644cc13ab",
+    "dark/magnifier_locked_updating.png": "c2562071d1511f7f06e8f0c1302345159fb3d489d84ffffa7b894afe793314e4",
+    "dark/masks.png": "4d66b5393a8a2bfd1d861b9e535960ecd6f2e015640acd18beb032a86950f553",
+    "dark/normalization.png": "33ff4a5c1a7cf470b08c05990454ce89acef70d841ad7cdb1e117e2115c9d39d",
+    "dark/otsu.png": "934433057cf2b8852516fc921f361bd446904f8ec8e51a36683b3d0189dc3656",
+    "dark/overlay.png": "d49393c05c8c1ded0af0e002735d85ecb683dcbd51c9b0e84fb6f6dc7f26b38e",
+    "dark/probability.png": "941132cf76091c4f4347368c93c8a717d65ef021b898e5ca66cd5ab821b83a6a",
+    "dark/probability_nine_classes.png": "88b2c9b53c0801666a7cc2a3117b223e9c328beefa2157ef30fa89cfdbe16813",
+    "dark/recrops_zoomed.png": "7e0156d173cf03f99faeec8d16b33a683ba98e09f5ed4c9eabec19b042216837",
+    "light/annotation_count.png": "aac44105817db1b009e432bb1be9bb8b8f82467038ca7e13db28e8fcfbc5460e",
+    "light/boxes_zoomed.png": "a5b67694392d4982d576fb2eda9e45d91adbadc5881083fdc5762fa877b6a2df",
+    "light/cell_probability.png": "49fd051bc62c4ca8dc8990e1c08b529205fa17d6d9cb0ddf0e6ec8b05459211e",
+    "light/flows.png": "5df239e0f688a9ff01af3e75a1277f1c7e6473f6ef8b8dea397668e2c6582add",
+    "light/magnifier_locked_updating.png": "092a155783cddbec415fb3fd628f9ee581b989eae1d6e87f71b6a88a2aeed80c",
+    "light/masks.png": "979127f7d5313385c132d4c1189331b00f04190dba7ccdb48837d404f217007e",
+    "light/normalization.png": "3600498d175b0a5d5c38af1d606650bf7310f747362938a413c11e7cd1ff47e0",
+    "light/otsu.png": "02276b5dd813dd568cf79e17b22a5f5e94c74c07b5bea6f6e8206823b377a557",
+    "light/overlay.png": "851f099d08e6bb08f02f829387040bda44d037a577426264d5a788ae933995fe",
+    "light/probability.png": "e674330e2235ee891656911ea76e67e616e89c43b685ba83205ce88e9d187534",
+    "light/probability_nine_classes.png": "461644badf616210bad60a27b95f44c524653d01d3f81a0a9978ec15f626a113",
+    "light/recrops_zoomed.png": "6a9ef3a0a412aadd98491f9daebf771d9f6df92e28c999bdf84ec7f9a438cc0c"
+  }
+}

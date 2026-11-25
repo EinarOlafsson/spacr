@@ -35,7 +35,7 @@ from .image_colors import read_image_rgb, write_image_rgb
 from .tiff_io import TIFF_READ_ERRORS, write_tiff
 from .multiple_testing import _posthoc_dunn
 
-from .figures.style import (DATA_ALPHA, ROLES, TYPE_SCALE, WEIGHTS, Palette,
+from .figures.style import (DATA_ALPHA, GENERAL_DEFAULTS, ROLES, TYPE_SCALE, WEIGHTS, Palette,
                             condition_colours, condition_plot, descriptor,
                             figure_style, _group_colours, hide_unused,
                             size_condition_axes,
@@ -547,7 +547,8 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
             print(f"Figure integrity: the check could not run ({exc}); "
                   f"writing {destination} without it.")
             report = None
-    from .figures.style import _apply_user_style, _preference_deltas
+    from .figures.style import (_apply_user_style, _file_axes_geometry,
+                                _preference_deltas, finalize_figure)
     _apply_user_style(fig)
     chosen_style = _preference_deltas()
     vector_text = bool(chosen_style.get("vector_text", True))
@@ -560,14 +561,22 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
         rc["savefig.edgecolor"] = look.ground
     rc["savefig.transparent"] = bool(look.transparent)
     with rc_context(rc), print_ready(fig, mode=look.mode,
-                                     announce=announce_colours):
+                                     announce=announce_colours), _file_axes_geometry(fig):
+        finalize_figure(fig)
         targets = [(destination, chosen_fmt)]
         if (extra_fmt in FIGURE_FORMATS and extra_fmt != chosen_fmt
                 and not fmt and report is None):
             targets.append((_with_extension(destination, extra_fmt),
                             extra_fmt))
+        from .figures.style import _tight_export_artists, _vector_numeric_cells
+
+        if kwargs.get("bbox_inches") == "tight" and kwargs.get("bbox_extra_artists") is None:
+            extra_artists = _tight_export_artists(fig)
+            if extra_artists is not None:
+                kwargs["bbox_extra_artists"] = extra_artists
         for target, target_fmt in targets:
-            fig.savefig(target, format=target_fmt, dpi=write_dpi, **kwargs)
+            with _vector_numeric_cells(fig, target_fmt):
+                fig.savefig(target, format=target_fmt, dpi=write_dpi, **kwargs)
     if report is not None:
         try:
             _finish_integrity(report, destination)
@@ -614,7 +623,10 @@ def _checked_savefig(fig, path, *, dpi=None, integrity=None, **kwargs):
             report = None
     if dpi is not None:
         kwargs["dpi"] = dpi
-    fig.savefig(path, **kwargs)
+    from .figures.style import _file_axes_geometry, _vector_numeric_cells
+
+    with _file_axes_geometry(fig), _vector_numeric_cells(fig, fmt):
+        fig.savefig(path, **kwargs)
     if report is not None:
         try:
             _finish_integrity(report, path)
@@ -6853,6 +6865,90 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
 
     return balanced_df
 
+def _style_standalone_grouped(figure, axis, df, grouped_data, *, grouping_column, data_column,
+                              graph_type, summary_func, colors, order, y_lim, error_bar_type, test_name):
+    """Bind existing standalone grouped values and summaries to the shared presentation owner.
+
+    Statistical results and the registered source frame have already been
+    computed. Optional frame attributes declare units, a reference identity
+    and the experimental unit; missing scientific context is never guessed.
+    """
+    from .figures.style import (GENERAL_DEFAULTS, _legend_note, apply_axes_style, categorical_slot_defaults,
+                                line_artist_defaults, resolve_style)
+    from .qt.i18n import tr
+
+    labels = list(order or df[grouping_column].cat.categories)
+    names = [str(value) for value in labels]
+    counts = tuple(len(grouped_data.get(value, ())) for value in labels)
+    reference = df.attrs.get("reference")
+    reference = None if reference is None else str(reference)
+    controls = [index for index, name in enumerate(names) if name == reference]
+    preferences = _preference_deltas("jitter_bar")
+    manual_palette = (bool(colors) or bool(preferences.get("palette"))
+                      or preferences.get("mark_colouring", "group") != "group")
+    defaults = None if manual_palette else condition_colours(len(names), controls, [Palette.ACCENT])
+    categorical = graph_type not in ("line", "line_std")
+    automatic = graph_type in ("jitter_box", "jitter_bar")
+    if categorical:
+        area = None if automatic or "marker_size" in preferences else GENERAL_DEFAULTS["marker_size"]
+        categorical_slot_defaults(axis, graph_type, conditions=len(names), colours=defaults, point_area=area)
+        axis._spacr_condition_counts = counts
+        axis.set_xticks(range(len(names)), names)
+        axis.set_xlim(-.5, len(names)-.5)
+        rotate_ticks(axis, 90)
+        if automatic and preferences.get("point_overlay") is False:
+            from matplotlib.collections import PathCollection
+
+            for artist in list(axis.collections):
+                if isinstance(artist, PathCollection) and str(artist.get_gid()).endswith(":points"):
+                    artist.remove()
+            axis._spacr_condition_recipe["points"] = False
+    else:
+        point_colours = defaults if defaults is not None else [axis.lines[0].get_color()] * len(names)
+        line_artist_defaults(axis, point_colours=point_colours,
+                             marker_area=float(preferences.get("marker_size", GENERAL_DEFAULTS["marker_size"])))
+        figure._spacr_spec.update(kind="line", grouped_line=dict(
+            mode="groups", grouping_column=grouping_column, columns=[data_column],
+            representation="object", summary_func=summary_func or "mean", order=labels,
+            log_x=False, log_y=False, remove_outliers=False,
+            palette=[axis.lines[0].get_color()], point_colours=point_colours,
+            spread_func="sem" if error_bar_type == "sem" else "std"))
+    axis.set_xlabel(str(grouping_column));axis.set_ylabel(str(data_column));axis.set_title("")
+    unit = str(df.attrs.get("experimental_unit") or tr("source row"))
+    caption = tr("{measurement} by {condition}; each supplied observation represents one {unit}. "
+                 "The reference condition is {reference}.").format(measurement=data_column,
+        condition=grouping_column, unit=unit, reference=reference or tr("not declared"))
+    summary = summary_func if isinstance(summary_func, str) else getattr(summary_func, "__name__", tr("supplied summary"))
+    spread = tr("the standard error of the mean") if error_bar_type == "sem" else tr("one standard deviation")
+    if graph_type == "bar":
+        detail = tr("Bars show {summary}; error bars show {spread}.").format(summary=summary, spread=spread)
+    elif not categorical:
+        detail = tr("Points show {summary}; error bars show {spread}.").format(summary=summary, spread=spread)
+    elif automatic:
+        detail = tr("Bars show arithmetic means. Boxes show medians and interquartile ranges with fifth-to-ninety-fifth percentile whiskers. "
+                    "Violins show distributions with a median line.")
+    elif graph_type == "box":
+        detail = tr("Boxes show medians and interquartile ranges; whiskers extend to observations within one and a half interquartile ranges.")
+    elif graph_type == "violin":
+        detail = tr("Violin envelopes show distributions; black horizontal lines show medians.")
+    else:
+        detail = tr("Points show the supplied observations.")
+    caption += " " + detail
+    if automatic and preferences.get("point_overlay") is False:
+        caption += " " + tr("Individual observations were hidden by an explicit display preference.")
+    specification = resolve_style(theme_target(), "categorical" if categorical else "continuous",
+        conditions=names if categorical else None, sample_counts=counts if categorical else None,
+        control=controls if categorical else None,
+        comparison={"reference":reference,"graph_type":graph_type,"experimental_unit":unit,
+                    "categorical_axes":("x",),"manual_limits":tuple(y_lim) if isinstance(y_lim,list) and len(y_lim)==2 else None},
+        legend={"caption":caption,"reference":reference,
+                "quantities":{"x":grouping_column,"y":data_column},"units":df.attrs.get("units") or {}})
+    apply_axes_style(axis,specification)
+    _legend_note(axis,caption,"#000000","caption")
+    _legend_note(axis,test_name,"#000000","statistical")
+    figure._spacr_caption=caption
+
+
 def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box', summary_func='mean', order=None, colors=None, output_dir='./output', save=False, y_lim=None, error_bar_type='std'):
     """Plot grouped observations and run assumption-aware comparisons.
 
@@ -6862,12 +6958,12 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
     checks; an underpowered assumption check selects the rank test. When at
     least three groups jointly pass normality, Tukey HSD rows are added.
 
-    The ``'jitter_box'`` default is a statistical choice, not a
-    presentation preference: it shows the observations and their distribution
-    instead of reducing each group to a mean bar.
-    Two groups can have the same mean while having different spreads.
-    The box summarizes the distribution;
-    the jitter stays because the points are the evidence.
+    The automatic comparison view uses a mean bar with observations through
+    twenty values, a box with observations above twenty, and a violin without
+    individual points at one thousand values. Explicit chart forms remain
+    available. Statistical comparisons and exported results do not depend on
+    this display choice. Optional ``df.attrs`` entries ``units``, ``reference``
+    and ``experimental_unit`` declare scientific context for the legend.
 
     Parameters
     ----------
@@ -6878,8 +6974,8 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
     data_column : str
         Numeric column to plot and compare.
     graph_type : {'bar', 'violin', 'jitter', 'box', 'jitter_box'}, optional
-        Plot representation. The default shows every observation together
-        with median, quartiles, and whiskers.
+        Plot representation. The automatic default follows the finite sample
+        count; explicit forms retain their original summary calculations.
     summary_func : str or callable, optional
         Aggregation used by the bar representation.
     order : sequence of str, optional
@@ -7015,7 +7111,7 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
             condition_plot(axis, [df.loc[df[grouping_column].astype(str)
                                          == group, data_column]
                                   .to_numpy(float) for group in plotted],
-                           colours=color_palette)
+                           colours=color_palette, labels=plotted)
             axis.set_xticks(range(len(plotted)))
             axis.set_xticklabels(plotted)
             axis.set_xlabel(str(grouping_column))
@@ -7089,6 +7185,11 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
                 for artist in list(axis.patches) + list(axis.collections):
                     artist.set_alpha(DATA_ALPHA)
             size_condition_axes(axis, len(unique_groups))
+
+        _style_standalone_grouped(fig, axis, df, grouped_data,
+            grouping_column=grouping_column, data_column=data_column, graph_type=graph_type,
+            summary_func=summary_func, colors=colors, order=order, y_lim=y_lim,
+            error_bar_type=error_bar_type, test_name=test_name)
 
         if save:
             plot_path = os.path.join(output_dir, 'grouped_plot')
@@ -7322,6 +7423,10 @@ class spacrGraph:
         if len(self.data_column) == 1:
             return condition_colours(count, spacrGraph._control_index(self),
                                      [Palette.ACCENT])
+        if self.graph_type == "line":
+            controls = [index for index, group in enumerate(self.order[:count])
+                        if self.compare_group is not None and str(group) == str(self.compare_group)]
+            return condition_colours(count, controls, [Palette.ACCENT])
         return condition_colours(count)
 
     def _control_index(self):
@@ -7333,6 +7438,17 @@ class spacrGraph:
         name = str(compare_group)
         return order.index(name) if name in order else None
 
+    def _condition_values(self):
+        """Return the original plotted values in the explicitly declared condition order."""
+        if len(self.data_column) > 1:
+            return [self.df_melted.loc[
+                (self.df_melted[self.grouping_column] == group)
+                & (self.df_melted['Data Column'] == column), 'Value'].to_numpy(float)
+                for group in self.order for column in self.data_column]
+        return [self.df_melted.loc[self.df_melted[self.grouping_column]
+                                  == group, 'Value'].to_numpy(float)
+                for group in self.order]
+
     def _create_condition_plot(self, ax):
         """The house condition plot of one data column (spacr-graphs rules).
 
@@ -7342,16 +7458,14 @@ class spacrGraph:
         drawn at 60 % opacity; ``compare_group`` is grey.
         """
         column = self.data_column[0]
-        values = [self.df_melted.loc[self.df_melted[self.grouping_column]
-                                     == group, 'Value'].to_numpy(float)
-                  for group in self.order]
+        values = self._condition_values()
         self.summary_df = self.df_melted.groupby(
             [self.grouping_column], observed=False
         ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
               sem=('Value', 'sem'), count=('Value', 'count')).reset_index()
         condition_plot(ax, values, colours=self._plot_palette(len(values)),
                        control=self._control_index(),
-                       points=self._points_overlaid())
+                       points=self._points_overlaid(), labels=self.order)
         ax.set_xticks(range(len(self.order)))
         ax.set_xticklabels([str(group) for group in self.order])
         ax.set_ylabel(column)
@@ -7361,6 +7475,139 @@ class spacrGraph:
         if self.log_x:
             ax.set_xscale('log')
   
+    def _present_multiple_conditions(self, ax):
+        """Label consecutive measurement slots after the original numerical bookkeeping.
+
+        The original creator has already populated melted and summary tables.
+        Only the automatic display is redrawn; explicit chart types retain
+        their original value coordinates, distribution calculations and palette.
+        """
+        from .figures.style import categorical_slot_defaults
+
+        pairs = [(group, column) for group in self.order for column in self.data_column]
+        labels = [f"{group} - {column}" for group, column in pairs]
+        values = self._condition_values()
+        controls = [index for index, (group, _) in enumerate(pairs)
+                    if self.compare_group is not None and str(group) == str(self.compare_group)]
+        manual = (bool(self.colors) or bool(self._user_style().get("palette"))
+                  or self._user_style().get("mark_colouring", "group") != "group")
+        colours = None if manual else condition_colours(len(pairs), controls, [Palette.ACCENT])
+        if self.graph_type in ('jitter_box', 'jitter_bar'):
+            if manual:
+                original = list(dict.fromkeys(zip(self.df_melted[self.grouping_column],
+                                                   self.df_melted['Data Column'])))
+                mapping = dict(zip(original, self._plot_palette(len(original))))
+                colours = [mapping.get(pair, Palette.ACCENT) for pair in pairs]
+            ax.clear()
+            condition_plot(ax, values, colours=colours,
+                           points=self._points_overlaid(), labels=labels)
+            ax._spacr_condition_recipe["sources"] = [
+                {"group_column": self.grouping_column, "group": str(group), "value_column": column}
+                for group, column in pairs]
+            if self.log_y:
+                ax.set_yscale('log')
+            if self.log_x:
+                ax.set_xscale('log')
+        else:
+            categorical_slot_defaults(ax, self.graph_type, conditions=len(pairs), colours=colours,
+                                      point_area=None if "marker_size" in self._user_style() else 4.0)
+            ax._spacr_condition_counts = tuple(int(np.isfinite(value).sum()) for value in values)
+        ax.set_xticks(range(len(pairs)), labels)
+        rotate_ticks(ax, 90)
+        ax.set_xlim(-0.5, len(pairs) - 0.5)
+        ax.set_ylabel(", ".join(str(column) for column in self.data_column))
+        legend = ax.get_legend()
+        if legend is not None:
+            legend.remove()
+
+    def _apply_presentation(self, ax, *, layout=True):
+        """Apply shared presentation to already computed graph data and comparisons.
+
+        Counts describe the existing experimental-unit aggregation. Missing
+        measurement units remain explicit diagnostics; no units or reference
+        conditions are inferred from column or condition names.
+        """
+        from .figures.style import apply_axes_style, resolve_style, theme_target
+        from .qt.i18n import tr
+
+        categorical = self.graph_type not in ("line", "line_std")
+        multiple = categorical and len(self.data_column) > 1
+        conditions = (tuple(f"{group} - {column}" for group in self.order for column in self.data_column)
+                      if multiple else tuple(self.order) if categorical else None)
+        counts = getattr(ax, "_spacr_condition_counts", None)
+        if categorical and len(self.data_column) == 1 and self.graph_type in ("box", "violin"):
+            from .figures.style import categorical_artist_defaults
+
+            counts = tuple(int(np.isfinite(values).sum()) for values in self._condition_values())
+            ax._spacr_condition_counts = counts
+            categorical_artist_defaults(ax, self.graph_type, conditions=len(self.order))
+            ax.set_ylabel(str(self.data_column[0]))
+        if categorical and len(self.data_column) == 1 and self.graph_type == "jitter":
+            from .figures.style import categorical_slot_defaults
+
+            counts = tuple(int(np.isfinite(values).sum()) for values in self._condition_values())
+            ax._spacr_condition_counts = counts
+            categorical_slot_defaults(ax, "jitter", conditions=len(self.order),
+                                      point_area=None if "marker_size" in self._user_style() else 4.0)
+        control = ([index for index, (group, _) in enumerate(
+            (group, column) for group in self.order for column in self.data_column)
+            if self.compare_group is not None and str(group) == str(self.compare_group)]
+            if multiple else self._control_index() if categorical else None)
+        reference = str(self.compare_group) if self.compare_group is not None else None
+        caption = tr("{measurement} by {condition}; each observation represents one {unit}. "
+                     "The reference condition is {reference}.").format(
+                         measurement=", ".join(str(value) for value in self.data_column),
+                         condition=self.grouping_column, unit=self.representation,
+                         reference=reference or tr("not declared"))
+        quantities = {"x": self.grouping_column, "y": tuple(self.data_column)}
+        statistical_reference = reference
+        if not categorical:
+            from .figures.style import line_artist_defaults
+
+            numeric = len(self.data_column) >= 2
+            quantities = {"x": self.data_column[0] if numeric else self.grouping_column,
+                          "y": self.data_column[1] if numeric else self.data_column[0]}
+            point_colours = self._plot_palette(len(self.order)) if not numeric else None
+            line_artist_defaults(ax, point_colours=point_colours,
+                                 marker_area=float(self._user_style().get("marker_size", 4.0)))
+            if point_colours is not None:
+                ax._spacr_trend_colours = point_colours
+            if self.graph_type == "line_std":
+                reference = None
+                caption = tr("{y} versus {x}; the line shows a mean pooled across groups at each x value, "
+                             "and shading shows one standard deviation. Each observation represents one {unit}. "
+                             "The statistical comparison reference is {reference}; it is not a separate plotted series.").format(
+                    y=quantities["y"], x=quantities["x"], unit=self.representation,
+                    reference=statistical_reference or tr("not declared"))
+            elif numeric:
+                caption = tr("{y} versus {x}; lines show means for each {condition}, with the original line-renderer confidence intervals. "
+                             "Each observation represents one {unit}. The reference condition is {reference}.").format(
+                    y=quantities["y"], x=quantities["x"], condition=self.grouping_column,
+                    unit=self.representation, reference=reference or tr("not declared"))
+            else:
+                caption = tr("{y} by {condition}; points show the {summary} of each condition and error bars show one standard deviation. "
+                             "Each observation represents one {unit}. The reference condition is {reference}.").format(
+                    y=quantities["y"], condition=self.grouping_column, summary=self.summary_func or "mean",
+                    unit=self.representation, reference=reference or tr("not declared"))
+        specification = resolve_style(theme_target(),
+            "categorical" if categorical else "continuous",
+            conditions=conditions, sample_counts=counts, control=control,
+            comparison={"reference": reference, "statistical_reference": statistical_reference, "graph_type": self.graph_type,
+                        "experimental_unit": self.representation,
+                        "categorical_axes": ("x",) if not categorical and len(self.data_column) == 1 else (),
+                        "manual_limits": tuple(None if value is None else float(value) for value in self.y_lim) if isinstance(self.y_lim, list) and len(self.y_lim) in (1, 2) else None},
+            legend={"caption": caption, "reference": reference,
+                    "quantities": quantities,
+                    "units": getattr(self.df, "attrs", {}).get("units") or {}})
+        if categorical:
+            ax.set_xlabel(self.grouping_column)
+        apply_axes_style(ax, specification, layout=layout)
+        from .figures.style import _legend_note
+
+        _legend_note(ax, caption, "#000000", "caption")
+        self.fig._spacr_caption = caption
+
+
     def preprocess_data(self):
         """Return a new DataFrame aggregated to the configured representation.
 
@@ -7730,88 +7977,11 @@ class spacrGraph:
         :param ax: Existing ``Axes`` to draw into, for placing this graph in
             a panel of a larger figure. ``self.fig`` is then set to that
             axes' parent figure, so a later ``save=True`` writes the whole
-            enclosing figure, not this panel alone. ``None`` creates a fresh
-            figure sized from the group count and ``bar_width`` — and note
-            that with a single ``data_column`` the standardisation pass
-            still calls ``ax.figure.set_size_inches``, which resizes a
-            shared figure underneath its other panels.
+            enclosing figure. Its existing axes rectangle is retained.
+            ``None`` creates a fresh figure with fixed physical condition
+            slots or a square continuous plot area.
         """
 
-        def _generate_tabels(unique_groups):
-            """Generate row labels and a symbol table for multi-level grouping."""
-            row_labels = [self.grouping_column] + self.data_column
-
-            table_data = []
-
-            grouping_row = []
-            for _ in self.data_column:
-                for group in unique_groups:
-                    grouping_row.append(group)
-            table_data.append(grouping_row)
-
-            for column in self.data_column:
-                column_row = []
-                for data_col in self.data_column:
-                    for group in unique_groups:
-                        if column == data_col:
-                            column_row.append('+')
-                        else:
-                            column_row.append('-')
-                table_data.append(column_row)
-
-            transposed_table = list(map(list, zip(*table_data)))
-            return row_labels, transposed_table
-
-
-        def _place_symbols(row_labels, transposed_table, x_positions, ax):
-            """
-            Places symbols and row labels aligned under the bars or jitter points on the graph.
-            
-            Parameters:
-            - row_labels: List of row titles to be displayed along the y-axis.
-            - transposed_table: Data to be placed under each bar/jitter as symbols.
-            - x_positions: X-axis positions for each group to align the symbols.
-            - ax: The matplotlib Axes object where the plot is drawn.
-            """
-            y_axis_min = ax.get_ylim()[0]
-            symbol_start_y = y_axis_min - 0.05 * (ax.get_ylim()[1] - y_axis_min)
-
-            y_spacing = 0.04
-
-            label_x_pos = ax.get_xlim()[0] - 0.3
-
-            for row_idx, title in enumerate(row_labels):
-                y_pos = symbol_start_y - (row_idx * y_spacing)
-                ax.text(label_x_pos, y_pos, title, ha='right', va='center', fontsize=TYPE_SCALE['annotation'], fontweight='regular')
-
-            for idx, (x_pos, column_data) in enumerate(zip(x_positions, transposed_table)):
-                for row_idx, text in enumerate(column_data):
-                    y_pos = symbol_start_y - (row_idx * y_spacing)
-                    ax.text(x_pos, y_pos, text, ha='center', va='center', fontsize=TYPE_SCALE['annotation'], fontweight='regular')
-
-            ax.figure.canvas.draw()
-                    
-        def _get_positions(self, ax):
-            """Return plotted group centers in left-to-right table order."""
-            if self.graph_type in ['bar','jitter_bar']: 
-                x_positions = [np.mean(bar.get_paths()[0].vertices[:, 0]) for bar in ax.collections if hasattr(bar, 'get_paths')]
-
-            elif self.graph_type == 'violin':
-                x_positions = [np.mean(violin.get_paths()[0].vertices[:, 0]) for violin in ax.collections if hasattr(violin, 'get_paths')]
-
-            elif self.graph_type in ['box', 'jitter_box']:
-                x_positions = sorted({line.get_xdata().mean()
-                                      for line in ax.lines
-                                      if line.get_linestyle() == '-'})
-
-            elif self.graph_type == 'jitter': 
-                x_positions = [np.mean(collection.get_offsets()[:, 0]) for collection in ax.collections if collection.get_offsets().size > 0]
-            
-            else:
-                x_positions = []
-            
-            return x_positions
-        
         stats_df = self.df
         self.df_melted = pd.melt(stats_df, id_vars=[self.grouping_column], value_vars=self.data_column,var_name='Data Column', value_name='Value')
         unique_groups = stats_df[self.grouping_column].unique()
@@ -7885,6 +8055,8 @@ class spacrGraph:
                 raise ValueError(f"Unknown graph type: {self.graph_type}") 
         
             categorical = self.graph_type not in ('line', 'line_std')
+            if categorical and len(self.data_column) > 1:
+                self._present_multiple_conditions(ax)
             if len(self.data_column) == 1 and categorical:
                 num_groups = len(self.order)
                 if self.graph_type in ('bar', 'box', 'violin', 'jitter'):
@@ -7916,12 +8088,11 @@ class spacrGraph:
             if handles:
                 ax.legend(
                     handles, labels, loc='center left',
-                    bbox_to_anchor=(1, 0.5), title='Data Column')
+                    bbox_to_anchor=(1, 0.5), title=self.grouping_column if self.graph_type == 'line' else '')
         
             if not self.graph_type in ['line','line_std']:
                 ax.set_xlabel('')
 
-            x_positions = _get_positions(self, ax)
         
             if len(self.data_column) == 1 and not self.graph_type in ['line','line_std']:
                 legend = ax.get_legend()
@@ -7929,19 +8100,10 @@ class spacrGraph:
                     legend.remove()
                 rotate_ticks(ax)
 
-            elif len(self.data_column) > 1 and not self.graph_type in ['line','line_std']:
-                ax.set_xticks([])
-                ax.tick_params(bottom=False)
-                ax.set_xticklabels([])
-                legend_ax = self.fig.add_axes([0.1, -0.2, 0.62, 0.2])
-                legend_ax.set_axis_off()
-
-                row_labels, table_data = _generate_tabels(unique_groups)
-                _place_symbols(row_labels, table_data, x_positions, ax)
-            
             if self.annotate_stats:
                 self._draw_comparison_lines(ax)
 
+            self._apply_presentation(ax, layout=created_here)
             if self.save:
                 self._save_results()
 
@@ -7961,6 +8123,7 @@ class spacrGraph:
                         'grouping_column': self.grouping_column,
                         'columns': list(self.data_column),
                         'representation': self.representation,
+                        'point_colours': getattr(ax, '_spacr_trend_colours', None),
                         'summary_func': self.summary_func or 'mean',
                         'order': list(self.order),
                         'log_x': self.log_x, 'log_y': self.log_y,
@@ -8023,9 +8186,9 @@ class spacrGraph:
         """Bracket each pairwise comparison and mark it with its asterisks.
 
         Drawn only for a single data column: with several columns the x axis
-        is one position per (column, group) pair and the symbol table below it
-        already says which is which, so a bracket has no unambiguous pair of
-        ends to sit on.
+        is one position per (column, group) pair. Those comparisons require
+        measurement-specific endpoints; this annotation route handles only
+        the single-measurement case.
 
         A comparison naming a group that is not on this axis is skipped rather
         than guessed at. The stack sits above the data, and the top of the
@@ -8133,7 +8296,7 @@ class spacrGraph:
         ax.figure.canvas.draw()
         
     def _create_bar_plot(self, ax):
-        """Helper method to create a bar plot with consistent bar thickness and centered error bars."""
+        """Draw bars with consistent width and error bars matched to displayed categories."""
         if len(self.data_column) > 1:
             self.df_melted['Combined Group'] = (self.df_melted[self.grouping_column].astype(str) + " - " + self.df_melted['Data Column'].astype(str))
             x_axis_column = 'Combined Group'
@@ -8167,8 +8330,11 @@ class spacrGraph:
                 bar.set_x(bar.get_x() - target_width / 2)
             
         bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
+        summary_by_label = summary_df.set_index(x_axis_column) if len(self.data_column) > 1 else None
         for bar, (_, row) in zip(bars, summary_df.iterrows()):
             x_bar = bar.get_x() + bar.get_width() / 2
+            if summary_by_label is not None:
+                row = summary_by_label.loc[plot_order[int(round(x_bar))]]
             err = self._error_half_width(row)
             if err is None:
                 continue
@@ -9401,6 +9567,10 @@ def plot_proportion_stacked_bars(settings, df, group_column, bin_column, prc_col
 def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save=True, save_path=None):
     """Compute a two-set gene overlap from CSVs and draw its Venn diagram.
 
+    Region numbers count distinct non-missing genes after the original
+    coefficient filter. Input identities and the overlap are explained in
+    the figure legend; source tables and returned gene lists are unchanged.
+
     :param file1: First CSV file.
     :param file2: Second CSV file.
     :param gene_column: Column identifying genes. Default ``'gene'``.
@@ -9434,7 +9604,23 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
     unique_to_file2 = genes2.difference(genes1)
 
     with figure_style(theme_target()):
-        fig, ax = plt.subplots(figsize=(8, 6))
+        from .figures.style import (_legend_note, apply_axes_style, axes_geometry,
+                                    pack_axes_geometry, resolve_style)
+        from .qt.i18n import tr
+
+        colours = {"10": Palette.ACCENT, "01": Palette.TEAL, "11": Palette.NAVY_DARK}
+        caption = tr("Gene overlap between the two supplied inputs. Numbers count distinct non-missing genes after filtering; repeated identifiers count once. Blue identifies genes only in input 1, teal only in input 2, and navy in both inputs.")
+        if filter_coeff is not None:
+            caption += " " + (tr("Coefficients must be greater than {threshold}.") if filter_coeff >= 0
+                               else tr("Coefficients must be less than {threshold}.")).format(threshold=filter_coeff)
+        else:
+            caption += " " + tr("No coefficient filter is applied.")
+        specification = resolve_style(theme_target(), "schematic",
+            comparison={"graph_type": "venn", "region_colours": colours},
+            legend={"caption": caption, "unit": "genes"})
+        height = axes_geometry(resolve_style(theme_target(), "continuous")).height_inches
+        fig, ax = plt.subplots(figsize=(height, height))
+        ax.set_position([0., 0., 1., 1.])
         from .figures.bundle import _register_figure_data
         _register_figure_data(fig, source_data, kind="venn", venn={
             "input_column": input_column,
@@ -9442,27 +9628,35 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
             "filter_coeff": filter_coeff,
             "inputs": [{"input": index, "path": str(path)}
                        for index, path in enumerate((file1, file2))],
-            "labels": ["File 1 Genes", "File 2 Genes"],
-            "colors": {"10": ROLES["data"], "01": Palette.GREY_DARK,
-                       "11": ROLES["highlight"]},
+            "labels": [tr("Input 1"), tr("Input 2")],
+            "colors": colours,
+            "alpha": DATA_ALPHA,
+            "set_label_positions": [[.25, -.08], [.75, -.08]],
             "fontsize": TYPE_SCALE["annotation"],
             "ink": resolve_ink(theme_target())})
-        diagram = venn2([genes1, genes2], ('File 1 Genes', 'File 2 Genes'),
+        diagram = venn2([genes1, genes2], (tr("Input 1"), tr("Input 2")),
                         ax=ax)
-        for region, colour in (('10', ROLES['data']),
-                               ('01', Palette.GREY_DARK),
-                               ('11', ROLES['highlight'])):
+        for region, colour in colours.items():
             patch = diagram.get_patch_by_id(region)
             if patch is not None:
                 patch.set_color(colour)
-                patch.set_alpha(1.0)
+                patch.set_alpha(DATA_ALPHA)
+                patch.set_gid("spacr-venn-" + region)
                 patch.set_edgecolor('none')
         for label in list(diagram.set_labels or []) + list(
                 diagram.subset_labels or []):
             if label is not None:
                 label.set_fontsize(TYPE_SCALE['annotation'])
                 label.set_color(resolve_ink(theme_target()))
-        descriptor(ax, "Venn Diagram of Overlapping Genes")
+        for label, position in zip(diagram.set_labels, ((.25, -.08), (.75, -.08))):
+            label.set_transform(ax.transAxes)
+            label.set_position(position)
+            label.set_horizontalalignment("center")
+            label.set_verticalalignment("top")
+        apply_axes_style(ax, specification, layout=False)
+        pack_axes_geometry([ax])
+        _legend_note(ax, caption, "#000000", "caption")
+        fig._spacr_caption = caption
 
         if save:
             if save_path is None:
@@ -9479,6 +9673,113 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
         "unique_to_file2": list(unique_to_file2)
     }
 
+def _style_legacy_volcano(fig, ax, x, y, mask, *, created_here, figsize, title,
+                          x_transform, y_transform, fold_change_threshold, p_value_threshold,
+                          point_size, alpha, scatter_kwargs, threshold_line_kwargs, text_kwargs):
+    """Declare actual legacy volcano semantics and preserve explicit rendering choices.
+
+    All transformations, selection thresholds and returned point identities
+    have already been computed by the original producer. Supplied axes retain
+    their existing geometry, data artists and manual presentation.
+    """
+    from matplotlib.collections import PathCollection
+    from matplotlib.transforms import IdentityTransform
+    from .figures.style import (_legend_note, _restore_text_appearance, _text_appearance,
+                                apply_axes_style, resolve_style)
+    from .qt.i18n import tr
+
+    points = ax.collections[-1]
+    finite = np.isfinite(x) & np.isfinite(y)
+    references = list(ax.lines[-(1 + 2 * int(fold_change_threshold is not None)
+                                  + int(p_value_threshold is not None)):])
+    explicit = dict(scatter_kwargs or {})
+    sizes = points.get_sizes().copy()
+    point_alpha = points.get_alpha()
+    texts = [(text, _text_appearance(text)) for text in ax.texts] if text_kwargs else []
+    x_names = {"none":tr("the supplied effect scale"),"log2":tr("a base-2 logarithm"),
+               "log10":tr("a base-10 logarithm"),"ln":tr("a natural logarithm"),"log":tr("a natural logarithm")}
+    y_names = {"none":tr("raw p values"),"-log10":tr("negative base-10 logarithms of p values"),
+               "-ln":tr("negative natural logarithms of p values"),"log10":tr("base-10 logarithms of p values"),
+               "ln":tr("natural logarithms of p values"),"log":tr("natural logarithms of p values")}
+    caption = tr("Effects use {effect_scale}; significance uses {significance_scale}. Both coordinates are dimensionless. "
+                 "The vertical reference marks zero on the displayed effect scale. {count} finite observations are displayed.").format(
+        effect_scale=x_names[x_transform.lower()],significance_scale=y_names[y_transform.lower()],count=int(finite.sum()))
+    if fold_change_threshold is not None:
+        caption += " " + tr("The supplied effect threshold is {threshold}.").format(threshold=fold_change_threshold)
+    if p_value_threshold is not None:
+        caption += " " + tr("The supplied raw p-value threshold is {threshold}.").format(threshold=p_value_threshold)
+    if title:
+        caption += " " + str(title)
+    reference = tr("Zero reference")
+    specification = resolve_style(theme_target(), "continuous",
+        comparison={"reference":reference,"graph_type":"volcano","forbid_inside_title":True,
+                    "manual_view":not created_here or figsize is not None},
+        legend={"caption":caption,"reference":reference,"unit":"dimensionless",
+                "quantities":{"x":ax.get_xlabel(),"y":ax.get_ylabel()}})
+    if created_here:
+        apply_axes_style(ax,specification,layout=figsize is None)
+        if alpha != DATA_ALPHA or "alpha" in explicit:
+            points.set_alpha(point_alpha)
+        if point_size != GENERAL_DEFAULTS["marker_size"] or "s" in explicit:
+            points.set_sizes(sizes)
+        aliases = {"c":"color","ls":"linestyle","lw":"linewidth"}
+        for line in references[:-1]:
+            for name,value in (threshold_line_kwargs or {}).items():
+                setter = getattr(line,"set_"+aliases.get(name,name),None)
+                if setter is not None:
+                    setter(value)
+        for text,record in texts:
+            _restore_text_appearance(text,record)
+    else:
+        ax._spacr_style_spec=specification
+    if created_here:
+        captured_references=[]
+        for line in references:
+            xs=np.asarray(line.get_xdata(),dtype=float);ys=np.asarray(line.get_ydata(),dtype=float)
+            vertical=bool(len(xs) and np.ptp(xs)==0.)
+            record=dict(axis="x" if vertical else "y",value=float(xs[0] if vertical else ys[0]),
+                        color=tuple(mpl.colors.to_rgba(line.get_color())),alpha=line.get_alpha(),
+                        linewidth=line.get_linewidth(),linestyle=line.get_linestyle(),
+                        label=line.get_label(),gid=line.get_gid())
+            record.update({"ymin":float(ys[0]),"ymax":float(ys[-1])} if vertical
+                          else {"xmin":float(xs[0]),"xmax":float(xs[-1])})
+            captured_references.append(record)
+        fig._spacr_spec["references"]=captured_references
+    selection = fold_change_threshold is not None or p_value_threshold is not None
+    categories = [(tr("Selected, effect ≥ 0"),finite & mask & (x>=0)),
+                  (tr("Selected, effect < 0"),finite & mask & (x<0)),
+                  (tr("Other observations"),finite & ~mask)] if selection else [(tr("Observations"),finite)]
+    handles=[];labels=[]
+    faces=points.get_facecolors();edges=points.get_edgecolors();areas=points.get_sizes()
+    for label,selected in categories:
+        indexes=np.flatnonzero(selected)
+        if not len(indexes):
+            continue
+        index=int(indexes[0])
+        colour=faces[index if len(faces)>1 else 0]
+        edge=edges[index if len(edges)>1 else 0] if len(edges) else "none"
+        area=areas[index if len(areas)>1 else 0] if len(areas) else GENERAL_DEFAULTS["marker_size"]
+        key=PathCollection(points.get_paths(),sizes=[area],facecolors=[colour],edgecolors=edge,
+                           linewidths=points.get_linewidths())
+        key.set_transform(IdentityTransform())
+        handles.append(key);labels.append(label)
+        _legend_note(ax,label,mpl.colors.to_hex(colour,keep_alpha=True),"series")
+    handles.append(references[-1]);labels.append(reference)
+    if created_here or ax.get_legend() is None:
+        key=ax.legend(handles,labels,loc="center left",bbox_to_anchor=(1.05,.5),frameon=False,
+                      fontsize=TYPE_SCALE["tick"],title_fontsize=TYPE_SCALE["label"])
+        for text in key.get_texts():
+            text.set_fontfamily("Open Sans");text.set_fontweight("light")
+        key.get_title().set_fontfamily("Open Sans");key.get_title().set_fontweight("regular")
+    if created_here and figsize is None:
+        from .figures.style import fit_axes_geometry
+
+        fit_axes_geometry(ax,specification)
+    _legend_note(ax,caption,"#000000","caption")
+    previous_caption=getattr(fig,"_spacr_caption",None)
+    fig._spacr_caption=(str(previous_caption)+" "+caption) if not created_here and previous_caption else caption
+
+
 def volcano_plot(
     data: Union[str, pd.DataFrame],
     *,
@@ -9491,9 +9792,9 @@ def volcano_plot(
     p_value_threshold: Optional[float] = None,
     annotate: bool = True,
     annotate_max: Optional[int] = None,
-    point_size: float = 20.0,
-    alpha: float = 0.7,
-    figsize: Tuple[float, float] = (8.0, 6.0),
+    point_size: float = GENERAL_DEFAULTS["marker_size"],
+    alpha: float = DATA_ALPHA,
+    figsize: Optional[Tuple[float, float]] = None,
     title: Optional[str] = None,
     xlim: Optional[Tuple[float, float]] = None,
     ylim: Optional[Tuple[float, float]] = None,
@@ -9528,9 +9829,9 @@ def volcano_plot(
         supplied.
     :param annotate_max: Cap on the number of annotated points (highest
         y first).
-    :param point_size: Scatter marker size.
-    :param alpha: Scatter marker alpha.
-    :param figsize: Figure size in inches.
+    :param point_size: Scatter marker area in square points; the shared default is four.
+    :param alpha: Scatter marker alpha; the shared default is sixty percent.
+    :param figsize: Explicit figure size in inches; None fits the shared square plot area.
     :param title: Optional figure title.
     :param xlim: Optional x-axis limits.
     :param ylim: Optional y-axis limits.
@@ -9673,6 +9974,7 @@ def volcano_plot(
             else:
                 mask &= (y <= y_thr_plot)
 
+    created_here = ax is None
     with figure_style(theme_target()):
         if ax is None:
             fig, ax = plt.subplots(figsize=figsize)
@@ -9688,9 +9990,9 @@ def volcano_plot(
         if (fold_change_threshold is not None) or (p_value_threshold is not None):
             colors = np.where(mask & (x >= 0), ROLES["up"],
                               np.where(mask & (x < 0), ROLES["down"],
-                                       ROLES["data"]))
+                                       Palette.BACKGROUND))
         else:
-            colors = ROLES["data"]
+            colors = Palette.BACKGROUND
 
         ax.scatter(x, y, c=colors, **scatter_defaults)
 
@@ -9701,8 +10003,8 @@ def volcano_plot(
         if title:
             ax.set_title(title)
 
-        line_defaults = dict(color=ROLES["reference"], linestyle=(0, (4, 3)),
-                             linewidth=WEIGHTS["reference"], alpha=1.0)
+        line_defaults = dict(color="#000000", linestyle=(0, (4, 3)),
+                             linewidth=WEIGHTS["reference"], alpha=DATA_ALPHA, gid="spacr-reference")
         if threshold_line_kwargs:
             line_defaults.update(threshold_line_kwargs)
 
@@ -9717,9 +10019,9 @@ def volcano_plot(
         if ylim is not None:
             ax.set_ylim(ylim)
 
-        ax.spines["right"].set_visible(False)
-        ax.spines["top"].set_visible(False)
-        reference_line(ax, x=0)
+        from .qt.i18n import tr
+
+        reference_line(ax, x=0, label=tr("Zero reference"))
 
         hits: list = []
         if annotate and (name_col is not None):
@@ -9752,12 +10054,14 @@ def volcano_plot(
                     hits.append(label)
                     texts.append(ax.text(x[i], y[i], label, **tkw))
 
-                adjust_text(
-                    texts,
-                    ax=ax,
-                    arrowprops=dict(arrowstyle="-", color=ROLES["reference"],
-                                    lw=WEIGHTS["reference"], alpha=1.0),
-                )
+        _style_legacy_volcano(fig,ax,x,y,mask,created_here=created_here,figsize=figsize,title=title,
+            x_transform=x_transform,y_transform=y_transform,fold_change_threshold=fold_change_threshold,
+            p_value_threshold=p_value_threshold,point_size=point_size,alpha=alpha,
+            scatter_kwargs=scatter_kwargs,threshold_line_kwargs=threshold_line_kwargs,text_kwargs=text_kwargs)
+
+        if annotate and name_col is not None and hits:
+            adjust_text(texts,ax=ax,arrowprops=dict(arrowstyle="-",color="#000000",
+                                                lw=WEIGHTS["reference"],alpha=DATA_ALPHA))
 
         if save_path:
             save_path = save_figure(fig, save_path, bbox_inches="tight")

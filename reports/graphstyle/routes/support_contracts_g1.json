@@ -1,0 +1,1305 @@
+{
+  "spacr.figure_sink.publish_file": {
+    "reason": "Announces an existing path through a best-effort callback; creates no chart and cannot validate an already written file.",
+    "file": "spacr/figure_sink.py",
+    "syntax_sha256": [
+      "3d48ff43812ccebf630dfef25d8883fe22330c0c1510616d4979eebd1f7ada6b"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "_file_sink",
+          "resolved": "_file_sink"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "LOG.debug",
+          "resolved": "LOG.debug"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style._apply_palette": {
+    "reason": "Updates the rcParam colour cycle from the explicit palette choice; it creates no chart or artist.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "586c96ba0b53a48b24ccfd5c6621600f4d04ee247ffb4ed6cfdc6ed5e16b28f2"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "_marks_coloured_by",
+          "resolved": "spacr.figure_style._marks_coloured_by"
+        },
+        {
+          "raw": "palette_colours",
+          "resolved": "spacr.figure_style.palette_colours"
+        },
+        {
+          "raw": "cycler",
+          "resolved": "cycler.cycler"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style._marks_coloured_by": {
+    "reason": "Returns the selected ordering of a copied colour sequence, preserving the original deterministic seed and explicit choices.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "f16caaecf38c738faaaf9673bce5f2fb6ba286366efc8d6e642ecd973cf488ab"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "list",
+          "resolved": "list"
+        },
+        {
+          "raw": "str(rule or 'group').strip().lower",
+          "resolved": "str(rule or 'group').strip().lower"
+        },
+        {
+          "raw": "str(rule or 'group').strip",
+          "resolved": "str(rule or 'group').strip"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "len",
+          "resolved": "len"
+        },
+        {
+          "raw": "list",
+          "resolved": "list"
+        },
+        {
+          "raw": "random.Random(RANDOM_MARK_SEED).shuffle",
+          "resolved": "random.Random(RANDOM_MARK_SEED).shuffle"
+        },
+        {
+          "raw": "random.Random",
+          "resolved": "random.Random"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style.apply": {
+    "reason": "Legacy preference entry point updates rcParams and the manual colour cycle; it creates no chart and gives no compliance certificate.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "0056e3b5251986497ed104abde5b8c2bbc2e5f2d4243682945856818ef6c1947"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "resolve",
+          "resolved": "spacr.figure_style.resolve"
+        },
+        {
+          "raw": "mpl.rcParams.update",
+          "resolved": "matplotlib.rcParams.update"
+        },
+        {
+          "raw": "rc_params",
+          "resolved": "spacr.figure_style.rc_params"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "_apply_palette",
+          "resolved": "spacr.figure_style._apply_palette"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style.figure_save_mode": {
+    "reason": "Reads the existing environment/preference export-mode choice; performs no rendering or file write.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "c714d32d75234e666bc4d3117713436dc99a6e972c4d474aacc50bce12580f7c"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "os.environ.get('SPACR_FIGURE_SAVE_MODE', '').strip().lower",
+          "resolved": "os.environ.get('SPACR_FIGURE_SAVE_MODE', '').strip().lower"
+        },
+        {
+          "raw": "os.environ.get('SPACR_FIGURE_SAVE_MODE', '').strip",
+          "resolved": "os.environ.get('SPACR_FIGURE_SAVE_MODE', '').strip"
+        },
+        {
+          "raw": "os.environ.get",
+          "resolved": "os.environ.get"
+        },
+        {
+          "raw": "_refuse_preferences_in_pipeline",
+          "resolved": "spacr.figures.style._refuse_preferences_in_pipeline"
+        },
+        {
+          "raw": "str(preferences.get_figure_save_mode()).strip().lower",
+          "resolved": "str(preferences.get_figure_save_mode()).strip().lower"
+        },
+        {
+          "raw": "str(preferences.get_figure_save_mode()).strip",
+          "resolved": "str(preferences.get_figure_save_mode()).strip"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "preferences.get_figure_save_mode",
+          "resolved": "spacr.qt.preferences.get_figure_save_mode"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style.page_size": {
+    "reason": "Returns the explicit manual page width and aspect calculation; creates no figure or artist.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "a75f9a074e8cc339b1a0a52bf4c6e18bfc3a3a25566fac52646daf1f00130ce0"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style.palette_colours": {
+    "reason": "Returns the selected colour sequence, including the common reference palette; it does not assign colours to artists.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "add78eb0b8b91589f9c202c56f41bb86f2bee4c80bd9af51fa8215d97262611b"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "list",
+          "resolved": "list"
+        },
+        {
+          "raw": "list",
+          "resolved": "list"
+        },
+        {
+          "raw": "sns.color_palette(str(name)).as_hex",
+          "resolved": "seaborn.color_palette(str(name)).as_hex"
+        },
+        {
+          "raw": "sns.color_palette",
+          "resolved": "seaborn.color_palette"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "list",
+          "resolved": "list"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style.rc_params": {
+    "reason": "Converts existing explicit figure preferences into an rcParam dictionary and registers bundled fonts; creates no artists.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "4dbbb103c514293fda17b5a572897bd792cd58b5c36e5e72647ff72329a8b3c1"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "use_open_sans_for_figures",
+          "resolved": "spacr.figure_font.use_open_sans_for_figures"
+        },
+        {
+          "raw": "SPINE_PRESETS.get",
+          "resolved": "SPINE_PRESETS.get"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "bool",
+          "resolved": "bool"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "int",
+          "resolved": "int"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "int",
+          "resolved": "int"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "chrome_of",
+          "resolved": "spacr.figure_style.chrome_of"
+        },
+        {
+          "raw": "chrome_of",
+          "resolved": "spacr.figure_style.chrome_of"
+        },
+        {
+          "raw": "str(style.get('chrome_colour', '') or '').strip",
+          "resolved": "str(style.get('chrome_colour', '') or '').strip"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "str(style.get('grid_colour', '') or '').strip",
+          "resolved": "str(style.get('grid_colour', '') or '').strip"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "str(style.get('marker_style', '') or '').strip",
+          "resolved": "str(style.get('marker_style', '') or '').strip"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "str(style.get('page_shape', '') or '').strip",
+          "resolved": "str(style.get('page_shape', '') or '').strip"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "_positive",
+          "resolved": "spacr.figure_style._positive"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "_positive",
+          "resolved": "spacr.figure_style._positive"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "list",
+          "resolved": "list"
+        },
+        {
+          "raw": "page_size",
+          "resolved": "spacr.figure_style.page_size"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "float",
+          "resolved": "float"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "bool",
+          "resolved": "bool"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "_marks_coloured_by",
+          "resolved": "spacr.figure_style._marks_coloured_by"
+        },
+        {
+          "raw": "palette_colours",
+          "resolved": "spacr.figure_style.palette_colours"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "style.get",
+          "resolved": "style.get"
+        },
+        {
+          "raw": "cycler",
+          "resolved": "cycler.cycler"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style.resolve": {
+    "reason": "Merges existing manual preference dictionaries; the actual chart owner applies and diagnoses the resulting choices.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "65651ea836270c823f7e8bef746e7c8876ee83198e2ba47ca0d12e2b46340b3a"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "dict",
+          "resolved": "dict"
+        },
+        {
+          "raw": "style.update",
+          "resolved": "style.update"
+        },
+        {
+          "raw": "general.items",
+          "resolved": "general.items"
+        },
+        {
+          "raw": "style.update",
+          "resolved": "style.update"
+        },
+        {
+          "raw": "GRAPH_DEFAULTS.get",
+          "resolved": "spacr.figures.style.GRAPH_DEFAULTS.get"
+        },
+        {
+          "raw": "overrides.get",
+          "resolved": "overrides.get"
+        },
+        {
+          "raw": "style.update",
+          "resolved": "style.update"
+        },
+        {
+          "raw": "per_kind.items",
+          "resolved": "per_kind.items"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style.saved_figure_appearance": {
+    "reason": "Returns the existing print/screen/transparent export appearance record; actual writers and finalizers observe its effects.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "7f752a1f7647777d1974b1708c6281697c6383edfc4203ed927456fc05687e29"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "str(mode).strip().lower",
+          "resolved": "str(mode).strip().lower"
+        },
+        {
+          "raw": "str(mode).strip",
+          "resolved": "str(mode).strip"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "figure_save_mode",
+          "resolved": "spacr.figure_style.figure_save_mode"
+        },
+        {
+          "raw": "SavedFigureAppearance",
+          "resolved": "spacr.figure_style.SavedFigureAppearance"
+        },
+        {
+          "raw": "theme_ink",
+          "resolved": "spacr.figure_style.theme_ink"
+        },
+        {
+          "raw": "SavedFigureAppearance",
+          "resolved": "spacr.figure_style.SavedFigureAppearance"
+        },
+        {
+          "raw": "SavedFigureAppearance",
+          "resolved": "spacr.figure_style.SavedFigureAppearance"
+        }
+      ]
+    ]
+  },
+  "spacr.figure_style.theme_ink": {
+    "reason": "Returns the existing theme foreground/grid pair; performs no painting or mark creation.",
+    "file": "spacr/figure_style.py",
+    "syntax_sha256": [
+      "fd187ad83bac96311c5c570a101ce76d23b2db0847f0aa5bb014a3ddbd854ff9"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "_refuse_preferences_in_pipeline",
+          "resolved": "spacr.figures.style._refuse_preferences_in_pipeline"
+        },
+        {
+          "raw": "str(resolve_effective_theme() or '').strip().lower",
+          "resolved": "str(resolve_effective_theme() or '').strip().lower"
+        },
+        {
+          "raw": "str(resolve_effective_theme() or '').strip",
+          "resolved": "str(resolve_effective_theme() or '').strip"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "resolve_effective_theme",
+          "resolved": "spacr.qt.preferences.resolve_effective_theme"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.plates.plate_ramp": {
+    "reason": "Returns the existing shared sequential colormap value for either target; creates no plate, matrix or artist.",
+    "file": "spacr/figures/plates.py",
+    "syntax_sha256": [
+      "8ef624aaa566e1e27a86491822fdee8f595c150f3a9f35e18604d172655dd58c"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "heatmap_cmap",
+          "resolved": "spacr.figures.style.heatmap_cmap"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.plates.score_ramp": {
+    "reason": "Returns the existing shared signed colormap value with zero reference; creates no plate or transformed scores.",
+    "file": "spacr/figures/plates.py",
+    "syntax_sha256": [
+      "666f85ff3ad8d1e860feda18395be01ecec82aae778998ffbcefeed60d14b0f3"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "heatmap_cmap",
+          "resolved": "spacr.figures.style.heatmap_cmap"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style._group_colours": {
+    "reason": "Returns an explicit manual group-colour sequence with its existing deterministic ordering; does not create groups or artists.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "c68260d527e6adfc6b471a030176a7942d84a18bac2656535b8eb089b350d825"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "_refuse_preferences_in_pipeline",
+          "resolved": "spacr.figures.style._refuse_preferences_in_pipeline"
+        },
+        {
+          "raw": "resolve(kind, get_figure_style(), get_figure_style_per_graph()).get",
+          "resolved": "resolve(kind, get_figure_style(), get_figure_style_per_graph()).get"
+        },
+        {
+          "raw": "resolve",
+          "resolved": "spacr.figure_style.resolve"
+        },
+        {
+          "raw": "get_figure_style",
+          "resolved": "spacr.qt.preferences.get_figure_style"
+        },
+        {
+          "raw": "get_figure_style_per_graph",
+          "resolved": "spacr.qt.preferences.get_figure_style_per_graph"
+        },
+        {
+          "raw": "str(chosen or 'group').strip().lower",
+          "resolved": "str(chosen or 'group').strip().lower"
+        },
+        {
+          "raw": "str(chosen or 'group').strip",
+          "resolved": "str(chosen or 'group').strip"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "max",
+          "resolved": "max"
+        },
+        {
+          "raw": "int",
+          "resolved": "int"
+        },
+        {
+          "raw": "list",
+          "resolved": "list"
+        },
+        {
+          "raw": "palette_colours",
+          "resolved": "spacr.figure_style.palette_colours"
+        },
+        {
+          "raw": "_marks_coloured_by",
+          "resolved": "spacr.figure_style._marks_coloured_by"
+        },
+        {
+          "raw": "len",
+          "resolved": "len"
+        },
+        {
+          "raw": "range",
+          "resolved": "range"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style._palette_map": {
+    "reason": "Returns the exact mapping from known palette values to an explicit selected palette; does not recolour any artist itself.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "ffa9078e6a797659fcce916156baf33ca46c737fa7b63b0fef46950bb1fcb771"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "palette_colours",
+          "resolved": "spacr.figure_style.palette_colours"
+        },
+        {
+          "raw": "to_hex",
+          "resolved": "matplotlib.colors.to_hex"
+        },
+        {
+          "raw": "palette_colours",
+          "resolved": "spacr.figure_style.palette_colours"
+        },
+        {
+          "raw": "enumerate",
+          "resolved": "enumerate"
+        },
+        {
+          "raw": "mapping.setdefault",
+          "resolved": "mapping.setdefault"
+        },
+        {
+          "raw": "str(colour).lower",
+          "resolved": "str(colour).lower"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "len",
+          "resolved": "len"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style.centred_norm": {
+    "reason": "Returns a normalization object with explicitly supplied bounds and centre; creates no chart or array copy.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "7e7e0504e235675e6c1ffddcd5f0629eb67fcd948597eede5c6fbc8ba730a9ba"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "TwoSlopeNorm",
+          "resolved": "matplotlib.colors.TwoSlopeNorm"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style.condition_colours": {
+    "reason": "Returns one colour value per explicit condition and explicit control index; does not infer identities or draw marks.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "a8e403383141a12ed91ed6fc306046e1ecbe6f455ede984078ef272f245dffd1"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "list",
+          "resolved": "list"
+        },
+        {
+          "raw": "list",
+          "resolved": "list"
+        },
+        {
+          "raw": "len",
+          "resolved": "len"
+        },
+        {
+          "raw": "range",
+          "resolved": "range"
+        },
+        {
+          "raw": "max",
+          "resolved": "max"
+        },
+        {
+          "raw": "int",
+          "resolved": "int"
+        },
+        {
+          "raw": "isinstance",
+          "resolved": "isinstance"
+        },
+        {
+          "raw": "int",
+          "resolved": "int"
+        },
+        {
+          "raw": "len",
+          "resolved": "len"
+        },
+        {
+          "raw": "int",
+          "resolved": "int"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style.condition_kind": {
+    "reason": "Returns the shared finite-count form choice without aggregating source observations or drawing a distribution.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "8ff2c8bd5539ceecf2fea749a0b8844ff2839b41d7f1b88e2470a668c0430c7e"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "int",
+          "resolved": "int"
+        },
+        {
+          "raw": "np.isfinite(np.asarray(values, float)).sum",
+          "resolved": "numpy.isfinite(np.asarray(values, float)).sum"
+        },
+        {
+          "raw": "np.isfinite",
+          "resolved": "numpy.isfinite"
+        },
+        {
+          "raw": "np.asarray",
+          "resolved": "numpy.asarray"
+        },
+        {
+          "raw": "_condition_kind_count",
+          "resolved": "spacr.figures.style._condition_kind_count"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style.diverging_cmap": {
+    "reason": "Returns the shared magenta-white-blue colormap object; assigns no colours to scientific values or artists.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "0ad51e3c32db9e05ea7548d00031c80b86d22b8daa64907ea5f55952127bcdbc"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "LinearSegmentedColormap.from_list",
+          "resolved": "matplotlib.colors.LinearSegmentedColormap.from_list"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style.rc": {
+    "reason": "Returns the shared house-style rcParam dictionary and explicit overrides, registering bundled fonts but creating no figure.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "d60ce0bcdfbef452b46c263ab043846dfe2b9e2ec17a36c7f6d6337ffb7fa72a"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "chosen_ink",
+          "resolved": "spacr.figures.style.chosen_ink"
+        },
+        {
+          "raw": "chosen_line_ink",
+          "resolved": "spacr.figures.style.chosen_line_ink"
+        },
+        {
+          "raw": "resolve_ink",
+          "resolved": "spacr.figures.style.resolve_ink"
+        },
+        {
+          "raw": "use_open_sans_for_figures",
+          "resolved": "spacr.figure_font.use_open_sans_for_figures"
+        },
+        {
+          "raw": "_default_font_params",
+          "resolved": "spacr.figure_font._default_font_params"
+        },
+        {
+          "raw": "resolve_line_ink",
+          "resolved": "spacr.figures.style.resolve_line_ink"
+        },
+        {
+          "raw": "font_parameters.get",
+          "resolved": "font_parameters.get"
+        },
+        {
+          "raw": "params.update",
+          "resolved": "params.update"
+        },
+        {
+          "raw": "user_overrides",
+          "resolved": "spacr.figures.style.user_overrides"
+        },
+        {
+          "raw": "params.update",
+          "resolved": "params.update"
+        },
+        {
+          "raw": "dict.fromkeys",
+          "resolved": "dict.fromkeys"
+        },
+        {
+          "raw": "params.update",
+          "resolved": "params.update"
+        },
+        {
+          "raw": "dict.fromkeys",
+          "resolved": "dict.fromkeys"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style.resolve_ink": {
+    "reason": "Returns an explicit or default text-colour value; creates no text or artist.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "ab431ff8186a3e6ce185cbbc0160817142e204d1af4533a29286d3ff1daa4689"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "chosen_ink",
+          "resolved": "spacr.figures.style.chosen_ink"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style.resolve_label_ground": {
+    "reason": "Returns the explicit or target-specific label ground colour; creates no label.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "9374e40ad5d56b63018df79524c10db5686e6726342ba1cb62265864baf21e23"
+    ],
+    "calls": [
+      []
+    ]
+  },
+  "spacr.figures.style.resolve_line_ink": {
+    "reason": "Returns the independent explicit/default line-colour value; creates no line or artist.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "5d539f407013413e72ebc52d4845fefddb5afe2058fb9e2c9a101efb78710548"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "chosen_line_ink",
+          "resolved": "spacr.figures.style.chosen_line_ink"
+        },
+        {
+          "raw": "resolve_ink",
+          "resolved": "spacr.figures.style.resolve_ink"
+        }
+      ]
+    ]
+  },
+  "spacr.figures.style.user_overrides": {
+    "reason": "Returns only explicit preference differences as an rcParam mapping, respecting pipeline isolation; paints no artists.",
+    "file": "spacr/figures/style.py",
+    "syntax_sha256": [
+      "7c38c0cc77be26368e925c32289eabaecb28e48861a6b8d65f50af8e39c71ecb"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "_refuse_preferences_in_pipeline",
+          "resolved": "spacr.figures.style._refuse_preferences_in_pipeline"
+        },
+        {
+          "raw": "get_figure_style",
+          "resolved": "spacr.qt.preferences.get_figure_style"
+        },
+        {
+          "raw": "get_figure_style_per_graph",
+          "resolved": "spacr.qt.preferences.get_figure_style_per_graph"
+        },
+        {
+          "raw": "resolve",
+          "resolved": "spacr.figure_style.resolve"
+        },
+        {
+          "raw": "resolve",
+          "resolved": "spacr.figure_style.resolve"
+        },
+        {
+          "raw": "rc_params",
+          "resolved": "spacr.figure_style.rc_params"
+        },
+        {
+          "raw": "rc_params",
+          "resolved": "spacr.figure_style.rc_params"
+        },
+        {
+          "raw": "after.items",
+          "resolved": "after.items"
+        },
+        {
+          "raw": "before.get",
+          "resolved": "before.get"
+        }
+      ]
+    ]
+  },
+  "spacr.graph_types.default_for": {
+    "reason": "Returns a compatible saved graph-type name or its existing fallback; creates no chart.",
+    "file": "spacr/graph_types.py",
+    "syntax_sha256": [
+      "d4afd0f7df8806156753fe95195345f9d4d6693064316b373044af6aea227efd"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "chosen_for",
+          "resolved": "spacr.graph_types.chosen_for"
+        }
+      ]
+    ]
+  },
+  "spacr.graph_types.mark_for": {
+    "reason": "Looks up a graph-type string in the mark-name table; creates no marks.",
+    "file": "spacr/graph_types.py",
+    "syntax_sha256": [
+      "a469904fd41466b37a6353e221a1d8be8620fd13e583a3c9d9d64ed07a6ba270"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "MARKS.get",
+          "resolved": "MARKS.get"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        }
+      ]
+    ]
+  },
+  "spacr.graph_types.mark_to_start_on": {
+    "reason": "Converts the selected graph-type name into the existing mark vocabulary before data are read; creates no marks.",
+    "file": "spacr/graph_types.py",
+    "syntax_sha256": [
+      "e365a8838fe56e666bff65b01223aba4e63d52c4de8211a322462fe3511175fa"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "start_for",
+          "resolved": "spacr.graph_types.start_for"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "mark_for",
+          "resolved": "spacr.graph_types.mark_for"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        }
+      ]
+    ]
+  },
+  "spacr.graph_types.offer": {
+    "reason": "Returns compatible menu choices and explanations for the existing data shape; it creates no chart or widget.",
+    "file": "spacr/graph_types.py",
+    "syntax_sha256": [
+      "4379915b9eb7f27bfca3841e420ec08e47c1d1589b3a4c9020cdaed0f8d18375"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "shape_of",
+          "resolved": "spacr.graph_types.shape_of"
+        },
+        {
+          "raw": "dict",
+          "resolved": "dict"
+        },
+        {
+          "raw": "fits",
+          "resolved": "spacr.graph_types.fits"
+        },
+        {
+          "raw": "why_not",
+          "resolved": "spacr.graph_types.why_not"
+        },
+        {
+          "raw": "fits",
+          "resolved": "spacr.graph_types.fits"
+        }
+      ]
+    ]
+  },
+  "spacr.graph_types.start_for": {
+    "reason": "Returns the explicit compatible form choice and fallback explanation; the producer owns its actual drawing and shared-policy checks.",
+    "file": "spacr/graph_types.py",
+    "syntax_sha256": [
+      "7824681a02c26574b8aa467fb61b60dd962372230d32aeb99a894968b3cf7183"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "chosen_for",
+          "resolved": "spacr.graph_types.chosen_for"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "fits",
+          "resolved": "spacr.graph_types.fits"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "too_thin_for",
+          "resolved": "spacr.graph_types.too_thin_for"
+        },
+        {
+          "raw": "fits",
+          "resolved": "spacr.graph_types.fits"
+        },
+        {
+          "raw": "GRAPH_NAMES.get",
+          "resolved": "GRAPH_NAMES.get"
+        },
+        {
+          "raw": "GRAPH_NAMES.get",
+          "resolved": "GRAPH_NAMES.get"
+        }
+      ]
+    ]
+  },
+  "spacr.graph_types.too_thin_for": {
+    "reason": "Returns the existing small-sample explanation from input counts; it does not summarize values or render a distribution.",
+    "file": "spacr/graph_types.py",
+    "syntax_sha256": [
+      "fc291296d5849edd24bf848e344f10c66e35469fe1bc0ca4087d366d663d9a90"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "int",
+          "resolved": "int"
+        },
+        {
+          "raw": "int",
+          "resolved": "int"
+        },
+        {
+          "raw": "min",
+          "resolved": "min"
+        },
+        {
+          "raw": "GRAPH_NAMES.get",
+          "resolved": "GRAPH_NAMES.get"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        }
+      ]
+    ]
+  },
+  "spacr.graph_types.type_of_mark": {
+    "reason": "Returns the inverse mark-name lookup string; creates no chart or artist.",
+    "file": "spacr/graph_types.py",
+    "syntax_sha256": [
+      "ab6c47131d667020c995e0f4a71d4e2d1efdb77d4f22eee7a5416c1c73409dc4"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "str",
+          "resolved": "str"
+        },
+        {
+          "raw": "MARKS.items",
+          "resolved": "MARKS.items"
+        },
+        {
+          "raw": "str",
+          "resolved": "str"
+        }
+      ]
+    ]
+  },
+  "spacr.qt.widgets.fast_plots.colour_for": {
+    "reason": "Returns one QColor value from the shared categorical palette and explicit alpha; creates no graphics item or scene.",
+    "file": "spacr/qt/widgets/fast_plots.py",
+    "syntax_sha256": [
+      "2e5179f0104cb855aeb9c5206121a769e051916c86bd7e34fad0bcf236b08084"
+    ],
+    "calls": [
+      [
+        {
+          "raw": "QColor",
+          "resolved": "PySide6.QtGui.QColor"
+        },
+        {
+          "raw": "len",
+          "resolved": "len"
+        },
+        {
+          "raw": "colour.setAlpha",
+          "resolved": "colour.setAlpha"
+        }
+      ]
+    ]
+  }
+}

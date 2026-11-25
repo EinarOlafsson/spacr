@@ -1,0 +1,35 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff"
+    ]
+  },
+  "creator": "_confluency_figure",
+  "data_sha256": null,
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/confluency/confluency.pdf",
+      "sha256": "f03d39afb2da5f4d1c8cb4b5979f2daea1d7e5acbc117a2f2ddd8ffd53435821"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/confluency/confluency.png",
+      "sha256": "3a8e52c2714b62ae2bf3cd1f3772e9a740e8c8a52f28e3a5d3e9c67eb03bf690"
+    }
+  },
+  "inputs_sha256": "ed1f22904a180b5820c050b23e50202d168285c9aad76248763c6bb27c43f958",
+  "payload_sha256": "e1c809f5c378f2dcb13f518abd056767a06a02d28bbbd76a5a3d4007441c9c93",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

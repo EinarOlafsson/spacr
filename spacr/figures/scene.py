@@ -228,7 +228,11 @@ def _hex(colour) -> Optional[str]:
 
 
 def _alpha(colour, artist_alpha=None) -> int:
-    """The 0-255 alpha of ``colour``, combined with an artist-level alpha."""
+    """The effective 0-255 alpha, matching Matplotlib artist-alpha override semantics.
+
+    A collection already exposes its artist alpha in face RGBA. Multiplying
+    them again turns the measured 0.6 into 0.36 during Qt translation.
+    """
     try:
         import matplotlib.colors as mcolors
 
@@ -237,7 +241,7 @@ def _alpha(colour, artist_alpha=None) -> int:
         value = 1.0
     if artist_alpha is not None:
         try:
-            value *= float(artist_alpha)
+            value = float(artist_alpha)
         except (TypeError, ValueError):
             pass
     return max(0, min(255, int(round(value * 255))))
@@ -402,9 +406,15 @@ def _add_line(plot, artist, axes, look) -> int:
     if marker not in ("None", " ", "", None):
         brush_colour = look.paint(_hex(artist.get_markerfacecolor()), "data")
         size = look.px(artist.get_markersize() or 4.0, minimum=1.0)
+        brush = pg.mkBrush(brush_colour) if brush_colour else None
+        if brush is not None:
+            colour = brush.color()
+            colour.setAlpha(_alpha(artist.get_markerfacecolor(), alpha))
+            brush.setColor(colour)
+        edge = _pen(artist.get_markeredgecolor(), artist.get_markeredgewidth(),
+                    "-", alpha, look, "data")
         points = pg.ScatterPlotItem(
-            x=xs, y=ys, size=size, pen=None,
-            brush=pg.mkBrush(brush_colour) if brush_colour else None)
+            x=xs, y=ys, size=size, pen=edge, brush=brush)
         points.setZValue(float(artist.get_zorder() or 0))
         plot.addItem(points)
         added += 1
@@ -777,7 +787,8 @@ def _plain_text(raw) -> Tuple[str, bool]:
     return body, understood
 
 
-def _font(points, look, *, bold: bool = False, italic: bool = False):
+def _font(points, look, *, bold: bool = False, italic: bool = False,
+          family=None, weight=None):
     """A QFont whose height is the matplotlib point size, IN PIXELS.
 
     ``setPointSizeF`` would be the obvious call and it is the wrong one: Qt
@@ -789,11 +800,38 @@ def _font(points, look, *, bold: bool = False, italic: bool = False):
     """
     from PySide6.QtGui import QFont
 
-    font = QFont()
+    from ..figure_font import use_open_sans_for_qt
+
+    use_open_sans_for_qt()
+    font = QFont(str(family or "Open Sans"))
     font.setPixelSize(max(1, int(round(look.px(points or 8.0, minimum=1.0)))))
-    font.setWeight(QFont.Weight(75 if bold else 50))
+    named = {"ultralight": QFont.ExtraLight, "light": QFont.Light,
+             "normal": QFont.Normal, "regular": QFont.Normal, "book": QFont.Normal,
+             "medium": QFont.Medium, "semibold": QFont.DemiBold, "demibold": QFont.DemiBold,
+             "bold": QFont.Bold, "heavy": QFont.ExtraBold, "black": QFont.Black}
+    selected = named.get(str(weight).lower(), QFont.Bold if bold else QFont.Light)
+    if isinstance(weight, (int, float)):
+        selected = QFont.Weight(int(weight))
+    font.setWeight(selected)
     font.setItalic(bool(italic))
     return font
+
+
+def _set_source_text_font(item, source, look) -> bool:
+    """Apply the actual source font, returning false if Qt refuses it while retaining words and ink."""
+    from PySide6.QtGui import QTextCursor, QTextCharFormat
+
+    try:
+        font = _font(source.get_fontsize(), look, family=source.get_fontfamily()[0],
+                     weight=source.get_fontweight(), italic=source.get_fontstyle() == "italic")
+        cursor = item.textCursor()
+        cursor.select(QTextCursor.SelectionType.Document)
+        formatting = QTextCharFormat()
+        formatting.setFont(font)
+        cursor.mergeCharFormat(formatting)
+    except (RuntimeError, ValueError, TypeError, AttributeError, OSError):
+        return False
+    return True
 
 
 def _add_text(plot, artist, axes, look, report) -> int:
@@ -834,13 +872,35 @@ def _add_text(plot, artist, axes, look, report) -> int:
         item.setFont(_font(artist.get_fontsize(), look,
                            bold=str(artist.get_fontweight()) in ("bold",
                                                                  "heavy"),
-                           italic=str(artist.get_style()) == "italic"))
+                           italic=str(artist.get_style()) == "italic",
+                           family=artist.get_fontfamily()[0], weight=artist.get_fontweight()))
     except Exception:                                          # noqa: BLE001
         pass
     item.setPos(*position)
     item.setZValue(float(artist.get_zorder() or 5))
     plot.addItem(item, ignoreBounds=True)
     return 1
+
+
+def _native_scalar_limits(mappable):
+    """Return unchanged linear scalar limits only when the native colour mapping is supported.
+
+    :param mappable: original Matplotlib image or colour-bar mappable.
+    :returns: the existing lower and upper display endpoints.
+    :raises NotImplementedError: use the original renderer for nonlinear norms or opaque missing colours.
+    """
+    import numpy as np
+    from matplotlib.colors import Normalize
+    from ..qt.i18n import tr
+
+    if type(mappable.norm) is not Normalize:
+        raise NotImplementedError(tr("Nonlinear scalar colour normalization needs native Matplotlib rendering"))
+    values = mappable.get_array()
+    if values is not None:
+        masked = np.ma.masked_invalid(np.ma.asarray(values))
+        if np.ma.getmaskarray(masked).any() and mappable.get_cmap().get_bad()[3] > 0:
+            raise NotImplementedError(tr("Opaque missing-cell colours need native Matplotlib rendering"))
+    return mappable.get_clim()
 
 
 def _add_image(plot, artist, look) -> int:
@@ -853,14 +913,23 @@ def _add_image(plot, artist, look) -> int:
     import pyqtgraph as pg
     from PySide6.QtCore import QRectF
 
-    array = np.asarray(artist.get_array(), dtype=float)
+    source = artist.get_array()
+    array = np.asarray(np.ma.asarray(source, dtype=float).filled(np.nan) if np.ma.isMaskedArray(source)
+                       else source, dtype=float)
+    if array.ndim != 2:
+        raise NotImplementedError("Image colour channels need native Matplotlib rendering")
     if array.size == 0:
         return 0
-    low, high = artist.get_clim()
+    low, high = _native_scalar_limits(artist)
     colour_map = artist.get_cmap()
     lut = (np.asarray(colour_map(np.linspace(0.0, 1.0, 256))) * 255).astype(
         np.uint8)
     image = pg.ImageItem(array.T)
+    alpha = artist.get_alpha()
+    if alpha is not None:
+        if np.ndim(alpha):
+            raise NotImplementedError("Per-pixel image opacity needs native Matplotlib rendering")
+        image.setOpacity(float(alpha))
     image.setLookupTable(lut)
     image.setLevels((float(low), float(high)))
     left, right, bottom, top = artist.get_extent()
@@ -872,12 +941,32 @@ def _add_image(plot, artist, look) -> int:
 
 
 
-def _axis_pen(look):
-    """Return an export-scaled 0.8-point pen in resolved chrome colour."""
+def _axis_pen(look, source=None, *, width=None):
+    """Return an export-scaled pen retaining actual source chrome choices.
+
+    :param look: existing saved-figure colour and coordinate-size adapter.
+    :param source: source spine, tick line or tick label; None keeps the legacy colour-bar fallback.
+    :param width: explicit source tick-edge width or text pen width, in points.
+    :returns: a native pen; zero or hidden source frames have no stroke.
+    """
     import pyqtgraph as pg
 
-    ink = look.paint("#FFFFFF", "chrome") or "#222222"
-    return pg.mkPen(ink, width=look.px(0.8))
+    if source is None:
+        ink = look.paint("#FFFFFF", "chrome") or "#222222"
+        return pg.mkPen(ink, width=look.px(0.8 if width is None else width))
+    actual_width = (source.get_linewidth() if callable(getattr(source, "get_linewidth", None))
+                    else 0.8) if width is None else width
+    if float(actual_width) <= 0 or (not source.get_visible()
+                                  and callable(getattr(source, "get_edgecolor", None))):
+        return pg.mkPen(None)
+    if callable(getattr(source, "get_edgecolor", None)):
+        colour = source.get_edgecolor()
+    elif callable(getattr(source, "get_markeredgecolor", None)):
+        colour = source.get_markeredgecolor()
+    else:
+        colour = source.get_color()
+    return _pen(colour, actual_width, "-", source.get_alpha(), look, "chrome") or pg.mkPen(None)
+
 
 
 def _css_size(points, look) -> str:
@@ -898,19 +987,42 @@ def _configure_axes(plot, axes, look, report) -> None:
     with dark axes on a light page and a suite saved from a light one is
     untouched.
     """
-    ink = look.paint("#FFFFFF", "chrome") or "#222222"
-    for name, matplotlib_axis in (("bottom", axes.xaxis), ("left", axes.yaxis)):
+    for name, matplotlib_axis, side in (("bottom", axes.xaxis, 1), ("left", axes.yaxis, 1),
+                                        ("top", axes.xaxis, 2), ("right", axes.yaxis, 2)):
+        source = axes.spines[name]
         axis = plot.getAxis(name)
-        axis.setPen(_axis_pen(look))
-        axis.setTextPen(_axis_pen(look))
-        try:
-            ticks = matplotlib_axis.get_ticklabels()
-            axis.setStyle(tickFont=_font(
-                ticks[0].get_fontsize() if ticks else 6.0, look))
-        except Exception:                                      # noqa: BLE001
-            pass
-    plot.showAxis("top", False)
-    plot.showAxis("right", False)
+        ticks = matplotlib_axis.get_major_ticks()
+        lines = [tick.tick1line if side == 1 else tick.tick2line for tick in ticks]
+        labels = [tick.label1 if side == 1 else tick.label2 for tick in ticks]
+        visible_lines = [line for line in lines if line.get_visible()]
+        visible_labels = [label for label in labels if label.get_visible()]
+        owns_label = side == 1 and bool(matplotlib_axis.label.get_text())
+        plot.showAxis(name, bool(axes.axison and (source.get_visible() or visible_lines or visible_labels or owns_label)))
+        axis.setPen(_axis_pen(look, source))
+        axis.setStyle(showValues=bool(visible_labels))
+        if lines:
+            line = (visible_lines or lines)[0]
+            axis.setTickPen(_axis_pen(look, line, width=line.get_markeredgewidth()))
+            direction = ticks[0].get_tickdir()
+            if direction == "inout" and visible_lines:
+                from ..qt.i18n import tr
+
+                report.missing.append(tr("bidirectional tick marks"))
+            length = int(round(look.px(line.get_markersize(), minimum=0.))) if visible_lines else 0
+            axis.setStyle(tickLength=-length if direction == "in" else length)
+        if labels:
+            label = (visible_labels or labels)[0]
+            axis.setTextPen(_axis_pen(look, label, width=0.8))
+            try:
+                axis.setStyle(tickFont=_font(label.get_fontsize(), look,
+                    family=label.get_fontfamily()[0], weight=label.get_fontweight(),
+                    italic=label.get_fontstyle() == "italic"))
+            except Exception:
+                from ..qt.i18n import tr
+
+                report.notes.append(tr("Qt could not preserve the source tick font; tick text and view limits remain intact."))
+                if getattr(axes, "_spacr_style_spec", None) is not None:
+                    report.missing.append(tr("registered source tick font"))
     plot.showGrid(x=False, y=False)
     plot.setMenuEnabled(False)
     for name, raw, size in (
@@ -919,15 +1031,29 @@ def _configure_axes(plot, axes, look, report) -> None:
             ("left", axes.get_ylabel(), axes.yaxis.label.get_fontsize())):
         if not raw:
             continue
+        source = axes.title if name == "title" else axes.xaxis.label if name == "bottom" else axes.yaxis.label
+        if not source.get_visible():
+            continue
+        label_ink = _axis_pen(look, source, width=0.8).color()
+        if _hex(source.get_color()) is None:
+            label_ink.setAlpha(0)
         body, understood = _plain_text(raw)
         if not understood:
             report.missing.append("mathtext this translator does not know")
             continue
         if name == "title":
-            plot.setTitle(body, color=ink, size=_css_size(size, look))
+            plot.setTitle(body, color=label_ink.getRgb(), size=_css_size(size, look))
+            matched_font = _set_source_text_font(plot.titleLabel.item, axes.title, look)
         else:
-            plot.setLabel(name, body, color=ink,
+            label_css = f"#{label_ink.alpha():02x}{label_ink.red():02x}{label_ink.green():02x}{label_ink.blue():02x}"
+            plot.setLabel(name, body, color=label_css,
                           **{"font-size": _css_size(size, look)})
+            source = axes.xaxis.label if name == "bottom" else axes.yaxis.label
+            matched_font = _set_source_text_font(plot.getAxis(name).label, source, look)
+        if not matched_font:
+            report.notes.append("Qt could not preserve the source font; the label text and ink remain intact.")
+            if getattr(axes, "_spacr_style_spec", None) is not None:
+                report.missing.append("registered source font")
     if not axes.axison:
         plot.hideAxis("bottom")
         plot.hideAxis("left")
@@ -1012,30 +1138,33 @@ def _colorbar_of(axes):
 
 
 def _translate_colorbar(plot, axes, look, report: SceneReport) -> None:
-    """Translate a colour bar as the ramp it is, rather than as its mesh.
+    """Translate a linear scalar key through the shared vector-cell painter.
 
-    A matplotlib colour bar is a ``QuadMesh`` of 256 quadrilaterals plus a
-    ``_ColorbarSpine``, and translating it quad by quad would be 256 graphics
-    items drawing a gradient that one image draws exactly. So the RAMP is read
-    off the mappable's own colour map -- the same object the panel handed to
-    ``imshow``, so the bar and the image cannot come out keyed differently,
-    which is the one failure a colour bar has.
+    The original colormap, limits and alpha remain value channels. Native
+    source plots and translated Matplotlib keys share their cell operation;
+    no numeric key is embedded as a ramp bitmap.
     """
     import numpy as np
     import pyqtgraph as pg
-    from PySide6.QtCore import QRectF
 
     bar = _colorbar_of(axes)
     ink = look.paint("#FFFFFF", "chrome") or "#222222"
-    low, high = (float(value) for value in bar.mappable.get_clim())
-    ramp = np.linspace(low, high, 256).reshape(1, 256)
-    lut = (np.asarray(bar.mappable.get_cmap()(np.linspace(0, 1, 256))) * 255
-           ).astype(np.uint8)
-    image = pg.ImageItem(ramp)
-    image.setLookupTable(lut)
-    image.setLevels((low, high))
-    image.setRect(QRectF(0.0, low, 1.0, high - low))
-    plot.addItem(image)
+    if bar.orientation != "vertical":
+        from ..qt.i18n import tr
+
+        raise NotImplementedError(tr("Horizontal colour bars need native Matplotlib rendering"))
+    low, high = (float(value) for value in _native_scalar_limits(bar.mappable))
+    recorded_limits = getattr(axes, "_spacr_colourbar_source_limits", None)
+    if low == high or recorded_limits is not None and recorded_limits[0] == recorded_limits[1]:
+        from ..qt.i18n import tr
+
+        raise NotImplementedError(tr("Constant scalar colour keys need native Matplotlib rendering"))
+    from .style import _native_scalar_cells
+
+    colours = np.asarray(bar.mappable.get_cmap()(np.linspace(0., 1., 256))).copy()
+    if bar.solids is not None and bar.solids.get_alpha() is not None:
+        colours[:, 3] = bar.solids.get_alpha()
+    _native_scalar_cells(plot, np.linspace(low, high, 257), colours)
     report.items += 1
     plot.showAxis("left", False)
     plot.showAxis("bottom", False)
@@ -1228,33 +1357,40 @@ def build_scene(figure, *, mode=None, dpi=None):
         here is a read.
     :param mode: a :data:`spacr.figure_style.SAVE_MODES` value, or None to ask
         the preference.
-    :param dpi: output resolution used to size the scene. By default, use the
-        figure's current resolution.
+    :param dpi: output resolution used to size the scene. The shared file
+        default is 300 dpi; an explicit resolution is preserved.
     :returns: ``(widget, report)``. The widget is a
         ``pyqtgraph.GraphicsLayoutWidget`` holding one plot per axes; the
         :class:`SceneReport` says whether the translation was COMPLETE, and a
         caller must not write an incomplete one.
     """
     import pyqtgraph as pg
+    from .style import GENERAL_DEFAULTS, FigureDiagnostics, StyleSpec, finalize_figure
 
     width, height = (float(value) for value in figure.get_size_inches())
-    dpi = float(dpi if dpi is not None else (figure.get_dpi() or 100.0))
+    dpi = float(dpi if dpi is not None else GENERAL_DEFAULTS["dpi"])
     look = _Look(mode, dpi=dpi)
     widget = pg.GraphicsLayoutWidget(size=(int(width * dpi), int(height * dpi)))
     widget.resize(int(width * dpi), int(height * dpi))
+    widget._spacr_scene_inches = (width, height)
+    widget._spacr_scene_dpi = dpi
     if look.ground:
         widget.setBackground(look.ground)
     else:
         widget.setBackground(None)
 
+    source_diagnostics = finalize_figure(figure, record=False)
+    widget._spacr_source_style_diagnostics = source_diagnostics
     report = SceneReport()
     positions = _positions(figure)
+    translated = []
     title = getattr(figure, "_suptitle", None)
     offset = 1 if title is not None and title.get_text() else 0
     for index, axes in enumerate(figure.axes):
         row, column, span = positions[index]
         plot = widget.addPlot(row=row + offset, col=column, colspan=span)
         _translate_axes(plot, axes, look, report)
+        translated.append((plot, axes))
         if _colorbar_of(axes) is not None:
             widget.ci.layout.setColumnFixedWidth(column, COLORBAR_PX)
         report.axes += 1
@@ -1265,6 +1401,21 @@ def build_scene(figure, *, mode=None, dpi=None):
                         size=_css_size(title.get_fontsize(), look),
                         bold=str(title.get_fontweight()) in ("bold", "heavy"))
     _lay_out(widget)
+    findings = list(source_diagnostics.problems)
+    for plot, axes in translated:
+        spec = getattr(axes, "_spacr_style_spec", None)
+        if not isinstance(spec, StyleSpec):
+            continue
+        actual = plot.getViewBox().geometry()
+        source = axes.get_position()
+        expected = (source.width * width * dpi, source.height * height * dpi)
+        if abs(actual.width() - expected[0]) > 1.0 or abs(actual.height() - expected[1]) > 1.0:
+            report.missing.append("registered physical axes geometry")
+            report.notes.append("Native grid layout differs from the registered source plot area; retain the original figure.")
+            findings.append("Native grid layout did not preserve the registered physical plot area")
+    findings.append("Validate translated native fonts and text bounds before certification")
+    widget._spacr_style_diagnostics = FigureDiagnostics(source_diagnostics.policy_version,
+        tuple(dict.fromkeys(findings)), ("actual translated plot area",))
     report.data_colours = list(dict.fromkeys(look.data_colours))
     return widget, report
 
@@ -1320,15 +1471,22 @@ def export_scene(widget, path) -> Optional[str]:
     name = str(path).lower()
     folder = os.path.dirname(os.path.abspath(str(path)))
     os.makedirs(folder, exist_ok=True)
+    inches = getattr(widget, "_spacr_scene_inches", None)
+    dimensions = ({"width_mm": inches[0] * 25.4, "height_mm": inches[1] * 25.4}
+                  if inches is not None else {})
     if name.endswith(".pdf"):
-        FastPlot._export_pdf(item, path)
+        FastPlot._export_pdf(item, path, **dimensions)
     elif name.endswith(".svg"):
-        FastPlot._export_svg(item, path)
+        FastPlot._export_svg(item, path, **dimensions)
     else:
         from pyqtgraph import exporters
+        from .style import GENERAL_DEFAULTS, _write_native_raster
 
         exporter = exporters.ImageExporter(item)
-        exporter.export(str(path))
+        resolution = float(getattr(widget, "_spacr_scene_dpi", GENERAL_DEFAULTS["dpi"]))
+        if inches is not None:
+            exporter.parameters()["width"] = max(1, round(inches[0] * resolution))
+        widget._spacr_raster_metadata_applied = _write_native_raster(exporter, path, dpi=resolution)
     return str(path) if os.path.exists(str(path)) else None
 
 

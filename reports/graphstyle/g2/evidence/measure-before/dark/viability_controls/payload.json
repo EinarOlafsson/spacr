@@ -1,0 +1,61 @@
+{
+  "images": null,
+  "table": {
+    "arrays": [
+      {
+        "data_base64": "WyJwIiwgInAiLCAicCIsICJwIiwgInAiLCAicCIsICJwIl0=",
+        "dtype": "object",
+        "missing": "837885c8f8091aeaeb9ec3c3f85a6ff470a415e610b8ba3e49f9b33c9cf9d619",
+        "missing_base64": "AAAAAAAAAA==",
+        "sha256": "0f48c36453f6009c5b6072c9f9eaa1a3a2a8811456f2cff60595a327c832c9b0",
+        "shape": [
+          7
+        ]
+      },
+      {
+        "data_base64": "WyJuZWdhdGl2ZSIsICJuZWdhdGl2ZSIsICJwb3NpdGl2ZSIsICJwb3NpdGl2ZSIsICJzYW1wbGUiLCAic2FtcGxlIiwgInNhbXBsZSJd",
+        "dtype": "object",
+        "missing": "837885c8f8091aeaeb9ec3c3f85a6ff470a415e610b8ba3e49f9b33c9cf9d619",
+        "missing_base64": "AAAAAAAAAA==",
+        "sha256": "2671f9868d30bb2b68f75dc87ed0a2ba030626be409991d1d8c5a40113c49993",
+        "shape": [
+          7
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA8D/NzMzMzMzsP5qZmZmZmbk/AAAAAAAA+H8AAAAAAADgPzMzMzMzM+M/ZmZmZmZm5j8=",
+        "dtype": "float64",
+        "missing": "989a3b81f32a10a894875458073b7cc37fa249561b81434978854054133bb7b6",
+        "missing_base64": "AAAAAQAAAA==",
+        "sha256": "5b37fbdff334eeafad30eb657621680fe7a7bde829ad731c80bfb6d8e9901cf0",
+        "shape": [
+          7
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAAAAAAAAAAAAkQAAAAAAAgFZAAAAAAADAV0AAAAAAAABJQAAAAAAAAERAAAAAAAAAPkA=",
+        "dtype": "float64",
+        "missing": "837885c8f8091aeaeb9ec3c3f85a6ff470a415e610b8ba3e49f9b33c9cf9d619",
+        "missing_base64": "AAAAAAAAAA==",
+        "sha256": "00c6d165083340c05d6afe9f7cee8936093dc23074c3f0e4e0ca192ee5e8e37d",
+        "shape": [
+          7
+        ]
+      }
+    ],
+    "columns": [
+      "plate_key",
+      "role",
+      "viability",
+      "cytotoxicity_index"
+    ],
+    "csv": ",plate_key,role,viability,cytotoxicity_index\n0,p,negative,1.0,0.0\n1,p,negative,0.9,10.0\n2,p,positive,0.1,90.0\n3,p,positive,,95.0\n4,p,sample,0.5,50.0\n5,p,sample,0.6,40.0\n6,p,sample,0.7,30.0\n",
+    "dtypes": [
+      "object",
+      "object",
+      "float64",
+      "float64"
+    ],
+    "kind": "dataframe"
+  }
+}

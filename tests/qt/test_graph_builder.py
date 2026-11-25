@@ -892,6 +892,14 @@ def test_the_screen_reads_a_csv_and_a_sqlite_table(qtbot, tmp_path, frame):
 
 
 def test_native_brush_updates_its_own_screen_and_clear_retires_the_handoff(qtbot, tmp_path, frame):
+    """Match the real native brush rectangle, then clear its linked handoff.
+
+    The fixed 40-mm fixture measured 157.480315 pixels at 100 dpi over
+    1098.9 area units, or 6.978015 units per pixel. The requested x=30
+    rounds to x=28.5443725, selecting 24 rather than 26 rows. Expected rows
+    therefore use the transformed integer cursor positions; production
+    selection retains its exact predicate without a tolerance expansion.
+    """
     import hashlib
     import sqlite3
     from PySide6.QtCore import QPoint
@@ -921,7 +929,13 @@ def test_native_brush_updates_its_own_screen_and_clear_retires_the_handoff(qtbot
         end_xy = axes.transData.transform((30.0, top))
         start = QPoint(round(start_xy[0]), round(view._canvas.height() - start_xy[1]))
         end = QPoint(round(end_xy[0]), round(view._canvas.height() - end_xy[1]))
-        expected = frame.loc[(frame["area"] >= 0) & (frame["area"] <= 30)]
+        inverse = axes.transData.inverted()
+        actual_start = inverse.transform((start.x(), view._canvas.height() - start.y()))
+        actual_end = inverse.transform((end.x(), view._canvas.height() - end.y()))
+        x_low, x_high = sorted((actual_start[0], actual_end[0]))
+        y_low, y_high = sorted((actual_start[1], actual_end[1]))
+        expected = frame.loc[(frame["area"] >= x_low) & (frame["area"] <= x_high)
+                             & (frame["intensity"] >= y_low) & (frame["intensity"] <= y_high)]
         assert 0 < len(expected) < len(frame)
         assert view.selected_count() == 0 and not screen._to_annotate.isEnabled()
         QTest.mousePress(view._canvas, Qt.LeftButton, pos=start)

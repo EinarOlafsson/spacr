@@ -71,6 +71,7 @@ def test_numeric_line_standalone_uses_original_coordinates_and_rows(
 
 
 def test_grouped_line_keeps_categorical_positions_and_group_summaries(monkeypatch):
+    """The captured groups-mode line recipe retains original categorical positions and means, with its actual SD choice."""
     monkeypatch.setattr(plt, "show", lambda: None)
     frame = pd.DataFrame({"condition": [1, 3, 9] * 12,
                           "signal": np.arange(36, dtype=float)})
@@ -78,7 +79,9 @@ def test_grouped_line_keeps_categorical_positions_and_group_summaries(monkeypatc
                                           graph_type="line", save=False)
     try:
         data, spec = bundle._figure_record(figure)
-        assert spec["kind"] == "point"
+        assert spec["kind"] == "line"
+        assert spec["grouped_line"]["mode"] == "groups"
+        assert spec["grouped_line"]["spread_func"] == "std"
         assert len(data) == len(frame)
         np.testing.assert_allclose(figure.axes[0].lines[0].get_xdata(), [0, 1, 2])
         means = [np.mean(np.arange(start, 36, 3)) for start in range(3)]

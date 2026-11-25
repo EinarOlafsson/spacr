@@ -1,0 +1,35 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#ffffffff"
+    ],
+    "figure": "#ffffffff",
+    "text": [
+      "#000000ff"
+    ]
+  },
+  "creator": "_dna_histogram_figure",
+  "data_sha256": "129d98a705bf5692652599dd864028e0ed9d24501b6358eba8a9af31a0b9f78a",
+  "diagnostics": {
+    "checks": [],
+    "problems": [
+      "Register the chart kind, reference, quantities, and legend before validation"
+    ]
+  },
+  "files": {
+    "pdf": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/dna/dna.pdf",
+      "sha256": "02e7100c6ef8ee0f2fa3665c88d5f97bd3a525fcf84d7912fdcd0730259ef8c5"
+    },
+    "png": {
+      "path": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/measure-before/light/dna/dna.png",
+      "sha256": "f0930b3acbcbdb22a8f216c89456469fd85fcc3e999593f447a0d084b4c9a220"
+    }
+  },
+  "inputs_sha256": "37d570ca42b5c574ec8421ecd13b837391131b9aa54e075b5b615c0012cb6cee",
+  "payload_sha256": "c5abca9a733154201cb5b82e29d7a63dc44f3cf43f9b957aadceac533965ff31",
+  "requested_theme": {
+    "background": "white",
+    "foreground": "black"
+  }
+}

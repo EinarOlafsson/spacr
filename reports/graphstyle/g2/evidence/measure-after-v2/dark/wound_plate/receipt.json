@@ -1,0 +1,50 @@
+{
+  "actual_theme": {
+    "axes": [
+      "#181818ff",
+      "#181818ff"
+    ],
+    "figure": "#181818ff",
+    "text": [
+      "#f0f0f0ff",
+      "#f0f0f0ff"
+    ]
+  },
+  "creator": "_wound_plate_figure",
+  "data_sha256": "2e01223714741557a35d72d0160b3b158c695c057f5abbf508a73478692ff641",
+  "diagnostics": {
+    "checks": [
+      "registered semantics",
+      "text size",
+      "text bounds",
+      "text overlap",
+      "declared reference and quantities",
+      "actual palette and legend identities",
+      "applicable representation and semantic requirements",
+      "heatmap cell aspect",
+      "effective data opacity",
+      "black error bars",
+      "statistical frame",
+      "font family and size",
+      "composited text contrast",
+      "completed presentation checks"
+    ],
+    "problems": []
+  },
+  "files": {
+    "pdf": {
+      "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/wound_plate/wound_plate.pdf",
+      "sha256": "40e912ef1d0710785584485bcd2a11b40c8deee04fe1ad78028f9cfa538c6206"
+    },
+    "png": {
+      "path": "reports/graphstyle/g2/evidence/measure-after-v2/dark/wound_plate/wound_plate.png",
+      "sha256": "80da381124305ea1b43c955de8e908c4240d2ecf5a6888e572bc225941ce1488"
+    }
+  },
+  "inputs_sha256": "eb2dc88540cf2ce96930abd9b9b785a3148b285893df88d7275fc432aa05030a",
+  "payload_sha256": "85d9da7f7d5d03d081371a10094e65641a115a18407af2b8884a4a18dd10e5a2",
+  "requested_theme": {
+    "background": "#181818",
+    "foreground": "#F0F0F0"
+  }
+}

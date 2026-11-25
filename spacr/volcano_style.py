@@ -26,7 +26,10 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from .figures.style import figure_style, theme_target
+from .figures.style import (DATA_ALPHA, GENERAL_DEFAULTS, Palette, SERIES,
+                            WEIGHTS, axes_geometry, figure_style, resolve_style, theme_target)
+
+_PANEL_HEIGHT = axes_geometry(resolve_style("print", "continuous")).height_inches
 
 __all__ = [
     "VolcanoStyle",
@@ -99,7 +102,7 @@ SCALES = _SCALES
 
 @dataclass
 class VolcanoStyle(FigureStyle):
-    """All volcano-plot settings. Defaults reproduce the pipeline plot.
+    """All volcano-plot settings, with defaults from the shared figure policy.
 
     General settings are inherited: axes, type, grid, legend, spines and the
     page come from :class:`spacr.style_base.FigureStyle`, so "font size" is
@@ -108,6 +111,10 @@ class VolcanoStyle(FigureStyle):
     This class adds the volcano-specific settings: the columns, the
     thresholds, the marks and the labelling.
     """
+
+    figure_width: float = _PANEL_HEIGHT
+    figure_height: float = _PANEL_HEIGHT
+    legend_location: str = "center left"
 
     x_column: str = "standardized_marginal_effect"
     y_column: str = "adjusted_p_value"
@@ -161,17 +168,17 @@ class VolcanoStyle(FigureStyle):
     show_zero_line: bool = True
 
     marker: str = "o"
-    marker_size: float = 26.0
-    significant_marker_size: float = 52.0
-    marker_alpha: float = 0.85
-    marker_edge_width: float = 0.35
-    marker_edge_color: str = "#FFFFFF"
-    base_color: str = "#B8BDC5"
-    significant_color: str = "#D55E00"
+    marker_size: float = GENERAL_DEFAULTS["marker_size"]
+    significant_marker_size: float = GENERAL_DEFAULTS["marker_size"]
+    marker_alpha: float = DATA_ALPHA
+    marker_edge_width: float = 0.0
+    marker_edge_color: str = "none"
+    base_color: str = Palette.BACKGROUND
+    significant_color: str = Palette.ACCENT
     #: Column whose values choose each point's colour. ``None`` uses the
     #: two-tone significant / not-significant scheme.
     color_by: str | None = None
-    colormap: str = "viridis"
+    colormap: str = Palette.SEQUENTIAL
     color_vmin: float | None = None
     color_vmax: float | None = None
     show_colorbar: bool = True
@@ -191,7 +198,7 @@ class VolcanoStyle(FigureStyle):
     #: ``guide`` that the results actually have.
     localization_column: str | None = None
 
-    line_width: float = 1.0
+    line_width: float = WEIGHTS["reference"]
     #: BLACK, because the volcano is read as a publication figure: the
     #: fold-change verticals and the significance horizontal are the two
     #: lines a reader measures a point against, and a grey rule competes
@@ -199,7 +206,7 @@ class VolcanoStyle(FigureStyle):
     line_color: str = "#000000"
     line_style: str = "--"
     zero_line_color: str = "#000000"
-    zero_line_width: float = 0.7
+    zero_line_width: float = WEIGHTS["reference"]
 
     #: What the INTERACTIVE explorer paints behind the plot.
     #:
@@ -369,9 +376,121 @@ def _prepare(results: pd.DataFrame, style: VolcanoStyle):
     return frame, x, y, raw_y, significant, effect_cut
 
 
+def _present_volcano(figure, panels, style, frame, mappable):
+    """Declare actual volcano semantics after the original transformations and selection.
+
+    Stored style values remain explicit manual choices. Only new defaults
+    follow the shared owner; normalization, masks, source coordinates,
+    threshold calculations and source tables remain unchanged.
+    """
+    from matplotlib.text import Text
+    from .figures.style import (_artist_appearance, _legend_appearance, _legend_note,
+                                _restore_legend_appearance, _restore_text_appearance, _text_appearance,
+                                apply_axes_style, pack_axes_geometry)
+    from .qt.i18n import tr
+
+    defaults = VolcanoStyle()
+    manual_page = (style.figure_width != defaults.figure_width or
+                   style.figure_height != defaults.figure_height)
+    manual_font = any(getattr(style, name) != getattr(defaults, name) for name in
+                      ("font_family", "font_weight", "font_size", "title_font_size", "label_font_size", "tick_font_size"))
+    units = dict(frame.attrs.get("units") or {})
+    x_unit = units.get(style.x_column)
+    if style.x_column == defaults.x_column:
+        x_unit = "dimensionless"
+    caption = tr("Volcano of {effect} against {significance}. The supplied significance and effect-threshold rules determine selected observations; the plotted coordinates and selection are unchanged.").format(
+        effect=style.x_column, significance=style.y_column)
+    caption += " " + (tr("Significance uses the negative base-10 logarithm after clipping at the smallest positive floating-point value.")
+                       if style.y_neg_log10 else tr("Significance values are displayed on their supplied scale."))
+    caption += " " + tr("Enabled zero-effect, significance and effect-threshold reference lines retain their original numerical positions.")
+    if style.control_column:
+        caption += " " + tr("The explicit control column is {column}.").format(column=style.control_column)
+        if not style.color_by and not style.localizations:
+            caption += " " + tr("Grey marks identify the explicitly declared control rows.")
+    if style.split_axis:
+        caption += " " + tr("The supplied broken-axis windows omit the intervening range.")
+    if style.title:
+        caption += " " + str(style.title)
+    comparison = {"graph_type": "volcano", "forbid_inside_title": True,
+                  "manual_view": manual_page or bool(style.split_axis), "split_axis": bool(style.split_axis),
+                  "reference": tr("Zero effect and the enabled thresholds")}
+    quantities = {"x": style.x_label or style.x_column, "y": panels[-1].get_ylabel() or style.y_column}
+    legend = {"caption": caption, "reference": comparison["reference"], "quantities": quantities,
+              "units": {"x": x_unit, "y": "dimensionless"}}
+    if mappable is not None and style.show_colorbar:
+        legend["colour_quantity"] = str(style.color_by)
+        legend["colour_unit"] = units.get(style.color_by)
+    if x_unit == "dimensionless":
+        legend["unit"] = "dimensionless"
+    shared_y = getattr(figure, "_supylabel", None)
+    ratio = max(min(float(style.split_height_ratio), .9), .1)
+    for index, axis in enumerate(panels):
+        key = axis.get_legend()
+        if key is not None and style.control_column and not style.color_by and not style.localizations:
+            from matplotlib.colors import to_rgba
+            from matplotlib.patches import Rectangle
+
+            saved = _legend_appearance(key)
+            by_label = {artist.get_label(): artist for artist in axis.collections}
+            for label, handle in zip(saved["labels"], saved["handles"]):
+                artist = by_label.get(label)
+                colour = getattr(artist, "_spacr_series_colour", None)
+                if colour is not None and handle is not None:
+                    handle["facecolor"] = [list(to_rgba(colour, style.marker_alpha))]
+            control_label = tr("Declared controls")
+            saved["labels"].append(control_label)
+            saved["texts"].append(dict(saved["texts"][0], text=control_label))
+            saved["handles"].append(_artist_appearance(Rectangle((0., 0.), 1., 1.,
+                facecolor=Palette.CONTROL, edgecolor="none", alpha=style.marker_alpha)))
+            _restore_legend_appearance(axis, saved)
+            _legend_note(axis, control_label, Palette.CONTROL, "identity")
+        details = dict(comparison)
+        if style.split_axis:
+            details["split_fraction"] = ratio if index == 0 else 1. - ratio
+        specification = resolve_style(theme_target(), "continuous", comparison=details, legend=legend)
+        position = axis.get_position().frozen()
+        aspect, box_aspect, adjustable = axis.get_aspect(), axis.get_box_aspect(), axis.get_adjustable()
+        texts = [(text, _text_appearance(text)) for text in axis.findobj(Text)] if manual_font else []
+        alphas = [(artist, artist.get_alpha()) for artist in axis.collections]
+        apply_axes_style(axis, specification, layout=False)
+        if style.marker_alpha != defaults.marker_alpha:
+            for artist, alpha in alphas:
+                artist.set_alpha(alpha)
+        if manual_font:
+            for text, record in texts:
+                _restore_text_appearance(text, record)
+        if style.hide_top_right_spines != defaults.hide_top_right_spines:
+            axis.spines[["top", "right"]].set_visible(not style.hide_top_right_spines)
+        if style.grid != defaults.grid:
+            axis.grid(style.grid and style.grid_axis != "none", axis=style.grid_axis if style.grid_axis != "none" else "both",
+                      color=style.grid_color, linewidth=style.grid_width)
+        if style.axis_color:
+            for spine in axis.spines.values():
+                spine.set_edgecolor(style.axis_color)
+        if style.split_axis and not manual_page:
+            axis.set_box_aspect(details["split_fraction"])
+        if manual_page:
+            axis.set_box_aspect(box_aspect)
+            axis.set_aspect(aspect, adjustable=adjustable)
+            axis.set_position(position)
+        _legend_note(axis, caption, "#000000", "caption")
+        key = axis.get_legend()
+        if key is not None and style.legend_location == defaults.legend_location:
+            key.set_loc("center left")
+            key.set_bbox_to_anchor((1.05, .5))
+        axis.set_title(style.title)
+    if not manual_page:
+        pack_axes_geometry(panels, maximum_width=_PANEL_HEIGHT if style.split_axis else 7.)
+    figure._spacr_caption = caption
+
+
 def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
                    figure=None, save_path=None, screen: bool = False):
     """Draw the volcano described by ``style`` and return ``(figure, axes)``.
+
+    Shared defaults are applied after preparation. Explicit stored style
+    values and supplied broken-axis windows remain available and are
+    diagnosed when they differ from the current figure policy.
 
     :param results: coefficient table supplying the effect, significance and
         annotation columns named by ``style``.
@@ -401,7 +520,9 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
     else:
         figure.clear()
     from .figures.bundle import _register_figure_data
-    _register_figure_data(figure, results, x=style.x_column, y=style.y_column, kind="scatter")
+    _register_figure_data(figure, results, x=style.x_column, y=style.y_column, kind="scatter",
+        volcano_style_recipe={"schema": 1, "style": style.to_dict(), "screen": bool(screen),
+                              "source_units": dict(frame.attrs.get("units") or {})})
 
     with mpl.rc_context(font_rc(style)):
         if style.split_axis and style.split_y_lims:
@@ -421,7 +542,10 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
         _draw_reference_lines(panels, style, effect_cut)
         _annotate(panels, frame, x, y, significant, style)
         _finish_axes(figure, panels, style, mappable,
-                     ground=page_ground(style, screen=screen))
+                     ground=page_ground(style, screen=screen),
+                     colour_unit=dict(frame.attrs.get("units") or {}).get(style.color_by))
+
+    _present_volcano(figure, panels, style, frame, mappable)
 
     if save_path is not None:
         path = os.fspath(save_path)
@@ -451,6 +575,25 @@ def _colour_values(frame: pd.DataFrame, style: VolcanoStyle):
     return column.astype(str).to_numpy(), True
 
 
+def _localization_column(results, style):
+    """Select the original localization identity column without changing lookup order."""
+    candidates = [style.localization_column, "feature", "gene",
+                  style.label_column, "guide"]
+    return next((name for name in candidates if name and name in results.columns), None)
+
+
+def _captured_localizations(results, record):
+    """Read captured gene-to-compartment identities without requiring a later lookup table."""
+    if not record.get("available"):
+        return None
+    column = record["column"]
+    if column not in results.columns:
+        from .qt.i18n import tr
+
+        raise ValueError(tr("The captured localization identity column is missing from the source table"))
+    return results[column].astype(str).map(record["bindings"]).fillna("").to_numpy(dtype=object)
+
+
 def point_localizations(results: pd.DataFrame, style: VolcanoStyle):
     """Each row's LOPIT compartment as an array of names, ``''`` where unknown.
 
@@ -470,10 +613,7 @@ def point_localizations(results: pd.DataFrame, style: VolcanoStyle):
     from .hits import _gene_id_of, gene_of
     from .localisation import table
 
-    candidates = [style.localization_column, "feature", "gene",
-                  style.label_column, "guide"]
-    key = next((name for name in candidates
-                if name and name in results.columns), None)
+    key = _localization_column(results, style)
     lookup = table()
     if key is None or not lookup:
         return None
@@ -532,7 +672,8 @@ def _draw_by_localization(panels, frame, x, y, places, style, shapes) -> None:
             rest &= ~mask
             if not mask.any():
                 continue
-            colour = (cmap(index % cmap.N) if cmap.N <= 32
+            colour = (SERIES[index % len(SERIES)] if style.colormap == Palette.SEQUENTIAL
+                      else cmap(index % cmap.N) if cmap.N <= 32
                       else cmap(index / max(len(wanted) - 1, 1)))
             _scatter_by_shape(axis, frame, x, y, mask, style, shapes,
                               color=colour,
@@ -544,7 +685,12 @@ def _draw_by_localization(panels, frame, x, y, places, style, shapes) -> None:
 
 
 def _draw_points(panels, frame, x, y, significant, style):
-    """Scatter the points onto every panel; returns a mappable or None."""
+    """Scatter original prepared coordinates and retain source localization bindings.
+
+    Replay uses the captured identity mapping rather than querying a later
+    external lookup table. Selection and shape masks remain unchanged.
+    Returns a mappable or None.
+    """
     shapes = {}
     if style.shape_by and style.shape_by in frame.columns:
         categories = list(pd.unique(frame[style.shape_by].astype(str)))
@@ -553,7 +699,15 @@ def _draw_points(panels, frame, x, y, significant, style):
                   for index, name in enumerate(categories)}
 
     if style.localizations:
-        places = point_localizations(frame, style)
+        recorded = getattr(style, "_spacr_localization_recipe", None)
+        places = (_captured_localizations(frame, recorded) if recorded is not None
+                  else point_localizations(frame, style))
+        specification = getattr(panels[0].figure, "_spacr_spec", None)
+        if specification is not None and specification.get("volcano_style_recipe"):
+            column = _localization_column(frame, style)
+            specification["volcano_style_recipe"]["localizations"] = {
+                "available": places is not None, "column": column,
+                "bindings": dict(zip(frame[column].astype(str), places)) if places is not None else {}}
         if places is not None:
             _draw_by_localization(panels, frame, x, y, places, style, shapes)
             return None
@@ -583,8 +737,9 @@ def _draw_points(panels, frame, x, y, significant, style):
                     mask = values == name
                     if not mask.any():
                         continue
-                    colour = cmap(index % getattr(cmap, "N", 256)
-                                  if cmap.N <= 32 else index / max(len(categories) - 1, 1))
+                    colour = (SERIES[index % len(SERIES)] if style.colormap == Palette.SEQUENTIAL
+                              else cmap(index % getattr(cmap, "N", 256)
+                                  if cmap.N <= 32 else index / max(len(categories) - 1, 1)))
                     _scatter_by_shape(axis, frame, x, y, mask, style, shapes,
                                       color=colour, size=style.marker_size,
                                       label=str(name))
@@ -603,11 +758,19 @@ def _draw_points(panels, frame, x, y, significant, style):
 def _scatter_by_shape(axis, frame, x, y, mask, style, shapes, *, color, size,
                       label):
     """One scatter per shape category, so each can carry its own marker."""
+    colours = None
+    if style.control_column and not style.color_by and not style.localizations:
+        from matplotlib.colors import to_rgba
+
+        colours = np.tile(to_rgba(color), (len(frame), 1))
+        controls = frame[style.control_column].astype(bool).to_numpy()
+        colours[controls] = to_rgba(Palette.CONTROL)
     if not shapes:
-        axis.scatter(x[mask], y[mask], s=size, marker=style.marker,
-                     color=color, alpha=style.marker_alpha,
+        artist = axis.scatter(x[mask], y[mask], s=size, marker=style.marker,
+                     color=color if colours is None else colours[mask], alpha=style.marker_alpha,
                      edgecolor=style.marker_edge_color,
                      linewidth=style.marker_edge_width, label=label)
+        artist._spacr_series_colour = color
         return
     values = frame[style.shape_by].astype(str).to_numpy()
     same_source = style.shape_by == style.color_by
@@ -615,11 +778,12 @@ def _scatter_by_shape(axis, frame, x, y, mask, style, shapes, *, color, size,
         combined = mask & (values == name)
         if not combined.any():
             continue
-        axis.scatter(x[combined], y[combined], s=size, marker=code,
-                     color=color, alpha=style.marker_alpha,
+        artist = axis.scatter(x[combined], y[combined], s=size, marker=code,
+                     color=color if colours is None else colours[combined], alpha=style.marker_alpha,
                      edgecolor=style.marker_edge_color,
                      linewidth=style.marker_edge_width,
                      label=name if same_source else f"{label} · {name}")
+        artist._spacr_series_colour = color
 
 
 def _draw_reference_lines(panels, style, effect_cut):
@@ -632,21 +796,23 @@ def _draw_reference_lines(panels, style, effect_cut):
         effect rule can be drawn.
     :returns: ``None``; the axes are modified in place.
     """
+    from .figures.style import reference_line
+
     for axis in panels:
         if style.show_alpha_line and style.line_style != "none":
             level = (-np.log10(max(float(style.alpha), np.finfo(float).tiny))
                      if style.y_neg_log10 else float(style.alpha))
-            axis.axhline(level, color=style.line_color,
-                         linestyle=style.line_style,
-                         linewidth=style.line_width)
+            line = reference_line(axis, y=level, colour=style.line_color)
+            line.set_linestyle(style.line_style)
+            line.set_linewidth(style.line_width)
         if style.show_zero_line:
-            axis.axvline(0, color=style.zero_line_color,
-                         linewidth=style.zero_line_width)
+            line = reference_line(axis, x=0, colour=style.zero_line_color)
+            line.set_linewidth(style.zero_line_width)
         if style.show_effect_lines and effect_cut:
             for sign in (-1.0, 1.0):
-                axis.axvline(sign * effect_cut, color=style.line_color,
-                             linestyle=style.line_style,
-                             linewidth=style.line_width)
+                line = reference_line(axis, x=sign * effect_cut, colour=style.line_color)
+                line.set_linestyle(style.line_style)
+                line.set_linewidth(style.line_width)
 
 
 def _annotate(panels, frame, x, y, significant, style):
@@ -748,7 +914,7 @@ def _paint_ink(figure, panels, style, ground) -> None:
             text.set_color(ink)
 
 
-def _finish_axes(figure, panels, style, mappable, ground=None):
+def _finish_axes(figure, panels, style, mappable, ground=None, colour_unit=None):
     """Apply labels, scales, furniture, ink, and eligible layout in place.
 
     :param figure: matplotlib figure containing the volcano panels.
@@ -756,7 +922,11 @@ def _finish_axes(figure, panels, style, mappable, ground=None):
     :param style: validated :class:`VolcanoStyle` to render.
     :param mappable: numeric-colour artist, or ``None`` when no colorbar is
         available.
+    Scalar keys use the shared source-independent renderer so a constant
+    colour value cannot expand the original normalization.
+
     :param ground: optional resolved page colour.
+    :param colour_unit: explicitly supplied measurement unit for the scalar key.
     :returns: ``None``.
     """
     y_label = style.y_label
@@ -812,8 +982,13 @@ def _finish_axes(figure, panels, style, mappable, ground=None):
                              loc=style.legend_location,
                              fontsize=style.label_font_size)
     if mappable is not None and style.show_colorbar:
-        bar = figure.colorbar(mappable, ax=panels, fraction=0.046, pad=0.02)
-        bar.set_label(style.color_by, fontsize=style.label_font_size)
+        from .figures.style import attach_colourbar
+
+        constant_colour = (Palette.ACCENT if style.colormap == Palette.SEQUENTIAL
+                           and style.color_vmin is None and style.color_vmax is None else None)
+        bar = attach_colourbar(panels[-1], mappable, label=str(style.color_by), unit=colour_unit,
+                               constant_colour=constant_colour)
+        bar.ax.yaxis.label.set_fontsize(style.label_font_size)
         bar.ax.tick_params(labelsize=style.tick_font_size)
         ink = str(style.axis_color or "").strip()
         if ink:

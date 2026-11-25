@@ -203,7 +203,7 @@ def test_saliency_generator_explains_the_class_the_model_chose(
 
 def test_activation_grids_draw_the_map_with_or_without_the_input(subtests):
     """Both generators lay maps out 8 per row; each populated panel draws the
-    map (jet, alpha 0.5 over the input when overlaid) plus its class label and
+    unchanged map (sequential scalar color, alpha 0.6) plus an external class key and
     no axis, empty panels stay blank, and (N,H,W), (N,1,H,W) and (N,3,H,W)
     maps all render."""
     from spacr.utils import GradCAMGenerator, SaliencyMapGenerator
@@ -237,13 +237,19 @@ def test_activation_grids_draw_the_map_with_or_without_the_input(subtests):
                     assert len(ax.images) == (2 if overlay else 1)
                     if overlay:
                         top = ax.images[1]
-                        assert top.get_alpha() == 0.5
-                        assert top.get_cmap().name == "jet"
+                        assert top.get_alpha() == 0.6
+                        if top.get_array().ndim == 2:
+                            assert top.get_cmap().name == "Blues"
                         if gname == "saliency" and shape == (3, 8, 8):
                             assert top.get_array().shape == (8, 8, 3)
                         elif shape == (8, 8):
                             assert top.get_array().shape == (8, 8)
-                    assert [t.get_text() for t in ax.texts] == [str(int(preds[i]))]
+                    assert not ax.texts
+                    assert dict(ax._spacr_style_spec.comparison)['prediction'] == int(preds[i])
+                    expected = maps[i].numpy()
+                    if expected.ndim == 3:
+                        expected = expected[0] if expected.shape[0] == 1 else expected.transpose(1, 2, 0)
+                    np.testing.assert_array_equal(ax.images[-1].get_array(), expected)
                     assert ax.axison is False
                 for ax in fig.axes[n:]:
                     assert len(ax.images) == 0 and len(ax.texts) == 0
@@ -414,7 +420,7 @@ def test_preprocess_image_returns_rgb_and_a_resized_tensor(subtests, tmp_path, r
 def test_class_visualization_optimises_a_displayable_class_image(subtests, tmp_path):
     """class_visualization loads a pickled model, returns an (S,S,3) image in
     [0,1] that is not constant, and shows it at the first and last iteration
-    (and every show_every) titled with the class name."""
+    (and every show_every), with the class name in the external figure caption."""
     from spacr.utils import class_visualization
 
     orig_load = torch.load
@@ -450,7 +456,7 @@ def test_class_visualization_optimises_a_displayable_class_image(subtests, tmp_p
                     mp.setattr(torch, "load", _load_full)
                 mp.setattr(torch.cuda, "is_available", lambda: False)
                 mp.setattr(plt, "show", lambda *a, **k: shown.append(
-                    (plt.gca().get_title(), tuple(plt.gcf().get_size_inches()))))
+                    (plt.gcf()._spacr_caption, plt.gcf()._spacr_external_legend_layout)))
                 random.seed(rseed)
                 target_y = kw.pop("target_y")
                 out = class_visualization(target_y, str(path), dtype=torch.FloatTensor,
@@ -458,8 +464,12 @@ def test_class_visualization_optimises_a_displayable_class_image(subtests, tmp_p
             assert isinstance(out, np.ndarray) and out.shape == (8, 8, 3)
             assert np.isfinite(out).all() and out.min() >= 0.0 and out.max() <= 1.0
             assert out.std() > 0.0
-            assert [t for t, _ in shown] == titles
-            assert shown[0][1] == (4.0, 4.0)
+            assert len(shown) == len(titles)
+            for (caption, layout), title in zip(shown, titles):
+                class_name, iteration = title.split('\n')
+                assert class_name in caption
+                assert iteration.lower().replace(' / ', ' of ') in caption.lower()
+                assert layout['outside_panels'] and layout['inside_canvas']
 
 
 # ===========================================================================

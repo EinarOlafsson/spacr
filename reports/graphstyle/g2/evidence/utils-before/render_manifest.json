@@ -1,0 +1,2412 @@
+{
+  "cases": {
+    "dark/GradCAMGenerator1": [
+      {
+        "canvas_inches": [
+          16.0,
+          2.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/GradCAMGenerator1/figure0.pdf",
+            "sha256": "be45c73a6fce4ac0b639445b9af5d96946d7baa4bafa6ca7771740b58dfdb750"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/GradCAMGenerator1/figure0.png",
+            "rgba_sha256": "f3a9267d331668be82ef9dd2c089aafb7034c045380f45991d4e16dde4244e98",
+            "sha256": "cb0ed867d5063d658b76d5c0e4e909da000ac79c62cb0325d57e3631ad3d0471",
+            "size": [
+              4800,
+              600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/SaliencyMapGenerator1": [
+      {
+        "canvas_inches": [
+          16.0,
+          2.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/SaliencyMapGenerator1/figure0.pdf",
+            "sha256": "c4c510d6bdbcdaa9b37d632b1d99e916e6e888c37e4b771f871e1b35f603949c"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/SaliencyMapGenerator1/figure0.png",
+            "rgba_sha256": "f3a9267d331668be82ef9dd2c089aafb7034c045380f45991d4e16dde4244e98",
+            "sha256": "cb0ed867d5063d658b76d5c0e4e909da000ac79c62cb0325d57e3631ad3d0471",
+            "size": [
+              4800,
+              600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/SaliencyMapGenerator3": [
+      {
+        "canvas_inches": [
+          16.0,
+          2.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/SaliencyMapGenerator3/figure0.pdf",
+            "sha256": "25d5048bb3c54daad4a395210281da5108a39ebab1e9ee28d63719ff8387a9d6"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/SaliencyMapGenerator3/figure0.png",
+            "rgba_sha256": "d23041a01fb96b8d9d68b359a159aeb334c6027a48c21642ae3e5fc20b6bd365",
+            "sha256": "65cdfdbcce297a115123a63a43491891efca08b5b8c73154afe5dc035b1035b1",
+            "size": [
+              4800,
+              600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/class_exemplar": [
+      {
+        "canvas_inches": [
+          4.0,
+          4.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/class_exemplar/figure0.pdf",
+            "sha256": "089fa74c4f530b915814cdbee16f84e03842b73622d038ff82b0d49eb9381630"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/class_exemplar/figure0.png",
+            "rgba_sha256": "f06adb4aa6ddb804577af6b9283e1d23b0d8fd6a83a70f8a750878263255ac33",
+            "sha256": "7bd4a569ab3fbaf6490c17b27fec9501252ae5843dc3720526967d782c4d40b7",
+            "size": [
+              1200,
+              1200
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/embedding": [
+      {
+        "canvas_inches": [
+          3.0,
+          3.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/embedding/figure0.pdf",
+            "sha256": "81e488606b414f6732542a46d234eba15aa2b54878f217f02e22db01d321e6bb"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/embedding/figure0.png",
+            "rgba_sha256": "b3a0c6c90ef11b18e59f005fc8f7b5526bcbc5987c25a85b1911bcc91506e8fd",
+            "sha256": "43901529010625f7179f763e34ca9313a9ad73b7579ca0729ed754a5bf02329f",
+            "size": [
+              900,
+              900
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/gallery": [
+      {
+        "canvas_inches": [
+          4.0,
+          2.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/gallery/figure0.pdf",
+            "sha256": "477d86e05b008020fa224168cdadf6bd01ef9aaa2d3bc315ddc916e429b40d4d"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                151,
+                168,
+                23,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/gallery/figure0.png",
+            "rgba_sha256": "7aac263a72eb1a09157e2e99d94d3f77700d669bde2405fd1e675ea42572ade6",
+            "sha256": "4256fa69c18b602c26348153ef8abc5023d19db9e3395bee139f31fab4a097bd",
+            "size": [
+              1200,
+              600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/metrics": [
+      {
+        "canvas_inches": [
+          15.0,
+          12.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/metrics/figure0.pdf",
+            "sha256": "b5fe921e86464c2e3e439ac2494990dd28dec9c5e1bf5937018a99ed6e7986fe"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/metrics/figure0.png",
+            "rgba_sha256": "4bcd1501d7a5d1daf70c4365eea6044806ddd4e579cc7be657c82929db5c1bf4",
+            "sha256": "6f4c053c30cb546969fb1fff8c4d1b687c56550f3519320ea43606c6e60db14b",
+            "size": [
+              4500,
+              3600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/mlr": [
+      {
+        "canvas_inches": [
+          15.0,
+          12.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/mlr/figure0.pdf",
+            "sha256": "6971c397e0a8b160c6abf5e161942405958c9544304001d8b3b735aecda602fd"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff",
+              "#000000ff",
+              "#000000ff",
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/mlr/figure0.png",
+            "rgba_sha256": "2fe1f06b5a59dc2340cd148d0b168b75cfb68f449bf1f9850ff6d86294c2cec9",
+            "sha256": "cb76f5c6e57e96d58d61347ad6f4a86cfbda521f470e09306a322deb4584b9a9",
+            "size": [
+              4500,
+              3600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      },
+      {
+        "canvas_inches": [
+          5.6,
+          4.4
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/mlr/figure1.pdf",
+            "sha256": "ff5c73f3cd52a489e73ae2f1980522789f6580fc84426b0cdc2358cdd474fe83"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/mlr/figure1.png",
+            "rgba_sha256": "b59b8a594d5f75806059034d7fbed74039e716aabd7300a4c54b1411c43d35a3",
+            "sha256": "714956e31df01a06980a2868d60ad8091c360a88ae3a38dcd330baf2b99ce6ce",
+            "size": [
+              1680,
+              1320
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/process_masks": [
+      {
+        "canvas_inches": [
+          6.4,
+          4.8
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "figure_background_after_write": "#000000ff",
+            "path": "renders/dark/process_masks/figure0.pdf",
+            "sha256": "bdd3a0dfde838581a8905a82e505efdffeb1cea7564a83466934f532643599eb"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#000000ff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              0,
+              0,
+              0,
+              255
+            ],
+            "figure_background_after_write": "#000000ff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "bottom_right": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "left_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "right_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_left": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_middle": [
+                0,
+                0,
+                0,
+                255
+              ],
+              "top_right": [
+                0,
+                0,
+                0,
+                255
+              ]
+            },
+            "path": "renders/dark/process_masks/figure0.png",
+            "rgba_sha256": "6e07ecfe0cfaf863c48fa14c461b6b21571093b4c7694a9407222f56f8e01927",
+            "sha256": "71731c0e2f4b19e741a924270e341a501fcc45b9be18b6cb069aebf4e9aca778",
+            "size": [
+              1920,
+              1440
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#000000ff"
+          ],
+          "axes_label_inks": [
+            "#ffffffff"
+          ],
+          "figure_background": "#000000ff",
+          "requested": "dark",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "dark/protected_image_transforms": [],
+    "light/GradCAMGenerator1": [
+      {
+        "canvas_inches": [
+          16.0,
+          2.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/GradCAMGenerator1/figure0.pdf",
+            "sha256": "59c3edc4a3ec608e29c2b99a4b137721a1ae42a6c6a3c5b4f1110405ab50a3d6"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/GradCAMGenerator1/figure0.png",
+            "rgba_sha256": "c2893a246aded3411eaf5eeae31744912f4a3b21a126ae884be60328833d878c",
+            "sha256": "73874b52a2e273dbe0798cbaaac7e8feef54cf85331ba88955cf109ce17579b4",
+            "size": [
+              4800,
+              600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/SaliencyMapGenerator1": [
+      {
+        "canvas_inches": [
+          16.0,
+          2.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/SaliencyMapGenerator1/figure0.pdf",
+            "sha256": "a18a794e142760233adf720db1f236ef28f9d2e79b360ce05c2268a740ffdd89"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/SaliencyMapGenerator1/figure0.png",
+            "rgba_sha256": "c2893a246aded3411eaf5eeae31744912f4a3b21a126ae884be60328833d878c",
+            "sha256": "73874b52a2e273dbe0798cbaaac7e8feef54cf85331ba88955cf109ce17579b4",
+            "size": [
+              4800,
+              600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/SaliencyMapGenerator3": [
+      {
+        "canvas_inches": [
+          16.0,
+          2.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/SaliencyMapGenerator3/figure0.pdf",
+            "sha256": "d4c27b1d67767e284163b47394b2a38e9f033e3ba6dc50c389165009adb10ce6"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/SaliencyMapGenerator3/figure0.png",
+            "rgba_sha256": "c3e22b89419b16f1d754e212bec00c422bb7a4b519b7d325d67ce695bb46b17f",
+            "sha256": "b627fdb6dd36e3166621cf2d5179f39144a5463abe8df6b1f8dc38d21a3bd4fe",
+            "size": [
+              4800,
+              600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/class_exemplar": [
+      {
+        "canvas_inches": [
+          4.0,
+          4.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/class_exemplar/figure0.pdf",
+            "sha256": "30d191be881c514fa862e6879dd792c47c0daa6510be3885457334636b2a8220"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/class_exemplar/figure0.png",
+            "rgba_sha256": "975f9c8beb484bc943d573fb96027e3e94939a547b60d3e4501d37d8f80ee0ff",
+            "sha256": "2a420fcc2d9a599a69d6567fd3d41fe13cee3640c955847dabaf8d2b2e5e9fb0",
+            "size": [
+              1200,
+              1200
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/embedding": [
+      {
+        "canvas_inches": [
+          3.0,
+          3.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/embedding/figure0.pdf",
+            "sha256": "a8d2db3847b432bb365bb1a7fb221b13a6c36bae792724ad2d560395c97a4110"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/embedding/figure0.png",
+            "rgba_sha256": "b21559fc2c642af4b5a8b586b1149d11268652ab1fde036ee69a4392de535f23",
+            "sha256": "bb09f2d0081360a9c3dee56ad8968950637d07fa992f26a5cfcc4423622e4d25",
+            "size": [
+              900,
+              900
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/gallery": [
+      {
+        "canvas_inches": [
+          4.0,
+          2.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/gallery/figure0.pdf",
+            "sha256": "4886a2201494de10244d5bbe95457db7587ca58da0ea0d7a7468b28f694de963"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                215,
+                232,
+                86,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/gallery/figure0.png",
+            "rgba_sha256": "6ec0026b0af94a2839e1bd24c18b305d58d45fa119ef37b1d5b3c3fd6b40d611",
+            "sha256": "928bb394f17a09bf5d00bf0fa0bf5725b1e273909d73a190545abd7d5a4f16bc",
+            "size": [
+              1200,
+              600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/metrics": [
+      {
+        "canvas_inches": [
+          15.0,
+          12.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/metrics/figure0.pdf",
+            "sha256": "40d7d458744324f3f65894734e7942a769d5c932aad720ee2371bc910ae1505c"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/metrics/figure0.png",
+            "rgba_sha256": "48ee4652e04bc76d79b7a9cfed5bff62ea8eab56c5a8b00759b8e72a7315f93c",
+            "sha256": "df3a78b235c44f2eb099661b402c8f68e3c5c2f2051f1a5aede352ce6895748d",
+            "size": [
+              4500,
+              3600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/mlr": [
+      {
+        "canvas_inches": [
+          15.0,
+          12.0
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/mlr/figure0.pdf",
+            "sha256": "a3643dffe965f299e6dad7679d0d491ab6412f11ce63efa23fe9f9dbf69ac00b"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff",
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/mlr/figure0.png",
+            "rgba_sha256": "998dd937c88b8d74bcd0bd519b4b1d4b1e28998321e95186968819b04b1f4fa6",
+            "sha256": "c7efc1b2eb815313e20b0465cd3b6dee0b1d34528eddc492bb7d92433c3cc661",
+            "size": [
+              4500,
+              3600
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff",
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff",
+            "#000000ff",
+            "#000000ff",
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      },
+      {
+        "canvas_inches": [
+          5.6,
+          4.4
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/mlr/figure1.pdf",
+            "sha256": "5ff995dd0c18ef94c3a498661e13f9a6a6d8ab4d121dbb9c70a7c8346532886d"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/mlr/figure1.png",
+            "rgba_sha256": "194c41ec1c138e589d02ac90afc12e744f6dd09a08639519e47d77219f2e4ec0",
+            "sha256": "b5ef3d0dae5f6da38e5cb35260ef87523fd6a864098c2a40175675aba5e65df8",
+            "size": [
+              1680,
+              1320
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/process_masks": [
+      {
+        "canvas_inches": [
+          6.4,
+          4.8
+        ],
+        "diagnostics": {
+          "checks": [],
+          "policy_version": "",
+          "problems": [
+            "Register the chart kind, reference, quantities, and legend before validation"
+          ]
+        },
+        "external_legend": null,
+        "files": {
+          "pdf": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "path": "renders/light/process_masks/figure0.pdf",
+            "sha256": "594419ce87b641b6a7c31741cad4fcef34fe59bdb1e0bedc2c61a0511c52ec81"
+          },
+          "png": {
+            "axes_backgrounds_after_write": [
+              "#ffffffff"
+            ],
+            "corner_background_matches": true,
+            "expected_background_rgba": [
+              255,
+              255,
+              255,
+              255
+            ],
+            "figure_background_after_write": "#ffffffff",
+            "outer_pixels_rgba": {
+              "bottom_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "bottom_right": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "left_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "right_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_left": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_middle": [
+                255,
+                255,
+                255,
+                255
+              ],
+              "top_right": [
+                255,
+                255,
+                255,
+                255
+              ]
+            },
+            "path": "renders/light/process_masks/figure0.png",
+            "rgba_sha256": "86af095283fdd250e068b059ad385aea503700a011eba2334555070510fac6df",
+            "sha256": "50b2ebdab203b579cefec14f4879edf076b5c366110d30e33345506cbd3ffcf6",
+            "size": [
+              1920,
+              1440
+            ]
+          }
+        },
+        "theme": {
+          "axes_backgrounds": [
+            "#ffffffff"
+          ],
+          "axes_label_inks": [
+            "#000000ff"
+          ],
+          "figure_background": "#ffffffff",
+          "requested": "light",
+          "writer_rc_facecolor": "auto",
+          "writer_rc_transparent": false
+        }
+      }
+    ],
+    "light/protected_image_transforms": []
+  },
+  "inherited_pipeline_flag_removed": null,
+  "resolved_themes": {
+    "dark": {
+      "background": "#000000",
+      "foreground": "#ffffff",
+      "rc_axes_background": "#000000",
+      "rc_figure_background": "#000000",
+      "resolved_preference_colors": [
+        "#000000",
+        "#ffffff"
+      ],
+      "target": "screen"
+    },
+    "light": {
+      "background": "#ffffff",
+      "foreground": "#000000",
+      "rc_axes_background": "#ffffff",
+      "rc_figure_background": "#ffffff",
+      "resolved_preference_colors": [
+        "#ffffff",
+        "#000000"
+      ],
+      "target": "print"
+    }
+  },
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before"
+}

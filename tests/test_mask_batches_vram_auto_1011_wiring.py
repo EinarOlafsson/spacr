@@ -225,7 +225,7 @@ def test_real_phenotype_stager_matches_seeded_segmentation_order(tmp_path, monke
             """Record the complete requested staging order."""
             staged.extend(order)
 
-        def load(self, site):
+        def load(self, site, mmap=False):
             """Expose the field identity through existing resident pixels."""
             loaded.append(site)
             return stack * (site + 1), []

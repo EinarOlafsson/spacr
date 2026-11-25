@@ -1,0 +1,90 @@
+{
+  "manual_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "default_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "control_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "numeric_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "constant_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "categorical_shape_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "threshold_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "annotated_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "split_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "localization_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "manual_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "control_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "split_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "categorical_shape_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "constant_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "default_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "raw_p_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "numeric_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "threshold_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "localization_light": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "annotated_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  },
+  "raw_p_dark": {
+    "svg_images": 0,
+    "pdf_image_tokens": 0
+  }
+}

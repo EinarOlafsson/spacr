@@ -2519,12 +2519,11 @@ def _match_fraction(reference: np.ndarray, labels: np.ndarray, iou: float = 0.5)
     n_ref = int(np.count_nonzero(area_a[1:]))
     if n_ref == 0:
         return 1.0 if not np.count_nonzero(area_b[1:]) else float("nan")
-    both = (a > 0) & (b > 0)
-    if not both.any():
+    from .measure import _label_overlaps
+
+    ia, ib, overlap = _label_overlaps(a, b)
+    if not overlap.size:
         return 0.0
-    width = int(b.max()) + 1
-    pairs, overlap = np.unique(a[both] * width + b[both], return_counts=True)
-    ia, ib = pairs // width, pairs % width
     ratio = overlap / (area_a[ia] + area_b[ib] - overlap)
     return float(np.unique(ia[ratio >= iou]).size) / n_ref
 
@@ -2634,7 +2633,11 @@ def _format_robustness(summary, object_type: str, tolerance: float) -> str:
 
 def _robustness_figure(summary, tolerance: float, object_type: str):
     """A heatmap of each grid point's change in each metric, fragile rows marked."""
-    from .figures.style import _figure_axes
+    from .figures.style import (
+        ROLES, _figure_axes, _legend_note, apply_axes_style, apply_colourbar_theme, attach_colourbar,
+        external_legend, heatmap_cmap, heatmap_image, resolve_style, theme_target,
+    )
+    from .qt.i18n import tr
 
     columns = [f"{metric}_change" for metric in _ROBUSTNESS_METRICS]
     values = np.abs(summary[columns].to_numpy(float))
@@ -2646,18 +2649,32 @@ def _robustness_figure(summary, tolerance: float, object_type: str):
     with _figure_axes(figsize=(6, 0.4 * len(labels) + 1.6)) as (figure, axis):
         from .figures.bundle import _register_figure_data
         _register_figure_data(figure, summary, x="parameter", y="value", kind="heatmap")
-        image = axis.imshow(shown, cmap="magma_r", vmin=0, vmax=max(2.0 * tolerance, 1e-6),
-                            aspect="auto")
+        image = heatmap_image(axis, shown, cmap=heatmap_cmap(),
+                              vmin=0, vmax=max(2.0 * tolerance, 1e-6))
         axis.set_xticks(range(4))
-        axis.set_xticklabels(["count", "median area", "mean intensity", "objects lost"])
+        axis.set_xticklabels([tr("count"), tr("median area"), tr("mean intensity"), tr("objects lost")],
+                            rotation=45, ha="right")
         axis.set_yticks(range(len(labels)))
         axis.set_yticklabels(labels, fontsize=8)
-        for (row, col), value in np.ndenumerate(values):
-            text = _change_pct(value)
-            axis.text(col, row, text, ha="center", va="center", fontsize=7,
-                      color="white" if shown[row, col] > tolerance else "black")
-        figure.colorbar(image, ax=axis, label="change from the run's settings")
-        axis.set_title(f"{object_type} segmentation robustness (! = over {_pct(tolerance)})",
-                       fontsize=9)
-        figure.tight_layout()
+        attach_colourbar(axis, image, label=tr("Change from the settings used for the run"), unit=tr("fraction"))
+        caption = tr("{object_type} segmentation robustness (! = over {tolerance})").format(
+            object_type=object_type, tolerance=_pct(tolerance))
+        _legend_note(axis, caption, ROLES["reference"], "caption")
+        _legend_note(axis, tr("Columns show absolute changes in count, median area and mean intensity, then the unmatched object fraction."),
+                     ROLES["reference"], "note")
+        _legend_note(axis, tr("Nonfinite results retain the display value twice the tolerance; they are not measured changes."),
+                     ROLES["reference"], "note")
+        for label, row in zip(labels, values):
+            _legend_note(axis, tr("{setting}: {values}").format(
+                setting=label, values="; ".join(_change_pct(value) for value in row)),
+                ROLES["reference"], "note")
+        apply_axes_style(axis, resolve_style(theme_target(), "heatmap", comparison={
+            "display_range": (0., max(2.0 * tolerance, 1e-6)), "gamma": 1.,
+            "processing": tr("Absolute relative changes; nonfinite values displayed at twice the tolerance")},
+            legend={"caption": caption, "reference": tr("Unchanged segmentation settings used for the run"),
+                    "quantities": {"value": tr("Relative change or unmatched fraction")},
+                    "unit": tr("fraction")}), layout=False)
+        figure.set_facecolor(axis.get_facecolor())
+        apply_colourbar_theme(axis)
+        external_legend(figure, axes=[axis])
     return figure

@@ -238,12 +238,22 @@ def test_documented_parameter_names_match_the_source_signatures():
 
 def test_public_docstrings_matches_reviewed_visible_coverage():
     """Bind exact source arrivals before comparing the historical API surface."""
+    from tests.test_graphstyle_api_contract import _current_graphstyle_api, _retired_graphstyle_api
+
     docs = builder.public_docstrings()
     from tests.test_documentation_i18n import (
         _retired_0ab2_measure_api, _retired_732_remote_api, _retired_801_mask_worker_api)
     historical_docs = (docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
-                       | _retired_0ab2_measure_api(docs))
+                       | _retired_0ab2_measure_api(docs) | _retired_graphstyle_api(docs))
     dunders = _visible_special_members()
+    graphstyle_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "graphstyle_g1_api_arrivals_2026-11-23.json").read_text(encoding="utf-8"))
+    assert len(graphstyle_arrivals) == 22
+    assert {key: docs[key] for key in graphstyle_arrivals} == graphstyle_arrivals
+    graphstyle_dunders = {key for key in graphstyle_arrivals if key.rsplit(".", 1)[-1].startswith("__")}
+    assert graphstyle_dunders == {"spacr.figures.style.StyleSpec.__post_init__"}
+    assert graphstyle_dunders <= dunders
+    dunders = dunders - graphstyle_dunders
     metal_iterator_arrival = json.loads((ROOT / "tests/data/release_contracts"
         / "718_metal_loader_iterator_api_arrival_2026-10-24.json").read_text(encoding="utf-8"))
     assert set(metal_iterator_arrival) == {"spacr.torch_loader.ArrayDataLoader.__iter__"}
@@ -2327,6 +2337,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     paper_item_arrivals = _current_neighbour_api(paper_item_arrivals)
     from tests.phtables_store_api_hooks import _current_phtables_api
     paper_item_arrivals = _current_phtables_api(paper_item_arrivals)
+    from tests.l5_api_hooks import _current_l5_api
+    paper_item_arrivals = _current_l5_api(paper_item_arrivals)
     assert len(paper_item_arrivals) == 170
     assert {key: docs[key] for key in paper_item_arrivals} == paper_item_arrivals
     assert not paper_item_arrivals.keys() & (
@@ -2338,6 +2350,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         / "data/release_contracts" / "884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json").read_text(encoding="utf-8"))
     from tests.test_ops_phfields_sources import _current_phfields_api
     paper_item_2_arrivals = _current_phfields_api(paper_item_2_arrivals)
+    from tests.l5_api_hooks import _current_l5_api
+    paper_item_2_arrivals = _current_l5_api(paper_item_2_arrivals)
     assert len(paper_item_2_arrivals) == 376
     assert {key: docs[key] for key in paper_item_2_arrivals} == paper_item_2_arrivals
     assert not paper_item_2_arrivals.keys() & (
@@ -2584,6 +2598,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **_current_l3_api(zoo_arrivals)}
     from tests.l4_api_hooks import _current_l4_api
     zoo_arrivals = {**zoo_arrivals, **_current_l4_api(zoo_arrivals)}
+    from tests.merge_1017_api_hooks import _current_1017_api
+    zoo_arrivals = {**zoo_arrivals, **_current_1017_api(zoo_arrivals)}
+    from tests.l5_api_hooks import _current_l5_arrivals
+    zoo_arrivals = {**zoo_arrivals, **_current_l5_arrivals(zoo_arrivals)}
     sweep_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "955_ops_fdr_sweep_api_arrivals_2026-11-16.json").read_text(encoding="utf-8"))
     assert len(sweep_arrivals) == 1
@@ -2628,10 +2646,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **figprefs_arrivals}
     figstyle_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "figstyle_spacr_graphs_api_arrivals_2026-11-19.json").read_text(encoding="utf-8"))
+    figstyle_arrivals = _current_graphstyle_api(figstyle_arrivals)
     assert len(figstyle_arrivals) == 9
     assert {key: docs[key] for key in figstyle_arrivals} == figstyle_arrivals
     assert not figstyle_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **figstyle_arrivals}
+    assert not graphstyle_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **graphstyle_arrivals}
     voyager3_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "973_ops_voyager3_api_arrivals_2026-11-17.json").read_text(encoding="utf-8"))
     assert len(voyager3_arrivals) == 9

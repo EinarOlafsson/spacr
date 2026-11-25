@@ -421,7 +421,7 @@ def test_measure_gpu_reaches_the_measurement(monkeypatch, tmp_path):
         seen.update(kwargs)
         return pd.DataFrame({"label": []})
 
-    monkeypatch.setattr("spacr.ops_sample.measure_phenotype_field", fake)
+    monkeypatch.setattr("spacr.ops_sample._measure_phenotype_field", fake)
     tiles = _write_tiles(tmp_path / "tiles", sites=(0,))
     masks = tmp_path / "m.npz"
     np.savez(masks, nuclei=np.zeros((SIZE, SIZE), np.uint32),

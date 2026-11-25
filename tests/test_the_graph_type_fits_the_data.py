@@ -155,12 +155,13 @@ class TestTheDefaultIsPerDataType:
         # points are the evidence. ``spacr.plot.create_grouped_plot`` and the
         # three ``graph_type`` settings already default to ``jitter_box``, so
         # this table saying otherwise was a second answer to one question.
-        ("categorical_continuous", "box_jitter"),
+        ("categorical_continuous", "auto"),
         ("continuous_continuous", "scatter"),
         ("ordered_continuous", "line"),
-    ], ids=["groups-the-five-numbers-and-the-observations",
+    ], ids=["groups-the-shared-automatic-policy",
             "two-measurements-a-scatter", "ordered-x-a-line"])
     def test_each_shape_has_its_default(self, shape, default):
+        """Categorical defaults use the shared automatic count policy; continuous and ordered defaults retain their types."""
         assert default_for(shape) == default
 
     def test_the_two_tables_cover_the_same_shapes(self):

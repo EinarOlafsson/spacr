@@ -75,7 +75,11 @@ from .runctx import run_context
 LOG = logging.getLogger(__name__)
 from .plot import plot_plates
 
-from .figures.style import ROLES, figure_style, theme_target
+from .figures.style import (
+    ROLES, _legend_note, apply_axes_style, ensure_reference_contrast, external_legend, figure_style,
+    reference_line, resolve_style, theme_target,
+)
+from .qt.i18n import tr
 try:
     from IPython.display import display
 except Exception:
@@ -1792,20 +1796,31 @@ def graph_sequencing_stats(settings):
             The returned figure and axes let the caller add its chosen
             threshold marker before either saving or displaying the plot.
             """
-            with figure_style(theme_target()):
+            target = theme_target()
+            with figure_style(target):
                 fig, ax = plt.subplots(figsize=(10, 10))
                 from .figures.bundle import _register_figure_data
                 _register_figure_data(fig, df, x=x, y=y, kind="line")
-                ax.plot(df[x], df[y], linestyle='-', color=(0 / 255, 155 / 255, 155 / 255), label=f"{y}")
-                ax.set_xlabel(x)
-                ax.set_ylabel(y)
-                ax.set_title(f'{y} vs {x}')
-                ax.legend()
+                ax.plot(df[x], df[y], linestyle='-', color=ROLES["secondary"],
+                        label=tr("Mean unique gRNAs per well"))
+                ax.set_xlabel(tr("Read fraction threshold"))
+                ax.set_ylabel(tr("Mean unique gRNAs per well"))
                 if log_x:
                     ax.set_xscale('log')
                 if log_y:
                     ax.set_yscale('log')
-                fig.tight_layout()
+                _legend_note(ax, tr("Mean unique gRNAs per well"), ROLES["secondary"], "identity")
+                _legend_note(ax, tr("gRNA means guide RNA; the threshold is a fraction of reads in each well."),
+                             ROLES["secondary"], "caption")
+                apply_axes_style(ax, resolve_style(target, "sweep", comparison={
+                    "graph_type": "sweep", "manual_limits": ax.get_ylim()}, legend={
+                        "caption": tr("Unique guide counts across the read-fraction sweep"),
+                        "reference": tr("Requested mean guide count and closest tested threshold"),
+                        "quantities": {"x": tr("Read fraction threshold"),
+                                       "y": tr("Mean unique gRNAs per well")},
+                        "units": {"x": tr("fraction"), "y": tr("gRNAs per well")}}),
+                    layout=False)
+                fig.set_facecolor(ax.get_facecolor())
                 return fig, ax
 
         fraction_thresholds = np.linspace(0.001, 0.99, 1000)
@@ -1827,15 +1842,19 @@ def graph_sequencing_stats(settings):
 
         fig, ax = _line_plot(df=results_df, x='fraction_threshold', y='unique_count', log_x=log_x, log_y=log_y)
 
-        plt.axvline(x=closest_threshold['fraction_threshold'],
-                    color=ROLES["reference"], linestyle='--',
-                    label=f'Closest Threshold ({closest_threshold["fraction_threshold"]:.4f})')
-        plt.axhline(y=target_unique_count, color=ROLES["reference"],
-                    linestyle='--',
-                    label=f'Target Unique Count ({target_unique_count})')
+        reference_line(ax, x=closest_threshold['fraction_threshold'],
+                       label=tr("Closest threshold ({threshold:.4f})").format(
+                           threshold=closest_threshold["fraction_threshold"]))
+        reference_line(ax, y=target_unique_count,
+                       label=tr("Target unique count ({count})").format(count=target_unique_count))
         
         plt.xlim(0,0.1)
         plt.ylim(0,20)
+        ax.tick_params(axis="x", which="major", pad=6.)
+        _legend_note(ax, tr("The retained view is limited to thresholds up to 0.1 and counts up to 20; the returned threshold can lie outside it."),
+                     ROLES["reference"], "note")
+        external_legend(fig, axes=[ax])
+        ensure_reference_contrast(ax)
 
         fig_path = os.path.join(dst, 'results')
         os.makedirs(fig_path, exist_ok=True)

@@ -1904,11 +1904,9 @@ def _control_rows(names: Sequence, control_prefix: str = "nontargeting"
 class _RowEmbedder:
     """Standardise the gene rows and keep the PCs holding ``variance``.
 
-    The transform is fitted on the gene rows and kept, so guide rows of the
-    same feature space land in the same embedding. It is the embedding of
-    Brieflow's ``funk_benchmark.py``: columns with 5 % or more non-finite
-    values are dropped, the rest median-imputed, standardised (columns with
-    no spread dropped) and reduced by PCA to ``variance``.
+    :class:`spacr.ops_reference._GeneEmbedding` under the name this module
+    calls: the transform is fitted on the gene rows and kept, and calling
+    the object embeds guide rows of the same feature space with it.
     """
 
     def __init__(self, values, variance: float = 0.99, seed: int = 0):
@@ -1918,19 +1916,10 @@ class _RowEmbedder:
         :param variance: the share of variance the PCA keeps.
         :param seed: the PCA seed.
         """
-        from sklearn.decomposition import PCA
+        from .ops_reference import _GeneEmbedding
 
-        x = np.asarray(values, float)
-        x = np.where(np.isfinite(x), x, np.nan)
-        self.keep = np.isnan(x).mean(axis=0) < 0.05
-        x = x[:, self.keep]
-        self.median = np.nanmedian(x, axis=0)
-        x = np.where(np.isnan(x), self.median, x)
-        spread = x.std(axis=0)
-        self.ok = spread > 0
-        self.mean, self.sd = x[:, self.ok].mean(axis=0), spread[self.ok]
-        self.pca = PCA(n_components=variance, random_state=seed)
-        self.rows = self.pca.fit_transform((x[:, self.ok] - self.mean) / self.sd)
+        self._fitted = _GeneEmbedding(values, variance, seed)
+        self.rows = self._fitted.rows
 
     def __call__(self, values) -> np.ndarray:
         """Embed other rows with the fitted transform.
@@ -1938,9 +1927,7 @@ class _RowEmbedder:
         :param values: rows of the same feature columns.
         :returns: the embedded rows.
         """
-        x = np.asarray(values, float)[:, self.keep]
-        x = np.where(np.isfinite(x), x, self.median)
-        return self.pca.transform((x[:, self.ok] - self.mean) / self.sd)
+        return self._fitted.transform(values)
 
 
 def contrastive_weighting(genes: pd.DataFrame, guides: pd.DataFrame,
@@ -3595,8 +3582,9 @@ def remove_generic_axes(values: np.ndarray, genes: Sequence,
         design = np.column_stack([
             np.log(table["cells_per_guide"]) if a == "log_cells_per_guide"
             else table[a] for a in chosen])
-        fitted = design[targeting]
-        centre, spread = fitted.mean(0), fitted.std(0)
+        from .ops_tvn import _column_mean_sd
+
+        centre, spread = _column_mean_sd(design, np.flatnonzero(targeting), zero_sd="keep")
         design = np.column_stack([np.ones(len(design)), (design - centre) / spread])
         beta, *_ = np.linalg.lstsq(design[targeting], x[targeting], rcond=None)
         residuals = x - design[:, 1:] @ beta[1:]
@@ -4144,12 +4132,14 @@ def fusion_profiles(blocks: Mapping[str, pd.DataFrame], *,
     """
     from sklearn.decomposition import PCA
 
+    from .ops_tvn import _column_mean_sd
+
     parts, counts = [], None
     for name, table in blocks.items():
         columns = [c for c in table.columns if str(c).startswith(("PC_", "emb_", "f_"))]
         x = table[columns].to_numpy(float)
-        spread = x.std(0)
-        x = (x - x.mean(0)) / np.where(spread > 0, spread, 1)
+        centre, spread = _column_mean_sd(x, zero_sd="exact")
+        x = (x - centre) / spread
         p = PCA(n_components=variance, whiten=True, random_state=int(seed)).fit_transform(x)
         p /= np.sqrt(p.shape[1])
         parts.append(pd.DataFrame(p, columns=[f"f_{name}{j}" for j in range(p.shape[1])],

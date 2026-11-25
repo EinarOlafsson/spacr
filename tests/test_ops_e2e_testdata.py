@@ -373,6 +373,11 @@ def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path):
     (b = 0.25, maintainer decision 2026-11-22, 988 acceptance) moves ~1.2 %
     of calls away from the undiscounted production calls; measured 0.9884
     on 13,310 cells, so the default must agree >= 0.985.
+
+    The parity run also pins ``ops_pixel_read_gate = False``: the reference
+    calls predate the schema-964 read gate (L5 decode audit), which drops
+    pixel-fallback calls the reads contradict, so the ungated rule is the one
+    that reproduces them object for object. The default run keeps the gate.
     """
     from spacr.ops_engine import _replace_well_rows
 
@@ -380,6 +385,7 @@ def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path):
     settings = _settings(root, tmp_path)
     settings["n_workers"] = 1
     settings["ops_read_neighbour_discount"] = 1.0
+    settings["ops_pixel_read_gate"] = False
     result = _run(settings, ["stitch"])
     db = Path(result["db"])
     _assert_geometry(_table(db, "ops_geometry"), root)

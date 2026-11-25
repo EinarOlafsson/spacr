@@ -118,7 +118,9 @@ class TestALivePanelOpensOnTheChoice:
     def test_with_nothing_chosen_the_panel_keeps_its_own_mark(self, qtbot):
         controls = _controls(qtbot)
         controls.set_groups(_groups())
-        assert controls.mark() == "jitter"
+        # Graphstyle G1 (L5): with nothing saved the control-separation panel
+        # follows the shared sample-count rule, its "auto" mark.
+        assert controls.mark() == "auto"
 
     @pytest.mark.parametrize("chosen,mark", [
         ("violin", "violin"),
@@ -406,7 +408,7 @@ def test_remembering_a_mark_makes_the_next_plot_open_on_it(qtbot):
 
     first = _controls(qtbot)
     first.set_groups(_groups())
-    assert first.mark() == "jitter"
+    assert first.mark() == "auto"
 
     first._remember_default_kind(SHAPE, "violin")
     assert preferences.get_default_graph_type(SHAPE) == "violin"

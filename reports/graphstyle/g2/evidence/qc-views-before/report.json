@@ -1,0 +1,2844 @@
+{
+  "source_root": "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before",
+  "source_head": "9510143823dcc1b984ecc522058a1e3f15e985d8",
+  "source_inputs": {
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/align.py": "537d50e0f6a7eb18273594b6b1115854020d8f90b4dfa60f8b01ba5aae183dc8",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/plot.py": "cc48d6ffa3e9c7abf0d6c916db3549d16850f988df59100f51cfa674e4e7e972",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/figures/style.py": "ce2c1b90591867749b8da5e793e12317024a10bed5ad419dd00560a9ce25e7ed",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/preferences.py": "031b785dfe5bfb4945f0a6ae956a703b4eb2fdd21d878333ddc35974c5211ece",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/theme.py": "40d7db4d02ebcd75c2c53fa188287bf2ed5365b8ec673518608fbc73342bb1f0",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/screens/align.py": "aad3d75876202286c66e978387cd7540cf440866f734c18c7b8798dd2d906ed8",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/widgets/measure_preview.py": "3e38c50bde96ef7d29f39a97c9187a80189a50c1f9e3293c4c3d9ed7e536d663",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-before/spacr/qt/widgets/qc_field_browser.py": "5926dc49f9b213896b23f7222235efe0a81883a67719d12a01d745d0fe452daf",
+    "/mnt/wd4tb/worktrees/codex-graphstyle-g2-validation/.codex-audit/g2_qc_views_render.py": "9641ecf70740072ac7181a92028489d7debfde189c0ba869b535e9f55cd9e089"
+  },
+  "synthetic_only": true,
+  "cases": {
+    "light/measure-grid": {
+      "file": "light/measure-grid.png",
+      "file_sha256": "bac6c16caeca37a1b75720f7de60c3674d475fbcf82e7b079c656605d7d34a4b",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          421,
+          1094,
+          4
+        ],
+        "data_sha256": "a1cbb0b3ca55df4836daa88ca76bdab199cb188e5b2201d4332ce075344fb5c7",
+        "mask_sha256": "b68216b57edd6b75b03033fa1d440c2c16015b9380259655890fabcdb2719185"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [
+        {
+          "text": "Nucleated  \u00b7  1 kept  \u00b7  1 excluded by filters",
+          "rectangle": [
+            8.0,
+            8.0,
+            1078.0,
+            84.0
+          ],
+          "text_bounds": [
+            19.0,
+            41.0,
+            265.0,
+            18.0
+          ],
+          "inside_widget": true,
+          "font_family": "Noto Sans",
+          "font_points": 9.75
+        },
+        {
+          "text": "Unnucleated  \u00b7  1 kept",
+          "rectangle": [
+            8.0,
+            215.0,
+            1078.0,
+            83.0
+          ],
+          "text_bounds": [
+            19.0,
+            247.0,
+            138.0,
+            19.0
+          ],
+          "inside_widget": true,
+          "font_family": "Noto Sans",
+          "font_points": 9.75
+        }
+      ],
+      "widget_size": [
+        1094,
+        421
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "grid_positions": [
+        {
+          "position": [
+            0,
+            0,
+            1,
+            7
+          ],
+          "label": "Nucleated  \u00b7  1 kept  \u00b7  1 excluded by filters",
+          "index": null
+        },
+        {
+          "position": [
+            1,
+            0,
+            1,
+            1
+          ],
+          "label": "",
+          "index": 0
+        },
+        {
+          "position": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "label": "",
+          "index": 1
+        },
+        {
+          "position": [
+            2,
+            0,
+            1,
+            7
+          ],
+          "label": "Unnucleated  \u00b7  1 kept",
+          "index": null
+        },
+        {
+          "position": [
+            3,
+            0,
+            1,
+            1
+          ],
+          "label": "",
+          "index": 2
+        }
+      ],
+      "thumbnails": [
+        {
+          "file": "light/crop-0.png",
+          "file_sha256": "f25ef8d3b3b158849a4214b611e0c3449321366ca5a53019c49ee2af8a280d1f",
+          "rgba": {
+            "dtype": "|u1",
+            "shape": [
+              99,
+              132,
+              4
+            ],
+            "data_sha256": "74db3970ee7c6f72ab1e2578a01a8573418456dc7b9a965d948b727610749e34",
+            "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+          },
+          "device_pixel_ratio": 1.0
+        },
+        {
+          "file": "light/crop-1.png",
+          "file_sha256": "99ce0afd7ca0b7649d038caeb9e82ee8408b0d15f16f16273a95f2fe85730366",
+          "rgba": {
+            "dtype": "|u1",
+            "shape": [
+              99,
+              132,
+              4
+            ],
+            "data_sha256": "5684993b19b2030f5d5e11d4dd27d51e86fd114087ae6c07b1c9e537e446ca72",
+            "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+          },
+          "device_pixel_ratio": 1.0
+        },
+        {
+          "file": "light/crop-2.png",
+          "file_sha256": "96b4ecbb5cffa773b6763f83c0cfb6e1856d5ac849b7bf4a8c68f56667fcfcf6",
+          "rgba": {
+            "dtype": "|u1",
+            "shape": [
+              99,
+              132,
+              4
+            ],
+            "data_sha256": "978772bb4a0b99d3abdefe06550847ecbc1651462dba1a2993a5ab4821edb501",
+            "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+          },
+          "device_pixel_ratio": 1.0
+        }
+      ],
+      "owner_specification": null
+    },
+    "light/qc-field": {
+      "file": "light/qc-field.png",
+      "file_sha256": "ce62ce9c2f5d467daee2baa4851edfd0ab23960a0b8954429500cb7db410071f",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          383,
+          712,
+          4
+        ],
+        "data_sha256": "e7103a24e66f779954461db6db2ccf064ea66c05511de02c6edac1f26f907c93",
+        "mask_sha256": "b23f9245bbf0759e357c6696a330739f1412be0dc3c04095cffba4e426026af1"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        712,
+        383
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "raw_composite": {
+        "file": "light/qc-composite.png",
+        "file_sha256": "e52fb19b4825ebf160a1465bfc22e29bee17284edc467c0defdf5ac295b6bba1",
+        "rgba": {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            4
+          ],
+          "data_sha256": "7a812cf7fa92210674c91455639f81bcddc574980e51864568ed5a8e20c8bc02",
+          "mask_sha256": "71c642b31e5890a15ef92f3cbeba34edfb6e2e9f63079ecbda13a89d426f7d8b"
+        },
+        "device_pixel_ratio": 1.0
+      },
+      "owner_specification": null
+    },
+    "light/histogram-loaded": {
+      "file": "light/histogram-loaded.png",
+      "file_sha256": "876267359ed98f17ff6598839b32d3e8abdf7acb0d37c8199eed4d85fdc5dbd7",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          600,
+          400,
+          4
+        ],
+        "data_sha256": "831269c03ef57de32d2fa5c76a7c6d55409fde59d0249adf9f62df298266c1ba",
+        "mask_sha256": "b9163d03c43083a18e6101539b555cb5e363eed61fa4b3a3b54f50ae60eb5b52"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        600
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "coordinate_mapping": {
+        "plot": [
+          8.0,
+          4.0,
+          384.0,
+          584.0
+        ],
+        "levels": [
+          0.0,
+          0.1,
+          0.5,
+          0.9,
+          1.0
+        ],
+        "x": [
+          8.0,
+          46.400000000000006,
+          200.0,
+          353.6,
+          392.0
+        ],
+        "inverse": [
+          0.0,
+          0.10000000000000002,
+          0.5,
+          0.9,
+          1.0
+        ]
+      }
+    },
+    "light/histogram-missing": {
+      "file": "light/histogram-missing.png",
+      "file_sha256": "06075d15c2c0a9c00536b6cf62ab612e19bb57d2097b4ec8be2d9f52f8564406",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          600,
+          400,
+          4
+        ],
+        "data_sha256": "1c366e2b7a1f2bca8f9ed73452f30c7be4f77fc15c0c12bc344dc6aff15b3e90",
+        "mask_sha256": "b9163d03c43083a18e6101539b555cb5e363eed61fa4b3a3b54f50ae60eb5b52"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        600
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "coordinate_mapping": {
+        "plot": [
+          8.0,
+          4.0,
+          384.0,
+          584.0
+        ],
+        "levels": [
+          0.0,
+          0.1,
+          0.5,
+          0.9,
+          1.0
+        ],
+        "x": [
+          8.0,
+          46.400000000000006,
+          200.0,
+          353.6,
+          392.0
+        ],
+        "inverse": [
+          0.0,
+          0.10000000000000002,
+          0.5,
+          0.9,
+          1.0
+        ]
+      }
+    },
+    "light/histogram-zero": {
+      "file": "light/histogram-zero.png",
+      "file_sha256": "06075d15c2c0a9c00536b6cf62ab612e19bb57d2097b4ec8be2d9f52f8564406",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          600,
+          400,
+          4
+        ],
+        "data_sha256": "1c366e2b7a1f2bca8f9ed73452f30c7be4f77fc15c0c12bc344dc6aff15b3e90",
+        "mask_sha256": "b9163d03c43083a18e6101539b555cb5e363eed61fa4b3a3b54f50ae60eb5b52"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        600
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "coordinate_mapping": {
+        "plot": [
+          8.0,
+          4.0,
+          384.0,
+          584.0
+        ],
+        "levels": [
+          0.0,
+          0.1,
+          0.5,
+          0.9,
+          1.0
+        ],
+        "x": [
+          8.0,
+          46.400000000000006,
+          200.0,
+          353.6,
+          392.0
+        ],
+        "inverse": [
+          0.0,
+          0.10000000000000002,
+          0.5,
+          0.9,
+          1.0
+        ]
+      }
+    },
+    "light/cell-picker": {
+      "file": "light/cell-picker.png",
+      "file_sha256": "fb49bdf607d87fda8267f4903a44ad17239d2aae0339a32489b26d40281be41c",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          280,
+          4
+        ],
+        "data_sha256": "6bafa971a64f09bd95a032b6abfffd42a570b6d477ee394c0e61f6f237c5b323",
+        "mask_sha256": "0b12fd480728c1d1ba47db263ac5d4bcbf29e3e919130f113b468cd163536e4b"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        280,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "paper_rect": [
+        18.383841685693298,
+        8.0,
+        243.2323166286134,
+        344.0
+      ]
+    },
+    "light/align-180": {
+      "file": "light/align-180.png",
+      "file_sha256": "3b7bb3d3b62c08113bf5c9c9a00d117c9a6966b1c23644cf1cfd2b896efdf7f3",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          180,
+          4
+        ],
+        "data_sha256": "e736533ac9abd9828482bee9d8f229656a285bd8b8fa0b8edae55fae0281cd02",
+        "mask_sha256": "dd2860e5e42300a259bef1aa9f5b80f1d10ccb45ba555dc0a7686cd124027766"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        180,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "tile_rects": [
+        [
+          0,
+          [
+            10.0,
+            167.3684210526316,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          1,
+          [
+            52.10526315789473,
+            167.3684210526316,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          2,
+          [
+            94.21052631578947,
+            167.3684210526316,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          3,
+          [
+            136.31578947368422,
+            167.3684210526316,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ]
+      ],
+      "key": null
+    },
+    "light/align-400": {
+      "file": "light/align-400.png",
+      "file_sha256": "5c6a85f9a4f47882b18e1156082dc69d3115e3e08dfa8ffc9475ef3368f877bd",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          400,
+          4
+        ],
+        "data_sha256": "e774646c47ed65e2919860d4cfb648abc7fe188aaef285982332303a5145b53a",
+        "mask_sha256": "30fafbdc0facf210a26498db982f7ff8ad1e0b9a805816731c72e356a768c162"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "tile_rects": [
+        [
+          0,
+          [
+            10.0,
+            150.0,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          1,
+          [
+            110.0,
+            150.0,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          2,
+          [
+            210.0,
+            150.0,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          3,
+          [
+            310.0,
+            150.0,
+            80.0,
+            60.0
+          ]
+        ]
+      ],
+      "key": null
+    },
+    "light/overview-export": {
+      "figures": [
+        {
+          "images": [
+            {
+              "dtype": "|u1",
+              "shape": [
+                36,
+                48,
+                3
+              ],
+              "data_sha256": "1b0084b9ebe2eb28c595e65118271ff346d1c8cf75a844221c3f9e51c26b9412",
+              "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+            }
+          ],
+          "diagnostics": {
+            "policy_version": "",
+            "problems": [
+              "Register the chart kind, reference, quantities, and legend before validation"
+            ],
+            "checks": []
+          }
+        }
+      ],
+      "requested_dpi": 96,
+      "limitation": "Bounded native-view evidence, not publication resolution or tutorial acceptance."
+    },
+    "dark/measure-grid": {
+      "file": "dark/measure-grid.png",
+      "file_sha256": "2cf6f9ce306ae9978e4fdd5eb42a6515adc9a8c47cd1cfcd566c9f3be08bfdd5",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          421,
+          1094,
+          4
+        ],
+        "data_sha256": "8640152a27da616c275bd3fe23b60a3b42653583896fbc2ddd972bb52c09ea17",
+        "mask_sha256": "b68216b57edd6b75b03033fa1d440c2c16015b9380259655890fabcdb2719185"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [
+        {
+          "text": "Nucleated  \u00b7  1 kept  \u00b7  1 excluded by filters",
+          "rectangle": [
+            8.0,
+            8.0,
+            1078.0,
+            84.0
+          ],
+          "text_bounds": [
+            19.0,
+            41.0,
+            265.0,
+            18.0
+          ],
+          "inside_widget": true,
+          "font_family": "Noto Sans",
+          "font_points": 9.75
+        },
+        {
+          "text": "Unnucleated  \u00b7  1 kept",
+          "rectangle": [
+            8.0,
+            215.0,
+            1078.0,
+            83.0
+          ],
+          "text_bounds": [
+            19.0,
+            247.0,
+            138.0,
+            19.0
+          ],
+          "inside_widget": true,
+          "font_family": "Noto Sans",
+          "font_points": 9.75
+        }
+      ],
+      "widget_size": [
+        1094,
+        421
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "grid_positions": [
+        {
+          "position": [
+            0,
+            0,
+            1,
+            7
+          ],
+          "label": "Nucleated  \u00b7  1 kept  \u00b7  1 excluded by filters",
+          "index": null
+        },
+        {
+          "position": [
+            1,
+            0,
+            1,
+            1
+          ],
+          "label": "",
+          "index": 0
+        },
+        {
+          "position": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "label": "",
+          "index": 1
+        },
+        {
+          "position": [
+            2,
+            0,
+            1,
+            7
+          ],
+          "label": "Unnucleated  \u00b7  1 kept",
+          "index": null
+        },
+        {
+          "position": [
+            3,
+            0,
+            1,
+            1
+          ],
+          "label": "",
+          "index": 2
+        }
+      ],
+      "thumbnails": [
+        {
+          "file": "dark/crop-0.png",
+          "file_sha256": "f25ef8d3b3b158849a4214b611e0c3449321366ca5a53019c49ee2af8a280d1f",
+          "rgba": {
+            "dtype": "|u1",
+            "shape": [
+              99,
+              132,
+              4
+            ],
+            "data_sha256": "74db3970ee7c6f72ab1e2578a01a8573418456dc7b9a965d948b727610749e34",
+            "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+          },
+          "device_pixel_ratio": 1.0
+        },
+        {
+          "file": "dark/crop-1.png",
+          "file_sha256": "99ce0afd7ca0b7649d038caeb9e82ee8408b0d15f16f16273a95f2fe85730366",
+          "rgba": {
+            "dtype": "|u1",
+            "shape": [
+              99,
+              132,
+              4
+            ],
+            "data_sha256": "5684993b19b2030f5d5e11d4dd27d51e86fd114087ae6c07b1c9e537e446ca72",
+            "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+          },
+          "device_pixel_ratio": 1.0
+        },
+        {
+          "file": "dark/crop-2.png",
+          "file_sha256": "96b4ecbb5cffa773b6763f83c0cfb6e1856d5ac849b7bf4a8c68f56667fcfcf6",
+          "rgba": {
+            "dtype": "|u1",
+            "shape": [
+              99,
+              132,
+              4
+            ],
+            "data_sha256": "978772bb4a0b99d3abdefe06550847ecbc1651462dba1a2993a5ab4821edb501",
+            "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+          },
+          "device_pixel_ratio": 1.0
+        }
+      ],
+      "owner_specification": null
+    },
+    "dark/qc-field": {
+      "file": "dark/qc-field.png",
+      "file_sha256": "ce62ce9c2f5d467daee2baa4851edfd0ab23960a0b8954429500cb7db410071f",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          383,
+          712,
+          4
+        ],
+        "data_sha256": "e7103a24e66f779954461db6db2ccf064ea66c05511de02c6edac1f26f907c93",
+        "mask_sha256": "b23f9245bbf0759e357c6696a330739f1412be0dc3c04095cffba4e426026af1"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        712,
+        383
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "raw_composite": {
+        "file": "dark/qc-composite.png",
+        "file_sha256": "e52fb19b4825ebf160a1465bfc22e29bee17284edc467c0defdf5ac295b6bba1",
+        "rgba": {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            4
+          ],
+          "data_sha256": "7a812cf7fa92210674c91455639f81bcddc574980e51864568ed5a8e20c8bc02",
+          "mask_sha256": "71c642b31e5890a15ef92f3cbeba34edfb6e2e9f63079ecbda13a89d426f7d8b"
+        },
+        "device_pixel_ratio": 1.0
+      },
+      "owner_specification": null
+    },
+    "dark/histogram-loaded": {
+      "file": "dark/histogram-loaded.png",
+      "file_sha256": "9d3349b3feca39e3bcb7f99bf857338c479e86d72f8050cc43b6d5c021eaf616",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          600,
+          400,
+          4
+        ],
+        "data_sha256": "025a6db2591d81205f89c3900896c309508a7a789917169c4d56a8b3b612581a",
+        "mask_sha256": "b9163d03c43083a18e6101539b555cb5e363eed61fa4b3a3b54f50ae60eb5b52"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        600
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "coordinate_mapping": {
+        "plot": [
+          8.0,
+          4.0,
+          384.0,
+          584.0
+        ],
+        "levels": [
+          0.0,
+          0.1,
+          0.5,
+          0.9,
+          1.0
+        ],
+        "x": [
+          8.0,
+          46.400000000000006,
+          200.0,
+          353.6,
+          392.0
+        ],
+        "inverse": [
+          0.0,
+          0.10000000000000002,
+          0.5,
+          0.9,
+          1.0
+        ]
+      }
+    },
+    "dark/histogram-missing": {
+      "file": "dark/histogram-missing.png",
+      "file_sha256": "7e489b56f328e504af7cbde4555abd087e29ca16a56091e64e813ee40e432125",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          600,
+          400,
+          4
+        ],
+        "data_sha256": "4f528b222df81d3af8dc8e0bd52f344255d93b92c422496d3d5f75eea1c9738c",
+        "mask_sha256": "b9163d03c43083a18e6101539b555cb5e363eed61fa4b3a3b54f50ae60eb5b52"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        600
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "coordinate_mapping": {
+        "plot": [
+          8.0,
+          4.0,
+          384.0,
+          584.0
+        ],
+        "levels": [
+          0.0,
+          0.1,
+          0.5,
+          0.9,
+          1.0
+        ],
+        "x": [
+          8.0,
+          46.400000000000006,
+          200.0,
+          353.6,
+          392.0
+        ],
+        "inverse": [
+          0.0,
+          0.10000000000000002,
+          0.5,
+          0.9,
+          1.0
+        ]
+      }
+    },
+    "dark/histogram-zero": {
+      "file": "dark/histogram-zero.png",
+      "file_sha256": "7e489b56f328e504af7cbde4555abd087e29ca16a56091e64e813ee40e432125",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          600,
+          400,
+          4
+        ],
+        "data_sha256": "4f528b222df81d3af8dc8e0bd52f344255d93b92c422496d3d5f75eea1c9738c",
+        "mask_sha256": "b9163d03c43083a18e6101539b555cb5e363eed61fa4b3a3b54f50ae60eb5b52"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        600
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "coordinate_mapping": {
+        "plot": [
+          8.0,
+          4.0,
+          384.0,
+          584.0
+        ],
+        "levels": [
+          0.0,
+          0.1,
+          0.5,
+          0.9,
+          1.0
+        ],
+        "x": [
+          8.0,
+          46.400000000000006,
+          200.0,
+          353.6,
+          392.0
+        ],
+        "inverse": [
+          0.0,
+          0.10000000000000002,
+          0.5,
+          0.9,
+          1.0
+        ]
+      }
+    },
+    "dark/cell-picker": {
+      "file": "dark/cell-picker.png",
+      "file_sha256": "d252561e74049fc43613968c44b318727573cff1523583b40e861983710cdd52",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          280,
+          4
+        ],
+        "data_sha256": "8c2acaddb69229c5e1dd3d79a0c2abaea0d4e464e9104a70b1977f181d19541f",
+        "mask_sha256": "0b12fd480728c1d1ba47db263ac5d4bcbf29e3e919130f113b468cd163536e4b"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        280,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "paper_rect": [
+        18.383841685693298,
+        8.0,
+        243.2323166286134,
+        344.0
+      ]
+    },
+    "dark/align-180": {
+      "file": "dark/align-180.png",
+      "file_sha256": "9c7e10abc5b13c7b161bfe39ae23e6d4e3fbc95eb743aecb02cde9f221046e7a",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          180,
+          4
+        ],
+        "data_sha256": "e1f7f3b74ebb6368c38c5e873b670e47ad9313656661d31381bf3efa85b6945a",
+        "mask_sha256": "dd2860e5e42300a259bef1aa9f5b80f1d10ccb45ba555dc0a7686cd124027766"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        180,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "tile_rects": [
+        [
+          0,
+          [
+            10.0,
+            167.3684210526316,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          1,
+          [
+            52.10526315789473,
+            167.3684210526316,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          2,
+          [
+            94.21052631578947,
+            167.3684210526316,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ],
+        [
+          3,
+          [
+            136.31578947368422,
+            167.3684210526316,
+            33.68421052631579,
+            25.263157894736842
+          ]
+        ]
+      ],
+      "key": null
+    },
+    "dark/align-400": {
+      "file": "dark/align-400.png",
+      "file_sha256": "dc5cc22311ead3d88cd628b270b926ae421757052101bb919b35281cc85a83b9",
+      "rgba": {
+        "dtype": "|u1",
+        "shape": [
+          360,
+          400,
+          4
+        ],
+        "data_sha256": "4bf87bb45fd4a2f9a549e2d3287b1049a64596db536230b2b0c6f115e9366ead",
+        "mask_sha256": "30fafbdc0facf210a26498db982f7ff8ad1e0b9a805816731c72e356a768c162"
+      },
+      "device_pixel_ratio": 1.0,
+      "label_text": [],
+      "widget_size": [
+        400,
+        360
+      ],
+      "paint_observation": null,
+      "finalizer": {
+        "available": false,
+        "reason": "Creator has no callable native observation; no compliance claim."
+      },
+      "tile_rects": [
+        [
+          0,
+          [
+            10.0,
+            150.0,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          1,
+          [
+            110.0,
+            150.0,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          2,
+          [
+            210.0,
+            150.0,
+            80.0,
+            60.0
+          ]
+        ],
+        [
+          3,
+          [
+            310.0,
+            150.0,
+            80.0,
+            60.0
+          ]
+        ]
+      ],
+      "key": null
+    },
+    "dark/overview-export": {
+      "figures": [
+        {
+          "images": [
+            {
+              "dtype": "|u1",
+              "shape": [
+                36,
+                48,
+                3
+              ],
+              "data_sha256": "1b0084b9ebe2eb28c595e65118271ff346d1c8cf75a844221c3f9e51c26b9412",
+              "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+            }
+          ],
+          "diagnostics": {
+            "policy_version": "",
+            "problems": [
+              "Register the chart kind, reference, quantities, and legend before validation"
+            ],
+            "checks": []
+          }
+        }
+      ],
+      "requested_dpi": 96,
+      "limitation": "Bounded native-view evidence, not publication resolution or tutorial acceptance."
+    }
+  },
+  "limitations": [
+    "Native widget evidence is not a tutorial recording or full GUI acceptance.",
+    "Missing baseline style observations remain unavailable, never a presentation PASS.",
+    "Display coordinates, fonts and themes may change; raw pixels, counts and source identities must not.",
+    "Overview reads one tiny generated NPY; no model, cropper, segmentation or plate computation runs."
+  ],
+  "themes": {
+    "light": {
+      "name": "light",
+      "palette": {
+        "bg": "#fafafa",
+        "page": "#e1e4e6",
+        "surface": "#ffffff",
+        "surface_alt": "#f2f4f7",
+        "surface_hi": "#e6e9ee",
+        "border": "#7c7e81",
+        "border_soft": "#e5e8ec",
+        "fg": "#0d0e10",
+        "fg_muted": "#4b5460",
+        "fg_dim": "#596170",
+        "accent": "#0a63c4",
+        "accent_hi": "#0851a3",
+        "accent_lo": "#063d7a",
+        "accent_soft": "#dbe8fb",
+        "success": "#0f7030",
+        "chip_class": "#0a6f6a",
+        "chip_value": "#0f7030",
+        "warning": "#8f4e00",
+        "error": "#b81d1a",
+        "info": "#0a63c4",
+        "button_accent": "#4A9EFF",
+        "button_accent_hi": "#66B2FF",
+        "button_accent_lo": "#2F80D9",
+        "button_accent_ink": "#04101c",
+        "splash_bg": "#fafafa",
+        "splash_ink": "#0d0e10",
+        "splash_ink_dim": "#555658",
+        "splash_track": "#d0d0d1",
+        "splash_fill": "#404142"
+      },
+      "settings_file": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/qc-views-before/config/spacr/qt.conf"
+    },
+    "dark": {
+      "name": "dark",
+      "palette": {
+        "bg": "#000000",
+        "page": "#23252a",
+        "surface": "#0d0e10",
+        "surface_alt": "#161719",
+        "surface_hi": "#1f2124",
+        "border": "#707276",
+        "border_soft": "#1c1e22",
+        "fg": "#ffffff",
+        "fg_muted": "#a1a6ad",
+        "fg_dim": "#858a92",
+        "accent": "#4A9EFF",
+        "accent_hi": "#66B2FF",
+        "accent_lo": "#2F80D9",
+        "accent_soft": "#1e3550",
+        "success": "#3fb950",
+        "chip_class": "#1fb6ad",
+        "chip_value": "#3fb950",
+        "warning": "#d29922",
+        "error": "#f85149",
+        "info": "#4A9EFF",
+        "button_accent": "#4A9EFF",
+        "button_accent_hi": "#66B2FF",
+        "button_accent_lo": "#2F80D9",
+        "button_accent_ink": "#04101c",
+        "splash_bg": "#000000",
+        "splash_ink": "#ffffff",
+        "splash_ink_dim": "#959595",
+        "splash_track": "#2d2d2d",
+        "splash_fill": "#c8c8c8"
+      },
+      "settings_file": "/mnt/wd4tb/worktrees/codex-graphstyle-g2/reports/graphstyle/g2/evidence/qc-views-before/config/spacr/qt.conf"
+    }
+  },
+  "input_arrays_unchanged": true,
+  "source_inputs_unchanged": true,
+  "scientific": {
+    "inputs": {
+      "rgb": {
+        "dtype": "|u1",
+        "shape": [
+          36,
+          48,
+          3
+        ],
+        "data_sha256": "684bcb26887cd35428062573f721de1632e29a77ad82e8418528ffae4482dce1",
+        "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+      },
+      "intensities": {
+        "dtype": "<u2",
+        "shape": [
+          36,
+          48,
+          2
+        ],
+        "data_sha256": "96b4e50b44efe7ac07d28e2f414bef41d7a05c9fc06c153908befaddb84f25bc",
+        "mask_sha256": "0ee0c7ac0933cd2c9de481994bf578c44ac305c8b99c0baf4b95701bb50c9476"
+      },
+      "nucleus": {
+        "dtype": "<u2",
+        "shape": [
+          36,
+          48
+        ],
+        "data_sha256": "c10a437ab106268ab544905817e6da1d72beeba9326a77dd4817d25e00f439b4",
+        "mask_sha256": "7636c9f8da9a82f9a9fcd804a25795a9c900e1c7e19f7442a7b113c8ccd64eb2"
+      },
+      "cells": {
+        "dtype": "<u2",
+        "shape": [
+          36,
+          48
+        ],
+        "data_sha256": "6003efc791d396724491fdb2b9e913168d0a9f62c0523aaf2d700bcd2626ef8d",
+        "mask_sha256": "7636c9f8da9a82f9a9fcd804a25795a9c900e1c7e19f7442a7b113c8ccd64eb2"
+      }
+    },
+    "light/measure-grid": {
+      "crops": [
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "684bcb26887cd35428062573f721de1632e29a77ad82e8418528ffae4482dce1",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        },
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "780ce32a79ed478f0c1d1428828ace29c44103ca66b18da8a4ce272647a86309",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        },
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "f6597bbc6932350d6ffe255d77c83e0dfd80b821ae33417439c7eca55e274536",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        }
+      ],
+      "entries": [
+        {
+          "category": "Nucleated",
+          "included": true,
+          "label": 3,
+          "area": 240,
+          "source_path": "synthetic_field.npy"
+        },
+        {
+          "category": "Nucleated",
+          "included": false,
+          "label": 8,
+          "area": 300,
+          "source_path": "synthetic_field.npy"
+        },
+        {
+          "category": "Unnucleated",
+          "included": true,
+          "label": 12,
+          "area": 180,
+          "source_path": "synthetic_field.npy"
+        }
+      ],
+      "thumbnails": [
+        {
+          "dtype": "|u1",
+          "shape": [
+            99,
+            132,
+            4
+          ],
+          "data_sha256": "74db3970ee7c6f72ab1e2578a01a8573418456dc7b9a965d948b727610749e34",
+          "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+        },
+        {
+          "dtype": "|u1",
+          "shape": [
+            99,
+            132,
+            4
+          ],
+          "data_sha256": "5684993b19b2030f5d5e11d4dd27d51e86fd114087ae6c07b1c9e537e446ca72",
+          "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+        },
+        {
+          "dtype": "|u1",
+          "shape": [
+            99,
+            132,
+            4
+          ],
+          "data_sha256": "978772bb4a0b99d3abdefe06550847ecbc1651462dba1a2993a5ab4821edb501",
+          "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+        }
+      ]
+    },
+    "light/qc-field": {
+      "channel": 1,
+      "masks": [
+        "nucleus",
+        "cell"
+      ],
+      "composite": {
+        "dtype": "|u1",
+        "shape": [
+          36,
+          48,
+          3
+        ],
+        "data_sha256": "24ee0b90ff59a68e30b818c22592d8d25e5181366c8253f6a38d1bd96ba1e7dd",
+        "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+      },
+      "qimage": {
+        "dtype": "|u1",
+        "shape": [
+          36,
+          48,
+          4
+        ],
+        "data_sha256": "7a812cf7fa92210674c91455639f81bcddc574980e51864568ed5a8e20c8bc02",
+        "mask_sha256": "71c642b31e5890a15ef92f3cbeba34edfb6e2e9f63079ecbda13a89d426f7d8b"
+      }
+    },
+    "light/histogram-loaded": {
+      "counts": {
+        "dtype": "<f8",
+        "shape": [
+          256
+        ],
+        "data_sha256": "ca2a2a8444427f2fb1802dfa91f2b48c8eb23b41a4dd73535a1c9ba39f8876c0",
+        "mask_sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1"
+      },
+      "levels": [
+        0.1,
+        0.9,
+        1.5
+      ],
+      "handles": [
+        [
+          "black",
+          0.1
+        ],
+        [
+          "gamma",
+          0.3828427124746191
+        ],
+        [
+          "white",
+          0.9
+        ]
+      ]
+    },
+    "light/histogram-missing": {
+      "counts": null,
+      "levels": [
+        0.1,
+        0.9,
+        1.5
+      ],
+      "handles": [
+        [
+          "black",
+          0.1
+        ],
+        [
+          "gamma",
+          0.3828427124746191
+        ],
+        [
+          "white",
+          0.9
+        ]
+      ]
+    },
+    "light/histogram-zero": {
+      "counts": {
+        "dtype": "<f8",
+        "shape": [
+          256
+        ],
+        "data_sha256": "e5a00aa9991ac8a5ee3109844d84a55583bd20572ad3ffcd42792f3c36b183ad",
+        "mask_sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1"
+      },
+      "levels": [
+        0.1,
+        0.9,
+        1.5
+      ],
+      "handles": [
+        [
+          "black",
+          0.1
+        ],
+        [
+          "gamma",
+          0.3828427124746191
+        ],
+        [
+          "white",
+          0.9
+        ]
+      ]
+    },
+    "light/cell-picker": {
+      "rows": 3,
+      "columns": 2,
+      "occupied": [
+        [
+          [
+            0,
+            0
+          ],
+          "Well A01"
+        ]
+      ],
+      "selection": [
+        1,
+        0,
+        1,
+        2
+      ],
+      "cell_mapping": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    },
+    "light/align-180": {
+      "plan": {
+        "tiles": [
+          {
+            "path": "synthetic-0.npy",
+            "index": 0,
+            "plate": "",
+            "well": "",
+            "field": 1,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-1.npy",
+            "index": 1,
+            "plate": "",
+            "well": "",
+            "field": 2,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-2.npy",
+            "index": 2,
+            "plate": "",
+            "well": "",
+            "field": 3,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-3.npy",
+            "index": 3,
+            "plate": "",
+            "well": "",
+            "field": 4,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          }
+        ],
+        "placements": [
+          {
+            "tile": {
+              "path": "synthetic-0.npy",
+              "index": 0,
+              "plate": "",
+              "well": "",
+              "field": 1,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 0.0,
+            "confidence": 0.3,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-1.npy",
+              "index": 1,
+              "plate": "",
+              "well": "",
+              "field": 2,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 60.0,
+            "confidence": 1.0,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-2.npy",
+              "index": 2,
+              "plate": "",
+              "well": "",
+              "field": 3,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 120.0,
+            "confidence": 0.0,
+            "method": "nominal",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-3.npy",
+              "index": 3,
+              "plate": "",
+              "well": "",
+              "field": 4,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 180.0,
+            "confidence": 0.0,
+            "method": "unreadable",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          }
+        ],
+        "canvas_shape": [
+          36,
+          228,
+          1
+        ],
+        "overlaps": [],
+        "warnings": [],
+        "unplaced": [],
+        "origin": [
+          0.0,
+          0.0
+        ],
+        "feather": 1,
+        "dtype": "uint16",
+        "reference_channel": 0
+      },
+      "clicked_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "light/align-400": {
+      "plan": {
+        "tiles": [
+          {
+            "path": "synthetic-0.npy",
+            "index": 0,
+            "plate": "",
+            "well": "",
+            "field": 1,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-1.npy",
+            "index": 1,
+            "plate": "",
+            "well": "",
+            "field": 2,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-2.npy",
+            "index": 2,
+            "plate": "",
+            "well": "",
+            "field": 3,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-3.npy",
+            "index": 3,
+            "plate": "",
+            "well": "",
+            "field": 4,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          }
+        ],
+        "placements": [
+          {
+            "tile": {
+              "path": "synthetic-0.npy",
+              "index": 0,
+              "plate": "",
+              "well": "",
+              "field": 1,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 0.0,
+            "confidence": 0.3,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-1.npy",
+              "index": 1,
+              "plate": "",
+              "well": "",
+              "field": 2,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 60.0,
+            "confidence": 1.0,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-2.npy",
+              "index": 2,
+              "plate": "",
+              "well": "",
+              "field": 3,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 120.0,
+            "confidence": 0.0,
+            "method": "nominal",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-3.npy",
+              "index": 3,
+              "plate": "",
+              "well": "",
+              "field": 4,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 180.0,
+            "confidence": 0.0,
+            "method": "unreadable",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          }
+        ],
+        "canvas_shape": [
+          36,
+          228,
+          1
+        ],
+        "overlaps": [],
+        "warnings": [],
+        "unplaced": [],
+        "origin": [
+          0.0,
+          0.0
+        ],
+        "feather": 1,
+        "dtype": "uint16",
+        "reference_channel": 0
+      },
+      "clicked_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "light/overview-export": {
+      "images": [
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "1b0084b9ebe2eb28c595e65118271ff346d1c8cf75a844221c3f9e51c26b9412",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        }
+      ],
+      "channels": [
+        0,
+        1
+      ],
+      "percentiles": [
+        1,
+        99
+      ],
+      "seed": 17,
+      "fields": [
+        [
+          "synthetic",
+          "A01",
+          "4"
+        ]
+      ],
+      "recorded_selection": {
+        "channels": [
+          0,
+          1
+        ],
+        "percentiles": [
+          1,
+          99
+        ],
+        "seed": 17,
+        "field_options": null,
+        "color_mode": "additive",
+        "load_limits": {
+          "max_wells_per_plate": null,
+          "max_fields_per_well": null
+        },
+        "channel_display": {
+          "0": {
+            "percentiles": [
+              1.0,
+              99.0
+            ],
+            "ink_intensity": 1.0
+          },
+          "1": {
+            "percentiles": [
+              1.0,
+              99.0
+            ],
+            "ink_intensity": 1.0
+          }
+        },
+        "fields": [
+          {
+            "plate": "synthetic",
+            "well": "A01",
+            "field": "4",
+            "files": [
+              [
+                "",
+                "<OUTPUT>/light/overview-field.npy"
+              ]
+            ],
+            "field_id": "4",
+            "time_id": "",
+            "z_id": "",
+            "condition": "",
+            "time_index": null,
+            "z_mode": "plane",
+            "z_index": null,
+            "annotations": {}
+          }
+        ],
+        "errors": [],
+        "cancelled": false,
+        "requested_field_count": 1,
+        "written_field_count": 1,
+        "quality_edge": null,
+        "dpi": 96,
+        "advanced_normalization": null,
+        "normalization": null,
+        "time_index": null,
+        "z_mode": "plane",
+        "z_index": null
+      }
+    },
+    "dark/measure-grid": {
+      "crops": [
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "684bcb26887cd35428062573f721de1632e29a77ad82e8418528ffae4482dce1",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        },
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "780ce32a79ed478f0c1d1428828ace29c44103ca66b18da8a4ce272647a86309",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        },
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "f6597bbc6932350d6ffe255d77c83e0dfd80b821ae33417439c7eca55e274536",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        }
+      ],
+      "entries": [
+        {
+          "category": "Nucleated",
+          "included": true,
+          "label": 3,
+          "area": 240,
+          "source_path": "synthetic_field.npy"
+        },
+        {
+          "category": "Nucleated",
+          "included": false,
+          "label": 8,
+          "area": 300,
+          "source_path": "synthetic_field.npy"
+        },
+        {
+          "category": "Unnucleated",
+          "included": true,
+          "label": 12,
+          "area": 180,
+          "source_path": "synthetic_field.npy"
+        }
+      ],
+      "thumbnails": [
+        {
+          "dtype": "|u1",
+          "shape": [
+            99,
+            132,
+            4
+          ],
+          "data_sha256": "74db3970ee7c6f72ab1e2578a01a8573418456dc7b9a965d948b727610749e34",
+          "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+        },
+        {
+          "dtype": "|u1",
+          "shape": [
+            99,
+            132,
+            4
+          ],
+          "data_sha256": "5684993b19b2030f5d5e11d4dd27d51e86fd114087ae6c07b1c9e537e446ca72",
+          "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+        },
+        {
+          "dtype": "|u1",
+          "shape": [
+            99,
+            132,
+            4
+          ],
+          "data_sha256": "978772bb4a0b99d3abdefe06550847ecbc1651462dba1a2993a5ab4821edb501",
+          "mask_sha256": "f4a8689f9dfbfaccbd22cf5324cd87fa56ce7eefb8a16ef284d5495f7d054a2a"
+        }
+      ]
+    },
+    "dark/qc-field": {
+      "channel": 1,
+      "masks": [
+        "nucleus",
+        "cell"
+      ],
+      "composite": {
+        "dtype": "|u1",
+        "shape": [
+          36,
+          48,
+          3
+        ],
+        "data_sha256": "24ee0b90ff59a68e30b818c22592d8d25e5181366c8253f6a38d1bd96ba1e7dd",
+        "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+      },
+      "qimage": {
+        "dtype": "|u1",
+        "shape": [
+          36,
+          48,
+          4
+        ],
+        "data_sha256": "7a812cf7fa92210674c91455639f81bcddc574980e51864568ed5a8e20c8bc02",
+        "mask_sha256": "71c642b31e5890a15ef92f3cbeba34edfb6e2e9f63079ecbda13a89d426f7d8b"
+      }
+    },
+    "dark/histogram-loaded": {
+      "counts": {
+        "dtype": "<f8",
+        "shape": [
+          256
+        ],
+        "data_sha256": "ca2a2a8444427f2fb1802dfa91f2b48c8eb23b41a4dd73535a1c9ba39f8876c0",
+        "mask_sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1"
+      },
+      "levels": [
+        0.1,
+        0.9,
+        1.5
+      ],
+      "handles": [
+        [
+          "black",
+          0.1
+        ],
+        [
+          "gamma",
+          0.3828427124746191
+        ],
+        [
+          "white",
+          0.9
+        ]
+      ]
+    },
+    "dark/histogram-missing": {
+      "counts": null,
+      "levels": [
+        0.1,
+        0.9,
+        1.5
+      ],
+      "handles": [
+        [
+          "black",
+          0.1
+        ],
+        [
+          "gamma",
+          0.3828427124746191
+        ],
+        [
+          "white",
+          0.9
+        ]
+      ]
+    },
+    "dark/histogram-zero": {
+      "counts": {
+        "dtype": "<f8",
+        "shape": [
+          256
+        ],
+        "data_sha256": "e5a00aa9991ac8a5ee3109844d84a55583bd20572ad3ffcd42792f3c36b183ad",
+        "mask_sha256": "5341e6b2646979a70e57653007a1f310169421ec9bdd9f1a5648f75ade005af1"
+      },
+      "levels": [
+        0.1,
+        0.9,
+        1.5
+      ],
+      "handles": [
+        [
+          "black",
+          0.1
+        ],
+        [
+          "gamma",
+          0.3828427124746191
+        ],
+        [
+          "white",
+          0.9
+        ]
+      ]
+    },
+    "dark/cell-picker": {
+      "rows": 3,
+      "columns": 2,
+      "occupied": [
+        [
+          [
+            0,
+            0
+          ],
+          "Well A01"
+        ]
+      ],
+      "selection": [
+        1,
+        0,
+        1,
+        2
+      ],
+      "cell_mapping": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ]
+    },
+    "dark/align-180": {
+      "plan": {
+        "tiles": [
+          {
+            "path": "synthetic-0.npy",
+            "index": 0,
+            "plate": "",
+            "well": "",
+            "field": 1,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-1.npy",
+            "index": 1,
+            "plate": "",
+            "well": "",
+            "field": 2,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-2.npy",
+            "index": 2,
+            "plate": "",
+            "well": "",
+            "field": 3,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-3.npy",
+            "index": 3,
+            "plate": "",
+            "well": "",
+            "field": 4,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          }
+        ],
+        "placements": [
+          {
+            "tile": {
+              "path": "synthetic-0.npy",
+              "index": 0,
+              "plate": "",
+              "well": "",
+              "field": 1,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 0.0,
+            "confidence": 0.3,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-1.npy",
+              "index": 1,
+              "plate": "",
+              "well": "",
+              "field": 2,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 60.0,
+            "confidence": 1.0,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-2.npy",
+              "index": 2,
+              "plate": "",
+              "well": "",
+              "field": 3,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 120.0,
+            "confidence": 0.0,
+            "method": "nominal",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-3.npy",
+              "index": 3,
+              "plate": "",
+              "well": "",
+              "field": 4,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 180.0,
+            "confidence": 0.0,
+            "method": "unreadable",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          }
+        ],
+        "canvas_shape": [
+          36,
+          228,
+          1
+        ],
+        "overlaps": [],
+        "warnings": [],
+        "unplaced": [],
+        "origin": [
+          0.0,
+          0.0
+        ],
+        "feather": 1,
+        "dtype": "uint16",
+        "reference_channel": 0
+      },
+      "clicked_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dark/align-400": {
+      "plan": {
+        "tiles": [
+          {
+            "path": "synthetic-0.npy",
+            "index": 0,
+            "plate": "",
+            "well": "",
+            "field": 1,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-1.npy",
+            "index": 1,
+            "plate": "",
+            "well": "",
+            "field": 2,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-2.npy",
+            "index": 2,
+            "plate": "",
+            "well": "",
+            "field": 3,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          },
+          {
+            "path": "synthetic-3.npy",
+            "index": 3,
+            "plate": "",
+            "well": "",
+            "field": 4,
+            "channel": 0,
+            "shape": [
+              36,
+              48,
+              1
+            ],
+            "dtype": "uint16",
+            "grid_row": 0,
+            "grid_col": 0,
+            "nominal_y": 0.0,
+            "nominal_x": 0.0,
+            "channel_paths": [],
+            "error": ""
+          }
+        ],
+        "placements": [
+          {
+            "tile": {
+              "path": "synthetic-0.npy",
+              "index": 0,
+              "plate": "",
+              "well": "",
+              "field": 1,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 0.0,
+            "confidence": 0.3,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-1.npy",
+              "index": 1,
+              "plate": "",
+              "well": "",
+              "field": 2,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 60.0,
+            "confidence": 1.0,
+            "method": "registration",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-2.npy",
+              "index": 2,
+              "plate": "",
+              "well": "",
+              "field": 3,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 120.0,
+            "confidence": 0.0,
+            "method": "nominal",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          },
+          {
+            "tile": {
+              "path": "synthetic-3.npy",
+              "index": 3,
+              "plate": "",
+              "well": "",
+              "field": 4,
+              "channel": 0,
+              "shape": [
+                36,
+                48,
+                1
+              ],
+              "dtype": "uint16",
+              "grid_row": 0,
+              "grid_col": 0,
+              "nominal_y": 0.0,
+              "nominal_x": 0.0,
+              "channel_paths": [],
+              "error": ""
+            },
+            "y": 0.0,
+            "x": 180.0,
+            "confidence": 0.0,
+            "method": "unreadable",
+            "note": "",
+            "residual": 0.0,
+            "n_pairs": 0
+          }
+        ],
+        "canvas_shape": [
+          36,
+          228,
+          1
+        ],
+        "overlaps": [],
+        "warnings": [],
+        "unplaced": [],
+        "origin": [
+          0.0,
+          0.0
+        ],
+        "feather": 1,
+        "dtype": "uint16",
+        "reference_channel": 0
+      },
+      "clicked_indices": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "dark/overview-export": {
+      "images": [
+        {
+          "dtype": "|u1",
+          "shape": [
+            36,
+            48,
+            3
+          ],
+          "data_sha256": "1b0084b9ebe2eb28c595e65118271ff346d1c8cf75a844221c3f9e51c26b9412",
+          "mask_sha256": "523862a510945f2c2fd57aab7df19831a15603bd4a0d99c2515a79a90b3813f9"
+        }
+      ],
+      "channels": [
+        0,
+        1
+      ],
+      "percentiles": [
+        1,
+        99
+      ],
+      "seed": 17,
+      "fields": [
+        [
+          "synthetic",
+          "A01",
+          "4"
+        ]
+      ],
+      "recorded_selection": {
+        "channels": [
+          0,
+          1
+        ],
+        "percentiles": [
+          1,
+          99
+        ],
+        "seed": 17,
+        "field_options": null,
+        "color_mode": "additive",
+        "load_limits": {
+          "max_wells_per_plate": null,
+          "max_fields_per_well": null
+        },
+        "channel_display": {
+          "0": {
+            "percentiles": [
+              1.0,
+              99.0
+            ],
+            "ink_intensity": 1.0
+          },
+          "1": {
+            "percentiles": [
+              1.0,
+              99.0
+            ],
+            "ink_intensity": 1.0
+          }
+        },
+        "fields": [
+          {
+            "plate": "synthetic",
+            "well": "A01",
+            "field": "4",
+            "files": [
+              [
+                "",
+                "<OUTPUT>/dark/overview-field.npy"
+              ]
+            ],
+            "field_id": "4",
+            "time_id": "",
+            "z_id": "",
+            "condition": "",
+            "time_index": null,
+            "z_mode": "plane",
+            "z_index": null,
+            "annotations": {}
+          }
+        ],
+        "errors": [],
+        "cancelled": false,
+        "requested_field_count": 1,
+        "written_field_count": 1,
+        "quality_edge": null,
+        "dpi": 96,
+        "advanced_normalization": null,
+        "normalization": null,
+        "time_index": null,
+        "z_mode": "plane",
+        "z_index": null
+      }
+    }
+  },
+  "output_hashes": {
+    "dark/align-180.png": "9c7e10abc5b13c7b161bfe39ae23e6d4e3fbc95eb743aecb02cde9f221046e7a",
+    "dark/align-400.png": "dc5cc22311ead3d88cd628b270b926ae421757052101bb919b35281cc85a83b9",
+    "dark/cell-picker.png": "d252561e74049fc43613968c44b318727573cff1523583b40e861983710cdd52",
+    "dark/crop-0.png": "f25ef8d3b3b158849a4214b611e0c3449321366ca5a53019c49ee2af8a280d1f",
+    "dark/crop-1.png": "99ce0afd7ca0b7649d038caeb9e82ee8408b0d15f16f16273a95f2fe85730366",
+    "dark/crop-2.png": "96b4ecbb5cffa773b6763f83c0cfb6e1856d5ac849b7bf4a8c68f56667fcfcf6",
+    "dark/histogram-loaded.png": "9d3349b3feca39e3bcb7f99bf857338c479e86d72f8050cc43b6d5c021eaf616",
+    "dark/histogram-missing.png": "7e489b56f328e504af7cbde4555abd087e29ca16a56091e64e813ee40e432125",
+    "dark/histogram-zero.png": "7e489b56f328e504af7cbde4555abd087e29ca16a56091e64e813ee40e432125",
+    "dark/measure-grid.png": "2cf6f9ce306ae9978e4fdd5eb42a6515adc9a8c47cd1cfcd566c9f3be08bfdd5",
+    "dark/overview/overview_0001.pdf": "0a555714eb688b4d2359a8f1747402b4d881149bcab0d7515b7ca7bbced7848e",
+    "dark/overview/overview_0001.png": "5ed4a404461d6706255ccc7c9192a9f53b1042d87ef9c238cd95087d7b6154c8",
+    "dark/qc-composite.png": "e52fb19b4825ebf160a1465bfc22e29bee17284edc467c0defdf5ac295b6bba1",
+    "dark/qc-field.png": "ce62ce9c2f5d467daee2baa4851edfd0ab23960a0b8954429500cb7db410071f",
+    "light/align-180.png": "3b7bb3d3b62c08113bf5c9c9a00d117c9a6966b1c23644cf1cfd2b896efdf7f3",
+    "light/align-400.png": "5c6a85f9a4f47882b18e1156082dc69d3115e3e08dfa8ffc9475ef3368f877bd",
+    "light/cell-picker.png": "fb49bdf607d87fda8267f4903a44ad17239d2aae0339a32489b26d40281be41c",
+    "light/crop-0.png": "f25ef8d3b3b158849a4214b611e0c3449321366ca5a53019c49ee2af8a280d1f",
+    "light/crop-1.png": "99ce0afd7ca0b7649d038caeb9e82ee8408b0d15f16f16273a95f2fe85730366",
+    "light/crop-2.png": "96b4ecbb5cffa773b6763f83c0cfb6e1856d5ac849b7bf4a8c68f56667fcfcf6",
+    "light/histogram-loaded.png": "876267359ed98f17ff6598839b32d3e8abdf7acb0d37c8199eed4d85fdc5dbd7",
+    "light/histogram-missing.png": "06075d15c2c0a9c00536b6cf62ab612e19bb57d2097b4ec8be2d9f52f8564406",
+    "light/histogram-zero.png": "06075d15c2c0a9c00536b6cf62ab612e19bb57d2097b4ec8be2d9f52f8564406",
+    "light/measure-grid.png": "bac6c16caeca37a1b75720f7de60c3674d475fbcf82e7b079c656605d7d34a4b",
+    "light/overview/overview_0001.pdf": "50fb41b17b371ac8905599729aba101c44426a99a9989fedd424a4fd6df3c47c",
+    "light/overview/overview_0001.png": "5ed4a404461d6706255ccc7c9192a9f53b1042d87ef9c238cd95087d7b6154c8",
+    "light/qc-composite.png": "e52fb19b4825ebf160a1465bfc22e29bee17284edc467c0defdf5ac295b6bba1",
+    "light/qc-field.png": "ce62ce9c2f5d467daee2baa4851edfd0ab23960a0b8954429500cb7db410071f"
+  }
+}

@@ -21,7 +21,10 @@ def extract_metadata(tmp_path, monkeypatch):
             'regression_layout.py', 'regression_failure.py', 'regression_backends.py', 'power_model.py', 'io.py', 'uniprot.py', 'ome_zarr_convert.py', 'gene_measurement_compare.py', 'ops_prefix.py', '_mask_array_batches.py', 'ops_decode.py', 'validate.py', 'torch_artifacts.py', 'cli.py',
             '_mask_workers.py', 'classification_pixels.py', 'cpg_measure.py', 'crop_loader.py', 'crop_store.py', 'crops.py', 'ops_cell_cycle.py', 'ops_engine.py', 'ops_flatfield.py', 'ops_mitotic.py',
             'ome_zarr.py', 'image_store.py', 'ome_zarr_registration.py',
-            'ops_sbs.py', 'ops_run_infra.py'):
+            'ops_sbs.py', 'ops_run_infra.py',
+            'figures/style.py', 'figures/bundle.py', 'illumination.py', 'image_quality.py',
+            'seg_qc.py', 'sequencing.py', 'sequencing_qc.py', 'submodules.py'):
+        (tmp_path / 'spacr' / name).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path / 'spacr' / name).write_text('', encoding="utf-8")
     monkeypatch.setattr(builder, 'ROOT', tmp_path)
     monkeypatch.setattr(builder, '_indirect_runtime_ui_sources', set)

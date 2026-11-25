@@ -8,8 +8,10 @@ data and one writer for saving it.
 ``one_implementation_registry.json`` names, for each shared operation, the
 owner module(s) and the AST signatures that implement it: library calls
 (import aliases resolved), method names, function names, literals or a named
-detector. This test counts every signature OUTSIDE the owners, per file, and
-compares with ``one_implementation_baseline.json``:
+detector. ``owner_functions`` narrows an owner module to named functions:
+a signature elsewhere in that module counts too. This test counts every
+signature OUTSIDE the owners, per file, and compares with
+``one_implementation_baseline.json``:
 
 * a file whose count rises, or a file that is not in the baseline, FAILS:
   call the owner instead, or justify the site in the baseline in the same
@@ -76,15 +78,63 @@ def _detect_cytoplasm_where(call, resolved):
             and not _is_zero(call.args[2]))
 
 
-DETECTORS = {"cytoplasm_where": _detect_cytoplasm_where}
+def _keyword(call, name):
+    return next((k.value for k in call.keywords if k.arg == name), None)
+
+
+def _pair_code(node):
+    """``a * width + b``: two label images encoded as one pair code."""
+    return (isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add)
+            and isinstance(node.left, ast.BinOp) and isinstance(node.left.op, ast.Mult))
+
+
+def _stacked(node):
+    return isinstance(node, ast.Call) and (_dotted(node.func) or "").split(".")[-1] in (
+        "stack", "column_stack", "vstack")
+
+
+def _detect_label_pair_counts(call, resolved):
+    """Hand-written pair counts of two label images: ``np.unique`` with
+    ``return_counts=True`` of a stacked pair or a pair code, or
+    ``np.bincount`` of a pair code."""
+    if not call.args:
+        return False
+    first = call.args[0]
+    if resolved == "numpy.unique":
+        counts = _keyword(call, "return_counts")
+        return (isinstance(counts, ast.Constant) and counts.value is True
+                and (_pair_code(first) or _stacked(first)))
+    return resolved == "numpy.bincount" and _pair_code(first)
+
+
+def _detect_column_std(call, resolved):
+    """``x.std(0)`` / ``x.std(axis=0)``: a column SD written in place."""
+    if not (isinstance(call.func, ast.Attribute) and call.func.attr == "std"):
+        return False
+    axis = call.args[0] if call.args else _keyword(call, "axis")
+    return isinstance(axis, ast.Constant) and axis.value == 0 and not isinstance(axis.value, bool)
+
+
+DETECTORS = {"cytoplasm_where": _detect_cytoplasm_where,
+             "label_pair_counts": _detect_label_pair_counts,
+             "column_std": _detect_column_std}
 
 
 class _Scan(ast.NodeVisitor):
-    def __init__(self, ops):
+    def __init__(self, ops, rel=""):
         self.ops = ops
+        self.rel = rel
         self.alias = {}
         self.hits = collections.Counter()
         self.where = collections.defaultdict(list)
+        self.function = []
+
+    def visit_FunctionDef(self, node):
+        self.function.append(node.name)
+        self.generic_visit(node)
+        self.function.pop()
+
+    visit_AsyncFunctionDef = visit_FunctionDef
 
     # imports ------------------------------------------------------------
     def visit_Import(self, node):
@@ -109,6 +159,9 @@ class _Scan(ast.NodeVisitor):
         return full
 
     def _hit(self, op, node):
+        owned = self.ops[op]["_functions"].get(self.rel, ())
+        if any(name in owned for name in self.function):
+            return
         self.hits[op] += 1
         self.where[op].append(node.lineno)
 
@@ -125,7 +178,8 @@ class _Scan(ast.NodeVisitor):
                 self._hit(op, node)
             elif attr and attr in spec["_name_calls"]:
                 self._hit(op, node)
-            elif spec["_detector"] and resolved and spec["_detector"](node, resolved):
+            elif spec["_detector"] and (resolved or isinstance(node.func, ast.Attribute)) and \
+                    spec["_detector"](node, resolved):
                 self._hit(op, node)
         self.generic_visit(node)
 
@@ -153,6 +207,8 @@ def load_registry(path=REGISTRY):
             "_numbers": frozenset(float(n) for n in spec.get("numbers", ())),
             "_strings": frozenset(spec.get("strings", ())),
             "_detector": DETECTORS[spec["detector"]] if spec.get("detector") else None,
+            "_functions": {path: frozenset(names)
+                           for path, names in spec.get("owner_functions", {}).items()},
         }
     return prepared
 
@@ -172,7 +228,7 @@ def count_sites(root=ROOT, registry=REGISTRY, with_lines=False):
         if any(part in rel for part in SKIP_PARTS):
             continue
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=rel)
-        scan = _Scan(ops)
+        scan = _Scan(ops, rel)
         scan.visit(tree)
         for op, n in scan.hits.items():
             if not _owned(rel, ops[op]["owners"]):
@@ -236,6 +292,33 @@ def test_ratchet_detects_a_new_duplicate(tmp_path):
     assert counts["robust_scale_constant"] == {"spacr/new_module.py": 1}
     assert compare(counts, {}), "a site absent from the baseline must fail"
     assert not compare(counts, counts)
+
+
+def test_owner_functions_and_the_pair_count_and_column_sd_detectors(tmp_path):
+    """A PHATE call outside the two owner functions of ops_clusters counts,
+    and so does a hand-written label pair count or column SD."""
+    pkg = tmp_path / "spacr"
+    pkg.mkdir()
+    (pkg / "ops_clusters.py").write_text(
+        "import phate\nimport leidenalg\n"
+        "def _phate_graph(x):\n    return phate.PHATE().fit(x)\n"
+        "def leiden_partitions(g):\n    return leidenalg.find_partition(g, None)\n"
+        "def copy(x):\n    return phate.PHATE().fit(x)\n")
+    (pkg / "ops_tvn.py").write_text(
+        "def batch_mean_sd(x):\n    return x.std(0)\n"
+        "def other(x):\n    return x.std(axis=0)\n")
+    (pkg / "agree.py").write_text(
+        "import numpy as np\n"
+        "def pairs(a, b, w):\n"
+        "    np.unique(np.stack([a, b]), axis=1, return_counts=True)\n"
+        "    np.unique(a * w + b, return_counts=True)\n"
+        "    np.bincount(a * w + b)\n"
+        "    np.unique(a, return_counts=True)\n"
+        "    return a.std(1), a.std()\n")
+    counts = count_sites(tmp_path)
+    assert counts["phate_leiden"] == {"spacr/ops_clusters.py": 1}
+    assert counts["column_standardise"] == {"spacr/ops_tvn.py": 1}
+    assert counts["label_pair_contingency"] == {"spacr/agree.py": 3}
 
 
 def _write_baseline():

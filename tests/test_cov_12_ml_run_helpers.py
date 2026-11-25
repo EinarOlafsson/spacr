@@ -165,7 +165,7 @@ def case_a_legacy_run_with_no_score_list_is_refused_by_name():
     reach the fit as a None path and fail much later.
     """
     _seen = []
-    with pytest.raises(ValueError, match='at least one score CSV') as _exc1:
+    with pytest.raises(ValueError, match='at least one score table') as _exc1:
         ml.normalize_regression_input_pairs(
             {'score_data': None, 'count_data': 'counts.csv'})
     _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))

@@ -67,6 +67,10 @@ def _panels(counts, *, per_well, starved, positions, depth, unmapped):
                              else reads.get_legend().get_texts()[0].get_text()),
             "coverage_lines": len(coverage.lines),
             "coverage_title": coverage.get_title(),
+            "coverage_legend": ("" if coverage.get_legend() is None
+                                else coverage.get_legend().get_title().get_text()),
+            "coverage_xy": [(line.get_xdata().tolist(), line.get_ydata().tolist())
+                            for line in coverage.lines],
             "fate_bars": [t.get_text() for t in fate.get_xticklabels()],
             "fate_heights": [p.get_height() for p in fate.patches],
         }
@@ -284,8 +288,12 @@ def test_a_plate_with_no_guides_leaves_the_coverage_panel_blank():
     drawn = _panels(counts, per_well=per_well, starved=starved,
                     positions=positions, depth=measured, unmapped=None)
     assert drawn["coverage_lines"] == 2  # the curve and the parity diagonal
-    assert "Library coverage" in drawn["coverage_title"]
-    assert f"Gini {measured['gini']:.2f}" in drawn["coverage_title"]
+    assert drawn["coverage_title"] == ""
+    assert "Library coverage" in drawn["coverage_legend"]
+    assert f"Gini {measured['gini']:.2f}" in drawn["coverage_legend"]
+    totals = measured["reads_per_grna"].sort_values()
+    assert drawn["coverage_xy"][0][1] == [0.0, *(totals.cumsum() / totals.sum()).tolist()]
+    assert drawn["coverage_xy"][1] == ([0, 1], [0, 1])
 
     absent = QC.library_depth(counts[counts["plateID"] == "plate2"])
     assert absent["n_grnas_observed"] == 0
@@ -294,6 +302,7 @@ def test_a_plate_with_no_guides_leaves_the_coverage_panel_blank():
                     positions=positions, depth=absent, unmapped=None)
     assert blank["coverage_lines"] == 0
     assert blank["coverage_title"] == ""
+    assert blank["coverage_legend"] == ""
 
 
 # ---------------------------------------------------------------------------

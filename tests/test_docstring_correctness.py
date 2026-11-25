@@ -3215,6 +3215,8 @@ def _validated_bmc_paper_items_callables(callables):
     entries = _current_neighbour_api(entries)
     from tests.phtables_store_api_hooks import _current_phtables_api
     entries = _current_phtables_api(entries)
+    from tests.l5_api_hooks import _current_l5_api
+    entries = _current_l5_api(entries)
     assert len(entries) == 170
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -3236,6 +3238,8 @@ def _validated_bmc_paper_items_2_callables(callables):
         / "884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json").read_text(encoding="utf-8"))
     from tests.test_ops_phfields_sources import _current_phfields_api
     entries = _current_phfields_api(entries)
+    from tests.l5_api_hooks import _current_l5_api
+    entries = _current_l5_api(entries)
     assert len(entries) == 376
     assert {"spacr.gene_graph", "spacr.ops_run_infra", "spacr.channel_models"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
@@ -4294,12 +4298,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     this test's denominator.  The signature digest also catches a required
     parameter becoming optional (or the reverse) without changing counts.
     """
+    from tests.test_graphstyle_api_contract import _validated_graphstyle_callables
+
     before_modules = set(sys.modules)
     callables = _validated_prior_scn_callables(
         _validated_prior_plaque_callables(
             _validated_prior_radius_callables(
                 _validated_prior_worker_callables(
-                    list(_public_callables()), replay_dialog_signature=True))))
+                    _validated_graphstyle_callables(list(_public_callables())), replay_dialog_signature=True))))
     from tests.omezarr_native_api_hooks import _validated_omezarr_native_arrivals
     callables = _validated_omezarr_native_arrivals(callables)
     from tests.test_ops_fdr_never_1014 import _validated_never_arrivals
@@ -4322,6 +4328,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_l3_arrivals(callables)
     from tests.l4_api_hooks import _validated_l4_arrivals
     callables = _validated_l4_arrivals(callables)
+    from tests.merge_1017_api_hooks import _validated_1017_arrivals
+    callables = _validated_1017_arrivals(callables)
+    from tests.l5_api_hooks import _validated_l5_arrivals
+    callables = _validated_l5_arrivals(callables)
     callables = _validated_prior_708_callables(
         _validated_prior_699_callables(_validated_prior_701_callables(callables)))
     callables = _validated_prior_example_background_callables(callables)
@@ -5922,7 +5932,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # the 20 retired Browser handles (ReadOnlyDb, WritableDb, build_update).
     # 20,227 -> 20,228 on 2026-11-24 (landing L3, merge 8): the optional `n_tests`
     # of spacr.multiple_testing.adjust_p_values, the one FDR/Holm adjustment.
-    assert sum(len(item.parameters) for item in callables) == 20228
+    # 20,228 -> 20,232 on 2026-11-24 (landing L5), all defaulted: `metric` of
+    # spacr.ops_clusters.gene_graph, `n_iterations` of leiden_partitions and
+    # `zero_sd` of spacr.ops_tvn.batch_mean_sd (merges 6, 10 and B19), and
+    # `mmap` of spacr.ops_run_infra.FieldStager.load (ph_segment streaming).
+    assert sum(len(item.parameters) for item in callables) == 20232
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -6301,7 +6315,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # parameters of the 20 retired Browser handles (ReadOnlyDb, WritableDb,
     # build_update) leave the boundary; with them, the landing L3 stack's
     # optional `n_tests` of spacr.multiple_testing.adjust_p_values.
-) == '20778323b3bd619da432aafb5380172c2a6e6fd2edc0f01fdd8f70b8e372f7fd'
+    # Moved 2026-11-24 for landing L5 (was 20778323...): the optional `metric`
+    # of spacr.ops_clusters.gene_graph, `n_iterations` of leiden_partitions,
+    # `zero_sd` of spacr.ops_tvn.batch_mean_sd and `mmap` of
+    # spacr.ops_run_infra.FieldStager.load.
+) == '9da196a8eafb9a5d508ee0d276d9424b9237afd376b7c82ec1561178e77a4f3c'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -6654,6 +6672,8 @@ def test_generated_constructor_ivars_cannot_leak_to_ordinary_callables():
 
 def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     """Require the extractor's keys and content to equal rendered source."""
+    from tests.test_graphstyle_api_contract import _current_graphstyle_api, _retired_graphstyle_api
+
     before_modules = set(sys.modules)
     docs = _documentation_public_docstrings()
     from tests.test_documentation_i18n import _navigator_input_identity_arrival
@@ -6661,7 +6681,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     from tests.test_documentation_i18n import (
         _retired_0ab2_measure_api, _retired_732_remote_api, _retired_801_mask_worker_api)
     historical_docs = (docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
-                       | _retired_0ab2_measure_api(docs))
+                       | _retired_0ab2_measure_api(docs) | _retired_graphstyle_api(docs))
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -7232,6 +7252,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("969_ops_settings_layout_api_arrivals_2026-11-17.json", 3),
         ("figprefs_pipeline_figures_api_arrivals_2026-11-19.json", 1),
         ("figstyle_spacr_graphs_api_arrivals_2026-11-19.json", 9),
+        ("graphstyle_g1_api_arrivals_2026-11-23.json", 22),
         ("973_ops_voyager3_api_arrivals_2026-11-17.json", 9),
         ("cachepos_ops_field_cache_api_arrivals_2026-11-20.json", 1),
         ("971_ops_live_preview_api_arrivals_2026-11-17.json", 2),
@@ -7264,14 +7285,20 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "figstyle_spacr_graphs_api_arrivals_2026-11-19.json":
+            additions = _current_graphstyle_api(additions)
         from tests.test_ops_fdr_never_1014 import _current_never_api
         additions = _current_never_api(additions)
         from tests.test_ops_neighbour_sources_1013 import _current_neighbour_api
         additions = _current_neighbour_api(additions)
         from tests.test_ops_phfields_sources import _current_phfields_api
         additions = _current_phfields_api(additions)
+        from tests.l5_api_hooks import _current_l5_api
+        additions = _current_l5_api(additions)
         from tests.phtables_store_api_hooks import _current_phtables_api
         additions = _current_phtables_api(additions)
+        from tests.l5_api_hooks import _current_l5_api
+        additions = _current_l5_api(additions)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             additions = _posix_update_prepared_key_move(additions, docs)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
@@ -7316,6 +7343,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     zoo_additions = {**zoo_additions, **_current_l3_api(zoo_additions)}
     from tests.l4_api_hooks import _current_l4_api
     zoo_additions = {**zoo_additions, **_current_l4_api(zoo_additions)}
+    from tests.merge_1017_api_hooks import _current_1017_api
+    zoo_additions = {**zoo_additions, **_current_1017_api(zoo_additions)}
+    from tests.l5_api_hooks import _current_l5_arrivals
+    zoo_additions = {**zoo_additions, **_current_l5_arrivals(zoo_additions)}
     # 2026-10-15: Item 370: scorecard state, its sentence and the matched-stock export rows; one named contract.
     s370_additions = json.loads((pathlib.Path(__file__).resolve().parent / "data/release_contracts"
         / "370_scorecard_states_and_export_api_arrivals_2026-10-15.json").read_text(encoding="utf-8"))
@@ -7929,6 +7960,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "969_ops_settings_layout_api_arrivals_2026-11-17.json",
                      "figprefs_pipeline_figures_api_arrivals_2026-11-19.json",
                      "figstyle_spacr_graphs_api_arrivals_2026-11-19.json",
+                     "graphstyle_g1_api_arrivals_2026-11-23.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",
@@ -7957,6 +7989,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "1013_neighbour_bleed_api_arrivals_2026-11-22.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "figstyle_spacr_graphs_api_arrivals_2026-11-19.json":
+            entries = _current_graphstyle_api(entries)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             entries = _posix_update_prepared_key_move(entries)
         if contract == "538_718_calibrated_preview_and_metal_api_arrivals_2026-10-23.json":
@@ -7993,6 +8027,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables |= _current_l3_api().keys()
     from tests.l4_api_hooks import _current_l4_api
     contract_callables |= _current_l4_api().keys()
+    from tests.merge_1017_api_hooks import _current_1017_api
+    contract_callables |= _current_1017_api().keys()
+    from tests.l5_api_hooks import _current_l5_arrivals
+    contract_callables |= _current_l5_arrivals().keys()
     prior = prior - contract_callables
     # Item 700, 2026-10-15: -23, the first-run setup's retired callables.
     # 2026-10-19: -1, FoldButton.paintEvent retired.
@@ -8129,6 +8167,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "969_ops_settings_layout_api_arrivals_2026-11-17.json",
                      "figprefs_pipeline_figures_api_arrivals_2026-11-19.json",
                      "figstyle_spacr_graphs_api_arrivals_2026-11-19.json",
+                     "graphstyle_g1_api_arrivals_2026-11-23.json",
                      "973_ops_voyager3_api_arrivals_2026-11-17.json",
                      "968_ops_power_sim_api_arrivals_2026-11-17.json",
                      "974_spacr_store_api_arrivals_2026-11-17.json",
@@ -8157,6 +8196,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "1013_neighbour_bleed_api_arrivals_2026-11-22.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
+        if contract == "figstyle_spacr_graphs_api_arrivals_2026-11-19.json":
+            entries = _current_graphstyle_api(entries)
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
             entries = _posix_update_prepared_key_move(entries)
         arrival_callables |= set(entries)
@@ -8186,6 +8227,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     arrival_callables |= _current_l3_api().keys()
     from tests.l4_api_hooks import _current_l4_api
     arrival_callables |= _current_l4_api().keys()
+    from tests.merge_1017_api_hooks import _current_1017_api
+    arrival_callables |= _current_1017_api().keys()
+    from tests.l5_api_hooks import _current_l5_arrivals
+    arrival_callables |= _current_l5_arrivals().keys()
     arrival_callables &= rendered_documented_callables.keys()
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background

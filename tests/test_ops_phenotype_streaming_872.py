@@ -207,7 +207,9 @@ def test_the_gpu_self_check_reports_the_columns_beyond_the_tolerance(
         tmp_path, models, monkeypatch):
     from spacr import ops_sample
 
-    original = ops_sample.measure_phenotype_field
+    # The L5 audit (schema 965) measures every field through the
+    # objects-aware core, so that is where the card's drift goes.
+    original = ops_sample._measure_phenotype_field
 
     def drifting(*args, gpu=False, **kwargs):
         """The CPU table, with one column moved by 0.1 % on the 'card'."""
@@ -216,7 +218,7 @@ def test_the_gpu_self_check_reports_the_columns_beyond_the_tolerance(
             table["cell_gfp_mean_intensity"] *= 1.001
         return table
 
-    monkeypatch.setattr(ops_sample, "measure_phenotype_field", drifting)
+    monkeypatch.setattr(ops_sample, "_measure_phenotype_field", drifting)
     monkeypatch.setitem(ops_engine._PH_WORKER_FIELDS, "count", 0)
     monkeypatch.delenv("CUPY_CACHE_DIR", raising=False)
     root = _prepared(tmp_path / "check")
@@ -281,3 +283,19 @@ def test_measure_workers_follow_the_setting_and_the_vram_cap(monkeypatch):
               "ops_gpu_vram_cap_gb": 22}
     assert ops_engine._ph_measure_workers(capped, 20, True) == 4
     assert ops_engine._ph_measure_workers(capped, 20, False) == 8
+
+
+def test_a_mapped_staged_field_has_the_same_values_and_survives_its_release(tmp_path):
+    stack = np.random.default_rng(0).random((5, 6, 3), dtype=np.float32)
+    stager = FieldStager(str(tmp_path / "s"), [0], lambda s: (stack, []), ahead=1)
+    mapped, lost = stager.load(0, mmap=True)
+    assert lost == [] and isinstance(mapped, np.memmap)
+    assert mapped.dtype == stack.dtype and mapped.tobytes() == stack.tobytes()
+    if os.name != "nt":
+        stager.release(0)
+        assert os.listdir(tmp_path / "s") == []
+        assert mapped.tobytes() == stack.tobytes()
+    mapped[0, 0, 0] = -1.0
+    assert stack[0, 0, 0] != -1.0
+    del mapped
+    stager.close()

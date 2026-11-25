@@ -129,6 +129,9 @@ def publish(fig, path=None, *, fmt=None, dpi=None, close=False, **kwargs):
                               **kwargs)
     if _sink is not None:
         try:
+            from .figures.style import finalize_figure
+
+            finalize_figure(fig)
             _sink(fig, written)
         except Exception:                                      # noqa: BLE001
             LOG.debug("a figure sink refused a figure", exc_info=True)

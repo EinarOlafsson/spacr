@@ -1,0 +1,95 @@
+[
+  [
+    [
+      "viability",
+      [
+        [
+          "fits",
+          [
+            [
+              [
+                "group",
+                "A"
+              ],
+              [
+                "result",
+                [
+                  [
+                    "dose",
+                    {
+                      "data_base64": "mpmZmZmZuT8AAAAAAADwPwAAAAAAACRAAAAAAAAAWUA=",
+                      "dtype": "float64",
+                      "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+                      "missing_base64": "AAAAAA==",
+                      "sha256": "fe35964e4054565449bb69819d9c565ce6934265d49d531aa7294353a49c3217",
+                      "shape": [
+                        4
+                      ]
+                    }
+                  ],
+                  [
+                    "response",
+                    {
+                      "data_base64": "AAAAAACAWEAAAAAAAIBUQAAAAAAAAEhAAAAAAAAAMUA=",
+                      "dtype": "float64",
+                      "missing": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+                      "missing_base64": "AAAAAA==",
+                      "sha256": "4c2f59edc7a08fe9ab89e636d52a5db781914b2d130b2dfab426a999b6808978",
+                      "shape": [
+                        4
+                      ]
+                    }
+                  ],
+                  [
+                    "ec50",
+                    8.0
+                  ],
+                  [
+                    "unit",
+                    "\u00b5M"
+                  ],
+                  [
+                    "curve_x",
+                    {
+                      "data_base64": "mpmZmZmZuT8zMzMzMzPTPwAAAAAAAPA/AAAAAAAACEAAAAAAAAAkQAAAAAAAAD5AAAAAAAAAWUA=",
+                      "dtype": "float64",
+                      "missing": "837885c8f8091aeaeb9ec3c3f85a6ff470a415e610b8ba3e49f9b33c9cf9d619",
+                      "missing_base64": "AAAAAAAAAA==",
+                      "sha256": "a597f981b6865dfa68668d7b46eebf6ea4a055ad73ab10531e8f4f00587822dc",
+                      "shape": [
+                        7
+                      ]
+                    }
+                  ],
+                  [
+                    "curve_y",
+                    {
+                      "data_base64": "AAAAAADAWEAAAAAAAIBXQAAAAAAAwFRAAAAAAACAUEAAAAAAAIBHQAAAAAAAAD1AAAAAAAAAMEA=",
+                      "dtype": "float64",
+                      "missing": "837885c8f8091aeaeb9ec3c3f85a6ff470a415e610b8ba3e49f9b33c9cf9d619",
+                      "missing_base64": "AAAAAAAAAA==",
+                      "sha256": "9508eb0997e3a0c868b242a4fdea1d73c25aa5c3943dc3069a3b98652bca83c1",
+                      "shape": [
+                        7
+                      ]
+                    }
+                  ]
+                ]
+              ]
+            ],
+            [
+              [
+                "group",
+                "B"
+              ],
+              [
+                "result",
+                null
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ]
+]

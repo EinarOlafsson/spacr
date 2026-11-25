@@ -3172,7 +3172,7 @@ class AppScreen(QWidget):
             binding = ObjectGridBinding(grid, model, self)
             binding.seed()
             owned = binding.owned_keys()
-            if len(grid.questions()) < self.MIN_GRID_QUESTIONS or not owned:
+            if len(grid._questions_held()) < self.MIN_GRID_QUESTIONS or not owned:
                 section.deleteLater()
                 return
             section.add_prose_row("", grid)
@@ -8855,6 +8855,20 @@ class AppScreen(QWidget):
                 queue.figure_clicked.connect(self._on_static_figure_clicked)
             row.addWidget(self._interactive_switch)
 
+        self._voyager3_switch = None
+        if self.app_key == "mask":
+            try:
+                from ..voyager3_panel import (_VOYAGER3_TOGGLE_TEXT,
+                                              _install_voyager3_switch,
+                                              _voyager3_tooltip)
+
+                self._voyager3_switch = AiToggleLabel(
+                    text=_VOYAGER3_TOGGLE_TEXT, tooltip=_voyager3_tooltip())
+                row.addWidget(self._voyager3_switch)
+                _install_voyager3_switch(self, self._voyager3_switch)
+            except Exception:                            # noqa: BLE001
+                LOG.debug("Could not install the Voyager3 switch", exc_info=True)
+
         self._ai_switch = AiToggleLabel()
         self._ai_switch.toggled.connect(self._on_ai_switch)
         row.addWidget(self._ai_switch)
@@ -13347,6 +13361,10 @@ class AppScreen(QWidget):
         if live is not None:
             live.setting_committed(key)
         model = getattr(self, "_settings_model", None)
+        editor = getattr(self.window(), "_batch_job_editor", None)
+        if (editor is not None and model is not None
+                and not getattr(model, "_applying_settings", False)):
+            editor.setting_committed(self, key)
         if (model is None or getattr(model, "_applying_settings", False)
                 or not getattr(self, "_settings_lock_observation_ready", True)):
             return

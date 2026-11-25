@@ -31,6 +31,8 @@ from PySide6.QtWidgets import (
 
 from ...annotation_umap_qc import NEGATIVE, POSITIVE
 from .fast_plots import FastPlot, ResultsTable
+from ..i18n import tr
+from ...figures.style import GENERAL_DEFAULTS, Palette
 
 #: What a cell with no control label is called here.
 ANNOTATED = "annotated"
@@ -47,7 +49,7 @@ GROUP_SYMBOLS = {ANNOTATED: "o", POSITIVE: "t", NEGATIVE: "d"}
 #: The colour scale purity is drawn on. One of
 #: :data:`spacr.qt.widgets.fast_plots.COLORMAPS`, so the restyle menu can
 #: offer the others without this panel keeping a list of its own.
-PURITY_COLORMAP = "viridis"
+PURITY_COLORMAP = Palette.SEQUENTIAL
 
 
 class PurityScatter(FastPlot):
@@ -86,6 +88,7 @@ class PurityScatter(FastPlot):
         self._reset_scene()
         self._frame = None
         self._style_note = ""
+        self._colour_column = None
         self.set_status(str(message))
 
     def set_embedding(self, embedding, purity, guides, marks) -> int:
@@ -105,8 +108,10 @@ class PurityScatter(FastPlot):
 
         points = np.asarray(embedding, dtype=float)
         self._reset_scene()
+        self._colour_column = None
+        self._style_note = ""
         if points.ndim != 2 or points.shape[0] == 0 or points.shape[1] < 2:
-            self.clear_plot("The embedding has no points to draw.")
+            self.clear_plot(tr("The embedding has no points to draw."))
             return 0
         groups = [ANNOTATED if mark is None else str(mark) for mark in marks]
         frame = pd.DataFrame({
@@ -116,24 +121,45 @@ class PurityScatter(FastPlot):
             "guide": [str(g) for g in guides],
             "group": groups,
         })
+        frame.attrs["units"] = {name: "dimensionless" for name in ("umap_1", "umap_2", "purity")}
+        frame.attrs["quantities"] = {"umap_1": tr("UMAP 1"), "umap_2": tr("UMAP 2"),
+                                    "purity": tr("Positive control neighbour fraction")}
         self._frame = frame
         self.add_scatter(
             frame["umap_1"].to_numpy(), frame["umap_2"].to_numpy(),
-            size=6.0,
+            size=GENERAL_DEFAULTS["marker_size"] ** .5 * self.logicalDpiX() / 72.,
             symbol_list=[GROUP_SYMBOLS.get(name, GROUP_SYMBOLS[ANNOTATED])
                          for name in groups],
             labels=[f"{guide} · {group}"
                     for guide, group in zip(frame["guide"], groups)])
         try:
-            self.colour_by_column("purity", PURITY_COLORMAP)
+            self.colour_by_column("purity", PURITY_COLORMAP, missing_colour=Palette.BACKGROUND)
         except ValueError as exc:
-            self.set_status(f"Purity is not drawn as a colour: {exc}")
+            self.set_status(tr("Purity is not drawn as a colour: {error}").format(error=exc))
+            self._present_embedding()
             return int(len(frame))
-        self.set_status(
-            f"{len(frame):,} cells. Triangles are positive controls, "
-            f"diamonds negative, circles the annotated cells; the brighter "
-            f"a cell, the more of its control neighbours are positive.")
+        self.set_status("")
+        self._present_embedding()
         return int(len(frame))
+
+    def _present_embedding(self) -> None:
+        """Declare the supplied coordinates, independent control shapes and current scalar channel through the shared native owner."""
+        description = tr("Source cells: {count}; visible finite positions: {drawn}. Triangles identify positive controls, diamonds negative controls and circles annotated cells. Grey points denote missing values in the selected colour column. Uniform manifold approximation and projection (UMAP) uses dimensionless embedding coordinates.").format(
+            count=f"{len(self._frame):,}", drawn=f"{len(self._row_xy):,}")
+        self.set_status(description + (" " + self._headline if self._headline else ""))
+        self._finish_diagnostic(
+            reference=tr("Supplied positive and negative control labels"),
+            units=(("x", "dimensionless"), ("y", "dimensionless")),
+            comparison={"graph_type": "embedding", "control_channel": "shape",
+                        "colour_column": self._colour_column[0] if self._colour_column else None,
+                        "colour_quantity": tr("Positive control neighbour fraction"),
+                        "colour_unit": "dimensionless"})
+        from ...figures.style import _attach_native_scalar_key, finalize_figure
+
+        self._spacr_legend_entries = tuple(dict(entry, kind="control_shapes", colour="#000000")
+            if entry["kind"] == "reference" else entry for entry in self._spacr_legend_entries)
+        _attach_native_scalar_key(self)
+        finalize_figure(self)
 
 
 class AnnotationUmapTab(QWidget):

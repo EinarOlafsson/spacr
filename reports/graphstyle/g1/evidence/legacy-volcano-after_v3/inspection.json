@@ -1,0 +1,24 @@
+{
+  "inspected_at": "2026-11-23T05:52:01.365867-05:00",
+  "all16_native_pngs_opened": true,
+  "findings": "Default key symbols visible and match actual point colors; compact labels; annotation labels inside panel after final layout; no clipped text in saved tight-bounds PNGs. Explicit manual page/title/alpha/colored threshold and supplied parent contents retained and diagnosed. Original-canvas bounds diagnostics remain for manual/supplied view; exported tight-bounds files inspected separately.",
+  "numerical": "All80CSV tables exact vs pristine before_v1, including returned hit identities and raw transformed/masked values",
+  "files": {
+    "cloud_dark/plot.png": "6609521e7bc892a150200e3afec4c6cd8f4272055d4cf0d472a73c007474a6ed",
+    "cloud_light/plot.png": "6609521e7bc892a150200e3afec4c6cd8f4272055d4cf0d472a73c007474a6ed",
+    "log2_dark/plot.png": "128b42d5018afa3760f059610ec2f7aa65525ea392b14a0b7b46d775a7e8bc87",
+    "log2_light/plot.png": "128b42d5018afa3760f059610ec2f7aa65525ea392b14a0b7b46d775a7e8bc87",
+    "manual_dark/plot.png": "3c4f953542d85d641a526cef5d3ea80344510b262e0800bcd048ed9d270f3776",
+    "manual_light/plot.png": "3c4f953542d85d641a526cef5d3ea80344510b262e0800bcd048ed9d270f3776",
+    "parent_dark/plot.png": "f6d48771c71b549eb561cc1d516eb7791b3a5aea3ecb1ce2f6a413e3a6b03dc3",
+    "parent_light/plot.png": "f6d48771c71b549eb561cc1d516eb7791b3a5aea3ecb1ce2f6a413e3a6b03dc3",
+    "positive_log_p_dark/plot.png": "0adc0b7aac72734f7c5e816b38c56f2094bb7978efc2e0ea3eed240a7f72fa30",
+    "positive_log_p_light/plot.png": "0adc0b7aac72734f7c5e816b38c56f2094bb7978efc2e0ea3eed240a7f72fa30",
+    "raw_p_dark/plot.png": "7a159fdc7c75ab275263ccd1077d18999ba8b2ee090cd5eb8e97db82f7bac337",
+    "raw_p_light/plot.png": "7a159fdc7c75ab275263ccd1077d18999ba8b2ee090cd5eb8e97db82f7bac337",
+    "thresholds_dark/plot.png": "1fc2f3a9368fe85cfcfb4d1bb13749d84db62694e8ab6c1428aa3b9274d99dfd",
+    "thresholds_light/plot.png": "1fc2f3a9368fe85cfcfb4d1bb13749d84db62694e8ab6c1428aa3b9274d99dfd",
+    "zero_missing_dark/plot.png": "6abc94cf55d02e269f348c1b5dc136ce2617db9748745f30c7bafdeaaaa7ce0b",
+    "zero_missing_light/plot.png": "6abc94cf55d02e269f348c1b5dc136ce2617db9748745f30c7bafdeaaaa7ce0b"
+  }
+}

@@ -45,14 +45,16 @@ def _matplotlib_is_left_as_it_was_found():
 class TestResolution:
 
     def test_a_graph_kind_only_states_what_it_differs_on(self):
-        """So a change to the general font reaches every plot that has not
-        overridden it."""
+        """Shared four-point-area defaults inherit general settings; an explicit per-graph override remains independent."""
         from spacr.figure_style import resolve
 
         general = resolve()
         volcano = resolve("volcano")
         assert volcano["font_family"] == general["font_family"]
-        assert volcano["marker_size"] != general["marker_size"]
+        assert volcano["marker_size"] == general["marker_size"] == 4.0
+        explicit = resolve("volcano", overrides={"volcano": {"marker_size": 9.0}})
+        assert explicit["marker_size"] == 9.0
+        assert resolve("scatter")["marker_size"] == general["marker_size"]
 
     def test_a_per_graph_override_does_not_leak_to_another_graph(self):
         """The settings that make a volcano readable are not the ones that

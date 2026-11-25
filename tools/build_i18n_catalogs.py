@@ -392,6 +392,7 @@ _IDENTITY_TEXT = {
     # The relationship name is already translated before formatting; the
     # remaining fields are a count and object IDs, with no English prose.
     "{name}: {count} ({ids})",
+    "{well}: n={count}; BC={coefficient}.",
     # Instruction 316, 2026-09-25. A method and a parameter name shown as
     # standalone captions: the Isomap embedding in the dimensionality-
     # reduction choices, the U-Net organelle-detection mode, and the DBSCAN
@@ -3785,6 +3786,25 @@ MANUAL_UI['Load the example images…'] = {
 MANUAL_TRANSLATIONS["Phases"] = {"fr": "Phases"}
 
 
+MANUAL_TRANSLATIONS.setdefault("Residual", {}).update({"sv": "Residual"})
+MANUAL_TRANSLATIONS.setdefault("Cluster {cluster}", {}).update({
+    "de": "Cluster {cluster}", "pt": "Cluster {cluster}",
+    "fr": "Cluster {cluster}",
+})
+MANUAL_TRANSLATIONS.setdefault("Label {index}", {}).update({"de": "Label {index}"})
+MANUAL_TRANSLATIONS.setdefault("Wells (%)", {}).update({"de": "Wells (%)"})
+MANUAL_TRANSLATIONS.setdefault("Pixels", {}).update({"pt": "Pixels", "fr": "Pixels"})
+MANUAL_TRANSLATIONS.setdefault("Concentration ({unit})", {}).update({
+    "fr": "Concentration ({unit})",
+})
+MANUAL_TRANSLATIONS.setdefault("Image {index}", {}).update({"fr": "Image {index}"})
+MANUAL_TRANSLATIONS.setdefault("Importance", {}).update({"fr": "Importance"})
+MANUAL_TRANSLATIONS.setdefault("Proportion", {}).update({"fr": "Proportion"})
+MANUAL_TRANSLATIONS.setdefault("fraction", {}).update({"fr": "fraction"})
+MANUAL_TRANSLATIONS.setdefault("observations", {}).update({"fr": "observations"})
+MANUAL_TRANSLATIONS.setdefault("parasites", {}).update({"fr": "parasites"})
+
+
 MANUAL_TRANSLATIONS["Ome zarr store registration"] = {
     "sv": "Lagra bildregistrering i OME-Zarr",
     "de": "Bildregistrierung in OME-Zarr speichern",
@@ -4975,6 +4995,10 @@ def _static_ui_sources_of_file(
     :param text: its contents.
     :param source_root: the ``spacr`` package directory.
     :param preferences_path: ``spacr/qt/preferences.py``.
+    The shared figure-style owner also contributes literals passed through
+    its local replay-message translator. That helper name is not admitted
+    in unrelated source modules.
+
     :returns: the stripped presentation strings found in the file.
     """
     found: set[str] = set()
@@ -5081,9 +5105,27 @@ def _static_ui_sources_of_file(
         tree.body = [node for node in tree.body
                      if (isinstance(node, ast.FunctionDef)
                          and node.name in {"_resolve_cellpose_pretrained", "_choose_model",
-                                           "_cellpose_stock_preflight", "filter_dataframe_features"})
+                                           "_cellpose_stock_preflight", "filter_dataframe_features",
+                                           "_activation_grid", "_class_visualization_preview",
+                                           "_generate_representative_images", "_utility_image_style",
+                                           "model_metrics", "plot_clusters", "plot_clusters_grid",
+                                           "plot_grid", "plot_image", "plot_images_by_cluster",
+                                           "plot_umap_images", "process_masks"})
                      or (isinstance(node, ast.ClassDef)
-                         and node.name == "CustomCellClassifier")]
+                         and node.name in {"CustomCellClassifier", "SaliencyMapGenerator",
+                                           "GradCAMGenerator"})]
+        for node in tree.body:
+            if isinstance(node, ast.ClassDef) and node.name in {
+                    "SaliencyMapGenerator", "GradCAMGenerator"}:
+                # Only the visible grid captions, not attribution internals.
+                node.body = [method for method in node.body
+                             if isinstance(method, ast.FunctionDef)
+                             and method.name == "plot_activation_grid"]
+            elif isinstance(node, ast.FunctionDef) and node.name == "process_masks":
+                # The nested PCA figure owns these captions; mask processing does not.
+                node.body = [child for child in node.body
+                             if isinstance(child, ast.FunctionDef)
+                             and child.name == "plot_clusters"]
     if path == source_root / "torch_artifacts.py":
         # The refusals of old custom-classifier models are its only captions.
         tree.body = [node for node in tree.body
@@ -5135,6 +5177,11 @@ def _static_ui_sources_of_file(
                          "_checked_intensity", "_checked_label",
                          "write_field_table_project",
                          "_read_measure_field", "measure_crop",
+                         "img_list_to_grid", "_confluency_figure", "_dna_histogram_figure",
+                         "_wound_edge_figure", "_wound_curve_figure", "_wound_half_closure_figure",
+                         "_wound_plate_figure", "_viability_threshold_figure",
+                         "_viability_controls_figure", "_viability_dose_figure",
+                         "_time_to_event_figure", "_hazard_ratio_figure",
                      }]
     if path == source_root / "channel_sorting.py":
         tree.body = [node for node in tree.body
@@ -5375,6 +5422,12 @@ def _static_ui_sources_of_file(
         if not isinstance(node, ast.Call):
             continue
         name = _call_name(node)
+        if helper_module in ("figures/style.py", "figures/bundle.py") and name == "_replay_message":
+            arguments = [*node.args[:1], *(keyword.value for keyword in node.keywords if keyword.arg == "message")]
+            for argument in arguments:
+                for value in _literal_strings(argument, constants):
+                    if _looks_translatable(value):
+                        found.add(value.strip())
         for argument in _helper_caption_arguments(
             node, helper_module, name,
         ):
@@ -5406,7 +5459,11 @@ def _static_ui_sources_of_file(
 
 
 def extract_static_ui_sources() -> tuple[str, ...]:
-    """Return literal spaCR-owned Qt presentation strings from the AST."""
+    """Return literal spaCR-owned presentation strings from registered source ASTs.
+
+    The shared figure-style owner is scanned with the normal Qt and explicit
+    producer paths, including its source-bound standalone replay adapter.
+    """
     # Compact-catalog ownership is registered lazily by the screens that own
     # those captions.  Make this standalone extractor establish the same
     # state as ``canonical_sources`` before subtracting ``i18n._ROWS``;
@@ -5431,6 +5488,12 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "updater.py")
     paths.add(ROOT / "spacr" / "model_zoo.py")
     paths.add(ROOT / "spacr" / "utils.py")
+    paths.add(ROOT / "spacr" / "submodules.py")
+    paths.add(ROOT / "spacr" / "sequencing_qc.py")
+    paths.add(ROOT / "spacr" / "illumination.py")
+    paths.add(ROOT / "spacr" / "sequencing.py")
+    paths.add(ROOT / "spacr" / "seg_qc.py")
+    paths.add(ROOT / "spacr" / "image_quality.py")
     paths.add(ROOT / "spacr" / "attribution.py")
     paths.add(ROOT / "spacr" / "measure.py")
     paths.add(ROOT / "spacr" / "io.py")
@@ -5448,6 +5511,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     paths.add(ROOT / "spacr" / "_lineage_trees.py")
     # Figure integrity (F572) and other plot captions go through tr() too.
     paths.add(ROOT / "spacr" / "plot.py")
+    paths.add(ROOT / "spacr" / "figures" / "style.py")
+    paths.add(ROOT / "spacr" / "figures" / "bundle.py")
     paths.add(ROOT / "spacr" / "run_journal.py")
     paths.add(ROOT / "spacr" / "regression_layout.py")
     paths.add(ROOT / "spacr" / "regression_failure.py")

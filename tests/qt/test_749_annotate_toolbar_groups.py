@@ -17,8 +17,8 @@ import pytest
 from PySide6.QtCore import QSettings, QSize
 from PySide6.QtWidgets import QApplication, QMenu, QPushButton
 
-GROUP_ORDER = ["navigate", "source", "data", "view", "similar", "model",
-               "bulk", "danger"]
+GROUP_ORDER = ["source", "navigate", "view", "label", "review", "model",
+               "danger"]
 
 
 @pytest.fixture(autouse=True)
@@ -55,17 +55,19 @@ def _screen_at(qtbot, scale: float, width: int):
 def _expected_members(screen) -> dict:
     """The commands each group must hold, left to right."""
     return {
+        "source": [screen._btn_open, screen._btn_setup, screen._btn_settings],
         "navigate": [screen._btn_prev, screen._btn_next, screen._btn_skip,
                      screen._sort_order.parentWidget(), screen._page_label],
-        "source": [screen._btn_open, screen._btn_setup, screen._btn_settings],
-        "data": [screen._btn_count, screen._btn_coverage,
-                 screen._btn_browse_db],
+        "view": [screen._btn_blind, screen._btn_field_qc],
+        "label": [screen._btn_similar,
+                  screen._toolbar_groups["label"].members[1],
+                  screen._btn_annotate_page, screen._btn_auto],
+        "review": [screen._btn_count, screen._btn_coverage,
+                   screen._btn_browse_db],
         "model": [screen._btn_retrain, screen._btn_suggest,
                   screen._btn_suggest_cancel, screen._suggest_progress,
                   screen._suggest_stage, screen._btn_suggest_model,
-                  screen._btn_curve],
-        "bulk": [screen._btn_train, screen._btn_auto,
-                 screen._btn_annotate_page],
+                  screen._btn_classify, screen._btn_curve, screen._btn_train],
         "danger": [screen._btn_clear_page, screen._btn_clear],
     }
 
@@ -91,9 +93,10 @@ def test_the_groups_hold_their_commands_in_order(qtbot):
     for key, members in _expected_members(screen).items():
         assert groups[key].members == members, key
         assert groups[key].property("toolbarGroup") == key
-    assert groups["navigate"].caption.text() == "Navigate"
-    assert groups["model"].caption.text() == "Label model"
-    assert groups["danger"].caption.text() == "Danger zone"
+    assert groups["navigate"].caption.text() == "NAVIGATE"
+    assert groups["label"].caption.text() == "LABEL"
+    assert groups["model"].caption.text() == "MODEL"
+    assert groups["danger"].caption.text() == "DANGER ZONE"
     flow = groups["navigate"].parentWidget().layout()
     order = [flow.itemAt(i).widget() for i in range(flow.count())]
     assert order == [groups[key] for key in GROUP_ORDER]
@@ -105,7 +108,7 @@ def test_the_danger_zone_is_never_beside_navigation(qtbot):
             screen = _screen_at(qtbot, scale, width)
             groups = screen._toolbar_groups
             shown = [g for g in groups.values() if not g.isHidden()]
-            assert shown[0] is groups["navigate"]
+            assert shown[0] is groups["source"]
             assert shown[-1] is groups["danger"]
             assert shown.index(groups["danger"]) - 1 > 0
             nav, danger = groups["navigate"].geometry(), groups["danger"].geometry()
@@ -244,3 +247,33 @@ def test_a_toolbar_flow_whose_c_half_is_gone_lays_nothing_out(qtbot, monkeypatch
     monkeypatch.setattr(annotate, "_alive", lambda layout: False)
     assert flow._do_layout(QRect(0, 0, 300, 100), False) == 0
     assert only.geometry().getRect() == (1, 2, 80, 20)
+
+
+def test_every_former_command_is_in_exactly_one_group_in_work_order(qtbot):
+    from spacr.qt.screens.annotate import TOOLBAR_GROUP_ORDER
+
+    screen = _screen_at(qtbot, 1.0, 1366)
+    assert list(TOOLBAR_GROUP_ORDER) == GROUP_ORDER
+    seen = [w for g in screen._toolbar_groups.values() for w in g.members]
+    assert len(seen) == len({id(w) for w in seen})
+    former = [screen._btn_open, screen._btn_setup, screen._btn_settings,
+              screen._btn_prev, screen._btn_next, screen._btn_skip,
+              screen._btn_blind, screen._btn_field_qc, screen._btn_similar,
+              screen._btn_annotate_page, screen._btn_auto, screen._btn_count,
+              screen._btn_coverage, screen._btn_browse_db, screen._btn_retrain,
+              screen._btn_suggest, screen._btn_suggest_model,
+              screen._btn_classify, screen._btn_curve, screen._btn_train,
+              screen._btn_clear_page, screen._btn_clear]
+    for button in former:
+        holders = [k for k, g in screen._toolbar_groups.items()
+                   if button in g.members]
+        assert len(holders) == 1, button.text()
+
+
+def test_the_groups_use_the_make_masks_titled_frame(qtbot):
+    screen = _screen_at(qtbot, 1.0, 1366)
+    for key, group in screen._toolbar_groups.items():
+        frame = group.layout().itemAt(0).widget()
+        assert frame.property("makeMasksGroup") is True, key
+        assert frame.title_label is group.caption
+        assert group.caption.objectName() == "MakeMasksGroupTitle"

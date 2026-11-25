@@ -249,7 +249,7 @@ def test_sparse_per_well_table_still_draws_bars_with_empty_stats(tmp_path):
     figure = out["figures"]["per_well"]
     labels = sorted(t.get_text() for t in figure.axes[0].get_xticklabels())
     assert labels == ["plate1_r1_c1", "plate1_r1_c2", "plate1_r1_c3"]
-    assert figure.axes[0].get_ylim() == (0.0, 1.0)
+    assert figure.axes[0].get_ylim() == (0.0, 1.15)
     assert np.isnan(out["chi_squared"]["p_value"].iloc[0])
     assert len(out["chi_squared_pairwise"]) == 0
     # The ordered test does not need that contingency table and still runs.
@@ -827,14 +827,14 @@ def test_figures_are_created_and_closed(tmp_path):
 
     for figure in out["figures"].values():
         axes = figure.axes[0]
-        assert axes.get_ylim() == (0.0, 1.0)
+        assert axes.get_ylim() == (0.0, 1.15)
         assert axes.get_legend().get_title().get_text() == "Parasites per vacuole"
         # Stacked proportion bars: one bar container per bucket present.
         assert len(axes.containers) >= 1
 
-    assert out["figures"]["per_well"].axes[0].get_title() == \
+    assert out["figures"]["per_well"]._spacr_caption == \
         "Parasites per vacuole — per well"
-    assert out["figures"]["by_condition"].axes[0].get_title() == \
+    assert out["figures"]["by_condition"]._spacr_caption == \
         "Parasites per vacuole — by condition"
 
 

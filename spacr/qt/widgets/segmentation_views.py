@@ -30,13 +30,14 @@ saves on a right click like every other picture in the program.
 from __future__ import annotations
 
 import colorsys
+from html import escape
 import logging
 from typing import Callable, Dict, List, Mapping, Optional, Tuple, Union
 
 import numpy as np
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import QComboBox, QLabel, QStackedLayout, QWidget
+from PySide6.QtWidgets import QComboBox, QLabel, QStackedLayout, QVBoxLayout, QWidget
 
 from ..i18n import set_translatable_items, tr
 from .picture_export import install_picture_save
@@ -103,7 +104,7 @@ def per_object(value) -> Arrays:
     return {"": np.asarray(value)}
 
 
-def to_rgb8(image) -> Optional[np.ndarray]:
+def to_rgb8(image, *, display_metadata=None) -> Optional[np.ndarray]:
     """``image`` as ``H x W x 3`` ``uint8``, or ``None`` for nothing drawable.
 
     A ``uint8`` picture keeps its channel values while being converted to
@@ -115,6 +116,8 @@ def to_rgb8(image) -> Optional[np.ndarray]:
     for it).
 
     :param image: ``H x W``, ``H x W x 1`` or ``H x W x C`` in any dtype.
+    :param display_metadata: optional mapping recording the source range and
+        the actual normalization range after the existing float32 conversion.
     """
     if image is None:
         return None
@@ -123,9 +126,18 @@ def to_rgb8(image) -> Optional[np.ndarray]:
         arr = arr[..., 0]
     if arr.ndim not in (2, 3) or arr.size == 0:
         return None
+    if display_metadata is not None:
+        display_metadata.update(source_dtype=str(arr.dtype),
+            source_range=((np.nanmin(arr).item(), np.nanmax(arr).item())
+                          if arr.dtype.kind in "biuf" else None),
+            normalization_dtype="uint8" if arr.dtype == np.uint8 else "float32",
+            normalization_range=(0, 255), normalization_branch="identity_uint8")
     if arr.dtype != np.uint8:
         floats = arr.astype(np.float32)
         low, high = float(np.nanmin(floats)), float(np.nanmax(floats))
+        if display_metadata is not None:
+            display_metadata.update(normalization_range=(low, high),
+                normalization_branch="constant_zero" if high <= low else "linear_minmax")
         if high <= low:
             arr = np.zeros(floats.shape, dtype=np.uint8)
         else:
@@ -201,7 +213,7 @@ def label_palette(count: int, seed: int = 0) -> np.ndarray:
 
 def render_overlay(image, labels, *,
                    colours: Optional[Mapping[str, Tuple[int, int, int]]] = None,
-                   thickness: int = 1) -> Optional[np.ndarray]:
+                   thickness: int = 1, display_metadata=None) -> Optional[np.ndarray]:
     """The image with each object set's outline drawn over it.
 
     :param image: the field, any dtype.
@@ -209,10 +221,11 @@ def render_overlay(image, labels, *,
     :param colours: outline colour per object key; unnamed keys are dealt
         :data:`DEFAULT_COLOURS` by position.
     :param thickness: outline width in pixels, 1 to 5.
+    :param display_metadata: optional mapping receiving actual RGB conversion details.
     :returns: ``H x W x 3`` ``uint8``, the plain image when there are no
         labels, or ``None`` when there is no image either.
     """
-    rgb = to_rgb8(image)
+    rgb = to_rgb8(image, display_metadata=display_metadata)
     if rgb is None:
         return None
     rgb = rgb.copy()
@@ -253,14 +266,22 @@ def render_labels(labels) -> Optional[np.ndarray]:
     return out
 
 
-def render_flows(flows) -> Optional[np.ndarray]:
+def render_flows(flows, *, display_metadata=None) -> Optional[np.ndarray]:
     """The flow pictures, one per object, blended by maximum.
 
     :param flows: one ``H x W x 3`` picture or ``{object: picture}``.
+    :param display_metadata: optional mapping receiving conversion details per flow picture.
     :returns: ``H x W x 3`` ``uint8``, or ``None`` without any flows.
     """
-    pictures = [to_rgb8(flow) for flow in per_object(flows).values()
-                if flow.ndim == 3]
+    pictures = []
+    for key, flow in per_object(flows).items():
+        if flow.ndim != 3:
+            continue
+        details = {} if display_metadata is not None else None
+        picture = to_rgb8(flow, display_metadata=details)
+        pictures.append(picture)
+        if display_metadata is not None and picture is not None:
+            display_metadata[str(key)] = details
     pictures = [picture for picture in pictures if picture is not None]
     if not pictures:
         return None
@@ -293,7 +314,7 @@ def cell_probability(cellprob) -> Optional[np.ndarray]:
     return prob
 
 
-def render_cellprob(cellprob) -> Optional[np.ndarray]:
+def render_cellprob(cellprob, *, display_metadata=None) -> Optional[np.ndarray]:
     """The cell probability on the magma scale.
 
     Cellpose hands the probability back as logits; it is drawn as the
@@ -302,6 +323,8 @@ def render_cellprob(cellprob) -> Optional[np.ndarray]:
     ``1 / (1 + e^-t)`` in every picture.
 
     :param cellprob: one ``H x W`` logit map or ``{object: map}``.
+    :param display_metadata: optional mapping receiving the actual colour scale,
+        including the grayscale fallback when the colormap is unavailable.
     :returns: ``H x W x 3`` ``uint8``, or ``None`` without any map.
     """
     prob = cell_probability(cellprob)
@@ -311,10 +334,14 @@ def render_cellprob(cellprob) -> Optional[np.ndarray]:
         from matplotlib import colormaps
 
         rgba = colormaps[CELLPROB_COLORMAP](prob)
+        if display_metadata is not None:
+            display_metadata["colormap"] = CELLPROB_COLORMAP
         return np.ascontiguousarray(
             (rgba[..., :3] * 255.0).round().astype(np.uint8))
     except Exception:
         LOG.debug("matplotlib could not colour the probability", exc_info=True)
+        if display_metadata is not None:
+            display_metadata["colormap"] = "grayscale"
         grey = (prob * 255.0).round().astype(np.uint8)
         return np.ascontiguousarray(np.stack([grey] * 3, axis=-1))
 
@@ -383,6 +410,8 @@ class SegmentationViews(QWidget):
 
     def __init__(self, parent=None, *, canvas=None) -> None:
         """Build the two pages and start on the waiting sentence."""
+        from ...figures.style import native_plot_font
+
         super().__init__(parent)
         self.setObjectName("SegmentationViews")
         self.canvas = canvas if canvas is not None else PictureCanvas(self)
@@ -391,10 +420,20 @@ class SegmentationViews(QWidget):
         self.message.setWordWrap(True)
         self.message.setAlignment(Qt.AlignCenter)
         self.message.setMargin(16)
-        self._pages = QStackedLayout(self)
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        self._pages = QStackedLayout()
         self._pages.setContentsMargins(0, 0, 0, 0)
         self._pages.addWidget(self.canvas)
         self._pages.addWidget(self.message)
+        column.addLayout(self._pages, 1)
+        self.display_legend = QLabel(self)
+        self.display_legend.setObjectName("SegmentationDisplayLegend")
+        self.display_legend.setFont(native_plot_font())
+        self.display_legend.setWordWrap(True)
+        self.display_legend.setTextFormat(Qt.RichText)
+        column.addWidget(self.display_legend)
+        self._image_display_metadata = {}
         self._view: str = OVERLAY
         self._arrays: Dict[str, object] = {
             "image": None, "labels": {}, "flows": {}, "cellprob": {}}
@@ -505,6 +544,9 @@ class SegmentationViews(QWidget):
 
     def _render(self, view: str):
         """The picture or sentence for ``view``; a sentence on a failure."""
+        self.display_legend.clear()
+        self._image_display_metadata = {}
+        self._spacr_style_spec = None
         renderer = self._renderers.get(view)
         try:
             if renderer is not None:
@@ -522,18 +564,64 @@ class SegmentationViews(QWidget):
         probability -- rather than asking for a run that has happened.
         """
         arrays = self._arrays
+        metadata = dict(display_range=(0, 255), gamma=1.0,
+                        channel_mapping="RGB display", view=view,
+                        source="arrays supplied to SegmentationViews", overlays=())
         if view == OVERLAY:
-            return render_overlay(arrays["image"], arrays["labels"])
-        if view == MASKS:
+            picture, missing = render_overlay(arrays["image"], arrays["labels"],
+                                               display_metadata=metadata), WAITING
+            source = arrays["image"]
+            metadata["processing"] = "to_rgb8; existing object boundaries replace RGB pixels"
+            if source is not None:
+                metadata["channel_mapping"] = ("grayscale repeated in RGB" if source.ndim == 2 or source.shape[-1] == 1
+                    else "first three channels as RGB; missing channels padded with zero")
+            overlays = []
+            for index, (key, mask) in enumerate(arrays["labels"].items()):
+                if picture is None or mask.ndim != 2 or mask.shape != picture.shape[:2] or not mask.any():
+                    continue
+                colour = DEFAULT_COLOURS[index % len(DEFAULT_COLOURS)]
+                overlays.append(dict(identity=str(key), role="object-set outline", colour=colour, opacity=1.0))
+            metadata["overlays"] = overlays
+            swatches = " · ".join(
+                '<span style="color: rgb({},{},{});">■</span> {}'.format(
+                    *item["colour"], escape(item["identity"])) for item in overlays)
+            caption = escape(tr("Image with object outlines.")) + (" " + swatches if swatches else "")
+        elif view == MASKS:
             picture, missing = render_labels(arrays["labels"]), NO_MASKS
+            metadata.update(processing="deterministic golden-angle object identity palette on black",
+                            channel_mapping="categorical object identifiers; RGB does not encode intensity")
+            caption = escape(tr("Each color identifies an object; colors do not indicate intensity."))
         elif view == FLOWS:
-            picture, missing = render_flows(arrays["flows"]), NO_FLOWS
+            metadata["flow_normalization"] = {}
+            picture, missing = render_flows(arrays["flows"],
+                display_metadata=metadata["flow_normalization"]), NO_FLOWS
+            metadata.update(processing="to_rgb8 per supplied flow picture; componentwise maximum across matching shapes",
+                            channel_mapping="supplied Cellpose flow RGB: hue is direction, brightness is strength")
+            caption = escape(tr("Flow direction is hue; flow strength is brightness. Object sets are combined by maximum."))
         else:
-            picture, missing = (render_cellprob(arrays["cellprob"]),
+            picture, missing = (render_cellprob(arrays["cellprob"], display_metadata=metadata),
                                 NO_CELLPROB)
+            metadata.update(display_range=(0.0, 1.0),
+                            processing="sigmoid of logits clipped to [-30, 30]; maximum probability across matching shapes",
+                            channel_mapping="fixed probability colormap")
+            caption = escape(tr("Cell probability: 0 to 1 on the {scale} scale.",
+                                scale=metadata.get("colormap", CELLPROB_COLORMAP)))
         if picture is None and arrays["labels"]:
             return tr(missing)
+        if picture is not None:
+            self._describe_image(metadata, caption)
         return picture
+
+    def _describe_image(self, metadata, caption):
+        """Expose actual image display semantics without certifying native layout."""
+        from ...figures.style import resolve_style
+
+        self._image_display_metadata = metadata
+        self._spacr_style_spec = resolve_style("screen", "image", comparison=metadata,
+            legend={"caption": caption, "reference": tr("No reference image is assigned."),
+                    "quantities": {"x": tr("Image column"), "y": tr("Image row")}, "unit": "pixel"})
+        self.display_legend.setText(caption)
+        self.display_legend.setAccessibleDescription(self.display_legend.text())
 
     def show_picture(self, picture) -> None:
         """Put ``picture`` on the canvas and bring the canvas to the front.
@@ -551,6 +639,7 @@ class SegmentationViews(QWidget):
         if callable(namer):
             namer(picture_name_of(self._view))
         self.canvas.set_pixmap(pixmap)
+        self.display_legend.setVisible(bool(self.display_legend.text()))
         self._pages.setCurrentWidget(self.canvas)
 
     def show_message(self, text: str) -> None:
@@ -559,6 +648,7 @@ class SegmentationViews(QWidget):
         :param text: what to say, already translated.
         """
         self._drawn = None
+        self.display_legend.hide()
         self.message.setText(str(text))
         self._pages.setCurrentWidget(self.message)
 

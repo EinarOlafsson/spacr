@@ -133,17 +133,11 @@ def embed_profiles(frame: pd.DataFrame, features: Sequence[str], *,
         5 % or more missing values are dropped, other gaps take the column
         median, and constant columns are dropped.
     """
-    from sklearn.decomposition import PCA
+    from .ops_reference import _GeneEmbedding
 
-    x = frame[list(features)].to_numpy(float)
-    x = np.where(np.isfinite(x), x, np.nan)
-    keep = np.isnan(x).mean(axis=0) < 0.05
-    x = x[:, keep]
-    x = np.where(np.isnan(x), np.nanmedian(x, axis=0), x)
-    spread = x.std(axis=0)
-    x = (x[:, spread > 0] - x[:, spread > 0].mean(axis=0)) / spread[spread > 0]
-    pca = PCA(n_components=variance, random_state=seed).fit(x)
-    return pca.transform(x), int(pca.n_components_), int(keep.sum())
+    fitted = _GeneEmbedding(frame[list(features)].to_numpy(float), variance, seed,
+                            rows_from="transform")
+    return fitted.rows, int(fitted.pca.n_components_), int(fitted.keep.sum())
 
 
 def shuffle_columns(components: np.ndarray, seed: Any = 0) -> np.ndarray:
@@ -179,30 +173,44 @@ def phate_leiden(components: np.ndarray, resolutions: Iterable[float], *,
     Leiden optimises the RB configuration model on it with
     ``n_iterations=-1`` (until it stops improving).
     """
+    graph, weights = _phate_graph(components, metric, seed=seed, knn=knn, n_jobs=n_jobs)
+    graph.es["weight"] = weights.tolist()
+    resolutions = list(resolutions)
+    found = leiden_partitions(graph, resolutions, [seed])
+    return {resolution: found[(int(seed), resolution)] for resolution in resolutions}
+
+
+def _phate_graph(x: np.ndarray, knn_dist: str, *, seed: int, knn: int, n_jobs: int):
+    """The diffusion operator of PHATE on ``x``, made symmetric, as an unweighted igraph graph.
+
+    The one PHATE graph of :func:`phate_leiden`, :func:`gene_graph` and
+    :func:`fused_phate_graph`: ``(P + P.T) / 2`` of the PHATE ``diff_op``,
+    one undirected edge per nonzero upper-triangle entry.
+
+    :param x: the rows PHATE is fitted on (a precomputed distance matrix
+        when ``knn_dist`` is ``'precomputed_distance'``).
+    :param knn_dist: the PHATE ``knn_dist``.
+    :param seed: the PHATE seed.
+    :param knn: the PHATE neighbours.
+    :param n_jobs: the PHATE worker count.
+    :returns: ``(graph, weights)``: the graph without weights, and the edge
+        weights in edge order, for the caller to set.
+    :raises ImportError: when the ``clustering`` extra is not installed.
+    """
+    from scipy.sparse import coo_matrix
+
     phate = _optional("phate")
     igraph = _optional("igraph")
-    leidenalg = _optional("leidenalg")
-    model = phate.PHATE(random_state=seed, n_jobs=n_jobs, knn=knn, knn_dist=metric,
+    model = phate.PHATE(random_state=seed, n_jobs=n_jobs, knn=knn, knn_dist=knn_dist,
                         verbose=False)
-    model.fit(components)
+    model.fit(x)
     w = model.graph.diff_op
     w = (w + w.T) / 2
-    if hasattr(w, "tocoo"):
-        w = w.tocoo()
-    else:
-        from scipy.sparse import coo_matrix
-        w = coo_matrix(w)
+    w = w.tocoo() if hasattr(w, "tocoo") else coo_matrix(w)
     upper = w.row < w.col
-    graph = igraph.Graph(n=components.shape[0], edges=list(zip(w.row[upper], w.col[upper])),
+    graph = igraph.Graph(n=x.shape[0], edges=list(zip(w.row[upper], w.col[upper])),
                          directed=False)
-    graph.es["weight"] = w.data[upper].tolist()
-    out = {}
-    for resolution in resolutions:
-        partition = leidenalg.find_partition(
-            graph, leidenalg.RBConfigurationVertexPartition, weights="weight",
-            n_iterations=-1, seed=seed, resolution_parameter=float(resolution))
-        out[resolution] = np.array(partition.membership)
-    return out
+    return graph, w.data[upper]
 
 
 def _fisher_p(a: int, k: int, n: int, *, n_background: int) -> float:
@@ -1259,42 +1267,30 @@ SWEEP_METRICS: Tuple[str, ...] = (
 
 
 def gene_graph(rows: np.ndarray, kind: str = "phate", k: int = 12, seed: int = 42, *,
-               knn: int = 10, n_jobs: int = 2):
+               knn: int = 10, n_jobs: int = 2, metric: str = "cosine"):
     """The gene graph a Leiden sweep clusters.
 
     :param rows: one profile row per gene (controls included).
-    :param kind: ``'phate'``, PHATE's diffusion operator (``knn`` cosine
-        neighbours) made symmetric, ``(P + P.T) / 2``; or ``'knn'``, the
+    :param kind: ``'phate'``, the PHATE diffusion operator (``knn``
+        neighbours by ``metric``) made symmetric, ``(P + P.T) / 2``; or ``'knn'``, the
         union of every row's ``k`` nearest rows by cosine, each edge weighted
         by its cosine clipped at 1e-6.
     :param k: the neighbours of the ``'knn'`` graph.
     :param seed: PHATE's seed; the ``'knn'`` graph has none.
     :param knn: PHATE's neighbours.
     :param n_jobs: PHATE's worker count.
+    :param metric: the PHATE distance; the ``'knn'`` graph is always cosine.
     :returns: an undirected, weighted ``igraph.Graph``, one vertex per row.
     :raises ImportError: when the ``clustering`` extra is not installed.
     :raises ValueError: for an unknown ``kind``.
     """
     if kind not in ("phate", "knn"):
         raise ValueError(f"the gene graph must be 'phate' or 'knn'; got {kind!r}")
-    igraph = _optional("igraph")
+    _optional("igraph")
     rows = np.asarray(rows, float)
     if kind == "phate":
-        phate = _optional("phate")
-        model = phate.PHATE(random_state=seed, n_jobs=n_jobs, knn=knn, knn_dist="cosine",
-                            verbose=False)
-        model.fit(rows)
-        w = model.graph.diff_op
-        w = (w + w.T) / 2
-        if hasattr(w, "tocoo"):
-            w = w.tocoo()
-        else:
-            from scipy.sparse import coo_matrix
-            w = coo_matrix(w)
-        upper = w.row < w.col
-        graph = igraph.Graph(n=rows.shape[0], edges=list(zip(w.row[upper], w.col[upper])),
-                             directed=False)
-        graph.es["weight"] = w.data[upper].tolist()
+        graph, weights = _phate_graph(rows, metric, seed=seed, knn=knn, n_jobs=n_jobs)
+        graph.es["weight"] = weights.tolist()
         return graph
     unit = rows / np.clip(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12, None)
     return _knn_graph(unit @ unit.T, k)
@@ -1326,25 +1322,29 @@ def _knn_graph(similarity: np.ndarray, k: int):
     return graph
 
 
-def leiden_partitions(graph, resolutions: Iterable[float], seeds: Iterable[int]
-                      ) -> Dict[Tuple[int, float], np.ndarray]:
+def leiden_partitions(graph, resolutions: Iterable[float], seeds: Iterable[int], *,
+                      n_iterations: int = -1) -> Dict[Tuple[int, float], np.ndarray]:
     """Leiden partitions of one graph for every seed and resolution.
 
     :param graph: from :func:`gene_graph`.
     :param resolutions: Leiden resolution parameters.
     :param seeds: Leiden seeds.
+    :param n_iterations: the optimiser passes; -1 runs until the partition
+        stops improving.
     :returns: ``{(seed, resolution): labels}`` in seed-then-resolution order;
-        each partition optimises the RB configuration model with
-        ``n_iterations=-1`` (until it stops improving).
+        each partition optimises the RB configuration model on the
+        ``weight`` edge attribute.
     :raises ImportError: when the ``clustering`` extra is not installed.
     """
     leidenalg = _optional("leidenalg")
+    resolutions = list(resolutions)
     out: Dict[Tuple[int, float], np.ndarray] = {}
     for seed in seeds:
         for resolution in resolutions:
             partition = leidenalg.find_partition(
                 graph, leidenalg.RBConfigurationVertexPartition, weights="weight",
-                n_iterations=-1, seed=int(seed), resolution_parameter=float(resolution))
+                n_iterations=int(n_iterations), seed=int(seed),
+                resolution_parameter=float(resolution))
             out[(int(seed), resolution)] = np.array(partition.membership)
     return out
 
@@ -2289,10 +2289,8 @@ def leiden_short(graph, resolution: float, seed: int, passes: int) -> np.ndarray
     :returns: the labels, one per vertex.
     :raises ImportError: when the ``clustering`` extra is not installed.
     """
-    leidenalg = _optional("leidenalg")
-    return np.asarray(leidenalg.find_partition(
-        graph, leidenalg.RBConfigurationVertexPartition, weights="weight", n_iterations=int(passes),
-        seed=int(seed), resolution_parameter=float(resolution)).membership)
+    return leiden_partitions(graph, [resolution], [seed],
+                             n_iterations=passes)[(int(seed), resolution)]
 
 
 def _snf_unit(x: np.ndarray, single: bool) -> np.ndarray:
@@ -2465,21 +2463,9 @@ def fused_phate_graph(fused: np.ndarray, seed: int, *, knn: int = 10):
     :returns: an undirected weighted ``igraph.Graph``.
     :raises ImportError: when the ``clustering`` extra is not installed.
     """
-    from scipy.sparse import coo_matrix
-
-    phate = _optional("phate")
-    igraph = _optional("igraph")
     distance = fused.max() - fused
     np.fill_diagonal(distance, 0)
-    model = phate.PHATE(random_state=int(seed), n_jobs=1, knn=int(knn), knn_dist="precomputed_distance",
-                        verbose=False)
-    model.fit(distance)
-    w = model.graph.diff_op
-    w = (w + w.T) / 2
-    w = w.tocoo() if hasattr(w, "tocoo") else coo_matrix(w)
-    upper = w.row < w.col
-    return igraph.Graph(n=distance.shape[0], edges=np.stack([w.row[upper], w.col[upper]], 1).tolist(),
-                        directed=False), w.data[upper]
+    return _phate_graph(distance, "precomputed_distance", seed=int(seed), knn=int(knn), n_jobs=1)
 
 
 def _pairs_graph(boot: np.ndarray, phases: Sequence[np.ndarray], seed: int, knn: int, fast: bool):

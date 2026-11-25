@@ -1,0 +1,85 @@
+{
+  "images": null,
+  "table": {
+    "arrays": [
+      {
+        "data_base64": "WyJzbG93IiwgInNsb3ciLCAic2xvdyIsICJmYXN0IiwgImZhc3QiLCAiZmFzdCJd",
+        "dtype": "object",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "a626aaf5b58f38efa185a7ed88a03e2b2e5bc1388626446431d1dbb79b423488",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAAAAAAAAAAAAAAQAAAAAAAABBAAAAAAAAAAAAAAAAAAAAAQAAAAAAAABBA",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "462d602d1f53b6ccf684a47828741613255bdb7b673fab3f7cf8665a69542f99",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AAAAAAAA8D+amZmZmZnpPzMzMzMzM+M/AAAAAAAA8D8AAAAAAADgP5qZmZmZmck/",
+        "dtype": "float64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "8abec44a944ea89d3c0662b377b69c424eee8b2489ee2cde4a43bcaa31c85e4d",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "exSuR+F6pD8AAAAAAAD4f3sUrkfherQ/uB6F61G4nj+4HoXrUbiuP5qZmZmZmak/",
+        "dtype": "float64",
+        "missing": "01cf85cfeb36d628ca2e6f583fa2331be029b6b28e877e1008fb3f862306c086",
+        "missing_base64": "AAEAAAAA",
+        "sha256": "417a3d954c50bb0ab30adba2877fdfeec829ccb5c560c1580bb4b7d8302b72fc",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "AgAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAACAAAAAAAAAAIAAAAAAAAA",
+        "dtype": "int64",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "af9ecbe177721660da15f82901d733ec169d867cd5f1455cdac1533c6f8f85a8",
+        "shape": [
+          6
+        ]
+      },
+      {
+        "data_base64": "WyJoIiwgImgiLCAiaCIsICJoIiwgImgiLCAiaCJd",
+        "dtype": "object",
+        "missing": "b0f66adc83641586656866813fd9dd0b8ebb63796075661ba45d1aa8089e1d44",
+        "missing_base64": "AAAAAAAA",
+        "sha256": "bdd148e0daf21a06125e5bb9f72ece034b682ac07d3627992d28ef78a9852b4a",
+        "shape": [
+          6
+        ]
+      }
+    ],
+    "columns": [
+      "condition",
+      "time",
+      "relative_open_area",
+      "relative_open_area_sd",
+      "n_wells",
+      "time_unit"
+    ],
+    "csv": ",condition,time,relative_open_area,relative_open_area_sd,n_wells,time_unit\n0,slow,0.0,1.0,0.04,2,h\n1,slow,2.0,0.8,,2,h\n2,slow,4.0,0.6,0.08,2,h\n3,fast,0.0,1.0,0.03,2,h\n4,fast,2.0,0.5,0.06,2,h\n5,fast,4.0,0.2,0.05,2,h\n",
+    "dtypes": [
+      "object",
+      "float64",
+      "float64",
+      "float64",
+      "int64",
+      "object"
+    ],
+    "kind": "dataframe"
+  }
+}

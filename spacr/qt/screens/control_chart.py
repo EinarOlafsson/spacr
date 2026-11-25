@@ -197,6 +197,129 @@ _CONTROL_GUESSES = ("well_type", "condition", "control", "treatment",
 _MAX_TICKS = 30
 
 
+def _draw_control_chart(ax, result, *, unit=None, quantity=None, ink=None):
+    """Draw the original precomputed control values, bands, limits and violation positions.
+
+    Only presentation defaults change. The QC engine owns every estimate,
+    limit and rule decision; this renderer does not recompute them.
+    """
+    from ...figures.style import (DATA_ALPHA, GENERAL_DEFAULTS, Palette, SERIES,
+                                 TYPE_SCALE, WEIGHTS, resolve_ink, theme_target)
+
+    if ink is None:
+        ink = resolve_ink(theme_target())
+    x = np.arange(len(result))
+    centre = np.full(len(result), result.centre)
+    sigma = result.sigma_at
+
+    if not result.degenerate:
+        for k, colour in zip((3, 2, 1), (Palette.ACCENT_LIGHT, Palette.ACCENT, Palette.NAVY_DARK)):
+            ax.fill_between(x, centre - k * sigma, centre + k * sigma,
+                            color=colour, alpha=DATA_ALPHA,
+                            linewidth=0.0, zorder=0)
+        ax.plot(x, result.upper, color="#000000", linewidth=WEIGHTS["reference"],
+                linestyle="--", zorder=2, label=tr("Three-standard-deviation limits"))
+        ax.plot(x, result.lower, color="#000000", linewidth=WEIGHTS["reference"],
+                linestyle="--", zorder=2)
+    ax.plot(x, centre, color="#000000", linewidth=WEIGHTS["reference"], zorder=2,
+            label=tr("Baseline centre"))
+
+    if result.baseline.size and int(result.baseline.max()) < len(result) - 1:
+        ax.axvline(float(result.baseline.max()) + 0.5,
+                   color="#000000", linewidth=WEIGHTS["reference"],
+                   linestyle=":", zorder=2, label=tr("Baseline ends"))
+
+    ax.plot(x, result.values, color=Palette.CONTROL, linewidth=WEIGHTS["data"],
+            marker="o", markersize=GENERAL_DEFAULTS["marker_size"] ** .5, zorder=3,
+            markerfacecolor=Palette.CONTROL, label=tr("Control series (reference)"))
+
+    series = SERIES
+    marks: Dict[int, List[int]] = {}
+    for violation in result.violations:
+        marks.setdefault(violation.rule, []).extend(violation.points)
+    for offset, (rule, points) in enumerate(sorted(marks.items())):
+        index = np.unique(np.asarray(points, dtype=int))
+        ax.scatter(index, result.values[index],
+                   s=(GENERAL_DEFAULTS["marker_size"] ** .5 + (offset + 1) * WEIGHTS["spine"]) ** 2, facecolors="none",
+                   edgecolors=series[(rule - 1) % len(series)],
+                   linewidths=WEIGHTS["spine"], alpha=DATA_ALPHA, zorder=4,
+                   label=tr("rule {number} — {description}").format(number=rule, description=RULE_NAMES[rule]))
+
+    ax.set_xlim(-0.6, len(result) - 0.4)
+    step = max(1, int(np.ceil(len(result) / 6)))
+    ax.set_xticks(x[::step])
+    ax.set_xticklabels([result.plates[i] for i in x[::step]],
+                       rotation=90, ha="center", fontsize=TYPE_SCALE["tick"])
+    ax.set_ylabel(result.value_column, color=ink, fontsize=TYPE_SCALE["label"])
+    ax.set_xlabel(
+        tr("Plate run order") if result.order_column else tr("Plate run order — INFERRED"),
+        color=ink, fontsize=TYPE_SCALE["label"])
+    ax.grid(True, axis="y", color=GENERAL_DEFAULTS["grid_colour"], linewidth=WEIGHTS["spine"],
+            alpha=0.5)
+    ax.set_axisbelow(True)
+    if marks or not result.degenerate:
+        ax.legend(loc="best", fontsize=TYPE_SCALE["legend"], frameon=False,
+                  labelcolor=ink)
+    _present_control_chart(ax, result, unit=unit, quantity=quantity)
+
+
+def _present_control_chart(ax, result, *, unit=None, quantity=None):
+    """Bind explicit control-chart quantities and references to the shared presentation owner."""
+    import textwrap
+    from ...figures.style import (_legend_note, apply_axes_style, line_artist_defaults,
+                                 pack_axes_geometry, resolve_style, theme_target, TYPE_SCALE, Palette,
+                                 GENERAL_DEFAULTS, _pad_marker_limits)
+
+    ax.set_facecolor(GENERAL_DEFAULTS["background"])
+    ax.patch.set_alpha(1.)
+    label = str(quantity or result.value_column)
+    ax.set_ylabel(label + (" (" + str(unit) + ")" if unit else ""))
+    caption = tr("Each point is the supplied plate-level {quantity}, ordered by the recorded run order. Nested blue bands show one, two and three baseline standard deviations. Black reference lines show the baseline centre, outer limits and the end of the baseline; grey marks identify the control series.").format(quantity=label)
+    caption += " " + tr("The baseline contains {count} plates. The estimator is {estimator}. Coloured rings retain every rule applying to a plate; the key gives the rule numbers and definitions.").format(
+        count=len(result.baseline), estimator=ESTIMATOR_LABELS.get(result.estimator, result.estimator))
+    if result.order_inferred:
+        caption += " " + tr("Run order was inferred from plate identifiers.")
+    if result.degenerate:
+        caption += " " + tr("All control values are equal; no variable limits or rule violations were estimated.")
+    reference = tr("Control series (reference)")
+    specification = resolve_style(theme_target(), "continuous", comparison={"graph_type": "line", "reference": reference},
+        legend={"caption": caption, "reference": reference,
+                "quantities": {"x": tr("Plate run order"), "y": label}, "units": {"x": "plate index", "y": unit}})
+    for line in ax.lines[:-1]:
+        line.set_gid("spacr-reference")
+    ax.lines[-1].set_gid("spacr-control-series")
+    apply_axes_style(ax, specification, layout=False)
+    line_artist_defaults(ax)
+    old_key = ax.get_legend()
+    font = (old_key.get_texts()[0].get_fontproperties().copy() if old_key is not None
+            and old_key.get_texts() else ax.xaxis.label.get_fontproperties().copy())
+    font.set_size(max(TYPE_SCALE["legend"], font.get_size_in_points()))
+    handles, labels = ax.get_legend_handles_labels()
+    labels = [textwrap.fill(label, width=34) for label in labels]
+    key = ax.legend(handles, labels, prop=font, loc="center left", bbox_to_anchor=(1.05, .5), frameon=False)
+    if old_key is not None:
+        key.set_visible(old_key.get_visible())
+    _legend_note(ax, caption, "#000000", "caption")
+    _legend_note(ax, reference, Palette.CONTROL, "reference")
+    ax.figure._spacr_caption = caption
+    pack_axes_geometry([ax])
+    if _pad_marker_limits(ax):
+        pack_axes_geometry([ax])
+
+
+def _control_chart_recipe(result, *, unit=None, quantity=None):
+    """Snapshot the original precomputed control limits and rule positions without rerunning QC."""
+    fields = ("centre", "estimator", "value_column", "plate_column", "order_column",
+              "order_inferred", "degenerate")
+    record = {name: getattr(result, name) for name in fields}
+    record["plates"] = list(result.plates)
+    for name in ("baseline", "sigma_at", "lower", "upper"):
+        record[name] = np.asarray(getattr(result, name)).tolist()
+    record["violations"] = [{"rule": int(item.rule), "points": list(item.points)}
+                            for item in result.violations]
+    return {"schema": 1, "result": record, "unit": unit, "quantity": quantity}
+
+
 class ControlChartCanvas(QWidget):
     """The chart: zones, limits, points, and the violating plates marked.
 
@@ -225,6 +348,8 @@ class ControlChartCanvas(QWidget):
         self.setObjectName("ControlChartCanvas")
         self._result: Optional[ControlChartResult] = None
         self._message = "no chart yet"
+        self._unit = None
+        self._quantity = None
 
         from matplotlib.figure import Figure
         palette = active_palette()
@@ -242,109 +367,53 @@ class ControlChartCanvas(QWidget):
         return self._result
 
     def set_result(self, result: Optional[ControlChartResult], *,
-                   message: str = "") -> None:
+                   message: str = "", unit=None, quantity=None) -> None:
         """Draw ``result``; ``None`` draws ``message`` on an empty axis.
 
         :param result: the control chart to draw, or ``None`` for an empty
             axis.
         :param message: the text drawn on the empty axis; empty shows "no chart
             yet".
+        :param unit: explicit measurement unit, or None when unavailable.
+        :param quantity: expanded measurement name, or the result column name.
         """
+        self._unit = unit
+        self._quantity = quantity
         self._result = result
         self._message = message or "no chart yet"
         self.render_now()
 
     def render_now(self) -> None:
-        """Redraw from the held result. Idempotent."""
-        palette = active_palette()
+        """Redraw the held QC result through the shared chart or status presentation owner."""
+        from ...figures.style import _retain_live_axes_geometry, _status_panel
+
+        viewport = tuple(self.figure.get_size_inches())
         self.figure.clear()
+        self.figure._spacr_live_geometry = None
         self.figure.patch.set_alpha(0.0)
         ax = self.figure.add_subplot(111)
-        _page_surface_axes(ax, palette)
-        for side in ("top", "right"):
-            ax.spines[side].set_visible(False)
-        for side in ("left", "bottom"):
-            ax.spines[side].set_color(palette["border"])
-            ax.spines[side].set_linewidth(0.8)
-        ax.tick_params(colors=palette["fg_muted"], labelsize=8, length=3)
-
+        _page_surface_axes(ax, active_palette())
         result = self._result
         if result is None or not len(result):
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.text(0.5, 0.5, self._message, ha="center", va="center",
-                    color=palette["fg_muted"], fontsize=10, wrap=True,
-                    transform=ax.transAxes)
-            self.figure.tight_layout(pad=0.6)
+            _status_panel(ax, self._message)
             self.canvas.draw_idle()
             self.rendered.emit(None)
             return
+        _draw_control_chart(ax, result, unit=self._unit, quantity=self._quantity)
+        from ...figures.bundle import _register_figure_data
 
         x = np.arange(len(result))
-        centre = np.full(len(result), result.centre)
-        sigma = result.sigma_at
-
-        if not result.degenerate:
-            for k, alpha in ((3, 0.10), (2, 0.16), (1, 0.24)):
-                ax.fill_between(x, centre - k * sigma, centre + k * sigma,
-                                color=palette["accent"], alpha=alpha,
-                                linewidth=0.0, zorder=0)
-            ax.plot(x, result.upper, color=palette["error"], linewidth=1.2,
-                    linestyle="--", zorder=2, label="±3σ")
-            ax.plot(x, result.lower, color=palette["error"], linewidth=1.2,
-                    linestyle="--", zorder=2)
-        ax.plot(x, centre, color=palette["fg_dim"], linewidth=1.2, zorder=2,
-                label="centre")
-
-        if result.baseline.size and int(result.baseline.max()) < len(result) - 1:
-            ax.axvline(float(result.baseline.max()) + 0.5,
-                       color=palette["fg_muted"], linewidth=1.0,
-                       linestyle=":", zorder=2)
-            ax.text(float(result.baseline.max()) + 0.6, 0.98,
-                    "baseline ends", transform=ax.get_xaxis_transform(),
-                    va="top", fontsize=7, color=palette["fg_muted"])
-
-        ax.plot(x, result.values, color=palette["fg"], linewidth=1.0,
-                marker="o", markersize=3.4, zorder=3,
-                markerfacecolor=palette["surface"])
-
-        series = categorical_colours()
-        marks: Dict[int, List[int]] = {}
-        for violation in result.violations:
-            marks.setdefault(violation.rule, []).extend(violation.points)
-        for offset, (rule, points) in enumerate(sorted(marks.items())):
-            index = np.unique(np.asarray(points, dtype=int))
-            ax.scatter(index, result.values[index],
-                       s=90 + 34 * offset, facecolors="none",
-                       edgecolors=series[(rule - 1) % len(series)],
-                       linewidths=1.6, zorder=4,
-                       label=f"rule {rule} — {RULE_NAMES[rule]}")
-
-        ax.set_xlim(-0.6, len(result) - 0.4)
-        step = max(1, int(np.ceil(len(result) / _MAX_TICKS)))
-        ax.set_xticks(x[::step])
-        ax.set_xticklabels([result.plates[i] for i in x[::step]],
-                           rotation=45, ha="right", fontsize=7)
-        ax.set_ylabel(result.value_column, color=palette["fg_dim"], fontsize=9)
-        ax.set_xlabel(
-            (f"run order — {result.order_column}" if result.order_column
-             else f"run order — INFERRED from {result.plate_column}"),
-            color=palette["fg_dim"], fontsize=9)
-        ax.grid(True, axis="y", color=palette["border_soft"], linewidth=0.6,
-                alpha=0.5)
-        ax.set_axisbelow(True)
-        if marks or not result.degenerate:
-            ax.legend(loc="best", fontsize=7, frameon=False,
-                      labelcolor=palette["fg_dim"])
-        from ...figures.bundle import _register_figure_data
         _register_figure_data(
             self.figure, lambda: pd.DataFrame({
                 "run_order": x, "plate": [str(p) for p in result.plates],
-                str(result.value_column): np.asarray(result.values,
-                                                     dtype=float)}),
-            x="run_order", y=str(result.value_column), kind="line",
-            centre=float(result.centre))
-        self.figure.tight_layout(pad=0.6)
+                str(result.value_column): np.asarray(result.values, dtype=float)}),
+            x="run_order", y=str(result.value_column), kind="line", centre=float(result.centre),
+            control_chart_recipe=_control_chart_recipe(result, unit=self._unit, quantity=self._quantity))
+        required = tuple(self.figure.get_size_inches())
+        _retain_live_axes_geometry(self.figure, viewport)
+        logical_dpi = self.figure.dpi / self.canvas.device_pixel_ratio
+        self.canvas.setMinimumSize(int(np.ceil(required[0] * logical_dpi)),
+                                   int(np.ceil(required[1] * logical_dpi)))
         self.canvas.draw_idle()
         self.rendered.emit(result)
 
@@ -1535,9 +1604,14 @@ class ControlChartScreen(QWidget):
         return self._chemistry
 
     def _on_result(self, result: ControlChartResult) -> None:
-        """Show a worker-computed chart. GUI thread only."""
+        """Show a worker-computed chart with declared measurement context on the GUI thread."""
         self._result = result
-        self.canvas.set_result(result)
+        frame = getattr(self, "_frame", None)
+        units = dict(frame.attrs.get("units") or {}) if frame is not None else {}
+        quantities = dict(frame.attrs.get("quantities") or {}) if frame is not None else {}
+        unit = "dimensionless" if self._zprime.isChecked() else units.get(result.value_column)
+        quantity = tr("Z-prime assay separation") if self._zprime.isChecked() else quantities.get(result.value_column)
+        self.canvas.set_result(result, unit=unit, quantity=quantity)
         self.report.setPlainText(result.report())
         self._fill_violations(result)
 

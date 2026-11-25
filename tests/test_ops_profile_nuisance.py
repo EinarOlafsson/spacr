@@ -42,6 +42,12 @@ def _well_table(well, rng, gene_effect, n_per=80):
     x[:, 3] += gene_effect * (frame.gene.to_numpy() == "G1")
     for j, name in enumerate(NAMES_OUT):
         frame[name] = x[:, j]
+    # The rest of what the cell-cycle phase joins: the DNA-fit posteriors and the log2 DNA
+    # content, which cell_cycle requires (drawn last, so every value above is unchanged).
+    post_s = rng.random(n)
+    frame["dna_phase_posterior_S"] = post_s
+    frame["dna_phase_posterior_G2"] = rng.random(n) * (1 - post_s)
+    frame["dna_log2_fc"] = rng.normal(0.5, 0.3, n)
     return frame
 
 
@@ -163,6 +169,7 @@ def test_choices_are_checked_and_missing_columns_named(tmp_path):
     with pytest.raises(ValueError, match="ops_profile_nuisance_fit"):
         _profile(cells, ops_profile_nuisance=["size"], ops_profile_nuisance_fit="some")
     path = cells / "raw_A1.parquet"
-    pd.read_parquet(path).drop(columns=["p_S", "p_G2", "p_G1"]).to_parquet(path)
+    pd.read_parquet(path).drop(columns=["p_S", "p_G2", "p_G1", "dna_phase_posterior_S",
+                                        "dna_phase_posterior_G2", "dna_log2_fc"]).to_parquet(path)
     with pytest.raises(ValueError, match="cell-cycle"):
         _profile(cells, ops_profile_nuisance=["cell_cycle"])

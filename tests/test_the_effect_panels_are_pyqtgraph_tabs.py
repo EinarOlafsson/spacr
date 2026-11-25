@@ -130,11 +130,11 @@ def rows_of(plot):
 
 
 def intervals_of(plot):
-    """``{rank: (low, high)}`` for every interval bar actually drawn.
+    """Read actual vertical CI endpoints, excluding the horizontal whisker caps.
 
-    The bars are three ``PlotCurveItem``s with ``connect="pairs"`` -- one per
-    ink -- rather than one item per coefficient, so they are read back out of
-    the arrays rather than counted as artists.
+    The fixed fixture originally measured 1.96 times each standard error.
+    This reader follows the approved axis rotation while retaining the exact
+    row joins and the existing 1e-9 endpoint tolerance below.
     """
     import pyqtgraph as pg
 
@@ -144,8 +144,9 @@ def intervals_of(plot):
             continue
         x, y = item.getData()
         for start in range(0, len(x), 2):
-            found[int(round(float(y[start])))] = (float(x[start]),
-                                                  float(x[start + 1]))
+            if x[start] == x[start + 1]:
+                found[int(round(float(x[start])))] = (float(y[start]),
+                                                      float(y[start + 1]))
     return found
 
 
@@ -376,9 +377,7 @@ class TestTheIntervalIsDrawnAndIsTheRightWidth:
 
     def test_each_dot_carries_a_1_96_standard_error_interval(self, panel,
                                                               results):
-        """A bar chart of coefficients hides the uncertainty that decides
-        whether to believe any of them. Drawn is not enough -- drawn at the
-        right width is the claim."""
+        """The measured 60-row fixture uses 1.96-SE intervals; keep the existing 1e-9 endpoint margin after rotation."""
         bars = intervals_of(panel.effect_rank)
         rows = rows_of(panel.effect_rank)
         assert len(bars) == len(rows), (len(bars), len(rows))
@@ -592,8 +591,8 @@ class TestTheDistribution:
         figure = Figure()
         try:
             effect_distribution(figure.add_subplot(111), results)
-            saved = "\n".join(text.get_text()
-                              for text in figure.axes[0].texts)
+            saved = "\n".join(entry["label"]
+                              for entry in figure.axes[0]._spacr_legend_entries)
         finally:
             figure.clf()
         sigma = [line for line in saved.splitlines() if "σ (MAD)" in line]
