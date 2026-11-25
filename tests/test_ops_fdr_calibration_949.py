@@ -136,7 +136,9 @@ def test_the_needed_scale_judges_no_decoys_as_three():
 
 
 def test_settings_are_checked():
-    base = {"ops_library": "lib.csv"}
+    # No decoy library: what a direct call fell back to before one OPS default
+    # table (merge 1); OPS_DEFAULTS now gives ops_prefix_decoy_k 4.
+    base = {"ops_library": "lib.csv", "ops_prefix_decoy_k": 0}
     chosen = P.prefix_settings(base)
     assert chosen["ops_prefix_nearmiss_decoy_k"] == 0
     assert chosen["ops_prefix_fdr_calibration"] == "none"

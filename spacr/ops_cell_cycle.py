@@ -674,7 +674,7 @@ def predict_stages(bundle: Mapping[str, Any], cells: pd.DataFrame) -> pd.DataFra
     if missing:
         raise ValueError(tr("the cell tables lack the model's features {missing}",
                             missing=missing[:5]))
-    recorded = str(bundle["card"].get("normalisation") or NORMALISATION)
+    recorded = str((bundle.get("card") or {}).get("normalisation") or NORMALISATION)
     if not recorded.startswith("robust z per well"):
         raise ValueError(tr("the model was trained with the normalisation {found}; only the "
                             "robust z per well is applied", found=repr(recorded)))

@@ -2371,7 +2371,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "background_mask_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -4080,7 +4080,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "blue_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -4934,7 +4934,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -5208,7 +5208,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_cycle_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -5997,7 +5997,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cell_mask_dim",
-    "line": 2954,
+    "line": 2943,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -7529,7 +7529,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose3_add_nucleus_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -8780,7 +8780,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1609,
+    "line": 1613,
     "module": "spacr.crop_store",
     "nested": false,
     "qualname": "record_measure_field_crops"
@@ -12240,7 +12240,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "confluency_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -13633,7 +13633,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_mode",
-    "line": 3034,
+    "line": 3023,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -13996,7 +13996,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_source",
-    "line": 4121,
+    "line": 4110,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "resolve_crop_source"
@@ -14124,7 +14124,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "crop_zero_outside",
-    "line": 1610,
+    "line": 1614,
     "module": "spacr.crop_store",
     "nested": false,
     "qualname": "record_measure_field_crops"
@@ -16300,7 +16300,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dialate_png_ratios",
-    "line": 3055,
+    "line": 3044,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -16347,7 +16347,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dialate_pngs",
-    "line": 3049,
+    "line": 3038,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -17559,7 +17559,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 1265,
+    "line": 1538,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -17568,7 +17568,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 1278,
+    "line": 1551,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -19382,7 +19382,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "feature_importance",
-    "line": 11748,
+    "line": 11743,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -19391,7 +19391,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "feature_importance",
-    "line": 11756,
+    "line": 11751,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -22359,7 +22359,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "green_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -24954,7 +24954,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "illumination_nuclear_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -35693,7 +35693,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11749,
+    "line": 11744,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -35702,7 +35702,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11749,
+    "line": 11744,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -35711,7 +35711,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11772,
+    "line": 11767,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -35720,7 +35720,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11772,
+    "line": 11767,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -35729,7 +35729,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11795,
+    "line": 11790,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -35738,7 +35738,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11795,
+    "line": 11790,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -36898,7 +36898,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 3066,
+    "line": 3055,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -37431,7 +37431,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize_by",
-    "line": 3084,
+    "line": 3073,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -37700,7 +37700,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "nuclei_limit",
-    "line": 11667,
+    "line": 11662,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -37709,7 +37709,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "nuclei_limit",
-    "line": 11671,
+    "line": 11666,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -38367,7 +38367,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -38858,7 +38858,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "nucleus_mask_dim",
-    "line": 2954,
+    "line": 2943,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -40714,7 +40714,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_blas_threads",
-    "line": 1283,
+    "line": 1556,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -41036,7 +41036,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_cell_cycle_dna_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -41354,7 +41354,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_cell_cycle_mt_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -45787,7 +45787,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_flatfield_nuclear_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -48548,7 +48548,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_ph_cell_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -49458,7 +49458,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_ph_organelle_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -50001,7 +50001,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_ph_pathogen_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -51196,7 +51196,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_calibration_run",
-    "line": 1267,
+    "line": 1540,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -51272,7 +51272,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_effect_types",
-    "line": 1276,
+    "line": 1549,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -51330,7 +51330,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_grid",
-    "line": 1271,
+    "line": 1544,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -51350,7 +51350,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_mode",
-    "line": 1272,
+    "line": 1545,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -51455,7 +51455,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_scorers",
-    "line": 1277,
+    "line": 1550,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -51551,7 +51551,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_sim_seeds",
-    "line": 1275,
+    "line": 1548,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -51580,7 +51580,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_sim_workers",
-    "line": 1282,
+    "line": 1555,
     "module": "spacr.power_ops",
     "nested": false,
     "qualname": "run_ops_power_sim"
@@ -55905,7 +55905,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -56761,7 +56761,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelle_mask_dim",
-    "line": 2954,
+    "line": 2943,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -58418,7 +58418,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -58730,7 +58730,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelleb_mask_dim",
-    "line": 2954,
+    "line": 2943,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -59448,7 +59448,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -59760,7 +59760,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organellec_mask_dim",
-    "line": 2954,
+    "line": 2943,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -60478,7 +60478,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -60790,7 +60790,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "organelled_mask_dim",
-    "line": 2954,
+    "line": 2943,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -61659,7 +61659,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -62446,7 +62446,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_measure_cross_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -63189,7 +63189,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "overview_reference_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -64326,7 +64326,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -64833,7 +64833,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "pathogen_limit",
-    "line": 11667,
+    "line": 11662,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -64842,7 +64842,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "pathogen_limit",
-    "line": 11672,
+    "line": 11667,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -65071,7 +65071,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "pathogen_mask_dim",
-    "line": 2954,
+    "line": 2943,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "mask_dims_from_settings"
@@ -66671,7 +66671,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "permutation_importance",
-    "line": 11748,
+    "line": 11743,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -66680,7 +66680,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "permutation_importance",
-    "line": 11770,
+    "line": 11765,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -69072,7 +69072,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "png_size",
-    "line": 3039,
+    "line": 3028,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -71521,7 +71521,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "real_object_classifier",
-    "line": 744,
+    "line": 746,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -71541,7 +71541,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "real_object_threshold",
-    "line": 745,
+    "line": 747,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -71716,7 +71716,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "red_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -74821,7 +74821,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "save",
-    "line": 11636,
+    "line": 11631,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.create_extended_radar_plot"
@@ -74830,7 +74830,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 11765,
+    "line": 11760,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -74839,7 +74839,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 11767,
+    "line": 11762,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -74848,7 +74848,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 11782,
+    "line": 11777,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -74857,7 +74857,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 11784,
+    "line": 11779,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -74866,7 +74866,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 11809,
+    "line": 11804,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -75887,7 +75887,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "score_column",
-    "line": 11715,
+    "line": 11710,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -75896,7 +75896,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "score_column",
-    "line": 11740,
+    "line": 11735,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -75905,7 +75905,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "score_column",
-    "line": 11742,
+    "line": 11737,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -76100,7 +76100,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "scores",
-    "line": 11675,
+    "line": 11670,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -76109,7 +76109,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "scores",
-    "line": 11703,
+    "line": 11698,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -76118,7 +76118,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "scores",
-    "line": 11726,
+    "line": 11721,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -76894,7 +76894,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "shap",
-    "line": 11748,
+    "line": 11743,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -76903,7 +76903,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "shap",
-    "line": 11787,
+    "line": 11782,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -76941,7 +76941,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "shap_sample",
-    "line": 11798,
+    "line": 11793,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -78641,7 +78641,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1607,
+    "line": 1611,
     "module": "spacr.crop_store",
     "nested": false,
     "qualname": "record_measure_field_crops"
@@ -78650,7 +78650,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 4108,
+    "line": 4097,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "resolve_crop_source"
@@ -79856,7 +79856,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "src",
-    "line": 11636,
+    "line": 11631,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.create_extended_radar_plot"
@@ -79865,7 +79865,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "src",
-    "line": 11664,
+    "line": 11659,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -79874,7 +79874,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 11764,
+    "line": 11759,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -79883,7 +79883,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 11768,
+    "line": 11763,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -79892,7 +79892,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 11781,
+    "line": 11776,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -79901,7 +79901,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 11785,
+    "line": 11780,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -79910,7 +79910,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 11808,
+    "line": 11803,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -83165,7 +83165,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "tables",
-    "line": 11667,
+    "line": 11662,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -83174,7 +83174,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "tables",
-    "line": 11669,
+    "line": 11664,
     "module": "spacr.ml",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -87849,7 +87849,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 11758,
+    "line": 11753,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -87858,7 +87858,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 11762,
+    "line": 11757,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -87867,7 +87867,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 11765,
+    "line": 11760,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -87876,7 +87876,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 11775,
+    "line": 11770,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -87885,7 +87885,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 11779,
+    "line": 11774,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -87894,7 +87894,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 11782,
+    "line": 11777,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -87903,7 +87903,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 11792,
+    "line": 11787,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -87912,7 +87912,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 11809,
+    "line": 11804,
     "module": "spacr.ml",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -88139,7 +88139,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -89154,7 +89154,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "translocation_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -89363,7 +89363,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "translocation_control_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -91089,7 +91089,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 3080,
+    "line": 3069,
     "module": "spacr.crops",
     "nested": false,
     "qualname": "crop_spec_from_settings"
@@ -91681,7 +91681,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "vacuole_signal_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -93214,7 +93214,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_dead_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -93432,7 +93432,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "viability_live_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
@@ -94683,7 +94683,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "wound_channel",
-    "line": 749,
+    "line": 751,
     "module": "spacr.object_classifier",
     "nested": false,
     "qualname": "_drop_unreal_objects"
