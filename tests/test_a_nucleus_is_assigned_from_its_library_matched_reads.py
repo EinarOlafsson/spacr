@@ -39,6 +39,13 @@ READS = {
     2: ["CATG", "CATG", "CATC"],    # two clean, one wrong base
     3: ["AAGG", "AAGT"],            # one clean, one a base off
 }
+#: The genotype call settings before schema 966 (item 1023). The reads sit on
+#: each nucleus rim, 3 px outside its boundary, which only the old 10 px
+#: footprint attributes. This file tests the cell rule (mapped against agree,
+#: min_reads, mismatches), not the call thresholds, so it keeps the old three
+#: values; the item-1023 tests cover the new defaults.
+OLD_CALL_SETTINGS = {"ops_min_top_share": 0.0, "ops_footprint": 10.0,
+                     "ops_read_neighbour_reach": None}
 
 
 def _reads():
@@ -93,7 +100,8 @@ def well(tmp_path):
         "area": np.full(3, AREA)}))
     settings = {"genotype_source": str(tmp_path / "raw"), "dst_root": str(out),
                 "plate": "plate", "ops_gpu": False, "n_workers": 1,
-                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none"}
+                "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none",
+                **OLD_CALL_SETTINGS}
     return settings, db
 
 
