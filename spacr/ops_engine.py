@@ -4336,25 +4336,30 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     return report
 
 
-def _name_sites_in_fdr(decode: Dict[str, Any], sites: Sequence[int]) -> None:
+def _name_sites_in_reports(decode: Dict[str, Any], sites: Sequence[int]) -> None:
     """Record the ``ops_sites`` of a decode in its reports (item 951).
 
-    :param decode: the decode report; gains ``ops_sites``, and so does its
-        FDR report and the ``decode_fdr_<well>.json`` that holds it.
+    The FDR and the automatic thresholds are computed over the decoded
+    fields only, so both say which sites those were.
+
+    :param decode: the decode report; gains ``ops_sites``, and so do its
+        FDR report with ``decode_fdr_<well>.json`` and its thresholds report
+        with ``decode_thresholds_<well>.json``.
     :param sites: the listed sites, ascending.
     """
     decode["ops_sites"] = list(sites)
-    fdr = decode.get("fdr")
-    if not isinstance(fdr, dict):
-        return
-    fdr["ops_sites"] = list(sites)
-    path = (fdr.get("paths") or {}).get("fdr")
-    if path and os.path.isfile(path):
-        with open(path, encoding="utf-8") as handle:
-            written = json.load(handle)
-        written["ops_sites"] = list(sites)
-        with open(path, "w", encoding="utf-8") as handle:
-            json.dump(written, handle, indent=1)
+    for part, key in (("fdr", "fdr"), ("thresholds", "thresholds")):
+        section = decode.get(part)
+        if not isinstance(section, dict):
+            continue
+        section["ops_sites"] = list(sites)
+        path = (section.get("paths") or {}).get(key)
+        if path and os.path.isfile(path):
+            with open(path, encoding="utf-8") as handle:
+                written = json.load(handle)
+            written["ops_sites"] = list(sites)
+            with open(path, "w", encoding="utf-8") as handle:
+                json.dump(written, handle, indent=1)
 
 
 def _ph_transform_columns(frame, scale: float, degrees: float,
@@ -13542,7 +13547,7 @@ def run_ops(settings: Mapping[str, Any], *,
             report["decode"] = _decode(db, plate, well, cycle_files, reference,
                                        settings, gpu, barcodes)
             if "ops_sites" in report:
-                _name_sites_in_fdr(report["decode"], report["ops_sites"])
+                _name_sites_in_reports(report["decode"], report["ops_sites"])
         segment, measure = "ph_segment" in phases, "ph_measure" in phases
         secondary = _ph_secondary(settings)
         if (secondary and secondary["registration"] != "none"
