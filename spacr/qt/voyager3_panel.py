@@ -447,6 +447,10 @@ class _Voyager3Page(QWidget):
         self.plot = pg.PlotWidget(split) if HAVE_PYQTGRAPH else QLabel(
             tr("Install pyqtgraph to see the map."), split)
         if HAVE_PYQTGRAPH:
+            from ..figures.style import resolve_style
+
+            # A layout map: positions without data axes, so a schematic panel.
+            self._spacr_style_spec = resolve_style("screen", "schematic")
             self.plot.setObjectName("Voyager3Map")
             try:
                 from .theme import active_palette
@@ -634,8 +638,10 @@ class _Voyager3Page(QWidget):
         """Draw the map with the filters as they are now."""
         if self.provenance is None or not hasattr(self.plot, "getViewBox"):
             return
+        from ..figures.style import resolve_style
         from .widgets.fast_plots import pg
 
+        self._spacr_style_spec = resolve_style("screen", "schematic")
         keep = {k for k in ("high", "medium", "low", "none") if self.filters[k].isChecked()}
         self.map = _knowledge_map(self.provenance, genes=self.filters["genes"].isChecked(),
                                   terms=self.filters["terms"].isChecked(),
@@ -653,7 +659,7 @@ class _Voyager3Page(QWidget):
                   "brush": pg.mkBrush(n["colour"]), "pen": pg.mkPen(None)}
                  for n in self.map["nodes"]]
         self.scatter = pg.ScatterPlotItem(spots)
-        self.scatter.setOpacity(0.6)
+        self.scatter.setOpacity(self._spacr_style_spec.alpha)
         self.scatter.sigClicked.connect(self._on_clicked)
         self.plot.addItem(self.scatter)
         for node in self.map["nodes"]:

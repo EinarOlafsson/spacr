@@ -1193,6 +1193,7 @@ class _QtGraph(QWidget):
 
     def _line(self, spec: Mapping[str, Any], colours, pg) -> None:
         """Lines over a continuous x, with optional marked points on top."""
+        alpha = self._declare_style("line")
         named = any(name for name, *_r in spec.get("series", ())) or spec.get("points")
         if named:
             self.plot.addLegend(offset=(-4, 4), labelTextColor=colours["fg"])
@@ -1202,23 +1203,24 @@ class _QtGraph(QWidget):
                                   symbol="o" if spec.get("markers") else None,
                                   symbolSize=5, symbolBrush=pg.mkBrush(colour),
                                   symbolPen=None, name=str(name) if name else None)
-            item.setOpacity(_ALPHA)
+            item.setOpacity(alpha)
         for name, xs, ys, colour in spec.get("points") or ():
             item = pg.ScatterPlotItem(x=np.asarray(xs, float), y=np.asarray(ys, float),
                                       size=8, brush=pg.mkBrush(colour), pen=None,
                                       name=str(name) if name else None)
-            item.setOpacity(_ALPHA)
+            item.setOpacity(alpha)
             self.plot.addItem(item)
 
     def _stacked(self, spec: Mapping[str, Any], colours, pg) -> None:
         """Bars of several layers stacked on one another, the first at the bottom."""
+        alpha = self._declare_style("bar")
         x = np.asarray(spec["x"], float)
         bottom = np.zeros(len(x))
         for name, values, colour in spec["layers"]:
             values = np.asarray(values, float)
             bars = pg.BarGraphItem(x=x, y0=bottom, height=values, width=0.6,
                                    brush=pg.mkBrush(colour), pen=pg.mkPen(None))
-            bars.setOpacity(_ALPHA)
+            bars.setOpacity(alpha)
             self.plot.addItem(bars)
             self._key(str(name), colour)
             bottom = bottom + values
@@ -1249,6 +1251,7 @@ class _QtGraph(QWidget):
 
     def _heatmap(self, spec: Mapping[str, Any], colours, pg) -> None:
         """A matrix of values, diverging around 0, its rows and columns named."""
+        alpha = self._declare_style("heatmap")
         values = np.nan_to_num(np.asarray(spec["values"], float))
         limit = float(np.max(np.abs(values))) if values.size else 1.0
         limit = limit or 1.0
@@ -1257,7 +1260,7 @@ class _QtGraph(QWidget):
                                              (10, 119, 184)])
         image.setLookupTable(cmap.getLookupTable(nPts=256))
         image.setLevels([-limit, limit])
-        image.setOpacity(_ALPHA)
+        image.setOpacity(alpha)
         self.plot.addItem(image)
         self.plot.getViewBox().invertY(True)
         self.plot.getAxis("bottom").setTicks(
@@ -1273,6 +1276,7 @@ class _QtGraph(QWidget):
 
     def _groups(self, spec: Mapping[str, Any], colours, pg) -> None:
         """One slot per group: points below 3 members, a bar with points to 20, a box above."""
+        alpha = self._declare_style("bar_jitter")
         rng = np.random.default_rng(0)
         ticks = []
         for slot, (name, values, colour) in enumerate(spec.get("groups") or ()):
@@ -1283,13 +1287,13 @@ class _QtGraph(QWidget):
             if 3 <= len(values) <= 20:
                 bar = pg.BarGraphItem(x=[float(slot)], height=[float(np.mean(values))],
                                       width=0.6, brush=pg.mkBrush(colour), pen=pg.mkPen(None))
-                bar.setOpacity(_ALPHA)
+                bar.setOpacity(alpha)
                 self.plot.addItem(bar)
             if len(values) > 20:
                 low, q1, median, q3, high = np.percentile(values, [5, 25, 50, 75, 95])
                 box = pg.BarGraphItem(x=[float(slot)], y0=[float(q1)], height=[float(q3 - q1)],
                                       width=0.6, brush=pg.mkBrush(colour), pen=pg.mkPen(None))
-                box.setOpacity(_ALPHA)
+                box.setOpacity(alpha)
                 self.plot.addItem(box)
                 ink = pg.mkPen(colours["fg"], width=1)
                 self.plot.plot([slot, slot], [low, q1], pen=ink)
@@ -1300,9 +1304,19 @@ class _QtGraph(QWidget):
             spread = rng.uniform(-0.15, 0.15, len(values)) if len(values) > 1 else [0.0]
             dots = pg.ScatterPlotItem(x=slot + np.asarray(spread), y=values, size=8,
                                       brush=pg.mkBrush(colour), pen=None)
-            dots.setOpacity(_ALPHA)
+            dots.setOpacity(alpha)
             self.plot.addItem(dots)
         self.plot.getAxis("bottom").setTicks([ticks])
+
+    def _declare_style(self, kind: str) -> float:
+        """Register the shared presentation policy of this graph; return its mark opacity.
+
+        :param kind: the graph kind :func:`spacr.figures.style.resolve_style` takes.
+        """
+        from ...figures.style import resolve_style
+
+        self._spacr_style_spec = resolve_style("screen", kind)
+        return self._spacr_style_spec.alpha
 
     def _on_points_clicked(self, _item, points, *_event) -> None:
         """Report the first clicked point by its position in the spec."""
