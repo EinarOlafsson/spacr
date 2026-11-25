@@ -6285,6 +6285,8 @@ def _relation_columns(store: Store, name: str) -> List[tuple]:
     :raises StoreError: when there is no such table or view.
     """
     if not _legacy_is_sqlite(store):
+        if name.endswith("_labeled"):
+            store._labels()
         return [tuple(row) for row in store._table_columns(name).itertuples(
             index=False, name=None)]
     with _legacy_reading(store.legacy, store.busy_timeout) as conn:
