@@ -1358,7 +1358,8 @@ def _ph_masks(ctx: _Context, field_info: Mapping[str, Any], key: tuple,
     masks_key = json.dumps([key, shape, window] + [
         ctx.settings.get(name) for name in (
             "ops_ph_nucleus_model", "ops_ph_cell_model", "ops_ph_nucleus_diameter",
-            "ops_ph_cell_diameter", "ops_ph_downsample", "mask_eval_batch_size",
+            "ops_ph_cell_diameter", "ops_ph_downsample",
+            "ops_ph_nucleus_downsample", "mask_eval_batch_size",
             "ops_ph_tile_batch", "mask_inference_precision", "batch_size",
             "ops_ph_cell_channel", "ops_gpu")], default=str)
     held = ctx.cache.setdefault("_ph_masks", {})
