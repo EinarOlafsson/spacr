@@ -218,7 +218,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cross_field_min_overlap": 0.5,
     "ops_cross_field_policy": 'owner_only',
     "ops_cross_field_rule": 'nearest_centre',
-    "ops_cross_field_radius_px": 16.0,
+    "ops_cross_field_radius_px": 24.0,
     "ops_reference_counts": None,
     "ops_reference_counts_level": 'sbs',
     "ops_reference_shuffles": 1000,
@@ -3384,7 +3384,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "nucleus centroids of two whole copies of one cell once both are "
         "placed in the stitched well, for the 'centroid' metric. Copies "
         "are paired only when each is the nearest of the other, so the "
-        "radius can exceed the registration residual. Default 16.0. "
+        "radius can exceed the registration residual. Default 24.0. "
         "Alpha.",
     "ops_cross_field_rule":
         "(str) - Which copy owns the cell: 'nearest_centre', the copy from "

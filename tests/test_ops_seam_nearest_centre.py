@@ -3,7 +3,7 @@
 A cell in the overlap of two OPS phenotype fields is segmented in both. The
 maintainer rule (2026-11-24): the cell belongs to the field whose centre is
 nearest the cell centroid in stitched coordinates, among the fields that
-hold it whole; ties go to the lower field. :mod:`spacr.field_ownership` is
+hold it whole; ties go to the lower field. :mod:`spacr._field_ownership` is
 the one implementation; these tests plant overlaps, ties, edge-cut cells
 and a 3 x 3 neighbourhood and check that exactly the planted owners come
 back, from centroids only, with no label image read.
@@ -17,7 +17,7 @@ import pytest
 pytest.importorskip("scipy")
 pytest.importorskip("pyarrow")
 
-from spacr import field_ownership as FO
+from spacr import ops_merge as FO
 from spacr import ops_engine
 from spacr import settings as S
 from spacr.ops_merge import deduplicate_matches, field_footprint, overlapping_fields
@@ -161,8 +161,8 @@ def test_a_three_by_three_neighbourhood_gives_every_whole_cell_one_owner(jitter)
 
 
 def test_the_old_rule_survives_only_as_a_named_deprecated_option():
-    assert FO.FIELD_OWNER_RULES[0] == "nearest_centre"
-    assert FO.DEPRECATED_FIELD_OWNER_RULES == ("largest",)
+    assert FO._FIELD_OWNER_RULES[0] == "nearest_centre"
+    assert FO._DEPRECATED_FIELD_OWNER_RULES == ("largest",)
     with pytest.raises(ValueError, match="field owner rule"):
         FO._field_owner_rule("deepest")
     offsets = {1: (0, 0), 2: (0, 60)}
@@ -281,7 +281,7 @@ def test_a_well_without_a_mask_pass_keeps_its_rows(tmp_path):
     cells = pd.DataFrame({"well": "C3", "site": [0, 1], "label": [1, 1]})
     kept, report = ops_engine._ph_cross_field_filter(cells, str(tmp_path),
                                                      ["C3"], {})
-    assert len(kept) == 2 and report["wells_without_mask_pass"] == ["C3"]
+    assert len(kept) == 2 and report["wells_without_ownership"] == ["C3"]
 
 
 def test_ph_rebuild_names_the_phases_that_rebuild_tables_from_stored_masks():

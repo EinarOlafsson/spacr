@@ -9255,7 +9255,8 @@ ALPHA_FEATURES = {
     },
     874: {
         'settings': ('ops_cross_field_ownership', 'ops_cross_field_metric',
-                     'ops_cross_field_min_overlap', 'ops_cross_field_policy'),
+                     'ops_cross_field_min_overlap', 'ops_cross_field_policy',
+                     'ops_cross_field_rule', 'ops_cross_field_radius_px'),
     },
     875: {
         'settings': ('ops_reference_counts', 'ops_reference_counts_level',

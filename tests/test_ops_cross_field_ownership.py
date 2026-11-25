@@ -233,7 +233,7 @@ def test_one_per_cell_keeps_the_larger_copy_even_when_the_owner_was_not_linked(
         only_cut, str(tmp_path), ["A1"], {"ops_cross_field_policy":
                                           "owner_only"})
     assert dropped.empty and report["dropped_non_owner_copies"] == 1
-    (tmp_path / "ops_maskpass_B2.parquet").write_bytes(
-        (tmp_path / "ops_maskpass_A1.parquet").read_bytes())
-    with pytest.raises(ValueError, match="ph_ownership"):
-        ops_engine._ph_cross_field_filter(only_cut, str(tmp_path), ["B2"], {})
+    other = only_cut.assign(well="B2")
+    kept, report = ops_engine._ph_cross_field_filter(other, str(tmp_path),
+                                                     ["B2"], {})
+    assert len(kept) == 1 and report["wells_without_ownership"] == ["B2"]
