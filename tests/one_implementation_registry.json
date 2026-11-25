@@ -226,6 +226,14 @@
       "owners": ["spacr/ops_flatfield.py"],
       "owner_function": "spacr.ops_flatfield (item 1009)",
       "delegated_to": "item 1009 (no AST signature: the estimators use generic numpy)"
+    },
+    "field_seam_ownership": {
+      "description": "Which overlapping field owns a cell imaged in two or more fields (seam ownership): the copies matched across fields and one owner per physical cell, the field whose centre is nearest the cell centroid among the fields that hold it whole.",
+      "owners": ["spacr/field_ownership.py"],
+      "owner_function": "spacr.field_ownership.match_copies_by_centroid / assign_field_owners",
+      "covered_by": "OPS ph_ownership (ops_cross_field_ownership, the item 874 rule corrected), the merge pairing (owner copy first), aggregate, ph_tables and the crops: ws-offload-ws-ops-seam-ownership",
+      "no_signature": "nearest-centre and edge tests are generic numpy, so no AST signature; callers call the owner functions",
+      "remaining": "ops_ownership 'a1'/'a1b' in ops_engine._ph_merge (deprecated, deepest in the footprint) and the large-site tile stitch in ops_large_sites (deepest from an inner tile edge, painted into one label image)"
     }
   }
 }

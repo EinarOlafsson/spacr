@@ -2654,7 +2654,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 962
+SETTINGS_SCHEMA_VERSION = 963
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2696,6 +2696,10 @@ DEFAULT_CHANGES = {
           'ops_feature_screen_ridge': 0.0},
     961: {'size_filter_inclusive': False},
     962: {'ops_well_statistics': 'legacy'},
+    963: {'ops_cross_field_ownership': False,
+          'ops_cross_field_metric': 'overlap_fraction',
+          'ops_cross_field_policy': 'one_per_cell',
+          'ops_cross_field_rule': 'largest'},
 }
 
 
