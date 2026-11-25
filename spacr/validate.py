@@ -499,6 +499,79 @@ def _candidate_patterns(settings: Dict[str, Any]) -> List[Tuple[str, str]]:
     return out
 
 
+def _raw_image_names(src: str) -> Tuple[str, List[str]]:
+    """The raw image files of a plate, from the first folder that has any.
+
+    The mask pipeline reads raw files from ``src``, then ``src/orig``, then
+    ``src/consolidated``; the first of them that holds images is used.
+
+    :param src: the plate folder.
+    :returns: ``(folder, names)``; ``("", [])`` when none holds an image.
+    """
+    for directory in (src, os.path.join(src, "orig"),
+                      os.path.join(src, "consolidated")):
+        found = [f for f in _listdir(directory) if f.lower().endswith(IMAGE_EXTENSIONS)]
+        if found:
+            return directory, found
+    return "", []
+
+
+@dataclass
+class _RawParse:
+    """What one file-name pattern reads from a list of raw image names.
+
+    :param hits: how many names matched and carried a channel.
+    :param channels: the distinct channel ids, sorted.
+    :param planes: the distinct z-plane ids, sorted; empty when the pattern
+        has no plane group.
+    :param fields: the number of distinct (plate, well, field, time) groups.
+    :param matched: the names that matched, in the order given.
+    """
+
+    hits: int = 0
+    channels: Tuple[str, ...] = ()
+    planes: Tuple[str, ...] = ()
+    fields: int = 0
+    matched: Tuple[str, ...] = ()
+
+
+def _parse_raw_names(names: Sequence[str], pattern: str) -> Optional[_RawParse]:
+    """Read channel, plane and field ids from raw names with one pattern.
+
+    :param names: raw image file names.
+    :param pattern: a metadata regex with at least a ``chanID`` group.
+    :returns: the parse, or None when ``pattern`` does not compile.
+    """
+    try:
+        rx = re.compile(pattern)
+    except re.error:
+        return None
+    channels = set()
+    planes = set()
+    fields = set()
+    matched: List[str] = []
+    for name in names:
+        match = rx.match(name)
+        if not match:
+            continue
+        groups = match.groupdict()
+        if "chanID" not in groups or groups["chanID"] is None:
+            continue
+        matched.append(name)
+        channels.add(str(groups["chanID"]))
+        if groups.get("sliceID") is not None:
+            planes.add(str(groups["sliceID"]))
+        fields.add((
+            str(groups.get("plateID") or ""),
+            str(groups.get("wellID") or ""),
+            str(groups.get("fieldID") or ""),
+            str(groups.get("timeID") or ""),
+        ))
+    return _RawParse(hits=len(matched), channels=tuple(sorted(channels)),
+                     planes=tuple(sorted(planes)), fields=len(fields),
+                     matched=tuple(matched))
+
+
 def _scan_raw_images(src: str, settings: Dict[str, Any], inv: _Inventory) -> None:
     """Fill ``inv`` with the channel/field counts implied by raw image filenames.
 
@@ -508,57 +581,28 @@ def _scan_raw_images(src: str, settings: Dict[str, Any], inv: _Inventory) -> Non
     plane per distinct chanID in sorted order, so the number of distinct
     chanIDs *is* the number of valid zero-based channel indices.
     """
-    search_dirs = [src, os.path.join(src, "orig"), os.path.join(src, "consolidated")]
-    names: List[str] = []
-    for directory in search_dirs:
-        found = [f for f in _listdir(directory) if f.lower().endswith(IMAGE_EXTENSIONS)]
-        if found:
-            names = found
-            inv.raw_dir = directory
-            break
+    directory, names = _raw_image_names(src)
+    inv.raw_dir = directory
     inv.raw_files = len(names)
     if not names:
         return
 
     best_label = ""
-    best_channels: List[str] = []
-    best_fields = 0
-    best_hits = 0
+    best: Optional[_RawParse] = None
     for label, pattern in _candidate_patterns(settings):
-        try:
-            rx = re.compile(pattern)
-        except re.error:
+        parsed = _parse_raw_names(names, pattern)
+        if parsed is None:
             continue
-        channels = set()
-        fields = set()
-        hits = 0
-        for name in names:
-            match = rx.match(name)
-            if not match:
-                continue
-            groups = match.groupdict()
-            if "chanID" not in groups or groups["chanID"] is None:
-                continue
-            hits += 1
-            channels.add(str(groups["chanID"]))
-            fields.add((
-                str(groups.get("plateID") or ""),
-                str(groups.get("wellID") or ""),
-                str(groups.get("fieldID") or ""),
-                str(groups.get("timeID") or ""),
-            ))
-        if hits > best_hits:
-            best_hits, best_label = hits, label
-            best_channels = sorted(channels)
-            best_fields = len(fields)
+        if parsed.hits > (best.hits if best is not None else 0):
+            best, best_label = parsed, label
 
-    if best_hits:
-        inv.raw_channels = len(best_channels)
-        inv.raw_channel_ids = tuple(best_channels)
-        inv.fields = best_fields or None
+    if best is not None:
+        inv.raw_channels = len(best.channels)
+        inv.raw_channel_ids = best.channels
+        inv.fields = best.fields or None
         inv.regex_used = best_label
         inv.raw_evidence = (
-            f"{best_hits} raw image files parsed with the '{best_label}' filename pattern"
+            f"{best.hits} raw image files parsed with the '{best_label}' filename pattern"
         )
 
 

@@ -1,0 +1,86 @@
+BATCH RUNNER: TEMPLATE RUNS (0ai templaterun)
+=============================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-24 on branch ws-offload-ws-templaterun (WS Claude agent for "spacr work"). Tutorial page deferred: tutorials are on hold. spacr/batch.py, spacr/qt/screens/batch.py, spacr/qt/dnd_handlers.py, spacr/qt/screens/app_screen.py, spacr/validate.py, tests/qt/test_batch_template_runs_0ai.py.
+Requested: maintainer design, codex_inbox WORK_TASKS.md "### 0ai templaterun" (2026-11-23), quoted below.
+Owner: lane ws-offload-ws-templaterun.
+Related: Batch Runner (spacr.batch), Plate Queue, spacr.chaining port bindings, 0aj (fov.ome.zarr, originals in orig/).
+
+REQUEST (quoted)
+"The Batch Runner gets an "Import template run" button AND a drop section.
+The user presses it or drops a finished run folder (for example a plate
+folder whose settings/ holds gen_mask_settings.json and the measure
+settings). spaCR reads every module settings snapshot the run recorded.
+A second "Jobs" button and section: press it to pick a new src folder, or
+drop one or more folders. Each new folder is CHECKED FOR COMPATIBILITY with
+the template before it becomes a job: the file-name regex or metadata parse
+matches, the same channels and planes, the same image dimensions and dtype,
+plus whatever else the template settings assume. Report a mismatch in plain
+words and don't add that job.
+If the template has Mask and Measure, a new folder makes TWO jobs, one Mask
+and one Measure, with Measure chained to that job's Mask output
+(spacr.chaining).
+Every job can be edited. Clicking a job (for example the Mask job of the new
+plate) opens that module screen loaded with the job's settings: the template
+settings with only src and the output paths changed. Every change is saved
+to the job automatically, as it is made. No save button.
+Any number of jobs is set up this way. Then the queue runs as today.
+Reuse the existing pieces: BatchDropHandler and plate_queue
+(spacr/qt/dnd_handlers.py ~3070, settings snapshots), load_settings, and the
+chaining port bindings. Don't build a second settings loader."
+
+BUILD
+- spacr/batch.py (light, private helpers, not public API):
+  _read_template_run reads every
+  settings snapshot of a run folder (settings/ then the folder; JSON wins
+  over a CSV of the same name) with spacr.cli.load_settings_file, the loader
+  the queue resolves job settings with; run bookkeeping keys starting with
+  "_" are dropped; modules are put in run order from spacr.ports (producer
+  before consumer).
+- _snapshot_files and _module_for_snapshot are the one implementation of
+  "which files are snapshots, which module is each"; the Plate Queue and
+  Batch drop handlers (_settings_files, _module_from_settings) now call them.
+- _template_job_settings: the template settings with the source key
+  (spacr.chaining.source_key) set to the new folder and every path inside
+  the template run moved to the same place in the new folder. Nothing else
+  changes.
+- _chained_input: a later module that reads what an earlier template module
+  writes gets its input through spacr.chaining.binding_for (ROOT or PATH
+  form) and depends_on that job, so Measure runs after the Mask job of the
+  same folder.
+- _check_template_folder: plain-sentence mismatches, no job added: no images; file
+  names that do not parse with the template pattern (custom_regex or
+  metadata_type); channels; z planes; image size; pixel type (TIFF/NPY
+  header, no pixels read); then every ERROR of validate_settings on the
+  resolved job settings ("whatever else the template settings assume").
+  The raw-name parse is the shared spacr.validate._raw_image_names /
+  _parse_raw_names, which _scan_raw_images now uses too.
+- _add_template_jobs: one Job per template module, settings in its own JSON
+  file under <spacr home>/batch/template_jobs/, added through Queue.add (the
+  same validation as the Add job button); a folder whose jobs cannot all be
+  added leaves the queue and the disk as they were.
+- Batch Runner: a "Template run" section (Import template run... button,
+  drop zone) and a "Jobs" section (Jobs... button, drop zone for one or more
+  folders, list of template jobs). Mismatches go to the Validation problems
+  pane, never a dialog. The drop zones are private subclasses of
+  BatchDropHandler.
+- Clicking a job opens its module screen (MainWindow.open_module) with the
+  job settings applied (apply_settings_dict) and a strip under the heading:
+  "Editing the Batch Runner job ... Every change is saved to the job." with
+  "Back to the Batch Runner" and "Stop editing the job". Every committed
+  edit reaches AppScreen._observe_settings_commit, which hands it to the job
+  editor; the key is written to the job settings file at once.
+
+TESTS
+tests/qt/test_batch_template_runs_0ai.py: template import (mask only, mask
+and measure), job creation for 1 and 3 folders, the compatibility refusal
+(channels, size, file-name pattern; pixel type and z planes), the drop
+sections, the editor round trip on the real main window (edit on the Mask
+screen, the job settings file changes on disk; after "Stop editing" it does
+not), and the run order Mask then Measure.
+
+RENDERS
+/media/carruthers/mnt2/spacr/0ai_scratch/screens/ (WS): the real main
+window, light and dark, before (nightly) and after: the empty Batch Runner,
+the Batch Runner with a template and jobs, and the Mask screen editing a job.
