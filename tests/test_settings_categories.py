@@ -660,6 +660,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_decode_pixel_fallback",
     # The pixel fallback gated by the read vote (schema 964).
     "ops_pixel_read_gate",
+    # The top-guide share a call needs and the neighbour reach (schema 966).
+    "ops_min_top_share",
+    "ops_read_neighbour_reach",
     "ops_pixel_percentile",
     "ops_pixel_radius",
     "ops_pixel_min_pixels",

@@ -54,8 +54,18 @@ def _calls(evidence, rule):
 
 
 def _rule(discount):
-    return ops_decode.decode_rule({"ops_decoy_library_k": 4,
+    return ops_decode.decode_rule({"ops_decoy_library_k": 4, "ops_min_top_share": 0.0,
                                    "ops_read_neighbour_discount": discount})
+
+
+def _without_nan(calls):
+    """The calls with NaN read as None, so two decodes compare by value.
+
+    A pixel-fallback call has no read quality (NaN), and NaN never equals
+    another NaN.
+    """
+    return {owner: {key: (None if isinstance(value, float) and value != value else value)
+                    for key, value in hit.items()} for owner, hit in calls.items()}
 
 
 def _engine_rule(discount):
@@ -203,6 +213,6 @@ def test_an_engine_cache_replays_its_fields_with_the_discount(synthetic_runs):
         if auto:
             assert again["counts"].tobytes() == out[key]["counts"].tobytes()
         else:
-            assert again["calls"] == out[key]["calls"]
+            assert _without_nan(again["calls"]) == _without_nan(out[key]["calls"])
         replayed += 1
     assert replayed

@@ -2339,6 +2339,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     paper_item_arrivals = _current_phtables_api(paper_item_arrivals)
     from tests.l5_api_hooks import _current_l5_api
     paper_item_arrivals = _current_l5_api(paper_item_arrivals)
+    from tests.genotype_1023_api_hooks import _current_1023_api
+    paper_item_arrivals = _current_1023_api(paper_item_arrivals)
     assert len(paper_item_arrivals) == 170
     assert {key: docs[key] for key in paper_item_arrivals} == paper_item_arrivals
     assert not paper_item_arrivals.keys() & (
@@ -2600,6 +2602,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **_current_l4_api(zoo_arrivals)}
     from tests.merge_1017_api_hooks import _current_1017_api
     zoo_arrivals = {**zoo_arrivals, **_current_1017_api(zoo_arrivals)}
+    from tests.genotype_1023_api_hooks import _current_1023_arrivals
+    zoo_arrivals = {**zoo_arrivals, **_current_1023_arrivals(zoo_arrivals)}
     from tests.l5_api_hooks import _current_l5_arrivals
     zoo_arrivals = {**zoo_arrivals, **_current_l5_arrivals(zoo_arrivals)}
     sweep_arrivals = json.loads((Path(__file__).resolve().parent

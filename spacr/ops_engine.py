@@ -156,10 +156,9 @@ _WINDOW_OVERLAP = 96
 #: reference run's own ``THRESHOLD_READS`` for this plate.
 _THRESHOLD_READS = 315.0
 
-#: How far beyond a nucleus a read may lie and still be its read, and how
-#: close two boundaries may be before a read is given to neither (PART 14-L:
-#: nucleus + 10 px holds 98 % of spots, + 3 px holds 67 %).
-_FOOTPRINT = 10.0
+#: How far beyond a nucleus a read may lie and still be its read
+#: (``ops_footprint``), the value a call without that setting falls back to.
+_FOOTPRINT = float(ops_defaults({})["ops_footprint"])
 _TIE = 1.0
 
 #: PART 9 hole 2's gate: a well whose detected spots land inside the
@@ -3366,10 +3365,12 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     rule = task["rule_a"]
     weighting = rule.get("read_weight")
     if weighting and weighting["neighbour_discount"] != 1.0:
+        from .ops_decode import _neighbour_reach
         from .ops_sbs import _disc_neighbours
 
         rule = {**rule, "neighbours": _disc_neighbours(
-            task["ids"], task["centroids"], task["areas"], float(rule["footprint"]))}
+            task["ids"], task["centroids"], task["areas"],
+            _neighbour_reach(rule, rule["footprint"]))}
     score = estimate_read_locations(filtered)
     if spotnet is not None:
         peaks = np.asarray(spotnet).reshape(-1, 2)
@@ -3742,6 +3743,7 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
     import pandas as pd
 
     from .ops_decode import barcode_rows, write_well_calls, write_well_reports
+    from .qt.i18n import tr
 
     columns = ["plate", "well", "object_id", "barcode", "quality", "n_reads",
                "n_agreeing", "fraction", "n_cycles", "mapped_guide"]
@@ -3796,6 +3798,12 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
          f"({fdr['pct']} % of {fdr['nuclei']} nuclei), FDR "
          f"{fdr['fdr_per_100']} per 100, {len(decoded)} fields, "
          f"{report['total_seconds']} s")
+    split = fdr["split_read_concordance"]["min_reads_1"]
+    if split["pct"] is not None:
+        _say(tr("{well} decode: split-read concordance {pct} % of {nuclei} nuclei "
+                "read again in an overlapping tile (95 % CI {low} to {high})",
+                well=well, pct=f"{split['pct']:.2f}", nuclei=split["nuclei"],
+                low=f"{split['ci95'][0]:.2f}", high=f"{split['ci95'][1]:.2f}"))
     return report
 
 
