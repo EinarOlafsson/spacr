@@ -466,7 +466,7 @@ def case_settings_that_name_no_input_at_all_are_refused_before_any_read():
     about legacy lists and the refusal is the only output.
     """
     _seen = []
-    with pytest.raises(ValueError, match='at least one score CSV') as _exc1:
+    with pytest.raises(ValueError, match='at least one score table') as _exc1:
         ml.normalize_regression_input_pairs({'score_data': [],
                                              'count_data': []})
     _seen.append(('ValueError' if isinstance(_exc1.value, ValueError) else type(_exc1.value).__name__))
@@ -734,11 +734,12 @@ def case_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key():
 
 def case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
         ):
-    """An empty table has no fractional sum, so nothing is refused.
+    """An empty table is refused as empty, never as fractional counts.
 
     Every object can be dropped upstream -- a filter, a control block, an
     outlier pass -- and the count-model guard reads the per-well sums; over no
-    wells it has nothing to judge and must not speak.
+    wells it has nothing to judge and must not speak. The refusal names the
+    empty score source instead, before any aggregation.
     """
     _seen = []
     empty = pd.DataFrame({
@@ -747,11 +748,12 @@ def case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
         'columnID': pd.Series([], dtype=str), 'pred': pd.Series([], dtype=float),
     })
 
-    scored, name = ml.process_scores(empty, 'pred', None, min_cells_per_well=0,
-                                     agg_type='mean', regression_type='poisson')
-    _seen.append(keep(len(scored)))
-    _seen.append(keep(list(scored.columns)))
-    _seen.append(keep(name))
+    with pytest.raises(ValueError) as _empty:
+        ml.process_scores(empty, 'pred', None, min_cells_per_well=0,
+                          agg_type='mean', regression_type='poisson')
+    message = str(_empty.value)
+    _seen.append(keep('0 input score rows' in message))
+    _seen.append(keep('models the well' in message))
 
     # the same call over real scores does refuse them, which is what makes the
     # silence above the emptiness rather than a guard that never fires
@@ -1747,7 +1749,7 @@ from tests.observed_case import keep, observe  # noqa: E402
     pytest.param(case_a_calibration_whose_module_is_missing_keeps_the_threshold_given, [True, 'calibration is unavailable', True], id="a_calibration_whose_module_is_missing_keeps_the_threshold_given"),
     pytest.param(case_auto_counts_no_block_terms_when_the_table_has_no_plate_column, ['regression', '0 block terms', '1 block terms'], id="auto_counts_no_block_terms_when_the_table_has_no_plate_column"),
     pytest.param(case_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key, ['pred', ['plate1_r1_c1', 'plate1_r1_c2', 'plate1_r2_c1', 'plate1_r2_c2']], id="a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key"),
-    pytest.param(case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong, [0, ['prc', 'pred', 'cell_count'], 'pred', 'ValueError'], id="a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong"),
+    pytest.param(case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong, [True, False, 'ValueError'], id="a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong"),
     pytest.param(case_a_plot_that_exported_nothing_is_not_announced_to_the_gallery, [True, True, [], True, True], id="a_plot_that_exported_nothing_is_not_announced_to_the_gallery"),
     pytest.param(case_a_column_that_is_already_categorical_is_left_as_it_is, [['g1', 'g2', 'g3'], True], id="a_column_that_is_already_categorical_is_left_as_it_is"),
     pytest.param(case_settings_that_name_no_input_at_all_are_refused_before_any_read, ['ValueError'], id="settings_that_name_no_input_at_all_are_refused_before_any_read"),
