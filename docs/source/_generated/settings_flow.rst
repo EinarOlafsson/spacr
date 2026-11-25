@@ -32342,13 +32342,23 @@ The guide design table, with sgRNA and gene_symbol columns. The aggregate phase 
 |         :py:func:`~spacr.ops_cell_cycle.run_cell_cycle_phase`
 |             ``_attach_genes`` **-- reads it**
 |         ``_ph_aggregate`` **-- reads it**
+|             ``_ph_called_guides`` **-- reads it**
 |         ``_ph_crops`` **-- reads it**
+|         ``_ph_tables``
+|             ``_ph_link_genotypes`` **-- reads it**
+|                 ``_ph_called_guides`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.ops_cell_cycle.run_cell_cycle_phase`
 |             ``_attach_genes`` **-- reads it**
 |         ``_ph_aggregate`` **-- reads it**
+|             ``_ph_called_guides`` **-- reads it**
 |         ``_ph_crops`` **-- reads it**
+|         ``_ph_tables``
+|             ``_ph_link_genotypes`` **-- reads it**
+|                 ``_ph_called_guides`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 | ``_test_settings`` **-- reads it**
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
@@ -32356,9 +32366,14 @@ The guide design table, with sgRNA and gene_symbol columns. The aggregate phase 
 |         :py:func:`~spacr.ops_cell_cycle.run_cell_cycle_phase`
 |             ``_attach_genes`` **-- reads it**
 |         ``_ph_aggregate`` **-- reads it**
+|             ``_ph_called_guides`` **-- reads it**
 |         ``_ph_crops`` **-- reads it**
+|         ``_ph_tables``
+|             ``_ph_link_genotypes`` **-- reads it**
+|                 ``_ph_called_guides`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_attach_genes``, ``_ph_aggregate``, ``_ph_crops``, ``_test_settings``, ``ops_defaults``.
+Read by ``_attach_genes``, ``_ph_aggregate``, ``_ph_called_guides``, ``_ph_crops``, ``_ph_link_genotypes``, ``_test_settings``, ``ops_defaults``.
 
 .. _setting-flow-ops_deterministic_blas:
 
@@ -34413,11 +34428,14 @@ A table of guide calls that replaces the decode phase's calls, such as the calls
 |             ``_ph_genotype_rule`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_ph_aggregate`` **-- reads it**
+|             ``_ph_called_guides`` **-- reads it**
 |         ``_ph_crops`` **-- reads it**
 |             ``_ph_genotype_rule`` **-- reads it**
 |         ``_ph_report`` **-- reads it**
 |         ``_ph_tables``
 |             ``_ph_genotype_rule`` **-- reads it**
+|             ``_ph_link_genotypes``
+|                 ``_ph_called_guides`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -34425,11 +34443,14 @@ A table of guide calls that replaces the decode phase's calls, such as the calls
 |             ``_ph_genotype_rule`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_ph_aggregate`` **-- reads it**
+|             ``_ph_called_guides`` **-- reads it**
 |         ``_ph_crops`` **-- reads it**
 |             ``_ph_genotype_rule`` **-- reads it**
 |         ``_ph_report`` **-- reads it**
 |         ``_ph_tables``
 |             ``_ph_genotype_rule`` **-- reads it**
+|             ``_ph_link_genotypes``
+|                 ``_ph_called_guides`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 | ``_run_voyager3_phase``
@@ -34438,14 +34459,17 @@ A table of guide calls that replaces the decode phase's calls, such as the calls
 |             ``_ph_genotype_rule`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``_ph_aggregate`` **-- reads it**
+|             ``_ph_called_guides`` **-- reads it**
 |         ``_ph_crops`` **-- reads it**
 |             ``_ph_genotype_rule`` **-- reads it**
 |         ``_ph_report`` **-- reads it**
 |         ``_ph_tables``
 |             ``_ph_genotype_rule`` **-- reads it**
+|             ``_ph_link_genotypes``
+|                 ``_ph_called_guides`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 
-Read by ``_ph_aggregate``, ``_ph_crops``, ``_ph_genotype_rule``, ``_ph_report``, ``ops_defaults``.
+Read by ``_ph_aggregate``, ``_ph_called_guides``, ``_ph_crops``, ``_ph_genotype_rule``, ``_ph_report``, ``ops_defaults``.
 
 .. _setting-flow-ops_gpu:
 

@@ -7312,6 +7312,79 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     return report
 
 
+def _ph_called_guides(db: str, plate: str, wells: Sequence[str],
+                      settings: Mapping[str, Any]):
+    """The guide called for each sequencing nucleus, and the design it maps to.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param wells: the wells.
+    :param settings: read for ``ops_genotype_table`` and ``ops_design``.
+    :returns: ``(called, design, ambiguous)``: ``well, object_id,
+        mapped_guide`` per called nucleus (from ``ops_genotype_table`` when
+        set, else the non-empty ``ops_barcodes`` calls), the design of
+        :func:`_ph_design` at the prefix length of the calls, and how many
+        prefixes it dropped as ambiguous. The aggregate and ph_tables both
+        map a link to its guide and gene through this one function.
+    :raises ValueError: when the calls or the design table are missing.
+    """
+    from .qt.i18n import tr
+
+    genotype_path = settings.get("ops_genotype_table") or None
+    if genotype_path:
+        called = _ph_genotype_table(str(genotype_path), plate, wells)
+    else:
+        barcodes = _rows_for_wells(db, "ops_barcodes", plate, wells)
+        if barcodes is None:
+            raise ValueError(tr(
+                "aggregate needs ops_merge and ops_barcodes; run the merge "
+                "and decode phases first"))
+        called = barcodes.loc[
+            barcodes["mapped_guide"].fillna("").astype(str) != "",
+            ["well", "object_id", "mapped_guide"]]
+    design_path = settings.get("ops_design")
+    if not design_path:
+        raise ValueError(tr(
+            "ops_design must be the guide design table with sgRNA and "
+            "gene_symbol columns; got {path}", path=design_path))
+    length = int(called["mapped_guide"].str.len().mode().iloc[0]) if len(called) else 11
+    design, ambiguous = _ph_design(str(design_path), length)
+    return called, design, ambiguous
+
+
+def _ph_link_genotypes(db: str, plate: str, wells: Sequence[str], links,
+                       settings: Mapping[str, Any]):
+    """``well, site, label, sgRNA, gene, mitotic`` of every linked cell, or None.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param wells: the wells.
+    :param links: the ``ops_merge`` rows (``well``, ``site``, ``label``,
+        ``object_id``).
+    :param settings: read for ``ops_design`` and ``ops_genotype_table``.
+    :returns: the guide and gene of each link through
+        :func:`_ph_called_guides`, the mapping the aggregate pools with,
+        and ``mitotic`` missing (only the aggregate calls it); None when
+        there is no design table or no calls. ph_tables uses it
+        when no aggregate cell table of the run is there, so the gene
+        column of the phenotype keys is filled either way.
+    """
+    design_path = settings.get("ops_design")
+    if not design_path or not os.path.isfile(str(design_path)):
+        return None
+    try:
+        called, design, _ambiguous = _ph_called_guides(db, plate, wells,
+                                                       settings)
+    except ValueError:
+        return None
+    joined = links[["well", "site", "label", "object_id"]].merge(
+        called, on=["well", "object_id"], how="inner").merge(
+        design.rename(columns={"prefix": "mapped_guide"}),
+        on="mapped_guide", how="inner")
+    return joined[["well", "site", "label", "sgRNA", "gene"]].reset_index(
+        drop=True).assign(mitotic=np.nan)
+
+
 def _ph_design(path: str, prefix_length: int):
     """``prefix -> (guide, gene)`` from a guide design table.
 
@@ -7748,22 +7821,10 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     pooled = [w for w in run_wells if not asked or w.upper() in asked]
     genotype_path = settings.get("ops_genotype_table") or None
     merged_rows = _rows_for_wells(db, "ops_merge", plate, pooled)
-    if genotype_path:
-        if merged_rows is None:
-            raise ValueError(tr(
-                "aggregate needs ops_merge; run the merge phase first"))
-        called = _ph_genotype_table(str(genotype_path), plate, pooled)
-    else:
-        barcodes = _rows_for_wells(db, "ops_barcodes", plate, pooled)
-        if merged_rows is None or barcodes is None:
-            raise ValueError(tr(
-                "aggregate needs ops_merge and ops_barcodes; run the merge "
-                "and decode phases first"))
-        called = barcodes.loc[
-            barcodes["mapped_guide"].fillna("").astype(str) != "",
-            ["well", "object_id", "mapped_guide"]]
-    length = int(called["mapped_guide"].str.len().mode().iloc[0]) if len(called) else 11
-    design, ambiguous = _ph_design(str(design_path), length)
+    if merged_rows is None:
+        raise ValueError(tr(
+            "aggregate needs ops_merge; run the merge phase first"))
+    called, design, ambiguous = _ph_called_guides(db, plate, pooled, settings)
     sources, schemas = [], []
     for well in pooled:
         path = _ph_cells_path(destination, well)
@@ -9342,6 +9403,11 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
                                   "well", "site", "label", "sgRNA", "gene",
                                   "mitotic") if c in present])
     links = _rows_for_wells(db, "ops_merge", plate, wells)
+    genotype_source = path if genotype is not None else None
+    if genotype is None and links is not None and len(links):
+        genotype = _ph_link_genotypes(db, plate, wells, links, settings)
+        genotype_source = "ops_merge+ops_barcodes+ops_design" if (
+            genotype is not None) else None
     rule = _ph_genotype_rule(settings)
     integer_keys = bool(settings.get("ops_tables_integer_keys", False))
     layout = str(settings.get("ops_tables_layout") or "compartments").strip(
@@ -9403,7 +9469,7 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     report = {"store": folder, "tables": sorted(counts),
               "rows": counts, "owned_cells": total,
               "wells": wells_report,
-              "genotype_table": path if genotype is not None else None,
+              "genotype_table": genotype_source,
               "genotype_rule": rule,
               "integer_keys": integer_keys, "layout": layout,
               "registered": registered,
