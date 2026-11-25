@@ -449,3 +449,212 @@ def test_tiling_control_counts_pairs_as_before(monkeypatch):
     monkeypatch.setattr(ols, "_pair_overlaps", _old_pair_overlaps)
     old = ols.tiling_control(image, segment, tile_px=64, overlap_px=16)
     _same(new, old)
+
+
+# ------------------------------------------------- follow-up decisions -----
+
+def test_leiden_partitions_gives_every_seed_its_partitions_from_a_generator():
+    x = _clustered(2, n=60)
+    graph = oc.gene_graph(x, "phate", seed=1, knn=8, n_jobs=1)
+    resolutions = [0.5, 1.0, 2.0]
+    found = oc.leiden_partitions(graph, (r for r in resolutions), [1, 2, 3])
+    assert sorted(found) == sorted((s, r) for s in (1, 2, 3) for r in resolutions)
+    listed = oc.leiden_partitions(graph, resolutions, [1, 2, 3])
+    for key in listed:
+        np.testing.assert_array_equal(found[key], listed[key])
+
+
+def _benchmark(monkeypatch=None, control_n_init=None):
+    from sklearn import cluster
+
+    from tests.test_ops_clusters import _screen
+
+    seen = []
+    real = cluster.KMeans
+
+    def recording(k, n_init=None, **kwargs):
+        seen.append(n_init)
+        if control_n_init is not None and len(seen) % 2 == 0:
+            n_init = control_n_init
+        return real(k, n_init=n_init, **kwargs)
+
+    if monkeypatch is not None:
+        monkeypatch.setattr(cluster, "KMeans", recording)
+    table, cols, corum, kegg, string, _ = _screen(per=12)
+    out = oc.benchmark_clusters(table, cols, corum=corum, kegg=kegg, string=string,
+                                resolutions=[1, 2], target=6, baselines=(6, 9), shuffles=2)
+    return out["table"], seen
+
+
+def test_the_shuffled_kmeans_control_is_fitted_with_the_same_n_init(monkeypatch):
+    pytest.importorskip("phate")
+    pytest.importorskip("leidenalg")
+    _, seen = _benchmark(monkeypatch)
+    assert seen and len(seen) % 2 == 0
+    assert set(seen) == {4}
+
+
+def test_how_much_the_control_n_init_moves_the_benchmark(monkeypatch):
+    pytest.importorskip("phate")
+    pytest.importorskip("leidenalg")
+    now, _ = _benchmark()
+    before, _ = _benchmark(monkeypatch, control_n_init=2)
+    rows = now.profile.str.contains("k-means shuffled")
+    numeric = now.select_dtypes("number").columns
+    shift = (now.loc[rows, numeric] - before.loc[rows, numeric]).abs().max()
+    print("k-means shuffled-control shift, n_init 2 -> 4:",
+          {k: round(float(v), 4) for k, v in shift.items() if v})
+    pd.testing.assert_frame_equal(now.loc[~rows], before.loc[~rows])
+
+
+def _old_style_stats(values, rows=None, *, zero_sd, chunk=65536):
+    x = np.asarray(values) if rows is None else np.asarray(values)[rows]
+    mean, sd = x.mean(0), x.std(0)
+    if zero_sd == "exact":
+        sd[sd == 0] = 1
+    return mean, sd
+
+
+def test_remove_generic_axes_and_fusion_profiles_keep_their_numbers(monkeypatch):
+    rng = np.random.default_rng(7)
+    genes = [f"g{i}" for i in range(70)] + [f"nontargeting_{i}" for i in range(10)]
+    covariates = pd.DataFrame({"gene": genes, "cells_per_guide": rng.integers(20, 400, 80),
+                               "shift_G1": rng.normal(size=80), "shift_SG2": rng.normal(size=80),
+                               "shift_M": rng.normal(size=80)})
+    values = rng.normal(size=(80, 9))
+    axes = ["log_cells_per_guide", "shift_G1", "shift_M"]
+    blocks = {name: pd.DataFrame({"gene": genes[:60], "n_cells": rng.integers(5, 50, 60),
+                                  **{f"PC_{j}": rng.normal(size=60) * (j + 1) for j in range(6)}})
+              for name in ("a", "b")}
+    blocks["b"]["PC_5"] = 3.0
+    new_axes = gmc.remove_generic_axes(values, genes, covariates, axes=axes)
+    new_fused = gmc.fusion_profiles(blocks)
+    monkeypatch.setattr(ops_tvn, "_column_mean_sd", _old_style_stats)
+    old_axes = gmc.remove_generic_axes(values, genes, covariates, axes=axes)
+    old_fused = gmc.fusion_profiles(blocks)
+    np.testing.assert_array_equal(new_axes[0], old_axes[0])
+    assert new_axes[1] == old_axes[1]
+    pd.testing.assert_frame_equal(new_fused, old_fused, check_exact=True)
+
+
+def _old_fit_control_stage(model, nt, nt_batch, *, components, whiten_epsilon, coral_ridge):
+    model.control_mean, model.control_scale = nt.mean(0), nt.std(0)
+    model.control_scale[model.control_scale == 0] = 1
+    if whiten_epsilon > 0:
+        model.control_scale = np.sqrt(model.control_scale ** 2 + float(whiten_epsilon))
+    nt = (nt - model.control_mean) / model.control_scale
+    model.control_pca = ops_tvn._control_rotation(nt, components)
+    nt = model.control_pca.transform(nt)
+    names = np.unique(nt_batch)
+    for name in names:
+        rows = nt_batch == name
+        mean, spread = nt[rows].mean(0), nt[rows].std(0)
+        spread[spread == 0] = 1
+        scale = np.sqrt(spread ** 2 + float(whiten_epsilon)) if whiten_epsilon > 0 else spread
+        model.batch_stats[str(name)] = (mean, scale)
+    whitened = np.vstack([(nt[nt_batch == n] - model.batch_stats[str(n)][0])
+                          / model.batch_stats[str(n)][1] for n in names])
+    d = whitened.shape[1]
+    ridge = float(coral_ridge) * np.eye(d)
+    target = ops_tvn._matrix_power(np.cov(whitened, rowvar=False, ddof=1) + ridge, 0.5)
+    skipped = []
+    for name in names:
+        v = (nt[nt_batch == name] - model.batch_stats[str(name)][0]) / model.batch_stats[str(name)][1]
+        if len(v) < d:
+            model.coral[str(name)] = None
+            skipped.append(str(name))
+            continue
+        source = ops_tvn._matrix_power(np.cov(v, rowvar=False, ddof=1) + ridge, -0.5)
+        if np.all(np.isfinite(source)):
+            model.coral[str(name)] = source @ target
+        else:
+            model.coral[str(name)] = None
+            skipped.append(str(name))
+    return skipped, d
+
+
+def test_streamed_tvn_control_stage_and_in_memory_screen_within_tolerance(monkeypatch):
+    data = _tvn_wells(2)
+
+    def streamed():
+        model = ops_tvn.fit_tvn_streamed(list(data), lambda w: data[w], pca_sample=400)
+        return np.vstack([model.transform(data[w][0], w, data[w][2]) for w in data])
+
+    x = np.vstack([v[0] for v in data.values()])
+    x[:, 4] = 7.25
+    wells = np.concatenate([[w] * len(v[0]) for w, v in data.items()])
+    control = np.concatenate([v[1] for v in data.values()])
+
+    def in_memory():
+        return ops_tvn.tvn_in_memory(x, wells, control, pca_sample=500)
+
+    new_streamed, (new_mem, new_info) = streamed(), in_memory()
+    monkeypatch.setattr(ops_tvn, "_column_mean_sd", _old_style_stats)
+    monkeypatch.setattr(ops_tvn, "_fit_control_stage", _old_fit_control_stage)
+    old_streamed, (old_mem, old_info) = streamed(), in_memory()
+    for label, old, new in (("streamed", old_streamed, new_streamed), ("in memory", old_mem, new_mem)):
+        assert old.shape == new.shape
+        worst_corr, max_abs, relative = _component_agreement(old, new)
+        print(f"TVN {label}: min |corr| {worst_corr:.10f}, max abs diff {max_abs:.3g}"
+              f" ({relative:.3g} of the largest component SD)")
+        assert worst_corr >= 0.999999
+        assert relative < 2e-3
+    assert new_info["columns_kept"] == old_info["columns_kept"]
+
+
+def _old_match_fraction(reference, labels, iou=0.5):
+    from spacr.seg_qc import _as_labels
+
+    a = _as_labels(reference).ravel().astype(np.int64)
+    b = _as_labels(labels).ravel().astype(np.int64)
+    area_a = np.bincount(a)
+    area_b = np.bincount(b)
+    n_ref = int(np.count_nonzero(area_a[1:]))
+    if n_ref == 0:
+        return 1.0 if not np.count_nonzero(area_b[1:]) else float("nan")
+    both = (a > 0) & (b > 0)
+    if not both.any():
+        return 0.0
+    width = int(b.max()) + 1
+    pairs, overlap = np.unique(a[both] * width + b[both], return_counts=True)
+    ia, ib = pairs // width, pairs % width
+    ratio = overlap / (area_a[ia] + area_b[ib] - overlap)
+    return float(np.unique(ia[ratio >= iou]).size) / n_ref
+
+
+def _old_plane_iou(prev_plane, cur_plane):
+    prev_ids = np.unique(prev_plane)
+    prev_ids = prev_ids[prev_ids > 0]
+    cur_ids = np.unique(cur_plane)
+    cur_ids = cur_ids[cur_ids > 0]
+    if prev_ids.size == 0 or cur_ids.size == 0:
+        return prev_ids, cur_ids, np.zeros((prev_ids.size, cur_ids.size), float)
+    overlap = np.zeros((prev_ids.size, cur_ids.size), dtype=np.int64)
+    both = (prev_plane > 0) & (cur_plane > 0)
+    if np.any(both):
+        rows = np.searchsorted(prev_ids, prev_plane[both])
+        cols = np.searchsorted(cur_ids, cur_plane[both])
+        counts = np.bincount(rows * cur_ids.size + cols, minlength=prev_ids.size * cur_ids.size)
+        overlap = counts.reshape(prev_ids.size, cur_ids.size)
+    prev_counts = np.bincount(prev_plane.ravel())
+    cur_counts = np.bincount(cur_plane.ravel())
+    prev_area = prev_counts[prev_ids].astype(np.int64)
+    cur_area = cur_counts[cur_ids].astype(np.int64)
+    union = prev_area[:, None] + cur_area[None, :] - overlap
+    with np.errstate(divide="ignore", invalid="ignore"):
+        iou = np.where(union > 0, overlap / union, 0.0)
+    return prev_ids, cur_ids, iou
+
+
+@pytest.mark.parametrize("index", range(8))
+def test_seg_qc_match_fraction_and_zstack_plane_iou_are_identical(index):
+    from spacr import seg_qc, zstack
+
+    first, second = _fixture_pairs()[index]
+    for iou in (0.25, 0.5, 0.75):
+        new, old = seg_qc._match_fraction(first, second, iou), _old_match_fraction(first, second, iou)
+        assert (np.isnan(new) and np.isnan(old)) or new == old
+    for a, b in ((first, second), (second, first)):
+        for new, old in zip(zstack._plane_iou(a, b), _old_plane_iou(a, b)):
+            assert new.dtype == old.dtype and new.shape == old.shape
+            np.testing.assert_array_equal(new, old)

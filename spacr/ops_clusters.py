@@ -1337,6 +1337,7 @@ def leiden_partitions(graph, resolutions: Iterable[float], seeds: Iterable[int],
     :raises ImportError: when the ``clustering`` extra is not installed.
     """
     leidenalg = _optional("leidenalg")
+    resolutions = list(resolutions)
     out: Dict[Tuple[int, float], np.ndarray] = {}
     for seed in seeds:
         for resolution in resolutions:

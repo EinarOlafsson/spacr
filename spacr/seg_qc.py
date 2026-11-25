@@ -2519,12 +2519,11 @@ def _match_fraction(reference: np.ndarray, labels: np.ndarray, iou: float = 0.5)
     n_ref = int(np.count_nonzero(area_a[1:]))
     if n_ref == 0:
         return 1.0 if not np.count_nonzero(area_b[1:]) else float("nan")
-    both = (a > 0) & (b > 0)
-    if not both.any():
+    from .measure import _label_overlaps
+
+    ia, ib, overlap = _label_overlaps(a, b)
+    if not overlap.size:
         return 0.0
-    width = int(b.max()) + 1
-    pairs, overlap = np.unique(a[both] * width + b[both], return_counts=True)
-    ia, ib = pairs // width, pairs % width
     ratio = overlap / (area_a[ia] + area_b[ib] - overlap)
     return float(np.unique(ia[ratio >= iou]).size) / n_ref
 

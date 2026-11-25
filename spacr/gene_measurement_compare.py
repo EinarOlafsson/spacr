@@ -3582,8 +3582,9 @@ def remove_generic_axes(values: np.ndarray, genes: Sequence,
         design = np.column_stack([
             np.log(table["cells_per_guide"]) if a == "log_cells_per_guide"
             else table[a] for a in chosen])
-        fitted = design[targeting]
-        centre, spread = fitted.mean(0), fitted.std(0)
+        from .ops_tvn import _column_mean_sd
+
+        centre, spread = _column_mean_sd(design, np.flatnonzero(targeting), zero_sd="keep")
         design = np.column_stack([np.ones(len(design)), (design - centre) / spread])
         beta, *_ = np.linalg.lstsq(design[targeting], x[targeting], rcond=None)
         residuals = x - design[:, 1:] @ beta[1:]
@@ -4131,12 +4132,14 @@ def fusion_profiles(blocks: Mapping[str, pd.DataFrame], *,
     """
     from sklearn.decomposition import PCA
 
+    from .ops_tvn import _column_mean_sd
+
     parts, counts = [], None
     for name, table in blocks.items():
         columns = [c for c in table.columns if str(c).startswith(("PC_", "emb_", "f_"))]
         x = table[columns].to_numpy(float)
-        spread = x.std(0)
-        x = (x - x.mean(0)) / np.where(spread > 0, spread, 1)
+        centre, spread = _column_mean_sd(x, zero_sd="exact")
+        x = (x - centre) / spread
         p = PCA(n_components=variance, whiten=True, random_state=int(seed)).fit_transform(x)
         p /= np.sqrt(p.shape[1])
         parts.append(pd.DataFrame(p, columns=[f"f_{name}{j}" for j in range(p.shape[1])],

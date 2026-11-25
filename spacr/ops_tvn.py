@@ -833,7 +833,7 @@ def _in_memory_embedding(values, batches: np.ndarray, *, pca_variance: float,
         bad = ~np.isfinite(column)
         if bad.any():
             column[bad] = np.median(column[~bad])
-    spread = x.std(0)
+    spread = _column_mean_sd(x, zero_sd="keep")[1]
     kept = np.flatnonzero(keep)
     if (spread == 0).any():
         x = np.ascontiguousarray(x[:, spread > 0])
@@ -1027,18 +1027,17 @@ def _fit_control_stage(model: "TVNModel", nt: np.ndarray, nt_batch: np.ndarray, 
     embedding: fills ``model``'s control centre, control PCA, whitening and
     CORAL, and returns the batches CORAL skipped and the axis count."""
 
-    model.control_mean, model.control_scale = nt.mean(0), nt.std(0)
-    model.control_scale[model.control_scale == 0] = 1
+    mean, scale = _column_mean_sd(nt, zero_sd="exact")
+    model.control_mean, model.control_scale = mean.astype(nt.dtype), scale.astype(nt.dtype)
     if whiten_epsilon > 0:
         model.control_scale = np.sqrt(model.control_scale ** 2 + float(whiten_epsilon))
     nt = (nt - model.control_mean) / model.control_scale
     model.control_pca = _control_rotation(nt, components)
     nt = model.control_pca.transform(nt)
     names = np.unique(nt_batch)
+    centres, spreads = batch_mean_sd(nt, np.arange(len(nt)), nt_batch, zero_sd="exact")
     for name in names:
-        rows = nt_batch == name
-        mean, spread = nt[rows].mean(0), nt[rows].std(0)
-        spread[spread == 0] = 1
+        mean, spread = centres[name].astype(nt.dtype), spreads[name].astype(nt.dtype)
         scale = np.sqrt(spread ** 2 + float(whiten_epsilon)) if whiten_epsilon > 0 else spread
         model.batch_stats[str(name)] = (mean, scale)
     whitened = np.vstack([(nt[nt_batch == n] - model.batch_stats[str(n)][0])
