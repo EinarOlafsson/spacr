@@ -276,12 +276,19 @@ def resolve_label_ground(target: str = "screen",
                          ground: Optional[str] = None) -> str:
     """Return the background colour for a text label on the output target.
 
+    The ground is the opposite of :func:`resolve_ink` for the same target:
+    the shared figure style draws black ink on a white page on screen too, so
+    a dark box there would hide its own text.
+
     :param target: ``'screen'`` for the GUI, ``'print'`` for a file.
     :param ground: an explicit override, which always wins.
     """
     if ground:
         return ground
-    return LABEL_GROUND_PRINT if target == "print" else LABEL_GROUND_SCREEN
+    from matplotlib.colors import to_rgb
+
+    light = sum(to_rgb(resolve_ink(target))) / 3.0 > 0.5
+    return LABEL_GROUND_SCREEN if light else LABEL_GROUND_PRINT
 
 
 def user_overrides(kind: Optional[str] = None) -> dict:

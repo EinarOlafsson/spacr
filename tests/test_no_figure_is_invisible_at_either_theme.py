@@ -42,15 +42,26 @@ INK_ARGUMENTS = frozenset({"color", "c", "edgecolor", "ec", "facecolor",
 #: Every entry here is a colour that is not about the theme. Add one only
 #: with the reason, and only when the colour is genuinely fixed by what it is
 #: drawn on rather than by where the figure is going.
+#:
+#: Graphstyle G1 (L5) draws every figure on a white page for screen and print
+#: alike, with black reference ink (house style, spacr-graphs); those black
+#: references sit on that fixed white page, not on the theme's ground.
 ALLOWED = {
-    "plot.py": (7, "object labels and a scale bar drawn ON a microscopy "
+    "plot.py": (9, "object labels and a scale bar drawn ON a microscopy "
                    "image, plus a montage grid that is deliberately black; "
-                   "an image is not the theme's ground"),
+                   "an image is not the theme's ground. Two black reference "
+                   "lines on the white figure page (graphstyle G1)"),
     "io.py": (4, "the montage sheet is a black page with white filenames on "
                  "it, by design -- it is a contact sheet, not a plot"),
-    "utils.py": (4, "predicted-class labels drawn ON the image they "
-                    "describe"),
-    "measure.py": (2, "a black figure ground behind image panels"),
+    "measure.py": (4, "black model, mean, fit and interval reference ink on "
+                      "the white figure page (graphstyle G1)"),
+    "figures/style.py": (2, "the panel letter and missing-cell marks of the "
+                            "shared style, black on its white figure page"),
+    "qt/screens/control_chart.py": (4, "control limits and centre line in "
+                                       "black reference ink on the white "
+                                       "figure page (graphstyle G1)"),
+    "qt/widgets/pca_view.py": (1, "black reference outline on the white "
+                                  "figure page (graphstyle G1)"),
     "qt/annotate_engine.py": (1, "drawn onto the annotated microscopy image itself, not onto the page"),
     "qt/widgets/motility_preview.py": (1, "an overlay drawn onto a video frame, not onto a figure"),
 }
@@ -140,12 +151,20 @@ def test_every_exception_still_exists(name):
 
 class TestTheTwoFaultsThisFound:
 
-    def test_a_verdict_box_follows_the_theme(self):
+    def test_a_verdict_box_follows_the_theme(self, monkeypatch):
         """It was white while its text is the theme ink -- which on the dark
-        theme IS white. The verdict was drawn, was there, unreadable."""
-        from spacr.figures.style import resolve_label_ground
+        theme IS white. The verdict was drawn, was there, unreadable.
 
-        assert resolve_label_ground("print") != resolve_label_ground("screen")
+        Graphstyle G1 (L5) draws black ink on a white page for screen and
+        print alike, so the box now follows the ink rather than the target:
+        a light ink still gets a dark box."""
+        from spacr.figures import style
+
+        for chosen, ground in (("#E8EDEE", style.LABEL_GROUND_SCREEN),
+                               ("#000000", style.LABEL_GROUND_PRINT)):
+            monkeypatch.setattr(style, "chosen_ink", lambda chosen=chosen: chosen)
+            for target in ("screen", "print"):
+                assert style.resolve_label_ground(target) == ground, (chosen, target)
 
     def test_the_label_ground_is_the_inks_opposite_number(self):
         from spacr.figures.style import resolve_ink, resolve_label_ground
