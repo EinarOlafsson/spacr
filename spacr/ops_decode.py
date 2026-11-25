@@ -104,6 +104,7 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_read_distance_interior_px": 0.0,
     "ops_read_distance_min_weight": 0.05,
     "ops_read_neighbour_discount": 0.25,
+    "ops_read_cache_floor": 100.0,
 }
 
 #: How far from a nucleus boundary a fallback pixel is kept at all, in
@@ -111,9 +112,11 @@ _DEFAULTS: Dict[str, Any] = {
 #: reach is part of the rule; the study's field cache kept 15 px.
 _PIXEL_REACH = 15.0
 
-#: The lowest spot strength the field cache keeps, so the read threshold
-#: can be swept afterwards; the study's cache kept 100.
-_CACHE_FLOOR = 100.0
+#: The lowest spot strength the field cache keeps by default, so the read
+#: threshold can be swept afterwards; the study's cache kept 100. The run's
+#: value is ``ops_read_cache_floor`` (item N7), carried as the rule's
+#: ``cache_floor``.
+_CACHE_FLOOR = _DEFAULTS["ops_read_cache_floor"]
 
 #: The decode settings whose non-default value routes a well through
 #: :func:`field_calls`.
@@ -272,8 +275,11 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         alpha distance weight or the neighbour discount on, ``read_weight``
         holds their settings. The default discount is skipped with a
         notice when rules are off; applied flags are recorded per path.
+        ``cache_floor`` is ``ops_read_cache_floor`` (item N7), the weakest
+        spot strength the field cache keeps.
     :raises ValueError: for a negative count or a fraction outside (0, 1],
-        or for explicit nondefault item-988 weighting without decode rules.
+        for a negative ``ops_read_cache_floor``, or for explicit nondefault
+        item-988 weighting without decode rules.
     """
     rule = {
         "calibration": _flag(settings, "ops_decode_library_calibration"),
@@ -298,8 +304,14 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "fdr_scale": _number(settings, "ops_fdr_scale"),
         "store_cache": (_flag(settings, "ops_store_field_cache")
                         or _flag(settings, "ops_decode_qc")),
+        "cache_floor": _number(settings, "ops_read_cache_floor"),
         "features": _flag(settings, "ops_decode_qc"),
     }
+    if not rule["cache_floor"] >= 0:
+        from .qt.i18n import tr
+
+        raise ValueError(tr("ops_read_cache_floor must be 0 or more; got {value}",
+                            value=rule["cache_floor"]))
     if settings.get("ops_report_read_stage") not in (None, "") \
             and _flag(settings, "ops_report_read_stage"):
         rule["read_stage"] = True

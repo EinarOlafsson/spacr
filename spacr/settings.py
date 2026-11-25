@@ -2655,7 +2655,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 965
+SETTINGS_SCHEMA_VERSION = 972
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2704,6 +2704,7 @@ DEFAULT_CHANGES = {
     964: {'ops_pixel_read_gate': False},
     965: {'profile_outside_rule': 'background',
           'ops_ph_profile_outside_rule': 'background'},
+    972: {'ops_store_raw_masks': False, 'ops_read_cache_floor': 100.0},
 }
 
 
@@ -2867,6 +2868,12 @@ def _fold_older_defaults(settings, version, known=None):
     whose reads named no guide or named its guide alone. Files stamped
     before keep False, which also lets it assign read ties and read
     refusals.
+
+    Version 972 adds two OPS storage settings (items N6 and N7):
+    ``ops_store_raw_masks`` keeps the masks before pairing, and
+    ``ops_read_cache_floor`` sets the weakest spot the field cache keeps.
+    Files stamped before keep False and 100, the behaviour they were run
+    with. Versions 966 to 971 belong to other merges.
 
     :param settings: the file's settings under today's names, edited in
         place.
