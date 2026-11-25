@@ -194,8 +194,14 @@ def test_majority_parent_breaks_an_exact_tie_to_the_lowest_label():
     ("measure.py", "_measure_crop_core", "_assign_nuclei_to_cells"),
     ("measure.py", "_measure_crop_core", "_derive_cytoplasm"),
     ("measure.py", "_field_tables_for_check", "_derive_cytoplasm"),
-    ("ops_sample.py", "pair_nuclei_with_cells", "_assign_nuclei_to_cells"),
-    ("ops_sample.py", "pair_nuclei_with_cells", "_best_parent"),
+    # 1024: pair_nuclei_with_cells delegates to _pair_nuclei_with_cells,
+    # which also carries the alpha pairing options.
+    ("ops_sample.py", "_pair_nuclei_with_cells", "_assign_nuclei_to_cells"),
+    ("ops_sample.py", "_pair_nuclei_with_cells", "_best_parent"),
+    # 1024: the small-piece merge of the large-site preset (921/965) runs
+    # in the shared pairing, called without cells.
+    ("ops_large_sites.py", "_pair_before_cells", "_assign_nuclei_to_cells"),
+    ("ops_large_sites.py", "merge_small_nuclei", "_pair_before_cells"),
     ("ops_sample.py", "_measure_phenotype_field", "_derive_cytoplasm"),
     ("ops_engine.py", "_ph_merged_field", "_derive_cytoplasm"),
     ("ops_flatfield.py", "mask_pass", "_derive_cytoplasm"),

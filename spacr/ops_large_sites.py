@@ -1500,8 +1500,6 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
         ``merged_small_nuclei`` and ``median_nucleus_area_px``.
     :raises ValueError: when a preset channel is not in ``channel_names``.
     """
-    from .ops_sample import pair_nuclei_with_cells
-
     names = list(channel_names)
     wanted = [settings.get("seg_nucleus_channel") or "CorrDNA"] + list(settings["cell_channels"])
     missing = [c for c in wanted if c not in names]
@@ -1520,17 +1518,33 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                                                               settings=settings, record=mask_log,
                                                               label="nuclei"))
     frac = float(settings.get("seg_merge_small_nuclei_frac") or 0)
+    seeded = bool(settings.get("seg_cells_from_nucleus_seeds"))
+    pairing = _site_pairing_options(settings)
+    stain = (np.asarray(stack[..., names.index(wanted[0])], np.float32)
+             if pairing is not None else None)
     merged = None
-    if frac > 0:
-        nuclei, merged = merge_small_nuclei(nuclei, frac)
+    if frac > 0 or (pairing is not None and seeded
+                    and pairing["nucleus_fragment_merge"] != "off"):
+        before = dict(pairing or {}, nucleus_small_piece_frac=frac,
+                      cellless_nuclei="drop")
+        if not seeded:
+            before["nucleus_fragment_merge"] = "off"
+        nuclei, before_record = _pair_before_cells(nuclei, before, dna=stain)
+        merged = before_record.get("small_pieces") if frac > 0 else None
+    after = None
+    if pairing is not None:
+        after = dict(pairing)
+        if seeded:
+            after["nucleus_fragment_merge"] = "off"
     body = normalize_site(np.stack([stack[..., names.index(c)] for c in settings["cell_channels"]],
                                    axis=-1))
-    if settings.get("seg_cells_from_nucleus_seeds"):
+    if seeded:
         cellprob = _site_cellprob(body, lambda x: _eval_flows(cell_model, x, settings,
                                                               channel_axis=-1),
                                   tile_px=tile, overlap_px=overlap)
         del body
-        out = pair_nuclei_with_cells(nuclei, cells_from_nucleus_seeds(nuclei, cellprob))
+        out = _site_pairing(nuclei, cells_from_nucleus_seeds(nuclei, cellprob), after,
+                            stain)
         return out if merged is None else _with_merge_counts(out, merged)
     cells = segment_tiled(body, lambda x: _eval_labels(cell_model, x, settings, None,
                                                        channel_axis=-1),
@@ -1538,8 +1552,35 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                           flows=lambda x: _eval_flows(cell_model, x, settings, channel_axis=-1),
                           masks=lambda f, p: _cellpose_masks(cell_model, f, p, settings=settings,
                                                              record=mask_log, label="cells"))
-    out = pair_nuclei_with_cells(nuclei, cells)
+    out = _site_pairing(nuclei, cells, after, stain)
     return out if merged is None else _with_merge_counts(out, merged)
+
+
+def _site_pairing_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """The item-1024 alpha pairing options of a large site, or None when off.
+
+    The large-site preset reads the OPS phenotype names
+    (``ops_ph_nucleus_fragment_merge``, ``ops_ph_cellless_nuclei`` and their
+    thresholds), so a plate pairs the same way through either path.
+    """
+    from .measure import _nucleus_pairing_active, _nucleus_pairing_options
+
+    options = _nucleus_pairing_options(settings, prefix="ops_ph_")
+    options["nucleus_small_piece_frac"] = 0.0
+    return options if _nucleus_pairing_active(options) else None
+
+
+def _site_pairing(nuclei: np.ndarray, cells: np.ndarray,
+                  options: Optional[Mapping[str, Any]], dna
+                  ) -> Tuple[np.ndarray, np.ndarray, Dict[str, int]]:
+    """Pair a site through :func:`spacr.ops_sample.pair_nuclei_with_cells`,
+    or through its alpha form when ``options`` turn an item-1024 option on."""
+    from .measure import _nucleus_pairing_active
+    from .ops_sample import _pair_nuclei_with_cells, pair_nuclei_with_cells
+
+    if options is None or not _nucleus_pairing_active(options):
+        return pair_nuclei_with_cells(nuclei, cells)
+    return _pair_nuclei_with_cells(nuclei, cells, dict(options), dna=dna)[:3]
 
 
 def _with_merge_counts(paired: Tuple[np.ndarray, np.ndarray, Dict[str, int]],
@@ -1582,50 +1623,31 @@ def merge_small_nuclei(nuclei: np.ndarray, frac: float = 0.25
         ``threshold_px``, ``median_area_px``, ``n_small`` (pieces below the
         threshold) and ``n_merged`` (pieces merged into another nucleus).
     """
-    lab = np.asarray(nuclei)
-    if frac <= 0 or lab.size == 0 or lab.max() == 0:
-        return lab.astype(np.int32), {"threshold_px": 0.0, "median_area_px": 0.0,
-                                      "n_small": 0, "n_merged": 0}
-    area = np.bincount(lab.ravel().astype(np.int64))
-    present = np.nonzero(area[1:])[0] + 1
-    median = float(np.median(area[present]))
-    thr = float(frac * median)
-    small = np.zeros(area.size, bool)
-    small[present[area[present] < thr]] = True
-    pairs = []
-    for a, b in ((lab[:, :-1], lab[:, 1:]), (lab[:-1, :], lab[1:, :])):
-        m = (a != b) & (a > 0) & (b > 0)
-        pairs.append(np.stack([a[m], b[m]], 1))
-    p = np.concatenate(pairs).astype(np.int64)
-    p = np.concatenate([p, p[:, ::-1]])
-    p = p[small[p[:, 0]]]
-    target = np.arange(area.size)
-    if p.size:
-        key, border = np.unique(p, axis=0, return_counts=True)
-        order = np.lexsort((key[:, 1], -area[key[:, 1]], -border, key[:, 0]))
-        key = key[order]
-        first = np.ones(len(key), bool)
-        first[1:] = key[1:, 0] != key[:-1, 0]
-        target[key[first, 0]] = key[first, 1]
-    for _ in range(64):
-        nxt = target[target]
-        if np.array_equal(nxt, target):
-            break
-        cyc = (nxt == np.arange(area.size)) & (target != np.arange(area.size))
-        if cyc.any():
-            i = np.nonzero(cyc)[0]
-            j = target[i]
-            keep = np.where((area[i] > area[j]) | ((area[i] == area[j]) & (i < j)), i, j)
-            target[keep] = keep
-            nxt = target[target]
-        target = nxt
-    n_merged = int((target[present] != present).sum())
-    out = target[lab]
-    ids = np.unique(out)
-    lut = np.zeros(int(ids.max()) + 1, np.int64)
-    lut[ids[ids > 0]] = np.arange(1, int((ids > 0).sum()) + 1)
-    return lut[out].astype(np.int32), {"threshold_px": thr, "median_area_px": median,
-                                       "n_small": int(small.sum()), "n_merged": n_merged}
+    labels, record = _pair_before_cells(nuclei, {"nucleus_small_piece_frac": frac})
+    return labels, record["small_pieces"]
+
+
+def _pair_before_cells(nuclei: np.ndarray, options: Mapping[str, Any], dna=None
+                       ) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """The nucleus steps of the shared pairing, run before the cells exist.
+
+    One operation, one implementation: :func:`merge_small_nuclei` is the
+    ``nucleus_small_piece_frac`` option of
+    :func:`spacr.measure._assign_nuclei_to_cells`, called here without
+    cells (the rule is :func:`spacr.measure._merge_small_nucleus_pieces`).
+
+    :param nuclei: a 2-D nucleus label image of one site.
+    :param options: :func:`spacr.measure._nucleus_pairing_options` names.
+    :param dna: the site's nucleus stain for the fragment test, or None.
+    :returns: ``(labels, record)`` of
+        :func:`spacr.measure._assign_nuclei_to_cells` with no cell mask.
+    """
+    from .measure import _assign_nuclei_to_cells
+
+    record: Dict[str, Any] = {}
+    labels = _assign_nuclei_to_cells(np.asarray(nuclei), None, options=dict(options),
+                                     dna=dna, record=record)[0]
+    return labels, record
 
 
 def cells_from_nucleus_seeds(nuclei: np.ndarray, cellprob: np.ndarray, *,

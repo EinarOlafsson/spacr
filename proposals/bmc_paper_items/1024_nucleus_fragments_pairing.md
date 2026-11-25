@@ -1,6 +1,6 @@
 # Item 1024: nucleus fragments and the nucleus–cell pairing rule (OPS phenotype segmentation)
 
-- **Status:** SPEC ONLY, for the maintainer's decision. No build, not in L5. Filed 2026-11-25 (night; recommended option logged).
+- **Status:** Approved by Einar 2026-11-25: alpha options, default OFF, in the shared spacr.measure._assign_nuclei_to_cells; does not block L5 or plate A.
 - **Evidence:** `audit_ops_20261124/identity/BRIEFLOW_ONLY_NUCLEI.md` and montages; scripts and data in `/mnt/firecuda2/codex/scratch-docs/bf_only_1124/`.
 - **Data:** Funk plate A (LaC024A) well A1, spaCR 26bc722c15 (frozen run).
   - spaCR's own segmentation was rerun on 48 fields; re-pairing reproduces the stored masks pixel for pixel.

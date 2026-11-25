@@ -1896,30 +1896,589 @@ def _merge_spanning_children(mask1, mask2):
     return mask1, mask2, len(root)
 
 
-def _assign_nuclei_to_cells(nucleus_mask, cell_mask):
+#: Item 1024 (alpha): the nucleus pairing options of
+#: :func:`_assign_nuclei_to_cells` under their Measure names, with the
+#: defaults that leave the pairing exactly as before. The OPS phenotype path
+#: reads the same options under ``ops_ph_`` + these names
+#: (:func:`_nucleus_pairing_options`). A default of None means the test is
+#: off. The thresholds are the paper session's provisional values (LaC024A
+#: A1, labels pending review): union solidity 0.94, raw dip 0.20, gap 2 px.
+_NUCLEUS_PAIRING_DEFAULTS = {
+    'nucleus_fragment_merge': 'off',
+    'nucleus_fragment_max_gap_px': 2.0,
+    'nucleus_fragment_min_solidity': 0.94,
+    'nucleus_fragment_max_dip': 0.2,
+    'nucleus_fragment_min_contact_px': 0.0,
+    'nucleus_fragment_max_valley': None,
+    'nucleus_fragment_max_area_rel': None,
+    'cellless_nuclei': 'drop',
+    'cellless_nucleus_max_distance_px': 5.0,
+}
+
+#: Pairing options that are not settings of their own and carry no
+#: ``ops_ph_`` twin: ``nucleus_small_piece_frac`` is the small-piece merge
+#: of the large-site preset (``seg_merge_small_nuclei_frac``, items
+#: 921/965), which reaches the one pairing through these options.
+_NUCLEUS_PAIRING_INTERNAL = {'nucleus_small_piece_frac': 0.0}
+
+#: The values of ``nucleus_fragment_merge``, the first the default.
+_NUCLEUS_FRAGMENT_MERGE_MODES = ('off', 'rule')
+
+#: The values of ``cellless_nuclei``, the first the default.
+_CELLLESS_NUCLEI_MODES = ('drop', 'nearest_cell', 'nucleus_only')
+
+
+def _pairing_number(value, default):
+    """One numeric pairing option: empty takes ``default``; for a default
+    of None, ``'none'`` or ``'off'`` also mean off."""
+    if value is None or (isinstance(value, str)
+                         and value.strip().lower() in ('', 'none', 'off')):
+        return default if default is None else float(default)
+    return float(value)
+
+
+def _nucleus_pairing_options(settings=None, prefix=''):
+    """The item-1024 pairing options a Measure or OPS settings mapping asks for.
+
+    :param settings: a settings mapping, or None for the defaults.
+    :param prefix: ``''`` for the Measure names, ``'ops_ph_'`` for OPS.
+    :returns: ``{name: value}`` under the Measure names of
+        :data:`_NUCLEUS_PAIRING_DEFAULTS` plus
+        :data:`_NUCLEUS_PAIRING_INTERNAL` (read without the prefix); an empty
+        value takes the default.
+    :raises ValueError: for an unknown mode.
+    """
+    settings = settings or {}
+    options = {}
+    for name, default in _NUCLEUS_PAIRING_DEFAULTS.items():
+        value = settings.get(prefix + name)
+        if isinstance(default, str):
+            if value is None or value == '':
+                value = default
+            value = str(value).strip().lower()
+        else:
+            value = _pairing_number(value, default)
+        options[name] = value
+    for name, default in _NUCLEUS_PAIRING_INTERNAL.items():
+        options[name] = _pairing_number(settings.get(name), default)
+    for name, modes in (('nucleus_fragment_merge', _NUCLEUS_FRAGMENT_MERGE_MODES),
+                        ('cellless_nuclei', _CELLLESS_NUCLEI_MODES)):
+        if options[name] not in modes:
+            from .qt.i18n import tr
+
+            raise ValueError(tr(
+                "{name} must be one of {modes}; got {value}",
+                name=prefix + name, modes=list(modes),
+                value=repr(options[name])))
+    return options
+
+
+def _nucleus_pairing_active(options):
+    """True when ``options`` turn on an item-1024 option or the small-piece
+    merge of the large-site preset."""
+    return bool(options) and (
+        options.get('nucleus_fragment_merge', 'off') != 'off'
+        or options.get('cellless_nuclei', 'drop') != 'drop'
+        or float(options.get('nucleus_small_piece_frac') or 0) > 0)
+
+
+def _four_connected_path(start, end, cell_mask, owner):
+    """The pixels of a 4-connected line from ``start`` to ``end``.
+
+    :param start: ``(row, col)`` of the first pixel.
+    :param end: ``(row, col)`` of the last pixel.
+    :param cell_mask: cell labels; at a diagonal step the corner pixel that
+        is background or ``owner`` is preferred, so the path does not cut
+        through another cell.
+    :param owner: the cell the path joins.
+    :returns: the ``(row, col)`` pixels in order, both ends included.
+    """
+    r0, c0 = int(start[0]), int(start[1])
+    r1, c1 = int(end[0]), int(end[1])
+    steps = max(abs(r1 - r0), abs(c1 - c0))
+    path = [(r0, c0)]
+    for step in range(1, steps + 1):
+        r = int(round(r0 + (r1 - r0) * step / steps))
+        c = int(round(c0 + (c1 - c0) * step / steps))
+        pr, pc = path[-1]
+        if r != pr and c != pc:
+            corner = (r, pc)
+            if int(cell_mask[corner]) not in (0, owner):
+                corner = (pr, c)
+            path.append(corner)
+        path.append((r, c))
+    return path
+
+
+def _attach_cellless_nuclei(nucleus_mask, cell_mask, max_distance):
+    """Give each nucleus outside every cell to the nearest cell within reach.
+
+    :param nucleus_mask: nucleus labels.
+    :param cell_mask: cell labels, changed in place: the nucleus pixels of
+        an attached nucleus take the label of its cell, and so does the
+        background along the shortest 4-connected line from the nucleus to
+        that cell, so the grown cell stays one connected object.
+    :param max_distance: the farthest, in pixels, the nucleus may lie from
+        the cell (1 is touching).
+    :returns: ``(attached, cellless, bridged)``: ``{nucleus: cell}`` of the
+        attached nuclei, the sorted labels of the nuclei still without a
+        cell, and how many background pixels the bridges filled.
+    """
+    labels = np.unique(nucleus_mask[nucleus_mask > 0]).astype(np.int64)
+    kids, _parents, _ = _label_overlaps(nucleus_mask, cell_mask)
+    cellless = labels[~np.isin(labels, kids)]
+    attached = {}
+    if not cellless.size or not (cell_mask > 0).any() or max_distance <= 0:
+        return attached, [int(v) for v in cellless], 0
+    distance, (rows, cols) = distance_transform_edt(
+        cell_mask == 0, return_indices=True)
+    still = []
+    bridged = 0
+    for label_value in cellless:
+        where = nucleus_mask == label_value
+        flat = np.flatnonzero(where)
+        best = flat[int(np.argmin(distance.ravel()[flat]))]
+        if float(distance.ravel()[best]) > float(max_distance):
+            still.append(int(label_value))
+            continue
+        target = (int(rows.ravel()[best]), int(cols.ravel()[best]))
+        owner = int(cell_mask[target])
+        cell_mask[where] = owner
+        for pixel in _four_connected_path(
+                np.unravel_index(best, cell_mask.shape), target, cell_mask, owner):
+            if int(cell_mask[pixel]) == 0:
+                cell_mask[pixel] = owner
+                bridged += 1
+        attached[int(label_value)] = owner
+    return attached, still, bridged
+
+
+def _centre_line(a, b, shape):
+    """Row and column samples, one per pixel, from point ``a`` to ``b``."""
+    steps = int(np.ceil(np.hypot(*(np.asarray(b) - np.asarray(a))))) + 1
+    rows = np.clip(np.linspace(a[0], b[0], steps), 0, shape[0] - 1)
+    cols = np.clip(np.linspace(a[1], b[1], steps), 0, shape[1] - 1)
+    return rows, cols
+
+
+def _fragment_pair_test(first, second, dna, options, smoothed=None,
+                        median_area=None):
+    """The fragment test of item 1024 for two nucleus pieces in one cell.
+
+    Every test must pass; the ones whose threshold is None (or 0 for the
+    contact) are skipped:
+
+    - gap: the widest background gap between the pieces is at most
+      ``nucleus_fragment_max_gap_px`` (0 is touching);
+    - solidity: the area of their union over the area of its convex hull is
+      at least ``nucleus_fragment_min_solidity``;
+    - contact: at least ``nucleus_fragment_min_contact_px`` pixels of the
+      smaller piece touch the other (4-connected);
+    - area: the union is at most ``nucleus_fragment_max_area_rel`` times the
+      field's median nucleus area;
+    - dip: ``1 - min(line) / median(union)`` of the raw stain along the
+      line joining the centroids is at most ``nucleus_fragment_max_dip``;
+    - valley: on the stain smoothed by a 3 x 3 mean, sampled once per pixel
+      along that line (linear interpolation), ``valley = min(profile) /
+      mean(mean of the first 3 samples, mean of the last 3)``; the depth
+      ``1 - valley`` is at most ``nucleus_fragment_max_valley``.
+
+    :param first: boolean mask of one piece (a crop around both).
+    :param second: boolean mask of the other piece, the same shape.
+    :param dna: the nucleus stain over the same crop, or None to skip the
+        dip and the valley.
+    :param options: :func:`_nucleus_pairing_options`.
+    :param smoothed: the 3 x 3 mean of the stain over the crop, or None to
+        skip the valley.
+    :param median_area: the field's median nucleus area, or None to skip
+        the area test.
+    :returns: ``(passes, solidity)``; solidity ranks the pairs that pass.
+    """
+    gap = float(distance_transform_edt(~first)[second].min()) - 1.0
+    if gap > options['nucleus_fragment_max_gap_px']:
+        return False, 0.0
+    union = first | second
+    hull = morphology.convex_hull_image(union)
+    solidity = float(union.sum()) / max(int(hull.sum()), 1)
+    if solidity < options['nucleus_fragment_min_solidity']:
+        return False, solidity
+    min_contact = float(options.get('nucleus_fragment_min_contact_px') or 0)
+    if min_contact > 0:
+        small, large = ((first, second) if first.sum() <= second.sum()
+                        else (second, first))
+        cross = generate_binary_structure(2, 1)
+        contact = int((binary_dilation(large, structure=cross) & small).sum())
+        if contact < min_contact:
+            return False, solidity
+    max_area = options.get('nucleus_fragment_max_area_rel')
+    if max_area is not None and median_area:
+        if float(union.sum()) / float(median_area) > float(max_area):
+            return False, solidity
+    max_valley = options.get('nucleus_fragment_max_valley')
+    if dna is not None or (smoothed is not None and max_valley is not None):
+        a = np.argwhere(first).mean(axis=0)
+        b = np.argwhere(second).mean(axis=0)
+    if dna is not None:
+        steps = int(np.ceil(np.hypot(*(b - a)))) + 1
+        line_r = np.clip(np.rint(np.linspace(a[0], b[0], steps)).astype(int),
+                         0, dna.shape[0] - 1)
+        line_c = np.clip(np.rint(np.linspace(a[1], b[1], steps)).astype(int),
+                         0, dna.shape[1] - 1)
+        level = float(np.median(dna[union]))
+        if level > 0:
+            dip = 1.0 - float(dna[line_r, line_c].min()) / level
+            if dip > options['nucleus_fragment_max_dip']:
+                return False, solidity
+    if smoothed is not None and max_valley is not None:
+        from scipy.ndimage import map_coordinates
+
+        rows, cols = _centre_line(a, b, smoothed.shape)
+        profile = map_coordinates(smoothed, [rows, cols], order=1)
+        ends = 0.5 * (float(profile[:3].mean()) + float(profile[-3:].mean()))
+        if ends > 0:
+            valley = float(profile.min()) / ends
+            if 1.0 - valley > float(max_valley):
+                return False, solidity
+    return True, solidity
+
+
+def _fragment_pair_passes(first, second, dna, max_gap, min_solidity, max_dip):
+    """:func:`_fragment_pair_test` with the three thresholds of the first
+    build (gap, solidity, raw dip) and the other tests off.
+
+    :returns: True when the two pieces read as one nucleus cut in two.
+    """
+    options = dict(_nucleus_pairing_options(),
+                   nucleus_fragment_max_gap_px=float(max_gap),
+                   nucleus_fragment_min_solidity=float(min_solidity),
+                   nucleus_fragment_max_dip=float(max_dip))
+    return _fragment_pair_test(first, second, dna, options)[0]
+
+
+def _nucleus_groups(nucleus_mask, cell_mask, reach):
+    """The nucleus labels that may be fragments of one nucleus, per group.
+
+    :param nucleus_mask: nucleus labels.
+    :param cell_mask: cell labels, or None.
+    :param reach: how far apart, in pixels, two pieces of one group may lie.
+    :returns: ``[(cell, [labels])]`` of groups of two or more: with a cell
+        mask the nuclei each cell owns most (:func:`_best_parent`); without
+        one the nuclei of one cluster of pieces within ``reach`` of each
+        other, with cell 0.
+    """
+    if cell_mask is not None:
+        kids, parents, overlap = _label_overlaps(nucleus_mask, cell_mask)
+        owners_of, owners, _ = _best_parent(kids, parents, overlap)
+    else:
+        from skimage.measure import label as _label
+
+        grown = binary_dilation(nucleus_mask > 0,
+                                iterations=max(int(np.ceil(reach)), 0) + 1)
+        clusters = _label(grown, connectivity=2)
+        owners_of, owners, _ = _best_parent(*_label_overlaps(nucleus_mask,
+                                                             clusters))
+    if owners.size < 2:
+        return []
+    order = np.argsort(owners, kind='stable')
+    owners_of, owners = owners_of[order], owners[order]
+    starts = np.flatnonzero(np.r_[True, owners[1:] != owners[:-1]])
+    ends = np.r_[starts[1:], owners.size]
+    groups = []
+    for start, end in zip(starts, ends):
+        if end - start >= 2:
+            groups.append((int(owners[start]) if cell_mask is not None else 0,
+                           [int(v) for v in owners_of[start:end]]))
+    return groups
+
+
+def _merge_nucleus_fragments(nucleus_mask, cell_mask, dna=None, options=None,
+                             **thresholds):
+    """Merge the nucleus pieces of one cell that pass the fragment test, pair by pair.
+
+    Each nucleus belongs to the cell it overlaps most (:func:`_best_parent`);
+    without a cell mask a group is a cluster of pieces within
+    ``nucleus_fragment_max_gap_px`` of each other. In each group the pieces
+    are merged greedily: of all pairs that pass :func:`_fragment_pair_test`,
+    the pair whose union is the most solid merges first, then the merged
+    union is tested again against every remaining piece, until no pair
+    passes. So every piece joins only a union it passes with, and nothing
+    is merged transitively. Each merged nucleus takes the LOWEST label of
+    its pieces; the pieces are relabelled, not filled.
+
+    :param nucleus_mask: nucleus labels, changed in place.
+    :param cell_mask: cell labels, or None.
+    :param dna: the nucleus stain of the field, or None.
+    :param options: :func:`_nucleus_pairing_options`, or None for the
+        defaults; ``thresholds`` (``max_gap``, ``min_solidity``,
+        ``max_dip``) override three of them, as the first build took them.
+    :returns: ``(merged, binucleate)``: ``[(kept_label, merged_label)]``
+        sorted, and the sorted labels of the cells left with two or more
+        nuclei after the merge (empty without a cell mask).
+    """
+    options = dict(options or _nucleus_pairing_options())
+    for short, name in (('max_gap', 'nucleus_fragment_max_gap_px'),
+                        ('min_solidity', 'nucleus_fragment_min_solidity'),
+                        ('max_dip', 'nucleus_fragment_max_dip')):
+        if short in thresholds:
+            options[name] = float(thresholds[short])
+    max_gap = float(options['nucleus_fragment_max_gap_px'])
+    groups = _nucleus_groups(nucleus_mask, cell_mask, max_gap)
+    if not groups:
+        return [], []
+    smoothed = None
+    if dna is not None and options.get('nucleus_fragment_max_valley') is not None:
+        from scipy.ndimage import uniform_filter
+
+        smoothed = uniform_filter(np.asarray(dna, np.float32), size=3)
+    median_area = None
+    if options.get('nucleus_fragment_max_area_rel') is not None:
+        areas = np.bincount(nucleus_mask.ravel().astype(np.int64))[1:]
+        median_area = float(np.median(areas[areas > 0]))
+    boxes = find_objects(nucleus_mask.astype(np.int64))
+    reach = int(np.ceil(max(max_gap, 0.0))) + 1
+    cross = generate_binary_structure(2, 1)
+    pairs = []
+    binucleate = []
+    for cell, members in groups:
+        slices = [boxes[m - 1] for m in members]
+        r0 = max(min(s[0].start for s in slices) - reach - 1, 0)
+        c0 = max(min(s[1].start for s in slices) - reach - 1, 0)
+        r1 = min(max(s[0].stop for s in slices) + reach + 1, nucleus_mask.shape[0])
+        c1 = min(max(s[1].stop for s in slices) + reach + 1, nucleus_mask.shape[1])
+        crop = nucleus_mask[r0:r1, c0:c1]
+        stain = None if dna is None else np.asarray(dna[r0:r1, c0:c1], float)
+        smooth = None if smoothed is None else smoothed[r0:r1, c0:c1]
+        pieces = {m: crop == m for m in members}
+        near = {}
+        for m in members:
+            grown = binary_dilation(pieces[m], structure=cross, iterations=reach)
+            near[m] = {int(v) for v in np.unique(crop[grown])} - {0, m}
+        pieces_of = {m: [m] for m in members}
+        tested = {}
+        while True:
+            best = None
+            for a in sorted(pieces):
+                for b in sorted(near[a]):
+                    if b <= a or b not in pieces:
+                        continue
+                    if (a, b) not in tested:
+                        tested[(a, b)] = _fragment_pair_test(
+                            pieces[a], pieces[b], stain, options,
+                            smoothed=smooth, median_area=median_area)
+                    passes, solidity = tested[(a, b)]
+                    if passes and (best is None or solidity > best[0]):
+                        best = (solidity, a, b)
+            if best is None:
+                break
+            _solidity, keep, gone = best
+            pieces[keep] = pieces[keep] | pieces.pop(gone)
+            pieces_of[keep] += pieces_of.pop(gone)
+            near[keep] = (near[keep] | near.pop(gone)) - {keep, gone}
+            for other in near[keep]:
+                if other in near:
+                    near[other] = (near[other] - {gone}) | {keep}
+            tested = {key: value for key, value in tested.items()
+                      if keep not in key and gone not in key}
+        for keep, labels in pieces_of.items():
+            pairs.extend((keep, piece) for piece in labels if piece != keep)
+        if cell_mask is not None and len(pieces) > 1:
+            binucleate.append(cell)
+    if pairs:
+        lut = np.arange(int(nucleus_mask.max()) + 1, dtype=np.int64)
+        for kept, piece in pairs:
+            lut[piece] = kept
+        nonzero = nucleus_mask > 0
+        nucleus_mask[nonzero] = lut[nucleus_mask[nonzero].astype(np.int64)]
+    return sorted((int(k), int(m)) for k, m in pairs), sorted(binucleate)
+
+
+def _merge_small_nucleus_pieces(nuclei, frac=0.25):
+    """Merge small nucleus pieces into the nucleus they touch (items 921/965).
+
+    The rule of the large-site preset (``seg_merge_small_nuclei_frac``),
+    reached through :func:`_assign_nuclei_to_cells` as its
+    ``nucleus_small_piece_frac`` option. The threshold is ``frac`` times
+    the median area of the field's nuclei, measured before any merge. A
+    nucleus below it that shares a border with another nucleus (pixel pairs
+    in 4-connectivity) is merged into the neighbour with which it shares
+    the longest border; ties go to the larger neighbour, then to the lower
+    label. When that neighbour is itself small and merged, the chain is
+    followed to the kept nucleus it ends on; two small pieces that choose
+    each other end on the larger one. A small piece that touches no nucleus
+    is kept: the step merges and never deletes. The labels are then
+    renumbered 1..n in the order of their old labels.
+
+    :param nuclei: a 2-D nucleus label image.
+    :param frac: the fraction of the median nucleus area below which a
+        nucleus counts as a small piece; 0 or less returns the labels
+        unchanged.
+    :returns: ``(labels, info)``: an int32 label image and a dict with
+        ``threshold_px``, ``median_area_px``, ``n_small`` and ``n_merged``.
+    """
+    lab = np.asarray(nuclei)
+    if frac <= 0 or lab.size == 0 or lab.max() == 0:
+        return lab.astype(np.int32), {"threshold_px": 0.0, "median_area_px": 0.0,
+                                      "n_small": 0, "n_merged": 0}
+    area = np.bincount(lab.ravel().astype(np.int64))
+    present = np.nonzero(area[1:])[0] + 1
+    median = float(np.median(area[present]))
+    thr = float(frac * median)
+    small = np.zeros(area.size, bool)
+    small[present[area[present] < thr]] = True
+    pairs = []
+    for a, b in ((lab[:, :-1], lab[:, 1:]), (lab[:-1, :], lab[1:, :])):
+        m = (a != b) & (a > 0) & (b > 0)
+        pairs.append(np.stack([a[m], b[m]], 1))
+    p = np.concatenate(pairs).astype(np.int64)
+    p = np.concatenate([p, p[:, ::-1]])
+    p = p[small[p[:, 0]]]
+    target = np.arange(area.size)
+    if p.size:
+        key, border = np.unique(p, axis=0, return_counts=True)
+        order = np.lexsort((key[:, 1], -area[key[:, 1]], -border, key[:, 0]))
+        key = key[order]
+        first = np.ones(len(key), bool)
+        first[1:] = key[1:, 0] != key[:-1, 0]
+        target[key[first, 0]] = key[first, 1]
+    for _ in range(64):
+        nxt = target[target]
+        if np.array_equal(nxt, target):
+            break
+        cyc = (nxt == np.arange(area.size)) & (target != np.arange(area.size))
+        if cyc.any():
+            i = np.nonzero(cyc)[0]
+            j = target[i]
+            keep = np.where((area[i] > area[j]) | ((area[i] == area[j]) & (i < j)), i, j)
+            target[keep] = keep
+            nxt = target[target]
+        target = nxt
+    n_merged = int((target[present] != present).sum())
+    out = target[lab]
+    ids = np.unique(out)
+    lut = np.zeros(int(ids.max()) + 1, np.int64)
+    lut[ids[ids > 0]] = np.arange(1, int((ids > 0).sum()) + 1)
+    return lut[out].astype(np.int32), {"threshold_px": thr, "median_area_px": median,
+                                       "n_small": int(small.sum()), "n_merged": n_merged}
+
+
+def _nuclei_per_cell(nucleus_mask, cell_mask):
+    """``{cell: nuclei}`` for every cell owning at least one nucleus."""
+    kids, parents, overlap = _label_overlaps(nucleus_mask, cell_mask)
+    _owned, owners, _ = _best_parent(kids, parents, overlap)
+    cells, counts = np.unique(owners, return_counts=True)
+    return {int(c): int(n) for c, n in zip(cells, counts)}
+
+
+def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
+                            record=None):
     """THE nucleus and cell ownership of every spaCR module, in one call.
 
     Measure, External Masks (through Measure), OPS
-    (:func:`spacr.ops_sample.pair_nuclei_with_cells`) and the time-lapse
-    tables all give nuclei to cells here:
+    (:func:`spacr.ops_sample.pair_nuclei_with_cells`), the large-site preset
+    (:func:`spacr.ops_large_sites.segment_cell_painting_site`) and the
+    time-lapse summary all pair nuclei with cells here, so a nucleus is
+    owned by the same cell everywhere:
 
+    0. Only with ``options`` ``nucleus_small_piece_frac`` above 0 (the
+       large-site preset): small nucleus pieces merge into the nucleus they
+       touch (:func:`_merge_small_nucleus_pieces`).
     1. :func:`_merge_spanning_children`: a nucleus split between several
-       cells with under 90 % in each merges those cells into one; with 90 %
-       or more in one cell, its pixels in the others are removed.
+       cells merges them unless one cell holds 90 % of it.
     2. :func:`_assign_shared_nuclei`: a nucleus label made of disconnected
        pieces in different cells keeps only the pieces in the cell it
        overlaps most.
+    3. Item 1024, alpha, only with ``options``: ``cellless_nuclei``
+       ``'nearest_cell'`` gives a nucleus outside every cell to the nearest
+       cell within ``cellless_nucleus_max_distance_px`` and fills the
+       shortest line between them, so the grown cell is one object
+       (:func:`_attach_cellless_nuclei`); ``'nucleus_only'`` records the
+       nuclei without a cell for the caller to keep.
+    4. Item 1024, alpha, only with ``nucleus_fragment_merge`` ``'rule'``:
+       the nucleus pieces of one cell that pass the fragment test are
+       merged pair by pair under their lowest label
+       (:func:`_merge_nucleus_fragments`). Pieces that fail stay apart and
+       their cell is recorded as binucleate.
+
+    With ``cell_mask`` None (cells still to be grown from the nuclei),
+    steps 1 to 3 are skipped; step 0 runs, and step 4 merges pieces within
+    ``nucleus_fragment_max_gap_px`` of each other. The nuclei are then a new
+    int32 array; ``nucleus_mask`` is not changed.
 
     :param nucleus_mask: nucleus labels, changed in place.
-    :param cell_mask: cell labels, changed in place.
+    :param cell_mask: cell labels, changed in place, or None.
+    :param options: :func:`_nucleus_pairing_options`, or None, which runs
+        steps 1 and 2 only, exactly as before item 1024.
+    :param dna: the nucleus stain of the field for the dip and the valley of
+        the fragment test, or None to skip both.
+    :param record: a dict, or None. When given it is filled with
+        ``fragments`` (``[(kept_label, merged_label)]``), ``binucleate``
+        (cells left with several nuclei), ``nuclei_per_cell``
+        (``{cell: nuclei}``), ``attached`` (``{nucleus: cell}``),
+        ``bridged`` (background pixels the attachments filled),
+        ``cellless`` (nuclei still without a cell) and, when step 0 ran,
+        ``small_pieces`` (its ``info``).
     :returns: ``(nucleus_mask, cell_mask, shared_nuclei, shared_cells,
         merged)``: the two label sets of step 2 and how many cell labels
         step 1 merged into another.
     """
+    active = _nucleus_pairing_active(options)
+    if active or record is not None:
+        options = _nucleus_pairing_options(options)
+        if active and np.ndim(nucleus_mask) != 2:
+            from .qt.i18n import tr
+
+            raise ValueError(tr(
+                "nucleus_fragment_merge and cellless_nuclei take 2-D masks "
+                "only; turn them off for a 3-D run."))
+    if record is None:
+        record = {} if active else None
+    if cell_mask is None:
+        info = None
+        if options is not None:
+            nucleus_mask, info = _merge_small_nucleus_pieces(
+                nucleus_mask, options['nucleus_small_piece_frac'])
+        else:
+            nucleus_mask = np.array(nucleus_mask, copy=True)
+        fragments = []
+        if options is not None and options['nucleus_fragment_merge'] == 'rule':
+            fragments, _ = _merge_nucleus_fragments(nucleus_mask, None, dna,
+                                                    options)
+        if record is not None:
+            record.update(fragments=fragments, binucleate=[],
+                          nuclei_per_cell={}, attached={}, bridged=0,
+                          cellless=[])
+            if info is not None:
+                record['small_pieces'] = info
+        return nucleus_mask, None, set(), set(), 0
+    if active and options['nucleus_small_piece_frac'] > 0:
+        merged_small, info = _merge_small_nucleus_pieces(
+            nucleus_mask, options['nucleus_small_piece_frac'])
+        nucleus_mask[...] = merged_small
+        record['small_pieces'] = info
     nucleus_mask, cell_mask, merged = _merge_spanning_children(
         nucleus_mask, cell_mask)
     nucleus_mask, shared_nuclei, shared_cells = _assign_shared_nuclei(
         nucleus_mask, cell_mask)
+    if record is not None:
+        attached, cellless, bridged = {}, [], 0
+        if options['cellless_nuclei'] == 'nearest_cell':
+            attached, cellless, bridged = _attach_cellless_nuclei(
+                nucleus_mask, cell_mask,
+                options['cellless_nucleus_max_distance_px'])
+        fragments, binucleate = [], []
+        if options['nucleus_fragment_merge'] == 'rule':
+            fragments, binucleate = _merge_nucleus_fragments(
+                nucleus_mask, cell_mask, dna, options)
+        if options['cellless_nuclei'] != 'nearest_cell':
+            labels = np.unique(nucleus_mask[nucleus_mask > 0]).astype(np.int64)
+            kids = _label_overlaps(nucleus_mask, cell_mask)[0]
+            cellless = [int(v) for v in labels[~np.isin(labels, kids)]]
+        per_cell = _nuclei_per_cell(nucleus_mask, cell_mask)
+        if options['nucleus_fragment_merge'] != 'rule':
+            binucleate = sorted(c for c, n in per_cell.items() if n > 1)
+        record.update(fragments=fragments, binucleate=binucleate,
+                      nuclei_per_cell=per_cell, attached=attached,
+                      bridged=bridged, cellless=cellless)
     return nucleus_mask, cell_mask, shared_nuclei, shared_cells, merged
 
 
@@ -14378,9 +14937,19 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         if settings['nucleus_mask_dim'] is not None:
             nucleus_mask = data[..., settings['nucleus_mask_dim']].astype(data_type)
             if settings['cell_mask_dim'] is not None:
+                pairing = _nucleus_pairing_options(settings)
+                pairing_record = ({} if _nucleus_pairing_active(pairing)
+                                  else None)
                 (nucleus_mask, cell_mask, shared_nuclei, shared_cells,
-                 _merged) = _assign_nuclei_to_cells(nucleus_mask, cell_mask)
+                 _merged) = _assign_nuclei_to_cells(
+                    nucleus_mask, cell_mask,
+                    options=pairing if pairing_record is not None else None,
+                    dna=(_pairing_stain(data, settings)
+                         if pairing_record is not None else None),
+                    record=pairing_record)
                 shared_labels = {'nucleus': shared_nuclei, 'cell': shared_cells}
+                if pairing_record is not None:
+                    shared_labels['pairing'] = pairing_record
                 if shared_nuclei:
                     print(f'{file}: {len(shared_nuclei)} nucleus label(s) shared '
                           'by two cells were given to the cell they overlap most.')
@@ -15438,7 +16007,13 @@ def _flag_shared_nuclei(morphology, shared):
 
     :param morphology: ``{role: DataFrame}`` of the field's morphology tables.
     :param shared: ``{'nucleus': labels, 'cell': labels}`` from
-        :func:`_assign_shared_nuclei`.
+        :func:`_assign_shared_nuclei`; with a ``pairing`` entry (the
+        ``record`` of :func:`_assign_nuclei_to_cells`, item 1024, alpha) the
+        nucleus table also gets ``nucleus_fragment_count``,
+        ``nucleus_merged`` and ``has_cell``, and the cell table
+        ``nucleus_count`` (the nuclei the cell owns after the pairing, before
+        the nucleus size filter) and ``binucleate`` (two or more). Measure
+        keeps every nucleus of a binucleate cell.
     :returns: ``morphology``, with the column on the cell and nucleus tables
         that exist.
     """
@@ -15446,7 +16021,50 @@ def _flag_shared_nuclei(morphology, shared):
         frame = morphology.get(role)
         if frame is not None and 'label' in frame.columns:
             frame['nucleus_shared'] = frame['label'].isin(shared[role]).astype(bool)
+    pairing = shared.get('pairing')
+    frame = morphology.get('nucleus')
+    if pairing is not None and frame is not None and 'label' in frame.columns:
+        counts = _fragment_counts(pairing.get('fragments') or ())
+        labels = frame['label'].astype(np.int64)
+        frame['nucleus_fragment_count'] = [counts.get(int(v), 1) for v in labels]
+        frame['nucleus_merged'] = frame['nucleus_fragment_count'] > 1
+        frame['has_cell'] = ~labels.isin(list(pairing.get('cellless') or ()))
+    frame = morphology.get('cell')
+    if pairing is not None and frame is not None and 'label' in frame.columns:
+        per_cell = pairing.get('nuclei_per_cell') or {}
+        frame['nucleus_count'] = [int(per_cell.get(int(v), 0))
+                                  for v in frame['label'].astype(np.int64)]
+        frame['binucleate'] = frame['nucleus_count'] > 1
     return morphology
+
+
+def _fragment_counts(fragments):
+    """``{kept_label: pieces}`` of the merged nuclei of item 1024.
+
+    :param fragments: ``[(kept_label, merged_label)]`` from
+        :func:`_merge_nucleus_fragments`.
+    :returns: each kept label with its own piece counted, so a merged
+        nucleus of two pieces gives 2; labels not merged are absent.
+    """
+    counts = {}
+    for kept, _piece in fragments:
+        counts[int(kept)] = counts.get(int(kept), 1) + 1
+    return counts
+
+
+def _pairing_stain(data, settings):
+    """The nucleus stain Measure gives the fragment dip test, or None.
+
+    :param data: the field's merged ``(..., channels)`` array.
+    :param settings: read for ``nucleus_channel``; empty skips the dip.
+    """
+    channel = settings.get('nucleus_channel')
+    if channel is None or channel == '':
+        return None
+    index = _measurement_channel_index(channel)
+    if index >= data.shape[-1]:
+        return None
+    return np.asarray(data[..., index], np.float32)
 
 
 def _emit_shared_nucleus_report(db_path, run=None):
