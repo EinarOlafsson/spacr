@@ -286,7 +286,7 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
 
 
 def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None,
-                            spanning="merge"):
+                            spanning="best_parent"):
     """:func:`pair_nuclei_with_cells` with the item-1024 alpha options and
     the spanning-nucleus rule chosen.
 
@@ -300,17 +300,18 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None,
     :param dna: the field's nucleus stain for the dip of the fragment
         test, or None.
     :param spanning: ``ops_ph_spanning_merge``, passed to
-        :func:`spacr.measure._assign_nuclei_to_cells`. ``'merge'`` (the
-        default, and what :func:`pair_nuclei_with_cells` uses) first applies
-        Measure's ownership rule: a nucleus split under 90 % between cells
-        merges them, and at 90 % or more its pixels in the other cells are
-        removed; ``counts['merged_cells']`` counts the merges.
-        ``'best_parent'`` skips that rule, so every nucleus goes to the cell
-        it overlaps most and no cell is merged: masks and counts are those
-        of the OPS pairing before settings schema 959 (commit 26bc722c15),
-        with ``merged_cells`` 0. A cell touched only by a piece of a nucleus
-        that belongs to another cell still counts as touched there, as it
-        did then.
+        :func:`spacr.measure._assign_nuclei_to_cells`. ``'best_parent'``
+        (the default, and what :func:`pair_nuclei_with_cells` uses): every
+        nucleus goes to the cell it overlaps most and no cell is merged;
+        masks and counts are those of the OPS pairing before settings
+        schema 959 (commit 26bc722c15), with ``merged_cells`` 0. A cell
+        touched only by a piece of a nucleus that belongs to another cell
+        still counts as touched there, as it did then. ``'merge'``, the
+        pairing of schemas 959 to 975 kept for replay, first applies
+        Measure's old ownership rule: a nucleus split under 90 % between
+        cells merges them, even cells that hold their own nuclei, and at
+        90 % or more its pixels in the other cells are removed;
+        ``counts['merged_cells']`` counts the merges.
     :returns: ``(nuclei, cells, counts, record)``. ``record`` is None
         without an active option; otherwise ``fragments``, one
         ``(label, kept_label, merged_label)`` per merged piece, ``label``

@@ -81,7 +81,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_nucleus_diameter": None,
     "ops_ph_cell_diameter": None,
     "ops_ph_downsample": 2,
-    "ops_ph_spanning_merge": "merge",
+    "ops_ph_spanning_merge": "best_parent",
     "ops_ph_tile_batch": 0,
     "batch_size": "auto_vram",
     "mask_eval_batch_size": "auto_vram",
@@ -2052,13 +2052,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "4 is about the sequencing resolution and blockier outlines. "
         "Measurement always uses the full-resolution pixels. Default 2. Alpha.",
     "ops_ph_spanning_merge":
-        "(str) - Whether a nucleus that lies in several cells merges them "
-        "before pairing. 'merge': a nucleus with under 90 percent in every "
-        "cell fuses those cells into one, as Measure does; with 90 percent or "
-        "more in one cell, its pixels in the others are erased. "
-        "'best_parent': no cell is fused; each nucleus goes to the cell it "
-        "overlaps most and each cell keeps one nucleus, the OPS pairing "
-        "before settings schema 959. Default 'merge'. Alpha.",
+        "(str) - How a nucleus that lies in several cells is paired. "
+        "'best_parent': each nucleus goes to the cell it overlaps most and "
+        "each cell keeps one nucleus; no cell is fused, as in OPS runs before "
+        "settings schema 959. 'merge': the old behaviour of schemas 959 to "
+        "975, kept to replay those runs: a nucleus with under 90 percent in "
+        "every cell fuses those cells, even cells that hold their own nuclei, "
+        "and with 90 percent or more in one cell its pixels in the others are "
+        "erased. Default 'best_parent'. Alpha.",
     "ops_ph_tile_batch":
         "(int) - How many 256-pixel tiles Cellpose passes through the "
         "network at once when it segments phenotype nuclei, cells, pathogens "

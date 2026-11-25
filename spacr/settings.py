@@ -2259,7 +2259,7 @@ def get_measure_crop_settings(settings=None):
         settings.setdefault(f'{_role}_type', DEFAULT_ORGANELLE_TYPE)
     settings.setdefault('cytoplasm_min_size',0)
     settings.setdefault('merge_edge_pathogen_cells', True)
-    settings.setdefault('spanning_merge', 'merge')
+    settings.setdefault('spanning_merge', 'best_parent')
     
     settings.setdefault('distance_gaussian_sigma', 10)
     
@@ -2665,7 +2665,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 975
+SETTINGS_SCHEMA_VERSION = 976
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2727,15 +2727,15 @@ DEFAULT_CHANGES = {
           'ops_ph_nucleus_fragment_min_contact_px': 0.0,
           'ops_ph_nucleus_fragment_max_valley_dip': None,
           'ops_ph_nucleus_fragment_max_area_rel': None},
-    968: {'ops_ph_spanning_merge': 'best_parent'},
     969: {'ops_sbs_cell_method': 'off'},
     970: {'ops_cross_field_owner_centroid': 'per_copy'},
     971: {'ops_tile_origin': 'float'},
     972: {'ops_store_raw_masks': False, 'ops_read_cache_floor': 100.0},
     975: {'ops_cellpose_model': 'cpsam_v1'},
+    976: {'ops_ph_spanning_merge': 'merge', 'spanning_merge': 'merge'},
 }
-_DEFAULT_CHANGE_FLOORS = {
-    968: {'ops_ph_spanning_merge': 959},
+_DEFAULT_CHANGE_EARLIER = {
+    976: {'ops_ph_spanning_merge': (959, 'best_parent')},
 }
 
 
@@ -2919,16 +2919,6 @@ def _fold_older_defaults(settings, version, known=None):
     files stamped before, so a later change of their defaults never
     reaches an older file.
 
-    Version 968 adds ``ops_ph_spanning_merge`` (OPS) and ``spanning_merge``
-    (Measure), 'merge' or 'best_parent': whether a nucleus over several
-    cells merges them before pairing (:func:`spacr.measure._assign_nuclei_to_cells`).
-    OPS pairing has merged since settings version 959 (commit 1612c53561), so
-    the 968 row reaches only files stamped below 959: ``_DEFAULT_CHANGE_FLOORS``
-    holds, per row and key, the version a file must be stamped below to get
-    the old default. A file stamped below 959 (or unstamped), such as the
-    frozen A1 run at 958, gets 'best_parent'; one stamped 959 to 967 keeps
-    'merge'. Measure has merged since its first release, so
-    ``spanning_merge`` has no row. Version 967 belongs to another item.
 
     Version 970 is item 1026's seam owner centroid:
     ``ops_cross_field_owner_centroid`` is now ``'linked'`` (one centroid
@@ -2962,6 +2952,21 @@ def _fold_older_defaults(settings, version, known=None):
     installed Cellpose default their wells were segmented with. Versions
     966 to 974 belong to other merges.
 
+    Version 976 makes ``'best_parent'`` the default of ``ops_ph_spanning_merge``
+    (OPS) and ``spanning_merge`` (Measure, External Masks): a nucleus over
+    several cells goes to the cell it overlaps most and no cell is merged
+    (:func:`spacr.measure._assign_nuclei_to_cells`). The old merge joined
+    cells that each hold their own nucleus (maintainer decision 2026-11-25,
+    a bug); ``'merge'`` stays for replay. Files stamped before 976 replay
+    what they ran: Measure always merged, so ``spanning_merge`` is
+    ``'merge'``. OPS pairing merged only from settings version 959 (commit
+    1612c53561), so ``_DEFAULT_CHANGE_EARLIER`` gives ``ops_ph_spanning_merge``
+    ``'best_parent'`` for a file stamped below 959 (or unstamped), such as
+    the frozen A1 run at 958, and ``'merge'`` for 959 to 975.
+    ``_DEFAULT_CHANGE_EARLIER`` holds, per row and key, ``(version, value)``:
+    a file stamped below that version gets that value in place of the
+    row's. Versions 966 to 975 belong to other items.
+
     :param settings: the file's settings under today's names, edited in
         place.
     :param version: the file's schema version from
@@ -2983,8 +2988,6 @@ def _fold_older_defaults(settings, version, known=None):
         for key, old in DEFAULT_CHANGES[changed].items():
             if key in settings or key in applied:
                 continue
-            if int(version) >= _DEFAULT_CHANGE_FLOORS.get(changed, {}).get(key, changed):
-                continue
             if known is not None and key not in known:
                 continue
             if (changed == 955 and key == 'randomize'
@@ -2993,6 +2996,9 @@ def _fold_older_defaults(settings, version, known=None):
             if key == 'image_source' and settings.get('crop_source'):
                 settings[key] = _canonical_image_source(settings['crop_source'])
                 continue
+            earlier = _DEFAULT_CHANGE_EARLIER.get(changed, {}).get(key)
+            if earlier is not None and int(version) < earlier[0]:
+                old = earlier[1]
             applied[key] = (old, changed)
     for key, (old, _changed) in applied.items():
         settings[key] = old
@@ -6204,7 +6210,7 @@ tooltips = {
     "mask": "(bool) - Whether to generate masks for the segmented objects. If True, masks will be generated for the nucleus, cell, and pathogen.",
     "measurement": "(str) - Measurement column(s) from measurements.db used to prefilter which object crops the annotator loads, applied together with threshold and threshold_direction. Accepts a single column, a comma-separated list (each paired with the same-index threshold), or a JSON list-of-lists where an inner pair is filtered as a ratio (first divided by second). Empty (default) loads every crop unfiltered.",
     "merge_edge_pathogen_cells": "(bool) - During measurement, reconcile pathogens straddling two host-cell masks: if 90 percent or more of the pathogen lies in one cell, its pixels in the neighbours are erased; otherwise the overlapping cell labels are fused into a single cell. Switch off to keep the raw cell segmentation when parasites legitimately touch two cells. Default True.",
-    "spanning_merge": "(str) - Whether a nucleus that lies in several cells merges them. 'merge': a nucleus with under 90 percent in every cell fuses those cells into one; with 90 percent or more in one cell, its pixels in the others are erased; then a nucleus still in several cells keeps only its pixels in the cell it overlaps most. 'best_parent': no cell is fused and nothing is erased first; every nucleus goes to the cell it overlaps most and is clipped to it. Default 'merge'.",
+    "spanning_merge": "(str) - How a nucleus that lies in several cells is resolved. 'best_parent': the nucleus goes to the cell it overlaps most and is clipped to it; no cell is fused. 'merge': the old behaviour, kept to replay older runs: a nucleus with under 90 percent in every cell fuses those cells into one, even cells that hold their own nuclei, and with 90 percent or more in one cell its pixels in the others are erased. Settings files from before schema 976 keep 'merge'. Default 'best_parent'.",
     "metric": "(str) - Distance metric used both by the reducer (UMAP or t-SNE) and by DBSCAN clustering, e.g. 'euclidean', 'manhattan', 'cosine' or 'correlation'. Correlation-type metrics compare feature profiles regardless of magnitude and often separate phenotypes better than euclidean on scaled data. Default 'euclidean'.",
     "min_cells_per_well": "(int) - Wells with fewer than this many cells are dropped. In a regression it is scored objects and the well is left out of the fit; in the machine-learning screen it is measured cells and the well is left out of the plate heatmap, whose pivot is then filled with 0, so an excluded well renders at the bottom of the colour scale rather than blank. Raising it removes noisy, sparsely imaged wells at the cost of power. Set 0 to switch it off. Default 100 for a regression, 25 for the screen.",
     "min_dist": "(float) - UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",

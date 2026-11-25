@@ -1544,7 +1544,7 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                                   tile_px=tile, overlap_px=overlap)
         del body
         out = _site_pairing(nuclei, cells_from_nucleus_seeds(nuclei, cellprob), after,
-                            stain)
+                            stain, spanning=settings.get("ops_ph_spanning_merge"))
         return out if merged is None else _with_merge_counts(out, merged)
     cells = segment_tiled(body, lambda x: _eval_labels(cell_model, x, settings, None,
                                                        channel_axis=-1),
@@ -1552,7 +1552,8 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                           flows=lambda x: _eval_flows(cell_model, x, settings, channel_axis=-1),
                           masks=lambda f, p: _cellpose_masks(cell_model, f, p, settings=settings,
                                                              record=mask_log, label="cells"))
-    out = _site_pairing(nuclei, cells, after, stain)
+    out = _site_pairing(nuclei, cells, after, stain,
+                        spanning=settings.get("ops_ph_spanning_merge"))
     return out if merged is None else _with_merge_counts(out, merged)
 
 
@@ -1571,16 +1572,22 @@ def _site_pairing_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any
 
 
 def _site_pairing(nuclei: np.ndarray, cells: np.ndarray,
-                  options: Optional[Mapping[str, Any]], dna
+                  options: Optional[Mapping[str, Any]], dna,
+                  spanning="best_parent"
                   ) -> Tuple[np.ndarray, np.ndarray, Dict[str, int]]:
-    """Pair a site through :func:`spacr.ops_sample.pair_nuclei_with_cells`,
-    or through its alpha form when ``options`` turn an item-1024 option on."""
-    from .measure import _nucleus_pairing_active
-    from .ops_sample import _pair_nuclei_with_cells, pair_nuclei_with_cells
+    """Pair a site through :func:`spacr.ops_sample._pair_nuclei_with_cells`.
 
-    if options is None or not _nucleus_pairing_active(options):
-        return pair_nuclei_with_cells(nuclei, cells)
-    return _pair_nuclei_with_cells(nuclei, cells, dict(options), dna=dna)[:3]
+    :param options: the item-1024 options (:func:`_site_pairing_options`),
+        or None; options that turn nothing on pair as without them.
+    :param dna: the site's nucleus stain for the fragment test, or None.
+    :param spanning: ``ops_ph_spanning_merge``.
+    :returns: ``(nuclei, cells, counts)``.
+    """
+    from .ops_sample import _pair_nuclei_with_cells
+
+    return _pair_nuclei_with_cells(
+        nuclei, cells, None if options is None else dict(options), dna=dna,
+        spanning=spanning)[:3]
 
 
 def _with_merge_counts(paired: Tuple[np.ndarray, np.ndarray, Dict[str, int]],

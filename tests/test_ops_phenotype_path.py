@@ -134,11 +134,22 @@ def test_two_segmentations_are_paired_one_nucleus_per_cell():
     nuclei[8:12, 18:24] = 2
     nuclei[2:4, 30:32] = 4
     nuclei[30:34, 30:34] = 5
+    # Nucleus 2 lies 8 px in cell 3 and 16 px in cell 7. By default (schema
+    # 976, best_parent) it goes to cell 7, which keeps it over nucleus 4;
+    # cell 3 keeps nucleus 1 and no cell is merged.
     paired_n, paired_c, counts = pair_nuclei_with_cells(nuclei, cells)
-    # Nucleus 2 lies 8 px in cell 3 and 16 px in cell 7 (67 %, under 90 %),
-    # so Measure's ownership rule, which OPS adopts (maintainer decision
-    # 2026-11-23), merges cells 3 and 7; the merged cell keeps its largest
-    # nucleus (1) of the three it now holds.
+    assert counts["merged_cells"] == 0
+    assert counts["paired"] == 2
+    assert counts["cells_without_nucleus"] == 1
+    assert counts["nuclei_without_cell"] == 1
+    assert counts["extra_nuclei_in_cell"] == 1
+    assert (paired_c > 0).sum() == 800
+    for label in np.unique(paired_n[paired_n > 0]):
+        assert np.all(paired_c[paired_n == label] == label)
+    # The replay arm 'merge' (schemas 959 to 975) merges cells 3 and 7 (67 %,
+    # under 90 %); the merged cell keeps its largest nucleus (1) of three.
+    from spacr.ops_sample import _pair_nuclei_with_cells
+    paired_n, paired_c, counts = _pair_nuclei_with_cells(nuclei, cells, "merge")
     assert counts["merged_cells"] == 1
     assert counts["paired"] == 1
     assert counts["cells_without_nucleus"] == 1
