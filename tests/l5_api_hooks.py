@@ -58,7 +58,11 @@ def _current_l5_api(entries):
 # The public names the graph-style rollout (ws-offload-codex-home-graphstyle-g2a-i18n)
 # adds beyond graphstyle_g1_api_arrivals_2026-11-23.json: eleven
 # spacr.figures.style helpers for the Measure and quality-control views, and
-# TileLayoutWidget.resizeEvent, which reflows the tile-layout key. They arrive
+# TileLayoutWidget.resizeEvent, which reflows the tile-layout key; and Home's G5
+# fix (ws-offload-claude-home-g5-dnaphase-fix): spacr.measure.mitotic_holdout,
+# the one mitotic flag held out of the DNA-phase fit, and
+# spacr.ops_tvn.dna_posterior_column, the one name list of the DNA-fit
+# posteriors. They arrive
 # through tests/data/release_contracts/l5_api_arrivals_2026-11-24.json, each
 # body bound to its source docstring.
 BIRTH = ROOT / "tests/data/release_contracts/l5_api_arrivals_2026-11-24.json"
@@ -69,9 +73,12 @@ ARRIVALS = frozenset({
         "external_legend", "image_report_css", "native_histogram_geometry",
         "native_plot_font", "paint_native_histogram", "resolve_plot_theme",
         "styled_reference_line")} | {
-    "spacr.qt.screens.align.TileLayoutWidget.resizeEvent"})
+    "spacr.qt.screens.align.TileLayoutWidget.resizeEvent",
+    "spacr.measure.mitotic_holdout", "spacr.ops_tvn.dna_posterior_column"})
 #: The arrivals that are callables of the frozen inventory.
-INVENTORY = frozenset({"spacr.qt.screens.align.TileLayoutWidget.resizeEvent"})
+INVENTORY = frozenset({"spacr.qt.screens.align.TileLayoutWidget.resizeEvent",
+                       "spacr.measure.mitotic_holdout",
+                       "spacr.ops_tvn.dna_posterior_column"})
 
 
 def _source_docstring(symbol):
