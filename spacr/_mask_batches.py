@@ -687,14 +687,17 @@ def _calibration_line(n_fields, sizes, calibration):
 
 
 def _largest_fitting_size(n_fields, per_field_gpu, per_field_ram, *, free_vram, free_ram,
-                          margin_gb, tile_batch, model_loaded):
+                          margin_gb, tile_batch, model_loaded, ram_margin=None):
     """The most fields whose normalised batch fits the GPU and RAM, with room to segment.
 
     Decided before the batch is normalised: the batch on the card, the network
     (unless this process already holds it), the eval working set for
     ``tile_batch`` tiles (``0`` means one tile per field) and the governor
-    margin must fit in the free VRAM, and one batch must fit in RAM with 2 GiB spare.
+    margin must fit in the free VRAM, and one batch must fit in RAM with the
+    free-RAM margin of :func:`_ram_margin_bytes` spare (the same margin
+    :func:`_wait_for_ram` keeps).
 
+    :param ram_margin: bytes kept free in RAM; from the RAM limit when None.
     :returns: a whole number from 1 to ``n_fields``.
     """
     gib = 2**30
@@ -706,7 +709,8 @@ def _largest_fitting_size(n_fields, per_field_gpu, per_field_ram, *, free_vram, 
         else:
             limits.append(int(spare // (per_field_gpu + _TILE_GIB * gib)))
     if free_ram is not None and per_field_ram:
-        limits.append(int((free_ram - 2 * gib) // per_field_ram))
+        spare = free_ram - (_ram_margin_bytes() if ram_margin is None else ram_margin)
+        limits.append(int(spare // per_field_ram))
     return max(1, min(limits))
 
 
