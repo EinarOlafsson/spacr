@@ -4913,18 +4913,13 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
                            site='ops_phenotype', field_count=field_count, channel_axis=-1,
                            **extra["cell"])[0]
     shape = stack.shape[:2]
-    spanning = settings.get("ops_ph_spanning_merge")
     pairing = _ph_pairing_options(settings)
-    if pairing is None:
-        return _pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
-                                       _ph_upscale(cells, factor, shape),
-                                       spanning=spanning)[:3]
+    dna = (None if pairing is None else
+           np.asarray(stack[..., list(channels).index(_NUCLEAR)], np.float32))
     nuclei, cells, counts, record = _pair_nuclei_with_cells(
         _ph_upscale(nuclei, factor, shape), _ph_upscale(cells, factor, shape),
-        pairing, dna=np.asarray(stack[..., list(channels).index(_NUCLEAR)],
-                                np.float32),
-        spanning=spanning)
-    if pairing_record is not None:
+        pairing, dna=dna, spanning=settings.get('ops_ph_spanning_merge'))
+    if pairing_record is not None and record is not None:
         pairing_record.update(record)
     return nuclei, cells, counts
 

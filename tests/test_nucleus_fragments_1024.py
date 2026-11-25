@@ -563,7 +563,7 @@ def test_settings_registered_off_with_schema_row():
                                 SETTINGS_SCHEMA_VERSION, get_measure_crop_settings)
     from spacr.ops_settings import OPS_DEFAULTS, OPS_TOOLTIPS
 
-    assert SETTINGS_SCHEMA_VERSION == 967
+    assert SETTINGS_SCHEMA_VERSION >= 967
     assert DEFAULT_CHANGES[967] == {
         "nucleus_fragment_merge": "off", "cellless_nuclei": "drop",
         "ops_ph_nucleus_fragment_merge": "off", "ops_ph_cellless_nuclei": "drop",

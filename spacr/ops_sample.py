@@ -348,10 +348,10 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None,
     active = _nucleus_pairing_active(pairing)
     record = {} if active else None
     before = int(np.unique(cells[cells > 0]).size)
+    options = ({"options": pairing, "dna": dna, "record": record}
+               if active else {})
     nuclei, cells, _shared_n, shared_c, merged = _assign_nuclei_to_cells(
-        nuclei.copy(), cells.copy(), options=pairing if active else None,
-        dna=dna if active else None, record=record,
-        spanning=spanning)
+        nuclei.copy(), cells.copy(), spanning=spanning, **options)
     n_total = int(np.unique(nuclei[nuclei > 0]).size)
     c_total = int(np.unique(cells[cells > 0]).size)
     pair_n, pair_c, overlap = _label_overlaps(nuclei, cells)

@@ -207,8 +207,8 @@ def test_merge_default_is_byte_identical_to_the_output_before_the_switch(index):
     want = _pair_before_switch(nuclei, cells)
     for got in (ops_sample.pair_nuclei_with_cells(nuclei, cells),
                 ops_sample._pair_nuclei_with_cells(nuclei, cells),
-                ops_sample._pair_nuclei_with_cells(nuclei, cells, "merge"),
-                ops_sample._pair_nuclei_with_cells(nuclei, cells, None)):
+                ops_sample._pair_nuclei_with_cells(nuclei, cells, spanning="merge"),
+                ops_sample._pair_nuclei_with_cells(nuclei, cells, spanning=None)):
         _same(got, want)
         assert got[2] == want[2]
     k_want = _kernel_before_switch(nuclei.copy(), cells.copy())
@@ -221,7 +221,7 @@ def test_merge_default_is_byte_identical_to_the_output_before_the_switch(index):
 def test_best_parent_is_byte_identical_to_the_frozen_a1_pairing(index):
     nuclei, cells = CASES[index]
     want = _pair_26bc722c15(nuclei, cells)
-    got = ops_sample._pair_nuclei_with_cells(nuclei.copy(), cells.copy(), "best_parent")
+    got = ops_sample._pair_nuclei_with_cells(nuclei.copy(), cells.copy(), spanning="best_parent")
     _same(got, want)
 
 
@@ -229,8 +229,8 @@ def test_the_cases_really_span_and_the_two_arms_differ():
     """The fixtures exercise the merge: the arms differ on some of them."""
     differ = merged = 0
     for nuclei, cells in CASES:
-        a = ops_sample._pair_nuclei_with_cells(nuclei, cells, "merge")
-        b = ops_sample._pair_nuclei_with_cells(nuclei, cells, "best_parent")
+        a = ops_sample._pair_nuclei_with_cells(nuclei, cells, spanning="merge")
+        b = ops_sample._pair_nuclei_with_cells(nuclei, cells, spanning="best_parent")
         merged += a[2]["merged_cells"] > 0
         differ += not (np.array_equal(a[0], b[0]) and np.array_equal(a[1], b[1]))
         assert b[2]["merged_cells"] == 0
@@ -256,7 +256,7 @@ def test_an_unknown_mode_is_refused():
     with pytest.raises(ValueError, match="spanning_merge"):
         M._assign_nuclei_to_cells(z, z.copy(), spanning="union")
     with pytest.raises(ValueError, match="spanning_merge"):
-        ops_sample._pair_nuclei_with_cells(z, z.copy(), "union")
+        ops_sample._pair_nuclei_with_cells(z, z.copy(), spanning="union")
 
 
 def _a1_available():
@@ -273,13 +273,13 @@ def test_a1_check_fields_best_parent_equals_the_frozen_run(site):
     raw = np.load(A1_RAW / f"site-{site}.npz")
     nuclei, cells = raw["nuclei"], raw["cells"]
     want = _pair_26bc722c15(nuclei, cells)
-    got = ops_sample._pair_nuclei_with_cells(nuclei, cells, "best_parent")
+    got = ops_sample._pair_nuclei_with_cells(nuclei, cells, spanning="best_parent")
     _same(got, want)
     if (A1_OLD / f"site-{site}.npz").is_file():
         stored = np.load(A1_OLD / f"site-{site}.npz")
         assert np.array_equal(stored["nuclei"], got[0])
         assert np.array_equal(stored["cells"], got[1])
-    merged = ops_sample._pair_nuclei_with_cells(nuclei, cells, "merge")
+    merged = ops_sample._pair_nuclei_with_cells(nuclei, cells, spanning="merge")
     _same(merged, _pair_before_switch(nuclei, cells))
 
 
@@ -316,7 +316,7 @@ def test_ops_pairing_calls_the_kernel_with_the_mode(monkeypatch):
 
     monkeypatch.setattr(M, "_assign_nuclei_to_cells", spy)
     nuclei, cells = CASES[0]
-    ops_sample._pair_nuclei_with_cells(nuclei, cells, "best_parent")
+    ops_sample._pair_nuclei_with_cells(nuclei, cells, spanning="best_parent")
     ops_sample.pair_nuclei_with_cells(nuclei, cells)
     assert seen == ["best_parent", "merge"]
 
