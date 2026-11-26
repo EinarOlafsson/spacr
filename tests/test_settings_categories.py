@@ -380,7 +380,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # 0aj P1b: split a source of several plates into plate folders (Mask).
     "split_plates",
     # 977, alpha: ops_phases, a settings file names its own OPS phases (OPS input).
-    "ops_phases",
+    "ops_phases", "ops_require_versions",
     # 983 and 984, alpha: the image and crop formats, filed under Object Crops.
     "mask_image_format", "crop_image_format", "crops_per_shard",
     "crop_margin_px", "crop_zero_outside",
