@@ -3216,12 +3216,13 @@ def _fold_older_defaults(settings, version, known=None):
     rather than ``ops_decode_fdr_max``. Files stamped before 986 get 0.1,
     the target they ran with. Only the dataset mode reads the key.
 
-    Version 987 is item 1033c (alpha): the dataset threshold tuner chooses
-    the knee of the frontier of genotyped cells and estimated errors
-    (``ops_decode_dataset_rule`` 'knee') instead of the most cells under a
-    target FDR with a held-out gain over the entered thresholds. Files
-    stamped before 987 get 'target_gain', the rule they ran with. Only the
-    dataset mode reads the key.
+    Version 987 is item 1033c (alpha): the dataset threshold tuner walks up
+    the frontier of genotyped cells and estimated errors and stops before the
+    first step that raises the error rate (``ops_decode_dataset_rule``
+    'knee') instead of taking the most cells under a target FDR with a
+    held-out gain over the entered thresholds. Files stamped before 987 get
+    'target_gain', the rule they ran with. Only the dataset mode reads the
+    key.
 
     :param settings: the file's settings under today's names, edited in
         place.

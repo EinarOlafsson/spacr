@@ -387,21 +387,22 @@ def test_the_engine_tunes_the_plate_and_keeps_the_decode_unless_it_gains(dataset
         assert decode["objects_assigned"] == manual["wells"]["A1"]["decode"]["objects_assigned"]
 
 
-def _frontier_arrays(planted=3, fields=40):
-    """A dataset whose six frontier settings have a planted knee.
+def _frontier_arrays(fields=40, decoys=(20, 24, 28, 32, 80, 200), seed=3):
+    """A dataset whose six frontier settings (``FRONT``) have a planted stop.
 
-    The settings, in order of calls, are the grid positions of ``FRONT``;
-    the errors grow slowly (elasticity below 1) up to ``planted`` and fast
-    after it. Every other setting is beaten by one of them.
+    Calls rise by 100 per setting. The decoys per field rise in step with
+    the calls (a flat error rate) up to the fourth setting, then jump, so
+    the first step whose marginal error rate is above the average one is
+    the fourth to the fifth. Every other setting is beaten by one of them.
     """
     shape = tuple(len(v) for _, v in AXES)
+    rng = np.random.default_rng(seed)
     out = {name: np.zeros((fields,) + shape, np.int64)
            for name in ("real", "decoy", "agree", "scored")}
     calls = [500, 600, 700, 800, 900, 1000]
-    decoys = [20, 21, 22, 23, 100, 500]
     for pos, n, d in zip(FRONT, calls, decoys):
         out["real"][(slice(None),) + pos] = n
-        out["decoy"][(slice(None),) + pos] = d
+        out["decoy"][(slice(None),) + pos] = d + rng.integers(-3, 4, fields)
     for pos in np.ndindex(*shape):
         if pos not in FRONT:
             out["real"][(slice(None),) + pos] = 400
@@ -417,34 +418,40 @@ FRONT = [(0, 0, 0), (0, 1, 0), (0, 2, 0), (1, 0, 0), (1, 1, 0), (1, 2, 0)]
 
 
 def _knee(arrays=None, **change):
-    from spacr import ops_decode as od
-
     config = _config(rule="knee", target_fdr=None, weights={"split": 1.0, "decoy": 1.0})
     config.update(change)
-    return _choice(arrays or _frontier_arrays(), config, choose=od._dataset_choice)
+    return _choice(arrays or _frontier_arrays(), config, choose=ops_decode._dataset_choice)
 
 
-def test_the_knee_walk_stops_where_error_growth_catches_yield_growth():
-    n = np.array([500.0, 600.0, 700.0, 800.0, 900.0, 1000.0])
-    e = np.array([10.0, 11.0, 12.0, 13.0, 40.0, 400.0])
-    position, elasticity = ops_decode._knee_position(n, e, 0)
-    assert position == 3
-    assert elasticity[:3] == sorted(elasticity[:3]) and max(elasticity[:3]) < 1.0
-    assert min(elasticity[3:]) > 1.0
-    smooth, _ = ops_decode._knee_position(n, e, 1)
-    assert abs(smooth - 3) <= 1
-    assert ops_decode._knee_position(n[:1], e[:1])[0] == 0
-    assert ops_decode._knee_position(n, np.array([1.0, 5.0, 20.0, 90.0, 400.0, 2000.0]), 0)[0] == 0
+def test_a_marginal_step_is_compared_with_the_average_error_rate():
+    n = np.array([500.0, 600.0])
+    boot_n = np.tile(n, (200, 1))
+    rng = np.random.default_rng(1)
+    noise = rng.normal(0, 1, (200, 1))
+    above = ops_decode._marginal_steps(n, np.array([10.0, 40.0]), boot_n,
+                                       np.array([10.0, 40.0]) + noise)[0]
+    assert above["marginal"] == pytest.approx(0.3) and above["average"] == pytest.approx(0.02)
+    assert above["significant"] and above["ci95"][0] > 0
+    flat = ops_decode._marginal_steps(n, np.array([10.0, 12.0]), boot_n,
+                                      np.array([10.0, 12.0]) + noise)[0]
+    assert flat["marginal"] == pytest.approx(0.02) and not flat["significant"]
+    falling = ops_decode._marginal_steps(n, np.array([10.0, 10.0]), boot_n,
+                                         np.array([10.0, 10.0]) + noise)[0]
+    assert falling["marginal"] == 0.0 and falling["diff"] < 0 and not falling["significant"]
 
 
-def test_the_planted_knee_is_found_on_the_frontier_and_adopted():
+def test_the_walk_stops_before_the_first_step_that_raises_the_error_rate():
     out = _knee()
     assert out["thresholds"]["chosen"] == _values(FRONT[3])
     assert out["adopted"] and out["thresholds"]["used"] == _values(FRONT[3])
-    flags = [r for r in out["grid"] if r["frontier"]]
-    assert len(flags) == len(FRONT) and sum(r["knee"] for r in out["grid"]) == 1
-    assert next(r for r in out["grid"] if r["knee"])["ops_read_threshold"] == 315.0
-    assert out["knee"]["report_check"]["consistent"] and out["knee"]["position"] == 3
+    knee = out["knee"]
+    assert knee["position"] == 3 and len(knee["points"]) == len(FRONT)
+    assert [step["significant"] for step in knee["steps"]][:3] == [False] * 3
+    assert knee["steps"][3]["significant"] and knee["steps"][3]["ci95"][0] > 0
+    assert knee["tune"]["out_of"]["significant"]
+    assert knee["report"]["into"] is not None and not knee["report"]["into"]["significant"]
+    walked = [r for r in out["grid"] if r["walked"]]
+    assert len(walked) == 4 and sum(r["knee"] for r in out["grid"]) == 1
     chosen, manual = out["report"]["chosen"], out["report"]["manual"]
     for part in (chosen, manual):
         assert part["n_ci95"][0] <= part["n"] <= part["n_ci95"][1]
@@ -454,14 +461,21 @@ def test_the_planted_knee_is_found_on_the_frontier_and_adopted():
     assert row["errors"] == pytest.approx(row["decoy_errors"] + row["split_errors"])
 
 
+def test_a_flat_or_falling_error_rate_walks_to_the_most_calls():
+    flat = _knee(_frontier_arrays(decoys=(20, 24, 28, 32, 36, 40)))
+    assert flat["knee"]["position"] == len(FRONT) - 1
+    assert flat["thresholds"]["chosen"] == _values(FRONT[-1])
+    falling = _knee(_frontier_arrays(decoys=(20, 22, 24, 26, 28, 30)))
+    assert falling["thresholds"]["chosen"] == _values(FRONT[-1])
+
+
 def test_the_fdr_cap_leaves_points_off_the_frontier():
     free = _knee()
-    capped = _knee(target_fdr=0.04)
-    assert [r["within_cap"] for r in capped["grid"]].count(False) > 0
-    assert all(not (r["frontier"] and not r["within_cap"]) for r in capped["grid"])
-    assert capped["thresholds"]["chosen"] != free["thresholds"]["chosen"] or \
-        not all(r["within_cap"] for r in capped["grid"])
+    capped = _knee(target_fdr=2.0)
+    assert any(not r["within_cap"] for r in capped["grid"])
+    assert all(r["within_cap"] for r in capped["grid"] if r["frontier"])
     assert sum(r["frontier"] for r in capped["grid"]) < sum(r["frontier"] for r in free["grid"])
+    assert capped["held_out_fdr"]["target"] == 2.0
     nothing = _knee(target_fdr=1e-9)
     assert not nothing["adopted"] and "cap" in nothing["reason"]
     assert nothing["thresholds"]["used"] == _values(MANUAL)
@@ -473,13 +487,13 @@ def test_the_knee_is_deterministic():
                                                                          default=str)
 
 
-def test_a_held_out_elasticity_that_contradicts_the_knee_is_not_adopted():
+def test_a_held_out_step_that_raises_the_error_rate_is_not_adopted():
     arrays = _frontier_arrays()
     arrays["decoy"][(slice(20, None),) + FRONT[3]] = 300
     out = _knee(arrays)
     assert out["thresholds"]["chosen"] == _values(FRONT[3])
-    assert not out["knee"]["report_check"]["consistent"]
-    assert not out["adopted"] and "elasticity" in out["reason"]
+    assert out["knee"]["report"]["into"]["significant"]
+    assert not out["adopted"] and "significantly raises" in out["reason"]
     assert out["thresholds"]["used"] == _values(MANUAL)
 
 

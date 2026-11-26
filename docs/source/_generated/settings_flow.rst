@@ -36639,7 +36639,7 @@ Read by ``_tuning_options``, ``ops_defaults``.
 ops_decode_dataset_rule
 -----------------------
 
-(str) - How the dataset tuner chooses. 'knee' (item 1033c) minimises errors and maximises genotyped cells: among the settings not beaten on both it walks up in genotyped cells and stops where the estimated errors start rising faster than the cells (the elasticity d ln E / d ln N reaches 1). 'target_gain' is the rule of settings saved before schema 987: the most cells under ops_decode_target_fdr, used only when its held-out gain over the entered thresholds is above 0. Default 'knee'. Alpha.
+(str) - How the dataset tuner chooses. 'knee' (item 1033c) minimises errors and maximises genotyped cells: among the settings not beaten on both it walks up from the strictest toward more genotyped cells and stops before the first step whose added calls carry a significantly higher error rate than the calls so far (paired tile bootstrap on the tuning half). With a flat error rate it therefore takes the most cells. 'target_gain' is the rule of settings saved before schema 987: the most cells under ops_decode_target_fdr, used only when its held-out gain over the entered thresholds is above 0. Default 'knee'. Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     ``_replay_settings``

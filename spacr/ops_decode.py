@@ -4129,14 +4129,8 @@ def _dataset_choice_target_gain(arrays: Mapping[str, np.ndarray], nuclei: np.nda
             **out_parts, "grid": rows}
 
 
-#: The steps on each side of a frontier step that its elasticity is read
-#: over (item 1033c): the median of ``2 * window + 1`` neighbouring step
-#: elasticities, so one noisy step cannot stop the walk or start it late and
-#: a clean jump is not blurred. 0 reads each step alone.
-DATASET_KNEE_WINDOW = 1
-
-#: The errors a setting is taken to have at least, so ``ln E`` is defined.
-_KNEE_ERROR_FLOOR = 1.0
+#: The errors drawn at least on the frontier figure, so a log axis is defined.
+_FIGURE_ERROR_FLOOR = 1.0
 
 #: The weights of the knee rule when ``ops_decode_dataset_weights`` is empty:
 #: both error kinds count once.
@@ -4146,102 +4140,73 @@ DATASET_KNEE_WEIGHTS: Dict[str, float] = {"split": 1.0, "decoy": 1.0}
 DATASET_RULES = ("knee", "target_gain")
 
 
-def _step_elasticities(n: np.ndarray, e: np.ndarray) -> np.ndarray:
-    """The elasticity d ln E / d ln N of each step between neighbouring frontier points.
+def _marginal_steps(n: np.ndarray, e: np.ndarray, n_boot: np.ndarray, e_boot: np.ndarray
+                    ) -> List[Dict[str, Any]]:
+    """The marginal against the average error rate of each step up a frontier.
 
     :param n: calls of the frontier points, in increasing order.
-    :param e: their estimated errors (at least :data:`_KNEE_ERROR_FLOOR` is used).
-    :returns: ``(ln E[j+1] - ln E[j]) / (ln N[j+1] - ln N[j])`` per step;
-        infinity when the calls do not rise.
+    :param e: their estimated errors.
+    :param n_boot: ``(draws, points)`` calls of the same points over paired
+        bootstrap draws of the fields.
+    :param e_boot: their estimated errors over the same draws.
+    :returns: per step from point ``j`` to ``j + 1``: ``marginal`` (the added
+        errors over the added calls, ``m = dE / dN``), ``average`` (``a = E / N``
+        at point ``j``), ``diff`` (``m - a``), ``ci95`` (the 2.5th and 97.5th
+        percentiles of the paired ``m - a``) and ``significant`` (the lower
+        bound above 0: the added calls raise the errors faster than the cells).
     """
-    ln_n = np.log(np.maximum(np.asarray(n, float), 1.0))
-    ln_e = np.log(np.maximum(np.asarray(e, float), _KNEE_ERROR_FLOOR))
-    rise = np.diff(ln_n)
+    n, e = np.asarray(n, float), np.asarray(e, float)
+    steps = []
     with np.errstate(divide="ignore", invalid="ignore"):
-        return np.where(rise > 0, np.diff(ln_e) / np.where(rise > 0, rise, 1.0), np.inf)
-
-
-def _knee_position(n: np.ndarray, e: np.ndarray, window: int = DATASET_KNEE_WINDOW
-                   ) -> Tuple[int, List[float]]:
-    """The knee of a Pareto frontier: where error growth catches up with yield growth.
-
-    The frontier is walked in increasing calls. The elasticity of the step
-    from point ``j`` to ``j + 1`` is the finite difference of ``ln E``
-    against ``ln N`` (:func:`_step_elasticities`), smoothed as the median of
-    the steps ``j - window`` to ``j + window`` (clipped to the frontier). The
-    knee is the end of the last step whose smoothed elasticity is at most 1,
-    that is the last point reached while relative error growth is no faster
-    than relative yield growth; the first point when no step qualifies.
-
-    :param n: calls of the frontier points, in increasing order.
-    :param e: their estimated errors (increasing).
-    :param window: steps read on each side of a step.
-    :returns: ``(position of the knee, the smoothed elasticity of each step)``.
-    """
-    steps = _step_elasticities(n, e)
-    if len(steps) < 1:
-        return 0, []
-    window = max(int(window), 0)
-    smooth = [float(np.median(steps[max(j - window, 0):j + window + 1]))
-              for j in range(len(steps))]
-    qualifying = [j for j, value in enumerate(smooth) if value <= 1.0]
-    return (qualifying[-1] + 1 if qualifying else 0), smooth
-
-
-def _knee_check(n: np.ndarray, e: np.ndarray, position: int, window: int
-                ) -> Dict[str, Any]:
-    """The elasticity into and out of the knee on one set of fields.
-
-    :param n: calls of the frontier points chosen on the tuning half, in
-        order, counted on the fields of interest.
-    :param e: their estimated errors on the same fields.
-    :param position: the position of the knee on the frontier.
-    :param window: as :func:`_knee_position`.
-    :returns: ``into`` (the median elasticity of the ``window + 1`` steps
-        ending at the knee), ``out_of`` (of the ``window + 1`` steps
-        starting there) and ``consistent``: ``into`` at most 1 and
-        ``out_of`` at least 1, each only where the frontier has that side.
-    """
-    steps = _step_elasticities(n, e)
-    window = max(int(window), 0)
-    into = float(np.median(steps[max(position - window - 1, 0):position])) \
-        if position > 0 else float("nan")
-    out_of = float(np.median(steps[position:position + window + 1])) \
-        if position < len(steps) else float("nan")
-    ok = (np.isnan(into) or into <= 1.0) and (np.isnan(out_of) or out_of >= 1.0)
-
-    def shown(value):
-        return None if np.isnan(value) else ("inf" if np.isinf(value) else float(value))
-
-    return {"into": shown(into), "out_of": shown(out_of), "consistent": bool(ok)}
+        for j in range(len(n) - 1):
+            rise = n[j + 1] - n[j]
+            marginal = (e[j + 1] - e[j]) / rise if rise > 0 else float("nan")
+            average = e[j] / n[j] if n[j] > 0 else float("nan")
+            rise_b = n_boot[:, j + 1] - n_boot[:, j]
+            diff_b = (e_boot[:, j + 1] - e_boot[:, j]) / np.where(rise_b > 0, rise_b, np.nan) \
+                - e_boot[:, j] / np.where(n_boot[:, j] > 0, n_boot[:, j], np.nan)
+            ci = _ci(diff_b)
+            steps.append({"marginal": _float(marginal), "average": _float(average),
+                          "diff": _float(marginal - average), "ci95": ci,
+                          "significant": bool(ci[0] is not None and ci[0] > 0)})
+    return steps
 
 
 def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                     tune: Sequence[int], report: Sequence[int],
                     axes: Sequence[Tuple[str, Sequence[float]]], m_pos: Tuple[int, ...],
                     config: Mapping[str, Any], *, k: int, scale: float,
-                    reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED,
-                    window: int = DATASET_KNEE_WINDOW) -> Dict[str, Any]:
-    """The knee of the yield and error frontier of a dataset (item 1033c).
+                    reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED
+                    ) -> Dict[str, Any]:
+    """The stop on the yield and error frontier of a dataset (item 1033c).
 
-    Minimise errors and maximise genotyped cells; the line is drawn where
-    errors start rising faster than the genotyped cells. On the tuning half
+    The operational form of the rule "minimise errors and maximise
+    genotyped cells; when errors start rising faster than the genotyped
+    cells, stop; and the other way round, keep going". On the tuning half
     every grid setting has ``N`` (real calls) and ``E`` (estimated false
     calls: ``N`` times the weighted sum of the decoy FDR share and the
     split-read disagreement over its floor, :func:`_dataset_terms`). The
-    Pareto frontier (more ``N``, fewer ``E``, :func:`_pareto`) is walked in
-    increasing ``N`` and the knee is the last point reached while the
-    elasticity d ln E / d ln N stays at most 1 (:func:`_knee_position`).
-    The target FDR is only an optional hard cap: a setting whose FDR bound on
-    the tuning half is above it is left off the frontier. Nothing else
-    gates the frontier, and the manual thresholds are only a reference.
+    Pareto frontier (more ``N``, fewer ``E``, :func:`_pareto`) is walked from
+    the strictest point toward more calls. At each step the marginal error
+    rate of the added calls, ``m = dE / dN``, is set against the average
+    error rate of the point the step starts from, ``a = E / N``, with a
+    paired tile bootstrap of the fields (``reps`` draws, ``seed``). The walk
+    keeps going while ``m`` is not significantly above ``a`` (the lower 95 %
+    bound of ``m - a`` is at most 0) and stops at the last point before the
+    first step where it is (:func:`_marginal_steps`). So with a flat error
+    rate the walk reaches the most calls, and if tightening lowers the
+    errors faster than the calls, the stop is on the strict side where
+    that no longer holds. The optional FDR cap leaves a setting whose FDR
+    bound on the tuning half is above it off the frontier; the manual
+    thresholds are only a reference.
 
-    The report half judges the knee: ``N``, ``E``, the decoy FDR and the
-    split-read disagreement at the knee and at the manual thresholds, with
-    bootstrap intervals, and the elasticity into and out of the knee on the
-    held-out fields (:func:`_knee_check`). The knee is adopted unless the
-    held-out elasticities contradict it (into above 1, or out of below 1),
-    or a cap is set and the held-out FDR estimate is above it.
+    The report half judges the stop: ``N``, ``E``, the decoy FDR and the
+    split-read disagreement at the stop and at the manual thresholds, with
+    bootstrap intervals, and ``m - a`` of the step into the stop and of the
+    step out of it with their intervals. The stop is adopted unless the
+    step into it significantly raises the error rate on the held-out fields
+    (lower bound of ``m - a`` above 0), or a cap is set and the held-out FDR
+    estimate is above it.
 
     :param arrays: as :func:`_dataset_choice_target_gain`.
     :param nuclei: owned nuclei per field.
@@ -4253,15 +4218,15 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
         ``ci`` and ``target_fdr`` (None for no cap).
     :param k: decoys per guide.
     :param scale: the FDR calibration.
-    :param reps: bootstrap replicates of the held-out intervals.
+    :param reps: bootstrap replicates.
     :param seed: their seed.
-    :param window: as :func:`_knee_position`.
     :returns: ``adopted``, ``auto_met`` (a frontier point was found),
         ``reason``, ``held_out_fdr``, ``thresholds`` (``chosen``, ``manual``,
         ``used``), ``tune`` and ``report`` (``chosen`` and ``manual`` numbers
-        per half), ``knee`` (``position``, ``points``, ``elasticity``, the
-        tuning and held-out ``check``) and ``grid`` (every setting on the
-        tuning half).
+        per half), ``knee`` (``position`` of the stop on the frontier, ``points``,
+        ``steps`` on the tuning half, ``into`` and ``out_of``: ``m - a`` of the
+        step into and out of the stop on the tuning and report halves) and
+        ``grid`` (every setting on the tuning half).
     """
     weights = config["weights"]
     cap = config.get("target_fdr")
@@ -4298,14 +4263,23 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                 "split_reference_nuclei": int(_dataset_summed(arrays, idx)["scored"][pos]),
                 "split_floor_pct": _float(point["split_ref_pct"][pos])}
 
+    def front_steps(idx, front_pos, draws_):
+        point, _ = counted(idx)
+        boot, _ = counted(idx, draws_)
+        pick = lambda tally: np.array([tally[pos] for pos in front_pos], float)
+        stack = lambda tally: np.stack([tally[(slice(None),) + pos] for pos in front_pos], 1)
+        return _marginal_steps(pick(point["n"]), pick(point["e"]), stack(boot["n"]),
+                               stack(boot["e"]))
+
     def as_values(pos):
         return {name: float(values[pos[a]]) for a, (name, values) in enumerate(axes)}
 
     positions = list(np.ndindex(*shape))
     chosen, reason, adopted, met = m_pos, None, False, False
     rows: List[Dict[str, Any]] = []
-    knee: Dict[str, Any] = {"position": None, "points": [], "elasticity": [], "window": int(window),
-                            "tune_check": None, "report_check": None}
+    knee: Dict[str, Any] = {"position": None, "points": [], "steps": [],
+                            "tune": {"into": None, "out_of": None},
+                            "report": {"into": None, "out_of": None}}
     held = {"estimate": None, "ci95": [None, None], "target": cap, "at_or_below_target": None}
     parts: Dict[str, Any] = {"tune": {}, "report": {}}
     if len(tune) < 2 or len(report) < 2:
@@ -4333,8 +4307,8 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                          "held_out_errors": float(report_counts["e"][pos]),
                          "held_out_fdr": float(held_score["fdr"][pos]),
                          "held_out_fdr_hi": float(held_score["fdr_hi"][pos]),
-                         "within_cap": bool(allowed[pos]), "frontier": False, "knee": False,
-                         "manual": pos == m_pos})
+                         "within_cap": bool(allowed[pos]), "frontier": False, "walked": False,
+                         "knee": False, "manual": pos == m_pos})
         if not eligible:
             reason = "no setting is at or below the FDR cap on the tuning half"
         else:
@@ -4344,24 +4318,30 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
             front = sorted((i for i, flag in enumerate(on) if flag),
                            key=lambda i: (n_eligible[i], e_eligible[i]))
             front_pos = [eligible[i] for i in front]
-            n_front = np.array([n_eligible[i] for i in front], float)
-            e_front = np.array([e_eligible[i] for i in front], float)
-            position, elasticity = _knee_position(n_front, e_front, window)
+            draws_t = _bootstrap_rows(len(tune), int(reps), int(seed))
+            draws_r = _bootstrap_rows(len(report), int(reps), int(seed))
+            steps = front_steps(tune, front_pos, draws_t)
+            first = next((j for j, step in enumerate(steps) if step["significant"]), None)
+            position = len(front_pos) - 1 if first is None else first
             chosen, met = front_pos[position], True
+            report_steps = front_steps(report, front_pos, draws_r)
             index = {pos: i for i, pos in enumerate(positions)}
-            for pos in front_pos:
+            for i, pos in enumerate(front_pos):
                 rows[index[pos]]["frontier"] = True
+                rows[index[pos]]["walked"] = i <= position
             rows[index[chosen]]["knee"] = True
-            n_report = np.array([float(report_counts["n"][pos]) for pos in front_pos])
-            e_report = np.array([float(report_counts["e"][pos]) for pos in front_pos])
-            knee.update({"position": position, "elasticity": elasticity,
-                         "points": [{**as_values(pos), "n": float(n_front[i]),
-                                     "errors": float(e_front[i]),
-                                     "held_out_n": float(n_report[i]),
-                                     "held_out_errors": float(e_report[i])}
-                                    for i, pos in enumerate(front_pos)],
-                         "tune_check": _knee_check(n_front, e_front, position, window),
-                         "report_check": _knee_check(n_report, e_report, position, window)})
+
+            def side(listing):
+                return {"into": listing[position - 1] if position > 0 else None,
+                        "out_of": listing[position] if position < len(listing) else None}
+
+            knee.update({"position": position, "steps": steps, "report_steps": report_steps,
+                         "points": [{**as_values(pos), "n": float(tune_counts["n"][pos]),
+                                     "errors": float(tune_counts["e"][pos]),
+                                     "held_out_n": float(report_counts["n"][pos]),
+                                     "held_out_errors": float(report_counts["e"][pos])}
+                                    for pos in front_pos],
+                         "tune": side(steps), "report": side(report_steps)})
     if reason is None or met:
         draws_t = _bootstrap_rows(len(tune), int(reps), int(seed))
         draws_r = _bootstrap_rows(len(report), int(reps), int(seed))
@@ -4375,19 +4355,24 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                 "at_or_below_target": None if cap is None or estimate is None
                 else bool(estimate <= cap)}
     if reason is None:
-        check = knee["report_check"]
+        into = knee["report"]["into"]
+
+        def shown(step):
+            return "no step into it" if step is None else (
+                f"m - a {step['diff']:.5f} (95 % CI {step['ci95'][0]:.5f} to {step['ci95'][1]:.5f})")
+
         if chosen == m_pos:
-            reason = "the knee of the frontier is the manual thresholds"
-        elif not check["consistent"]:
-            reason = (f"the held-out elasticity contradicts the knee (into it {check['into']}, "
-                      f"out of it {check['out_of']}; into at most 1, out of at least 1)")
+            reason = "the stop of the walk is the manual thresholds"
+        elif into is not None and into["significant"]:
+            reason = ("on the held-out fields the step into the stop significantly raises the "
+                      f"error rate: {shown(into)}")
         elif held["at_or_below_target"] is False:
             reason = (f"the held-out FDR estimate, {held['estimate']:.3f} per 100, is above the "
                       f"cap of {cap:.3f}")
         else:
             adopted = True
-            reason = (f"the knee of the frontier: elasticity into it {check['into']} and out of "
-                      f"it {check['out_of']} on the held-out fields")
+            reason = ("the stop of the walk up the frontier; held-out step into it: "
+                      f"{shown(into)}")
     return {"adopted": adopted, "auto_met": met, "reason": reason, "held_out_fdr": held,
             "thresholds": {"chosen": as_values(chosen), "manual": as_values(m_pos),
                            "used": as_values(chosen if adopted else m_pos)},
@@ -4543,9 +4528,9 @@ def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, An
                     k=k, scale=scale, reps=reps, seed=seed)
     objective = ("f = Gn (1 - e_total)^2; e_total = sum of weight x term, clipped "
                  "to [0, 1]; split = max(Sd - Sd_ref, 0), decoy = FDR share" if legacy else
-                 "knee of the frontier of calls N against estimated errors E = N x e_total "
-                 "(e_total as weighted split and decoy shares): the last frontier point "
-                 "reached while d ln E / d ln N is at most 1")
+                 "walk up the frontier of calls N against estimated errors E = N x e_total "
+                 "(e_total as weighted split and decoy shares) and stop before the first step "
+                 "whose marginal error rate dE / dN is significantly above the average E / N")
     return {"mode": "dataset", **{key: choice[key] for key in (
                 "adopted", "auto_met", "reason", "held_out_fdr", "thresholds")},
             **({} if legacy else {"knee": choice["knee"]}),
@@ -4577,8 +4562,9 @@ def plot_dataset_frontier(result: Mapping[str, Any], path: str) -> str:
     """Draw the yield and error frontier of the dataset tuner (item 1033c).
 
     Every grid setting on the tuning half is a grey dot (calls N against
-    estimated errors E, both on log axes), the Pareto frontier a line, the
-    knee a filled dot, the manual thresholds a grey diamond and, when
+    estimated errors E, both on log axes), the walk up the Pareto frontier
+    a solid line, the frontier beyond the stop a dotted one, the stop a
+    filled dot, the manual thresholds a grey diamond and, when
     ``brieflow_fair_fdr`` is given, the decoy errors of the Brieflow fair
     FDR as a dotted line E = N x FDR / 100.
 
@@ -4597,24 +4583,29 @@ def plot_dataset_frontier(result: Mapping[str, Any], path: str) -> str:
     if not (result.get("knee") and grid):
         raise ValueError("plot_dataset_frontier needs the result of the knee rule")
     n = np.array([r["n"] for r in grid], float)
-    e = np.maximum(np.array([r["errors"] for r in grid], float), _KNEE_ERROR_FLOOR)
+    e = np.maximum(np.array([r["errors"] for r in grid], float), _FIGURE_ERROR_FLOOR)
     flag = {key: np.array([bool(r[key]) for r in grid]) for key in ("frontier", "knee", "manual")}
     with plt.rc_context({"font.size": 8, "axes.linewidth": 0.6, "axes.spines.top": False,
                          "axes.spines.right": False}):
         fig, ax = plt.subplots(figsize=(3.6, 3.2))
         ax.scatter(n, e, s=6, color="#bdbdbd", linewidths=0, label="grid settings")
-        order = np.argsort(n[flag["frontier"]])
-        ax.plot(n[flag["frontier"]][order], e[flag["frontier"]][order], color="#4d4d4d",
-                lw=1.0, label="frontier")
+        walked = np.array([bool(r["walked"]) for r in grid])
+        walk = np.flatnonzero(flag["frontier"] & walked)
+        beyond = np.flatnonzero(flag["frontier"] & (~walked | flag["knee"]))
+        for chain, width, style, label in ((walk, 1.2, "-", "walk up the frontier"),
+                                           (beyond, 0.8, ":", "frontier beyond the stop")):
+            chain = chain[np.argsort(n[chain])]
+            if len(chain) > 1:
+                ax.plot(n[chain], e[chain], color="#4d4d4d", lw=width, ls=style, label=label)
         fair = result.get("brieflow_fair_fdr")
         if fair:
             grid_n = np.linspace(n.min(), n.max(), 50)
-            ax.plot(grid_n, np.maximum(grid_n * float(fair) / 100.0, _KNEE_ERROR_FLOOR),
+            ax.plot(grid_n, np.maximum(grid_n * float(fair) / 100.0, _FIGURE_ERROR_FLOOR),
                     color="#8c6bb1", lw=0.8, ls=":", label=f"Brieflow fair FDR {float(fair):g}")
         ax.scatter(n[flag["manual"]], e[flag["manual"]], s=28, marker="D", color="#969696",
                    edgecolors="black", linewidths=0.5, zorder=3, label="manual")
         ax.scatter(n[flag["knee"]], e[flag["knee"]], s=34, color="#d95f02", edgecolors="black",
-                   linewidths=0.5, zorder=4, label="knee")
+                   linewidths=0.5, zorder=4, label="stop")
         ax.set_xscale("log")
         ax.set_yscale("log")
         from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
