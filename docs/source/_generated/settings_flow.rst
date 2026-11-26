@@ -31441,7 +31441,7 @@ Read by ``dataset_threshold_settings``, ``ops_defaults``.
 ops_brieflow_split_read
 -----------------------
 
-(float) - Optional reference split-read disagreement of the Brieflow call rule, as a share of the calls that can be checked against an independent read, such as 0.0276. When given, a setting must also be at or below it to beat the reference. Default empty. Alpha.
+(float) - Optional reference split-read disagreement of the Brieflow call rule, such as 0.0276. Not recommended: the split-read check is built from reads that reach into the nucleus and favours spaCR by construction, so it is not a fair cap for Brieflow. Leave it empty; the dataset tuner already keeps the split-read disagreement of its choice from rising over the entered thresholds (ops_decode_split_guard). When given, a setting must also be at or below it to beat the reference. Default empty. Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     ``_replay_settings``
@@ -36880,7 +36880,7 @@ Read by ``_tuning_options``, ``ops_defaults``.
 ops_decode_dataset_rule
 -----------------------
 
-(str) - How the dataset tuner chooses. 'beat_reference' (item 1033d) takes, among the settings not beaten on both cells and errors, the one with the most genotyped cells that beats the Brieflow reference on both: genotyped fraction at or above ops_brieflow_yield, decoy FDR at or below ops_brieflow_fair_fdr and, when given, split-read disagreement at or below ops_brieflow_split_read. It is used only if it still beats the reference on the held-out half. With no reference, or no setting that beats it, the 'knee' rule decides: walk up from the strictest setting and stop before the first step whose added calls carry a significantly higher error rate than the calls so far (item 1033c; settings saved before schema 988). 'target_gain' is the rule of settings saved before schema 987: the most cells under ops_decode_target_fdr, used only when its held-out gain over the entered thresholds is above 0. Default 'beat_reference'. Alpha.
+(str) - How the dataset tuner chooses. 'beat_reference' (item 1033d) takes, among the settings not beaten on both cells and errors, the one with the most genotyped cells that beats the Brieflow reference on both: genotyped fraction at or above ops_brieflow_yield, decoy FDR at or below ops_brieflow_fair_fdr and, when given, split-read disagreement at or below ops_brieflow_split_read. A setting whose split-read disagreement rises over the entered thresholds beyond ops_decode_split_guard is left out. It is used only if it still beats the reference on the held-out half. With no reference, or no setting that beats it, the 'knee' rule decides: walk up from the strictest setting and stop before the first step whose added calls carry a significantly higher error rate than the calls so far (item 1033c; settings saved before schema 988). 'target_gain' is the rule of settings saved before schema 987: the most cells under ops_decode_target_fdr, used only when its held-out gain over the entered thresholds is above 0. Default 'beat_reference'. Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     ``_replay_settings``
@@ -72450,6 +72450,7 @@ Read by ``_perform_regression``, ``_reconcile_random_row_column_effects``.
 split_guard
 -----------
 
+| ``_dataset_choice`` **-- reads it**
 | ``_dataset_choice_target_gain`` **-- reads it**
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
@@ -72467,7 +72468,7 @@ split_guard
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_dataset_choice_target_gain``, ``tune_dataset_thresholds``.
+Read by ``_dataset_choice``, ``_dataset_choice_target_gain``, ``tune_dataset_thresholds``.
 
 .. _setting-flow-split_plates:
 

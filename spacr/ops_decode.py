@@ -4498,6 +4498,28 @@ def calibrate_error_weights(terms, truth, names: Sequence[str]) -> Dict[str, flo
     return {str(name): float(w) for name, w in zip(names, weights)}
 
 
+def _split_rise_guard(split_boot: np.ndarray, m_pos: Tuple[int, ...], guard: float,
+                      shape: Tuple[int, ...]) -> Tuple[np.ndarray, np.ndarray]:
+    """The split-read guard of the dataset tuner against the manual thresholds.
+
+    :param split_boot: ``(draws, *grid)`` split-read disagreement in % over
+        paired bootstrap draws of the fields.
+    :param m_pos: the grid position of the manual thresholds.
+    :param guard: the largest rise in points the upper bound may show
+        (``ops_decode_split_guard``).
+    :param shape: the grid shape.
+    :returns: ``rise_hi`` (the 97.5th percentile of the paired rise over the
+        manual thresholds, per setting) and ``ok`` (True where it is at most
+        ``guard``, and where it is undefined).
+    """
+    rise = split_boot - split_boot[(slice(None),) + tuple(m_pos)].reshape(
+        (-1,) + (1,) * len(shape))
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        rise_hi = np.nanquantile(rise, 0.975, axis=0) if len(rise) else np.full(shape, np.nan)
+    return rise_hi, ~(rise_hi > guard)
+
+
 def _dataset_summed(arrays: Mapping[str, np.ndarray], idx: Sequence[int],
                     draws: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
     """Per-field counts summed over some fields, or over bootstrap draws of them.
@@ -4588,12 +4610,7 @@ def _dataset_choice_target_gain(arrays: Mapping[str, np.ndarray], nuclei: np.nda
         score = _grid_score(counts, nuclei, tune, k, scale, config["ci"])
         held_score = _grid_score(counts, nuclei, report, k, scale, True)
         point, boot = halves["tune"]
-        rise = boot["split_pct"] - boot["split_pct"][(slice(None),) + m_pos].reshape(
-            (-1,) + (1,) * len(shape))
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", RuntimeWarning)
-            rise_hi = np.nanquantile(rise, 0.975, axis=0) if len(rise) else np.full(shape, np.nan)
-        guard_ok = ~(rise_hi > config["split_guard"])
+        rise_hi, guard_ok = _split_rise_guard(boot["split_pct"], m_pos, config["split_guard"], shape)
         fdr_ok = score["bound"] <= config["target_fdr"]
         best = None
         for pos in np.ndindex(*shape):
@@ -4745,6 +4762,17 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
     bound on the tuning half is above it off the frontier; the manual
     thresholds are only a reference.
 
+    Under ``config["rule"]`` 'beat_reference' with a reference (yield and fair
+    FDR) the frontier point with the most cells that beats it on yield and
+    decoy FDR (and the split-read rate of the reference when one is given) is
+    taken instead of the stop, provided its split-read disagreement does not
+    rise over the manual thresholds beyond ``ops_decode_split_guard``: the
+    upper bound of the paired bootstrap rise on the tuning half
+    (:func:`_split_rise_guard`, the guard of the 'target_gain' rule) and the
+    point estimate of the rise on the held-out half. The held-out half must
+    confirm the point on all of these; with no point that qualifies the stop
+    of the walk is used and the reason says so.
+
     The report half judges the stop: ``N``, ``E``, the decoy FDR and the
     split-read disagreement at the stop and at the manual thresholds, with
     bootstrap intervals, and ``m - a`` of the step into the stop and of the
@@ -4849,6 +4877,9 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                          and ref_fdr is not None)
         total_tune = max(int(nuclei[np.asarray(tune, np.int64)].sum()), 1)
         total_report = max(int(nuclei[np.asarray(report, np.int64)].sum()), 1)
+        _, guard_point = counted(tune, _bootstrap_rows(len(tune), int(reps), int(seed)))
+        rise_hi, guard_ok = _split_rise_guard(guard_point["split_pct"], m_pos,
+                                              config["split_guard"], shape)
         if use_reference:
             floor_share = float(tune_point["split_ref_pct"][m_pos]) / 100.0
             n_ref = ref_yield * total_tune
@@ -4880,7 +4911,9 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                          "held_out_fdr": float(held_score["fdr"][pos]),
                          "held_out_fdr_hi": float(held_score["fdr_hi"][pos]),
                          "yield_fraction": float(tune_counts["n"][pos]) / total_tune,
-                         "beats_reference": bool(use_reference and beats(
+                         "split_rise_hi": _float(rise_hi[pos]),
+                         "split_passes": bool(guard_ok[pos]),
+                         "beats_reference": bool(use_reference and guard_ok[pos] and beats(
                              float(tune_counts["n"][pos]), float(score["fdr"][pos]),
                              float(tune_point["split_pct"][pos]), total_tune)),
                          "within_cap": bool(allowed[pos]), "frontier": False, "walked": False,
@@ -4900,7 +4933,7 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
             first = next((j for j, step in enumerate(steps) if step["significant"]), None)
             position = len(front_pos) - 1 if first is None else first
             if use_reference:
-                winners = [i for i, pos in enumerate(front_pos) if beats(
+                winners = [i for i, pos in enumerate(front_pos) if guard_ok[pos] and beats(
                     float(tune_counts["n"][pos]), float(score["fdr"][pos]),
                     float(tune_point["split_pct"][pos]), total_tune)]
                 if winners:
@@ -4953,12 +4986,18 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                        "split": got["split_disagreement_pct"]}
             confirmed = beats(got["n"], tallies["fdr"], tallies["split"]
                               if tallies["split"] is not None else float("nan"), total_report)
-            reference_report = {**tallies, "beats_both": confirmed}
+            rise = float(report_point["split_pct"][chosen] - report_point["split_pct"][m_pos])
+            guard_held = not rise > config["split_guard"]
+            confirmed = confirmed and guard_held
+            reference_report = {**tallies, "beats_both": confirmed, "split_rise": _float(rise),
+                                "split_guard_ok": guard_held}
             if chosen == m_pos:
                 reason = "the most-cells point that beats the reference is the manual thresholds"
             elif not confirmed:
                 reason = ("on the held-out fields the chosen point no longer beats the reference "
-                          f"on both: yield {tallies['yield']:.4f} (reference {ref_yield:g}), "
+                          f"on both or raises the split-read disagreement over the guard "
+                          f"({'n/a' if reference_report['split_rise'] is None else format(reference_report['split_rise'], '+.3f')} points, guard "
+                          f"{config['split_guard']:g}): yield {tallies['yield']:.4f} (reference {ref_yield:g}), "
                           f"decoy FDR {tallies['fdr']:.4f} (reference {ref_fdr:g})"
                           + ("" if ref_split is None or tallies["split"] is None else
                              f", split-read {tallies['split'] / 100.0:.4f} (reference {ref_split:g})"))

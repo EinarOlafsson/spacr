@@ -588,3 +588,37 @@ def test_the_figure_shades_the_region_that_beats_the_reference(tmp_path):
     out.update({"brieflow_fair_fdr": 7.0})
     ops_decode.plot_dataset_frontier(out, str(tmp_path / "ref.png"))
     assert (tmp_path / "ref.png").stat().st_size > 1000
+
+
+def test_a_point_that_beats_brieflow_but_raises_the_internal_split_read_is_excluded():
+    arrays = _frontier_arrays()
+    arrays["agree"][(slice(None),) + FRONT[5]] = 45
+    out = _reference(arrays)
+    row = next(r for r in out["grid"] if r["ops_read_threshold"] == 315.0
+               and r["ops_single_read_quality"] == 0.2)
+    assert row["split_rise_hi"] > 0.1 and not row["split_passes"]
+    assert not row["beats_reference"]
+    assert out["reference"]["rule_used"] == "knee" and out["reference"]["beating_points"] == 0
+    assert out["reason"].startswith("no frontier point beats the reference")
+    easy = _reference(arrays, split=None, **{"split_guard": 100.0})
+    assert easy["thresholds"]["chosen"] == _values(FRONT[5])
+    assert easy["reference"]["rule_used"] == "beat_reference"
+
+
+def test_the_split_guard_is_checked_again_on_the_held_out_half():
+    arrays = _frontier_arrays()
+    arrays["agree"][(slice(20, None),) + FRONT[5]] = 45
+    out = _reference(arrays)
+    assert out["thresholds"]["chosen"] == _values(FRONT[5])
+    assert out["reference"]["rule_used"] == "beat_reference"
+    assert not out["reference"]["report"]["split_guard_ok"]
+    assert out["reference"]["report"]["split_rise"] > 0.1
+    assert not out["adopted"] and "split-read" in out["reason"]
+    assert out["thresholds"]["used"] == _values(MANUAL)
+
+
+def test_the_guard_helper_is_the_one_the_target_gain_rule_uses():
+    boot = np.zeros((50, 2, 3, 1))
+    boot[:, 1, 2, 0] = 5.0
+    rise_hi, ok = ops_decode._split_rise_guard(boot, (1, 1, 0), 0.1, (2, 3, 1))
+    assert ok[0, 0, 0] and not ok[1, 2, 0] and rise_hi[1, 2, 0] == pytest.approx(5.0)

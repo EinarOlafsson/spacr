@@ -4083,7 +4083,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Brieflow reference on both: genotyped fraction at or above "
         "ops_brieflow_yield, decoy FDR at or below ops_brieflow_fair_fdr "
         "and, when given, split-read disagreement at or below "
-        "ops_brieflow_split_read. It is used only if it still beats the "
+        "ops_brieflow_split_read. A setting whose split-read disagreement "
+        "rises over the entered thresholds beyond ops_decode_split_guard is "
+        "left out. It is used only if it still beats the "
         "reference on the held-out half. With no reference, or no setting "
         "that beats it, the 'knee' rule decides: walk up from the strictest "
         "setting and stop before the first step whose added calls carry a "
@@ -4102,10 +4104,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "empty. Alpha.",
     "ops_brieflow_split_read":
         "(float) - Optional reference split-read disagreement of the "
-        "Brieflow call rule, as a share of the calls that can be checked "
-        "against an independent read, such as 0.0276. When given, a setting "
-        "must also be at or below it to beat the reference. Default empty. "
-        "Alpha.",
+        "Brieflow call rule, such as 0.0276. Not recommended: the split-read "
+        "check is built from reads that reach into the nucleus and favours "
+        "spaCR by construction, so it is not a fair cap for Brieflow. Leave "
+        "it empty; the dataset tuner already keeps the split-read "
+        "disagreement of its choice from rising over the entered thresholds "
+        "(ops_decode_split_guard). When given, a setting must also be at or "
+        "below it to beat the reference. Default empty. Alpha.",
     "ops_decode_target_fdr_reference":
         "(str) - 'brieflow' marks ops_brieflow_fair_fdr on the frontier "
         "figure of the dataset tuner and, under ops_decode_dataset_rule "
