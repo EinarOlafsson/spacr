@@ -356,6 +356,14 @@ default after a higher-numbered item takes the next free number:
   is unchanged, since OPS never ran the block, and refuses ``'legacy'``.
   Numbers 977 and 978 belong to other items.
 
+- 980 (item 1036 taken back, maintainer decision 2026-11-25):
+  ``ops_sbs_cellpose_diameter`` is ``None`` again by default, so the OPS
+  sequencing nuclei are segmented at native scale and nothing is resized.
+  On a whole well the diameter added 0.2 % objects, mostly bright specks,
+  and 9, 11 and 13 pixels gave the same result. Files stamped 973 to 979
+  get ``11.0`` and reproduce their objects; files stamped below 973 keep
+  ``None``. The setting stays available.
+
 Public API
 ----------
 

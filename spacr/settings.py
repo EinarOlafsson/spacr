@@ -2665,7 +2665,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 979
+SETTINGS_SCHEMA_VERSION = 980
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2736,9 +2736,11 @@ DEFAULT_CHANGES = {
     975: {'ops_cellpose_model': 'cpsam_v1'},
     976: {'ops_ph_spanning_merge': 'merge', 'spanning_merge': 'merge'},
     978: {'ops_ph_downsample': 2, 'ops_ph_nucleus_downsample': 'same'},
+    980: {'ops_sbs_cellpose_diameter': 11.0},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
+    980: {'ops_sbs_cellpose_diameter': (973, None)},
 }
 #: Per version, ``{key: {old value: value that replays it}}``: a value whose
 #: meaning that version changed. A file stamped below the version, whether
@@ -3001,6 +3003,13 @@ def _fold_older_defaults(settings, version, known=None):
     before 978, the frozen A1 run among them, get ``ops_ph_downsample`` 2
     and ``ops_ph_nucleus_downsample`` ``'same'``, and reproduce their
     masks. 977 is reserved for another item.
+
+    Version 980 takes item 1036 back: ``ops_sbs_cellpose_diameter`` is
+    ``None`` again by default (maintainer decision 2026-11-25: on a whole
+    well the diameter added 0.2 % objects, mostly bright specks, 9, 11 and
+    13 pixels were the same, and nothing is resized). Files stamped 973 to
+    979 get 11.0 and reproduce what they ran; files stamped below 973 keep
+    None (``_DEFAULT_CHANGE_EARLIER``).
 
     Version 979 (A3-BUG2) changes no default but the meaning of one value:
     Measure's outside ring block now takes its ring from
