@@ -427,7 +427,8 @@ def depth_field(z: Mapping[str, Any], exact: np.ndarray, silver, names: Sequence
         else:
             groups.append([o])
     id0 = np.asarray(z["id0"])
-    own_reads = {o: np.flatnonzero((id0 == o) & (exact == guide_of[o])) for o in guide_of}
+    above = np.asarray(z["strength"]) > rule["threshold"]
+    own_reads = {o: np.flatnonzero((id0 == o) & (exact == guide_of[o]) & above) for o in guide_of}
     index = {g: i for i, g in enumerate(names)}
     rng = np.random.default_rng([seed, 3, site])
     peaks = np.asarray(z["peaks"], float)
