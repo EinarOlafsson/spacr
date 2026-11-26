@@ -951,6 +951,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'mask_gpu_indices',
     'mask_image_format',
     'mask_inference_precision',
+    'gpu_deterministic',
     'mask_overrides',
     'mask_parallel',
     'mask_settings',

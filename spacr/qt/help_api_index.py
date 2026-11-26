@@ -15413,6 +15413,7 @@ SETTING_CONSUMERS = {
     'mask_eval_batch_size': (('spacr.ops_settings', 'ops_defaults'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'mask_gpu_indices': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'mask_image_format': (('spacr.core', 'preprocess_generate_masks'), ('spacr.ops_engine', 'run_spatial_masks'), ('spacr.ops_settings', 'spatial_mask_defaults'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
+    'gpu_deterministic': (('spacr.gpu_determinism', 'apply_gpu_deterministic'), ('spacr.ops_settings', 'ops_defaults'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'mask_inference_precision': (('spacr.ops_engine', 'run_spatial_masks'), ('spacr.ops_settings', 'ops_defaults'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'mask_parallel': (('spacr.core', 'preprocess_generate_masks'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'),),
     'mask_src': (('spacr.submodules', 'train_cellpose'),),

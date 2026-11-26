@@ -93,6 +93,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "gpu_vram_budget_gb": None,
     "randomize": True,
     "mask_inference_precision": "auto",
+    "gpu_deterministic": False,
     "gpu_memory_margin_gb": 1.5,
     "ops_ph_sites": None,
     "ops_ph_texture": True,

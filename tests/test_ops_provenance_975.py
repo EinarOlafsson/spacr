@@ -135,6 +135,7 @@ def test_ph_fields_report_the_weights_and_the_flat_field_md5(tmp_path, weights, 
     assert json.loads(json.dumps(dict(store.attrs["spacr"]))) == {
         "cellpose_models": block["cellpose_models"],
         "software": block["software"],
+        "gpu_deterministic": False,
         "segment_flatfield_md5": block["segment_flatfield_md5"]}
 
 

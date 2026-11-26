@@ -25,6 +25,7 @@ import re
 import time
 from collections import Counter
 from .checkpoint import _atomic_json
+from .gpu_determinism import gpu_deterministic_on
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
 from .ops_settings import ops_defaults, ops_setting
 from .ops_compose import (paste_origin, tile_centres, tile_origin_rule,
@@ -3001,7 +3002,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
              if folder else None)
     raw_writer = (_objects_raw_writer(
         db, plate, {"cellpose_models": _run_provenance(settings, ("objects",)),
-         "software": _software_versions()})
+         "software": _software_versions(),
+         "gpu_deterministic": gpu_deterministic_on(settings)})
                   if ops_setting(settings, "ops_store_raw_masks") else None)
     kept = Counter()
     seconds = Counter()
@@ -7366,6 +7368,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     segment_flat = _ph_segment_flat(settings, destination, channels) if segment else None
     provenance = ({"cellpose_models": _run_provenance(settings, ("ph_segment",)),
                    "software": _software_versions(),
+                   "gpu_deterministic": gpu_deterministic_on(settings),
                    "segment_flatfield_md5": (None if segment_flat is None
                                              else segment_flat["md5"])}
                   if segment else None)
@@ -15368,7 +15371,8 @@ def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
     :param report: the well's report; the phenotype fields' own record of
         the weights and the flat-field map they segmented on
         (``ph_fields.provenance``) is lifted from it.
-    :returns: ``software`` (:func:`_software_versions`), ``cellpose_models`` (role to path, md5, model name) and
+    :returns: ``software`` (:func:`_software_versions`), ``gpu_deterministic``
+        (whether ``gpu_deterministic`` was on, item 1047), ``cellpose_models`` (role to path, md5, model name) and
         ``segment_flatfield_md5`` (channel to md5, or None when the fields
         were segmented on raw pixels). A phase this run did not run leaves
         what an earlier run of the well recorded.
@@ -15382,6 +15386,7 @@ def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
     models.update(_run_provenance(settings, [p for p in phases if p != "ph_segment"]))
     block["cellpose_models"] = models
     block["software"] = _software_versions()
+    block["gpu_deterministic"] = gpu_deterministic_on(settings)
     return block
 
 
