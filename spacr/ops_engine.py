@@ -13410,6 +13410,16 @@ def _ph_nearest_unused_links(links, owners, positions, target, object_ids,
     The pairs within ``radius`` are taken shortest first, ties to the
     lower ``site``, ``label`` and ``object_id``, each owner and each
     nucleus at most once, so two owner copies never share a nucleus.
+
+    It rarely links (item 1045b). The merge already pairs every mutual
+    nearest pair within ``ops_merge_threshold`` (4 px), and the owner
+    inherits whatever a copy of its component holds. What is left is an
+    owner whose nearest nucleus prefers a neighbouring cell that pairs
+    elsewhere. The paper emulation of 1045 found far more because it
+    joins copies only within 2 px and counts a nucleus unused while no
+    owner copy holds it; those nuclei are held by a twin of the same
+    component, which the inheritance gives the owner first
+    (``tools/ops_owner_link_emulation_1045b.py``).
     """
     import pandas as pd
     from scipy.spatial import cKDTree
