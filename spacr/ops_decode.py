@@ -4139,6 +4139,13 @@ DATASET_WEIGHTS: Dict[str, float] = {"split": 1.0, "decoy": 0.0}
 #: tile-bootstrap interval (the design card margin of 0.1 points).
 DATASET_SPLIT_GUARD = 0.1
 
+#: The target of the dataset tuner when ``ops_decode_target_fdr`` is empty and no
+#: Brieflow reference is given: false calls per 100 real calls (item 1033b).
+DATASET_DEFAULT_TARGET_FDR = 0.06
+
+#: The values of ``ops_decode_target_fdr_reference``.
+DATASET_TARGET_REFERENCES = ("brieflow",)
+
 #: The least supporting reads, one guide named, of the cleanest calls whose
 #: split-read disagreement is the floor of the reference itself (Sd_ref).
 _CLEAN_READS = 3
@@ -4156,13 +4163,16 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
 
     :param settings: read for the auto grid keys, ``ops_decode_auto_tune_fraction``,
         ``ops_decode_auto_seed``, ``ops_decode_auto_ci``, ``ops_read_threshold``,
-        ``ops_single_read_quality``, ``ops_decode_target_fdr`` (None takes
-        ``ops_decode_fdr_max``), ``ops_decode_split_guard`` and
+        ``ops_single_read_quality``, ``ops_decode_target_fdr`` (empty takes
+        ``ops_brieflow_fair_fdr`` under ``ops_decode_target_fdr_reference``
+        'brieflow', else :data:`DATASET_DEFAULT_TARGET_FDR`),
+        ``ops_decode_split_guard`` and
         ``ops_decode_dataset_weights``.
     :param rule: from :func:`decode_rule`.
     :returns: ``spot_thresholds``, ``floors`` and ``pixel_qualities``
         (sorted, the manual values included), ``manual`` (the three entered
-        thresholds), ``target_fdr`` (per 100 calls), ``split_guard`` (points),
+        thresholds), ``target_fdr`` (per 100 calls), ``target_source``
+        ('entered', 'brieflow' or 'default'), ``split_guard`` (points),
         ``weights``, ``ci``, ``tune_fraction`` and ``seed``.
     :raises ValueError: as :func:`threshold_settings` for the grid and the
         decoys; for a target or guard that is not a number above 0 (guard:
@@ -4183,7 +4193,26 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
                          "numbers") from None
     manual["ops_pixel_quality"] = float(rule["pixel_quality"])
     target = settings.get("ops_decode_target_fdr")
-    target = grid["fdr_max"] if target is None or target == "" else target
+    reference = settings.get("ops_decode_target_fdr_reference")
+    reference = None if reference is None or str(reference).strip() == "" \
+        else str(reference).strip().lower()
+    if reference is not None and reference not in DATASET_TARGET_REFERENCES:
+        raise ValueError(f"ops_decode_target_fdr_reference must be empty or one of "
+                         f"{list(DATASET_TARGET_REFERENCES)}; got {reference!r}")
+    if target is None or target == "":
+        if reference == "brieflow":
+            fair = settings.get("ops_brieflow_fair_fdr")
+            try:
+                target = float(fair)
+            except (TypeError, ValueError):
+                raise ValueError("ops_decode_target_fdr_reference 'brieflow' needs "
+                                 "ops_brieflow_fair_fdr, the fair decoy FDR of "
+                                 "the Brieflow calls in false calls per 100") from None
+            target_source = "brieflow"
+        else:
+            target, target_source = DATASET_DEFAULT_TARGET_FDR, "default"
+    else:
+        target_source = "entered"
     guard = settings.get("ops_decode_split_guard")
     guard = DATASET_SPLIT_GUARD if guard is None or guard == "" else guard
     try:
@@ -4219,7 +4248,8 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
             "floors": sorted(set(grid["floors"]) | {manual["ops_single_read_quality"]}),
             "pixel_qualities": sorted(set(grid["pixel_qualities"])
                                       | {manual["ops_pixel_quality"]}),
-            "manual": manual, "target_fdr": target, "split_guard": guard,
+            "manual": manual, "target_fdr": target, "target_source": target_source,
+            "split_guard": guard,
             "weights": weights, "ci": grid["ci"], "tune_fraction": grid["tune_fraction"],
             "seed": grid["seed"]}
 
@@ -4508,6 +4538,7 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                   f"{len(report)} report; two or more each)")
     else:
         score = _grid_score(counts, nuclei, tune, k, scale, config["ci"])
+        held_score = _grid_score(counts, nuclei, report, k, scale, True)
         point, boot = halves["tune"]
         rise = boot["split_pct"] - boot["split_pct"][(slice(None),) + m_pos].reshape(
             (-1,) + (1,) * len(shape))
@@ -4524,6 +4555,8 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                          "genotyped_pct": float(score["genotyped_pct"][pos]),
                          "fdr_per_100": float(score["fdr"][pos]),
                          "fdr_bound": float(score["bound"][pos]),
+                         "held_out_fdr": float(held_score["fdr"][pos]),
+                         "held_out_fdr_hi": float(held_score["fdr_hi"][pos]),
                          "split_disagreement_pct": _float(point["split_pct"][pos]),
                          "split_rise_hi": _float(rise_hi[pos]),
                          "e_total": float(point["e_total"][pos]),
@@ -4563,9 +4596,15 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
             entry["gain"] = gain
         out_parts[part] = entry
     adopted = False
+    held = (out_parts.get("report") or {}).get("chosen") or {}
+    held_fdr = held.get("fdr_per_100")
+    held_fdr = float("nan") if held_fdr is None else float(held_fdr)
     if reason is None:
         if chosen == m_pos:
             reason = "the tuning half chose the manual thresholds"
+        elif not held_fdr <= config["target_fdr"]:
+            reason = (f"the held-out FDR estimate, {held_fdr:.3f} per 100, is above the "
+                      f"target of {config['target_fdr']:.3f}")
         elif gain["ci95"][0] is None or not gain["ci95"][0] > 0:
             reason = (f"the held-out gain in f, {gain['f']:.1f} (95 % CI {gain['ci95'][0]:.1f} "
                       f"to {gain['ci95'][1]:.1f}), does not lie above 0"
@@ -4578,6 +4617,10 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
         return {name: float(values[pos[a]]) for a, (name, values) in enumerate(axes)}
 
     return {"adopted": adopted, "auto_met": met, "reason": reason,
+            "held_out_fdr": {"estimate": _float(held_fdr),
+                             "ci95": held.get("fdr_ci95"),
+                             "target": config["target_fdr"],
+                             "at_or_below_target": bool(held_fdr <= config["target_fdr"])},
             "thresholds": {"chosen": as_values(chosen), "manual": as_values(m_pos),
                            "used": as_values(chosen if adopted else m_pos)},
             **out_parts, "grid": rows}
@@ -4613,7 +4656,8 @@ def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, An
     with the highest ``f`` wins; ties go to the stricter setting. On the
     report half the paired bootstrap of ``f`` chosen minus ``f`` manual
     gives the gain and its interval; the choice is adopted only when the
-    interval lies above 0, otherwise the manual thresholds stay and
+    interval lies above 0 and the held-out FDR estimate (not its upper
+    bound) is at or below the target, otherwise the manual thresholds stay and
     ``reason`` says why.
 
     :param caches: well -> its folder of field caches.
@@ -4633,7 +4677,9 @@ def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, An
     :returns: ``adopted``, ``reason``, ``thresholds`` (``chosen``, ``manual``
         and ``used``, each ``ops_read_threshold``, ``ops_single_read_quality``
         and ``ops_pixel_quality``), ``objective``, ``weights``,
-        ``target_fdr``, ``split_guard``, ``tune_sites`` and ``report_sites``
+        ``target_fdr``, ``target_source``, ``held_out_fdr`` (the estimate and
+        95 % interval of the chosen setting on the report half, with the
+        target), ``split_guard``, ``tune_sites`` and ``report_sites``
         (``[well, site]`` pairs), ``tune`` and ``report`` (the chosen and the
         manual setting's numbers on each half, and on the report half the
         ``gain`` with its interval), ``grid`` (every setting on the tuning
@@ -4719,10 +4765,11 @@ def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, An
     choice = _dataset_choice(arrays, nuclei, tune, report, axes, m_pos, config,
                              k=k, scale=scale, reps=reps, seed=seed)
     return {"mode": "dataset", **{key: choice[key] for key in (
-                "adopted", "auto_met", "reason", "thresholds")},
+                "adopted", "auto_met", "reason", "held_out_fdr", "thresholds")},
             "objective": "f = Gn (1 - e_total)^2; e_total = sum of weight x term, clipped "
                          "to [0, 1]; split = max(Sd - Sd_ref, 0), decoy = FDR share",
             "weights": weights, "target_fdr": config["target_fdr"],
+            "target_source": config["target_source"],
             "split_guard": config["split_guard"], "ci": config["ci"],
             "tune_fraction": config["tune_fraction"], "seed": config["seed"],
             "reps": int(reps), "bootstrap_seed": int(seed),

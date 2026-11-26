@@ -17,9 +17,10 @@ import pytest
 pytest.importorskip("scipy")
 
 from spacr import ops_decode, ops_engine, ops_settings
-from spacr.settings import ALPHA_FEATURES, DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION
+from spacr.settings import ALPHA_FEATURES
 
-NEW = ("ops_decode_target_fdr", "ops_decode_split_guard", "ops_decode_dataset_weights")
+NEW = ("ops_decode_target_fdr", "ops_decode_split_guard", "ops_decode_dataset_weights",
+       "ops_decode_target_fdr_reference", "ops_brieflow_fair_fdr")
 GUIDES = ["GTACGT", "CATGCA", "TGCATG"]
 A, B, C = GUIDES
 
@@ -73,13 +74,11 @@ def _values(pos):
     return {name: values[pos[a]] for a, (name, values) in enumerate(AXES)}
 
 
-def test_off_is_the_default_and_adds_no_schema_row():
+def test_off_is_the_default():
     assert ops_settings.OPS_DEFAULTS["ops_decode_threshold_mode"] == "auto"
     assert "dataset" in ops_decode.THRESHOLD_MODES
     assert ALPHA_FEATURES[1033]["choices"] == {"ops_decode_threshold_mode": ("dataset",)}
     assert set(ALPHA_FEATURES[1033]["settings"]) == set(NEW)
-    assert SETTINGS_SCHEMA_VERSION == 985
-    assert not any(set(NEW) & set(row) for row in DEFAULT_CHANGES.values())
     for key in NEW:
         assert key in ops_settings.OPS_TYPES
         assert ops_settings.OPS_TOOLTIPS[key].endswith("Alpha.")
@@ -104,7 +103,7 @@ def test_dataset_mode_decodes_each_well_as_manual_does():
                                 "ops_pixel_quality": rule["pixel_quality"]}
     assert config["spot_thresholds"] == [250.0, 315.0, 330.0]
     assert 0.07 in config["floors"] and rule["pixel_quality"] in config["pixel_qualities"]
-    assert config["target_fdr"] == 0.1 and config["split_guard"] == 0.1
+    assert config["target_fdr"] == 0.06 and config["split_guard"] == 0.1
     assert config["weights"] == ops_decode.DATASET_WEIGHTS
     for bad in ({"ops_decode_target_fdr": 0}, {"ops_decode_split_guard": -1},
                 {"ops_decode_dataset_weights": {"split": -1}},
@@ -114,6 +113,68 @@ def test_dataset_mode_decodes_each_well_as_manual_does():
                                                   rule)
     with pytest.raises(ValueError, match="ops_decoy_library_k"):
         ops_decode.dataset_threshold_settings({}, {**rule, "decoy_k": 0})
+
+
+def _held_decoys(arrays, per_field, fields=40):
+    arrays["decoy"][(slice(fields // 2, None),) + PLANTED] = per_field
+    return arrays
+
+
+def test_a_held_out_fdr_estimate_over_the_target_is_not_adopted():
+    out = _choice(_held_decoys(_arrays(), 5))
+    assert out["thresholds"]["chosen"] == _values(PLANTED)
+    assert out["report"]["gain"]["ci95"][0] > 0
+    assert out["held_out_fdr"]["estimate"] > 0.1
+    assert not out["held_out_fdr"]["at_or_below_target"]
+    assert not out["adopted"] and out["thresholds"]["used"] == _values(MANUAL)
+    assert "held-out FDR estimate" in out["reason"]
+    row = next(r for r in out["grid"] if r["chosen"])
+    assert row["held_out_fdr"] == pytest.approx(out["held_out_fdr"]["estimate"])
+    assert row["held_out_fdr_hi"] >= row["held_out_fdr"]
+
+
+def test_a_held_out_fdr_estimate_under_the_target_is_adopted_even_if_its_bound_is_over():
+    arrays = _arrays()
+    arrays["decoy"][(20,) + PLANTED] = 40
+    out = _choice(arrays)
+    held = out["held_out_fdr"]
+    assert held["estimate"] <= 0.1 < held["ci95"][1]
+    assert out["adopted"] and out["thresholds"]["used"] == _values(PLANTED)
+
+
+def test_the_target_defaults_to_0_06_without_brieflow_and_follows_a_brieflow_reference():
+    rule = ops_decode.decode_rule(ops_decode.resolve_settings({"ops_decode_preset": "rule_a_s2"}))
+    base = {"ops_decode_preset": "rule_a_s2"}
+    plain = ops_decode.dataset_threshold_settings(base, rule)
+    assert plain["target_fdr"] == 0.06 and plain["target_source"] == "default"
+    given = ops_decode.dataset_threshold_settings(
+        {**base, "ops_decode_target_fdr_reference": "brieflow", "ops_brieflow_fair_fdr": 0.056},
+        rule)
+    assert given["target_fdr"] == 0.056 and given["target_source"] == "brieflow"
+    entered = ops_decode.dataset_threshold_settings(
+        {**base, "ops_decode_target_fdr": 0.2, "ops_decode_target_fdr_reference": "brieflow",
+         "ops_brieflow_fair_fdr": 0.056}, rule)
+    assert entered["target_fdr"] == 0.2 and entered["target_source"] == "entered"
+    for bad in ({"ops_decode_target_fdr_reference": "brieflow"},
+                {"ops_decode_target_fdr_reference": "other"}):
+        with pytest.raises(ValueError):
+            ops_decode.dataset_threshold_settings({**base, **bad}, rule)
+
+
+def test_schema_986_replays_the_old_target_for_older_files():
+    from spacr.settings import DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION, _fold_older_defaults
+
+    assert SETTINGS_SCHEMA_VERSION >= 986
+    assert DEFAULT_CHANGES[986] == {"ops_decode_target_fdr": 0.1}
+    old = {"ops_decode_threshold_mode": "dataset"}
+    _fold_older_defaults(old, 985)
+    assert old["ops_decode_target_fdr"] == 0.1
+    new = {"ops_decode_threshold_mode": "dataset"}
+    _fold_older_defaults(new, 986)
+    assert "ops_decode_target_fdr" not in new
+    set_by_user = {"ops_decode_target_fdr": 0.3}
+    _fold_older_defaults(set_by_user, 985)
+    assert set_by_user["ops_decode_target_fdr"] == 0.3
 
 
 def test_the_tuner_finds_the_planted_optimum_under_the_fdr_target():
