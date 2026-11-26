@@ -276,7 +276,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_pixel_footprint": 5.0,
     "ops_pixel_min_pixels": 2,
     "ops_pixel_min_fraction": 0.6,
-    "ops_pixel_quality": 0.1,
+    "ops_pixel_quality": 0.2,
     "ops_decoy_library_k": 0,
     "ops_fdr_scale": 1.268,
     "ops_decode_threshold_mode": "auto",
@@ -3870,7 +3870,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_pixel_quality":
         "(float) - The weakest pixel call, as its worst cycle's margin from "
         "0 to 1, that votes in the pixel fallback. Higher assigns fewer "
-        "nuclei at a lower decoy rate. Default 0.1.",
+        "nuclei at a lower decoy rate. Default 0.2.",
     "ops_decoy_library_k":
         "(int) - How many base-shuffled decoy barcodes per guide are "
         "matched alongside the library. A nucleus assigned a decoy is "

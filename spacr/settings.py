@@ -2665,7 +2665,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 982
+SETTINGS_SCHEMA_VERSION = 983
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2739,6 +2739,7 @@ DEFAULT_CHANGES = {
     980: {'ops_sbs_cellpose_diameter': 11.0},
     981: {'ops_pixel_ownership': 'nearest_nucleus', 'ops_pixel_footprint': None},
     982: {'ops_owner_link_inherit': 'off'},
+    983: {'ops_pixel_quality': 0.1},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
@@ -3070,6 +3071,14 @@ def _fold_older_defaults(settings, version, known=None):
     genotype: on plate A A1, 13.3 % of the owner copies were unlinked,
     90 % of them within 3 px of an SBS nucleus. Files stamped before 982
     get ``'off'`` and link as before.
+
+    Version 983 is item 1049: ``ops_pixel_quality`` is 0.2, the weakest
+    pixel call, as its worst cycle's margin, that votes in the pixel
+    fallback. On plate A A1 (with items 1023, 1044b and 1045 on) 0.2
+    brings the decoy FDR of the pixel fallback to 0.054 %, costs 0.18
+    points of single-gene yield and leaves the split-read disagreement,
+    the spike-in and the silver k0 rate unchanged. Files stamped before
+    983 get 0.1 and keep their pixel calls.
 
     :param settings: the file's settings under today's names, edited in
         place.

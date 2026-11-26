@@ -191,9 +191,9 @@ def test_spots_refine_corrects_a_residual_shift_spots_keeps():
 def test_the_preset_fills_defaults_and_keeps_what_was_set():
     resolved = ops_decode.resolve_settings({"ops_decode_preset": "rule_a_s2",
                                             "ops_single_read_quality": 0.03,
-                                            "ops_pixel_quality": 0.2})
+                                            "ops_pixel_quality": 0.3})
     assert resolved["ops_single_read_quality"] == 0.06
-    assert resolved["ops_pixel_quality"] == 0.2
+    assert resolved["ops_pixel_quality"] == 0.3
     assert resolved["ops_channel_registration"] == "spots_refine"
     assert ops_decode.resolve_settings({"x": 1}) == {"x": 1}
     with pytest.raises(ValueError, match="ops_decode_preset"):

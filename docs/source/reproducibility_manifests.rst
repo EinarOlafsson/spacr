@@ -391,6 +391,11 @@ default after a higher-numbered item takes the next free number:
   ``ops_owner_link_conflicts_<well>.parquet`` and left as the merge
   linked them. Files stamped before 982 get ``'off'`` and keep each link
   on the copy the merge gave it.
+- 983 (item 1049, pixel-fallback quality): ``ops_pixel_quality`` is 0.2,
+  the weakest pixel call, as its worst cycle's margin from 0 to 1, that
+  votes in the pixel fallback. On plate A A1 it brings the decoy FDR to
+  0.054 % for 0.18 points of single-gene yield. Files stamped before 983
+  get 0.1 and keep their pixel calls.
 
 Public API
 ----------
