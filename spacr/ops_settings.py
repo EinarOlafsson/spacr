@@ -190,6 +190,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_nucleus_fragment_max_area_rel": None,
     "ops_ph_cellless_nuclei": "drop",
     "ops_ph_cellless_nucleus_max_distance_px": 5.0,
+    "ops_ph_extra_nuclei": "drop",
+    "ops_ph_merge_small_nuclei_px": 0.0,
     "ops_drop_failed_fields": False,
     "ops_drop_nonfinite_rows": False,
     "ops_profile_normalisation": "robust_z",
@@ -831,6 +833,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_nucleus_fragment_max_area_rel": (float, int, type(None)),
     "ops_ph_cellless_nuclei": str,
     "ops_ph_cellless_nucleus_max_distance_px": (float, int),
+    "ops_ph_extra_nuclei": str,
+    "ops_ph_merge_small_nuclei_px": (float, int),
     "ops_drop_failed_fields": bool,
     "ops_drop_nonfinite_rows": bool,
     "ops_profile_normalisation": str,
@@ -1455,6 +1459,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_nucleus_fragment_max_area_rel",
         "ops_ph_cellless_nuclei",
         "ops_ph_cellless_nucleus_max_distance_px",
+        "ops_ph_extra_nuclei",
+        "ops_ph_merge_small_nuclei_px",
         "ops_store_raw_masks",
     ],
     "Phenotype acquisitions": [
@@ -2317,6 +2323,25 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "'nearest_cell' to give it to that cell; 1 is touching. Nuclei "
         "farther away stay without a cell. Only read when "
         "ops_ph_cellless_nuclei is 'nearest_cell'. Default 5.0. Alpha.",
+    "ops_ph_extra_nuclei":
+        "(str) - 'keep_all' keeps every nucleus of a cell that holds "
+        "several (a binucleate cell) instead of only the largest: the "
+        "further nuclei keep their own keys after the paired ones, "
+        "linked to the cell in ops_nucleus_fragments_<well>.parquet, "
+        "and are excluded from the cytoplasm. The phenotype table stays"
+        " ONE ROW PER PHYSICAL CELL for genotype joins: the cell row "
+        "keeps its largest nucleus and gains nucleus_count, nucleus_ids"
+        " and nucleus_area_total. 'drop' pairs as before. Default "
+        "'drop'. Alpha.",
+    "ops_ph_merge_small_nuclei_px":
+        "(float) - Larger merges bigger pieces: a nucleus smaller than "
+        "this many pixels is merged into the touching nucleus of the "
+        "same cell before pairing, so a fragment no longer becomes a "
+        "cell of its own or is dropped. A piece touching no nucleus of "
+        "its cell is kept. The large-site preset runs the same merge "
+        "(before seeding, when cells grow from nuclei). Replayable from"
+        " stored raw masks. 300 suits full-resolution masks. Default 0 "
+        "(off). Alpha.",
     "ops_drop_failed_fields":
         "(bool) - Leave out the cells of fields that did not register. The "
         "merge phase compares each field's link rate with the rate an "

@@ -1447,6 +1447,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "nucleus_fragment_min_contact_px", "nucleus_fragment_max_valley_dip",
             "nucleus_fragment_max_area_rel",
             "cellless_nuclei", "cellless_nucleus_max_distance_px",
+            "extra_nuclei", "merge_small_nuclei_px",
             "funk_object_features", "zernike", "channel_names",
             "spatial_measurements",
             "spatial_neighbor_radius",

@@ -368,6 +368,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_ph_nucleus_fragment_merge", "ops_ph_nucleus_fragment_max_gap_px",
     "ops_ph_nucleus_fragment_min_solidity", "ops_ph_nucleus_fragment_max_dip",
     "ops_ph_cellless_nuclei", "ops_ph_cellless_nucleus_max_distance_px",
+    # Items 1028/1029 (alpha): keep every nucleus of a cell, and one shared
+    # small-fragment merge, in the one pairing (no schema row: off by default).
+    "extra_nuclei", "merge_small_nuclei_px",
+    "ops_ph_extra_nuclei", "ops_ph_merge_small_nuclei_px",
     # Item 1031, schema 971: the tile origin of every well-tile conversion.
     "ops_tile_origin",
     # Item 1025 (alpha, schema 969): SBS cell segmentation (OPS SBS cells α).

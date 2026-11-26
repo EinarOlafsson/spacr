@@ -158,4 +158,8 @@ def test_funks_phenotype_path_reads_neither_setting():
 
     source = inspect.getsource(ops_engine._ph_segment_field)
     assert not any(key in source for key in KEYS)
-    assert "merge_small_nuclei" not in inspect.getsource(ops_engine)
+    engine = inspect.getsource(ops_engine)
+    # Items 1028/1029 add ops_ph_merge_small_nuclei_px, an opt-in OPS option of
+    # the shared pairing (off by default); the large-site merge itself stays out.
+    assert "merge_small_nuclei(" not in engine
+    assert "seg_merge_small_nuclei_frac" not in engine

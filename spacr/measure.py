@@ -1914,6 +1914,8 @@ _NUCLEUS_PAIRING_DEFAULTS = {
     'nucleus_fragment_max_area_rel': None,
     'cellless_nuclei': 'drop',
     'cellless_nucleus_max_distance_px': 5.0,
+    'extra_nuclei': 'drop',
+    'merge_small_nuclei_px': 0.0,
 }
 
 #: Pairing options that are not settings of their own and carry no
@@ -1927,6 +1929,12 @@ _NUCLEUS_FRAGMENT_MERGE_MODES = ('off', 'rule')
 
 #: The values of ``cellless_nuclei``, the first the default.
 _CELLLESS_NUCLEI_MODES = ('drop', 'nearest_cell', 'nucleus_only')
+
+#: Items 1028/1029 (alpha): the values of ``extra_nuclei``, the first the
+#: default. ``'keep_all'`` keeps every nucleus of a cell with several
+#: nuclei as its own object linked to that cell, where the default OPS
+#: pairing keeps only the largest.
+_EXTRA_NUCLEI_MODES = ('drop', 'keep_all')
 
 
 def _pairing_number(value, default):
@@ -1963,7 +1971,8 @@ def _nucleus_pairing_options(settings=None, prefix=''):
     for name, default in _NUCLEUS_PAIRING_INTERNAL.items():
         options[name] = _pairing_number(settings.get(name), default)
     for name, modes in (('nucleus_fragment_merge', _NUCLEUS_FRAGMENT_MERGE_MODES),
-                        ('cellless_nuclei', _CELLLESS_NUCLEI_MODES)):
+                        ('cellless_nuclei', _CELLLESS_NUCLEI_MODES),
+                        ('extra_nuclei', _EXTRA_NUCLEI_MODES)):
         if options[name] not in modes:
             from .qt.i18n import tr
 
@@ -1980,7 +1989,22 @@ def _nucleus_pairing_active(options):
     return bool(options) and (
         options.get('nucleus_fragment_merge', 'off') != 'off'
         or options.get('cellless_nuclei', 'drop') != 'drop'
+        or options.get('extra_nuclei', 'drop') != 'drop'
+        or float(options.get('merge_small_nuclei_px') or 0) > 0
         or float(options.get('nucleus_small_piece_frac') or 0) > 0)
+
+
+def _keeps_extra_nuclei(options):
+    """True when the pairing keeps the further nuclei of a cell (items 1024, 1028/1029).
+
+    :param options: :func:`_nucleus_pairing_options`, or None.
+    :returns: True for ``nucleus_fragment_merge`` ``'rule'`` (pieces that
+        fail the fragment test stay as further nuclei, item 1024) or
+        ``extra_nuclei`` ``'keep_all'`` (every nucleus of the cell is kept).
+    """
+    return bool(options) and (
+        options.get('nucleus_fragment_merge', 'off') == 'rule'
+        or options.get('extra_nuclei', 'drop') == 'keep_all')
 
 
 def _four_connected_path(start, end, cell_mask, owner):
@@ -2297,8 +2321,9 @@ def _merge_nucleus_fragments(nucleus_mask, cell_mask, dna=None, options=None,
     return sorted((int(k), int(m)) for k, m in pairs), sorted(binucleate)
 
 
-def _merge_small_nucleus_pieces(nuclei, frac=0.25):
-    """Merge small nucleus pieces into the nucleus they touch (items 921/965).
+def _merge_small_nucleus_pieces(nuclei, frac=0.25, min_area_px=0.0,
+                                cell_mask=None):
+    """Merge small nucleus pieces into the nucleus they touch (items 921/965, 1029).
 
     The rule of the large-site preset (``seg_merge_small_nuclei_frac``),
     reached through :func:`_assign_nuclei_to_cells` as its
@@ -2313,23 +2338,41 @@ def _merge_small_nucleus_pieces(nuclei, frac=0.25):
     is kept: the step merges and never deletes. The labels are then
     renumbered 1..n in the order of their old labels.
 
+    The same routine is ``merge_small_nuclei_px`` (items 1028/1029,
+    alpha): with ``min_area_px`` above 0 a nucleus smaller than that many
+    pixels also counts as a small piece, and with ``cell_mask`` a piece
+    merges only into a touching nucleus of the same cell (each nucleus
+    belongs to the cell it overlaps most, :func:`_best_parent`); a piece
+    without a cell, or touching only nuclei of other cells, is kept.
+
     :param nuclei: a 2-D nucleus label image.
     :param frac: the fraction of the median nucleus area below which a
-        nucleus counts as a small piece; 0 or less returns the labels
-        unchanged.
+        nucleus counts as a small piece; 0 or less turns this test off.
+    :param min_area_px: the area in pixels below which a nucleus counts as
+        a small piece; 0 or less turns this test off. With both tests off
+        the labels are returned unchanged.
+    :param cell_mask: cell labels of the same field, or None to merge
+        across cells as the large-site preset does.
     :returns: ``(labels, info)``: an int32 label image and a dict with
-        ``threshold_px``, ``median_area_px``, ``n_small`` and ``n_merged``.
+        ``threshold_px``, ``median_area_px``, ``n_small`` and ``n_merged``,
+        plus ``min_area_px`` when that test is on.
     """
     lab = np.asarray(nuclei)
-    if frac <= 0 or lab.size == 0 or lab.max() == 0:
-        return lab.astype(np.int32), {"threshold_px": 0.0, "median_area_px": 0.0,
-                                      "n_small": 0, "n_merged": 0}
+    min_area_px = float(min_area_px or 0.0)
+    if (frac <= 0 and min_area_px <= 0) or lab.size == 0 or lab.max() == 0:
+        info = {"threshold_px": 0.0, "median_area_px": 0.0,
+                "n_small": 0, "n_merged": 0}
+        if min_area_px > 0:
+            info["min_area_px"] = min_area_px
+        return lab.astype(np.int32), info
     area = np.bincount(lab.ravel().astype(np.int64))
     present = np.nonzero(area[1:])[0] + 1
     median = float(np.median(area[present]))
-    thr = float(frac * median)
+    thr = float(frac * median) if frac > 0 else 0.0
     small = np.zeros(area.size, bool)
     small[present[area[present] < thr]] = True
+    if min_area_px > 0:
+        small[present[area[present] < min_area_px]] = True
     pairs = []
     for a, b in ((lab[:, :-1], lab[:, 1:]), (lab[:-1, :], lab[1:, :])):
         m = (a != b) & (a > 0) & (b > 0)
@@ -2337,6 +2380,12 @@ def _merge_small_nucleus_pieces(nuclei, frac=0.25):
     p = np.concatenate(pairs).astype(np.int64)
     p = np.concatenate([p, p[:, ::-1]])
     p = p[small[p[:, 0]]]
+    if cell_mask is not None and p.size:
+        owner = np.zeros(area.size, np.int64)
+        kids, parents, overlap = _label_overlaps(lab, np.asarray(cell_mask))
+        owned, owners, _ = _best_parent(kids, parents, overlap)
+        owner[np.asarray(owned, np.int64)] = owners
+        p = p[(owner[p[:, 0]] > 0) & (owner[p[:, 0]] == owner[p[:, 1]])]
     target = np.arange(area.size)
     if p.size:
         key, border = np.unique(p, axis=0, return_counts=True)
@@ -2362,8 +2411,11 @@ def _merge_small_nucleus_pieces(nuclei, frac=0.25):
     ids = np.unique(out)
     lut = np.zeros(int(ids.max()) + 1, np.int64)
     lut[ids[ids > 0]] = np.arange(1, int((ids > 0).sum()) + 1)
-    return lut[out].astype(np.int32), {"threshold_px": thr, "median_area_px": median,
-                                       "n_small": int(small.sum()), "n_merged": n_merged}
+    info = {"threshold_px": thr, "median_area_px": median,
+            "n_small": int(small.sum()), "n_merged": n_merged}
+    if min_area_px > 0:
+        info["min_area_px"] = min_area_px
+    return lut[out].astype(np.int32), info
 
 
 def _nuclei_per_cell(nucleus_mask, cell_mask):
@@ -2408,6 +2460,11 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
     0. Only with ``options`` ``nucleus_small_piece_frac`` above 0 (the
        large-site preset): small nucleus pieces merge into the nucleus they
        touch (:func:`_merge_small_nucleus_pieces`).
+    0b. Items 1028/1029, alpha, only with ``merge_small_nuclei_px`` above
+       0: a nucleus smaller than that many pixels merges into the touching
+       nucleus of the same cell, by the same
+       :func:`_merge_small_nucleus_pieces` (without cells, into the nucleus
+       it touches).
     (:func:`spacr.ops_sample.pair_nuclei_with_cells`) and the time-lapse
     tables all give nuclei to cells here:
 
@@ -2449,8 +2506,11 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
         (cells left with several nuclei), ``nuclei_per_cell``
         (``{cell: nuclei}``), ``attached`` (``{nucleus: cell}``),
         ``bridged`` (background pixels the attachments filled),
-        ``cellless`` (nuclei still without a cell) and, when step 0 ran,
-        ``small_pieces`` (its ``info``).
+        ``cellless`` (nuclei still without a cell), when step 0 ran,
+        ``small_pieces`` (its ``info``), when step 0b ran,
+        ``small_fragments`` (its ``info``), and with ``extra_nuclei``
+        ``'keep_all'``, ``nucleus_ids`` (``{cell: [nuclei]}``, largest
+        nucleus first, then by label).
     :param spanning: ``'best_parent'`` (default) runs step 2 only, so every
         nucleus goes to its largest-overlap cell and cells are never merged
         -- the OPS pairing of the frozen A1 run (before settings schema
@@ -2478,6 +2538,10 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
                 nucleus_mask, options['nucleus_small_piece_frac'])
         else:
             nucleus_mask = np.array(nucleus_mask, copy=True)
+        small_info = None
+        if options is not None and options['merge_small_nuclei_px'] > 0:
+            nucleus_mask, small_info = _merge_small_nucleus_pieces(
+                nucleus_mask, 0.0, min_area_px=options['merge_small_nuclei_px'])
         fragments = []
         if options is not None and options['nucleus_fragment_merge'] == 'rule':
             fragments, _ = _merge_nucleus_fragments(nucleus_mask, None, dna,
@@ -2488,12 +2552,20 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
                           cellless=[])
             if info is not None:
                 record['small_pieces'] = info
+            if small_info is not None:
+                record['small_fragments'] = small_info
         return nucleus_mask, None, set(), set(), 0
     if active and options['nucleus_small_piece_frac'] > 0:
         merged_small, info = _merge_small_nucleus_pieces(
             nucleus_mask, options['nucleus_small_piece_frac'])
         nucleus_mask[...] = merged_small
         record['small_pieces'] = info
+    if active and options['merge_small_nuclei_px'] > 0:
+        merged_small, info = _merge_small_nucleus_pieces(
+            nucleus_mask, 0.0, min_area_px=options['merge_small_nuclei_px'],
+            cell_mask=cell_mask)
+        nucleus_mask[...] = merged_small
+        record['small_fragments'] = info
     if _spanning_mode(spanning) == 'merge':
         nucleus_mask, cell_mask, merged = _merge_spanning_children(
             nucleus_mask, cell_mask)
@@ -2521,7 +2593,25 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
         record.update(fragments=fragments, binucleate=binucleate,
                       nuclei_per_cell=per_cell, attached=attached,
                       bridged=bridged, cellless=cellless)
+        if options['extra_nuclei'] == 'keep_all':
+            record['nucleus_ids'] = _nucleus_ids_per_cell(nucleus_mask, cell_mask)
     return nucleus_mask, cell_mask, shared_nuclei, shared_cells, merged
+
+
+def _nucleus_ids_per_cell(nucleus_mask, cell_mask):
+    """``{cell: [nuclei]}`` of every cell owning a nucleus (items 1028/1029).
+
+    Each nucleus belongs to the cell it overlaps most (:func:`_best_parent`);
+    a cell lists its nuclei by that overlap, largest first, ties by label,
+    so the first is the one the default OPS pairing keeps.
+    """
+    kids, parents, overlap = _label_overlaps(nucleus_mask, cell_mask)
+    owned, owners, sizes = _best_parent(kids, parents, overlap)
+    out = {}
+    for cell, _size, nucleus in sorted(zip(owners.tolist(), (-sizes).tolist(),
+                                           owned.tolist())):
+        out.setdefault(int(cell), []).append(int(nucleus))
+    return out
 
 
 def _derive_cytoplasm(cell, exclude=()):
@@ -16132,8 +16222,11 @@ def _flag_shared_nuclei(morphology, shared):
         nucleus table also gets ``nucleus_fragment_count``,
         ``nucleus_merged`` and ``has_cell``, and the cell table
         ``nucleus_count`` (the nuclei the cell owns after the pairing, before
-        the nucleus size filter) and ``binucleate`` (two or more). Measure
-        keeps every nucleus of a binucleate cell.
+        the nucleus size filter) and ``binucleate`` (two or more); with
+        ``extra_nuclei`` ``'keep_all'`` also ``nucleus_ids``
+        (:func:`_join_nucleus_ids`). Measure keeps every nucleus of a
+        binucleate cell in the nucleus table, each linked to its cell, and
+        one row per cell in the cell table.
     :returns: ``morphology``, with the column on the cell and nucleus tables
         that exist.
     """
@@ -16155,7 +16248,20 @@ def _flag_shared_nuclei(morphology, shared):
         frame['nucleus_count'] = [int(per_cell.get(int(v), 0))
                                   for v in frame['label'].astype(np.int64)]
         frame['binucleate'] = frame['nucleus_count'] > 1
+        if 'nucleus_ids' in pairing:
+            ids = pairing['nucleus_ids']
+            frame['nucleus_ids'] = [_join_nucleus_ids(ids.get(int(v), ()))
+                                    for v in frame['label'].astype(np.int64)]
     return morphology
+
+
+def _join_nucleus_ids(ids):
+    """The ``nucleus_ids`` cell of one cell row: its nucleus labels joined by ``;``.
+
+    Items 1028/1029: one row per physical cell, so a cell with two nuclei
+    names both here (``'3;57'``) rather than appearing twice.
+    """
+    return ';'.join(str(int(v)) for v in ids)
 
 
 def _fragment_counts(fragments):
