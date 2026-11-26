@@ -2744,7 +2744,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
 
     On the OPS panel the shared mask inference settings OPS passes to its
     Cellpose runs (``batch_size``, ``mask_eval_batch_size``,
-    ``mask_inference_precision``) sit with Phenotype segmentation rather
+    ``mask_inference_precision``, ``gpu_deterministic``) sit with Phenotype segmentation rather
     than in the shared "Advanced" heading, which would draw above OPS input,
     and the shared "GPU Memory α" heading follows OPS performance, nested
     under OPS input by :data:`_APP_CATEGORY_PARENTS`.
@@ -2793,7 +2793,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
         result["UMAP Display"] = list(display)
     if app_key == "ops" and "Phenotype segmentation" in result:
         mask_keys = ("batch_size", "mask_eval_batch_size",
-                     "mask_inference_precision", "randomize")
+                     "mask_inference_precision", "gpu_deterministic", "randomize")
         for name, keys in result.items():
             if name != "Phenotype segmentation":
                 for key in mask_keys:

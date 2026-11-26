@@ -1324,6 +1324,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_gpu_min_process_mib", "ops_gpu_vram_cap_gb",
         "ops_gpu_ignore_process_patterns", "ops_stress_report",
         "ops_feature_screen_device", "ops_ph_granularity_subsample",
+        "ops_retry_missing",
     ],
     "Archive": [
         "ops_archive_root", "ops_archive_verify", "ops_archive_delete_local",
@@ -1448,7 +1449,6 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_diameter", "ops_ph_downsample",
         "ops_ph_nucleus_downsample", "ops_ph_segment_flatfield",
         "ops_ph_spanning_merge", "ops_ph_tile_batch",
-        "ops_retry_missing",
     ],
     "Additional phenotype objects": [
         "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
