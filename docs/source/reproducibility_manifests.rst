@@ -399,6 +399,12 @@ default after a higher-numbered item takes the next free number:
   votes in the pixel fallback. On plate A A1 it brings the decoy FDR to
   0.054 % for 0.18 points of single-gene yield. Files stamped before 983
   get 0.1 and keep their pixel calls.
+- 985 (item 1051, a value you set beats a preset): a value you set
+  yourself always wins over ``ops_decode_preset`` (and the in situ
+  ``t7`` preset), even when it equals the default; the preset fills only
+  the keys you did not set. No default changes. Files stamped before 985
+  carry ``_meta_explicit_keys`` = ``'default_equals_unset'`` and run as
+  they did: a key at its default took the preset's value.
 
 Public API
 ----------

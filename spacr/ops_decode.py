@@ -35,7 +35,7 @@ from .checkpoint import _atomic_json
 #: The settings that reproduce "rule (a) + S2", the final decode rule of the
 #: decode-yield study (2026-11-07): 74.43 % of plate A's nuclei assigned at a
 #: decoy FDR of 0.065 per 100. ``ops_decode_preset: rule_a_s2`` applies them
-#: to every key a settings file leaves at its default.
+#: to every key the user did not set.
 RULE_A_S2: Dict[str, Any] = {
     "ops_channel_registration": "spots_refine",
     "ops_registration_refine_px": 3,
@@ -152,9 +152,11 @@ def resolve_settings(settings: Mapping[str, Any],
     """The settings with ``ops_decode_preset`` applied.
 
     :param settings: the run's settings.
-    :param defaults: the panel defaults, so a key a settings file carries at
-        its default still takes the preset's value; None reads
-        :data:`spacr.ops_settings.OPS_DEFAULTS`.
+    :param defaults: the panel defaults, used only when the settings carry no
+        record of the keys the user set; then a key at its default takes the
+        preset's value. None reads :data:`spacr.ops_settings.OPS_DEFAULTS`.
+        With the record (item 1051) a key the user set keeps its value, even
+        at the default.
     :returns: a copy with the preset and a shared private notice context
         when OPS settings enable the neighbour discount. Explicit nondefault
         values keep their entered values; applied-path flags are journal metadata.
@@ -172,12 +174,10 @@ def resolve_settings(settings: Mapping[str, Any],
                          f"{['none'] + sorted(DECODE_PRESETS)}; got {name!r}")
     if defaults is None:
         from .ops_settings import OPS_DEFAULTS as defaults
-    for key, value in DECODE_PRESETS[name].items():
-        current = out.get(key)
-        if current is None or current == "" or current == defaults.get(
-                key, _DEFAULTS.get(key)):
-            out[key] = value
-    return out
+    from .settings import fill_preset
+
+    return fill_preset(out, DECODE_PRESETS[name],
+                       {**_DEFAULTS, **dict(defaults)})
 
 
 def _number(settings: Mapping[str, Any], key: str, cast=float):

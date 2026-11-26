@@ -201,6 +201,18 @@ def test_the_preset_fills_defaults_and_keeps_what_was_set():
     rule = ops_decode.decode_rule(resolved)
     assert rule["active"] and rule["decoy_k"] == 4 and rule["pixels"]
     assert not ops_decode.decode_rule({})["active"]
+
+
+def test_an_explicit_default_valued_key_beats_the_preset_item_1051():
+    from spacr.ops_settings import ops_defaults
+
+    resolved = ops_decode.resolve_settings(ops_defaults(
+        {"ops_decode_preset": "rule_a_s2", "ops_pixel_quality": 0.2}))
+    assert resolved["ops_pixel_quality"] == 0.2
+    assert resolved["ops_channel_registration"] == "spots_refine"
+    unset = ops_decode.resolve_settings(ops_defaults(
+        {"ops_decode_preset": "rule_a_s2"}))
+    assert unset["ops_pixel_quality"] == 0.1
     assert ops_decode.decode_rule({"ops_decode_runner_up": "false"})["active"] is False
     with pytest.raises(ValueError, match="ops_decoy_library_k"):
         ops_decode.decode_rule({"ops_decoy_library_k": -1})

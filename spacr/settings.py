@@ -2666,7 +2666,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 983
+SETTINGS_SCHEMA_VERSION = 985
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2741,6 +2741,7 @@ DEFAULT_CHANGES = {
     981: {'ops_pixel_ownership': 'nearest_nucleus', 'ops_pixel_footprint': None},
     982: {'ops_owner_link_inherit': 'off'},
     983: {'ops_pixel_quality': 0.1},
+    985: {},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
@@ -2755,6 +2756,113 @@ _DEFAULT_CHANGE_EARLIER = {
 VALUE_MEANING_CHANGES = {
     979: {'profile_outside_rule': {'background': 'legacy'}},
 }
+
+#: The record-only key that carries the keys a user set themselves, so a
+#: preset fills only the others (item 1051).
+EXPLICIT_KEYS_KEY = '_meta_explicit_keys'
+#: The first settings version in which a value the user set wins over a
+#: preset even when it equals the default. A file stamped below it, or one
+#: that has no stamp, is read as it ran: a key equal to its default took the
+#: preset's value (:func:`_fold_older_defaults` writes ``LEGACY_EXPLICIT``).
+EXPLICIT_WINS_VERSION = 985
+LEGACY_EXPLICIT = 'default_equals_unset'
+
+
+def explicit_setting_keys(settings):
+    """The keys a user set themselves, when the settings record them.
+
+    :param settings: a settings mapping.
+    :returns: a frozenset of keys, or None when no record is carried (a
+        mapping never given to :func:`record_explicit_keys`, or a file that
+        replays the resolution before item 1051).
+    """
+    value = settings.get(EXPLICIT_KEYS_KEY) if settings else None
+    if value is None or value == LEGACY_EXPLICIT:
+        return None
+    if isinstance(value, str):
+        import ast
+
+        try:
+            value = ast.literal_eval(value)
+        except (ValueError, SyntaxError):
+            return None
+    if isinstance(value, (list, tuple, set, frozenset)):
+        return frozenset(str(key) for key in value)
+    return None
+
+
+def record_explicit_keys(settings, keys=None):
+    """Record which keys of ``settings`` the user set, before defaults fill in.
+
+    The one place an explicit value is told from a default one: a record
+    already carried (from a saved file, or the legacy replay marker) is kept.
+
+    :param settings: the settings mapping, edited in place.
+    :param keys: the keys to record; None takes every key holding a value
+        that is not None or empty. A mapping still carrying a stamp below
+        :data:`EXPLICIT_WINS_VERSION` is a file read as it ran and gets the
+        legacy marker instead.
+    :returns: ``settings``.
+    """
+    if EXPLICIT_KEYS_KEY in settings:
+        return settings
+    stamp = settings.get(SETTINGS_VERSION_KEY)
+    if stamp is not None and not isinstance(stamp, bool):
+        try:
+            older = int(str(stamp).strip()) < EXPLICIT_WINS_VERSION
+        except ValueError:
+            older = True
+        if older:
+            settings[EXPLICIT_KEYS_KEY] = LEGACY_EXPLICIT
+            return settings
+    if keys is None:
+        keys = [key for key, value in settings.items()
+                if value is not None and value != ''
+                and not str(key).startswith(RECORD_ONLY_PREFIXES)]
+    keys = sorted(str(key) for key in keys)
+    if keys:
+        settings[EXPLICIT_KEYS_KEY] = keys
+    return settings
+
+
+def fill_preset(settings, preset, defaults):
+    """Fill a preset's values into the keys the user did not set.
+
+    The one rule every preset shares (item 1051). With a record of the
+    user's keys (:func:`record_explicit_keys`) a key the user set keeps its
+    value even when it equals the default. Without one, a key that is empty
+    or equals its default counts as unset, as before the record existed.
+
+    :param settings: the settings mapping, edited in place.
+    :param preset: ``key -> value`` the preset gives.
+    :param defaults: ``key -> default`` for the keys of ``preset``.
+    :returns: ``settings``.
+    """
+    explicit = explicit_setting_keys(settings)
+    for key, value in preset.items():
+        if explicit is not None:
+            if key not in explicit:
+                settings[key] = value
+            continue
+        current = settings.get(key)
+        if current is None or current == '' or current == defaults.get(key):
+            settings[key] = value
+    return settings
+
+
+def is_explicit(settings, key, current_is_default):
+    """Whether the user set ``key`` themselves.
+
+    :param settings: the settings mapping.
+    :param key: the key.
+    :param current_is_default: the answer without a record: True when the
+        key's value equals its default.
+    :returns: True when the key is the user's.
+    """
+    explicit = explicit_setting_keys(settings)
+    if explicit is not None:
+        return key in explicit
+    return not current_is_default
 
 
 def _stamp_settings_version(settings):
@@ -3081,6 +3189,12 @@ def _fold_older_defaults(settings, version, known=None):
     the spike-in and the silver k0 rate unchanged. Files stamped before
     983 get 0.1 and keep their pixel calls.
 
+    Version 985 is item 1051: a value the user set always beats a preset,
+    even when it equals the default (:func:`fill_preset`). It changes no
+    default; a file stamped before 985 carries ``_meta_explicit_keys`` =
+    ``'default_equals_unset'`` so a preset fills every key equal to its
+    default, as the file ran.
+
     :param settings: the file's settings under today's names, edited in
         place.
     :param version: the file's schema version from
@@ -3117,6 +3231,9 @@ def _fold_older_defaults(settings, version, known=None):
     for key, (old, _changed) in applied.items():
         settings[key] = old
     _fold_changed_meanings(settings, version, known)
+    if (int(version) < EXPLICIT_WINS_VERSION and EXPLICIT_KEYS_KEY not in settings
+            and (known is None or 'ops_decode_preset' in known)):
+        settings[EXPLICIT_KEYS_KEY] = LEGACY_EXPLICIT
     if applied:
         era = (f"{SETTINGS_VERSION_KEY} {version}" if version
                else f"no {SETTINGS_VERSION_KEY}")
