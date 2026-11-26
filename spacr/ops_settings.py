@@ -295,6 +295,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_auto_f_beta": 1.0,
     "ops_decode_auto_unreachable": "lowest_fdr",
     "ops_decode_target_fdr": None,
+    "ops_decode_dataset_rule": "knee",
     "ops_decode_target_fdr_reference": None,
     "ops_brieflow_fair_fdr": None,
     "ops_decode_split_guard": 0.1,
@@ -943,6 +944,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_auto_f_beta": (float, int),
     "ops_decode_auto_unreachable": str,
     "ops_decode_target_fdr": (float, int, type(None)),
+    "ops_decode_dataset_rule": str,
     "ops_decode_target_fdr_reference": (str, type(None)),
     "ops_brieflow_fair_fdr": (float, int, type(None)),
     "ops_decode_split_guard": (float, int),
@@ -1397,7 +1399,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_auto_tune_fraction", "ops_decode_auto_seed",
         "ops_decode_auto_spot_grid", "ops_decode_auto_objective",
         "ops_decode_auto_f_beta", "ops_decode_auto_unreachable",
-        "ops_decode_target_fdr", "ops_decode_target_fdr_reference",
+        "ops_decode_target_fdr", "ops_decode_dataset_rule",
+        "ops_decode_target_fdr_reference",
         "ops_brieflow_fair_fdr", "ops_decode_split_guard",
         "ops_decode_dataset_weights", "ops_decode_fdr_calibration",
     ],
@@ -4011,26 +4014,35 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "settings saved before item 942 do. Either way the report says "
         "auto_met False. Default 'lowest_fdr'. Alpha.",
     "ops_decode_target_fdr":
-        "(float) - The highest decoy-estimated false calls per 100 real "
-        "calls the dataset tuner may accept (ops_decode_threshold_mode "
+        "(float) - An optional hard cap, in decoy-estimated false calls per "
+        "100 real calls, for the dataset tuner (ops_decode_threshold_mode "
         "'dataset', item 1033: every well decodes at the entered thresholds, "
-        "then one threshold set is tuned for the whole plate from the stored "
-        "field caches and used only when its held-out gain is above 0 and "
-        "its held-out FDR estimate is at or below this target). Empty uses "
-        "the Brieflow-matched fair decoy FDR when ops_decode_target_fdr_reference "
-        "is 'brieflow' (the number is ops_brieflow_fair_fdr), otherwise 0.06. "
-        "Default empty. Alpha.",
+        "then one threshold set is chosen for the whole plate from the stored "
+        "field caches). With ops_decode_dataset_rule 'knee' a setting over the "
+        "cap is left off the frontier and the choice is used only if its "
+        "held-out FDR estimate is at or below the cap; empty means no cap. "
+        "With 'target_gain' it is the target, and empty takes "
+        "ops_brieflow_fair_fdr under ops_decode_target_fdr_reference "
+        "'brieflow', otherwise 0.06. Default empty. Alpha.",
+    "ops_decode_dataset_rule":
+        "(str) - How the dataset tuner chooses. 'knee' (item 1033c) minimises "
+        "errors and maximises genotyped cells: among the settings not beaten "
+        "on both it walks up in genotyped cells and stops where the estimated "
+        "errors start rising faster than the cells (the elasticity d ln E / "
+        "d ln N reaches 1). 'target_gain' is the rule of settings saved "
+        "before schema 987: the most cells under ops_decode_target_fdr, used "
+        "only when its held-out gain over the entered thresholds is above 0. "
+        "Default 'knee'. Alpha.",
     "ops_decode_target_fdr_reference":
-        "(str) - Where the dataset tuner takes its target when "
-        "ops_decode_target_fdr is empty. 'brieflow' uses ops_brieflow_fair_fdr, "
-        "the decoy FDR of the Brieflow call rule on the same reads, so the "
-        "tuner never accepts more false calls than Brieflow makes. Empty uses "
-        "0.06 false calls per 100. Default empty. Alpha.",
+        "(str) - 'brieflow' marks ops_brieflow_fair_fdr on the frontier "
+        "figure of the dataset tuner and, under ops_decode_dataset_rule "
+        "'target_gain' with an empty ops_decode_target_fdr, makes it the "
+        "target. Empty uses 0.06 there. Default empty. Alpha.",
     "ops_brieflow_fair_fdr":
         "(float) - The fair decoy FDR of the Brieflow call rule on the same "
         "reads, in false calls per 100 real calls, such as 0.056 on plate A "
-        "A1. Read only with ops_decode_target_fdr_reference 'brieflow'. "
-        "Default empty. Alpha.",
+        "A1. It is drawn on the frontier figure of the dataset tuner when "
+        "given. Default empty. Alpha.",
     "ops_decode_split_guard":
         "(float) - How many points the split-read disagreement (calls that "
         "disagree with an independent read of the nucleus in an overlapping "
@@ -4038,12 +4050,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "thresholds, judged by the upper end of its 95 % interval. Used with "
         "ops_decode_threshold_mode 'dataset'. Default 0.1. Alpha.",
     "ops_decode_dataset_weights":
-        "(dict) - The weight of each error share in the dataset tuner's "
-        "objective, genotyped calls x (1 - error)^2, as {'split': 1.0, "
-        "'decoy': 0.0}: 'split' is the split-read disagreement above that of "
-        "the cleanest calls, 'decoy' the decoy FDR. Weights fitted to a known "
-        "error come from spacr.ops_decode.calibrate_error_weights. Empty uses "
-        "split 1 and decoy 0. Default empty. Alpha.",
+        "(dict) - The weight of each error share in the dataset tuner, as "
+        "{'split': 1.0, 'decoy': 1.0}: 'split' is the split-read disagreement "
+        "above that of the cleanest calls, 'decoy' the decoy FDR. The "
+        "estimated errors of a setting are its genotyped calls times the "
+        "weighted shares. Weights fitted to a known error come from "
+        "spacr.ops_decode.calibrate_error_weights. Empty uses split 1 and "
+        "decoy 1 under ops_decode_dataset_rule 'knee', split 1 and decoy 0 "
+        "under 'target_gain'. Default empty. Alpha.",
     "ops_decode_fdr_calibration":
         "(str) - How rule (a) sets the FDR scale. 'never' measures error calls on substitution-built barcodes through the same read and pixel votes: distance-two controls set the scale and distance-one controls report a check. It can raise or lower the entered scale, down to 1. Manual thresholds stay fixed while calibration runs. 'none' keeps ops_fdr_scale; 'shuffle' only raises it from three shuffled libraries; 'never+shuffle' takes the larger control-based scale. Never methods need decoys and keep the entered scale when evidence is insufficient. Default 'never'.",
     'ops_never_barcode_k':

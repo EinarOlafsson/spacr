@@ -15638,6 +15638,11 @@ def _dataset_thresholds(db: str, plate: str, wells: Sequence[str], index: Mappin
     summary = {key: result[key] for key in ("adopted", "reason", "thresholds")}
     summary["path"] = result["paths"]["json"]
     manual = {**settings, "ops_decode_threshold_mode": "manual", **used}
+    from .settings import EXPLICIT_KEYS_KEY, explicit_setting_keys
+
+    explicit = explicit_setting_keys(settings)
+    if explicit is not None:
+        manual[EXPLICIT_KEYS_KEY] = sorted(explicit | set(used))
     for well in sorted(caches):
         report = out["wells"][well]
         if result["adopted"]:

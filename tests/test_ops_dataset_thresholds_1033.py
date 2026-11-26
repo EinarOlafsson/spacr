@@ -10,6 +10,7 @@ when the paired held-out gain over the entered thresholds lies above 0.
 from __future__ import annotations
 
 import json
+import os
 
 import numpy as np
 import pytest
@@ -20,6 +21,7 @@ from spacr import ops_decode, ops_engine, ops_settings
 from spacr.settings import ALPHA_FEATURES
 
 NEW = ("ops_decode_target_fdr", "ops_decode_split_guard", "ops_decode_dataset_weights",
+       "ops_decode_dataset_rule",
        "ops_decode_target_fdr_reference", "ops_brieflow_fair_fdr")
 GUIDES = ["GTACGT", "CATGCA", "TGCATG"]
 A, B, C = GUIDES
@@ -63,9 +65,9 @@ def _arrays(fields=40, real=None, agree=None, report_real=None):
     return out
 
 
-def _choice(arrays, config=None, fields=40):
+def _choice(arrays, config=None, fields=40, choose=None):
     tune, report = list(range(fields // 2)), list(range(fields // 2, fields))
-    return ops_decode._dataset_choice(arrays, np.full(fields, 1000), tune, report, AXES,
+    return (choose or ops_decode._dataset_choice_target_gain)(arrays, np.full(fields, 1000), tune, report, AXES,
                                       MANUAL, config or _config(), k=4, scale=1.268,
                                       reps=300, seed=5)
 
@@ -103,8 +105,12 @@ def test_dataset_mode_decodes_each_well_as_manual_does():
                                 "ops_pixel_quality": rule["pixel_quality"]}
     assert config["spot_thresholds"] == [250.0, 315.0, 330.0]
     assert 0.07 in config["floors"] and rule["pixel_quality"] in config["pixel_qualities"]
-    assert config["target_fdr"] == 0.06 and config["split_guard"] == 0.1
-    assert config["weights"] == ops_decode.DATASET_WEIGHTS
+    assert config["target_fdr"] is None and config["rule"] == "knee"
+    assert config["weights"] == ops_decode.DATASET_KNEE_WEIGHTS
+    legacy = ops_decode.dataset_threshold_settings(
+        {"ops_decode_preset": "rule_a_s2", "ops_decode_dataset_rule": "target_gain"}, rule)
+    assert legacy["target_fdr"] == 0.06 and legacy["split_guard"] == 0.1
+    assert legacy["weights"] == ops_decode.DATASET_WEIGHTS
     for bad in ({"ops_decode_target_fdr": 0}, {"ops_decode_split_guard": -1},
                 {"ops_decode_dataset_weights": {"split": -1}},
                 {"ops_decode_dataset_weights": "not json"}):
@@ -145,12 +151,17 @@ def test_a_held_out_fdr_estimate_under_the_target_is_adopted_even_if_its_bound_i
 def test_the_target_defaults_to_0_06_without_brieflow_and_follows_a_brieflow_reference():
     rule = ops_decode.decode_rule(ops_decode.resolve_settings({"ops_decode_preset": "rule_a_s2"}))
     base = {"ops_decode_preset": "rule_a_s2"}
+    base = {**base, "ops_decode_dataset_rule": "target_gain"}
     plain = ops_decode.dataset_threshold_settings(base, rule)
     assert plain["target_fdr"] == 0.06 and plain["target_source"] == "default"
     given = ops_decode.dataset_threshold_settings(
         {**base, "ops_decode_target_fdr_reference": "brieflow", "ops_brieflow_fair_fdr": 0.056},
         rule)
     assert given["target_fdr"] == 0.056 and given["target_source"] == "brieflow"
+    knee = ops_decode.dataset_threshold_settings(
+        {"ops_decode_preset": "rule_a_s2", "ops_decode_target_fdr_reference": "brieflow",
+         "ops_brieflow_fair_fdr": 0.056}, rule)
+    assert knee["target_fdr"] is None and knee["brieflow_fair_fdr"] == 0.056
     entered = ops_decode.dataset_threshold_settings(
         {**base, "ops_decode_target_fdr": 0.2, "ops_decode_target_fdr_reference": "brieflow",
          "ops_brieflow_fair_fdr": 0.056}, rule)
@@ -161,11 +172,12 @@ def test_the_target_defaults_to_0_06_without_brieflow_and_follows_a_brieflow_ref
             ops_decode.dataset_threshold_settings({**base, **bad}, rule)
 
 
-def test_schema_986_replays_the_old_target_for_older_files():
+def test_schema_986_and_987_replay_the_old_rule_for_older_files():
     from spacr.settings import DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION, _fold_older_defaults
 
     assert SETTINGS_SCHEMA_VERSION >= 986
     assert DEFAULT_CHANGES[986] == {"ops_decode_target_fdr": 0.1}
+    assert DEFAULT_CHANGES[987] == {"ops_decode_dataset_rule": "target_gain"}
     old = {"ops_decode_threshold_mode": "dataset"}
     _fold_older_defaults(old, 985)
     assert old["ops_decode_target_fdr"] == 0.1
@@ -175,6 +187,15 @@ def test_schema_986_replays_the_old_target_for_older_files():
     set_by_user = {"ops_decode_target_fdr": 0.3}
     _fold_older_defaults(set_by_user, 985)
     assert set_by_user["ops_decode_target_fdr"] == 0.3
+    stamped_986 = {}
+    _fold_older_defaults(stamped_986, 986)
+    assert stamped_986["ops_decode_dataset_rule"] == "target_gain"
+    stamped_987 = {}
+    _fold_older_defaults(stamped_987, 987)
+    assert "ops_decode_dataset_rule" not in stamped_987
+    chosen = {"ops_decode_dataset_rule": "knee"}
+    _fold_older_defaults(chosen, 986)
+    assert chosen["ops_decode_dataset_rule"] == "knee"
 
 
 def test_the_tuner_finds_the_planted_optimum_under_the_fdr_target():
@@ -287,7 +308,7 @@ def test_the_tuner_replays_stored_field_caches(tmp_path):
     assert len(out["tune_sites"]) == 2 and len(out["report_sites"]) == 2
     loose = next(r for r in out["grid"] if r["ops_read_threshold"] == 315.0)
     strict = next(r for r in out["grid"] if r["ops_read_threshold"] == 400.0)
-    assert loose["real"] >= strict["real"]
+    assert loose["n"] >= strict["n"]
     scored = (out["tune"]["manual"]["split_reference_nuclei"]
               + out["report"]["manual"]["split_reference_nuclei"])
     assert scored == 4
@@ -355,6 +376,7 @@ def test_the_engine_tunes_the_plate_and_keeps_the_decode_unless_it_gains(dataset
     with open(result["paths"]["json"], encoding="utf-8") as handle:
         stored = json.load(handle)
     assert stored["plate"] == "synthetic" and stored["wells"] == ["A1"]
+    assert stored["rule"] == "knee" and os.path.getsize(result["paths"]["figure"]) > 1000
     decode = dataset["wells"]["A1"]["decode"]
     assert decode["dataset_thresholds"]["adopted"] == result["adopted"]
     used = result["thresholds"]["used"]
@@ -363,3 +385,108 @@ def test_the_engine_tunes_the_plate_and_keeps_the_decode_unless_it_gains(dataset
     if not result["adopted"]:
         assert used == result["thresholds"]["manual"]
         assert decode["objects_assigned"] == manual["wells"]["A1"]["decode"]["objects_assigned"]
+
+
+def _frontier_arrays(planted=3, fields=40):
+    """A dataset whose six frontier settings have a planted knee.
+
+    The settings, in order of calls, are the grid positions of ``FRONT``;
+    the errors grow slowly (elasticity below 1) up to ``planted`` and fast
+    after it. Every other setting is beaten by one of them.
+    """
+    shape = tuple(len(v) for _, v in AXES)
+    out = {name: np.zeros((fields,) + shape, np.int64)
+           for name in ("real", "decoy", "agree", "scored")}
+    calls = [500, 600, 700, 800, 900, 1000]
+    decoys = [20, 21, 22, 23, 100, 500]
+    for pos, n, d in zip(FRONT, calls, decoys):
+        out["real"][(slice(None),) + pos] = n
+        out["decoy"][(slice(None),) + pos] = d
+    for pos in np.ndindex(*shape):
+        if pos not in FRONT:
+            out["real"][(slice(None),) + pos] = 400
+            out["decoy"][(slice(None),) + pos] = 50
+    out["scored"][:] = 50
+    out["agree"][:] = 50
+    out["ref_agree"] = np.full(fields, 20, np.int64)
+    out["ref_scored"] = np.full(fields, 20, np.int64)
+    return out
+
+
+FRONT = [(0, 0, 0), (0, 1, 0), (0, 2, 0), (1, 0, 0), (1, 1, 0), (1, 2, 0)]
+
+
+def _knee(arrays=None, **change):
+    from spacr import ops_decode as od
+
+    config = _config(rule="knee", target_fdr=None, weights={"split": 1.0, "decoy": 1.0})
+    config.update(change)
+    return _choice(arrays or _frontier_arrays(), config, choose=od._dataset_choice)
+
+
+def test_the_knee_walk_stops_where_error_growth_catches_yield_growth():
+    n = np.array([500.0, 600.0, 700.0, 800.0, 900.0, 1000.0])
+    e = np.array([10.0, 11.0, 12.0, 13.0, 40.0, 400.0])
+    position, elasticity = ops_decode._knee_position(n, e, 0)
+    assert position == 3
+    assert elasticity[:3] == sorted(elasticity[:3]) and max(elasticity[:3]) < 1.0
+    assert min(elasticity[3:]) > 1.0
+    smooth, _ = ops_decode._knee_position(n, e, 1)
+    assert abs(smooth - 3) <= 1
+    assert ops_decode._knee_position(n[:1], e[:1])[0] == 0
+    assert ops_decode._knee_position(n, np.array([1.0, 5.0, 20.0, 90.0, 400.0, 2000.0]), 0)[0] == 0
+
+
+def test_the_planted_knee_is_found_on_the_frontier_and_adopted():
+    out = _knee()
+    assert out["thresholds"]["chosen"] == _values(FRONT[3])
+    assert out["adopted"] and out["thresholds"]["used"] == _values(FRONT[3])
+    flags = [r for r in out["grid"] if r["frontier"]]
+    assert len(flags) == len(FRONT) and sum(r["knee"] for r in out["grid"]) == 1
+    assert next(r for r in out["grid"] if r["knee"])["ops_read_threshold"] == 315.0
+    assert out["knee"]["report_check"]["consistent"] and out["knee"]["position"] == 3
+    chosen, manual = out["report"]["chosen"], out["report"]["manual"]
+    for part in (chosen, manual):
+        assert part["n_ci95"][0] <= part["n"] <= part["n_ci95"][1]
+        assert part["errors_ci95"][0] is not None and part["fdr_ci95"][0] is not None
+    row = next(r for r in out["grid"] if r["knee"])
+    assert {"decoy_errors", "split_errors", "errors", "n"} <= set(row)
+    assert row["errors"] == pytest.approx(row["decoy_errors"] + row["split_errors"])
+
+
+def test_the_fdr_cap_leaves_points_off_the_frontier():
+    free = _knee()
+    capped = _knee(target_fdr=0.04)
+    assert [r["within_cap"] for r in capped["grid"]].count(False) > 0
+    assert all(not (r["frontier"] and not r["within_cap"]) for r in capped["grid"])
+    assert capped["thresholds"]["chosen"] != free["thresholds"]["chosen"] or \
+        not all(r["within_cap"] for r in capped["grid"])
+    assert sum(r["frontier"] for r in capped["grid"]) < sum(r["frontier"] for r in free["grid"])
+    nothing = _knee(target_fdr=1e-9)
+    assert not nothing["adopted"] and "cap" in nothing["reason"]
+    assert nothing["thresholds"]["used"] == _values(MANUAL)
+
+
+def test_the_knee_is_deterministic():
+    first, again = _knee(), _knee()
+    assert json.dumps(first, sort_keys=True, default=str) == json.dumps(again, sort_keys=True,
+                                                                         default=str)
+
+
+def test_a_held_out_elasticity_that_contradicts_the_knee_is_not_adopted():
+    arrays = _frontier_arrays()
+    arrays["decoy"][(slice(20, None),) + FRONT[3]] = 300
+    out = _knee(arrays)
+    assert out["thresholds"]["chosen"] == _values(FRONT[3])
+    assert not out["knee"]["report_check"]["consistent"]
+    assert not out["adopted"] and "elasticity" in out["reason"]
+    assert out["thresholds"]["used"] == _values(MANUAL)
+
+
+def test_the_frontier_figure_is_written(tmp_path):
+    pytest.importorskip("matplotlib")
+    out = _knee()
+    out.update({"brieflow_fair_fdr": 0.056})
+    path = ops_decode.plot_dataset_frontier(out, str(tmp_path / "frontier.png"))
+    assert (tmp_path / "frontier.png").stat().st_size > 1000 and path.endswith(".png")
+    assert (tmp_path / "frontier.svg").exists()

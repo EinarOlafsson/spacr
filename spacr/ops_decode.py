@@ -3635,16 +3635,19 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
 
     :param settings: read for the auto grid keys, ``ops_decode_auto_tune_fraction``,
         ``ops_decode_auto_seed``, ``ops_decode_auto_ci``, ``ops_read_threshold``,
-        ``ops_single_read_quality``, ``ops_decode_target_fdr`` (empty takes
-        ``ops_brieflow_fair_fdr`` under ``ops_decode_target_fdr_reference``
+        ``ops_single_read_quality``, ``ops_decode_dataset_rule`` ('knee', or
+        'target_gain' as before schema 987), ``ops_decode_target_fdr`` (under
+        'knee' an optional cap, empty for none; under 'target_gain' empty
+        takes ``ops_brieflow_fair_fdr`` under ``ops_decode_target_fdr_reference``
         'brieflow', else :data:`DATASET_DEFAULT_TARGET_FDR`),
         ``ops_decode_split_guard`` and
         ``ops_decode_dataset_weights``.
     :param rule: from :func:`decode_rule`.
     :returns: ``spot_thresholds``, ``floors`` and ``pixel_qualities``
         (sorted, the manual values included), ``manual`` (the three entered
-        thresholds), ``target_fdr`` (per 100 calls), ``target_source``
-        ('entered', 'brieflow' or 'default'), ``split_guard`` (points),
+        thresholds), ``target_fdr`` (per 100 calls, None for no cap), ``target_source``
+        ('entered', 'brieflow', 'default' or 'none'), ``brieflow_fair_fdr``
+        (None when not given), ``rule``, ``split_guard`` (points),
         ``weights``, ``ci``, ``tune_fraction`` and ``seed``.
     :raises ValueError: as :func:`threshold_settings` for the grid and the
         decoys; for a target or guard that is not a number above 0 (guard:
@@ -3664,6 +3667,12 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
         raise ValueError("ops_read_threshold and ops_single_read_quality must be "
                          "numbers") from None
     manual["ops_pixel_quality"] = float(rule["pixel_quality"])
+    dataset_rule = settings.get("ops_decode_dataset_rule")
+    dataset_rule = "knee" if dataset_rule is None or str(dataset_rule).strip() == "" \
+        else str(dataset_rule).strip().lower()
+    if dataset_rule not in DATASET_RULES:
+        raise ValueError(f"ops_decode_dataset_rule must be one of {list(DATASET_RULES)}; "
+                         f"got {dataset_rule!r}")
     target = settings.get("ops_decode_target_fdr")
     reference = settings.get("ops_decode_target_fdr_reference")
     reference = None if reference is None or str(reference).strip() == "" \
@@ -3671,16 +3680,21 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
     if reference is not None and reference not in DATASET_TARGET_REFERENCES:
         raise ValueError(f"ops_decode_target_fdr_reference must be empty or one of "
                          f"{list(DATASET_TARGET_REFERENCES)}; got {reference!r}")
+    fair = settings.get("ops_brieflow_fair_fdr")
+    if reference == "brieflow" or (fair is not None and fair != ""):
+        try:
+            fair = float(fair)
+        except (TypeError, ValueError):
+            raise ValueError("ops_decode_target_fdr_reference 'brieflow' needs "
+                             "ops_brieflow_fair_fdr, the fair decoy FDR of "
+                             "the Brieflow calls in false calls per 100") from None
+    else:
+        fair = None
     if target is None or target == "":
-        if reference == "brieflow":
-            fair = settings.get("ops_brieflow_fair_fdr")
-            try:
-                target = float(fair)
-            except (TypeError, ValueError):
-                raise ValueError("ops_decode_target_fdr_reference 'brieflow' needs "
-                                 "ops_brieflow_fair_fdr, the fair decoy FDR of "
-                                 "the Brieflow calls in false calls per 100") from None
-            target_source = "brieflow"
+        if dataset_rule == "knee":
+            target, target_source = None, "none"
+        elif reference == "brieflow":
+            target, target_source = fair, "brieflow"
         else:
             target, target_source = DATASET_DEFAULT_TARGET_FDR, "default"
     else:
@@ -3688,11 +3702,12 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
     guard = settings.get("ops_decode_split_guard")
     guard = DATASET_SPLIT_GUARD if guard is None or guard == "" else guard
     try:
-        target, guard = float(target), float(guard)
+        target = None if target is None else float(target)
+        guard = float(guard)
     except (TypeError, ValueError):
         raise ValueError("ops_decode_target_fdr and ops_decode_split_guard must be "
                          "numbers") from None
-    if not target > 0:
+    if target is not None and not target > 0:
         raise ValueError(f"ops_decode_target_fdr must be above 0; got {target}")
     if not guard >= 0:
         raise ValueError(f"ops_decode_split_guard must be 0 or more; got {guard}")
@@ -3704,7 +3719,7 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
             raise ValueError("ops_decode_dataset_weights must be a mapping such as "
                              '{"split": 1.0, "decoy": 0.5}; got ' f"{weights!r}") from None
     if weights is None or weights == "" or weights == {}:
-        weights = DATASET_WEIGHTS
+        weights = DATASET_KNEE_WEIGHTS if dataset_rule == "knee" else DATASET_WEIGHTS
     if not isinstance(weights, Mapping):
         raise ValueError(f"ops_decode_dataset_weights must be a mapping; got {weights!r}")
     try:
@@ -3721,7 +3736,7 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
             "pixel_qualities": sorted(set(grid["pixel_qualities"])
                                       | {manual["ops_pixel_quality"]}),
             "manual": manual, "target_fdr": target, "target_source": target_source,
-            "split_guard": guard,
+            "brieflow_fair_fdr": fair, "rule": dataset_rule, "split_guard": guard,
             "weights": weights, "ci": grid["ci"], "tune_fraction": grid["tune_fraction"],
             "seed": grid["seed"]}
 
@@ -3938,12 +3953,34 @@ def calibrate_error_weights(terms, truth, names: Sequence[str]) -> Dict[str, flo
     return {str(name): float(w) for name, w in zip(names, weights)}
 
 
-def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
-                    tune: Sequence[int], report: Sequence[int],
-                    axes: Sequence[Tuple[str, Sequence[float]]], m_pos: Tuple[int, ...],
-                    config: Mapping[str, Any], *, k: int, scale: float,
-                    reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED) -> Dict[str, Any]:
-    """The dataset tuner's choice from per-field counts (:func:`tune_dataset_thresholds`).
+def _dataset_summed(arrays: Mapping[str, np.ndarray], idx: Sequence[int],
+                    draws: Optional[np.ndarray] = None) -> Dict[str, np.ndarray]:
+    """Per-field counts summed over some fields, or over bootstrap draws of them.
+
+    :param arrays: per field and setting counts (:func:`_dataset_choice`).
+    :param idx: the fields.
+    :param draws: from :func:`_bootstrap_rows`, over the positions of ``idx``;
+        None sums the fields once.
+    :returns: name -> the sum, with one leading axis per draw when ``draws`` is given.
+    """
+    idx = np.asarray(idx, np.int64)
+    if draws is None:
+        return {name: value[idx].sum(0) for name, value in arrays.items()}
+    weights = np.stack([np.bincount(row, minlength=len(idx)) for row in draws]) \
+        if len(draws) else np.zeros((0, len(idx)))
+    return {name: np.tensordot(weights, value[idx], axes=(1, 0))
+            for name, value in arrays.items()}
+
+
+def _dataset_choice_target_gain(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
+                                tune: Sequence[int], report: Sequence[int],
+                                axes: Sequence[Tuple[str, Sequence[float]]], m_pos: Tuple[int, ...],
+                                config: Mapping[str, Any], *, k: int, scale: float,
+                                reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED) -> Dict[str, Any]:
+    """The 1033b choice: a target and a held-out gain over the manual thresholds.
+
+    Kept as ``ops_decode_dataset_rule`` 'target_gain' for settings files
+    stamped before schema 987 (:func:`_dataset_choice` is the knee).
 
     :param arrays: per field and setting (``(fields, *grid)``): ``real``,
         ``decoy``, ``agree`` and ``scored``, and per field ``ref_agree`` and
@@ -3970,13 +4007,7 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
     nuclei = np.asarray(nuclei, np.int64)
 
     def summed(idx, draws=None):
-        idx = np.asarray(idx, np.int64)
-        if draws is None:
-            return {name: value[idx].sum(0) for name, value in arrays.items()}
-        weights_ = np.stack([np.bincount(row, minlength=len(idx)) for row in draws]) \
-            if len(draws) else np.zeros((0, len(idx)))
-        return {name: np.tensordot(weights_, value[idx], axes=(1, 0))
-                for name, value in arrays.items()}
+        return _dataset_summed(arrays, idx, draws)
 
     def half(idx):
         point = _dataset_terms(summed(idx), weights, k, scale)
@@ -4098,6 +4129,271 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
             **out_parts, "grid": rows}
 
 
+#: The steps on each side of a frontier step that its elasticity is read
+#: over (item 1033c): the median of ``2 * window + 1`` neighbouring step
+#: elasticities, so one noisy step cannot stop the walk or start it late and
+#: a clean jump is not blurred. 0 reads each step alone.
+DATASET_KNEE_WINDOW = 1
+
+#: The errors a setting is taken to have at least, so ``ln E`` is defined.
+_KNEE_ERROR_FLOOR = 1.0
+
+#: The weights of the knee rule when ``ops_decode_dataset_weights`` is empty:
+#: both error kinds count once.
+DATASET_KNEE_WEIGHTS: Dict[str, float] = {"split": 1.0, "decoy": 1.0}
+
+#: The values of ``ops_decode_dataset_rule``.
+DATASET_RULES = ("knee", "target_gain")
+
+
+def _step_elasticities(n: np.ndarray, e: np.ndarray) -> np.ndarray:
+    """The elasticity d ln E / d ln N of each step between neighbouring frontier points.
+
+    :param n: calls of the frontier points, in increasing order.
+    :param e: their estimated errors (at least :data:`_KNEE_ERROR_FLOOR` is used).
+    :returns: ``(ln E[j+1] - ln E[j]) / (ln N[j+1] - ln N[j])`` per step;
+        infinity when the calls do not rise.
+    """
+    ln_n = np.log(np.maximum(np.asarray(n, float), 1.0))
+    ln_e = np.log(np.maximum(np.asarray(e, float), _KNEE_ERROR_FLOOR))
+    rise = np.diff(ln_n)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return np.where(rise > 0, np.diff(ln_e) / np.where(rise > 0, rise, 1.0), np.inf)
+
+
+def _knee_position(n: np.ndarray, e: np.ndarray, window: int = DATASET_KNEE_WINDOW
+                   ) -> Tuple[int, List[float]]:
+    """The knee of a Pareto frontier: where error growth catches up with yield growth.
+
+    The frontier is walked in increasing calls. The elasticity of the step
+    from point ``j`` to ``j + 1`` is the finite difference of ``ln E``
+    against ``ln N`` (:func:`_step_elasticities`), smoothed as the median of
+    the steps ``j - window`` to ``j + window`` (clipped to the frontier). The
+    knee is the end of the last step whose smoothed elasticity is at most 1,
+    that is the last point reached while relative error growth is no faster
+    than relative yield growth; the first point when no step qualifies.
+
+    :param n: calls of the frontier points, in increasing order.
+    :param e: their estimated errors (increasing).
+    :param window: steps read on each side of a step.
+    :returns: ``(position of the knee, the smoothed elasticity of each step)``.
+    """
+    steps = _step_elasticities(n, e)
+    if len(steps) < 1:
+        return 0, []
+    window = max(int(window), 0)
+    smooth = [float(np.median(steps[max(j - window, 0):j + window + 1]))
+              for j in range(len(steps))]
+    qualifying = [j for j, value in enumerate(smooth) if value <= 1.0]
+    return (qualifying[-1] + 1 if qualifying else 0), smooth
+
+
+def _knee_check(n: np.ndarray, e: np.ndarray, position: int, window: int
+                ) -> Dict[str, Any]:
+    """The elasticity into and out of the knee on one set of fields.
+
+    :param n: calls of the frontier points chosen on the tuning half, in
+        order, counted on the fields of interest.
+    :param e: their estimated errors on the same fields.
+    :param position: the position of the knee on the frontier.
+    :param window: as :func:`_knee_position`.
+    :returns: ``into`` (the median elasticity of the ``window + 1`` steps
+        ending at the knee), ``out_of`` (of the ``window + 1`` steps
+        starting there) and ``consistent``: ``into`` at most 1 and
+        ``out_of`` at least 1, each only where the frontier has that side.
+    """
+    steps = _step_elasticities(n, e)
+    window = max(int(window), 0)
+    into = float(np.median(steps[max(position - window - 1, 0):position])) \
+        if position > 0 else float("nan")
+    out_of = float(np.median(steps[position:position + window + 1])) \
+        if position < len(steps) else float("nan")
+    ok = (np.isnan(into) or into <= 1.0) and (np.isnan(out_of) or out_of >= 1.0)
+
+    def shown(value):
+        return None if np.isnan(value) else ("inf" if np.isinf(value) else float(value))
+
+    return {"into": shown(into), "out_of": shown(out_of), "consistent": bool(ok)}
+
+
+def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
+                    tune: Sequence[int], report: Sequence[int],
+                    axes: Sequence[Tuple[str, Sequence[float]]], m_pos: Tuple[int, ...],
+                    config: Mapping[str, Any], *, k: int, scale: float,
+                    reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED,
+                    window: int = DATASET_KNEE_WINDOW) -> Dict[str, Any]:
+    """The knee of the yield and error frontier of a dataset (item 1033c).
+
+    Minimise errors and maximise genotyped cells; the line is drawn where
+    errors start rising faster than the genotyped cells. On the tuning half
+    every grid setting has ``N`` (real calls) and ``E`` (estimated false
+    calls: ``N`` times the weighted sum of the decoy FDR share and the
+    split-read disagreement over its floor, :func:`_dataset_terms`). The
+    Pareto frontier (more ``N``, fewer ``E``, :func:`_pareto`) is walked in
+    increasing ``N`` and the knee is the last point reached while the
+    elasticity d ln E / d ln N stays at most 1 (:func:`_knee_position`).
+    The target FDR is only an optional hard cap: a setting whose FDR bound on
+    the tuning half is above it is left off the frontier. Nothing else
+    gates the frontier, and the manual thresholds are only a reference.
+
+    The report half judges the knee: ``N``, ``E``, the decoy FDR and the
+    split-read disagreement at the knee and at the manual thresholds, with
+    bootstrap intervals, and the elasticity into and out of the knee on the
+    held-out fields (:func:`_knee_check`). The knee is adopted unless the
+    held-out elasticities contradict it (into above 1, or out of below 1),
+    or a cap is set and the held-out FDR estimate is above it.
+
+    :param arrays: as :func:`_dataset_choice_target_gain`.
+    :param nuclei: owned nuclei per field.
+    :param tune: the fields that choose.
+    :param report: the held-out fields.
+    :param axes: ``(name, values)`` per grid axis.
+    :param m_pos: the grid position of the manual thresholds.
+    :param config: from :func:`dataset_threshold_settings`: ``weights``,
+        ``ci`` and ``target_fdr`` (None for no cap).
+    :param k: decoys per guide.
+    :param scale: the FDR calibration.
+    :param reps: bootstrap replicates of the held-out intervals.
+    :param seed: their seed.
+    :param window: as :func:`_knee_position`.
+    :returns: ``adopted``, ``auto_met`` (a frontier point was found),
+        ``reason``, ``held_out_fdr``, ``thresholds`` (``chosen``, ``manual``,
+        ``used``), ``tune`` and ``report`` (``chosen`` and ``manual`` numbers
+        per half), ``knee`` (``position``, ``points``, ``elasticity``, the
+        tuning and held-out ``check``) and ``grid`` (every setting on the
+        tuning half).
+    """
+    weights = config["weights"]
+    cap = config.get("target_fdr")
+    shape = tuple(len(values) for _, values in axes)
+    m_pos = tuple(int(i) for i in m_pos)
+    nuclei = np.asarray(nuclei, np.int64)
+
+    def counted(idx, draws=None):
+        sums = _dataset_summed(arrays, idx, draws)
+        point = _dataset_terms(sums, weights, k, scale)
+        n = sums["real"].astype(float)
+        out = {"n": n, "e": n * point["e_total"], "decoy_errors": n * point["fdr"] / 100.0}
+        for name in weights:
+            out[f"{name}_errors"] = n * point[f"term_{name}"]
+        return out, point
+
+    def row_numbers(idx, pos, draws_):
+        tally, point = counted(idx)
+        boot, boot_point = counted(idx, draws_)
+        total = int(nuclei[np.asarray(idx, np.int64)].sum())
+        flat = np.stack([arrays["real"], arrays["decoy"]], -1).reshape(len(arrays["real"]), 1, -1, 2)
+        fdr_part = _chosen_summary(flat, nuclei, idx,
+                                   (0, int(np.ravel_multi_index(pos, shape))), k, scale)
+        return {"fields": len(idx), "nuclei": total, "n": int(tally["n"][pos]),
+                "n_ci95": _ci(boot["n"][(slice(None),) + pos]),
+                "genotyped_pct": 100.0 * float(tally["n"][pos]) / max(total, 1),
+                "errors": _float(tally["e"][pos]),
+                "errors_ci95": _ci(boot["e"][(slice(None),) + pos]),
+                "decoy_errors": _float(tally["decoy_errors"][pos]),
+                "split_errors": _float(tally["split_errors"][pos]),
+                "fdr_per_100": fdr_part["fdr_per_100"], "fdr_ci95": fdr_part["fdr_ci95"],
+                "split_disagreement_pct": _float(point["split_pct"][pos]),
+                "split_disagreement_ci95": _ci(boot_point["split_pct"][(slice(None),) + pos]),
+                "split_reference_nuclei": int(_dataset_summed(arrays, idx)["scored"][pos]),
+                "split_floor_pct": _float(point["split_ref_pct"][pos])}
+
+    def as_values(pos):
+        return {name: float(values[pos[a]]) for a, (name, values) in enumerate(axes)}
+
+    positions = list(np.ndindex(*shape))
+    chosen, reason, adopted, met = m_pos, None, False, False
+    rows: List[Dict[str, Any]] = []
+    knee: Dict[str, Any] = {"position": None, "points": [], "elasticity": [], "window": int(window),
+                            "tune_check": None, "report_check": None}
+    held = {"estimate": None, "ci95": [None, None], "target": cap, "at_or_below_target": None}
+    parts: Dict[str, Any] = {"tune": {}, "report": {}}
+    if len(tune) < 2 or len(report) < 2:
+        reason = (f"too few fields with nuclei to tune and report on ({len(tune)} tune, "
+                  f"{len(report)} report; two or more each)")
+    else:
+        counts = np.stack([arrays["real"], arrays["decoy"]], -1)
+        score = _grid_score(counts, nuclei, tune, k, scale, config["ci"])
+        held_score = _grid_score(counts, nuclei, report, k, scale, True)
+        tune_counts, tune_point = counted(tune)
+        report_counts, _ = counted(report)
+        allowed = np.ones(shape, bool) if cap is None else score["bound"] <= cap
+        eligible = [pos for pos in positions if allowed[pos]]
+        for pos in positions:
+            rows.append({**{name: values[pos[a]] for a, (name, values) in enumerate(axes)},
+                         "n": int(tune_counts["n"][pos]), "errors": float(tune_counts["e"][pos]),
+                         "decoy_errors": float(tune_counts["decoy_errors"][pos]),
+                         **{f"{name}_errors": float(tune_counts[f"{name}_errors"][pos])
+                            for name in weights if name != "decoy"},
+                         "genotyped_pct": float(score["genotyped_pct"][pos]),
+                         "fdr_per_100": float(score["fdr"][pos]),
+                         "fdr_bound": float(score["bound"][pos]),
+                         "split_disagreement_pct": _float(tune_point["split_pct"][pos]),
+                         "held_out_n": int(report_counts["n"][pos]),
+                         "held_out_errors": float(report_counts["e"][pos]),
+                         "held_out_fdr": float(held_score["fdr"][pos]),
+                         "held_out_fdr_hi": float(held_score["fdr_hi"][pos]),
+                         "within_cap": bool(allowed[pos]), "frontier": False, "knee": False,
+                         "manual": pos == m_pos})
+        if not eligible:
+            reason = "no setting is at or below the FDR cap on the tuning half"
+        else:
+            e_eligible = [float(tune_counts["e"][pos]) for pos in eligible]
+            n_eligible = [int(tune_counts["n"][pos]) for pos in eligible]
+            on = _pareto(e_eligible, n_eligible)
+            front = sorted((i for i, flag in enumerate(on) if flag),
+                           key=lambda i: (n_eligible[i], e_eligible[i]))
+            front_pos = [eligible[i] for i in front]
+            n_front = np.array([n_eligible[i] for i in front], float)
+            e_front = np.array([e_eligible[i] for i in front], float)
+            position, elasticity = _knee_position(n_front, e_front, window)
+            chosen, met = front_pos[position], True
+            index = {pos: i for i, pos in enumerate(positions)}
+            for pos in front_pos:
+                rows[index[pos]]["frontier"] = True
+            rows[index[chosen]]["knee"] = True
+            n_report = np.array([float(report_counts["n"][pos]) for pos in front_pos])
+            e_report = np.array([float(report_counts["e"][pos]) for pos in front_pos])
+            knee.update({"position": position, "elasticity": elasticity,
+                         "points": [{**as_values(pos), "n": float(n_front[i]),
+                                     "errors": float(e_front[i]),
+                                     "held_out_n": float(n_report[i]),
+                                     "held_out_errors": float(e_report[i])}
+                                    for i, pos in enumerate(front_pos)],
+                         "tune_check": _knee_check(n_front, e_front, position, window),
+                         "report_check": _knee_check(n_report, e_report, position, window)})
+    if reason is None or met:
+        draws_t = _bootstrap_rows(len(tune), int(reps), int(seed))
+        draws_r = _bootstrap_rows(len(report), int(reps), int(seed))
+        for part, idx, draws_ in (("tune", tune, draws_t), ("report", report, draws_r)):
+            if len(idx):
+                parts[part] = {name: row_numbers(idx, pos, draws_)
+                               for name, pos in (("chosen", chosen), ("manual", m_pos))}
+        got = parts["report"].get("chosen") or {}
+        estimate = got.get("fdr_per_100")
+        held = {"estimate": estimate, "ci95": got.get("fdr_ci95", [None, None]), "target": cap,
+                "at_or_below_target": None if cap is None or estimate is None
+                else bool(estimate <= cap)}
+    if reason is None:
+        check = knee["report_check"]
+        if chosen == m_pos:
+            reason = "the knee of the frontier is the manual thresholds"
+        elif not check["consistent"]:
+            reason = (f"the held-out elasticity contradicts the knee (into it {check['into']}, "
+                      f"out of it {check['out_of']}; into at most 1, out of at least 1)")
+        elif held["at_or_below_target"] is False:
+            reason = (f"the held-out FDR estimate, {held['estimate']:.3f} per 100, is above the "
+                      f"cap of {cap:.3f}")
+        else:
+            adopted = True
+            reason = (f"the knee of the frontier: elasticity into it {check['into']} and out of "
+                      f"it {check['out_of']} on the held-out fields")
+    return {"adopted": adopted, "auto_met": met, "reason": reason, "held_out_fdr": held,
+            "thresholds": {"chosen": as_values(chosen), "manual": as_values(m_pos),
+                           "used": as_values(chosen if adopted else m_pos)},
+            "tune": parts["tune"], "report": parts["report"], "knee": knee, "grid": rows}
+
+
 def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, Any],
                             library: Sequence[str], *, workers: int = 1,
                             tune_sites: Optional[Mapping[str, Sequence[int]]] = None,
@@ -4105,7 +4401,14 @@ def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, An
                             cell_stores: Optional[Mapping[str, str]] = None,
                             reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED
                             ) -> Dict[str, Any]:
-    """Choose one decode threshold set for a whole dataset (item 1033, alpha).
+    """Choose one decode threshold set for a whole dataset (items 1033 and 1033c, alpha).
+
+    Under ``ops_decode_dataset_rule`` 'knee' (the default) the choice is the
+    knee of the frontier of calls and estimated errors
+    (:func:`_dataset_choice`); the paragraphs below describe the
+    'target_gain' rule of schema 986 and earlier
+    (:func:`_dataset_choice_target_gain`), which shares the replay of the
+    caches, the grid and the split.
 
     The dataset auto tuner, an extension of the per-well tuner
     (:func:`tune_thresholds`) that replays the stored field caches of every
@@ -4234,12 +4537,20 @@ def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, An
         tune = [i for i in order if keys[i] in named]
         report = [i for i in order if keys[i] not in named]
 
-    choice = _dataset_choice(arrays, nuclei, tune, report, axes, m_pos, config,
-                             k=k, scale=scale, reps=reps, seed=seed)
+    legacy = config["rule"] == "target_gain"
+    choose = _dataset_choice_target_gain if legacy else _dataset_choice
+    choice = choose(arrays, nuclei, tune, report, axes, m_pos, config,
+                    k=k, scale=scale, reps=reps, seed=seed)
+    objective = ("f = Gn (1 - e_total)^2; e_total = sum of weight x term, clipped "
+                 "to [0, 1]; split = max(Sd - Sd_ref, 0), decoy = FDR share" if legacy else
+                 "knee of the frontier of calls N against estimated errors E = N x e_total "
+                 "(e_total as weighted split and decoy shares): the last frontier point "
+                 "reached while d ln E / d ln N is at most 1")
     return {"mode": "dataset", **{key: choice[key] for key in (
                 "adopted", "auto_met", "reason", "held_out_fdr", "thresholds")},
-            "objective": "f = Gn (1 - e_total)^2; e_total = sum of weight x term, clipped "
-                         "to [0, 1]; split = max(Sd - Sd_ref, 0), decoy = FDR share",
+            **({} if legacy else {"knee": choice["knee"]}),
+            "rule": config["rule"], "objective": objective,
+            "brieflow_fair_fdr": config["brieflow_fair_fdr"],
             "weights": weights, "target_fdr": config["target_fdr"],
             "target_source": config["target_source"],
             "split_guard": config["split_guard"], "ci": config["ci"],
@@ -4262,15 +4573,72 @@ def _float(value) -> Optional[float]:
     return value if np.isfinite(value) else None
 
 
+def plot_dataset_frontier(result: Mapping[str, Any], path: str) -> str:
+    """Draw the yield and error frontier of the dataset tuner (item 1033c).
+
+    Every grid setting on the tuning half is a grey dot (calls N against
+    estimated errors E, both on log axes), the Pareto frontier a line, the
+    knee a filled dot, the manual thresholds a grey diamond and, when
+    ``brieflow_fair_fdr`` is given, the decoy errors of the Brieflow fair
+    FDR as a dotted line E = N x FDR / 100.
+
+    :param result: from :func:`tune_dataset_thresholds` with the knee rule.
+    :param path: the image to write (``.png`` or ``.svg``); an ``.svg`` is
+        written next to a ``.png``.
+    :returns: ``path``.
+    :raises ValueError: when the result is not a knee result.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg", force=False)
+    import matplotlib.pyplot as plt
+
+    grid = result.get("grid") or []
+    if not (result.get("knee") and grid):
+        raise ValueError("plot_dataset_frontier needs the result of the knee rule")
+    n = np.array([r["n"] for r in grid], float)
+    e = np.maximum(np.array([r["errors"] for r in grid], float), _KNEE_ERROR_FLOOR)
+    flag = {key: np.array([bool(r[key]) for r in grid]) for key in ("frontier", "knee", "manual")}
+    with plt.rc_context({"font.size": 8, "axes.linewidth": 0.6, "axes.spines.top": False,
+                         "axes.spines.right": False}):
+        fig, ax = plt.subplots(figsize=(3.6, 3.2))
+        ax.scatter(n, e, s=6, color="#bdbdbd", linewidths=0, label="grid settings")
+        order = np.argsort(n[flag["frontier"]])
+        ax.plot(n[flag["frontier"]][order], e[flag["frontier"]][order], color="#4d4d4d",
+                lw=1.0, label="frontier")
+        fair = result.get("brieflow_fair_fdr")
+        if fair:
+            grid_n = np.linspace(n.min(), n.max(), 50)
+            ax.plot(grid_n, np.maximum(grid_n * float(fair) / 100.0, _KNEE_ERROR_FLOOR),
+                    color="#8c6bb1", lw=0.8, ls=":", label=f"Brieflow fair FDR {float(fair):g}")
+        ax.scatter(n[flag["manual"]], e[flag["manual"]], s=28, marker="D", color="#969696",
+                   edgecolors="black", linewidths=0.5, zorder=3, label="manual")
+        ax.scatter(n[flag["knee"]], e[flag["knee"]], s=34, color="#d95f02", edgecolors="black",
+                   linewidths=0.5, zorder=4, label="knee")
+        ax.set_xscale("log")
+        ax.set_yscale("log")
+        ax.set_xlabel("genotyped cells (tuning half)")
+        ax.set_ylabel("estimated errors (tuning half)")
+        ax.legend(frameon=False, fontsize=7, loc="upper left")
+        fig.tight_layout()
+        fig.savefig(path, dpi=300)
+        if path.lower().endswith(".png"):
+            fig.savefig(path[:-4] + ".svg")
+        plt.close(fig)
+    return path
+
+
 def write_dataset_thresholds(db: str, plate: str, result: Mapping[str, Any]) -> Dict[str, str]:
-    """Write the dataset tuner's choice (item 1033) under results/ops_decode.
+    """Write the choice of the dataset tuner (items 1033, 1033c) under results/ops_decode.
 
     :param db: the measurements database.
     :param plate: the plate name.
     :param result: from :func:`tune_dataset_thresholds`.
     :returns: ``json`` and ``grid``, the paths of
         ``decode_thresholds_dataset_<plate>.json`` and its grid as
-        ``decode_thresholds_dataset_<plate>.csv``.
+        ``decode_thresholds_dataset_<plate>.csv``; under the knee rule also
+        ``figure``, the frontier as ``decode_thresholds_dataset_<plate>.png``
+        (and ``.svg``), when the grid is not empty.
     """
     import pandas as pd
 
@@ -4279,6 +4647,9 @@ def write_dataset_thresholds(db: str, plate: str, result: Mapping[str, Any]) -> 
              "grid": os.path.join(folder, f"decode_thresholds_dataset_{plate}.csv")}
     _atomic_json(paths["json"], {"plate": plate, **result}, indent=1, default=str)
     pd.DataFrame(result.get("grid") or []).to_csv(paths["grid"], index=False)
+    if result.get("knee") and result.get("grid"):
+        paths["figure"] = plot_dataset_frontier(
+            result, os.path.join(folder, f"decode_thresholds_dataset_{plate}.png"))
     return paths
 
 
