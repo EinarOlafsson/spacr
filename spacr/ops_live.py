@@ -270,6 +270,11 @@ def _signature(settings: Mapping[str, Any], step: str,
     picked = {key: settings.get(key) for key, owners in sorted(steps.items())
               if wanted & set(owners)}
     picked["_live_root"] = settings.get("_live_root")
+    if wanted & {"spots", "objects"}:
+        from .ops_engine import _PROVENANCE_ROLES, _resolved_weights_md5
+
+        picked["_weights_md5"] = {role: _resolved_weights_md5(settings, key)
+                                  for role, (key, _phase) in _PROVENANCE_ROLES.items()}
     text = json.dumps(picked, sort_keys=True, default=str)
     return hashlib.sha1(text.encode("utf-8")).hexdigest()
 
@@ -613,12 +618,12 @@ def _model(ctx: _Context, key: str = "ops_sbs_nucleus_model"):
     :param key: the setting naming the model.
     :returns: :func:`spacr.ops_engine._cellpose_model`'s model.
     """
-    from .ops_engine import _cellpose_model
+    from .ops_engine import _cellpose_model, _resolved_weights_md5
 
     gpu = bool(ops_setting(ctx.settings, "ops_gpu"))
     name = (str(ctx.settings.get(key) or ""), gpu,
             ctx.settings.get("mask_inference_precision"),
-            str(ops_setting(ctx.settings, "ops_cellpose_model")))
+            _resolved_weights_md5(ctx.settings, key))
     held = ctx.cache.setdefault("_models", {})
     if name not in held:
         if len(held) > 3:
@@ -1153,7 +1158,8 @@ def _run_spots(ctx: _Context, cancelled=None) -> Dict[str, Any]:
         raise ValueError(f"tile {site} has no readable DAPI plane")
     dapi = np.ascontiguousarray(dapi[y0:y0 + size, x0:x0 + size])
     nuclei_key = json.dumps([site, crop, ctx.settings.get("ops_sbs_nucleus_model"),
-                             ops_setting(ctx.settings, "ops_cellpose_model"),
+                             engine._resolved_weights_md5(ctx.settings,
+                                                          "ops_sbs_nucleus_model"),
                              engine._sbs_diameter(ctx.settings),
                              bool(ops_setting(ctx.settings, "ops_gpu")),
                              ctx.settings.get("mask_eval_batch_size"),
@@ -1361,7 +1367,9 @@ def _ph_masks(ctx: _Context, field_info: Mapping[str, Any], key: tuple,
             "ops_ph_cell_diameter", "ops_ph_downsample",
             "ops_ph_nucleus_downsample", "mask_eval_batch_size",
             "ops_ph_tile_batch", "mask_inference_precision", "batch_size",
-            "ops_ph_cell_channel", "ops_gpu")], default=str)
+            "ops_ph_cell_channel", "ops_gpu")] + [
+        engine._resolved_weights_md5(ctx.settings, name)
+        for name in ("ops_ph_nucleus_model", "ops_ph_cell_model")], default=str)
     held = ctx.cache.setdefault("_ph_masks", {})
     if not isinstance(held, dict):
         held = ctx.cache["_ph_masks"] = {}

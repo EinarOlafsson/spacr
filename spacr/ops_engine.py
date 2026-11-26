@@ -2314,6 +2314,216 @@ def _run_provenance(settings: Mapping[str, Any],
     return out
 
 
+def _resolved_weights_md5(settings: Mapping[str, Any], key: str) -> str:
+    """The md5 of the weights the model named by ``key`` really loads.
+
+    Every mask and model cache key of OPS uses this instead of the model
+    name, so ``cpsam_v1`` and ``cpsam_v2`` (or a renamed file) can never
+    share an entry. The digest comes from :func:`spacr.utils.weights_md5`,
+    read once per process.
+
+    :param settings: see :func:`_cellpose_provenance`.
+    :param key: the setting naming the model.
+    :returns: the hex md5, or ``unresolved:<name>`` for a model that cannot
+        be resolved (the model build refuses it anyway).
+    """
+    try:
+        record = _cellpose_provenance(settings, key)
+    except ValueError:
+        return "unresolved:" + str(settings.get(key) or "cpsam")
+    return record.get("md5") or "unresolved:" + str(record.get("model"))
+
+
+def _say_weights(settings: Mapping[str, Any], phase: str, roles: Sequence[str]) -> None:
+    """Log the resolved weights path and md5 of each role a phase segments with.
+
+    :param settings: see :func:`_run_provenance`.
+    :param phase: the phase name, for the line.
+    :param roles: keys of :data:`_PROVENANCE_ROLES`.
+    """
+    for role in roles:
+        record = _cellpose_provenance(settings, _PROVENANCE_ROLES[role][0])
+        _say(f"{phase} weights: {role} model {record['model']} -> "
+             f"path {record.get('path')} md5 {record.get('md5')}")
+
+
+#: Phases that read the objects table of a well the objects phase made.
+_OBJECTS_CONSUMERS = ("decode", "merge", "ph_merged")
+
+
+def _recorded_objects_md5(db: str, plate: str, destination: str, well: str):
+    """The weights md5 a well objects were recorded with, and where.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param destination: the run folder holding ``<well>/ops_report.json``.
+    :param well: the well name.
+    :returns: ``(md5 or None, source)``; the report ``provenance`` is read
+        first, then the attributes of the raw window store.
+    """
+    path = os.path.join(destination, well, "ops_report.json")
+    try:
+        with open(path, encoding="utf-8") as handle:
+            record = (((json.load(handle) or {}).get("provenance") or {})
+                      .get("cellpose_models") or {}).get("sbs_nuclei")
+        if record and record.get("md5"):
+            return record["md5"], path
+    except (OSError, ValueError):
+        pass
+    from .image_store import _store_spacr_attrs
+
+    store = os.path.join(_objects_raw_folder(db), f"{plate}.ome.zarr")
+    if os.path.isdir(store):
+        record = (_store_spacr_attrs(store).get("cellpose_models") or {}).get("sbs_nuclei")
+        if record and record.get("md5"):
+            return record["md5"], store
+    return None, None
+
+
+def _check_objects_weights(settings: Mapping[str, Any], db: str, plate: str,
+                           destination: str, well: str,
+                           phases: Sequence[str]) -> None:
+    """Refuse stale SBS objects when this run does not segment them again.
+
+    :param settings: read for the SBS nucleus model and
+        ``ops_reuse_unprovenanced_objects``.
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param destination: the run folder.
+    :param well: the well name.
+    :param phases: the phases of this run.
+    :raises ValueError: when the objects phase is not in the run, a phase
+        that reads the objects is, the well has objects, and they record
+        other weights than this run resolves, or record none and
+        ``ops_reuse_unprovenanced_objects`` is off.
+    """
+    if "objects" in phases or not any(p in phases for p in _OBJECTS_CONSUMERS):
+        return
+    rows = _well_rows(db, "ops_objects", plate, well)
+    if rows is None or rows.empty:
+        return
+    wanted = _cellpose_provenance(settings, "ops_sbs_nucleus_model").get("md5")
+    recorded, source = _recorded_objects_md5(db, plate, destination, well)
+    if recorded is None:
+        if bool(ops_setting(settings, "ops_reuse_unprovenanced_objects")):
+            _say(f"{well}: the objects record no weights; reused because "
+                 "ops_reuse_unprovenanced_objects is on")
+            return
+        raise ValueError(
+            f"well {well}: its objects in {db} record no Cellpose weights, so they "
+            f"may not come from the weights this run resolves (md5 {wanted}). Add "
+            "the objects phase to this run, or set ops_reuse_unprovenanced_objects "
+            "to reuse them as they are.")
+    if wanted is not None and recorded != wanted:
+        raise ValueError(
+            f"well {well}: its objects were segmented with weights md5 {recorded} "
+            f"(recorded in {source}), but this run resolves md5 {wanted} for "
+            "ops_sbs_nucleus_model. Add the objects phase to this run so the nuclei "
+            "are segmented again.")
+
+
+def _cellpose_default_weights(version: Any) -> Optional[str]:
+    """The stock weights a Cellpose release loads when no pretrained model is named.
+
+    Read from the models.py of each release: 4.0.x and 4.1.x load the
+    ``cpsam`` file (``cpsam_v1``), 4.2.0 and later load ``cpsam_v2``.
+
+    :param version: a Cellpose version text such as ``4.2.1.1``.
+    :returns: ``'cpsam_v1'``, ``'cpsam_v2'``, or None for a release this
+        has not established (3.x has no cpsam at all).
+    """
+    found = re.match(r"\s*(\d+)\.(\d+)", str(version or ""))
+    if not found:
+        return None
+    major, minor = int(found.group(1)), int(found.group(2))
+    if major == 4 and minor in (0, 1):
+        return "cpsam_v1"
+    if major == 4 and minor >= 2:
+        return "cpsam_v2"
+    return None
+
+
+def _recorded_cellpose_versions(destination: str) -> Dict[str, str]:
+    """The Cellpose versions earlier runs recorded, by where they were read.
+
+    :param destination: the run folder; each ``<well>/ops_report.json``
+        carries ``provenance.software.cellpose`` and each mask store the
+        same under its ``spacr`` attributes (item 975).
+    :returns: ``{source path: version}``.
+    """
+    import glob
+
+    from .image_store import _store_spacr_attrs
+
+    found: Dict[str, str] = {}
+    for path in sorted(glob.glob(os.path.join(destination, "*", "ops_report.json"))):
+        try:
+            with open(path, encoding="utf-8") as handle:
+                software = ((json.load(handle) or {}).get("provenance") or {}).get("software")
+        except (OSError, ValueError):
+            continue
+        if isinstance(software, Mapping) and software.get("cellpose"):
+            found[path] = str(software["cellpose"])
+    stores = glob.glob(os.path.join(destination, "*", "phenotype_masks", "*.ome.zarr"))
+    stores += glob.glob(os.path.join(_objects_raw_folder_in(destination), "*.ome.zarr"))
+    for store in sorted(stores):
+        version = (_store_spacr_attrs(store).get("software") or {}).get("cellpose")
+        if version:
+            found[store] = str(version)
+    return found
+
+
+def _resolve_replay_weights(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """Turn ``ops_cellpose_model`` ``'replay'`` into the weights the run really used.
+
+    A settings file stamped before schema 975 does not say which stock
+    weights segmented it, and the weights that Cellpose loaded by default
+    depend on the release: 4.0.x and 4.1.x loaded ``cpsam_v1``, 4.2.0 and
+    later ``cpsam_v2``. The older rule that gave every such file
+    ``cpsam_v1`` was wrong for runs made on Cellpose 4.2. This runs at the
+    start of :func:`run_ops`, where the destination and its earlier reports
+    are known, which the settings fold cannot see.
+
+    :param settings: the run settings; read for ``ops_cellpose_model``,
+        ``ops_replay_cellpose_weights`` (an explicit ``'cpsam_v1'`` or
+        ``'cpsam_v2'`` that wins over any record) and ``dst_root``.
+    :returns: the settings with ``ops_cellpose_model`` concrete; unchanged
+        when it was not ``'replay'``.
+    :raises ValueError: when nothing recorded the Cellpose version, the
+        records disagree, or the recorded release is not one whose default
+        weights are established. Nothing is guessed.
+    """
+    if str(settings.get("ops_cellpose_model") or "") != "replay":
+        return dict(settings) if not isinstance(settings, dict) else settings
+    explicit = str(settings.get("ops_replay_cellpose_weights") or "").strip()
+    if explicit:
+        if explicit not in ("cpsam_v1", "cpsam_v2"):
+            raise ValueError(
+                f"ops_replay_cellpose_weights must be 'cpsam_v1' or 'cpsam_v2'; got {explicit!r}")
+        _say(f"replay: ops_cellpose_model takes {explicit} from ops_replay_cellpose_weights")
+        return {**settings, "ops_cellpose_model": explicit}
+    root = str(settings.get("dst_root") or settings.get("genotype_source") or "")
+    seen = _recorded_cellpose_versions(root) if root else {}
+    choices = {_cellpose_default_weights(version) for version in seen.values()}
+    if len(choices) == 1 and None not in choices:
+        chosen = next(iter(choices))
+        _say(f"replay: ops_cellpose_model takes {chosen}, the weights Cellpose "
+             f"{sorted(set(seen.values()))} loads by default, as recorded in "
+             f"{len(seen)} earlier report(s) or store(s)")
+        return {**settings, "ops_cellpose_model": chosen}
+    reason = ("no earlier report or mask store of " + (root or "this run")
+              + " records which Cellpose version segmented it"
+              if not seen else
+              f"the recorded Cellpose versions {sorted(set(seen.values()))} do not "
+              "give one set of default weights")
+    raise ValueError(
+        "ops_cellpose_model is 'replay' (a settings file from before schema 975), but "
+        + reason + ", so the stock weights it used cannot be told. Set "
+        "ops_replay_cellpose_weights to 'cpsam_v1' (Cellpose 4.0 and 4.1) or "
+        "'cpsam_v2' (Cellpose 4.2 and later) to replay it, or set "
+        "ops_cellpose_model yourself.")
+
+
 def _ops_diameter(value, role, factor=1.0):
     """The Cellpose ``diameter`` keyword for one OPS object, read by the shared rule.
 
@@ -2424,6 +2634,8 @@ def _ops_calibration_context(settings, site):
             'ops_sbs_nucleus_model', 'cellpose_diameter',
             'ops_sbs_cellpose_diameter', 'spatial_cellpose_model', 'spatial_stain', 'spatial_level')
     basis = {key: settings.get(key) for key in keys}
+    basis["weights_md5"] = {role: _resolved_weights_md5(settings, key)
+                            for role, (key, _phase) in _PROVENANCE_ROLES.items()}
     return _order_sha256([site, json.dumps(basis, sort_keys=True, default=str)])
 
 
@@ -2655,10 +2867,8 @@ def _objects_window_basis(settings: Mapping[str, Any], blend: str,
     from . import __version__
 
     name = str(ops_setting(settings, "ops_sbs_nucleus_model")).strip()
-    model: Dict[str, Any] = {"name": name}
-    weights = str(ops_setting(settings, "ops_cellpose_model"))
-    if name in ("", "cpsam") and weights != "cpsam_v1":
-        model["weights"] = weights
+    model: Dict[str, Any] = {"name": name,
+                             "md5": _resolved_weights_md5(settings, "ops_sbs_nucleus_model")}
     if os.path.isfile(name):
         stat = os.stat(name)
         model.update({"size": int(stat.st_size), "mtime_ns": int(stat.st_mtime_ns)})
@@ -2669,7 +2879,7 @@ def _objects_window_basis(settings: Mapping[str, Any], blend: str,
         cellpose = metadata.version("cellpose")
     except metadata.PackageNotFoundError:
         cellpose = ""
-    return {"format": 2, "spacr_version": __version__, "cellpose": cellpose,
+    return {"format": 3, "spacr_version": __version__, "cellpose": cellpose,
             "model": model, "eval": dict(extra), "blend": blend,
             "mask_settings": {key: settings.get(key) for key in _OPS_MASK_SETTINGS},
             "canvas": [int(canvas[0]), int(canvas[1])],
@@ -2851,7 +3061,15 @@ def _objects_raw_folder(db: str) -> str:
         ``sbs_masks/<plate>.ome.zarr`` beside it, a plate store like the
         phenotype masks, one field per segmentation window.
     """
-    return os.path.join(os.path.dirname(os.path.abspath(db)), "sbs_masks")
+    return _objects_raw_folder_in(os.path.dirname(os.path.abspath(db)))
+
+
+def _objects_raw_folder_in(destination: str) -> str:
+    """The SBS raw window mask folder of a run folder (item N6).
+
+    :param destination: the run folder holding ``measurements.db``.
+    """
+    return os.path.join(destination, "sbs_masks")
 
 
 def _objects_raw_writer(db: str, plate: str, attributes=None):
@@ -2988,6 +3206,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     canvas = seeded[0] if seeded else _compose_canvas(usable, shape)
     blend = _compose_blend(settings)
     model = _cellpose_model(settings, gpu)
+    _say_weights(settings, "objects", ("sbs_nuclei",))
     extra = _sbs_diameter(settings)
 
     window_overlap = int(_setting_number(settings.get("ops_window_overlap"),
@@ -3327,12 +3546,14 @@ def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
                             choices=list(_SBS_CELL_METHODS), value=method))
     assignment = read_assignment_setting(settings)
     if method == "off":
-        if assignment == "cell_mask":
+        if assignment in ("cell_mask", "nucleus_first"):
             raise ValueError(
-                "ops_read_assignment 'cell_mask' gives the reads to the SBS cells, but "
+                f"ops_read_assignment '{assignment}' gives reads to the SBS cells, but "
                 "ops_sbs_cell_method is 'off' and makes none; set it to 'cellpose' or "
                 "'watershed'")
         return None
+    if assignment == "nucleus_first":
+        _check_live_nucleus_first(settings)
     value = ops_setting(settings, "ops_sbs_cell_threshold")
     threshold = None
     if value not in (None, ""):
@@ -3345,7 +3566,34 @@ def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
                      if settings.get(key) is not None}
     return {"method": method, "foreground": threshold,
             "mask_settings": mask_settings,
-            **({"assignment": "cell_mask"} if assignment == "cell_mask" else {})}
+            **({"assignment": assignment} if assignment != "nucleus_reach" else {})}
+
+
+def _check_live_nucleus_first(settings: Mapping[str, Any]) -> None:
+    """Refuse a live 'nucleus_first' decode the field calls cannot make (item 1052).
+
+    :param settings: read for ``ops_decode_threshold_mode`` and
+        ``ops_nucleus_first_bleed_curve``.
+    :raises ValueError: for auto or dataset thresholds, whose candidates do
+        not take 'nucleus_first', and for the curve 'fit', which is fitted
+        when the well is re-decoded from its field caches.
+    """
+    from .ops_decode import NUCLEUS_FIRST_DEFAULTS
+
+    mode = str(ops_setting(settings, "ops_decode_threshold_mode") or "manual").strip().lower()
+    if mode != "manual":
+        raise ValueError(
+            "ops_read_assignment 'nucleus_first' decodes at fixed thresholds; set "
+            "ops_decode_threshold_mode 'manual', or decode under 'nucleus_reach' with the "
+            "field cache and re-decode the well from it (decode_cached_well)")
+    curve = settings.get("ops_nucleus_first_bleed_curve")
+    curve = NUCLEUS_FIRST_DEFAULTS["ops_nucleus_first_bleed_curve"] if curve in (None, "") else curve
+    if str(curve).strip().lower() == "fit":
+        raise ValueError(
+            "ops_nucleus_first_bleed_curve 'fit' fits the bleed curve on the field caches of "
+            "the run, so it applies when the well is re-decoded from them "
+            "(decode_cached_well); a live 'nucleus_first' decode needs 'arm2' or the path "
+            "of a stored curve")
 
 
 def _sbs_cell_proxy(stack: np.ndarray) -> np.ndarray:
@@ -3411,7 +3659,7 @@ def _sbs_cell_model(options: Mapping[str, Any], gpu: bool):
     """
     settings = options["mask_settings"]
     key = (str(settings.get("ops_sbs_cell_model") or "cpsam"),
-           str(ops_setting(settings, "ops_cellpose_model")), bool(gpu))
+           _resolved_weights_md5(settings, "ops_sbs_cell_model"), bool(gpu))
     if key not in _SBS_CELL_MODELS:
         _SBS_CELL_MODELS[key] = _cellpose_model(settings, gpu, "ops_sbs_cell_model")
     return _SBS_CELL_MODELS[key]
@@ -3583,7 +3831,7 @@ def _sbs_store_cells(db: str, plate: str, well: str, options: Mapping[str, Any],
     write_table(frame, table, canonicalise=False)
     kept = frame[frame["owned"]]
     report = {"method": options["method"],
-              **({"read_assignment": "cell_mask"} if options.get("assignment") else {}),
+              **({"read_assignment": options["assignment"]} if options.get("assignment") else {}),
               "store": str(writer.path), "table": table, "fields": fields,
               "nuclei": int(len(kept)), "nuclei_with_cell": int(kept["has_cell"].sum())}
     _say(f"{well} SBS cells ({options['method']}): {report['nuclei_with_cell']} of "
@@ -3611,7 +3859,10 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         cells become the task's ``cell_labels`` and every read and fallback
         pixel goes to the object of the cell it lies in
         (:func:`spacr.ops_sbs._cell_mask_boundaries` through
-        :func:`spacr.ops_decode._object_owners`).
+        :func:`spacr.ops_decode._object_owners`). With ``assignment``
+        'nucleus_first' (item 1052) the reads stay with the nucleus reach and
+        the cells become ``fallback_cells`` of the task, which the field
+        evidence carries as ``cell_labels`` (:func:`_with_fallback_cells`).
     :returns: the field's reads attributed to the objects it owns, and its
         counts. With ``store_reads`` it also returns each owned read's
         position in this tile's frame, its per-cycle margin and the
@@ -3696,6 +3947,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         base["sbs_cells"] = sbs_cells
         if task["sbs_cells"].get("assignment") == "cell_mask":
             task = {**task, "cell_labels": sbs_cells["cells"]}
+        elif task["sbs_cells"].get("assignment") == "nucleus_first":
+            task = {**task, "fallback_cells": sbs_cells["cells"]}
 
     tick = time.perf_counter()
     stack = field.stack
@@ -4060,6 +4313,8 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, arrays: Dict[str, np.nd
         floor=floor,
         pixel_percentile=rule["pixel_percentile"] if rule["pixels"] else None,
         features=bool(rule.get("features")))
+    if task.get("fallback_cells") is not None:
+        evidence = _with_fallback_cells(evidence, task)
     if neighboured and cell_mask:
         from .ops_decode import _neighbour_reach, cached_neighbours
 
@@ -4175,6 +4430,30 @@ def _field_raw_values(stack, evidence, task, field) -> np.ndarray:
     for i, cycle in enumerate(field.kept):
         raw[:, cycles.index(cycle)] = measured[:, i]
     return raw
+
+
+def _with_fallback_cells(evidence: Dict[str, Any], task: Mapping[str, Any]) -> Dict[str, Any]:
+    """The evidence of a 'nucleus_first' field with its SBS cells and nucleus positions (item 1052).
+
+    :param evidence: the nucleus-reach evidence
+        (:func:`spacr.ops_decode.field_evidence`).
+    :param task: the task of the field, with ``fallback_cells`` (label ``i + 1``
+        for object ``i``), ``ids``, ``centroids`` and ``areas``.
+    :returns: the evidence with ``cell_labels`` (values the object ids) and
+        the nucleus positions (:data:`spacr.ops_decode.CACHE_NUCLEUS_KEYS`),
+        as :func:`spacr.ops_decode.save_field_cache` stores them, so the
+        calls of the live decode and of a replay of its cache read the same.
+    """
+    from .image_store import _compact_labels
+
+    ids = np.asarray(task["ids"], np.int64).reshape(-1)
+    lut = np.concatenate([np.zeros(1, np.int64), ids])
+    evidence.update({
+        "cell_labels": _compact_labels(lut[np.asarray(task["fallback_cells"], np.int64)]),
+        "nuc_ids": ids,
+        "nuc_centroids": np.asarray(task["centroids"], np.float64).reshape(-1, 2),
+        "nuc_areas": np.asarray(task["areas"], np.float64).reshape(-1)})
+    return evidence
 
 
 def _rule_a_calls(evidence: Mapping[str, Any], rule: Mapping[str, Any], auto, spots,
@@ -4906,6 +5185,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         rule_a = None
         cache_folder = None
     sbs_options = _sbs_cell_options(settings)
+    if sbs_options is not None and sbs_options["method"] == "cellpose":
+        _say_weights(settings, "decode", ("sbs_cells",))
     tasks = []
     origins = tile_origins(placements, origin_rule)
     for site in order:
@@ -7463,9 +7744,10 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             mask_options["objects"] = _ph_object_options(settings)
         if pairing_options:
             mask_options["nucleus_pairing"] = dict(pairing_options)
-        weights = str(ops_setting(settings, "ops_cellpose_model"))
-        if weights != "cpsam_v1":
-            mask_options["cellpose_weights"] = weights
+        mask_options["cellpose_md5"] = {
+            role: _resolved_weights_md5(settings, _PROVENANCE_ROLES[role][0])
+            for role in ("ph_nuclei", "ph_cells")}
+        _say_weights(settings, "ph_segment", ("ph_nuclei", "ph_cells"))
         for role, factor in _ph_downsample_factors(settings).items():
             if factor != 2:
                 mask_options[f"{role}_downsample"] = factor
@@ -14997,6 +15279,7 @@ def run_ops(settings: Mapping[str, Any], *,
     from .settings import _fold_renamed_settings
 
     settings = ops_defaults(_fold_renamed_settings(dict(settings or {})))
+    settings = _resolve_replay_weights(settings)
     phases = _run_phases(settings, phases)
     if settings.get("ops_gpu_admission") and not _OPS_ADMITTED.get():
         return _ops_admitted_run(settings, wells=wells, phases=phases,
@@ -15232,9 +15515,15 @@ def run_ops(settings: Mapping[str, Any], *,
                       f"operation_type: OPS wells", flush=True)
                 continue
         report: Dict[str, Any] = {}
-        if not sequencing and os.path.isfile(report_path):
+        if os.path.isfile(report_path):
             with open(report_path, encoding="utf-8") as handle:
-                report = json.load(handle) or {}
+                earlier_report = json.load(handle) or {}
+            if not sequencing:
+                report = earlier_report
+            elif earlier_report.get("provenance"):
+                report["provenance"] = earlier_report["provenance"]
+        if sequencing:
+            _check_objects_weights(settings, db, plate, destination, well, phases)
         started = time.perf_counter()
         if sequencing:
             cycle_files = index[well]
@@ -15487,7 +15776,10 @@ def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
     if fields:
         models.update(fields["cellpose_models"])
         block["segment_flatfield_md5"] = fields["segment_flatfield_md5"]
-    models.update(_run_provenance(settings, [p for p in phases if p != "ph_segment"]))
+    ran = _run_provenance(settings, [p for p in phases if p != "ph_segment"])
+    if "decode" in phases and "sbs_cells" not in ran:
+        models.pop("sbs_cells", None)
+    models.update(ran)
     block["cellpose_models"] = models
     block["software"] = _software_versions()
     block["gpu_deterministic"] = gpu_deterministic_on(settings)

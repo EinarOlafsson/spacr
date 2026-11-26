@@ -162,18 +162,21 @@ def test_a_checkpoint_is_not_affected(weights, built, tmp_path):
                       "pretrained_model": str(checkpoint)}]
 
 
-def test_files_before_975_replay_v1(weights, built):
-    """An older settings file gets cpsam_v1 and so the old call; a new one keeps v2."""
+def test_files_before_975_replay_is_resolved_at_run_start(weights, built):
+    """An older settings file gets replay, which the run start resolves (item 1054)."""
     from spacr.ops_settings import OPS_DEFAULTS
 
     assert SETTINGS_SCHEMA_VERSION >= 975
-    assert DEFAULT_CHANGES[975] == {"ops_cellpose_model": "cpsam_v1"}
+    assert DEFAULT_CHANGES[975] == {"ops_cellpose_model": "replay"}
     assert OPS_DEFAULTS["ops_cellpose_model"] == "cpsam_v2"
 
     old_file = {"ops_sbs_nucleus_model": "cpsam"}
     applied = _fold_older_defaults(old_file, 965, known=set(OPS_DEFAULTS))
-    assert applied["ops_cellpose_model"] == ("cpsam_v1", 975)
-    ops_engine._cellpose_model(old_file, gpu=False)
+    assert applied["ops_cellpose_model"] == ("replay", 975)
+    with pytest.raises(ValueError, match="replay"):
+        ops_engine._cellpose_model(old_file, gpu=False)
+    resolved = ops_engine._resolve_replay_weights({**old_file, "ops_replay_cellpose_weights": "cpsam_v1"})
+    ops_engine._cellpose_model(resolved, gpu=False)
     assert built == [{"gpu": False, "use_bfloat16": False,
                       "pretrained_model": weights["cpsam_v1"]}]
 
@@ -184,15 +187,15 @@ def test_files_before_975_replay_v1(weights, built):
     assert chosen["ops_cellpose_model"] == "cpsam_v2"
 
 
-def test_the_window_key_and_live_cache_tell_the_weights_apart():
-    """A window segmented under v1 is not reused for v2; v1 keeps its old key."""
+def test_the_window_key_and_live_cache_tell_the_weights_apart(weights):
+    """A window segmented under v1 is not reused for v2: the keys hold the md5."""
     basis = {"ops_sbs_nucleus_model": "cpsam"}
     v1 = ops_engine._objects_window_basis({**basis, "ops_cellpose_model": "cpsam_v1"},
                                           "average", {}, (10, 10), (5, 5))
     v2 = ops_engine._objects_window_basis({**basis, "ops_cellpose_model": "cpsam_v2"},
                                           "average", {}, (10, 10), (5, 5))
-    assert "weights" not in v1["model"]
-    assert v2["model"]["weights"] == "cpsam_v2"
+    assert v1["model"]["md5"] != v2["model"]["md5"]
+    assert v1 != v2
     from spacr import ops_live
 
     assert set(ops_live._steps_of("ops_cellpose_model", "Nuclei segmentation")) == {
@@ -207,7 +210,8 @@ def test_phenotype_masks_of_two_weights_are_not_mixed(tmp_path):
     (tmp_path / "site-1.npz").write_bytes(b"")
     ops_engine._ph_options_marker(str(tmp_path), old)
     with pytest.raises(ValueError):
-        ops_engine._ph_options_marker(str(tmp_path), {**old, "cellpose_weights": "cpsam_v2"})
+        ops_engine._ph_options_marker(
+            str(tmp_path), {**old, "cellpose_md5": {"ph_nuclei": "x", "ph_cells": "x"}})
 
 
 def test_v1_never_reads_a_cpsam_file_in_the_working_folder(weights, built, tmp_path, monkeypatch):

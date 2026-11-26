@@ -309,8 +309,10 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         ``cache_floor`` is ``ops_read_cache_floor`` (item N7), the weakest
         spot strength the field cache keeps. Under ``ops_read_assignment``
         'cell_mask' (item 1025) it carries ``read_assignment`` 'cell_mask';
-        the default 'nucleus_reach' adds no key, so its rule is the rule
-        before item 1025.
+        under 'nucleus_first' (item 1052) ``read_assignment``
+        'nucleus_first', ``bleed_gate`` and, for a stored curve,
+        ``bleed_model`` (:func:`_nucleus_first_rule`); the default
+        'nucleus_reach' adds no key, so its rule is the rule before item 1025.
     :raises ValueError: for a negative count or a fraction outside (0, 1],
         for a negative ``ops_read_cache_floor``, or for explicit nondefault
         item-988 weighting without decode rules.
@@ -370,8 +372,11 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
                             value=rule["min_top_share"]))
     rule["active"] = bool(rule["decoy_k"] > 0 or any(
         _flag(settings, key) for key in _RULE_SWITCHES))
-    if read_assignment_setting(settings) == "cell_mask":
+    assignment = read_assignment_setting(settings)
+    if assignment == "cell_mask":
         rule["read_assignment"] = "cell_mask"
+    elif assignment == "nucleus_first":
+        rule.update(_nucleus_first_rule(settings, bool(rule["active"])))
     weighting = _read_weighting(settings)
     unavailable = False
     if weighting is not None:
@@ -396,8 +401,92 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
 #: How a read finds its object (``ops_read_assignment``, item 1025), the
 #: first being the default: ``nucleus_reach`` is the nearest nucleus disc
 #: within ``ops_footprint`` with the tie rule; ``cell_mask`` is the SBS cell
-#: (``ops_sbs_cell_method``) the read lies in, with no footprint or tie.
-READ_ASSIGNMENTS = ("nucleus_reach", "cell_mask")
+#: (``ops_sbs_cell_method``) the read lies in, with no footprint or tie;
+#: ``nucleus_first`` (item 1052) keeps every nucleus-reach call and gives
+#: only the objects the nucleus reach leaves uncalled their cell-mask
+#: reads, through the bleed gate (:func:`_nucleus_first_calls`).
+READ_ASSIGNMENTS = ("nucleus_reach", "cell_mask", "nucleus_first")
+
+#: The defaults of the ``ops_read_assignment`` 'nucleus_first' gate (item
+#: 1052): the bleed curve ('fit' fits it per run from the field caches,
+#: 'arm2' is the curve the paper measured, or a path to a stored curve),
+#: the largest share of the agreeing reads of a call or pixels the curve may
+#: explain as bleed from a neighbour, and the least agreeing reads the curve
+#: leaves (reads only: a pixel vote already holds ``ops_pixel_min_pixels``). They are read here and not kept in :data:`_DEFAULTS`, so the
+#: resolved settings of the other assignments are unchanged.
+NUCLEUS_FIRST_DEFAULTS = {"ops_nucleus_first_bleed_curve": "fit",
+                          "ops_nucleus_first_max_bleed": 0.5,
+                          "ops_nucleus_first_min_reads": 1.0}
+
+#: Why the 'nucleus_first' gate refused a cell-mask read call or a pixel
+#: call (item 1052): the bleed curve explains more than
+#: ``ops_nucleus_first_max_bleed`` of its agreeing reads or pixels
+#: (``bleed_model``), fewer than ``ops_nucleus_first_min_reads`` reads
+#: remain once the bleed is taken off (``min_support``, reads only), or the
+#: cell-mask reads and the pixels name different guides (``conflict``).
+NUCLEUS_FIRST_REASONS = ("bleed_model", "min_support", "conflict")
+
+
+def _nucleus_first_rule(settings: Mapping[str, Any], active: bool) -> Dict[str, Any]:
+    """The rule keys of ``ops_read_assignment`` 'nucleus_first' (item 1052).
+
+    :param settings: the settings, read for the ``ops_nucleus_first_*`` keys
+        (:data:`NUCLEUS_FIRST_DEFAULTS` when missing or empty).
+    :param active: whether the decode rules are on (:func:`decode_rule`).
+    :returns: ``read_assignment`` 'nucleus_first', ``bleed_gate``
+        (``curve``, ``max_share``, ``min_reads``) and, unless the curve is
+        'fit', ``bleed_model`` (:func:`bleed_model_setting`).
+    :raises ValueError: when the decode rules are off, for a share outside
+        [0, 1] or a negative minimum, and from :func:`bleed_model_setting`.
+    """
+    if not active:
+        raise ValueError("ops_read_assignment 'nucleus_first' acts in the decode rules' "
+                         "calls; turn them on, for example with ops_decode_preset "
+                         "'rule_a_s2'")
+
+    def value(key):
+        got = settings.get(key)
+        return NUCLEUS_FIRST_DEFAULTS[key] if got in (None, "") else got
+
+    try:
+        share = float(value("ops_nucleus_first_max_bleed"))
+        least = float(value("ops_nucleus_first_min_reads"))
+    except (TypeError, ValueError):
+        raise ValueError("ops_nucleus_first_max_bleed and ops_nucleus_first_min_reads "
+                         "must be numbers") from None
+    if not 0.0 <= share <= 1.0 or least < 0:
+        raise ValueError("ops_nucleus_first_max_bleed must lie in [0, 1] and "
+                         "ops_nucleus_first_min_reads must be 0 or more; got "
+                         f"{share} and {least}")
+    curve = str(value("ops_nucleus_first_bleed_curve")).strip()
+    out: Dict[str, Any] = {"read_assignment": "nucleus_first",
+                           "bleed_gate": {"curve": curve, "max_share": share,
+                                          "min_reads": least}}
+    model = bleed_model_setting(curve)
+    if model is not None:
+        out["bleed_model"] = model
+    return out
+
+
+def bleed_model_setting(curve: str) -> Optional[Dict[str, Any]]:
+    """The bleed model ``ops_nucleus_first_bleed_curve`` names (item 1052).
+
+    :param curve: 'fit', 'arm2' or a path.
+    :returns: None for 'fit' (the replay fits it per run,
+        :func:`decode_cached_well`); the measured arm-2 model
+        (:data:`spacr.ops_decode_qc_panels.ARM2_BLEED_MODEL`) for 'arm2';
+        otherwise the stored curve
+        (:func:`spacr.ops_decode_qc_panels.load_bleed_model`).
+    :raises FileNotFoundError: for a path that does not exist.
+    """
+    from . import ops_decode_qc_panels as panels
+
+    name = str(curve).strip()
+    if name.lower() == "fit":
+        return None
+    if name.lower() == "arm2":
+        return json.loads(json.dumps(panels.ARM2_BLEED_MODEL))
+    return panels.load_bleed_model(name)
 
 
 def read_assignment_setting(settings: Mapping[str, Any]) -> str:
@@ -919,12 +1008,20 @@ def _check_read_assignment(evidence: Mapping[str, Any], rule: Mapping[str, Any])
         nucleus reach (no ``read_assignment`` 'cell_mask'), which must be
         given to the stored SBS cells first (:func:`_cell_mask_evidence`,
         ``decode_cached_well(..., cell_store=...)``); under the nucleus
-        reach evidence whose reads follow a cell mask.
+        reach evidence whose reads follow a cell mask. A rule under
+        'nucleus_first' (item 1052) is refused here: only
+        :func:`field_calls` takes it, through :func:`_nucleus_first_calls`.
     """
     made = _evidence_text(evidence, "read_assignment") or "nucleus_reach"
     wanted = _read_assignment_of(rule)
     if made == wanted:
         return
+    if wanted == "nucleus_first":
+        raise ValueError(
+            "ops_read_assignment 'nucleus_first' calls a field through field_calls at fixed "
+            "thresholds (manual threshold mode, or decode_cached_well on the stored field "
+            "caches); the auto and dataset threshold candidates and their controls do not "
+            "take it")
     if wanted == "cell_mask":
         raise ValueError(
             "ops_read_assignment 'cell_mask' needs evidence whose reads are given to the "
@@ -1179,8 +1276,15 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         them the pixel-fallback calls, ``assigned_pixel_real`` and
         ``assigned_pixel_decoy``; ``split``, the reads in this field of nuclei
         other fields own (:func:`split_read_concordance`); and read counts
-        for the well report.
+        for the well report. Under ``ops_read_assignment`` 'nucleus_first'
+        (item 1052) the calls are :func:`_nucleus_first_calls`.
     """
+    if _read_assignment_of(rule) == "nucleus_first":
+        return _nucleus_first_calls(
+            evidence, rule, library, matcher, decoys, threshold=threshold,
+            footprint=footprint, max_distance=max_distance, min_fraction=min_fraction,
+            single_read_quality=single_read_quality, crosstalk=crosstalk,
+            evidence_rows=evidence_rows)
     votes = _field_votes(evidence, rule, library, matcher, threshold=threshold,
                          footprint=footprint, max_distance=max_distance,
                          min_fraction=min_fraction,
@@ -1200,6 +1304,321 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         out["evidence"] = _evidence_rows(primary, pixel, votes["tallies"],
                                          votes["owned"], decoys,
                                          votes["objects"], votes["ambiguous"])
+    return out
+
+
+def _nucleus_first_cells(evidence: Mapping[str, Any]) -> np.ndarray:
+    """The SBS cell labels a 'nucleus_first' field falls back on (item 1052).
+
+    :param evidence: the evidence or field cache of one field under the nucleus
+        reach, with ``cell_labels`` (values the object ids): the live decode
+        adds them, a replay reads them from the stored ``sbs_cell`` labels
+        (:func:`_nucleus_first_evidence`).
+    :returns: the label image.
+    :raises ValueError: for evidence whose reads were given to the cells
+        (``read_assignment`` 'cell_mask'), or evidence without ``cell_labels``.
+    """
+    if _evidence_text(evidence, "read_assignment") == "cell_mask":
+        raise ValueError(
+            "ops_read_assignment 'nucleus_first' keeps the nucleus-reach calls, but this "
+            "reads of this field were given to the SBS cells (read_assignment 'cell_mask'); replay "
+            "a field cache written under 'nucleus_reach' with the stored sbs_cell labels")
+    if "cell_labels" not in evidence:
+        raise ValueError(
+            "ops_read_assignment 'nucleus_first' falls back on the SBS cells, but this "
+            "evidence of this field holds no cell_labels; replay the cache with the stored sbs_cell "
+            "labels (decode_cached_well cell_store=<run>/sbs/fov.ome.zarr) or decode the well "
+            "with ops_sbs_cell_method on")
+    return np.asarray(evidence["cell_labels"])
+
+
+def _own_gaps(evidence: Mapping[str, Any], points: np.ndarray, gap: np.ndarray,
+              ids: np.ndarray, owner: int) -> np.ndarray:
+    """The gap from each point to the boundary of its own nucleus disc (item 1052).
+
+    The spot position of the bleed curve: the nearest or
+    runner-up gap when the owner is one of its two nearest nuclei, as the
+    nucleus reach measured it; otherwise the disc gap from the
+    nucleus positions (:data:`CACHE_NUCLEUS_KEYS`).
+
+    :param evidence: the evidence of the field, read for the nucleus positions
+        only when a point lies nearer two other nuclei.
+    :param points: ``(N, 2)`` positions.
+    :param gap: ``(N, 2)`` nucleus-reach gaps.
+    :param ids: ``(N, 2)`` the nucleus-reach objects.
+    :param owner: the object.
+    :returns: ``(N,)`` gaps; ``inf`` when the owner has no nucleus position.
+    :raises ValueError: naming the missing keys when they are needed.
+    """
+    out = np.where(ids[:, 0] == owner, gap[:, 0],
+                   np.where(ids[:, 1] == owner, gap[:, 1], np.nan)).astype(float)
+    missing = np.isnan(out)
+    if missing.any():
+        absent = [key for key in CACHE_NUCLEUS_KEYS if key not in evidence]
+        if absent:
+            raise ValueError("the 'nucleus_first' bleed gate needs the nucleus "
+                             f"positions; this field holds no {', '.join(absent)}; decode "
+                             "the field again with the field cache on")
+        where = np.flatnonzero(np.asarray(evidence["nuc_ids"]) == owner)
+        if not len(where):
+            out[missing] = np.inf
+        else:
+            centre = np.asarray(evidence["nuc_centroids"], float)[where[0]]
+            radius = np.sqrt(max(float(np.asarray(evidence["nuc_areas"], float)[where[0]]), 0.0)
+                             / np.pi)
+            out[missing] = np.hypot(*(np.asarray(points, float)[missing] - centre).T) - radius
+    return out
+
+
+def _bleed_probabilities(evidence: Mapping[str, Any], points: np.ndarray, gap: np.ndarray,
+                         ids: np.ndarray, owner: int, guide: str,
+                         carriers: Mapping[int, frozenset], sisters: Mapping[int, Any],
+                         model: Mapping[str, Any]) -> np.ndarray:
+    """The share of each supporting read or pixel the bleed curve gives a neighbour (item 1052).
+
+    The one bleed model of 'nucleus_first', for the reads and the fallback
+    pixels alike. A point of ``owner`` that names ``guide`` is bleed with the
+    excess rate of the curve (:func:`spacr.ops_decode_qc_panels.bleed_rates`) at
+    its gap to the boundary of a neighbour carrying that guide -- one of its
+    two nearest nuclei other than the owner, not a sister, whose top read
+    guides (or, without reads, its pixel vote) hold the guide -- and at its
+    own spot position (:func:`_own_gaps`); the larger of the two neighbours
+    when both carry it, and 0 when neither does.
+
+    :param evidence: the nucleus-reach evidence of the field.
+    :param points: ``(N, 2)`` the supporting points.
+    :param gap: ``(N, 2)`` their nucleus-reach gaps.
+    :param ids: ``(N, 2)`` their two nearest nuclei.
+    :param owner: the object called.
+    :param guide: the guide called.
+    :param carriers: object -> the guides it carries.
+    :param sisters: object -> its sisters, which are never a source of bleed.
+    :param model: the bleed model.
+    :returns: ``(N,)`` probabilities.
+    """
+    from .ops_decode_qc_panels import bleed_rates
+
+    gap = np.asarray(gap, float).reshape(-1, 2)
+    ids = np.asarray(ids, np.int64).reshape(-1, 2)
+    out = np.zeros(len(gap))
+    if not len(gap):
+        return out
+    exempt = set(sisters.get(owner, ()))
+    slots = []
+    for slot in (0, 1):
+        carries = np.array([int(n) >= 0 and int(n) != owner and int(n) not in exempt
+                            and guide in carriers.get(int(n), ()) for n in ids[:, slot]], bool)
+        if carries.any():
+            slots.append((slot, carries))
+    if not slots:
+        return out
+    own = _own_gaps(evidence, points, gap, ids, owner)
+    for slot, carries in slots:
+        out = np.maximum(out, np.where(carries, bleed_rates(model, gap[:, slot], own), 0.0))
+    return out
+
+
+def _bleed_gate(probabilities: np.ndarray, max_share: float, least: float) -> Optional[str]:
+    """The 'nucleus_first' bleed gate on the supporting reads or pixels (item 1052).
+
+    :param probabilities: from :func:`_bleed_probabilities`.
+    :param max_share: ``ops_nucleus_first_max_bleed``.
+    :param least: the least support left once the bleed is taken off:
+        ``ops_nucleus_first_min_reads`` for reads, 0 for pixels, whose vote
+        already holds ``ops_pixel_min_pixels``.
+    :returns: None to keep the call, or the reason
+        (:data:`NUCLEUS_FIRST_REASONS`).
+    """
+    n = len(probabilities)
+    bleed = float(np.sum(probabilities))
+    if n == 0 or bleed / n > max_share + _SHARE_TOLERANCE:
+        return "bleed_model"
+    if n - bleed < least - _SHARE_TOLERANCE:
+        return "min_support"
+    return None
+
+
+def _nucleus_first_carriers(votes: Mapping[str, Any], pixel: Mapping[int, dict]
+                            ) -> Dict[int, frozenset]:
+    """The guides each object carries, as the bleed gate reads them (item 1052).
+
+    :param votes: the nucleus-reach votes (:func:`_field_votes`), read for
+        ``read_tops``.
+    :param pixel: the nucleus-reach pixel votes before any gate.
+    :returns: object -> its top read guides; an object without read guides
+        carries the guide of its pixel vote, as the 1044b pixel bleed rule
+        reads a neighbour.
+    """
+    carriers = {int(k): frozenset(v) for k, v in (votes.get("read_tops") or {}).items()}
+    for owner, hit in pixel.items():
+        if not carriers.get(int(owner)):
+            carriers[int(owner)] = frozenset([hit["guide"]])
+    return carriers
+
+
+def _nucleus_first_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
+                         library: Sequence[str], matcher, decoys, *, threshold: float,
+                         footprint: float, max_distance: int, min_fraction: float,
+                         single_read_quality: float, crosstalk: str,
+                         evidence_rows: bool) -> Dict[str, Any]:
+    """Every call of one field under ``ops_read_assignment`` 'nucleus_first' (item 1052).
+
+    1. The nucleus reach votes the field exactly as under 'nucleus_reach';
+       every read call it makes stands, and no cytoplasm read vetoes or
+       dilutes it.
+    2. Only an object it leaves without a read call is voted again on the
+       reads of its SBS cell (:func:`_cell_mask_evidence`, the item-1025
+       cell-mask vote, neighbours the cells that touch). That call is kept
+       when the bleed gate passes it (:func:`_bleed_gate`): the bleed curve
+       (``rule['bleed_model']``) explains at most ``max_share`` of its
+       agreeing reads as bleed from a neighbour, and at least ``min_reads`` reads are
+       left once the bleed is taken off.
+    3. The pixel fallback of an object with no read call goes through the
+       same gate, the same curve and ``max_share``, on its agreeing pixels,
+       in place of the 1044b neighbour rules; ``radius_disagrees`` still
+       refuses. A cell-mask read call and a pixel
+       call that name different guides are both refused (``conflict``).
+
+    :param evidence: nucleus-reach evidence with ``cell_labels``
+        (:func:`_nucleus_first_cells`).
+    :param rule: from :func:`decode_rule` under 'nucleus_first', with
+        ``bleed_model``.
+    :returns: as :func:`field_calls`; a call carries ``assignment``
+        ('nucleus_reach' or 'cell_mask'), and the result
+        ``assigned_cell_mask_real``, ``assigned_cell_mask_decoy`` and
+        ``nucleus_first`` (the cell-mask candidates, calls and refusals);
+        ``pixel_refused`` counts :data:`BLEED_REASONS` and
+        :data:`NUCLEUS_FIRST_REASONS`.
+    :raises ValueError: without ``bleed_model`` (``ops_nucleus_first_bleed_curve``
+        'fit' is fitted by :func:`decode_cached_well`), and from
+        :func:`_nucleus_first_cells`.
+    """
+    model = rule.get("bleed_model")
+    if not model:
+        raise ValueError(
+            "ops_read_assignment 'nucleus_first' needs a bleed curve: "
+            "ops_nucleus_first_bleed_curve 'fit' is fitted per run when the well is "
+            "re-decoded from its field caches (decode_cached_well); a live decode needs "
+            "'arm2' or the path of a stored curve")
+    cells = _nucleus_first_cells(evidence)
+    gate = rule["bleed_gate"]
+    base = {key: value for key, value in rule.items()
+            if key not in ("read_assignment", "bleed_gate", "bleed_model")}
+    kwargs = dict(threshold=threshold, footprint=footprint, max_distance=max_distance,
+                  min_fraction=min_fraction, single_read_quality=single_read_quality,
+                  crosstalk=crosstalk, evidence_rows=evidence_rows)
+    quality = rule["pixel_quality"]
+    votes = _field_votes(evidence, {**base, "nucleus_first_stage": True}, library, matcher,
+                         pixel_qualities=(quality,), **kwargs)
+    primary, owned = votes["primary"], votes["owned"]
+    reduced = {key: value for key, value in evidence.items() if not key.startswith("pix_")}
+    cell_rule = {key: value for key, value in base.items() if key != "neighbours"}
+    cell_rule.update({"read_assignment": "cell_mask", "pixels": False, "pixels_given": False,
+                      "nucleus_first_stage": True})
+    cell_votes = _field_votes(_cell_mask_evidence(reduced, cells), cell_rule, library,
+                              matcher, pixel_qualities=(quality,), **kwargs)
+    raw_pixel = votes["pixel"][quality] if rule["pixels"] else {}
+    carriers = _nucleus_first_carriers(votes, raw_pixel)
+    sisters = votes.get("sisters") or {}
+    gaps = np.asarray(evidence["gap"], float).reshape(-1, 2)
+    nearest = np.column_stack([np.asarray(evidence["id0"]), np.asarray(evidence["id1"])])
+    peaks = np.asarray(evidence["peaks"], float).reshape(-1, 2)
+
+    read_refused: Dict[int, str] = {}
+    cell_calls: Dict[int, dict] = {}
+    candidates = [o for o in cell_votes["primary"] if o not in primary and o in owned]
+    if candidates:
+        rows = cell_votes["rows"]
+        where = cell_votes["selected"][rows]
+        objects = np.asarray(cell_votes["objects"])
+        codes = cell_votes["codes"]
+        for owner in candidates:
+            hit = cell_votes["primary"][owner]
+            mine = np.flatnonzero(objects == owner)
+            agree = np.array([matcher.match(codes[rows[i]], cell_votes["distance"])[0]
+                              == hit["guide"] for i in mine], bool)
+            points = where[mine[agree]] if len(mine) else np.zeros(0, np.int64)
+            reason = _bleed_gate(_bleed_probabilities(
+                evidence, peaks[points], gaps[points], nearest[points], int(owner),
+                hit["guide"], carriers, sisters, model), gate["max_share"], gate["min_reads"])
+            if reason is None:
+                cell_calls[owner] = hit
+            else:
+                read_refused[owner] = reason
+
+    pixel_refused: Dict[int, str] = {}
+    pixel: Dict[int, dict] = {}
+    if rule["pixels"]:
+        allowed = _fallback_pixels(raw_pixel, {**votes, "bleed_gate": False}, primary)
+        ids = np.asarray(votes.get("pixel_ids", np.zeros(0, np.int64)))
+        chosen = np.asarray(votes.get("pixel_chosen", np.zeros(0, np.int64)))
+        pix_gap = np.asarray(evidence["pix_gap"], float).reshape(-1, 2) if len(chosen) else None
+        pix_ids = (np.column_stack([np.asarray(evidence["pix_id0"]),
+                                    np.asarray(evidence["pix_id1"])]) if len(chosen) else None)
+        pix_yx = np.asarray(evidence["pix_yx"], float).reshape(-1, 2) if len(chosen) else None
+        for owner, hit in allowed.items():
+            if owner in primary:
+                pixel[owner] = hit
+                continue
+            if "radius_guide" in hit and hit["radius_guide"] != hit["guide"]:
+                pixel_refused[owner] = "radius_disagrees"
+                continue
+            mine = chosen[ids[chosen] == owner]
+            mine = mine[(votes["pixel_quality"][mine] >= quality) & np.array(
+                [matcher.match(votes["pixel_codes"][j], 0)[0] == hit["guide"] for j in mine],
+                bool)] if len(mine) else mine
+            reason = _bleed_gate(_bleed_probabilities(
+                evidence, pix_yx[mine] if len(mine) else np.zeros((0, 2)),
+                pix_gap[mine] if len(mine) else np.zeros((0, 2)),
+                pix_ids[mine] if len(mine) else np.zeros((0, 2), np.int64), int(owner),
+                hit["guide"], carriers, sisters, model), gate["max_share"], 0.0)
+            if reason is None:
+                pixel[owner] = hit
+            else:
+                pixel_refused[owner] = reason
+        for owner in list(cell_calls):
+            if owner in pixel and pixel[owner]["guide"] != cell_calls[owner]["guide"]:
+                read_refused[owner] = pixel_refused[owner] = "conflict"
+                del cell_calls[owner], pixel[owner]
+
+    merged = {**primary, **cell_calls}
+    reads_per = votes["reads_per"].copy()
+    for owner in cell_calls:
+        reads_per[owner] = cell_votes["reads_per"].get(owner, 0)
+    out = _assemble_calls(merged, pixel, {**votes, "reads_per": reads_per}, decoys)
+    cell_real = cell_decoy = 0
+    for owner, call in out["calls"].items():
+        cell = owner in cell_calls and call["source"] == "primary"
+        call["assignment"] = "cell_mask" if cell else "nucleus_reach"
+        cell_real += int(cell and not call["decoy"])
+        cell_decoy += int(cell and call["decoy"])
+    out["assigned_cell_mask_real"] = cell_real
+    out["assigned_cell_mask_decoy"] = cell_decoy
+    counted = [r for o, r in read_refused.items() if o in owned]
+    out["nucleus_first"] = {
+        "cell_mask_candidates": int(len(candidates)),
+        "cell_mask_called": int(sum(1 for o in cell_calls if o in owned)),
+        "read_refused": {reason: counted.count(reason) for reason in NUCLEUS_FIRST_REASONS},
+        "reads_cell_mask_owned": int(cell_votes["reads_owned"])}
+    if rule["pixels"]:
+        values = [r for o, r in pixel_refused.items() if o in owned]
+        out["pixel_refused"] = {reason: values.count(reason)
+                                for reason in BLEED_REASONS + NUCLEUS_FIRST_REASONS}
+    if rule.get("read_stage"):
+        out["nuclei_with_read"] = nuclei_with_read(evidence, threshold)
+    if evidence_rows:
+        nucleus_rows = _evidence_rows(
+            primary, {o: h for o, h in pixel.items() if o not in cell_calls},
+            votes["tallies"], owned, decoys, votes["objects"], votes["ambiguous"])
+        cell_rows = _evidence_rows(
+            cell_calls, {o: h for o, h in pixel.items() if o in cell_calls},
+            cell_votes["tallies"], owned, decoys, cell_votes["objects"],
+            cell_votes["ambiguous"])
+        for row in nucleus_rows:
+            row["assignment"] = "nucleus_reach"
+        for row in cell_rows:
+            row["assignment"] = "cell_mask"
+        out["evidence"] = nucleus_rows + cell_rows
     return out
 
 
@@ -1232,6 +1651,12 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         pixels), ``short_share`` (the objects whose read call the rule's
         ``min_top_share`` refused, :func:`_top_share_kept`), ``split``
         (:func:`_split_reads`) and the read counts of the well report.
+        A rule with ``nucleus_first_stage`` (item 1052,
+        :func:`_nucleus_first_calls`) also gets ``read_tops``, ``sisters``
+        and, per read above the threshold, ``codes``, ``selected`` (their
+        rows in the evidence), ``rows`` (the owned ones among them) and
+        ``distance``; with pixels ``pixel_codes``, ``pixel_quality``,
+        ``pixel_ids`` and ``pixel_chosen``.
     """
     from collections import Counter
 
@@ -1257,8 +1682,9 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
     ownership = _rule_pixel_ownership(rule)
     bleed = (bool(rule["pixels"]) or bool(rule.get("pixels_given"))) \
         and ownership == "read_rule"
+    stage = bool(rule.get("nucleus_first_stage"))
     tally = tallies if tallies is not None else (
-        {} if gate or share > 0 or bleed else None)
+        {} if gate or share > 0 or bleed or stage else None)
     weighting = _vote_weighting(rule, gap[rows, 0])
     primary = vote_mapped_reads(
         objects, [codes[i] for i in rows], quality[rows], data[rows],
@@ -1272,12 +1698,16 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
     primary, short_share = _top_share_kept(primary, tally, share)
     named = _read_guides(tally) if gate else {}
     pixel: Dict[float, Dict[int, dict]] = {q: {} for q in pixel_qualities}
+    kept: Dict[str, Any] = {}
     if rule["pixels"] and "pix_values" in evidence and len(evidence["pix_values"]):
         _, pixel_codes, _, pixel_quality = _call(
             np.asarray(evidence["pix_values"], np.float32),
             {"calibration": False}, library, crosstalk)
         placed = evidence if ownership == "nearest_nucleus" else _pixel_assignment(evidence)
         pixel_ids, chosen, discount = _pixel_owners(placed, rule, footprint, ownership)
+        if stage:
+            kept.update({"pixel_codes": pixel_codes, "pixel_quality": pixel_quality,
+                         "pixel_ids": pixel_ids, "pixel_chosen": chosen})
         for q in pixel_qualities:
             pixel[q] = vote_pixels(
                 pixel_ids[chosen],
@@ -1301,6 +1731,14 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
                                          & (bool(rule["territory"]) | ~ambiguous)
                                          & (first >= 0), matcher),
                  "sisters": rule.get("sisters") or {}}
+    if stage:
+        extra.update(kept)
+        extra.update({"codes": codes, "selected": np.flatnonzero(selected), "rows": rows,
+                      "distance": distance, "sisters": rule.get("sisters") or {}})
+        if "read_tops" not in extra:
+            extra["read_tops"] = _read_tops(tally, first, codes, near & ~owned_first
+                                            & (bool(rule["territory"]) | ~ambiguous)
+                                            & (first >= 0), matcher)
     return {**extra, "primary": primary, "pixel": pixel, "tallies": tallies,
             "named": named, "pixel_gate": gate, "short_share": short_share,
             "split": _split_reads(first[inside], [codes[i] for i in inside], matcher),
@@ -3424,7 +3862,60 @@ def _cached_evidence(path: str, rule: Mapping[str, Any],
         evidence = {key: stored[key] for key in stored.files}
     if _read_assignment_of(rule) == "cell_mask":
         evidence = _stored_cell_evidence(evidence, int(os.path.basename(path)[4:8]), cells)
+    elif _read_assignment_of(rule) == "nucleus_first":
+        evidence = _nucleus_first_evidence(evidence, int(os.path.basename(path)[4:8]), cells)
     return evidence
+
+
+def _nucleus_first_evidence(evidence: Mapping[str, Any], site: int,
+                            cells: Optional[Tuple[str, str]]) -> Dict[str, Any]:
+    """A nucleus-reach field cache with the SBS cells 'nucleus_first' falls back on (item 1052).
+
+    :param evidence: the opened field cache.
+    :param site: its site.
+    :param cells: ``(store, well)`` of the stored ``sbs_cell`` labels, or
+        None when the cache holds ``cell_labels`` (a live 'nucleus_first'
+        decode stores them).
+    :returns: the evidence, unchanged but for ``cell_labels``: the stored
+        labels when given, else those of the cache.
+    :raises ValueError: for a cache written under the cell mask.
+    :raises FileNotFoundError: naming the store, well, site and labels when
+        no cells are given or found.
+    """
+    if _evidence_text(evidence, "read_assignment") == "cell_mask":
+        raise ValueError(
+            f"site {site}: ops_read_assignment 'nucleus_first' replays a field cache written "
+            "under 'nucleus_reach', but this one was written under 'cell_mask'")
+    if cells is None:
+        if "cell_labels" in evidence:
+            return dict(evidence)
+        raise FileNotFoundError(
+            f"ops_read_assignment 'nucleus_first' replays site {site} from a field cache "
+            "that holds no cell_labels; pass cell_store, the sbs/fov.ome.zarr of the run with the "
+            "sbs_cell labels of ops_sbs_cell_method, and the well")
+    from .image_store import _compact_labels
+
+    return {**evidence, "cell_labels": _compact_labels(_stored_cells(site, cells))}
+
+
+def _stored_cells(site: int, cells: Tuple[str, str]) -> np.ndarray:
+    """The stored ``sbs_cell`` labels of one field (items 1025, 1052).
+
+    :param site: the site.
+    :param cells: ``(store, well)``.
+    :returns: the label image, values the object ids.
+    :raises FileNotFoundError: naming the store, well and site when the
+        labels are not stored.
+    """
+    from .image_store import field_key, read_labels
+
+    store, well = cells
+    key = field_key(well, site)
+    if not os.path.isfile(os.path.join(str(store), key, "labels", "sbs_cell", "zarr.json")):
+        raise FileNotFoundError(
+            f"{store} holds no sbs_cell labels for well {well} site {site}; decode the "
+            "well with ops_sbs_cell_method on so its SBS cells are stored")
+    return np.asarray(read_labels(store, "sbs_cell", key=key))
 
 
 def _stored_cell_evidence(evidence: Mapping[str, Any], site: int,
@@ -3455,15 +3946,7 @@ def _stored_cell_evidence(evidence: Mapping[str, Any], site: int,
             "under the nucleus reach, which holds no cell_labels; pass cell_store, the "
             "run's sbs/fov.ome.zarr with the sbs_cell labels of ops_sbs_cell_method, and "
             "the well")
-    from .image_store import field_key, read_labels
-
-    store, well = cells
-    key = field_key(well, site)
-    if not os.path.isfile(os.path.join(str(store), key, "labels", "sbs_cell", "zarr.json")):
-        raise FileNotFoundError(
-            f"{store} holds no sbs_cell labels for well {well} site {site}; decode the "
-            "well with ops_sbs_cell_method on so its SBS cells are stored")
-    return _cell_mask_evidence(evidence, np.asarray(read_labels(store, "sbs_cell", key=key)))
+    return _cell_mask_evidence(evidence, _stored_cells(site, cells))
 
 
 def _cached_rule(resolved: Mapping[str, Any], library: Sequence[str], *,
@@ -3559,11 +4042,18 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
         1025), the run's ``sbs/fov.ome.zarr`` whose ``sbs_cell`` labels give
         the reads and pixels of caches written under the nucleus reach to
         their cells (:func:`_stored_cell_evidence`); caches written under
-        the cell mask need none. Not read under 'nucleus_reach'.
+        the cell mask need none. Under 'nucleus_first' (item 1052) the same
+        labels are the cells the objects the nucleus reach leaves uncalled
+        fall back on (:func:`_nucleus_first_evidence`); a cache a live
+        'nucleus_first' decode wrote holds them. Not read under
+        'nucleus_reach'.
     :param well: the well of ``cell_store``; the cache folder's parent
         folder name when None.
-    :returns: ``rule`` (the rule decoded under), ``fields`` (one entry per
-        field with ``site`` and ``rule_a``, as :func:`field_calls` returns),
+    :returns: ``rule`` (the rule decoded under; under 'nucleus_first' with
+        ``ops_nucleus_first_bleed_curve`` 'fit' its ``bleed_model`` is the
+        curve fitted on these caches, :func:`_fit_bleed_model`), ``fields``
+        (one entry per field with ``site`` and ``rule_a``, as
+        :func:`field_calls` returns),
         ``nuclei``, ``assigned_real``, ``assigned_decoy`` and
         ``split_read_concordance``.
     """
@@ -3574,8 +4064,11 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
         resolved, library, read_threshold=read_threshold,
         single_read_quality=single_read_quality, pixel_quality=pixel_quality)
     paths = _cache_paths(cache_folder, sites)
+    if _read_assignment_of(rule) == "nucleus_first" and not rule.get("bleed_model"):
+        rule["bleed_model"] = _fit_bleed_model(paths, rule, library, decoys, crosstalk,
+                                               resolved)
     jobs = [(path, rule, library, decoys, crosstalk) for path in paths]
-    if _read_assignment_of(rule) == "cell_mask" and cell_store is not None:
+    if _read_assignment_of(rule) in ("cell_mask", "nucleus_first") and cell_store is not None:
         name = well or os.path.basename(os.path.dirname(os.path.abspath(cache_folder)))
         jobs = [(*job, (str(cell_store), name)) for job in jobs]
     workers = max(1, min(int(workers), len(jobs)))
@@ -3598,6 +4091,41 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
             "assigned_real": sum(int(r["rule_a"]["assigned_real"]) for r in fields),
             "assigned_decoy": sum(int(r["rule_a"]["assigned_decoy"]) for r in fields),
             "split_read_concordance": concordance}
+
+
+def _fit_bleed_model(paths: Sequence[str], rule: Mapping[str, Any], library: Sequence[str],
+                     decoys: Sequence[str], crosstalk: str,
+                     settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The bleed curve of a run, fitted on its nucleus-reach field caches (item 1052).
+
+    :param paths: the ``site<NNNN>.npz`` field caches.
+    :param rule: the rule with its read threshold.
+    :param library: the guide barcodes.
+    :param decoys: the decoy barcodes.
+    :param crosstalk: the unmixing method.
+    :param settings: read for ``ops_decode_qc_seed``, the seed of the null.
+    :returns: :func:`spacr.ops_decode_qc_panels.fit_bleed_model_from_caches`.
+    :raises ValueError: naming the keys a cache lacks.
+    """
+    from .ops_decode_qc_panels import fit_bleed_model_from_caches
+
+    def fields():
+        """Each field cache in turn, without its pixels, so one field is held at a time."""
+        for path in paths:
+            with np.load(path) as stored:
+                z = {key: stored[key] for key in stored.files
+                     if not key.startswith(("pix_", "f_"))}
+            absent = [key for key in CACHE_NUCLEUS_KEYS if key not in z]
+            if absent:
+                raise ValueError(f"{path}: ops_nucleus_first_bleed_curve 'fit' needs the "
+                                 "nucleus positions of the field cache, which holds no "
+                                 f"{', '.join(absent)}; give a stored curve instead")
+            yield {"site": int(os.path.basename(path)[4:8]), "z": z}
+
+    nucleus_rule = {key: value for key, value in rule.items()
+                    if key not in ("read_assignment", "bleed_gate", "bleed_model")}
+    return fit_bleed_model_from_caches(fields(), nucleus_rule, library, decoys, crosstalk,
+                                       seed=_qc_number(settings, "ops_decode_qc_seed", 0, int))
 
 
 #: The error terms of the dataset objective (item 1033) and their default
@@ -4680,6 +5208,8 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
     from .tabular import write_table
 
     folder = results_folder(db)
+    first = _read_assignment_of(rule) == "nucleus_first"
+    reasons = BLEED_REASONS + (NUCLEUS_FIRST_REASONS if first else ())
     stats = pd.DataFrame([{"plate": plate, "well": well, "site": int(r["site"]),
                            "nuclei": int(r["rule_a"]["nuclei"]),
                            "assigned_real": int(r["rule_a"]["assigned_real"]),
@@ -4689,17 +5219,21 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
                            "nuclei_with_read": int(r["rule_a"].get("nuclei_with_read", 0)),
                            **{f"pixel_refused_{reason}": int(
                                (r["rule_a"].get("pixel_refused") or {}).get(reason, 0))
-                              for reason in BLEED_REASONS}}
+                              for reason in reasons}}
                           for r in sorted(decoded, key=lambda r: r["site"])],
                          columns=["plate", "well", "site", "nuclei",
                                   "assigned_real", "assigned_decoy",
                                   "assigned_pixel_real", "assigned_pixel_decoy",
                                   "nuclei_with_read"]
-                         + [f"pixel_refused_{reason}" for reason in BLEED_REASONS])
+                         + [f"pixel_refused_{reason}" for reason in reasons])
+    if first:
+        for name in ("assigned_cell_mask_real", "assigned_cell_mask_decoy"):
+            stats[name] = [int(r["rule_a"].get(name, 0))
+                           for r in sorted(decoded, key=lambda r: r["site"])]
     if not rule.get("read_stage"):
         stats = stats.drop(columns=["nuclei_with_read"])
-    if not (rule.get("pixels") and _rule_pixel_ownership(rule) == "read_rule"):
-        stats = stats.drop(columns=[f"pixel_refused_{reason}" for reason in BLEED_REASONS])
+    if not (rule.get("pixels") and (first or _rule_pixel_ownership(rule) == "read_rule")):
+        stats = stats.drop(columns=[f"pixel_refused_{reason}" for reason in reasons])
     stats_path = os.path.join(folder, f"field_stats_{well}.csv")
     write_table(stats, stats_path, canonicalise=False)
     calibration = (rule.get('threshold_choice') or {}).get('calibration')

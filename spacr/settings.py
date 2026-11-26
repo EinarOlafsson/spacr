@@ -2736,7 +2736,7 @@ DEFAULT_CHANGES = {
     972: {'ops_store_raw_masks': False, 'ops_read_cache_floor': 100.0},
     973: {'ops_sbs_cellpose_diameter': None},
     974: {'ops_ph_segment_flatfield': False},
-    975: {'ops_cellpose_model': 'cpsam_v1'},
+    975: {'ops_cellpose_model': 'replay'},
     976: {'ops_ph_spanning_merge': 'merge', 'spanning_merge': 'merge'},
     978: {'ops_ph_downsample': 2, 'ops_ph_nucleus_downsample': 'same'},
     980: {'ops_sbs_cellpose_diameter': 11.0},
@@ -3090,8 +3090,13 @@ def _fold_older_defaults(settings, version, known=None):
 
     Version 975 segments OPS with the Cellpose-SAM ``cpsam_v2`` weights:
     ``ops_cellpose_model`` is now ``'cpsam_v2'``, loaded by its full path
-    and checked by md5. Files stamped before keep ``'cpsam_v1'``, the
-    installed Cellpose default their wells were segmented with. Versions
+    and checked by md5. Files stamped before get ``'replay'``: the run start
+    reads the Cellpose version an earlier report or mask store of the
+    destination recorded and replays the weights that release loaded by
+    default (4.0.x and 4.1.x ``cpsam_v1``, 4.2 and later ``cpsam_v2``), or
+    refuses and names ``ops_replay_cellpose_weights`` when none recorded it
+    (item 1054; this row first said ``'cpsam_v1'``, which was wrong for runs
+    made on Cellpose 4.2). Versions
     966 to 974 belong to other merges.
 
     Version 976 makes ``'best_parent'`` the default of ``ops_ph_spanning_merge``
@@ -9440,6 +9445,11 @@ ALPHA_FEATURES = {
     },
     1042: {
         'settings': ('ops_decode_qc_bleed_panel',),
+    },
+    1052: {
+        'settings': ('ops_nucleus_first_bleed_curve', 'ops_nucleus_first_max_bleed',
+                     'ops_nucleus_first_min_reads'),
+        'choices': {'ops_read_assignment': ('nucleus_first',)},
     },
     1025: {
         'settings': ('ops_sbs_cell_method', 'ops_sbs_cell_model',

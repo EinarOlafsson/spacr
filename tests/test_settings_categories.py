@@ -356,6 +356,7 @@ from spacr.gene_graph import _DEFAULTS as GENE_GRAPH_DEFAULTS  # noqa: E402
 from spacr.gene_knowledge import _DEFAULTS as GENE_KNOWLEDGE_DEFAULTS  # noqa: E402
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    "ops_replay_cellpose_weights", "ops_reuse_unprovenanced_objects",
     # 1033, alpha: the dataset threshold tuner (ops_decode_threshold_mode
     # 'dataset'), in Decoys & auto thresholds.
     "ops_decode_target_fdr", "ops_decode_split_guard", "ops_decode_dataset_weights",
@@ -381,6 +382,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 1025 (alpha, schema 969): SBS cell segmentation (OPS SBS cells α).
     "ops_sbs_cell_method", "ops_sbs_cell_model", "ops_sbs_cell_threshold",
     "ops_read_assignment",
+    # Item 1052 (alpha): the nucleus_first bleed gate (no schema row: default unchanged).
+    "ops_nucleus_first_bleed_curve", "ops_nucleus_first_max_bleed",
+    "ops_nucleus_first_min_reads",
     # L5 audit, schema 965: the ring of the outside profiling family.
     "profile_outside_rule", "ops_ph_profile_outside_rule",
     # Merge 4: one size-filter boundary rule; the legacy rule is kept for old files.

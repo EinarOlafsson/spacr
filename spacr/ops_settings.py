@@ -56,6 +56,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_require_versions": None,
     "ops_objects_resume": True,
     "ops_objects_keep_windows": False,
+    "ops_reuse_unprovenanced_objects": False,
+    "ops_replay_cellpose_weights": None,
     "ops_objects_windows_dir": None,
     "ops_store_raw_masks": False,
     "ops_footprint": 3.0,
@@ -273,6 +275,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_sbs_cell_model": "cpsam",
     "ops_sbs_cell_threshold": None,
     "ops_read_assignment": "nucleus_reach",
+    "ops_nucleus_first_bleed_curve": "fit",
+    "ops_nucleus_first_max_bleed": 0.5,
+    "ops_nucleus_first_min_reads": 1.0,
     "ops_decode_pixel_fallback": False,
     "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
@@ -717,6 +722,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_require_versions": (dict, type(None)),
     "ops_objects_resume": bool,
     "ops_objects_keep_windows": bool,
+    "ops_reuse_unprovenanced_objects": bool,
+    "ops_replay_cellpose_weights": (str, type(None)),
     "ops_store_raw_masks": bool,
     "ops_objects_windows_dir": (str, type(None)),
     "ops_footprint": (float, int),
@@ -922,6 +929,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_sbs_cell_model": str,
     "ops_sbs_cell_threshold": (float, int, type(None)),
     "ops_read_assignment": str,
+    "ops_nucleus_first_bleed_curve": str,
+    "ops_nucleus_first_max_bleed": (float, int),
+    "ops_nucleus_first_min_reads": (float, int),
     "ops_decode_pixel_fallback": bool,
     "ops_pixel_read_gate": bool,
     "ops_pixel_percentile": (float, int),
@@ -1354,7 +1364,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_sbs_nucleus_model", "ops_cellpose_model", "cellpose_diameter",
         "ops_sbs_cellpose_diameter", "ops_sbs_tile_batch",
         "ops_window_overlap", "ops_objects_resume", "ops_objects_keep_windows",
-        "ops_objects_windows_dir",
+        "ops_objects_windows_dir", "ops_reuse_unprovenanced_objects",
+        "ops_replay_cellpose_weights",
     ],
     "Spot detection & registration": [
         "ops_base_channels", "ops_read_threshold", "ops_spot_detector",
@@ -1384,7 +1395,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "SBS cells α": [
         "ops_sbs_cell_method", "ops_sbs_cell_model", "ops_sbs_cell_threshold",
-        "ops_read_assignment",
+        "ops_read_assignment", "ops_nucleus_first_bleed_curve",
+        "ops_nucleus_first_max_bleed", "ops_nucleus_first_min_reads",
     ],
     "Pixel fallback": [
         "ops_decode_pixel_fallback", "ops_pixel_read_gate",
@@ -1753,7 +1765,17 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "loads the installed Cellpose default (cpsam, July 2025). Each file "
         "is checked by md5 first; a missing or different file stops the run "
         "rather than loading other weights. Settings files saved before "
-        "schema 975 keep 'cpsam_v1'. Default 'cpsam_v2'.",
+        "schema 975 get 'replay', which the run start turns into the weights "
+        "the Cellpose version recorded in the destination loaded by default "
+        "(4.0 and 4.1 'cpsam_v1', 4.2 and later 'cpsam_v2') and refuses when "
+        "no version was recorded. Default 'cpsam_v2'.",
+    "ops_replay_cellpose_weights":
+        "(str or None) - 'cpsam_v1' or 'cpsam_v2': the stock weights an older "
+        "settings file (ops_cellpose_model 'replay') is replayed with. Needed "
+        "only when no earlier report or mask store of the destination "
+        "recorded the Cellpose version; set it to the weights that run used "
+        "(Cellpose 4.0 and 4.1 loaded 'cpsam_v1', 4.2 and later 'cpsam_v2'). "
+        "Wins over a recorded version. Default None. Alpha.",
     "dst_root":
         "(str or None) - Where measurements.db and each well's "
         "ops_report.json are written. Empty writes them into the source "
@@ -2022,6 +2044,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Keep the objects phase's window files after the well's "
         "objects are stored. Off deletes them once the well is done. "
         "Default False. Alpha.",
+    "ops_reuse_unprovenanced_objects":
+        "(bool) - Let a run without the objects phase use the objects of a well "
+        "that never recorded which Cellpose weights made them. Off refuses "
+        "such a well, because its masks may come from other weights than this "
+        "run names; run the objects phase again instead. A well that recorded "
+        "other weights is always refused. Default False. Alpha.",
     "ops_objects_windows_dir":
         "(str or None) - The folder that holds the objects phase's window "
         "files, one subfolder per well. Empty puts them in objects_windows "
@@ -3879,12 +3907,32 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_read_assignment":
         "(str) - Which nucleus a read or a fallback pixel belongs to. "
         "'cell_mask': the nucleus of the SBS cell it lies in, with no "
-        "footprint or tie, so reads anywhere in the cytoplasm count and reads "
-        "between cells count for none; neighbours for the read discount and "
-        "the pixel bleed gate are the cells that touch. Needs "
-        "ops_sbs_cell_method. 'nucleus_reach': the nearest nucleus within "
-        "ops_footprint, as before. Calls, auto candidates, never and shuffle "
-        "controls and FDR all use the same rule. Default 'nucleus_reach'. Alpha.",
+        "footprint or tie; neighbours are the cells that touch. "
+        "'nucleus_first': every nearest-nucleus call stands, and only a "
+        "nucleus left uncalled takes the reads of its SBS cell, through the "
+        "bleed gate (ops_nucleus_first_*; manual thresholds or a re-decode "
+        "from the field cache). Both need ops_sbs_cell_method. "
+        "'nucleus_reach': the nearest nucleus within ops_footprint, as before. "
+        "Calls, controls and FDR use the same rule. Default 'nucleus_reach'. Alpha.",
+    "ops_nucleus_first_bleed_curve":
+        "(str) - The bleed curve the 'nucleus_first' gate reads: how often a "
+        "read names the guide of a neighbour nucleus, by its distance to that "
+        "neighbour and its place in its own cell. 'fit': measured on the "
+        "field cache of the run when the well is re-decoded from it. 'arm2': "
+        "the curve the paper measured. Or the path of a stored curve "
+        "(a bleed panel or bleed pair table, or a JSON curve). Only read "
+        "under ops_read_assignment 'nucleus_first'. Default 'fit'. Alpha.",
+    "ops_nucleus_first_max_bleed":
+        "(float) - Lower refuses more cell-mask and pixel calls near a "
+        "neighbour with the same guide: the largest share of the reads or "
+        "pixels behind such a call that the bleed curve may give to that "
+        "neighbour. Only read under ops_read_assignment 'nucleus_first'. "
+        "Default 0.5. Alpha.",
+    "ops_nucleus_first_min_reads":
+        "(float) - Higher needs more evidence for a cell-mask call: the reads "
+        "naming its guide that must be left once the reads the bleed curve "
+        "gives to a neighbour are taken off. Only read under "
+        "ops_read_assignment 'nucleus_first'. Default 1. Alpha.",
     "ops_prefix_bleed_in_recipe":
         "(bool) - Under ops_prefix_quality_method 'recipe_simple', ignore a "
         "minority barcode that has the most reads in a touching cell when "
