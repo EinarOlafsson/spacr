@@ -405,6 +405,12 @@ default after a higher-numbered item takes the next free number:
   contact and area tests were already the defaults. The feature stays off
   (``nucleus_fragment_merge`` ``'off'``), so no default output changes.
   Files stamped before 984 get None and keep their merges.
+- 985 (item 1051, a value you set beats a preset): a value you set
+  yourself always wins over ``ops_decode_preset`` (and the in situ
+  ``t7`` preset), even when it equals the default; the preset fills only
+  the keys you did not set. No default changes. Files stamped before 985
+  carry ``_meta_explicit_keys`` = ``'default_equals_unset'`` and run as
+  they did: a key at its default took the preset's value.
 
 Public API
 ----------

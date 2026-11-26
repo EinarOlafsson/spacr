@@ -9686,6 +9686,10 @@ class AppScreen(QWidget):
         try:
             settings = (dict(override) if override is not None
                         else self._settings_model.collect())
+            if override is None and "ops_decode_preset" in settings:
+                from ...settings import record_explicit_keys
+
+                record_explicit_keys(settings, self._settings_model.modified_keys())
         except Exception as e:
             log_button_press(
                 f"{self.app_key}.Run",

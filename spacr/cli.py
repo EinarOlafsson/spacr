@@ -1809,6 +1809,13 @@ def resolve_settings(module: Module, settings_path: Optional[str],
         _report_unknown_keys(from_file, module.validate_key, bool(strict), moved)
         resolved.update(from_file)
     apply_overrides(resolved, overrides, module)
+    if "ops_decode_preset" in resolved:
+        from .settings import record_explicit_keys
+
+        given = set(from_file) if settings_path else set()
+        given.update(str(item).partition("=")[0].strip() for item in overrides)
+        record_explicit_keys(resolved, [key for key in given
+                                        if resolved.get(key) not in (None, "")])
     from .object_settings_table import _canonical_diameters
     return _canonical_diameters(resolved)
 

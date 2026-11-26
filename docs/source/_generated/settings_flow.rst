@@ -779,6 +779,7 @@ _meta_neighbour_discount
 |     :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |         ``_neighbour_discount_context`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.ops_decode.run_compare_calls`
@@ -790,6 +791,7 @@ _meta_neighbour_discount
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |                 ``_neighbour_discount_context`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.decode_rule`
 |                 ``_neighbour_discount_state``
@@ -799,6 +801,7 @@ _meta_neighbour_discount
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |                 ``_neighbour_discount_context`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_decode``
 |             :py:func:`~spacr.ops_decode.decode_rule`
 |                 ``_neighbour_discount_state``
@@ -808,6 +811,7 @@ _meta_neighbour_discount
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |                 ``_neighbour_discount_context`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_run_cpg``
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 ``_neighbour_discount_state``
@@ -826,6 +830,7 @@ _meta_neighbour_discount
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |                 ``_neighbour_discount_context`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.decode_rule`
 |                 ``_neighbour_discount_state``
@@ -835,6 +840,7 @@ _meta_neighbour_discount
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |                 ``_neighbour_discount_context`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_decode``
 |             :py:func:`~spacr.ops_decode.decode_rule`
 |                 ``_neighbour_discount_state``
@@ -844,6 +850,7 @@ _meta_neighbour_discount
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |                 ``_neighbour_discount_context`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_run_cpg``
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 ``_neighbour_discount_state``
@@ -862,6 +869,7 @@ _meta_neighbour_discount
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |                 ``_neighbour_discount_context`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.decode_rule`
 |                 ``_neighbour_discount_state``
@@ -871,6 +879,7 @@ _meta_neighbour_discount
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |                 ``_neighbour_discount_context`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_decode``
 |             :py:func:`~spacr.ops_decode.decode_rule`
 |                 ``_neighbour_discount_state``
@@ -880,6 +889,7 @@ _meta_neighbour_discount
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
 |                 ``_neighbour_discount_context`` **-- reads it**
 |                     ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_run_cpg``
 |             :py:func:`~spacr.ops_prefix.run_prefix_decode`
 |                 ``_neighbour_discount_state``
@@ -33726,32 +33736,42 @@ A named set of decode settings applied to every decode key this settings file le
 |     ``dict(...)  [UNRESOLVED]``
 | ``_decode_options``
 |     :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.ops_decode.run_compare_calls`
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_decode``
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.ops_decode.run_compare_calls`
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_decode``
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.ops_decode.run_compare_calls`
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_decode``
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``resolve_settings``, ``ops_defaults``.
@@ -46731,20 +46751,24 @@ Weighs down a minority guide when the same guide has the most reads in a neighbo
 |     :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |         ``_read_weighting`` **-- reads it**
 |     :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
 |         :py:func:`~spacr.ops_decode.run_compare_calls`
 |             :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |                 ``_read_weighting`` **-- reads it**
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |                 ``_read_weighting`` **-- reads it**
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_decode``
 |             :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |                 ``_read_weighting`` **-- reads it**
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_run_cpg``
 |             ``_run_grid_search``
 |                 ``_default_points``
@@ -46766,14 +46790,17 @@ Weighs down a minority guide when the same guide has the most reads in a neighbo
 |             :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |                 ``_read_weighting`` **-- reads it**
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |                 ``_read_weighting`` **-- reads it**
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_decode``
 |             :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |                 ``_read_weighting`` **-- reads it**
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_run_cpg``
 |             ``_run_grid_search``
 |                 ``_default_points``
@@ -46795,14 +46822,17 @@ Weighs down a minority guide when the same guide has the most reads in a neighbo
 |             :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |                 ``_read_weighting`` **-- reads it**
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |                 ``_read_weighting`` **-- reads it**
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_decode``
 |             :py:func:`~spacr.ops_decode.decode_rule` **-- reads it**
 |                 ``_read_weighting`` **-- reads it**
 |             :py:func:`~spacr.ops_decode.resolve_settings` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |         ``_run_cpg``
 |             ``_run_grid_search``
 |                 ``_default_points``

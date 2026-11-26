@@ -4963,6 +4963,9 @@ def ops_defaults(settings=None):
     from .settings import _fold_renamed_settings
 
     _fold_renamed_settings(settings)
+    from .settings import record_explicit_keys
+
+    record_explicit_keys(settings)
     for key, value in OPS_DEFAULTS.items():
         settings.setdefault(key, value)
     stored = str(settings.get("ops_storage") or "").strip().lower()

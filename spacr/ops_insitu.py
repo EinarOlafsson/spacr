@@ -94,7 +94,11 @@ def _insitu_options(settings: Mapping[str, Any], chosen: Mapping[str, Any]) -> D
     q = settings.get("ops_recomb_min_quality")
     recomb_q = 0.0 if q is None or q == "" else float(q)
     min_reads = None
-    if "ops_quality_min_reads" in values and int(chosen["ops_quality_min_reads"]) == 2:
+    from .settings import is_explicit
+
+    if ("ops_quality_min_reads" in values
+            and not is_explicit(settings, "ops_quality_min_reads",
+                                int(chosen["ops_quality_min_reads"]) == 2)):
         min_reads = int(values["ops_quality_min_reads"])
     layout_file = settings.get("ops_barcode_layout_file") or None
     if layout == "combinatorial" and not layout_file:
