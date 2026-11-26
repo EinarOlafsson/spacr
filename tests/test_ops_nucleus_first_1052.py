@@ -6,7 +6,8 @@ only when the bleed gate passes it: the bleed curve (arm 2 of the paper,
 ported in ``spacr.ops_decode_qc_panels``) gives each agreeing read the
 excess rate at which a read at its distance from a neighbour carrying the
 guide, and at its spot position, names the guide of that neighbour. The pixel
-fallback goes through the same gate, on its agreeing pixels. The fields
+fallback is the 1044b path of 'nucleus_reach', byte for byte (item 1052b),
+and a cell with a pixel call takes no cell-mask call. The fields
 are painted, run through the spaCR -LoG filter, read score, peaks and
 ``field_evidence``, and given their cells as the live decode gives them
 (``ops_engine._with_fallback_cells``).
@@ -164,7 +165,7 @@ def test_a_nucleus_call_with_conflicting_cytoplasm_reads_is_unchanged():
     cell = _calls(evidence, _rule("cell_mask"))
     assert _guides(reach) == {A: GUIDE}
     assert _guides(first) == {A: GUIDE}
-    assert first["calls"][A]["assignment"] == "nucleus_reach"
+    assert "assignment" not in first["calls"][A]
     assert _guides(cell).get(A) != GUIDE
     for key in ("guide", "n_agreeing", "fraction", "quality", "barcode", "n_reads"):
         assert first["calls"][A][key] == reach["calls"][A][key]
@@ -204,32 +205,47 @@ def test_the_minimum_agreeing_reads_is_a_second_condition():
     assert strict["nucleus_first"]["read_refused"]["min_support"] == 1
 
 
-def test_pixels_use_the_same_gate(monkeypatch):
+def _pixel_rows(out):
+    """The pixel calls of a result, with every field they hold."""
+    return {int(k): v for k, v in out["calls"].items() if v["source"] == "pixel_fallback"}
+
+
+def test_pixel_calls_are_those_of_nucleus_reach_and_stand():
+    for spots, seed in ((B_READS + A_PIXEL_BLEED + C_PIXEL, 3), (B_READS + A_PIXEL_CENTRE, 4),
+                        (B_READS + A_BLEED + C_CLEAN + C_PIXEL, 5)):
+        evidence = _field(spots, seed=seed)
+        reach = _calls(evidence, _rule("nucleus_reach"))
+        first = _calls(evidence, _rule("nucleus_first"))
+        assert repr(_pixel_rows(first)) == repr(_pixel_rows(reach))
+        assert first["pixel_refused"] == reach["pixel_refused"]
+        reads = {o: v for o, v in first["calls"].items() if v["source"] == "primary"}
+        nucleus = {o: v for o, v in reach["calls"].items() if v["source"] == "primary"}
+        assert {o: v for o, v in reads.items() if o in nucleus} == nucleus
+        assert all(v.get("assignment") == "cell_mask"
+                   for o, v in reads.items() if o not in nucleus)
+        assert not set(reads) & set(_pixel_rows(first))
+    centre = _field(B_READS + A_PIXEL_CENTRE)
+    assert reach_refuses(centre)
+    assert A not in _guides(_calls(centre, _rule("nucleus_first")))
+
+
+def test_a_cell_with_a_pixel_call_takes_no_cell_mask_call(monkeypatch):
     seen = []
     real = ops_decode._bleed_probabilities
 
     def spy(evidence, points, gap, ids, owner, guide, carriers, sisters, model):
-        seen.append((owner, guide, len(points), model is not None))
+        seen.append(owner)
         return real(evidence, points, gap, ids, owner, guide, carriers, sisters, model)
 
-    bleed = _field(B_READS + A_PIXEL_BLEED + C_PIXEL)
-    reach = _calls(bleed, _rule("nucleus_reach"))
-    assert _guides(reach, "pixel_fallback") == {C: OTHER}
-    assert reach["pixel_refused"]["bleed_read"] == 1
     monkeypatch.setattr(ops_decode, "_bleed_probabilities", spy)
-    first = _calls(bleed, _rule("nucleus_first"))
-    assert _guides(first, "pixel_fallback") == {C: OTHER}
-    assert first["pixel_refused"]["bleed_model"] == 1
-    assert {(o, g) for o, g, n, _ in seen if n} >= {(A, GUIDE), (C, OTHER)}
-    seen.clear()
-    centre = _field(B_READS + A_PIXEL_CENTRE)
-    assert reach_refuses(centre)
-    recovered = _calls(centre, _rule("nucleus_first"))
-    assert _guides(recovered, "pixel_fallback") == {A: GUIDE}
-    reads = _field(B_READS + A_BLEED)
-    seen.clear()
-    _calls(reads, _rule("nucleus_first", ops_decode_pixel_fallback=False))
-    assert [(o, g) for o, g, n, _ in seen] == [(A, GUIDE)]
+    evidence = _field(B_READS + C_CLEAN)
+    reach = _calls(evidence, _rule("nucleus_reach"))
+    assert _guides(reach, "pixel_fallback") == {C: OTHER}
+    first = _calls(evidence, _rule("nucleus_first"))
+    assert repr(first["calls"]) == repr(reach["calls"])
+    assert first["nucleus_first"]["cell_mask_candidates"] == 0 and C not in seen
+    without = _calls(evidence, _rule("nucleus_first", ops_decode_pixel_fallback=False))
+    assert without["calls"][C]["assignment"] == "cell_mask" and C in seen
 
 
 def reach_refuses(evidence):
@@ -346,7 +362,8 @@ def test_replay_from_a_nucleus_reach_cache_and_stored_cells_equals_live(tmp_path
     got = replayed["fields"][0]["rule_a"]
     assert repr(got["calls"]) == repr(live["calls"])
     assert got["nucleus_first"] == live["nucleus_first"]
-    assert _guides(got) == {B: GUIDE, C: OTHER}
+    assert _guides(got, "primary") == {B: GUIDE}
+    assert _guides(got, "pixel_fallback") == {C: OTHER}
     own = tmp_path / "own" / "decode_cache"
     _save(own, live_evidence, 7)
     assert repr(_replay(own)["fields"][0]["rule_a"]["calls"]) == repr(live["calls"])
@@ -523,3 +540,30 @@ def test_the_live_engine_decode_replays_from_its_cache_and_from_the_reach_cache(
         for owner, call in calls.items():
             if call["source"] == "primary":
                 assert live[site][owner]["guide"] == call["guide"]
+
+
+def _pixel_digest(assignment, evidence_sets):
+    """A digest of the pixel call rows and the 1044b refusals of every variant (item 1052b)."""
+    digest = hashlib.sha256()
+    matcher, decoys = ops_decode.matcher_for(LIBRARY, ())
+    for evidence in evidence_sets:
+        for ownership in ("read_rule", "read_reach", "nearest_nucleus"):
+            for extra in ({}, {"ops_min_top_share": 0.9}, {"ops_read_neighbour_discount": 1.0},
+                          {"ops_pixel_quality": 0.3}):
+                rule = _rule(assignment, ops_pixel_ownership=ownership, **extra)
+                out = ops_decode.field_calls(
+                    evidence, rule, LIBRARY, matcher, decoys, threshold=50.0, footprint=3.0,
+                    max_distance=0, min_fraction=0.6, single_read_quality=0.0,
+                    crosstalk="none", evidence_rows=True)
+                digest.update(repr(_pixel_rows(out)).encode())
+                digest.update(repr(out.get("pixel_refused")).encode())
+                digest.update(repr([row for row in out["evidence"]
+                                    if row["source"] == "pixel_fallback"]).encode())
+    return digest.hexdigest()
+
+
+def test_the_pixel_rows_under_nucleus_first_hash_as_under_nucleus_reach():
+    sets = [_field(spots, seed=seed) for spots, seed in (
+        (B_READS + A_BLEED + C_CLEAN + C_PIXEL, 3), (A_NUCLEUS + A_CYTOPLASM + C_PIXEL, 4),
+        (B_READS + A_PIXEL_BLEED + A_PIXEL_CENTRE + C_PIXEL, 5), (B_READS + C_CLEAN, 6))]
+    assert _pixel_digest("nucleus_first", sets) == _pixel_digest("nucleus_reach", sets)

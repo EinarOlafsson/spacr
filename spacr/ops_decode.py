@@ -410,21 +410,20 @@ READ_ASSIGNMENTS = ("nucleus_reach", "cell_mask", "nucleus_first")
 #: The defaults of the ``ops_read_assignment`` 'nucleus_first' gate (item
 #: 1052): the bleed curve ('fit' fits it per run from the field caches,
 #: 'arm2' is the curve the paper measured, or a path to a stored curve),
-#: the largest share of the agreeing reads of a call or pixels the curve may
-#: explain as bleed from a neighbour, and the least agreeing reads the curve
-#: leaves (reads only: a pixel vote already holds ``ops_pixel_min_pixels``). They are read here and not kept in :data:`_DEFAULTS`, so the
-#: resolved settings of the other assignments are unchanged.
+#: the largest share of the agreeing reads of a cell-mask call the curve
+#: may explain as bleed from a neighbour, and the least agreeing reads the
+#: curve leaves. They are read here and not kept in :data:`_DEFAULTS`, so
+#: the resolved settings of the other assignments are unchanged.
 NUCLEUS_FIRST_DEFAULTS = {"ops_nucleus_first_bleed_curve": "fit",
                           "ops_nucleus_first_max_bleed": 0.5,
                           "ops_nucleus_first_min_reads": 1.0}
 
-#: Why the 'nucleus_first' gate refused a cell-mask read call or a pixel
-#: call (item 1052): the bleed curve explains more than
-#: ``ops_nucleus_first_max_bleed`` of its agreeing reads or pixels
-#: (``bleed_model``), fewer than ``ops_nucleus_first_min_reads`` reads
-#: remain once the bleed is taken off (``min_support``, reads only), or the
-#: cell-mask reads and the pixels name different guides (``conflict``).
-NUCLEUS_FIRST_REASONS = ("bleed_model", "min_support", "conflict")
+#: Why the 'nucleus_first' gate refused a cell-mask read call (items 1052,
+#: 1052b): the bleed curve explains more than ``ops_nucleus_first_max_bleed``
+#: of its agreeing reads (``bleed_model``), or fewer than
+#: ``ops_nucleus_first_min_reads`` reads remain once the bleed is taken off
+#: (``min_support``). The pixel calls keep the 1044b gate of 'nucleus_reach'.
+NUCLEUS_FIRST_REASONS = ("bleed_model", "min_support")
 
 
 def _nucleus_first_rule(settings: Mapping[str, Any], active: bool) -> Dict[str, Any]:
@@ -1374,10 +1373,10 @@ def _bleed_probabilities(evidence: Mapping[str, Any], points: np.ndarray, gap: n
                          ids: np.ndarray, owner: int, guide: str,
                          carriers: Mapping[int, frozenset], sisters: Mapping[int, Any],
                          model: Mapping[str, Any]) -> np.ndarray:
-    """The share of each supporting read or pixel the bleed curve gives a neighbour (item 1052).
+    """The share of each supporting read the bleed curve gives a neighbour (item 1052).
 
-    The one bleed model of 'nucleus_first', for the reads and the fallback
-    pixels alike. A point of ``owner`` that names ``guide`` is bleed with the
+    The bleed model of the 'nucleus_first' cell-mask read fallback; the
+    pixel calls keep the 1044b gate (item 1052b). A point of ``owner`` that names ``guide`` is bleed with the
     excess rate of the curve (:func:`spacr.ops_decode_qc_panels.bleed_rates`) at
     its gap to the boundary of a neighbour carrying that guide -- one of its
     two nearest nuclei other than the owner, not a sister, whose top read
@@ -1419,13 +1418,12 @@ def _bleed_probabilities(evidence: Mapping[str, Any], points: np.ndarray, gap: n
 
 
 def _bleed_gate(probabilities: np.ndarray, max_share: float, least: float) -> Optional[str]:
-    """The 'nucleus_first' bleed gate on the supporting reads or pixels (item 1052).
+    """The 'nucleus_first' bleed gate on the supporting reads of a cell-mask call (item 1052).
 
     :param probabilities: from :func:`_bleed_probabilities`.
     :param max_share: ``ops_nucleus_first_max_bleed``.
-    :param least: the least support left once the bleed is taken off:
-        ``ops_nucleus_first_min_reads`` for reads, 0 for pixels, whose vote
-        already holds ``ops_pixel_min_pixels``.
+    :param least: the least support left once the bleed is taken off,
+        ``ops_nucleus_first_min_reads``.
     :returns: None to keep the call, or the reason
         (:data:`NUCLEUS_FIRST_REASONS`).
     """
@@ -1466,29 +1464,29 @@ def _nucleus_first_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, 
     1. The nucleus reach votes the field exactly as under 'nucleus_reach';
        every read call it makes stands, and no cytoplasm read vetoes or
        dilutes it.
-    2. Only an object it leaves without a read call is voted again on the
-       reads of its SBS cell (:func:`_cell_mask_evidence`, the item-1025
-       cell-mask vote, neighbours the cells that touch). That call is kept
-       when the bleed gate passes it (:func:`_bleed_gate`): the bleed curve
+    2. The pixel fallback is the one of 'nucleus_reach', untouched: the
+       1044b path with its own gate (``bleed_read``, ``bleed_pixel``,
+       ``radius_disagrees``), so every pixel call is the pixel call of
+       'nucleus_reach' (item 1052b).
+    3. Only an owned object left with neither a read call nor a pixel call
+       is voted again on the reads of its SBS cell
+       (:func:`_cell_mask_evidence`, the item-1025 cell-mask vote,
+       neighbours the cells that touch). That call is kept when the bleed
+       gate passes it (:func:`_bleed_gate`): the bleed curve
        (``rule['bleed_model']``) explains at most ``max_share`` of its
-       agreeing reads as bleed from a neighbour, and at least ``min_reads`` reads are
-       left once the bleed is taken off.
-    3. The pixel fallback of an object with no read call goes through the
-       same gate, the same curve and ``max_share``, on its agreeing pixels,
-       in place of the 1044b neighbour rules; ``radius_disagrees`` still
-       refuses. A cell-mask read call and a pixel
-       call that name different guides are both refused (``conflict``).
+       agreeing reads as bleed from a neighbour, and at least ``min_reads``
+       reads are left once the bleed is taken off.
 
     :param evidence: nucleus-reach evidence with ``cell_labels``
         (:func:`_nucleus_first_cells`).
     :param rule: from :func:`decode_rule` under 'nucleus_first', with
         ``bleed_model``.
-    :returns: as :func:`field_calls`; a call carries ``assignment``
-        ('nucleus_reach' or 'cell_mask'), and the result
-        ``assigned_cell_mask_real``, ``assigned_cell_mask_decoy`` and
-        ``nucleus_first`` (the cell-mask candidates, calls and refusals);
-        ``pixel_refused`` counts :data:`BLEED_REASONS` and
-        :data:`NUCLEUS_FIRST_REASONS`.
+    :returns: as :func:`field_calls`, the calls of 'nucleus_reach' plus the
+        cell-mask calls, which alone carry ``assignment`` 'cell_mask'; the
+        result adds ``assigned_cell_mask_real``, ``assigned_cell_mask_decoy``
+        and ``nucleus_first`` (the cell-mask candidates, calls and refusals
+        by :data:`NUCLEUS_FIRST_REASONS`); ``pixel_refused`` is the 1044b
+        count of 'nucleus_reach'.
     :raises ValueError: without ``bleed_model`` (``ops_nucleus_first_bleed_curve``
         'fit' is fitted by :func:`decode_cached_well`), and from
         :func:`_nucleus_first_cells`.
@@ -1518,6 +1516,9 @@ def _nucleus_first_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, 
     cell_votes = _field_votes(_cell_mask_evidence(reduced, cells), cell_rule, library,
                               matcher, pixel_qualities=(quality,), **kwargs)
     raw_pixel = votes["pixel"][quality] if rule["pixels"] else {}
+    pixel_refused: Dict[int, str] = {}
+    pixel = (_fallback_pixels(raw_pixel, votes, primary, pixel_refused)
+             if rule["pixels"] else {})
     carriers = _nucleus_first_carriers(votes, raw_pixel)
     sisters = votes.get("sisters") or {}
     gaps = np.asarray(evidence["gap"], float).reshape(-1, 2)
@@ -1526,7 +1527,8 @@ def _nucleus_first_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, 
 
     read_refused: Dict[int, str] = {}
     cell_calls: Dict[int, dict] = {}
-    candidates = [o for o in cell_votes["primary"] if o not in primary and o in owned]
+    candidates = [o for o in cell_votes["primary"]
+                  if o not in primary and o not in pixel and o in owned]
     if candidates:
         rows = cell_votes["rows"]
         where = cell_votes["selected"][rows]
@@ -1546,52 +1548,17 @@ def _nucleus_first_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, 
             else:
                 read_refused[owner] = reason
 
-    pixel_refused: Dict[int, str] = {}
-    pixel: Dict[int, dict] = {}
-    if rule["pixels"]:
-        allowed = _fallback_pixels(raw_pixel, {**votes, "bleed_gate": False}, primary)
-        ids = np.asarray(votes.get("pixel_ids", np.zeros(0, np.int64)))
-        chosen = np.asarray(votes.get("pixel_chosen", np.zeros(0, np.int64)))
-        pix_gap = np.asarray(evidence["pix_gap"], float).reshape(-1, 2) if len(chosen) else None
-        pix_ids = (np.column_stack([np.asarray(evidence["pix_id0"]),
-                                    np.asarray(evidence["pix_id1"])]) if len(chosen) else None)
-        pix_yx = np.asarray(evidence["pix_yx"], float).reshape(-1, 2) if len(chosen) else None
-        for owner, hit in allowed.items():
-            if owner in primary:
-                pixel[owner] = hit
-                continue
-            if "radius_guide" in hit and hit["radius_guide"] != hit["guide"]:
-                pixel_refused[owner] = "radius_disagrees"
-                continue
-            mine = chosen[ids[chosen] == owner]
-            mine = mine[(votes["pixel_quality"][mine] >= quality) & np.array(
-                [matcher.match(votes["pixel_codes"][j], 0)[0] == hit["guide"] for j in mine],
-                bool)] if len(mine) else mine
-            reason = _bleed_gate(_bleed_probabilities(
-                evidence, pix_yx[mine] if len(mine) else np.zeros((0, 2)),
-                pix_gap[mine] if len(mine) else np.zeros((0, 2)),
-                pix_ids[mine] if len(mine) else np.zeros((0, 2), np.int64), int(owner),
-                hit["guide"], carriers, sisters, model), gate["max_share"], 0.0)
-            if reason is None:
-                pixel[owner] = hit
-            else:
-                pixel_refused[owner] = reason
-        for owner in list(cell_calls):
-            if owner in pixel and pixel[owner]["guide"] != cell_calls[owner]["guide"]:
-                read_refused[owner] = pixel_refused[owner] = "conflict"
-                del cell_calls[owner], pixel[owner]
-
-    merged = {**primary, **cell_calls}
     reads_per = votes["reads_per"].copy()
     for owner in cell_calls:
         reads_per[owner] = cell_votes["reads_per"].get(owner, 0)
-    out = _assemble_calls(merged, pixel, {**votes, "reads_per": reads_per}, decoys)
+    out = _assemble_calls({**primary, **cell_calls}, pixel,
+                          {**votes, "reads_per": reads_per}, decoys)
     cell_real = cell_decoy = 0
     for owner, call in out["calls"].items():
-        cell = owner in cell_calls and call["source"] == "primary"
-        call["assignment"] = "cell_mask" if cell else "nucleus_reach"
-        cell_real += int(cell and not call["decoy"])
-        cell_decoy += int(cell and call["decoy"])
+        if owner in cell_calls:
+            call["assignment"] = "cell_mask"
+            cell_real += int(not call["decoy"])
+            cell_decoy += int(call["decoy"])
     out["assigned_cell_mask_real"] = cell_real
     out["assigned_cell_mask_decoy"] = cell_decoy
     counted = [r for o, r in read_refused.items() if o in owned]
@@ -1600,25 +1567,17 @@ def _nucleus_first_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, 
         "cell_mask_called": int(sum(1 for o in cell_calls if o in owned)),
         "read_refused": {reason: counted.count(reason) for reason in NUCLEUS_FIRST_REASONS},
         "reads_cell_mask_owned": int(cell_votes["reads_owned"])}
-    if rule["pixels"]:
-        values = [r for o, r in pixel_refused.items() if o in owned]
-        out["pixel_refused"] = {reason: values.count(reason)
-                                for reason in BLEED_REASONS + NUCLEUS_FIRST_REASONS}
+    if votes.get("bleed_gate"):
+        out["pixel_refused"] = _refusal_counts(pixel_refused, votes["owned"])
     if rule.get("read_stage"):
         out["nuclei_with_read"] = nuclei_with_read(evidence, threshold)
     if evidence_rows:
-        nucleus_rows = _evidence_rows(
-            primary, {o: h for o, h in pixel.items() if o not in cell_calls},
-            votes["tallies"], owned, decoys, votes["objects"], votes["ambiguous"])
-        cell_rows = _evidence_rows(
-            cell_calls, {o: h for o, h in pixel.items() if o in cell_calls},
-            cell_votes["tallies"], owned, decoys, cell_votes["objects"],
-            cell_votes["ambiguous"])
-        for row in nucleus_rows:
-            row["assignment"] = "nucleus_reach"
+        cell_rows = _evidence_rows(cell_calls, {}, cell_votes["tallies"], owned, decoys,
+                                   cell_votes["objects"], cell_votes["ambiguous"])
         for row in cell_rows:
             row["assignment"] = "cell_mask"
-        out["evidence"] = nucleus_rows + cell_rows
+        out["evidence"] = _evidence_rows(primary, pixel, votes["tallies"], owned, decoys,
+                                         votes["objects"], votes["ambiguous"]) + cell_rows
     return out
 
 
@@ -5209,7 +5168,7 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
 
     folder = results_folder(db)
     first = _read_assignment_of(rule) == "nucleus_first"
-    reasons = BLEED_REASONS + (NUCLEUS_FIRST_REASONS if first else ())
+    reasons = BLEED_REASONS
     stats = pd.DataFrame([{"plate": plate, "well": well, "site": int(r["site"]),
                            "nuclei": int(r["rule_a"]["nuclei"]),
                            "assigned_real": int(r["rule_a"]["assigned_real"]),
@@ -5232,7 +5191,12 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
                            for r in sorted(decoded, key=lambda r: r["site"])]
     if not rule.get("read_stage"):
         stats = stats.drop(columns=["nuclei_with_read"])
-    if not (rule.get("pixels") and (first or _rule_pixel_ownership(rule) == "read_rule")):
+    if first:
+        for reason in NUCLEUS_FIRST_REASONS:
+            stats[f"cell_mask_refused_{reason}"] = [
+                int(((r["rule_a"].get("nucleus_first") or {}).get("read_refused") or {})
+                    .get(reason, 0)) for r in sorted(decoded, key=lambda r: r["site"])]
+    if not (rule.get("pixels") and _rule_pixel_ownership(rule) == "read_rule"):
         stats = stats.drop(columns=[f"pixel_refused_{reason}" for reason in reasons])
     stats_path = os.path.join(folder, f"field_stats_{well}.csv")
     write_table(stats, stats_path, canonicalise=False)

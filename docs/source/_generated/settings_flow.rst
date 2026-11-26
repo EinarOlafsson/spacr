@@ -46522,7 +46522,7 @@ Read by ``_check_live_nucleus_first``, ``ops_defaults``.
 ops_nucleus_first_max_bleed
 ---------------------------
 
-(float) - Lower refuses more cell-mask and pixel calls near a neighbour with the same guide: the largest share of the reads or pixels behind such a call that the bleed curve may give to that neighbour. Only read under ops_read_assignment 'nucleus_first'. Default 0.5. Alpha.
+(float) - Lower refuses more cell-mask calls near a neighbour with the same guide: the largest share of the reads behind such a call that the bleed curve may give to that neighbour. Pixel calls keep the gate of ops_pixel_ownership. Only read under ops_read_assignment 'nucleus_first'. Default 0.5. Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     ``_replay_settings``

@@ -303,8 +303,11 @@ default after a higher-numbered item takes the next free number:
   nucleus-reach call stands, and only an object the nucleus reach leaves
   uncalled takes the reads of its SBS cell, through a bleed gate whose
   curve (``ops_nucleus_first_bleed_curve``, ``ops_nucleus_first_max_bleed``,
-  ``ops_nucleus_first_min_reads``) also gates its fallback pixels. The
-  default is unchanged, so it needs no row.
+  ``ops_nucleus_first_min_reads``) reads the distance to a neighbour that
+  carries the guide. Item 1052b keeps the pixel calls of
+  ``'nucleus_reach'`` byte for byte (the 1044b gate), and a cell with a
+  pixel call takes no cell-mask call. The default is unchanged, so it needs
+  no row.
 
 - 972 (OPS storage for reruns, items N6 and N7): ``ops_store_raw_masks``
   (default ``False``) keeps the phenotype nucleus and cell masks before
