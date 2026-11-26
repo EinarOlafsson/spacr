@@ -4617,9 +4617,16 @@ def plot_dataset_frontier(result: Mapping[str, Any], path: str) -> str:
                    linewidths=0.5, zorder=4, label="knee")
         ax.set_xscale("log")
         ax.set_yscale("log")
+        from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
+
+        for axis in (ax.xaxis, ax.yaxis):
+            axis.set_major_locator(LogLocator(subs=(1.0, 2.0, 5.0), numticks=6))
+            axis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:,.0f}"))
+            axis.set_minor_formatter(NullFormatter())
+        ax.tick_params(axis="x", labelrotation=45)
         ax.set_xlabel("genotyped cells (tuning half)")
         ax.set_ylabel("estimated errors (tuning half)")
-        ax.legend(frameon=False, fontsize=7, loc="upper left")
+        ax.legend(frameon=False, fontsize=7, loc="center right")
         fig.tight_layout()
         fig.savefig(path, dpi=300)
         if path.lower().endswith(".png"):
