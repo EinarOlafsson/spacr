@@ -713,6 +713,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_decode_qc_split",
     "ops_decode_qc_seed",
     "ops_decode_qc_max_calls",
+    "ops_decode_qc_bleed_panel",
+    "ops_decode_qc_depth_curve",
     "ops_genotype_confidence",
     "ops_confidence_model",
     "ops_confidence_calibration",

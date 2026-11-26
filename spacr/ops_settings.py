@@ -308,6 +308,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_qc_split": "field",
     "ops_decode_qc_seed": 0,
     "ops_decode_qc_max_calls": 20000,
+    "ops_decode_qc_bleed_panel": False,
+    "ops_decode_qc_depth_curve": False,
     "ops_genotype_confidence": False,
     "ops_confidence_model": "hist_gbm",
     "ops_confidence_calibration": "target_decoy",
@@ -949,6 +951,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_qc_split": str,
     "ops_decode_qc_seed": int,
     "ops_decode_qc_max_calls": int,
+    "ops_decode_qc_bleed_panel": bool,
+    "ops_decode_qc_depth_curve": bool,
     "ops_genotype_confidence": bool,
     "ops_confidence_model": str,
     "ops_confidence_calibration": str,
@@ -1388,6 +1392,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Call quality & confidence": [
         "ops_decode_qc", "ops_decode_qc_model", "ops_decode_qc_features",
         "ops_decode_qc_split", "ops_decode_qc_seed", "ops_decode_qc_max_calls",
+        "ops_decode_qc_bleed_panel", "ops_decode_qc_depth_curve",
         "ops_genotype_confidence", "ops_confidence_model",
         "ops_confidence_calibration", "ops_confidence_bins",
         "ops_confidence_seed", "ops_confidence_min",
@@ -4051,6 +4056,31 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - The seed of the false-call model, its SHAP sample and its "
         "bootstrap intervals. The held-out field draw keeps the study's "
         "seed 7. Default 0. Alpha.",
+    "ops_decode_qc_bleed_panel":
+        "(bool) - After the decode, write the bleed panel of the stored field"
+        " cache: of the reads of a cell that are not its top guide, the share"
+        " whose guide is the top guide of the second-nearest nucleus, against"
+        " a null that gives the same reads the top guide of a random nucleus "
+        "more than 30 px away (500 draws, ops_decode_qc_seed), by the "
+        "distance of the read from that neighbour and by its position in its "
+        "own cell, for all pairs, without sister pairs (found by geometry: "
+        "centres under 1.5 mean diameters apart, areas within 20 percent; the"
+        " decode stores no mitotic labels) and for sisters alone. Writes "
+        "bleed_panel_<well>.parquet, bleed_pairs_<well>.parquet and "
+        "bleed_panel_<well>.png to results/ops_decode_qc. Turns on "
+        "ops_store_field_cache. Reads no images. Default False. Alpha.",
+    "ops_decode_qc_depth_curve":
+        "(bool) - After the decode, write the depth-recovery curve of the "
+        "stored field cache: cells with at least 5 reads of one guide within "
+        "3 px and no read of any other keep 0 to 4 of those reads (5 draws "
+        "each, ops_decode_qc_seed), the field is voted again under the rule of "
+        "the run, and the share recovered, the share called as another guide and"
+        " the share not called are reported per number of reads kept, with "
+        "the silver guides permuted between cells as the null. Writes "
+        "depth_curve_<well>.parquet, depth_curve_cells_<well>.parquet, "
+        "silver_cells_<well>.parquet and depth_curve_<well>.png to "
+        "results/ops_decode_qc. Turns on ops_store_field_cache. Reads no "
+        "images. Default False. Alpha.",
     "ops_decode_qc_max_calls":
         "(int) - How many held-out calls the SHAP ranking of the false-call "
         "model is taken over, drawn with ops_decode_qc_seed; 0 takes every "

@@ -9284,6 +9284,12 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 
 
 ALPHA_FEATURES = {
+    1043: {
+        'settings': ('ops_decode_qc_depth_curve',),
+    },
+    1042: {
+        'settings': ('ops_decode_qc_bleed_panel',),
+    },
     1025: {
         'settings': ('ops_sbs_cell_method', 'ops_sbs_cell_model',
                      'ops_sbs_cell_threshold', 'ops_read_assignment'),

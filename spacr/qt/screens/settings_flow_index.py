@@ -1385,6 +1385,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_decode_pixel_fallback',
     'ops_decode_preset',
     'ops_decode_qc',
+    'ops_decode_qc_bleed_panel',
+    'ops_decode_qc_depth_curve',
     'ops_decode_qc_features',
     'ops_decode_qc_max_calls',
     'ops_decode_qc_model',
