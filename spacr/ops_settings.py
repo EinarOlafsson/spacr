@@ -300,7 +300,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_auto_f_beta": 1.0,
     "ops_decode_auto_unreachable": "lowest_fdr",
     "ops_decode_target_fdr": None,
-    "ops_decode_dataset_rule": "knee",
+    "ops_decode_dataset_rule": "beat_reference",
+    "ops_brieflow_yield": None,
+    "ops_brieflow_split_read": None,
     "ops_decode_target_fdr_reference": None,
     "ops_brieflow_fair_fdr": None,
     "ops_decode_split_guard": 0.1,
@@ -955,6 +957,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_auto_unreachable": str,
     "ops_decode_target_fdr": (float, int, type(None)),
     "ops_decode_dataset_rule": str,
+    "ops_brieflow_yield": (float, int, type(None)),
+    "ops_brieflow_split_read": (float, int, type(None)),
     "ops_decode_target_fdr_reference": (str, type(None)),
     "ops_brieflow_fair_fdr": (float, int, type(None)),
     "ops_decode_split_guard": (float, int),
@@ -1417,7 +1421,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_dataset_weights", "ops_decode_fdr_calibration",
     ],
     "Call quality & confidence": [
-        "ops_never_barcode_k", "ops_never_barcode_seed", "ops_never_barcode_sets",
+        "ops_brieflow_yield", "ops_brieflow_split_read", "ops_never_barcode_k", "ops_never_barcode_seed", "ops_never_barcode_sets",
         "ops_decode_qc", "ops_decode_qc_model", "ops_decode_qc_features",
         "ops_decode_qc_split", "ops_decode_qc_seed", "ops_decode_qc_max_calls",
         "ops_decode_qc_bleed_panel", "ops_decode_qc_depth_curve",
@@ -4073,16 +4077,35 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ops_brieflow_fair_fdr under ops_decode_target_fdr_reference "
         "'brieflow', otherwise 0.06. Default empty. Alpha.",
     "ops_decode_dataset_rule":
-        "(str) - How the dataset tuner chooses. 'knee' (item 1033c) minimises "
-        "errors and maximises genotyped cells: among the settings not beaten "
-        "on both it walks up from the strictest toward more genotyped cells "
-        "and stops before the first step whose added calls carry a "
-        "significantly higher error rate than the calls so far (paired tile "
-        "bootstrap on the tuning half). With a flat error rate it therefore "
-        "takes the most cells. 'target_gain' is the rule of settings saved "
-        "before schema 987: the most cells under ops_decode_target_fdr, used "
-        "only when its held-out gain over the entered thresholds is above 0. "
-        "Default 'knee'. Alpha.",
+        "(str) - How the dataset tuner chooses. 'beat_reference' (item "
+        "1033d) takes, among the settings not beaten on both cells and "
+        "errors, the one with the most genotyped cells that beats the "
+        "Brieflow reference on both: genotyped fraction at or above "
+        "ops_brieflow_yield, decoy FDR at or below ops_brieflow_fair_fdr "
+        "and, when given, split-read disagreement at or below "
+        "ops_brieflow_split_read. It is used only if it still beats the "
+        "reference on the held-out half. With no reference, or no setting "
+        "that beats it, the 'knee' rule decides: walk up from the strictest "
+        "setting and stop before the first step whose added calls carry a "
+        "significantly higher error rate than the calls so far (item "
+        "1033c; settings saved before schema 988). 'target_gain' is the rule "
+        "of settings saved before schema 987: the most cells under "
+        "ops_decode_target_fdr, used only when its held-out gain over the "
+        "entered thresholds is above 0. Default 'beat_reference'. Alpha.",
+    "ops_brieflow_yield":
+        "(float) - The reference yield of the Brieflow call rule on the same "
+        "reads: the share of the nuclei with a cell that it genotypes with "
+        "one guide, counted on the same footing as the genotyped calls of "
+        "spaCR (one call per cell, library guides only, decoys not counted), "
+        "such as 0.605 on plate A A1. Used with ops_decode_dataset_rule "
+        "'beat_reference' together with ops_brieflow_fair_fdr. Default "
+        "empty. Alpha.",
+    "ops_brieflow_split_read":
+        "(float) - Optional reference split-read disagreement of the "
+        "Brieflow call rule, as a share of the calls that can be checked "
+        "against an independent read, such as 0.0276. When given, a setting "
+        "must also be at or below it to beat the reference. Default empty. "
+        "Alpha.",
     "ops_decode_target_fdr_reference":
         "(str) - 'brieflow' marks ops_brieflow_fair_fdr on the frontier "
         "figure of the dataset tuner and, under ops_decode_dataset_rule "
@@ -4106,7 +4129,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "estimated errors of a setting are its genotyped calls times the "
         "weighted shares. Weights fitted to a known error come from "
         "spacr.ops_decode.calibrate_error_weights. Empty uses split 1 and "
-        "decoy 1 under ops_decode_dataset_rule 'knee', split 1 and decoy 0 "
+        "decoy 1 under ops_decode_dataset_rule 'knee' and 'beat_reference', split 1 and decoy 0 "
         "under 'target_gain'. Default empty. Alpha.",
     "ops_decode_fdr_calibration":
         "(str) - How rule (a) sets the FDR scale. 'never' measures error calls on substitution-built barcodes through the same read and pixel votes: distance-two controls set the scale and distance-one controls report a check. It can raise or lower the entered scale, down to 1. Manual thresholds stay fixed while calibration runs. 'none' keeps ops_fdr_scale; 'shuffle' only raises it from three shuffled libraries; 'never+shuffle' takes the larger control-based scale. Never methods need decoys and keep the entered scale when evidence is insufficient. Default 'never'.",
