@@ -341,6 +341,13 @@ def mask_pass(nuclei: np.ndarray, cells: np.ndarray,
     A cell touching the field's edge is cut: part of it lies outside the
     field, so its area and integrated intensities are too small. Where a
     neighbouring field holds the whole cell, that copy is the one to keep.
+
+    Item 1024 (``cellless_nuclei`` ``'nucleus_only'``): a nucleus kept without
+    a cell, one with no pixel inside any cell, gets a row too, and its
+    ``touches_field_edge`` is that of its NUCLEUS mask. Without such a row the
+    reader counts the object as cut (a missing value touches,
+    :func:`spacr.ops_engine._ph_touches_edge`), which dropped every one of
+    them. A field with no such nucleus gives the table it always gave.
     """
     import pandas as pd
     from scipy import ndimage
@@ -352,7 +359,12 @@ def mask_pass(nuclei: np.ndarray, cells: np.ndarray,
     size = int(max(cells.max(initial=0), nuclei.max(initial=0))) + 1
     cell_counts = np.bincount(cells.ravel(), minlength=size)
     labels = np.flatnonzero(cell_counts[1:]) + 1
+    alone = _nucleus_only_labels(nuclei, cells, size)
     if labels.size == 0:
+        if alone.size:
+            return _with_nucleus_only(
+                None, nuclei, alone, ndimage.find_objects(nuclei.astype(np.int32)),
+                inverse_planes, height, width)
         return pd.DataFrame({"label": np.empty(0, np.int64)})
     cell_boxes = ndimage.find_objects(cells.astype(np.int32))
     nucleus_boxes = ndimage.find_objects(nuclei.astype(np.int32))
@@ -390,7 +402,82 @@ def mask_pass(nuclei: np.ndarray, cells: np.ndarray,
             edge[i] = (box[0].start == 0 or box[1].start == 0
                        or box[0].stop == height or box[1].stop == width)
     record["nucleus_touches_field_edge"] = edge
-    return pd.DataFrame(record)
+    table = pd.DataFrame(record)
+    if alone.size:
+        table = _with_nucleus_only(table, nuclei, alone, nucleus_boxes,
+                                   inverse_planes, height, width)
+    return table
+
+
+def _nucleus_only_labels(nuclei, cells, size):
+    """The nucleus labels with no pixel inside any cell (item 1024).
+
+    :param nuclei: the field's nucleus labels.
+    :param cells: its cell labels.
+    :param size: one more than the largest label of either mask.
+    :returns: the sorted labels of the nuclei kept without a cell
+        (``cellless_nuclei`` ``'nucleus_only'``); empty when every nucleus
+        lies in a cell, as every default run has it.
+    """
+    inside = np.bincount(nuclei[cells > 0], minlength=size) > 0
+    present = np.bincount(nuclei.ravel(), minlength=size) > 0
+    present[0] = False
+    return np.flatnonzero(present & ~inside)
+
+
+def _with_nucleus_only(table, nuclei, alone, nucleus_boxes, inverse_planes,
+                       height, width):
+    """Append one row per nucleus kept without a cell to a mask pass table.
+
+    :param table: the cell rows, or None when the field has no cell.
+    :param nuclei: the field's nucleus labels.
+    :param alone: :func:`_nucleus_only_labels`.
+    :param nucleus_boxes: ``find_objects`` of the nuclei.
+    :param inverse_planes: as :func:`mask_pass`.
+    :param height: the field height.
+    :param width: the field width.
+    :returns: the table with a row for each such nucleus: its cell counts 0,
+        its nucleus counts and centroid (also given as the cell centroid, the
+        object centre), its box in the cell box columns and
+        ``touches_field_edge`` and ``nucleus_touches_field_edge`` both from
+        the NUCLEUS mask, so a nucleus at the field edge is cut and one in
+        the interior is whole.
+    """
+    import pandas as pd
+
+    size = int(nuclei.max()) + 1
+    counts = np.bincount(nuclei.ravel(), minlength=size).astype(np.float64)
+    rows, cols = np.indices(nuclei.shape, dtype=np.float64)
+    boxes = [nucleus_boxes[int(v) - 1] for v in alone]
+    top = np.array([b[0].start for b in boxes])
+    bottom = np.array([b[0].stop for b in boxes])
+    left = np.array([b[1].start for b in boxes])
+    right = np.array([b[1].stop for b in boxes])
+    edge = (top == 0) | (left == 0) | (bottom == height) | (right == width)
+    flat = nuclei.ravel()
+    record = {"label": alone.astype(np.int64),
+              "cell_px": np.zeros(alone.size), "nucleus_px": counts[alone],
+              "cytoplasm_px": np.zeros(alone.size)}
+    with np.errstate(invalid="ignore", divide="ignore"):
+        record["nucleus_cy"] = (np.bincount(flat, rows.ravel(), size)
+                                / counts)[alone]
+        record["nucleus_cx"] = (np.bincount(flat, cols.ravel(), size)
+                                / counts)[alone]
+        for channel, inverse in (inverse_planes or {}).items():
+            record[f"cell_{channel}_g"] = np.full(alone.size, np.nan)
+            record[f"cytoplasm_{channel}_g"] = np.full(alone.size, np.nan)
+            record[f"nucleus_{channel}_g"] = (
+                np.bincount(flat, np.asarray(inverse).ravel(), size)
+                / counts)[alone]
+    record["cell_cy"] = record["nucleus_cy"]
+    record["cell_cx"] = record["nucleus_cx"]
+    record.update(top=top, bottom=bottom, left=left, right=right,
+                  touches_field_edge=edge, nucleus_touches_field_edge=edge)
+    extra = pd.DataFrame(record)
+    if table is None:
+        return extra
+    extra = extra.reindex(columns=table.columns)
+    return pd.concat([table, extra], ignore_index=True)
 
 
 def correction_kind(column: str, channels: Sequence[str]) -> Optional[str]:

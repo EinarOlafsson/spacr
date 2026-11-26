@@ -399,6 +399,13 @@ default after a higher-numbered item takes the next free number:
   votes in the pixel fallback. On plate A A1 it brings the decoy FDR to
   0.054 % for 0.18 points of single-gene yield. Files stamped before 983
   get 0.1 and keep their pixel calls.
+- 985 (item 1024, fragment test defaults, alpha): the paper final
+  evaluation sets ``nucleus_fragment_max_valley_dip`` (and its ``ops_ph_``
+  twin) to 0.30; the gap (2 px), union solidity (0.94) and the off dip,
+  contact and area tests were already the defaults. The feature stays off
+  (``nucleus_fragment_merge`` ``'off'``), so no default output changes.
+  Files stamped before 985 get None and keep their merges. Number 984
+  belongs to another item.
 
 Public API
 ----------

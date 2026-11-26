@@ -2193,7 +2193,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('nucleus_fragment_min_solidity', 0.94)
     settings.setdefault('nucleus_fragment_max_dip', None)
     settings.setdefault('nucleus_fragment_min_contact_px', 0.0)
-    settings.setdefault('nucleus_fragment_max_valley_dip', None)
+    settings.setdefault('nucleus_fragment_max_valley_dip', 0.30)
     settings.setdefault('nucleus_fragment_max_area_rel', None)
     settings.setdefault('cellless_nuclei', 'drop')
     settings.setdefault('cellless_nucleus_max_distance_px', 5.0)
@@ -2668,7 +2668,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 983
+SETTINGS_SCHEMA_VERSION = 985
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2743,6 +2743,8 @@ DEFAULT_CHANGES = {
     981: {'ops_pixel_ownership': 'nearest_nucleus', 'ops_pixel_footprint': None},
     982: {'ops_owner_link_inherit': 'off'},
     983: {'ops_pixel_quality': 0.1},
+    985: {'nucleus_fragment_max_valley_dip': None,
+          'ops_ph_nucleus_fragment_max_valley_dip': None},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
@@ -3082,6 +3084,15 @@ def _fold_older_defaults(settings, version, known=None):
     points of single-gene yield and leaves the split-read disagreement,
     the spike-in and the silver k0 rate unchanged. Files stamped before
     983 get 0.1 and keep their pixel calls.
+
+    Version 985 is item 1024 (alpha): the paper final evaluation sets the
+    fragment test defaults to a gap of 2 px, union solidity 0.94, a valley
+    dip of 0.30 and the dip, contact and area tests off. Only
+    ``nucleus_fragment_max_valley_dip`` and its ``ops_ph_`` twin move (from
+    None to 0.30); the others already had those values. Both are read only
+    when ``nucleus_fragment_merge`` is ``'rule'``, which stays off, so no
+    default output changes. Files stamped before 985 get None, so a file that
+    turned the merge on keeps its pairs. Version 984 belongs to another item.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -6345,7 +6356,7 @@ tooltips = {
     "nucleus_fragment_min_solidity": "(float) - Lower joins more pairs, including two real nuclei side by side, which is what lowered the precision of the first build: the least solidity (area over the area of the convex hull) the union of two nucleus pieces needs for nucleus_fragment_merge to join them. The strongest single test on hand labels (AUC 0.83). Only read when nucleus_fragment_merge is 'rule'. Provisional (paper session, labels pending review). Default 0.94. Alpha.",
     "nucleus_fragment_max_dip": "(float or None) - Set, it refuses two pieces with a dark line between them; higher joins more pairs: the deepest dip of the raw nucleus stain along the line joining the two piece centres, as 1 - lowest pixel / median of the pieces, for nucleus_fragment_merge to join them. The single-pixel minimum is noisy; the paper session retunes it. Skipped when nucleus_channel is empty. Only read when nucleus_fragment_merge is 'rule'. Default None (off). Alpha.",
     "nucleus_fragment_min_contact_px": "(float) - Higher refuses two pieces that touch only at a corner, as two neighbouring nuclei do, while a cut nucleus touches along the cut: the least number of pixels of the smaller piece touching the other (4-connected) for nucleus_fragment_merge to join them (AUC 0.80 on hand labels). 0 turns the test off. Only read when nucleus_fragment_merge is 'rule'. Default 0 (off). Alpha.",
-    "nucleus_fragment_max_valley_dip": "(float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the nucleus stain is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for nucleus_fragment_merge to join them (AUC 0.74). Only read when nucleus_fragment_merge is 'rule'. Default None (off). Alpha.",
+    "nucleus_fragment_max_valley_dip": "(float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the nucleus stain is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for nucleus_fragment_merge to join them (AUC 0.74). Only read when nucleus_fragment_merge is 'rule'. Default 0.30 (the paper evaluation value; None turns it off). Alpha.",
     "nucleus_fragment_max_area_rel": "(float or None) - Set, it refuses to merge two pieces whose union is too large for one nucleus: the most the combined area may be, as a multiple of the median nucleus area of the field, for nucleus_fragment_merge to join them. 2.5 is the tuned value, but it added nothing on the hand-labelled sample. Only read when nucleus_fragment_merge is 'rule'. Default None (off). Alpha.",
     "cellless_nuclei": "(str) - 'nearest_cell' gives a nucleus outside every cell to the nearest cell within cellless_nucleus_max_distance_px: the cell grows over the nucleus and over the shortest line between them, so it stays one connected object, and the two are measured together. 'nucleus_only' keeps it as a nucleus without a cell and adds has_cell to the nucleus table. 'drop' pairs as before; Measure then keeps such a nucleus in the nucleus table with an empty cell_id. Default 'drop'. Alpha.",
     "cellless_nucleus_max_distance_px": "(float) - Farther gives more nuclei a cell but can give one to the wrong cell: the farthest, in pixels, a nucleus outside every cell may lie from a cell for cellless_nuclei 'nearest_cell' to give it to that cell; 1 is touching. Nuclei farther away stay without a cell. Only read when cellless_nuclei is 'nearest_cell'. Default 5.0. Alpha.",

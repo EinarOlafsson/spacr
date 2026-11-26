@@ -104,7 +104,7 @@ def test_defaults_are_off_and_the_rule_takes_the_paper_values():
     assert options["nucleus_fragment_max_dip"] is None
     assert options["nucleus_fragment_max_gap_px"] == 2.0
     assert options["nucleus_fragment_min_contact_px"] == 0.0
-    assert options["nucleus_fragment_max_valley_dip"] is None
+    assert options["nucleus_fragment_max_valley_dip"] == 0.30
     assert options["nucleus_fragment_max_area_rel"] is None
     assert options["nucleus_small_piece_frac"] == 0.0
     assert not _nucleus_pairing_active(options)
@@ -263,14 +263,16 @@ def test_smoothed_valley_sits_next_to_the_raw_dip():
         smoothed = uniform_filter(stain, size=3)
         assert _fragment_pair_test(first, second, stain, valley,
                                    smoothed=smoothed)[0] is passes
-    # the valley off (None, the default): the same band passes on the raw dip of 1.0
+    # the valley off (an explicit None): the same band passes on the raw dip of 1.0
     assert _fragment_pair_test(first, second, band,
-                               _on(nucleus_fragment_max_dip=1.0),
+                               _on(nucleus_fragment_max_dip=1.0,
+                                   nucleus_fragment_max_valley_dip=None),
                                smoothed=uniform_filter(band, size=3))[0]
     # the raw dip set to 0.2 refuses it; off (None, the default) it passes
     assert not _fragment_pair_test(first, second, band,
                                    _on(nucleus_fragment_max_dip=0.2))[0]
-    assert _fragment_pair_test(first, second, band, _on())[0]
+    assert _fragment_pair_test(first, second, band,
+                               _on(nucleus_fragment_max_valley_dip=None))[0]
 
 
 def test_merging_is_pairwise_never_by_a_chain():

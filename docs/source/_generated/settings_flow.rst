@@ -27821,7 +27821,7 @@ Read by ``_fragment_pair_test``, ``_merge_nucleus_fragments``, ``get_measure_cro
 nucleus_fragment_max_valley_dip
 -------------------------------
 
-(float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the nucleus stain is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for nucleus_fragment_merge to join them (AUC 0.74). Only read when nucleus_fragment_merge is 'rule'. Default None (off). Alpha.
+(float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the nucleus stain is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for nucleus_fragment_merge to join them (AUC 0.74). Only read when nucleus_fragment_merge is 'rule'. Default 0.30 (the paper evaluation value; None turns it off). Alpha.
 
 | ``_assign_nuclei_to_cells``
 |     ``_merge_nucleus_fragments`` **-- reads it**
@@ -40671,7 +40671,7 @@ Read by ``ops_defaults``.
 ops_ph_nucleus_fragment_max_valley_dip
 --------------------------------------
 
-(float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the DAPI is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for ops_ph_nucleus_fragment_merge to join them (AUC 0.74). Only read when ops_ph_nucleus_fragment_merge is 'rule'. Default None (off). Alpha.
+(float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the DAPI is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for ops_ph_nucleus_fragment_merge to join them (AUC 0.74). Only read when ops_ph_nucleus_fragment_merge is 'rule'. Default 0.30 (the paper evaluation value; None turns it off). Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**

@@ -5883,7 +5883,8 @@ def _ph_pairing_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]
     from .measure import _nucleus_pairing_active, _nucleus_pairing_options
 
     options = _nucleus_pairing_options(
-        {key: settings.get(key) for key in _PH_PAIRING_KEYS}, prefix="ops_ph_")
+        {key: settings[key] for key in _PH_PAIRING_KEYS if key in settings},
+        prefix="ops_ph_")
     return options if _nucleus_pairing_active(options) else None
 
 
@@ -13018,6 +13019,8 @@ def _ph_cross_field_ownership(db: str, plate: str, well: str,
     passed = pd.read_parquet(maskpass, columns=[
         c for c in ("site", "label", "cell_px", "touches_field_edge")
         if c in names])
+    if "cell_px" in passed:
+        passed = passed[passed["cell_px"] > 0].reset_index(drop=True)
     if "cell_px" not in passed:
         if options["rule"] == "largest":
             raise ValueError(tr(

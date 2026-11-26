@@ -188,7 +188,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_nucleus_fragment_min_solidity": 0.94,
     "ops_ph_nucleus_fragment_max_dip": None,
     "ops_ph_nucleus_fragment_min_contact_px": 0.0,
-    "ops_ph_nucleus_fragment_max_valley_dip": None,
+    "ops_ph_nucleus_fragment_max_valley_dip": 0.30,
     "ops_ph_nucleus_fragment_max_area_rel": None,
     "ops_ph_cellless_nuclei": "drop",
     "ops_ph_cellless_nucleus_max_distance_px": 5.0,
@@ -2312,8 +2312,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "joining the piece centres; valley = lowest sample / mean of the "
         "first 3 and last 3, and 1 - valley must be at most this value "
         "for ops_ph_nucleus_fragment_merge to join them (AUC 0.74). Only "
-        "read when ops_ph_nucleus_fragment_merge is 'rule'. Default None "
-        "(off). Alpha.",
+        "read when ops_ph_nucleus_fragment_merge is 'rule'. Default 0.30 "
+        "(the paper evaluation value; None turns it off). Alpha.",
     "ops_ph_nucleus_fragment_max_area_rel":
         "(float or None) - Set, it refuses to merge two pieces whose "
         "union is too large for one nucleus: the most the combined area "

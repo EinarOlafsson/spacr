@@ -1910,7 +1910,7 @@ _NUCLEUS_PAIRING_DEFAULTS = {
     'nucleus_fragment_min_solidity': 0.94,
     'nucleus_fragment_max_dip': None,
     'nucleus_fragment_min_contact_px': 0.0,
-    'nucleus_fragment_max_valley_dip': None,
+    'nucleus_fragment_max_valley_dip': 0.30,
     'nucleus_fragment_max_area_rel': None,
     'cellless_nuclei': 'drop',
     'cellless_nucleus_max_distance_px': 5.0,
@@ -1935,6 +1935,14 @@ _CELLLESS_NUCLEI_MODES = ('drop', 'nearest_cell', 'nucleus_only')
 #: nuclei as its own object linked to that cell, where the default OPS
 #: pairing keeps only the largest.
 _EXTRA_NUCLEI_MODES = ('drop', 'keep_all')
+
+
+#: The numeric pairing options a test can be switched off on by an explicit
+#: None, ``'none'`` or ``'off'``, whatever their default (item 1024: the valley
+#: dip defaults to 0.30, and a file written before that says None).
+_NUCLEUS_PAIRING_OFFABLE = ('nucleus_fragment_max_dip',
+                            'nucleus_fragment_max_valley_dip',
+                            'nucleus_fragment_max_area_rel')
 
 
 def _pairing_number(value, default):
@@ -1965,6 +1973,11 @@ def _nucleus_pairing_options(settings=None, prefix=''):
             if value is None or value == '':
                 value = default
             value = str(value).strip().lower()
+        elif name in _NUCLEUS_PAIRING_OFFABLE and (
+                (value is None and prefix + name in settings)
+                or (isinstance(value, str)
+                    and value.strip().lower() in ('none', 'off'))):
+            value = None
         else:
             value = _pairing_number(value, default)
         options[name] = value
