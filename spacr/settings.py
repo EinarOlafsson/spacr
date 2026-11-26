@@ -2668,7 +2668,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 987
+SETTINGS_SCHEMA_VERSION = 988
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2748,6 +2748,7 @@ DEFAULT_CHANGES = {
     985: {},
     986: {'ops_decode_target_fdr': 0.1},
     987: {'ops_decode_dataset_rule': 'target_gain'},
+    988: {'ops_decode_dataset_rule': 'knee'},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
@@ -3228,6 +3229,12 @@ def _fold_older_defaults(settings, version, known=None):
     held-out gain over the entered thresholds. Files stamped before 987 get
     'target_gain', the rule they ran with. Only the dataset mode reads the
     key.
+
+    Version 988 is item 1033d (alpha): the dataset threshold tuner takes
+    the point with the most cells that beats the Brieflow reference on yield
+    and error (``ops_decode_dataset_rule`` 'beat_reference'), and falls back
+    to the walk-and-stop rule of 987 without a reference. Files stamped 987
+    get 'knee', the rule they ran with. Only the dataset mode reads the key.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9435,6 +9442,7 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 ALPHA_FEATURES = {
     1033: {
         'settings': ('ops_decode_target_fdr', 'ops_decode_dataset_rule',
+                     'ops_brieflow_yield', 'ops_brieflow_split_read',
                      'ops_decode_target_fdr_reference',
                      'ops_brieflow_fair_fdr', 'ops_decode_split_guard',
                      'ops_decode_dataset_weights'),

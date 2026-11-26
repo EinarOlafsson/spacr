@@ -21,7 +21,7 @@ from spacr import ops_decode, ops_engine, ops_settings
 from spacr.settings import ALPHA_FEATURES
 
 NEW = ("ops_decode_target_fdr", "ops_decode_split_guard", "ops_decode_dataset_weights",
-       "ops_decode_dataset_rule",
+       "ops_decode_dataset_rule", "ops_brieflow_yield", "ops_brieflow_split_read",
        "ops_decode_target_fdr_reference", "ops_brieflow_fair_fdr")
 GUIDES = ["GTACGT", "CATGCA", "TGCATG"]
 A, B, C = GUIDES
@@ -105,7 +105,8 @@ def test_dataset_mode_decodes_each_well_as_manual_does():
                                 "ops_pixel_quality": rule["pixel_quality"]}
     assert config["spot_thresholds"] == [250.0, 315.0, 330.0]
     assert 0.07 in config["floors"] and rule["pixel_quality"] in config["pixel_qualities"]
-    assert config["target_fdr"] is None and config["rule"] == "knee"
+    assert config["target_fdr"] is None and config["rule"] == "beat_reference"
+    assert config["brieflow_yield"] is None and config["brieflow_split_read"] is None
     assert config["weights"] == ops_decode.DATASET_KNEE_WEIGHTS
     legacy = ops_decode.dataset_threshold_settings(
         {"ops_decode_preset": "rule_a_s2", "ops_decode_dataset_rule": "target_gain"}, rule)
@@ -172,12 +173,13 @@ def test_the_target_defaults_to_0_06_without_brieflow_and_follows_a_brieflow_ref
             ops_decode.dataset_threshold_settings({**base, **bad}, rule)
 
 
-def test_schema_986_and_987_replay_the_old_rule_for_older_files():
+def test_schema_986_987_and_988_replay_the_old_rule_for_older_files():
     from spacr.settings import DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION, _fold_older_defaults
 
     assert SETTINGS_SCHEMA_VERSION >= 986
     assert DEFAULT_CHANGES[986] == {"ops_decode_target_fdr": 0.1}
     assert DEFAULT_CHANGES[987] == {"ops_decode_dataset_rule": "target_gain"}
+    assert DEFAULT_CHANGES[988] == {"ops_decode_dataset_rule": "knee"}
     old = {"ops_decode_threshold_mode": "dataset"}
     _fold_older_defaults(old, 985)
     assert old["ops_decode_target_fdr"] == 0.1
@@ -192,7 +194,10 @@ def test_schema_986_and_987_replay_the_old_rule_for_older_files():
     assert stamped_986["ops_decode_dataset_rule"] == "target_gain"
     stamped_987 = {}
     _fold_older_defaults(stamped_987, 987)
-    assert "ops_decode_dataset_rule" not in stamped_987
+    assert stamped_987["ops_decode_dataset_rule"] == "knee"
+    stamped_988 = {}
+    _fold_older_defaults(stamped_988, 988)
+    assert "ops_decode_dataset_rule" not in stamped_988
     chosen = {"ops_decode_dataset_rule": "knee"}
     _fold_older_defaults(chosen, 986)
     assert chosen["ops_decode_dataset_rule"] == "knee"
@@ -376,7 +381,7 @@ def test_the_engine_tunes_the_plate_and_keeps_the_decode_unless_it_gains(dataset
     with open(result["paths"]["json"], encoding="utf-8") as handle:
         stored = json.load(handle)
     assert stored["plate"] == "synthetic" and stored["wells"] == ["A1"]
-    assert stored["rule"] == "knee" and os.path.getsize(result["paths"]["figure"]) > 1000
+    assert stored["rule"] == "beat_reference" and os.path.getsize(result["paths"]["figure"]) > 1000
     decode = dataset["wells"]["A1"]["decode"]
     assert decode["dataset_thresholds"]["adopted"] == result["adopted"]
     used = result["thresholds"]["used"]
@@ -504,3 +509,82 @@ def test_the_frontier_figure_is_written(tmp_path):
     path = ops_decode.plot_dataset_frontier(out, str(tmp_path / "frontier.png"))
     assert (tmp_path / "frontier.png").stat().st_size > 1000 and path.endswith(".png")
     assert (tmp_path / "frontier.svg").exists()
+
+
+def _reference(arrays=None, yield_=0.95, fdr=7.0, split=None, **change):
+    config = _config(rule="beat_reference", target_fdr=None, brieflow_yield=yield_,
+                     brieflow_fair_fdr=fdr, brieflow_split_read=split,
+                     weights={"split": 1.0, "decoy": 1.0})
+    config.update(change)
+    return _choice(arrays or _frontier_arrays(), config, choose=ops_decode._dataset_choice)
+
+
+def test_the_point_with_the_most_cells_that_beats_the_reference_on_both_is_chosen():
+    out = _reference()
+    assert out["knee"]["position"] == 5 and out["reference"]["rule_used"] == "beat_reference"
+    assert out["thresholds"]["chosen"] == _values(FRONT[5])
+    assert out["adopted"] and out["thresholds"]["used"] == _values(FRONT[5])
+    beating = [r for r in out["grid"] if r["beats_reference"]]
+    assert len(beating) == 1 and beating[0]["knee"]
+    assert out["reference"]["report"]["beats_both"] and out["reference"]["beating_points"] == 1
+    assert out["reference"]["n_ref"] == pytest.approx(0.95 * 20 * 1000)
+    walk = _knee()
+    assert walk["thresholds"]["chosen"] == _values(FRONT[3])
+    two = _reference(yield_=0.75, fdr=3.0)
+    assert two["thresholds"]["chosen"] == _values(FRONT[4])
+    assert {r["ops_read_threshold"] for r in out["grid"] if r["beats_reference"]} == {315.0}
+
+
+def test_a_split_read_reference_excludes_a_point_that_disagrees_too_often():
+    arrays = _frontier_arrays()
+    arrays["agree"][(slice(None),) + FRONT[5]] = 45
+    out = _reference(arrays, yield_=0.75, fdr=7.0, split=0.0276)
+    assert out["thresholds"]["chosen"] == _values(FRONT[4])
+    assert not next(r for r in out["grid"] if r["ops_read_threshold"] == 315.0
+                    and r["ops_single_read_quality"] == 0.2)["beats_reference"]
+    assert out["reference"]["errors_ref"] is not None
+
+
+def test_an_empty_region_falls_back_to_the_walk_and_says_so():
+    out = _reference(yield_=0.95, fdr=1.0)
+    assert out["reference"]["rule_used"] == "knee" and out["reference"]["beating_points"] == 0
+    assert out["thresholds"]["chosen"] == _values(FRONT[3])
+    assert out["reason"].startswith("no frontier point beats the reference")
+    assert "walk-and-stop" in out["reason"] and out["adopted"]
+    none = _reference(yield_=None, fdr=None)
+    assert none["thresholds"]["chosen"] == _values(FRONT[3]) and not none["reference"]["used"]
+
+
+def test_a_point_that_stops_beating_the_reference_on_the_held_out_half_is_not_adopted():
+    arrays = _frontier_arrays()
+    arrays["decoy"][(slice(20, None),) + FRONT[5]] = 2000
+    out = _reference(arrays)
+    assert out["thresholds"]["chosen"] == _values(FRONT[5])
+    assert not out["reference"]["report"]["beats_both"]
+    assert not out["adopted"] and "no longer beats the reference" in out["reason"]
+    assert out["thresholds"]["used"] == _values(MANUAL)
+    assert out["report"]["chosen"]["fdr_ci95"][0] is not None
+
+
+def test_the_reference_settings_are_read_and_checked():
+    rule = ops_decode.decode_rule(ops_decode.resolve_settings({"ops_decode_preset": "rule_a_s2"}))
+    base = {"ops_decode_preset": "rule_a_s2"}
+    config = ops_decode.dataset_threshold_settings(
+        {**base, "ops_brieflow_yield": 0.605, "ops_brieflow_fair_fdr": 0.056,
+         "ops_brieflow_split_read": 0.0276}, rule)
+    assert (config["brieflow_yield"], config["brieflow_fair_fdr"],
+            config["brieflow_split_read"]) == (0.605, 0.056, 0.0276)
+    assert config["rule"] == "beat_reference" and config["target_fdr"] is None
+    for bad in ({"ops_brieflow_yield": 1.5}, {"ops_brieflow_yield": 0},
+                {"ops_brieflow_split_read": 1.0}, {"ops_decode_dataset_rule": "other"}):
+        with pytest.raises(ValueError):
+            ops_decode.dataset_threshold_settings({**base, **bad}, rule)
+    assert ops_settings.OPS_DEFAULTS["ops_decode_dataset_rule"] == "beat_reference"
+
+
+def test_the_figure_shades_the_region_that_beats_the_reference(tmp_path):
+    pytest.importorskip("matplotlib")
+    out = _reference(split=0.0276)
+    out.update({"brieflow_fair_fdr": 7.0})
+    ops_decode.plot_dataset_frontier(out, str(tmp_path / "ref.png"))
+    assert (tmp_path / "ref.png").stat().st_size > 1000

@@ -4122,8 +4122,9 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
 
     :param settings: read for the auto grid keys, ``ops_decode_auto_tune_fraction``,
         ``ops_decode_auto_seed``, ``ops_decode_auto_ci``, ``ops_read_threshold``,
-        ``ops_single_read_quality``, ``ops_decode_dataset_rule`` ('knee', or
-        'target_gain' as before schema 987), ``ops_decode_target_fdr`` (under
+        ``ops_single_read_quality``, ``ops_decode_dataset_rule`` ('beat_reference',
+        'knee' as before schema 988, or 'target_gain' as before schema 987),
+        ``ops_brieflow_yield`` and ``ops_brieflow_split_read``, ``ops_decode_target_fdr`` (under
         'knee' an optional cap, empty for none; under 'target_gain' empty
         takes ``ops_brieflow_fair_fdr`` under ``ops_decode_target_fdr_reference``
         'brieflow', else :data:`DATASET_DEFAULT_TARGET_FDR`),
@@ -4155,7 +4156,7 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
                          "numbers") from None
     manual["ops_pixel_quality"] = float(rule["pixel_quality"])
     dataset_rule = settings.get("ops_decode_dataset_rule")
-    dataset_rule = "knee" if dataset_rule is None or str(dataset_rule).strip() == "" \
+    dataset_rule = "beat_reference" if dataset_rule is None or str(dataset_rule).strip() == "" \
         else str(dataset_rule).strip().lower()
     if dataset_rule not in DATASET_RULES:
         raise ValueError(f"ops_decode_dataset_rule must be one of {list(DATASET_RULES)}; "
@@ -4178,7 +4179,7 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
     else:
         fair = None
     if target is None or target == "":
-        if dataset_rule == "knee":
+        if dataset_rule != "target_gain":
             target, target_source = None, "none"
         elif reference == "brieflow":
             target, target_source = fair, "brieflow"
@@ -4198,6 +4199,20 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
         raise ValueError(f"ops_decode_target_fdr must be above 0; got {target}")
     if not guard >= 0:
         raise ValueError(f"ops_decode_split_guard must be 0 or more; got {guard}")
+    reference_numbers = {}
+    for key in ("ops_brieflow_yield", "ops_brieflow_split_read"):
+        value = settings.get(key)
+        if value is None or value == "":
+            reference_numbers[key] = None
+            continue
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            raise ValueError(f"{key} must be a number; got {value!r}") from None
+        inside = 0.0 < value <= 1.0 if key == "ops_brieflow_yield" else 0.0 <= value < 1.0
+        if not inside:
+            raise ValueError(f"{key} is a fraction between 0 and 1; got {value}")
+        reference_numbers[key] = value
     weights = settings.get("ops_decode_dataset_weights")
     if isinstance(weights, str) and weights.strip():
         try:
@@ -4206,7 +4221,7 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
             raise ValueError("ops_decode_dataset_weights must be a mapping such as "
                              '{"split": 1.0, "decoy": 0.5}; got ' f"{weights!r}") from None
     if weights is None or weights == "" or weights == {}:
-        weights = DATASET_KNEE_WEIGHTS if dataset_rule == "knee" else DATASET_WEIGHTS
+        weights = DATASET_WEIGHTS if dataset_rule == "target_gain" else DATASET_KNEE_WEIGHTS
     if not isinstance(weights, Mapping):
         raise ValueError(f"ops_decode_dataset_weights must be a mapping; got {weights!r}")
     try:
@@ -4223,7 +4238,9 @@ def dataset_threshold_settings(settings: Mapping[str, Any],
             "pixel_qualities": sorted(set(grid["pixel_qualities"])
                                       | {manual["ops_pixel_quality"]}),
             "manual": manual, "target_fdr": target, "target_source": target_source,
-            "brieflow_fair_fdr": fair, "rule": dataset_rule, "split_guard": guard,
+            "brieflow_fair_fdr": fair, "brieflow_yield": reference_numbers["ops_brieflow_yield"],
+            "brieflow_split_read": reference_numbers["ops_brieflow_split_read"],
+            "rule": dataset_rule, "split_guard": guard,
             "weights": weights, "ci": grid["ci"], "tune_fraction": grid["tune_fraction"],
             "seed": grid["seed"]}
 
@@ -4624,7 +4641,7 @@ _FIGURE_ERROR_FLOOR = 1.0
 DATASET_KNEE_WEIGHTS: Dict[str, float] = {"split": 1.0, "decoy": 1.0}
 
 #: The values of ``ops_decode_dataset_rule``.
-DATASET_RULES = ("knee", "target_gain")
+DATASET_RULES = ("beat_reference", "knee", "target_gain")
 
 
 def _marginal_steps(n: np.ndarray, e: np.ndarray, n_boot: np.ndarray, e_boot: np.ndarray
@@ -4763,6 +4780,11 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
 
     positions = list(np.ndindex(*shape))
     chosen, reason, adopted, met = m_pos, None, False, False
+    rule_used, fallback, reference_report = "knee", None, None
+    reference: Dict[str, Any] = {"used": False, "yield": None, "fair_fdr": None,
+                                 "split_read": None, "tune_nuclei": None, "n_ref": None,
+                                 "errors_ref": None, "beating_points": 0, "report": None,
+                                 "fallback": None}
     rows: List[Dict[str, Any]] = []
     knee: Dict[str, Any] = {"position": None, "points": [], "steps": [],
                             "tune": {"into": None, "out_of": None},
@@ -4777,9 +4799,31 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
         score = _grid_score(counts, nuclei, tune, k, scale, config["ci"])
         held_score = _grid_score(counts, nuclei, report, k, scale, True)
         tune_counts, tune_point = counted(tune)
-        report_counts, _ = counted(report)
+        report_counts, report_point = counted(report)
         allowed = np.ones(shape, bool) if cap is None else score["bound"] <= cap
         eligible = [pos for pos in positions if allowed[pos]]
+        ref_yield, ref_fdr = config.get("brieflow_yield"), config.get("brieflow_fair_fdr")
+        ref_split = config.get("brieflow_split_read")
+        use_reference = (config.get("rule") == "beat_reference" and ref_yield is not None
+                         and ref_fdr is not None)
+        total_tune = max(int(nuclei[np.asarray(tune, np.int64)].sum()), 1)
+        total_report = max(int(nuclei[np.asarray(report, np.int64)].sum()), 1)
+        if use_reference:
+            floor_share = float(tune_point["split_ref_pct"][m_pos]) / 100.0
+            n_ref = ref_yield * total_tune
+            e_ref = None if ref_split is None else n_ref * (
+                float(weights.get("decoy", 0.0)) * ref_fdr / 100.0
+                + float(weights.get("split", 0.0)) * max(ref_split - floor_share, 0.0))
+            reference.update({"used": True, "yield": ref_yield, "fair_fdr": ref_fdr,
+                              "split_read": ref_split, "tune_nuclei": total_tune,
+                              "n_ref": n_ref, "errors_ref": e_ref})
+
+        def beats(n_part, fdr_part, split_pct, total):
+            yield_fraction = n_part / total
+            split_ok = True if ref_split is None else bool(
+                np.isfinite(split_pct) and split_pct / 100.0 <= ref_split)
+            return bool(yield_fraction >= ref_yield and fdr_part <= ref_fdr and split_ok)
+
         for pos in positions:
             rows.append({**{name: values[pos[a]] for a, (name, values) in enumerate(axes)},
                          "n": int(tune_counts["n"][pos]), "errors": float(tune_counts["e"][pos]),
@@ -4794,6 +4838,10 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                          "held_out_errors": float(report_counts["e"][pos]),
                          "held_out_fdr": float(held_score["fdr"][pos]),
                          "held_out_fdr_hi": float(held_score["fdr_hi"][pos]),
+                         "yield_fraction": float(tune_counts["n"][pos]) / total_tune,
+                         "beats_reference": bool(use_reference and beats(
+                             float(tune_counts["n"][pos]), float(score["fdr"][pos]),
+                             float(tune_point["split_pct"][pos]), total_tune)),
                          "within_cap": bool(allowed[pos]), "frontier": False, "walked": False,
                          "knee": False, "manual": pos == m_pos})
         if not eligible:
@@ -4810,6 +4858,16 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
             steps = front_steps(tune, front_pos, draws_t)
             first = next((j for j, step in enumerate(steps) if step["significant"]), None)
             position = len(front_pos) - 1 if first is None else first
+            if use_reference:
+                winners = [i for i, pos in enumerate(front_pos) if beats(
+                    float(tune_counts["n"][pos]), float(score["fdr"][pos]),
+                    float(tune_point["split_pct"][pos]), total_tune)]
+                if winners:
+                    position = max(winners, key=lambda i: (tune_counts["n"][front_pos[i]], -i))
+                    rule_used = "beat_reference"
+                else:
+                    fallback = ("no frontier point beats the reference on both yield and error on "
+                                "the tuning half; the walk-and-stop rule was used instead")
             chosen, met = front_pos[position], True
             report_steps = front_steps(report, front_pos, draws_r)
             index = {pos: i for i, pos in enumerate(positions)}
@@ -4848,7 +4906,29 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
             return "no step into it" if step is None else (
                 f"m - a {step['diff']:.5f} (95 % CI {step['ci95'][0]:.5f} to {step['ci95'][1]:.5f})")
 
-        if chosen == m_pos:
+        if rule_used == "beat_reference":
+            got = parts["report"]["chosen"]
+            tallies = {"yield": got["n"] / total_report, "fdr": got["fdr_per_100"],
+                       "split": got["split_disagreement_pct"]}
+            confirmed = beats(got["n"], tallies["fdr"], tallies["split"]
+                              if tallies["split"] is not None else float("nan"), total_report)
+            reference_report = {**tallies, "beats_both": confirmed}
+            if chosen == m_pos:
+                reason = "the most-cells point that beats the reference is the manual thresholds"
+            elif not confirmed:
+                reason = ("on the held-out fields the chosen point no longer beats the reference "
+                          f"on both: yield {tallies['yield']:.4f} (reference {ref_yield:g}), "
+                          f"decoy FDR {tallies['fdr']:.4f} (reference {ref_fdr:g})"
+                          + ("" if ref_split is None or tallies["split"] is None else
+                             f", split-read {tallies['split'] / 100.0:.4f} (reference {ref_split:g})"))
+            elif held["at_or_below_target"] is False:
+                reason = (f"the held-out FDR estimate, {held['estimate']:.3f} per 100, is above the "
+                          f"cap of {cap:.3f}")
+            else:
+                adopted = True
+                reason = ("the point with the most cells that beats the reference on yield and "
+                          "error on the tuning half and again on the held-out half")
+        elif chosen == m_pos:
             reason = "the stop of the walk is the manual thresholds"
         elif into is not None and into["significant"]:
             reason = ("on the held-out fields the step into the stop significantly raises the "
@@ -4860,10 +4940,15 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
             adopted = True
             reason = ("the stop of the walk up the frontier; held-out step into it: "
                       f"{shown(into)}")
+        if fallback is not None:
+            reason = f"{fallback}: {reason}"
+    reference.update({"rule_used": rule_used, "fallback": fallback, "report": reference_report,
+                      "beating_points": sum(bool(r["beats_reference"]) for r in rows)})
     return {"adopted": adopted, "auto_met": met, "reason": reason, "held_out_fdr": held,
             "thresholds": {"chosen": as_values(chosen), "manual": as_values(m_pos),
                            "used": as_values(chosen if adopted else m_pos)},
-            "tune": parts["tune"], "report": parts["report"], "knee": knee, "grid": rows}
+            "tune": parts["tune"], "report": parts["report"], "knee": knee, "grid": rows,
+            "reference": reference}
 
 
 def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, Any],
@@ -4875,9 +4960,12 @@ def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, An
                             ) -> Dict[str, Any]:
     """Choose one decode threshold set for a whole dataset (items 1033 and 1033c, alpha).
 
-    Under ``ops_decode_dataset_rule`` 'knee' (the default) the choice is the
-    knee of the frontier of calls and estimated errors
-    (:func:`_dataset_choice`); the paragraphs below describe the
+    Under ``ops_decode_dataset_rule`` 'beat_reference' (the default, item
+    1033d) the choice is the frontier point with the most cells among those
+    that beat the reference (Brieflow) on yield and error, confirmed on the
+    held-out half; without a reference, or when no point beats it, the
+    'knee' rule decides (:func:`_dataset_choice`); the paragraphs below
+    describe the
     'target_gain' rule of schema 986 and earlier
     (:func:`_dataset_choice_target_gain`), which shares the replay of the
     caches, the grid and the split.
@@ -5015,14 +5103,19 @@ def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, An
                     k=k, scale=scale, reps=reps, seed=seed)
     objective = ("f = Gn (1 - e_total)^2; e_total = sum of weight x term, clipped "
                  "to [0, 1]; split = max(Sd - Sd_ref, 0), decoy = FDR share" if legacy else
+                 "beat_reference: the frontier point with the most calls whose yield, decoy "
+                 "FDR and (if given) split-read disagreement all beat the reference, "
+                 "confirmed on the held-out half; if none does, or no reference is given: "
                  "walk up the frontier of calls N against estimated errors E = N x e_total "
                  "(e_total as weighted split and decoy shares) and stop before the first step "
                  "whose marginal error rate dE / dN is significantly above the average E / N")
     return {"mode": "dataset", **{key: choice[key] for key in (
                 "adopted", "auto_met", "reason", "held_out_fdr", "thresholds")},
-            **({} if legacy else {"knee": choice["knee"]}),
+            **({} if legacy else {"knee": choice["knee"], "reference": choice["reference"]}),
             "rule": config["rule"], "objective": objective,
             "brieflow_fair_fdr": config["brieflow_fair_fdr"],
+            "brieflow_yield": config["brieflow_yield"],
+            "brieflow_split_read": config["brieflow_split_read"],
             "weights": weights, "target_fdr": config["target_fdr"],
             "target_source": config["target_source"],
             "split_guard": config["split_guard"], "ci": config["ci"],
@@ -5046,14 +5139,19 @@ def _float(value) -> Optional[float]:
 
 
 def plot_dataset_frontier(result: Mapping[str, Any], path: str) -> str:
-    """Draw the yield and error frontier of the dataset tuner (item 1033c).
+    """Draw the yield and error frontier of the dataset tuner (items 1033c and 1033d).
 
     Every grid setting on the tuning half is a grey dot (calls N against
     estimated errors E, both on log axes), the walk up the Pareto frontier
     a solid line, the frontier beyond the stop a dotted one, the stop a
     filled dot, the manual thresholds a grey diamond and, when
     ``brieflow_fair_fdr`` is given, the decoy errors of the Brieflow fair
-    FDR as a dotted line E = N x FDR / 100.
+    FDR as a dotted line E = N x FDR / 100. With a reference
+    (``ops_brieflow_yield`` and the fair FDR) the settings that beat it on
+    both are green and the region that beats it is shaded: the cells at or
+    above its yield and, when its split-read rate is given, the errors at or
+    below its own (the reference point), otherwise only the yield; the chosen
+    point is the filled dot.
 
     :param result: from :func:`tune_dataset_thresholds` with the knee rule.
     :param path: the image to write (``.png`` or ``.svg``); an ``.svg`` is
@@ -5076,6 +5174,8 @@ def plot_dataset_frontier(result: Mapping[str, Any], path: str) -> str:
                          "axes.spines.right": False}):
         fig, ax = plt.subplots(figsize=(3.6, 3.2))
         ax.scatter(n, e, s=6, color="#bdbdbd", linewidths=0, label="grid settings")
+        ax.set_xscale("log")
+        ax.set_yscale("log")
         walked = np.array([bool(r["walked"]) for r in grid])
         walk = np.flatnonzero(flag["frontier"] & walked)
         beyond = np.flatnonzero(flag["frontier"] & (~walked | flag["knee"]))
@@ -5089,12 +5189,27 @@ def plot_dataset_frontier(result: Mapping[str, Any], path: str) -> str:
             grid_n = np.linspace(n.min(), n.max(), 50)
             ax.plot(grid_n, np.maximum(grid_n * float(fair) / 100.0, _FIGURE_ERROR_FLOOR),
                     color="#8c6bb1", lw=0.8, ls=":", label=f"Brieflow fair FDR {float(fair):g}")
+        reference = result.get("reference") or {}
+        if reference.get("used"):
+            beating = np.array([bool(r.get("beats_reference")) for r in grid])
+            n_ref, e_ref = float(reference["n_ref"]), reference.get("errors_ref")
+            if e_ref is not None:
+                ax.scatter([n_ref], [max(float(e_ref), _FIGURE_ERROR_FLOOR)], s=22, marker="s",
+                           color="#7a5195", zorder=3, label="Brieflow reference")
+            ax.autoscale_view()
+            low, high = ax.get_xlim()[0], max(ax.get_xlim()[1], n_ref)
+            floor = ax.get_ylim()[0]
+            top = ax.get_ylim()[1] if e_ref is None else max(float(e_ref), _FIGURE_ERROR_FLOOR)
+            ax.fill_between([max(n_ref, low), high], [floor, floor], [top, top],
+                            color="#1b9e77", alpha=0.15, linewidth=0, zorder=0,
+                            label="beats Brieflow on both" if e_ref is not None
+                            else "beats the Brieflow yield")
+            if beating.any():
+                ax.scatter(n[beating], e[beating], s=8, color="#1b9e77", linewidths=0, zorder=2)
         ax.scatter(n[flag["manual"]], e[flag["manual"]], s=28, marker="D", color="#969696",
                    edgecolors="black", linewidths=0.5, zorder=3, label="manual")
         ax.scatter(n[flag["knee"]], e[flag["knee"]], s=34, color="#d95f02", edgecolors="black",
-                   linewidths=0.5, zorder=4, label="stop")
-        ax.set_xscale("log")
-        ax.set_yscale("log")
+                   linewidths=0.5, zorder=4, label="chosen")
         from matplotlib.ticker import FuncFormatter, LogLocator, NullFormatter
 
         for axis in (ax.xaxis, ax.yaxis):
