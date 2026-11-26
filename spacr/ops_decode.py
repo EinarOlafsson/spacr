@@ -4729,8 +4729,9 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
     upper bound of the paired bootstrap rise on the tuning half
     (:func:`_split_rise_guard`, the guard of the 'target_gain' rule) and the
     point estimate of the rise on the held-out half. The held-out half must
-    confirm the point on all of these; with no point that qualifies the stop
-    of the walk is used and the reason says so.
+    confirm the point on all of these; with no point that qualifies the
+    manual thresholds are kept (Einar, 2026-11-26) and the reason says so.
+    Without a reference the stop of the walk is used.
 
     The report half judges the stop: ``N``, ``E``, the decoy FDR and the
     split-read disagreement at the stop and at the manual thresholds, with
@@ -4900,8 +4901,10 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
                     rule_used = "beat_reference"
                 else:
                     fallback = ("no frontier point beats the reference on both yield and error on "
-                                "the tuning half; the walk-and-stop rule was used instead")
+                                "the tuning half; the manual thresholds are kept")
             chosen, met = front_pos[position], True
+            if fallback is not None:
+                chosen = m_pos
             report_steps = front_steps(report, front_pos, draws_r)
             index = {pos: i for i, pos in enumerate(positions)}
             for i, pos in enumerate(front_pos):
@@ -4980,7 +4983,7 @@ def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
             reason = ("the stop of the walk up the frontier; held-out step into it: "
                       f"{shown(into)}")
         if fallback is not None:
-            reason = f"{fallback}: {reason}"
+            adopted, reason = False, fallback
     reference.update({"rule_used": rule_used, "fallback": fallback, "report": reference_report,
                       "beating_points": sum(bool(r["beats_reference"]) for r in rows)})
     return {"adopted": adopted, "auto_met": met, "reason": reason, "held_out_fdr": held,

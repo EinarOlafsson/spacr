@@ -545,12 +545,13 @@ def test_a_split_read_reference_excludes_a_point_that_disagrees_too_often():
     assert out["reference"]["errors_ref"] is not None
 
 
-def test_an_empty_region_falls_back_to_the_walk_and_says_so():
+def test_an_empty_region_keeps_the_manual_thresholds_and_says_so():
+    """Einar 2026-11-26: with no point beating the reference, manual stays."""
     out = _reference(yield_=0.95, fdr=1.0)
-    assert out["reference"]["rule_used"] == "knee" and out["reference"]["beating_points"] == 0
-    assert out["thresholds"]["chosen"] == _values(FRONT[3])
+    assert out["reference"]["beating_points"] == 0
+    assert out["thresholds"]["chosen"] == out["thresholds"]["manual"]
     assert out["reason"].startswith("no frontier point beats the reference")
-    assert "walk-and-stop" in out["reason"] and out["adopted"]
+    assert "manual thresholds are kept" in out["reason"] and not out["adopted"]
     none = _reference(yield_=None, fdr=None)
     assert none["thresholds"]["chosen"] == _values(FRONT[3]) and not none["reference"]["used"]
 
