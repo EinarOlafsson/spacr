@@ -2665,7 +2665,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 981
+SETTINGS_SCHEMA_VERSION = 982
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2738,6 +2738,7 @@ DEFAULT_CHANGES = {
     978: {'ops_ph_downsample': 2, 'ops_ph_nucleus_downsample': 'same'},
     980: {'ops_sbs_cellpose_diameter': 11.0},
     981: {'ops_pixel_ownership': 'nearest_nucleus', 'ops_pixel_footprint': None},
+    982: {'ops_owner_link_inherit': 'off'},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
@@ -3053,6 +3054,22 @@ def _fold_older_defaults(settings, version, known=None):
     ``'nearest_nucleus'`` does not read; an older file that sets
     ``'read_rule'`` or ``'read_reach'`` itself then assigns its pixels at
     ``ops_footprint``, as the first 1044 build did.
+
+    Version 982 is item 1045: ``ops_owner_link_inherit`` is
+    ``'inherit_nn'``. After the cross-field ownership is decided, the
+    owner copy of a physical cell (the component of
+    ``ops_cross_field_<well>``) takes the SBS link that one of its copies
+    holds, and its other copies keep none
+    (:func:`spacr.ops_engine._ph_inherit_owner_links`); a physical cell
+    with no link on any copy gives its owner copy the nearest SBS nucleus
+    within 3 px that no physical cell is linked to
+    (:func:`spacr.ops_engine._ph_nearest_unused_links`). ``'inherit'``
+    is the first part only. Copies linked to two different nuclei are a
+    reported conflict, never a silent pick. Before, the link could stay
+    on a non-owner copy, so the owner copy the tables keep had no
+    genotype: on plate A A1, 13.3 % of the owner copies were unlinked,
+    90 % of them within 3 px of an SBS nucleus. Files stamped before 982
+    get ``'off'`` and link as before.
 
     :param settings: the file's settings under today's names, edited in
         place.

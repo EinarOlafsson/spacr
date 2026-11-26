@@ -1361,6 +1361,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_cross_field_owner_centroid',
     'ops_cross_field_ownership',
     'ops_cross_field_policy',
+    'ops_owner_link_inherit',
     'ops_cross_field_radius_px',
     'ops_cross_field_rule',
     'ops_crosstalk',

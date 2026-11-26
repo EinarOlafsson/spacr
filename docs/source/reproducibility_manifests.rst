@@ -378,6 +378,19 @@ default after a higher-numbered item takes the next free number:
   ``ops_footprint``. Files stamped before 981 get ``ops_pixel_footprint``
   empty, so an older file that sets ``'read_rule'`` itself assigns its
   pixels at ``ops_footprint``.
+- 982 (item 1045, owner copies inherit the SBS link):
+  ``ops_owner_link_inherit`` is ``'inherit_nn'``. Once the cross-field
+  ownership is decided, the owner copy of each physical cell (one
+  component of ``ops_cross_field_<well>``) holds the SBS link one of its
+  copies received, and its other copies hold none, in the merge and
+  wherever the links are read. A physical cell with no link on any copy
+  gives its owner copy, in the merge, the nearest SBS nucleus within
+  3 px that no physical cell is linked to (shortest pairs first, each
+  nucleus once). ``'inherit'`` does the first part only. Copies linked to
+  two different SBS nuclei are listed in
+  ``ops_owner_link_conflicts_<well>.parquet`` and left as the merge
+  linked them. Files stamped before 982 get ``'off'`` and keep each link
+  on the copy the merge gave it.
 
 Public API
 ----------

@@ -8244,6 +8244,9 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     rows = []
     refined_rows = []
     fields = {}
+    nearest_links = (ownership == "closer_match"
+                     and _ph_owner_link_mode(settings) == "inherit_nn")
+    positions = []
     by_site = {int(r.site): r for r in placed.itertuples()}
     for site, group in cells.groupby("site", sort=True):
         record = by_site.get(int(site))
@@ -8320,6 +8323,12 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                                 threshold=threshold, gpu=gpu)
             footprint = transform
         labels = group["label"].to_numpy(np.int64)
+        if nearest_links:
+            placed_points = (moved if tiled
+                             else field_to_well(points, transform))
+            positions.append(pd.DataFrame({
+                "site": int(site), "label": labels,
+                "well_y": placed_points[:, 0], "well_x": placed_points[:, 1]}))
         for i, j, distance in pairs:
             rows.append((plate, well, int(site), int(labels[int(i)]),
                          int(object_ids[near[int(j)]]), float(distance),
@@ -8344,9 +8353,42 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                 check["dropped"], "site"].astype(int).tolist(),
             "table": _ph_fieldcheck_path(destination, well)}
     owner_report = None
+    inherit_report = None
     if ownership == "closer_match":
         frame, duplicates = _ph_pair_one_link_per_nucleus(
             frame, destination, well, settings)
+        if _ph_owner_link_inherit(settings):
+            inherit_report = {"mode": _ph_owner_link_mode(settings)}
+            cross_owners = _ph_cross_field_owners(destination, well)
+            frame = _ph_inherit_owner_links(
+                frame, cross_owners, inherit_report).reset_index(drop=True)
+            conflicts = inherit_report.pop("conflicts", None)
+            if nearest_links:
+                refined_of = {r["site"]: r["refined"] for r in refined_rows}
+                before = len(frame)
+                frame = _ph_nearest_unused_links(
+                    frame, cross_owners,
+                    pd.concat(positions, ignore_index=True) if positions
+                    else pd.DataFrame(columns=["site", "label", "well_y",
+                                               "well_x"]),
+                    target, object_ids, counts=inherit_report)
+                if len(frame) > before:
+                    frame["refined"] = frame["refined"].astype(object)
+                    new = np.arange(len(frame)) >= before
+                    frame.loc[new, "plate"] = plate
+                    frame.loc[new, "well"] = well
+                    frame.loc[new, "refined"] = [
+                        int(refined_of.get(int(s), 0))
+                        for s in frame.loc[new, "site"]]
+                    frame["refined"] = frame["refined"].astype(np.int64)
+            from .tabular import write_table
+
+            write_table(conflicts if conflicts is not None else frame.iloc[:0].assign(
+                component=np.empty(0, np.int64), is_owner=np.empty(0, bool)),
+                _ph_owner_link_conflicts_path(destination, well),
+                canonicalise=False)
+            inherit_report["conflicts_table"] = _ph_owner_link_conflicts_path(
+                destination, well)
     else:
         prints = {s: field_footprint(f[0], f[5]) for s, f in fields.items()}
         neighbours = overlapping_fields(prints)
@@ -8440,6 +8482,8 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                                if len(frame) else None),
         "threshold_px": threshold,
         "ownership": owner_report or {"rule": ownership},
+        **({"owner_link": inherit_report} if inherit_report is not None
+           else {}),
         "field_check": check_report,
         **({"align": {
             "model": "tile_affine", "device": "cpu",
@@ -8738,9 +8782,20 @@ def _ph_one_link_per_cell(links, source: str = "ops_merge"):
     return links
 
 
-def _ph_merge_links(db: str, plate: str, wells: Sequence[str]):
-    """The ``ops_merge`` links of ``wells``, one row per cell (:func:`_ph_one_link_per_cell`)."""
-    return _ph_one_link_per_cell(_rows_for_wells(db, "ops_merge", plate, wells))
+def _ph_merge_links(db: str, plate: str, wells: Sequence[str],
+                    destination: Optional[str] = None,
+                    settings: Optional[Mapping[str, Any]] = None):
+    """The ``ops_merge`` links of ``wells``, one row per cell (:func:`_ph_one_link_per_cell`).
+
+    With ``destination`` and ``settings`` given, each well's links are read
+    through :func:`_ph_inherited_well_links`, so the owner copy holds its
+    physical cell's link (item 1045) even when the ownership was decided
+    after the merge.
+    """
+    links = _rows_for_wells(db, "ops_merge", plate, wells)
+    if destination is not None and settings is not None:
+        links = _ph_inherited_well_links(links, destination, settings)
+    return _ph_one_link_per_cell(links)
 
 
 def _ph_one_call_per_nucleus(called, source: str) -> None:
@@ -9051,7 +9106,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             "have; it has {wells}", unknown=unknown, wells=run_wells))
     pooled = [w for w in run_wells if not asked or w.upper() in asked]
     genotype_path = settings.get("ops_genotype_table") or None
-    merged_rows = _ph_merge_links(db, plate, pooled)
+    merged_rows = _ph_merge_links(db, plate, pooled, destination, settings)
     if merged_rows is None:
         if genotype_path:
             raise ValueError(tr(
@@ -10690,7 +10745,7 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
                               columns=[c for c in (
                                   "well", "site", "label", "sgRNA", "gene",
                                   "mitotic", "call_source") if c in present])
-    links = _ph_merge_links(db, plate, wells)
+    links = _ph_merge_links(db, plate, wells, destination, settings)
     genotype_source = path if genotype is not None else None
     if genotype is None and links is not None and len(links):
         genotype = _ph_link_genotypes(db, plate, wells, links, settings)
@@ -11991,7 +12046,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     design_path = settings.get("ops_design")
     sampled = (settings.get("ops_crop_per_guide") not in (None, "")
                and bool(design_path) and os.path.isfile(str(design_path)))
-    links = _ph_merge_links(db, plate, wells)
+    links = _ph_merge_links(db, plate, wells, destination, settings)
     report: Dict[str, Any] = {"wells": {}, "options": options}
     for well in wells:
         done_path = os.path.join(root, "data", "cell", str(plate), str(well),
@@ -12292,7 +12347,7 @@ def _ops_store_write(db: str, plate: str, wells: Sequence[str],
     path = genotype_path or _ph_cells_table_path(destination, plate)
     genotype = (read_table(path, canonicalise=False, report=None)
                 if os.path.isfile(path) else None)
-    links = _ph_merge_links(db, plate, wells)
+    links = _ph_merge_links(db, plate, wells, destination, settings)
     rule = _ph_genotype_rule(settings)
     integer_keys = bool(settings.get("ops_tables_integer_keys", False))
     root = _ph_merged_root(settings, destination)
@@ -12879,7 +12934,11 @@ def _ph_pair_one_link_per_nucleus(frame, destination: str, well: str,
     a cell whose owner has no link of its own moves to the owner, with its
     distance, because both copies are one physical cell; the owner then
     carries the genotype into the phenotype tables and the aggregate.
-    Without ownership the closer match wins, as before.
+    Without ownership the closer match wins, as before. With
+    ``ops_owner_link_inherit`` on (item 1045) the link is not moved here:
+    :func:`_ph_inherit_owner_links` moves it after this, by the physical
+    cell, and reports a cell whose copies name two nuclei instead of
+    keeping the first.
     """
     from .ops_merge import deduplicate_matches
 
@@ -12899,7 +12958,7 @@ def _ph_pair_one_link_per_nucleus(frame, destination: str, well: str,
         np.int64), kept.loc[kept["_owner_rank"] == 0, "label"].astype(
         np.int64)))
     movable = (kept["_owner_rank"].to_numpy() == 1) & np.isfinite(owner_site)
-    if movable.any():
+    if movable.any() and not _ph_owner_link_inherit(settings):
         candidates = kept[movable].assign(
             _target=list(zip(owner_site[movable].astype(np.int64),
                              owner_label[movable].astype(np.int64))))
@@ -13198,6 +13257,255 @@ def _ph_owner_first_links(frame, destination: str, well: str,
         _owner_rank=rank,
         _owner_site=found["owner_field"].to_numpy(float),
         _owner_label=found["owner_label"].to_numpy(float))
+
+
+#: The values of ``ops_owner_link_inherit`` (item 1045): the owner copy
+#: takes its twin's link and, failing that, the nearest unused SBS nucleus;
+#: the twin's link only; or the links stay where the merge put them.
+_PH_OWNER_LINK_MODES = ("inherit_nn", "inherit", "off")
+
+#: How far, in SBS (well) pixels, an owner copy whose physical cell has no
+#: link may lie from the unused SBS nucleus it takes under 'inherit_nn'.
+_PH_OWNER_LINK_NN_PX = 3.0
+
+
+def _ph_owner_link_mode(settings: Mapping[str, Any]) -> str:
+    """``ops_owner_link_inherit`` (item 1045, settings schema 982), checked.
+
+    :returns: ``'inherit_nn'`` (the default), ``'inherit'`` or ``'off'``;
+        ``'off'`` too when the tables do not read the cross-field
+        ownership table (:func:`_ph_uses_cross_field_table`), since the
+        links then follow no owner. Files stamped before 982 get
+        ``'off'`` and keep every link on the copy the merge gave it.
+    :raises ValueError: on any other value.
+    """
+    mode = str(settings.get("ops_owner_link_inherit")
+               or "inherit_nn").strip().lower()
+    if mode not in _PH_OWNER_LINK_MODES:
+        raise ValueError(f"ops_owner_link_inherit must be one of "
+                         f"{list(_PH_OWNER_LINK_MODES)}; got {mode!r}")
+    return mode if _ph_uses_cross_field_table(settings) else "off"
+
+
+def _ph_owner_link_inherit(settings: Mapping[str, Any]) -> bool:
+    """Whether the owner copy takes its physical cell's link (:func:`_ph_owner_link_mode` is not ``'off'``)."""
+    return _ph_owner_link_mode(settings) != "off"
+
+
+def _ph_owner_link_conflicts_path(destination: str, well: str) -> str:
+    """Where the merge lists the physical cells whose copies carry different links."""
+    return os.path.join(destination, f"ops_owner_link_conflicts_{well}.parquet")
+
+
+def _ph_inherit_owner_links(links, owners, counts: Optional[Dict[str, Any]] = None):
+    """Give each physical cell's one SBS link to its owner copy (item 1045).
+
+    :param links: ``ops_merge`` rows of one well (``site``, ``label``,
+        ``object_id``, and any other columns, which travel with the row).
+    :param owners: :func:`_ph_cross_field_owners` of that well, or None.
+    :param counts: a dict that gets ``links_moved_to_owner``,
+        ``twin_rows_dropped``, ``conflicting_cells``, ``conflicting_links``
+        and ``twin_links_without_owner``, and ``conflicts`` (the rows of
+        the conflicting cells), or None.
+    :returns: ``links`` with the moves made, rows in their given order;
+        ``links`` itself when nothing moves.
+
+    The physical cell is the ``component`` of the cross-field ownership
+    table: the copies the ph_ownership pass joined, whose owner
+    (``owner_field``, ``owner_label``) the 1026 'linked' centroid chose.
+    Nothing is voted again: a cell whose linked copies all name one
+    ``object_id`` keeps that link, held by the owner copy, and its twins
+    keep none, so a twin never carries a genotype row of its own. A cell
+    whose copies name two different SBS nuclei is a conflict. It is
+    reported (``counts`` and the merge's
+    ``ops_owner_link_conflicts_<well>.parquet``) and left exactly as the
+    merge linked it: the owner keeps its own link if it has one and never
+    takes one of two disagreeing twin links. A cell with no owner (cut by
+    the edge of every field that holds it) and a copy the table does not
+    list are left as they are.
+    """
+    import pandas as pd
+
+    empty = {"links_moved_to_owner": 0, "twin_rows_dropped": 0,
+             "conflicting_cells": 0, "conflicting_links": 0,
+             "twin_links_without_owner": 0}
+    if counts is not None:
+        counts.update(empty)
+    if links is None or not len(links) or owners is None or not len(owners):
+        return links
+    table = owners.set_index([owners["site"].astype(np.int64),
+                              owners["label"].astype(np.int64)])
+    found = table.reindex(pd.MultiIndex.from_arrays(
+        [links["site"].astype(np.int64).to_numpy(),
+         links["label"].astype(np.int64).to_numpy()]))
+    component = found["component"].to_numpy(float)
+    owner_site = found["owner_field"].to_numpy(float)
+    owner_label = found["owner_label"].to_numpy(float)
+    is_owner = np.array([not pd.isna(v) and bool(v)
+                         for v in found["is_owner"]], bool)
+    listed = np.isfinite(component)
+    work = pd.DataFrame({
+        "_row": np.arange(len(links)), "component": component,
+        "object_id": links["object_id"].to_numpy(),
+        "distance": (links["distance"].to_numpy(float)
+                     if "distance" in links else np.zeros(len(links))),
+        "is_owner": is_owner, "owner_site": owner_site,
+        "owner_label": owner_label})[listed]
+    distinct = work.groupby("component")["object_id"].transform("nunique")
+    conflict = work[distinct.to_numpy() > 1]
+    agreed = work[distinct.to_numpy() == 1]
+    orphan = agreed[~np.isfinite(agreed["owner_site"].to_numpy(float))]
+    agreed = agreed[np.isfinite(agreed["owner_site"].to_numpy(float))]
+    agreed = agreed.sort_values(["component", "is_owner", "distance", "_row"],
+                                ascending=[True, False, True, True],
+                                kind="mergesort")
+    keep = agreed.drop_duplicates("component")
+    drop = agreed["_row"].to_numpy()[~agreed.index.isin(keep.index)]
+    move = keep[~keep["is_owner"].to_numpy()]
+    if counts is not None:
+        counts.update(
+            links_moved_to_owner=int(len(move)), twin_rows_dropped=int(len(drop)),
+            conflicting_cells=int(conflict["component"].nunique()),
+            conflicting_links=int(len(conflict)),
+            twin_links_without_owner=int((~orphan["is_owner"]).sum()),
+            conflicts=links.iloc[conflict["_row"].to_numpy()].assign(
+                component=conflict["component"].astype(np.int64).to_numpy(),
+                is_owner=conflict["is_owner"].to_numpy()).reset_index(drop=True))
+    if not len(move) and not len(drop):
+        return links
+    out = links.copy()
+    rows = move["_row"].to_numpy()
+    site_col, label_col = out.columns.get_loc("site"), out.columns.get_loc("label")
+    out.iloc[rows, site_col] = move["owner_site"].to_numpy().astype(
+        out["site"].dtype)
+    out.iloc[rows, label_col] = move["owner_label"].to_numpy().astype(
+        out["label"].dtype)
+    if len(drop):
+        out = out.drop(index=out.index[np.sort(drop)])
+    return out
+
+
+def _ph_nearest_unused_links(links, owners, positions, target, object_ids,
+                             radius: float = _PH_OWNER_LINK_NN_PX,
+                             counts: Optional[Dict[str, Any]] = None):
+    """Link each unlinked physical cell's owner copy to the nearest unused SBS nucleus.
+
+    :param links: one well's merge rows after :func:`_ph_inherit_owner_links`
+        (``site``, ``label``, ``object_id``, ``distance``, ...).
+    :param owners: :func:`_ph_cross_field_owners` of the well.
+    :param positions: ``site``, ``label``, ``well_y``, ``well_x``: each
+        copy's nucleus centroid in the frame the merge paired it in.
+    :param target: ``(N, 2)`` SBS nucleus centroids, the merge's target.
+    :param object_ids: their ``object_id``, row-aligned.
+    :param radius: the largest distance, inclusive, in SBS pixels.
+    :param counts: a dict that gets ``nearest_unused_links`` and
+        ``owners_without_link``, or None.
+    :returns: ``links`` with one row added per new link (``distance`` the
+        centroid distance, other columns empty); ``links`` itself when
+        none is added.
+    :raises ValueError: when an SBS nucleus would hold two links.
+
+    Only an owner copy whose physical cell (``component``) has no link on
+    any copy takes part, and only a nucleus no physical cell is linked to.
+    The pairs within ``radius`` are taken shortest first, ties to the
+    lower ``site``, ``label`` and ``object_id``, each owner and each
+    nucleus at most once, so two owner copies never share a nucleus.
+    """
+    import pandas as pd
+    from scipy.spatial import cKDTree
+
+    if counts is not None:
+        counts.update(nearest_unused_links=0, owners_without_link=0)
+    if owners is None or not len(owners) or not len(target):
+        return links
+    linked_keys = pd.MultiIndex.from_arrays([
+        links["site"].astype(np.int64).to_numpy(),
+        links["label"].astype(np.int64).to_numpy()]) if len(links) else None
+    keys = pd.MultiIndex.from_arrays([owners["site"].astype(np.int64).to_numpy(),
+                                      owners["label"].astype(np.int64).to_numpy()])
+    has_link = (keys.isin(linked_keys) if linked_keys is not None
+                else np.zeros(len(owners), bool))
+    linked_components = set(owners["component"].to_numpy()[has_link].tolist())
+    wanted = owners[owners["is_owner"].astype(bool).to_numpy()
+                    & ~owners["component"].isin(linked_components).to_numpy()]
+    wanted = wanted[["site", "label"]].astype(np.int64).merge(
+        positions[["site", "label", "well_y", "well_x"]].astype(
+            {"site": np.int64, "label": np.int64}),
+        on=["site", "label"], how="inner")
+    if counts is not None:
+        counts["owners_without_link"] = int(len(wanted))
+    if not len(wanted):
+        return links
+    used = set(links["object_id"].astype(np.int64).tolist()) if len(links) else set()
+    points = wanted[["well_y", "well_x"]].to_numpy(float)
+    near = cKDTree(np.asarray(target, float)).query_ball_point(
+        points, r=float(radius))
+    ids = np.asarray(object_ids, np.int64)
+    pairs = []
+    for i, found in enumerate(near):
+        for j in found:
+            if int(ids[j]) in used:
+                continue
+            distance = float(np.hypot(*(np.asarray(target[j], float) - points[i])))
+            if distance <= float(radius):
+                pairs.append((distance, int(wanted["site"].iat[i]),
+                              int(wanted["label"].iat[i]), int(ids[j])))
+    pairs.sort()
+    taken_cells, rows = set(), []
+    for distance, site, label, object_id in pairs:
+        if (site, label) in taken_cells or object_id in used:
+            continue
+        taken_cells.add((site, label))
+        used.add(object_id)
+        rows.append({"site": site, "label": label, "object_id": object_id,
+                     "distance": distance})
+    if counts is not None:
+        counts["nearest_unused_links"] = int(len(rows))
+    if not rows:
+        return links
+    extra = pd.DataFrame(rows)
+    for column in links.columns:
+        if column not in extra:
+            values = links[column].dropna().unique()
+            extra[column] = (values[0] if column in ("plate", "well")
+                             and len(values) == 1 else np.nan)
+    out = pd.concat([links, extra[list(links.columns)].astype(
+        {c: links[c].dtype for c in ("site", "label", "object_id")})],
+        ignore_index=True)
+    twice = out["object_id"].duplicated(keep=False)
+    if twice.any():
+        raise ValueError(f"SBS nuclei {sorted(set(out.loc[twice, 'object_id']))[:10]} "
+                         f"would hold two links")
+    return out
+
+
+def _ph_inherited_well_links(links, destination: str,
+                             settings: Mapping[str, Any]):
+    """:func:`_ph_inherit_owner_links` per well of ``links``, when :func:`_ph_owner_link_inherit`.
+
+    :param links: ``ops_merge`` rows with a ``well`` column, or None.
+    :param destination: the run folder (``ops_cross_field_<well>.parquet``).
+    :param settings: the OPS settings.
+    :returns: the links, each well's moved to its owner copies; unchanged
+        when the setting is off or a well has no ownership table. The
+        merge already stores the moved links; reading them through this
+        again changes nothing, and a well whose ownership was decided after
+        its merge gets the same links as a fresh merge would give it.
+    """
+    import pandas as pd
+
+    if (links is None or not len(links) or "well" not in links
+            or not _ph_owner_link_inherit(settings)):
+        return links
+    parts, changed = [], False
+    for well, group in links.groupby("well", sort=False):
+        moved = _ph_inherit_owner_links(
+            group, _ph_cross_field_owners(destination, str(well)))
+        changed |= moved is not group
+        parts.append(moved)
+    if not changed:
+        return links
+    return pd.concat(parts).sort_index(kind="mergesort").reset_index(drop=True)
 
 
 #: The levels ``ops_reference_counts_level`` may name: decoded sequencing
