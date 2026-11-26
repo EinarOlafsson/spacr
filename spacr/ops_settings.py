@@ -1399,10 +1399,10 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_auto_f_beta", "ops_decode_auto_unreachable",
         "ops_decode_target_fdr", "ops_decode_target_fdr_reference",
         "ops_brieflow_fair_fdr", "ops_decode_split_guard",
-        "ops_decode_dataset_weights", "ops_decode_fdr_calibration", "ops_never_barcode_k",
-        "ops_never_barcode_seed", "ops_never_barcode_sets",
+        "ops_decode_dataset_weights", "ops_decode_fdr_calibration",
     ],
     "Call quality & confidence": [
+        "ops_never_barcode_k", "ops_never_barcode_seed", "ops_never_barcode_sets",
         "ops_decode_qc", "ops_decode_qc_model", "ops_decode_qc_features",
         "ops_decode_qc_split", "ops_decode_qc_seed", "ops_decode_qc_max_calls",
         "ops_decode_qc_bleed_panel", "ops_decode_qc_depth_curve",
