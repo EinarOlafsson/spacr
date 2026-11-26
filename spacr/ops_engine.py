@@ -14960,6 +14960,7 @@ def run_ops(settings: Mapping[str, Any], *,
     if unknown:
         raise ValueError(
             f"unknown phases {unknown}; choose from {list(_ALL_PHASES)}")
+    _version_check(settings)
     if "power_sim" in phases or (settings.get("ops_power_sim") and tuple(phases) == _PHASES):
         if any(phase != "power_sim" for phase in phases) and tuple(phases) != _PHASES:
             raise ValueError("the power_sim phase runs on its own")
@@ -15362,6 +15363,59 @@ def run_ops(settings: Mapping[str, Any], *,
     return out
 
 
+def _required_versions(settings: Mapping[str, Any]) -> Dict[str, str]:
+    """The ``ops_require_versions`` mapping of a run, package to expected version (item 1040).
+
+    :param settings: read for ``ops_require_versions``: None for no check, or a
+        mapping such as ``{"cellpose": "4.2.1.1", "torch": "2.13.0+cu130"}``.
+    :returns: package to expected version, empty when no check is asked for.
+    :raises ValueError: when the setting is not a mapping of names to versions.
+    """
+    wanted = settings.get("ops_require_versions")
+    if wanted in (None, {}, ""):
+        return {}
+    if not isinstance(wanted, Mapping) or not all(
+            isinstance(k, str) and k and isinstance(v, (str, int, float))
+            for k, v in wanted.items()):
+        raise ValueError("ops_require_versions must be None or a mapping of package "
+                         f"name to version, got {wanted!r}")
+    return {str(k): str(v) for k, v in wanted.items()}
+
+
+def _version_check(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """Compare the installed versions with ``ops_require_versions`` (item 1040).
+
+    The versions come from :func:`_software_versions`; a package it does not
+    list is read from the installed distribution.
+
+    :param settings: see :func:`_required_versions`.
+    :returns: None when no check is asked for, else ``{"expected": ..., "found": ...}``.
+    :raises RuntimeError: naming each package with its expected and found
+        version when any differs.
+    """
+    expected = _required_versions(settings)
+    if not expected:
+        return None
+    from importlib import metadata
+
+    known = _software_versions()
+    found: Dict[str, Optional[str]] = {}
+    for name in expected:
+        if name in known:
+            found[name] = known[name]
+        else:
+            try:
+                found[name] = metadata.version(name)
+            except metadata.PackageNotFoundError:
+                found[name] = None
+    wrong = [f"{name}: expected {expected[name]}, found {found[name]}"
+             for name in expected if found[name] != expected[name]]
+    if wrong:
+        raise RuntimeError("the installed software differs from ops_require_versions, "
+                           "so no field was processed: " + "; ".join(wrong))
+    return {"expected": expected, "found": found}
+
+
 def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
                      report: Mapping[str, Any]) -> Dict[str, Any]:
     """The ``provenance`` block of one well's ``ops_report.json`` (item 975).
@@ -15387,6 +15441,9 @@ def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
     block["cellpose_models"] = models
     block["software"] = _software_versions()
     block["gpu_deterministic"] = gpu_deterministic_on(settings)
+    checked = _version_check(settings)
+    if checked:
+        block["required_versions"] = checked
     return block
 
 

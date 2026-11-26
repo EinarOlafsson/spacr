@@ -53,6 +53,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_placement_seed": None,
     "ops_sites": None,
     "ops_phases": None,
+    "ops_require_versions": None,
     "ops_objects_resume": True,
     "ops_objects_keep_windows": False,
     "ops_objects_windows_dir": None,
@@ -703,6 +704,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_placement_seed": (str, type(None)),
     "ops_sites": (str, list, int, type(None)),
     "ops_phases": (str, list, type(None)),
+    "ops_require_versions": (dict, type(None)),
     "ops_objects_resume": bool,
     "ops_objects_keep_windows": bool,
     "ops_store_raw_masks": bool,
@@ -1295,7 +1297,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "GPU Memory α": ["mask_eval_batch_cap", "mask_batch_seed", "gpu_vram_budget_gb"],
     "OPS input": [
         "dst_root", "genotype_source", "phenotype_source", "ops_library",
-        "ops_layout", "ops_phases",
+        "ops_layout", "ops_phases", "ops_require_versions",
     ],
     "Plate Layout & Controls": [
         "ops_design", "ops_control_prefix", "ops_genotype_table",
@@ -1964,6 +1966,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "to each other and the rest are placed on the layout's grid, or by "
         "ops_placement_seed. Each nucleus belongs to the nearest placed "
         "tile. Empty runs every site. Default None. Alpha.",
+    "ops_require_versions":
+        "(dict or None) - Package versions a run must be made with, such as "
+        "{'cellpose': '4.2.1.1', 'torch': '2.13.0+cu130'}. Before the first "
+        "field is processed, spaCR compares each with the installed version "
+        "and refuses the run, naming each expected and found version, when "
+        "any differs. The expected and found versions are kept in each "
+        "well's provenance. Empty checks nothing. Default None.",
     "ops_phases":
         "(str, list or None) - Which phases a run without its own phase "
         "list runs, in the order spaCR runs them, as 'stitch,phenotype,"

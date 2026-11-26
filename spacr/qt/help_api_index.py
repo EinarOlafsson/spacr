@@ -15968,6 +15968,7 @@ SETTING_CONSUMERS = {
     'ops_phase_null': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_phase_tests': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_phases': (('spacr.ops_settings', 'ops_defaults'),),
+    'ops_require_versions': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_pixel_min_fraction': (('spacr.ops_decode', 'decode_rule'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_pixel_min_pixels': (('spacr.ops_decode', 'decode_rule'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_pixel_percentile': (('spacr.ops_decode', 'decode_rule'), ('spacr.ops_settings', 'ops_defaults'),),

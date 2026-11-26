@@ -1633,6 +1633,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_phase_null',
     'ops_phase_tests',
     'ops_phases',
+    'ops_require_versions',
     'ops_pixel_min_fraction',
     'ops_pixel_min_pixels',
     'ops_pixel_percentile',
