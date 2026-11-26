@@ -9412,6 +9412,11 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 
 
 ALPHA_FEATURES = {
+    1033: {
+        'settings': ('ops_decode_target_fdr', 'ops_decode_split_guard',
+                     'ops_decode_dataset_weights'),
+        'choices': {'ops_decode_threshold_mode': ('dataset',)},
+    },
     1043: {
         'settings': ('ops_decode_qc_depth_curve',),
     },

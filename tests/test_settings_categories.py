@@ -356,6 +356,9 @@ from spacr.gene_graph import _DEFAULTS as GENE_GRAPH_DEFAULTS  # noqa: E402
 from spacr.gene_knowledge import _DEFAULTS as GENE_KNOWLEDGE_DEFAULTS  # noqa: E402
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # 1033, alpha: the dataset threshold tuner (ops_decode_threshold_mode
+    # 'dataset'), in Decoys & auto thresholds.
+    "ops_decode_target_fdr", "ops_decode_split_guard", "ops_decode_dataset_weights",
     # 1024, alpha, schema 967: nucleus fragments and cell-less nuclei, in the
     # one shared pairing (Measure Features and OPS Nucleus pairing α).
     "nucleus_fragment_merge", "nucleus_fragment_max_gap_px",

@@ -4836,9 +4836,9 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     decoys: List[str] = []
     rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
     mode = str(ops_setting(settings, "ops_decode_threshold_mode")).strip().lower()
-    if mode == "auto" and not (rule_a["active"] and rule == "mapped"
-                               and int(rule_a.get("decoy_k") or 0) > 0):
-        _say(f"{well} decode: ops_decode_threshold_mode 'auto' tunes the "
+    if mode in ("auto", "dataset") and not (rule_a["active"] and rule == "mapped"
+                                            and int(rule_a.get("decoy_k") or 0) > 0):
+        _say(f"{well} decode: ops_decode_threshold_mode '{mode}' tunes the "
              "rule (a) decode only (ops_decode_preset rule_a_s2, "
              "ops_cell_rule 'mapped', a guide library and ops_decoy_library_k "
              "above 0); these settings do not run it, so the thresholds stay "
@@ -15006,6 +15006,7 @@ def run_ops(settings: Mapping[str, Any], *,
         raise ValueError(
             f"unknown phases {unknown}; choose from {list(_ALL_PHASES)}")
     _version_check(settings)
+    settings = _dataset_mode_settings(settings, phases)
     if "power_sim" in phases or (settings.get("ops_power_sim") and tuple(phases) == _PHASES):
         if any(phase != "power_sim" for phase in phases) and tuple(phases) != _PHASES:
             raise ValueError("the power_sim phase runs on its own")
@@ -15327,6 +15328,10 @@ def run_ops(settings: Mapping[str, Any], *,
         out["wells"][well] = report
         print(f"Progress: {well_number}/{len(well_list)}, "
               f"operation_type: OPS wells", flush=True)
+    if _dataset_mode(settings) and "decode" in phases and well_list:
+        out["dataset_thresholds"] = _dataset_thresholds(
+            db, plate, [w for w in well_list if w in out["wells"]], index, out,
+            settings, gpu, barcodes, destination)
     if _wants_decode_qc(settings, phases):
         from .ops_decode import results_folder, run_decode_qc
 
@@ -15537,6 +15542,112 @@ def _expand_rebuild(names: Tuple[str, ...]) -> Tuple[str, ...]:
             if part not in out:
                 out.append(part)
     return tuple(out)
+
+
+#: The well phases that read the decode tables after the decode, which
+#: ``ops_decode_threshold_mode`` 'dataset' may decode again at the end.
+_AFTER_DECODE_PHASES = ("merge", "ph_merged")
+
+
+def _dataset_mode(settings: Mapping[str, Any]) -> bool:
+    """Whether the decode thresholds are tuned per dataset (item 1033, alpha).
+
+    :param settings: the OPS settings.
+    :returns: True under ``ops_decode_threshold_mode`` 'dataset'.
+    """
+    return str(ops_setting(settings, "ops_decode_threshold_mode") or "").strip().lower() \
+        == "dataset"
+
+
+def _dataset_mode_settings(settings: Mapping[str, Any], phases: Sequence[str]
+                           ) -> Mapping[str, Any]:
+    """The settings of a run under ``ops_decode_threshold_mode`` 'dataset'.
+
+    The dataset tuner replays the stored field caches, so the decode
+    keeps them (``ops_store_field_cache`` on). Other modes, or a run
+    without the decode phase, are returned as they are.
+
+    :param settings: the OPS settings.
+    :param phases: the phases of the run.
+    :returns: the settings.
+    :raises ValueError: when a phase that reads the decode tables
+        (:data:`_AFTER_DECODE_PHASES`) runs with the decode, since the
+        dataset choice may decode the wells again after them.
+    """
+    if not (_dataset_mode(settings) and "decode" in phases):
+        return settings
+    late = [phase for phase in phases if phase in _AFTER_DECODE_PHASES]
+    if late:
+        raise ValueError(
+            f"ops_decode_threshold_mode 'dataset' may decode the wells again after "
+            f"every well is decoded; run the decode phases first and {late} after")
+    if not bool(ops_setting(settings, "ops_store_field_cache")):
+        _say("ops_decode_threshold_mode 'dataset' tunes from the stored field "
+             "caches, so ops_store_field_cache is on for this run")
+    return {**settings, "ops_store_field_cache": True}
+
+
+def _dataset_thresholds(db: str, plate: str, wells: Sequence[str], index: Mapping[str, Any],
+                        out: Dict[str, Any], settings: Mapping[str, Any], gpu: bool,
+                        library, destination: str) -> Dict[str, Any]:
+    """Tune one decode threshold set for the plate and use it when it gains (item 1033).
+
+    The wells were decoded at the entered thresholds and kept their field
+    caches; :func:`spacr.ops_decode.tune_dataset_thresholds` chooses on
+    half of the plate's fields and judges the choice on the other half.
+    When it is adopted every well is decoded again at the chosen thresholds,
+    in manual mode, and its report rewritten; otherwise the decode stays.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param wells: the wells decoded in this run.
+    :param index: well -> its sequencing tiles.
+    :param out: the run report, whose well reports are updated.
+    :param settings: the OPS settings.
+    :param gpu: let the decode use the card.
+    :param library: the guide barcodes.
+    :param destination: ``dst_root``.
+    :returns: the tuner's result with ``paths``, or ``skipped`` with the
+        reason when the rule (a) decode with decoys did not run.
+    """
+    from .ops_decode import (decode_rule, resolve_settings, tune_dataset_thresholds,
+                             write_dataset_thresholds)
+
+    rule = decode_rule(resolve_settings(settings))
+    if not (rule["active"] and int(rule.get("decoy_k") or 0) > 0 and library
+            and _cell_rule(settings, library)[0] == "mapped"):
+        reason = ("ops_decode_threshold_mode 'dataset' tunes the rule (a) decode only "
+                  "(ops_decode_preset rule_a_s2, ops_cell_rule 'mapped', a guide library "
+                  "and ops_decoy_library_k above 0); the thresholds stay as entered")
+        _say(f"{plate}: {reason}")
+        return {"skipped": reason}
+    caches = {well: os.path.join(destination, well, "decode_cache") for well in wells
+              if os.path.isdir(os.path.join(destination, well, "decode_cache"))}
+    if not caches:
+        reason = "no well of this run stored its field caches"
+        _say(f"{plate}: ops_decode_threshold_mode 'dataset': {reason}")
+        return {"skipped": reason}
+    result = tune_dataset_thresholds(caches, settings, library,
+                                     workers=int(ops_setting(settings, "n_workers")))
+    result["paths"] = write_dataset_thresholds(db, plate, result)
+    used = result["thresholds"]["used"]
+    _say(f"{plate}: dataset thresholds {'adopted' if result['adopted'] else 'not adopted'}: "
+         f"read threshold {used['ops_read_threshold']:g}, single-read quality "
+         f"{used['ops_single_read_quality']:g}, pixel quality {used['ops_pixel_quality']:g}; "
+         f"{result['reason']}")
+    summary = {key: result[key] for key in ("adopted", "reason", "thresholds")}
+    summary["path"] = result["paths"]["json"]
+    manual = {**settings, "ops_decode_threshold_mode": "manual", **used}
+    for well in sorted(caches):
+        report = out["wells"][well]
+        if result["adopted"]:
+            report["decode"] = _decode(db, plate, well, index[well], report["reference_cycle"],
+                                       manual, gpu, library)
+        report["decode"]["dataset_thresholds"] = summary
+        _atomic_json(os.path.join(destination, well, "ops_report.json"), report, indent=1,
+                     sort_keys=False, default=str, normalize=False, ensure_ascii=True,
+                     newline=False)
+    return result
 
 
 def _wants_decode_qc(settings: Mapping[str, Any], phases: Sequence[str]) -> bool:

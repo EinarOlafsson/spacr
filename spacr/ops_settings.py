@@ -294,6 +294,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_auto_objective": "recall_at_fdr",
     "ops_decode_auto_f_beta": 1.0,
     "ops_decode_auto_unreachable": "lowest_fdr",
+    "ops_decode_target_fdr": None,
+    "ops_decode_split_guard": 0.1,
+    "ops_decode_dataset_weights": None,
     "ops_decode_fdr_calibration": "never",
     "ops_never_barcode_k": 4,
     "ops_never_barcode_seed": 1,
@@ -937,6 +940,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_auto_objective": str,
     "ops_decode_auto_f_beta": (float, int),
     "ops_decode_auto_unreachable": str,
+    "ops_decode_target_fdr": (float, int, type(None)),
+    "ops_decode_split_guard": (float, int),
+    "ops_decode_dataset_weights": (dict, str, type(None)),
     "ops_decode_fdr_calibration": str,
     "ops_never_barcode_k": int,
     "ops_never_barcode_seed": int,
@@ -1387,7 +1393,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_auto_tune_fraction", "ops_decode_auto_seed",
         "ops_decode_auto_spot_grid", "ops_decode_auto_objective",
         "ops_decode_auto_f_beta", "ops_decode_auto_unreachable",
-        "ops_decode_fdr_calibration", "ops_never_barcode_k",
+        "ops_decode_target_fdr", "ops_decode_split_guard",
+        "ops_decode_dataset_weights", "ops_decode_fdr_calibration", "ops_never_barcode_k",
         "ops_never_barcode_seed", "ops_never_barcode_sets",
     ],
     "Call quality & confidence": [
@@ -3998,6 +4005,26 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and reports it; 'strictest' takes the strictest setting, as "
         "settings saved before item 942 do. Either way the report says "
         "auto_met False. Default 'lowest_fdr'. Alpha.",
+    "ops_decode_target_fdr":
+        "(float) - The highest decoy-estimated false calls per 100 real "
+        "calls the dataset tuner may accept (ops_decode_threshold_mode "
+        "'dataset', item 1033: every well decodes at the entered thresholds, "
+        "then one threshold set is tuned for the whole plate from the stored "
+        "field caches and used only when its held-out gain is above 0). "
+        "Empty uses ops_decode_fdr_max. Default empty. Alpha.",
+    "ops_decode_split_guard":
+        "(float) - How many points the split-read disagreement (calls that "
+        "disagree with an independent read of the nucleus in an overlapping "
+        "tile) of a dataset-tuned setting may rise over the entered "
+        "thresholds, judged by the upper end of its 95 % interval. Used with "
+        "ops_decode_threshold_mode 'dataset'. Default 0.1. Alpha.",
+    "ops_decode_dataset_weights":
+        "(dict) - The weight of each error share in the dataset tuner's "
+        "objective, genotyped calls x (1 - error)^2, as {'split': 1.0, "
+        "'decoy': 0.0}: 'split' is the split-read disagreement above that of "
+        "the cleanest calls, 'decoy' the decoy FDR. Weights fitted to a known "
+        "error come from spacr.ops_decode.calibrate_error_weights. Empty uses "
+        "split 1 and decoy 0. Default empty. Alpha.",
     "ops_decode_fdr_calibration":
         "(str) - How rule (a) sets the FDR scale. 'never' measures error calls on substitution-built barcodes through the same read and pixel votes: distance-two controls set the scale and distance-one controls report a check. It can raise or lower the entered scale, down to 1. Manual thresholds stay fixed while calibration runs. 'none' keeps ops_fdr_scale; 'shuffle' only raises it from three shuffled libraries; 'never+shuffle' takes the larger control-based scale. Never methods need decoys and keep the entered scale when evidence is insufficient. Default 'never'.",
     'ops_never_barcode_k':

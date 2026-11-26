@@ -32,7 +32,7 @@ def test_the_panel_choice_defaults_to_auto():
     import spacr.settings_spec as spec
 
     source = open(spec.__file__, encoding="utf-8").read()
-    assert "'ops_decode_threshold_mode': ('combo', ['manual', 'auto'], 'auto')" in source
+    assert "'ops_decode_threshold_mode': ('combo', ['manual', 'auto', 'dataset'], 'auto')" in source
 
 
 def test_the_schema_row_keeps_older_files_on_the_old_decode():

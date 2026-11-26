@@ -1526,8 +1526,10 @@ AUTO_GRID: Dict[str, Tuple[float, ...]] = {
 }
 
 #: The threshold modes ``ops_decode_threshold_mode`` may name, the first
-#: being the default.
-THRESHOLD_MODES = ("manual", "auto")
+#: being the default. 'dataset' (item 1033, alpha) decodes every well as
+#: 'manual' does and then tunes one threshold set for the whole dataset
+#: from the stored field caches (:func:`tune_dataset_thresholds`).
+THRESHOLD_MODES = ("manual", "auto", "dataset")
 
 #: Field-bootstrap replicates and seed of the FDR interval auto mode judges
 #: a setting by; the study's ``s2it_rule.fdr_ci`` used 1,000 and seed 1.
@@ -1580,6 +1582,10 @@ def threshold_settings(settings: Mapping[str, Any],
     if mode not in THRESHOLD_MODES:
         raise ValueError(f"ops_decode_threshold_mode must be one of "
                          f"{list(THRESHOLD_MODES)}; got {mode!r}")
+    if mode == "dataset":
+        dataset_threshold_settings(settings, rule)
+        return {**threshold_settings({**settings, "ops_decode_threshold_mode": "manual"},
+                                     rule), "dataset": True}
     calibration = str(settings.get("ops_decode_fdr_calibration")
                       or FDR_CALIBRATIONS[0]).strip().lower()
     manual_calibration = mode == "manual" and calibration in ("never", "never+shuffle")
@@ -2355,6 +2361,23 @@ def _pareto(fdr_values: Sequence[float], real: Sequence[int]) -> List[bool]:
     return out
 
 
+def _tune_report_split(order: Sequence[int], tune_fraction: float, seed: int
+                       ) -> Tuple[List[int], List[int]]:
+    """The tuning and report fields of the threshold tuners, drawn at random.
+
+    :param order: the fields with cells, in their fixed order (site order
+        within a well; well, then site, over a dataset).
+    :param tune_fraction: the share of the fields that choose.
+    :param seed: the split's seed (``numpy.random.default_rng``).
+    :returns: ``(tune, report)``, each in the order of ``order``.
+    """
+    n = len(order)
+    perm = np.random.default_rng(int(seed)).permutation(n)
+    n_tune = int(n * float(tune_fraction))
+    return ([order[i] for i in sorted(perm[:n_tune])],
+            [order[i] for i in sorted(perm[n_tune:])])
+
+
 def tune_thresholds(counts, nuclei, sites, axes: Sequence[Tuple[str, Sequence[float]]],
                     *, k: int, scale: float, objective: str = "recall_at_fdr",
                     fdr_max: float = 0.1, f_beta: float = 1.0,
@@ -2428,11 +2451,7 @@ def tune_thresholds(counts, nuclei, sites, axes: Sequence[Tuple[str, Sequence[fl
     if int(k) < 1:
         raise ValueError("choosing thresholds needs decoys (k of 1 or more)")
     order = [i for i in np.argsort(sites, kind="stable") if nuclei[i] > 0]
-    n = len(order)
-    perm = np.random.default_rng(int(seed)).permutation(n)
-    n_tune = int(n * float(tune_fraction))
-    tune = [order[i] for i in sorted(perm[:n_tune])]
-    report = [order[i] for i in sorted(perm[n_tune:])]
+    tune, report = _tune_report_split(order, tune_fraction, seed)
     chosen = tuple(len(v) - 1 for v in values)
     met, lowest = False, None
     rows: List[Dict[str, Any]] = []
@@ -3272,6 +3291,26 @@ SPLIT_READ_REPS = 2000
 SPLIT_READ_SEED = 20261125
 
 
+def _split_reference(split, min_reads: int = 1):
+    """The nuclei whose other-tile reads name one guide (:func:`split_read_concordance`).
+
+    :param split: the other-tile reads, one row per nucleus and tile, with
+        ``object_id``, ``n``, ``nguides``, ``guide`` and ``other_site``.
+    :param min_reads: the least other-tile reads a reference needs.
+    :returns: a frame of ``object_id``, ``n``, ``nguides``, ``guide`` and
+        ``tiles``: the references, read in one other tile only, with one
+        barcode named and at least ``min_reads`` reads.
+    """
+    import pandas as pd
+
+    split = pd.DataFrame(split, columns=["object_id", "n", "nguides", "guide", "other_site"])
+    reference = split.groupby("object_id").agg(
+        n=("n", "sum"), nguides=("nguides", "max"), guide=("guide", "first"),
+        tiles=("other_site", "nunique")).reset_index()
+    return reference[(reference["n"] >= int(min_reads)) & (reference["nguides"] == 1)
+                     & (reference["tiles"] == 1)]
+
+
 def split_read_concordance(calls, split, sites: Sequence[int], *,
                            reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED,
                            min_reads: Sequence[int] = (1, 2)) -> Dict[str, Any]:
@@ -3306,15 +3345,10 @@ def split_read_concordance(calls, split, sites: Sequence[int], *,
     index = {s: i for i, s in enumerate(sites)}
     draws = _bootstrap_rows(len(sites), int(reps), int(seed))
     out: Dict[str, Any] = {"tiles": len(sites), "reps": int(reps), "seed": int(seed)}
-    split = pd.DataFrame(split, columns=["object_id", "n", "nguides", "guide", "other_site"])
-    reference = split.groupby("object_id").agg(
-        n=("n", "sum"), nguides=("nguides", "max"), guide=("guide", "first"),
-        tiles=("other_site", "nunique")).reset_index()
     calls = pd.DataFrame(calls, columns=["object_id", "site", "mapped_guide"])
     calls = calls[calls["site"].isin(index)]
     for k in min_reads:
-        scored = reference[(reference["n"] >= int(k)) & (reference["nguides"] == 1)
-                           & (reference["tiles"] == 1)].merge(calls, on="object_id")
+        scored = _split_reference(split, k).merge(calls, on="object_id")
         position = scored["site"].map(index).to_numpy(int)
         agree = np.bincount(position, (scored["mapped_guide"] == scored["guide"]).to_numpy(float),
                             minlength=len(sites))
@@ -3368,15 +3402,29 @@ def _cached_field(path: str, rule: Mapping[str, Any], library: Sequence[str],
     :returns: ``site`` and ``rule_a``, as the decoded fields of the engine carry.
     """
     matcher, decoy_set = matcher_for(library, decoys)
-    with np.load(path) as stored:
-        evidence = {key: stored[key] for key in stored.files}
-    if _read_assignment_of(rule) == "cell_mask":
-        evidence = _stored_cell_evidence(evidence, int(os.path.basename(path)[4:8]), cells)
+    evidence = _cached_evidence(path, rule, cells)
     calls = field_calls(evidence, rule, library, matcher, decoy_set,
                         threshold=rule["threshold"], footprint=rule["footprint"],
                         max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
                         single_read_quality=rule["single_read_quality"], crosstalk=crosstalk)
     return {"site": int(os.path.basename(path)[4:8]), "rule_a": calls}
+
+
+def _cached_evidence(path: str, rule: Mapping[str, Any],
+                     cells: Optional[Tuple[str, str]] = None) -> Dict[str, Any]:
+    """One stored field cache, opened for the rule it is replayed under.
+
+    :param path: the ``site<NNNN>.npz`` field cache.
+    :param rule: the rule; under ``ops_read_assignment`` 'cell_mask' the
+        reads go to the stored cells (:func:`_stored_cell_evidence`).
+    :param cells: ``(store, well)`` of the stored SBS cells, or None.
+    :returns: the evidence, every array read into memory.
+    """
+    with np.load(path) as stored:
+        evidence = {key: stored[key] for key in stored.files}
+    if _read_assignment_of(rule) == "cell_mask":
+        evidence = _stored_cell_evidence(evidence, int(os.path.basename(path)[4:8]), cells)
+    return evidence
 
 
 def _stored_cell_evidence(evidence: Mapping[str, Any], site: int,
@@ -3448,6 +3496,36 @@ def _cached_rule(resolved: Mapping[str, Any], library: Sequence[str], *,
     return rule, library, decoys, crosstalk
 
 
+def _replay_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """The settings a stored run is replayed under (:func:`decode_cached_well`).
+
+    :param settings: the settings of the run; a ``spacr_settings_version``
+        stamp gives the keys the mapping leaves out the defaults of that
+        version (``spacr.settings.DEFAULT_CHANGES``).
+    :returns: the settings after :func:`resolve_settings`.
+    """
+    from .ops_settings import OPS_DEFAULTS, ops_defaults
+    from .settings import SETTINGS_VERSION_KEY, _fold_older_defaults, _settings_file_version
+
+    given = dict(settings)
+    if SETTINGS_VERSION_KEY in given:
+        _fold_older_defaults(given, _settings_file_version(given), known=set(OPS_DEFAULTS))
+    return resolve_settings(ops_defaults(given))
+
+
+def _cache_paths(cache_folder: str, sites: Optional[Sequence[int]] = None) -> List[str]:
+    """The ``site<NNNN>.npz`` field caches of a folder, in site order.
+
+    :param cache_folder: the folder (``ops_store_field_cache``).
+    :param sites: only these fields; None for all.
+    :returns: the paths.
+    """
+    wanted = None if sites is None else {int(s) for s in sites}
+    return sorted(os.path.join(cache_folder, name) for name in os.listdir(cache_folder)
+                  if name.startswith("site") and name.endswith(".npz")
+                  and (wanted is None or int(name[4:8]) in wanted))
+
+
 def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
                        library: Sequence[str], *, read_threshold: float,
                        single_read_quality: float, pixel_quality: float,
@@ -3491,23 +3569,11 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
     """
     from multiprocessing import get_context
 
-    from .ops_settings import ops_defaults
-    from .settings import SETTINGS_VERSION_KEY, _fold_older_defaults, _settings_file_version
-
-    given = dict(settings)
-    if SETTINGS_VERSION_KEY in given:
-        version = _settings_file_version(given)
-        from .ops_settings import OPS_DEFAULTS
-
-        _fold_older_defaults(given, version, known=set(OPS_DEFAULTS))
-    resolved = resolve_settings(ops_defaults(given))
+    resolved = _replay_settings(settings)
     rule, library, decoys, crosstalk = _cached_rule(
         resolved, library, read_threshold=read_threshold,
         single_read_quality=single_read_quality, pixel_quality=pixel_quality)
-    wanted = None if sites is None else {int(s) for s in sites}
-    paths = sorted(os.path.join(cache_folder, name) for name in os.listdir(cache_folder)
-                   if name.startswith("site") and name.endswith(".npz")
-                   and (wanted is None or int(name[4:8]) in wanted))
+    paths = _cache_paths(cache_folder, sites)
     jobs = [(path, rule, library, decoys, crosstalk) for path in paths]
     if _read_assignment_of(rule) == "cell_mask" and cell_store is not None:
         name = well or os.path.basename(os.path.dirname(os.path.abspath(cache_folder)))
@@ -3532,6 +3598,641 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
             "assigned_real": sum(int(r["rule_a"]["assigned_real"]) for r in fields),
             "assigned_decoy": sum(int(r["rule_a"]["assigned_decoy"]) for r in fields),
             "split_read_concordance": concordance}
+
+
+#: The error terms of the dataset objective (item 1033) and their default
+#: weights: the split-read disagreement over its floor counts in full, and
+#: the decoy FDR enters as the target, not as a weight (the design card
+#: 20261125, FINAL OBJECTIVE: e_total = max(Sd - Sd_ref, 0)).
+DATASET_WEIGHTS: Dict[str, float] = {"split": 1.0, "decoy": 0.0}
+
+#: The most the split-read disagreement of a dataset setting may rise over
+#: the manual thresholds, in points: the upper end of the paired 95 %
+#: tile-bootstrap interval (the design card margin of 0.1 points).
+DATASET_SPLIT_GUARD = 0.1
+
+#: The least supporting reads, one guide named, of the cleanest calls whose
+#: split-read disagreement is the floor of the reference itself (Sd_ref).
+_CLEAN_READS = 3
+
+
+def dataset_threshold_settings(settings: Mapping[str, Any],
+                               rule: Mapping[str, Any]) -> Dict[str, Any]:
+    """The settings of the dataset threshold tuner (item 1033, alpha), checked.
+
+    The grid is the one auto thresholds try (``ops_decode_auto_grid`` and
+    ``ops_decode_auto_spot_grid``, read by :func:`threshold_settings`), and
+    the entered thresholds -- ``ops_read_threshold``,
+    ``ops_single_read_quality`` and the rule's pixel quality -- are always
+    one of its settings, the manual baseline.
+
+    :param settings: read for the auto grid keys, ``ops_decode_auto_tune_fraction``,
+        ``ops_decode_auto_seed``, ``ops_decode_auto_ci``, ``ops_read_threshold``,
+        ``ops_single_read_quality``, ``ops_decode_target_fdr`` (None takes
+        ``ops_decode_fdr_max``), ``ops_decode_split_guard`` and
+        ``ops_decode_dataset_weights``.
+    :param rule: from :func:`decode_rule`.
+    :returns: ``spot_thresholds``, ``floors`` and ``pixel_qualities``
+        (sorted, the manual values included), ``manual`` (the three entered
+        thresholds), ``target_fdr`` (per 100 calls), ``split_guard`` (points),
+        ``weights``, ``ci``, ``tune_fraction`` and ``seed``.
+    :raises ValueError: as :func:`threshold_settings` for the grid and the
+        decoys; for a target or guard that is not a number above 0 (guard:
+        0 or above), or weights that are not a mapping of term names to
+        numbers of 0 or more.
+    """
+    from .ops_settings import OPS_DEFAULTS
+
+    grid = threshold_settings({**settings, "ops_decode_threshold_mode": "auto",
+                               "ops_decode_fdr_calibration": "none"}, rule)
+    entered = {key: settings.get(key) for key in ("ops_read_threshold",
+                                                  "ops_single_read_quality")}
+    try:
+        manual = {key: float(OPS_DEFAULTS[key] if value is None or value == "" else value)
+                  for key, value in entered.items()}
+    except (TypeError, ValueError):
+        raise ValueError("ops_read_threshold and ops_single_read_quality must be "
+                         "numbers") from None
+    manual["ops_pixel_quality"] = float(rule["pixel_quality"])
+    target = settings.get("ops_decode_target_fdr")
+    target = grid["fdr_max"] if target is None or target == "" else target
+    guard = settings.get("ops_decode_split_guard")
+    guard = DATASET_SPLIT_GUARD if guard is None or guard == "" else guard
+    try:
+        target, guard = float(target), float(guard)
+    except (TypeError, ValueError):
+        raise ValueError("ops_decode_target_fdr and ops_decode_split_guard must be "
+                         "numbers") from None
+    if not target > 0:
+        raise ValueError(f"ops_decode_target_fdr must be above 0; got {target}")
+    if not guard >= 0:
+        raise ValueError(f"ops_decode_split_guard must be 0 or more; got {guard}")
+    weights = settings.get("ops_decode_dataset_weights")
+    if isinstance(weights, str) and weights.strip():
+        try:
+            weights = json.loads(weights)
+        except ValueError:
+            raise ValueError("ops_decode_dataset_weights must be a mapping such as "
+                             '{"split": 1.0, "decoy": 0.5}; got ' f"{weights!r}") from None
+    if weights is None or weights == "" or weights == {}:
+        weights = DATASET_WEIGHTS
+    if not isinstance(weights, Mapping):
+        raise ValueError(f"ops_decode_dataset_weights must be a mapping; got {weights!r}")
+    try:
+        weights = {str(name): float(value) for name, value in weights.items()}
+    except (TypeError, ValueError):
+        raise ValueError("ops_decode_dataset_weights must map term names to "
+                         f"numbers; got {weights!r}") from None
+    if any(not value >= 0 for value in weights.values()):
+        raise ValueError(f"ops_decode_dataset_weights must be 0 or more; got {weights!r}")
+    weights = {**{name: 0.0 for name in DATASET_WEIGHTS}, **weights}
+    spots = grid["spot_thresholds"] or [manual["ops_read_threshold"]]
+    return {"spot_thresholds": sorted(set(spots) | {manual["ops_read_threshold"]}),
+            "floors": sorted(set(grid["floors"]) | {manual["ops_single_read_quality"]}),
+            "pixel_qualities": sorted(set(grid["pixel_qualities"])
+                                      | {manual["ops_pixel_quality"]}),
+            "manual": manual, "target_fdr": target, "split_guard": guard,
+            "weights": weights, "ci": grid["ci"], "tune_fraction": grid["tune_fraction"],
+            "seed": grid["seed"]}
+
+
+def _watched_objects(path: str) -> np.ndarray:
+    """The nuclei a field cache holds reads of strictly inside, owned by another field.
+
+    :param path: the ``site<NNNN>.npz`` field cache.
+    :returns: their ids, sorted and unique: every nucleus some other field
+        may hold a split read of (:func:`_split_reads`), before the read
+        threshold and the barcode match.
+    """
+    with np.load(path) as stored:
+        first = np.asarray(stored["id0"])
+        mask = ~np.asarray(stored["owned0"], bool) & (np.asarray(stored["gap"])[:, 0] < 0) \
+            & (first >= 0)
+    return np.unique(first[mask])
+
+
+def _dataset_field(path: str, rule: Mapping[str, Any], library: Sequence[str],
+                   decoys: Sequence[str], crosstalk: str, config: Mapping[str, Any],
+                   watched: frozenset, universe: Mapping[str, int],
+                   cells: Optional[Tuple[str, str]] = None) -> Dict[str, Any]:
+    """One stored field, called at every setting of the dataset grid (item 1033).
+
+    The field is voted once per read threshold (:func:`_joint_field_candidates`)
+    and its calls are rebuilt at every call-threshold setting
+    (:func:`_candidate_calls`), so each setting calls what
+    :func:`field_calls` would.
+
+    :param path: the field cache.
+    :param rule: the rule at the manual thresholds (:func:`_cached_rule`).
+    :param library: the guide barcodes.
+    :param decoys: the decoy barcodes.
+    :param crosstalk: the unmixing method.
+    :param config: from :func:`dataset_threshold_settings`.
+    :param watched: the nuclei some field holds split reads of
+        (:func:`_watched_objects`), the only calls kept.
+    :param universe: barcode -> index, library and decoys.
+    :param cells: ``(store, well)`` of the stored SBS cells, or None.
+    :returns: ``site``, ``nuclei``, ``counts`` (``(read thresholds, floors,
+        pixel qualities, 2)`` real and decoy calls), ``objects`` and
+        ``guides`` (the watched calls: one row per nucleus, the barcode index
+        per setting, -1 where uncalled), ``split`` (the split reads at the
+        manual read threshold, :func:`_split_reads`) and ``clean`` (nucleus
+        -> guide of the read calls at the manual thresholds with
+        :data:`_CLEAN_READS` or more supporting reads and one guide named).
+    """
+    matcher, decoy_set = matcher_for(library, decoys)
+    evidence = _cached_evidence(path, rule, cells)
+    spots, floors, qualities = (config["spot_thresholds"], config["floors"],
+                                config["pixel_qualities"])
+    joint = _joint_field_candidates(
+        evidence, rule, library, matcher, decoy_set, spot_thresholds=spots,
+        floors=floors, pixel_qualities=qualities, footprint=rule["footprint"],
+        max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+        crosstalk=crosstalk)
+    owned = set(np.asarray(evidence["owned_ids"]).tolist())
+    objects = sorted(watched & owned)
+    row = {o: i for i, o in enumerate(objects)}
+    guides = np.full((len(objects), len(spots), len(floors), len(qualities)), -1, np.int32)
+    manual = config["manual"]
+    m_spot = spots.index(manual["ops_read_threshold"])
+    split: Dict[int, tuple] = {}
+    clean: Dict[int, str] = {}
+    for s, candidates in enumerate(joint["by_spot"]):
+        light = {**candidates, "votes": {**candidates["votes"], "tallies": None}}
+        for i, floor in enumerate(floors):
+            for j, quality in enumerate(qualities):
+                calls = _candidate_calls(light, floor, quality, decoy_set)["calls"]
+                for owner in row.keys() & calls.keys():
+                    guides[row[owner], s, i, j] = universe[calls[owner]["guide"]]
+        if s == m_spot:
+            votes = candidates["votes"]
+            split = dict(votes.get("split") or {})
+            named = (votes.get("tallies") or {}).get("votes", {})
+            for owner, hit in votes["primary"].items():
+                if (owner in owned and hit["n_support"] >= _CLEAN_READS
+                        and len(named.get(owner, ())) == 1 and hit["guide"] not in decoy_set):
+                    clean[int(owner)] = hit["guide"]
+    return {"site": int(os.path.basename(path)[4:8]), "nuclei": int(joint["nuclei"]),
+            "counts": np.asarray(joint["counts"], np.int64),
+            "objects": np.asarray(objects, np.int64), "guides": guides,
+            "split": split, "clean": clean}
+
+
+def _dataset_tallies(fields: Sequence[Mapping[str, Any]], wells: Sequence[str],
+                     universe: Mapping[str, int], decoy_index: np.ndarray,
+                     shape: Tuple[int, ...]) -> Dict[str, np.ndarray]:
+    """Per field and setting, the calls scored against the fixed split reference.
+
+    The reference is built once, from the split reads at the manual read
+    threshold (:func:`_split_reference`, one read or more), and is the same
+    for every setting, so differences between settings are differences of
+    their calls.
+
+    :param fields: from :func:`_dataset_field`, in dataset order.
+    :param wells: the well of each field.
+    :param universe: barcode -> index.
+    :param decoy_index: per barcode index, whether it is a decoy.
+    :param shape: the grid shape.
+    :returns: ``agree`` and ``scored`` (``(fields, *shape)``: real calls on
+        reference nuclei, and those naming the reference guide), and
+        ``ref_agree`` and ``ref_scored`` (``(fields,)``: the same for the
+        cleanest calls).
+    """
+    import pandas as pd
+
+    rows = [(f"{well}\t{owner}", *hit, i) for i, (well, field) in enumerate(zip(wells, fields))
+            for owner, hit in field["split"].items()]
+    reference = _split_reference(pd.DataFrame(rows, columns=[
+        "object_id", "n", "nguides", "guide", "other_site"]), 1)
+    ref = {key: universe[guide] for key, guide in
+           zip(reference["object_id"], reference["guide"]) if guide in universe}
+    n = len(fields)
+    agree = np.zeros((n,) + shape, np.int64)
+    scored = np.zeros((n,) + shape, np.int64)
+    ref_agree = np.zeros(n, np.int64)
+    ref_scored = np.zeros(n, np.int64)
+    for i, (well, field) in enumerate(zip(wells, fields)):
+        keys = [f"{well}\t{int(o)}" for o in field["objects"]]
+        has = np.array([key in ref for key in keys], bool)
+        if has.any():
+            target = np.array([ref[key] for key, h in zip(keys, has) if h], np.int64)
+            called = field["guides"][has]
+            real = (called >= 0) & ~decoy_index[np.maximum(called, 0)]
+            target = target.reshape((-1,) + (1,) * len(shape))
+            scored[i] = real.sum(0)
+            agree[i] = (real & (called == target)).sum(0)
+        for owner, guide in field["clean"].items():
+            key = f"{well}\t{owner}"
+            if key in ref:
+                ref_scored[i] += 1
+                ref_agree[i] += int(universe[guide] == ref[key])
+    return {"agree": agree, "scored": scored, "ref_agree": ref_agree,
+            "ref_scored": ref_scored}
+
+
+def _dataset_terms(sums: Mapping[str, np.ndarray], weights: Mapping[str, float],
+                   k: int, scale: float) -> Dict[str, np.ndarray]:
+    """The objective of the dataset tuner from summed counts (item 1033).
+
+    ``f = Gn (1 - e_total)^2``, ``Gn`` the real calls and ``e_total`` the
+    weighted sum of the error shares, clipped to [0, 1]: ``split`` =
+    ``max(Sd - Sd_ref, 0)``, the split-read disagreement over that of the
+    cleanest calls; ``decoy`` = the decoy FDR as a share; any further term
+    the share of its errors among its scored calls.
+
+    :param sums: ``real``, ``decoy``, ``agree``, ``scored``, ``ref_agree``,
+        ``ref_scored`` and, per further term, ``<name>_errors`` and
+        ``<name>_scored``, summed over some fields; leading axes broadcast.
+    :param weights: term name -> weight.
+    :param k: decoys per guide.
+    :param scale: the FDR calibration.
+    :returns: ``fdr`` (per 100), ``split_pct`` (disagreement, %), ``split_ref_pct``,
+        ``e_total``, ``f`` and one share per term.
+    """
+    with np.errstate(invalid="ignore", divide="ignore"):
+        real = sums["real"].astype(float)
+        fdr = 100.0 * max(float(scale), 1.0) / float(k) * sums["decoy"] / np.maximum(real, 1)
+        disagree = np.where(sums["scored"] > 0, 1.0 - sums["agree"] / np.maximum(
+            sums["scored"], 1), np.nan)
+        floor = np.where(sums["ref_scored"] > 0, 1.0 - sums["ref_agree"] / np.maximum(
+            sums["ref_scored"], 1), 0.0)
+        floor = np.reshape(floor, np.shape(floor) + (1,) * (disagree.ndim - np.ndim(floor)))
+        terms = {"split": np.maximum(np.nan_to_num(disagree, nan=0.0) - floor, 0.0),
+                 "decoy": fdr / 100.0}
+        for name in weights:
+            if name not in terms:
+                errors, total = sums[f"{name}_errors"], sums[f"{name}_scored"]
+                terms[name] = np.where(total > 0, errors / np.maximum(total, 1), 0.0)
+        e_total = np.clip(sum(float(weights[name]) * terms[name] for name in weights), 0.0, 1.0)
+    return {"fdr": fdr, "split_pct": 100.0 * disagree,
+            "split_ref_pct": 100.0 * np.broadcast_to(floor, disagree.shape),
+            "e_total": e_total, "f": real * (1.0 - e_total) ** 2,
+            **{f"term_{name}": value for name, value in terms.items()}}
+
+
+def _ci(values: np.ndarray) -> List[Optional[float]]:
+    """The 2.5 and 97.5 percentiles of bootstrap values, None when all are missing.
+
+    :param values: one value per replicate.
+    :returns: ``[low, high]``.
+    """
+    values = np.asarray(values, float)
+    if not np.isfinite(values).any():
+        return [None, None]
+    return [float(np.nanquantile(values, 0.025)), float(np.nanquantile(values, 0.975))]
+
+
+def calibrate_error_weights(terms, truth, names: Sequence[str]) -> Dict[str, float]:
+    """Weights of the dataset error terms fitted to a known error (item 1033).
+
+    Non-negative least squares without an intercept, as the design card
+    fitted them (source A): each row is one call set with a known wrong-call
+    share, such as calls with errors injected at a known rate; terms and
+    truth are best given as differences from the same call set without
+    injection, so the set's own unknown error cancels. The weights are then
+    entered as ``ops_decode_dataset_weights``.
+
+    :param terms: ``(rows, len(names))`` measured error shares.
+    :param truth: ``(rows,)`` the known wrong-call shares.
+    :param names: the term of each column (``split``, ``decoy`` or a further term).
+    :returns: term name -> weight, each 0 or more.
+    :raises ValueError: when the shapes disagree.
+    """
+    from scipy.optimize import nnls
+
+    terms = np.asarray(terms, float)
+    truth = np.asarray(truth, float)
+    if terms.ndim != 2 or terms.shape != (len(truth), len(names)):
+        raise ValueError("terms must be (rows, terms) with one truth value per row")
+    weights, _ = nnls(terms, truth)
+    return {str(name): float(w) for name, w in zip(names, weights)}
+
+
+def _dataset_choice(arrays: Mapping[str, np.ndarray], nuclei: np.ndarray,
+                    tune: Sequence[int], report: Sequence[int],
+                    axes: Sequence[Tuple[str, Sequence[float]]], m_pos: Tuple[int, ...],
+                    config: Mapping[str, Any], *, k: int, scale: float,
+                    reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED) -> Dict[str, Any]:
+    """The dataset tuner's choice from per-field counts (:func:`tune_dataset_thresholds`).
+
+    :param arrays: per field and setting (``(fields, *grid)``): ``real``,
+        ``decoy``, ``agree`` and ``scored``, and per field ``ref_agree`` and
+        ``ref_scored`` (:func:`_dataset_tallies`); per further weighted term
+        ``<name>_errors`` and ``<name>_scored``.
+    :param nuclei: owned nuclei per field.
+    :param tune: the fields that choose.
+    :param report: the held-out fields.
+    :param axes: ``(name, values)`` per grid axis.
+    :param m_pos: the grid position of the manual thresholds.
+    :param config: from :func:`dataset_threshold_settings`, for
+        ``target_fdr``, ``split_guard``, ``weights`` and ``ci``.
+    :param k: decoys per guide.
+    :param scale: the FDR calibration.
+    :param reps: tile-bootstrap replicates.
+    :param seed: their seed.
+    :returns: ``adopted``, ``auto_met`` (a setting passed on the tuning
+        half), ``reason``, ``thresholds``, ``tune``, ``report`` and ``grid``,
+        as :func:`tune_dataset_thresholds` returns them.
+    """
+    weights = config["weights"]
+    shape = tuple(len(values) for _, values in axes)
+    m_pos = tuple(int(i) for i in m_pos)
+    nuclei = np.asarray(nuclei, np.int64)
+
+    def summed(idx, draws=None):
+        idx = np.asarray(idx, np.int64)
+        if draws is None:
+            return {name: value[idx].sum(0) for name, value in arrays.items()}
+        weights_ = np.stack([np.bincount(row, minlength=len(idx)) for row in draws]) \
+            if len(draws) else np.zeros((0, len(idx)))
+        return {name: np.tensordot(weights_, value[idx], axes=(1, 0))
+                for name, value in arrays.items()}
+
+    def half(idx):
+        point = _dataset_terms(summed(idx), weights, k, scale)
+        draws = _bootstrap_rows(len(idx), int(reps), int(seed))
+        boot = _dataset_terms(summed(idx, draws), weights, k, scale)
+        return point, boot
+
+    def numbers(idx, point, boot, pos, fdr_part):
+        sums = summed(idx)
+        total = int(nuclei[np.asarray(idx, np.int64)].sum())
+        real = int(sums["real"][pos])
+        return {"fields": len(idx), "nuclei": total, "real": real,
+                "genotyped_pct": 100.0 * real / max(total, 1),
+                "fdr_per_100": fdr_part["fdr_per_100"], "fdr_ci95": fdr_part["fdr_ci95"],
+                "split_disagreement_pct": _float(point["split_pct"][pos]),
+                "split_disagreement_ci95": _ci(boot["split_pct"][(slice(None),) + pos]),
+                "split_reference_nuclei": int(sums["scored"][pos]),
+                "split_floor_pct": _float(point["split_ref_pct"][pos]),
+                "e_total": _float(point["e_total"][pos]),
+                "f": _float(point["f"][pos]),
+                "f_ci95": _ci(boot["f"][(slice(None),) + pos])}
+
+    counts = np.stack([arrays["real"], arrays["decoy"]], -1)
+    flat = counts.reshape(len(counts), 1, -1, 2)
+    halves = {part: half(idx) for part, idx in (("tune", tune), ("report", report))
+              if len(idx)}
+    chosen, met, rows = m_pos, False, []
+    reason = None
+    if len(tune) < 2 or len(report) < 2:
+        reason = (f"too few fields with nuclei to tune and report on ({len(tune)} tune, "
+                  f"{len(report)} report; two or more each)")
+    else:
+        score = _grid_score(counts, nuclei, tune, k, scale, config["ci"])
+        point, boot = halves["tune"]
+        rise = boot["split_pct"] - boot["split_pct"][(slice(None),) + m_pos].reshape(
+            (-1,) + (1,) * len(shape))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            rise_hi = np.nanquantile(rise, 0.975, axis=0) if len(rise) else np.full(shape, np.nan)
+        guard_ok = ~(rise_hi > config["split_guard"])
+        fdr_ok = score["bound"] <= config["target_fdr"]
+        best = None
+        for pos in np.ndindex(*shape):
+            passes = bool(fdr_ok[pos] and guard_ok[pos])
+            rows.append({**{name: values[pos[a]] for a, (name, values) in enumerate(axes)},
+                         "real": int(score["real"][pos]), "decoy": int(score["decoy"][pos]),
+                         "genotyped_pct": float(score["genotyped_pct"][pos]),
+                         "fdr_per_100": float(score["fdr"][pos]),
+                         "fdr_bound": float(score["bound"][pos]),
+                         "split_disagreement_pct": _float(point["split_pct"][pos]),
+                         "split_rise_hi": _float(rise_hi[pos]),
+                         "e_total": float(point["e_total"][pos]),
+                         "f": float(point["f"][pos]), "fdr_passes": bool(fdr_ok[pos]),
+                         "split_passes": bool(guard_ok[pos]), "passes": passes,
+                         "manual": pos == m_pos})
+            if passes:
+                key = (float(point["f"][pos]),) + pos
+                if best is None or key > best:
+                    best = key
+        if best is None:
+            reason = ("no setting met the FDR target and the split-read guard on the "
+                      "tuning half")
+        else:
+            chosen, met = tuple(best[1:]), True
+        for row, pos in zip(rows, np.ndindex(*shape)):
+            row["chosen"] = pos == chosen
+
+    out_parts: Dict[str, Any] = {}
+    gain = {"f": None, "ci95": [None, None], "pct": None}
+    for part, idx in (("tune", tune), ("report", report)):
+        if len(idx) < 1:
+            out_parts[part] = {}
+            continue
+        point, boot = halves[part]
+        entry = {}
+        for name, pos in (("chosen", chosen), ("manual", m_pos)):
+            fdr_part = _chosen_summary(flat, nuclei, idx,
+                                       (0, int(np.ravel_multi_index(pos, shape))), k, scale)
+            entry[name] = numbers(idx, point, boot, pos, fdr_part)
+        if part == "report":
+            diff = boot["f"][(slice(None),) + chosen] - boot["f"][(slice(None),) + m_pos]
+            base = float(point["f"][m_pos])
+            gain = {"f": float(point["f"][chosen] - point["f"][m_pos]), "ci95": _ci(diff),
+                    "pct": (100.0 * float(point["f"][chosen] - point["f"][m_pos]) / base
+                            if base > 0 else None)}
+            entry["gain"] = gain
+        out_parts[part] = entry
+    adopted = False
+    if reason is None:
+        if chosen == m_pos:
+            reason = "the tuning half chose the manual thresholds"
+        elif gain["ci95"][0] is None or not gain["ci95"][0] > 0:
+            reason = (f"the held-out gain in f, {gain['f']:.1f} (95 % CI {gain['ci95'][0]:.1f} "
+                      f"to {gain['ci95'][1]:.1f}), does not lie above 0"
+                      if gain["ci95"][0] is not None else "the held-out gain has no interval")
+        else:
+            adopted = True
+            reason = (f"the held-out gain in f, {gain['f']:.1f} (95 % CI {gain['ci95'][0]:.1f} "
+                      f"to {gain['ci95'][1]:.1f}), lies above 0")
+    def as_values(pos):
+        return {name: float(values[pos[a]]) for a, (name, values) in enumerate(axes)}
+
+    return {"adopted": adopted, "auto_met": met, "reason": reason,
+            "thresholds": {"chosen": as_values(chosen), "manual": as_values(m_pos),
+                           "used": as_values(chosen if adopted else m_pos)},
+            **out_parts, "grid": rows}
+
+
+def tune_dataset_thresholds(caches: Mapping[str, str], settings: Mapping[str, Any],
+                            library: Sequence[str], *, workers: int = 1,
+                            tune_sites: Optional[Mapping[str, Sequence[int]]] = None,
+                            extra_terms: Optional[Mapping[str, Mapping[Tuple[str, int], Any]]] = None,
+                            cell_stores: Optional[Mapping[str, str]] = None,
+                            reps: int = SPLIT_READ_REPS, seed: int = SPLIT_READ_SEED
+                            ) -> Dict[str, Any]:
+    """Choose one decode threshold set for a whole dataset (item 1033, alpha).
+
+    The dataset auto tuner, an extension of the per-well tuner
+    (:func:`tune_thresholds`) that replays the stored field caches of every
+    well of a plate or run, with no image. Every field is called at every
+    setting of the grid (:func:`dataset_threshold_settings`: read threshold
+    by single-read quality by pixel quality, the entered values included)
+    as :func:`decode_cached_well` would call it. The fields with nuclei, in
+    well then site order, are split into a tuning half and a report half
+    (:func:`_tune_report_split`, the split of the per-well tuner), or as
+    ``tune_sites`` names them.
+
+    The objective is ``f = Gn (1 - e_total)^2`` (:func:`_dataset_terms`):
+    ``Gn`` the genotyped real calls, ``e_total`` the weighted error share.
+    On the tuning half a setting passes when its decoy FDR -- judged as the
+    per-well tuner judges it (:func:`_grid_score`) -- is at most the target
+    and the upper end of the paired 95 % tile-bootstrap interval of its
+    split-read disagreement minus that of the manual thresholds is at most
+    the guard. The split-read reference is fixed: the split reads at the
+    manual read threshold, the same for every setting. The passing setting
+    with the highest ``f`` wins; ties go to the stricter setting. On the
+    report half the paired bootstrap of ``f`` chosen minus ``f`` manual
+    gives the gain and its interval; the choice is adopted only when the
+    interval lies above 0, otherwise the manual thresholds stay and
+    ``reason`` says why.
+
+    :param caches: well -> its folder of field caches.
+    :param settings: the settings of the run (:func:`decode_cached_well`).
+    :param library: the guide barcodes.
+    :param workers: processes calling fields at once.
+    :param tune_sites: well -> the fields to tune on, such as the
+        ``tune_sites`` of an auto run; None draws the split.
+    :param extra_terms: further error terms, such as an in-silico spike-in
+        or phenotype penetrance: name -> ``{(well, site): (errors, scored)}``,
+        two arrays of the grid shape per field; a term counts only with a
+        weight in ``ops_decode_dataset_weights``.
+    :param cell_stores: well -> ``sbs/fov.ome.zarr``, under
+        ``ops_read_assignment`` 'cell_mask' (:func:`decode_cached_well`).
+    :param reps: tile-bootstrap replicates of the guard and the gain.
+    :param seed: their seed.
+    :returns: ``adopted``, ``reason``, ``thresholds`` (``chosen``, ``manual``
+        and ``used``, each ``ops_read_threshold``, ``ops_single_read_quality``
+        and ``ops_pixel_quality``), ``objective``, ``weights``,
+        ``target_fdr``, ``split_guard``, ``tune_sites`` and ``report_sites``
+        (``[well, site]`` pairs), ``tune`` and ``report`` (the chosen and the
+        manual setting's numbers on each half, and on the report half the
+        ``gain`` with its interval), ``grid`` (every setting on the tuning
+        half) and ``fields``.
+    :raises ValueError: without decoys, for unknown weight names, or when
+        a term's arrays do not have the grid shape.
+    """
+    from multiprocessing import get_context
+
+    resolved = _replay_settings(settings)
+    config = dataset_threshold_settings(resolved, decode_rule(resolved))
+    manual = config["manual"]
+    rule, library, decoys, crosstalk = _cached_rule(
+        resolved, library, read_threshold=manual["ops_read_threshold"],
+        single_read_quality=manual["ops_single_read_quality"],
+        pixel_quality=manual["ops_pixel_quality"])
+    k, scale = int(rule["decoy_k"]), float(rule["fdr_scale"])
+    if k < 1:
+        raise ValueError("ops_decode_threshold_mode 'dataset' chooses thresholds from "
+                         "decoy calls; set ops_decoy_library_k to 1 or more")
+    weights = config["weights"]
+    extra_terms = dict(extra_terms or {})
+    unknown = sorted(set(weights) - set(DATASET_WEIGHTS) - set(extra_terms))
+    if unknown:
+        raise ValueError(f"ops_decode_dataset_weights names terms {unknown} that no "
+                         "extra_terms supplies")
+    universe = {code: i for i, code in enumerate(list(library) + list(decoys))}
+    decoy_index = np.zeros(len(universe), bool)
+    decoy_index[len(library):] = True
+    wells = sorted(caches)
+    paths = [(well, path) for well in wells for path in _cache_paths(caches[well])]
+    watched: Dict[str, set] = {}
+    for well, path in paths:
+        watched.setdefault(well, set()).update(_watched_objects(path).tolist())
+    jobs = [(path, rule, library, decoys, crosstalk, config, frozenset(watched[well]),
+             universe, (str(cell_stores[well]), well) if cell_stores and well in cell_stores
+             else None) for well, path in paths]
+    workers = max(1, min(int(workers), len(jobs)))
+    if workers > 1:
+        from .resource_log import _array_file_nbytes, _guard_workers
+
+        workers = max(1, int(_guard_workers("ops_decode", workers,
+                                            _array_file_nbytes(paths[0][1]),
+                                            settings=resolved)))
+    if workers > 1:
+        with get_context("fork").Pool(workers) as pool:
+            fields = pool.starmap(_dataset_field, jobs, chunksize=1)
+    else:
+        fields = [_dataset_field(*job) for job in jobs]
+    field_wells = [well for well, _ in paths]
+    axes = [("ops_read_threshold", config["spot_thresholds"]),
+            ("ops_single_read_quality", config["floors"]),
+            ("ops_pixel_quality", config["pixel_qualities"])]
+    shape = tuple(len(values) for _, values in axes)
+    position = {name: values for name, values in axes}
+    m_pos = tuple(position[name].index(manual[name]) for name, _ in axes)
+    counts = np.stack([f["counts"] for f in fields]) if fields \
+        else np.zeros((0,) + shape + (2,), np.int64)
+    nuclei = np.array([f["nuclei"] for f in fields], np.int64)
+    arrays = {"real": counts[..., 0], "decoy": counts[..., 1],
+              **_dataset_tallies(fields, field_wells, universe, decoy_index, shape)}
+    for name, table in extra_terms.items():
+        errors = np.zeros((len(fields),) + shape, float)
+        scored = np.zeros((len(fields),) + shape, float)
+        for i, (well, field) in enumerate(zip(field_wells, fields)):
+            if (well, field["site"]) in table:
+                e, t = (np.asarray(a, float) for a in table[(well, field["site"])])
+                if e.shape != shape or t.shape != shape:
+                    raise ValueError(f"extra term {name!r} needs arrays of the grid shape "
+                                     f"{shape} per field; got {e.shape} and {t.shape}")
+                errors[i], scored[i] = e, t
+        arrays[f"{name}_errors"], arrays[f"{name}_scored"] = errors, scored
+
+    keys = [(well, f["site"]) for well, f in zip(field_wells, fields)]
+    order = [i for i in range(len(fields)) if nuclei[i] > 0]
+    if tune_sites is None:
+        tune, report = _tune_report_split(order, config["tune_fraction"], config["seed"])
+    else:
+        named = {(str(w), int(s)) for w, sites in tune_sites.items() for s in sites}
+        tune = [i for i in order if keys[i] in named]
+        report = [i for i in order if keys[i] not in named]
+
+    choice = _dataset_choice(arrays, nuclei, tune, report, axes, m_pos, config,
+                             k=k, scale=scale, reps=reps, seed=seed)
+    return {"mode": "dataset", **{key: choice[key] for key in (
+                "adopted", "auto_met", "reason", "thresholds")},
+            "objective": "f = Gn (1 - e_total)^2; e_total = sum of weight x term, clipped "
+                         "to [0, 1]; split = max(Sd - Sd_ref, 0), decoy = FDR share",
+            "weights": weights, "target_fdr": config["target_fdr"],
+            "split_guard": config["split_guard"], "ci": config["ci"],
+            "tune_fraction": config["tune_fraction"], "seed": config["seed"],
+            "reps": int(reps), "bootstrap_seed": int(seed),
+            "axes": {name: [float(v) for v in values] for name, values in axes},
+            "wells": wells, "tune_sites": [list(keys[i]) for i in tune],
+            "report_sites": [list(keys[i]) for i in report],
+            "fields": len(fields), "nuclei": int(nuclei.sum()),
+            "tune": choice["tune"], "report": choice["report"], "grid": choice["grid"]}
+
+
+def _float(value) -> Optional[float]:
+    """A number for a report, None when it is missing.
+
+    :param value: a number or NaN.
+    :returns: the float, or None.
+    """
+    value = float(value)
+    return value if np.isfinite(value) else None
+
+
+def write_dataset_thresholds(db: str, plate: str, result: Mapping[str, Any]) -> Dict[str, str]:
+    """Write the dataset tuner's choice (item 1033) under results/ops_decode.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param result: from :func:`tune_dataset_thresholds`.
+    :returns: ``json`` and ``grid``, the paths of
+        ``decode_thresholds_dataset_<plate>.json`` and its grid as
+        ``decode_thresholds_dataset_<plate>.csv``.
+    """
+    import pandas as pd
+
+    folder = results_folder(db)
+    paths = {"json": os.path.join(folder, f"decode_thresholds_dataset_{plate}.json"),
+             "grid": os.path.join(folder, f"decode_thresholds_dataset_{plate}.csv")}
+    _atomic_json(paths["json"], {"plate": plate, **result}, indent=1, default=str)
+    pd.DataFrame(result.get("grid") or []).to_csv(paths["grid"], index=False)
+    return paths
 
 
 def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping[str, Any]],

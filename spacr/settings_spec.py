@@ -275,7 +275,7 @@ def convert_settings_dict_for_gui(settings):
         'ops_channel_registration': ('combo', ['spots', 'background', 'spots_refine'], 'spots'),
         'ops_registration_precision': ('combo', ['float32', 'float64'], 'float32'),
         'ops_registration_backend': ('combo', ['gpu', 'cpu'], 'gpu'),
-        'ops_decode_threshold_mode': ('combo', ['manual', 'auto'], 'auto'),
+        'ops_decode_threshold_mode': ('combo', ['manual', 'auto', 'dataset'], 'auto'),
         'ops_decode_auto_objective': ('combo', ['recall_at_fdr', 'f_score'], 'recall_at_fdr'),
         'ops_decode_auto_unreachable': ('combo', ['lowest_fdr', 'strictest'], 'lowest_fdr'),
         'ops_prefix_threshold_tuning': ('combo', ['none', 'per_well_decoy'], 'per_well_decoy'),
