@@ -91,7 +91,9 @@ def test_the_setting_is_alpha_with_a_registered_default_of_3():
     assert ALPHA_FEATURES[967]["settings"] == ("ops_prefix_minority_min_reads",)
     assert "Alpha." in OPS_TOOLTIPS["ops_prefix_minority_min_reads"]
     base = {"ops_library": "x.csv"}
-    assert P.prefix_settings(base)["ops_prefix_minority_min_reads"] == 0
+    assert P.prefix_settings(base)["ops_prefix_minority_min_reads"] == 3
+    assert P.prefix_settings({**base, "ops_prefix_minority_min_reads": 0})[
+        "ops_prefix_minority_min_reads"] == 0
     assert P.prefix_settings({**base, "ops_prefix_minority_min_reads": 3})[
         "ops_prefix_minority_min_reads"] == 3
     with pytest.raises(ValueError, match="ops_prefix_minority_min_reads"):

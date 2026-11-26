@@ -47,6 +47,7 @@ def test_grid_weighted_calls_match_the_decode_settings(monkeypatch, extra, best)
     pairs = prefix._touching_cells(labels)
     neighbours = prefix._neighbour_table(pairs, "P", "W", 1)
     settings = {"ops_library": "unused.csv", "ops_prefix_quality_method": "weighted_majority",
+                "ops_prefix_minority_min_reads": 0,
                 "ops_prefix_weighted_quality": False, "ops_prefix_weighted_min_share": 0.9,
                 "ops_prefix_threshold_tuning": "none", "ops_prefix_decoy_k": 1,
                 "ops_prefix_fdr_calibration": "shuffle", **extra}
@@ -104,6 +105,7 @@ def test_the_grid_retains_the_weight_settings_chosen_by_the_decoder(tmp_path):
     """The default grid point carries the selected weight axes from per-well tuning."""
     settings = _settings(tmp_path, "grid", ops_grid_tiles="1", ops_read_mode="log",
                          ops_prefix_quality_method="weighted_majority",
+                         ops_prefix_minority_min_reads=0,
                          ops_prefix_threshold_tuning="per_well_decoy",
                          ops_prefix_distance_weight="decay", ops_prefix_distance_decay_px=4,
                          ops_read_neighbour_discount=0, ops_prefix_weighted_quality=False,
