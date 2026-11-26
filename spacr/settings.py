@@ -2668,7 +2668,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 985
+SETTINGS_SCHEMA_VERSION = 986
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2746,6 +2746,7 @@ DEFAULT_CHANGES = {
     984: {'nucleus_fragment_max_valley_dip': None,
           'ops_ph_nucleus_fragment_max_valley_dip': None},
     985: {},
+    986: {'ops_decode_target_fdr': 0.1},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
@@ -3207,6 +3208,12 @@ def _fold_older_defaults(settings, version, known=None):
     default; a file stamped before 985 carries ``_meta_explicit_keys`` =
     ``'default_equals_unset'`` so a preset fills every key equal to its
     default, as the file ran.
+
+    Version 986 is item 1033b (alpha): the dataset threshold tuner
+    (``ops_decode_threshold_mode`` 'dataset') takes an empty
+    ``ops_decode_target_fdr`` as the Brieflow-matched fair FDR or 0.06
+    rather than ``ops_decode_fdr_max``. Files stamped before 986 get 0.1,
+    the target they ran with. Only the dataset mode reads the key.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9413,7 +9420,8 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 
 ALPHA_FEATURES = {
     1033: {
-        'settings': ('ops_decode_target_fdr', 'ops_decode_split_guard',
+        'settings': ('ops_decode_target_fdr', 'ops_decode_target_fdr_reference',
+                     'ops_brieflow_fair_fdr', 'ops_decode_split_guard',
                      'ops_decode_dataset_weights'),
         'choices': {'ops_decode_threshold_mode': ('dataset',)},
     },

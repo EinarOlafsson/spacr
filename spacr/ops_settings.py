@@ -295,6 +295,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_auto_f_beta": 1.0,
     "ops_decode_auto_unreachable": "lowest_fdr",
     "ops_decode_target_fdr": None,
+    "ops_decode_target_fdr_reference": None,
+    "ops_brieflow_fair_fdr": None,
     "ops_decode_split_guard": 0.1,
     "ops_decode_dataset_weights": None,
     "ops_decode_fdr_calibration": "never",
@@ -941,6 +943,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_auto_f_beta": (float, int),
     "ops_decode_auto_unreachable": str,
     "ops_decode_target_fdr": (float, int, type(None)),
+    "ops_decode_target_fdr_reference": (str, type(None)),
+    "ops_brieflow_fair_fdr": (float, int, type(None)),
     "ops_decode_split_guard": (float, int),
     "ops_decode_dataset_weights": (dict, str, type(None)),
     "ops_decode_fdr_calibration": str,
@@ -1393,7 +1397,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_decode_auto_tune_fraction", "ops_decode_auto_seed",
         "ops_decode_auto_spot_grid", "ops_decode_auto_objective",
         "ops_decode_auto_f_beta", "ops_decode_auto_unreachable",
-        "ops_decode_target_fdr", "ops_decode_split_guard",
+        "ops_decode_target_fdr", "ops_decode_target_fdr_reference",
+        "ops_brieflow_fair_fdr", "ops_decode_split_guard",
         "ops_decode_dataset_weights", "ops_decode_fdr_calibration", "ops_never_barcode_k",
         "ops_never_barcode_seed", "ops_never_barcode_sets",
     ],
@@ -4010,8 +4015,22 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "calls the dataset tuner may accept (ops_decode_threshold_mode "
         "'dataset', item 1033: every well decodes at the entered thresholds, "
         "then one threshold set is tuned for the whole plate from the stored "
-        "field caches and used only when its held-out gain is above 0). "
-        "Empty uses ops_decode_fdr_max. Default empty. Alpha.",
+        "field caches and used only when its held-out gain is above 0 and "
+        "its held-out FDR estimate is at or below this target). Empty uses "
+        "the Brieflow-matched fair decoy FDR when ops_decode_target_fdr_reference "
+        "is 'brieflow' (the number is ops_brieflow_fair_fdr), otherwise 0.06. "
+        "Default empty. Alpha.",
+    "ops_decode_target_fdr_reference":
+        "(str) - Where the dataset tuner takes its target when "
+        "ops_decode_target_fdr is empty. 'brieflow' uses ops_brieflow_fair_fdr, "
+        "the decoy FDR of the Brieflow call rule on the same reads, so the "
+        "tuner never accepts more false calls than Brieflow makes. Empty uses "
+        "0.06 false calls per 100. Default empty. Alpha.",
+    "ops_brieflow_fair_fdr":
+        "(float) - The fair decoy FDR of the Brieflow call rule on the same "
+        "reads, in false calls per 100 real calls, such as 0.056 on plate A "
+        "A1. Read only with ops_decode_target_fdr_reference 'brieflow'. "
+        "Default empty. Alpha.",
     "ops_decode_split_guard":
         "(float) - How many points the split-read disagreement (calls that "
         "disagree with an independent read of the nucleus in an overlapping "
