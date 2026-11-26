@@ -760,6 +760,8 @@ def run_qc_panels(db: str, plate: str, wells: Sequence[str], settings: Mapping[s
     :returns: ``{well: {name: path}}`` of the files written.
     :raises ValueError: when a well has no stored field cache.
     """
+    from .tabular import write_table
+
     from .ops_decode import _cached_fields, _cached_rule, _flag_or, _qc_number
 
     bleed = _flag_or(settings, "ops_decode_qc_bleed_panel")
@@ -787,23 +789,23 @@ def run_qc_panels(db: str, plate: str, wells: Sequence[str], settings: Mapping[s
         title = f"{plate} {well}"
         if "bleed_summary" in result:
             paths["bleed_panel"] = os.path.join(folder, f"bleed_panel_{well}.parquet")
-            result["bleed_summary"].to_parquet(paths["bleed_panel"], index=False)
+            write_table(result["bleed_summary"], paths["bleed_panel"], canonicalise=False)
             paths["bleed_pairs"] = os.path.join(folder, f"bleed_pairs_{well}.parquet")
-            result["bleed_pairs"].to_parquet(paths["bleed_pairs"], index=False)
+            write_table(result["bleed_pairs"], paths["bleed_pairs"], canonicalise=False)
             paths["bleed_figure"] = bleed_figure(
                 result["bleed_summary"], os.path.join(folder, f"bleed_panel_{well}.png"), title)
         if "silver" in result:
             paths["silver_cells"] = os.path.join(folder, f"silver_cells_{well}.parquet")
-            result["silver"].to_parquet(paths["silver_cells"], index=False)
+            write_table(result["silver"], paths["silver_cells"], canonicalise=False)
         if "depth_summary" in result:
             paths["depth_curve"] = os.path.join(folder, f"depth_curve_{well}.parquet")
-            result["depth_summary"].assign(
+            write_table(result["depth_summary"].assign(
                 null_recovery_pct=result["depth_null"]["mean_pct"],
                 null_recovery_lo=result["depth_null"]["lo"],
-                null_recovery_hi=result["depth_null"]["hi"]).to_parquet(
-                    paths["depth_curve"], index=False)
+                null_recovery_hi=result["depth_null"]["hi"]),
+                paths["depth_curve"], canonicalise=False)
             paths["depth_cells"] = os.path.join(folder, f"depth_curve_cells_{well}.parquet")
-            result["depth_cells"].to_parquet(paths["depth_cells"], index=False)
+            write_table(result["depth_cells"], paths["depth_cells"], canonicalise=False)
             paths["depth_figure"] = depth_figure(
                 result["depth_summary"], result["depth_null"],
                 os.path.join(folder, f"depth_curve_{well}.png"), title)
