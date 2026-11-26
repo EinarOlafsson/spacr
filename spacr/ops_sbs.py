@@ -54,6 +54,9 @@ import numpy as np
 BASES = ("G", "T", "A", "C")
 
 
+_SCORE_BAND_VALUES = 2 ** 22
+
+
 def estimate_read_locations(stack: np.ndarray) -> np.ndarray:
     """Return a map of likely read positions, scored by variance across cycles.
 
@@ -69,6 +72,12 @@ def estimate_read_locations(stack: np.ndarray) -> np.ndarray:
     experiment is a weaker experiment; it is supported because the alternative
     is failing on a legitimate input.
 
+    The map is built a band of rows at a time, ``_SCORE_BAND_VALUES`` stack
+    values (16 MB) per band, so the deviations from the mean are held for
+    one band rather than for the whole stack; each pixel
+    is reduced over the same cycles and channels in the same order either
+    way, so the values do not depend on the band.
+
     :param stack: ``(cycles, channels, Y, X)`` intensities.
     :returns: a ``(Y, X)`` float32 map, high where a read is likely.
     :raises ValueError: if ``stack`` is not four-dimensional.
@@ -78,9 +87,16 @@ def estimate_read_locations(stack: np.ndarray) -> np.ndarray:
         raise ValueError(
             f"stack must be (cycles, channels, Y, X); got shape {array.shape}"
         )
-    if array.shape[0] == 1:
-        return array[0].std(axis=0).astype(np.float32, copy=False)
-    return array.std(axis=0).mean(axis=0).astype(np.float32, copy=False)
+    cycles, channels, height, width = array.shape
+    score = np.empty((height, width), np.float32)
+    band = max(1, _SCORE_BAND_VALUES // max(1, cycles * channels * width))
+    for top in range(0, height, band):
+        part = array[:, :, top:top + band]
+        if cycles == 1:
+            score[top:top + band] = part[0].std(axis=0)
+        else:
+            score[top:top + band] = part.std(axis=0).mean(axis=0)
+    return score
 
 
 def find_peaks(score: np.ndarray, *, min_distance: int = 3,

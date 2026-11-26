@@ -2462,7 +2462,8 @@ def _ops_journal_plan(path, settings, names, field_id):
 
 
 def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
-                      field_id, names, active, context, site, available, stream=False):
+                      field_id, names, active, context, site, available, stream=False,
+                      present=None):
     """Journal actual groups produced by the single existing resident batch planner."""
     from . import _mask_batches as batches
     from ._mask_array_batches import _array_batches
@@ -2472,7 +2473,8 @@ def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
 
     order_sha256 = batches._order_sha256(map(str, names))
     with _array_batches(records, load, settings, gpu=gpu, plan_path=plan_path,
-                        max_fields=max_fields, stream=stream) as resident:
+                        max_fields=max_fields, stream=stream,
+                        present=_ops_present(present, available)) as resident:
         for record, image, metadata, count in resident:
             if active and image is not None:
                 with open(plan_path, encoding='utf-8') as handle:
@@ -2498,16 +2500,39 @@ def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
             yield record, image, metadata, count
 
 
+def _ops_present(present, available):
+    """``present`` that also records each answer as the availability of the record.
+
+    :param present: ``record -> bool``, or None.
+    :param available: record name -> whether it has an input, updated.
+    :returns: the wrapped test, or None.
+    """
+    if present is None:
+        return None
+
+    def probe(record):
+        """Whether ``record`` has an input; remembered for the batch journal."""
+        found = bool(present(record))
+        available[str(record)] = found
+        return found
+
+    return probe
+
+
 @contextmanager
 def _ops_array_batches(records, load, settings, *, prepare, site, gpu=False,
                        plan_path=None, max_fields=None, field_id=str, order=None,
-                       stream=False):
+                       stream=False, present=None):
     """Adapt existing OPS readers to the shared calibrated resident batch planner.
 
     :param stream: pass each field through as loaded, one at a time, without
         the resident packed or device copy of the whole batch
         (:func:`spacr._mask_array_batches._array_batches`); the grouping, the
         tile batch and the journal are the same.
+    :param present: with ``stream``, ``record -> bool``, whether ``load``
+        gives that record an image; each field is then loaded only when it is
+        reached, so one field is held rather than its group
+        (:func:`spacr._mask_array_batches._iter_array_batches`).
     """
     from tempfile import TemporaryDirectory
     from . import _mask_batches as batches
@@ -2564,7 +2589,7 @@ def _ops_array_batches(records, load, settings, *, prepare, site, gpu=False,
             records, functools.partial(_ops_prefetched_load, prefetched, load, available), settings,
             gpu=gpu, plan_path=plan_path, max_fields=max_fields, field_id=field_id,
             names=names, active=active, context=context, site=site, available=available,
-            stream=stream)
+            stream=stream, present=present)
         try:
             yield iterator
         finally:
@@ -3007,10 +3032,17 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         fill[~covered] = float(np.median(image[covered]))
         return fill, (key, gain, covered)
 
+    def has_input(window):
+        """Whether :func:`load_window` composes ``window`` rather than skip or reuse it."""
+        if not folder:
+            return _touches(window, usable, shape)
+        key, touched = _objects_window_key(basis, window, usable, sources, shape)
+        return touched and _objects_window_load(folder, window, key) is None
+
     plan_path = os.path.join(folder, 'mask_batch_plan.json') if folder else None
     with _ops_array_batches(windows, load_window, settings, gpu=gpu,
                             prepare=lambda image: (model, image, extra), site='ops_stitched',
-                            plan_path=plan_path,
+                            plan_path=plan_path, stream=True, present=has_input,
                             field_id=lambda window: f'{plate}_{well}_window_{windows.index(window)}') as resident:
         for count, (window, fill, details, field_count) in enumerate(resident, start=1):
             key, value, covered = details
@@ -3048,6 +3080,9 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     groups, objects, refusal, refused = _objects_number(observations, seconds)
     if not objects:
         raise ValueError(f"well {well}: segmentation found no nuclei")
+    counted = {"observations": len(observations), "groups": len(groups),
+               "all_clipped_groups": sum(1 for g in groups if all(o.clipped for o in g))}
+    del observations, groups
     frame = objects_frame(objects)
     frame.insert(0, "well", well)
     frame.insert(0, "plate", plate)
@@ -3066,9 +3101,9 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     gate = objects_ready(db)
     report = {
         "canvas": list(canvas), "windows": len(windows), "empty_windows": empty,
-        "observations": len(observations), "groups": len(groups),
+        "observations": counted["observations"], "groups": counted["groups"],
         "objects": len(objects),
-        "all_clipped_groups": sum(1 for g in groups if all(o.clipped for o in g)),
+        "all_clipped_groups": counted["all_clipped_groups"],
         "strict_refusal": refusal[:500],
         "refusals": (_explain_refusals(refused, frame, window_overlap)
                      if refused else None),
@@ -3086,7 +3121,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
                        "n_partial_windows": len(partial)})
     if kept["reused"]:
         report["windows_resumed"] = summary
-    _say(f"{well} objects: {len(objects)} from {len(observations)} observations "
+    _say(f"{well} objects: {len(objects)} from {counted['observations']} observations "
          f"in {report['total_seconds']} s")
     return report
 
@@ -3585,6 +3620,12 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     because the right one belongs to the neighbour; only the reads whose
     owner this tile owns are returned, so no read is counted twice.
 
+    ONE STACK-SIZED ARRAY AT A TIME where the rule allows it: the raw
+    planes go once the field is aligned, and under the item-873 rules with
+    log reads and no spot features the -LoG filter is written over the
+    aligned stack, which nothing reads afterwards. The values are the same;
+    a field holds one stack-sized array where it held three.
+
     THE NUMBERS COME IN THROUGH THE TASK, not off the module. Fields decode
     in SPAWNED processes, which re-import this module and get the shipped
     constants back however the parent was configured; a threshold set in the
@@ -3634,6 +3675,7 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
                         registrations=(diagnostics["registrations"]
                                        if diagnostics is not None else None),
                         **task.get("registration", {}))
+    del loaded, planes
     ticks["align"] = time.perf_counter() - tick
     base.update(kept=list(field.kept), refused=list(field.refused),
                 refused_channels=[list(pair) for pair in field.refused_channels],
@@ -3664,7 +3706,10 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
 
         spotnet = _spotnet_peaks(stack, detect=_spotiflow_spots,
                                  threshold=None)
-    filtered = np.empty_like(stack)
+    rule = task.get("rule_a")
+    in_place = bool(rule) and rule.get("read_mode", "log") == "log" \
+        and not rule.get("features") and not rule.get("store_values_raw")
+    filtered = stack if in_place else np.empty_like(stack)
     for c in range(stack.shape[0]):
         for k in range(stack.shape[1]):
             filtered[c, k] = np.clip(
@@ -3676,8 +3721,12 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     if diagnostics is not None:
         _write_field_diagnostics(task, field, filtered, diagnostics, base)
     if task.get("rule_a"):
-        result = _decode_field_rule_a(task, field, stack, filtered, spotnet,
-                                      margin, gpu)
+        import dataclasses
+
+        arrays = {"stack": None if in_place else stack, "filtered": filtered}
+        del stack, filtered
+        field = dataclasses.replace(field, stack=None)
+        result = _decode_field_rule_a(task, field, arrays, spotnet, margin, gpu)
         ticks["spots_calls"] = time.perf_counter() - tick
         return {**base, **result,
                 "seconds": {k: round(v, 2) for k, v in ticks.items()}}
@@ -3939,7 +3988,7 @@ def _write_field_diagnostics(task: Mapping[str, Any], field, filtered,
     return path
 
 
-def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
+def _decode_field_rule_a(task: Mapping[str, Any], field, arrays: Dict[str, np.ndarray],
                          spotnet, margin: int, gpu: bool) -> Dict[str, Any]:
     """The rest of :func:`_decode_field` under the item-873 decode rules.
 
@@ -3947,9 +3996,12 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         :func:`spacr.ops_decode.decode_rule` with ``threshold``,
         ``footprint``, ``max_distance``, ``min_fraction`` and
         ``single_read_quality``), ``crosstalk`` and the objects.
-    :param field: the aligned field.
-    :param stack: its aligned stack.
-    :param filtered: the stack after the -LoG filter.
+    :param field: the aligned field; its ``stack`` is not read.
+    :param arrays: ``stack``, the aligned stack, and ``filtered``, the stack
+        after the -LoG filter. Both are taken out of the dict, and each is let
+        go once nothing below reads it (the stack at once unless the rule
+        reads raw values or spot features), so a field holds one full-size
+        array while it is called rather than three.
     :param spotnet: a backend detector's peaks, or None for the native score.
     :param margin: how far from the edge a read must lie.
     :param gpu: let the peak finder use the card.
@@ -3969,6 +4021,11 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     from .ops_sbs import estimate_read_locations, find_peaks
 
     rule = task["rule_a"]
+    stack, filtered = arrays.pop("stack"), arrays.pop("filtered")
+    read_mode = rule.get("read_mode", "log")
+    if (read_mode == "log" and not rule.get("features")
+            and not rule.get("store_values_raw")):
+        stack = None
     weighting = rule.get("read_weight")
     from .ops_decode import _rule_pixel_ownership
 
@@ -4006,7 +4063,7 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
 
         rule = {**rule, "neighbours": cached_neighbours(
             evidence, _neighbour_reach(rule, rule["footprint"]))}
-    read_mode = rule.get("read_mode", "log")
+    del filtered, score
     if read_mode == "log":
         if rule.get("store_values_raw"):
             evidence["values_raw"] = _field_raw_values(stack, evidence, task, field)
@@ -4449,6 +4506,54 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
     return report
 
 
+_TUNING_KEYS = ("counts", "nuclei", "shuffled", "never", "never_metadata")
+
+
+def _spill_candidates(result: Dict[str, Any], spill) -> Dict[str, Any]:
+    """Move the auto candidates of a decoded field to disk, keeping what the tuner reads.
+
+    The candidates of a field hold its calls at every grid setting, about 11 MB
+    of Python objects a field (1.3 MB pickled) on Funk A1, and the well
+    keeps every field until the thresholds are chosen. Only the counts in
+    :data:`_TUNING_KEYS` choose them; the rest is read back one field at a
+    time by :func:`_restored_candidates` to rebuild the calls of that field.
+
+    :param result: the result of one field from :func:`_decode_field`.
+    :param spill: a :class:`tempfile.TemporaryDirectory`, or None to keep
+        the candidates in memory.
+    :returns: ``result``, its ``candidates`` replaced by the tuning keys and
+        the ``spilled`` path when they were written.
+    """
+    import pickle
+
+    candidates = result.get("candidates")
+    if spill is None or candidates is None:
+        return result
+    path = os.path.join(spill.name, f"site{int(result['site']):05d}.pickle")
+    with open(path, "wb") as handle:
+        pickle.dump(candidates, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    result["candidates"] = {**{key: candidates[key] for key in _TUNING_KEYS
+                               if key in candidates}, "spilled": path}
+    return result
+
+
+def _restored_candidates(candidates: Mapping[str, Any]) -> Mapping[str, Any]:
+    """The full auto candidates of a field, read back when :func:`_spill_candidates` wrote them.
+
+    :param candidates: the ``candidates`` of a field.
+    :returns: the candidates as the field returned them.
+    """
+    import pickle
+
+    path = candidates.get("spilled")
+    if path is None:
+        return candidates
+    with open(path, "rb") as handle:
+        restored = pickle.load(handle)
+    os.remove(path)
+    return restored
+
+
 def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
                            decoys) -> Dict[str, Any]:
     """Choose a well's call thresholds from its decoys and make its calls.
@@ -4547,7 +4652,7 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
         spot_index = None
     decoy_set = frozenset(decoys)
     for r in fields:
-        candidates = r.pop("candidates")
+        candidates = _restored_candidates(r.pop("candidates"))
         if by_mode:
             candidates = candidates["by_mode"][mode_index]
             r.update({"spots": candidates["reads"],
@@ -4645,6 +4750,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         entered and says so.
     """
     import multiprocessing
+    import tempfile
     from .resource_log import _parallel_process_executor as ProcessPoolExecutor
 
     import pandas as pd
@@ -4853,27 +4959,34 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             len(first) * _array_file_nbytes(first[0]) if first else 0,
             settings=settings)
     results = []
-    if workers == 1:
-        _init_decode_worker(library_set, decoy_set)
-        for task in tasks:
-            results.append(_decode_field({**task, "gpu": gpu}))
-    else:
-        context = multiprocessing.get_context("spawn")
-        with ProcessPoolExecutor(workers, mp_context=context,
-                                 initializer=_init_decode_worker,
-                                 initargs=(library_set, decoy_set)) as pool:
-            for count, result in enumerate(pool.map(
-                    _decode_field, [{**t, "gpu": False} for t in tasks]), start=1):
-                results.append(result)
-                if count % 25 == 0:
-                    _say(f"{well} decode: {count} of {len(tasks)} fields")
+    spill = (tempfile.TemporaryDirectory(prefix=f".decode_candidates_{well}_",
+                                         dir=os.path.dirname(os.path.abspath(db)))
+             if rule_a is not None and rule_a.get("auto") else None)
+    try:
+        if workers == 1:
+            _init_decode_worker(library_set, decoy_set)
+            for task in tasks:
+                results.append(_spill_candidates(_decode_field({**task, "gpu": gpu}), spill))
+        else:
+            context = multiprocessing.get_context("spawn")
+            with ProcessPoolExecutor(workers, mp_context=context,
+                                     initializer=_init_decode_worker,
+                                     initargs=(library_set, decoy_set)) as pool:
+                for count, result in enumerate(pool.map(
+                        _decode_field, [{**t, "gpu": False} for t in tasks]), start=1):
+                    results.append(_spill_candidates(result, spill))
+                    if count % 25 == 0:
+                        _say(f"{well} decode: {count} of {len(tasks)} fields")
 
-    decoded = [r for r in results if "skipped" not in r]
-    sbs_report = (_sbs_store_cells(db, plate, well, sbs_options, tasks, decoded)
-                  if sbs_options else None)
-    if rule_a is not None and rule_a.get("auto"):
-        rule_a = _apply_auto_thresholds(db, plate, well, rule_a, thresholds,
-                                        decoded, decoys)
+        decoded = [r for r in results if "skipped" not in r]
+        sbs_report = (_sbs_store_cells(db, plate, well, sbs_options, tasks, decoded)
+                      if sbs_options else None)
+        if rule_a is not None and rule_a.get("auto"):
+            rule_a = _apply_auto_thresholds(db, plate, well, rule_a, thresholds,
+                                            decoded, decoys)
+    finally:
+        if spill is not None:
+            spill.cleanup()
     if rule_a is not None:
         report = _decode_rule_a_report(
             db, plate, well, settings, rule_a, tasks, results, decoded,

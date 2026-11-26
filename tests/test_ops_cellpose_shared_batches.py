@@ -182,3 +182,44 @@ def test_a_streamed_field_is_the_loaded_array_and_is_let_go(memory):
         gc.collect()
         assert loaded[0]() is None
         next(resident)
+
+
+def test_a_lazy_stream_keeps_the_grouping_and_reads_at_most_one_field_ahead(memory, tmp_path):
+    """With ``present`` a field is read at most one ahead of the caller; groups, counts and plan stay."""
+    images = [np.arange(12, dtype=np.float32).reshape(3, 4) + index for index in range(5)]
+    calls = []
+
+    def load(index):
+        """Field 3 is unreadable; the others are distinct small arrays."""
+        calls.append(index)
+        return (None if index == 3 else images[index]), f'field-{index}'
+
+    def run(present, path):
+        """Every yielded field with its count, the loads made before it, and the plan."""
+        calls.clear()
+        seen = []
+        with arrays._array_batches(range(5), load, {'batch_size': 3}, plan_path=path,
+                                   stream=True, present=present) as resident:
+            for index, image, metadata, fields in resident:
+                seen.append((index, None if image is None else image.tobytes(), metadata,
+                             fields, len(calls)))
+        return seen, path.read_text()
+
+    eager, eager_plan = run(None, tmp_path / 'eager.json')
+    lazy, lazy_plan = run(lambda index: index != 3, tmp_path / 'lazy.json')
+    assert lazy_plan == eager_plan
+    assert [row[:4] for row in lazy] == [row[:4] for row in eager]
+    assert all(row[4] <= index + 2 for index, row in enumerate(lazy))
+    assert [row[4] for row in eager][:3] == [3, 3, 3]
+
+
+def test_a_lazy_stream_refuses_a_loader_that_disagrees_with_present(memory):
+    """A field ``present`` called absent but the loader read is an error, not a recount."""
+    def load(index):
+        """Every field has an image."""
+        return np.zeros((2, 2), np.float32), None
+
+    with pytest.raises(ValueError, match='expected to have no image'):
+        with arrays._array_batches(range(3), load, {'batch_size': 3}, stream=True,
+                                   present=lambda index: index != 2) as resident:
+            list(resident)
