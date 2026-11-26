@@ -11678,6 +11678,11 @@ class SettingsWidgets:
         #: Nesting depth of :meth:`_build_controls`, so the state passes it
         #: runs afterwards run once for a batch, not once per control.
         self._controls_arriving = 0
+        #: Keys the user edited by hand, even back to the default, and the
+        #: record a loaded file brought; programmatic writes add neither.
+        self._touched: set = set()
+        self._loaded_record: Any = None
+        self._programmatic_depth = 0
         self._hidden_by_the_run: set = set()
         self._guarded_rows: Dict[int, str] = {}
         #: ``id(section) -> section`` for the slot headings this hid, so it
@@ -13085,6 +13090,8 @@ class SettingsWidgets:
         self._record_setting_undo(key, rebase=quiet)
         if quiet:
             return
+        if not self._programmatic_depth:
+            self._touched.add(key)
         metadata = getattr(self, "_model_metadata", None)
         if metadata is not None:
             metadata["settings"].pop(key, None)
@@ -13233,6 +13240,78 @@ class SettingsWidgets:
             for a check box, ``int`` or ``float`` for a spin box, item data or
             text for a combo box, text for a line edit).
         """
+        self._programmatic_depth += 1
+        try:
+            return self._write_value_for_key(key, value)
+        finally:
+            self._programmatic_depth -= 1
+
+    def touched_keys(self) -> List[str]:
+        """The keys the user edited by hand since the form was built or reset.
+
+        An edit back to the default counts. A value written by code (a
+        preset, a reset, a propagated value, an undo) and a bulk load do not.
+
+        :returns: sorted keys.
+        """
+        return sorted(self._touched)
+
+    def note_loaded_record(self, record: Any) -> None:
+        """Keep the explicit-key record of a settings file just loaded.
+
+        :param record: the file's ``_meta_explicit_keys`` value, or the keys
+            the file sets when it carries none. Replaces earlier touches,
+            because the loaded values replace what was edited.
+        """
+        from ...settings import LEGACY_EXPLICIT
+
+        self._touched = set()
+        if record == LEGACY_EXPLICIT:
+            self._loaded_record = LEGACY_EXPLICIT
+        else:
+            self._loaded_record = set(str(key) for key in (record or ()))
+
+    def explicit_record(self) -> Any:
+        """The value of ``_meta_explicit_keys`` for a run or an export.
+
+        :returns: the replay marker when the loaded file predates the record,
+            else the sorted keys the user touched plus those the loaded file
+            recorded.
+        """
+        from ...settings import LEGACY_EXPLICIT
+
+        if self._loaded_record == LEGACY_EXPLICIT:
+            return LEGACY_EXPLICIT
+        return sorted(self._touched | set(self._loaded_record or ()))
+
+    def with_explicit_record(self, settings: Dict[str, Any]) -> Dict[str, Any]:
+        """Carry the touch record in ``settings`` when a preset could read it.
+
+        :param settings: collected settings, edited in place.
+        :returns: ``settings``.
+        """
+        from ...settings import EXPLICIT_KEYS_KEY
+
+        if "ops_decode_preset" in settings:
+            settings[EXPLICIT_KEYS_KEY] = self.explicit_record()
+        return settings
+
+    def reset_to_defaults(self) -> int:
+        """Put every control back to the module default and forget the edits.
+
+        :returns: how many controls were written.
+        """
+        written = 0
+        for key in list(self._widgets):
+            if key in self._defaults and self.set_value_for_key(
+                    key, self._defaults[key]):
+                written += 1
+        self._touched = set()
+        self._loaded_record = None
+        return written
+
+    def _write_value_for_key(self, key: str, value: Any) -> bool:
+        """Write one value into its control; see :meth:`set_value_for_key`."""
         w = self._widgets.get(key)
         if w is None:
             return False
