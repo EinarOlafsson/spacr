@@ -99,6 +99,7 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_pixel_min_fraction": 0.6,
     "ops_pixel_quality": 0.1,
     "ops_pixel_ownership": "read_rule",
+    "ops_pixel_footprint": 5.0,
     "ops_decoy_library_k": 0,
     "ops_fdr_scale": 1.268,
     "ops_decode_skip_unplaced_sites": True,
@@ -318,6 +319,7 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "pixel_min_fraction": _number(settings, "ops_pixel_min_fraction"),
         "pixel_quality": _number(settings, "ops_pixel_quality"),
         "pixel_ownership": _pixel_ownership(settings),
+        "pixel_footprint": _pixel_footprint_setting(settings),
         "decoy_k": _number(settings, "ops_decoy_library_k", int),
         "fdr_scale": _number(settings, "ops_fdr_scale"),
         "store_cache": (_flag(settings, "ops_store_field_cache")
@@ -382,6 +384,40 @@ def _pixel_ownership(settings: Mapping[str, Any]) -> str:
         raise ValueError("ops_pixel_ownership must be one of "
                          f"{', '.join(PIXEL_OWNERSHIP)}; got {value!r}")
     return value
+
+
+def _pixel_footprint_setting(settings: Mapping[str, Any]) -> Optional[float]:
+    """``ops_pixel_footprint`` (item 1044b), or None to follow ``ops_footprint``.
+
+    :param settings: settings after :func:`resolve_settings`.
+    :returns: how far beyond a nucleus boundary a fallback pixel may lie
+        under ``ops_pixel_ownership`` 'read_rule' or 'read_reach'; its
+        default when the key is missing, and None when it is present but
+        empty, the pixels then taking the read footprint, as settings files
+        saved before schema 980 do.
+    :raises ValueError: for a negative or non-numeric footprint.
+    """
+    if "ops_pixel_footprint" not in settings:
+        return float(_DEFAULTS["ops_pixel_footprint"])
+    value = settings["ops_pixel_footprint"]
+    if value is None or value == "":
+        return None
+    reach = _number(settings, "ops_pixel_footprint")
+    if reach < 0:
+        raise ValueError(f"ops_pixel_footprint must be 0 or more; got {reach}")
+    return reach
+
+
+def _pixel_footprint(rule: Mapping[str, Any], footprint: float) -> float:
+    """The footprint the fallback pixels are assigned at (item 1044b).
+
+    :param rule: from :func:`decode_rule`, read for ``pixel_footprint``.
+    :param footprint: the read footprint, used when the rule has none.
+    :returns: ``pixel_footprint``, or ``footprint`` when it is None or
+        missing.
+    """
+    value = rule.get("pixel_footprint")
+    return float(footprint) if value is None else float(value)
 
 
 def _neighbour_reach_setting(settings: Mapping[str, Any]) -> Optional[float]:
@@ -771,7 +807,8 @@ def _pixel_owners(evidence: Mapping[str, Any], rule: Mapping[str, Any], footprin
         arrays.
     :param rule: from :func:`decode_rule` with the field's ``neighbours``
         when the read neighbour discount is on.
-    :param footprint: the read footprint.
+    :param footprint: the read footprint; the pixels take
+        ``ops_pixel_footprint`` in its place (:func:`_pixel_footprint`).
     :param ownership: from :func:`_rule_pixel_ownership`.
     :returns: ``(object per pixel, the voting pixels, the keyword arguments
         of the neighbour discount for :func:`spacr.ops_sbs.vote_pixels`)``.
@@ -792,7 +829,7 @@ def _pixel_owners(evidence: Mapping[str, Any], rule: Mapping[str, Any], footprin
     evidence = _pixel_assignment(evidence)
     gap = np.asarray(evidence["pix_gap"]).astype(float).reshape(-1, 2)
     ids = np.asarray(evidence["pix_id0"])
-    _, _, own = _object_owners(gap, ids >= 0, rule, footprint)
+    _, _, own = _object_owners(gap, ids >= 0, rule, _pixel_footprint(rule, footprint))
     own &= gap[:, 0] <= rule["pixel_radius"]
     discount = float((rule.get("read_weight") or {}).get("neighbour_discount", 1.0))
     weighting = ({"neighbours": rule.get("neighbours") or {}, "neighbour_discount": discount}

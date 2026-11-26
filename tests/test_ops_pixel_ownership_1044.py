@@ -180,17 +180,19 @@ def test_the_gate_never_makes_a_call_the_radius_vote_would_not_make(tmp_path):
                                     "radius_disagrees": 1}
 
 
-def test_pixels_follow_the_read_footprint_not_the_pixel_radius():
-    """read_reach: a pixel beyond ops_footprint votes for no one, as a read there."""
+def test_pixels_follow_the_pixel_footprint_not_the_pixel_radius():
+    """read_reach: a pixel beyond ops_pixel_footprint (here 3, the read footprint) votes for no one."""
     evidence = _field(spots=[((12.0, 50.0 + RADIUS + 6.0), OTHER, 900.0)])
     threshold = float(np.max(evidence["strength"])) + 1.0
     old = _calls(evidence, _rule("nearest_nucleus"), threshold=threshold)
     assert _sources(old) == {3: (OTHER, "pixel_fallback")}
-    reach = _calls(evidence, _rule("read_reach"), threshold=threshold)
+    reach = _calls(evidence, _rule("read_reach", ops_pixel_footprint=3.0),
+                   threshold=threshold)
     assert _sources(reach) == {}
     wide = ops_decode.decode_rule(ops_decode.resolve_settings({
         "ops_decode_pixel_fallback": True, "ops_assign_by_cell_territory": True,
-        "ops_pixel_ownership": "read_reach", "ops_footprint": 10.0}))
+        "ops_pixel_ownership": "read_reach", "ops_footprint": 10.0,
+        "ops_pixel_footprint": None}))
     matcher, decoys = ops_decode.matcher_for(LIBRARY, ())
     out = ops_decode.field_calls(evidence, wide, LIBRARY, matcher, decoys,
                                  threshold=threshold, footprint=10.0, max_distance=0,
@@ -364,6 +366,45 @@ def test_the_pixel_discount_follows_the_read_discount():
     assert discounted[1]["fraction"] == pytest.approx(3 / 3.5)
 
 
+def test_a_pixel_4_px_out_is_owned_under_the_5_px_pixel_footprint_not_under_3(tmp_path):
+    """Item 1044b: pixels take ops_pixel_footprint, reads keep ops_footprint."""
+    evidence = _cache(tmp_path, _field(spots=[((12.0, 50.0 + RADIUS + 4.0), OTHER, 900.0)]))
+    threshold = float(np.max(evidence["strength"])) + 1.0
+    gap = np.asarray(evidence["pix_gap"])[:, 0].astype(float)
+    four = (np.asarray(evidence["pix_id0"]) == 3) & (gap > 3.0) & (gap <= 5.0)
+    assert four.any()
+    wide = _rule("read_reach")
+    assert wide["pixel_footprint"] == 5.0
+    ids, chosen, _ = ops_decode._pixel_owners(evidence, wide, 3.0, "read_reach")
+    assert set(np.flatnonzero(four)) <= set(chosen.tolist())
+    narrow = _rule("read_reach", ops_pixel_footprint=3.0)
+    ids, chosen, _ = ops_decode._pixel_owners(evidence, narrow, 3.0, "read_reach")
+    assert not set(np.flatnonzero(four)) & set(chosen.tolist())
+    follow = _rule("read_reach", ops_pixel_footprint=None)
+    assert follow["pixel_footprint"] is None
+    assert np.array_equal(ops_decode._pixel_owners(evidence, follow, 3.0, "read_reach")[1],
+                          ops_decode._pixel_owners(evidence, narrow, 3.0, "read_reach")[1])
+    called = _calls(evidence, wide, threshold=threshold)["calls"]
+    assert called[3]["guide"] == OTHER
+    fewer = _calls(evidence, narrow, threshold=threshold)["calls"]
+    assert 3 not in fewer or fewer[3]["n_pixels"] < called[3]["n_pixels"]
+
+
+def test_the_reads_keep_ops_footprint_whatever_the_pixel_footprint(tmp_path):
+    evidence = _cache(tmp_path, _field())
+    matcher, _ = ops_decode.matcher_for(LIBRARY, ())
+    seen = []
+    for value in (3.0, 5.0, 10.0, None):
+        votes = ops_decode._field_votes(
+            evidence, _rule("read_rule", ops_pixel_footprint=value), LIBRARY, matcher,
+            threshold=_threshold(evidence), footprint=3.0, max_distance=0,
+            min_fraction=0.6, single_read_quality=0.0, pixel_qualities=(0.1,),
+            crosstalk="none", evidence_rows=True)
+        seen.append(repr(_plain({key: votes[key] for key in (
+            "primary", "tallies", "objects", "ambiguous", "reads_owned", "reads_near")})))
+    assert len(set(seen)) == 1
+
+
 def test_the_setting_defaults_to_the_read_rule_and_old_files_keep_the_nearest_nucleus():
     from spacr.ops_settings import OPS_DEFAULTS, OPS_TOOLTIPS, OPS_TYPES
     from spacr.settings import (DEFAULT_CHANGES, SETTINGS_SCHEMA_VERSION,
@@ -373,11 +414,22 @@ def test_the_setting_defaults_to_the_read_rule_and_old_files_keep_the_nearest_nu
     assert OPS_TYPES["ops_pixel_ownership"] is str
     assert "ops_pixel_ownership" in OPS_TOOLTIPS
     assert SETTINGS_SCHEMA_VERSION >= 980
-    assert DEFAULT_CHANGES[980] == {"ops_pixel_ownership": "nearest_nucleus"}
+    assert DEFAULT_CHANGES[980] == {"ops_pixel_ownership": "nearest_nucleus",
+                                    "ops_pixel_footprint": None}
+    assert OPS_DEFAULTS["ops_pixel_footprint"] == 5.0
+    assert ops_decode.decode_rule({})["pixel_footprint"] == 5.0
+    keys = {"plate", "ops_pixel_ownership", "ops_pixel_footprint"}
     old = {"plate": "P1"}
-    applied = _fold_older_defaults(old, 979, known={"plate", "ops_pixel_ownership"})
+    applied = _fold_older_defaults(old, 979, known=keys)
     assert applied["ops_pixel_ownership"] == ("nearest_nucleus", 980)
+    assert applied["ops_pixel_footprint"] == (None, 980)
     assert old["ops_pixel_ownership"] == "nearest_nucleus"
+    explicit = {"plate": "P1", "ops_pixel_ownership": "read_rule"}
+    _fold_older_defaults(explicit, 979, known=keys)
+    assert explicit["ops_pixel_footprint"] is None
+    assert ops_decode.decode_rule(explicit)["pixel_footprint"] is None
+    with pytest.raises(ValueError, match="ops_pixel_footprint"):
+        ops_decode.decode_rule({"ops_pixel_footprint": -1})
     assert _fold_older_defaults({"plate": "P1"}, 980,
                                 known={"plate", "ops_pixel_ownership"}) == {}
     assert ops_decode.decode_rule({})["pixel_ownership"] == "read_rule"

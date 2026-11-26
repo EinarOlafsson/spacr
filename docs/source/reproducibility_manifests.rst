@@ -366,7 +366,11 @@ default after a higher-numbered item takes the next free number:
   ``ops_pixel_radius`` call (so no pixel call the old rule would not
   make). ``'read_reach'`` keeps the assignment without that
   gate. Files stamped before 980 get ``'nearest_nucleus'``, the nearest
-  nucleus within ``ops_pixel_radius``, and decode as before.
+  nucleus within ``ops_pixel_radius``, and decode as before. Pixels are
+  assigned at ``ops_pixel_footprint``, ``5`` px (item 1044b); reads keep
+  ``ops_footprint``. Files stamped before 980 get ``ops_pixel_footprint``
+  empty, so an older file that sets ``'read_rule'`` itself assigns its
+  pixels at ``ops_footprint``.
 
 Public API
 ----------

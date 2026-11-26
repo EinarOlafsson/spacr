@@ -2736,7 +2736,7 @@ DEFAULT_CHANGES = {
     975: {'ops_cellpose_model': 'cpsam_v1'},
     976: {'ops_ph_spanning_merge': 'merge', 'spanning_merge': 'merge'},
     978: {'ops_ph_downsample': 2, 'ops_ph_nucleus_downsample': 'same'},
-    980: {'ops_pixel_ownership': 'nearest_nucleus'},
+    980: {'ops_pixel_ownership': 'nearest_nucleus', 'ops_pixel_footprint': None},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
@@ -3036,7 +3036,14 @@ def _fold_older_defaults(settings, version, known=None):
     the paper spike-in on plate A A1 measured 7.0 points of misassignment
     from the pixel fallback at the item-1023 rule and 10.1 in cell-mask
     mode. Files stamped before 980 get ``'nearest_nucleus'`` and decode
-    byte for byte as before.
+    byte for byte as before. The pixels are assigned at
+    ``ops_pixel_footprint``, 5 px (item 1044b, maintainer decision
+    2026-11-25: the strict gate at the 3 px read footprint refused too
+    many true calls), while the reads keep ``ops_footprint``. Files
+    stamped before 980 get ``ops_pixel_footprint`` None, which
+    ``'nearest_nucleus'`` does not read; an older file that sets
+    ``'read_rule'`` or ``'read_reach'`` itself then assigns its pixels at
+    ``ops_footprint``, as the first 1044 build did.
 
     :param settings: the file's settings under today's names, edited in
         place.

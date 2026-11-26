@@ -1520,6 +1520,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTING, not a regrouping (item 1044, settings version 980): which
     # nucleus a fallback pixel votes for, beside ops_pixel_radius.
     "ops_pixel_ownership",
+    # NEW SETTING, not a regrouping (item 1044b, settings version 980): the
+    # footprint the fallback pixels are assigned at.
+    "ops_pixel_footprint",
     # NEW SETTINGS, not a regrouping (item 541, 2026-09-26): Measure's
     # confluency switch, its source, channel, texture window and monolayer
     # QC cut, under their own "Confluency α" heading.
