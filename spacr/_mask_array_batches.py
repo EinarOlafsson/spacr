@@ -1,5 +1,6 @@
 """Give array-based mask inputs the same memory limits as prepared batches."""
 
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 import json
 import os
@@ -106,7 +107,26 @@ def _batch_plan(path, settings):
     return path, plan
 
 
-def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields, stream=False):
+def _journal_group(plan_path, plan, known, names, field_count):
+    """Add one group to the persisted plan, written by rename.
+
+    :param plan_path: the plan file.
+    :param plan: the mutable grouping record.
+    :param known: record name -> its group, updated.
+    :param names: the records of the group, as strings.
+    :param field_count: the inputs the group holds.
+    """
+    group = {'records': list(names), 'fields': field_count}
+    plan['groups'].append(group)
+    known.update((name, group) for name in group['records'])
+    plan_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = plan_path.with_name(plan_path.name + '.part')
+    temporary.write_text(json.dumps(plan, indent=1), encoding='utf-8')
+    os.replace(temporary, plan_path)
+
+
+def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields, stream=False,
+                        present=None):
     """Yield input records from one owned resident batch at a time.
 
     The loader retains the pipeline-specific preparation and normalisation
@@ -123,7 +143,15 @@ def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields, str
     :param stream: hand each field on as the loader returned it, without the
         packed copy or the device copy, and let go of it once the caller moves
         on; the grouping, the field counts and the plan are unchanged.
+    :param present: with ``stream``, a cheap test of whether ``load`` will
+        return an image for a record. The group is then counted with it and
+        each field is loaded only when the caller asks for it, so at most one
+        field is held instead of the whole group, and the next field of the
+        group is read on one helper thread while the caller works on the
+        current one, so at most two are held; the grouping, the field counts
+        and the plan are those of the eager stream.
     :yields: ``(record, image or None, metadata, batch field count)``.
+    :raises ValueError: when ``load`` disagrees with ``present``.
     """
     plan_path, plan = _batch_plan(plan_path, settings)
     known = {name: group for group in plan['groups'] for name in group['records']}
@@ -164,6 +192,39 @@ def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields, str
                 limit += 1
         if max_fields is not None:
             limit = min(limit, max(1, int(max_fields)))
+        if stream and present is not None:
+            rest = list(records[position:position + limit - 1])
+            flags = [bool(present(name)) for name in rest]
+            field_count = 1 + sum(flags) if saved_group is None else saved_group['fields']
+            if saved_group is None and plan_path is not None:
+                _journal_group(plan_path, plan, known, [str(record)] + [str(name) for name in rest],
+                               field_count)
+            size = image.nbytes
+            with ThreadPoolExecutor(1) as ahead:
+                pending = None
+                if rest:
+                    batches._wait_for_ram(size * 6)
+                    pending = ahead.submit(load, rest[0])
+                yield record, image, metadata, field_count
+                del image
+                for index, (name, flag) in enumerate(zip(rest, flags)):
+                    other, metadata = pending.result()
+                    position += 1
+                    pending = None
+                    if index + 1 < len(rest):
+                        batches._wait_for_ram(size * 6)
+                        pending = ahead.submit(load, rest[index + 1])
+                    if (other is not None) != flag:
+                        from .qt.i18n import tr
+
+                        if flag:
+                            raise ValueError(tr('Input {record} was expected to have an image, '
+                                                'but the loader returned none.', record=name))
+                        raise ValueError(tr('Input {record} was expected to have no image, '
+                                            'but the loader returned one.', record=name))
+                    yield name, other, metadata, field_count
+                    del other
+            continue
         entries = [(record, image.shape, image.dtype, metadata, image.nbytes)]
         images = [image]
         for _ in range(limit - 1):
@@ -179,13 +240,8 @@ def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields, str
             del other
         field_count = len(images) if saved_group is None else saved_group['fields']
         if saved_group is None and plan_path is not None:
-            group = {'records': [str(entry[0]) for entry in entries], 'fields': field_count}
-            plan['groups'].append(group)
-            known.update((name, group) for name in group['records'])
-            plan_path.parent.mkdir(parents=True, exist_ok=True)
-            temporary = plan_path.with_name(plan_path.name + '.part')
-            temporary.write_text(json.dumps(plan, indent=1), encoding='utf-8')
-            os.replace(temporary, plan_path)
+            _journal_group(plan_path, plan, known, [str(entry[0]) for entry in entries],
+                           field_count)
         if stream:
             del image
             try:
@@ -218,7 +274,7 @@ def _iter_array_batches(records, load, settings, gpu, plan_path, max_fields, str
 
 @contextmanager
 def _array_batches(records, load, settings, *, gpu=False, plan_path=None,
-                    max_fields=None, stream=False):
+                    max_fields=None, stream=False, present=None):
     """Own an array batch until every role finishes, including on early exit.
 
     :param records: input identifiers; metadata alone may span many batches.
@@ -229,10 +285,12 @@ def _array_batches(records, load, settings, *, gpu=False, plan_path=None,
     :param max_fields: cap loading by the capacity of an upstream staging queue.
     :param stream: yield the loaded fields themselves, one at a time, with no
         packed or device copy (:func:`_iter_array_batches`).
+    :param present: with ``stream``, load each field only when it is asked
+        for (:func:`_iter_array_batches`).
     :yields: a field iterator; closing it frees the final resident batch.
     """
     iterator = _iter_array_batches(list(records), load, settings, gpu, plan_path, max_fields,
-                                   stream)
+                                   stream, present)
     try:
         yield iterator
     finally:

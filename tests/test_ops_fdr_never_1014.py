@@ -829,7 +829,7 @@ def test_full_field_wiring_calibrates_fixed_thresholds_and_writes_reports_withou
     field = SimpleNamespace(kept=list(range(evidence['values'].shape[1])), channel_shifts={})
     stack = np.zeros((len(field.kept), 4, 8, 8), np.float32)
     task = {'rule_a': rule, 'crosstalk': 'none'}
-    decoded = [{**E._decode_field_rule_a(task, field, stack, stack, np.array([[3, 3]]), 0, False),
+    decoded = [{**E._decode_field_rule_a(task, field, {'stack': stack, 'filtered': stack}, np.array([[3, 3]]), 0, False),
                 'site': site} for site in (1, 2, 3, 4)]
     expected = [D._candidate_calls(row['candidates'], 0.1, rule['pixel_quality'], frozenset(decoys))
                 for row in decoded]
@@ -1135,3 +1135,48 @@ def test_live_options_read_the_saved_scale_without_recalibrating_the_crop(tmp_pa
     assert 'auto' not in options['task']['rule_a']
     old=L._decode_options({**settings,'ops_decode_fdr_calibration':'none'},['ACGTACGT','TTTTGGGG'],well='A1')
     assert old['task']['rule_a']['fdr_scale']==8
+
+
+def test_spilled_field_candidates_choose_and_rebuild_the_same_calls(tmp_path, monkeypatch):
+    """Candidates written to disk as fields arrive give the same thresholds and calls."""
+    import copy
+    import os
+    import tempfile
+    from types import SimpleNamespace
+    from spacr import ops_decode as D, ops_engine as E
+
+    library, decoys, evidence, _context, rule, keywords = _full_never_field()
+    monkeypatch.setattr(E, '_LIBRARY', frozenset(library))
+    monkeypatch.setattr(E, '_DECOYS', frozenset(decoys))
+    monkeypatch.setattr(D, 'field_evidence', lambda *args, **kwargs: evidence)
+    thresholds = D.threshold_settings({'ops_decode_threshold_mode': 'manual',
+                                       'ops_decode_fdr_calibration': 'never',
+                                       'ops_single_read_quality': 0.1,
+                                       'ops_decode_auto_ci': False}, rule)
+    auto = {key: thresholds[key] for key in ('floors', 'pixel_qualities', 'spot_thresholds')}
+    auto['never'] = {'k': 4, 'seed': 1, 'sets': 'n1_n2'}
+    rule = {**rule, **keywords, 'single_read_quality': 0.1, 'fdr_scale': 8,
+            'auto': auto, 'store_cache': False}
+    field = SimpleNamespace(kept=list(range(evidence['values'].shape[1])), channel_shifts={})
+    stack = np.zeros((len(field.kept), 4, 8, 8), np.float32)
+    task = {'rule_a': rule, 'crosstalk': 'none'}
+    decoded = [{**E._decode_field_rule_a(task, field, {'stack': stack, 'filtered': stack},
+                                         np.array([[3, 3]]), 0, False), 'site': site}
+               for site in (1, 2, 3, 4)]
+    kept = copy.deepcopy(decoded)
+    with tempfile.TemporaryDirectory(dir=tmp_path) as folder:
+        spill = SimpleNamespace(name=folder)
+        spilled = [E._spill_candidates(row, spill) for row in decoded]
+        assert all(set(row['candidates']) <= set(E._TUNING_KEYS) | {'spilled'} for row in spilled)
+        assert len(os.listdir(folder)) == 4
+        (tmp_path / 'a').mkdir()
+        (tmp_path / 'b').mkdir()
+        plain = E._apply_auto_thresholds(str(tmp_path / 'a' / 'measurements.db'), 'P', 'A1',
+                                         rule, thresholds, kept, decoys)
+        streamed = E._apply_auto_thresholds(str(tmp_path / 'b' / 'measurements.db'), 'P', 'A1',
+                                            rule, thresholds, spilled, decoys)
+        assert os.listdir(folder) == []
+    strip = lambda choice: {k: v for k, v in choice.items() if k != 'threshold_choice'}
+    assert strip(streamed) == strip(plain)
+    for one, other in zip(spilled, kept):
+        assert one['rule_a'] == other['rule_a']

@@ -296,7 +296,10 @@ default after a higher-numbered item takes the next free number:
   (``'off'``) is new, with ``ops_sbs_cell_model`` and
   ``ops_sbs_cell_threshold``. Off by default, so a run decodes exactly as
   before; the row pins the off value for files stamped before 969. Number 968
-  belongs to another item.
+  belongs to another item. Item 1025 part 2 adds ``ops_read_assignment``
+  (alpha, default ``'nucleus_reach'``, the rule before it, so it needs no
+  row); ``'cell_mask'`` gives every read and fallback pixel to the SBS cell
+  it lies in.
 
 - 972 (OPS storage for reruns, items N6 and N7): ``ops_store_raw_masks``
   (default ``False``) keeps the phenotype nucleus and cell masks before

@@ -53,6 +53,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_placement_seed": None,
     "ops_sites": None,
     "ops_phases": None,
+    "ops_require_versions": None,
     "ops_objects_resume": True,
     "ops_objects_keep_windows": False,
     "ops_objects_windows_dir": None,
@@ -93,6 +94,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "gpu_vram_budget_gb": None,
     "randomize": True,
     "mask_inference_precision": "auto",
+    "gpu_deterministic": False,
     "gpu_memory_margin_gb": 1.5,
     "ops_ph_sites": None,
     "ops_ph_texture": True,
@@ -268,6 +270,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_sbs_cell_method": "off",
     "ops_sbs_cell_model": "cpsam",
     "ops_sbs_cell_threshold": None,
+    "ops_read_assignment": "nucleus_reach",
     "ops_decode_pixel_fallback": False,
     "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
@@ -295,6 +298,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_never_barcode_sets": "n1_n2",
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
+    "ops_store_values_raw": False,
     "ops_read_cache_floor": 100.0,
     "ops_decode_qc": False,
     "ops_decode_qc_model": "xgboost",
@@ -700,6 +704,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_placement_seed": (str, type(None)),
     "ops_sites": (str, list, int, type(None)),
     "ops_phases": (str, list, type(None)),
+    "ops_require_versions": (dict, type(None)),
     "ops_objects_resume": bool,
     "ops_objects_keep_windows": bool,
     "ops_store_raw_masks": bool,
@@ -904,6 +909,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_sbs_cell_method": str,
     "ops_sbs_cell_model": str,
     "ops_sbs_cell_threshold": (float, int, type(None)),
+    "ops_read_assignment": str,
     "ops_decode_pixel_fallback": bool,
     "ops_pixel_read_gate": bool,
     "ops_pixel_percentile": (float, int),
@@ -931,6 +937,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_never_barcode_sets": str,
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
+    "ops_store_values_raw": bool,
     "ops_read_cache_floor": (float, int),
     "ops_decode_qc": bool,
     "ops_decode_qc_model": str,
@@ -1290,7 +1297,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "GPU Memory α": ["mask_eval_batch_cap", "mask_batch_seed", "gpu_vram_budget_gb"],
     "OPS input": [
         "dst_root", "genotype_source", "phenotype_source", "ops_library",
-        "ops_layout", "ops_phases",
+        "ops_layout", "ops_phases", "ops_require_versions",
     ],
     "Plate Layout & Controls": [
         "ops_design", "ops_control_prefix", "ops_genotype_table",
@@ -1334,7 +1341,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_channel_registration", "ops_registration_precision",
         "ops_registration_backend", "ops_registration_refine_px",
         "ops_field_diagnostics", "ops_decode_skip_unplaced_sites",
-        "ops_store_field_cache", "ops_read_cache_floor",
+        "ops_store_field_cache", "ops_store_values_raw", "ops_read_cache_floor",
     ],
     "Base calling": [
         "ops_decode_preset", "ops_read_mode", "ops_crosstalk",
@@ -1356,6 +1363,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "SBS cells α": [
         "ops_sbs_cell_method", "ops_sbs_cell_model", "ops_sbs_cell_threshold",
+        "ops_read_assignment",
     ],
     "Pixel fallback": [
         "ops_decode_pixel_fallback", "ops_pixel_read_gate",
@@ -1958,6 +1966,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "to each other and the rest are placed on the layout's grid, or by "
         "ops_placement_seed. Each nucleus belongs to the nearest placed "
         "tile. Empty runs every site. Default None. Alpha.",
+    "ops_require_versions":
+        "(dict or None) - Package versions a run must be made with, such as "
+        "{'cellpose': '4.2.1.1', 'torch': '2.13.0+cu130'}. Before the first "
+        "field is processed, spaCR compares each with the installed version "
+        "and refuses the run, naming each expected and found version, when "
+        "any differs. The expected and found versions are kept in each "
+        "well's provenance. Empty checks nothing. Default None.",
     "ops_phases":
         "(str, list or None) - Which phases a run without its own phase "
         "list runs, in the order spaCR runs them, as 'stitch,phenotype,"
@@ -3797,8 +3812,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "schema 966 keep empty.",
     "ops_sbs_cell_method":
         "(str) - Makes SBS cells, one grown from every SBS nucleus, in the "
-        "decode, for comparing masks and for a later cell-mask read "
-        "assignment; reads still go to nuclei. 'cellpose': the cell probability of Cellpose "
+        "decode, for comparing masks and so reads can be given to whole "
+        "cells (ops_read_assignment 'cell_mask'). 'cellpose': the cell probability of Cellpose "
         "(ops_sbs_cell_model) on the base-channel proxy. 'watershed': the "
         "proxy above ops_sbs_cell_threshold. Masks go to sbs/fov.ome.zarr and "
         "the pairing to ops_sbs_cells_<well>.parquet; a nucleus without a "
@@ -3816,6 +3831,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "2 px) above which ops_sbs_cell_method 'watershed' counts a pixel as "
         "cell. Empty uses the Otsu threshold of each field. Only read with "
         "'watershed'. Default None. Alpha.",
+    "ops_read_assignment":
+        "(str) - Which nucleus a read or a fallback pixel belongs to. "
+        "'cell_mask': the nucleus of the SBS cell it lies in, with no "
+        "footprint or tie, so reads anywhere in the cytoplasm count and reads "
+        "between cells count for none; neighbours for the read discount and "
+        "the pixel bleed gate are the cells that touch. Needs "
+        "ops_sbs_cell_method. 'nucleus_reach': the nearest nucleus within "
+        "ops_footprint, as before. Calls, auto candidates, never and shuffle "
+        "controls and FDR all use the same rule. Default 'nucleus_reach'. Alpha.",
     "ops_prefix_bleed_in_recipe":
         "(bool) - Under ops_prefix_quality_method 'recipe_simple', ignore a "
         "minority barcode that has the most reads in a touching cell when "
@@ -3962,6 +3986,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and the fallback pixels -- to <dst_root>/<well>/decode_cache as "
         "one npz per site. The decode QC reads it. A field takes about 13 "
         "MB. Default False.",
+    "ops_store_values_raw":
+        "(bool) - With ops_read_mode 'log' (the default), also store each "
+        "spot's unfiltered read per cycle and channel (values_raw, the 'raw' "
+        "read) in the field cache, so a later evaluation can use raw "
+        "intensities. The calls are unchanged and any threshold mode works; "
+        "'raw' and 'auto' store it already. About 0.7 GB more per well. "
+        "Default False.",
     "ops_read_cache_floor":
         "(float) - The field cache keeps every spot at least this strong, so "
         "a read threshold down to this value can be tried later from the "

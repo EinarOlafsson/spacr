@@ -89,7 +89,8 @@ def test_schema_row_and_alpha_registration():
     assert settings.SETTINGS_SCHEMA_VERSION >= 969
     assert settings.DEFAULT_CHANGES[969] == {"ops_sbs_cell_method": "off"}
     assert set(settings.ALPHA_FEATURES[1025]["settings"]) == {
-        "ops_sbs_cell_method", "ops_sbs_cell_model", "ops_sbs_cell_threshold"}
+        "ops_sbs_cell_method", "ops_sbs_cell_model", "ops_sbs_cell_threshold",
+        "ops_read_assignment"}
     assert len(ops_settings.OPS_CATEGORIES["SBS cells α"]) <= 20
 
 

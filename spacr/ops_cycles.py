@@ -845,8 +845,12 @@ def align_field(planes: Mapping[int, Optional[Sequence[np.ndarray]]], *,
     stack = np.empty((len(kept), len(planes32[reference])) + first.shape,
                      np.float32)
     scratch = np.empty_like(first)
+    del first
+    for cycle in [cycle for cycle in planes32 if cycle not in kept]:
+        del planes32[cycle]
     for index, cycle in enumerate(kept):
-        for channel, plane in enumerate(planes32[cycle]):
+        for channel in range(len(planes32[cycle])):
+            plane, planes32[cycle][channel] = planes32[cycle][channel], None
             if spots:
                 _translate_into(stack[index, channel], plane,
                                 *totals[cycle][channel])
@@ -857,6 +861,7 @@ def align_field(planes: Mapping[int, Optional[Sequence[np.ndarray]]], *,
                 _translate_into(stack[index, channel], _translate_into(
                     scratch, plane, *channel_shifts[cycle][channel]),
                     *cycle_shifts[cycle])
+            del plane
     refused = tuple(sorted(c for c, r in registrations_found.items()
                            if not r.accepted))
     return AlignedField(

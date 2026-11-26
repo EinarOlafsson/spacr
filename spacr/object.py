@@ -1489,25 +1489,35 @@ def _mask_eval(model, x, *, site, settings=None, **kwargs):
     :param model: a model with Cellpose's ``eval``.
     :param x: the image or images.
     :param site: the governor's name for this call site.
-    :param settings: run settings holding the governor keys, if any.
+    :param settings: run settings holding the governor keys, if any, and
+        ``gpu_deterministic`` (item 1047), which switches torch to
+        deterministic algorithms and turns a refusal into a
+        :class:`spacr.gpu_determinism.GpuDeterminismError`.
     :param kwargs: passed to ``eval``; ``batch_size`` is the size asked for.
         Supported flat Cellpose 4.0.9 CUDA batches overlap public tracing on
         an independent stream within the same resident batch.
     :returns: what ``eval`` returned.
     """
     from ._gpu_governor import _governed_eval, _model_device
+    from .gpu_determinism import apply_gpu_deterministic, explain_nondeterministic
 
-    if _model_device(model) is None:
-        return model.eval(x, **kwargs)
-    batch_size = kwargs.pop('batch_size', 8)
-    from ._mask_tracing import _can_overlap, _overlap_eval
+    deterministic = apply_gpu_deterministic(settings)
+    try:
+        if _model_device(model) is None:
+            return model.eval(x, **kwargs)
+        batch_size = kwargs.pop('batch_size', 8)
+        from ._mask_tracing import _can_overlap, _overlap_eval
 
-    if _can_overlap(model, x, kwargs):
+        if _can_overlap(model, x, kwargs):
+            return _governed_eval(model, x, site=site, settings=settings,
+                                  batch_size=batch_size, evaluate=_overlap_eval,
+                                  **kwargs)
         return _governed_eval(model, x, site=site, settings=settings,
-                              batch_size=batch_size, evaluate=_overlap_eval,
-                              **kwargs)
-    return _governed_eval(model, x, site=site, settings=settings,
-                          batch_size=batch_size, **kwargs)
+                              batch_size=batch_size, **kwargs)
+    except RuntimeError as error:
+        if deterministic:
+            raise explain_nondeterministic(error) from error
+        raise
 
 
 def _shares_a_gpu(settings):

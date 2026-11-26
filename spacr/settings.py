@@ -1386,6 +1386,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('mask_gpu_indices', '')
     settings.setdefault('mask_workers_per_gpu', 1)
     settings.setdefault('mask_inference_precision', 'auto')
+    settings.setdefault('gpu_deterministic', False)
     settings.setdefault('mask_eval_batch_size', 'auto_vram')
     settings.setdefault('mask_eval_batch_cap', 32)
     settings.setdefault('mask_batch_seed', 42)
@@ -4682,6 +4683,7 @@ expected_types = {
     "mask_gpu_indices": str,
     "mask_workers_per_gpu": int,
     "mask_inference_precision": str,
+    "gpu_deterministic": bool,
     "mask_eval_batch_size": (int, str),
     "mask_eval_batch_cap": int,
     "mask_batch_seed": int,
@@ -6177,6 +6179,7 @@ tooltips = {
     "keep_intermediate": "(bool) - Keep the run's working masks/ folders after every field is merged. Off by default: they are removed once each field is committed to fov.ome.zarr (or merged/ for 'npy' runs), which holds the channels and every mask. With fov.ome.zarr no stack/ or masks/ folder is written: the channels and the masks of every stage go straight into the field (the small run records to fov.ome.zarr/.spacr_mask_run); kept, those labels are reused by a rerun, otherwise a rerun segments again. Older projects' stack/ folders are still read, and kept or removed by this setting as before.",
     "mask_parallel": "(bool) - Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
     "mask_gpu_indices": "(str) - GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
+    "gpu_deterministic": "(bool) - Make every GPU segmentation repeatable: torch uses only deterministic algorithms, cuDNN is set to deterministic with benchmarking off, and CUBLAS_WORKSPACE_CONFIG is set to :4096:8 before the model is built. Two runs of the same data then give identical masks, where otherwise they can differ by an object. It is a little slower, and an operation without a deterministic version stops the run with an error naming this setting. It does not change the masks of a run that was already repeatable. Set it before the first model is built in the session. Default False.",
     "mask_inference_precision": "(str) - Number format of the Cellpose network in Make Masks: auto, bf16 or fp32. auto keeps what the run always used: bfloat16 weights on a CUDA GPU, float32 on a CPU or a Mac. bf16 forces bfloat16 weights, which need less GPU memory and run faster on a card that supports them; fp32 forces float32 weights, which use about twice the GPU memory and can move a few mask pixels. Changing it changes the masks, so a resumed run refuses to mix the two. Default auto.",
     "mask_eval_batch_size": "(int or str) - How many 256-pixel tiles Cellpose passes through the network at once in Mask Generation and OPS. 'auto_vram' measures the GPU working memory and resolves the largest tile batch that fits, up to mask_eval_batch_cap, before segmentation. CPU and external backends use at most 8. Use 0 for one tile per resident field, or a positive number to request the tile batch. The tile batch can move a few mask pixels; resume keeps the recorded value. Default 'auto_vram'.",
     "gpu_vram_budget_gb": '(float or None) - GPU memory budget in GB for automatic mask batches in Mask Generation and OPS, including resident field arrays and network working memory. Empty uses SPACR_GPU_VRAM_GB when set, then the free card memory. The governor reserves its memory margin and CUDA context and divides the budget among mask workers. Set the same budget to reproduce batch sizes across cards; it can resolve fewer than mask_eval_batch_cap tiles. Default None. Alpha.',
@@ -7349,7 +7352,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "mask_workers_per_gpu", "mask_inference_precision", "mask_eval_batch_size", "illumination_for_later_masks", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "split_plates", "save_original_images", "diameter_estimate_n_fields", "shuffle", "save", "filter", "size_filter_inclusive", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "mask_workers_per_gpu", "mask_inference_precision", "gpu_deterministic", "mask_eval_batch_size", "illumination_for_later_masks", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "split_plates", "save_original_images", "diameter_estimate_n_fields", "shuffle", "save", "filter", "size_filter_inclusive", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -9277,7 +9280,7 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 ALPHA_FEATURES = {
     1025: {
         'settings': ('ops_sbs_cell_method', 'ops_sbs_cell_model',
-                     'ops_sbs_cell_threshold'),
+                     'ops_sbs_cell_threshold', 'ops_read_assignment'),
     },
     1024: {
         'settings': (

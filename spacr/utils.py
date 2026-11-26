@@ -7216,7 +7216,9 @@ def build_cellpose_model(model_name, *, settings=None, key=None, object_type=Non
     :param model_name: a stock or legacy name, a checkpoint path or a
         model-zoo name; blank is ``cpsam``.
     :param settings: read for ``mask_inference_precision`` (``auto``,
-        ``bf16`` or ``fp32``) and, with ``key``, for the pinned model file.
+        ``bf16`` or ``fp32``), for ``gpu_deterministic`` (item 1047: switched
+        on before anything else, see :mod:`spacr.gpu_determinism`) and, with
+        ``key``, for the pinned model file.
     :param key: the setting that names the model; when ``settings`` pins a
         file for it, the file is loaded instead of ``model_name``.
     :param object_type: 'cell' / 'nucleus' / 'pathogen' / 'organelle' for
@@ -7248,6 +7250,9 @@ def build_cellpose_model(model_name, *, settings=None, key=None, object_type=Non
     :raises ModelUnreadable: if downloads are disabled and the stock model
         is not cached.
     """
+    from .gpu_determinism import apply_gpu_deterministic
+
+    apply_gpu_deterministic(settings)
     pretrained = _resolve_cellpose_source(
         model_name, settings=settings, key=key, object_type=object_type,
         restore_type=restore_type, setting=setting)

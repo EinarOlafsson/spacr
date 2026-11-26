@@ -86,7 +86,7 @@ class ObjectsError(ValueError):
     """
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class WindowObject:
     """One segmented object as one window saw it, in well-frame coordinates.
 
@@ -117,7 +117,7 @@ class WindowObject:
     clipped: bool = False
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class PlateObject:
     """One nucleus, numbered for the whole well. The join key for sampling.
 
@@ -1024,8 +1024,16 @@ def objects_frame(objects: Sequence[PlateObject]):
     pandas, which is the same reason :mod:`spacr.scorecard` reaches for the
     standard library.
 
+    The rows are gathered column by column, so a well of a million objects
+    holds a list per column rather than a dict per row while the frame is
+    built; the frame is the same.
+
     :param objects: the numbered objects, one row each, in the order given.
     """
     import pandas as pd
 
-    return pd.DataFrame([one.row() for one in objects])
+    columns: Dict[str, list] = {}
+    for one in objects:
+        for name, value in one.row().items():
+            columns.setdefault(name, []).append(value)
+    return pd.DataFrame(columns) if columns else pd.DataFrame([])

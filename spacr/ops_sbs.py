@@ -54,6 +54,9 @@ import numpy as np
 BASES = ("G", "T", "A", "C")
 
 
+_SCORE_BAND_VALUES = 2 ** 22
+
+
 def estimate_read_locations(stack: np.ndarray) -> np.ndarray:
     """Return a map of likely read positions, scored by variance across cycles.
 
@@ -69,6 +72,12 @@ def estimate_read_locations(stack: np.ndarray) -> np.ndarray:
     experiment is a weaker experiment; it is supported because the alternative
     is failing on a legitimate input.
 
+    The map is built a band of rows at a time, ``_SCORE_BAND_VALUES`` stack
+    values (16 MB) per band, so the deviations from the mean are held for
+    one band rather than for the whole stack; each pixel
+    is reduced over the same cycles and channels in the same order either
+    way, so the values do not depend on the band.
+
     :param stack: ``(cycles, channels, Y, X)`` intensities.
     :returns: a ``(Y, X)`` float32 map, high where a read is likely.
     :raises ValueError: if ``stack`` is not four-dimensional.
@@ -78,9 +87,16 @@ def estimate_read_locations(stack: np.ndarray) -> np.ndarray:
         raise ValueError(
             f"stack must be (cycles, channels, Y, X); got shape {array.shape}"
         )
-    if array.shape[0] == 1:
-        return array[0].std(axis=0).astype(np.float32, copy=False)
-    return array.std(axis=0).mean(axis=0).astype(np.float32, copy=False)
+    cycles, channels, height, width = array.shape
+    score = np.empty((height, width), np.float32)
+    band = max(1, _SCORE_BAND_VALUES // max(1, cycles * channels * width))
+    for top in range(0, height, band):
+        part = array[:, :, top:top + band]
+        if cycles == 1:
+            score[top:top + band] = part[0].std(axis=0)
+        else:
+            score[top:top + band] = part.std(axis=0).mean(axis=0)
+    return score
 
 
 def find_peaks(score: np.ndarray, *, min_distance: int = 3,
@@ -1269,6 +1285,79 @@ def nearest_boundaries(points: np.ndarray, centroids: np.ndarray,
         gap[:, :min(2, k)] = gaps[:, :2]
         index[:, :min(2, k)] = near[:, :2]
     return gap, index
+
+
+#: The first gap of a point outside every cell under the cell-mask read
+#: assignment (``ops_read_assignment`` 'cell_mask', item 1025): finite, so
+#: its distance to the runner-up (none, ``inf``) is ``inf`` rather than
+#: undefined, and far beyond any footprint, reach or pixel radius.
+_OUTSIDE_EVERY_CELL = 1e30
+
+
+def _cell_mask_boundaries(points: np.ndarray, cells: np.ndarray
+                          ) -> Tuple[np.ndarray, np.ndarray]:
+    """:func:`nearest_boundaries` under ``ops_read_assignment`` 'cell_mask' (item 1025).
+
+    The one label lookup of the cell-mask read assignment, for the reads and
+    for the fallback pixels, live and in a cache replay. A point inside a
+    cell has a first gap of -1 (inside), the cell's label as its object and
+    no runner-up (gap ``inf``, index -1), so no tie can refuse it. A point
+    outside every cell, or outside the image, has no object and a first gap
+    of :data:`_OUTSIDE_EVERY_CELL`. Given to
+    :func:`spacr.ops_decode._object_owners`, such gaps make every read or
+    pixel the property of the cell it lies in, and of no other.
+
+    :param points: ``(N, 2)`` positions ``(y, x)``, rounded to the pixel.
+    :param cells: a label image in the points' frame; label ``k`` gives
+        index ``k - 1``, so a decode task's cells (label ``i + 1`` for object
+        ``i``) give the task's object index, and stored cells whose values
+        are the object ids give ``id - 1``.
+    :returns: ``(gap, index)`` shaped as :func:`nearest_boundaries` returns
+        them, float64 and int64.
+    """
+    pts = np.asarray(points, dtype=float).reshape(-1, 2)
+    cells = np.asarray(cells)
+    gap = np.full((len(pts), 2), np.inf)
+    gap[:, 0] = _OUTSIDE_EVERY_CELL
+    index = np.full((len(pts), 2), -1, np.int64)
+    if len(pts):
+        y = np.rint(pts[:, 0]).astype(np.int64)
+        x = np.rint(pts[:, 1]).astype(np.int64)
+        inside = (y >= 0) & (y < cells.shape[0]) & (x >= 0) & (x < cells.shape[1])
+        label = np.zeros(len(pts), np.int64)
+        label[inside] = cells[y[inside], x[inside]]
+        hit = label > 0
+        gap[hit, 0] = -1.0
+        index[hit, 0] = label[hit] - 1
+    return gap, index
+
+
+def _cell_neighbours(cells: np.ndarray) -> Dict[int, set]:
+    """The cells that touch, as :func:`_disc_neighbours` gives the nuclei (item 1025).
+
+    Under ``ops_read_assignment`` 'cell_mask' the neighbours of the read
+    neighbour discount and of the pixel bleed gate are the cells that
+    share an edge or a corner: two labels on 8-connected pixels.
+
+    :param cells: a label image, 0 the background.
+    :returns: label -> the labels of the cells it touches.
+    """
+    cells = np.asarray(cells)
+    out: Dict[int, set] = {}
+    if cells.ndim != 2 or cells.size == 0:
+        return out
+    pairs = []
+    for a, b in ((cells[:, :-1], cells[:, 1:]), (cells[:-1, :], cells[1:, :]),
+                 (cells[:-1, :-1], cells[1:, 1:]), (cells[:-1, 1:], cells[1:, :-1])):
+        touch = (a != b) & (a > 0) & (b > 0)
+        if touch.any():
+            pairs.append(np.column_stack([a[touch], b[touch]]).astype(np.int64))
+    if not pairs:
+        return out
+    for i, j in np.unique(np.sort(np.concatenate(pairs), axis=1), axis=0).tolist():
+        out.setdefault(int(i), set()).add(int(j))
+        out.setdefault(int(j), set()).add(int(i))
+    return out
 
 
 def _distance_term(gap: float, decay_px: float, interior_px: float,

@@ -372,6 +372,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_tile_origin",
     # Item 1025 (alpha, schema 969): SBS cell segmentation (OPS SBS cells α).
     "ops_sbs_cell_method", "ops_sbs_cell_model", "ops_sbs_cell_threshold",
+    "ops_read_assignment",
     # L5 audit, schema 965: the ring of the outside profiling family.
     "profile_outside_rule", "ops_ph_profile_outside_rule",
     # Merge 4: one size-filter boundary rule; the legacy rule is kept for old files.
@@ -379,7 +380,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # 0aj P1b: split a source of several plates into plate folders (Mask).
     "split_plates",
     # 977, alpha: ops_phases, a settings file names its own OPS phases (OPS input).
-    "ops_phases",
+    "ops_phases", "ops_require_versions",
     # 983 and 984, alpha: the image and crop formats, filed under Object Crops.
     "mask_image_format", "crop_image_format", "crops_per_shard",
     "crop_margin_px", "crop_zero_outside",
@@ -697,6 +698,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_fdr_scale",
     "ops_decode_skip_unplaced_sites",
     "ops_store_field_cache",
+    "ops_store_values_raw",
     # Items N6 and N7 (schema 972): raw pre-pairing masks and the field
     # cache's spot floor.
     "ops_store_raw_masks", "ops_read_cache_floor",
@@ -1506,6 +1508,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTINGS, not a regrouping (item 987b, 2026-11-19): the Cellpose
     # network number format and tile batch, beside mask_workers_per_gpu.
     "mask_inference_precision", "mask_eval_batch_size",
+    # NEW SETTING, not a regrouping (item 1047): the opt-in deterministic GPU mode.
+    "gpu_deterministic",
     "mask_eval_batch_cap", "mask_batch_seed", "gpu_vram_budget_gb",
     # NEW SETTINGS, not a regrouping (TASK X, settings version 948,
     # 2026-11-20): the per-path Cellpose tile batches of OPS phenotype, OPS

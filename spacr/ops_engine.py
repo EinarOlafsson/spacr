@@ -25,6 +25,7 @@ import re
 import time
 from collections import Counter
 from .checkpoint import _atomic_json
+from .gpu_determinism import gpu_deterministic_on
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
 from .ops_settings import ops_defaults, ops_setting
 from .ops_compose import (paste_origin, tile_centres, tile_origin_rule,
@@ -2462,7 +2463,8 @@ def _ops_journal_plan(path, settings, names, field_id):
 
 
 def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
-                      field_id, names, active, context, site, available, stream=False):
+                      field_id, names, active, context, site, available, stream=False,
+                      present=None):
     """Journal actual groups produced by the single existing resident batch planner."""
     from . import _mask_batches as batches
     from ._mask_array_batches import _array_batches
@@ -2472,7 +2474,8 @@ def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
 
     order_sha256 = batches._order_sha256(map(str, names))
     with _array_batches(records, load, settings, gpu=gpu, plan_path=plan_path,
-                        max_fields=max_fields, stream=stream) as resident:
+                        max_fields=max_fields, stream=stream,
+                        present=_ops_present(present, available)) as resident:
         for record, image, metadata, count in resident:
             if active and image is not None:
                 with open(plan_path, encoding='utf-8') as handle:
@@ -2498,16 +2501,39 @@ def _ops_batch_fields(records, load, settings, *, gpu, plan_path, max_fields,
             yield record, image, metadata, count
 
 
+def _ops_present(present, available):
+    """``present`` that also records each answer as the availability of the record.
+
+    :param present: ``record -> bool``, or None.
+    :param available: record name -> whether it has an input, updated.
+    :returns: the wrapped test, or None.
+    """
+    if present is None:
+        return None
+
+    def probe(record):
+        """Whether ``record`` has an input; remembered for the batch journal."""
+        found = bool(present(record))
+        available[str(record)] = found
+        return found
+
+    return probe
+
+
 @contextmanager
 def _ops_array_batches(records, load, settings, *, prepare, site, gpu=False,
                        plan_path=None, max_fields=None, field_id=str, order=None,
-                       stream=False):
+                       stream=False, present=None):
     """Adapt existing OPS readers to the shared calibrated resident batch planner.
 
     :param stream: pass each field through as loaded, one at a time, without
         the resident packed or device copy of the whole batch
         (:func:`spacr._mask_array_batches._array_batches`); the grouping, the
         tile batch and the journal are the same.
+    :param present: with ``stream``, ``record -> bool``, whether ``load``
+        gives that record an image; each field is then loaded only when it is
+        reached, so one field is held rather than its group
+        (:func:`spacr._mask_array_batches._iter_array_batches`).
     """
     from tempfile import TemporaryDirectory
     from . import _mask_batches as batches
@@ -2564,7 +2590,7 @@ def _ops_array_batches(records, load, settings, *, prepare, site, gpu=False,
             records, functools.partial(_ops_prefetched_load, prefetched, load, available), settings,
             gpu=gpu, plan_path=plan_path, max_fields=max_fields, field_id=field_id,
             names=names, active=active, context=context, site=site, available=available,
-            stream=stream)
+            stream=stream, present=present)
         try:
             yield iterator
         finally:
@@ -2976,7 +3002,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
              if folder else None)
     raw_writer = (_objects_raw_writer(
         db, plate, {"cellpose_models": _run_provenance(settings, ("objects",)),
-         "software": _software_versions()})
+         "software": _software_versions(),
+         "gpu_deterministic": gpu_deterministic_on(settings)})
                   if ops_setting(settings, "ops_store_raw_masks") else None)
     kept = Counter()
     seconds = Counter()
@@ -3007,10 +3034,17 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         fill[~covered] = float(np.median(image[covered]))
         return fill, (key, gain, covered)
 
+    def has_input(window):
+        """Whether :func:`load_window` composes ``window`` rather than skip or reuse it."""
+        if not folder:
+            return _touches(window, usable, shape)
+        key, touched = _objects_window_key(basis, window, usable, sources, shape)
+        return touched and _objects_window_load(folder, window, key) is None
+
     plan_path = os.path.join(folder, 'mask_batch_plan.json') if folder else None
     with _ops_array_batches(windows, load_window, settings, gpu=gpu,
                             prepare=lambda image: (model, image, extra), site='ops_stitched',
-                            plan_path=plan_path,
+                            plan_path=plan_path, stream=True, present=has_input,
                             field_id=lambda window: f'{plate}_{well}_window_{windows.index(window)}') as resident:
         for count, (window, fill, details, field_count) in enumerate(resident, start=1):
             key, value, covered = details
@@ -3048,6 +3082,9 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     groups, objects, refusal, refused = _objects_number(observations, seconds)
     if not objects:
         raise ValueError(f"well {well}: segmentation found no nuclei")
+    counted = {"observations": len(observations), "groups": len(groups),
+               "all_clipped_groups": sum(1 for g in groups if all(o.clipped for o in g))}
+    del observations, groups
     frame = objects_frame(objects)
     frame.insert(0, "well", well)
     frame.insert(0, "plate", plate)
@@ -3066,9 +3103,9 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     gate = objects_ready(db)
     report = {
         "canvas": list(canvas), "windows": len(windows), "empty_windows": empty,
-        "observations": len(observations), "groups": len(groups),
+        "observations": counted["observations"], "groups": counted["groups"],
         "objects": len(objects),
-        "all_clipped_groups": sum(1 for g in groups if all(o.clipped for o in g)),
+        "all_clipped_groups": counted["all_clipped_groups"],
         "strict_refusal": refusal[:500],
         "refusals": (_explain_refusals(refused, frame, window_overlap)
                      if refused else None),
@@ -3086,7 +3123,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
                        "n_partial_windows": len(partial)})
     if kept["reused"]:
         report["windows_resumed"] = summary
-    _say(f"{well} objects: {len(objects)} from {len(observations)} observations "
+    _say(f"{well} objects: {len(objects)} from {counted['observations']} observations "
          f"in {report['total_seconds']} s")
     return report
 
@@ -3269,22 +3306,32 @@ _SBS_CELL_MODELS: Dict[Tuple[str, str, bool], Any] = {}
 def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
     """The item-1025 SBS cell options of a decode, or None when they are off.
 
-    :param settings: read for ``ops_sbs_cell_method``, ``ops_sbs_cell_model``
-        and ``ops_sbs_cell_threshold``.
+    :param settings: read for ``ops_sbs_cell_method``, ``ops_sbs_cell_model``,
+        ``ops_sbs_cell_threshold`` and ``ops_read_assignment``.
     :returns: None with ``ops_sbs_cell_method`` 'off', so a run decodes
         exactly as before; otherwise ``method``,
         ``foreground`` (the proxy threshold, None for Otsu) and ``mask_settings``, the shared
-        Cellpose settings a decode worker reads.
-    :raises ValueError: for an unknown method or a threshold that is not a
-        number.
+        Cellpose settings a decode worker reads, plus ``assignment``
+        'cell_mask' under ``ops_read_assignment`` 'cell_mask' (part 2), when
+        the reads go to the cells.
+    :raises ValueError: for an unknown method or read assignment, a
+        threshold that is not a number, or ``ops_read_assignment``
+        'cell_mask' with ``ops_sbs_cell_method`` 'off', which makes no cells.
     """
+    from .ops_decode import read_assignment_setting
     from .qt.i18n import tr
 
     method = str(ops_setting(settings, "ops_sbs_cell_method") or "off").strip().lower()
     if method not in _SBS_CELL_METHODS:
         raise ValueError(tr("ops_sbs_cell_method must be one of {choices}; got {value}",
                             choices=list(_SBS_CELL_METHODS), value=method))
+    assignment = read_assignment_setting(settings)
     if method == "off":
+        if assignment == "cell_mask":
+            raise ValueError(
+                "ops_read_assignment 'cell_mask' gives the reads to the SBS cells, but "
+                "ops_sbs_cell_method is 'off' and makes none; set it to 'cellpose' or "
+                "'watershed'")
         return None
     value = ops_setting(settings, "ops_sbs_cell_threshold")
     threshold = None
@@ -3297,7 +3344,8 @@ def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
     mask_settings = {key: settings.get(key) for key in _SBS_CELL_MASK_KEYS
                      if settings.get(key) is not None}
     return {"method": method, "foreground": threshold,
-            "mask_settings": mask_settings}
+            "mask_settings": mask_settings,
+            **({"assignment": "cell_mask"} if assignment == "cell_mask" else {})}
 
 
 def _sbs_cell_proxy(stack: np.ndarray) -> np.ndarray:
@@ -3535,6 +3583,7 @@ def _sbs_store_cells(db: str, plate: str, well: str, options: Mapping[str, Any],
     write_table(frame, table, canonicalise=False)
     kept = frame[frame["owned"]]
     report = {"method": options["method"],
+              **({"read_assignment": "cell_mask"} if options.get("assignment") else {}),
               "store": str(writer.path), "table": table, "fields": fields,
               "nuclei": int(len(kept)), "nuclei_with_cell": int(kept["has_cell"].sum())}
     _say(f"{well} SBS cells ({options['method']}): {report['nuclei_with_cell']} of "
@@ -3557,7 +3606,12 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         With ``sbs_cells`` (item 1025, :func:`_sbs_cell_options`) the SBS
         cells are grown from the objects after alignment
         (:func:`_sbs_field_cells`) and returned under ``sbs_cells``; the
-        reads are still attributed to the nucleus discs.
+        reads are attributed to the nucleus discs, or, with its
+        ``assignment`` 'cell_mask' (``ops_read_assignment``, part 2), the
+        cells become the task's ``cell_labels`` and every read and fallback
+        pixel goes to the object of the cell it lies in
+        (:func:`spacr.ops_sbs._cell_mask_boundaries` through
+        :func:`spacr.ops_decode._object_owners`).
     :returns: the field's reads attributed to the objects it owns, and its
         counts. With ``store_reads`` it also returns each owned read's
         position in this tile's frame, its per-cycle margin and the
@@ -3567,6 +3621,12 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     with the neighbouring tile is not given to the wrong nucleus merely
     because the right one belongs to the neighbour; only the reads whose
     owner this tile owns are returned, so no read is counted twice.
+
+    ONE STACK-SIZED ARRAY AT A TIME where the rule allows it: the raw
+    planes go once the field is aligned, and under the item-873 rules with
+    log reads and no spot features the -LoG filter is written over the
+    aligned stack, which nothing reads afterwards. The values are the same;
+    a field holds one stack-sized array where it held three.
 
     THE NUMBERS COME IN THROUGH THE TASK, not off the module. Fields decode
     in SPAWNED processes, which re-import this module and get the shipped
@@ -3617,6 +3677,7 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
                         registrations=(diagnostics["registrations"]
                                        if diagnostics is not None else None),
                         **task.get("registration", {}))
+    del loaded, planes
     ticks["align"] = time.perf_counter() - tick
     base.update(kept=list(field.kept), refused=list(field.refused),
                 refused_channels=[list(pair) for pair in field.refused_channels],
@@ -3633,6 +3694,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         sbs_cells = _sbs_field_cells(task, field.stack, gpu, unreadable)
         ticks["sbs_cells"] = time.perf_counter() - tick
         base["sbs_cells"] = sbs_cells
+        if task["sbs_cells"].get("assignment") == "cell_mask":
+            task = {**task, "cell_labels": sbs_cells["cells"]}
 
     tick = time.perf_counter()
     stack = field.stack
@@ -3645,7 +3708,10 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
 
         spotnet = _spotnet_peaks(stack, detect=_spotiflow_spots,
                                  threshold=None)
-    filtered = np.empty_like(stack)
+    rule = task.get("rule_a")
+    in_place = bool(rule) and rule.get("read_mode", "log") == "log" \
+        and not rule.get("features") and not rule.get("store_values_raw")
+    filtered = stack if in_place else np.empty_like(stack)
     for c in range(stack.shape[0]):
         for k in range(stack.shape[1]):
             filtered[c, k] = np.clip(
@@ -3657,8 +3723,12 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     if diagnostics is not None:
         _write_field_diagnostics(task, field, filtered, diagnostics, base)
     if task.get("rule_a"):
-        result = _decode_field_rule_a(task, field, stack, filtered, spotnet,
-                                      margin, gpu)
+        import dataclasses
+
+        arrays = {"stack": None if in_place else stack, "filtered": filtered}
+        del stack, filtered
+        field = dataclasses.replace(field, stack=None)
+        result = _decode_field_rule_a(task, field, arrays, spotnet, margin, gpu)
         ticks["spots_calls"] = time.perf_counter() - tick
         return {**base, **result,
                 "seconds": {k: round(v, 2) for k, v in ticks.items()}}
@@ -3700,9 +3770,19 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         intensities = margins = None
         calls, quality = call_reads(values, bases=_BASES, gpu=gpu,
                                     **_crosstalk_arguments(task))
-    owner, ambiguous = attribute_reads(
-        peaks.astype(float), task["centroids"], task["areas"],
-        footprint=float(task.get("footprint", _FOOTPRINT)), tie=_TIE)
+    if task.get("cell_labels") is not None:
+        from .ops_decode import _object_owners
+        from .ops_sbs import _cell_mask_boundaries
+
+        gap, index = _cell_mask_boundaries(peaks.astype(float), task["cell_labels"])
+        near, ambiguous, _ = _object_owners(
+            gap, index[:, 0] >= 0, {"tie": _TIE, "territory": False},
+            float(task.get("footprint", _FOOTPRINT)))
+        owner = np.where(near & ~ambiguous, index[:, 0], -1)
+    else:
+        owner, ambiguous = attribute_reads(
+            peaks.astype(float), task["centroids"], task["areas"],
+            footprint=float(task.get("footprint", _FOOTPRINT)), tie=_TIE)
     has_owner = owner >= 0
     owned = np.zeros(len(peaks), dtype=bool)
     owned[has_owner] = np.asarray(task["owned"], dtype=bool)[owner[has_owner]]
@@ -3910,7 +3990,7 @@ def _write_field_diagnostics(task: Mapping[str, Any], field, filtered,
     return path
 
 
-def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
+def _decode_field_rule_a(task: Mapping[str, Any], field, arrays: Dict[str, np.ndarray],
                          spotnet, margin: int, gpu: bool) -> Dict[str, Any]:
     """The rest of :func:`_decode_field` under the item-873 decode rules.
 
@@ -3918,9 +3998,12 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         :func:`spacr.ops_decode.decode_rule` with ``threshold``,
         ``footprint``, ``max_distance``, ``min_fraction`` and
         ``single_read_quality``), ``crosstalk`` and the objects.
-    :param field: the aligned field.
-    :param stack: its aligned stack.
-    :param filtered: the stack after the -LoG filter.
+    :param field: the aligned field; its ``stack`` is not read.
+    :param arrays: ``stack``, the aligned stack, and ``filtered``, the stack
+        after the -LoG filter. Both are taken out of the dict, and each is let
+        go once nothing below reads it (the stack at once unless the rule
+        reads raw values or spot features), so a field holds one full-size
+        array while it is called rather than three.
     :param spotnet: a backend detector's peaks, or None for the native score.
     :param margin: how far from the edge a read must lie.
     :param gpu: let the peak finder use the card.
@@ -3940,11 +4023,18 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     from .ops_sbs import estimate_read_locations, find_peaks
 
     rule = task["rule_a"]
+    stack, filtered = arrays.pop("stack"), arrays.pop("filtered")
+    read_mode = rule.get("read_mode", "log")
+    if (read_mode == "log" and not rule.get("features")
+            and not rule.get("store_values_raw")):
+        stack = None
     weighting = rule.get("read_weight")
     from .ops_decode import _rule_pixel_ownership
 
-    if (weighting and weighting["neighbour_discount"] != 1.0) or (
-            rule.get("pixels") and _rule_pixel_ownership(rule) == "read_rule"):
+    neighboured = bool((weighting and weighting["neighbour_discount"] != 1.0) or (
+        rule.get("pixels") and _rule_pixel_ownership(rule) == "read_rule"))
+    cell_mask = task.get("cell_labels") is not None
+    if neighboured and not cell_mask:
         from .ops_decode import _neighbour_reach
         from .ops_sbs import _disc_neighbours
 
@@ -3970,17 +4060,18 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         floor=floor,
         pixel_percentile=rule["pixel_percentile"] if rule["pixels"] else None,
         features=bool(rule.get("features")))
-    read_mode = rule.get("read_mode", "log")
+    if neighboured and cell_mask:
+        from .ops_decode import _neighbour_reach, cached_neighbours
+
+        rule = {**rule, "neighbours": cached_neighbours(
+            evidence, _neighbour_reach(rule, rule["footprint"]))}
+    del filtered, score
     if read_mode == "log":
+        if rule.get("store_values_raw"):
+            evidence["values_raw"] = _field_raw_values(stack, evidence, task, field)
         calls = _rule_a_calls(evidence, rule, auto, spots, task)
     else:
-        from .ops_sbs import _read_values
-
-        measured = _read_values(stack, None, evidence["peaks"], "raw")
-        cycles = list(task["cycles"])
-        raw = np.full((len(measured), len(cycles), stack.shape[1]), np.nan, np.float32)
-        for i, cycle in enumerate(field.kept):
-            raw[:, cycles.index(cycle)] = measured[:, i]
+        raw = _field_raw_values(stack, evidence, task, field)
         evidence["values_raw"] = raw
         raw_evidence = {**evidence, "values": raw}
         if read_mode == "raw":
@@ -4060,6 +4151,30 @@ def _pixel_votes(calls: Mapping[str, Any], spots) -> Dict[float, Dict[int, dict]
     """
     first = calls["by_spot"][0] if spots else calls
     return first["votes"]["pixel"]
+
+
+def _field_raw_values(stack, evidence, task, field) -> np.ndarray:
+    """Each spot's unfiltered read per cycle and channel (``values_raw``).
+
+    The one measurement behind ``ops_read_mode`` 'raw' and 'auto' and behind
+    ``ops_store_values_raw`` (item 1050): the maximum of the unfiltered
+    pixels within 3 px of each peak (:func:`spacr.ops_sbs._read_values`),
+    laid out like ``evidence['values']`` with NaN for a cycle not kept.
+
+    :param stack: the field's registered cycle stack.
+    :param evidence: the field evidence; its ``peaks`` are read.
+    :param task: the decode task; its ``cycles`` give the column order.
+    :param field: the field; its ``kept`` cycles are measured.
+    :returns: ``(spots, cycles, channels)`` float32.
+    """
+    from .ops_sbs import _read_values
+
+    measured = _read_values(stack, None, evidence["peaks"], "raw")
+    cycles = list(task["cycles"])
+    raw = np.full((len(measured), len(cycles), stack.shape[1]), np.nan, np.float32)
+    for i, cycle in enumerate(field.kept):
+        raw[:, cycles.index(cycle)] = measured[:, i]
+    return raw
 
 
 def _rule_a_calls(evidence: Mapping[str, Any], rule: Mapping[str, Any], auto, spots,
@@ -4393,6 +4508,54 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
     return report
 
 
+_TUNING_KEYS = ("counts", "nuclei", "shuffled", "never", "never_metadata")
+
+
+def _spill_candidates(result: Dict[str, Any], spill) -> Dict[str, Any]:
+    """Move the auto candidates of a decoded field to disk, keeping what the tuner reads.
+
+    The candidates of a field hold its calls at every grid setting, about 11 MB
+    of Python objects a field (1.3 MB pickled) on Funk A1, and the well
+    keeps every field until the thresholds are chosen. Only the counts in
+    :data:`_TUNING_KEYS` choose them; the rest is read back one field at a
+    time by :func:`_restored_candidates` to rebuild the calls of that field.
+
+    :param result: the result of one field from :func:`_decode_field`.
+    :param spill: a :class:`tempfile.TemporaryDirectory`, or None to keep
+        the candidates in memory.
+    :returns: ``result``, its ``candidates`` replaced by the tuning keys and
+        the ``spilled`` path when they were written.
+    """
+    import pickle
+
+    candidates = result.get("candidates")
+    if spill is None or candidates is None:
+        return result
+    path = os.path.join(spill.name, f"site{int(result['site']):05d}.pickle")
+    with open(path, "wb") as handle:
+        pickle.dump(candidates, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    result["candidates"] = {**{key: candidates[key] for key in _TUNING_KEYS
+                               if key in candidates}, "spilled": path}
+    return result
+
+
+def _restored_candidates(candidates: Mapping[str, Any]) -> Mapping[str, Any]:
+    """The full auto candidates of a field, read back when :func:`_spill_candidates` wrote them.
+
+    :param candidates: the ``candidates`` of a field.
+    :returns: the candidates as the field returned them.
+    """
+    import pickle
+
+    path = candidates.get("spilled")
+    if path is None:
+        return candidates
+    with open(path, "rb") as handle:
+        restored = pickle.load(handle)
+    os.remove(path)
+    return restored
+
+
 def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
                            decoys) -> Dict[str, Any]:
     """Choose a well's call thresholds from its decoys and make its calls.
@@ -4491,7 +4654,7 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
         spot_index = None
     decoy_set = frozenset(decoys)
     for r in fields:
-        candidates = r.pop("candidates")
+        candidates = _restored_candidates(r.pop("candidates"))
         if by_mode:
             candidates = candidates["by_mode"][mode_index]
             r.update({"spots": candidates["reads"],
@@ -4589,6 +4752,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         entered and says so.
     """
     import multiprocessing
+    import tempfile
     from .resource_log import _parallel_process_executor as ProcessPoolExecutor
 
     import pandas as pd
@@ -4730,6 +4894,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                 "scale": rule_a["fdr_scale"], "rounds": [], "converged": False}}
         if read_mode != "log":
             rule_a["read_mode"] = read_mode
+        elif bool(ops_setting(settings, "ops_store_values_raw")):
+            rule_a["store_values_raw"] = True
         cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
                                     well, "decode_cache")
     else:
@@ -4795,27 +4961,34 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             len(first) * _array_file_nbytes(first[0]) if first else 0,
             settings=settings)
     results = []
-    if workers == 1:
-        _init_decode_worker(library_set, decoy_set)
-        for task in tasks:
-            results.append(_decode_field({**task, "gpu": gpu}))
-    else:
-        context = multiprocessing.get_context("spawn")
-        with ProcessPoolExecutor(workers, mp_context=context,
-                                 initializer=_init_decode_worker,
-                                 initargs=(library_set, decoy_set)) as pool:
-            for count, result in enumerate(pool.map(
-                    _decode_field, [{**t, "gpu": False} for t in tasks]), start=1):
-                results.append(result)
-                if count % 25 == 0:
-                    _say(f"{well} decode: {count} of {len(tasks)} fields")
+    spill = (tempfile.TemporaryDirectory(prefix=f".decode_candidates_{well}_",
+                                         dir=os.path.dirname(os.path.abspath(db)))
+             if rule_a is not None and rule_a.get("auto") else None)
+    try:
+        if workers == 1:
+            _init_decode_worker(library_set, decoy_set)
+            for task in tasks:
+                results.append(_spill_candidates(_decode_field({**task, "gpu": gpu}), spill))
+        else:
+            context = multiprocessing.get_context("spawn")
+            with ProcessPoolExecutor(workers, mp_context=context,
+                                     initializer=_init_decode_worker,
+                                     initargs=(library_set, decoy_set)) as pool:
+                for count, result in enumerate(pool.map(
+                        _decode_field, [{**t, "gpu": False} for t in tasks]), start=1):
+                    results.append(_spill_candidates(result, spill))
+                    if count % 25 == 0:
+                        _say(f"{well} decode: {count} of {len(tasks)} fields")
 
-    decoded = [r for r in results if "skipped" not in r]
-    sbs_report = (_sbs_store_cells(db, plate, well, sbs_options, tasks, decoded)
-                  if sbs_options else None)
-    if rule_a is not None and rule_a.get("auto"):
-        rule_a = _apply_auto_thresholds(db, plate, well, rule_a, thresholds,
-                                        decoded, decoys)
+        decoded = [r for r in results if "skipped" not in r]
+        sbs_report = (_sbs_store_cells(db, plate, well, sbs_options, tasks, decoded)
+                      if sbs_options else None)
+        if rule_a is not None and rule_a.get("auto"):
+            rule_a = _apply_auto_thresholds(db, plate, well, rule_a, thresholds,
+                                            decoded, decoys)
+    finally:
+        if spill is not None:
+            spill.cleanup()
     if rule_a is not None:
         report = _decode_rule_a_report(
             db, plate, well, settings, rule_a, tasks, results, decoded,
@@ -7195,6 +7368,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     segment_flat = _ph_segment_flat(settings, destination, channels) if segment else None
     provenance = ({"cellpose_models": _run_provenance(settings, ("ph_segment",)),
                    "software": _software_versions(),
+                   "gpu_deterministic": gpu_deterministic_on(settings),
                    "segment_flatfield_md5": (None if segment_flat is None
                                              else segment_flat["md5"])}
                   if segment else None)
@@ -14786,6 +14960,7 @@ def run_ops(settings: Mapping[str, Any], *,
     if unknown:
         raise ValueError(
             f"unknown phases {unknown}; choose from {list(_ALL_PHASES)}")
+    _version_check(settings)
     if "power_sim" in phases or (settings.get("ops_power_sim") and tuple(phases) == _PHASES):
         if any(phase != "power_sim" for phase in phases) and tuple(phases) != _PHASES:
             raise ValueError("the power_sim phase runs on its own")
@@ -15188,6 +15363,59 @@ def run_ops(settings: Mapping[str, Any], *,
     return out
 
 
+def _required_versions(settings: Mapping[str, Any]) -> Dict[str, str]:
+    """The ``ops_require_versions`` mapping of a run, package to expected version (item 1040).
+
+    :param settings: read for ``ops_require_versions``: None for no check, or a
+        mapping such as ``{"cellpose": "4.2.1.1", "torch": "2.13.0+cu130"}``.
+    :returns: package to expected version, empty when no check is asked for.
+    :raises ValueError: when the setting is not a mapping of names to versions.
+    """
+    wanted = settings.get("ops_require_versions")
+    if wanted in (None, {}, ""):
+        return {}
+    if not isinstance(wanted, Mapping) or not all(
+            isinstance(k, str) and k and isinstance(v, (str, int, float))
+            for k, v in wanted.items()):
+        raise ValueError("ops_require_versions must be None or a mapping of package "
+                         f"name to version, got {wanted!r}")
+    return {str(k): str(v) for k, v in wanted.items()}
+
+
+def _version_check(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """Compare the installed versions with ``ops_require_versions`` (item 1040).
+
+    The versions come from :func:`_software_versions`; a package it does not
+    list is read from the installed distribution.
+
+    :param settings: see :func:`_required_versions`.
+    :returns: None when no check is asked for, else ``{"expected": ..., "found": ...}``.
+    :raises RuntimeError: naming each package with its expected and found
+        version when any differs.
+    """
+    expected = _required_versions(settings)
+    if not expected:
+        return None
+    from importlib import metadata
+
+    known = _software_versions()
+    found: Dict[str, Optional[str]] = {}
+    for name in expected:
+        if name in known:
+            found[name] = known[name]
+        else:
+            try:
+                found[name] = metadata.version(name)
+            except metadata.PackageNotFoundError:
+                found[name] = None
+    wrong = [f"{name}: expected {expected[name]}, found {found[name]}"
+             for name in expected if found[name] != expected[name]]
+    if wrong:
+        raise RuntimeError("the installed software differs from ops_require_versions, "
+                           "so no field was processed: " + "; ".join(wrong))
+    return {"expected": expected, "found": found}
+
+
 def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
                      report: Mapping[str, Any]) -> Dict[str, Any]:
     """The ``provenance`` block of one well's ``ops_report.json`` (item 975).
@@ -15197,7 +15425,8 @@ def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
     :param report: the well's report; the phenotype fields' own record of
         the weights and the flat-field map they segmented on
         (``ph_fields.provenance``) is lifted from it.
-    :returns: ``software`` (:func:`_software_versions`), ``cellpose_models`` (role to path, md5, model name) and
+    :returns: ``software`` (:func:`_software_versions`), ``gpu_deterministic``
+        (whether ``gpu_deterministic`` was on, item 1047), ``cellpose_models`` (role to path, md5, model name) and
         ``segment_flatfield_md5`` (channel to md5, or None when the fields
         were segmented on raw pixels). A phase this run did not run leaves
         what an earlier run of the well recorded.
@@ -15211,6 +15440,10 @@ def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
     models.update(_run_provenance(settings, [p for p in phases if p != "ph_segment"]))
     block["cellpose_models"] = models
     block["software"] = _software_versions()
+    block["gpu_deterministic"] = gpu_deterministic_on(settings)
+    checked = _version_check(settings)
+    if checked:
+        block["required_versions"] = checked
     return block
 
 
