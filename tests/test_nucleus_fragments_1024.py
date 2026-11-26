@@ -580,7 +580,7 @@ def test_settings_registered_off_with_schema_row():
         "ops_ph_nucleus_fragment_min_contact_px": 0.0,
         "ops_ph_nucleus_fragment_max_valley_dip": None,
         "ops_ph_nucleus_fragment_max_area_rel": None}
-    assert tuple(measure._NUCLEUS_PAIRING_DEFAULTS) == NAMES
+    assert tuple(measure._NUCLEUS_PAIRING_DEFAULTS)[:len(NAMES)] == NAMES
     measure_defaults = get_measure_crop_settings({})
     for name, default in measure._NUCLEUS_PAIRING_DEFAULTS.items():
         assert measure_defaults[name] == default

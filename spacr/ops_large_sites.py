@@ -1524,11 +1524,13 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
              if pairing is not None else None)
     merged = None
     if frac > 0 or (pairing is not None and seeded
-                    and pairing["nucleus_fragment_merge"] != "off"):
+                    and (pairing["nucleus_fragment_merge"] != "off"
+                         or pairing["merge_small_nuclei_px"] > 0)):
         before = dict(pairing or {}, nucleus_small_piece_frac=frac,
                       cellless_nuclei="drop")
         if not seeded:
             before["nucleus_fragment_merge"] = "off"
+            before["merge_small_nuclei_px"] = 0.0
         nuclei, before_record = _pair_before_cells(nuclei, before, dna=stain)
         merged = before_record.get("small_pieces") if frac > 0 else None
     after = None
@@ -1536,6 +1538,7 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
         after = dict(pairing)
         if seeded:
             after["nucleus_fragment_merge"] = "off"
+            after["merge_small_nuclei_px"] = 0.0
     body = normalize_site(np.stack([stack[..., names.index(c)] for c in settings["cell_channels"]],
                                    axis=-1))
     if seeded:
@@ -1562,7 +1565,12 @@ def _site_pairing_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any
 
     The large-site preset reads the OPS phenotype names
     (``ops_ph_nucleus_fragment_merge``, ``ops_ph_cellless_nuclei`` and their
-    thresholds), so a plate pairs the same way through either path.
+    thresholds, ``ops_ph_extra_nuclei`` and ``ops_ph_merge_small_nuclei_px``
+    of items 1028/1029), so a plate pairs the same way through either path.
+    With seeded cells (``seg_cells_from_nucleus_seeds``) every nucleus has
+    its own cell, so the fragment rule and ``merge_small_nuclei_px`` run on
+    the nuclei before the cells are seeded, merging into the touching
+    nucleus.
     """
     from .measure import _nucleus_pairing_active, _nucleus_pairing_options
 

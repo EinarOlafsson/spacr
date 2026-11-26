@@ -5897,7 +5897,9 @@ _PH_PAIRING_KEYS = ("ops_ph_nucleus_fragment_merge",
                     "ops_ph_nucleus_fragment_max_valley_dip",
                     "ops_ph_nucleus_fragment_max_area_rel",
                     "ops_ph_cellless_nuclei",
-                    "ops_ph_cellless_nucleus_max_distance_px")
+                    "ops_ph_cellless_nucleus_max_distance_px",
+                    "ops_ph_extra_nuclei",
+                    "ops_ph_merge_small_nuclei_px")
 
 #: The columns of the item-1024 field and well tables.
 _PH_FRAGMENT_COLUMNS = ["well", "site", "label", "kept_label", "merged_label",
@@ -5966,7 +5968,8 @@ def _ph_collect_fragments(mask_dir: str, destination: str, well: str,
     return path
 
 
-def _ph_pairing_columns(table, cells: np.ndarray, path: str):
+def _ph_pairing_columns(table, cells: np.ndarray, path: str,
+                        one_row_per_cell: bool = False):
     """Add the item-1024 columns to one field's phenotype table.
 
     :param table: the field's table, one row per nucleus ``label``.
@@ -5979,6 +5982,17 @@ def _ph_pairing_columns(table, cells: np.ndarray, path: str):
         or more). Only a cell's first nucleus, key = cell key, carries the
         cell and cytoplasm columns; a further nucleus has them empty and
         points to its cell through ``cell_label``.
+    :param one_row_per_cell: ``ops_ph_extra_nuclei`` ``'keep_all'``
+        (items 1028/1029): ONE ROW PER PHYSICAL CELL, so a genotype or
+        phenotype join on the cell never counts a binucleate cell twice.
+        The cell row (key = cell key) keeps the measurements of its first,
+        largest nucleus and gains ``nucleus_ids`` (every nucleus key of the
+        cell joined by ``;``, the row's own key first) and
+        ``nucleus_area_total``; the rows of the further nuclei are removed.
+        Those nuclei stay in the stored nucleus mask under their own keys
+        and in ``ops_nucleus_fragments_<well>.parquet`` (``kept_label`` -2,
+        ``cell_label`` their cell), so they can be measured on their own.
+        A nucleus kept without a cell keeps its row.
     """
     import pandas as pd
 
@@ -6001,7 +6015,31 @@ def _ph_pairing_columns(table, cells: np.ndarray, path: str):
     table["nucleus_count"] = [int(per_cell.get(c, 0)) if c > 0 else 0
                               for c in cell_of]
     table["binucleate"] = table["nucleus_count"] > 1
+    if one_row_per_cell:
+        table = _ph_one_row_per_cell(table, home)
     return table
+
+
+def _ph_one_row_per_cell(table, home: Mapping[int, int]):
+    """Fold the further nuclei of each cell into its row (items 1028/1029).
+
+    :param table: the field's table after :func:`_ph_pairing_columns`.
+    :param home: ``{further nucleus key: cell key}``.
+    :returns: the table without the further-nucleus rows, with
+        ``nucleus_ids`` and ``nucleus_area_total`` on every row.
+    """
+    labels = table["label"].astype(np.int64)
+    members: Dict[int, List[int]] = {}
+    for key, cell in sorted(home.items()):
+        members.setdefault(int(cell), []).append(int(key))
+    area = (dict(zip(labels.astype(int), table["nucleus_area"].astype(float)))
+            if "nucleus_area" in table else {})
+    ids = [[int(v)] + members.get(int(v), []) for v in labels]
+    table["nucleus_ids"] = [";".join(str(k) for k in row) for row in ids]
+    table["nucleus_area_total"] = [float(np.nansum([area.get(k, np.nan) for k in row]))
+                                   if area else np.nan for row in ids]
+    keep = ~labels.isin(list(home))
+    return table.loc[keep.to_numpy()].reset_index(drop=True)
 
 
 #: The object classes item 970 adds to the phenotype path, in the order
@@ -7101,7 +7139,8 @@ def _ph_measure_table(task: Mapping[str, Any]):
     if "nucleus_area" not in table:
         table["nucleus_area"] = np.nan
     if task.get("fragments_path"):
-        table = _ph_pairing_columns(table, cells, task["fragments_path"])
+        table = _ph_pairing_columns(table, cells, task["fragments_path"],
+                                    one_row_per_cell=bool(task.get("one_row_per_cell")))
     if task.get("objects") and len(table):
         from .ops_sample import _cell_object_features
 
@@ -7478,7 +7517,10 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 "secondary": secondary.get(site),
                 "objects": object_roles,
                 **({"fragments_path": _ph_fragments_path(mask_dir, site)}
-                   if pairing_options else {})}
+                   if pairing_options else {}),
+                **({"one_row_per_cell": True}
+                   if (pairing_options or {}).get("extra_nuclei") == "keep_all"
+                   else {})}
 
     check_gpu = bool(measure and options["measure_gpu"]
                      and settings.get("ops_ph_measure_gpu_check", True))

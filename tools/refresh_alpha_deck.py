@@ -68,7 +68,7 @@ GROUPS = (
         ("Size filters from pixel size, label images from other tools", (800, 790)),
         ("Per-cell export (cell, cytoplasm, nucleus) and GPU measurement", (769, 566)),
         ("OPS features in Measure, slow families off by default",
-         (934, 941, 1008, 1024)),
+         (934, 941, 1008, 1024, 1029)),
         ("Plaques: scale, growth time, sizes and effects vs reports", (501, 911, 900)),
         ("Infection by titration, effector translocation by parasite load", (898, 910)),
     )),
