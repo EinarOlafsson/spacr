@@ -15495,14 +15495,17 @@ def _wants_decode_qc(settings: Mapping[str, Any], phases: Sequence[str]) -> bool
     :param settings: the run's settings.
     :param phases: the phases asked for.
     :returns: True when ``decode_qc`` is named, or the decode runs with
-        ``ops_decode_qc`` or ``ops_genotype_confidence`` on.
+        ``ops_decode_qc``, ``ops_genotype_confidence``,
+        ``ops_decode_qc_bleed_panel`` or ``ops_decode_qc_depth_curve`` on.
     """
     from .ops_decode import _flag_or
 
     if "decode_qc" in phases:
         return True
     return "decode" in phases and (_flag_or(settings, "ops_decode_qc")
-                                   or _flag_or(settings, "ops_genotype_confidence"))
+                                   or _flag_or(settings, "ops_genotype_confidence")
+                                   or _flag_or(settings, "ops_decode_qc_bleed_panel")
+                                   or _flag_or(settings, "ops_decode_qc_depth_curve"))
 
 
 def _decoded_wells(db: str, plate: str, wells) -> List[str]:

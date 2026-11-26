@@ -15732,6 +15732,8 @@ SETTING_CONSUMERS = {
     'ops_decode_pixel_fallback': (('spacr.ops_decode', 'decode_rule'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_decode_preset': (('spacr.ops_decode', 'resolve_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_decode_qc': (('spacr.ops_decode', 'decode_rule'), ('spacr.ops_decode', 'run_decode_qc'), ('spacr.ops_settings', 'ops_defaults'),),
+    'ops_decode_qc_bleed_panel': (('spacr.ops_decode_qc_panels', 'run_qc_panels'), ('spacr.ops_settings', 'ops_defaults'),),
+    'ops_decode_qc_depth_curve': (('spacr.ops_decode_qc_panels', 'run_qc_panels'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_decode_qc_features': (('spacr.ops_decode', 'run_decode_qc'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_decode_qc_max_calls': (('spacr.ops_decode', 'run_decode_qc'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_decode_qc_model': (('spacr.ops_decode', 'run_decode_qc'), ('spacr.ops_settings', 'ops_defaults'),),
