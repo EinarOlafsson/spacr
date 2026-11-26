@@ -127,6 +127,7 @@ def _well(tmp_path, sites, tile):
         "tile_height": tile, "tile_width": tile} for site, (y, x) in sites.items()]))
     settings = {"genotype_source": str(tmp_path / "raw"), "dst_root": str(out),
                 "plate": "plate", "ops_gpu": False, "n_workers": 1,
+                "ops_reuse_unprovenanced_objects": True,
                 **OLD_CALL_SETTINGS}
     return settings, db
 

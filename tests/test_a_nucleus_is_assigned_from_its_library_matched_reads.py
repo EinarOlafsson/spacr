@@ -100,6 +100,7 @@ def well(tmp_path):
         "area": np.full(3, AREA)}))
     settings = {"genotype_source": str(tmp_path / "raw"), "dst_root": str(out),
                 "plate": "plate", "ops_gpu": False, "n_workers": 1,
+                "ops_reuse_unprovenanced_objects": True,
                 "ops_decode_threshold_mode": "manual", "ops_decode_preset": "none",
                 **OLD_CALL_SETTINGS}
     return settings, db
