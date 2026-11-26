@@ -8,15 +8,15 @@ Both are exact ports of the genotype QC v2 analyses of the paper session
   distance-matched null, by distance from the neighbour boundary and by spot
   position, for all pairs, with sister pairs excluded and for sisters alone;
 * the depth curve (item 1043): silver cells, whose own reads are the
-  guide's reads only, keep ``k`` of those reads; the field is voted again
+  reads of the guide only, keep ``k`` of those reads; the field is voted again
   and the recovery, the wrong-guide rate and the no-call rate are reported
   per ``k``, with the silver guides permuted between cells as the null.
 
 Nothing here reads an image. The harness of the paper read four things the
 decode does not store, and this port replaces them as follows: the tile size
 comes from ``ops_geometry`` (or, without it, from the extent of the cache);
-the calls of the neighbours come from voting the cache again under the run's
-rule at the run's thresholds; mitotic hand labels and the fixed split-read
+the calls of the neighbours come from voting the cache again under the
+rule and thresholds of the run; mitotic hand labels and the fixed split-read
 reference are not in the decode, so sisters are found by geometry alone and
 the silver set has no split-read agreement condition.
 """
@@ -42,7 +42,7 @@ NULL_DRAWS = 500
 NULL_MIN_DISTANCE = 30.0
 
 #: Read-to-nucleus gap that keeps a read in the bleed pairs, and the gap
-#: within which reads name a nucleus's top guide, and the reads that takes.
+#: within which reads name the top guide of a nucleus, and the reads that takes.
 OWNED_GAP = 10.0
 TOP_GAP = 3.0
 TOP_MIN_READS = 2
@@ -160,7 +160,7 @@ def bleed_field(z: Mapping[str, Any], exact: np.ndarray, is_decoy: np.ndarray,
     read of a topped nucleus whose guide is not its top; its pair is that
     read with its second-nearest nucleus, and it matches when its guide is
     the top guide of that nucleus. The null gives each pair the top guide of
-    a random topped nucleus of the field more than 30 px from the read's
+    a random topped nucleus of the field more than 30 px from the read
     own.
 
     :param z: the field cache.
@@ -299,7 +299,7 @@ def silver_field(z: Mapping[str, Any], exact: np.ndarray, is_decoy: np.ndarray,
     :param z: the field cache.
     :param exact: from :func:`exact_matches`.
     :param is_decoy: the decoy flag per barcode position.
-    :param calls: nucleus -> barcode position of the run's call.
+    :param calls: nucleus -> barcode position of the call of the run.
     :param tile_shape: ``(height, width)`` of the tile.
     :param threshold: the read threshold on the spot strength.
     :returns: a DataFrame (``object_id``, ``guide``, ``n_g1``, ``share``,
@@ -384,15 +384,15 @@ def _vote(evidence, rule, library, matcher, decoy_set, crosstalk) -> Dict[int, d
 def depth_field(z: Mapping[str, Any], exact: np.ndarray, silver, names: Sequence[str],
                 rule, library, matcher, decoy_set, crosstalk: str, site: int, seed: int,
                 levels=DEPTH_LEVELS, draws: int = DEPTH_DRAWS):
-    """The depth curve of one field's silver cells (item 1043).
+    """The depth curve of the silver cells of one field (item 1043).
 
     Silver cells are split greedily into groups at least 40 px apart, so the
     reads removed for one cell cannot enter the vote of another. Only peaks
-    within 60 px of a group's silver cells are kept. A silver cell keeps ``k``
+    within 60 px of the silver cells of a group are kept. A silver cell keeps ``k``
     of its own-guide reads, drawn without replacement (its reads are the
     peaks assigned to it whose base call matches its silver guide exactly),
     and every other peak stays. Fallback pixels within 2 px of a removed peak
-    go with it. The group is voted again under the run's rule.
+    go with it. The group is voted again under the rule of the run.
 
     :param z: the field cache.
     :param exact: from :func:`exact_matches`.
