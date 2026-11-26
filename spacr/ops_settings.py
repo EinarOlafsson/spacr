@@ -268,6 +268,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_sbs_cell_method": "off",
     "ops_sbs_cell_model": "cpsam",
     "ops_sbs_cell_threshold": None,
+    "ops_read_assignment": "nucleus_reach",
     "ops_decode_pixel_fallback": False,
     "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
@@ -905,6 +906,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_sbs_cell_method": str,
     "ops_sbs_cell_model": str,
     "ops_sbs_cell_threshold": (float, int, type(None)),
+    "ops_read_assignment": str,
     "ops_decode_pixel_fallback": bool,
     "ops_pixel_read_gate": bool,
     "ops_pixel_percentile": (float, int),
@@ -1358,6 +1360,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "SBS cells α": [
         "ops_sbs_cell_method", "ops_sbs_cell_model", "ops_sbs_cell_threshold",
+        "ops_read_assignment",
     ],
     "Pixel fallback": [
         "ops_decode_pixel_fallback", "ops_pixel_read_gate",
@@ -3799,8 +3802,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "schema 966 keep empty.",
     "ops_sbs_cell_method":
         "(str) - Makes SBS cells, one grown from every SBS nucleus, in the "
-        "decode, for comparing masks and for a later cell-mask read "
-        "assignment; reads still go to nuclei. 'cellpose': the cell probability of Cellpose "
+        "decode, for comparing masks and so reads can be given to whole "
+        "cells (ops_read_assignment 'cell_mask'). 'cellpose': the cell probability of Cellpose "
         "(ops_sbs_cell_model) on the base-channel proxy. 'watershed': the "
         "proxy above ops_sbs_cell_threshold. Masks go to sbs/fov.ome.zarr and "
         "the pairing to ops_sbs_cells_<well>.parquet; a nucleus without a "
@@ -3818,6 +3821,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "2 px) above which ops_sbs_cell_method 'watershed' counts a pixel as "
         "cell. Empty uses the Otsu threshold of each field. Only read with "
         "'watershed'. Default None. Alpha.",
+    "ops_read_assignment":
+        "(str) - Which nucleus a read or a fallback pixel belongs to. "
+        "'cell_mask': the nucleus of the SBS cell it lies in, with no "
+        "footprint or tie, so reads anywhere in the cytoplasm count and reads "
+        "between cells count for none; neighbours for the read discount and "
+        "the pixel bleed gate are the cells that touch. Needs "
+        "ops_sbs_cell_method. 'nucleus_reach': the nearest nucleus within "
+        "ops_footprint, as before. Calls, auto candidates, never and shuffle "
+        "controls and FDR all use the same rule. Default 'nucleus_reach'. Alpha.",
     "ops_prefix_bleed_in_recipe":
         "(bool) - Under ops_prefix_quality_method 'recipe_simple', ignore a "
         "minority barcode that has the most reads in a touching cell when "

@@ -3269,22 +3269,32 @@ _SBS_CELL_MODELS: Dict[Tuple[str, str, bool], Any] = {}
 def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
     """The item-1025 SBS cell options of a decode, or None when they are off.
 
-    :param settings: read for ``ops_sbs_cell_method``, ``ops_sbs_cell_model``
-        and ``ops_sbs_cell_threshold``.
+    :param settings: read for ``ops_sbs_cell_method``, ``ops_sbs_cell_model``,
+        ``ops_sbs_cell_threshold`` and ``ops_read_assignment``.
     :returns: None with ``ops_sbs_cell_method`` 'off', so a run decodes
         exactly as before; otherwise ``method``,
         ``foreground`` (the proxy threshold, None for Otsu) and ``mask_settings``, the shared
-        Cellpose settings a decode worker reads.
-    :raises ValueError: for an unknown method or a threshold that is not a
-        number.
+        Cellpose settings a decode worker reads, plus ``assignment``
+        'cell_mask' under ``ops_read_assignment`` 'cell_mask' (part 2), when
+        the reads go to the cells.
+    :raises ValueError: for an unknown method or read assignment, a
+        threshold that is not a number, or ``ops_read_assignment``
+        'cell_mask' with ``ops_sbs_cell_method`` 'off', which makes no cells.
     """
+    from .ops_decode import read_assignment_setting
     from .qt.i18n import tr
 
     method = str(ops_setting(settings, "ops_sbs_cell_method") or "off").strip().lower()
     if method not in _SBS_CELL_METHODS:
         raise ValueError(tr("ops_sbs_cell_method must be one of {choices}; got {value}",
                             choices=list(_SBS_CELL_METHODS), value=method))
+    assignment = read_assignment_setting(settings)
     if method == "off":
+        if assignment == "cell_mask":
+            raise ValueError(
+                "ops_read_assignment 'cell_mask' gives the reads to the SBS cells, but "
+                "ops_sbs_cell_method is 'off' and makes none; set it to 'cellpose' or "
+                "'watershed'")
         return None
     value = ops_setting(settings, "ops_sbs_cell_threshold")
     threshold = None
@@ -3297,7 +3307,8 @@ def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
     mask_settings = {key: settings.get(key) for key in _SBS_CELL_MASK_KEYS
                      if settings.get(key) is not None}
     return {"method": method, "foreground": threshold,
-            "mask_settings": mask_settings}
+            "mask_settings": mask_settings,
+            **({"assignment": "cell_mask"} if assignment == "cell_mask" else {})}
 
 
 def _sbs_cell_proxy(stack: np.ndarray) -> np.ndarray:
@@ -3535,6 +3546,7 @@ def _sbs_store_cells(db: str, plate: str, well: str, options: Mapping[str, Any],
     write_table(frame, table, canonicalise=False)
     kept = frame[frame["owned"]]
     report = {"method": options["method"],
+              **({"read_assignment": "cell_mask"} if options.get("assignment") else {}),
               "store": str(writer.path), "table": table, "fields": fields,
               "nuclei": int(len(kept)), "nuclei_with_cell": int(kept["has_cell"].sum())}
     _say(f"{well} SBS cells ({options['method']}): {report['nuclei_with_cell']} of "
@@ -3557,7 +3569,12 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         With ``sbs_cells`` (item 1025, :func:`_sbs_cell_options`) the SBS
         cells are grown from the objects after alignment
         (:func:`_sbs_field_cells`) and returned under ``sbs_cells``; the
-        reads are still attributed to the nucleus discs.
+        reads are attributed to the nucleus discs, or, with its
+        ``assignment`` 'cell_mask' (``ops_read_assignment``, part 2), the
+        cells become the task's ``cell_labels`` and every read and fallback
+        pixel goes to the object of the cell it lies in
+        (:func:`spacr.ops_sbs._cell_mask_boundaries` through
+        :func:`spacr.ops_decode._object_owners`).
     :returns: the field's reads attributed to the objects it owns, and its
         counts. With ``store_reads`` it also returns each owned read's
         position in this tile's frame, its per-cycle margin and the
@@ -3633,6 +3650,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         sbs_cells = _sbs_field_cells(task, field.stack, gpu, unreadable)
         ticks["sbs_cells"] = time.perf_counter() - tick
         base["sbs_cells"] = sbs_cells
+        if task["sbs_cells"].get("assignment") == "cell_mask":
+            task = {**task, "cell_labels": sbs_cells["cells"]}
 
     tick = time.perf_counter()
     stack = field.stack
@@ -3700,9 +3719,19 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         intensities = margins = None
         calls, quality = call_reads(values, bases=_BASES, gpu=gpu,
                                     **_crosstalk_arguments(task))
-    owner, ambiguous = attribute_reads(
-        peaks.astype(float), task["centroids"], task["areas"],
-        footprint=float(task.get("footprint", _FOOTPRINT)), tie=_TIE)
+    if task.get("cell_labels") is not None:
+        from .ops_decode import _object_owners
+        from .ops_sbs import _cell_mask_boundaries
+
+        gap, index = _cell_mask_boundaries(peaks.astype(float), task["cell_labels"])
+        near, ambiguous, _ = _object_owners(
+            gap, index[:, 0] >= 0, {"tie": _TIE, "territory": False},
+            float(task.get("footprint", _FOOTPRINT)))
+        owner = np.where(near & ~ambiguous, index[:, 0], -1)
+    else:
+        owner, ambiguous = attribute_reads(
+            peaks.astype(float), task["centroids"], task["areas"],
+            footprint=float(task.get("footprint", _FOOTPRINT)), tie=_TIE)
     has_owner = owner >= 0
     owned = np.zeros(len(peaks), dtype=bool)
     owned[has_owner] = np.asarray(task["owned"], dtype=bool)[owner[has_owner]]
@@ -3943,8 +3972,10 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
     weighting = rule.get("read_weight")
     from .ops_decode import _rule_pixel_ownership
 
-    if (weighting and weighting["neighbour_discount"] != 1.0) or (
-            rule.get("pixels") and _rule_pixel_ownership(rule) == "read_rule"):
+    neighboured = bool((weighting and weighting["neighbour_discount"] != 1.0) or (
+        rule.get("pixels") and _rule_pixel_ownership(rule) == "read_rule"))
+    cell_mask = task.get("cell_labels") is not None
+    if neighboured and not cell_mask:
         from .ops_decode import _neighbour_reach
         from .ops_sbs import _disc_neighbours
 
@@ -3970,6 +4001,11 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         floor=floor,
         pixel_percentile=rule["pixel_percentile"] if rule["pixels"] else None,
         features=bool(rule.get("features")))
+    if neighboured and cell_mask:
+        from .ops_decode import _neighbour_reach, cached_neighbours
+
+        rule = {**rule, "neighbours": cached_neighbours(
+            evidence, _neighbour_reach(rule, rule["footprint"]))}
     read_mode = rule.get("read_mode", "log")
     if read_mode == "log":
         if rule.get("store_values_raw"):

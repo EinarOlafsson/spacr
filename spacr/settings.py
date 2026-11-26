@@ -9268,7 +9268,7 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 ALPHA_FEATURES = {
     1025: {
         'settings': ('ops_sbs_cell_method', 'ops_sbs_cell_model',
-                     'ops_sbs_cell_threshold'),
+                     'ops_sbs_cell_threshold', 'ops_read_assignment'),
     },
     1024: {
         'settings': (

@@ -15974,6 +15974,7 @@ SETTING_CONSUMERS = {
     'ops_pixel_radius': (('spacr.ops_decode', 'decode_rule'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_pixel_ownership': (('spacr.ops_decode', 'decode_rule'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_pixel_footprint': (('spacr.ops_decode', 'decode_rule'), ('spacr.ops_settings', 'ops_defaults'),),
+    'ops_read_assignment': (('spacr.ops_decode', 'decode_rule'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_placement_seed': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_placement_seed_check_pixels': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_placement_seed_export': (('spacr.ops_settings', 'ops_defaults'),),

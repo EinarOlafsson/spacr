@@ -292,7 +292,10 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         holds their settings. The default discount is skipped with a
         notice when rules are off; applied flags are recorded per path.
         ``cache_floor`` is ``ops_read_cache_floor`` (item N7), the weakest
-        spot strength the field cache keeps.
+        spot strength the field cache keeps. Under ``ops_read_assignment``
+        'cell_mask' (item 1025) it carries ``read_assignment`` 'cell_mask';
+        the default 'nucleus_reach' adds no key, so its rule is the rule
+        before item 1025.
     :raises ValueError: for a negative count or a fraction outside (0, 1],
         for a negative ``ops_read_cache_floor``, or for explicit nondefault
         item-988 weighting without decode rules.
@@ -350,6 +353,8 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
                             value=rule["min_top_share"]))
     rule["active"] = bool(rule["decoy_k"] > 0 or any(
         _flag(settings, key) for key in _RULE_SWITCHES))
+    if read_assignment_setting(settings) == "cell_mask":
+        rule["read_assignment"] = "cell_mask"
     weighting = _read_weighting(settings)
     unavailable = False
     if weighting is not None:
@@ -369,6 +374,29 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     if discount != 1.0:
         rule['ops_read_neighbour_discount_applied'] = state
     return rule
+
+
+#: How a read finds its object (``ops_read_assignment``, item 1025), the
+#: first being the default: ``nucleus_reach`` is the nearest nucleus disc
+#: within ``ops_footprint`` with the tie rule; ``cell_mask`` is the SBS cell
+#: (``ops_sbs_cell_method``) the read lies in, with no footprint or tie.
+READ_ASSIGNMENTS = ("nucleus_reach", "cell_mask")
+
+
+def read_assignment_setting(settings: Mapping[str, Any]) -> str:
+    """``ops_read_assignment`` (item 1025), checked.
+
+    :param settings: the settings.
+    :returns: one of :data:`READ_ASSIGNMENTS`; missing or empty gives
+        ``nucleus_reach``.
+    :raises ValueError: for another value.
+    """
+    value = settings.get("ops_read_assignment")
+    value = str(READ_ASSIGNMENTS[0] if value in (None, "") else value).strip().lower()
+    if value not in READ_ASSIGNMENTS:
+        raise ValueError(f"ops_read_assignment must be one of {list(READ_ASSIGNMENTS)}; "
+                         f"got {value!r}")
+    return value
 
 
 def _pixel_ownership(settings: Mapping[str, Any]) -> str:
@@ -629,7 +657,13 @@ def field_evidence(stack: np.ndarray, filtered: np.ndarray,
         minimum.
     :param kept: the cycles the stack holds, in order.
     :param task: the field's task -- ``cycles``, ``centroids``, ``areas``,
-        ``ids`` and ``owned``.
+        ``ids`` and ``owned``. With ``cell_labels`` (``ops_read_assignment``
+        'cell_mask', item 1025: the field's SBS cells, label ``i + 1`` for
+        object ``i``) the reads and the fallback pixels are given to the
+        cell they lie in (:func:`spacr.ops_sbs._cell_mask_boundaries`), the
+        pixels outside every cell are dropped, and the evidence carries
+        :data:`CELL_MASK_KEYS`: ``read_assignment`` and ``pix_assignment``
+        'cell_mask' and ``cell_labels`` with the object ids as values.
     :param edge: how many pixels from the field edge a peak must lie.
     :param floor: the weakest strength kept.
     :param pixel_percentile: keep the pixels above this percentile of the
@@ -644,7 +678,7 @@ def field_evidence(stack: np.ndarray, filtered: np.ndarray,
     """
     from scipy import ndimage
 
-    from .ops_sbs import extract_bases, nearest_boundaries
+    from .ops_sbs import _cell_mask_boundaries, extract_bases, nearest_boundaries
 
     cycles = list(task["cycles"])
     height, width = filtered.shape[-2:]
@@ -663,7 +697,15 @@ def field_evidence(stack: np.ndarray, filtered: np.ndarray,
     areas = np.asarray(task["areas"], float).reshape(-1)
     ids = np.asarray(task["ids"], np.int64).reshape(-1)
     owned = np.asarray(task["owned"], bool).reshape(-1)
-    gap64, index = nearest_boundaries(peaks, centres, areas)
+    cells = task.get("cell_labels")
+
+    def boundaries(points):
+        """The gaps and object indices of points under the field's read assignment."""
+        if cells is None:
+            return nearest_boundaries(points, centres, areas)
+        return _cell_mask_boundaries(points, cells)
+
+    gap64, index = boundaries(peaks)
     gap = gap64.astype(np.float32)
     out: Dict[str, np.ndarray] = {
         "peaks": peaks.astype(np.int32), "strength": strength.astype(np.float32),
@@ -709,8 +751,7 @@ def field_evidence(stack: np.ndarray, filtered: np.ndarray,
                                np.float32)
         for i, cycle in enumerate(kept):
             pixel_values[:, cycles.index(cycle)] = filtered[i][:, ys, xs].T
-        pixel_gap, pixel_index = nearest_boundaries(
-            np.column_stack([ys, xs]), centres, areas)
+        pixel_gap, pixel_index = boundaries(np.column_stack([ys, xs]))
         near = pixel_gap[:, 0] <= _PIXEL_REACH
         pixel_index = pixel_index[near]
         out.update({
@@ -723,6 +764,13 @@ def field_evidence(stack: np.ndarray, filtered: np.ndarray,
                                 ids[np.maximum(pixel_index[:, 1], 0)], -1),
             "pix_owned0": owned[pixel_index[:, 0]],
         })
+    if cells is not None:
+        from .image_store import _compact_labels
+
+        lut = np.concatenate([np.zeros(1, np.int64), ids])
+        out.update({"read_assignment": np.asarray("cell_mask"),
+                    "pix_assignment": np.asarray("cell_mask"),
+                    "cell_labels": _compact_labels(lut[np.asarray(cells, np.int64)])})
     return out
 
 
@@ -749,7 +797,9 @@ def _cell_mask_pixels(evidence: Mapping[str, Any], cells: np.ndarray) -> Dict[st
 
     The contract of the cell-mask read assignment: inside a cell the gap
     is -1 and the object is the cell's, with no runner-up; outside a cell
-    the gap is 1e30 and there is no object.
+    the gap is 1e30 and there is no object. The label lookup is
+    :func:`spacr.ops_sbs._cell_mask_boundaries`, the one the reads take
+    (item 1025).
 
     :param evidence: one field's evidence or field cache with ``pix_yx``
         and ``owned_ids``.
@@ -757,18 +807,118 @@ def _cell_mask_pixels(evidence: Mapping[str, Any], cells: np.ndarray) -> Dict[st
     :returns: a copy with ``pix_gap``, ``pix_id0``, ``pix_id1`` and
         ``pix_owned0`` from the cells and ``pix_assignment`` 'cell_mask'.
     """
-    cells = np.asarray(cells)
-    yx = np.asarray(evidence["pix_yx"], np.int64).reshape(-1, 2)
-    ids = cells[yx[:, 0], yx[:, 1]].astype(np.int64) if len(yx) else np.zeros(0, np.int64)
-    inside = ids > 0
-    gap = np.full((len(ids), 2), 1e30)
-    gap[inside, 0] = -1.0
+    gap, ids = _cell_mask_ids(evidence["pix_yx"], cells)
     out = dict(evidence)
-    out.update({"pix_gap": gap, "pix_id0": np.where(inside, ids, -1),
-                "pix_id1": np.full(len(ids), -1, np.int64),
-                "pix_owned0": inside & np.isin(ids, np.asarray(evidence["owned_ids"], np.int64)),
+    out.update({"pix_gap": gap, "pix_id0": ids[:, 0], "pix_id1": ids[:, 1],
+                "pix_owned0": (ids[:, 0] >= 0) & np.isin(
+                    ids[:, 0], np.asarray(evidence["owned_ids"], np.int64)),
                 "pix_assignment": "cell_mask"})
     return out
+
+
+def _cell_mask_ids(points: np.ndarray, cells: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """The gaps and object ids of points under stored cell labels (item 1025).
+
+    :param points: ``(N, 2)`` positions ``(y, x)``.
+    :param cells: a label image whose values are the object ids.
+    :returns: ``(gap, ids)``, both ``(N, 2)``, from
+        :func:`spacr.ops_sbs._cell_mask_boundaries`; an id is -1 where the
+        point has no object.
+    """
+    from .ops_sbs import _cell_mask_boundaries
+
+    gap, index = _cell_mask_boundaries(np.asarray(points, float).reshape(-1, 2),
+                                       np.asarray(cells))
+    return gap, np.where(index >= 0, index + 1, -1).astype(np.int64)
+
+
+def _cell_mask_evidence(evidence: Mapping[str, Any], cells: np.ndarray) -> Dict[str, Any]:
+    """A field's evidence given to its stored SBS cells (item 1025).
+
+    The replay of ``ops_read_assignment`` 'cell_mask' from a field cache
+    written under the nucleus reach: the reads (``gap``, ``id0``, ``id1``,
+    ``owned0``) and the fallback pixels (:func:`_cell_mask_pixels`) go to
+    the cell they lie in by :func:`spacr.ops_sbs._cell_mask_boundaries`,
+    the rule of the live decode, and the result carries
+    :data:`CELL_MASK_KEYS`, so :func:`field_calls` and the pixel bleed gate
+    take it as cell-mask evidence. A cache written under the nucleus reach
+    keeps only the fallback pixels within 15 px of a nucleus disc, so a
+    replay can vote fewer pixels than a live cell-mask decode; the reads
+    above the cache floor are complete.
+
+    :param evidence: one field cache or :func:`field_evidence` result.
+    :param cells: the field's ``sbs_cell`` labels, values the object ids,
+        in the frame of the cache's peaks.
+    :returns: a copy under the cell mask; evidence already under it is
+        returned as it is.
+    :raises ValueError: when ``cells`` is not a label image the size of the
+        field the peaks lie in.
+    """
+    if _evidence_text(evidence, "read_assignment") == "cell_mask":
+        return dict(evidence)
+    cells = np.asarray(cells)
+    peaks = np.asarray(evidence["peaks"]).reshape(-1, 2)
+    if cells.ndim != 2 or (len(peaks) and (peaks.max(0) >= np.asarray(cells.shape)).any()):
+        raise ValueError(f"the SBS cell labels {tuple(cells.shape)} do not cover this "
+                         "field's reads; give the sbs_cell labels of the same site")
+    gap, ids = _cell_mask_ids(peaks, cells)
+    out = dict(evidence)
+    out.update({"gap": gap.astype(np.float32), "id0": ids[:, 0], "id1": ids[:, 1],
+                "owned0": (ids[:, 0] >= 0) & np.isin(
+                    ids[:, 0], np.asarray(evidence["owned_ids"], np.int64))})
+    if "pix_yx" in evidence:
+        out = _cell_mask_pixels(out, cells)
+    from .image_store import _compact_labels
+
+    out.update({"read_assignment": np.asarray("cell_mask"),
+                "pix_assignment": np.asarray("cell_mask"),
+                "cell_labels": _compact_labels(cells)})
+    return out
+
+
+def _evidence_text(evidence: Mapping[str, Any], key: str) -> str:
+    """A string entry of the evidence, as a dict or an ``.npz`` holds it; '' when absent."""
+    value = evidence.get(key) if hasattr(evidence, "get") else None
+    return "" if value is None else str(np.asarray(value))
+
+
+def _read_assignment_of(rule: Mapping[str, Any]) -> str:
+    """The rule's read assignment (``ops_read_assignment``, item 1025).
+
+    :param rule: from :func:`decode_rule`.
+    :returns: ``cell_mask`` or ``nucleus_reach``; a rule without the key,
+        as every nucleus-reach rule, is ``nucleus_reach``.
+    """
+    return str(rule.get("read_assignment") or "nucleus_reach")
+
+
+def _check_read_assignment(evidence: Mapping[str, Any], rule: Mapping[str, Any]) -> None:
+    """Refuse evidence made under another read assignment than the rule's (item 1025).
+
+    :param evidence: one field's evidence or field cache.
+    :param rule: from :func:`decode_rule`.
+    :raises ValueError: naming what is missing: under
+        ``ops_read_assignment`` 'cell_mask' evidence whose reads follow the
+        nucleus reach (no ``read_assignment`` 'cell_mask'), which must be
+        given to the stored SBS cells first (:func:`_cell_mask_evidence`,
+        ``decode_cached_well(..., cell_store=...)``); under the nucleus
+        reach evidence whose reads follow a cell mask.
+    """
+    made = _evidence_text(evidence, "read_assignment") or "nucleus_reach"
+    wanted = _read_assignment_of(rule)
+    if made == wanted:
+        return
+    if wanted == "cell_mask":
+        raise ValueError(
+            "ops_read_assignment 'cell_mask' needs evidence whose reads are given to the "
+            "SBS cells, but this field's gap, id0 and owned0 follow the nucleus reach "
+            "(no read_assignment 'cell_mask', no cell_labels); replay the cache with the "
+            "stored sbs_cell labels (decode_cached_well cell_store=<run>/sbs/fov.ome.zarr) "
+            "or decode the well again with ops_sbs_cell_method on")
+    raise ValueError(
+        f"this field's reads were given to the SBS cells (read_assignment '{made}'); "
+        "set ops_read_assignment 'cell_mask' to decode it, or decode the well again "
+        "under 'nucleus_reach'")
 
 
 def _pixel_assignment(evidence: Mapping[str, Any]) -> Mapping[str, Any]:
@@ -783,12 +933,8 @@ def _pixel_assignment(evidence: Mapping[str, Any]) -> Mapping[str, Any]:
     :raises ValueError: under a cell-mask read assignment whose pixels
         carry nucleus-disc owners and no ``cell_labels`` to assign them by.
     """
-    def text(key):
-        """A string entry of the evidence, as a dict or an ``.npz`` holds it."""
-        value = evidence.get(key) if hasattr(evidence, "get") else None
-        return "" if value is None else str(np.asarray(value))
-
-    if text("read_assignment") != "cell_mask" or text("pix_assignment") == "cell_mask":
+    if (_evidence_text(evidence, "read_assignment") != "cell_mask"
+            or _evidence_text(evidence, "pix_assignment") == "cell_mask"):
         return evidence
     if "cell_labels" in evidence:
         return _cell_mask_pixels(evidence, evidence["cell_labels"])
@@ -948,7 +1094,7 @@ def _rule_with_pixel_neighbours(rule: Mapping[str, Any], evidence: Mapping[str, 
             or _rule_pixel_ownership(rule) != "read_rule"
             or rule.get("neighbours") is not None):
         return rule
-    missing = [key for key in CACHE_NUCLEUS_KEYS if key not in evidence]
+    missing = [key for key in _neighbour_keys(evidence) if key not in evidence]
     if missing:
         raise ValueError("ops_pixel_ownership 'read_rule' needs the field's nucleus "
                          "positions for the pixel bleed gate; this field cache has no "
@@ -1074,6 +1220,7 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
 
     from .ops_sbs import vote_mapped_reads, vote_pixels
 
+    _check_read_assignment(evidence, rule)
     rule = _rule_with_pixel_neighbours(
         _rule_with_neighbours(rule, evidence, footprint), evidence, footprint)
     strength = np.asarray(evidence["strength"])
@@ -3189,7 +3336,8 @@ def _well_split_concordance(decoded: Sequence[Mapping[str, Any]],
 
 
 def _cached_field(path: str, rule: Mapping[str, Any], library: Sequence[str],
-                  decoys: Sequence[str], crosstalk: str) -> Dict[str, Any]:
+                  decoys: Sequence[str], crosstalk: str,
+                  cells: Optional[Tuple[str, str]] = None) -> Dict[str, Any]:
     """One stored field cache decoded under a rule (:func:`decode_cached_well`).
 
     :param path: the ``site<NNNN>.npz`` field cache.
@@ -3197,11 +3345,16 @@ def _cached_field(path: str, rule: Mapping[str, Any], library: Sequence[str],
     :param library: the guide barcodes.
     :param decoys: the decoy barcodes.
     :param crosstalk: the unmixing method.
+    :param cells: ``(store, well)`` of the stored SBS cells, for a rule under
+        ``ops_read_assignment`` 'cell_mask' replaying a cache written under
+        the nucleus reach (:func:`_stored_cell_evidence`); None otherwise.
     :returns: ``site`` and ``rule_a``, as the decoded fields of the engine carry.
     """
     matcher, decoy_set = matcher_for(library, decoys)
     with np.load(path) as stored:
         evidence = {key: stored[key] for key in stored.files}
+    if _read_assignment_of(rule) == "cell_mask":
+        evidence = _stored_cell_evidence(evidence, int(os.path.basename(path)[4:8]), cells)
     calls = field_calls(evidence, rule, library, matcher, decoy_set,
                         threshold=rule["threshold"], footprint=rule["footprint"],
                         max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
@@ -3209,11 +3362,51 @@ def _cached_field(path: str, rule: Mapping[str, Any], library: Sequence[str],
     return {"site": int(os.path.basename(path)[4:8]), "rule_a": calls}
 
 
+def _stored_cell_evidence(evidence: Mapping[str, Any], site: int,
+                          cells: Optional[Tuple[str, str]]) -> Mapping[str, Any]:
+    """A field cache under ``ops_read_assignment`` 'cell_mask' (item 1025).
+
+    :param evidence: the opened field cache.
+    :param site: its site.
+    :param cells: ``(store, well)``: ``<run>/sbs/fov.ome.zarr``, where the
+        decode stored the ``sbs_cell`` labels (``ops_sbs_cell_method``), and
+        the well; None when the cache must already hold cell-mask evidence.
+    :returns: the evidence itself when it was written under the cell mask
+        (it carries :data:`CELL_MASK_KEYS`); otherwise
+        :func:`_cell_mask_evidence` with the field's stored cells.
+    :raises FileNotFoundError: naming the store, well, site and the
+        ``sbs_cell`` labels when the cache follows the nucleus reach and no
+        stored cells are given or found.
+    """
+    if _evidence_text(evidence, "read_assignment") == "cell_mask":
+        if "cell_labels" not in evidence and _evidence_text(evidence, "pix_assignment") != "cell_mask":
+            raise FileNotFoundError(
+                f"site {site}: this cell-mask field cache holds neither cell_labels nor "
+                "cell-labelled pixels (pix_assignment 'cell_mask'); decode the well again")
+        return evidence
+    if cells is None:
+        raise FileNotFoundError(
+            f"ops_read_assignment 'cell_mask' replays site {site} from a field cache made "
+            "under the nucleus reach, which holds no cell_labels; pass cell_store, the "
+            "run's sbs/fov.ome.zarr with the sbs_cell labels of ops_sbs_cell_method, and "
+            "the well")
+    from .image_store import field_key, read_labels
+
+    store, well = cells
+    key = field_key(well, site)
+    if not os.path.isfile(os.path.join(str(store), key, "labels", "sbs_cell", "zarr.json")):
+        raise FileNotFoundError(
+            f"{store} holds no sbs_cell labels for well {well} site {site}; decode the "
+            "well with ops_sbs_cell_method on so its SBS cells are stored")
+    return _cell_mask_evidence(evidence, np.asarray(read_labels(store, "sbs_cell", key=key)))
+
+
 def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
                        library: Sequence[str], *, read_threshold: float,
                        single_read_quality: float, pixel_quality: float,
                        tune_sites: Sequence[int] = (), sites: Optional[Sequence[int]] = None,
-                       workers: int = 1) -> Dict[str, Any]:
+                       workers: int = 1, cell_store: Optional[str] = None,
+                       well: Optional[str] = None) -> Dict[str, Any]:
     """Decode a well again from its stored field caches, without images or objects.
 
     The fields are decoded by :func:`field_calls` under the rule the
@@ -3237,6 +3430,13 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
         split-read concordance scores the others.
     :param sites: only these fields; None decodes every cache.
     :param workers: processes decoding fields at once.
+    :param cell_store: under ``ops_read_assignment`` 'cell_mask' (item
+        1025), the run's ``sbs/fov.ome.zarr`` whose ``sbs_cell`` labels give
+        the reads and pixels of caches written under the nucleus reach to
+        their cells (:func:`_stored_cell_evidence`); caches written under
+        the cell mask need none. Not read under 'nucleus_reach'.
+    :param well: the well of ``cell_store``; the cache folder's parent
+        folder name when None.
     :returns: ``rule`` (the rule decoded under), ``fields`` (one entry per
         field with ``site`` and ``rule_a``, as :func:`field_calls` returns),
         ``nuclei``, ``assigned_real``, ``assigned_decoy`` and
@@ -3271,6 +3471,9 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
                    if name.startswith("site") and name.endswith(".npz")
                    and (wanted is None or int(name[4:8]) in wanted))
     jobs = [(path, rule, library, decoys, crosstalk) for path in paths]
+    if _read_assignment_of(rule) == "cell_mask" and cell_store is not None:
+        name = well or os.path.basename(os.path.dirname(os.path.abspath(cache_folder)))
+        jobs = [(*job, (str(cell_store), name)) for job in jobs]
     workers = max(1, min(int(workers), len(jobs)))
     if workers > 1:
         from .resource_log import _array_file_nbytes, _guard_workers
@@ -3407,6 +3610,19 @@ def barcode_rows(plate: str, well: str, decoded: Sequence[Mapping[str, Any]]
 CACHE_NUCLEUS_KEYS = ("nuc_ids", "nuc_centroids", "nuc_areas")
 
 
+def _neighbour_keys(evidence: Mapping[str, Any]) -> Tuple[str, ...]:
+    """The evidence keys a field's neighbours are built from (items 1013, 1025).
+
+    :param evidence: one field's evidence or field cache.
+    :returns: ``('cell_labels',)`` under the cell-mask read assignment,
+        whose neighbours are the cells that touch; otherwise
+        :data:`CACHE_NUCLEUS_KEYS`.
+    """
+    if _evidence_text(evidence, "read_assignment") == "cell_mask":
+        return ("cell_labels",)
+    return CACHE_NUCLEUS_KEYS
+
+
 def save_field_cache(folder: str, site: int, evidence: Mapping[str, np.ndarray],
                      objects: Optional[Mapping[str, Any]] = None) -> str:
     """Write one field's evidence as ``site<NNNN>.npz``.
@@ -3439,13 +3655,21 @@ def cached_neighbours(evidence: Mapping[str, Any], reach: float) -> Dict[int, se
         of it) written with the nucleus positions (:func:`save_field_cache`).
     :param reach: the largest gap between two disc edges, ``ops_footprint``.
     :returns: object id -> its neighbours, as the engine builds them before
-        the decode (:func:`spacr.ops_sbs._disc_neighbours`).
+        the decode (:func:`spacr.ops_sbs._disc_neighbours`). Evidence under
+        ``ops_read_assignment`` 'cell_mask' (item 1025) gives the cells that
+        touch in its ``cell_labels`` (:func:`spacr.ops_sbs._cell_neighbours`),
+        whatever the reach.
     :raises ValueError: for a cache written before the nucleus positions
-        were stored.
+        were stored, or cell-mask evidence without ``cell_labels``.
     """
-    from .ops_sbs import _disc_neighbours
+    from .ops_sbs import _cell_neighbours, _disc_neighbours
 
-    missing = [key for key in CACHE_NUCLEUS_KEYS if key not in evidence]
+    cell_mask = _evidence_text(evidence, "read_assignment") == "cell_mask"
+    missing = [key for key in _neighbour_keys(evidence) if key not in evidence]
+    if missing and cell_mask:
+        raise ValueError("the cell-mask read assignment takes a field's neighbours from "
+                         "the cells that touch, but this field's evidence holds no "
+                         f"{', '.join(missing)}; replay it with the stored sbs_cell labels")
     if missing:
         from .qt.i18n import tr
 
@@ -3453,6 +3677,8 @@ def cached_neighbours(evidence: Mapping[str, Any], reach: float) -> Dict[int, se
                             "this field cache was written before they were stored "
                             "(no {missing}); decode the field again to replay it "
                             "with the discount", missing=", ".join(missing)))
+    if cell_mask:
+        return _cell_neighbours(evidence["cell_labels"])
     return _disc_neighbours(evidence["nuc_ids"], evidence["nuc_centroids"],
                             evidence["nuc_areas"], float(reach))
 
@@ -3478,6 +3704,7 @@ def _rule_with_neighbours(rule: Mapping[str, Any], evidence: Mapping[str, Any],
         return rule
     reach = _neighbour_reach(rule, footprint)
     if (weighting["neighbour_discount"] == _DEFAULTS["ops_read_neighbour_discount"]
+            and _evidence_text(evidence, "read_assignment") != "cell_mask"
             and any(key not in evidence for key in CACHE_NUCLEUS_KEYS)):
         state = _neighbour_discount_state(None, 'cache_replay', False,
             discount=weighting["neighbour_discount"], method='cache_without_positions',

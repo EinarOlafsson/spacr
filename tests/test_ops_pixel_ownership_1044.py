@@ -227,10 +227,12 @@ def test_cell_mask_mode_gives_each_pixel_its_cell_label(tmp_path):
     evidence = _cache(tmp_path, _field())
     cells = _cells()
     masked = _cell_mask(evidence, cells)
-    with pytest.raises(ValueError, match="cell_labels"):
+    with pytest.raises(ValueError, match="set ops_read_assignment 'cell_mask'"):
         _calls(masked, _rule("read_reach"))
+    with pytest.raises(ValueError, match="cell_labels"):
+        _calls(masked, _rule("read_reach", ops_read_assignment="cell_mask"))
     labelled = {**masked, "cell_labels": cells}
-    out = _calls(labelled, _rule("read_reach"))
+    out = _calls(labelled, _rule("read_reach", ops_read_assignment="cell_mask"))
     assert 2 not in out["calls"]
     assert out["calls"][1]["source"] == "primary"
     yx = np.asarray(evidence["pix_yx"], np.int64)
@@ -238,9 +240,12 @@ def test_cell_mask_mode_gives_each_pixel_its_cell_label(tmp_path):
     assert np.array_equal(given["pix_id0"][given["pix_id0"] > 0],
                           cells[yx[:, 0], yx[:, 1]][cells[yx[:, 0], yx[:, 1]] > 0])
     again = _calls({**masked, **{k: given[k] for k in given if k.startswith("pix_")}},
-                   _rule("read_reach"))
-    assert _sources(again) == _sources(out)
-    old = _calls(masked, _rule("nearest_nucleus"))
+                   _rule("read_reach", ops_read_assignment="cell_mask",
+                         ops_read_neighbour_discount=1.0))
+    assert _sources(again) == _sources(_calls(labelled, _rule(
+        "read_reach", ops_read_assignment="cell_mask", ops_read_neighbour_discount=1.0)))
+    old = _calls(masked, _rule("nearest_nucleus", ops_read_assignment="cell_mask",
+                               ops_read_neighbour_discount=1.0))
     assert _sources(old)[2] == (GUIDE, "pixel_fallback")
 
 

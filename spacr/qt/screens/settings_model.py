@@ -3072,7 +3072,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
     "SBS CELLS Α":
         "Alpha: SBS cells grown from the SBS nuclei in the decode, by "
         "Cellpose or a seeded watershed on the base channels, stored with "
-        "the other OPS labels. Off by default, which decodes as before.",
+        "the other OPS labels, and whether reads go to the cell they lie in "
+        "instead of the nearest nucleus. Off by default, which decodes as before.",
     "PIXEL FALLBACK":
         "For a nucleus no read reached, call the brightest nearby pixels "
         "like reads, with its own percentile, radius, pixel count, share and "

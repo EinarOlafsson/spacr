@@ -1746,6 +1746,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_sbs_cell_method',
     'ops_sbs_cell_model',
     'ops_sbs_cell_threshold',
+    'ops_read_assignment',
     'ops_sbs_cellpose_diameter',
     'ops_sbs_cycles',
     'ops_sbs_nucleus_model',
