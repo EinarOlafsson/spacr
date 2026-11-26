@@ -89,9 +89,11 @@ def _settings(root: Path, dst: Path, name: str = "ops_testdata_settings.csv",
 
         settings[SETTINGS_VERSION_KEY] = era
         _fold_older_defaults(settings, era, known=set(OPS_DEFAULTS))
+        settings["ops_replay_cellpose_weights"] = "cpsam_v1"
     for key in PATH_KEYS:
         settings[key] = str(root / settings[key])
     settings["dst_root"] = str(dst)
+    settings["ops_reuse_unprovenanced_objects"] = True
     return settings
 
 

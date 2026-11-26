@@ -6949,6 +6949,12 @@ def cpsam_weights(choice, model_dir=None):
     from .model_zoo import ModelUnreadable
 
     name = str(choice or "").strip()
+    if name == "replay":
+        raise ValueError(
+            "ops_cellpose_model is 'replay' (a settings file from before schema 975) "
+            "and has not been resolved: run it through run_ops, or set "
+            "ops_cellpose_model or ops_replay_cellpose_weights to 'cpsam_v1' "
+            "(Cellpose 4.0 and 4.1) or 'cpsam_v2' (Cellpose 4.2 and later).")
     if name not in CPSAM_WEIGHTS:
         raise ValueError(
             f"ops_cellpose_model {choice!r} is not one of "
