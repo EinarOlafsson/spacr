@@ -215,3 +215,30 @@ def test_run_qc_panels_writes_the_tables_and_figures(tmp_path):
     paths = report["A1"]
     assert (folder / "bleed_panel_A1.parquet").is_file() and (folder / "bleed_panel_A1.png").is_file()
     assert "depth_curve" not in paths
+
+
+def test_below_threshold_own_reads_do_not_count_toward_k():
+    library = _library(40, seed=2)
+    z = _depth_field(library, cells=8)
+    weak = np.zeros(len(z["strength"]), bool)
+    weak[[0, 1, 2]] = True
+    z["strength"][weak] = 100.0
+    settings = resolve_settings(ops_defaults({}))
+    rule, lib, decoys, crosstalk = _cached_rule(
+        settings, library, read_threshold=315.0, single_read_quality=1e9, pixel_quality=0.1)
+    rule["pixels"] = False
+    from spacr.ops_decode import matcher_for
+
+    matcher, decoy_set = matcher_for(lib, decoys)
+    names, index, _ = P.universe_index(lib, decoys)
+    exact = P.exact_matches(z, index, rule, lib, crosstalk)
+    import pandas as pd
+
+    silver = pd.DataFrame({"object_id": list(range(1, 9)), "guide": [int(exact[6 * c + 3]) for c in range(8)]})
+    cells = P.depth_field(z, exact, silver, names, rule, lib, matcher, decoy_set, crosstalk,
+                          0, 1, levels=(1, 2, 3), draws=2)
+    cells = cells[cells.object_id == 1]
+    recovered = cells.assign(rec=cells.call == cells.silver_guide).groupby("k").rec.mean()
+    assert recovered["1"] == 0.0
+    assert recovered["2"] == 1.0
+    assert recovered["3"] == 1.0
