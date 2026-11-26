@@ -2193,10 +2193,12 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('nucleus_fragment_min_solidity', 0.94)
     settings.setdefault('nucleus_fragment_max_dip', None)
     settings.setdefault('nucleus_fragment_min_contact_px', 0.0)
-    settings.setdefault('nucleus_fragment_max_valley_dip', None)
+    settings.setdefault('nucleus_fragment_max_valley_dip', 0.30)
     settings.setdefault('nucleus_fragment_max_area_rel', None)
     settings.setdefault('cellless_nuclei', 'drop')
     settings.setdefault('cellless_nucleus_max_distance_px', 5.0)
+    settings.setdefault('extra_nuclei', 'drop')
+    settings.setdefault('merge_small_nuclei_px', 0.0)
     settings.setdefault('funk_object_features', False)
     settings.setdefault('zernike', None)
     settings.setdefault('channel_names', None)
@@ -2741,6 +2743,8 @@ DEFAULT_CHANGES = {
     981: {'ops_pixel_ownership': 'nearest_nucleus', 'ops_pixel_footprint': None},
     982: {'ops_owner_link_inherit': 'off'},
     983: {'ops_pixel_quality': 0.1},
+    984: {'nucleus_fragment_max_valley_dip': None,
+          'ops_ph_nucleus_fragment_max_valley_dip': None},
     985: {},
 }
 _DEFAULT_CHANGE_EARLIER = {
@@ -3188,6 +3192,15 @@ def _fold_older_defaults(settings, version, known=None):
     points of single-gene yield and leaves the split-read disagreement,
     the spike-in and the silver k0 rate unchanged. Files stamped before
     983 get 0.1 and keep their pixel calls.
+
+    Version 984 is item 1024 (alpha): the paper final evaluation sets the
+    fragment test defaults to a gap of 2 px, union solidity 0.94, a valley
+    dip of 0.30 and the dip, contact and area tests off. Only
+    ``nucleus_fragment_max_valley_dip`` and its ``ops_ph_`` twin move (from
+    None to 0.30); the others already had those values. Both are read only
+    when ``nucleus_fragment_merge`` is ``'rule'``, which stays off, so no
+    default output changes. Files stamped before 984 get None, so a file that
+    turned the merge on keeps its pairs.
 
     Version 985 is item 1051: a value the user set always beats a preset,
     even when it equals the default (:func:`fill_preset`). It changes no
@@ -5116,6 +5129,8 @@ expected_types = {
     "nucleus_fragment_max_area_rel": (float, int, type(None)),
     "cellless_nuclei": str,
     "cellless_nucleus_max_distance_px": (float, int),
+    "extra_nuclei": str,
+    "merge_small_nuclei_px": (float, int),
     "funk_object_features": bool,
     "zernike": (bool, type(None)),
     "channel_names": (list, str, type(None)),
@@ -6458,10 +6473,12 @@ tooltips = {
     "nucleus_fragment_min_solidity": "(float) - Lower joins more pairs, including two real nuclei side by side, which is what lowered the precision of the first build: the least solidity (area over the area of the convex hull) the union of two nucleus pieces needs for nucleus_fragment_merge to join them. The strongest single test on hand labels (AUC 0.83). Only read when nucleus_fragment_merge is 'rule'. Provisional (paper session, labels pending review). Default 0.94. Alpha.",
     "nucleus_fragment_max_dip": "(float or None) - Set, it refuses two pieces with a dark line between them; higher joins more pairs: the deepest dip of the raw nucleus stain along the line joining the two piece centres, as 1 - lowest pixel / median of the pieces, for nucleus_fragment_merge to join them. The single-pixel minimum is noisy; the paper session retunes it. Skipped when nucleus_channel is empty. Only read when nucleus_fragment_merge is 'rule'. Default None (off). Alpha.",
     "nucleus_fragment_min_contact_px": "(float) - Higher refuses two pieces that touch only at a corner, as two neighbouring nuclei do, while a cut nucleus touches along the cut: the least number of pixels of the smaller piece touching the other (4-connected) for nucleus_fragment_merge to join them (AUC 0.80 on hand labels). 0 turns the test off. Only read when nucleus_fragment_merge is 'rule'. Default 0 (off). Alpha.",
-    "nucleus_fragment_max_valley_dip": "(float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the nucleus stain is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for nucleus_fragment_merge to join them (AUC 0.74). Only read when nucleus_fragment_merge is 'rule'. Default None (off). Alpha.",
+    "nucleus_fragment_max_valley_dip": "(float or None) - Set, it refuses two pieces with a darker band between them, less noisy than the raw dip: the nucleus stain is smoothed by a 3 x 3 mean and sampled once per pixel along the line joining the piece centres; valley = lowest sample / mean of the first 3 and last 3, and 1 - valley must be at most this value for nucleus_fragment_merge to join them (AUC 0.74). Only read when nucleus_fragment_merge is 'rule'. Default 0.30 (the paper evaluation value; None turns it off). Alpha.",
     "nucleus_fragment_max_area_rel": "(float or None) - Set, it refuses to merge two pieces whose union is too large for one nucleus: the most the combined area may be, as a multiple of the median nucleus area of the field, for nucleus_fragment_merge to join them. 2.5 is the tuned value, but it added nothing on the hand-labelled sample. Only read when nucleus_fragment_merge is 'rule'. Default None (off). Alpha.",
     "cellless_nuclei": "(str) - 'nearest_cell' gives a nucleus outside every cell to the nearest cell within cellless_nucleus_max_distance_px: the cell grows over the nucleus and over the shortest line between them, so it stays one connected object, and the two are measured together. 'nucleus_only' keeps it as a nucleus without a cell and adds has_cell to the nucleus table. 'drop' pairs as before; Measure then keeps such a nucleus in the nucleus table with an empty cell_id. Default 'drop'. Alpha.",
     "cellless_nucleus_max_distance_px": "(float) - Farther gives more nuclei a cell but can give one to the wrong cell: the farthest, in pixels, a nucleus outside every cell may lie from a cell for cellless_nuclei 'nearest_cell' to give it to that cell; 1 is touching. Nuclei farther away stay without a cell. Only read when cellless_nuclei is 'nearest_cell'. Default 5.0. Alpha.",
+    "extra_nuclei": "(str) - 'keep_all' keeps every nucleus of a cell that holds several, each as its own nucleus row linked to that cell, and the cell row gets nucleus_count, binucleate and nucleus_ids (its nucleus labels joined by ';'), so the cell table stays one row per physical cell. Measure already keeps every nucleus in the nucleus table; 'drop' adds no columns. The same option in OPS keeps the second nucleus the OPS pairing otherwise drops. Default 'drop'. Alpha.",
+    "merge_small_nuclei_px": "(float) - Larger merges bigger pieces: a nucleus smaller than this many pixels is merged into the touching nucleus of the same cell (the one it shares the longest border with), so a cut-off fragment is measured with its nucleus instead of as a nucleus of its own. A piece that touches no nucleus of its cell is kept. The same merge runs in OPS and the large-site preset. 300 recovers most fragments seen at full resolution. Default 0 (off). Alpha.",
     "profile_granularity_subsample": "(float) - Sieve each field scaled by this factor for the granularity profiling family, as CellProfiler's image sample size. 0.25, CellProfiler's default, is about 16 times faster than 1.0, which sieves every pixel. Only read when granularity is among profile_features. Default 1.0.",
     "funk_object_features": "(bool) - Add the object features of Funk et al. 2022 (optical pooled screens) to every 2-D object: the mass displacement of every channel (the distance from the object's centroid to its intensity-weighted centroid), Pearson's r of every channel pair over the object's pixels (correlation_<a>_<b>), and the form factor (4 pi area / perimeter squared). The OPS setting ops_ph_funk_features gives the same values from the same functions. Mass displacement and form factor are not repeated when profile_features already writes them. Default False.",
     "zernike": "(bool or None) - Zernike moments of each object's shape (zernike_0 to zernike_24), which need the mahotas package (spacr[zernike]). None computes them when mahotas is installed and skips them otherwise, so the same settings file can give different columns on two computers. True always computes them and stops the run when mahotas is missing; False never computes them. The OPS setting ops_ph_zernike is the same switch. Default None.",
@@ -7356,7 +7373,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "cytoskeleton_channels", "profile_optional_families", "profile_granularity_subsample", "profile_outside_rule", "nucleus_fragment_merge", "nucleus_fragment_max_gap_px", "nucleus_fragment_min_solidity", "nucleus_fragment_max_dip", "nucleus_fragment_min_contact_px", "nucleus_fragment_max_valley_dip", "nucleus_fragment_max_area_rel", "cellless_nuclei", "cellless_nucleus_max_distance_px", "funk_object_features", "zernike", "channel_names", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "spanning_merge", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "cytoskeleton_channels", "profile_optional_families", "profile_granularity_subsample", "profile_outside_rule", "nucleus_fragment_merge", "nucleus_fragment_max_gap_px", "nucleus_fragment_min_solidity", "nucleus_fragment_max_dip", "nucleus_fragment_min_contact_px", "nucleus_fragment_max_valley_dip", "nucleus_fragment_max_area_rel", "cellless_nuclei", "cellless_nucleus_max_distance_px", "extra_nuclei", "merge_small_nuclei_px", "funk_object_features", "zernike", "channel_names", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "spanning_merge", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map", "illumination_nuclear_channel", "illumination_nuclei", "illumination_dark_per_plate", "illumination_block_px", "illumination_fit", "illumination_sigma_px", "illumination_ridge", "illumination_floor", "illumination_centre_cells", "illumination_lookup", "illumination_map_grid", "illumination_centre_offset", "illumination_holdout_n", "illumination_seed", "illumination_validate"],
 
@@ -9395,6 +9412,12 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 
 
 ALPHA_FEATURES = {
+    1043: {
+        'settings': ('ops_decode_qc_depth_curve',),
+    },
+    1042: {
+        'settings': ('ops_decode_qc_bleed_panel',),
+    },
     1025: {
         'settings': ('ops_sbs_cell_method', 'ops_sbs_cell_model',
                      'ops_sbs_cell_threshold', 'ops_read_assignment'),
@@ -9420,6 +9443,10 @@ ALPHA_FEATURES = {
             'ops_ph_cellless_nuclei',
             'ops_ph_cellless_nucleus_max_distance_px',
         ),
+    },
+    1029: {
+        'settings': ('extra_nuclei', 'merge_small_nuclei_px',
+                     'ops_ph_extra_nuclei', 'ops_ph_merge_small_nuclei_px'),
     },
     1011: {
         'settings': ('mask_eval_batch_cap', 'mask_batch_seed', 'gpu_vram_budget_gb'),

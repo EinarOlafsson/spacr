@@ -188,10 +188,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_nucleus_fragment_min_solidity": 0.94,
     "ops_ph_nucleus_fragment_max_dip": None,
     "ops_ph_nucleus_fragment_min_contact_px": 0.0,
-    "ops_ph_nucleus_fragment_max_valley_dip": None,
+    "ops_ph_nucleus_fragment_max_valley_dip": 0.30,
     "ops_ph_nucleus_fragment_max_area_rel": None,
     "ops_ph_cellless_nuclei": "drop",
     "ops_ph_cellless_nucleus_max_distance_px": 5.0,
+    "ops_ph_extra_nuclei": "drop",
+    "ops_ph_merge_small_nuclei_px": 0.0,
     "ops_drop_failed_fields": False,
     "ops_drop_nonfinite_rows": False,
     "ops_profile_normalisation": "robust_z",
@@ -306,6 +308,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_decode_qc_split": "field",
     "ops_decode_qc_seed": 0,
     "ops_decode_qc_max_calls": 20000,
+    "ops_decode_qc_bleed_panel": False,
+    "ops_decode_qc_depth_curve": False,
     "ops_genotype_confidence": False,
     "ops_confidence_model": "hist_gbm",
     "ops_confidence_calibration": "target_decoy",
@@ -834,6 +838,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_nucleus_fragment_max_area_rel": (float, int, type(None)),
     "ops_ph_cellless_nuclei": str,
     "ops_ph_cellless_nucleus_max_distance_px": (float, int),
+    "ops_ph_extra_nuclei": str,
+    "ops_ph_merge_small_nuclei_px": (float, int),
     "ops_drop_failed_fields": bool,
     "ops_drop_nonfinite_rows": bool,
     "ops_profile_normalisation": str,
@@ -945,6 +951,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_decode_qc_split": str,
     "ops_decode_qc_seed": int,
     "ops_decode_qc_max_calls": int,
+    "ops_decode_qc_bleed_panel": bool,
+    "ops_decode_qc_depth_curve": bool,
     "ops_genotype_confidence": bool,
     "ops_confidence_model": str,
     "ops_confidence_calibration": str,
@@ -1316,6 +1324,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_gpu_min_process_mib", "ops_gpu_vram_cap_gb",
         "ops_gpu_ignore_process_patterns", "ops_stress_report",
         "ops_feature_screen_device", "ops_ph_granularity_subsample",
+        "ops_retry_missing",
     ],
     "Archive": [
         "ops_archive_root", "ops_archive_verify", "ops_archive_delete_local",
@@ -1384,6 +1393,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "Call quality & confidence": [
         "ops_decode_qc", "ops_decode_qc_model", "ops_decode_qc_features",
         "ops_decode_qc_split", "ops_decode_qc_seed", "ops_decode_qc_max_calls",
+        "ops_decode_qc_bleed_panel", "ops_decode_qc_depth_curve",
         "ops_genotype_confidence", "ops_confidence_model",
         "ops_confidence_calibration", "ops_confidence_bins",
         "ops_confidence_seed", "ops_confidence_min",
@@ -1439,7 +1449,6 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_diameter", "ops_ph_downsample",
         "ops_ph_nucleus_downsample", "ops_ph_segment_flatfield",
         "ops_ph_spanning_merge", "ops_ph_tile_batch",
-        "ops_retry_missing",
     ],
     "Additional phenotype objects": [
         "ops_ph_pathogen_channel", "ops_ph_pathogen_model",
@@ -1458,6 +1467,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_nucleus_fragment_max_area_rel",
         "ops_ph_cellless_nuclei",
         "ops_ph_cellless_nucleus_max_distance_px",
+        "ops_ph_extra_nuclei",
+        "ops_ph_merge_small_nuclei_px",
         "ops_store_raw_masks",
     ],
     "Phenotype acquisitions": [
@@ -2301,8 +2312,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "joining the piece centres; valley = lowest sample / mean of the "
         "first 3 and last 3, and 1 - valley must be at most this value "
         "for ops_ph_nucleus_fragment_merge to join them (AUC 0.74). Only "
-        "read when ops_ph_nucleus_fragment_merge is 'rule'. Default None "
-        "(off). Alpha.",
+        "read when ops_ph_nucleus_fragment_merge is 'rule'. Default 0.30 "
+        "(the paper evaluation value; None turns it off). Alpha.",
     "ops_ph_nucleus_fragment_max_area_rel":
         "(float or None) - Set, it refuses to merge two pieces whose "
         "union is too large for one nucleus: the most the combined area "
@@ -2327,6 +2338,25 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "'nearest_cell' to give it to that cell; 1 is touching. Nuclei "
         "farther away stay without a cell. Only read when "
         "ops_ph_cellless_nuclei is 'nearest_cell'. Default 5.0. Alpha.",
+    "ops_ph_extra_nuclei":
+        "(str) - 'keep_all' keeps every nucleus of a cell that holds "
+        "several (a binucleate cell) instead of only the largest: the "
+        "further nuclei keep their own keys after the paired ones, "
+        "linked to the cell in ops_nucleus_fragments_<well>.parquet, "
+        "and are excluded from the cytoplasm. The phenotype table stays"
+        " ONE ROW PER PHYSICAL CELL for genotype joins: the cell row "
+        "keeps its largest nucleus and gains nucleus_count, nucleus_ids"
+        " and nucleus_area_total. 'drop' pairs as before. Default "
+        "'drop'. Alpha.",
+    "ops_ph_merge_small_nuclei_px":
+        "(float) - Larger merges bigger pieces: a nucleus smaller than "
+        "this many pixels is merged into the touching nucleus of the "
+        "same cell before pairing, so a fragment no longer becomes a "
+        "cell of its own or is dropped. A piece touching no nucleus of "
+        "its cell is kept. The large-site preset runs the same merge "
+        "(before seeding, when cells grow from nuclei). Replayable from"
+        " stored raw masks. 300 suits full-resolution masks. Default 0 "
+        "(off). Alpha.",
     "ops_drop_failed_fields":
         "(bool) - Leave out the cells of fields that did not register. The "
         "merge phase compares each field's link rate with the rate an "
@@ -4026,6 +4056,31 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - The seed of the false-call model, its SHAP sample and its "
         "bootstrap intervals. The held-out field draw keeps the study's "
         "seed 7. Default 0. Alpha.",
+    "ops_decode_qc_bleed_panel":
+        "(bool) - After the decode, write the bleed panel of the stored field"
+        " cache: of the reads of a cell that are not its top guide, the share"
+        " whose guide is the top guide of the second-nearest nucleus, against"
+        " a null that gives the same reads the top guide of a random nucleus "
+        "more than 30 px away (500 draws, ops_decode_qc_seed), by the "
+        "distance of the read from that neighbour and by its position in its "
+        "own cell, for all pairs, without sister pairs (found by geometry: "
+        "centres under 1.5 mean diameters apart, areas within 20 percent; the"
+        " decode stores no mitotic labels) and for sisters alone. Writes "
+        "bleed_panel_<well>.parquet, bleed_pairs_<well>.parquet and "
+        "bleed_panel_<well>.png to results/ops_decode_qc. Turns on "
+        "ops_store_field_cache. Reads no images. Default False. Alpha.",
+    "ops_decode_qc_depth_curve":
+        "(bool) - After the decode, write the depth-recovery curve of the "
+        "stored field cache: cells with at least 5 reads of one guide within "
+        "3 px and no read of any other keep 0 to 4 of those reads (5 draws "
+        "each, ops_decode_qc_seed), the field is voted again under the rule of "
+        "the run, and the share recovered, the share called as another guide and"
+        " the share not called are reported per number of reads kept, with "
+        "the silver guides permuted between cells as the null. Writes "
+        "depth_curve_<well>.parquet, depth_curve_cells_<well>.parquet, "
+        "silver_cells_<well>.parquet and depth_curve_<well>.png to "
+        "results/ops_decode_qc. Turns on ops_store_field_cache. Reads no "
+        "images. Default False. Alpha.",
     "ops_decode_qc_max_calls":
         "(int) - How many held-out calls the SHAP ranking of the false-call "
         "model is taken over, drawn with ops_decode_qc_seed; 0 takes every "

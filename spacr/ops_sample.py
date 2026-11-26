@@ -325,8 +325,9 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None,
     ``k``, exactly as without the options (a cell's paired nucleus is its
     largest). With ``nucleus_fragment_merge`` ``'rule'``, the further
     nuclei of a binucleate cell (pieces that failed the fragment test) are
-    kept too, with the keys ``K + 1`` onwards in the order of their cell's
-    key; no cell carries such a key, so the row of that nucleus has empty
+    kept too, and with ``extra_nuclei`` ``'keep_all'`` (items 1028/1029)
+    every further nucleus of a cell is, with the keys ``K + 1`` onwards in
+    the order of their cell's key; no cell carries such a key, so the row of that nucleus has empty
     cell and cytoplasm columns and names its cell in ``cell_label``
     (:func:`spacr.ops_engine._ph_pairing_columns`). With
     ``cellless_nuclei`` ``'nucleus_only'``, a nucleus without a cell keeps
@@ -336,8 +337,8 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None,
     ``nucleus_only``.
     """
     from .measure import (_assign_nuclei_to_cells, _best_parent,
-                          _label_overlaps, _nucleus_pairing_active,
-                          _spanning_mode)
+                          _keeps_extra_nuclei, _label_overlaps,
+                          _nucleus_pairing_active, _spanning_mode)
 
     spanning = _spanning_mode(spanning)
     nuclei = np.asarray(nuclei)
@@ -382,7 +383,7 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None,
     paired = int(keep_n.size)
     second_n = np.zeros(0, np.int64)
     homes = np.zeros(0, np.int32)
-    if record is not None and pairing.get("nucleus_fragment_merge") == "rule":
+    if record is not None and _keeps_extra_nuclei(pairing):
         extra = ~np.isin(best_n, keep_n)
         homes = c_lut[best_c[extra]]
         order = np.lexsort((best_n[extra], homes))
@@ -425,12 +426,19 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None,
 
 
 def _pairing_counts(record, nucleus_only, second_nuclei):
-    """The item-1024 counts of one field from the record of the shared pairing."""
-    return {"merged_fragments": len(record["fragments"]),
-            "binucleate_cells": len(record["binucleate"]),
-            "binucleate_kept": int(second_nuclei),
-            "attached_cellless": len(record["attached"]),
-            "nucleus_only": int(nucleus_only)}
+    """The item-1024 counts of one field from the record of the shared pairing.
+
+    With ``merge_small_nuclei_px`` on (items 1028/1029) ``small_fragments_merged``
+    is added: the nuclei below the threshold merged into a nucleus of their cell.
+    """
+    counts = {"merged_fragments": len(record["fragments"]),
+              "binucleate_cells": len(record["binucleate"]),
+              "binucleate_kept": int(second_nuclei),
+              "attached_cellless": len(record["attached"]),
+              "nucleus_only": int(nucleus_only)}
+    if "small_fragments" in record:
+        counts["small_fragments_merged"] = int(record["small_fragments"]["n_merged"])
+    return counts
 
 
 def _measurement_settings(channels: int, texture: bool,

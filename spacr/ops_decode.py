@@ -281,6 +281,21 @@ def _neighbour_discount_state(settings, path, applied, *, discount, method=None,
     return paths
 
 
+def _qc_panel_flag(settings: Mapping[str, Any], key: str) -> bool:
+    """One opt-in decode QC panel setting, False when absent or empty.
+
+    :param settings: the settings.
+    :param key: ``ops_decode_qc_bleed_panel`` or ``ops_decode_qc_depth_curve``.
+    :returns: the value; the strings ``false``, ``0``, ``no`` and ``off`` are False.
+    """
+    value = settings.get(key)
+    if value is None or value == "":
+        return False
+    if isinstance(value, str):
+        return value.strip().lower() not in ("false", "0", "no", "off")
+    return bool(value)
+
+
 def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """The field rule's parameters, read from resolved settings.
 
@@ -326,7 +341,9 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "decoy_k": _number(settings, "ops_decoy_library_k", int),
         "fdr_scale": _number(settings, "ops_fdr_scale"),
         "store_cache": (_flag(settings, "ops_store_field_cache")
-                        or _flag(settings, "ops_decode_qc")),
+                        or _flag(settings, "ops_decode_qc")
+                        or _qc_panel_flag(settings, "ops_decode_qc_bleed_panel")
+                        or _qc_panel_flag(settings, "ops_decode_qc_depth_curve")),
         "cache_floor": _number(settings, "ops_read_cache_floor"),
         "features": _flag(settings, "ops_decode_qc"),
     }
@@ -3401,6 +3418,36 @@ def _stored_cell_evidence(evidence: Mapping[str, Any], site: int,
     return _cell_mask_evidence(evidence, np.asarray(read_labels(store, "sbs_cell", key=key)))
 
 
+def _cached_rule(resolved: Mapping[str, Any], library: Sequence[str], *,
+                 read_threshold: float, single_read_quality: float,
+                 pixel_quality: float):
+    """The rule a stored field cache is decoded under at fixed thresholds.
+
+    :param resolved: settings after :func:`resolve_settings`.
+    :param library: the guide barcodes.
+    :param read_threshold: the read threshold on the spot strength.
+    :param single_read_quality: the quality a one-read guide needs.
+    :param pixel_quality: the pixel quality of the pixel fallback.
+    :returns: ``(rule, library, decoys, crosstalk)``: the rule of
+        :func:`decode_rule` with its thresholds, the sorted library, the
+        decoy barcodes and the unmixing method.
+    """
+    from .ops_engine import _cell_rule
+    from .ops_sbs import decoy_library
+
+    rule = decode_rule(resolved)
+    _, mismatches, _, min_fraction = _cell_rule(resolved, library)
+    rule.update({"threshold": float(read_threshold),
+                 "footprint": float(resolved["ops_footprint"]),
+                 "max_distance": mismatches, "min_fraction": min_fraction,
+                 "single_read_quality": float(single_read_quality),
+                 "pixel_quality": float(pixel_quality)})
+    library = sorted(set(library))
+    decoys = decoy_library(library, k=int(rule["decoy_k"])) if rule["decoy_k"] > 0 else []
+    crosstalk = str(resolved.get("ops_crosstalk") or "none")
+    return rule, library, decoys, crosstalk
+
+
 def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
                        library: Sequence[str], *, read_threshold: float,
                        single_read_quality: float, pixel_quality: float,
@@ -3444,8 +3491,6 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
     """
     from multiprocessing import get_context
 
-    from .ops_engine import _cell_rule
-    from .ops_sbs import decoy_library
     from .ops_settings import ops_defaults
     from .settings import SETTINGS_VERSION_KEY, _fold_older_defaults, _settings_file_version
 
@@ -3456,16 +3501,9 @@ def decode_cached_well(cache_folder: str, settings: Mapping[str, Any],
 
         _fold_older_defaults(given, version, known=set(OPS_DEFAULTS))
     resolved = resolve_settings(ops_defaults(given))
-    rule = decode_rule(resolved)
-    _, mismatches, _, min_fraction = _cell_rule(resolved, library)
-    rule.update({"threshold": float(read_threshold),
-                 "footprint": float(resolved["ops_footprint"]),
-                 "max_distance": mismatches, "min_fraction": min_fraction,
-                 "single_read_quality": float(single_read_quality),
-                 "pixel_quality": float(pixel_quality)})
-    library = sorted(set(library))
-    decoys = decoy_library(library, k=int(rule["decoy_k"])) if rule["decoy_k"] > 0 else []
-    crosstalk = str(resolved.get("ops_crosstalk") or "none")
+    rule, library, decoys, crosstalk = _cached_rule(
+        resolved, library, read_threshold=read_threshold,
+        single_read_quality=single_read_quality, pixel_quality=pixel_quality)
     wanted = None if sites is None else {int(s) for s in sites}
     paths = sorted(os.path.join(cache_folder, name) for name in os.listdir(cache_folder)
                    if name.startswith("site") and name.endswith(".npz")
@@ -4587,8 +4625,9 @@ def run_decode_qc(db: str, plate: str, wells: Sequence[str],
     :param db: the measurements database.
     :param plate: the plate.
     :param wells: the wells decoded.
-    :param settings: the run's settings; ``ops_decode_qc`` and
-        ``ops_genotype_confidence`` choose what runs.
+    :param settings: the run's settings; ``ops_decode_qc``,
+        ``ops_genotype_confidence``, ``ops_decode_qc_bleed_panel`` and
+        ``ops_decode_qc_depth_curve`` choose what runs.
     :param library: the guide barcodes.
     :returns: one report per part run, under ``false_call_model`` and
         ``genotype_confidence``.
@@ -4643,6 +4682,11 @@ def run_decode_qc(db: str, plate: str, wells: Sequence[str],
             shap_sample=_qc_number(settings, "ops_decode_qc_max_calls", 20000, int),
             features=features)
         report["false_call_model"] = false_call_outputs(result, cells, folder)
+    if (_flag_or(settings, "ops_decode_qc_bleed_panel")
+            or _flag_or(settings, "ops_decode_qc_depth_curve")):
+        from .ops_decode_qc_panels import run_qc_panels
+
+        report["qc_panels"] = run_qc_panels(db, plate, wells, settings, library, folder)
     return report
 
 
