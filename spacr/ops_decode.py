@@ -3508,9 +3508,6 @@ def false_call_tables(fields: Sequence[Mapping[str, Any]],
                          np.asarray(z["owned_areas"]).tolist()))
         n_cycles = np.asarray(z["values"]).shape[1]
         cells = defaultdict(list)
-        # Item 1041: every per-read, per-cycle number below is computed once for
-        # the field's reads as arrays (the same reductions, the same dtypes) and
-        # read back per read, instead of ~50 small numpy calls per read.
         idx = np.flatnonzero(near)
         margin_rows = np.asarray(margin)[idx]
         with warnings.catch_warnings():

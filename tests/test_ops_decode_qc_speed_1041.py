@@ -9,7 +9,7 @@ from scipy import ndimage
 from spacr import ops_decode
 from spacr.ops_sbs import LibraryMatcher, called_bases
 
-from test_ops_decode_qc_876_877 import _qc_fields
+from tests.test_ops_decode_qc_876_877 import _qc_fields
 
 
 def _reference_background(stack, py, px, size):
