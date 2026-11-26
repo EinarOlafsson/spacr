@@ -2668,7 +2668,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 985
+SETTINGS_SCHEMA_VERSION = 984
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2743,7 +2743,7 @@ DEFAULT_CHANGES = {
     981: {'ops_pixel_ownership': 'nearest_nucleus', 'ops_pixel_footprint': None},
     982: {'ops_owner_link_inherit': 'off'},
     983: {'ops_pixel_quality': 0.1},
-    985: {'nucleus_fragment_max_valley_dip': None,
+    984: {'nucleus_fragment_max_valley_dip': None,
           'ops_ph_nucleus_fragment_max_valley_dip': None},
 }
 _DEFAULT_CHANGE_EARLIER = {
@@ -3085,14 +3085,14 @@ def _fold_older_defaults(settings, version, known=None):
     the spike-in and the silver k0 rate unchanged. Files stamped before
     983 get 0.1 and keep their pixel calls.
 
-    Version 985 is item 1024 (alpha): the paper final evaluation sets the
+    Version 984 is item 1024 (alpha): the paper final evaluation sets the
     fragment test defaults to a gap of 2 px, union solidity 0.94, a valley
     dip of 0.30 and the dip, contact and area tests off. Only
     ``nucleus_fragment_max_valley_dip`` and its ``ops_ph_`` twin move (from
     None to 0.30); the others already had those values. Both are read only
     when ``nucleus_fragment_merge`` is ``'rule'``, which stays off, so no
-    default output changes. Files stamped before 985 get None, so a file that
-    turned the merge on keeps its pairs. Version 984 belongs to another item.
+    default output changes. Files stamped before 984 get None, so a file that
+    turned the merge on keeps its pairs.
 
     :param settings: the file's settings under today's names, edited in
         place.

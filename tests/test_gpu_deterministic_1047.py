@@ -19,6 +19,7 @@ from spacr import gpu_determinism, ops_engine, utils
 from spacr.gpu_determinism import GpuDeterminismError
 from spacr.ops_settings import ops_defaults
 from spacr.settings import set_default_settings_preprocess_generate_masks
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 
 class _FakeModel:
@@ -99,8 +100,9 @@ def test_refusal_names_the_setting(torch_flags):
     class _Refusing:
         """A model whose evaluation hits an operation torch will not run deterministically."""
 
-        def eval(self, *args, **kwargs):
+        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
             """Raise what torch raises for such an operation."""
+            check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
             raise RuntimeError("scatter_add_cuda_kernel does not have a deterministic "
                                "implementation")
 

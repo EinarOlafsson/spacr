@@ -1,4 +1,4 @@
-"""Item 1024 follow-up: alpha sub-option defaults (schema 985) and edge flag of nucleus-only objects.
+"""Item 1024 follow-up: alpha sub-option defaults (schema 984) and edge flag of nucleus-only objects.
 
 The paper final evaluation sets the fragment test defaults; the feature itself
 stays off. A nucleus kept without a cell (``cellless_nuclei`` ``'nucleus_only'``)
@@ -42,8 +42,8 @@ def test_the_sub_option_defaults_are_the_paper_values_and_the_feature_stays_off(
 
 
 def test_older_files_keep_the_old_valley_dip():
-    assert SETTINGS_SCHEMA_VERSION >= 985
-    assert DEFAULT_CHANGES[985] == {
+    assert SETTINGS_SCHEMA_VERSION >= 984
+    assert DEFAULT_CHANGES[984] == {
         "nucleus_fragment_max_valley_dip": None,
         "ops_ph_nucleus_fragment_max_valley_dip": None}
     file = {}
