@@ -1247,6 +1247,7 @@ SETTING_API_TARGETS = {
     'ops_stitch_read_threads': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_storage': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_store_field_cache': ('spacr.ops_decode', 'decode_rule', True),
+    'ops_store_values_raw': ('spacr.ops_engine', '_field_raw_values', True),
     'ops_store_raw_masks': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_store_reads': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_store_row_copy': ('spacr.ops_settings', 'ops_defaults', True),

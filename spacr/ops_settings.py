@@ -295,6 +295,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_never_barcode_sets": "n1_n2",
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
+    "ops_store_values_raw": False,
     "ops_read_cache_floor": 100.0,
     "ops_decode_qc": False,
     "ops_decode_qc_model": "xgboost",
@@ -931,6 +932,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_never_barcode_sets": str,
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
+    "ops_store_values_raw": bool,
     "ops_read_cache_floor": (float, int),
     "ops_decode_qc": bool,
     "ops_decode_qc_model": str,
@@ -1334,7 +1336,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_channel_registration", "ops_registration_precision",
         "ops_registration_backend", "ops_registration_refine_px",
         "ops_field_diagnostics", "ops_decode_skip_unplaced_sites",
-        "ops_store_field_cache", "ops_read_cache_floor",
+        "ops_store_field_cache", "ops_store_values_raw", "ops_read_cache_floor",
     ],
     "Base calling": [
         "ops_decode_preset", "ops_read_mode", "ops_crosstalk",
@@ -3962,6 +3964,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and the fallback pixels -- to <dst_root>/<well>/decode_cache as "
         "one npz per site. The decode QC reads it. A field takes about 13 "
         "MB. Default False.",
+    "ops_store_values_raw":
+        "(bool) - With ops_read_mode 'log' (the default), also store each "
+        "spot's unfiltered read per cycle and channel (values_raw, the 'raw' "
+        "read) in the field cache, so a later evaluation can use raw "
+        "intensities. The calls are unchanged and any threshold mode works; "
+        "'raw' and 'auto' store it already. About 0.7 GB more per well. "
+        "Default False.",
     "ops_read_cache_floor":
         "(float) - The field cache keeps every spot at least this strong, so "
         "a read threshold down to this value can be tried later from the "

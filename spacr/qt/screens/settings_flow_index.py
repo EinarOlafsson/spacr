@@ -1776,6 +1776,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_stitch_read_threads',
     'ops_storage',
     'ops_store_field_cache',
+    'ops_store_values_raw',
     'ops_store_raw_masks',
     'ops_store_reads',
     'ops_store_row_copy',

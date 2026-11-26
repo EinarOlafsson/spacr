@@ -3972,15 +3972,11 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         features=bool(rule.get("features")))
     read_mode = rule.get("read_mode", "log")
     if read_mode == "log":
+        if rule.get("store_values_raw"):
+            evidence["values_raw"] = _field_raw_values(stack, evidence, task, field)
         calls = _rule_a_calls(evidence, rule, auto, spots, task)
     else:
-        from .ops_sbs import _read_values
-
-        measured = _read_values(stack, None, evidence["peaks"], "raw")
-        cycles = list(task["cycles"])
-        raw = np.full((len(measured), len(cycles), stack.shape[1]), np.nan, np.float32)
-        for i, cycle in enumerate(field.kept):
-            raw[:, cycles.index(cycle)] = measured[:, i]
+        raw = _field_raw_values(stack, evidence, task, field)
         evidence["values_raw"] = raw
         raw_evidence = {**evidence, "values": raw}
         if read_mode == "raw":
@@ -4060,6 +4056,30 @@ def _pixel_votes(calls: Mapping[str, Any], spots) -> Dict[float, Dict[int, dict]
     """
     first = calls["by_spot"][0] if spots else calls
     return first["votes"]["pixel"]
+
+
+def _field_raw_values(stack, evidence, task, field) -> np.ndarray:
+    """Each spot's unfiltered read per cycle and channel (``values_raw``).
+
+    The one measurement behind ``ops_read_mode`` 'raw' and 'auto' and behind
+    ``ops_store_values_raw`` (item 1050): the maximum of the unfiltered
+    pixels within 3 px of each peak (:func:`spacr.ops_sbs._read_values`),
+    laid out like ``evidence['values']`` with NaN for a cycle not kept.
+
+    :param stack: the field's registered cycle stack.
+    :param evidence: the field evidence; its ``peaks`` are read.
+    :param task: the decode task; its ``cycles`` give the column order.
+    :param field: the field; its ``kept`` cycles are measured.
+    :returns: ``(spots, cycles, channels)`` float32.
+    """
+    from .ops_sbs import _read_values
+
+    measured = _read_values(stack, None, evidence["peaks"], "raw")
+    cycles = list(task["cycles"])
+    raw = np.full((len(measured), len(cycles), stack.shape[1]), np.nan, np.float32)
+    for i, cycle in enumerate(field.kept):
+        raw[:, cycles.index(cycle)] = measured[:, i]
+    return raw
 
 
 def _rule_a_calls(evidence: Mapping[str, Any], rule: Mapping[str, Any], auto, spots,
@@ -4730,6 +4750,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                 "scale": rule_a["fdr_scale"], "rounds": [], "converged": False}}
         if read_mode != "log":
             rule_a["read_mode"] = read_mode
+        elif bool(ops_setting(settings, "ops_store_values_raw")):
+            rule_a["store_values_raw"] = True
         cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
                                     well, "decode_cache")
     else:
