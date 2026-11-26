@@ -124,7 +124,7 @@ def _random_field(seed=3, objects=60, guides=12, cycles=6):
 
 _RULE = {"ops_assign_by_cell_territory": True, "ops_decode_pixel_fallback": True,
          "ops_decode_quality_weighted": True, "ops_decode_runner_up": True,
-         "ops_decoy_library_k": 4}
+         "ops_decoy_library_k": 4, "ops_pixel_ownership": "nearest_nucleus"}
 _KW = dict(threshold=315.0, footprint=10.0, max_distance=0, min_fraction=0.6,
            crosstalk="none")
 

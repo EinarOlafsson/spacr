@@ -98,6 +98,8 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_pixel_min_pixels": 2,
     "ops_pixel_min_fraction": 0.6,
     "ops_pixel_quality": 0.1,
+    "ops_pixel_ownership": "read_rule",
+    "ops_pixel_footprint": 5.0,
     "ops_decoy_library_k": 0,
     "ops_fdr_scale": 1.268,
     "ops_decode_skip_unplaced_sites": True,
@@ -110,6 +112,16 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_read_neighbour_reach": 10.0,
     "ops_read_cache_floor": 100.0,
 }
+
+#: How a fallback pixel finds the nucleus it votes for
+#: (``ops_pixel_ownership``, item 1044), the first being the default:
+#: ``read_rule`` gives it by the read assignment (:func:`_object_owners`:
+#: the footprint, the tie and territory rule, the cell label under a cell
+#: mask) with the read neighbour discount on the pixel tallies and the
+#: pixel bleed gate (:func:`_bleed_refusals`); ``read_reach`` is the read
+#: assignment and the discount without the gate; ``nearest_nucleus`` is the
+#: rule before item 1044, the nearest nucleus within ``ops_pixel_radius``.
+PIXEL_OWNERSHIP = ("read_rule", "read_reach", "nearest_nucleus")
 
 #: How far from a nucleus boundary a fallback pixel is kept at all, in
 #: pixels. The pixel calls are normalised over the pixels kept, so this
@@ -306,6 +318,8 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "pixel_min_pixels": _number(settings, "ops_pixel_min_pixels", int),
         "pixel_min_fraction": _number(settings, "ops_pixel_min_fraction"),
         "pixel_quality": _number(settings, "ops_pixel_quality"),
+        "pixel_ownership": _pixel_ownership(settings),
+        "pixel_footprint": _pixel_footprint_setting(settings),
         "decoy_k": _number(settings, "ops_decoy_library_k", int),
         "fdr_scale": _number(settings, "ops_fdr_scale"),
         "store_cache": (_flag(settings, "ops_store_field_cache")
@@ -355,6 +369,55 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     if discount != 1.0:
         rule['ops_read_neighbour_discount_applied'] = state
     return rule
+
+
+def _pixel_ownership(settings: Mapping[str, Any]) -> str:
+    """``ops_pixel_ownership`` (item 1044), checked.
+
+    :param settings: the settings.
+    :returns: one of :data:`PIXEL_OWNERSHIP`; empty gives the default.
+    :raises ValueError: for another value.
+    """
+    value = settings.get("ops_pixel_ownership")
+    value = str(_DEFAULTS["ops_pixel_ownership"] if value in (None, "") else value).strip().lower()
+    if value not in PIXEL_OWNERSHIP:
+        raise ValueError("ops_pixel_ownership must be one of "
+                         f"{', '.join(PIXEL_OWNERSHIP)}; got {value!r}")
+    return value
+
+
+def _pixel_footprint_setting(settings: Mapping[str, Any]) -> Optional[float]:
+    """``ops_pixel_footprint`` (item 1044b), or None to follow ``ops_footprint``.
+
+    :param settings: settings after :func:`resolve_settings`.
+    :returns: how far beyond a nucleus boundary a fallback pixel may lie
+        under ``ops_pixel_ownership`` 'read_rule' or 'read_reach'; its
+        default when the key is missing, and None when it is present but
+        empty, the pixels then taking the read footprint, as settings files
+        saved before schema 981 do.
+    :raises ValueError: for a negative or non-numeric footprint.
+    """
+    if "ops_pixel_footprint" not in settings:
+        return float(_DEFAULTS["ops_pixel_footprint"])
+    value = settings["ops_pixel_footprint"]
+    if value is None or value == "":
+        return None
+    reach = _number(settings, "ops_pixel_footprint")
+    if reach < 0:
+        raise ValueError(f"ops_pixel_footprint must be 0 or more; got {reach}")
+    return reach
+
+
+def _pixel_footprint(rule: Mapping[str, Any], footprint: float) -> float:
+    """The footprint the fallback pixels are assigned at (item 1044b).
+
+    :param rule: from :func:`decode_rule`, read for ``pixel_footprint``.
+    :param footprint: the read footprint, used when the rule has none.
+    :returns: ``pixel_footprint``, or ``footprint`` when it is None or
+        missing.
+    """
+    value = rule.get("pixel_footprint")
+    return float(footprint) if value is None else float(value)
 
 
 def _neighbour_reach_setting(settings: Mapping[str, Any]) -> Optional[float]:
@@ -663,6 +726,264 @@ def field_evidence(stack: np.ndarray, filtered: np.ndarray,
     return out
 
 
+def _rule_pixel_ownership(rule: Mapping[str, Any]) -> str:
+    """The rule's ``pixel_ownership`` (item 1044).
+
+    :param rule: from :func:`decode_rule`, or a rule built by hand.
+    :returns: one of :data:`PIXEL_OWNERSHIP`; a rule without the key, as
+        rules recorded before item 1044, keeps ``nearest_nucleus``.
+    """
+    return str(rule.get("pixel_ownership") or "nearest_nucleus")
+
+
+#: The read assignment a field's evidence was made under, when it is not
+#: the nucleus reach: ``read_assignment`` says how the reads were assigned
+#: and ``pix_assignment`` how the fallback pixels were; ``cell_labels`` is
+#: the field's cell label image (values the object ids), from which the
+#: pixels can be assigned again (item 1044).
+CELL_MASK_KEYS = ("read_assignment", "pix_assignment", "cell_labels")
+
+
+def _cell_mask_pixels(evidence: Mapping[str, Any], cells: np.ndarray) -> Dict[str, Any]:
+    """The fallback pixels of a field given to the cell they lie in (item 1044).
+
+    The contract of the cell-mask read assignment: inside a cell the gap
+    is -1 and the object is the cell's, with no runner-up; outside a cell
+    the gap is 1e30 and there is no object.
+
+    :param evidence: one field's evidence or field cache with ``pix_yx``
+        and ``owned_ids``.
+    :param cells: the field's cell labels, values the object ids.
+    :returns: a copy with ``pix_gap``, ``pix_id0``, ``pix_id1`` and
+        ``pix_owned0`` from the cells and ``pix_assignment`` 'cell_mask'.
+    """
+    cells = np.asarray(cells)
+    yx = np.asarray(evidence["pix_yx"], np.int64).reshape(-1, 2)
+    ids = cells[yx[:, 0], yx[:, 1]].astype(np.int64) if len(yx) else np.zeros(0, np.int64)
+    inside = ids > 0
+    gap = np.full((len(ids), 2), 1e30)
+    gap[inside, 0] = -1.0
+    out = dict(evidence)
+    out.update({"pix_gap": gap, "pix_id0": np.where(inside, ids, -1),
+                "pix_id1": np.full(len(ids), -1, np.int64),
+                "pix_owned0": inside & np.isin(ids, np.asarray(evidence["owned_ids"], np.int64)),
+                "pix_assignment": "cell_mask"})
+    return out
+
+
+def _pixel_assignment(evidence: Mapping[str, Any]) -> Mapping[str, Any]:
+    """The evidence with its fallback pixels assigned as its reads are (item 1044).
+
+    :param evidence: one field's evidence or field cache.
+    :returns: ``evidence`` itself when its reads follow the nucleus reach
+        or its pixels already follow the cell mask; under a cell-mask read
+        assignment (``read_assignment`` 'cell_mask') with nucleus-disc
+        pixels, the pixels given to their cell from ``cell_labels``
+        (:func:`_cell_mask_pixels`).
+    :raises ValueError: under a cell-mask read assignment whose pixels
+        carry nucleus-disc owners and no ``cell_labels`` to assign them by.
+    """
+    def text(key):
+        """A string entry of the evidence, as a dict or an ``.npz`` holds it."""
+        value = evidence.get(key) if hasattr(evidence, "get") else None
+        return "" if value is None else str(np.asarray(value))
+
+    if text("read_assignment") != "cell_mask" or text("pix_assignment") == "cell_mask":
+        return evidence
+    if "cell_labels" in evidence:
+        return _cell_mask_pixels(evidence, evidence["cell_labels"])
+    raise ValueError(
+        "ops_pixel_ownership gives each fallback pixel the cell it lies in when the reads "
+        "follow the cell mask, but this field's pix_gap, pix_id0 and pix_owned0 are "
+        "nucleus-disc owners and it holds no cell_labels; assign the pixels to the stored "
+        "cell labels first, or set ops_pixel_ownership 'nearest_nucleus'")
+
+
+def _pixel_owners(evidence: Mapping[str, Any], rule: Mapping[str, Any], footprint: float,
+                  ownership: str) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    """Which fallback pixels vote, for which object (``ops_pixel_ownership``, item 1044).
+
+    :param evidence: one field's evidence or field cache with the ``pix_*``
+        arrays.
+    :param rule: from :func:`decode_rule` with the field's ``neighbours``
+        when the read neighbour discount is on.
+    :param footprint: the read footprint; the pixels take
+        ``ops_pixel_footprint`` in its place (:func:`_pixel_footprint`).
+    :param ownership: from :func:`_rule_pixel_ownership`.
+    :returns: ``(object per pixel, the voting pixels, the keyword arguments
+        of the neighbour discount for :func:`spacr.ops_sbs.vote_pixels`)``.
+        ``nearest_nucleus`` is the rule before item 1044: the nearest
+        nucleus, owned by the field, within ``ops_pixel_radius``. The other
+        modes take the read assignment (:func:`_object_owners`) at the
+        read footprint, capped at ``ops_pixel_radius``, and the read
+        neighbour discount. They vote the pixels of every object, owned by
+        this field or not, so an object's pixel vote and the bleed gate do
+        not depend on which field owns its neighbours; the calls keep the
+        owned objects only (:func:`_assemble_calls`).
+    """
+    if ownership == "nearest_nucleus":
+        pixel_own = np.asarray(evidence["pix_owned0"]) & (
+            np.asarray(evidence["pix_gap"])[:, 0].astype(float)
+            <= rule["pixel_radius"])
+        return np.asarray(evidence["pix_id0"]), np.flatnonzero(pixel_own), {}
+    evidence = _pixel_assignment(evidence)
+    gap = np.asarray(evidence["pix_gap"]).astype(float).reshape(-1, 2)
+    ids = np.asarray(evidence["pix_id0"])
+    _, _, own = _object_owners(gap, ids >= 0, rule, _pixel_footprint(rule, footprint))
+    own &= gap[:, 0] <= rule["pixel_radius"]
+    discount = float((rule.get("read_weight") or {}).get("neighbour_discount", 1.0))
+    weighting = ({"neighbours": rule.get("neighbours") or {}, "neighbour_discount": discount}
+                 if discount != 1.0 else {})
+    return ids, np.flatnonzero(own), weighting
+
+
+def _read_tops(tally: Optional[Mapping[str, Any]], first: np.ndarray, codes: Sequence[str],
+               foreign: np.ndarray, matcher) -> Dict[int, frozenset]:
+    """Each object's top read guides, for the pixel bleed gate (item 1044).
+
+    :param tally: the vote evidence the read vote filled, for the objects
+        the field owns.
+    :param first: the nearest object of every read above the threshold.
+    :param codes: the called barcode of every such read.
+    :param foreign: the reads the read assignment gives to an object
+        another field owns; their exact library matches name its guides.
+    :param matcher: from :func:`matcher_for`.
+    :returns: object -> the guides with its largest read vote, ties kept,
+        for every object whose reads named a guide.
+    """
+    from collections import Counter
+
+    tops: Dict[int, frozenset] = {}
+    for owner, votes in (tally or {}).get("votes", {}).items():
+        if votes:
+            best = max(votes.values())
+            tops[int(owner)] = frozenset(g for g, v in votes.items() if v == best)
+    counted: Dict[int, Counter] = {}
+    for i in np.flatnonzero(foreign).tolist():
+        guide, _ = matcher.match(codes[i], 0)
+        if guide is not None:
+            counted.setdefault(int(first[i]), Counter())[guide] += 1
+    for owner, votes in counted.items():
+        if owner not in tops:
+            best = max(votes.values())
+            tops[owner] = frozenset(g for g, v in votes.items() if v == best)
+    return tops
+
+
+#: Why the pixel bleed gate refused a pixel vote (item 1044): the guide
+#: is a top read guide of a neighbour (``bleed_read``), a neighbour with no
+#: read guide holds as many pixels of it or more (``bleed_pixel``), or the
+#: object's pixels within ``ops_pixel_radius`` -- the vote before item
+#: 1044 -- do not call the same guide (``radius_disagrees``).
+BLEED_REASONS = ("bleed_read", "bleed_pixel", "radius_disagrees")
+
+
+def _bleed_refusals(pixel: Mapping[int, dict], votes: Mapping[str, Any],
+                    called=()) -> Dict[int, str]:
+    """The pixel votes one amplicon cluster would give to a second object (item 1044).
+
+    A pixel vote of an object its reads did not call is refused when its
+    guide is a top read guide (:func:`_read_tops`) of a neighbour within
+    the read neighbour reach, or when such a neighbour, whose reads named
+    no guide, holds a pixel vote of the same guide with as many pixels or
+    more (a tie refuses both). Sisters (``rule['sisters']``, object -> its
+    sisters by geometry and mitotic labels) are exempt; a shared guide
+    alone never makes two objects sisters, and the decode holds no
+    mitotic labels, so no pair is exempt unless the rule supplies it. A
+    vote is also refused when the object's pixels within
+    ``ops_pixel_radius`` (the vote of ``nearest_nucleus``, carried as the
+    hit's ``radius_guide``) call no guide or another one: the narrower
+    footprint can leave a few misread pixels in the majority, and the gate
+    never makes a pixel call the rule before item 1044 would not make. The
+    gate reads no single-read floor or threshold choice, so the auto
+    candidates and the decode refuse the same votes.
+
+    :param pixel: object -> pixel vote, after the read gate.
+    :param votes: from :func:`_field_votes`, for ``pixel_neighbours``,
+        ``read_tops`` and ``sisters``.
+    :param called: the objects the reads called; their pixel votes are the
+        support of a read call and stay.
+    :returns: object -> reason (:data:`BLEED_REASONS`).
+    """
+    neighbours = votes.get("pixel_neighbours") or {}
+    tops = votes.get("read_tops") or {}
+    sisters = votes.get("sisters") or {}
+    refused: Dict[int, str] = {}
+    for owner, hit in pixel.items():
+        if owner in called:
+            continue
+        guide = hit["guide"]
+        if "radius_guide" in hit and hit["radius_guide"] != guide:
+            refused[owner] = "radius_disagrees"
+            continue
+        for other in sorted(neighbours.get(owner, ())):
+            if other in sisters.get(owner, ()):
+                continue
+            if guide in tops.get(other, ()):
+                refused[owner] = "bleed_read"
+                break
+            rival = pixel.get(other)
+            if (rival is not None and not tops.get(other) and rival["guide"] == guide
+                    and rival["n_pixels"] >= hit["n_pixels"]):
+                refused[owner] = "bleed_pixel"
+                break
+    return refused
+
+
+def _rule_with_pixel_neighbours(rule: Mapping[str, Any], evidence: Mapping[str, Any],
+                                footprint: float) -> Mapping[str, Any]:
+    """The rule with the field's neighbours the pixel bleed gate reads (item 1044).
+
+    :param rule: from :func:`decode_rule`; the engine adds ``neighbours``.
+    :param evidence: the field's evidence or its field cache.
+    :param footprint: the read footprint (:func:`_neighbour_reach`).
+    :returns: ``rule`` itself unless the gate is on (``pixels``, or
+        ``pixels_given`` for a pass that reuses another pass's pixel votes,
+        and ``pixel_ownership`` 'read_rule') and it has no ``neighbours``; then
+        a copy with :func:`cached_neighbours` at the read neighbour reach.
+    :raises ValueError: when the gate needs the neighbours and the field
+        cache holds no nucleus positions.
+    """
+    if (not (rule.get("pixels") or rule.get("pixels_given"))
+            or _rule_pixel_ownership(rule) != "read_rule"
+            or rule.get("neighbours") is not None):
+        return rule
+    missing = [key for key in CACHE_NUCLEUS_KEYS if key not in evidence]
+    if missing:
+        raise ValueError("ops_pixel_ownership 'read_rule' needs the field's nucleus "
+                         "positions for the pixel bleed gate; this field cache has no "
+                         f"{', '.join(missing)}; decode the field again, or replay it "
+                         "with ops_pixel_ownership 'read_reach'")
+    return {**rule, "neighbours": cached_neighbours(evidence, _neighbour_reach(rule, footprint))}
+
+
+def _object_owners(gap: np.ndarray, owned_first: np.ndarray, rule: Mapping[str, Any],
+                   footprint: float) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Which rows -- reads or fallback pixels -- the read assignment gives to their object.
+
+    The one assignment rule of the decode (item 1044): a row is near its
+    nearest object when its gap to that object's boundary is at most
+    ``footprint``; it is ambiguous when the runner-up object's boundary is
+    less than ``rule['tie']`` farther; and it is owned when it is near, the
+    field owns the object, and it is not ambiguous unless the territory rule
+    (``ops_assign_by_cell_territory``) gives ties to the nearest. Under a
+    cell mask the gaps are the cell's (-1 inside, 1e30 outside, no
+    runner-up), so the row takes its cell label. The reads always pass
+    through here; the fallback pixels do under ``ops_pixel_ownership``
+    ``read_rule`` and ``read_reach``.
+
+    :param gap: ``(N, 2)`` gaps to the nearest and the runner-up boundary.
+    :param owned_first: ``(N,)`` whether the field owns the nearest object.
+    :param rule: from :func:`decode_rule`, read for ``tie`` and ``territory``.
+    :param footprint: how far beyond a boundary a row may lie, in pixels.
+    :returns: ``(near, ambiguous, own)``, three ``(N,)`` boolean arrays.
+    """
+    near = gap[:, 0] <= footprint
+    ambiguous = near & ((gap[:, 1] - gap[:, 0]) < rule["tie"])
+    own = near & owned_first & (bool(rule["territory"]) | ~ambiguous)
+    return near, ambiguous, own
+
+
 def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
                 library: Sequence[str], matcher, decoys, *,
                 threshold: float, footprint: float, max_distance: int,
@@ -704,9 +1025,12 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
                          pixel_qualities=(rule["pixel_quality"],),
                          crosstalk=crosstalk, evidence_rows=evidence_rows)
     primary = votes["primary"]
-    pixel = (_fallback_pixels(votes["pixel"][rule["pixel_quality"]], votes, primary)
-             if rule["pixels"] else {})
+    refused: Dict[int, str] = {}
+    pixel = (_fallback_pixels(votes["pixel"][rule["pixel_quality"]], votes, primary,
+                              refused) if rule["pixels"] else {})
     out = _assemble_calls(primary, pixel, votes, decoys)
+    if votes.get("bleed_gate"):
+        out["pixel_refused"] = _refusal_counts(refused, votes["owned"])
     if rule.get("read_stage"):
         out["nuclei_with_read"] = nuclei_with_read(evidence, threshold)
     if evidence_rows:
@@ -750,7 +1074,8 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
 
     from .ops_sbs import vote_mapped_reads, vote_pixels
 
-    rule = _rule_with_neighbours(rule, evidence, footprint)
+    rule = _rule_with_pixel_neighbours(
+        _rule_with_neighbours(rule, evidence, footprint), evidence, footprint)
     strength = np.asarray(evidence["strength"])
     selected = strength > threshold
     values = np.asarray(evidence["values"])[selected]
@@ -758,16 +1083,18 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
     gap = np.asarray(evidence["gap"])[selected]
     first = np.asarray(evidence["id0"])[selected]
     owned_first = np.asarray(evidence["owned0"])[selected]
-    near = gap[:, 0] <= footprint
-    ambiguous = near & ((gap[:, 1] - gap[:, 0]) < rule["tie"])
-    own = near & owned_first & (bool(rule["territory"]) | ~ambiguous)
+    near, ambiguous, own = _object_owners(gap, owned_first, rule, footprint)
     rows = np.flatnonzero(own)
     objects = first[rows]
     distance = max(int(max_distance), 1) if rule["runner_up"] else int(max_distance)
     tallies: Optional[dict] = {} if evidence_rows else None
     gate = bool(rule.get("pixel_read_gate"))
     share = float(rule.get("min_top_share") or 0.0)
-    tally = tallies if tallies is not None else ({} if gate or share > 0 else None)
+    ownership = _rule_pixel_ownership(rule)
+    bleed = (bool(rule["pixels"]) or bool(rule.get("pixels_given"))) \
+        and ownership == "read_rule"
+    tally = tallies if tallies is not None else (
+        {} if gate or share > 0 or bleed else None)
     weighting = _vote_weighting(rule, gap[rows, 0])
     primary = vote_mapped_reads(
         objects, [codes[i] for i in rows], quality[rows], data[rows],
@@ -785,18 +1112,32 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
         _, pixel_codes, _, pixel_quality = _call(
             np.asarray(evidence["pix_values"], np.float32),
             {"calibration": False}, library, crosstalk)
-        pixel_own = np.asarray(evidence["pix_owned0"]) & (
-            np.asarray(evidence["pix_gap"])[:, 0].astype(float)
-            <= rule["pixel_radius"])
-        chosen = np.flatnonzero(pixel_own)
+        placed = evidence if ownership == "nearest_nucleus" else _pixel_assignment(evidence)
+        pixel_ids, chosen, discount = _pixel_owners(placed, rule, footprint, ownership)
         for q in pixel_qualities:
             pixel[q] = vote_pixels(
-                np.asarray(evidence["pix_id0"])[chosen],
+                pixel_ids[chosen],
                 [pixel_codes[i] for i in chosen], pixel_quality[chosen], matcher,
                 min_quality=q, min_pixels=int(rule["pixel_min_pixels"]),
-                min_fraction=rule["pixel_min_fraction"])
+                min_fraction=rule["pixel_min_fraction"], **discount)
+        if bleed:
+            wide_ids, wide, _ = _pixel_owners(placed, rule, footprint, "nearest_nucleus")
+            for q in pixel_qualities:
+                radius = vote_pixels(
+                    wide_ids[wide], [pixel_codes[i] for i in wide], pixel_quality[wide],
+                    matcher, min_quality=q, min_pixels=int(rule["pixel_min_pixels"]),
+                    min_fraction=rule["pixel_min_fraction"])
+                for owner, hit in pixel[q].items():
+                    hit["radius_guide"] = radius[owner]["guide"] if owner in radius else None
     inside = np.flatnonzero(~owned_first & (gap[:, 0] < 0) & (first >= 0))
-    return {"primary": primary, "pixel": pixel, "tallies": tallies,
+    extra = {}
+    if bleed:
+        extra = {"bleed_gate": True, "pixel_neighbours": rule["neighbours"],
+                 "read_tops": _read_tops(tally, first, codes, near & ~owned_first
+                                         & (bool(rule["territory"]) | ~ambiguous)
+                                         & (first >= 0), matcher),
+                 "sisters": rule.get("sisters") or {}}
+    return {**extra, "primary": primary, "pixel": pixel, "tallies": tallies,
             "named": named, "pixel_gate": gate, "short_share": short_share,
             "split": _split_reads(first[inside], [codes[i] for i in inside], matcher),
             "owned": set(np.asarray(evidence["owned_ids"]).tolist()),
@@ -805,6 +1146,17 @@ def _field_votes(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
             "reads": int(selected.sum()), "reads_owned": int(len(rows)),
             "reads_near": int(near.sum()),
             "reads_ambiguous": int(ambiguous.sum())}
+
+
+def _refusal_counts(refused: Mapping[int, str], owned) -> Dict[str, int]:
+    """How many pixel votes of owned objects the bleed gate refused, by reason (item 1044).
+
+    :param refused: object -> reason, from :func:`_fallback_pixels`.
+    :param owned: the objects the field owns.
+    :returns: reason -> count, every reason of :data:`BLEED_REASONS`.
+    """
+    values = [reason for owner, reason in refused.items() if owner in owned]
+    return {reason: values.count(reason) for reason in BLEED_REASONS}
 
 
 def _read_guides(tally: Mapping[str, Any]) -> Dict[int, tuple]:
@@ -884,7 +1236,8 @@ def _reads_allow(named: Sequence[str], guide: str) -> bool:
 
 
 def _fallback_pixels(pixel: Mapping[int, dict], votes: Mapping[str, Any],
-                     called=()) -> Mapping[int, dict]:
+                     called=(), refused: Optional[Dict[int, str]] = None
+                     ) -> Mapping[int, dict]:
     """The pixel votes the fallback may turn into calls.
 
     With ``ops_pixel_read_gate`` on, a pixel vote is kept for an object its
@@ -897,17 +1250,26 @@ def _fallback_pixels(pixel: Mapping[int, dict], votes: Mapping[str, Any],
         ``pixel_gate``.
     :param called: the objects the reads called; their pixel votes stay,
         as the pixel support of a read call.
+    :param refused: filled with object -> reason for the votes the pixel
+        bleed gate refused (:func:`_bleed_refusals`), when given.
     :returns: the kept votes; an object whose read call
-        ``ops_min_top_share`` refused (``short_share``) is never kept.
+        ``ops_min_top_share`` refused (``short_share``) is never kept. Under
+        ``ops_pixel_ownership`` 'read_rule' (``bleed_gate``) the pixel bleed
+        gate then refuses the votes a neighbour's amplicons made.
     """
     short = votes.get("short_share") or ()
     if short:
         pixel = {owner: hit for owner, hit in pixel.items() if owner not in short}
-    if not votes.get("pixel_gate"):
-        return pixel
-    named = votes.get("named") or {}
-    return {owner: hit for owner, hit in pixel.items()
-            if owner in called or _reads_allow(named.get(owner, ()), hit["guide"])}
+    if votes.get("pixel_gate"):
+        named = votes.get("named") or {}
+        pixel = {owner: hit for owner, hit in pixel.items()
+                 if owner in called or _reads_allow(named.get(owner, ()), hit["guide"])}
+    if votes.get("bleed_gate"):
+        dropped = _bleed_refusals(pixel, votes, called)
+        if refused is not None:
+            refused.update(dropped)
+        pixel = {owner: hit for owner, hit in pixel.items() if owner not in dropped}
+    return pixel
 
 
 def _vote_weighting(rule: Mapping[str, Any], gaps: np.ndarray) -> Dict[str, Any]:
@@ -1353,10 +1715,12 @@ def _joint_field_candidates(evidence: Mapping[str, np.ndarray], rule: Mapping[st
     """
     by_spot: List[Dict[str, Any]] = []
     pixel = pixel_votes
-    rule = _rule_with_neighbours(rule, evidence, footprint)
+    rule = _rule_with_pixel_neighbours(
+        _rule_with_neighbours(rule, evidence, footprint), evidence, footprint)
     for threshold in spot_thresholds:
         votes = _field_votes(
-            evidence, rule if pixel is None else {**rule, "pixels": False}, library,
+            evidence, rule if pixel is None else {**rule, "pixels": False, "pixels_given": True},
+            library,
             matcher, threshold=float(threshold), footprint=footprint,
             max_distance=max_distance, min_fraction=min_fraction,
             single_read_quality=float("-inf"), pixel_qualities=pixel_qualities,
@@ -1444,12 +1808,14 @@ def _field_shuffle_counts(evidence: Mapping[str, np.ndarray], rule: Mapping[str,
         the mean over the shuffled libraries.
     """
     out = np.zeros((len(spot_thresholds), len(floors), len(pixel_qualities)))
-    rule = _rule_with_neighbours(rule, evidence, footprint)
+    rule = _rule_with_pixel_neighbours(
+        _rule_with_neighbours(rule, evidence, footprint), evidence, footprint)
     for matcher in _shuffle_matchers(library, seeds):
         pixel = None
         for a, threshold in enumerate(spot_thresholds):
             votes = _field_votes(
-                evidence, rule if pixel is None else {**rule, "pixels": False}, library,
+                evidence, rule if pixel is None else {**rule, "pixels": False, "pixels_given": True},
+            library,
                 matcher, threshold=float(threshold), footprint=footprint,
                 max_distance=max_distance, min_fraction=min_fraction,
                 single_read_quality=float("-inf"), pixel_qualities=pixel_qualities,
@@ -1604,8 +1970,11 @@ def _candidate_calls(candidates: Mapping[str, Any], floor: float,
     votes = candidates["votes"]
     primary = {o: h for o, h in votes["primary"].items()
                if not (h["n_support"] == 1 and h["quality"] < floor)}
-    pixel = _fallback_pixels(votes["pixel"][pixel_quality], votes, primary)
+    refused: Dict[int, str] = {}
+    pixel = _fallback_pixels(votes["pixel"][pixel_quality], votes, primary, refused)
     out = _assemble_calls(primary, pixel, votes, decoys)
+    if votes.get("bleed_gate"):
+        out["pixel_refused"] = _refusal_counts(refused, votes["owned"])
     if votes["tallies"] is not None:
         out["evidence"] = _evidence_rows(primary, pixel, votes["tallies"],
                                          votes["owned"], decoys,
@@ -2959,14 +3328,20 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
                            "assigned_decoy": int(r["rule_a"]["assigned_decoy"]),
                            "assigned_pixel_real": int(r["rule_a"].get("assigned_pixel_real", 0)),
                            "assigned_pixel_decoy": int(r["rule_a"].get("assigned_pixel_decoy", 0)),
-                           "nuclei_with_read": int(r["rule_a"].get("nuclei_with_read", 0))}
+                           "nuclei_with_read": int(r["rule_a"].get("nuclei_with_read", 0)),
+                           **{f"pixel_refused_{reason}": int(
+                               (r["rule_a"].get("pixel_refused") or {}).get(reason, 0))
+                              for reason in BLEED_REASONS}}
                           for r in sorted(decoded, key=lambda r: r["site"])],
                          columns=["plate", "well", "site", "nuclei",
                                   "assigned_real", "assigned_decoy",
                                   "assigned_pixel_real", "assigned_pixel_decoy",
-                                  "nuclei_with_read"])
+                                  "nuclei_with_read"]
+                         + [f"pixel_refused_{reason}" for reason in BLEED_REASONS])
     if not rule.get("read_stage"):
         stats = stats.drop(columns=["nuclei_with_read"])
+    if not (rule.get("pixels") and _rule_pixel_ownership(rule) == "read_rule"):
+        stats = stats.drop(columns=[f"pixel_refused_{reason}" for reason in BLEED_REASONS])
     stats_path = os.path.join(folder, f"field_stats_{well}.csv")
     write_table(stats, stats_path, canonicalise=False)
     calibration = (rule.get('threshold_choice') or {}).get('calibration')

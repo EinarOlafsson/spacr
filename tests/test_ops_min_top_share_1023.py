@@ -63,7 +63,8 @@ def _field():
 
 def _rule(share=None, gate=False):
     settings = {"ops_decode_pixel_fallback": True, "ops_pixel_read_gate": gate,
-                "ops_read_neighbour_discount": 1.0}
+                "ops_read_neighbour_discount": 1.0,
+                "ops_pixel_ownership": "nearest_nucleus"}
     if share is not None:
         settings["ops_min_top_share"] = share
     return ops_decode.decode_rule(settings)

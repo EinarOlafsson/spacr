@@ -3,12 +3,12 @@
  "route": "tools/build_ops_e2e_reference.py --l6",
  "counts": {
   "objects": 5028,
-  "barcodes": 12507,
+  "barcodes": 12256,
   "phenotype_cells": 490
  },
  "timing": {
   "objects_s": 990.3,
-  "decode_s": 114.4,
+  "decode_s": 109.7,
   "phenotype_s": 1717.9
  },
  "built": {
@@ -34,8 +34,8 @@
    "machine": "carruthers"
   },
   "barcodes": {
-   "spacr_commit": "08f2be21a4",
-   "reason": "L6 defaults (items 966-979): references of the default-settings run of tests/test_ops_e2e_testdata.py, built on the pinned torch 2.6.0 / cellpose 4.2.1.1 on the CPU",
+   "spacr_commit": "f34960446c",
+   "reason": "L6b defaults (item 1044b, schema 981: pixel ownership read_rule, pixel footprint 5): decode reference of the default-settings run, pinned torch 2.6.0 / cellpose 4.2.1.1, CPU",
    "settings_overrides": {
     "ops_ph_image_format": "npz"
    },

@@ -1636,6 +1636,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_pixel_percentile',
     'ops_pixel_quality',
     'ops_pixel_radius',
+    'ops_pixel_ownership',
+    'ops_pixel_footprint',
     'ops_pixel_read_gate',
     'ops_placement_seed',
     'ops_placement_seed_check_pixels',

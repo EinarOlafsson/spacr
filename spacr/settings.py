@@ -2665,7 +2665,7 @@ def unknown_setting_keys(settings, app=''):
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
 RESOLVED_PARAMETERS_KEY = 'spacr_resolved_parameters'
-SETTINGS_SCHEMA_VERSION = 980
+SETTINGS_SCHEMA_VERSION = 981
 SETTINGS_FORMAT_VERSIONS = frozenset({950, 951, 979})
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
@@ -2737,6 +2737,7 @@ DEFAULT_CHANGES = {
     976: {'ops_ph_spanning_merge': 'merge', 'spanning_merge': 'merge'},
     978: {'ops_ph_downsample': 2, 'ops_ph_nucleus_downsample': 'same'},
     980: {'ops_sbs_cellpose_diameter': 11.0},
+    981: {'ops_pixel_ownership': 'nearest_nucleus', 'ops_pixel_footprint': None},
 }
 _DEFAULT_CHANGE_EARLIER = {
     976: {'ops_ph_spanning_merge': (959, 'best_parent')},
@@ -3024,6 +3025,34 @@ def _fold_older_defaults(settings, version, known=None):
     (``VALUE_MEANING_CHANGES``), which replays the old split.
     ``ops_ph_profile_outside_rule`` needs no change: OPS never ran the
     block. Versions 977 and 978 belong to other items.
+
+    Version 981 is item 1044: the pixel fallback gives a pixel to the
+    nucleus a read at that place would go to. ``ops_pixel_ownership`` is
+    now ``'read_rule'``: the read assignment
+    (:func:`spacr.ops_decode._object_owners`, the one function the reads
+    and the pixels share: ``ops_footprint``, the tie and territory rule,
+    the cell label under a cell mask) with ``ops_pixel_radius`` only as a
+    cap, the read neighbour discount on the pixel tallies, and the pixel
+    bleed gate (:func:`spacr.ops_decode._bleed_refusals`), which refuses a
+    pixel call whose guide is the read guide of a neighbour within
+    ``ops_read_neighbour_reach``, the pixel guide of a read-less neighbour
+    with as many pixels, or not the guide the pixels within
+    ``ops_pixel_radius`` call, so it never makes a pixel call the old
+    rule would not. ``'read_reach'`` is the assignment without the gate.
+    Before, a pixel went to the nearest
+    nucleus within ``ops_pixel_radius`` (10 px) whatever the read reach,
+    so a read-less neighbour took the amplicons of the cell next to it:
+    the paper spike-in on plate A A1 measured 7.0 points of misassignment
+    from the pixel fallback at the item-1023 rule and 10.1 in cell-mask
+    mode. Files stamped before 981 get ``'nearest_nucleus'`` and decode
+    byte for byte as before. The pixels are assigned at
+    ``ops_pixel_footprint``, 5 px (item 1044b, maintainer decision
+    2026-11-25: the strict gate at the 3 px read footprint refused too
+    many true calls), while the reads keep ``ops_footprint``. Files
+    stamped before 981 get ``ops_pixel_footprint`` None, which
+    ``'nearest_nucleus'`` does not read; an older file that sets
+    ``'read_rule'`` or ``'read_reach'`` itself then assigns its pixels at
+    ``ops_footprint``, as the first 1044 build did.
 
     :param settings: the file's settings under today's names, edited in
         place.

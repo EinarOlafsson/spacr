@@ -355,7 +355,6 @@ default after a higher-numbered item takes the next free number:
   ``'object'``, family ``'background'``). ``ops_ph_profile_outside_rule``
   is unchanged, since OPS never ran the block, and refuses ``'legacy'``.
   Numbers 977 and 978 belong to other items.
-
 - 980 (item 1036 taken back, maintainer decision 2026-11-25):
   ``ops_sbs_cellpose_diameter`` is ``None`` again by default, so the OPS
   sequencing nuclei are segmented at native scale and nothing is resized.
@@ -363,6 +362,22 @@ default after a higher-numbered item takes the next free number:
   and 9, 11 and 13 pixels gave the same result. Files stamped 973 to 979
   get ``11.0`` and reproduce their objects; files stamped below 973 keep
   ``None``. The setting stays available.
+- 981 (item 1044, pixel-fallback ownership): ``ops_pixel_ownership`` is
+  ``'read_rule'``. A fallback pixel votes for the nucleus a read at that
+  place would go to (``ops_footprint``, the tie and territory rule, the
+  cell label under a cell mask; ``ops_pixel_radius`` only caps it), the
+  read neighbour discount acts on the pixel tallies, and a pixel call is
+  refused when its guide is the read guide of a neighbour within
+  ``ops_read_neighbour_reach``, the pixel guide of a read-less neighbour
+  with as many pixels, or not the guide the pixels within
+  ``ops_pixel_radius`` call (so no pixel call the old rule would not
+  make). ``'read_reach'`` keeps the assignment without that
+  gate. Files stamped before 981 get ``'nearest_nucleus'``, the nearest
+  nucleus within ``ops_pixel_radius``, and decode as before. Pixels are
+  assigned at ``ops_pixel_footprint``, ``5`` px (item 1044b); reads keep
+  ``ops_footprint``. Files stamped before 981 get ``ops_pixel_footprint``
+  empty, so an older file that sets ``'read_rule'`` itself assigns its
+  pixels at ``ops_footprint``.
 
 Public API
 ----------
@@ -422,3 +437,4 @@ to replay; the run snapshot holds the currently processed folder.
 This replay contract covers the spatial shared Mask Generation helpers.
 It does not establish byte identity for frozen OPS, time-lapse, native T/Z,
 or calibrated partition workflows, or across model/runtime changes.
+
