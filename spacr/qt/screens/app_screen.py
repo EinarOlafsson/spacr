@@ -9686,10 +9686,8 @@ class AppScreen(QWidget):
         try:
             settings = (dict(override) if override is not None
                         else self._settings_model.collect())
-            if override is None and "ops_decode_preset" in settings:
-                from ...settings import record_explicit_keys
-
-                record_explicit_keys(settings, self._settings_model.modified_keys())
+            if override is None:
+                self._settings_model.with_explicit_record(settings)
         except Exception as e:
             log_button_press(
                 f"{self.app_key}.Run",
@@ -13574,7 +13572,19 @@ class AppScreen(QWidget):
             own = set(loaded)
             file_keys = {key: loaded[key] for key in loaded}
             loaded = self._in_its_own_era(loaded)
-            from ...settings import RESOLVED_PARAMETERS_KEY
+            from ...settings import (EXPLICIT_KEYS_KEY, RECORD_ONLY_PREFIXES,
+                                     RESOLVED_PARAMETERS_KEY,
+                                     explicit_setting_keys)
+
+            record = loaded.pop(EXPLICIT_KEYS_KEY, None)
+            if record is not None and explicit_setting_keys(
+                    {EXPLICIT_KEYS_KEY: record}) is not None:
+                record = explicit_setting_keys({EXPLICIT_KEYS_KEY: record})
+            elif record is None:
+                record = [key for key in file_keys
+                          if not str(key).startswith(RECORD_ONLY_PREFIXES)
+                          and key != "spacr_settings_version"]
+            self._settings_model.note_loaded_record(record)
 
             loaded.setdefault(RESOLVED_PARAMETERS_KEY, None)
             filled = len(set(loaded) - own)
@@ -13628,8 +13638,9 @@ class AppScreen(QWidget):
         try:
             from ...model_zoo import _capture_model_metadata
 
-            settings = _capture_model_metadata(
-                self.app_key, dict(self._settings_model.collect()))
+            settings = self._settings_model.with_explicit_record(
+                _capture_model_metadata(
+                    self.app_key, dict(self._settings_model.collect())))
         except Exception as e:
             QMessageBox.warning(
                 self, tr('Bad settings'),
