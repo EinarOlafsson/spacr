@@ -237,6 +237,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cross_field_policy": 'owner_only',
     "ops_cross_field_rule": 'nearest_centre',
     "ops_cross_field_owner_centroid": 'linked',
+    "ops_owner_link_inherit": 'inherit_nn',
     "ops_cross_field_radius_px": 24.0,
     "ops_reference_counts": None,
     "ops_reference_counts_level": 'sbs',
@@ -872,6 +873,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cross_field_policy": str,
     "ops_cross_field_rule": str,
     "ops_cross_field_owner_centroid": str,
+    "ops_owner_link_inherit": str,
     "ops_cross_field_radius_px": (float, int),
     "ops_reference_counts": (str, type(None)),
     "ops_reference_counts_level": str,
@@ -1514,7 +1516,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ownership", "ops_cross_field_ownership", "ops_cross_field_metric",
         "ops_cross_field_min_overlap", "ops_cross_field_policy",
         "ops_cross_field_rule", "ops_cross_field_owner_centroid",
-        "ops_cross_field_radius_px",
+        "ops_cross_field_radius_px", "ops_owner_link_inherit",
         "ops_drop_failed_fields",
     ],
     "Yield report": [
@@ -3636,6 +3638,17 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "compared with its own field centre, so a few pixels of "
         "registration error can pick a farther field; it reproduces runs "
         "made before settings schema 970. Default 'linked'. Alpha.",
+    "ops_owner_link_inherit":
+        "(str) - Which sequencing nucleus the owner copy of a cell gets. "
+        "'inherit_nn': the nucleus any copy of the cell seen in two or "
+        "more fields was linked to, so the owner carries the genotype and "
+        "the other copies carry none; a cell with no link on any copy "
+        "takes the nearest sequencing nucleus within 3 px that no other "
+        "cell is linked to. 'inherit': the first part only. Copies linked "
+        "to two different nuclei are reported as a conflict and left as "
+        "the merge linked them. 'off': the link stays on the copy the "
+        "merge gave it, as in settings files saved before schema 982. "
+        "Default 'inherit_nn'. Alpha.",
     "ops_cross_field_policy":
         "(str) - What the aggregate does with the copies: 'owner_only' "
         "keeps the owner copy of each cell and nothing else; 'one_per_cell' "

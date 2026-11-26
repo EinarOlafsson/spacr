@@ -247,9 +247,15 @@ def test_the_merge_gives_the_sequencing_link_to_the_owner_not_the_closer_copy(tm
     pd.testing.assert_frame_equal(old, closer)
     orphan = links.iloc[[1]].reset_index(drop=True)
     moved, dropped = ops_engine._ph_pair_one_link_per_nucleus(
-        orphan, str(tmp_path), "A1", settings)
+        orphan, str(tmp_path), "A1", {**settings, "ops_owner_link_inherit": "off"})
     assert dropped == 0 and moved[["site", "label", "object_id"]].values.tolist() == [
         [int(owner.site), int(owner.label), 5]]
+    kept, dropped = ops_engine._ph_pair_one_link_per_nucleus(
+        orphan, str(tmp_path), "A1", settings)
+    pd.testing.assert_frame_equal(kept, orphan)
+    inherited = ops_engine._ph_inherit_owner_links(
+        kept, ops_engine._ph_cross_field_owners(str(tmp_path), "A1"))
+    pd.testing.assert_frame_equal(inherited.reset_index(drop=True), moved)
     lone = owners[(owners.n_copies == 1) & ~owners.is_owner]
     if len(lone):
         cut = pd.DataFrame({"site": [int(lone.site.iloc[0])],

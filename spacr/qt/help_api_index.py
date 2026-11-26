@@ -15714,6 +15714,7 @@ SETTING_CONSUMERS = {
     'ops_cross_field_min_overlap': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_cross_field_ownership': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_cross_field_policy': (('spacr.ops_settings', 'ops_defaults'),),
+    'ops_owner_link_inherit': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_crosstalk': (('spacr.ops_settings', 'ops_defaults'),),
     'ops_cycle_mask': (('spacr.ops_prefix', 'prefix_settings'), ('spacr.ops_settings', 'ops_defaults'),),
     'ops_decode_auto_ci': (('spacr.ops_settings', 'ops_defaults'),),

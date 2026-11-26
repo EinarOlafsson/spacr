@@ -1523,6 +1523,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTING, not a regrouping (item 1044b, settings version 980): the
     # footprint the fallback pixels are assigned at.
     "ops_pixel_footprint",
+    # NEW SETTING, not a regrouping (item 1045, settings version 982): the
+    # owner copy of a seam cell takes the physical cell's SBS link.
+    "ops_owner_link_inherit",
     # NEW SETTINGS, not a regrouping (item 541, 2026-09-26): Measure's
     # confluency switch, its source, channel, texture window and monolayer
     # QC cut, under their own "Confluency α" heading.
