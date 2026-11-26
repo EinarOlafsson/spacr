@@ -242,7 +242,8 @@ def _field(owned_ids=(11, 12, 13)):
 
 
 def _calls(rule_settings, evidence, guides, decoys=()):
-    rule = ops_decode.decode_rule(rule_settings)
+    rule = ops_decode.decode_rule({"ops_pixel_ownership": "nearest_nucleus",
+                                   **rule_settings})
     matcher, decoy_set = ops_decode.matcher_for(guides, decoys)
     return ops_decode.field_calls(evidence, rule, guides, matcher, decoy_set,
                                   threshold=315.0, footprint=10.0,
@@ -366,7 +367,10 @@ def test_the_preset_decodes_the_well_and_writes_its_fdr_report(rule_a_run):
     stats = pd.read_csv(fdr["paths"]["field_stats"])
     assert list(stats.columns) == ["plate", "well", "site", "nuclei",
                                    "assigned_real", "assigned_decoy",
-                                   "assigned_pixel_real", "assigned_pixel_decoy"]
+                                   "assigned_pixel_real", "assigned_pixel_decoy",
+                                   "pixel_refused_bleed_read",
+                                   "pixel_refused_bleed_pixel",
+                                   "pixel_refused_radius_disagrees"]
     assert stats["assigned_real"].sum() == fdr["assigned"]
     assert fdr["assigned_primary"] + fdr["assigned_pixel_fallback"] == fdr["assigned"]
     assert len(decode["field_cache"]) == decode["fields_decoded"]
@@ -402,7 +406,8 @@ def test_evidence_rows_carry_the_support_behind_each_call():
     guides, evidence = _field()
     rule = ops_decode.decode_rule({"ops_assign_by_cell_territory": True,
                                    "ops_decode_pixel_fallback": True,
-                                   "ops_decode_quality_weighted": True})
+                                   "ops_decode_quality_weighted": True,
+                                   "ops_pixel_ownership": "nearest_nucleus"})
     matcher, decoy_set = ops_decode.matcher_for(guides[:2], ["TGCATG"])
     out = ops_decode.field_calls(evidence, rule, guides[:2], matcher, decoy_set,
                                  threshold=315.0, footprint=10.0, max_distance=0,

@@ -1546,7 +1546,9 @@ def vote_mapped_reads(objects: np.ndarray, barcodes: Sequence[str],
 def vote_pixels(objects: np.ndarray, barcodes: Sequence[str],
                 quality: np.ndarray, matcher: LibraryMatcher, *,
                 min_quality: float = 0.1, min_pixels: int = 2,
-                min_fraction: float = 0.6) -> Dict[int, dict]:
+                min_fraction: float = 0.6,
+                neighbours: Optional[Mapping[int, Any]] = None,
+                neighbour_discount: float = 1.0) -> Dict[int, dict]:
     """Each object's guide from its bright pixels, for objects no read named.
 
     Pixels are called like reads but are not independent -- the pixels of one
@@ -1563,6 +1565,16 @@ def vote_pixels(objects: np.ndarray, barcodes: Sequence[str],
     :param min_quality: the weakest pixel that votes.
     :param min_pixels: the fewest agreeing pixels.
     :param min_fraction: the share of the matched pixels the guide must hold.
+    :param neighbours: object -> the objects whose discs come within the
+        neighbour reach of it, for the neighbour discount (item 1044).
+    :param neighbour_discount: ``ops_read_neighbour_discount`` applied to
+        the pixel tallies as :func:`vote_mapped_reads` applies it to the
+        read tallies (:func:`_discount_neighbour_bleed`, pixels counted in
+        place of reads): a guide with strictly fewer pixels in the object
+        than its top guide, which is a top guide of a neighbour, has its
+        vote multiplied by this. The share and the tie are then read off
+        the discounted votes; ``n_pixels`` stays the count. 1 is off, the
+        rule before item 1044.
     :returns: ``{object: {"guide", "n_pixels", "n_matched", "fraction",
         "runner_margin", "barcode"}}``.
     """
@@ -1577,6 +1589,10 @@ def vote_pixels(objects: np.ndarray, barcodes: Sequence[str],
         if guide is not None:
             votes[int(owner)][guide] += 1
             raw[int(owner)][guide][read] += 1
+    if float(neighbour_discount) != 1.0:
+        return _discounted_pixel_calls(votes, raw, neighbours or {},
+                                       float(neighbour_discount),
+                                       min_pixels=min_pixels, min_fraction=min_fraction)
     out: Dict[int, dict] = {}
     for owner, tally in votes.items():
         (guide, n), *rest = tally.most_common()
@@ -1587,5 +1603,41 @@ def vote_pixels(objects: np.ndarray, barcodes: Sequence[str],
                           "n_matched": int(total), "fraction": float(n / total),
                           "runner_margin": float(
                               (n - (rest[0][1] if rest else 0)) / total),
+                          "barcode": raw[owner][guide].most_common(1)[0][0]}
+    return out
+
+
+def _discounted_pixel_calls(votes, raw, neighbours: Mapping[int, Any], discount: float,
+                            *, min_pixels: int, min_fraction: float) -> Dict[int, dict]:
+    """The pixel calls of :func:`vote_pixels` under the neighbour discount (item 1044).
+
+    :param votes: object -> guide -> matched pixel count.
+    :param raw: object -> guide -> raw barcode counts.
+    :param neighbours: object -> its neighbours.
+    :param discount: the factor a neighbour's top guide takes where it is a
+        minority guide (:func:`_discount_neighbour_bleed`).
+    :param min_pixels: the fewest agreeing pixels.
+    :param min_fraction: the share of the discounted vote the guide must hold.
+    :returns: as :func:`vote_pixels`.
+    """
+    from collections import defaultdict
+
+    weighted = {owner: defaultdict(float, {g: float(n) for g, n in tally.items()})
+                for owner, tally in votes.items()}
+    counts = {owner: dict(tally) for owner, tally in votes.items()}
+    _discount_neighbour_bleed(weighted, counts, defaultdict(dict), neighbours, discount)
+    out: Dict[int, dict] = {}
+    for owner, tally in weighted.items():
+        ranked = sorted(tally.items(), key=lambda kv: -kv[1])
+        guide, top = ranked[0]
+        total = sum(tally.values())
+        second = ranked[1][1] if len(ranked) > 1 else 0.0
+        n = int(votes[owner][guide])
+        if n >= min_pixels and not (len(ranked) > 1 and second == top) \
+                and top / total >= min_fraction:
+            out[owner] = {"guide": guide, "n_pixels": n,
+                          "n_matched": int(sum(votes[owner].values())),
+                          "fraction": float(top / total),
+                          "runner_margin": float((top - second) / total),
                           "barcode": raw[owner][guide].most_common(1)[0][0]}
     return out

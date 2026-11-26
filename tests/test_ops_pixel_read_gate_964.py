@@ -53,7 +53,8 @@ def _field():
 
 
 def _rule(gate):
-    settings = {"ops_decode_pixel_fallback": True, "ops_min_top_share": 0.0}
+    settings = {"ops_decode_pixel_fallback": True, "ops_min_top_share": 0.0,
+                "ops_pixel_ownership": "nearest_nucleus"}
     if gate is not None:
         settings["ops_pixel_read_gate"] = gate
     return ops_decode.decode_rule(settings)

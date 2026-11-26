@@ -271,6 +271,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
     "ops_pixel_radius": 10.0,
+    "ops_pixel_ownership": "read_rule",
     "ops_pixel_min_pixels": 2,
     "ops_pixel_min_fraction": 0.6,
     "ops_pixel_quality": 0.1,
@@ -904,6 +905,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_pixel_read_gate": bool,
     "ops_pixel_percentile": (float, int),
     "ops_pixel_radius": (float, int),
+    "ops_pixel_ownership": str,
     "ops_pixel_min_pixels": int,
     "ops_pixel_min_fraction": (float, int),
     "ops_pixel_quality": (float, int),
@@ -1353,7 +1355,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "Pixel fallback": [
         "ops_decode_pixel_fallback", "ops_pixel_read_gate",
-        "ops_pixel_percentile", "ops_pixel_radius", "ops_pixel_min_pixels",
+        "ops_pixel_percentile", "ops_pixel_radius", "ops_pixel_ownership",
+        "ops_pixel_min_pixels",
         "ops_pixel_min_fraction", "ops_pixel_quality",
     ],
     "Decoys & auto thresholds": [
@@ -3825,6 +3828,19 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_pixel_radius":
         "(float) - How far beyond a nucleus boundary, in pixels, a fallback "
         "pixel may lie and still vote for that nucleus. Default 10.",
+    "ops_pixel_ownership":
+        "(str) - Which nucleus a fallback pixel votes for. 'read_rule': the "
+        "one a read at that place would go to (ops_footprint, the tie and "
+        "territory rule, the cell under a cell mask), with the read "
+        "neighbour discount, and no pixel call when the guide is the read "
+        "guide of a neighbour within ops_read_neighbour_reach, a read-less "
+        "neighbour holds as many pixels of it, or the pixels within "
+        "ops_pixel_radius name another guide, so one amplicon cluster never "
+        "genotypes two cells. 'read_reach': the same without "
+        "that gate. 'nearest_nucleus': the nearest nucleus within "
+        "ops_pixel_radius, as settings files saved before schema 980 keep; "
+        "under the other two, ops_pixel_radius only caps ops_footprint. "
+        "Default 'read_rule'.",
     "ops_pixel_min_pixels":
         "(int) - How many exactly matching pixels must name a guide before "
         "the pixel fallback assigns it. Pixels of one spot repeat its call, "

@@ -355,6 +355,18 @@ default after a higher-numbered item takes the next free number:
   ``'object'``, family ``'background'``). ``ops_ph_profile_outside_rule``
   is unchanged, since OPS never ran the block, and refuses ``'legacy'``.
   Numbers 977 and 978 belong to other items.
+- 980 (item 1044, pixel-fallback ownership): ``ops_pixel_ownership`` is
+  ``'read_rule'``. A fallback pixel votes for the nucleus a read at that
+  place would go to (``ops_footprint``, the tie and territory rule, the
+  cell label under a cell mask; ``ops_pixel_radius`` only caps it), the
+  read neighbour discount acts on the pixel tallies, and a pixel call is
+  refused when its guide is the read guide of a neighbour within
+  ``ops_read_neighbour_reach``, the pixel guide of a read-less neighbour
+  with as many pixels, or not the guide the pixels within
+  ``ops_pixel_radius`` call (so no pixel call the old rule would not
+  make). ``'read_reach'`` keeps the assignment without that
+  gate. Files stamped before 980 get ``'nearest_nucleus'``, the nearest
+  nucleus within ``ops_pixel_radius``, and decode as before.
 
 Public API
 ----------

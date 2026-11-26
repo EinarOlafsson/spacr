@@ -3944,7 +3944,10 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
 
     rule = task["rule_a"]
     weighting = rule.get("read_weight")
-    if weighting and weighting["neighbour_discount"] != 1.0:
+    from .ops_decode import _rule_pixel_ownership
+
+    if (weighting and weighting["neighbour_discount"] != 1.0) or (
+            rule.get("pixels") and _rule_pixel_ownership(rule) == "read_rule"):
         from .ops_decode import _neighbour_reach
         from .ops_sbs import _disc_neighbours
 
@@ -4100,7 +4103,8 @@ def _rule_a_calls(evidence: Mapping[str, Any], rule: Mapping[str, Any], auto, sp
             "reads", "reads_owned", "reads_near", "reads_ambiguous")})
     elif auto:
         votes = _field_votes(
-            evidence, rule if pixel is None else {**rule, "pixels": False},
+            evidence,
+            rule if pixel is None else {**rule, "pixels": False, "pixels_given": True},
             sorted(_LIBRARY), matcher,
             threshold=rule["threshold"], footprint=rule["footprint"],
             max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
