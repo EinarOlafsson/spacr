@@ -3327,12 +3327,14 @@ def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
                             choices=list(_SBS_CELL_METHODS), value=method))
     assignment = read_assignment_setting(settings)
     if method == "off":
-        if assignment == "cell_mask":
+        if assignment in ("cell_mask", "nucleus_first"):
             raise ValueError(
-                "ops_read_assignment 'cell_mask' gives the reads to the SBS cells, but "
+                f"ops_read_assignment '{assignment}' gives reads to the SBS cells, but "
                 "ops_sbs_cell_method is 'off' and makes none; set it to 'cellpose' or "
                 "'watershed'")
         return None
+    if assignment == "nucleus_first":
+        _check_live_nucleus_first(settings)
     value = ops_setting(settings, "ops_sbs_cell_threshold")
     threshold = None
     if value not in (None, ""):
@@ -3345,7 +3347,34 @@ def _sbs_cell_options(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
                      if settings.get(key) is not None}
     return {"method": method, "foreground": threshold,
             "mask_settings": mask_settings,
-            **({"assignment": "cell_mask"} if assignment == "cell_mask" else {})}
+            **({"assignment": assignment} if assignment != "nucleus_reach" else {})}
+
+
+def _check_live_nucleus_first(settings: Mapping[str, Any]) -> None:
+    """Refuse a live 'nucleus_first' decode the field calls cannot make (item 1052).
+
+    :param settings: read for ``ops_decode_threshold_mode`` and
+        ``ops_nucleus_first_bleed_curve``.
+    :raises ValueError: for auto or dataset thresholds, whose candidates do
+        not take 'nucleus_first', and for the curve 'fit', which is fitted
+        when the well is re-decoded from its field caches.
+    """
+    from .ops_decode import NUCLEUS_FIRST_DEFAULTS
+
+    mode = str(ops_setting(settings, "ops_decode_threshold_mode") or "manual").strip().lower()
+    if mode != "manual":
+        raise ValueError(
+            "ops_read_assignment 'nucleus_first' decodes at fixed thresholds; set "
+            "ops_decode_threshold_mode 'manual', or decode under 'nucleus_reach' with the "
+            "field cache and re-decode the well from it (decode_cached_well)")
+    curve = settings.get("ops_nucleus_first_bleed_curve")
+    curve = NUCLEUS_FIRST_DEFAULTS["ops_nucleus_first_bleed_curve"] if curve in (None, "") else curve
+    if str(curve).strip().lower() == "fit":
+        raise ValueError(
+            "ops_nucleus_first_bleed_curve 'fit' fits the bleed curve on the field caches of "
+            "the run, so it applies when the well is re-decoded from them "
+            "(decode_cached_well); a live 'nucleus_first' decode needs 'arm2' or the path "
+            "of a stored curve")
 
 
 def _sbs_cell_proxy(stack: np.ndarray) -> np.ndarray:
@@ -3583,7 +3612,7 @@ def _sbs_store_cells(db: str, plate: str, well: str, options: Mapping[str, Any],
     write_table(frame, table, canonicalise=False)
     kept = frame[frame["owned"]]
     report = {"method": options["method"],
-              **({"read_assignment": "cell_mask"} if options.get("assignment") else {}),
+              **({"read_assignment": options["assignment"]} if options.get("assignment") else {}),
               "store": str(writer.path), "table": table, "fields": fields,
               "nuclei": int(len(kept)), "nuclei_with_cell": int(kept["has_cell"].sum())}
     _say(f"{well} SBS cells ({options['method']}): {report['nuclei_with_cell']} of "
@@ -3611,7 +3640,10 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         cells become the task's ``cell_labels`` and every read and fallback
         pixel goes to the object of the cell it lies in
         (:func:`spacr.ops_sbs._cell_mask_boundaries` through
-        :func:`spacr.ops_decode._object_owners`).
+        :func:`spacr.ops_decode._object_owners`). With ``assignment``
+        'nucleus_first' (item 1052) the reads stay with the nucleus reach and
+        the cells become ``fallback_cells`` of the task, which the field
+        evidence carries as ``cell_labels`` (:func:`_with_fallback_cells`).
     :returns: the field's reads attributed to the objects it owns, and its
         counts. With ``store_reads`` it also returns each owned read's
         position in this tile's frame, its per-cycle margin and the
@@ -3696,6 +3728,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         base["sbs_cells"] = sbs_cells
         if task["sbs_cells"].get("assignment") == "cell_mask":
             task = {**task, "cell_labels": sbs_cells["cells"]}
+        elif task["sbs_cells"].get("assignment") == "nucleus_first":
+            task = {**task, "fallback_cells": sbs_cells["cells"]}
 
     tick = time.perf_counter()
     stack = field.stack
@@ -4060,6 +4094,8 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, arrays: Dict[str, np.nd
         floor=floor,
         pixel_percentile=rule["pixel_percentile"] if rule["pixels"] else None,
         features=bool(rule.get("features")))
+    if task.get("fallback_cells") is not None:
+        evidence = _with_fallback_cells(evidence, task)
     if neighboured and cell_mask:
         from .ops_decode import _neighbour_reach, cached_neighbours
 
@@ -4175,6 +4211,30 @@ def _field_raw_values(stack, evidence, task, field) -> np.ndarray:
     for i, cycle in enumerate(field.kept):
         raw[:, cycles.index(cycle)] = measured[:, i]
     return raw
+
+
+def _with_fallback_cells(evidence: Dict[str, Any], task: Mapping[str, Any]) -> Dict[str, Any]:
+    """The evidence of a 'nucleus_first' field with its SBS cells and nucleus positions (item 1052).
+
+    :param evidence: the nucleus-reach evidence
+        (:func:`spacr.ops_decode.field_evidence`).
+    :param task: the task of the field, with ``fallback_cells`` (label ``i + 1``
+        for object ``i``), ``ids``, ``centroids`` and ``areas``.
+    :returns: the evidence with ``cell_labels`` (values the object ids) and
+        the nucleus positions (:data:`spacr.ops_decode.CACHE_NUCLEUS_KEYS`),
+        as :func:`spacr.ops_decode.save_field_cache` stores them, so the
+        calls of the live decode and of a replay of its cache read the same.
+    """
+    from .image_store import _compact_labels
+
+    ids = np.asarray(task["ids"], np.int64).reshape(-1)
+    lut = np.concatenate([np.zeros(1, np.int64), ids])
+    evidence.update({
+        "cell_labels": _compact_labels(lut[np.asarray(task["fallback_cells"], np.int64)]),
+        "nuc_ids": ids,
+        "nuc_centroids": np.asarray(task["centroids"], np.float64).reshape(-1, 2),
+        "nuc_areas": np.asarray(task["areas"], np.float64).reshape(-1)})
+    return evidence
 
 
 def _rule_a_calls(evidence: Mapping[str, Any], rule: Mapping[str, Any], auto, spots,

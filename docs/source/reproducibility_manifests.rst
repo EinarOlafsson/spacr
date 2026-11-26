@@ -299,7 +299,12 @@ default after a higher-numbered item takes the next free number:
   belongs to another item. Item 1025 part 2 adds ``ops_read_assignment``
   (alpha, default ``'nucleus_reach'``, the rule before it, so it needs no
   row); ``'cell_mask'`` gives every read and fallback pixel to the SBS cell
-  it lies in.
+  it lies in. Item 1052 adds the choice ``'nucleus_first'`` (alpha): every
+  nucleus-reach call stands, and only an object the nucleus reach leaves
+  uncalled takes the reads of its SBS cell, through a bleed gate whose
+  curve (``ops_nucleus_first_bleed_curve``, ``ops_nucleus_first_max_bleed``,
+  ``ops_nucleus_first_min_reads``) also gates its fallback pixels. The
+  default is unchanged, so it needs no row.
 
 - 972 (OPS storage for reruns, items N6 and N7): ``ops_store_raw_masks``
   (default ``False``) keeps the phenotype nucleus and cell masks before

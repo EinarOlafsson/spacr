@@ -380,6 +380,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 1025 (alpha, schema 969): SBS cell segmentation (OPS SBS cells α).
     "ops_sbs_cell_method", "ops_sbs_cell_model", "ops_sbs_cell_threshold",
     "ops_read_assignment",
+    # Item 1052 (alpha): the nucleus_first bleed gate (no schema row: default unchanged).
+    "ops_nucleus_first_bleed_curve", "ops_nucleus_first_max_bleed",
+    "ops_nucleus_first_min_reads",
     # L5 audit, schema 965: the ring of the outside profiling family.
     "profile_outside_rule", "ops_ph_profile_outside_rule",
     # Merge 4: one size-filter boundary rule; the legacy rule is kept for old files.

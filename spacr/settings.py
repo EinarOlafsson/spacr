@@ -9423,6 +9423,11 @@ ALPHA_FEATURES = {
     1042: {
         'settings': ('ops_decode_qc_bleed_panel',),
     },
+    1052: {
+        'settings': ('ops_nucleus_first_bleed_curve', 'ops_nucleus_first_max_bleed',
+                     'ops_nucleus_first_min_reads'),
+        'choices': {'ops_read_assignment': ('nucleus_first',)},
+    },
     1025: {
         'settings': ('ops_sbs_cell_method', 'ops_sbs_cell_model',
                      'ops_sbs_cell_threshold', 'ops_read_assignment'),

@@ -273,6 +273,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_sbs_cell_model": "cpsam",
     "ops_sbs_cell_threshold": None,
     "ops_read_assignment": "nucleus_reach",
+    "ops_nucleus_first_bleed_curve": "fit",
+    "ops_nucleus_first_max_bleed": 0.5,
+    "ops_nucleus_first_min_reads": 1.0,
     "ops_decode_pixel_fallback": False,
     "ops_pixel_read_gate": True,
     "ops_pixel_percentile": 97.0,
@@ -919,6 +922,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_sbs_cell_model": str,
     "ops_sbs_cell_threshold": (float, int, type(None)),
     "ops_read_assignment": str,
+    "ops_nucleus_first_bleed_curve": str,
+    "ops_nucleus_first_max_bleed": (float, int),
+    "ops_nucleus_first_min_reads": (float, int),
     "ops_decode_pixel_fallback": bool,
     "ops_pixel_read_gate": bool,
     "ops_pixel_percentile": (float, int),
@@ -1378,7 +1384,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "SBS cells α": [
         "ops_sbs_cell_method", "ops_sbs_cell_model", "ops_sbs_cell_threshold",
-        "ops_read_assignment",
+        "ops_read_assignment", "ops_nucleus_first_bleed_curve",
+        "ops_nucleus_first_max_bleed", "ops_nucleus_first_min_reads",
     ],
     "Pixel fallback": [
         "ops_decode_pixel_fallback", "ops_pixel_read_gate",
@@ -3871,12 +3878,32 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_read_assignment":
         "(str) - Which nucleus a read or a fallback pixel belongs to. "
         "'cell_mask': the nucleus of the SBS cell it lies in, with no "
-        "footprint or tie, so reads anywhere in the cytoplasm count and reads "
-        "between cells count for none; neighbours for the read discount and "
-        "the pixel bleed gate are the cells that touch. Needs "
-        "ops_sbs_cell_method. 'nucleus_reach': the nearest nucleus within "
-        "ops_footprint, as before. Calls, auto candidates, never and shuffle "
-        "controls and FDR all use the same rule. Default 'nucleus_reach'. Alpha.",
+        "footprint or tie; neighbours are the cells that touch. "
+        "'nucleus_first': every nearest-nucleus call stands, and only a "
+        "nucleus left uncalled takes the reads of its SBS cell, through the "
+        "bleed gate (ops_nucleus_first_*; manual thresholds or a re-decode "
+        "from the field cache). Both need ops_sbs_cell_method. "
+        "'nucleus_reach': the nearest nucleus within ops_footprint, as before. "
+        "Calls, controls and FDR use the same rule. Default 'nucleus_reach'. Alpha.",
+    "ops_nucleus_first_bleed_curve":
+        "(str) - The bleed curve the 'nucleus_first' gate reads: how often a "
+        "read names the guide of a neighbour nucleus, by its distance to that "
+        "neighbour and its place in its own cell. 'fit': measured on the "
+        "field cache of the run when the well is re-decoded from it. 'arm2': "
+        "the curve the paper measured. Or the path of a stored curve "
+        "(a bleed panel or bleed pair table, or a JSON curve). Only read "
+        "under ops_read_assignment 'nucleus_first'. Default 'fit'. Alpha.",
+    "ops_nucleus_first_max_bleed":
+        "(float) - Lower refuses more cell-mask and pixel calls near a "
+        "neighbour with the same guide: the largest share of the reads or "
+        "pixels behind such a call that the bleed curve may give to that "
+        "neighbour. Only read under ops_read_assignment 'nucleus_first'. "
+        "Default 0.5. Alpha.",
+    "ops_nucleus_first_min_reads":
+        "(float) - Higher needs more evidence for a cell-mask call: the reads "
+        "naming its guide that must be left once the reads the bleed curve "
+        "gives to a neighbour are taken off. Only read under "
+        "ops_read_assignment 'nucleus_first'. Default 1. Alpha.",
     "ops_prefix_bleed_in_recipe":
         "(bool) - Under ops_prefix_quality_method 'recipe_simple', ignore a "
         "minority barcode that has the most reads in a touching cell when "

@@ -811,3 +811,285 @@ def run_qc_panels(db: str, plate: str, wells: Sequence[str], settings: Mapping[s
                 os.path.join(folder, f"depth_curve_{well}.png"), title)
         report[well] = paths
     return report
+
+
+#: The form tag of a stored bleed model (item 1052), and the least bleed
+#: pairs a cell of the model must hold to stand on its own; a sparser cell
+#: takes the nearest cell of its spot position that holds enough, then the
+#: rate of its gap bin, then the overall rate (:func:`fit_bleed_model`).
+BLEED_MODEL_FORM = "spacr_bleed_model_v1"
+BLEED_MIN_PAIRS = 30
+
+#: The bleed model measured by the paper (qc_v2 arm 2, pre-L6 frozen
+#: 26bc722c15 A1, 21,938 pairs with a neighbour top guide, sisters
+#: excluded, ``arm2/bleed_pairs.parquet``): the excess rate, observed minus
+#: the distance-matched null, at which a minority read matches the top guide
+#: of its neighbour, by the bins of :data:`GAP_BINS` (rows) and
+#: :data:`POSITION_BINS` (columns), the sparse cells filled as
+#: :func:`fit_bleed_model` fills them. ``ops_nucleus_first_bleed_curve``
+#: 'arm2' selects it.
+ARM2_BLEED_MODEL: Dict[str, Any] = {
+    "form": BLEED_MODEL_FORM,
+    "source": "arm2 (qc_v2, pre-L6 frozen 26bc722c15 A1, sisters excluded)",
+    "gap_names": list(GAP_NAMES), "position_names": list(POSITION_NAMES),
+    "excess": [[0.3662, 0.732533, 0.741201],
+               [0.3662, 0.732533, 0.741201],
+               [0.448993, 0.757439, 0.741201],
+               [0.201934, 0.659864, 0.741201],
+               [0.10582, 0.440749, 0.649304],
+               [0.055476, 0.246077, 0.445511]],
+    "pairs": [[9, 0, 0], [30, 30, 0], [149, 695, 0], [544, 2962, 4114],
+              [1744, 2791, 5804], [1221, 913, 932]],
+    "observed_pct": 53.0996, "null_pct": 0.0738,
+}
+
+
+def _filled(table: np.ndarray, pairs: np.ndarray, gap_rate: np.ndarray, overall: float,
+            min_pairs: int) -> np.ndarray:
+    """A bleed table with its sparse cells filled (item 1052).
+
+    :param table: ``(gap bins, position bins)`` excess rates, NaN where unknown.
+    :param pairs: the pairs behind each cell.
+    :param gap_rate: the excess rate of each gap bin over every position,
+        NaN where the bin is sparse.
+    :param overall: the overall excess rate.
+    :param min_pairs: the least pairs a cell stands on.
+    :returns: the table, every cell between 0 and 1: a sparse cell takes the
+        nearest well-filled cell of its column (the farther one on a tie),
+        else the rate of its gap bin, else the overall rate.
+    """
+    out = np.array(table, float)
+    good = (pairs >= min_pairs) & np.isfinite(out)
+    rows = np.arange(out.shape[0])
+    for g in range(out.shape[0]):
+        for p in range(out.shape[1]):
+            if good[g, p]:
+                continue
+            candidates = rows[good[:, p]]
+            if len(candidates):
+                distance = np.abs(candidates - g) - 0.5 * (candidates > g)
+                out[g, p] = out[candidates[np.argmin(distance)], p]
+            elif np.isfinite(gap_rate[g]):
+                out[g, p] = gap_rate[g]
+            else:
+                out[g, p] = overall
+    return np.clip(np.nan_to_num(out, nan=overall), 0.0, 1.0)
+
+
+def fit_bleed_model(gbin: np.ndarray, pbin: np.ndarray, match: np.ndarray,
+                    null_rate: np.ndarray, *, source: str,
+                    min_pairs: int = BLEED_MIN_PAIRS) -> Dict[str, Any]:
+    """The bleed model of item 1052 from bleed pairs (:func:`bleed_field`).
+
+    The model is the excess rate, observed minus the distance-matched null,
+    at which a minority read matches the top guide of its neighbour, in the
+    cells of the read-to-neighbour gap (:data:`GAP_BINS`) and the spot
+    position (:data:`POSITION_BINS`): the arm-2 definitions of the paper.
+    The read gate and the pixel gate of ``ops_read_assignment``
+    'nucleus_first' both read it (:func:`bleed_rates`). Pass the pairs with a
+    neighbour top guide and no sister: a sister shares its guide by descent.
+
+    :param gbin: the gap bin of each pair.
+    :param pbin: the position bin of each pair.
+    :param match: whether the read names the top guide of the neighbour.
+    :param null_rate: the null match rate of each pair (the mean over the
+        null draws); zeros when the null was not kept.
+    :param source: where the pairs come from, kept in the model.
+    :param min_pairs: the least pairs a cell stands on (:func:`_filled`).
+    :returns: the model: ``form``, ``source``, ``gap_names``,
+        ``position_names``, ``excess`` (rows gap bins, columns positions,
+        fractions), ``pairs``, ``observed_pct`` and ``null_pct``.
+    :raises ValueError: when there are no pairs.
+    """
+    gbin, pbin = np.asarray(gbin, int), np.asarray(pbin, int)
+    match, null_rate = np.asarray(match, float), np.asarray(null_rate, float)
+    if not len(match):
+        raise ValueError("the bleed model needs bleed pairs with a neighbour top guide; "
+                         "the field caches gave none")
+    shape = (len(GAP_NAMES), len(POSITION_NAMES))
+    pairs = np.zeros(shape, np.int64)
+    table = np.full(shape, np.nan)
+    np.add.at(pairs, (gbin, pbin), 1)
+    hits = np.zeros(shape)
+    nulls = np.zeros(shape)
+    np.add.at(hits, (gbin, pbin), match)
+    np.add.at(nulls, (gbin, pbin), null_rate)
+    filled = pairs > 0
+    table[filled] = (hits[filled] - nulls[filled]) / pairs[filled]
+    row_pairs = pairs.sum(1)
+    gap_rate = np.where(row_pairs >= min_pairs,
+                        (hits.sum(1) - nulls.sum(1)) / np.maximum(row_pairs, 1), np.nan)
+    overall = float((match.sum() - null_rate.sum()) / len(match))
+    return {"form": BLEED_MODEL_FORM, "source": str(source),
+            "gap_names": list(GAP_NAMES), "position_names": list(POSITION_NAMES),
+            "excess": np.round(_filled(table, pairs, gap_rate, overall, min_pairs), 6).tolist(),
+            "pairs": pairs.tolist(), "observed_pct": round(100 * float(match.mean()), 4),
+            "null_pct": round(100 * float(null_rate.mean()), 4)}
+
+
+def _separable_model(gap: Mapping[str, Tuple[float, int]],
+                     position: Mapping[str, Tuple[float, int]], overall: float,
+                     source: str) -> Dict[str, Any]:
+    """A bleed model from the one-dimensional rates of a bleed panel (item 1052).
+
+    :param gap: gap bin name -> ``(excess rate, pairs)``.
+    :param position: position bin name -> ``(excess rate, pairs)``.
+    :param overall: the overall excess rate.
+    :param source: kept in the model.
+    :returns: the model of :func:`fit_bleed_model`, each cell the rate of
+        its gap bin times the ratio of its position rate to the overall
+        rate, a sparse bin (:data:`BLEED_MIN_PAIRS`) taking the overall rate.
+    """
+    def rate(table, name):
+        value, n = table.get(name, (np.nan, 0))
+        return float(value) if n >= BLEED_MIN_PAIRS and np.isfinite(value) else overall
+
+    rows = np.array([rate(gap, name) for name in GAP_NAMES])
+    columns = np.array([rate(position, name) for name in POSITION_NAMES])
+    ratio = columns / overall if overall > 0 else np.ones_like(columns)
+    excess = np.clip(np.outer(rows, ratio), 0.0, 1.0)
+    pairs = np.zeros((len(GAP_NAMES), len(POSITION_NAMES)), np.int64)
+    return {"form": BLEED_MODEL_FORM, "source": source, "gap_names": list(GAP_NAMES),
+            "position_names": list(POSITION_NAMES),
+            "excess": np.round(excess, 6).tolist(), "pairs": pairs.tolist(),
+            "observed_pct": float("nan"), "null_pct": float("nan")}
+
+
+def _model_from_pairs(frame, source: str) -> Dict[str, Any]:
+    """A bleed model from a bleed pair table (``bleed_pairs_<well>.parquet`` or arm 2).
+
+    :param frame: the pairs, with ``gbin``, ``pbin``, ``match`` and, when the
+        null was kept, ``null_sum`` (matches over :data:`NULL_DRAWS` draws).
+    :param source: kept in the model.
+    :returns: :func:`fit_bleed_model` of the pairs with a neighbour top guide
+        and no sister.
+    """
+    keep = np.ones(len(frame), bool)
+    if "has_topj" in frame:
+        keep &= frame["has_topj"].to_numpy(bool)
+    if "sister" in frame:
+        keep &= ~frame["sister"].to_numpy(bool)
+    frame = frame[keep]
+    null = (frame["null_sum"].to_numpy(float) / NULL_DRAWS if "null_sum" in frame
+            else np.zeros(len(frame)))
+    return fit_bleed_model(frame["gbin"].to_numpy(), frame["pbin"].to_numpy(),
+                           frame["match"].to_numpy(), null, source=source)
+
+
+def load_bleed_model(path: str) -> Dict[str, Any]:
+    """A stored bleed curve, in any of the forms the decode and the paper write (item 1052).
+
+    :param path: one of: a JSON bleed model (:data:`BLEED_MODEL_FORM`); the
+        ``arm2_bleed.json`` of the paper (``sisters_excluded`` with
+        ``by_read_to_neighbour_gap`` and ``by_spot_position``, in percent); a
+        bleed pair table (``.parquet`` or ``.csv`` with ``gbin``, ``pbin`` and
+        ``match``: the 1042 ``bleed_pairs_<well>.parquet`` or arm 2
+        ``bleed_pairs.parquet``); or a 1042 bleed panel table
+        (``bleed_panel_<well>.parquet``, with ``group``, ``dimension``, ``bin``,
+        ``pairs`` and ``bleed_pct``).
+    :returns: the model of :func:`fit_bleed_model`. A pair table is fitted in
+        two dimensions; the one-dimensional panels give a separable model
+        (:func:`_separable_model`).
+    :raises FileNotFoundError: naming the path when it does not exist.
+    :raises ValueError: naming the forms read when the file is none of them.
+    """
+    import pandas as pd
+
+    path = str(path)
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"ops_nucleus_first_bleed_curve: no bleed curve at {path}")
+    source = os.path.basename(path)
+    if path.endswith(".json"):
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+        if data.get("form") == BLEED_MODEL_FORM:
+            return {**data, "source": data.get("source") or source}
+        group = data.get("sisters_excluded")
+        if isinstance(group, dict) and "by_read_to_neighbour_gap" in group:
+            def bins(part):
+                return {name: (float(v["bleed_pct"]) / 100, int(v["pairs"]))
+                        for name, v in part.items()}
+
+            return _separable_model(bins(group["by_read_to_neighbour_gap"]),
+                                    bins(group["by_spot_position"]),
+                                    float(group["overall"]["bleed_pct"]) / 100,
+                                    f"{source} (sisters excluded, separable)")
+        frame = None
+    else:
+        frame = pd.read_csv(path) if path.endswith(".csv") else pd.read_parquet(path)
+    if frame is not None and {"gbin", "pbin", "match"} <= set(frame.columns):
+        return _model_from_pairs(frame, source)
+    if frame is not None and {"group", "dimension", "bin", "bleed_pct"} <= set(frame.columns):
+        part = frame[frame["group"].astype(str) == "sisters_excluded"]
+
+        def bins(dimension):
+            rows = part[part["dimension"].astype(str) == dimension]
+            return {str(r.bin): (float(r.bleed_pct) / 100, int(r.pairs))
+                    for r in rows.itertuples()}
+
+        overall = bins("overall").get("all", (np.nan, 0))[0]
+        return _separable_model(bins("read_to_neighbour_gap"), bins("spot_position"),
+                                float(overall), f"{source} (sisters excluded, separable)")
+    raise ValueError(
+        f"{path} is not a bleed curve: give a {BLEED_MODEL_FORM} JSON, the arm-2 "
+        "arm2_bleed.json, a bleed pair table (gbin, pbin, match) or a 1042 bleed panel "
+        "table (group, dimension, bin, bleed_pct)")
+
+
+def bleed_rates(model: Mapping[str, Any], neighbour_gap: np.ndarray,
+                own_gap: np.ndarray) -> np.ndarray:
+    """The bleed rate of each read or pixel, from the model (item 1052).
+
+    :param model: from :func:`fit_bleed_model` or :func:`load_bleed_model`.
+    :param neighbour_gap: the gap from each point to the boundary of the
+        neighbour whose guide it names, binned by :data:`GAP_BINS`.
+    :param own_gap: the gap from each point to the boundary of its own
+        nucleus, binned by :data:`POSITION_BINS` (centre, border, outside).
+    :returns: the excess rate of the cell of each point, between 0 and 1.
+    """
+    table = np.asarray(model["excess"], float)
+    g = _digitise(np.asarray(neighbour_gap, float), GAP_BINS)
+    p = _digitise(np.asarray(own_gap, float), POSITION_BINS)
+    return table[g, p] if len(g) else np.zeros(0)
+
+
+def fit_bleed_model_from_caches(fields: Sequence[Mapping[str, Any]], rule: Mapping[str, Any],
+                                library: Sequence[str], decoys: Sequence[str], crosstalk: str,
+                                *, seed: int = 0, draws: int = NULL_DRAWS) -> Dict[str, Any]:
+    """The bleed model of one run, fitted from its stored field caches (item 1052).
+
+    The bleed pairs and the null of every field (:func:`bleed_field`, the
+    port of arm 2) at the read threshold of the rule, fitted by
+    :func:`fit_bleed_model` over the pairs with a neighbour top guide and
+    no sister.
+
+    :param fields: ``{"site", "z"}`` per field, ``z`` a nucleus-reach field
+        cache; any iterable, read once.
+    :param rule: the rule with its ``threshold``.
+    :param library: the guide barcodes.
+    :param decoys: the decoy barcodes.
+    :param crosstalk: the unmixing method.
+    :param seed: the seed of the null draws (``ops_decode_qc_seed``).
+    :param draws: the null draws.
+    :returns: the model, its ``source`` naming the fields.
+    """
+    names, index, is_decoy = universe_index(library, decoys)
+    parts = []
+    count = 0
+    for field in fields:
+        count += 1
+        site, z = int(field["site"]), field["z"]
+        exact = exact_matches(z, index, rule, library, crosstalk)
+        pairs, null = bleed_field(z, exact, is_decoy, rule["threshold"],
+                                  np.random.default_rng([seed, site]), draws)
+        if pairs is None:
+            continue
+        keep = pairs["has_topj"].to_numpy(bool) & ~pairs["sister"].to_numpy(bool)
+        parts.append((pairs["gbin"].to_numpy()[keep], pairs["pbin"].to_numpy()[keep],
+                      pairs["match"].to_numpy()[keep], null[:, keep].mean(0)))
+    if not parts:
+        raise ValueError("ops_nucleus_first_bleed_curve 'fit' found no bleed pairs in the "
+                         "field caches; give a stored curve instead")
+    joined = [np.concatenate([p[i] for p in parts]) for i in range(4)]
+    return fit_bleed_model(*joined, source=f"fit on {count} field caches, "
+                                          f"threshold {float(rule['threshold']):g}")
