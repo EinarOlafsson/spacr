@@ -2370,17 +2370,13 @@ def _recorded_objects_md5(db: str, plate: str, destination: str, well: str):
             return record["md5"], path
     except (OSError, ValueError):
         pass
-    try:
-        import zarr
+    from .image_store import _store_spacr_attrs
 
-        store = os.path.join(_objects_raw_folder(db), f"{plate}.ome.zarr")
-        if os.path.isdir(store):
-            attrs = zarr.open_group(store, mode="r").attrs.get("spacr") or {}
-            record = (attrs.get("cellpose_models") or {}).get("sbs_nuclei")
-            if record and record.get("md5"):
-                return record["md5"], store
-    except Exception:
-        pass
+    store = os.path.join(_objects_raw_folder(db), f"{plate}.ome.zarr")
+    if os.path.isdir(store):
+        record = (_store_spacr_attrs(store).get("cellpose_models") or {}).get("sbs_nuclei")
+        if record and record.get("md5"):
+            return record["md5"], store
     return None, None
 
 
@@ -2447,16 +2443,17 @@ def _cellpose_default_weights(version: Any) -> Optional[str]:
     return None
 
 
-def _recorded_cellpose_versions(destination: str, db: Optional[str]) -> Dict[str, str]:
+def _recorded_cellpose_versions(destination: str) -> Dict[str, str]:
     """The Cellpose versions earlier runs recorded, by where they were read.
 
     :param destination: the run folder; each ``<well>/ops_report.json``
         carries ``provenance.software.cellpose`` and each mask store the
         same under its ``spacr`` attributes (item 975).
-    :param db: the measurements database, for the SBS raw window store.
     :returns: ``{source path: version}``.
     """
     import glob
+
+    from .image_store import _store_spacr_attrs
 
     found: Dict[str, str] = {}
     for path in sorted(glob.glob(os.path.join(destination, "*", "ops_report.json"))):
@@ -2468,16 +2465,9 @@ def _recorded_cellpose_versions(destination: str, db: Optional[str]) -> Dict[str
         if isinstance(software, Mapping) and software.get("cellpose"):
             found[path] = str(software["cellpose"])
     stores = glob.glob(os.path.join(destination, "*", "phenotype_masks", "*.ome.zarr"))
-    if db:
-        stores += glob.glob(os.path.join(_objects_raw_folder(db), "*.ome.zarr"))
+    stores += glob.glob(os.path.join(_objects_raw_folder_in(destination), "*.ome.zarr"))
     for store in sorted(stores):
-        try:
-            import zarr
-
-            attrs = zarr.open_group(store, mode="r").attrs.get("spacr") or {}
-            version = (attrs.get("software") or {}).get("cellpose")
-        except Exception:
-            version = None
+        version = (_store_spacr_attrs(store).get("software") or {}).get("cellpose")
         if version:
             found[store] = str(version)
     return found
@@ -2513,10 +2503,7 @@ def _resolve_replay_weights(settings: Mapping[str, Any]) -> Dict[str, Any]:
         _say(f"replay: ops_cellpose_model takes {explicit} from ops_replay_cellpose_weights")
         return {**settings, "ops_cellpose_model": explicit}
     root = str(settings.get("dst_root") or settings.get("genotype_source") or "")
-    db = None
-    if root:
-        db = os.path.join(root, "measurements.db")
-    seen = _recorded_cellpose_versions(root, db) if root else {}
+    seen = _recorded_cellpose_versions(root) if root else {}
     choices = {_cellpose_default_weights(version) for version in seen.values()}
     if len(choices) == 1 and None not in choices:
         chosen = next(iter(choices))
@@ -3074,7 +3061,15 @@ def _objects_raw_folder(db: str) -> str:
         ``sbs_masks/<plate>.ome.zarr`` beside it, a plate store like the
         phenotype masks, one field per segmentation window.
     """
-    return os.path.join(os.path.dirname(os.path.abspath(db)), "sbs_masks")
+    return _objects_raw_folder_in(os.path.dirname(os.path.abspath(db)))
+
+
+def _objects_raw_folder_in(destination: str) -> str:
+    """The SBS raw window mask folder of a run folder (item N6).
+
+    :param destination: the run folder holding ``measurements.db``.
+    """
+    return os.path.join(destination, "sbs_masks")
 
 
 def _objects_raw_writer(db: str, plate: str, attributes=None):
