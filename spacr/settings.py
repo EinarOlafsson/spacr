@@ -6382,7 +6382,7 @@ tooltips = {
     "mask": "(bool) - Whether to generate masks for the segmented objects. If True, masks will be generated for the nucleus, cell, and pathogen.",
     "measurement": "(str) - Measurement column(s) from measurements.db used to prefilter which object crops the annotator loads, applied together with threshold and threshold_direction. Accepts a single column, a comma-separated list (each paired with the same-index threshold), or a JSON list-of-lists where an inner pair is filtered as a ratio (first divided by second). Empty (default) loads every crop unfiltered.",
     "merge_edge_pathogen_cells": "(bool) - During measurement, reconcile pathogens straddling two host-cell masks: if 90 percent or more of the pathogen lies in one cell, its pixels in the neighbours are erased; otherwise the overlapping cell labels are fused into a single cell. Switch off to keep the raw cell segmentation when parasites legitimately touch two cells. Default True.",
-    "spanning_merge": "(str) - How a nucleus that lies in several cells is resolved. 'best_parent': the nucleus goes to the cell it overlaps most and is clipped to it; no cell is fused. 'merge': the old behaviour, kept to replay older runs: a nucleus with under 90 percent in every cell fuses those cells into one, even cells that hold their own nuclei, and with 90 percent or more in one cell its pixels in the others are erased. Settings files from before schema 976 keep 'merge'. Default 'best_parent'.",
+    "spanning_merge": "(str) - How a nucleus that lies in several cells is resolved. 'best_parent': it goes to the cell it overlaps most; no cell is fused. 'merge': the old behaviour, kept to replay older runs: it fuses cells, even cells that hold their own nuclei, and erases the nucleus in the others at 90 percent. 'merge_safe' (alpha): never fuses cells with their own nucleus, merges only pieces without one, and counts the 90 percent over in-cell pixels. Settings files before schema 976 keep 'merge'. Default 'best_parent'.",
     "metric": "(str) - Distance metric used both by the reducer (UMAP or t-SNE) and by DBSCAN clustering, e.g. 'euclidean', 'manhattan', 'cosine' or 'correlation'. Correlation-type metrics compare feature profiles regardless of magnitude and often separate phenotypes better than euclidean on scaled data. Default 'euclidean'.",
     "min_cells_per_well": "(int) - Wells with fewer than this many cells are dropped. In a regression it is scored objects and the well is left out of the fit; in the machine-learning screen it is measured cells and the well is left out of the plate heatmap, whose pivot is then filled with 0, so an excluded well renders at the bottom of the colour scale rather than blank. Raising it removes noisy, sparsely imaged wells at the cost of power. Set 0 to switch it off. Default 100 for a regression, 25 for the screen.",
     "min_dist": "(float) - UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",
@@ -9326,6 +9326,10 @@ ALPHA_FEATURES = {
             'ops_ph_cellless_nuclei',
             'ops_ph_cellless_nucleus_max_distance_px',
         ),
+    },
+    1037: {
+        'choices': {'spanning_merge': ('merge_safe',),
+                    'ops_ph_spanning_merge': ('merge_safe',)},
     },
     1029: {
         'settings': ('extra_nuclei', 'merge_small_nuclei_px',

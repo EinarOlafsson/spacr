@@ -1896,6 +1896,86 @@ def _merge_spanning_children(mask1, mask2):
     return mask1, mask2, len(root)
 
 
+def _merge_spanning_children_safe(mask1, mask2):
+    """The fixed spanning rule, ``'merge_safe'`` (item 1037, alpha).
+
+    :func:`_merge_spanning_children` fused cells that each hold their own
+    nucleus. This rule follows the maintainer decision of 2026-11-25:
+
+    1. Cells that each hold the majority of a different nucleus are never
+       merged. A cell holds the majority of a nucleus when it is the cell
+       that nucleus overlaps most (:func:`_best_parent`).
+    2. Only pieces without a nucleus are merged: a cell that holds the
+       majority of no nucleus, and that a nucleus over several cells
+       touches, merges into the cell holding the majority of that nucleus.
+       The pieces of a nucleus that lie in cells with their own nucleus are
+       left to :func:`_assign_shared_nuclei`, which clips the nucleus to
+       its best cell.
+    3. The 90 % share is counted over the pixels of the nucleus that lie in
+       a cell; nucleus pixels outside every cell are ignored. With 90 % or
+       more in one cell the pixels in the others are removed, as in the old
+       rule.
+
+    :param mask1: child labels (nuclei), changed in place.
+    :param mask2: parent labels (cells), changed in place.
+    :returns: ``(mask1, mask2, folded)``: ``folded`` is how many ``mask2``
+        labels were merged into another.
+    """
+    from skimage.measure import label
+
+    labeled_1 = label(mask1)
+    comps, parents, overlap = _label_overlaps(labeled_1, mask2)
+    if not comps.size:
+        return mask1, mask2, 0
+    starts = np.flatnonzero(np.r_[True, comps[1:] != comps[:-1]])
+    ends = np.r_[starts[1:], comps.size]
+    spanning = (ends - starts) > 1
+    if not spanning.any():
+        return mask1, mask2, 0
+    owned, owners, _ = _best_parent(comps, parents, overlap)
+    nucleated = set(int(v) for v in owners)
+    root = {}
+    trims = []
+    for start, end in zip(starts[spanning], ends[spanning]):
+        comp = int(comps[start])
+        cells = parents[start:end].astype(np.int64)
+        pixels = overlap[start:end].astype(np.int64)
+        current = np.array([_merged_into(root, int(v)) for v in cells], np.int64)
+        labels_now, inverse = np.unique(current, return_inverse=True)
+        if labels_now.size < 2:
+            continue
+        shared = np.bincount(inverse, weights=pixels).astype(np.int64)
+        winner = int(labels_now[int(np.argmax(shared))])
+        if int(shared.max()) * 100 >= 90 * int(pixels.sum()):
+            trims.append((comp, cells[current == winner]))
+            continue
+        for cell in cells:
+            cell = int(cell)
+            if cell not in nucleated and _merged_into(root, cell) != winner:
+                root[cell] = winner
+    if trims:
+        size = np.bincount(labeled_1.ravel())
+        comp_ids = np.array([comp for comp, _ in trims], np.int64)
+        trimmed = np.zeros(size.size, dtype=bool)
+        trimmed[comp_ids] = True
+        in_trim = trimmed[labeled_1] & (mask2 != 0)
+        width = int(np.max(mask2)) + 1
+        kept_keys = np.concatenate([
+            comp * width + kept.astype(np.int64) for comp, kept in trims])
+        keys = labeled_1[in_trim].astype(np.int64) * width + mask2[in_trim].astype(np.int64)
+        drop = np.zeros(mask1.shape, dtype=bool)
+        drop[in_trim] = ~np.isin(keys, kept_keys)
+        mask1[drop] = 0
+    if root:
+        merged = np.array(sorted(root), np.int64)
+        targets = np.array([_merged_into(root, int(v)) for v in merged], np.int64)
+        lut = np.arange(int(max(merged.max(), targets.max())) + 1, dtype=np.int64)
+        lut[merged] = targets
+        where = (mask2 > 0) & (mask2 <= merged.max())
+        mask2[where] = lut[mask2[where]]
+    return mask1, mask2, len(root)
+
+
 #: Item 1024 (alpha): the nucleus pairing options of
 #: :func:`_assign_nuclei_to_cells` under their Measure names, with the
 #: defaults that leave the pairing exactly as before. The OPS phenotype path
@@ -2439,7 +2519,7 @@ def _nuclei_per_cell(nucleus_mask, cell_mask):
     return {int(c): int(n) for c, n in zip(cells, counts)}
 
 
-_SPANNING_MODES = ('best_parent', 'merge')
+_SPANNING_MODES = ('best_parent', 'merge', 'merge_safe')
 
 
 def _spanning_mode(value):
@@ -2450,7 +2530,7 @@ def _spanning_mode(value):
     cells.
 
     :param value: the setting; None or blank is the default ``'best_parent'``.
-    :returns: ``'best_parent'`` or ``'merge'``.
+    :returns: ``'best_parent'``, ``'merge'`` or ``'merge_safe'``.
     :raises ValueError: for any other value.
     """
     mode = str(value).strip().lower() if value not in (None, '') else _SPANNING_MODES[0]
@@ -2487,6 +2567,10 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
        the others are removed. The default ``'best_parent'`` skips this
        step: it merged cells that each hold their own nucleus (maintainer
        decision 2026-11-25, a bug), so it is kept only to replay older runs.
+       ``'merge_safe'`` (item 1037, alpha) runs the fixed step,
+       :func:`_merge_spanning_children_safe`: cells that each hold the
+       majority of a nucleus are never merged, only nucleus-less pieces
+       merge, and the 90 % share counts in-cell pixels only.
     2. :func:`_assign_shared_nuclei`: a nucleus label that lies in several
        cells keeps only the pixels in the cell it overlaps most (its best
        parent). After step 1 that is only a label made of disconnected
@@ -2528,7 +2612,8 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
         nucleus goes to its largest-overlap cell and cells are never merged
         -- the OPS pairing of the frozen A1 run (before settings schema
         959); ``'merge'`` runs both steps, as every module did before
-        settings schema 976.
+        settings schema 976; ``'merge_safe'`` runs both with the fixed
+        step 1 (item 1037, alpha).
     :returns: ``(nucleus_mask, cell_mask, shared_nuclei, shared_cells,
         merged)``: the two label sets of step 2 and how many cell labels
         step 1 merged into another (0 with ``'best_parent'``).
@@ -2579,8 +2664,12 @@ def _assign_nuclei_to_cells(nucleus_mask, cell_mask, options=None, dna=None,
             cell_mask=cell_mask)
         nucleus_mask[...] = merged_small
         record['small_fragments'] = info
-    if _spanning_mode(spanning) == 'merge':
+    mode = _spanning_mode(spanning)
+    if mode == 'merge':
         nucleus_mask, cell_mask, merged = _merge_spanning_children(
+            nucleus_mask, cell_mask)
+    elif mode == 'merge_safe':
+        nucleus_mask, cell_mask, merged = _merge_spanning_children_safe(
             nucleus_mask, cell_mask)
     else:
         merged = 0

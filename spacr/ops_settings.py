@@ -2116,13 +2116,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "pixels. Default 'same'. Alpha.",
     "ops_ph_spanning_merge":
         "(str) - How a nucleus that lies in several cells is paired. "
-        "'best_parent': each nucleus goes to the cell it overlaps most and "
-        "each cell keeps one nucleus; no cell is fused, as in OPS runs before "
-        "settings schema 959. 'merge': the old behaviour of schemas 959 to "
-        "975, kept to replay those runs: a nucleus with under 90 percent in "
-        "every cell fuses those cells, even cells that hold their own nuclei, "
-        "and with 90 percent or more in one cell its pixels in the others are "
-        "erased. Default 'best_parent'. Alpha.",
+        "'best_parent': each nucleus goes to the cell it overlaps most; no "
+        "cell is fused. 'merge': the old behaviour of schemas 959 to 975, "
+        "kept to replay them: it fuses cells, even cells that hold their own "
+        "nuclei, and erases the nucleus in the others at 90 percent. "
+        "'merge_safe': never fuses cells with their own nucleus, merges only "
+        "pieces without one, and counts the 90 percent over in-cell pixels. "
+        "Default 'best_parent'. Alpha.",
     "ops_ph_segment_flatfield":
         "(bool) - Find more cells near the field edge: divide the DNA and cell "
         "channels by the plate's flat-field maps before segmenting. On LaC024E "

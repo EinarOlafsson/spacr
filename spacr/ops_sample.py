@@ -311,7 +311,12 @@ def _pair_nuclei_with_cells(nuclei, cells, pairing=None, dna=None,
         Measure's old ownership rule: a nucleus split under 90 % between
         cells merges them, even cells that hold their own nuclei, and at
         90 % or more its pixels in the other cells are removed;
-        ``counts['merged_cells']`` counts the merges.
+        ``counts['merged_cells']`` counts the merges. ``'merge_safe'``
+        (item 1037, alpha) is the fixed merge: cells that each hold the
+        majority of a nucleus are never merged, only nucleus-less pieces
+        merge, and the 90 % share counts in-cell pixels only; it is the same
+        :func:`spacr.measure._merge_spanning_children_safe` for Measure,
+        OPS and the large-site preset.
     :returns: ``(nuclei, cells, counts, record)``. ``record`` is None
         without an active option; otherwise ``fragments``, one
         ``(label, kept_label, merged_label)`` per merged piece, ``label``

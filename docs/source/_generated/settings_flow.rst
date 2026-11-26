@@ -41889,7 +41889,7 @@ Read by ``_ph_fields``, ``_ph_masks``, ``_ph_merged``, ``ops_defaults``.
 ops_ph_spanning_merge
 ---------------------
 
-(str) - How a nucleus that lies in several cells is paired. 'best_parent': each nucleus goes to the cell it overlaps most and each cell keeps one nucleus; no cell is fused, as in OPS runs before settings schema 959. 'merge': the old behaviour of schemas 959 to 975, kept to replay those runs: a nucleus with under 90 percent in every cell fuses those cells, even cells that hold their own nuclei, and with 90 percent or more in one cell its pixels in the others are erased. Default 'best_parent'. Alpha.
+(str) - How a nucleus that lies in several cells is paired. 'best_parent': each nucleus goes to the cell it overlaps most; no cell is fused. 'merge': the old behaviour of schemas 959 to 975, kept to replay them: it fuses cells, even cells that hold their own nuclei, and erases the nucleus in the others at 90 percent. 'merge_safe': never fuses cells with their own nucleus, merges only pieces without one, and counts the 90 percent over in-cell pixels. Default 'best_parent'. Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
@@ -60403,7 +60403,7 @@ Read by ``_load_batch``, ``_report_resolved_parameters``, ``_serve_mask_jobs``.
 spanning_merge
 --------------
 
-(str) - How a nucleus that lies in several cells is resolved. 'best_parent': the nucleus goes to the cell it overlaps most and is clipped to it; no cell is fused. 'merge': the old behaviour, kept to replay older runs: a nucleus with under 90 percent in every cell fuses those cells into one, even cells that hold their own nuclei, and with 90 percent or more in one cell its pixels in the others are erased. Settings files from before schema 976 keep 'merge'. Default 'best_parent'.
+(str) - How a nucleus that lies in several cells is resolved. 'best_parent': it goes to the cell it overlaps most; no cell is fused. 'merge': the old behaviour, kept to replay older runs: it fuses cells, even cells that hold their own nuclei, and erases the nucleus in the others at 90 percent. 'merge_safe' (alpha): never fuses cells with their own nucleus, merges only pieces without one, and counts the 90 percent over in-cell pixels. Settings files before schema 976 keep 'merge'. Default 'best_parent'.
 
 | ``_measure_crop_queued``
 |     ``_measure_crop_core`` **-- reads it**
