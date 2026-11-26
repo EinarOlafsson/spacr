@@ -30,8 +30,16 @@ the route of revision 1 for the sequencing side (``stitch``, ``objects``,
 references go to ``<out>/reference/regions/block_<tiles>/`` in the layout
 of the full tier's ``reference/``.
 
+With ``--l6 <full tier root>`` the tool builds the L6 references
+(``tests/data/ops_e2e_l6/``) instead: the SBS nuclei (``stitch``, ``objects``),
+the calls (the reference nuclei decoded on the full tier with the test's pins)
+and the phenotype cells, all under today's defaults, on the CPU. They are the
+references of the default-settings run of ``tests/test_ops_e2e_testdata.py``;
+the shipped (pre-L6) references stay the ones of the old-settings run.
+
 usage: python tools/build_ops_e2e_reference.py <tier root> <out> --reason TEXT
-       [--tar FILE] [--override KEY=VALUE ...] [--regions]
+       [--tar FILE] [--override KEY=VALUE ...] [--regions] [--l6 FULL_ROOT
+       [--l6-parts objects,barcodes,phenotype]]
 """
 from __future__ import annotations
 
@@ -229,6 +237,98 @@ def _build_regions(args) -> int:
     return 0
 
 
+def _build_l6(args) -> int:
+    """Build the L6 references: nuclei, calls and phenotype cells under today's defaults.
+
+    The routes are those of ``tests/test_ops_e2e_testdata.py``: the nuclei by
+    ``stitch`` and ``objects`` on the core tier; the calls by ``decode`` of the
+    shipped reference nuclei on the full tier, with the test's pins of
+    ``ops_read_neighbour_discount`` and ``ops_pixel_read_gate``; the cells by the
+    seeded phenotype route of the shipped references.
+
+    :param args: the parsed command line; ``args.root`` is the core tier and
+        ``args.l6`` the full tier.
+    """
+    import pandas as pd
+    from spacr.ops_engine import _replace_well_rows
+
+    args.out.mkdir(parents=True, exist_ok=True)
+    work = args.out / "work"
+    timing = {}
+    parts = set(args.l6_parts.split(","))
+    tick = time.perf_counter()
+    if "objects" in parts:
+        objects_run = work / "objects"
+        objects_run.mkdir(parents=True)
+        db = Path(_run(_settings(args.root, objects_run, MODELS["tile_affine"]),
+                       ["stitch", "objects"])["db"])
+        _table(db, "ops_objects").sort_values("object_id").reset_index(
+            drop=True).to_parquet(args.out / "ops_objects.parquet", index=False)
+        timing["objects_s"] = round(time.perf_counter() - tick, 1)
+
+    tick = time.perf_counter()
+    decode_run = work / "decode"
+    if "barcodes" in parts:
+        decode_run.mkdir(parents=True)
+    settings = _settings(args.l6, decode_run, MODELS["tile_affine"])
+    settings["ops_read_neighbour_discount"] = 1.0
+    settings["ops_pixel_read_gate"] = False
+    if "barcodes" in parts:
+        db = Path(_run(settings, ["stitch"])["db"])
+        _replace_well_rows(str(db), "ops_objects", pd.read_parquet(
+            args.l6 / "reference" / "objects" / "ops_objects.parquet"), PLATE, WELL)
+        _run(settings, ["decode"])
+        _table(db, "ops_barcodes").sort_values("object_id").reset_index(
+            drop=True).to_parquet(args.out / "ops_barcodes.parquet", index=False)
+        timing["decode_s"] = round(time.perf_counter() - tick, 1)
+
+    tick = time.perf_counter()
+    if "phenotype" in parts:
+        cells_run = work / "phenotype"
+        cells_run.mkdir(parents=True)
+        settings = _settings(args.root, cells_run, MODELS["tile_affine"])
+        db = Path(_run(settings, ["stitch"])["db"])
+        for table, path in (("ops_objects", "objects/ops_objects.parquet"),
+                            ("ops_barcodes", "genotype/ops_barcodes.parquet")):
+            _replace_well_rows(str(db), table, pd.read_parquet(
+                args.root / "reference" / path), PLATE, WELL)
+        report = _run(settings, ["phenotype", "ph_flatfield", "ph_segment",
+                                 "ph_measure"])["wells"][WELL]
+        assert report["phenotype"]["placement"] == "seeded"
+        shutil.copy(next(cells_run.rglob(f"ops_phenotype_cells_{WELL}.parquet")),
+                    args.out)
+        timing["phenotype_s"] = round(time.perf_counter() - tick, 1)
+
+    commit = subprocess.run(["git", "rev-parse", "--short=10", "HEAD"],
+                            capture_output=True, text=True,
+                            cwd=Path(__file__).resolve().parents[1]).stdout.strip()
+    counts = {"objects": int(len(pd.read_parquet(args.out / "ops_objects.parquet"))),
+              "barcodes": int(len(pd.read_parquet(args.out / "ops_barcodes.parquet"))),
+              "phenotype_cells": int(len(pd.read_parquet(
+                  args.out / f"ops_phenotype_cells_{WELL}.parquet")))}
+    record = args.out / "PROVENANCE_l6.json"
+    built = {}
+    if record.is_file():
+        previous = json.loads(record.read_text())
+        timing = {**previous.get("timing", {}), **timing}
+        built = previous.get("built") or {
+            part: {key: previous.get(key) for key in (
+                "spacr_commit", "reason", "settings_overrides", "environment",
+                "machine")} for part in ("objects", "barcodes", "phenotype")}
+    for part in parts:
+        built[part] = {"spacr_commit": commit, "reason": args.reason,
+                       "settings_overrides": dict(OVERRIDES),
+                       "environment": _environment(), "machine": platform.node()}
+    record.write_text(json.dumps({
+        "what": "L6 references of tests/test_ops_e2e_testdata.py under today's defaults",
+        "route": "tools/build_ops_e2e_reference.py --l6", "counts": counts,
+        "timing": timing, "built": built,
+    }, indent=1))
+    shutil.rmtree(work)
+    print(json.dumps({"out": str(args.out), **counts}))
+    return 0
+
+
 def main(argv=None):
     import pandas as pd
     from spacr.ops_engine import _replace_well_rows
@@ -243,6 +343,14 @@ def main(argv=None):
                         help="a settings value for every run (recorded in "
                              "the provenance), e.g. ops_ph_image_format=npz, "
                              "revision 2's mask format")
+    parser.add_argument("--l6", type=Path, metavar="FULL_ROOT",
+                        help="build the L6 references (nuclei, calls, phenotype "
+                             "cells under today's defaults); the value is the "
+                             "full tier root")
+    parser.add_argument("--l6-parts", default="objects,barcodes,phenotype",
+                        help="with --l6, the references to (re)build, a "
+                             "comma-separated subset of objects, barcodes, "
+                             "phenotype; the others in the folder are kept")
     parser.add_argument("--regions", action="store_true",
                         help="build every block of the regions tier from its "
                              "raw images (revision 4)")
@@ -252,8 +360,10 @@ def main(argv=None):
         if not sep or not key:
             parser.error(f"--override wants KEY=VALUE, got {item!r}")
         OVERRIDES[key] = value
-    if args.out.exists() and any(args.out.iterdir()):
+    if args.out.exists() and any(args.out.iterdir()) and not args.l6:
         parser.error(f"{args.out} is not empty")
+    if args.l6:
+        return _build_l6(args)
     if args.regions:
         return _build_regions(args)
     work = args.out / "work"

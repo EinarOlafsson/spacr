@@ -25,6 +25,21 @@ categories exact, placements within 1e-6 px, the composite window's md5 or
 max |difference| <= 1e-3, call quality and fraction within 1e-6 relative.
 Gate (c), restated by the maintainer: >= 99 % same guide where both called,
 for nuclei more than 100 px from the subset edge, on the full tier.
+
+Two eras of settings (L6, items 966 to 979 changed OPS defaults). The three
+opt-in tests run twice. ``pre_l6`` replays the settings schema before L6
+(:data:`PRE_L6_SCHEMA`, through ``spacr.settings._fold_older_defaults``) and
+is held to the shipped references, which were made under those defaults; it
+proves that a settings file written before L6 still gives what it gave. ``l6``
+runs today's defaults against ``tests/data/ops_e2e_l6/``, built by
+``tools/build_ops_e2e_reference.py --l6`` and explained in its
+``PROVENANCE_l6.json``. Each difference between the two is the effect of
+named items: the SBS nuclei move from 5025 to 5028 under item 975 (the
+cpsam_v2 weights; the nucleus diameter of item 973 was taken back at schema
+980); the calls fall from 15125 to
+12507 objects under item 966 (``ops_min_top_share`` 0.9); the phenotype cells
+move from 485 to 490 under items 974, 975 and 976 (flat-field segmentation,
+the cpsam_v2 weights, the best-parent spanning merge).
 """
 from __future__ import annotations
 
@@ -45,21 +60,35 @@ PLATE = "20200202_6W-LaC024A"
 SBS_SITES = {321, 322, 331, 332}
 PH_SITES = {1255, 1264, 1280}
 TILE = 1480
+PRE_L6_SCHEMA = 965
+L6_REFERENCE = Path(__file__).resolve().parent / "data" / "ops_e2e_l6"
+ERAS = pytest.mark.parametrize("era", [PRE_L6_SCHEMA, None],
+                               ids=["pre_l6", "l6"])
 PATH_KEYS = ("genotype_source", "phenotype_source", "ops_library",
              "ops_flatfield_maps")
 
 
-def _settings(root: Path, dst: Path, name: str = "ops_testdata_settings.csv"):
+def _settings(root: Path, dst: Path, name: str = "ops_testdata_settings.csv",
+              era=None):
     """The tier's shipped settings file, with its paths made absolute.
 
     :param root: the tier root.
     :param dst: the run folder (``dst_root``).
     :param name: the settings file in ``settings/``.
+    :param era: a settings schema version to replay (:data:`PRE_L6_SCHEMA`):
+        the keys the file does not set take the defaults they had then,
+        through ``spacr.settings._fold_older_defaults``; None for today's.
     :returns: the settings mapping.
     """
     from spacr.cli import load_settings_file
 
     settings = dict(load_settings_file(str(root / "settings" / name)))
+    if era is not None:
+        from spacr.ops_settings import OPS_DEFAULTS
+        from spacr.settings import SETTINGS_VERSION_KEY, _fold_older_defaults
+
+        settings[SETTINGS_VERSION_KEY] = era
+        _fold_older_defaults(settings, era, known=set(OPS_DEFAULTS))
     for key in PATH_KEYS:
         settings[key] = str(root / settings[key])
     settings["dst_root"] = str(dst)
@@ -103,6 +132,18 @@ def _pinned_environment(root: Path) -> bool:
     except metadata.PackageNotFoundError:
         return False
     return torch == lock["torch"] and cellpose == lock["cellpose"]
+
+
+def _reference_file(root: Path, era, name: str, shipped: str) -> Path:
+    """The reference of one table for an era of settings.
+
+    :param root: the tier root.
+    :param era: :data:`PRE_L6_SCHEMA` or None.
+    :param name: the file in ``tests/data/ops_e2e_l6/``.
+    :param shipped: the file in the tier's ``reference/``.
+    :returns: the shipped reference for the pre-L6 era, else the L6 one.
+    """
+    return root / "reference" / shipped if era is not None else L6_REFERENCE / name
 
 
 def _assert_geometry(found: pd.DataFrame, root: Path) -> None:
@@ -169,9 +210,10 @@ def test_the_stitch_matches_the_reference(ops_e2e_core, tmp_path, settings_file)
         assert float(np.max(np.abs(image - ref))) <= 1e-3
 
 
+@ERAS
 @pytest.mark.slow
 @pytest.mark.heavy
-def test_the_objects_match_the_reference(ops_e2e_core, tmp_path):
+def test_the_objects_match_the_reference(ops_e2e_core, tmp_path, era):
     """Stitch then objects: the SBS nuclei equal the reference's.
 
     About 40 minutes of Cellpose on a CPU, so it runs only with
@@ -182,12 +224,13 @@ def test_the_objects_match_the_reference(ops_e2e_core, tmp_path):
     if os.environ.get("SPACR_OPS_E2E_SEGMENT") != "1":
         pytest.skip("set SPACR_OPS_E2E_SEGMENT=1 to segment (about 40 min on CPU)")
     root = ops_e2e_core
-    settings = _settings(root, tmp_path)
+    settings = _settings(root, tmp_path, era=era)
     settings["ops_gpu"] = False
     result = _run(settings, ["stitch", "objects"])
     found = _table(Path(result["db"]), "ops_objects").sort_values(
         "object_id").reset_index(drop=True)
-    ref = pd.read_parquet(root / "reference" / "objects" / "ops_objects.parquet"
+    ref = pd.read_parquet(_reference_file(
+        root, era, "ops_objects.parquet", "objects/ops_objects.parquet")
                           ).sort_values("object_id").reset_index(drop=True)
     if not _pinned_environment(root):
         assert abs(len(found) - len(ref)) <= 0.005 * len(ref)
@@ -231,14 +274,14 @@ def _assert_frames_equal(found: pd.DataFrame, ref: pd.DataFrame, *,
             assert present(found[column]) == present(ref[column]), (what, column)
 
 
-def _seeded_run(root: Path, dst: Path, settings_file: str):
+def _seeded_run(root: Path, dst: Path, settings_file: str, era=None):
     """Stitch, the reference nuclei and calls, then the seeded phenotype phase.
 
     :returns: ``(settings, database path)``.
     """
     from spacr.ops_engine import _replace_well_rows
 
-    settings = _settings(root, dst, settings_file)
+    settings = _settings(root, dst, settings_file, era)
     settings["n_workers"] = 1
     settings["ops_gpu"] = False
     settings["ops_ph_placement_seed"] = str(
@@ -284,10 +327,11 @@ def test_the_seeded_phenotype_and_merge_match_the_reference(ops_e2e_core, tmp_pa
                          rtol=1e-6, atol=1e-6, what="ops_phenotype")
 
 
+@ERAS
 @pytest.mark.slow
 @pytest.mark.heavy
 def test_the_phenotype_segmentation_and_measurement_match_the_reference(
-        ops_e2e_core, tmp_path):
+        ops_e2e_core, tmp_path, era):
     """Seeded phenotype, flat field, segmentation and measurement of the cells.
 
     About an hour of Cellpose on a CPU, so it runs only with
@@ -307,11 +351,12 @@ def test_the_phenotype_segmentation_and_measurement_match_the_reference(
     if os.environ.get("SPACR_OPS_E2E_SEGMENT") != "1":
         pytest.skip("set SPACR_OPS_E2E_SEGMENT=1 to segment (about 1 h on CPU)")
     root = ops_e2e_core
-    settings, _ = _seeded_run(root, tmp_path, "ops_testdata_settings.csv")
+    settings, _ = _seeded_run(root, tmp_path, "ops_testdata_settings.csv", era)
     _run(settings, ["ph_flatfield", "ph_segment", "ph_measure"])
     found = pd.read_parquet(tmp_path / "ops_phenotype_cells_A1.parquet")
-    ref = pd.read_parquet(root / "reference" / "phenotype" /
-                          "ops_phenotype_cells_A1.parquet")
+    ref = pd.read_parquet(_reference_file(
+        root, era, "ops_phenotype_cells_A1.parquet",
+        "phenotype/ops_phenotype_cells_A1.parquet"))
     if not _pinned_environment(root):
         assert abs(len(found) - len(ref)) <= 0.005 * len(ref)
         return
@@ -355,8 +400,9 @@ def _gate_c(found: pd.DataFrame, root: Path):
     return float(same.mean()), int(both.sum())
 
 
+@ERAS
 @pytest.mark.slow
-def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path):
+def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path, era):
     """Full tier: stitch, the reference nuclei, decode; gate (c) and identity.
 
     Opt-in (``SPACR_OPS_E2E_FULL=1``): 1.25 GB and about two minutes of
@@ -382,7 +428,7 @@ def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path):
     from spacr.ops_engine import _replace_well_rows
 
     root = ops_e2e_full
-    settings = _settings(root, tmp_path)
+    settings = _settings(root, tmp_path, era=era)
     settings["n_workers"] = 1
     settings["ops_read_neighbour_discount"] = 1.0
     settings["ops_pixel_read_gate"] = False
@@ -399,7 +445,8 @@ def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path):
     assert both > 10_000
     assert fraction >= 0.99, f"gate (c): {fraction:.4f} same guide on {both}"
 
-    ref = pd.read_parquet(root / "reference" / "genotype" / "ops_barcodes.parquet")
+    ref = pd.read_parquet(_reference_file(
+        root, era, "ops_barcodes.parquet", "genotype/ops_barcodes.parquet"))
     found = found.sort_values("object_id").reset_index(drop=True)
     ref = ref.sort_values("object_id").reset_index(drop=True)
     assert found.object_id.tolist() == ref.object_id.tolist()
@@ -409,6 +456,8 @@ def test_the_full_tier_decode_meets_gate_c(ops_e2e_full, tmp_path):
         np.testing.assert_allclose(found[column], ref[column], rtol=1e-6,
                                    err_msg=column)
 
+    if era is not None:
+        return
     default = _settings(root, tmp_path / "default_discount")
     default["n_workers"] = 1
     assert "ops_read_neighbour_discount" not in default or \

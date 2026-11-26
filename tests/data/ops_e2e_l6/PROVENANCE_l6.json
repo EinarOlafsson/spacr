@@ -1,0 +1,79 @@
+{
+ "what": "L6 references of tests/test_ops_e2e_testdata.py under today's defaults",
+ "route": "tools/build_ops_e2e_reference.py --l6",
+ "counts": {
+  "objects": 5028,
+  "barcodes": 12507,
+  "phenotype_cells": 490
+ },
+ "timing": {
+  "objects_s": 990.3,
+  "decode_s": 114.4,
+  "phenotype_s": 1717.9
+ },
+ "built": {
+  "objects": {
+   "spacr_commit": "08f2be21a4",
+   "reason": "L6 defaults after the item 1036 revert (schema 980): references of the default-settings run of tests/test_ops_e2e_testdata.py, built on the pinned torch 2.6.0 / cellpose 4.2.1.1 on the CPU",
+   "settings_overrides": {
+    "ops_ph_image_format": "npz"
+   },
+   "environment": {
+    "python": "3.10.21",
+    "numpy": "1.26.4",
+    "scipy": "1.14.1",
+    "torch": "2.6.0",
+    "cellpose": "4.2.1.1",
+    "tifffile": "2024.8.28",
+    "pandas": "2.2.2",
+    "scikit-image": "0.24.0",
+    "imagecodecs": "2024.6.1",
+    "torch_device": "cpu (CUDA_VISIBLE_DEVICES='')",
+    "OMP_NUM_THREADS": "4"
+   },
+   "machine": "carruthers"
+  },
+  "barcodes": {
+   "spacr_commit": "08f2be21a4",
+   "reason": "L6 defaults (items 966-979): references of the default-settings run of tests/test_ops_e2e_testdata.py, built on the pinned torch 2.6.0 / cellpose 4.2.1.1 on the CPU",
+   "settings_overrides": {
+    "ops_ph_image_format": "npz"
+   },
+   "environment": {
+    "python": "3.10.21",
+    "numpy": "1.26.4",
+    "scipy": "1.14.1",
+    "torch": "2.6.0",
+    "cellpose": "4.2.1.1",
+    "tifffile": "2024.8.28",
+    "pandas": "2.2.2",
+    "scikit-image": "0.24.0",
+    "imagecodecs": "2024.6.1",
+    "torch_device": "cpu (CUDA_VISIBLE_DEVICES='')",
+    "OMP_NUM_THREADS": "4"
+   },
+   "machine": "carruthers"
+  },
+  "phenotype": {
+   "spacr_commit": "08f2be21a4",
+   "reason": "L6 defaults (items 966-979): references of the default-settings run of tests/test_ops_e2e_testdata.py, built on the pinned torch 2.6.0 / cellpose 4.2.1.1 on the CPU",
+   "settings_overrides": {
+    "ops_ph_image_format": "npz"
+   },
+   "environment": {
+    "python": "3.10.21",
+    "numpy": "1.26.4",
+    "scipy": "1.14.1",
+    "torch": "2.6.0",
+    "cellpose": "4.2.1.1",
+    "tifffile": "2024.8.28",
+    "pandas": "2.2.2",
+    "scikit-image": "0.24.0",
+    "imagecodecs": "2024.6.1",
+    "torch_device": "cpu (CUDA_VISIBLE_DEVICES='')",
+    "OMP_NUM_THREADS": "4"
+   },
+   "machine": "carruthers"
+  }
+ }
+}
