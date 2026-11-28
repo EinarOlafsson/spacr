@@ -53,7 +53,7 @@ def test_gui_refuses_missing_inputs_before_claiming_or_starting_a_run(monkeypatc
     monkeypatch.setattr(app_screen.QMessageBox, 'warning', lambda *args: shown.append(args))
     screen = SimpleNamespace(
         app_key='regression', _wait_for_the_entry_import=lambda override: False,
-        _settings_model=SimpleNamespace(collect=lambda: {}),
+        _settings_model=SimpleNamespace(collect=lambda: {}, with_explicit_record=lambda s: s),
         _annotation_labels_named=lambda settings: pytest.fail('preflight was skipped'),
     )
     app_screen.AppScreen._on_run(screen)
