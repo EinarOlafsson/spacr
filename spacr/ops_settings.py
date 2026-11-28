@@ -2028,7 +2028,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_phases":
         "(str, list or None) - Which phases a run without its own phase "
         "list runs, in the order spaCR runs them, as 'stitch,phenotype,"
-        "objects,decode,ph_segment,ph_measure,ph_masks,merge,aggregate'. "
+        "objects,sbs_cells,decode,ph_segment,ph_measure,ph_masks,merge,aggregate'. "
         "With it, spacr-run ops runs the phenotype, merge and aggregate "
         "phases from the settings file alone, so the file reproduces the "
         "run. A phase spaCR does not know is refused before anything runs. "
@@ -2049,11 +2049,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "objects are stored. Off deletes them once the well is done. "
         "Default False. Alpha.",
     "ops_reuse_unprovenanced_objects":
-        "(bool) - Let a run without the objects phase use the objects of a well "
-        "that never recorded which Cellpose weights made them. Off refuses "
-        "such a well, because its masks may come from other weights than this "
-        "run names; run the objects phase again instead. A well that recorded "
-        "other weights is always refused. Default False. Alpha.",
+        "(bool) - Let a run without the phase that makes a mask use the stored "
+        "masks (SBS nuclei, SBS cells, phenotype nuclei and cells) of a well "
+        "that never recorded which Cellpose weights and mask settings made "
+        "them. Off refuses such a well, because its masks may come from other "
+        "weights or settings than this run names; run the phase again "
+        "instead. A well that recorded other weights or other mask settings "
+        "is always refused. Default False. Alpha.",
     "ops_objects_windows_dir":
         "(str or None) - The folder that holds the objects phase's window "
         "files, one subfolder per well. Empty puts them in objects_windows "
@@ -3889,7 +3891,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "schema 966 keep empty.",
     "ops_sbs_cell_method":
         "(str) - Makes SBS cells, one grown from every SBS nucleus, in the "
-        "decode, for comparing masks and so reads can be given to whole "
+        "decode or in the sbs_cells phase (a decode reuses the cells that "
+        "phase stored when their weights and settings match), for comparing masks and so reads can be given to whole "
         "cells (ops_read_assignment 'cell_mask'). 'cellpose': the cell probability of Cellpose "
         "(ops_sbs_cell_model) on the base-channel proxy. 'watershed': the "
         "proxy above ops_sbs_cell_threshold. Masks go to sbs/fov.ome.zarr and "

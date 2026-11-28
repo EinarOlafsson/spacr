@@ -2090,9 +2090,10 @@ Read by ``run_cell_cycle_phase``.
 assignment
 ----------
 
+| ``_sbs_reused_report`` **-- reads it**
 | ``_sbs_store_cells`` **-- reads it**
 
-Read by ``_sbs_store_cells``.
+Read by ``_sbs_reused_report``, ``_sbs_store_cells``.
 
 .. _setting-flow-at:
 
@@ -24631,6 +24632,7 @@ method
 ------
 
 | ``_sbs_field_cells`` **-- reads it**
+| ``_sbs_reused_report`` **-- reads it**
 | ``_sbs_segment_cells`` **-- reads it**
 | ``_sbs_store_cells`` **-- reads it**
 | ``_normalization_target_changed`` **-- reads it**
@@ -24644,7 +24646,7 @@ method
 | ``_overview_normalization_bounds`` **-- reads it**
 |     ``_overview_transform`` **-- reads it**
 
-Read by ``_sbs_field_cells``, ``_sbs_segment_cells``, ``_sbs_store_cells``, ``_normalization_target_changed``, ``_overview_channel_normalization``, ``_overview_export``, ``_overview_normalization_bounds``, ``_overview_reference_transform``, ``_overview_transform``.
+Read by ``_sbs_field_cells``, ``_sbs_reused_report``, ``_sbs_segment_cells``, ``_sbs_store_cells``, ``_normalization_target_changed``, ``_overview_channel_normalization``, ``_overview_export``, ``_overview_normalization_bounds``, ``_overview_reference_transform``, ``_overview_transform``.
 
 .. _setting-flow-metric:
 
@@ -37997,6 +37999,9 @@ How the rule (a) decode's thresholds are set. 'manual' uses the values you enter
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options``
+|                 ``_check_live_nucleus_first`` **-- reads it**
 |         ``_dataset_mode`` **-- reads it**
 |         ``_dataset_mode_settings``
 |             ``_dataset_mode`` **-- reads it**
@@ -38012,6 +38017,9 @@ How the rule (a) decode's thresholds are set. 'manual' uses the values you enter
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options``
+|                 ``_check_live_nucleus_first`` **-- reads it**
 |         ``_dataset_mode`` **-- reads it**
 |         ``_dataset_mode_settings``
 |             ``_dataset_mode`` **-- reads it**
@@ -38027,6 +38035,9 @@ How the rule (a) decode's thresholds are set. 'manual' uses the values you enter
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options``
+|                 ``_check_live_nucleus_first`` **-- reads it**
 |         ``_dataset_mode`` **-- reads it**
 |         ``_dataset_mode_settings``
 |             ``_dataset_mode`` **-- reads it**
@@ -46608,6 +46619,9 @@ ops_nucleus_first_bleed_curve
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options``
+|                 ``_check_live_nucleus_first`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -46619,6 +46633,9 @@ ops_nucleus_first_bleed_curve
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options``
+|                 ``_check_live_nucleus_first`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -46630,6 +46647,9 @@ ops_nucleus_first_bleed_curve
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options``
+|                 ``_check_live_nucleus_first`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -47842,6 +47862,10 @@ Format for phenotype masks and merged field images. ome-zarr keeps the images an
 |         :py:func:`~spacr.ops_decode.run_compare_masks`
 |             ``_ph_mask_paths``
 |                 ``_ph_image_format`` **-- reads it**
+|         ``_check_objects_weights``
+|             ``_stored_masks_exist``
+|                 ``_ph_mask_paths``
+|                     ``_ph_image_format`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -47891,6 +47915,10 @@ Format for phenotype masks and merged field images. ome-zarr keeps the images an
 |         :py:func:`~spacr.ops_decode.run_compare_masks`
 |             ``_ph_mask_paths``
 |                 ``_ph_image_format`` **-- reads it**
+|         ``_check_objects_weights``
+|             ``_stored_masks_exist``
+|                 ``_ph_mask_paths``
+|                     ``_ph_image_format`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -47940,6 +47968,10 @@ Format for phenotype masks and merged field images. ome-zarr keeps the images an
 |         :py:func:`~spacr.ops_decode.run_compare_masks`
 |             ``_ph_mask_paths``
 |                 ``_ph_image_format`` **-- reads it**
+|         ``_check_objects_weights``
+|             ``_stored_masks_exist``
+|                 ``_ph_mask_paths``
+|                     ``_ph_image_format`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -48607,6 +48639,12 @@ The phenotype channel to find organelles in, by its name in ops_ph_channels, as 
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -48615,11 +48653,24 @@ The phenotype channel to find organelles in, by its name in ops_ph_channels, as 
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48627,16 +48678,42 @@ The phenotype channel to find organelles in, by its name in ops_ph_channels, as 
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48644,16 +48721,42 @@ The phenotype channel to find organelles in, by its name in ops_ph_channels, as 
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48661,8 +48764,21 @@ The phenotype channel to find organelles in, by its name in ops_ph_channels, as 
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -48678,6 +48794,12 @@ Expected organelle diameter in full-resolution phenotype pixels for the 'cellpos
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -48686,11 +48808,24 @@ Expected organelle diameter in full-resolution phenotype pixels for the 'cellpos
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48698,16 +48833,42 @@ Expected organelle diameter in full-resolution phenotype pixels for the 'cellpos
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48715,16 +48876,42 @@ Expected organelle diameter in full-resolution phenotype pixels for the 'cellpos
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48732,8 +48919,21 @@ Expected organelle diameter in full-resolution phenotype pixels for the 'cellpos
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -48749,6 +48949,12 @@ How the organelles are found, as in Mask Generation: 'otsu' or 'adaptive' thresh
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -48757,11 +48963,24 @@ How the organelles are found, as in Mask Generation: 'otsu' or 'adaptive' thresh
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48769,16 +48988,42 @@ How the organelles are found, as in Mask Generation: 'otsu' or 'adaptive' thresh
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48786,16 +49031,42 @@ How the organelles are found, as in Mask Generation: 'otsu' or 'adaptive' thresh
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48803,8 +49074,21 @@ How the organelles are found, as in Mask Generation: 'otsu' or 'adaptive' thresh
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -48820,6 +49104,12 @@ Organelles smaller than this many pixels are dropped. Default 10, as in Mask Gen
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -48828,11 +49118,24 @@ Organelles smaller than this many pixels are dropped. Default 10, as in Mask Gen
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48840,16 +49143,42 @@ Organelles smaller than this many pixels are dropped. Default 10, as in Mask Gen
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48857,16 +49186,42 @@ Organelles smaller than this many pixels are dropped. Default 10, as in Mask Gen
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48874,8 +49229,21 @@ Organelles smaller than this many pixels are dropped. Default 10, as in Mask Gen
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -48891,6 +49259,12 @@ The Cellpose model for the 'cellpose' organelle method: 'cpsam', a model from th
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -48899,11 +49273,24 @@ The Cellpose model for the 'cellpose' organelle method: 'cpsam', a model from th
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48911,16 +49298,42 @@ The Cellpose model for the 'cellpose' organelle method: 'cpsam', a model from th
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48928,16 +49341,42 @@ The Cellpose model for the 'cellpose' organelle method: 'cpsam', a model from th
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48945,8 +49384,21 @@ The Cellpose model for the 'cellpose' organelle method: 'cpsam', a model from th
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -48962,6 +49414,12 @@ What the organelles look like, as in Mask Generation: 'spots' (vesicles, droplet
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -48970,11 +49428,24 @@ What the organelles look like, as in Mask Generation: 'spots' (vesicles, droplet
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48982,16 +49453,42 @@ What the organelles look like, as in Mask Generation: 'spots' (vesicles, droplet
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -48999,16 +49496,42 @@ What the organelles look like, as in Mask Generation: 'spots' (vesicles, droplet
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49016,8 +49539,21 @@ What the organelles look like, as in Mask Generation: 'spots' (vesicles, droplet
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -49033,6 +49569,12 @@ The phenotype channel to find pathogens in, by its name in ops_ph_channels, as p
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -49041,11 +49583,24 @@ The phenotype channel to find pathogens in, by its name in ops_ph_channels, as p
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49053,16 +49608,42 @@ The phenotype channel to find pathogens in, by its name in ops_ph_channels, as p
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49070,16 +49651,42 @@ The phenotype channel to find pathogens in, by its name in ops_ph_channels, as p
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49087,8 +49694,21 @@ The phenotype channel to find pathogens in, by its name in ops_ph_channels, as p
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -49104,6 +49724,12 @@ Expected pathogen diameter in full-resolution phenotype pixels; empty lets the m
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -49112,11 +49738,24 @@ Expected pathogen diameter in full-resolution phenotype pixels; empty lets the m
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49124,16 +49763,42 @@ Expected pathogen diameter in full-resolution phenotype pixels; empty lets the m
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49141,16 +49806,42 @@ Expected pathogen diameter in full-resolution phenotype pixels; empty lets the m
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49158,8 +49849,21 @@ Expected pathogen diameter in full-resolution phenotype pixels; empty lets the m
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -49175,6 +49879,12 @@ Pathogens smaller than this many pixels are dropped before they are counted and 
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -49183,11 +49893,24 @@ Pathogens smaller than this many pixels are dropped before they are counted and 
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49195,16 +49918,42 @@ Pathogens smaller than this many pixels are dropped before they are counted and 
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49212,16 +49961,42 @@ Pathogens smaller than this many pixels are dropped before they are counted and 
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49229,8 +50004,21 @@ Pathogens smaller than this many pixels are dropped before they are counted and 
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -49246,6 +50034,12 @@ The Cellpose model that segments the pathogens: 'cpsam', a model from the model 
 |     ``_replay_settings``
 |         :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_mask_settings_digest``
+|     ``_mask_settings_values``
+|         ``_ph_object_options``
+|             ``_ph_object_settings`` **-- reads it**
+|         ``_ph_object_roles``
+|             ``_ph_object_settings`` **-- reads it**
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
 |     ``_ph_object_roles``
 |         ``_ph_object_settings`` **-- reads it**
@@ -49254,11 +50048,24 @@ The Cellpose model that segments the pathogens: 'cpsam', a model from the model 
 |     ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49266,16 +50073,42 @@ The Cellpose model that segments the pathogens: 'cpsam', a model from the model 
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49283,16 +50116,42 @@ The Cellpose model that segments the pathogens: 'cpsam', a model from the model 
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_mask_settings_values``
+|                 ``_ph_object_options``
+|                     ``_ph_object_settings`` **-- reads it**
+|                 ``_ph_object_roles``
+|                     ``_ph_object_settings`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
 |                     :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
+|         ``_objects``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``_ph_fields``
 |             ``_ph_object_options``
 |                 ``_ph_object_settings`` **-- reads it**
@@ -49300,8 +50159,21 @@ The Cellpose model that segments the pathogens: 'cpsam', a model from the model 
 |                 ``_ph_object_settings`` **-- reads it**
 |             ``_ph_segment_objects``
 |                 ``_ph_object_settings`` **-- reads it**
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |             ``partial(...)  [UNRESOLVED]``
+|         ``_well_provenance``
+|             ``_run_provenance``
+|                 ``_mask_settings_values``
+|                     ``_ph_object_options``
+|                         ``_ph_object_settings`` **-- reads it**
+|                     ``_ph_object_roles``
+|                         ``_ph_object_settings`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
 Read by ``_ph_object_settings``, ``ops_defaults``.
@@ -55948,6 +56820,9 @@ ops_read_assignment
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.decode_rule`
 |                 :py:func:`~spacr.ops_decode.read_assignment_setting` **-- reads it**
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options``
+|                 :py:func:`~spacr.ops_decode.read_assignment_setting` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -55967,6 +56842,9 @@ ops_read_assignment
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.decode_rule`
 |                 :py:func:`~spacr.ops_decode.read_assignment_setting` **-- reads it**
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options``
+|                 :py:func:`~spacr.ops_decode.read_assignment_setting` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -55985,6 +56863,9 @@ ops_read_assignment
 |                 :py:func:`~spacr.ops_decode.read_assignment_setting` **-- reads it**
 |         :py:func:`~spacr.ops_decode.run_decode_qc`
 |             :py:func:`~spacr.ops_decode.decode_rule`
+|                 :py:func:`~spacr.ops_decode.read_assignment_setting` **-- reads it**
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options``
 |                 :py:func:`~spacr.ops_decode.read_assignment_setting` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
@@ -57772,7 +58653,7 @@ Read by ``_ph_fields``, ``ops_defaults``.
 ops_reuse_unprovenanced_objects
 -------------------------------
 
-(bool) - Let a run without the objects phase use the objects of a well that never recorded which Cellpose weights made them. Off refuses such a well, because its masks may come from other weights than this run names; run the objects phase again instead. A well that recorded other weights is always refused. Default False. Alpha.
+(bool) - Let a run without the phase that makes a mask use the stored masks (SBS nuclei, SBS cells, phenotype nuclei and cells) of a well that never recorded which Cellpose weights and mask settings made them. Off refuses such a well, because its masks may come from other weights or settings than this run names; run the phase again instead. A well that recorded other weights or other mask settings is always refused. Default False. Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     ``_replay_settings``
@@ -57871,7 +58752,7 @@ Read by ``decode_rule``, ``ops_defaults``.
 ops_sbs_cell_method
 -------------------
 
-(str) - Makes SBS cells, one grown from every SBS nucleus, in the decode, for comparing masks and so reads can be given to whole cells (ops_read_assignment 'cell_mask'). 'cellpose': the cell probability of Cellpose (ops_sbs_cell_model) on the base-channel proxy. 'watershed': the proxy above ops_sbs_cell_threshold. Masks go to sbs/fov.ome.zarr and the pairing to ops_sbs_cells\_<well>.parquet; a nucleus without a cell has has_cell False. 'off' makes none. Default 'off'. Alpha.
+(str) - Makes SBS cells, one grown from every SBS nucleus, in the decode or in the sbs_cells phase (a decode reuses the cells that phase stored when their weights and settings match), for comparing masks and so reads can be given to whole cells (ops_read_assignment 'cell_mask'). 'cellpose': the cell probability of Cellpose (ops_sbs_cell_model) on the base-channel proxy. 'watershed': the proxy above ops_sbs_cell_threshold. Masks go to sbs/fov.ome.zarr and the pairing to ops_sbs_cells\_<well>.parquet; a nucleus without a cell has has_cell False. 'off' makes none. Default 'off'. Alpha.
 
 | :py:func:`~spacr.ops_decode.decode_cached_well`
 |     ``_replay_settings``
@@ -57879,6 +58760,8 @@ ops_sbs_cell_method
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights`` **-- reads it**
+|             ``_sbs_cell_options`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -57897,6 +58780,8 @@ ops_sbs_cell_method
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights`` **-- reads it**
+|             ``_sbs_cell_options`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -57915,6 +58800,8 @@ ops_sbs_cell_method
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights`` **-- reads it**
+|             ``_sbs_cell_options`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -57932,7 +58819,7 @@ ops_sbs_cell_method
 |             ``_run_provenance`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_run_provenance``, ``_sbs_cell_options``, ``ops_defaults``.
+Read by ``_check_objects_weights``, ``_run_provenance``, ``_sbs_cell_options``, ``ops_defaults``.
 
 .. _setting-flow-ops_sbs_cell_model:
 
@@ -57986,6 +58873,8 @@ ops_sbs_cell_threshold
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -57996,6 +58885,8 @@ ops_sbs_cell_threshold
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -58006,6 +58897,8 @@ ops_sbs_cell_threshold
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
+|         ``_check_objects_weights``
+|             ``_sbs_cell_options`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -58157,7 +59050,6 @@ Which Cellpose model segments the nuclei of each stitched sequencing well. 'cpsa
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_align``
 |     :py:func:`~spacr.ops_engine.run_ops`
-|         ``_check_objects_weights`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -58168,7 +59060,6 @@ Which Cellpose model segments the nuclei of each stitched sequencing well. 'cpsa
 |         ``dict(...)  [UNRESOLVED]``
 | ``_run_merge``
 |     :py:func:`~spacr.ops_engine.run_ops`
-|         ``_check_objects_weights`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -58180,7 +59071,6 @@ Which Cellpose model segments the nuclei of each stitched sequencing well. 'cpsa
 | ``_run_spots`` **-- reads it**
 | ``_run_voyager3_phase``
 |     :py:func:`~spacr.ops_engine.run_ops`
-|         ``_check_objects_weights`` **-- reads it**
 |         ``_dataset_thresholds``
 |             :py:func:`~spacr.ops_decode.tune_dataset_thresholds`
 |                 ``_replay_settings``
@@ -58190,7 +59080,7 @@ Which Cellpose model segments the nuclei of each stitched sequencing well. 'cpsa
 |             ``_objects_window_basis`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_check_objects_weights``, ``_objects_window_basis``, ``_run_spots``, ``ops_defaults``.
+Read by ``_objects_window_basis``, ``_run_spots``, ``ops_defaults``.
 
 .. _setting-flow-ops_sbs_tile_batch:
 
