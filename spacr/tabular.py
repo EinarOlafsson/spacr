@@ -453,6 +453,91 @@ def write_table(frame: pd.DataFrame, path: Any, *,
     return target
 
 
+def write_table_from_parts(parts: List[str], path: Any, *,
+                           leading: Optional[Dict[str, Any]] = None,
+                           buffer_bytes: int = 268435456) -> Dict[str, Any]:
+    """Write one Parquet table that is the rows of ``parts`` in order, holding a bounded buffer.
+
+    The result has the rows and the order of ``pandas.concat`` of the parts
+    with ``leading`` inserted as the first columns, written as
+    :func:`write_table` writes a frame. The parts are read in groups of at
+    most ``buffer_bytes`` of stored data (one part at least) and each group
+    is appended to the open file, so the process holds one group and not the
+    table. Parts of no rows are left out. When the parts do not all share
+    one schema, the frames are joined in memory, as pandas does, so the
+    columns and types are the same either way.
+
+    :param parts: Parquet files, in the order of the rows.
+    :param path: destination ``.parquet``.
+    :param leading: column name to constant, inserted first in the order
+        given, so ``{'plate': p, 'well': w}`` gives ``plate`` then ``well``.
+    :param buffer_bytes: the most stored bytes of parts held at once.
+    :returns: ``rows``, ``columns``, ``groups`` and ``peak_parts``, the most
+        parts held at once.
+    """
+    parquet = _require_optional('pyarrow.parquet', _PYARROW_MISSING_MESSAGE)
+    pa = _require_optional('pyarrow', _PYARROW_MISSING_MESSAGE)
+    leading = dict(leading or {})
+    sizes, schemas, kept = [], [], []
+    for part in parts:
+        reader = parquet.ParquetFile(part)
+        meta = reader.metadata
+        if meta.num_rows:
+            kept.append(part)
+            schemas.append(reader.schema_arrow)
+            sizes.append(sum(meta.row_group(i).total_byte_size
+                             for i in range(meta.num_row_groups)))
+
+    def joined(frames):
+        """The frames as one, ``leading`` first."""
+        frame = (pd.concat(frames, ignore_index=True) if frames
+                 else pd.DataFrame(columns=['site', 'label']))
+        for name, value in reversed(list(leading.items())):
+            frame.insert(0, name, value)
+        return frame
+
+    uniform = all(schemas[0].equals(s, check_metadata=False) for s in schemas)
+    if not kept or not uniform:
+        frame = joined([pd.read_parquet(p) for p in kept])
+        write_table(frame, path, canonicalise=False)
+        return {'rows': int(len(frame)), 'columns': list(frame.columns),
+                'groups': 1, 'peak_parts': len(kept)}
+    state = {'rows': 0, 'groups': 0, 'peak_parts': 0, 'columns': None}
+
+    def write(pending):
+        """Append each group of parts to the file at ``pending``."""
+        writer = None
+        fixed = None
+        try:
+            index = 0
+            while index < len(kept):
+                total, stop = 0, index
+                while stop < len(kept) and (stop == index
+                                            or total + sizes[stop] <= buffer_bytes):
+                    total += sizes[stop]
+                    stop += 1
+                frame = joined([pd.read_parquet(p) for p in kept[index:stop]])
+                state['peak_parts'] = max(state['peak_parts'], stop - index)
+                if writer is None:
+                    table = pa.Table.from_pandas(frame, preserve_index=False)
+                    fixed = table.schema
+                    writer = parquet.ParquetWriter(pending, fixed, compression='snappy')
+                    state['columns'] = list(frame.columns)
+                else:
+                    table = pa.Table.from_pandas(frame, schema=fixed, preserve_index=False)
+                writer.write_table(table)
+                state['rows'] += len(frame)
+                state['groups'] += 1
+                del frame, table
+                index = stop
+        finally:
+            if writer is not None:
+                writer.close()
+
+    _publish(resolve_path(path), write)
+    return {k: state[k] for k in ('rows', 'columns', 'groups', 'peak_parts')}
+
+
 #: The schema-metadata key a Parquet file written by :func:`_write_parquet`
 #: carries its spaCR description under, beside pandas' own ``pandas`` key.
 _PARQUET_METADATA_KEY = b'spacr'

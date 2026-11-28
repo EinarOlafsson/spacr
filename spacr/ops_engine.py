@@ -8023,22 +8023,18 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             unreadable.extend(result["unreadable"])
             field_shape = field_shape or result.get("shape")
         parts = [cell_path(s) for s in sites if os.path.isfile(cell_path(s))]
-        frames = [f for f in (pd.read_parquet(p) for p in parts) if len(f)]
-        cells_table = (pd.concat(frames, ignore_index=True) if frames
-                       else pd.DataFrame(columns=["site", "label"]))
-        cells_table.insert(0, "well", well)
-        cells_table.insert(0, "plate", plate)
-        from .tabular import write_table
+        from .tabular import write_table_from_parts
 
-        write_table(cells_table, _ph_cells_path(destination, well),
-                    canonicalise=False)
+        written = write_table_from_parts(
+            parts, _ph_cells_path(destination, well),
+            leading={"plate": plate, "well": well})
         measured = [r for r in results if r["cells"] is not None]
         first = [r["seconds"] for r in measured if r.get("first_in_worker")]
         rest = [r["seconds"] for r in measured if not r.get("first_in_worker")]
         report["ph_measure"] = {
             "measured": len(measured), "resumed": len(parts) - len(measured),
-            "workers": workers, "cells": int(len(cells_table)),
-            "features": len(_ph_feature_columns(cells_table.columns)),
+            "workers": workers, "cells": int(written["rows"]),
+            "features": len(_ph_feature_columns(written["columns"])),
             "measure_seconds_per_field": (
                 round(float(np.mean([r["seconds"] for r in measured])), 2)
                 if measured else None),
