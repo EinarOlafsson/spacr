@@ -3997,7 +3997,7 @@ def _sbs_stored_fields(db: str, plate: str, well: str,
         sorted_ids = ids[order]
 
         def back(labels):
-            """Object ids to the field labels ``i + 1`` of the task's nucleus ``i``."""
+            """Object ids to the field labels ``i + 1`` of nucleus ``i`` of the task."""
             out = np.zeros(labels.shape, np.int32)
             hit = labels > 0
             out[hit] = order[np.searchsorted(sorted_ids, labels[hit])] + 1
