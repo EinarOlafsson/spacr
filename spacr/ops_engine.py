@@ -18,6 +18,7 @@ from __future__ import annotations
 import contextvars
 import functools
 from contextlib import ExitStack, contextmanager
+import hashlib
 import json
 import logging
 import os
@@ -284,6 +285,11 @@ _DECODE_WORKERS_CAP = 8
 #: else, so a run that only wants the placement stops after two phases.
 _PHASES = ("stitch", "phenotype", "objects", "decode")
 
+#: The SBS cell masks as a phase of their own (item 1055): the cells of
+#: ``ops_sbs_cell_method``, grown by the same code decode runs. Needs the
+#: objects; decode reuses what it stored (:func:`_check_objects_weights`).
+_SBS_CELL_PHASES = ("sbs_cells",)
+
 #: The phenotype path (alpha): build the plate's flat-field maps, segment
 #: and measure every placed phenotype field, pass over its masks, merge its
 #: cells onto the sequencing nuclei, and reduce cells to guides and genes.
@@ -340,7 +346,7 @@ _CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode", "prefix_fdr_sweep",
 #: stored masks and cell tables, without segmenting or measuring again.
 _PH_REBUILD_PHASES = ("ph_ownership", "merge", "aggregate", "ph_tables")
 
-_ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
+_ALL_PHASES = (_PHASES + _SBS_CELL_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
                + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES + _CPG_PHASES
                + _POWER_PHASES
                + _FEATURE_SCREEN_PHASES)
@@ -2204,7 +2210,7 @@ _PROVENANCE_ROLES = {
     "ph_nuclei": ("ops_ph_nucleus_model", "ph_segment"),
     "ph_cells": ("ops_ph_cell_model", "ph_segment"),
     "sbs_nuclei": ("ops_sbs_nucleus_model", "objects"),
-    "sbs_cells": ("ops_sbs_cell_model", "decode"),
+    "sbs_cells": ("ops_sbs_cell_model", "sbs_cells"),
 }
 
 
@@ -2293,25 +2299,97 @@ def _software_versions() -> Dict[str, Optional[str]]:
 
 def _run_provenance(settings: Mapping[str, Any],
                     phases: Sequence[str]) -> Dict[str, Dict[str, Any]]:
-    """The Cellpose weights of every segmentation role the phases run (item 975).
+    """The Cellpose weights and mask settings of every segmentation role the phases run.
+
+    Items 975 and 1056: each record also holds ``mask_settings`` and its
+    ``settings_digest`` (:func:`_mask_settings_digest`), which a later phase
+    that reads the stored masks compares with its own.
 
     :param settings: read for the four model settings and
-        ``ops_sbs_cell_method``; the SBS cells are listed only for
-        ``'cellpose'``.
+        ``ops_sbs_cell_method``; the SBS cells are listed for any method but
+        'off', and a 'watershed' record has no weights (``md5`` None).
     :param phases: the phases being run: the phenotype roles need
         ``ph_segment``, the SBS nuclei ``objects`` and the SBS cells
-        ``decode``.
-    :returns: ``{role: :func:`_cellpose_provenance`}``.
+        ``sbs_cells``.
+    :returns: ``{role: :func:`_cellpose_provenance` plus the digest}``.
     """
     out: Dict[str, Dict[str, Any]] = {}
     for role, (key, phase) in _PROVENANCE_ROLES.items():
         if phase not in phases:
             continue
-        if role == "sbs_cells" and str(ops_setting(
-                settings, "ops_sbs_cell_method") or "off").strip().lower() != "cellpose":
-            continue
-        out[role] = _cellpose_provenance(settings, key)
+        if role == "sbs_cells":
+            method = str(ops_setting(settings, "ops_sbs_cell_method") or "off").strip().lower()
+            if method == "off":
+                continue
+            record = (_cellpose_provenance(settings, key) if method == "cellpose"
+                      else {"setting": key, "model": None, "md5": None, "method": method})
+        else:
+            record = _cellpose_provenance(settings, key)
+        values = _mask_settings_values(settings, role)
+        out[role] = {**record, "mask_settings": values,
+                     "settings_digest": _digest_of(values)}
     return out
+
+
+#: The settings every mask role shares: the Cellpose evaluation settings the
+#: mask cache keys use (:data:`_OPS_MASK_SETTINGS`) and the stock weights.
+_MASK_COMMON_KEYS = ("ops_cellpose_model",)
+
+#: Per role, the settings besides the common ones that change its mask.
+_MASK_ROLE_KEYS = {
+    "sbs_nuclei": ("ops_sbs_nucleus_model", "cellpose_diameter",
+                   "ops_sbs_cellpose_diameter", "ops_compose_blend"),
+    "sbs_cells": ("ops_sbs_cell_model", "ops_sbs_cell_method", "ops_sbs_cell_threshold"),
+    "ph_nuclei": ("ops_ph_nucleus_model", "ops_ph_tile_batch", "ops_ph_channels",
+                  "ops_ph_downsample", "ops_ph_nucleus_downsample",
+                  "ops_ph_nucleus_diameter", "ops_ph_segment_flatfield"),
+    "ph_cells": ("ops_ph_cell_model", "ops_ph_tile_batch", "ops_ph_channels",
+                 "ops_ph_cell_channel", "ops_ph_downsample", "ops_ph_cell_diameter",
+                 "ops_ph_segment_flatfield"),
+}
+
+
+def _mask_settings_values(settings: Mapping[str, Any], role: str) -> Dict[str, Any]:
+    """The values of the settings that change the masks of one role (item 1056).
+
+    The same key lists the cache keys use (:data:`_OPS_MASK_SETTINGS`, the
+    tile batch overrides, the model and diameter settings), with an unset
+    OPS setting taking its declared default, so a run that spells a default
+    and one that leaves it out agree.
+
+    :param settings: the run settings.
+    :param role: a key of :data:`_PROVENANCE_ROLES`.
+    :returns: a JSON-ready ``{setting: value}``; the phenotype cells also
+        hold their object and nucleus pairing options.
+    """
+    from .ops_settings import OPS_DEFAULTS
+
+    def value(key):
+        """One setting, its OPS default when unset."""
+        given = settings.get(key)
+        if (given is None or given == "") and key in OPS_DEFAULTS:
+            given = OPS_DEFAULTS[key]
+        return json.loads(json.dumps(given, default=str))
+
+    keys = (*_OPS_MASK_SETTINGS, *_MASK_COMMON_KEYS, *_MASK_ROLE_KEYS[role])
+    values = {key: value(key) for key in keys}
+    if role == "ph_cells":
+        values["objects"] = json.loads(json.dumps(
+            _ph_object_options(settings) if _ph_object_roles(settings) else None,
+            default=str))
+        values["nucleus_pairing"] = json.loads(json.dumps(
+            _ph_pairing_options(settings), default=str))
+    return values
+
+
+def _digest_of(values: Mapping[str, Any]) -> str:
+    """The sha256 of a JSON-ready mapping, keys sorted."""
+    return hashlib.sha256(json.dumps(values, sort_keys=True).encode("utf-8")).hexdigest()
+
+
+def _mask_settings_digest(settings: Mapping[str, Any], role: str) -> str:
+    """The digest of the mask-relevant settings of one role (item 1056)."""
+    return _digest_of(_mask_settings_values(settings, role))
 
 
 def _resolved_weights_md5(settings: Mapping[str, Any], key: str) -> str:
@@ -2347,79 +2425,140 @@ def _say_weights(settings: Mapping[str, Any], phase: str, roles: Sequence[str]) 
              f"path {record.get('path')} md5 {record.get('md5')}")
 
 
-#: Phases that read the objects table of a well the objects phase made.
-_OBJECTS_CONSUMERS = ("decode", "merge", "ph_merged")
+#: Per role: the phase that makes the masks and the phases that read them.
+_MASK_CONSUMERS = {
+    "sbs_nuclei": ("objects", ("sbs_cells", "decode", "merge", "ph_merged")),
+    "sbs_cells": ("sbs_cells", ("decode",)),
+    "ph_nuclei": ("ph_segment", ("ph_measure", "ph_masks", "ph_ownership", "merge",
+                                 "ph_merged")),
+    "ph_cells": ("ph_segment", ("ph_measure", "ph_masks", "ph_ownership", "merge",
+                                "ph_merged")),
+}
+
+#: What stored objects, kept for older callers of the name.
+_OBJECTS_CONSUMERS = _MASK_CONSUMERS["sbs_nuclei"][1]
 
 
-def _recorded_objects_md5(db: str, plate: str, destination: str, well: str):
-    """The weights md5 a well objects were recorded with, and where.
+def _recorded_mask_provenance(db: str, plate: str, destination: str, well: str,
+                              role: str):
+    """What the stored masks of one role were made with, and where it is recorded.
 
     :param db: the measurements database.
     :param plate: the plate name.
     :param destination: the run folder holding ``<well>/ops_report.json``.
     :param well: the well name.
-    :returns: ``(md5 or None, source)``; the report ``provenance`` is read
-        first, then the attributes of the raw window store.
+    :param role: a key of :data:`_PROVENANCE_ROLES`.
+    :returns: ``(record or None, source)``; the report ``provenance`` is read
+        first, then, for the SBS nuclei, the attributes of the raw window store.
     """
     path = os.path.join(destination, well, "ops_report.json")
     try:
         with open(path, encoding="utf-8") as handle:
             record = (((json.load(handle) or {}).get("provenance") or {})
-                      .get("cellpose_models") or {}).get("sbs_nuclei")
-        if record and record.get("md5"):
-            return record["md5"], path
+                      .get("cellpose_models") or {}).get(role)
+        if record and (record.get("md5") or record.get("settings_digest")):
+            return record, path
     except (OSError, ValueError):
         pass
-    from .image_store import _store_spacr_attrs
+    if role == "sbs_nuclei":
+        from .image_store import _store_spacr_attrs
 
-    store = os.path.join(_objects_raw_folder(db), f"{plate}.ome.zarr")
-    if os.path.isdir(store):
-        record = (_store_spacr_attrs(store).get("cellpose_models") or {}).get("sbs_nuclei")
-        if record and record.get("md5"):
-            return record["md5"], store
+        store = os.path.join(_objects_raw_folder(db), f"{plate}.ome.zarr")
+        if os.path.isdir(store):
+            record = (_store_spacr_attrs(store).get("cellpose_models") or {}).get(role)
+            if record and record.get("md5"):
+                return record, store
     return None, None
+
+
+def _recorded_objects_md5(db: str, plate: str, destination: str, well: str):
+    """The weights md5 the SBS nuclei of a well were recorded with, and where."""
+    record, source = _recorded_mask_provenance(db, plate, destination, well, "sbs_nuclei")
+    return (record or {}).get("md5"), source
+
+
+def _stored_masks_exist(db: str, plate: str, destination: str, well: str,
+                        role: str, settings: Mapping[str, Any]) -> bool:
+    """Whether the well holds stored masks of one role that a later phase would read."""
+    if role == "sbs_nuclei":
+        rows = _well_rows(db, "ops_objects", plate, well)
+        return rows is not None and not rows.empty
+    if role == "sbs_cells":
+        return os.path.isfile(_sbs_cells_table(db, well))
+    folder = os.path.join(destination, well, "phenotype_masks")
+    return bool(_ph_mask_paths(destination, plate, well, settings)) if os.path.isdir(folder) else False
 
 
 def _check_objects_weights(settings: Mapping[str, Any], db: str, plate: str,
                            destination: str, well: str,
                            phases: Sequence[str]) -> None:
-    """Refuse stale SBS objects when this run does not segment them again.
+    """Refuse stored masks this run did not make and cannot match (items 958, 1056).
 
-    :param settings: read for the SBS nucleus model and
-        ``ops_reuse_unprovenanced_objects``.
+    The one check for every role (``sbs_nuclei``, ``sbs_cells``, ``ph_nuclei``,
+    ``ph_cells``). A phase that reads stored masks runs onto them only when
+    the weights md5 of each role and the digest of its mask-relevant
+    settings (:func:`_mask_settings_digest`) equal what the masks were made
+    with, as ``ops_report.json`` records them. A role whose own phase is in
+    the run is made again and is not checked.
+
+    :param settings: read for the model and mask settings and
+        ``ops_reuse_unprovenanced_objects``, which lets masks that record
+        nothing, or no settings digest, be reused as they are.
     :param db: the measurements database.
     :param plate: the plate name.
     :param destination: the run folder.
     :param well: the well name.
     :param phases: the phases of this run.
-    :raises ValueError: when the objects phase is not in the run, a phase
-        that reads the objects is, the well has objects, and they record
-        other weights than this run resolves, or record none and
+    :raises ValueError: when a phase that reads a role stored masks is in
+        the run, the well has them, and they record other weights or other
+        mask settings than this run resolves, or record none and
         ``ops_reuse_unprovenanced_objects`` is off.
     """
-    if "objects" in phases or not any(p in phases for p in _OBJECTS_CONSUMERS):
-        return
-    rows = _well_rows(db, "ops_objects", plate, well)
-    if rows is None or rows.empty:
-        return
-    wanted = _cellpose_provenance(settings, "ops_sbs_nucleus_model").get("md5")
-    recorded, source = _recorded_objects_md5(db, plate, destination, well)
-    if recorded is None:
-        if bool(ops_setting(settings, "ops_reuse_unprovenanced_objects")):
-            _say(f"{well}: the objects record no weights; reused because "
-                 "ops_reuse_unprovenanced_objects is on")
-            return
-        raise ValueError(
-            f"well {well}: its objects in {db} record no Cellpose weights, so they "
-            f"may not come from the weights this run resolves (md5 {wanted}). Add "
-            "the objects phase to this run, or set ops_reuse_unprovenanced_objects "
-            "to reuse them as they are.")
-    if wanted is not None and recorded != wanted:
-        raise ValueError(
-            f"well {well}: its objects were segmented with weights md5 {recorded} "
-            f"(recorded in {source}), but this run resolves md5 {wanted} for "
-            "ops_sbs_nucleus_model. Add the objects phase to this run so the nuclei "
-            "are segmented again.")
+    for role, (maker, readers) in _MASK_CONSUMERS.items():
+        if maker in phases or not any(p in phases for p in readers):
+            continue
+        if role.startswith("sbs") and not any(
+                p in _PHASES + _SBS_CELL_PHASES for p in phases):
+            continue
+        if role == "sbs_cells" and _sbs_cell_options(settings) is None:
+            continue
+        if not _stored_masks_exist(db, plate, destination, well, role, settings):
+            continue
+        record, source = _recorded_mask_provenance(db, plate, destination, well, role)
+        if role == "sbs_cells" and (record or {}).get("made_by") != "sbs_cells":
+            continue
+        key = _PROVENANCE_ROLES[role][0]
+        wanted = (None if role == "sbs_cells" and str(ops_setting(
+            settings, "ops_sbs_cell_method")).strip().lower() != "cellpose"
+            else _cellpose_provenance(settings, key).get("md5"))
+        values = _mask_settings_values(settings, role)
+        digest = _digest_of(values)
+        if record is None or not (record.get("md5") or role == "sbs_cells") \
+                or not record.get("settings_digest"):
+            if bool(ops_setting(settings, "ops_reuse_unprovenanced_objects")):
+                _say(f"{well}: the {role} masks record no weights or mask settings; "
+                     "reused because ops_reuse_unprovenanced_objects is on")
+                continue
+            raise ValueError(
+                f"well {well}: its {role} masks in {db} record no Cellpose weights or "
+                f"no mask settings, so they may not come from the weights (md5 {wanted}) "
+                f"and settings this run resolves. Add the phase that makes them "
+                f"({maker}) to this run, or set ops_reuse_unprovenanced_objects to "
+                "reuse them as they are.")
+        if wanted is not None and record.get("md5") != wanted:
+            raise ValueError(
+                f"well {well}: its {role} masks were segmented with weights md5 "
+                f"{record.get('md5')} (recorded in {source}), but this run resolves md5 "
+                f"{wanted} for {key}. Add the {maker} phase to this run so the masks "
+                "are made again.")
+        if record["settings_digest"] != digest:
+            then = record.get("mask_settings") or {}
+            changed = sorted(k for k in set(then) | set(values) if then.get(k) != values.get(k))
+            raise ValueError(
+                f"well {well}: its {role} masks were made with other mask settings "
+                f"than this run resolves (recorded in {source}); changed: "
+                f"{', '.join(changed) or 'unknown'}. Add the {maker} phase to this run "
+                "so the masks are made again.")
 
 
 def _cellpose_default_weights(version: Any) -> Optional[str]:
@@ -3771,14 +3910,112 @@ def _sbs_field_cells(task: Mapping[str, Any], stack: np.ndarray, gpu: bool,
     return {"cells": cells, "seeds": seeds, "has_cell": has_cell, "cell_area": area}
 
 
+def _run_folder(db: str) -> str:
+    """The run folder of a measurements database."""
+    return os.path.dirname(os.path.abspath(db))
+
+
+def _sbs_reusable_cells(settings: Mapping[str, Any], db: str, plate: str,
+                        destination: str, well: str, tasks: Sequence[Mapping[str, Any]],
+                        trusted: bool = False):
+    """The stored SBS cells a decode may reuse, or None to make them (item 1055).
+
+    The cells are reused only when the sbs_cells phase made them and the
+    shared check (:func:`_check_objects_weights`, run before the well) found
+    their weights md5 and mask settings equal to this run, so a decode never
+    reads cells that differ from the ones it would make.
+    """
+    record, _source = _recorded_mask_provenance(db, plate, destination, well, "sbs_cells")
+    if not trusted and (record or {}).get("made_by") != "sbs_cells":
+        return None
+    return _sbs_stored_fields(db, plate, well, tasks)
+
+
+def _sbs_reused_report(db: str, well: str, options: Mapping[str, Any],
+                       decoded: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
+    """The report of SBS cells a decode reused, from their stored table."""
+    import pandas as pd
+
+    for result in decoded:
+        result.pop("sbs_cells", None)
+    table = _sbs_cells_table(db, well)
+    frame = pd.read_parquet(table)
+    kept = frame[frame["owned"]]
+    from .image_store import _merged_store_path
+
+    return {"method": options["method"], "made_by": "sbs_cells", "reused": True,
+            **({"read_assignment": options["assignment"]} if options.get("assignment") else {}),
+            "store": str(_merged_store_path(_sbs_cells_folder(db))), "table": table,
+            "fields": int(len(decoded)), "nuclei": int(len(kept)),
+            "nuclei_with_cell": int(kept["has_cell"].sum())}
+
+
 def _sbs_cells_folder(db: str) -> str:
     """The project folder whose ``fov.ome.zarr`` holds the SBS cell masks."""
     return os.path.join(os.path.dirname(os.path.abspath(db)), "sbs")
 
 
+def _sbs_cells_table(db: str, well: str) -> str:
+    """The pairing table ``ops_sbs_cells_<well>.parquet`` beside the database."""
+    return os.path.join(os.path.dirname(os.path.abspath(db)), f"ops_sbs_cells_{well}.parquet")
+
+
+def _sbs_stored_fields(db: str, plate: str, well: str,
+                       tasks: Sequence[Mapping[str, Any]]):
+    """The SBS cells the sbs_cells phase stored, in the form a decode field takes (item 1055).
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param tasks: the decode tasks, for each field's object ids.
+    :returns: ``{site: {cells, seeds, has_cell, cell_area}}`` as
+        :func:`_sbs_field_cells` returns them, or None when any field of the
+        well has no stored cells.
+    """
+    import pandas as pd
+
+    from .image_store import field_key, read_labels, _merged_store_path
+
+    table = _sbs_cells_table(db, well)
+    store = _merged_store_path(_sbs_cells_folder(db))
+    if not os.path.isfile(table) or not os.path.exists(store):
+        return None
+    frame = pd.read_parquet(table)
+    found = {}
+    for task in tasks:
+        site = int(task["site"])
+        ids = np.asarray(task["ids"], np.int64).reshape(-1)
+        rows = frame[(frame["well"] == well) & (frame["site"] == site)]
+        if len(rows) != len(ids) or set(rows["label"]) != set(ids.tolist()):
+            return None
+        try:
+            cells = np.asarray(read_labels(store, "sbs_cell", key=field_key(well, site)))
+            seeds = np.asarray(read_labels(store, "sbs_nucleus", key=field_key(well, site)))
+        except (OSError, ValueError, KeyError):
+            return None
+        order = np.argsort(ids)
+        sorted_ids = ids[order]
+
+        def back(labels):
+            """Object ids to the field labels ``i + 1`` of nucleus ``i`` of the task."""
+            out = np.zeros(labels.shape, np.int32)
+            hit = labels > 0
+            out[hit] = order[np.searchsorted(sorted_ids, labels[hit])] + 1
+            return out
+
+        by_label = rows.set_index("label")
+        found[site] = {"cells": back(cells.astype(np.int64)),
+                       "seeds": back(seeds.astype(np.int64)),
+                       "has_cell": by_label.loc[ids, "has_cell"].to_numpy(bool),
+                       "cell_area": by_label.loc[ids, "cell_area_px"].to_numpy(np.int64),
+                       "stored": True}
+    return found
+
+
 def _sbs_store_cells(db: str, plate: str, well: str, options: Mapping[str, Any],
                      tasks: Sequence[Mapping[str, Any]],
-                     results: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
+                     results: Sequence[Dict[str, Any]],
+                     made_by: str = "decode") -> Dict[str, Any]:
     """Store a well's SBS cells and their pairing (item 1025).
 
     The masks go into ``<run>/sbs/fov.ome.zarr``
@@ -3797,7 +4034,9 @@ def _sbs_store_cells(db: str, plate: str, well: str, options: Mapping[str, Any],
     :param options: from :func:`_sbs_cell_options`.
     :param tasks: the decode tasks, for each field's object ids.
     :param results: the decoded fields; each loses its ``sbs_cells``.
-    :returns: the report: ``method``, ``store``,
+    :param made_by: the phase that made them, 'decode' or 'sbs_cells' (item
+        1055), recorded in the report and the provenance.
+    :returns: the report: ``method``, ``made_by``, ``store``,
         ``table``, ``fields``, ``nuclei`` and ``nuclei_with_cell``.
     """
     import pandas as pd
@@ -3827,10 +4066,10 @@ def _sbs_store_cells(db: str, plate: str, well: str, options: Mapping[str, Any],
                                                      field["cell_area"], owned))
     frame = pd.DataFrame(rows, columns=["plate", "well", "site", "label", "has_cell",
                                         "cell_area_px", "owned"])
-    table = os.path.join(os.path.dirname(os.path.abspath(db)), f"ops_sbs_cells_{well}.parquet")
+    table = _sbs_cells_table(db, well)
     write_table(frame, table, canonicalise=False)
     kept = frame[frame["owned"]]
-    report = {"method": options["method"],
+    report = {"method": options["method"], "made_by": made_by,
               **({"read_assignment": options["assignment"]} if options.get("assignment") else {}),
               "store": str(writer.path), "table": table, "fields": fields,
               "nuclei": int(len(kept)), "nuclei_with_cell": int(kept["has_cell"].sum())}
@@ -3942,9 +4181,12 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     sbs_cells = None
     if task.get("sbs_cells"):
         tick = time.perf_counter()
-        sbs_cells = _sbs_field_cells(task, field.stack, gpu, unreadable)
+        sbs_cells = task.get("sbs_cells_stored") or _sbs_field_cells(
+            task, field.stack, gpu, unreadable)
         ticks["sbs_cells"] = time.perf_counter() - tick
         base["sbs_cells"] = sbs_cells
+        if task.get("cells_only"):
+            return {**base, "seconds": {k: round(v, 2) for k, v in ticks.items()}}
         if task["sbs_cells"].get("assignment") == "cell_mask":
             task = {**task, "cell_labels": sbs_cells["cells"]}
         elif task["sbs_cells"].get("assignment") == "nucleus_first":
@@ -4986,7 +5228,8 @@ def _apply_auto_thresholds(db, plate, well, rule_a, thresholds, decoded,
 
 def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             settings: Mapping[str, Any], gpu: bool,
-            library: Sequence[str]) -> Dict[str, Any]:
+            library: Sequence[str], cells_only: bool = False,
+            cells_stored: bool = False) -> Dict[str, Any]:
     """Decode every field of the well and store ``ops_barcodes``.
 
     A stored ``barcode`` is what was read, not the guide it matched: the
@@ -5019,6 +5262,14 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         nucleus discs. 'off' decodes as before.
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
+    :param cells_stored: the sbs_cells phase ran just before in this run, so its
+        stored cells are used without reading the well report.
+    :param cells_only: make and store the SBS cells and stop (the sbs_cells
+        phase, item 1055): the same fields, alignment and cell code as a
+        decode, none of the calling. Without it, a decode reuses the cells
+        the sbs_cells phase stored for the well
+        (:func:`_sbs_stored_fields`) and makes them as before when there
+        are none.
     :returns: the decode report; in auto threshold mode with the chosen
         thresholds under ``thresholds``, and with SBS cells their report
         under ``sbs_cells``. Its ``ops_barcodes_rows`` and
@@ -5112,81 +5363,87 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                                        well, "decode_diagnostics")
                           if bool(settings.get("ops_field_diagnostics", False))
                           else None)
-    decoys: List[str] = []
-    rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
-    mode = str(ops_setting(settings, "ops_decode_threshold_mode")).strip().lower()
-    if mode in ("auto", "dataset") and not (rule_a["active"] and rule == "mapped"
-                                            and int(rule_a.get("decoy_k") or 0) > 0):
-        _say(f"{well} decode: ops_decode_threshold_mode '{mode}' tunes the "
-             "rule (a) decode only (ops_decode_preset rule_a_s2, "
-             "ops_cell_rule 'mapped', a guide library and ops_decoy_library_k "
-             "above 0); these settings do not run it, so the thresholds stay "
-             "as entered")
-        thresholds = threshold_settings(
-            {**settings, "ops_decode_threshold_mode": "manual"}, rule_a)
+    if cells_only:
+        decoys: List[str] = []
+        rule_a = cache_folder = None
+        read_mode = 'log'
     else:
-        thresholds = threshold_settings(settings, rule_a)
-    read_mode = _read_mode_setting(settings)
-    if read_mode == "auto" and thresholds["mode"] != "auto":
-        raise ValueError("ops_read_mode 'auto' chooses the read per well from decoy "
-                         "calls; it needs ops_decode_threshold_mode 'auto' (with "
-                         "ops_decode_preset rule_a_s2 and ops_decoy_library_k above "
-                         "0), or choose 'log' or 'raw'")
-    if rule_a["active"] and rule == "mapped":
-        from .ops_sbs import decoy_library
+        decoys: List[str] = []
+        rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
+        mode = str(ops_setting(settings, "ops_decode_threshold_mode")).strip().lower()
+        if mode in ("auto", "dataset") and not (rule_a["active"] and rule == "mapped"
+                                                and int(rule_a.get("decoy_k") or 0) > 0):
+            _say(f"{well} decode: ops_decode_threshold_mode '{mode}' tunes the "
+                 "rule (a) decode only (ops_decode_preset rule_a_s2, "
+                 "ops_cell_rule 'mapped', a guide library and ops_decoy_library_k "
+                 "above 0); these settings do not run it, so the thresholds stay "
+                 "as entered")
+            thresholds = threshold_settings(
+                {**settings, "ops_decode_threshold_mode": "manual"}, rule_a)
+        else:
+            thresholds = threshold_settings(settings, rule_a)
+        read_mode = _read_mode_setting(settings)
+        if read_mode == "auto" and thresholds["mode"] != "auto":
+            raise ValueError("ops_read_mode 'auto' chooses the read per well from decoy "
+                             "calls; it needs ops_decode_threshold_mode 'auto' (with "
+                             "ops_decode_preset rule_a_s2 and ops_decoy_library_k above "
+                             "0), or choose 'log' or 'raw'")
+        if rule_a["active"] and rule == "mapped":
+            from .ops_sbs import decoy_library
 
-        rule_a.update({
-            "threshold": threshold, "footprint": footprint,
-            "max_distance": mismatches, "min_fraction": min_fraction,
-            "single_read_quality": float(_setting_number(
-                settings.get("ops_single_read_quality"),
-                "ops_single_read_quality", _SINGLE_READ_QUALITY)),
-            "features": rule_a["features"],
-        })
-        if rule_a["decoy_k"] > 0:
-            decoys = decoy_library(library, k=rule_a["decoy_k"])
-        if thresholds["mode"] == "auto" or (thresholds.get("fdr_calibration", "none").startswith("never")
-                                              and not thresholds.get("no_decoys")):
-            if not decoys:
-                raise ValueError("ops_decode_threshold_mode 'auto' found no "
-                                 "decoys for this library; check "
-                                 "ops_decoy_library_k and the library")
-            rule_a["auto"] = {"floors": thresholds["floors"],
-                              "pixel_qualities": thresholds["pixel_qualities"],
-                              "spot_thresholds": thresholds["spot_thresholds"]}
-            if thresholds.get("fdr_calibration", "none").startswith("never"):
-                from .ops_decode import _never_settings
+            rule_a.update({
+                "threshold": threshold, "footprint": footprint,
+                "max_distance": mismatches, "min_fraction": min_fraction,
+                "single_read_quality": float(_setting_number(
+                    settings.get("ops_single_read_quality"),
+                    "ops_single_read_quality", _SINGLE_READ_QUALITY)),
+                "features": rule_a["features"],
+            })
+            if rule_a["decoy_k"] > 0:
+                decoys = decoy_library(library, k=rule_a["decoy_k"])
+            if thresholds["mode"] == "auto" or (thresholds.get("fdr_calibration", "none").startswith("never")
+                                                  and not thresholds.get("no_decoys")):
+                if not decoys:
+                    raise ValueError("ops_decode_threshold_mode 'auto' found no "
+                                     "decoys for this library; check "
+                                     "ops_decoy_library_k and the library")
+                rule_a["auto"] = {"floors": thresholds["floors"],
+                                  "pixel_qualities": thresholds["pixel_qualities"],
+                                  "spot_thresholds": thresholds["spot_thresholds"]}
+                if thresholds.get("fdr_calibration", "none").startswith("never"):
+                    from .ops_decode import _never_settings
 
-                control_settings = _never_settings(settings)
-                rule_a["auto"]["never"] = {
-                    "k": control_settings["ops_never_barcode_k"],
-                    "seed": control_settings["ops_never_barcode_seed"],
-                    "sets": control_settings["ops_never_barcode_sets"]}
-            if thresholds.get("fdr_calibration") in ("shuffle", "never+shuffle"):
-                from .ops_decode import SHUFFLE_SEEDS
+                    control_settings = _never_settings(settings)
+                    rule_a["auto"]["never"] = {
+                        "k": control_settings["ops_never_barcode_k"],
+                        "seed": control_settings["ops_never_barcode_seed"],
+                        "sets": control_settings["ops_never_barcode_sets"]}
+                if thresholds.get("fdr_calibration") in ("shuffle", "never+shuffle"):
+                    from .ops_decode import SHUFFLE_SEEDS
 
-                rule_a["auto"]["shuffle_seeds"] = list(range(SHUFFLE_SEEDS))
-        if thresholds.get("no_decoys"):
-            rule_a["threshold_choice"] = {"calibration": {
-                "method": "none", "requested_method": thresholds["fdr_calibration"],
-                "status": "no_decoys", "entered_scale": rule_a["fdr_scale"],
-                "scale": rule_a["fdr_scale"], "rounds": [], "converged": False}}
-        if read_mode != "log":
-            rule_a["read_mode"] = read_mode
-        elif bool(ops_setting(settings, "ops_store_values_raw")):
-            rule_a["store_values_raw"] = True
-        cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
-                                    well, "decode_cache")
-    else:
-        if rule_a["active"]:
-            _say(f"{well} decode: the item-873 decode rules need "
-                 "ops_cell_rule 'mapped' and a guide library; decoding with "
-                 f"the '{rule}' rule instead")
-        rule_a = None
-        cache_folder = None
+                    rule_a["auto"]["shuffle_seeds"] = list(range(SHUFFLE_SEEDS))
+            if thresholds.get("no_decoys"):
+                rule_a["threshold_choice"] = {"calibration": {
+                    "method": "none", "requested_method": thresholds["fdr_calibration"],
+                    "status": "no_decoys", "entered_scale": rule_a["fdr_scale"],
+                    "scale": rule_a["fdr_scale"], "rounds": [], "converged": False}}
+            if read_mode != "log":
+                rule_a["read_mode"] = read_mode
+            elif bool(ops_setting(settings, "ops_store_values_raw")):
+                rule_a["store_values_raw"] = True
+            cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
+                                        well, "decode_cache")
+        else:
+            if rule_a["active"]:
+                _say(f"{well} decode: the item-873 decode rules need "
+                     "ops_cell_rule 'mapped' and a guide library; decoding with "
+                     f"the '{rule}' rule instead")
+            rule_a = None
+            cache_folder = None
     sbs_options = _sbs_cell_options(settings)
-    if sbs_options is not None and sbs_options["method"] == "cellpose":
-        _say_weights(settings, "decode", ("sbs_cells",))
+    if cells_only and sbs_options is None:
+        raise ValueError("the sbs_cells phase needs ops_sbs_cell_method 'cellpose' or "
+                         "'watershed'")
     tasks = []
     origins = tile_origins(placements, origin_rule)
     for site in order:
@@ -5220,6 +5477,20 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             **({"sbs_cells": sbs_options, "sbs_dapi": dapi} if sbs_options else {}),
         })
 
+    stored = None
+    if sbs_options and not cells_only:
+        stored = _sbs_reusable_cells(settings, db, plate, _run_folder(db), well, tasks,
+                                     cells_stored)
+    if sbs_options and stored is None:
+        if sbs_options["method"] == "cellpose":
+            _say_weights(settings, "sbs_cells" if cells_only else "decode", ("sbs_cells",))
+    elif sbs_options:
+        _say(f"{well} decode: the SBS cells the sbs_cells phase stored are reused")
+        for task in tasks:
+            task["sbs_cells_stored"] = stored[int(task["site"])]
+    if cells_only:
+        for task in tasks:
+            task["cells_only"] = True
     library_set = frozenset(library)
     decoy_set = frozenset(decoys)
     workers = max(1, min(int(ops_setting(settings, "n_workers")),
@@ -5262,8 +5533,16 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                         _say(f"{well} decode: {count} of {len(tasks)} fields")
 
         decoded = [r for r in results if "skipped" not in r]
-        sbs_report = (_sbs_store_cells(db, plate, well, sbs_options, tasks, decoded)
-                      if sbs_options else None)
+        if stored is not None:
+            sbs_report = _sbs_reused_report(db, well, sbs_options, decoded)
+        else:
+            sbs_report = (_sbs_store_cells(db, plate, well, sbs_options, tasks, decoded,
+                                           "sbs_cells" if cells_only else "decode")
+                          if sbs_options else None)
+        if cells_only:
+            return {"sbs_cells": sbs_report, "fields": len(decoded),
+                    "skipped_sites": skipped_sites,
+                    "total_seconds": round(time.perf_counter() - started, 1)}
         if rule_a is not None and rule_a.get("auto"):
             rule_a = _apply_auto_thresholds(db, plate, well, rule_a, thresholds,
                                             decoded, decoys)
@@ -15361,7 +15640,7 @@ def run_ops(settings: Mapping[str, Any], *,
         from .ops_decode import run_compare_masks
 
         return {"compare_calls": run_compare_masks(settings, report=_say)}
-    sequencing = any(phase in _PHASES for phase in phases)
+    sequencing = any(phase in _PHASES + _SBS_CELL_PHASES for phase in phases)
     root = settings.get("genotype_source")
     if sequencing and (not isinstance(root, (str, os.PathLike))
                        or not os.path.isdir(str(root))):
@@ -15522,8 +15801,7 @@ def run_ops(settings: Mapping[str, Any], *,
                 report = earlier_report
             elif earlier_report.get("provenance"):
                 report["provenance"] = earlier_report["provenance"]
-        if sequencing:
-            _check_objects_weights(settings, db, plate, destination, well, phases)
+        _check_objects_weights(settings, db, plate, destination, well, phases)
         started = time.perf_counter()
         if sequencing:
             cycle_files = index[well]
@@ -15559,9 +15837,13 @@ def run_ops(settings: Mapping[str, Any], *,
         if "objects" in phases:
             report["objects"] = _objects(db, plate, well, cycle_files, reference,
                                          settings, gpu)
+        if "sbs_cells" in phases:
+            report["sbs_cells"] = _decode(db, plate, well, cycle_files, reference,
+                                          settings, gpu, barcodes, cells_only=True)["sbs_cells"]
         if "decode" in phases:
             report["decode"] = _decode(db, plate, well, cycle_files, reference,
-                                       settings, gpu, barcodes)
+                                       settings, gpu, barcodes,
+                                       cells_stored="sbs_cells" in phases)
             if "ops_sites" in report:
                 _name_sites_in_reports(report["decode"], report["ops_sites"])
         segment, measure = "ph_segment" in phases, "ph_measure" in phases
@@ -15776,9 +16058,15 @@ def _well_provenance(settings: Mapping[str, Any], phases: Sequence[str],
     if fields:
         models.update(fields["cellpose_models"])
         block["segment_flatfield_md5"] = fields["segment_flatfield_md5"]
-    ran = _run_provenance(settings, [p for p in phases if p != "ph_segment"])
-    if "decode" in phases and "sbs_cells" not in ran:
+    cells = report.get("sbs_cells") or (report.get("decode") or {}).get("sbs_cells")
+    made = [p for p in phases if p not in ("ph_segment", "decode", "sbs_cells")]
+    if cells and not cells.get("reused"):
+        made.append("sbs_cells")
+    ran = _run_provenance(settings, made)
+    if ("decode" in phases or "sbs_cells" in phases) and not cells:
         models.pop("sbs_cells", None)
+    if "sbs_cells" in ran:
+        ran["sbs_cells"]["made_by"] = cells.get("made_by", "decode")
     models.update(ran)
     block["cellpose_models"] = models
     block["software"] = _software_versions()

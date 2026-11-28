@@ -89,7 +89,7 @@ def test_missing_weights_are_said_not_invented(weights):
 def test_the_weights_are_hashed_once_for_every_role_and_field(weights):
     """Four roles and a model build share one read of the file."""
     settings = {"ops_sbs_cell_method": "cellpose"}
-    phases = ("objects", "decode", "ph_segment")
+    phases = ("objects", "sbs_cells", "ph_segment")
     for _ in range(3):
         found = ops_engine._run_provenance(settings, phases)
     utils.cpsam_weights("cpsam_v2")
@@ -102,7 +102,7 @@ def test_roles_follow_the_phases_and_the_sbs_cell_method(weights):
     """SBS cells are listed only for the cellpose method; phases pick the roles."""
     assert set(ops_engine._run_provenance({}, ("objects", "decode"))) == {"sbs_nuclei"}
     assert set(ops_engine._run_provenance(
-        {"ops_sbs_cell_method": "cellpose"}, ("decode",))) == {"sbs_cells"}
+        {"ops_sbs_cell_method": "cellpose"}, ("sbs_cells",))) == {"sbs_cells"}
     assert ops_engine._run_provenance({}, ("stitch",)) == {}
     separate = ops_engine._run_provenance(
         {"ops_ph_cell_model": str(weights["v1"])}, ("ph_segment",))
