@@ -375,10 +375,15 @@ def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, An
         phases = (("prefix_grid_search",) if grid else ("cpg_index", "cpg_merged") + (
             ("prefix_decode",) if mode == "spacer_prefix" else ()))
     other = [phase for phase in phases if phase not in _CPG_PHASES]
+    refused = [phase for phase in other if phase in ("stitch", "phenotype", "decode")]
+    if refused:
+        raise ValueError(f"ops_layout 'cpg_cropped' runs only {list(_CPG_PHASES)} and the "
+                         f"phases after the tile phases; the crops are already stitched and "
+                         f"registered, so {refused} do not apply")
     if other:
-        raise ValueError(f"ops_layout 'cpg_cropped' runs only {list(_CPG_PHASES)}; "
-                         f"the crops are already stitched and registered, so {other} "
-                         "do not apply")
+        from .cpg_full import run_cpg_full
+
+        return run_cpg_full(settings, phases, report=_say)
     if "prefix_decode" in phases and mode != "spacer_prefix":
         raise ValueError("prefix_decode needs ops_library_mode 'spacer_prefix'")
     out: Dict[str, Any] = {"layout": "cpg_cropped", "phases": list(phases)}
@@ -15300,8 +15305,11 @@ def run_ops(settings: Mapping[str, Any], *,
         with _pinned_blas(pin, _blas_threads(settings)) as pinned:
             result = run_ops_power_sim(settings, report=_say)
         return {"power_sim": result, "blas_threads": pinned}
-    if (str(settings.get("ops_layout") or "tiles") == "cpg_cropped"
-            or any(phase in _CPG_PHASES for phase in phases)):
+    from . import cpg_full
+
+    cropped = cpg_full.current()
+    if cropped is None and (str(settings.get("ops_layout") or "tiles") == "cpg_cropped"
+                            or any(phase in _CPG_PHASES for phase in phases)):
         return _run_cpg(settings, phases)
     if any(phase in _PROFILE_PHASES for phase in phases):
         if any(phase not in _PROFILE_PHASES for phase in phases):
@@ -15382,18 +15390,19 @@ def run_ops(settings: Mapping[str, Any], *,
     gpu = bool(settings.get("ops_gpu", True))
     if "decode" in phases:
         _spot_detector(settings)
-    barcodes = _load_library(library if library is not None
-                             else settings.get("ops_library") or None)
+    barcodes = [] if cropped else _load_library(
+        library if library is not None else settings.get("ops_library") or None)
 
     index: Dict[str, Any] = {}
     if sequencing:
         _ops_sites(settings)
-        index = _index_tiles(root, "cycled")
+        index = cropped.index if cropped else _index_tiles(root, "cycled")
         if not index:
             raise ValueError(
                 f"no tile under {root} is named like 10X_c1_A1_DAPI-CY3-A594-CY5-"
                 "CY7_Site-0.tif: magnification, cycle, well, channels, site")
-        _one_acquisition(index, "genotype_source", root)
+        if not cropped:
+            _one_acquisition(index, "genotype_source", root)
         chosen = [str(w).upper() for w in wells] if wells else sorted(index)
         missing = [well for well in chosen if well not in index]
         if missing:
@@ -15418,7 +15427,9 @@ def run_ops(settings: Mapping[str, Any], *,
     wants_tiles = any(p in phases for p in ("phenotype", "ph_segment",
                                             "ph_measure", "ph_flatfield",
                                             "ph_merged", "ph_crops"))
-    if wants_tiles and phenotype_root:
+    if cropped and wants_tiles:
+        phenotype_index = cropped.phenotype
+    elif wants_tiles and phenotype_root:
         if not os.path.isdir(str(phenotype_root)):
             raise ValueError(
                 f"phenotype_source must be the folder of phenotype tiles; "
@@ -15538,10 +15549,14 @@ def run_ops(settings: Mapping[str, Any], *,
             _missing_sites(settings, cycle_files, reference, well)
             if _ops_sites(settings) is not None:
                 report["ops_sites"] = sorted(_ops_sites(settings))
-        if "stitch" in phases:
+        if "stitch" in phases and cropped:
+            report["stitch"] = cropped.place_stitch(db, well)
+        elif "stitch" in phases:
             report["stitch"] = _stitch(db, plate, well, cycle_files,
                                        reference, settings, gpu)
-        if "phenotype" in phases:
+        if "phenotype" in phases and cropped:
+            report["phenotype"] = cropped.place_phenotype(db, well)
+        elif "phenotype" in phases:
             if not phenotype_root:
                 report["phenotype"] = {
                     "skipped": "no phenotype_source, so nothing to place"}
@@ -15586,6 +15601,9 @@ def run_ops(settings: Mapping[str, Any], *,
                 report["ph_fields"] = _ph_fields(
                     db, plate, well, phenotype_index[well], settings, gpu,
                     destination, segment=segment, measure=measure)
+        if "prefix_decode" in phases and cropped:
+            report["prefix_decode"] = cropped.prefix_decode(settings, well, destination,
+                                                            report=_say)
         if "ph_masks" in phases:
             report["ph_masks"] = _ph_masks(plate, well, settings, destination)
         if "ph_ownership" in phases or _ph_ownership_with_merge(
