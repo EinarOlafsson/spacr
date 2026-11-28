@@ -105,7 +105,9 @@ def test_ops_resolves_names_and_refuses_an_unknown_one(recorder):
     from spacr.model_zoo import ModelZooError
 
     _cellpose_model({"ops_sbs_nucleus_model": "cyto3"}, False)
-    assert recorder.built[-1] == {"gpu": False, "use_bfloat16": False}
+    built = dict(recorder.built[-1])
+    assert built.pop("pretrained_model").endswith("cpsam_v2")
+    assert built == {"gpu": False, "use_bfloat16": False}
     with pytest.raises(ModelZooError):
         _cellpose_model({"ops_sbs_nucleus_model": "no_such_model_anywhere"}, False)
 
@@ -181,7 +183,12 @@ def test_masks_equal_the_hand_built_model_on_a_test_field(monkeypatch):
         torch.manual_seed(0)
         return np.asarray(model.eval(image, diameter=20.0, batch_size=1)[0])
 
-    hand = segment(cp_models.CellposeModel(gpu=False, use_bfloat16=False))
-    shared = segment(_cellpose_model({}, False))
+    shared_model = _cellpose_model({}, False)
+    hand_kwargs = {"gpu": False, "use_bfloat16": False}
+    pinned = getattr(shared_model, "pretrained_model", None)
+    if pinned is not None and str(pinned).endswith("cpsam_v2"):
+        hand_kwargs["pretrained_model"] = str(pinned)
+    hand = segment(cp_models.CellposeModel(**hand_kwargs))
+    shared = segment(shared_model)
     assert hand.max() >= 1
     np.testing.assert_array_equal(shared, hand)

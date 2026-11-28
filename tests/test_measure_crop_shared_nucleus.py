@@ -71,7 +71,7 @@ def test_a_nucleus_in_two_cells_keeps_its_field_and_goes_to_the_larger_overlap(t
 
 
 def test_the_existing_merge_of_cells_sharing_a_nucleus_is_unchanged(tmp_path):
-    db = _measure(tmp_path, split=False)
+    db = _measure(tmp_path, split=False, spanning_merge='merge')
     cells = _table(db, 'cell')
     nuclei = _table(db, 'nucleus')
     assert len(cells) == 1

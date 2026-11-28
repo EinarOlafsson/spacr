@@ -11,6 +11,8 @@ from __future__ import annotations
 import types
 from pathlib import Path
 
+import os
+
 import numpy as np
 import pytest
 
@@ -29,14 +31,19 @@ def test_control_header_identity_is_rechecked_around_pixel_loading(tmp_path, mon
     original_read = PV._read_plane
     reads = []
 
+    def rewrite():
+        tifffile.imwrite(path, pixels + 1)
+        stamp = path.stat().st_mtime_ns + 1_000_000_000
+        os.utime(path, ns=(stamp, stamp))
+
     def mutate_during_read(*args, **kwargs):
         reads.append(args[0])
         value = original_read(*args, **kwargs)
-        tifffile.imwrite(path, pixels + 1)
+        rewrite()
         return value
 
     if moment == 'before-read':
-        tifffile.imwrite(path, pixels + 1)
+        rewrite()
     monkeypatch.setattr(PV, '_read_plane', mutate_during_read)
     with pytest.raises(ValueError):
         PV._partition_read_control([record], (0,), {str(path): header})
