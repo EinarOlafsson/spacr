@@ -84,3 +84,18 @@ def test_no_rows_gives_the_empty_well_table(tmp_path):
     out = str(tmp_path / "well.parquet")
     report = tabular.write_table_from_parts([path], out, leading={"plate": "P", "well": "A1"})
     assert report["rows"] == 0 and report["columns"] == ["plate", "well", "site", "label"]
+
+
+def test_fields_whose_integer_columns_are_float_in_others_join_as_pandas_does(tmp_path):
+    paths = []
+    for site in range(12):
+        n = 30 + site
+        values = np.arange(n, dtype="int64") if site % 3 else np.arange(n, dtype="float64") + 0.5
+        path = os.path.join(str(tmp_path), f"s{site}.parquet")
+        pd.DataFrame({"site": np.full(n, site), "count": values}).to_parquet(path, index=False)
+        paths.append(path)
+    out = str(tmp_path / "well.parquet")
+    report = tabular.write_table_from_parts(paths, out, leading={"plate": "P", "well": "A1"},
+                                            buffer_bytes=1)
+    assert report["groups"] == 12
+    pd.testing.assert_frame_equal(pd.read_parquet(out), _old(paths, "P", "A1"))

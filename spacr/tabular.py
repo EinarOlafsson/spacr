@@ -453,9 +453,39 @@ def write_table(frame: pd.DataFrame, path: Any, *,
     return target
 
 
+def _promoted_columns(schemas, pa) -> Optional[Dict[str, str]]:
+    """The columns whose type differs between parts, as ``pandas.concat`` joins them.
+
+    :param schemas: the Arrow schema of each part.
+    :param pa: the pyarrow module.
+    :returns: column to ``'float64'`` for each column that is integer in
+        some parts and floating point in others (the type pandas gives the
+        join); ``{}`` when every part has the same columns and types; None
+        when the parts differ in any other way, so the caller joins them as
+        pandas does.
+    """
+    if not schemas:
+        return {}
+    first = schemas[0]
+    casts: Dict[str, str] = {}
+    for other in schemas[1:]:
+        if other.names != first.names:
+            return None
+        for name in first.names:
+            a, b = first.field(name).type, other.field(name).type
+            if a == b:
+                continue
+            numeric = all(pa.types.is_integer(t) or pa.types.is_floating(t)
+                          for t in (a, b))
+            if not numeric or not (pa.types.is_floating(a) or pa.types.is_floating(b)):
+                return None
+            casts[name] = 'float64'
+    return casts
+
+
 def write_table_from_parts(parts: List[str], path: Any, *,
                            leading: Optional[Dict[str, Any]] = None,
-                           buffer_bytes: int = 268435456) -> Dict[str, Any]:
+                           buffer_bytes: int = 67108864) -> Dict[str, Any]:
     """Write one Parquet table that is the rows of ``parts`` in order, holding a bounded buffer.
 
     The result has the rows and the order of ``pandas.concat`` of the parts
@@ -496,8 +526,8 @@ def write_table_from_parts(parts: List[str], path: Any, *,
             frame.insert(0, name, value)
         return frame
 
-    uniform = all(schemas[0].equals(s, check_metadata=False) for s in schemas)
-    if not kept or not uniform:
+    casts = _promoted_columns(schemas, pa)
+    if not kept or casts is None:
         frame = joined([pd.read_parquet(p) for p in kept])
         write_table(frame, path, canonicalise=False)
         return {'rows': int(len(frame)), 'columns': list(frame.columns),
@@ -517,6 +547,8 @@ def write_table_from_parts(parts: List[str], path: Any, *,
                     total += sizes[stop]
                     stop += 1
                 frame = joined([pd.read_parquet(p) for p in kept[index:stop]])
+                if casts:
+                    frame = frame.astype(casts)
                 state['peak_parts'] = max(state['peak_parts'], stop - index)
                 if writer is None:
                     table = pa.Table.from_pandas(frame, preserve_index=False)
