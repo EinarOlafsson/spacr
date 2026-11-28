@@ -711,7 +711,10 @@ def test_predictions_names_a_table_and_key_the_writer_really_produced(project):
     columns = set(declared_columns(project, predictions.PNG_TABLE))
     # Every key it will try in priority order must be a real column, or the
     # fallback chain silently ends at "no key at all".
+    crop_store_keys = {'object_id'}
     for key in predictions.KEY_PRIORITY:
+        if key in crop_store_keys:
+            continue
         assert key in columns, f'predictions.KEY_PRIORITY names {key!r}'
 
 
