@@ -6822,6 +6822,31 @@ def _ph_options_marker(folder: str, options: Mapping[str, Any], *,
 _PH_FLAT_CACHE: Dict[Any, Any] = {}
 
 
+class _FlatInverse(Mapping):
+    """The float64 reciprocal of each flat plane, made when a channel is asked for.
+
+    Held for every channel the reciprocals take twice the bytes of the float32
+    planes and only the mask pass reads them, so a measuring worker keeps the
+    planes and makes a reciprocal for the moment it is used.
+    """
+
+    def __init__(self, planes: Mapping[str, np.ndarray]):
+        """Keep the planes the reciprocals are taken of."""
+        self._planes = planes
+
+    def __getitem__(self, channel):
+        """``1 / plane`` of one channel, as float64."""
+        return 1.0 / self._planes[channel].astype(np.float64)
+
+    def __iter__(self):
+        """The channels."""
+        return iter(self._planes)
+
+    def __len__(self):
+        """How many channels."""
+        return len(self._planes)
+
+
 def _ph_flat_planes(folder: str, channels: Sequence[str], shape):
     """The plate's flat planes at field resolution, loaded once per process.
 
@@ -6835,9 +6860,8 @@ def _ph_flat_planes(folder: str, channels: Sequence[str], shape):
     if key not in _PH_FLAT_CACHE:
         maps, offsets, info = load_flat_maps(folder, channels)
         planes = flat_planes(maps, shape, lookups=flat_lookups(info))
-        inverse = {c: 1.0 / planes[c].astype(np.float64) for c in planes}
         _PH_FLAT_CACHE.clear()
-        _PH_FLAT_CACHE[key] = (planes, offsets, inverse)
+        _PH_FLAT_CACHE[key] = (planes, offsets, _FlatInverse(planes))
     return _PH_FLAT_CACHE[key]
 
 
@@ -7393,6 +7417,7 @@ def _ph_measure_table(task: Mapping[str, Any]):
     cells = saved["cells"].astype(np.int32)
     objects = _ph_saved_objects(saved, task.get("objects") or (),
                                 task["mask_path"])
+    del saved
     if task.get("flat_folder"):
         from .ops_flatfield import correct_field
 

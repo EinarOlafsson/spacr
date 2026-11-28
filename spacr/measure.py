@@ -6182,6 +6182,12 @@ class _LabelPixels:
                 self.foreground[0], self.planes[channel])
         return self._sort_cache[channel]
 
+    def _sort_once(self, channel):
+        """The sort of one channel: the kept one, or one made and not kept."""
+        if channel in self._sort_cache:
+            return self._sort_cache[channel]
+        return _sorted_by_label(self.foreground[0], self.planes[channel])
+
     def _threshold(self, channel):
         """:func:`_robust_threshold` of one channel, per pixel."""
         if channel not in self._threshold_cache:
@@ -6237,11 +6243,17 @@ class _LabelPixels:
         return self
 
     def _prepare_channel(self, channel):
-        """Make the background, ranks (and so the sort) and centrings of one channel."""
+        """Make the background, ranks and centrings of one channel, then let the sort go.
+
+        The sort is the largest of a channel's arrays and nothing after the
+        ranks and background reads it but the Otsu family, which makes it again
+        for the one channel it is on (:meth:`_sort_once`).
+        """
         self._threshold(channel)
         self._ranks(channel)
         self._centring(channel)
         self._centring(channel, ranked=True)
+        self._sort_cache.pop(channel, None)
 
 
 def _label_pixels(labels, image):
@@ -6772,7 +6784,7 @@ def measure_colocalisation_otsu(labels, image):
     planes = pixels.planes
     above, ranks, sums, squares = [], [], [], []
     for c, values in enumerate(planes):
-        ordered = pixels._sort(c)
+        ordered = pixels._sort_once(c)
         above.append(values > _otsu_by_label(flat, values, ordered)[flat])
         ranks.append(pixels._ranks(c))
         sums.append(np.bincount(flat, values, size))
